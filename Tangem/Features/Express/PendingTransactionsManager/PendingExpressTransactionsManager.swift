@@ -20,246 +20,46 @@ protocol PendingExpressTransactionsManager: AnyObject {
 
 class CommonPendingExpressTransactionsManager {
     @Injected(\.expressPendingTransactionsRepository) private var expressPendingTransactionsRepository: ExpressPendingTransactionRepository
-    @Injected(\.pendingExpressTransactionAnalyticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let userWalletId: String
-    private let tokenItem: TokenItem
     private let walletModelUpdater: WalletModelUpdater?
-    private let cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
-    private let expressRefundedTokenHandler: ExpressRefundedTokenHandler
+    private let poller: any ExpressStatusPolling<ExchangeStatusPollIteration>
 
-    private let transactionsToUpdateStatusSubject = CurrentValueSubject<[ExpressPendingTransactionRecord], Never>([])
     private let transactionsInProgressSubject = CurrentValueSubject<[PendingExpressTransaction], Never>([])
-    private let pendingTransactionFactory = PendingExpressTransactionFactory()
-
-    private var bag = Set<AnyCancellable>()
-    private var updateTask: Task<Void, Never>?
-    private var transactionsScheduledForUpdate: [PendingExpressTransaction] = []
+    private var pollingSubscription: Cancellable?
 
     init(
-        userWalletId: String,
-        tokenItem: TokenItem,
         walletModelUpdater: WalletModelUpdater?,
-        cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory,
-        expressRefundedTokenHandler: ExpressRefundedTokenHandler
+        poller: any ExpressStatusPolling<ExchangeStatusPollIteration>
     ) {
-        self.userWalletId = userWalletId
-        self.tokenItem = tokenItem
         self.walletModelUpdater = walletModelUpdater
-        self.cachingExpressAPIProviderFactory = cachingExpressAPIProviderFactory
-        self.expressRefundedTokenHandler = expressRefundedTokenHandler
+        self.poller = poller
 
         bind()
     }
 
     deinit {
         ExpressLogger.debug(self, "deinit")
-        cancelTask()
+        pollingSubscription?.cancel()
     }
 
     private func bind() {
-        expressPendingTransactionsRepository
-            .transactionsPublisher
-            .withWeakCaptureOf(self)
-            .map { manager, txRecords in
-                manager.filterRelatedTokenTransactions(list: txRecords)
-            }
-            .assign(to: \.transactionsToUpdateStatusSubject.value, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        transactionsToUpdateStatusSubject
-            .removeDuplicates()
-            .map { transactions in
-                let factory = PendingExpressTransactionFactory()
-                let savedPendingTransactions = transactions.map(factory.buildPendingExpressTransaction(for:))
-                return savedPendingTransactions
-            }
-            .withWeakCaptureOf(self)
-            .sink { manager, transactions in
-                ExpressLogger.info("Receive new transactions to update: \(transactions.count). Number of already scheduled transactions: \(manager.transactionsScheduledForUpdate.count)")
-                // If transactions updated their statuses only no need to cancel currently scheduled task and force reload it
-                let shouldForceReload = manager.transactionsScheduledForUpdate.count != transactions.count
-                manager.transactionsScheduledForUpdate = transactions
-                manager.transactionsInProgressSubject.send(transactions)
-                manager.updateTransactionsStatuses(forceReload: shouldForceReload)
-            }
-            .store(in: &bag)
-    }
-
-    private func cancelTask() {
-        ExpressLogger.info("Attempt to cancel update task")
-        if updateTask != nil {
-            updateTask?.cancel()
-            updateTask = nil
-        }
-    }
-
-    private func updateTransactionsStatuses(forceReload: Bool) {
-        if !forceReload, updateTask != nil {
-            ExpressLogger.info("Receive update tx status request but not force reload. Update task is still in progress. Skipping update request. Scheduled to update: \(transactionsScheduledForUpdate.count). Force reload: \(forceReload)")
-            return
-        }
-
-        cancelTask()
-
-        if transactionsScheduledForUpdate.isEmpty {
-            ExpressLogger.info("No transactions scheduled for update. Skipping update request. Force reload: \(forceReload)")
-            return
-        }
-        let pendingTransactionsToRequest = transactionsScheduledForUpdate
-        transactionsScheduledForUpdate = []
-
-        ExpressLogger.info("Setup update pending express transactions statuses task. Number of records: \(pendingTransactionsToRequest.count)")
-        updateTask = Task { [weak self] in
-            do {
-                ExpressLogger.info("Start loading pending transactions status. Number of records to request: \(pendingTransactionsToRequest.count)")
-                var transactionsToSchedule = [PendingExpressTransaction]()
-                var transactionsInProgress = [PendingExpressTransaction]()
-                var transactionsToUpdateInRepository = [ExpressPendingTransactionRecord]()
-
-                for pendingTransaction in pendingTransactionsToRequest {
-                    let record = pendingTransaction.transactionRecord
-
-                    // We have not any sense to update the terminated status
-                    guard !record.transactionStatus.isTerminated(branch: .swap) else {
-                        transactionsInProgress.append(pendingTransaction)
-                        transactionsToSchedule.append(pendingTransaction)
-                        continue
-                    }
-
-                    guard let loadedPendingTransaction = await self?.loadPendingTransactionStatus(for: record) else {
-                        // If received error from backend and transaction was already displayed on TokenDetails screen
-                        // we need to send previously received transaction, otherwise it will hide on TokenDetails
-                        if let previousResult = self?.transactionsInProgressSubject.value.first(where: { $0.transactionRecord.expressTransactionId == record.expressTransactionId }) {
-                            transactionsInProgress.append(previousResult)
-                        }
-                        transactionsToSchedule.append(pendingTransaction)
-                        continue
-                    }
-
-                    // We need to send finished transaction one more time to properly update status on bottom sheet
-                    transactionsInProgress.append(loadedPendingTransaction)
-
-                    if record.transactionStatus != loadedPendingTransaction.transactionRecord.transactionStatus {
-                        transactionsToUpdateInRepository.append(loadedPendingTransaction.transactionRecord)
-                    }
-
-                    // If transaction is done we have to update balance
-                    if loadedPendingTransaction.transactionRecord.transactionStatus.isDone {
-                        self?.walletModelUpdater?.startUpdateTask(silent: true)
-                    }
-
-                    transactionsToSchedule.append(loadedPendingTransaction)
-                    try Task.checkCancellation()
-                }
-
-                try Task.checkCancellation()
-
-                self?.transactionsScheduledForUpdate = transactionsToSchedule
-                self?.transactionsInProgressSubject.send(transactionsInProgress)
-
-                if !transactionsToUpdateInRepository.isEmpty {
-                    ExpressLogger.info("Some transactions updated state. Recording changes to repository. Number of updated transactions: \(transactionsToUpdateInRepository.count)")
-                    // No need to continue execution, because after update new request will be performed
-                    self?.expressPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
-                }
-
-                try Task.checkCancellation()
-
-                try await Task.sleep(for: .seconds(Constants.statusUpdateTimeout))
-
-                try Task.checkCancellation()
-
-                ExpressLogger.info("Not all pending transactions finished. Requesting after status update after timeout for \(transactionsToSchedule.count) transaction(s)")
-                self?.updateTransactionsStatuses(forceReload: true)
-            } catch {
-                if error is CancellationError || Task.isCancelled {
-                    ExpressLogger.info("Pending express txs status check task was cancelled")
-                    return
-                }
-
-                ExpressLogger.error("Attempting to repeat exchange status updates. Number of requests: \(pendingTransactionsToRequest.count)", error: error)
-                self?.transactionsScheduledForUpdate = pendingTransactionsToRequest
-                self?.updateTransactionsStatuses(forceReload: false)
-            }
-        }
-    }
-
-    private func filterRelatedTokenTransactions(list: [ExpressPendingTransactionRecord]) -> [ExpressPendingTransactionRecord] {
-        list.filter { record in
-            guard !record.isHidden else {
-                return false
+        pollingSubscription = poller.subscribe { [weak self] iteration in
+            guard let self else {
+                return
             }
 
-            // We should show only `supportStatusTracking` transaction on UI
-            guard record.provider.type.supportStatusTracking else {
-                return false
+            transactionsInProgressSubject.send(iteration.displayed)
+
+            if !iteration.changed.isEmpty {
+                ExpressLogger.info("Some transactions updated state. Recording changes to repository. Number of updated transactions: \(iteration.changed.count)")
+                expressPendingTransactionsRepository.updateItems(iteration.changed)
             }
 
-            let isSourceWallet = userWalletId == record.sourceTokenTxInfo.userWalletId
-            let isDestinationWallet = userWalletId == record.destinationTokenTxInfo.userWalletId
-
-            let isSourceToken = tokenItem == record.sourceTokenTxInfo.tokenItem
-            let isDestinationToken = tokenItem == record.destinationTokenTxInfo.tokenItem
-
-            let isRelatedWallet = isSourceWallet || isDestinationWallet
-            let isRelatedToken = isSourceToken || isDestinationToken
-
-            return isRelatedWallet && isRelatedToken
+            // A transaction transitioning to a done state means we have to refresh the balance
+            for record in iteration.changed where record.transactionStatus.isDone {
+                walletModelUpdater?.startUpdateTask(silent: true)
+            }
         }
-    }
-
-    private func loadPendingTransactionStatus(for transactionRecord: ExpressPendingTransactionRecord) async -> PendingExpressTransaction? {
-        do {
-            ExpressLogger.info("Requesting exchange status for transaction with id: \(transactionRecord.expressTransactionId)")
-            let sourceUserWalletId = transactionRecord.expressUserWalletId ?? transactionRecord.sourceTokenTxInfo.userWalletId ?? userWalletId
-            let refcode = userWalletRepository.models
-                .first(where: { $0.userWalletId.stringValue == sourceUserWalletId })?
-                .refcodeProvider?.getRefcode()
-            let provider = cachingExpressAPIProviderFactory.provider(for: sourceUserWalletId, refcode: refcode)
-            let expressTransaction = try await provider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
-            let refundedTokenItem = await handleRefundedTokenIfNeeded(
-                blockchainNetwork: transactionRecord.sourceTokenTxInfo.tokenItem.blockchainNetwork,
-                providerType: transactionRecord.provider.type,
-                refundedCurrency: expressTransaction.refund?.currency
-            )
-
-            let pendingTransaction = pendingTransactionFactory.buildPendingExpressTransaction(
-                expressTransaction: expressTransaction,
-                refundedTokenItem: refundedTokenItem,
-                for: transactionRecord
-            )
-
-            ExpressLogger.info("Transaction status: \(expressTransaction.status.rawValue)")
-            ExpressLogger.info("Refunded token: \(String(describing: refundedTokenItem))")
-
-            await pendingExpressTransactionAnalyticsTracker.trackStatusForSwapTransaction(
-                transactionId: pendingTransaction.transactionRecord.expressTransactionId,
-                tokenSymbol: tokenItem.currencySymbol,
-                status: pendingTransaction.transactionRecord.transactionStatus,
-                provider: pendingTransaction.transactionRecord.provider
-            )
-            return pendingTransaction
-        } catch {
-            ExpressLogger.error("Failed to load status info for transaction with id: \(transactionRecord.expressTransactionId)", error: error)
-            return nil
-        }
-    }
-
-    private func handleRefundedTokenIfNeeded(
-        blockchainNetwork: BlockchainNetwork,
-        providerType: ExpressPendingTransactionRecord.ProviderType,
-        refundedCurrency: ExpressCurrency?,
-    ) async -> TokenItem? {
-        guard providerType == .dexBridge, let refundedCurrency else {
-            return nil
-        }
-
-        return try? await expressRefundedTokenHandler.handle(
-            blockchainNetwork: blockchainNetwork,
-            expressCurrency: refundedCurrency
-        )
     }
 }
 
@@ -285,11 +85,5 @@ extension CommonPendingExpressTransactionsManager: PendingExpressTransactionsMan
 extension CommonPendingExpressTransactionsManager: CustomStringConvertible {
     var description: String {
         objectDescription(self)
-    }
-}
-
-private extension CommonPendingExpressTransactionsManager {
-    enum Constants {
-        static let statusUpdateTimeout: TimeInterval = 10
     }
 }

@@ -18,6 +18,7 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
     @Published private(set) var address: Address
     @Published private(set) var error: String?
     @Published private(set) var isValidating: Bool = false
+    @Published private(set) var addressIconType: AddressIconProviderViewType?
 
     private var shouldIgnoreClearButton: Bool = false
 
@@ -34,6 +35,18 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
     init(textViewModel: SUITextViewModel, address: Address) {
         self.textViewModel = textViewModel
         self.address = address
+        addressIconType = AddressIconProvider.makeViewType(address: address.string)
+
+        bind()
+    }
+
+    private func bind() {
+        // `addressIconType` is seeded in `init`; react only to subsequent address changes.
+        addressPublisher()
+            .dropFirst()
+            .receiveOnMain()
+            .map { AddressIconProvider.makeViewType(address: $0.string) }
+            .assign(to: &$addressIconType)
     }
 
     func addressPublisher() -> AnyPublisher<Address, Never> {
