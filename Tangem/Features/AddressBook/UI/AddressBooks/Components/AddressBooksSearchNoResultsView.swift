@@ -19,7 +19,7 @@ struct AddressBooksSearchNoResultsView: View {
         VStack(spacing: 12) {
             icon
 
-            Text(Localization.commonNoResults)
+            Text(Localization.addressBookSearchNoResults)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
