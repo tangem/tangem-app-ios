@@ -51,6 +51,8 @@ final class EditAddressBookContactManagementInteractor {
 
 extension EditAddressBookContactManagementInteractor: AddressBookContactManagementInteractor {
     var title: String { Localization.addressBookContact }
+    var mainButtonTitle: String { Localization.addressBookSaveContact }
+    var saveErrorMessage: String? { nil }
 
     var contactNamePublisher: AnyPublisher<String, Never> {
         nameSubject.eraseToAnyPublisher()
@@ -79,10 +81,18 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         Just(true).eraseToAnyPublisher()
     }
 
+    var reservedContacts: [AddressBookContact] {
+        walletSubject.value.addressBookManager.contacts.filter { $0.id != contact.id }
+    }
+
+    var isNameTakenPublisher: AnyPublisher<Bool, Never> {
+        nameTakenPublisher
+    }
+
     var isMainButtonEnabledPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(nameSubject, addressesSubject)
-            .map { name, addresses in
-                !name.trimmed().isEmpty && !addresses.isEmpty
+        Publishers.CombineLatest3(nameSubject, addressesSubject, nameTakenPublisher)
+            .map { name, addresses, isNameTaken in
+                !name.trimmed().isEmpty && !addresses.isEmpty && !isNameTaken
             }
             .eraseToAnyPublisher()
     }
@@ -169,6 +179,20 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
 // MARK: - Wallet change (move between books)
 
 private extension EditAddressBookContactManagementInteractor {
+    var nameTakenPublisher: AnyPublisher<Bool, Never> {
+        walletSubject
+            .map { $0.addressBookManager.contactsPublisher }
+            .switchToLatest()
+            .combineLatest(nameSubject)
+            .map { [contactId = contact.id] contacts, name in
+                let trimmed = name.trimmed()
+                guard !trimmed.isEmpty else { return false }
+                return contacts.contains { $0.id != contactId && $0.name.value.caseInsensitiveCompare(trimmed) == .orderedSame }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     /// Each book is signed with its owning wallet's key, so the move re-signs the contact's entries under the
     /// target wallet — keeping its `id` — then drops it from the source book. Re-sign first so a cancelled
     /// signing ceremony leaves the original untouched: the contact is never absent from both books, and the

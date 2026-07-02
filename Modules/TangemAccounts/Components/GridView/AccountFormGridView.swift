@@ -16,6 +16,8 @@ public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>
 
     private let items: [Item]
     private let backgroundColor: Color
+    private let horizontalPadding: CGFloat
+    private let cornerRadius: CGFloat
     private let content: (Item, Bool) -> Content
 
     private let columns = Array(
@@ -27,11 +29,15 @@ public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>
         selectedItem: Binding<Item>,
         items: [Item],
         backgroundColor: Color = AccountFormGridViewConstants.backgroundColor,
+        horizontalPadding: CGFloat = 20,
+        cornerRadius: CGFloat = 14,
         content: @escaping (Item, Bool) -> Content
     ) {
         _selectedItem = selectedItem
         self.items = items
         self.backgroundColor = backgroundColor
+        self.horizontalPadding = horizontalPadding
+        self.cornerRadius = cornerRadius
         self.content = content
     }
 
@@ -49,8 +55,8 @@ public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>
         .roundedBackground(
             with: backgroundColor,
             verticalPadding: 16,
-            horizontalPadding: 20,
-            radius: 14
+            horizontalPadding: horizontalPadding,
+            radius: cornerRadius
         )
     }
 }
