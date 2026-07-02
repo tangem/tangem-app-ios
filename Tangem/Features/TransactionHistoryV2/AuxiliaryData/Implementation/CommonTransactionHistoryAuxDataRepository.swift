@@ -243,7 +243,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
             }
 
             mirrorToSyncCache()
-            persistCurrencies()
+            persistFiatCurrencies()
             subscribers.yield()
         } catch {
             TransactionHistoryLogger.error(self, "Failed to load onramp currencies", error: error)
@@ -327,7 +327,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
                 .toSet()
 
             let contractAddressesToLoad = currencies
-                .compactMap { $0.contractAddress == ExpressConstants.coinContractAddress ? nil : $0.contractAddress }
+                .compactMap { $0.contractAddress == Constants.coinContractAddress ? nil : $0.contractAddress }
                 .nilIfEmpty
 
             let request = CoinsList.Request(
@@ -382,7 +382,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
         storage.onrampProviders = Array(cache.onrampProviders.values)
     }
 
-    func persistCurrencies() {
+    func persistFiatCurrencies() {
         storage.fiatCurrencies = Array(cache.fiatCurrencies.values)
     }
 
@@ -396,7 +396,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
     }
 }
 
-// MARK: - Helpers
+// MARK: - Auxiliary types
 
 private extension CommonTransactionHistoryAuxDataRepository {
     /// - Note: Swap and onramp providers are stored separately since they can share the same id.
@@ -415,7 +415,20 @@ private extension CommonTransactionHistoryAuxDataRepository {
             }
         }
     }
+}
 
+// MARK: - Constants
+
+private extension CommonTransactionHistoryAuxDataRepository {
+    enum Constants {
+        static let debounce: Duration = .milliseconds(300)
+        static var coinContractAddress: String { ExpressConstants.coinContractAddress }
+    }
+}
+
+// MARK: - Factory methods
+
+private extension CommonTransactionHistoryAuxDataRepository {
     static func makeCache(from storage: UserDefaultsTransactionHistoryAuxDataStorage) -> Cache {
         var cache = Cache()
 
@@ -436,17 +449,13 @@ private extension CommonTransactionHistoryAuxDataRepository {
         return cache
     }
 
-    enum Constants {
-        static let debounce: Duration = .milliseconds(300)
-    }
-
     static func makeCryptoCurrencyCacheKey(networkId: String, contractAddress: String?) -> String {
-        return "\(networkId)_\(contractAddress ?? ExpressConstants.coinContractAddress))"
+        return "\(networkId)_\(contractAddress ?? Constants.coinContractAddress))"
     }
 
     static func makeCryptoCurrencyCacheKey(for currency: ExpressCurrency) -> String {
         // A native coin's contract address is a sentinel, normalized to `nil` to match `TokenItem`.
-        let contractAddress = currency.contractAddress == ExpressConstants.coinContractAddress ? nil : currency.contractAddress
+        let contractAddress = currency.contractAddress == Constants.coinContractAddress ? nil : currency.contractAddress
 
         return makeCryptoCurrencyCacheKey(networkId: currency.network, contractAddress: contractAddress)
     }
