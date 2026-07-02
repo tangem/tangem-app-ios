@@ -18,12 +18,9 @@ final class CreateAddressBookContactManagementInteractor {
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
     private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
     private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
-    private let addressBooksProvider: any AddressBooksProvider
     private let initialSnapshot: AddressBookContactSnapshot
 
-    init(addressBookWallet: AddressBookWallet, addressBooksProvider: any AddressBooksProvider = .common()) {
-        self.addressBooksProvider = addressBooksProvider
-
+    init(addressBookWallet: AddressBookWallet) {
         nameSubject = .init("")
         colorSubject = .init(CompositeIconColor.randomElement())
         addressesSubject = .init([])
