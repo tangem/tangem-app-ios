@@ -209,7 +209,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Verify token '\(tokenName)' exists on main screen") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
-            waitAndAssertTrue(token, "Token '\(tokenName)' should exist in the list")
+            XCTAssertTrue(scrollTokensListToVisible(token), "Token '\(tokenName)' should be visible after scrolling")
             return self
         }
     }
@@ -218,6 +218,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func verifyCustomTokenIndicatorExists(for tokenName: String) -> Self {
         XCTContext.runActivity(named: "Verify custom token indicator exists for '\(tokenName)'") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let token = tokenElement(named: tokenName)
+            XCTAssertTrue(scrollTokensListToVisible(token), "Token '\(tokenName)' should be visible after scrolling")
             let indicator = tokensList.descendants(matching: .any)
                 .matching(identifier: MainAccessibilityIdentifiers.tokenCustomIndicator(for: tokenName))
                 .firstMatch
@@ -229,13 +231,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func verifyTokenNotVisible(_ tokenName: String) -> Self {
         XCTContext.runActivity(named: "Verify token '\(tokenName)' is not visible on main screen") { _ in
-            let token = app.staticTexts
-                .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
-                .matching(NSPredicate(format: "label == %@", tokenName))
-                .firstMatch
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let token = tokenElement(named: tokenName)
             XCTAssertFalse(
-                token.waitForExistence(timeout: .conditional),
-                "Token '\(tokenName)' should not be visible"
+                scrollTokensListToVisible(token),
+                "Token '\(tokenName)' should not be present in the tokens list"
             )
             return self
         }
@@ -244,11 +244,12 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func verifyTokenVisible(_ tokenName: String) -> Self {
         XCTContext.runActivity(named: "Verify token '\(tokenName)' is visible on main screen") { _ in
-            let token = app.staticTexts
-                .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
-                .matching(NSPredicate(format: "label == %@", tokenName))
-                .firstMatch
-            waitAndAssertTrue(token, "Token '\(tokenName)' should be visible")
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let token = tokenElement(named: tokenName)
+            XCTAssertTrue(
+                scrollTokensListToVisible(token),
+                "Token '\(tokenName)' should be visible after scrolling the tokens list"
+            )
             return self
         }
     }
@@ -839,7 +840,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     private func tokenElement(named label: String) -> XCUIElement {
-        tokensList.staticTexts
+        visibleTokensList().staticTexts
             .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
             .matching(NSPredicate(format: "label == %@", label))
             .firstMatch
@@ -896,7 +897,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         // firstMatch can be an off-screen paged list with an infinite frame; scroll the on-screen one, fall back to the app.
         let list = visibleTokensList()
         let anchor: XCUIElement = hasVisibleFrame(list) ? list : app
-        let start = anchor.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+        let start = anchor.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15))
         let end = start.withOffset(CGVector(dx: 0, dy: dy))
         start.press(forDuration: 0.1, thenDragTo: end)
     }
