@@ -25,10 +25,8 @@ struct TangemPayAddCardView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     TangemPayAddCardView()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

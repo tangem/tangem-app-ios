@@ -41,7 +41,6 @@ struct TangemPayActionButtonsView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     TangemPayActionButtonsView(
         actionButtonsDisabled: false,
@@ -52,4 +51,3 @@ struct TangemPayActionButtonsView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG
