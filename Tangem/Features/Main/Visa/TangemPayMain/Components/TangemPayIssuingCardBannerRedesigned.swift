@@ -50,11 +50,9 @@ struct TangemPayIssuingCardBannerRedesigned: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     TangemPayIssuingCardBannerRedesigned()
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

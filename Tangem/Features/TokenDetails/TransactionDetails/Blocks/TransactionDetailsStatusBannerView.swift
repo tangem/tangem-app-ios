@@ -116,31 +116,43 @@ struct TransactionDetailsStatusBannerView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-private struct StatusBannerDemoView: View {
-    @State private var status: TransactionDetailsStatusBannerViewData?
+@available(iOS 17.0, *)
+#Preview("Status banner") {
+    @Previewable @State var status: TransactionDetailsStatusBannerViewData?
 
-    var body: some View {
-        VStack(spacing: 16) {
-            RoundedRectangle(cornerRadius: 24)
-                .fill(DesignSystem.Color.bgTertiary)
-                .frame(height: 120)
-                .overlay { Text("Token / pair card").style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textTertiary) }
-
-            if let status {
-                TransactionDetailsStatusBannerView(data: status)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-            }
-
-            controls
-                .padding(.top, 16)
-        }
-        .padding(16)
-        .frame(maxHeight: .infinity, alignment: .top)
-        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+    func set(_ value: TransactionDetailsStatusBannerViewData?) {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { status = value }
     }
 
-    private var controls: some View {
+    func showSuccess() {
+        set(.init(kind: .success, title: "Funds received"))
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            set(nil)
+        }
+    }
+
+    func playFlow() {
+        Task { @MainActor in
+            set(.init(kind: .inProgress, title: "Awaiting funds"))
+            try? await Task.sleep(for: .seconds(1.5))
+            set(.init(kind: .inProgress, title: "Deposit confirmed"))
+            try? await Task.sleep(for: .seconds(1.5))
+            showSuccess()
+        }
+    }
+
+    return VStack(spacing: 16) {
+        RoundedRectangle(cornerRadius: 24)
+            .fill(DesignSystem.Color.bgTertiary)
+            .frame(height: 120)
+            .overlay { Text("Token / pair card").style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textTertiary) }
+
+        if let status {
+            TransactionDetailsStatusBannerView(data: status)
+                .transition(.move(edge: .top).combined(with: .opacity))
+        }
+
         VStack(spacing: 8) {
             Button("▶︎ Play swap flow", action: playFlow)
             Button("In progress") { set(.init(kind: .inProgress, title: "Awaiting funds")) }
@@ -150,33 +162,11 @@ private struct StatusBannerDemoView: View {
             Button("Hide") { set(nil) }
         }
         .buttonStyle(.bordered)
+        .padding(.top, 16)
     }
-
-    private func set(_ value: TransactionDetailsStatusBannerViewData?) {
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { status = value }
-    }
-
-    private func showSuccess() {
-        set(.init(kind: .success, title: "Funds received"))
-        Task { @MainActor in
-            try? await Task.sleep(for: .seconds(2))
-            set(nil)
-        }
-    }
-
-    private func playFlow() {
-        Task { @MainActor in
-            set(.init(kind: .inProgress, title: "Awaiting funds"))
-            try? await Task.sleep(for: .seconds(1.5))
-            set(.init(kind: .inProgress, title: "Deposit confirmed"))
-            try? await Task.sleep(for: .seconds(1.5))
-            showSuccess()
-        }
-    }
-}
-
-#Preview("Status banner") {
-    StatusBannerDemoView()
+    .padding(16)
+    .frame(maxHeight: .infinity, alignment: .top)
+    .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
 }
 
 #Preview("Status states") {
@@ -189,4 +179,3 @@ private struct StatusBannerDemoView: View {
     .padding(16)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG
