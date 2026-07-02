@@ -321,7 +321,7 @@ private extension CommonUserWalletModelDependencies {
         let repository = CommonAddressBookRepository(
             walletId: userWalletId,
             walletPublicKeySeed: walletPublicKeySeed,
-            networkService: CommonAddressBookNetworkService(),
+            networkService: InjectedValues[\.addressBookNetworkService],
             eTagStorage: InjectedValues[\.eTagStorage],
             persistentStorage: CommonAddressBookPersistentStorage(),
             encryptionService: CommonAddressBookEncryptionService(),
