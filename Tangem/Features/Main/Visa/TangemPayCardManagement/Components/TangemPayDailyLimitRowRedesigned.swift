@@ -86,7 +86,6 @@ struct TangemPayDailyLimitRowRedesigned: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 12) {
         TangemPayDailyLimitRowRedesigned(state: .loading, isFrozen: false, changeAction: {})
@@ -106,4 +105,3 @@ struct TangemPayDailyLimitRowRedesigned: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG
