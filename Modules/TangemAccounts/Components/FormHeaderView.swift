@@ -1,5 +1,5 @@
 //
-//  AccountFormHeaderView.swift
+//  FormHeaderView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemAssets
 import TangemUIUtils
 import TangemLocalization
 
-public struct AccountFormHeaderView: View {
+public struct FormHeaderView: View {
     @Binding var accountName: String
     @State private var originalTextFieldHeight: CGFloat = 0
     @FocusState.Binding private var isFocused: Bool
@@ -22,6 +22,9 @@ public struct AccountFormHeaderView: View {
     private let placeholderText: String
     private let backgroundColor: Color
     private let accountIconViewData: AccountIconView.ViewData
+    private let errorMessage: String?
+
+    private var style: Style = .accounts
 
     public init(
         accountName: Binding<String>,
@@ -30,6 +33,7 @@ public struct AccountFormHeaderView: View {
         placeholderText: String,
         backgroundColor: Color = Colors.Background.action,
         accountIconViewData: AccountIconView.ViewData,
+        errorMessage: String? = nil,
         isFocused: FocusState<Bool>.Binding
     ) {
         _accountName = accountName
@@ -39,19 +43,28 @@ public struct AccountFormHeaderView: View {
         self.placeholderText = placeholderText
         self.backgroundColor = backgroundColor
         self.accountIconViewData = accountIconViewData
+        self.errorMessage = errorMessage
     }
 
     public var body: some View {
         VStack(alignment: .center, spacing: 0) {
             colorWithPreview
-                .padding(.bottom, 34)
+                .padding(.bottom, style.avatarBottomPadding)
 
             Text(title)
-                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.caption1, color: style.titleColor)
+                .padding(.bottom, style.titleBottomPadding)
 
             nameInput
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentRed)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 4)
+            }
         }
-        .roundedBackground(with: backgroundColor, verticalPadding: 20, horizontalPadding: 16)
+        .roundedBackground(with: backgroundColor, verticalPadding: style.contentVerticalPadding, horizontalPadding: 16, radius: style.cornerRadius)
     }
 
     private var colorWithPreview: some View {
@@ -59,6 +72,7 @@ public struct AccountFormHeaderView: View {
             Spacer()
             AccountIconView(data: accountIconViewData)
                 .settings(.largeSized)
+                .if(style.isAvatarCircular) { $0.clipShape(Circle()) }
             Spacer()
         }
     }
@@ -82,9 +96,36 @@ public struct AccountFormHeaderView: View {
             // Mikhail Andreev - Needed to be constrained from here coz for some reason it
             // is not possible to do it from ViewModel
             .onChange(of: accountName) { newValue in
-                accountName = String(newValue.prefix(maxCharacters))
+                if style.enforcesMaxLength {
+                    accountName = String(newValue.prefix(maxCharacters))
+                }
             }
             .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountFormNameInput)
+    }
+}
+
+// MARK: - Style
+
+public extension FormHeaderView {
+    struct Style {
+        let cornerRadius: CGFloat
+        let contentVerticalPadding: CGFloat
+        let avatarBottomPadding: CGFloat
+        let titleColor: Color
+        let titleBottomPadding: CGFloat
+        let isAvatarCircular: Bool
+        let enforcesMaxLength: Bool
+
+        public static let accounts = Style(cornerRadius: 14, contentVerticalPadding: 20, avatarBottomPadding: 34, titleColor: Colors.Text.tertiary, titleBottomPadding: 0, isAvatarCircular: false, enforcesMaxLength: true)
+        public static let addressBook = Style(cornerRadius: 24, contentVerticalPadding: 36, avatarBottomPadding: 28, titleColor: Colors.Text.secondary, titleBottomPadding: 4, isAvatarCircular: true, enforcesMaxLength: false)
+    }
+}
+
+// MARK: - Setupable
+
+extension FormHeaderView: Setupable {
+    public func style(_ style: Style) -> Self {
+        map { $0.style = style }
     }
 }
 
@@ -96,7 +137,7 @@ public struct AccountFormHeaderView: View {
     ZStack {
         Color.gray
         VStack {
-            AccountFormHeaderView(
+            FormHeaderView(
                 accountName: $accountName,
                 title: Localization.accountFormName,
                 maxCharacters: 20,
@@ -108,7 +149,7 @@ public struct AccountFormHeaderView: View {
                 isFocused: $isFocused
             )
 
-            AccountFormHeaderView(
+            FormHeaderView(
                 accountName: $accountName,
                 title: Localization.accountFormName,
                 maxCharacters: 20,
