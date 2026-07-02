@@ -69,7 +69,8 @@ actor PriceAlertsSubscriptionsStateStore {
     }
 
     /// On failure, reverses only this token's optimistic delta (concurrent writes on other tokens are kept)
-    /// and returns the rolled-back snapshot to publish.
+    /// and returns the rolled-back snapshot to publish. The rollback is a guess — the request may have
+    /// reached the server (cancellation after success, timeout), so a reconciliation fetch is requested.
     func finishWrite(tokenId: PriceAlertTokenId, isSubscribe: Bool, isSuccess: Bool) -> RemotePriceAlertsSubscriptions? {
         inFlightTokenIds.remove(tokenId)
 
@@ -77,6 +78,8 @@ actor PriceAlertsSubscriptionsStateStore {
             lastConfirmed.setSubscribed(isSubscribe, tokenId: tokenId)
             return nil
         }
+
+        pendingFetchReconciliation = true
 
         var rolledBack = subscriptions
         rolledBack.setSubscribed(!isSubscribe, tokenId: tokenId)
