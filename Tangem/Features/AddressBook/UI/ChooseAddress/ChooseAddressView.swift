@@ -63,7 +63,6 @@ struct ChooseAddressView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ChooseAddressView(
         viewModel: ChooseAddressViewModel(
@@ -94,4 +93,3 @@ struct ChooseAddressView: View {
     .frame(maxHeight: .infinity, alignment: .bottom)
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
 }
-#endif // DEBUG
