@@ -17,7 +17,6 @@ struct StatusBannerDemoView: View {
             RoundedRectangle(cornerRadius: 24)
                 .fill(DesignSystem.Color.bgTertiary)
                 .frame(height: 120)
-                // Stand-in for the tokens card above the banner — preview-only placeholder, not localized.
                 .overlay { Text(verbatim: "Token / pair card").style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textTertiary) }
 
             if let status {
