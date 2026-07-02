@@ -18,16 +18,26 @@ struct AddressBooksView: View {
     var body: some View {
         rootContent
             .navigationTitle(Text(Localization.addressBookTitle))
+            .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $viewModel.searchText, prompt: Text(Localization.commonSearch))
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
             .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
-            .toolbar { trailingToolbarItem }
+            .toolbar {
+                if let trailingToolbarButton = viewModel.trailingToolbarButton {
+                    trailingToolbarItem(trailingToolbarButton: trailingToolbarButton)
+                }
+            }
     }
 
     @ToolbarContentBuilder
-    private var trailingToolbarItem: some ToolbarContent {
-        if viewModel.showsToolbarAddButton {
+    private func trailingToolbarItem(trailingToolbarButton: AddressBooksViewModel.TrailingToolbarButton) -> some ToolbarContent {
+        switch trailingToolbarButton {
+        case .close:
+            NavigationToolbarButton
+                .close(placement: .topBarTrailing, action: viewModel.dismiss)
+
+        case .addContact:
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: viewModel.openAddContact) {
                     DesignSystem.Icons.SignPlus.regular20.image
