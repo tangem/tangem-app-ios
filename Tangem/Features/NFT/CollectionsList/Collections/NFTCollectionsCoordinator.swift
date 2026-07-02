@@ -12,6 +12,7 @@ import TangemNFT
 
 final class NFTCollectionsCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     // MARK: - Navigation actions
 
@@ -141,6 +142,13 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
             let options,
             let input = options.navigationContext as? NFTNavigationInput
         else {
+            return
+        }
+
+        // Receiving an NFT credits the wallet, so it must be blocked on a card-linked wallet,
+        // mirroring the regular token receive/onramp gating.
+        if let backupAlert = UserWalletBackupStatusHelper().alert(for: input.userWalletModel.userWalletInfo) {
+            alertPresenter.present(alert: backupAlert)
             return
         }
 
