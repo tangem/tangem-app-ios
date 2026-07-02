@@ -462,27 +462,27 @@ private extension CommonTransactionHistoryAuxDataRepository {
         supportedBlockchains: Set<Blockchain>,
         requestedKeys: Set<String>
     ) -> [String: TokenItem] {
-        let coinModels = CoinsResponseMapper(supportedBlockchains: supportedBlockchains).mapToCoinModels(response)
-        var result: [String: TokenItem] = [:]
+        let mapper = CoinsResponseMapper(supportedBlockchains: supportedBlockchains)
 
-        for coinModel in coinModels {
-            for item in coinModel.items {
+        return mapper
+            .mapToCoinModels(response)
+            .flatMap(\.items)
+            .reduce(into: [:]) { result, item in
                 let key = makeCryptoCurrencyCacheKey(
                     networkId: item.tokenItem.networkId,
                     contractAddress: item.tokenItem.contractAddress
                 )
 
-                if requestedKeys.contains(key) {
-                    result[key] = item.tokenItem
+                guard requestedKeys.contains(key) else {
+                    return
                 }
-            }
-        }
 
-        return result
+                result[key] = item.tokenItem
+            }
     }
 }
 
-// MARK: - CustomStringConvertible
+// MARK: - TransactionHistoryAuxDataRepository protocol conformance
 
 extension CommonTransactionHistoryAuxDataRepository: CustomStringConvertible {
     nonisolated var description: String {
