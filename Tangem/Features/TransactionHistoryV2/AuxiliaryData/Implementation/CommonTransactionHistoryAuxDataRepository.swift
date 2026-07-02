@@ -450,14 +450,11 @@ private extension CommonTransactionHistoryAuxDataRepository {
     }
 
     static func makeCryptoCurrencyCacheKey(networkId: String, contractAddress: String?) -> String {
-        return "\(networkId)_\(contractAddress ?? Constants.coinContractAddress))"
+        return "\(networkId)_\(contractAddress ?? Constants.coinContractAddress)"
     }
 
     static func makeCryptoCurrencyCacheKey(for currency: ExpressCurrency) -> String {
-        // A native coin's contract address is a sentinel, normalized to `nil` to match `TokenItem`.
-        let contractAddress = currency.contractAddress == Constants.coinContractAddress ? nil : currency.contractAddress
-
-        return makeCryptoCurrencyCacheKey(networkId: currency.network, contractAddress: contractAddress)
+        return makeCryptoCurrencyCacheKey(networkId: currency.network, contractAddress: currency.contractAddress)
     }
 
     static func makeTokenItems(
