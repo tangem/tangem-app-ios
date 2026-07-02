@@ -79,6 +79,10 @@ class UserWalletModelMock: UserWalletModel {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
 
+    var priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider {
+        PriceAlertsSubscriptionsProviderStub()
+    }
+
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
