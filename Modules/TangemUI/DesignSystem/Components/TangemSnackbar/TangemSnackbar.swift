@@ -26,18 +26,27 @@ public struct TangemSnackbar: View, Setupable {
     }
 
     public var body: some View {
-        ViewThatFits(in: .horizontal) {
-            rightLayout
-            bottomLayout
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular, in: shape)
+        } else {
+            content
+                .tangemMaterialSurface(in: shape)
         }
-        .background(Color.Tangem.Controls.backgroundDefault, in: shape)
     }
 }
 
 // MARK: - Layouts
 
 private extension TangemSnackbar {
-    var shape: some Shape {
+    var content: some View {
+        ViewThatFits(in: .horizontal) {
+            rightLayout
+            bottomLayout
+        }
+    }
+
+    var shape: some InsettableShape {
         RoundedRectangle(cornerRadius: .unit(.x5), style: .continuous)
     }
 
