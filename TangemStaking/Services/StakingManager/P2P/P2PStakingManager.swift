@@ -14,6 +14,7 @@ final class P2PStakingManager {
     private let integrationId: String
     private let wallet: StakingWallet
     private let apiProvider: P2PAPIProvider
+    private let batchBalancesService: P2PBatchBalancesService
     private let yieldInfoProvider: StakingYieldInfoProvider
     private let analyticsLogger: StakingAnalyticsLogger
     private let stateRepository: StakingManagerStateRepository
@@ -25,6 +26,7 @@ final class P2PStakingManager {
         integrationId: String,
         wallet: StakingWallet,
         apiProvider: P2PAPIProvider,
+        batchBalancesService: P2PBatchBalancesService,
         yieldInfoProvider: StakingYieldInfoProvider,
         stateRepository: StakingManagerStateRepository,
         analyticsLogger: StakingAnalyticsLogger
@@ -32,6 +34,7 @@ final class P2PStakingManager {
         self.integrationId = integrationId
         self.wallet = wallet
         self.apiProvider = apiProvider
+        self.batchBalancesService = batchBalancesService
         self.yieldInfoProvider = yieldInfoProvider
         self.stateRepository = stateRepository
         self.analyticsLogger = analyticsLogger
@@ -43,7 +46,7 @@ final class P2PStakingManager {
 // MARK: - StakingManager
 
 extension P2PStakingManager: StakingManager {
-    func updateState(loadActions: Bool) async {
+    func updateState(loadActions: Bool, source: StakingUpdateSource) async {
         updateState(.loading(cached: stateRepository.state()))
 
         do {
@@ -56,16 +59,22 @@ extension P2PStakingManager: StakingManager {
             }
 
             let balances: [StakingBalanceInfo]
-            do {
-                balances = try await apiProvider.balances(
-                    walletAddress: wallet.address,
-                    vaults: yield.targets.map(\.address)
-                )
-            } catch is CancellationError {
-                return
-            } catch {
-                updateUnavailableState(error: error, yieldIsAvailable: yield.isAvailable)
-                return
+            switch source {
+            case .batch:
+                let allBalances = try await batchBalancesService.balances()
+                balances = allBalances[wallet.address.lowercased()] ?? []
+            case .single:
+                do {
+                    balances = try await apiProvider.balances(
+                        walletAddress: wallet.address,
+                        vaults: yield.targets.map(\.address)
+                    )
+                } catch is CancellationError {
+                    return
+                } catch {
+                    updateUnavailableState(error: error, yieldIsAvailable: yield.isAvailable)
+                    return
+                }
             }
 
             let state = state(balances: balances, yield: yield)
