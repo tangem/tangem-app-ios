@@ -42,6 +42,7 @@ protocol UserWalletModel:
     var accountModelsManager: AccountModelsManager { get }
     var addressBookManager: AddressBookManager { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
+    var priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider { get }
     var name: String { get }
 
     func update(type: UpdateRequest)
