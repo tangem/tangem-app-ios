@@ -41,7 +41,6 @@ private extension LockedWalletMainContentRedesignedView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Multi-wallet") {
     LockedWalletMainContentRedesignedView(
         viewModel: LockedWalletMainContentViewModel(
@@ -67,4 +66,3 @@ private extension LockedWalletMainContentRedesignedView {
     .infinityFrame()
     .background(Color.Tangem.Surface.level2.edgesIgnoringSafeArea(.all))
 }
-#endif // DEBUG

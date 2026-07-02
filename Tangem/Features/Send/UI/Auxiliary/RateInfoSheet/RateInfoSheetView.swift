@@ -60,13 +60,9 @@ struct RateInfoSheetView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-struct RateInfoSheetView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            RateInfoSheetView(viewModel: .init(rateType: .fixed, onDismiss: {}))
-            RateInfoSheetView(viewModel: .init(rateType: .floating, onDismiss: {}))
-        }
+#Preview {
+    Group {
+        RateInfoSheetView(viewModel: .init(rateType: .fixed, onDismiss: {}))
+        RateInfoSheetView(viewModel: .init(rateType: .floating, onDismiss: {}))
     }
 }
-#endif // DEBUG
