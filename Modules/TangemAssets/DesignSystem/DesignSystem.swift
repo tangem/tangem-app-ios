@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // The `DesignSystem` namespace tree itself is generated from the DS-Core
 // `codeSyntax.iOS` paths into `Generated/DesignSystem/Namespaces+Generated.swift`.
@@ -44,72 +45,69 @@ extension UIColor {
 // MARK: - Typography token
 
 public struct TangemTypographyToken: Hashable, Sendable {
-    public let fontFamily: String
     public let fontWeight: Font.Weight
     public let fontSize: CGFloat
+    public let relativeTo: Font.TextStyle
     public let lineHeight: CGFloat
-    public let letterSpacing: CGFloat
+    public let lineSpacing: CGFloat
+    public let tracking: CGFloat
 
     public init(
-        fontFamily: String,
         fontWeight: Font.Weight,
         fontSize: CGFloat,
+        relativeTo: Font.TextStyle,
         lineHeight: CGFloat,
-        letterSpacing: CGFloat
+        lineSpacing: CGFloat,
+        tracking: CGFloat
     ) {
-        self.fontFamily = fontFamily
         self.fontWeight = fontWeight
         self.fontSize = fontSize
+        self.relativeTo = relativeTo
         self.lineHeight = lineHeight
-        self.letterSpacing = letterSpacing
+        self.lineSpacing = lineSpacing
+        self.tracking = tracking
     }
 
+    @available(iOS, deprecated: 10000, message: "Use the `.font(token:)` view modifier; this accessor exists only for `Font` sinks with no view-modifier path.")
     public var font: Font {
-        // Route SF Pro through `.system(...)` — the canonical primitive for the
-        // platform font. `.custom("SF Pro", ...)` would not resolve (PostScript
-        // names are "SFPro-Regular" etc.) and would silently fall back to system,
-        // hiding misconfiguration. Non-system families go through `.custom`,
-        // which assumes registration via Info.plist (UIAppFonts).
-        if fontFamily == "SF Pro" {
-            return .system(size: fontSize, weight: fontWeight)
-        }
-        return .custom(fontFamily, size: fontSize).weight(fontWeight)
+        let base = UIFont.systemFont(ofSize: fontSize, weight: fontWeight.uiWeight)
+        return Font(UIFontMetrics(forTextStyle: relativeTo.uiTextStyle).scaledFont(for: base))
     }
 }
 
-public extension View {
-    func font(_ token: TangemTypographyToken) -> some View {
-        modifier(TangemTypographyTokenModifier(token: token))
+private extension Font.Weight {
+    var uiWeight: UIFont.Weight {
+        switch self {
+        case .ultraLight: .ultraLight
+        case .thin: .thin
+        case .light: .light
+        case .regular: .regular
+        case .medium: .medium
+        case .semibold: .semibold
+        case .bold: .bold
+        case .heavy: .heavy
+        case .black: .black
+        default: .regular
+        }
     }
 }
 
-private struct TangemTypographyTokenModifier: ViewModifier {
-    let token: TangemTypographyToken
-    @ScaledMetric private var scaledSize: CGFloat
-
-    init(token: TangemTypographyToken) {
-        self.token = token
-        _scaledSize = ScaledMetric(wrappedValue: token.fontSize, relativeTo: .body)
-    }
-
-    func body(content: Content) -> some View {
-        content
-            .font(scaledFont)
-            .lineSpacing(max(0, scaledLineHeight - scaledSize))
-            .tracking(token.letterSpacing)
-    }
-
-    private var scaledFont: Font {
-        if token.fontFamily == "SF Pro" {
-            return .system(size: scaledSize, weight: token.fontWeight)
+private extension Font.TextStyle {
+    var uiTextStyle: UIFont.TextStyle {
+        switch self {
+        case .largeTitle: .largeTitle
+        case .title: .title1
+        case .title2: .title2
+        case .title3: .title3
+        case .headline: .headline
+        case .subheadline: .subheadline
+        case .body: .body
+        case .callout: .callout
+        case .footnote: .footnote
+        case .caption: .caption1
+        case .caption2: .caption2
+        default: .body
         }
-        return .custom(token.fontFamily, size: scaledSize).weight(token.fontWeight)
-    }
-
-    private var scaledLineHeight: CGFloat {
-        guard token.fontSize > 0 else { return token.lineHeight }
-
-        return token.lineHeight * (scaledSize / token.fontSize)
     }
 }
 
