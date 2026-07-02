@@ -69,7 +69,7 @@ extension CommonETagStorage: ETagStorage {
     }
 }
 
-extension ETagStorageKey {
+private extension ETagStorageKey {
     var storageKey: String {
         switch self {
         case .accounts(let walletId): "CryptoAccountsETagStorage_\(walletId.stringValue)"
