@@ -22,12 +22,16 @@ final class TransactionDetailsViewModel: FloatingSheetContentViewModel {
     var blocks: [TransactionDetailsBlock] {
         switch content {
         case .sendReceive(let data): data.blocks
+        case .swap(let viewModel): viewModel.blocks
+        case .onramp(let viewModel): viewModel.blocks
         case .blocks(let blocks): blocks
         }
     }
 
     enum Content {
         case sendReceive(TransactionDetailsSendReceiveViewData)
+        case swap(SwapTransactionDetailsViewData)
+        case onramp(OnrampTransactionDetailsViewData)
         case blocks([TransactionDetailsBlock])
     }
 }
