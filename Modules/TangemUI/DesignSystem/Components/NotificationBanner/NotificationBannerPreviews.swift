@@ -178,8 +178,6 @@ private extension NotificationBannerShowcase {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview("Stack") {
     NotificationBannerShowcase(stackingType: .stack)
         .preferredColorScheme(.dark)
@@ -189,5 +187,3 @@ private extension NotificationBannerShowcase {
     NotificationBannerShowcase(stackingType: .carousel)
         .preferredColorScheme(.dark)
 }
-
-#endif // DEBUG
