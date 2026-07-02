@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemSdk
 import TangemFoundation
 import TangemAnalytics
+import TangemStaking
 
 class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
@@ -142,7 +143,8 @@ class CommonWalletModelsManager {
                     await group.next()
                 }
                 _ = group.addTaskUnlessCancelled {
-                    await walletModels[index].update(silent: silent, options: options, updateToken: updateToken)
+                    // Coalesce this whole refresh cycle's P2P staking balances into one batched request.
+                    await walletModels[index].update(silent: silent, options: options, updateToken: updateToken, stakingUpdateSource: .batch)
                 }
             }
             await group.waitForAll()
