@@ -33,6 +33,15 @@ struct CollapsedAccountItemHeaderView: View {
             : .init(size: .init(width: .unit(.x10), height: .unit(.x3)))
     }
 
+    // [REDACTED_INFO]: drop gating, keep the redesign values (line spacing 4, padding 12).
+    private var lineSpacing: CGFloat {
+        FeatureProvider.isAvailable(.redesign) ? .unit(.x1) : 2
+    }
+
+    private var contentPadding: CGFloat {
+        FeatureProvider.isAvailable(.redesign) ? .unit(.x3) : 14
+    }
+
     var body: some View {
         TwoLineRowWithIcon(
             icon: {
@@ -74,8 +83,8 @@ struct CollapsedAccountItemHeaderView: View {
                 )
             }
         )
-        .linesSpacing(2)
-        .padding(14.0)
+        .linesSpacing(lineSpacing)
+        .padding(contentPadding)
     }
 }
 
