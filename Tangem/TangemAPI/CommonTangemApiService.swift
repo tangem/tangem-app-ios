@@ -366,6 +366,34 @@ extension CommonTangemApiService: TangemApiService {
         let _: NotificationPreferencesDTO.Body = try await request(for: target, decoder: decoder)
     }
 
+    // MARK: - Price Alerts Subscriptions
+
+    func subscribeToPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
+        let requestModel = PriceAlertsSubscriptionsDTO.Request(userWalletIds: userWalletIds, tokenId: tokenId)
+        // Decode the `{ "status": ... }` body so a malformed response surfaces as an error; the status
+        // string itself carries no client-side meaning beyond the `200`.
+        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await request(
+            for: .subscribeToPriceAlerts(request: requestModel),
+            decoder: decoder
+        )
+    }
+
+    func unsubscribeFromPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
+        let requestModel = PriceAlertsSubscriptionsDTO.Request(userWalletIds: userWalletIds, tokenId: tokenId)
+        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await request(
+            for: .unsubscribeFromPriceAlerts(request: requestModel),
+            decoder: decoder
+        )
+    }
+
+    func priceAlertsSubscriptions(userWalletId: String) async throws -> [String] {
+        let list: PriceAlertsSubscriptionsDTO.List = try await request(
+            for: .getPriceAlertsSubscriptions(userWalletId: userWalletId),
+            decoder: decoder
+        )
+        return list.tokenIds
+    }
+
     // MARK: - Applications
 
     func createUserWalletsApplications(requestModel: ApplicationDTO.Request) async throws -> ApplicationDTO.Create.Response {
