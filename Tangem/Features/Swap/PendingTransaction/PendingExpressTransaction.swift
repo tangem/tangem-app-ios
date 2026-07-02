@@ -13,6 +13,16 @@ struct PendingExpressTransaction: Equatable {
     let statuses: [PendingExpressTransactionStatus]
 }
 
+// MARK: - Identifiable protocol conformance
+
+extension PendingExpressTransaction: Identifiable {
+    var id: String {
+        transactionRecord.expressTransactionId
+    }
+}
+
+// MARK: - Convenience extensions
+
 extension PendingExpressTransaction {
     var pendingTransaction: PendingTransaction {
         PendingTransaction(

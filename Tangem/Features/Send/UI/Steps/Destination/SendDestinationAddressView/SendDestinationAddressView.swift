@@ -58,7 +58,7 @@ struct SendDestinationAddressView: View {
                 if viewModel.isValidating {
                     ProgressView()
                 } else {
-                    AddressIconView(viewModel: AddressIconViewModel(address: viewModel.text.value))
+                    AddressIconProviderView(type: viewModel.addressIconType)
                 }
             }
     }

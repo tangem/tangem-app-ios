@@ -116,7 +116,8 @@ private extension CommonDeeplinkPresenterV2 {
             return constructMarketsSearchView(filter: filter)
 
         case .onboardVisa(let deeplinkString):
-            return constructTangemPayOnboardView(deeplinkString: deeplinkString)
+            let source: TangemPayOnboardingSource = deeplinkString.map { .deeplink($0) } ?? .other
+            return constructTangemPayOnboardView(source: source)
 
         case .promo(let promoCode, let refcode, let campaign):
             return constructPromoView(promoCode: promoCode, refcode: refcode, campaign: campaign)
@@ -343,7 +344,7 @@ private extension CommonDeeplinkPresenterV2 {
         )
     }
 
-    private func constructTangemPayOnboardView(deeplinkString: String) -> AnyView? {
+    private func constructTangemPayOnboardView(source: TangemPayOnboardingSource) -> AnyView? {
         guard let availableSelection = tangemPayAvailabilityRepository.tangemPayOfferAvailability.availableWalletSelection else {
             return nil
         }
@@ -352,7 +353,7 @@ private extension CommonDeeplinkPresenterV2 {
         let coordinator = coordinatorFactory.makeTangemPayOnboardingCoordinator { _ in
             Task { @MainActor in presenter.dismiss() }
         }
-        coordinator.start(with: .init(source: .deeplink(deeplinkString), availableSelection: availableSelection))
+        coordinator.start(with: .init(source: source, availableSelection: availableSelection))
 
         return AnyView(
             makeDeeplinkView(
