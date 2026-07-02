@@ -569,6 +569,10 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.userTokensPushNotificationsManager
     }
 
+    var priceAlertsSubscriptionsProvider: any PriceAlertsSubscriptionsProvider {
+        userWalletModel.priceAlertsSubscriptionsProvider
+    }
+
     var accountModelsManager: AccountModelsManager {
         userWalletModel.accountModelsManager
     }
