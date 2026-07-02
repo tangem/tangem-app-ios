@@ -92,6 +92,7 @@ struct WebView: UIViewRepresentable {
         let allowsJavaScript: Bool
         let validatesCertificateTransparency: Bool
         let messageHandlers: [String: (Any) -> Void]
+        let reloadSource: ReloadSource?
 
         init(
             urlActions: [String: (String) -> Void] = [:],
@@ -100,7 +101,8 @@ struct WebView: UIViewRepresentable {
             fallbackURL: URL?,
             allowsJavaScript: Bool,
             validatesCertificateTransparency: Bool,
-            messageHandlers: [String: (Any) -> Void]
+            messageHandlers: [String: (Any) -> Void],
+            reloadSource: ReloadSource?
         ) {
             self.urlActions = urlActions
             self.popupUrl = popupUrl
@@ -109,6 +111,7 @@ struct WebView: UIViewRepresentable {
             self.allowsJavaScript = allowsJavaScript
             self.validatesCertificateTransparency = validatesCertificateTransparency
             self.messageHandlers = messageHandlers
+            self.reloadSource = reloadSource
         }
 
         func webView(
@@ -192,6 +195,29 @@ struct WebView: UIViewRepresentable {
         ) {
             messageHandlers[message.name]?(message.body)
         }
+
+        /// The web content process can be terminated under memory pressure (e.g. after the
+        /// system file/photo picker opens on low-RAM devices), leaving a blank white page that
+        /// never recovers on its own. Reload the original source to bring the content back.
+        func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+            AppLogger.warning("WebView content process terminated — reloading")
+
+            switch reloadSource {
+            case .html(let htmlString, let baseURL):
+                webView.loadHTMLString(htmlString, baseURL: baseURL)
+            case .request(let url, let headers, let timeoutInterval):
+                var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
+                request.allHTTPHeaderFields = headers
+                webView.load(request)
+            case nil:
+                break
+            }
+        }
+    }
+
+    enum ReloadSource {
+        case html(String, baseURL: URL?)
+        case request(URL, headers: [String: String], timeoutInterval: TimeInterval)
     }
 
     func makeCoordinator() -> Coordinator {
@@ -202,8 +228,23 @@ struct WebView: UIViewRepresentable {
             fallbackURL: timeoutSettings?.fallbackURL,
             allowsJavaScript: allowsJavaScript,
             validatesCertificateTransparency: validatesCertificateTransparency,
-            messageHandlers: messageHandlers
+            messageHandlers: messageHandlers,
+            reloadSource: reloadSource
         )
+    }
+
+    private var reloadSource: ReloadSource? {
+        if let htmlString {
+            return .html(htmlString, baseURL: baseURL)
+        } else if let url {
+            return .request(
+                url,
+                headers: headers,
+                timeoutInterval: timeoutSettings?.interval ?? Constants.defaultWebViewTimeoutInterval
+            )
+        } else {
+            return nil
+        }
     }
 }
 

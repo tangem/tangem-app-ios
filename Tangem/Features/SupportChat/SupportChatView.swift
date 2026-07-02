@@ -17,6 +17,8 @@ struct SupportChatView: View {
 
     @StateObject private var bridge = WebViewBridge()
 
+    @State private var bottomSafeAreaInset: CGFloat = 0
+
     var body: some View {
         webViewContent
             .navigationBarTitle(Localization.supportChatScreenTitle, displayMode: .inline)
@@ -71,6 +73,20 @@ struct SupportChatView: View {
             }
         }
         .background(Color.white.ignoresSafeArea(edges: .bottom))
+        .background(
+            GeometryReader { proxy in
+                Color.clear
+                    .onAppear { bottomSafeAreaInset = proxy.safeAreaInsets.bottom }
+                    .onChange(of: proxy.safeAreaInsets.bottom) { bottomSafeAreaInset = $0 }
+            }
+        )
+        // Swallow taps in the bottom safe area so they don't reach the widget's controls near the screen edge.
+        .overlay(alignment: .bottom) {
+            Color.white
+                .frame(height: bottomSafeAreaInset)
+                .contentShape(Rectangle())
+                .ignoresSafeArea(edges: .bottom)
+        }
     }
 
     private var navBarMenu: some View {
