@@ -47,7 +47,7 @@ actor CommonTransactionHistoryAuxDataRepository {
     }
 }
 
-// MARK: - TransactionHistoryAuxDataRepository
+// MARK: - TransactionHistoryAuxDataRepository protocol conformance
 
 extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRepository {
     nonisolated var didLoadAuxData: AsyncStream<Void> {
@@ -159,9 +159,8 @@ private extension CommonTransactionHistoryAuxDataRepository {
             return await task.value
         }
 
-        let task = Task { [weak self] in
-            try? await Task.sleep(for: Constants.debounce)
-            await self?.loadProviders(branch: branch)
+        let task = runTask(in: self) { repository in
+            await repository.loadProviders(branch: branch)
         }
 
         defer { inFlightProviderLoadTasks[branch] = nil }
@@ -177,14 +176,11 @@ private extension CommonTransactionHistoryAuxDataRepository {
 
         do {
             let providers = try await expressAPIProvider.providers(branch: branch)
-
-            // Swap and onramp providers are stored separately since they can share the same id
-            var hasChanges = false
-            switch branch {
+            let hasChanges = switch branch {
             case .swap:
-                hasChanges = merge(providers, into: &cache.expressProviders)
+                merge(providers, into: &cache.expressProviders)
             case .onramp:
-                hasChanges = merge(providers, into: &cache.onrampProviders)
+                merge(providers, into: &cache.onrampProviders)
             }
 
             guard hasChanges else {
@@ -215,38 +211,34 @@ private extension CommonTransactionHistoryAuxDataRepository {
 
     func loadFiatCurrenciesIfNeeded() async {
         if let task = inFlightFiatCurrenciesLoadTask {
-            await task.value
-
-            return
+            return await task.value
         }
 
-        let task = Task { [self] in
-            try? await Task.sleep(for: Constants.debounce)
-            await performCurrenciesLoad()
+        let task = runTask(in: self) { repository in
+            await repository.loadFiatCurrencies()
         }
+
         inFlightFiatCurrenciesLoadTask = task
         defer { inFlightFiatCurrenciesLoadTask = nil }
         await task.value
     }
 
-    func performCurrenciesLoad() async {
+    func loadFiatCurrencies() async {
         guard let expressAPIProvider = makeExpressAPIProvider() else {
             return
         }
 
         do {
             let loaded = try await expressAPIProvider.onrampCurrencies()
-
-            var changed = false
-
+            var hasChanges = false
             for currency in loaded {
                 if cache.fiatCurrencies[currency.identity.code] != currency {
                     cache.fiatCurrencies[currency.identity.code] = currency
-                    changed = true
+                    hasChanges = true
                 }
             }
 
-            guard changed else {
+            guard hasChanges else {
                 return
             }
 
@@ -289,14 +281,15 @@ private extension CommonTransactionHistoryAuxDataRepository {
 
     func armCryptoCurrenciesDebounce() {
         cryptoCurrenciesDebounceTask?.cancel()
-        cryptoCurrenciesDebounceTask = Task { [self] in
+        // Bare `Task` is used here intentionally to avoid capturing `self` for the duration of the debounce delay
+        cryptoCurrenciesDebounceTask = Task { [weak self] in
             try? await Task.sleep(for: Constants.debounce)
 
             guard !Task.isCancelled else {
                 return
             }
 
-            await flushPendingCryptoCurrencies()
+            await self?.flushPendingCryptoCurrencies()
         }
     }
 
@@ -320,8 +313,8 @@ private extension CommonTransactionHistoryAuxDataRepository {
         }
 
         do {
-            let currencies = Array(batch.values)
-            let networkIds = currencies.map(\.network).toSet()
+            let currencies = batch.values
+            let networkIds = currencies.uniqueProperties(\.network)
             // Using `SupportedBlockchains.all` here is safe because it is just a static lookup table, while the actual list
             // of blockchains is derived from `batch` hence all of them guaranteed to be supported
             let allSupportedBlockchains = SupportedBlockchains.all
@@ -341,16 +334,16 @@ private extension CommonTransactionHistoryAuxDataRepository {
                 requestedKeys: batch.keys.toSet()
             )
 
-            var changed = false
+            var hasChanges = false
 
             for (key, tokenItem) in tokenItems {
                 if cache.cryptoCurrencies[key] == nil {
                     cache.cryptoCurrencies[key] = tokenItem
-                    changed = true
+                    hasChanges = true
                 }
             }
 
-            guard changed else {
+            guard hasChanges else {
                 return
             }
 
@@ -392,15 +385,15 @@ private extension CommonTransactionHistoryAuxDataRepository {
     }
 
     func mirrorToSyncCache() {
-        let snapshot = cache
-
-        syncCache { $0 = snapshot }
+        let cacheSnapshot = cache
+        syncCache { $0 = cacheSnapshot }
     }
 }
 
 // MARK: - Helpers
 
 private extension CommonTransactionHistoryAuxDataRepository {
+    /// - Note: Swap and onramp providers are stored separately since they can share the same id.
     struct Cache {
         var expressProviders: [ExpressProvider.Id: ExpressProvider] = [:]
         var onrampProviders: [ExpressProvider.Id: ExpressProvider] = [:]
