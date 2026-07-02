@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 import TangemLocalization
 
 struct AddressBookContactAddressRowViewModel: Identifiable {
@@ -35,6 +36,7 @@ struct AddressBookContactAddressRowView: View {
             .start {
                 AddressBlockiesIconView(viewData: viewModel.addressIcon)
             }
+            .truncationModes(.init(title: .middle))
             .onTap(viewModel.onTap)
     }
 }
