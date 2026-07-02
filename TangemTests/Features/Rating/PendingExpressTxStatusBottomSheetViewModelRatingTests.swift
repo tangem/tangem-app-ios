@@ -130,10 +130,6 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
                 .sink { _ in confirm() }
         }
         localCancellable?.cancel()
-        localCancellable = nil
-        await withCheckedContinuation { continuation in
-            DispatchQueue.main.async { continuation.resume() }
-        }
     }
 
     func sendUpdate(

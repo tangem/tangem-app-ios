@@ -95,8 +95,9 @@ private extension CommonPriceAlertsSubscriptionsProvider {
             scheduleReconciliationFetchIfNeeded()
         } catch {
             PriceAlertsSubscriptionsLogger.error("Failed to mutate price alerts subscription, rolling back", error: error)
-            // Roll back on both failure and cancellation: the optimistic delta is unconfirmed, and a
-            // reconciliation fetch will resolve the true state.
+            // Roll back on both failure and cancellation. The rollback is only a best guess (the request
+            // may have reached the server — e.g. cancellation right after success, or a timeout), so
+            // `finishWrite` also requests a reconciliation fetch to resolve the true state.
             if let rolledBackSubscriptions = await stateStore.finishWrite(tokenId: tokenId, isSubscribe: isSubscribe, isSuccess: false) {
                 await publish(rolledBackSubscriptions)
             }
@@ -111,7 +112,8 @@ private extension CommonPriceAlertsSubscriptionsProvider {
         subscriptionsSubject.send(subscriptions)
     }
 
-    /// Fire-and-forget re-fetch of the snapshot dropped during a write, now that writes have settled.
+    /// Fire-and-forget re-fetch once writes have settled: either a snapshot was dropped during a write,
+    /// or a failed/cancelled write left the local state unconfirmed.
     func scheduleReconciliationFetchIfNeeded() {
         runTask(in: self) { provider in
             guard await provider.stateStore.consumePendingFetchReconciliation() else {
