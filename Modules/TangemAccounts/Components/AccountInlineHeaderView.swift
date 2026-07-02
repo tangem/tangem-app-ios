@@ -107,7 +107,6 @@ extension AccountInlineHeaderView: Setupable {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(alignment: .leading, spacing: 16) {
         AccountInlineHeaderView(
@@ -130,4 +129,3 @@ extension AccountInlineHeaderView: Setupable {
     }
     .padding()
 }
-#endif

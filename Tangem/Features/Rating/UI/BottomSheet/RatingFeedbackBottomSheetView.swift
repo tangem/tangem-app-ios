@@ -157,7 +157,6 @@ private extension UIApplication {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     RatingFeedbackBottomSheetView(
         viewModel: RatingFeedbackBottomSheetViewModel(
@@ -167,4 +166,3 @@ private extension UIApplication {
         )
     )
 }
-#endif
