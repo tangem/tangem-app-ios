@@ -346,7 +346,6 @@ private extension TokenDetailsView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
     let cryptoAccountModel = userWalletModel
@@ -421,4 +420,3 @@ private extension TokenDetailsView {
         )
     )
 }
-#endif // DEBUG

@@ -105,14 +105,12 @@ struct OnboardingSeedPhraseGenerateView: View {
     }
 }
 
-struct OnboardingSeedPhraseGenerateView_Previews: PreviewProvider {
-    static var seedPhraseManager: SeedPhraseManager {
+#Preview {
+    let seedPhraseManager: SeedPhraseManager = {
         let manager = SeedPhraseManager()
         _ = try? manager.generateSeedPhrase()
         return manager
-    }
+    }()
 
-    static var previews: some View {
-        OnboardingSeedPhraseGenerateView(viewModel: .init(seedPhraseManager: seedPhraseManager, delegate: nil))
-    }
+    OnboardingSeedPhraseGenerateView(viewModel: .init(seedPhraseManager: seedPhraseManager, delegate: nil))
 }

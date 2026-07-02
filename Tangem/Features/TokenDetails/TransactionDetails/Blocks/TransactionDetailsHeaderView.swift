@@ -102,7 +102,6 @@ struct TransactionDetailsHeaderView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Header states") {
     let menu: [TransactionDetailsHeaderViewData.MenuAction] = [
         // [REDACTED_TODO_COMMENT]
@@ -125,4 +124,3 @@ struct TransactionDetailsHeaderView: View {
     }
     .background(DesignSystem.Color.bgSecondary)
 }
-#endif // DEBUG

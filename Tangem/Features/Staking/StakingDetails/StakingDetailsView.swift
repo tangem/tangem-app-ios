@@ -145,15 +145,13 @@ struct StakingDetailsView: View {
     }
 }
 
-struct StakingDetailsView_Preview: PreviewProvider {
-    static let viewModel = StakingDetailsViewModel(
-        tokenItem: CommonWalletModel.mockETH.tokenItem,
-        tokenBalanceProvider: CommonWalletModel.mockETH.availableBalanceProvider,
-        stakingManager: StakingManagerMock(),
-        coordinator: StakingDetailsCoordinator()
+#Preview {
+    StakingDetailsView(
+        viewModel: StakingDetailsViewModel(
+            tokenItem: CommonWalletModel.mockETH.tokenItem,
+            tokenBalanceProvider: CommonWalletModel.mockETH.availableBalanceProvider,
+            stakingManager: StakingManagerMock(),
+            coordinator: StakingDetailsCoordinator()
+        )
     )
-
-    static var previews: some View {
-        StakingDetailsView(viewModel: viewModel)
-    }
 }

@@ -204,8 +204,6 @@ private struct TextSelectionConditionalModifier: ViewModifier {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        BlockchainSdkExampleView()
-    }
+#Preview {
+    BlockchainSdkExampleView()
 }

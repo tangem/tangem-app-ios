@@ -68,7 +68,6 @@ public struct MiniatureWalletView: View {
 #if DEBUG
 import TangemAssets
 
-@available(iOS 17.0, *)
 #Preview("All Thumbnail Types") {
     let types: [(String, ThumbnailWalletViewType)] = {
         typealias CC = Color.Tangem.CardCollection

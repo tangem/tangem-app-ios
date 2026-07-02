@@ -53,7 +53,6 @@ struct RedesignedAccountSkeletonCardView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ZStack {
         Color.Tangem.Surface.level2
@@ -67,4 +66,3 @@ struct RedesignedAccountSkeletonCardView: View {
         .padding(.horizontal, .unit(.x3))
     }
 }
-#endif

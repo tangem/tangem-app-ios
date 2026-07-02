@@ -100,8 +100,6 @@ private extension TangemCalloutShowcase {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview("Interactive Demo") {
     TangemCalloutShowcase()
 }
@@ -135,5 +133,3 @@ private extension TangemCalloutShowcase {
     .padding()
     .background(Color.Tangem.Surface.level1)
 }
-
-#endif // DEBUG

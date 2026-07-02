@@ -11,7 +11,6 @@ import TangemAssets
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("No collections") {
     ZStack {
         Color.Tangem.Surface.level1
@@ -175,4 +174,3 @@ import TangemAssets
         .padding(.horizontal, 16)
     }
 }
-#endif

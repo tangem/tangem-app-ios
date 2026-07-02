@@ -70,9 +70,8 @@ struct SingleWalletMainContentView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-struct SingleWalletContentView_Preview: PreviewProvider {
-    static let viewModel: SingleWalletMainContentViewModel = {
+#Preview {
+    let viewModel: SingleWalletMainContentViewModel = {
         let userWalletModel = FakeUserWalletModel.xrpNote
 
         let accountModel = userWalletModel
@@ -107,9 +106,6 @@ struct SingleWalletContentView_Preview: PreviewProvider {
         )
     }()
 
-    static var previews: some View {
-        SingleWalletMainContentView(viewModel: viewModel)
-            .background(Colors.Background.secondary)
-    }
+    SingleWalletMainContentView(viewModel: viewModel)
+        .background(Colors.Background.secondary)
 }
-#endif // DEBUG

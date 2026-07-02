@@ -146,19 +146,17 @@ private extension ResetToFactoryView {
     }
 }
 
-struct ResetToFactoryView_Previews: PreviewProvider {
-    static let viewModel = ResetToFactoryViewModel(
-        input: .init(
-            cardInteractor: FactorySettingsResettingMock(),
-            backupCardsCount: 0,
-            userWalletId: UserWalletId(value: Data())
-        ),
-        coordinator: CardSettingsCoordinator()
-    )
-
-    static var previews: some View {
-        NavigationStack {
-            ResetToFactoryView(viewModel: viewModel)
-        }
+#Preview {
+    NavigationStack {
+        ResetToFactoryView(
+            viewModel: ResetToFactoryViewModel(
+                input: .init(
+                    cardInteractor: FactorySettingsResettingMock(),
+                    backupCardsCount: 0,
+                    userWalletId: UserWalletId(value: Data())
+                ),
+                coordinator: CardSettingsCoordinator()
+            )
+        )
     }
 }

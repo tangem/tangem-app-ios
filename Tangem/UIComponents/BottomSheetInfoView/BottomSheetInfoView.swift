@@ -57,45 +57,32 @@ struct BottomSheetInfoView: View {
 
 // MARK: - Previews
 
-struct BottomSheetInfoView_Previews: PreviewProvider {
-    struct StatableContainer: View {
-        @State private var item: BottomSheetInfoViewModel?
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var item: BottomSheetInfoViewModel?
 
-        var body: some View {
-            ZStack {
-                Button("Bottom sheet isShowing \((item != nil).description)") {
-                    toggleItem()
-                }
-                .font(Fonts.Bold.body)
-                .offset(y: -200)
-
-                NavHolder()
-                    .bottomSheet(item: $item, backgroundColor: Colors.Background.tertiary) {
-                        BottomSheetInfoView(viewModel: $0)
-                    }
-            }
-        }
-
-        func toggleItem() {
-            let isShowing = item != nil
-
-            if !isShowing {
-                item = BottomSheetInfoViewModel(
-                    input: .init(
-                        icon: Assets.attention,
-                        title: "Backup your card",
-                        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                        buttonTitle: "test"
-                    ),
-                    buttonTapAction: nil
-                )
-            } else {
-                item = nil
-            }
-        }
+    func makeBottomSheetInfoPreviewViewModel() -> BottomSheetInfoViewModel {
+        BottomSheetInfoViewModel(
+            input: .init(
+                icon: Assets.attention,
+                title: "Backup your card",
+                description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                buttonTitle: "test"
+            ),
+            buttonTapAction: nil
+        )
     }
 
-    static var previews: some View {
-        StatableContainer()
+    return ZStack {
+        Button("Bottom sheet isShowing \((item != nil).description)") {
+            item = item == nil ? makeBottomSheetInfoPreviewViewModel() : nil
+        }
+        .font(Fonts.Bold.body)
+        .offset(y: -200)
+
+        NavHolder()
+            .bottomSheet(item: $item, backgroundColor: Colors.Background.tertiary) {
+                BottomSheetInfoView(viewModel: $0)
+            }
     }
 }

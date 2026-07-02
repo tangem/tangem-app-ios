@@ -35,10 +35,8 @@ struct TangemPayCardIssuingMessageView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     TangemPayCardIssuingMessageView()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

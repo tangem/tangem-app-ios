@@ -89,7 +89,6 @@ private extension PushNotificationsWarningView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     PushNotificationsWarningView(
         viewModel: PushNotificationsWarningViewModel(
@@ -99,4 +98,3 @@ private extension PushNotificationsWarningView {
         )
     )
 }
-#endif
