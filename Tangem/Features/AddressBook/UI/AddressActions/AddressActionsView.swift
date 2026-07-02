@@ -97,16 +97,15 @@ struct AddressActionsView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-private final class AddressActionsPreviewStub: AddressActionsOutput, AddressActionsRoutable {
-    func addressActionsDidRequestCopy(_ group: AddressBookContactAddressGroup) {}
-    func addressActionsDidRequestEdit(_ group: AddressBookContactAddressGroup) {}
-    func addressActionsDidRequestRemove(_ group: AddressBookContactAddressGroup) {}
-    func dismissAddressActions() {}
-}
-
 #Preview {
-    AddressActionsView(
+    final class AddressActionsPreviewStub: AddressActionsOutput, AddressActionsRoutable {
+        func addressActionsDidRequestCopy(_ group: AddressBookContactAddressGroup) {}
+        func addressActionsDidRequestEdit(_ group: AddressBookContactAddressGroup) {}
+        func addressActionsDidRequestRemove(_ group: AddressBookContactAddressGroup) {}
+        func dismissAddressActions() {}
+    }
+
+    return AddressActionsView(
         viewModel: AddressActionsViewModel(
             group: .init(
                 address: "0xBef7B36845000000000000ac4e6752A9cE000000",
@@ -123,4 +122,3 @@ private final class AddressActionsPreviewStub: AddressActionsOutput, AddressActi
     .frame(maxHeight: .infinity, alignment: .bottom)
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
 }
-#endif // DEBUG

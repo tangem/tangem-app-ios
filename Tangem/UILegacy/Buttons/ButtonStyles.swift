@@ -204,67 +204,65 @@ extension ButtonStyle where Self == TangemButtonStyle {
     static var tangemStyle: TangemButtonStyle { .init() }
 }
 
-struct ButtonStyles_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(alignment: .center, spacing: 16.0) {
-            TangemButtonLegacy(
-                title: "Tangem Wide button",
-                systemImage: "arrow.up",
-                action: {}
-            )
-            .buttonStyle(TangemButtonStyle(layout: .wide))
+#Preview {
+    VStack(alignment: .center, spacing: 16.0) {
+        TangemButtonLegacy(
+            title: "Tangem Wide button",
+            systemImage: "arrow.up",
+            action: {}
+        )
+        .buttonStyle(TangemButtonStyle(layout: .wide))
 
-            TangemButtonLegacy(title: "Tangem custom button", action: {})
-                .buttonStyle(TangemButtonStyle(
-                    layout: .custom(size: CGSize(
-                        width: 175,
-                        height: 44
-                    )),
-                    font: .system(size: 18)
-                ))
+        TangemButtonLegacy(title: "Tangem custom button", action: {})
+            .buttonStyle(TangemButtonStyle(
+                layout: .custom(size: CGSize(
+                    width: 175,
+                    height: 44
+                )),
+                font: .system(size: 18)
+            ))
 
-            TangemButtonLegacy(title: "Tangem custom button", action: {})
-                .buttonStyle(TangemButtonStyle(
-                    layout: .customWidth(234),
-                    font: .system(size: 18)
-                ))
+        TangemButtonLegacy(title: "Tangem custom button", action: {})
+            .buttonStyle(TangemButtonStyle(
+                layout: .customWidth(234),
+                font: .system(size: 18)
+            ))
 
-            Button(action: {}) { Text("Tap in!") }
-                .buttonStyle(TangemButtonStyle())
+        Button(action: {}) { Text("Tap in!") }
+            .buttonStyle(TangemButtonStyle())
 
-            Button(action: {}) { Text("Tap in!") }
-                .buttonStyle(TangemButtonStyle(colorStyle: .black))
+        Button(action: {}) { Text("Tap in!") }
+            .buttonStyle(TangemButtonStyle(colorStyle: .black))
 
-            Button(action: {}) { Text("No. Go to shop") }
-                .buttonStyle(TangemButtonStyle(
-                    colorStyle: .black,
-                    layout: .big,
-                    isDisabled: true
-                ))
+        Button(action: {}) { Text("No. Go to shop") }
+            .buttonStyle(TangemButtonStyle(
+                colorStyle: .black,
+                layout: .big,
+                isDisabled: true
+            ))
 
-            Button(action: {}) { Text("No. Go to shop") }
-                .buttonStyle(TangemButtonStyle(colorStyle: .black, isDisabled: true))
+        Button(action: {}) { Text("No. Go to shop") }
+            .buttonStyle(TangemButtonStyle(colorStyle: .black, isDisabled: true))
 
-            Button(action: {}) { Text("Go to shop") }
-                .buttonStyle(TangemButtonStyle(
-                    colorStyle: .transparentWhite,
-                    layout: .flexibleWidth
-                ))
+        Button(action: {}) { Text("Go to shop") }
+            .buttonStyle(TangemButtonStyle(
+                colorStyle: .transparentWhite,
+                layout: .flexibleWidth
+            ))
 
-            Button(action: {}) { Text("Go to shop") }
-                .buttonStyle(TangemButtonStyle(
-                    colorStyle: .transparentWhite,
-                    layout: .flexibleWidth,
-                    isDisabled: true
-                ))
+        Button(action: {}) { Text("Go to shop") }
+            .buttonStyle(TangemButtonStyle(
+                colorStyle: .transparentWhite,
+                layout: .flexibleWidth,
+                isDisabled: true
+            ))
 
-            Button(action: {}) { Text("Go to shop") }
-                .buttonStyle(TangemButtonStyle(
-                    colorStyle: .grayAlt3,
-                    layout: .flexibleWidth,
-                    font: .system(size: 18)
-                ))
-        }
+        Button(action: {}) { Text("Go to shop") }
+            .buttonStyle(TangemButtonStyle(
+                colorStyle: .grayAlt3,
+                layout: .flexibleWidth,
+                font: .system(size: 18)
+            ))
     }
 }
 

@@ -66,7 +66,6 @@ extension TangemPaySuccessView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Daily limit") {
     TangemPaySuccessView(
         model: .init(
@@ -90,4 +89,3 @@ extension TangemPaySuccessView {
         action: {}
     )
 }
-#endif // DEBUG
