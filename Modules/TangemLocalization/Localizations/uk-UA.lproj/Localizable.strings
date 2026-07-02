@@ -1177,6 +1177,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Тег призначення";
 "send_dismiss_message" = "Ви дійсно хочете закрити екран надсилання транзакції?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "Ім’я ENS або адреса";
 "send_enter_address_field" = "Введіть адресу";
 "send_error_address_same_as_wallet" = "Адреса збігається з адресою гаманця";
@@ -1546,6 +1547,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "Комісія відповідно до тарифів обслуговування";
 "tangem_pay_transaction_reversed_notification_text" = "Транзакцію було частково або повністю скасовано продавцем";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "Продовжуйте користуватися карткою. Заморозити можна в будь-який момент.";
 "tangem_pay_unfreeze_card_alert_title" = "Розморозити картку?";
 "tangem_pay_unfreeze_card_failed" = "Не вдалося розморозити картку. Спробуйте пізніше.";
@@ -2083,6 +2086,7 @@
 "warning_matic_migration_message" = "Токен MATIC мігрує до POL. Однак кінцевого терміну не встановлено і MATIC ще не застарілий. Ви можете спокійно продовжувати використовувати токен MATIC або обміняти його на POL.";
 "warning_matic_migration_title" = "Міграція MATIC у POL";
 "warning_missing_derivation_title" = "Деякі адреси відсутні";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "Мережа наразі недоступна. Будь ласка, спробуйте пізніше.";
 "warning_network_unreachable_title" = "Мережа недоступна";
 "warning_no_account_title" = "Поповніть свій гаманець";
