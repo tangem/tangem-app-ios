@@ -86,6 +86,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
         )
 
         bind()
+        loadAddressBooks()
     }
 
     func userDidRequestDismiss() {
@@ -147,6 +148,19 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 // MARK: - Private
 
 private extension AddressBookContactManagementViewModel {
+    func loadAddressBooks() {
+        let books = addressBooksProvider.addressBooks
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                for book in books {
+                    group.addTask {
+                        await book.addressBookManager.load()
+                    }
+                }
+            }
+        }
+    }
+
     func bind() {
         interactor.contactNamePublisher
             .removeDuplicates()

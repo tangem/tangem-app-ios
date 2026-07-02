@@ -39,7 +39,6 @@ final class CommonAddressBookManager {
         self.supportedBlockchains = supportedBlockchains
 
         bind()
-        Task { await load() }
     }
 
     private func bind() {
