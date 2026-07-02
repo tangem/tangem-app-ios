@@ -157,6 +157,7 @@ extension SendCoordinator {
 
     enum DismissOptions {
         case openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
+        case openSwap(SwapNavigatingDismissOption)
         case closeButtonTap
     }
 }
@@ -236,9 +237,13 @@ extension SendCoordinator: SendRoutable {
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?) {
         let coordinator = SendReceiveTokenCoordinator(
             receiveTokensListBuilder: tokensListBuilder,
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] swapOption in
                 self?.sendReceiveTokenCoordinator = nil
                 onDismiss?()
+
+                if let swapOption {
+                    self?.dismiss(with: .openSwap(swapOption))
+                }
             }, popToRootAction: popToRootAction
         )
 

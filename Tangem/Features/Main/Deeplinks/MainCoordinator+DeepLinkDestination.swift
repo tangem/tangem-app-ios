@@ -24,7 +24,7 @@ extension MainCoordinator {
         case tokenExchanges(tokenId: String)
         case externalLink(url: URL)
         case markets(filter: MarketsDeeplinkFilter)
-        case onboardVisa(deeplinkString: String)
+        case onboardVisa(deeplinkString: String?)
         case tangemPayMain(customerWalletId: String)
         case tangemPayTransactionDetails(payload: TangemPayPushPayload)
         case newsDetails(newsId: Int)
@@ -67,7 +67,7 @@ extension MainCoordinator.DeepLinkDestination: Identifiable {
         case .markets(let filter):
             return "\(rawCaseValue)_\(filter.order.rawValue)_\(filter.interval.rawValue)"
         case .onboardVisa(let deeplinkString):
-            return "\(rawCaseValue)_\(deeplinkString)"
+            return deeplinkString.map { "\(rawCaseValue)_\($0)" } ?? rawCaseValue
         case .tangemPayMain(let customerWalletId):
             return "\(rawCaseValue)_\(customerWalletId)"
         case .tangemPayTransactionDetails(let payload):

@@ -121,9 +121,8 @@ private extension CommonDeeplinkPresenter {
             return constructMarketsSearchViewController(filter: filter)
 
         case .onboardVisa(let deeplinkString):
-            return constructTangemPayOnboardViewController(
-                deeplinkString: deeplinkString,
-            )
+            let source: TangemPayOnboardingSource = deeplinkString.map { .deeplink($0) } ?? .other
+            return constructTangemPayOnboardViewController(source: source)
 
         case .promo(let promoCode, let refcode, let campaign):
             return constructPromoViewController(promoCode: promoCode, refcode: refcode, campaign: campaign)
@@ -311,7 +310,7 @@ private extension CommonDeeplinkPresenter {
         )
     }
 
-    private func constructTangemPayOnboardViewController(deeplinkString: String) -> UIViewController? {
+    private func constructTangemPayOnboardViewController(source: TangemPayOnboardingSource) -> UIViewController? {
         guard let availableSelection = tangemPayAvailabilityRepository.tangemPayOfferAvailability.availableWalletSelection else {
             return nil
         }
@@ -319,7 +318,7 @@ private extension CommonDeeplinkPresenter {
         let coordinator = coordinatorFactory.makeTangemPayOnboardingCoordinator { _ in
             UIApplication.dismissTop()
         }
-        coordinator.start(with: .init(source: .deeplink(deeplinkString), availableSelection: availableSelection))
+        coordinator.start(with: .init(source: source, availableSelection: availableSelection))
 
         return makeDeeplinkViewController(
             view: {

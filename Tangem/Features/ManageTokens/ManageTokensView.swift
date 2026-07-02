@@ -133,12 +133,14 @@ struct ManageTokensView: View {
             )
             .placeholder(text: Localization.commonSearch)
             .cornerStyle(.capsule)
+            .textFieldAccessibilityIdentifier(ManageTokensAccessibilityIdentifiers.searchField)
             .frame(height: Constants.redesignSearchFieldHeight)
         } else {
             CustomSearchBar(
                 searchText: $viewModel.searchText,
                 placeholder: Localization.commonSearch,
                 style: style.searchBarStyle,
+                accessibilityIdentifier: ManageTokensAccessibilityIdentifiers.searchField,
                 cancelButtonAction: nil
             )
         }

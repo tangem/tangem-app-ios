@@ -55,6 +55,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         userWalletId: UserWalletId,
         customerId: String,
         cardName: String? = nil,
+        cardNumberEnd: String? = nil,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
         self.origin = origin
@@ -83,7 +84,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         mainButtonAction = displayData.mainButtonAction
 
         displayModel = FeatureProvider.isAvailable(.tangemPaySpendRedesign)
-            ? Self.makeDisplayModel(origin: origin, cardName: cardName)
+            ? Self.makeDisplayModel(origin: origin, cardName: cardName, cardNumberEnd: cardNumberEnd)
             : nil
     }
 
@@ -92,6 +93,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         userWalletId: UserWalletId,
         customerId: String,
         cardName: String?,
+        cardNumberEnd: String?,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
         self.init(
@@ -100,18 +102,20 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
             userWalletId: userWalletId,
             customerId: customerId,
             cardName: cardName,
+            cardNumberEnd: cardNumberEnd,
             coordinator: coordinator
         )
     }
 
     private static func makeDisplayModel(
         origin: Origin,
-        cardName: String?
+        cardName: String?,
+        cardNumberEnd: String?
     ) -> TangemPayTransactionDetailsDisplayModel? {
         let mapper = TangemPayTransactionDetailsRedesignedMapper()
         switch origin {
         case .history(let transaction):
-            return transaction.redesignedDisplayModel(using: mapper, cardName: cardName)
+            return transaction.redesignedDisplayModel(using: mapper, cardName: cardName, cardNumberEnd: cardNumberEnd)
         case .push(let payload):
             return payload.redesignedDisplayModel(using: mapper)
         }

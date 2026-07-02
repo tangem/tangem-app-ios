@@ -43,7 +43,7 @@ class FakeTokenItemInfoProvider: ObservableObject {
         }
         AppLogger.debug("Tapped wallet model: \(tappedWalletManager)")
         Task {
-            await tappedWalletManager.update(silent: true, features: .balances)
+            await tappedWalletManager.update(silent: true, options: .balances)
             AppLogger.debug("Receive new state \(tappedWalletManager.state) for \(tappedWalletManager)")
         }
     }

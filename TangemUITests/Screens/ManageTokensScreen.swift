@@ -10,6 +10,8 @@ import TangemAccessibilityIdentifiers
 
 final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
     private lazy var saveButton = button(.saveButton)
+    private lazy var searchField = textField(.searchField)
+    private lazy var addCustomTokenButton = app.buttons[CommonUIAccessibilityIdentifiers.addButton].firstMatch
 
     @discardableResult
     func expandTokenIfNeeded(coinId: String) -> Self {
@@ -83,6 +85,81 @@ final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
         }
     }
 
+    @discardableResult
+    func search(_ query: String) -> Self {
+        XCTContext.runActivity(named: "Search for: \(query)") { _ in
+            waitAndAssertTrue(searchField, "Search field should exist")
+            searchField.waitAndTap()
+            typeReliably(element: searchField, text: query)
+            return self
+        }
+    }
+
+    @discardableResult
+    func clearSearch() -> Self {
+        XCTContext.runActivity(named: "Clear search field") { _ in
+            waitAndAssertTrue(searchField, "Search field should exist")
+            clearText(element: searchField)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTokenRowExists(coinId: String) -> Self {
+        XCTContext.runActivity(named: "Verify token row exists: \(coinId)") { _ in
+            let row = app.staticTexts[ManageTokensAccessibilityIdentifiers.coinRow(coinId)]
+            waitAndAssertTrue(row, "Token row should exist: \(coinId)")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTokenRowNotExists(coinId: String) -> Self {
+        XCTContext.runActivity(named: "Verify token row absent: \(coinId)") { _ in
+            let row = app.staticTexts[ManageTokensAccessibilityIdentifiers.coinRow(coinId)]
+            let absence = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: row)
+            let result = XCTWaiter().wait(for: [absence], timeout: .conditional)
+            XCTAssertEqual(result, .completed, "Token row should become absent: \(coinId)")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyNetworkStandard(network: String, standard: String) -> Self {
+        XCTContext.runActivity(named: "Verify \(network) standard is \(standard)") { _ in
+            let label = app.staticTexts[ManageTokensAccessibilityIdentifiers.networkStandardLabel(network)]
+            waitAndAssertTrue(label, "Standard label for \(network) should exist")
+            XCTAssertEqual(label.label, standard, "\(network) standard should be \(standard)")
+            return self
+        }
+    }
+
+    @discardableResult
+    func toggleNetwork(_ networkName: String) -> Self {
+        XCTContext.runActivity(named: "Toggle network: \(networkName)") { _ in
+            let toggle = app.switches[ManageTokensAccessibilityIdentifiers.networkToggle(networkName)]
+            waitAndAssertTrue(toggle, "Network toggle for \(networkName) should exist")
+            toggle.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyNoAlertShown() -> Self {
+        XCTContext.runActivity(named: "Verify no alert shown") { _ in
+            XCTAssertFalse(app.alerts.firstMatch.waitForExistence(timeout: .shortUIUpdate), "No alert should appear")
+            return self
+        }
+    }
+
+    func openAddCustomToken() -> AddCustomTokenScreen {
+        XCTContext.runActivity(named: "Open Add Custom Token") { _ in
+            waitAndAssertTrue(addCustomTokenButton, "Add custom token button should exist")
+            addCustomTokenButton.waitAndTap()
+            return AddCustomTokenScreen(app)
+        }
+    }
+
     func goBackToAccountSettings() -> AccountSettingsScreen {
         XCTContext.runActivity(named: "Go back to Account settings") { _ in
             app.navigationBars.buttons["Account"].waitAndTap()
@@ -100,11 +177,14 @@ final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
 
 enum ManageTokensScreenElement: String, UIElement {
     case saveButton
+    case searchField
 
     var accessibilityIdentifier: String {
         switch self {
         case .saveButton:
             return ManageTokensAccessibilityIdentifiers.saveButton
+        case .searchField:
+            return ManageTokensAccessibilityIdentifiers.searchField
         }
     }
 }
