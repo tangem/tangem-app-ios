@@ -170,6 +170,10 @@ actor CommonTransactionHistoryAuxDataRepository {
 
     // MARK: - Crypto currencies loading
 
+    /// Crypto currencies are fetched by subset (not bulk like providers/fiat), and callers may request to resolve many
+    /// of them one-by-one - so cache misses are debounced into a single batched `loadCoins` call, deduped against in-flight
+    /// (previous) loads in-progress to prevent re-fetching the same crypto currencies multiple times concurrently.
+    /// In addition, async callers await via the collection of continuations (`pendingCryptoCurrencyContinuations`).
     private func loadCryptoCurrenciesIfNeeded(_ currency: ExpressCurrency, key: String, isFromAsyncContext: Bool) async {
         if cache.cryptoCurrency(for: key) != nil {
             return
