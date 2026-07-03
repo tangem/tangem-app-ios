@@ -32,7 +32,12 @@ struct TransactionHistorySyntheticTransactionFactory {
 
     func makeSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> TransactionRecord {
         let provider = auxDataRepository.provider(id: exchangeTransaction.providerId, branch: .swap)
-        let info = ExchangeTransactionInfo(transaction: exchangeTransaction, provider: provider)
+        let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: exchangeTransaction.expressCurrencies)
+        let info = ExchangeTransactionInfo(
+            transaction: exchangeTransaction,
+            provider: provider,
+            cryptoCurrencies: cryptoCurrencies
+        )
         let outgoing = isOutgoing(exchangeTransaction)
         let source: TransactionRecord.SourceType
         let destination: TransactionRecord.DestinationType
@@ -74,7 +79,13 @@ struct TransactionHistorySyntheticTransactionFactory {
         let amount = onrampTransaction.to.actualAmount ?? onrampTransaction.to.amount ?? 0
         let provider = auxDataRepository.provider(id: onrampTransaction.providerId, branch: .onramp)
         let fiatCurrency = auxDataRepository.fiatCurrency(for: onrampTransaction.from)
-        let info = OnrampTransactionInfo(onrampTransaction: onrampTransaction, provider: provider, fiatCurrency: fiatCurrency)
+        let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: onrampTransaction.expressCurrencies)
+        let info = OnrampTransactionInfo(
+            onrampTransaction: onrampTransaction,
+            provider: provider,
+            fiatCurrency: fiatCurrency,
+            cryptoCurrencies: cryptoCurrencies
+        )
 
         return TransactionRecord(
             hash: onrampTransaction.payOut.hash ?? onrampTransaction.txId,

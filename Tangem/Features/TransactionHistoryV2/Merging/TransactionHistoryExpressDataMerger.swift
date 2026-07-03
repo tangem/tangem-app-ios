@@ -84,7 +84,12 @@ struct TransactionHistoryExpressDataMerger {
 
         for exchangeTransaction in exchangeTransactions {
             let provider = auxDataRepository.provider(id: exchangeTransaction.providerId, branch: .swap)
-            let info = ExchangeTransactionInfo(transaction: exchangeTransaction, provider: provider)
+            let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: exchangeTransaction.expressCurrencies)
+            let info = ExchangeTransactionInfo(
+                transaction: exchangeTransaction,
+                provider: provider,
+                cryptoCurrencies: cryptoCurrencies
+            )
             var didMatch = false
 
             // Step 1: Deterministic mapping for send/receive transactions by hashes
@@ -138,7 +143,13 @@ struct TransactionHistoryExpressDataMerger {
         for onrampTransaction in onrampTransactions {
             let provider = auxDataRepository.provider(id: onrampTransaction.providerId, branch: .onramp)
             let fiatCurrency = auxDataRepository.fiatCurrency(for: onrampTransaction.from)
-            let info = OnrampTransactionInfo(onrampTransaction: onrampTransaction, provider: provider, fiatCurrency: fiatCurrency)
+            let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: onrampTransaction.expressCurrencies)
+            let info = OnrampTransactionInfo(
+                onrampTransaction: onrampTransaction,
+                provider: provider,
+                fiatCurrency: fiatCurrency,
+                cryptoCurrencies: cryptoCurrencies
+            )
             var didMatch = false
 
             // Step 1: Deterministic mapping for receive (no send for Onramp) transactions by hashes
