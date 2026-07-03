@@ -149,7 +149,7 @@ struct WCTransactionSimulationView: View {
     private func directionSign(for direction: WCTransactionSimulationDisplayModel.AssetItem.Direction) -> String {
         switch direction {
         case .receive:
-            return "+"
+            return .plusSign
         case .send:
             return "–"
         }
