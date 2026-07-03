@@ -72,7 +72,7 @@ private extension NetworkAddressBooksProvider {
         let managers = models().map(\.addressBookManager)
         Task {
             await TaskGroup.executeKeepingOrder(items: managers, action: { manager in
-                await manager.load()
+                await manager.load(silent: true)
             })
         }
     }
