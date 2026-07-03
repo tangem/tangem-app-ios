@@ -246,7 +246,6 @@ extension NFTEntrypointView {
     }
 }
 
-#if DEBUG
 #Preview("No collections") {
     ZStack {
         Colors.Field.primary
@@ -447,4 +446,3 @@ extension NFTEntrypointView {
         .padding(.horizontal, 16)
     }
 }
-#endif

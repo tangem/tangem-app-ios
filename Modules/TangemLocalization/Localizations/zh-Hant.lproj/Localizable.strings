@@ -1177,6 +1177,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Destination Tag";
 "send_dismiss_message" = "Are you sure you want to close the send screen?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "ENS name or address";
 "send_enter_address_field" = "Enter address";
 "send_error_address_same_as_wallet" = "地址與錢包地址相同";
@@ -1546,6 +1547,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "費用依服務費率收取";
 "tangem_pay_transaction_reversed_notification_text" = "該交易已被商家部分或全額撤銷";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "繼續使用您的資金。您可以隨時凍結。";
 "tangem_pay_unfreeze_card_alert_title" = "解凍您的卡片？";
 "tangem_pay_unfreeze_card_failed" = "無法解凍卡片。請稍後再試。";
@@ -2083,6 +2086,7 @@
 "warning_matic_migration_message" = "MATIC is being migrated to POL. However, there is no deadline set and MATIC isn't being deprecated yet. You can safely continue using MATIC token or swap it for POL.";
 "warning_matic_migration_title" = "MATIC to POL Migration";
 "warning_missing_derivation_title" = "Some addresses are missing";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "The network is currently unreachable. Please try again later.";
 "warning_network_unreachable_title" = "網路無法使用";
 "warning_no_account_title" = "Top up your wallet";

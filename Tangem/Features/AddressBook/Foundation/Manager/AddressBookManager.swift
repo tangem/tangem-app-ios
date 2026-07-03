@@ -14,9 +14,8 @@ import TangemFoundation
 /// invariants, and signs (or re-signs) entries on every mutation that changes the signed tuple.
 /// Deletes and reads never require a signature.
 ///
-/// Uniqueness rules: the contact `name` is unique within the wallet (case-insensitive); the
-/// `(address, networkId)` pair is unique only *within a contact* — the same pair may repeat across
-/// different contacts of the same wallet.
+/// Uniqueness rules: within the wallet, both the contact `name` (case-insensitive) and the
+/// `(address, networkId)` pair are unique — the same pair may not repeat across contacts of the wallet.
 protocol AddressBookManager: AnyObject {
     /// Verified contacts ready for display and the Send Flow. Invalid-signature entries are dropped; a
     /// contact whose every entry is invalid is omitted. Combine with `syncStatePublisher` to build the UI
@@ -26,7 +25,7 @@ protocol AddressBookManager: AnyObject {
     var contacts: [AddressBookContact] { get }
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { get }
 
-    func load() async
+    func load(silent: Bool) async
 
     @discardableResult
     func createContact(name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID
@@ -42,4 +41,10 @@ protocol AddressBookManager: AnyObject {
     func updateContact(id: AddressBookContactID, name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws
 
     func deleteContact(id: AddressBookContactID) async throws
+}
+
+extension AddressBookManager {
+    func load() async {
+        await load(silent: false)
+    }
 }
