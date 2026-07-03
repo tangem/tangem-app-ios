@@ -138,7 +138,8 @@ extension WalletNetworkServiceFactory {
         case .cosmos,
              .terraV1,
              .terraV2,
-             .sei:
+             .sei,
+             .gonka:
             return try makeCosmosNetworkService(for: blockchain)
         case .ton:
             return makeTONNetworkService(for: blockchain)
@@ -470,7 +471,7 @@ private extension WalletNetworkServiceFactory {
         )
     }
 
-    /// Cosmos Hub, Terra, Sei (Cosmos SDK REST)
+    /// Cosmos Hub, Terra, Sei, Gonka (Cosmos SDK REST)
     func makeCosmosNetworkService(for blockchain: Blockchain) throws -> CosmosNetworkService {
         let cosmosChain: CosmosChain
         switch blockchain {
@@ -482,6 +483,8 @@ private extension WalletNetworkServiceFactory {
             cosmosChain = .terraV2
         case .sei(let isTestnet):
             cosmosChain = .sei(testnet: isTestnet)
+        case .gonka(let isTestnet):
+            cosmosChain = .gonka(testnet: isTestnet)
         default:
             throw BlockchainSdkError.notImplemented
         }
