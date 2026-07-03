@@ -54,6 +54,8 @@ struct TransactionDetailsInfoSectionView: View {
         switch row.content {
         case .text(let value):
             TangemRow(title: row.title, value: value)
+                .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+                .valueLineLimit(1)
                 .showDivider(showsDivider)
         case .link(let link):
             TangemRow(title: row.title)
@@ -86,7 +88,6 @@ struct TransactionDetailsInfoSectionView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Info section") {
     TransactionDetailsInfoSectionView(data: .init(rows: [
         .init(id: "provider", title: "Provider", content: .link(.init(text: "DEX • Mercuryo", iconURL: nil, handler: {}))),
@@ -96,4 +97,3 @@ struct TransactionDetailsInfoSectionView: View {
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)
 }
-#endif // DEBUG

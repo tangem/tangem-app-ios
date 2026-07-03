@@ -15,7 +15,10 @@ import TangemUI
 
 final class EditAddressBookContactManagementInteractor {
     private let contact: AddressBookContact
-    private let addressBooksProvider: any AddressBooksProvider
+
+    /// The book the contact was opened from. Stored (not re-resolved) so it stays the source even after
+    /// `walletSubject` is switched to the wallet the user wants to move the contact to.
+    private let initialAddressBookWallet: AddressBookWallet
 
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
@@ -24,16 +27,16 @@ final class EditAddressBookContactManagementInteractor {
 
     private let initialSnapshot: AddressBookContactSnapshot
 
-    init(contact: AddressBookContact, addressBookWallet: AddressBookWallet, addressBooksProvider: any AddressBooksProvider = .common()) {
+    init(contact: AddressBookContact, initialAddressBookWallet: AddressBookWallet) {
         self.contact = contact
-        self.addressBooksProvider = addressBooksProvider
+        self.initialAddressBookWallet = initialAddressBookWallet
 
         nameSubject = .init(contact.name.value)
         colorSubject = .init(contact.appearance.color)
         addressesSubject = .init(contact.entries.raw.map {
             AddressBookEntryDraft(id: $0.id, address: $0.address, blockchain: $0.blockchain, memo: $0.memo)
         })
-        walletSubject = .init(addressBookWallet)
+        walletSubject = .init(initialAddressBookWallet)
 
         initialSnapshot = Self.makeSnapshot(
             name: nameSubject.value,
@@ -48,6 +51,8 @@ final class EditAddressBookContactManagementInteractor {
 
 extension EditAddressBookContactManagementInteractor: AddressBookContactManagementInteractor {
     var title: String { Localization.addressBookContact }
+    var mainButtonTitle: String { Localization.addressBookSaveContact }
+    var saveErrorMessage: String? { nil }
 
     var contactNamePublisher: AnyPublisher<String, Never> {
         nameSubject.eraseToAnyPublisher()
@@ -76,10 +81,18 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         Just(true).eraseToAnyPublisher()
     }
 
+    var reservedContacts: [AddressBookContact] {
+        walletSubject.value.addressBookManager.contacts.filter { $0.id != contact.id }
+    }
+
+    var isNameTakenPublisher: AnyPublisher<Bool, Never> {
+        nameTakenPublisher
+    }
+
     var isMainButtonEnabledPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(nameSubject, addressesSubject)
-            .map { name, addresses in
-                !name.trimmed().isEmpty && !addresses.isEmpty
+        Publishers.CombineLatest3(nameSubject, addressesSubject, nameTakenPublisher)
+            .map { name, addresses, isNameTaken in
+                !name.trimmed().isEmpty && !addresses.isEmpty && !isNameTaken
             }
             .eraseToAnyPublisher()
     }
@@ -142,7 +155,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
 
     func save() async throws {
         let name = try AddressBookContactNameValidator().validate(nameSubject.value)
-        let source = try sourceAddressBookWallet()
+        let source = initialAddressBookWallet
         let target = walletSubject.value
 
         // Deleting the last address deletes the contact; the chosen wallet is moot when nothing remains.
@@ -159,21 +172,25 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     }
 
     func delete() async throws {
-        try await sourceAddressBookWallet().addressBookManager.deleteContact(id: contact.id)
+        try await initialAddressBookWallet.addressBookManager.deleteContact(id: contact.id)
     }
 }
 
 // MARK: - Wallet change (move between books)
 
 private extension EditAddressBookContactManagementInteractor {
-    /// The book the contact currently lives in — resolved from its own `walletId` rather than stored, so it
-    /// stays the source even after `walletSubject` is switched to the wallet the user wants to move it to.
-    func sourceAddressBookWallet() throws -> AddressBookWallet {
-        guard let wallet = addressBooksProvider.addressBooks.first(where: { $0.wallet.id == contact.walletId }) else {
-            throw AddressBookManagerError.contactNotFound
-        }
-
-        return wallet
+    var nameTakenPublisher: AnyPublisher<Bool, Never> {
+        walletSubject
+            .map { $0.addressBookManager.contactsPublisher }
+            .switchToLatest()
+            .combineLatest(nameSubject)
+            .map { [contactId = contact.id] contacts, name in
+                let trimmed = name.trimmed()
+                guard !trimmed.isEmpty else { return false }
+                return contacts.contains { $0.id != contactId && $0.name.value.caseInsensitiveCompare(trimmed) == .orderedSame }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     /// Each book is signed with its owning wallet's key, so the move re-signs the contact's entries under the

@@ -148,38 +148,38 @@ public struct TangemRow<
     @ViewBuilder
     private var titleLine: some View {
         if title != nil || TitleAccessory.self != EmptyView.self {
-            labelLine(text: title, accessory: titleAccessoryContent, role: .title, lineLimit: config.titleLineLimit, colorOverride: config.overrideTextColors.title)
+            labelLine(text: title, accessory: titleAccessoryContent, role: .title, lineLimit: config.titleLineLimit, colorOverride: config.overrideTextColors.title, truncationMode: config.truncationModes.title)
         }
     }
 
     @ViewBuilder
     private var subtitleLine: some View {
         if subtitle != nil || SubtitleAccessory.self != EmptyView.self {
-            labelLine(text: subtitle, accessory: subtitleAccessoryContent, role: .subtitle, lineLimit: config.subtitleLineLimit, colorOverride: config.overrideTextColors.subtitle)
+            labelLine(text: subtitle, accessory: subtitleAccessoryContent, role: .subtitle, lineLimit: config.subtitleLineLimit, colorOverride: config.overrideTextColors.subtitle, truncationMode: config.truncationModes.subtitle)
         }
     }
 
     @ViewBuilder
     private var valueLine: some View {
         if value != nil || ValueAccessory.self != EmptyView.self {
-            labelLine(text: value, accessory: valueAccessoryContent, role: .value, lineLimit: config.valueLineLimit, colorOverride: config.overrideTextColors.value)
+            labelLine(text: value, accessory: valueAccessoryContent, role: .value, lineLimit: config.valueLineLimit, colorOverride: config.overrideTextColors.value, truncationMode: config.truncationModes.value)
         }
     }
 
     @ViewBuilder
     private var subvalueLine: some View {
         if subvalue != nil || SubvalueAccessory.self != EmptyView.self {
-            labelLine(text: subvalue, accessory: subvalueAccessoryContent, role: .subvalue, lineLimit: config.subvalueLineLimit, colorOverride: config.overrideTextColors.subvalue)
+            labelLine(text: subvalue, accessory: subvalueAccessoryContent, role: .subvalue, lineLimit: config.subvalueLineLimit, colorOverride: config.overrideTextColors.subvalue, truncationMode: config.truncationModes.subvalue)
         }
     }
 
-    private func labelLine(text: String?, accessory: some View, role: Role, lineLimit: Int, colorOverride: Color? = nil) -> some View {
+    private func labelLine(text: String?, accessory: some View, role: Role, lineLimit: Int, colorOverride: Color? = nil, truncationMode: Text.TruncationMode = .tail) -> some View {
         HStack(alignment: .center, spacing: TangemRowMetrics.inlineAccessorySpacing) {
             if let text {
                 Text(text)
                     .style(role.font, color: colorOverride ?? role.color)
                     .lineLimit(lineLimit)
-                    .truncationMode(.tail)
+                    .truncationMode(truncationMode)
             }
 
             accessory

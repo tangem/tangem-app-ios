@@ -11,6 +11,8 @@ import TangemAssets
 import TangemUI
 
 struct WalletOnboardingView: View {
+    @State private var isModallyPresented: Bool = false
+
     @ObservedObject var viewModel: WalletOnboardingViewModel
 
     private let screenSize: CGSize = UIScreen.main.bounds.size
@@ -86,6 +88,10 @@ struct WalletOnboardingView: View {
         }
     }
 
+    private var contentTopPadding: CGFloat {
+        isModallyPresented ? .unit(.x4) : 0
+    }
+
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
@@ -112,13 +118,11 @@ struct WalletOnboardingView: View {
                                 backgroundColor: .clear
                             ),
                             leftButtons: {
-                                BackButton(
-                                    height: viewModel.navbarSize.height,
-                                    isVisible: viewModel.isBackButtonVisible,
-                                    isEnabled: viewModel.isBackButtonEnabled
-                                ) {
-                                    viewModel.backButtonAction()
-                                }
+                                NavigationBarButton.back(action: viewModel.backButtonAction)
+                                    .padding(.leading, .unit(.x4))
+                                    .visible(viewModel.isBackButtonVisible)
+                                    .disabled(!viewModel.isBackButtonEnabled)
+                                    .redesigned()
                             },
                             rightButtons: {
                                 SupportButton(
@@ -231,23 +235,33 @@ struct WalletOnboardingView: View {
                     }
                 }
             }
+            .padding(.top, contentTopPadding)
         }
         .alert(item: $viewModel.alert, content: { alertBinder in
             alertBinder.alert
         })
         .preference(key: ModalSheetPreferenceKey.self, value: viewModel.isModal)
         .onAppear(perform: viewModel.onAppear)
+        .onModalDetection { isModallyPresented = $0 }
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
     }
 }
 
-#if DEBUG
 #Preview {
     NavigationStack {
-        WalletOnboardingView(viewModel: .init(
-            input: PreviewData.previewWalletOnboardingInput,
-            coordinator: OnboardingCoordinator()
-        ))
+        WalletOnboardingView(
+            viewModel: .init(
+                input: OnboardingInput(
+                    backupService: .init(sdk: .init(), networkService: .init(session: .shared, additionalHeaders: [:])),
+                    primaryCardId: "",
+                    cardInitializer: nil,
+                    pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
+                    steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
+                    cardInput: .cardInfo(PreviewCard.tangemWalletEmpty.cardInfo),
+                    twinData: nil
+                ),
+                coordinator: OnboardingCoordinator()
+            )
+        )
     }
 }
-#endif

@@ -181,6 +181,7 @@ struct ReferralView: View {
                         Fonts.Bold.footnote,
                         color: Colors.Text.tertiary
                     )
+                    .accessibilityIdentifier(ReferralAccessibilityIdentifiers.promoCodeTitle)
 
                 Text(viewModel.promoCode)
                     .style(
@@ -188,6 +189,7 @@ struct ReferralView: View {
                         color: Colors.Text.primary1
                     )
                     .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(ReferralAccessibilityIdentifiers.promoCodeValue)
 
                 if let accountData {
                     Divider()
@@ -361,38 +363,38 @@ struct ReferralView: View {
     }
 }
 
-struct ReferralView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            ReferralView(
-                viewModel: ReferralViewModel(
-                    input: .init(
-                        userWalletId: Data(),
-                        supportedBlockchains: SupportedBlockchains.all,
-                        accountModelsManager: AccountModelsManagerMock(),
-                        tokenIconInfoBuilder: TokenIconInfoBuilder(),
-                        userWalletModel: UserWalletModelMock()
-                    ),
-                    coordinator: ReferralCoordinator()
-                )
+#Preview {
+    NavigationStack {
+        ReferralView(
+            viewModel: ReferralViewModel(
+                input: .init(
+                    userWalletId: Data(),
+                    supportedBlockchains: SupportedBlockchains.all,
+                    accountModelsManager: AccountModelsManagerMock(),
+                    tokenIconInfoBuilder: TokenIconInfoBuilder(),
+                    userWalletModel: UserWalletModelMock()
+                ),
+                coordinator: ReferralCoordinator()
             )
-        }
-        .previewGroup(devices: [.iPhone7], withZoomed: false)
-
-        NavigationStack {
-            ReferralView(
-                viewModel: ReferralViewModel(
-                    input: .init(
-                        userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
-                        supportedBlockchains: SupportedBlockchains.all,
-                        accountModelsManager: AccountModelsManagerMock(),
-                        tokenIconInfoBuilder: TokenIconInfoBuilder(),
-                        userWalletModel: UserWalletModelMock()
-                    ),
-                    coordinator: ReferralCoordinator()
-                )
-            )
-        }
-        .previewGroup(devices: [.iPhone7], withZoomed: false)
+        )
     }
+    .previewGroup(devices: [.iPhone7], withZoomed: false)
+}
+
+#Preview {
+    NavigationStack {
+        ReferralView(
+            viewModel: ReferralViewModel(
+                input: .init(
+                    userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
+                    supportedBlockchains: SupportedBlockchains.all,
+                    accountModelsManager: AccountModelsManagerMock(),
+                    tokenIconInfoBuilder: TokenIconInfoBuilder(),
+                    userWalletModel: UserWalletModelMock()
+                ),
+                coordinator: ReferralCoordinator()
+            )
+        )
+    }
+    .previewGroup(devices: [.iPhone7], withZoomed: false)
 }

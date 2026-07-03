@@ -67,7 +67,6 @@ private extension SingleWalletMainContentRedesignedView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     let userWalletModel = FakeUserWalletModel.xrpNote
     let walletModel = userWalletModel
@@ -99,4 +98,3 @@ private extension SingleWalletMainContentRedesignedView {
         )
     )
 }
-#endif // DEBUG
