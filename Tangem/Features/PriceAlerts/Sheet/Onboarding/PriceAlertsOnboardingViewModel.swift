@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 // Skeleton: the full first-run onboarding content/behavior is [REDACTED_INFO].
 final class PriceAlertsOnboardingViewModel: ObservableObject {
