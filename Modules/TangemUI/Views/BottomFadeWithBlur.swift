@@ -35,7 +35,6 @@ public struct BottomFadeWithBlur: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("BottomFadeWithBlur") {
     ZStack(alignment: .bottom) {
         ScrollView {
@@ -53,4 +52,3 @@ public struct BottomFadeWithBlur: View {
     }
     .background(Color.black)
 }
-#endif

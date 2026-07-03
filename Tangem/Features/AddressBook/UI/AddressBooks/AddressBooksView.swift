@@ -16,22 +16,25 @@ struct AddressBooksView: View {
     @ObservedObject var viewModel: AddressBooksViewModel
 
     var body: some View {
-        GroupedScrollView(contentType: .lazy(spacing: 8)) {
-            if viewModel.walletChips.count > 1 {
-                HorizontalChipsView(
-                    chips: viewModel.walletChips,
-                    selectedId: $viewModel.selectedChipId,
-                    horizontalInset: 8,
-                    verticalInset: 8
-                )
+        rootContent
+            .navigationTitle(Text(Localization.addressBookTitle))
+            .navigationBarTitleDisplayMode(.inline)
+            .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
+            .toolbar {
+                if let trailingToolbarButton = viewModel.trailingToolbarButton {
+                    trailingToolbarItem(trailingToolbarButton: trailingToolbarButton)
+                }
             }
+    }
 
-            content
-        }
-        .navigationTitle(Text(Localization.addressBookTitle))
-        // [REDACTED_TODO_COMMENT]
-        .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
-        .toolbar {
+    @ToolbarContentBuilder
+    private func trailingToolbarItem(trailingToolbarButton: AddressBooksViewModel.TrailingToolbarButton) -> some ToolbarContent {
+        switch trailingToolbarButton {
+        case .close:
+            NavigationToolbarButton
+                .close(placement: .topBarTrailing, action: viewModel.dismiss)
+
+        case .addContact:
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: viewModel.openAddContact) {
                     DesignSystem.Icons.SignPlus.regular20.image
@@ -44,21 +47,82 @@ struct AddressBooksView: View {
     }
 
     @ViewBuilder
-    private var content: some View {
-        switch viewModel.contactsViewModels {
+    private var rootContent: some View {
+        switch viewModel.contentState {
+        case .empty:
+            AddressBooksEmptyView(onAddContactTap: viewModel.openAddContact)
+                .infinityFrame()
+
         case .loading:
-            // [REDACTED_TODO_COMMENT]
-            EmptyView()
-
-        case .success(let contactsViewModels) where contactsViewModels.isEmpty:
-            // [REDACTED_TODO_COMMENT]
-            EmptyView()
-
-        case .success(let contactsViewModels):
-            GroupedSection(contactsViewModels, isLazy: true) {
-                AddressBookContactView(viewModel: $0)
+            GroupedScrollView(contentType: .lazy(spacing: 8)) {
+                AddressBooksLoadingView()
             }
-            .horizontalPadding(0)
+
+        default:
+            searchableContent
+        }
+    }
+
+    private var searchableContent: some View {
+        nonEmptyContent
+            .tangemSearchable(text: $viewModel.searchText, prompt: Localization.commonSearch)
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
+    }
+
+    @ViewBuilder
+    private var nonEmptyContent: some View {
+        switch viewModel.contentState {
+        case .failure:
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.retry)
+                .infinityFrame()
+
+        case .noResults:
+            AddressBooksSearchNoResultsView()
+                .infinityFrame()
+
+        case .loading, .searching, .results:
+            listContent
+
+        case .empty:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var listContent: some View {
+        GroupedScrollView(contentType: .lazy(spacing: 8)) {
+            chipsView
+
+            switch viewModel.contentState {
+            case .loading, .searching:
+                AddressBooksLoadingView()
+
+            case .results(let contactsViewModels):
+                GroupedSection(contactsViewModels, isLazy: true) {
+                    AddressBookContactView(viewModel: $0)
+                }
+                .separatorStyle(.none)
+                .cornerRadius(24)
+                .horizontalPadding(0)
+
+            default:
+                EmptyView()
+            }
+        }
+        .interContentPadding(12)
+    }
+
+    @ViewBuilder
+    private var chipsView: some View {
+        if viewModel.walletChips.count > 1 {
+            HorizontalChipsView(
+                chips: viewModel.walletChips,
+                selectedId: $viewModel.selectedChipId,
+                horizontalInset: 8,
+                verticalInset: 8,
+                chipHorizontalPadding: 12
+            )
         }
     }
 }

@@ -15,16 +15,15 @@ struct AddressBookContactAddressRowViewModel: Identifiable {
     let id: String
     let title: String
     let subtitle: String
-    let addressIconViewModel: AddressIconViewModel
-    let onDelete: () -> Void
+    let addressIcon: AddressBlockiesIconViewData
+    let onTap: () -> Void
 
-    init(id: String, address: String, onDelete: @escaping () -> Void) {
+    init(id: String, address: String, networksCount: Int, onTap: @escaping () -> Void) {
         self.id = id
         title = address
-        // Each entry holds a single network for now; the row reflects exactly one network.
-        subtitle = Localization.commonNetworksCount(1)
-        addressIconViewModel = AddressIconViewModel(address: address)
-        self.onDelete = onDelete
+        subtitle = Localization.commonNetworksCount(networksCount)
+        addressIcon = AddressIconProvider.makeBlockiesIconViewData(address: address)
+        self.onTap = onTap
     }
 }
 
@@ -35,14 +34,9 @@ struct AddressBookContactAddressRowView: View {
         TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
             .verticalAlignment(.center)
             .start {
-                AddressIconView(viewModel: viewModel.addressIconViewModel)
+                AddressBlockiesIconView(viewData: viewModel.addressIcon)
             }
-            .end {
-                Button(action: viewModel.onDelete) {
-                    Image(systemName: "trash")
-                        .foregroundStyle(DesignSystem.Color.textAccentRed)
-                }
-                .buttonStyle(.plain)
-            }
+            .truncationModes(.init(title: .middle))
+            .onTap(viewModel.onTap)
     }
 }

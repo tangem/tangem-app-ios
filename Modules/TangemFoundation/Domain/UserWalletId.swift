@@ -9,7 +9,7 @@
 import Foundation
 import CryptoKit
 
-public struct UserWalletId: Hashable {
+public struct UserWalletId: Hashable, Sendable {
     public let value: Data
     public let stringValue: String
 

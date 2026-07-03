@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct AddCustomTokenNetworksListItemView: View {
     @ObservedObject var viewModel: AddCustomTokenNetworksListItemViewModel
@@ -46,45 +47,44 @@ struct AddCustomTokenNetworksListItemView: View {
         .onTapGesture {
             viewModel.didTapWallet()
         }
+        .accessibilityIdentifier(AddCustomTokenAccessibilityIdentifiers.networkRow(viewModel.networkName))
     }
 }
 
-struct AddCustomTokenNetworkSelectorView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 0) {
-            AddCustomTokenNetworksListItemView(
-                viewModel: .init(
-                    networkId: "",
-                    iconAsset: Tokens.ethereumFill,
-                    networkName: "Ethereum",
-                    currencySymbol: "ETH",
-                    isSelected: true,
-                    didTapWallet: {}
-                )
+@available(iOS 17.0, *)
+#Preview(traits: .fixedLayout(width: 400, height: 300)) {
+    VStack(spacing: 0) {
+        AddCustomTokenNetworksListItemView(
+            viewModel: .init(
+                networkId: "",
+                iconAsset: Tokens.ethereumFill,
+                networkName: "Ethereum",
+                currencySymbol: "ETH",
+                isSelected: true,
+                didTapWallet: {}
             )
+        )
 
-            AddCustomTokenNetworksListItemView(
-                viewModel: .init(
-                    networkId: "",
-                    iconAsset: Tokens.solanaFill,
-                    networkName: "Solana",
-                    currencySymbol: "SOL",
-                    isSelected: false,
-                    didTapWallet: {}
-                )
+        AddCustomTokenNetworksListItemView(
+            viewModel: .init(
+                networkId: "",
+                iconAsset: Tokens.solanaFill,
+                networkName: "Solana",
+                currencySymbol: "SOL",
+                isSelected: false,
+                didTapWallet: {}
             )
+        )
 
-            AddCustomTokenNetworksListItemView(
-                viewModel: .init(
-                    networkId: "",
-                    iconAsset: Tokens.bscFill,
-                    networkName: "Binance smartest chain on the planet and maybe even the Universe",
-                    currencySymbol: "BNB",
-                    isSelected: true,
-                    didTapWallet: {}
-                )
+        AddCustomTokenNetworksListItemView(
+            viewModel: .init(
+                networkId: "",
+                iconAsset: Tokens.bscFill,
+                networkName: "Binance smartest chain on the planet and maybe even the Universe",
+                currencySymbol: "BNB",
+                isSelected: true,
+                didTapWallet: {}
             )
-        }
-        .previewLayout(.fixed(width: 400, height: 300))
+        )
     }
 }
