@@ -20,6 +20,7 @@ protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, SwapRoutable, Se
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
     func openExplorer(url: URL)
     func openShareSheet(url: URL)
+    func openAddContact(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft])
     func openApproveView(flowFactory: ApproveFlowFactory)
     func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder)
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel)
