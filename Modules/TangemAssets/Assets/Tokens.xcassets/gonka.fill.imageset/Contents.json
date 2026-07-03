@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "Name=Gonka, Active=On, Web=Off.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
