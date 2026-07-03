@@ -19,6 +19,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     // MARK: - Root view model
 
@@ -56,6 +57,16 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             tangemIconProvider: CommonTangemIconProvider(config: options.userWalletInfo.config)
         )
 
+        let marketingNotificationManager = MarketingBannerNotificationManager()
+        marketingNotificationManager.setup(
+            bannersPublisher: marketingCampaignsRepository.bannersPublisher(
+                for: options.walletModel.tokenItem,
+                kind: .tokenDetails
+            )
+        )
+
+        let combinedNotificationManager = CompositeNotificationManager([notificationManager, marketingNotificationManager])
+
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: options.userWalletInfo,
             coordinator: self
@@ -85,7 +96,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
         tokenDetailsViewModel = .init(
             userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
-            notificationManager: notificationManager,
+            notificationManager: combinedNotificationManager,
             userTokensManager: options.userTokensManager,
             pendingExpressTransactionsManager: expressStatusTracking.manager,
             expressStatusPollingHelper: expressStatusTracking.pollingHelper,
