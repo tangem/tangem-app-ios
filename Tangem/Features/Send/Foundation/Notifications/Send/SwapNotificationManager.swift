@@ -112,7 +112,12 @@ private extension CommonSwapNotificationManager {
             return [.unsupportedPair(analyticsParams: analyticsParams)]
 
         case (.success(let source), .success(let receive), .loaded(.transfer, let state)):
-            return mapLoadedStateEvents(source: source, receive: receive, provider: nil, state: state)
+            var events = mapLoadedStateEvents(source: source, receive: receive, provider: nil, state: state)
+            if let warning = mapToCustomFeeWarningEvent(sourceToken: source) {
+                events.append(warning)
+            }
+
+            return events
 
         case (.success(let source), .success(let receive), .loaded(.swap(let selected, _), let state)):
             let events = mapLoadedStateEvents(source: source, receive: receive, provider: selected, state: state)
@@ -313,6 +318,20 @@ private extension CommonSwapNotificationManager {
 
             return events
         }
+    }
+
+    func mapToCustomFeeWarningEvent(sourceToken: SendSourceToken) -> SwapNotificationEvent? {
+        let transferableToken = sourceToken as? SendTransferableToken
+        guard let tokenFeeProvidersManager = transferableToken?.tokenFeeProvidersManager else {
+            return nil
+        }
+
+        let customFeeWarning = CustomFeeThresholdEvaluator.evaluate(
+            selectedFee: tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee,
+            feeValues: tokenFeeProvidersManager.selectedFeeProvider.fees
+        )
+
+        return customFeeWarning.map { .customFeeWarning($0) }
     }
 
     private func hpiAnalyticsParams(
