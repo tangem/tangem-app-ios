@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import TangemSdk
 
 /// Serializes the address-book plaintext to and from JSON before encryption. Centralizing the JSON
 /// configuration here keeps the blob schema in one place. Dates use ISO-8601 with fractional seconds
-/// and signature bytes use Base64 — the on-the-wire schema is a cross-platform contract.
+/// and signature bytes use hex — matching the envelope fields, the on-the-wire schema is a cross-platform contract.
 struct AddressBookBlobCodec {
     static let supportedVersion = "1.0"
 
@@ -47,7 +48,10 @@ struct AddressBookBlobCodec {
     private static let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
-        encoder.dataEncodingStrategy = .base64
+        encoder.dataEncodingStrategy = .custom { data, encoder in
+            var container = encoder.singleValueContainer()
+            try container.encode(data.hexString)
+        }
         encoder.dateEncodingStrategy = .custom { date, encoder in
             var container = encoder.singleValueContainer()
             try container.encode(Self.dateFormatter.string(from: date))
@@ -57,6 +61,21 @@ struct AddressBookBlobCodec {
 
     private static let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
+        decoder.dataDecodingStrategy = .custom { decoder in
+            let string = try decoder.singleValueContainer().decode(String.self)
+
+            guard !string.isEmpty else { return Data() }
+
+            let data = Data(hexString: string)
+
+            guard !data.isEmpty else {
+                throw DecodingError.dataCorrupted(
+                    .init(codingPath: decoder.codingPath, debugDescription: "Invalid hex data: \(string)")
+                )
+            }
+
+            return data
+        }
         decoder.dateDecodingStrategy = .custom { decoder in
             let string = try decoder.singleValueContainer().decode(String.self)
 
