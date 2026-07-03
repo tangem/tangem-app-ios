@@ -51,6 +51,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let priceFormatter = MarketsTokenPriceFormatter()
     private let tokenActionAvailabilityAnalyticsMapper = TokenActionAvailabilityAnalyticsMapper()
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
+    private let expressStatusPollingHelper: ExpressStatusPollingHelper
     private let priceChangeUtility = PriceChangeUtility()
 
     private var updateTask: Task<Void, Never>?
@@ -108,6 +109,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         walletModel: any WalletModel,
         notificationManager: NotificationManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
+        expressStatusPollingHelper: ExpressStatusPollingHelper,
         tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletInfo = userWalletInfo
@@ -118,6 +120,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             walletModel: walletModel
         )
         self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
+        self.expressStatusPollingHelper = expressStatusPollingHelper
         self.tokenRouter = tokenRouter
 
         prepareSelf()
@@ -235,7 +238,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     private func performLoadHistory() async {
-        await walletModel.updateTransactionsHistory()
+        await walletModel.updateTransactionHistory()
         await MainActor.run {
             if isReloadingTransactionHistory {
                 isReloadingTransactionHistory = false
