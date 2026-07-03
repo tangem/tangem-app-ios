@@ -92,6 +92,7 @@
 "address_book_creating_error" = "連絡先を作成できませんでした。しばらくしてからもう一度お試しください。";
 "address_book_delete_contact_description" = "この連絡先は、すべてのアドレス帳から削除されます。";
 "address_book_delete_contact" = "Delete contact";
+"address_book_delete_last_address" = "\"%1$@\" has only one address. Deleting it will also delete the contact. Continue?";
 "address_book_deleting_error" = "連絡先を削除できませんでした。しばらくしてからもう一度お試しください。";
 "address_book_description" = "連絡先とアドレスを管理";
 "address_book_discard" = "破棄";
@@ -2082,6 +2083,7 @@
 "warning_matic_migration_message" = "MATICはPOLに移行中です。ただし、期限は設定されておらず、MATICはまだ廃止されていません。MATICトークンを引き続き安全に使用することも、POLに交換することもできます。";
 "warning_matic_migration_title" = "MATICからPOLへの移行";
 "warning_missing_derivation_title" = "一部のアドレスが見つかりません";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "現在、ネットワークにアクセスできません。しばらくしてからもう一度お試しください。";
 "warning_network_unreachable_title" = "ネットワークにアクセスできません";
 "warning_no_account_title" = "ウォレットに入金";

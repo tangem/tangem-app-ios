@@ -92,6 +92,7 @@
 "address_book_creating_error" = "Es konnte kein Kontakt hergestellt werden. Bitte versuchen Sie es später erneut.";
 "address_book_delete_contact_description" = "Dieser Kontakt wird aus all Ihren Adressbüchern gelöscht.";
 "address_book_delete_contact" = "Delete contact";
+"address_book_delete_last_address" = "\"%1$@\" has only one address. Deleting it will also delete the contact. Continue?";
 "address_book_deleting_error" = "Der Kontakt konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.";
 "address_book_description" = "Verwalten von Kontakten und Adressen";
 "address_book_discard" = "Verwerfen";
@@ -2082,6 +2083,7 @@
 "warning_matic_migration_message" = "MATIC wird zu POL migriert. Es gibt jedoch keine festgelegte Frist und MATIC wird noch nicht abgeschafft. Du kannst den MATIC-Token weiterhin bedenkenlos verwenden oder es gegen POL austauschen.";
 "warning_matic_migration_title" = "Migration von MATIC zu POL";
 "warning_missing_derivation_title" = "Einige Adressen fehlen";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "Das Netzwerk ist derzeit nicht erreichbar. Bitte versuchen Sie es später erneut.";
 "warning_network_unreachable_title" = "Netzwerk ist nicht erreichbar";
 "warning_no_account_title" = "Lade dein Guthaben auf";
