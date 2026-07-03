@@ -183,6 +183,8 @@ struct TwinsOnboardingView: View {
     }
 }
 
+#if DEBUG
+
 #Preview {
     TwinsOnboardingView(
         viewModel: TwinsOnboardingViewModel(
@@ -205,3 +207,5 @@ struct TwinsOnboardingView: View {
         )
     )
 }
+
+#endif
