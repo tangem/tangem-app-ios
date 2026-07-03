@@ -49,6 +49,10 @@ final class SendCoordinator: CoordinatorObject {
         willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
     }
 
+    @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
     // MARK: - Child view models
 
     @Published var expressApproveViewModel: ApproveViewModel? {
@@ -207,6 +211,15 @@ extension SendCoordinator: SendRoutable {
 
     func openShareSheet(url: URL) {
         AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
+
+    func openAddContact(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {
+        let coordinator = AddressBookContactManagementCoordinator(
+            dismissAction: { [weak self] _ in self?.contactManagementCoordinator = nil },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .add(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries))
+        contactManagementCoordinator = coordinator
     }
 
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {
