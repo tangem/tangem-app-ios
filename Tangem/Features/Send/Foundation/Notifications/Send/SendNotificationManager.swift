@@ -128,48 +128,15 @@ private extension CommonSendNotificationManager {
     }
 
     func updateCustomFee(selectedFee: TokenFee, feeValues: [TokenFee]) {
-        switch (selectedFee.option, selectedFee.value) {
-        case (.custom, .success(let customFee)):
-            updateCustomFeeTooLow(
-                customFee: customFee,
-                lowestFee: feeValues.first(where: { $0.option == .slow })?.value.value
-            )
-
-            updateCustomFeeTooHigh(
-                customFee: customFee,
-                highestFee: feeValues.first(where: { $0.option == .fast })?.value.value
-            )
-
-        default:
-            hideAllNotification { event in
-                switch event {
-                case .customFeeTooLow, .customFeeTooHigh:
-                    return true
-                default:
-                    return false
-                }
-            }
-        }
-    }
-
-    func updateCustomFeeTooLow(customFee: Fee, lowestFee: Fee?) {
-        if let lowestFee, customFee.amount.value < lowestFee.amount.value {
-            show(notification: .customFeeTooLow)
-        } else {
+        switch CustomFeeThresholdEvaluator.evaluate(selectedFee: selectedFee, feeValues: feeValues) {
+        case .tooHigh(let orderOfMagnitude):
+            show(notification: .customFeeTooHigh(orderOfMagnitude: orderOfMagnitude))
             hideAllNotification { $0.isCustomFeeTooLow }
-        }
-    }
-
-    func updateCustomFeeTooHigh(customFee: Fee, highestFee: Fee?) {
-        let magnitudeTrigger: Decimal = 5
-
-        if let highestFee, customFee.amount.value > highestFee.amount.value * magnitudeTrigger {
-            let highFeeOrder = customFee.amount.value / highestFee.amount.value
-            let highFeeOrderOfMagnitude = highFeeOrder.intValue(roundingMode: .plain)
-
-            show(notification: .customFeeTooHigh(orderOfMagnitude: highFeeOrderOfMagnitude))
-        } else {
+        case .tooLow:
+            show(notification: .customFeeTooLow)
             hideAllNotification { $0.isCustomFeeTooHigh }
+        case .none:
+            hideAllNotification { $0.isCustomFeeTooLow || $0.isCustomFeeTooHigh }
         }
     }
 
