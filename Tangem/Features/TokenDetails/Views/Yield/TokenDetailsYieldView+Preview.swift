@@ -9,34 +9,96 @@
 import SwiftUI
 import TangemUI
 
-// MARK: - Previews
+@available(iOS 17.0, *)
+#Preview("Interactive") {
+    enum PreviewYieldState: String, CaseIterable, Identifiable {
+        case loading = "Loading"
+        case available = "Available"
+        case processingEnabling = "Processing (Enabling)"
+        case processingDisabling = "Processing (Disabling)"
+        case activeNoBadge = "Active (No Badge)"
+        case activeAttention = "Active (Attention)"
+        case activeWarning = "Active (Warning)"
 
-#if DEBUG
+        var id: String { rawValue }
 
-private struct TokenDetailsYieldInteractivePreview: View {
-    @State private var selectedState: PreviewYieldState = .available
-    @State private var colorScheme: ColorScheme = .light
-    @State private var dynamicTypeSize: DynamicTypeSize = .large
+        func toYieldState() -> TokenDetailsYieldState {
+            switch self {
+            case .loading:
+                return .loading
 
-    var body: some View {
-        VStack(spacing: 16) {
-            pickerSection
+            case .available:
+                return .available(item: .init(
+                    title: "Earn 4.8% APY",
+                    description: "Start earning yield on your USDC",
+                    action: .init(title: "Enable", closure: {})
+                ))
 
-            Spacer()
+            case .processingEnabling:
+                return .processing(item: .init(
+                    type: .enabling,
+                    title: "Yield Mode",
+                    description: "Enabling..."
+                ))
 
-            TokenDetailsYieldView(state: selectedState.toYieldState())
+            case .processingDisabling:
+                return .processing(item: .init(
+                    type: .disabling,
+                    title: "Yield Mode",
+                    description: "Disabling..."
+                ))
 
-            Spacer()
+            case .activeNoBadge:
+                return .active(item: .init(
+                    title: "Yield Mode",
+                    description: "APY · 4.8%",
+                    badgeType: { .none },
+                    action: .init(title: "Details", closure: {})
+                ))
+
+            case .activeAttention:
+                return .active(item: .init(
+                    title: "Yield Mode",
+                    description: "APY · 4.8%",
+                    badgeType: { .attention },
+                    action: .init(title: "Details", closure: {})
+                ))
+
+            case .activeWarning:
+                return .active(item: .init(
+                    title: "Yield Mode",
+                    description: "APY · 4.8%",
+                    badgeType: { .warning },
+                    action: .init(title: "Details", closure: {})
+                ))
+            }
         }
-        .padding()
-        .dynamicTypeSize(dynamicTypeSize)
-        .background(Color.Tangem.Surface.level1)
-        .environment(\.colorScheme, colorScheme)
     }
 
-    private var pickerSection: some View {
+    @Previewable @State var selectedState = PreviewYieldState.available
+    @Previewable @State var colorScheme = ColorScheme.light
+    @Previewable @State var dynamicTypeSize = DynamicTypeSize.large
+
+    return VStack(spacing: 16) {
         VStack {
-            previewPicker(title: "State", selection: $selectedState)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 4) {
+                    Text("State")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Text("· \(selectedState.rawValue)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Picker("State", selection: $selectedState) {
+                    ForEach(PreviewYieldState.allCases) { state in
+                        Text(state.rawValue).tag(state)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
 
             HStack {
                 Text("Color scheme")
@@ -59,101 +121,15 @@ private struct TokenDetailsYieldInteractivePreview: View {
                 .pickerStyle(.segmented)
             }
         }
-    }
 
-    @ViewBuilder
-    private func previewPicker<State: RawRepresentable & CaseIterable & Hashable & Identifiable>(
-        title: String,
-        selection: Binding<State>
-    ) -> some View where State.RawValue == String, State.AllCases: RandomAccessCollection {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 4) {
-                Text(title)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text("· \(selection.wrappedValue.rawValue)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Picker(title, selection: selection) {
-                ForEach(State.allCases) { state in
-                    Text(state.rawValue).tag(state)
-                }
-            }
-            .pickerStyle(.segmented)
-        }
+        Spacer()
+
+        TokenDetailsYieldView(state: selectedState.toYieldState())
+
+        Spacer()
     }
+    .padding()
+    .dynamicTypeSize(dynamicTypeSize)
+    .background(Color.Tangem.Surface.level1)
+    .environment(\.colorScheme, colorScheme)
 }
-
-private enum PreviewYieldState: String, CaseIterable, Identifiable {
-    case loading = "Loading"
-    case available = "Available"
-    case processingEnabling = "Processing (Enabling)"
-    case processingDisabling = "Processing (Disabling)"
-    case activeNoBadge = "Active (No Badge)"
-    case activeAttention = "Active (Attention)"
-    case activeWarning = "Active (Warning)"
-
-    var id: String { rawValue }
-
-    func toYieldState() -> TokenDetailsYieldState {
-        switch self {
-        case .loading:
-            return .loading
-
-        case .available:
-            return .available(item: .init(
-                title: "Earn 4.8% APY",
-                description: "Start earning yield on your USDC",
-                action: .init(title: "Enable", closure: {})
-            ))
-
-        case .processingEnabling:
-            return .processing(item: .init(
-                type: .enabling,
-                title: "Yield Mode",
-                description: "Enabling..."
-            ))
-
-        case .processingDisabling:
-            return .processing(item: .init(
-                type: .disabling,
-                title: "Yield Mode",
-                description: "Disabling..."
-            ))
-
-        case .activeNoBadge:
-            return .active(item: .init(
-                title: "Yield Mode",
-                description: "APY · 4.8%",
-                badgeType: { .none },
-                action: .init(title: "Details", closure: {})
-            ))
-
-        case .activeAttention:
-            return .active(item: .init(
-                title: "Yield Mode",
-                description: "APY · 4.8%",
-                badgeType: { .attention },
-                action: .init(title: "Details", closure: {})
-            ))
-
-        case .activeWarning:
-            return .active(item: .init(
-                title: "Yield Mode",
-                description: "APY · 4.8%",
-                badgeType: { .warning },
-                action: .init(title: "Details", closure: {})
-            ))
-        }
-    }
-}
-
-struct TokenDetailsYieldView_Previews: PreviewProvider {
-    static var previews: some View {
-        TokenDetailsYieldInteractivePreview()
-            .previewDisplayName("Interactive")
-    }
-}
-
-#endif // DEBUG

@@ -58,6 +58,18 @@ final class SendAmountExternalUpdaterTests: LeakTrackingTestSuite {
         #expect(interactor.updateSourceAmountCalls.count == 1)
         #expect(interactor.updateSourceAmountCalls[0] == nil)
     }
+
+    @Test("Updater routes crypto amount to the crypto-explicit interactor method")
+    func updaterRoutesCryptoAmount() async {
+        let (sut, viewModel, interactor) = makeSUT()
+
+        sut.externalUpdate(cryptoAmount: 100)
+
+        #expect(interactor.updateSourceCryptoAmountCalls.count == 1)
+        #expect(interactor.updateSourceCryptoAmountCalls.first == 100)
+        #expect(interactor.updateSourceAmountCalls.isEmpty)
+        #expect(viewModel.externalUpdateCalls.count == 1)
+    }
 }
 
 private extension SendAmountExternalUpdaterTests {
@@ -84,6 +96,7 @@ private extension SendAmountExternalUpdaterTests {
 
     final class SendAmountInteractorMock: SendAmountInteractor {
         private(set) var updateSourceAmountCalls: [Decimal?] = []
+        private(set) var updateSourceCryptoAmountCalls: [Decimal?] = []
 
         var isReceiveTokenSelectionAvailable: Bool { false }
         var sourceFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { .just(output: nil) }
@@ -104,6 +117,11 @@ private extension SendAmountExternalUpdaterTests {
         func userDidRequestClearReceiveToken() {}
         func update(sourceAmount: Decimal?) throws -> SendAmount? {
             updateSourceAmountCalls.append(sourceAmount)
+            return nil
+        }
+
+        func update(sourceCryptoAmount: Decimal?) throws -> SendAmount? {
+            updateSourceCryptoAmountCalls.append(sourceCryptoAmount)
             return nil
         }
     }

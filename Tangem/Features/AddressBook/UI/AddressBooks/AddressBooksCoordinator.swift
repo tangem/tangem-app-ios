@@ -8,8 +8,11 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class AddressBooksCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -30,27 +33,58 @@ class AddressBooksCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = .init(coordinator: self)
+        rootViewModel = .init(
+            coordinator: self,
+            addressBooksProvider: options.addressBooksProvider,
+            selectionOutput: options.selectionOutput
+        )
     }
 }
 
 // MARK: - Options
 
 extension AddressBooksCoordinator {
-    enum Options {
-        case `default`
+    struct Options {
+        let addressBooksProvider: any AddressBooksProvider
+        let selectionOutput: AddressBooksSelectionOutput?
+
+        init(
+            addressBooksProvider: any AddressBooksProvider,
+            selectionOutput: AddressBooksSelectionOutput? = nil
+        ) {
+            self.addressBooksProvider = addressBooksProvider
+            self.selectionOutput = selectionOutput
+        }
     }
 }
 
 // MARK: - AddressBooksRoutable
 
 extension AddressBooksCoordinator: AddressBooksRoutable {
-    func openAddContact() {
-        openContactManagement(options: .add)
+    func openAddContact(addressBookWallet: AddressBookWallet) {
+        openContactManagement(options: .add(addressBookWallet: addressBookWallet, prefilledEntries: []))
     }
 
-    func openEditContact(contact: AddressBookContact) {
-        openContactManagement(options: .edit(contact: contact))
+    func openEditContact(contact: AddressBookContact, addressBookWallet: AddressBookWallet) {
+        openContactManagement(options: .edit(contact: contact, addressBookWallet: addressBookWallet))
+    }
+
+    func openChooseAddress(groups: [AddressBookContactAddressGroup], output: ChooseAddressOutput) {
+        let viewModel = ChooseAddressViewModel(groups: groups, router: self, output: output)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - ChooseAddressRoutable
+
+extension AddressBooksCoordinator: ChooseAddressRoutable {
+    func dismissChooseAddress() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 

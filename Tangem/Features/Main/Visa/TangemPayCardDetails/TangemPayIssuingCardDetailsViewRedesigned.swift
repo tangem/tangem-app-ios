@@ -31,11 +31,9 @@ private extension TangemPayIssuingCardDetailsViewRedesigned {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     TangemPayIssuingCardDetailsViewRedesigned()
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

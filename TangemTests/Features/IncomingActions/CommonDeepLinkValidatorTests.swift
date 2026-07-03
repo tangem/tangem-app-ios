@@ -230,6 +230,7 @@ struct CommonDeepLinkValidatorTests {
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
 
+    /// `tangem://yield` requires no params — a partial link is accepted and falls back to Earn at routing.
     @Test
     func yieldWithMissingTokenId() {
         let action = DeeplinkNavigationAction(
@@ -237,7 +238,7 @@ struct CommonDeepLinkValidatorTests {
             params: .init(networkId: "base"),
             deeplinkString: ""
         )
-        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
 
     @Test
@@ -247,7 +248,17 @@ struct CommonDeepLinkValidatorTests {
             params: .init(tokenId: "usd-coin"),
             deeplinkString: ""
         )
-        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func yieldWithNoParams_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .yield,
+            params: .empty,
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
 
     @Test

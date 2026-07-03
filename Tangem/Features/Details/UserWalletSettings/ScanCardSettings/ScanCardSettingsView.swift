@@ -88,19 +88,16 @@ struct ScanCardSettingsView: View {
     }
 }
 
-struct ScanCardSettingsView_Preview: PreviewProvider {
-    static let viewModel = ScanCardSettingsViewModel(
-        input: .init(
-            cardImageProvider: CardImageProviderMock(),
-            cardScanner: CommonCardScanner()
-        ),
-        coordinator: ScanCardSettingsCoordinator()
-    )
-
-    static var previews: some View {
-        NavHolder()
-            .sheet(item: .constant(viewModel)) {
-                ScanCardSettingsView(viewModel: $0)
-            }
-    }
+#Preview {
+    NavHolder()
+        .sheet(
+            item: .constant(
+                ScanCardSettingsViewModel(
+                    input: .init(cardImageProvider: CardImageProviderMock(), cardScanner: CommonCardScanner()),
+                    coordinator: ScanCardSettingsCoordinator()
+                )
+            )
+        ) {
+            ScanCardSettingsView(viewModel: $0)
+        }
 }

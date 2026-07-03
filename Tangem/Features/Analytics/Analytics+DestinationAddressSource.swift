@@ -17,6 +17,7 @@ extension Analytics {
         case recentAddress
         case textField
         case sellProvider
+        case addressBook
 
         var parameterValue: Analytics.ParameterValue? {
             switch self {
@@ -31,6 +32,9 @@ extension Analytics {
             case .recentAddress:
                 return .destinationAddressSourceRecentAddress
             case .textField, .sellProvider:
+                return nil
+            case .addressBook:
+                // [REDACTED_TODO_COMMENT]
                 return nil
             }
         }

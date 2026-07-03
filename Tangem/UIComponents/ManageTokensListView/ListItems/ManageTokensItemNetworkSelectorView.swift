@@ -39,6 +39,7 @@ struct ManageTokensItemNetworkSelectorView: View {
                     Text(viewModel.networkName.uppercased())
                         .style(Fonts.Bold.footnote, color: viewModel.networkNameForegroundColor)
                         .lineLimit(2)
+                        .accessibilityIdentifier(ManageTokensAccessibilityIdentifiers.networkRow(viewModel.networkName))
 
                     if let contractName = viewModel.contractName {
                         Text(contractName)
@@ -46,6 +47,7 @@ struct ManageTokensItemNetworkSelectorView: View {
                             .padding(.leading, 2)
                             .lineLimit(1)
                             .fixedSize()
+                            .accessibilityIdentifier(ManageTokensAccessibilityIdentifiers.networkStandardLabel(viewModel.networkName))
                     }
                 }
 
@@ -80,40 +82,39 @@ struct ManageTokensItemNetworkSelectorView: View {
     }
 }
 
-struct ManageTokensItemNetworkSelectorView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 0) {
-            ManageTokensItemNetworkSelectorView(
-                viewModel: ManageTokensItemNetworkSelectorViewModel(
-                    tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
-                    isReadonly: false,
-                    isSelected: .constant(false)
-                ),
-                arrowWidth: 40
-            )
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var isSelected = false
 
-            ManageTokensItemNetworkSelectorView(
-                viewModel: ManageTokensItemNetworkSelectorViewModel(
-                    tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
-                    isReadonly: false,
-                    isSelected: .constant(true),
-                    position: .last
-                ),
-                arrowWidth: 40
-            )
+    VStack(spacing: 0) {
+        ManageTokensItemNetworkSelectorView(
+            viewModel: ManageTokensItemNetworkSelectorViewModel(
+                tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
+                isReadonly: false,
+                isSelected: .constant(false)
+            ),
+            arrowWidth: 40
+        )
 
-            StatefulPreviewWrapper(false) {
-                ManageTokensItemNetworkSelectorView(
-                    viewModel: ManageTokensItemNetworkSelectorViewModel(
-                        tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
-                        isReadonly: false,
-                        isSelected: $0
-                    ),
-                    arrowWidth: 40
-                )
-            }
+        ManageTokensItemNetworkSelectorView(
+            viewModel: ManageTokensItemNetworkSelectorViewModel(
+                tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
+                isReadonly: false,
+                isSelected: .constant(true),
+                position: .last
+            ),
+            arrowWidth: 40
+        )
 
-            Spacer()
-        }
+        ManageTokensItemNetworkSelectorView(
+            viewModel: ManageTokensItemNetworkSelectorViewModel(
+                tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
+                isReadonly: false,
+                isSelected: $isSelected
+            ),
+            arrowWidth: 40
+        )
+
+        Spacer()
     }
 }

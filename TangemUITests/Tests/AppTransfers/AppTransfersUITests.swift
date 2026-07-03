@@ -106,7 +106,6 @@ final class AppTransfersUITests: BaseTestCase {
         .waitForFeeAmountDisplayed()
     }
 
-    // [REDACTED_TODO_COMMENT]
     func testInsufficientNativeCoinForFeeDisablesTransfer() {
         setAllureId(9845)
 
@@ -119,7 +118,8 @@ final class AppTransfersUITests: BaseTestCase {
             ]
         )
         .enterFromAmount(Constants.amount)
-        .waitForNotificationShown()
+        .waitForNotificationShown(title: Constants.insufficientFeeTitle, message: Constants.insufficientFeeMessage)
+        .waitForFeeCurrencyNavigationButton(label: Constants.goToFeeCurrencyLabel)
         .waitForConfirmButtonDisabled()
     }
 
@@ -182,6 +182,7 @@ final class AppTransfersUITests: BaseTestCase {
             .chooseSourceToken(Constants.token)
             .tapToTokenSelector()
             .waitSwapTokenSelectorDisplayed()
+            .typeSearchText(Constants.token)
             .waitForTokenAvailable(Constants.token)
     }
 
@@ -547,6 +548,9 @@ private extension AppTransfersUITests {
         static let transferInProgressTitle = "Transfer in progress"
         static let invalidAmountTitle = "Invalid amount"
         static let minimumAmountMessagePrefix = "The minimum swapping amount is"
+        static let insufficientFeeTitle = "Unable to cover Ethereum fee"
+        static let insufficientFeeMessage = "To make a transaction you need to deposit some Ethereum ETH"
+        static let goToFeeCurrencyLabel = "Go to ETH"
 
         static let ethereumTransferScenarios: [ScenarioConfig] = [
             ScenarioConfig(name: "user_tokens_api", initialState: "TwoAccountsSameToken"),

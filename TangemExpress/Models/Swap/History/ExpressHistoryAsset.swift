@@ -15,4 +15,16 @@ public struct ExpressHistoryAsset: Hashable {
     /// Final delivered amount. `nil` on the `from` side or until the order finalises.
     public let actualAmount: Decimal?
     public let decimals: Int
+
+    public init(
+        currency: ExpressCurrency,
+        amount: Decimal,
+        actualAmount: Decimal?,
+        decimals: Int
+    ) {
+        self.currency = currency
+        self.amount = amount
+        self.actualAmount = actualAmount
+        self.decimals = decimals
+    }
 }
