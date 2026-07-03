@@ -79,6 +79,10 @@ class UserWalletModelMock: UserWalletModel {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
 
+    var priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider {
+        PriceAlertsSubscriptionsProviderStub()
+    }
+
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
@@ -89,6 +93,10 @@ class UserWalletModelMock: UserWalletModel {
 
     var accountModelsManager: AccountModelsManager {
         AccountModelsManagerMock()
+    }
+
+    var addressBookManager: AddressBookManager {
+        NoopAddressBookManager()
     }
 
     var refcodeProvider: RefcodeProvider? {
