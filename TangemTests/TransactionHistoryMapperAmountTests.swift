@@ -18,7 +18,7 @@ struct TransactionHistoryMapperAmountTests {
         let viewModel = makeSUT().mapTransactionViewModel(makeRecord(status: .failed, isOutgoing: true))
 
         #expect(!viewModel.amount.value.hasPrefix(AppConstants.minusSign))
-        #expect(!viewModel.amount.value.hasPrefix("+"))
+        #expect(!viewModel.amount.value.hasPrefix(AppConstants.plusSign))
     }
 
     @Test("Confirmed outgoing tx keeps the leading sign on the redesign `value`")
