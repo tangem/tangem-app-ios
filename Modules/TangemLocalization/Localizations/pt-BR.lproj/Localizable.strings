@@ -327,6 +327,7 @@
 "common_or" = "ou";
 "common_origin_card" = "Cartão principal";
 "common_origin_ring" = "Anel primário";
+"common_other" = "Other";
 "common_passphrase" = "Senha";
 "common_paste" = "Colar";
 "common_privacy_policy" = "política de Privacidade";
@@ -592,6 +593,7 @@
 "feedback_subject_tx_push_failed" = "Não é possível enviar uma transação.";
 "feedback_token_description_error" = "Erro na descrição da moeda";
 "for_you_description" = "Analise seu portfólio e explore oportunidades de ganhos.";
+"for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "Para você";
 "force_update_action" = "Atualize agora";
 "force_update_banner_message" = "Atualize o aplicativo para a versão mais recente para garantir o funcionamento correto.";
@@ -607,6 +609,7 @@
 "gasless_transaction_fee" = "Taxa de transação";
 "generic_error_code" = "Ocorreu um erro. Código: %@.";
 "generic_requires_memo_error" = "Requer memorando";
+"get_token_title" = "Get %1$@";
 "give_permission_current_transaction" = "Transação";
 "give_permission_policy_type_footer" = "Ao aprovar, você permite que o contrato inteligente utilize seus tokens em transações futuras.";
 "give_permission_rows_amount" = "Quantia %@";
@@ -2073,6 +2076,8 @@
 "warning_hedera_missing_token_association_message" = "Este token precisa ser associado à sua conta Hedera antes que você possa recebê-lo. Taxa de associação ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Associe seu token";
 "warning_hedera_token_association_not_enough_hbar_message" = "Não é suficiente %@Recarregue sua conta Hedera para associar este token.";
+"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
+"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
 "warning_ios_deprecation_message" = "Suporte para iOS %1$@ terminará em %2$@Para continuar recebendo atualizações do aplicativo e garantir o funcionamento completo, atualize para a versão mais recente do iOS.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Tem certeza de que deseja cancelar a transação? Você não poderá tentar realizá-la novamente.";
 "warning_kaspa_unfinished_token_transaction_message" = "Sua transação com um valor de %1$@ %2$@ Não foi concluído. Você pode tentar novamente para concluí-lo.";
@@ -2098,8 +2103,8 @@
 "warning_old_card_title" = "Restrição do iOS para cartões mais antigos";
 "warning_old_device_old_card_message" = "Alguns modelos de iPhone 7/7+ podem apresentar problemas com o NFC durante determinadas operações.";
 "warning_old_device_old_card_title" = "Incompatibilidade do dispositivo detectada";
-"warning_outdated_data_message" = "Será atualizado assim que possível.";
-"warning_outdated_data_title" = "Faltam alguns saldos de tokens";
+"warning_outdated_data_message" = "Alguns saldos de tokens não puderam ser atualizados.";
+"warning_outdated_data_title" = "Os saldos podem estar desatualizados";
 "warning_rate_app_message" = "Sua avaliação nos motiva a aprimorar ainda mais a Tangem Wallet.";
 "warning_rate_app_title" = "Gostando de Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Você precisa associar seu token antes de receber tokens.";

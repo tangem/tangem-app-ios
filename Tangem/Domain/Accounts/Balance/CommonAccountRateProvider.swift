@@ -80,7 +80,7 @@ private extension CommonAccountRateProvider {
             newRate = .failure(cached: cachedQuote)
 
         case .loaded(let balance) where balance.isZero:
-            newRate = .loaded(quote: AccountQuote(priceChange24h: 0))
+            newRate = .loaded(quote: AccountQuote(priceChange24h: 0, fiatChange24h: 0))
 
         case .loaded(let balance):
             newRate = .loaded(quote: calculateWeightedPriceChange(quotesAndBalances: quotesAndBalances, totalBalance: balance))
@@ -105,7 +105,9 @@ private extension CommonAccountRateProvider {
             result += weight * priceChange24h
         }
 
-        return AccountQuote(priceChange24h: weighted24h)
+        let fiatChange24h = totalBalance * weighted24h / 100
+
+        return AccountQuote(priceChange24h: weighted24h, fiatChange24h: fiatChange24h)
     }
 }
 
