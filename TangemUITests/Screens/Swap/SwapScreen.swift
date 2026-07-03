@@ -59,6 +59,10 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
                 if length > 0 {
                     field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length))
                 }
+                // A swap-state re-render can resign focus between clearing and typing; refocus so typeText won't throw.
+                if !field.hasFocus {
+                    field.tap()
+                }
                 field.typeText(amount)
                 if field.waitForValue(timeout: .quick, where: { $0.filter { $0.isNumber || $0 == "." } == expectedDigits }) {
                     return
@@ -406,6 +410,16 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func waitForFeeCurrencyNavigationButton(label: String) -> Self {
+        XCTContext.runActivity(named: "Verify fee notification action button '\(label)'") { _ in
+            let button = app.buttons[TokenAccessibilityIdentifiers.feeCurrencyNavigationButton].firstMatch
+            waitAndAssertTrue(button, "Fee currency navigation button should exist in the fee notification")
+            XCTAssertEqual(button.label, label, "Fee notification action button should be '\(label)' but was '\(button.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForNotificationMessageContaining(_ substring: String) -> Self {
         XCTContext.runActivity(named: "Wait for notification message containing '\(substring)'") { _ in
             XCTAssertTrue(notificationMessage.waitForExistence(timeout: .robustUIUpdate), "Notification message should exist on swap screen")
@@ -486,12 +500,13 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             waitAndAssertTrue(receiveTokenSelector, "Receive token selector should exist")
             receiveTokenSelector.waitAndTap()
 
+            // Searching expands all account sections, revealing the identical token regardless of collapse state.
+            let searchField = app.searchFields["Search"].firstMatch
+            waitAndAssertTrue(searchField, "Receive token selector search field should exist")
+            searchField.tap()
+            searchField.typeText(tokenName)
+
             let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
-            if !tokenButton.waitForExistence(timeout: .quick) {
-                let accountCard = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Account")).firstMatch
-                waitAndAssertTrue(accountCard, "An account card should be visible in the receive token selector")
-                accountCard.waitAndTap()
-            }
             waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in receive token selector")
             tokenButton.waitAndTap()
             return self
