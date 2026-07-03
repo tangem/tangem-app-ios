@@ -214,6 +214,22 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
     }
 
+    /// Swap direction is resolved from the token's fiat balance at the moment Swap is tapped; wait for a
+    /// non-zero balance so the token becomes the swap source and doesn't flip to the receive side.
+    @discardableResult
+    func waitForNonZeroTotalBalance() -> Self {
+        XCTContext.runActivity(named: "Wait for non-zero token balance") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance element should exist")
+            let loaded = NSPredicate(format: "label MATCHES %@", ".*[1-9].*")
+            let result = XCTWaiter().wait(
+                for: [XCTNSPredicateExpectation(predicate: loaded, object: totalBalance)],
+                timeout: .robustUIUpdate
+            )
+            XCTAssertEqual(result, .completed, "Token fiat balance should load to a non-zero value, was '\(totalBalance.label)'")
+            return self
+        }
+    }
+
     @discardableResult
     func waitForTotalBalanceContainsCurrency(_ currencySymbol: String) -> Self {
         XCTContext.runActivity(named: "Validate token total balance contains currency symbol: \(currencySymbol)") { _ in

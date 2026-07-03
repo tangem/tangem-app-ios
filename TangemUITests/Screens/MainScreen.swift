@@ -170,8 +170,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func skipPushNotificationsSetup() -> Self {
         XCTContext.runActivity(named: "Tap 'Later' on Push Notifications sheet") { _ in
-            if app.buttons["Later"].waitForExistence(timeout: .conditional) {
-                app.buttons["Later"].tap()
+            let laterButton = app.buttons[PushPermissionAccessibilityIdentifiers.laterButton]
+            if laterButton.waitForExistence(timeout: .conditional) {
+                laterButton.tap()
             }
             return self
         }
@@ -894,12 +895,40 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     private func scrollTokensList(byOffset dy: CGFloat) {
-        // firstMatch can be an off-screen paged list with an infinite frame; scroll the on-screen one, fall back to the app.
-        let list = visibleTokensList()
-        let anchor: XCUIElement = hasVisibleFrame(list) ? list : app
-        let start = anchor.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15))
-        let end = start.withOffset(CGVector(dx: 0, dy: dy))
+        // Dragging from the list container (or bare app coordinates) can land the touch on the Markets
+        // sheet peeking at the bottom, which pulls the sheet open and hides every token. Anchor on a real
+        // visible token row so the list's scroll view captures the gesture, and keep both endpoints above the grabber.
+        let screen = app.frame
+        let grabberTop = grabber.exists ? grabber.frame.minY : screen.maxY
+        let rows = visibleTokenRows(above: grabberTop)
+
+        let anchorX: CGFloat
+        let startY: CGFloat
+        if dy < 0, let row = rows.last {
+            anchorX = row.frame.midX
+            startY = row.frame.midY
+        } else if dy > 0, let row = rows.first {
+            anchorX = row.frame.midX
+            startY = row.frame.midY
+        } else {
+            anchorX = screen.midX
+            startY = min(screen.midY, grabberTop - 100)
+        }
+
+        let endY = min(max(startY + dy, screen.minY + 100), grabberTop - 20)
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+        let start = origin.withOffset(CGVector(dx: anchorX, dy: startY))
+        let end = origin.withOffset(CGVector(dx: anchorX, dy: endY))
         start.press(forDuration: 0.1, thenDragTo: end)
+    }
+
+    /// Visible token rows above the Markets grabber, top-to-bottom, used as safe drag anchors.
+    private func visibleTokenRows(above grabberTop: CGFloat) -> [XCUIElement] {
+        visibleTokensList().staticTexts
+            .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+            .allElementsBoundByIndex
+            .filter { hasVisibleFrame($0) && $0.frame.maxY < grabberTop }
+            .sorted { $0.frame.minY < $1.frame.minY }
     }
 
     /// Horizontal paging keeps neighbor wallet pages mounted, so read tokens from the on-screen page's list, not firstMatch.
