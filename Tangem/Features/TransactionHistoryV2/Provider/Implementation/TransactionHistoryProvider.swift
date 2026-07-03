@@ -16,6 +16,8 @@ import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
 final actor TransactionHistoryProvider {
+    @Injected(\.transactionHistoryAuxDataRepository) private nonisolated var auxDataRepository: TransactionHistoryAuxDataRepository
+
     private let repository: TransactionHistoryRepository
     private let syncMetadataStorage: () async -> SyncMetadataStorage
     private let tokenItem: TokenItem
@@ -41,6 +43,9 @@ final actor TransactionHistoryProvider {
     /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
     private nonisolated let onrampUpdatesSubject = CurrentValueSubject<[OnrampTransaction], Never>([])
 
+    /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
+    private nonisolated let auxDataUpdatesSubject = PassthroughSubject<Void, Never>()
+
     private nonisolated let mappingQueue = DispatchQueue(
         label: "com.tangem.TransactionHistoryProvider.mappingQueue",
         qos: .userInitiated,
@@ -63,6 +68,7 @@ final actor TransactionHistoryProvider {
         }
 
         subscribeToRepositoryUpdates()
+        subscribeToAuxDataUpdates()
     }
 
     private nonisolated func subscribeToRepositoryUpdates() {
@@ -83,6 +89,16 @@ final actor TransactionHistoryProvider {
 
             for await transactions in stream {
                 self?.onrampUpdatesSubject.send(transactions)
+            }
+        }
+    }
+
+    private nonisolated func subscribeToAuxDataUpdates() {
+        let didLoadAuxData = auxDataRepository.didLoadAuxData
+
+        runTask { [weak self] in
+            for await _ in didLoadAuxData {
+                self?.auxDataUpdatesSubject.send(())
             }
         }
     }
@@ -341,9 +357,14 @@ extension TransactionHistoryProvider: WalletModelTransactionHistoryBridging {
 
         // [REDACTED_TODO_COMMENT]
         return transactionHistoryPublisher
-            .combineLatest(exchangeUpdatesSubject, onrampUpdatesSubject)
+            .combineLatest(
+                exchangeUpdatesSubject,
+                onrampUpdatesSubject,
+                auxDataUpdatesSubject
+                    .prepend(()) // Emit an initial value in case the aux data is already cached and no updates are coming
+            )
             .receive(on: mappingQueue)
-            .map { transactionHistoryState, exchangeTransactions, onrampTransactions in
+            .map { transactionHistoryState, exchangeTransactions, onrampTransactions, _ in
                 switch transactionHistoryState {
                 case .loaded(let bsdkTransactions):
                     let mergedTransactions = Self.merge(
