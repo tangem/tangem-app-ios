@@ -9,6 +9,8 @@
 import Foundation
 
 protocol CryptoAccountsPersistentStorage {
+    /// - Warning: May block the calling thread while the underlying storage is read from disk.
+    /// Avoid calling from the main thread directly.
     func getList() -> [StoredCryptoAccount]
     func appendNewOrUpdateExisting(_ accounts: [StoredCryptoAccount])
     func replace(with accounts: [StoredCryptoAccount])
