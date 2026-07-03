@@ -30,6 +30,11 @@ struct AddressBookContactManagementView: View {
                     .close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
             }
             .alert(item: $viewModel.alert) { $0.alert }
+            .onFirstAppear {
+                if viewModel.focusesNameOnFirstAppear {
+                    isNameFocused = true
+                }
+            }
     }
 
     private var scrollContent: some View {
