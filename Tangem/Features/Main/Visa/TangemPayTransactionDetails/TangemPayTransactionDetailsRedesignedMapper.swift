@@ -75,7 +75,7 @@ struct TangemPayTransactionDetailsRedesignedMapper {
     }
 
     func map(collateral input: TangemPayCollateralDisplayInput) -> TangemPayTransactionDetailsDisplayModel {
-        let prefix = input.amount > 0 ? "+" : ""
+        let prefix: String = input.amount > 0 ? .plusSign : .empty
         return .init(
             headerTitle: input.isOutgoing ? Localization.tangemPayWithdrawal : Localization.tangemPayDeposit,
             headerSubtitle: formatDateTime(input.postedAt),
@@ -147,7 +147,7 @@ struct TangemPayTransactionDetailsRedesignedMapper {
     }
 
     private func formatNegated(value: Decimal, currency: String, prefixFor amount: Decimal) -> String {
-        let prefix = amount < 0 ? "+" : ""
+        let prefix: String = amount < 0 ? .plusSign : .empty
         return format(amount: -value, currencyCode: currency, prefix: prefix)
     }
 }
