@@ -38,6 +38,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         TokensManagementFlowRoutable
 
     @Injected(\.walletAssetsDiscoveryProgressProvider) private var walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     weak var coordinator: MainContentRoutable?
 
@@ -101,6 +102,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             )
         }
+
+        marketingCampaignsRepository.loadCampaigns(for: .tokenDetails)
+        marketingCampaignsRepository.loadCampaigns(for: .marketsToken)
 
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: model.userWalletInfo,

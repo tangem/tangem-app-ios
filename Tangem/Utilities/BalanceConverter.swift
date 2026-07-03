@@ -73,6 +73,14 @@ struct BalanceConverter {
         return value * priceUsd
     }
 
+    func convertToUsd(_ value: Decimal, currencyId: String) async throws -> Decimal {
+        guard let priceUsd = try await quotesRepository.quote(for: currencyId).priceUsd else {
+            throw BalanceConverterError.missingUsdPrice(currencyId: currencyId)
+        }
+
+        return value * priceUsd
+    }
+
     /// Converts a fiat value to a crypto amount using the latest available rate.
     /// - Parameters:
     ///   - fiatValue: Amount in fiat currency to convert.
@@ -92,5 +100,6 @@ extension BalanceConverter {
     enum BalanceConverterError: Error {
         case cannotConvertToCrypto(currencyId: String)
         case invalidTargetPrice
+        case missingUsdPrice(currencyId: String)
     }
 }
