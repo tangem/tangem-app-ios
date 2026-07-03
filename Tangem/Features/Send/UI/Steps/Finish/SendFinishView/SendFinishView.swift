@@ -34,7 +34,11 @@ struct SendFinishView: View {
             }
 
             if let sendDestinationCompactViewModel = viewModel.sendDestinationCompactViewModel {
-                SendDestinationCompactView(viewModel: sendDestinationCompactViewModel)
+                SendDestinationCompactView(viewModel: sendDestinationCompactViewModel) {
+                    if let addContactViewModel = viewModel.addContactViewModel {
+                        SendAddContactFinishView(viewModel: addContactViewModel)
+                    }
+                }
             }
 
             if let stakingTargetsCompactViewModel = viewModel.stakingTargetsCompactViewModel {

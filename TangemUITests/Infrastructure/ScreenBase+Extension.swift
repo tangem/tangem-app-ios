@@ -101,6 +101,14 @@ extension ScreenBase {
         app.searchFields[element.accessibilityIdentifier].firstMatch
     }
 
+    func tangemSearchField(_ element: T, prompt: String) -> XCUIElement {
+        if #available(iOS 26.0, *) {
+            return app.searchFields[prompt].firstMatch
+        } else {
+            return app.textFields[element.accessibilityIdentifier].firstMatch
+        }
+    }
+
     func segmentedControl(_ element: T) -> XCUIElement {
         app.segmentedControls[element.accessibilityIdentifier].firstMatch
     }

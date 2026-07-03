@@ -80,6 +80,7 @@ extension OnrampFlowBaseDependenciesFactory {
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
+            transactionHistoryEnricherFactory: { await sourceToken.transactionHistoryEnricher },
             predefinedValues: predefinedValues
         )
     }
@@ -105,5 +106,9 @@ extension OnrampFlowBaseDependenciesFactory {
 
     func makeOnrampNotificationManager(input: OnrampNotificationManagerInput, delegate: NotificationTapDelegate) -> OnrampNotificationManager {
         CommonOnrampNotificationManager(input: input, delegate: delegate)
+    }
+
+    func makeOnrampMarketingBannerNotificationManager() -> OnrampMarketingBannerNotificationManager {
+        OnrampMarketingBannerNotificationManager()
     }
 }
