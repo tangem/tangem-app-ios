@@ -20,10 +20,10 @@ final class CreateAddressBookContactManagementInteractor {
     private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
     private let initialSnapshot: AddressBookContactSnapshot
 
-    init(addressBookWallet: AddressBookWallet) {
+    init(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft] = []) {
         nameSubject = .init("")
         colorSubject = .init(CompositeIconColor.randomElement())
-        addressesSubject = .init([])
+        addressesSubject = .init(prefilledEntries)
         walletSubject = .init(addressBookWallet)
 
         initialSnapshot = Self.makeSnapshot(

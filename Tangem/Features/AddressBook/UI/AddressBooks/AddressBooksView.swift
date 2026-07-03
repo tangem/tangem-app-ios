@@ -53,6 +53,11 @@ struct AddressBooksView: View {
             AddressBooksEmptyView(onAddContactTap: viewModel.openAddContact)
                 .infinityFrame()
 
+        case .loading:
+            GroupedScrollView(contentType: .lazy(spacing: 8)) {
+                AddressBooksLoadingView()
+            }
+
         default:
             searchableContent
         }
