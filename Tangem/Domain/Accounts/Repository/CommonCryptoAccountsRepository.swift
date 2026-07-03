@@ -29,11 +29,12 @@ final class CommonCryptoAccountsRepository {
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
     private lazy var storageDidUpdatePublisher: StorageDidUpdatePublisher = storageDidUpdateSubject
         .prepend(()) // An initial value to trigger loading from storage
-        .receiveOnMain()
+        .receive(on: DispatchQueue.global(qos: .userInitiated))
         .withWeakCaptureOf(self)
         .filter { !$0.0.storageController.isMigrationNeeded() } // Wait for migration to complete before emitting any values
         .map { $0.0.persistentStorage.getList() }
         .removeDuplicates()
+        .receiveOnMain()
         .share(replay: 1)
         .eraseToAnyPublisher()
 

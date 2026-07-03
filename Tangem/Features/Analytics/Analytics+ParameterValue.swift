@@ -318,6 +318,12 @@ extension Analytics {
         case simple
         case detailed
 
+        // MARK: - Choose Provider Options
+
+        case all = "ALL"
+        case cex = "CEX"
+        case dex = "DEX"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
