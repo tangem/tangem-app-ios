@@ -106,6 +106,19 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         )
     }
 
+    private func makeAddContactViewModel(router: SendRoutable) -> SendAddContactFinishViewModel? {
+        guard FeatureProvider.isAvailable(.addressBook) else {
+            return nil
+        }
+
+        return SendAddContactFinishViewModel(
+            sourceToken: sourceToken,
+            destinationInput: sendWithSwapModel,
+            receiveTokenInput: sendWithSwapModel,
+            coordinator: router
+        )
+    }
+
     private func mapToInitialStep(parameters: PredefinedSendParameters?) -> CommonSendStepsManager.InitialStep {
         guard let parameters else {
             return .amount
@@ -143,6 +156,7 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         let finish = makeSendFinishStep(
             sendAmountFinishViewModel: amount.finish,
             sendDestinationCompactViewModel: destination.compact,
+            addContactViewModel: makeAddContactViewModel(router: router),
             sendFeeFinishViewModel: fee.finish,
             router: router
         )
@@ -171,6 +185,7 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         swapNotificationManager.setup(
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
+            sendFeeInput: swapModel,
             swapModelStateProvider: swapModel
         )
 
