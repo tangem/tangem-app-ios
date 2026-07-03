@@ -37,6 +37,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     let title: String
     let mainButtonTitle: String
+    let focusesNameOnFirstAppear: Bool
 
     var maxNameLength: Int { AddressBookContactNameValidator.maxLength }
 
@@ -73,11 +74,13 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     init(
         interactor: AddressBookContactManagementInteractor,
         coordinator: AddressBookContactManagementRoutable,
-        addressBooksProvider: any AddressBooksProvider
+        addressBooksProvider: any AddressBooksProvider,
+        focusesNameOnFirstAppear: Bool = false
     ) {
         self.interactor = interactor
         self.addressBooksProvider = addressBooksProvider
         self.coordinator = coordinator
+        self.focusesNameOnFirstAppear = focusesNameOnFirstAppear
 
         title = interactor.title
         mainButtonTitle = interactor.mainButtonTitle
@@ -157,7 +160,7 @@ private extension AddressBookContactManagementViewModel {
             await withTaskGroup(of: Void.self) { group in
                 for book in books {
                     group.addTask {
-                        await book.addressBookManager.load()
+                        await book.addressBookManager.load(silent: true)
                     }
                 }
             }
