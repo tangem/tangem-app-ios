@@ -92,6 +92,7 @@
 "address_book_creating_error" = "无法创建联系人。请稍后再试。";
 "address_book_delete_contact_description" = "该联系人将从您所有的通讯录中删除";
 "address_book_delete_contact" = "Delete contact";
+"address_book_delete_last_address" = "\"%1$@\" has only one address. Deleting it will also delete the contact. Continue?";
 "address_book_deleting_error" = "无法删除联系人，请稍后再试。";
 "address_book_description" = "管理联系人及地址";
 "address_book_discard" = "取消";
@@ -1176,6 +1177,7 @@
 "send_date_format" = "%1$@%2$@";
 "send_destination_tag_field" = "目的地址标签";
 "send_dismiss_message" = "您确定要关闭发送界面吗？";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "ENS名称或地址";
 "send_enter_address_field" = "输入地址";
 "send_error_address_same_as_wallet" = "地址与钱包地址相同";
@@ -1545,6 +1547,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "费用按服务费率收取";
 "tangem_pay_transaction_reversed_notification_text" = "商家部分或全部撤销了交易";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "继续使用您的资金。您可以随时冻结资金。";
 "tangem_pay_unfreeze_card_alert_title" = "要解冻您的卡片？";
 "tangem_pay_unfreeze_card_failed" = "卡片解冻失败，请稍后再试。";
@@ -2082,6 +2086,7 @@
 "warning_matic_migration_message" = "MATIC 正在迁移到 POL。但是，目前尚未设定迁移截止日期，MATIC 也尚未被弃用。您可以继续安全地使用 MATIC 代币，或者将其替换为 POL 代币。";
 "warning_matic_migration_title" = "MATIC 到 POL 的迁移";
 "warning_missing_derivation_title" = "部分地址缺失";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "目前网络无法连接，请稍后再试。";
 "warning_network_unreachable_title" = "网络无法访问";
 "warning_no_account_title" = "给您的钱包充值";

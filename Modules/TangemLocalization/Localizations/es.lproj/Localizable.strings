@@ -92,6 +92,7 @@
 "address_book_creating_error" = "No se pudo crear el contacto. Inténtelo de nuevo más tarde.";
 "address_book_delete_contact_description" = "Este contacto se eliminará de todas sus libretas de direcciones";
 "address_book_delete_contact" = "Delete contact";
+"address_book_delete_last_address" = "\"%1$@\" has only one address. Deleting it will also delete the contact. Continue?";
 "address_book_deleting_error" = "No se pudo eliminar el contacto. Inténtelo de nuevo más tarde.";
 "address_book_description" = "Gestionar contactos y direcciones";
 "address_book_discard" = "Descartar";
@@ -1176,6 +1177,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "ID de destino";
 "send_dismiss_message" = "¿Está seguro de que quiere cerrar la pantalla de envío?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "Nombre ENS o dirección";
 "send_enter_address_field" = "Introduce la dirección";
 "send_error_address_same_as_wallet" = "La dirección es la misma que su billetera.";
@@ -1545,6 +1547,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "Se cobra una comisión de acuerdo con las tarifas de servicio";
 "tangem_pay_transaction_reversed_notification_text" = "La transacción fue revertida parcial o totalmente por el comerciante";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "Sigue usando tu dinero. Puedes congelarlo en cualquier momento.";
 "tangem_pay_unfreeze_card_alert_title" = "¿Descongelar tu tarjeta?";
 "tangem_pay_unfreeze_card_failed" = "No se pudo descongelar la tarjeta. Inténtalo de nuevo más tarde.";
@@ -2082,6 +2086,7 @@
 "warning_matic_migration_message" = "Actualmente, MATIC está migrando a POL. Sin embargo, no se ha fijado ninguna fecha límite y MATIC aún no está obsoleto. Puede seguir usando el token MATIC de forma segura o utilizar intercambios para cambiarlo por POL.";
 "warning_matic_migration_title" = "Migración de MATIC a POL";
 "warning_missing_derivation_title" = "Faltan algunas direcciones";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "La red no está disponible actualmente. Por favor, inténtalo de nuevo más tarde.";
 "warning_network_unreachable_title" = "La red no está disponible";
 "warning_no_account_title" = "Recargue su billetera";

@@ -198,17 +198,23 @@ Key lanes defined in `fastlane/Fastfile`:
 
 **No spec paragraph numbers in comments.** Don't cite spec section/paragraph numbers in code comments (e.g. `(spec 2.1.3)`, `§3.9`). Specs get reorganized and the number rots, leaving the comment pointing at the wrong place. Explain the *why* in plain prose instead; if a pointer is genuinely needed, put it in the PR description or the Jira ticket, not in the code.
 
-**SwiftUI Previews:** Must be wrapped in `#if DEBUG`/`#endif` and marked with `// MARK: - Previews`:
+**SwiftUI Previews:** Avoid using PreviewProvider protocol. Use #Preview macro instead.
+Do not wrap a preview inside a `#if DEBUG` block unless a DEBUG-only type is used inside it.
+If a view inside #Preview macro requires a DynamicProperty (e.g. `@State`, `@FocusState`), annotate #Preview with `@available(iOS 17.0, *)`.
+Add a `// MARK: - Previews` comment before the preview declaration:
 ```swift
 // MARK: - Previews
 
-#if DEBUG
-struct MyView_Previews: PreviewProvider {
-    static var previews: some View {
-        MyView()
-    }
+#Preview {
+    MyView()
 }
-#endif // DEBUG
+
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var toggle = false
+
+    AnotherView(isActive: $toggle)
+}
 ```
 
 **Generated Files:** Never modify files in:

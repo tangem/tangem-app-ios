@@ -11,8 +11,15 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 
-struct SendDestinationCompactView: View {
+struct SendDestinationCompactView<Footer: View>: View {
     @ObservedObject var viewModel: SendDestinationCompactViewModel
+
+    private let footer: Footer
+
+    init(viewModel: SendDestinationCompactViewModel, @ViewBuilder footer: () -> Footer) {
+        self.viewModel = viewModel
+        self.footer = footer()
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -20,6 +27,8 @@ struct SendDestinationCompactView: View {
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             address
+
+            footer
         }
         .infinityFrame()
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
@@ -56,5 +65,11 @@ struct SendDestinationCompactView: View {
 
             AddressIconProviderView(type: viewModel.addressIconType)
         }
+    }
+}
+
+extension SendDestinationCompactView where Footer == EmptyView {
+    init(viewModel: SendDestinationCompactViewModel) {
+        self.init(viewModel: viewModel, footer: { EmptyView() })
     }
 }

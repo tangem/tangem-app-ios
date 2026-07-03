@@ -17,4 +17,8 @@ public enum ReferralAccessibilityIdentifiers {
     // Content elements
     public static let currenciesSection = "referralCurrenciesSection"
     public static let discountSection = "referralDiscountSection"
+
+    // Personal promo code
+    public static let promoCodeTitle = "referralPromoCodeTitle"
+    public static let promoCodeValue = "referralPromoCodeValue"
 }
