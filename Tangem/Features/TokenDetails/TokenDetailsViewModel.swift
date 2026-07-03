@@ -21,6 +21,7 @@ import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
@@ -110,6 +111,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         notificationManager: NotificationManager,
         userTokensManager: any UserTokensManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
+        expressStatusPollingHelper: ExpressStatusPollingHelper,
         xpubGenerator: XPUBGenerator?,
         coordinator: any TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable,
@@ -129,6 +131,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             walletModel: walletModel,
             notificationManager: notificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             tokenRouter: tokenRouter
         )
 
@@ -549,6 +552,27 @@ private extension TokenDetailsViewModel {
             .sink { [weak self] isZeroBalance in
                 // [REDACTED_TODO_COMMENT]
                 self?.isZeroBalance = isZeroBalance
+            }
+            .store(in: &bag)
+
+        let activeStaking = walletModel.stakingManagerStatePublisher
+            .map(\.isActive)
+            .removeDuplicates()
+            .filter { $0 }
+            .map { _ in MarketingCampaignsRepository.Kind.staking }
+            .eraseToAnyPublisher()
+
+        let activeYield = (walletModel.yieldModuleManager?.statePublisher
+            .map { $0?.state.isEffectivelyActive == true }
+            .eraseToAnyPublisher() ?? .just(output: false))
+            .removeDuplicates()
+            .filter { $0 }
+            .map { _ in MarketingCampaignsRepository.Kind.yield }
+            .eraseToAnyPublisher()
+
+        Publishers.Merge(activeStaking, activeYield)
+            .sink { [weak self] kind in
+                self?.marketingCampaignsRepository.loadCampaigns(for: kind)
             }
             .store(in: &bag)
     }
