@@ -59,11 +59,11 @@ private extension TangemPayBalanceView {
             formattingOptions: .init(
                 integerPartFont: TangemFontStyle(
                     font: DesignSystem.Font.displayMediumToken.font,
-                    tracking: DesignSystem.Font.displayMediumToken.letterSpacing
+                    tracking: DesignSystem.Font.displayMediumToken.tracking
                 ),
                 fractionalPartFont: TangemFontStyle(
                     font: DesignSystem.Font.headingMediumToken.font,
-                    tracking: DesignSystem.Font.headingMediumToken.letterSpacing
+                    tracking: DesignSystem.Font.headingMediumToken.tracking
                 ),
                 integerPartColor: DesignSystem.Color.textPrimary,
                 fractionalPartColor: DesignSystem.Color.textPrimary,
@@ -75,7 +75,6 @@ private extension TangemPayBalanceView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 24) {
         TangemPayBalanceView(state: .loaded(text: "$18.97"))
@@ -85,4 +84,3 @@ private extension TangemPayBalanceView {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG
