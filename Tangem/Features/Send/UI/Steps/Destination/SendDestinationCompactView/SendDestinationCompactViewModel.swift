@@ -13,6 +13,8 @@ import UIKit
 class SendDestinationCompactViewModel: ObservableObject, Identifiable {
     typealias AdditionalField = (SendDestinationAdditionalFieldType, String)
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     let suiTextViewModel: SUITextViewModel
     @Published var address: String = ""
     @Published var resolved: String?
@@ -29,12 +31,26 @@ class SendDestinationCompactViewModel: ObservableObject, Identifiable {
 
     func bind(input: SendDestinationInput) {
         inputSubscription = Publishers
-            .CombineLatest(input.destinationPublisher, input.additionalFieldPublisher)
+            .CombineLatest3(input.destinationPublisher, input.additionalFieldPublisher, addressBooksChangePublisher)
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, args in
                 viewModel.updateView(address: args.0, additionalField: args.1)
             }
+    }
+
+    private var addressBooksChangePublisher: AnyPublisher<Void, Never> {
+        guard FeatureProvider.isAvailable(.addressBook) else {
+            return .just(output: ())
+        }
+
+        let publishers = userWalletRepository.models
+            .filter { !$0.isUserWalletLocked }
+            .map { $0.addressBookManager.contactsPublisher.mapToVoid() }
+
+        return Publishers.MergeMany(publishers)
+            .prepend(())
+            .eraseToAnyPublisher()
     }
 
     private func updateView(address: SendDestination?, additionalField: SendDestinationAdditionalField) {

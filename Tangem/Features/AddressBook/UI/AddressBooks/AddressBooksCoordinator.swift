@@ -62,7 +62,7 @@ extension AddressBooksCoordinator {
 
 extension AddressBooksCoordinator: AddressBooksRoutable {
     func openAddContact(addressBookWallet: AddressBookWallet) {
-        openContactManagement(options: .add(addressBookWallet: addressBookWallet))
+        openContactManagement(options: .add(addressBookWallet: addressBookWallet, prefilledEntries: []))
     }
 
     func openEditContact(contact: AddressBookContact, addressBookWallet: AddressBookWallet) {
