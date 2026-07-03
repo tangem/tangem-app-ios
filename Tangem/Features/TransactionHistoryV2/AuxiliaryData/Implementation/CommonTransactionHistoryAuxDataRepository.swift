@@ -65,7 +65,7 @@ actor CommonTransactionHistoryAuxDataRepository {
     }
 
     private func persistCryptoCurrencies() {
-        storage.cryptoCurrencies = cache.cryptoCurrencies
+        storage.cryptoCurrencies = cache.remotelyResolvedCryptoCurrencies
     }
 
     // MARK: - Providers loading
@@ -291,8 +291,8 @@ actor CommonTransactionHistoryAuxDataRepository {
 
             var hasChanges = false
             for (key, tokenItem) in tokenItems {
-                if cache.cryptoCurrencies[key] == nil {
-                    cache.cryptoCurrencies[key] = tokenItem
+                if cache.remotelyResolvedCryptoCurrencies[key] == nil {
+                    cache.remotelyResolvedCryptoCurrencies[key] = tokenItem
                     hasChanges = true
                 }
             }
@@ -341,7 +341,7 @@ actor CommonTransactionHistoryAuxDataRepository {
         cache.expressProviders = storage.expressProviders.keyedLast(by: \.id)
         cache.onrampProviders = storage.onrampProviders.keyedLast(by: \.id)
         cache.fiatCurrencies = storage.fiatCurrencies.keyedLast(by: \.identity.code)
-        cache.cryptoCurrencies = storage.cryptoCurrencies
+        cache.remotelyResolvedCryptoCurrencies = storage.cryptoCurrencies
 
         return cache
     }
@@ -486,7 +486,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
         var expressProviders: [ExpressProvider.Id: ExpressProvider] = [:]
         var onrampProviders: [ExpressProvider.Id: ExpressProvider] = [:]
         var fiatCurrencies: [String: OnrampFiatCurrency] = [:]
-        var cryptoCurrencies: [String: TokenItem] = [:]
+        var remotelyResolvedCryptoCurrencies: [String: TokenItem] = [:]
 
         /// Crypto currencies resolved offline from the user's wallet models. Kept in memory only — never persisted.
         var locallyResolvedCryptoCurrencies: [String: TokenItem] = [:]
@@ -501,7 +501,8 @@ private extension CommonTransactionHistoryAuxDataRepository {
         }
 
         func cryptoCurrency(for key: String) -> TokenItem? {
-            return cryptoCurrencies[key] ?? locallyResolvedCryptoCurrencies[key]
+            // Remote info takes precedence over local info, since the remote info is more likely to be up-to-date
+            return remotelyResolvedCryptoCurrencies[key] ?? locallyResolvedCryptoCurrencies[key]
         }
     }
 }
