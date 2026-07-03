@@ -296,7 +296,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>Escreva esta 1palavra na ordem indicada abaixo e guarde-a em um local seguro e secreto.</string>
         <key>other</key>
         <string>Escreva estas %lipalavras na ordem indicada abaixo e guarde-as em um local seguro e secreto.</string>
       </dict>
@@ -312,7 +312,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>%lipalavra</string>
         <key>other</key>
         <string>%lipalavras</string>
       </dict>
