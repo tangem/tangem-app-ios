@@ -207,10 +207,15 @@ private extension MarketsPortfolioTokenListView {
         }
     }
 
+    @ViewBuilder
     func token(row: ViewModel.TokenRow) -> some View {
-        Button(action: row.onTap) {
+        if let onTap = row.onTap {
+            Button(action: onTap) {
+                MarketsPortfolioTokenListRowView(viewModel: row.model)
+            }
+            .buttonStyle(.plain)
+        } else {
             MarketsPortfolioTokenListRowView(viewModel: row.model)
         }
-        .buttonStyle(.plain)
     }
 }

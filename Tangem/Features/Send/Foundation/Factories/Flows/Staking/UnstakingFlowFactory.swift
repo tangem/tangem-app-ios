@@ -160,11 +160,7 @@ extension UnstakingFlowFactory: SendAmountStepBuildable {
 
     var amountDependencies: SendAmountStepBuilder.Dependencies {
         SendAmountStepBuilder.Dependencies(
-            sendAmountValidator: UnstakingAmountValidator(
-                tokenItem: tokenItem,
-                stakedAmount: action.amount,
-                stakingManagerStatePublisher: manager.statePublisher
-            ),
+            sendAmountValidator: makeSendAmountValidator(),
             amountModifier: .none,
             notificationService: .none,
             analyticsLogger: analyticsLogger
@@ -216,5 +212,23 @@ extension UnstakingFlowFactory: SendFinishStepBuildable {
             analyticsLogger: analyticsLogger,
             headerTitleProvider: StakingFinishHeaderTitleProvider()
         )
+    }
+}
+
+private extension UnstakingFlowFactory {
+    func makeSendAmountValidator() -> SendAmountValidator {
+        switch tokenItem.blockchain {
+        case .solana where FeatureProvider.isAvailable(.solanaUnstakeValidation):
+            return SolanaUnstakingAmountValidator(
+                stakedAmount: action.amount,
+                stakingManagerStatePublisher: manager.statePublisher
+            )
+        default:
+            return UnstakingAmountValidator(
+                tokenItem: tokenItem,
+                stakedAmount: action.amount,
+                stakingManagerStatePublisher: manager.statePublisher
+            )
+        }
     }
 }
