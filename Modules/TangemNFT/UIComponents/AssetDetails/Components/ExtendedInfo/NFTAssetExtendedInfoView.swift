@@ -36,7 +36,6 @@ public struct NFTAssetExtendedInfoView: View {
     }
 }
 
-#if DEBUG
 #Preview {
     NFTAssetExtendedInfoView(
         viewData: NFTAssetExtendedInfoViewData(
@@ -46,4 +45,3 @@ public struct NFTAssetExtendedInfoView: View {
         dismissAction: {}
     )
 }
-#endif

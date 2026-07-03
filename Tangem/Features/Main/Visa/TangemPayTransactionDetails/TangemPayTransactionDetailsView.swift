@@ -117,7 +117,7 @@ private extension TangemPayTransactionDetailsView {
         VStack(spacing: 0) {
             redesignedHeader(title: model.headerTitle, subtitle: model.headerSubtitle)
 
-            VStack(spacing: 32) {
+            VStack(spacing: 12) {
                 redesignedIcon(model.icon)
 
                 VStack(spacing: 8) {
@@ -132,6 +132,8 @@ private extension TangemPayTransactionDetailsView {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
+                .padding(.top, 12)
+                .padding(.bottom, 36)
 
                 if let status = model.status {
                     TangemPayTransactionStatusView(model: status)
@@ -140,7 +142,7 @@ private extension TangemPayTransactionDetailsView {
                 redesignedRows(model.rows)
             }
             .padding(.horizontal, 16)
-            .padding(.top, 32)
+            .padding(.top, 48)
             .padding(.bottom, 8)
 
             TangemButtonV2(
@@ -222,6 +224,7 @@ private extension TangemPayTransactionDetailsView {
             ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
                 TangemRow(title: row.title, value: row.value)
                     .showDivider(rows.count == 1 || index < rows.count - 1)
+                    .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
             }
         }
     }
