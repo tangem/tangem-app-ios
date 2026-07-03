@@ -9,25 +9,52 @@
 import SwiftUI
 import TangemUI
 import TangemUIUtils
+import TangemAssets
 
 struct LockedWalletMainContentRedesignedView: View {
     @ObservedObject var viewModel: LockedWalletMainContentViewModel
 
     var body: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 0) {
             NotificationBannerContainer(
                 items: viewModel.notificationBannerItems,
                 stackingType: .carousel
             )
             .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
 
-            ForEach(0 ..< Constants.skeletonCount, id: \.self) { _ in
-                RedesignedAccountSkeletonCardView()
+            VStack(spacing: .unit(.x2)) {
+                ForEach(0 ..< Constants.skeletonCount, id: \.self) { _ in
+                    RedesignedAccountSkeletonCardView()
+                        .setShimmerActive(false)
+                }
             }
+            .padding(.top, .unit(.x3))
+
+            organizeButton
+                .padding(.top, .unit(.x5))
         }
         .padding(.horizontal, .unit(.x3))
         .bindAlert($viewModel.alert)
         .frame(maxHeight: .infinity, alignment: .top)
+    }
+}
+
+// MARK: - Subviews
+
+private extension LockedWalletMainContentRedesignedView {
+    var organizeButton: some View {
+        TangemButton(
+            content: .combined(
+                text: AttributedString(viewModel.organizeTokensButtonTitle),
+                icon: Assets.OrganizeTokens.filterIcon,
+                iconPosition: .left
+            ),
+            action: {}
+        )
+        .setStyleType(.primaryInverse)
+        .setButtonState(isLoading: false, isDisabled: true)
+        .setSize(.x9)
+        .setFont(Font.Tangem.Body14.regular)
     }
 }
 
