@@ -52,6 +52,9 @@ enum SwapNotificationEvent: Hashable {
     /// High price impact warning/block banner
     case highPriceImpactWarning(level: HighPriceImpactCalculator.Level, analyticsParams: [Analytics.ParameterKey: String])
 
+    /// The selected custom fee is anomalously high or too low
+    case customFeeWarning(CustomFeeWarning)
+
     case highNetworkFee
 }
 
@@ -80,6 +83,10 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.expressExchangeNotificationFailedTitle)
         case .feeWillBeSubtractFromSendingAmount:
             return .string(Localization.sendNetworkFeeWarningTitle)
+        case .customFeeWarning(.tooHigh):
+            return .string(Localization.sendNotificationFeeTooHighTitle)
+        case .customFeeWarning(.tooLow):
+            return .string(Localization.sendNotificationTransactionDelayTitle)
         case .notEnoughReceivedAmountForReserve(let amountFormatted):
             return .string(Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted))
         case .incompleteBackup:
@@ -135,6 +142,10 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.expressExchangeNotificationFailedText
         case .feeWillBeSubtractFromSendingAmount(let cryptoAmountFormatted, let fiatAmountFormatted):
             return Localization.commonNetworkFeeWarningContent(cryptoAmountFormatted, fiatAmountFormatted)
+        case .customFeeWarning(.tooHigh(let orderOfMagnitude)):
+            return Localization.sendNotificationFeeTooHighText(orderOfMagnitude)
+        case .customFeeWarning(.tooLow):
+            return Localization.sendNotificationTransactionDelayText
         // Only for dustRestriction we have to use different description
         case .validationErrorEvent(.dustRestriction(let minimumAmountFormatted, let minimumChangeFormatted)):
             return Localization.warningExpressDustMessage(minimumAmountFormatted, minimumChangeFormatted)
@@ -169,6 +180,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .tooBigAmountToSwap,
              .unsupportedPair,
              .feeWillBeSubtractFromSendingAmount,
+             .customFeeWarning,
              .notEnoughBalanceForSwapping,
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
              .highPriceImpactWarning(.warningLoss, _),
@@ -202,6 +214,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .unsupportedPair,
              .verificationRequired,
              .feeWillBeSubtractFromSendingAmount,
+             .customFeeWarning,
              .longTimeAverageDuration,
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
              .highPriceImpactWarning(.warningLoss, _),
@@ -253,6 +266,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .unsupportedPair,
              .notEnoughReceivedAmountForReserve,
              .notEnoughBalanceForSwapping,
+             .customFeeWarning,
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
              .highPriceImpactWarning(.warningLoss, _),
              .highNetworkFee:
@@ -314,6 +328,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
              .feeWillBeSubtractFromSendingAmount,
+             .customFeeWarning,
              .notEnoughReceivedAmountForReserve,
              .notEnoughBalanceForSwapping,
              .withdrawalNotificationEvent,

@@ -38,7 +38,7 @@ private struct TangemPayAccountTile: View {
             content
                 .padding(state.isSkeleton ? .zero : .unit(.x3))
                 .background(Color.Tangem.Surface.level3)
-                .cornerRadiusContinuous(.unit(.x5))
+                .cornerRadiusContinuous(.unit(.x6))
                 .opacity(state.isFullyVisible ? 1 : Constants.dimmedOpacity)
         }
         .buttonStyle(.defaultScaled)
