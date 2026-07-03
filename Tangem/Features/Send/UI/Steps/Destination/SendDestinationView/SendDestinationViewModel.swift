@@ -43,6 +43,8 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     private let interactor: SendDestinationInteractor
     private let sendQRCodeService: SendQRCodeService
     private let analyticsLogger: SendDestinationAnalyticsLogger
+    private let contactMatcher = AddressBookContactMatcher()
+    private let hasContactMatchesSubject = CurrentValueSubject<Bool, Never>(false)
     private weak var router: SendDestinationRoutable?
 
     private var updatingTask: Task<Void, Error>?
@@ -143,7 +145,19 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        interactor.destinationError
+        Publishers
+            .CombineLatest(interactor.destinationError, hasContactMatchesSubject)
+            .map { error, hasContactMatches -> String? in hasContactMatches ? nil : error }
+            .map { error -> AnyPublisher<String?, Never> in
+                guard let error else {
+                    return .just(output: nil)
+                }
+
+                return Just<String?>(error)
+                    .delay(for: .milliseconds(Constants.destinationErrorDisplayDelay), scheduler: DispatchQueue.main)
+                    .eraseToAnyPublisher()
+            }
+            .switchToLatest()
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, error in
@@ -163,11 +177,22 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        interactor.addressBookContactsPublisher
+        let contactsQueryPublisher = destinationAddressViewModel
+            .addressPublisher()
+            .map(\.string)
+            .debounce(for: .milliseconds(Constants.contactsFilterDebounce), scheduler: DispatchQueue.main)
+            .prepend("")
+            .removeDuplicates()
+
+        Publishers
+            .CombineLatest(interactor.addressBookContactsPublisher, contactsQueryPublisher)
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .sink { viewModel, contacts in
-                viewModel.setupAddressBookContacts(contacts)
+            .sink { viewModel, args in
+                let (contacts, query) = args
+                let filtered = contacts.filter { viewModel.contactMatcher.matches($0.contact, query: query) }
+                viewModel.hasContactMatchesSubject.send(!query.trimmed().isEmpty && !filtered.isEmpty)
+                viewModel.setupAddressBookContacts(filtered)
             }
             .store(in: &bag)
 
@@ -370,6 +395,8 @@ extension SendDestinationViewModel {
 private extension SendDestinationViewModel {
     enum Constants {
         static let addressBookContactsLimit = 3
+        static let contactsFilterDebounce = 300
+        static let destinationErrorDisplayDelay = 400
     }
 }
 

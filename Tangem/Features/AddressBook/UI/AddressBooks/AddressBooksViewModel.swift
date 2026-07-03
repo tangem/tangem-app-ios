@@ -94,12 +94,14 @@ private extension AddressBooksViewModel {
             return selected
         }
 
+        let books = addressBooksSubject.value.isNotEmpty ? addressBooksSubject.value : AllWalletsAddressBooksProvider().addressBooks
+
         if let currentId = userWalletRepository.selectedModel?.userWalletId.stringValue,
-           let current = addressBooksSubject.value.first(where: { $0.wallet.id.stringValue == currentId }) {
+           let current = books.first(where: { $0.wallet.id.stringValue == currentId }) {
             return current
         }
 
-        return addressBooksSubject.value.first
+        return books.first
     }
 
     static func effectiveScope(selected: String?, chips: [Chip], wallets: [WalletState]) -> String? {
