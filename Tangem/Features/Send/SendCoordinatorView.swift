@@ -67,6 +67,10 @@ struct SendCoordinatorView: CoordinatorView {
                     AddressBooksCoordinatorView(coordinator: coordinator)
                 }
             }
+            .sheet(item: $coordinator.contactManagementCoordinator) { contactManagementCoordinator in
+                AddressBookContactManagementCoordinatorView(coordinator: contactManagementCoordinator)
+                    .presentation(onDismissalAttempt: { contactManagementCoordinator.rootViewModel?.userDidRequestDismiss() })
+            }
             .sheet(item: $coordinator.swapTokenSelectorViewModel) {
                 SwapTokenSelectorView(viewModel: $0)
             }
