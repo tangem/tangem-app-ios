@@ -135,7 +135,10 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
         case .loading(.some(let quote)),
              .failure(.some(let quote)),
              .loaded(let quote):
-            return priceChangeUtility.convertToPriceChangeState(changePercent: quote.priceChange24h)
+            return priceChangeUtility.convertToPriceChangeState(
+                changePercent: quote.priceChange24h,
+                changeValue: quote.fiatChange24h
+            )
 
         case .custom, .failure(.none):
             return .noData
