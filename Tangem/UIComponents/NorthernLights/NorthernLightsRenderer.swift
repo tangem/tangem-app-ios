@@ -1,0 +1,95 @@
+//
+//  NorthernLightsRenderer.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import MetalKit
+import func TangemFoundation.ensureNotOnMainQueue
+
+final class NorthernLightsRenderer: NSObject, MTKViewDelegate {
+    let device: MTLDevice
+    var backgroundRGB: RGB = .zero
+
+    private var color1: KeyframeTrack = NorthernLightsColors.track1Dark
+    private var color2: KeyframeTrack = NorthernLightsColors.track2Dark
+    private var color3: KeyframeTrack = NorthernLightsColors.track3Dark
+    private var color4: KeyframeTrack = NorthernLightsColors.track4Dark
+
+    private let commandQueue: MTLCommandQueue
+    private let pipelineState: MTLRenderPipelineState
+
+    private var startTime = CACurrentMediaTime()
+
+    init(device: MTLDevice) throws {
+        ensureNotOnMainQueue()
+
+        guard let commandQueue = device.makeCommandQueue(),
+              let library = device.makeDefaultLibrary(),
+              let vertexFunction = library.makeFunction(name: "northernLightsVertex"),
+              let fragmentFunction = library.makeFunction(name: "northernLightsFragment") else {
+            throw MetalInitializationError.resourceCreationFailed
+        }
+
+        self.device = device
+        self.commandQueue = commandQueue
+
+        let descriptor = MTLRenderPipelineDescriptor()
+        descriptor.vertexFunction = vertexFunction
+        descriptor.fragmentFunction = fragmentFunction
+        descriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+
+        pipelineState = try device.makeRenderPipelineState(descriptor: descriptor)
+
+        super.init()
+    }
+
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
+
+    func draw(in view: MTKView) {
+        guard let drawable = view.currentDrawable,
+              let descriptor = view.currentRenderPassDescriptor else {
+            return
+        }
+
+        let elapsed = Float(CACurrentMediaTime() - startTime)
+
+        var uniforms = Uniforms(
+            uTime: elapsed,
+            uResolution: SIMD2(Float(view.bounds.width), Float(view.bounds.height)),
+            uColor0: color1.evaluate(at: elapsed),
+            uColor1: color2.evaluate(at: elapsed),
+            uColor2: color3.evaluate(at: elapsed),
+            uColor3: color4.evaluate(at: elapsed),
+            uColor4: backgroundRGB
+        )
+
+        guard let commandBuffer = commandQueue.makeCommandBuffer(),
+              let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor) else {
+            return
+        }
+
+        encoder.setRenderPipelineState(pipelineState)
+        encoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.size, index: 0)
+        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+        encoder.endEncoding()
+
+        commandBuffer.present(drawable)
+        commandBuffer.commit()
+    }
+
+    func updateColors(isDarkMode: Bool) {
+        color1 = isDarkMode ? NorthernLightsColors.track1Dark : NorthernLightsColors.track1Light
+        color2 = isDarkMode ? NorthernLightsColors.track2Dark : NorthernLightsColors.track2Light
+        color3 = isDarkMode ? NorthernLightsColors.track3Dark : NorthernLightsColors.track3Light
+        color4 = isDarkMode ? NorthernLightsColors.track4Dark : NorthernLightsColors.track4Light
+    }
+}
+
+extension NorthernLightsRenderer {
+    enum MetalInitializationError: Error {
+        case resourceCreationFailed
+    }
+}
