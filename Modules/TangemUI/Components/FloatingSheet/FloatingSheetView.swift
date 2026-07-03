@@ -88,6 +88,10 @@ public struct FloatingSheetView: View {
         if let renderedViewModel, let sheetContent = registry.view(for: renderedViewModel) {
             FloatingSheetLayout(maxHeight: sheetMaxHeight(proxy)) {
                 sheetContent
+                    .transaction { transaction in
+                        guard isSheetFrameUpdateAnimationEnabled else { return }
+                        transaction.animation = nil
+                    }
             }
             .background(sheetContentConfiguration.sheetBackgroundColor)
             .clipShape(roundedRectangle)
@@ -98,9 +102,7 @@ public struct FloatingSheetView: View {
             .offset(y: verticalDragAmount)
             .animation(.keyboard, value: keyboardHeight)
             .animation(.floatingSheet, value: verticalDragAmount)
-            .if(sheetContentConfiguration.isSheetSwipeEnabled) {
-                $0.gesture(verticalSwipeGesture)
-            }
+            .gesture(verticalSwipeGesture, isEnabled: sheetContentConfiguration.isSheetSwipeEnabled)
             .transaction { transaction in
                 guard isSheetFrameUpdateAnimationEnabled else { return }
                 transaction.animation = sheetContentConfiguration.sheetFrameUpdateAnimation

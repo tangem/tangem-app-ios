@@ -29,7 +29,7 @@ struct AmountNotationSuffixFormatter {
             }
         }
 
-        let signPrefix = value == 0 ? "" : value > 0 ? "+" : "-"
+        let signPrefix = value == 0 ? "" : value > 0 ? AppConstants.plusSign : "-"
         return .init(
             signPrefix: signPrefix,
             decimal: formattedValue,
