@@ -13,6 +13,8 @@ import TangemFoundation
 
 /// See https://app.notion.com/p/tangem/Express-36d5d34eb67880fa8082dcdb732c4364?source=copy_link#f5e12a848f494dc28b3ad32fd3243ede for details.
 struct TransactionHistoryExpressDataMerger {
+    @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
+
     // MARK: - Active statuses
 
     private static let activeExchangeTransactionStatuses: Set<ExpressTransactionStatus> = [
@@ -81,11 +83,8 @@ struct TransactionHistoryExpressDataMerger {
         var bsdkTransactionsGroupedByDestinationAddressString: [String: [TransactionRecord]]?
 
         for exchangeTransaction in exchangeTransactions {
-            let info = ExchangeTransactionInfo(
-                transaction: exchangeTransaction,
-                provider: nil // [REDACTED_TODO_COMMENT]
-            )
-
+            let provider = auxDataRepository.provider(id: exchangeTransaction.providerId, branch: .swap)
+            let info = ExchangeTransactionInfo(transaction: exchangeTransaction, provider: provider)
             var didMatch = false
 
             // Step 1: Deterministic mapping for send/receive transactions by hashes
@@ -137,12 +136,9 @@ struct TransactionHistoryExpressDataMerger {
         }
 
         for onrampTransaction in onrampTransactions {
-            let info = OnrampTransactionInfo(
-                onrampTransaction: onrampTransaction,
-                provider: nil, // [REDACTED_TODO_COMMENT]
-                fiatCurrency: nil // [REDACTED_TODO_COMMENT]
-            )
-
+            let provider = auxDataRepository.provider(id: onrampTransaction.providerId, branch: .onramp)
+            let fiatCurrency = auxDataRepository.fiatCurrency(for: onrampTransaction.from)
+            let info = OnrampTransactionInfo(onrampTransaction: onrampTransaction, provider: provider, fiatCurrency: fiatCurrency)
             var didMatch = false
 
             // Step 1: Deterministic mapping for receive (no send for Onramp) transactions by hashes

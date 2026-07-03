@@ -14,6 +14,8 @@ import TangemFoundation
 /// Builds synthetic `TransactionRecord` placeholders for Express (swap) and onramp transactions that have no
 /// matching on-chain transaction (e.g. a still in-flight deal), so they're still surfaced in the history.
 struct TransactionHistorySyntheticTransactionFactory {
+    @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
+
     private let ownerAddress: String
     private let currentToken: TokenItem
     private let feeTokenItem: TokenItem
@@ -29,10 +31,8 @@ struct TransactionHistorySyntheticTransactionFactory {
     }
 
     func makeSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> TransactionRecord {
-        let info = ExchangeTransactionInfo(
-            transaction: exchangeTransaction,
-            provider: nil // [REDACTED_TODO_COMMENT]
-        )
+        let provider = auxDataRepository.provider(id: exchangeTransaction.providerId, branch: .swap)
+        let info = ExchangeTransactionInfo(transaction: exchangeTransaction, provider: provider)
         let outgoing = isOutgoing(exchangeTransaction)
         let source: TransactionRecord.SourceType
         let destination: TransactionRecord.DestinationType
@@ -72,11 +72,9 @@ struct TransactionHistorySyntheticTransactionFactory {
     func makeSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> TransactionRecord {
         // Onramp only has a pay-out leg (fiat -> crypto), so the synthetic transactions for Onramp are always incoming
         let amount = onrampTransaction.to.actualAmount ?? onrampTransaction.to.amount ?? 0
-        let info = OnrampTransactionInfo(
-            onrampTransaction: onrampTransaction,
-            provider: nil, // [REDACTED_TODO_COMMENT]
-            fiatCurrency: nil // [REDACTED_TODO_COMMENT]
-        )
+        let provider = auxDataRepository.provider(id: onrampTransaction.providerId, branch: .onramp)
+        let fiatCurrency = auxDataRepository.fiatCurrency(for: onrampTransaction.from)
+        let info = OnrampTransactionInfo(onrampTransaction: onrampTransaction, provider: provider, fiatCurrency: fiatCurrency)
 
         return TransactionRecord(
             hash: onrampTransaction.payOut.hash ?? onrampTransaction.txId,
