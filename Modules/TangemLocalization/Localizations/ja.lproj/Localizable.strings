@@ -327,6 +327,7 @@
 "common_or" = "または";
 "common_origin_card" = "プライマリーカード";
 "common_origin_ring" = "プライマリーリング";
+"common_other" = "Other";
 "common_passphrase" = "パスフレーズ";
 "common_paste" = "ペースト";
 "common_privacy_policy" = "プライバシーポリシー";
@@ -592,6 +593,7 @@
 "feedback_subject_tx_push_failed" = "取引をプッシュできません";
 "feedback_token_description_error" = "コインの説明エラー";
 "for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "正常に動作するよう、アプリを最新バージョンに更新してください。";
@@ -607,6 +609,7 @@
 "gasless_transaction_fee" = "取引手数料";
 "generic_error_code" = "エラーが発生しました。コード: %@ 。";
 "generic_requires_memo_error" = "メモが必要";
+"get_token_title" = "Get %1$@";
 "give_permission_current_transaction" = "取引";
 "give_permission_policy_type_footer" = "承認すると、このスマートコントラクトが今後の取引でトークンを利用できるようになります。";
 "give_permission_rows_amount" = "金額%@";
@@ -2073,6 +2076,8 @@
 "warning_hedera_missing_token_association_message" = "このトークンを受け取るには、Hederaアカウントに関連付ける必要があります。関連付け手数料 ~ %1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "トークンを関連付ける";
 "warning_hedera_token_association_not_enough_hbar_message" = "%@が不足しています。このトークンを関連付けるには、Hederaアカウントに資金を追加してください。";
+"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
+"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
 "warning_ios_deprecation_message" = "iOS %1$@ のサポートは %2$@ に終了します。アプリのアップデートを引き続き受け取り、すべての機能を利用するために、iOS を最新バージョンにアップデートしてください。";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "取引をキャンセルしてもよろしいですか? 取引を再試行することはできません";
 "warning_kaspa_unfinished_token_transaction_message" = "%1$@ %2$@の取引が完了しませんでした。もう一度試して完了してください。";
@@ -2098,8 +2103,8 @@
 "warning_old_card_title" = "古いカードに対するiOSの制限";
 "warning_old_device_old_card_message" = "iPhone 7/7+の一部のモデルでは、特定の操作中にNFCの問題が発生する場合があります。";
 "warning_old_device_old_card_title" = "デバイスの互換性がありません";
-"warning_outdated_data_message" = "順次更新されます。";
-"warning_outdated_data_title" = "一部トークンの残高が表示されていません。";
+"warning_outdated_data_message" = "一部のトークン残高を更新できませんでした";
+"warning_outdated_data_title" = "残高が最新でない可能性があります";
 "warning_rate_app_message" = "あなたのレビューは、Tangemウォレットをさらに良くするためのモチベーションになります";
 "warning_rate_app_title" = "Tangemを楽しんでいますか?";
 "warning_receive_blocked_hedera_token_association_required_message" = "トークンを受け取る前に、トークンを関連付ける必要があります。";

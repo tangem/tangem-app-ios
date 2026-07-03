@@ -327,6 +327,7 @@
 "common_or" = "ou";
 "common_origin_card" = "Carte principale";
 "common_origin_ring" = "Bague principale";
+"common_other" = "Other";
 "common_passphrase" = "Passphrase";
 "common_paste" = "Coller";
 "common_privacy_policy" = "Politique de confidentialité";
@@ -592,6 +593,7 @@
 "feedback_subject_tx_push_failed" = "Impossible d'effectuer une transaction";
 "feedback_token_description_error" = "Erreur de description de la pièce";
 "for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Mettez l'application à jour pour assurer son bon fonctionnement";
@@ -607,6 +609,7 @@
 "gasless_transaction_fee" = "Frais de transaction";
 "generic_error_code" = "Une erreur s'est produite. Code:%@";
 "generic_requires_memo_error" = "Un mémo est requis";
+"get_token_title" = "Get %1$@";
 "give_permission_current_transaction" = "Cette transaction";
 "give_permission_policy_type_footer" = "Spécifiez la limite approuvée pour le jeton sélectionné";
 "give_permission_rows_amount" = "Montant %@";
@@ -2073,6 +2076,8 @@
 "warning_hedera_missing_token_association_message" = "Ce jeton doit être associé à votre compte Hedera avant que vous puissiez le recevoir. Frais d'association ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Associez votre jeton";
 "warning_hedera_token_association_not_enough_hbar_message" = "%@ insuffisant. Renflouez votre compte Hedera pour associer ce jeton";
+"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
+"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
 "warning_ios_deprecation_message" = "La prise en charge d’iOS %1$@ prendra fin le %2$@. Pour continuer à recevoir les mises à jour de l’app et garantir un fonctionnement complet, veuillez mettre à jour vers la dernière version d’iOS.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Êtes-vous sûr(e) de vouloir annuler la transaction ? Vous ne pourrez plus réessayer.";
 "warning_kaspa_unfinished_token_transaction_message" = "Votre transaction d'un montant de %1$@ %2$@ n'a pas été finalisée. Vous pouvez réessayer plus tard pour la finaliser.";
@@ -2098,8 +2103,8 @@
 "warning_old_card_title" = "Restriction iOS pour les anciennes cartes";
 "warning_old_device_old_card_message" = "Certains modèles d'iPhone 7/7+ peuvent avoir des problèmes de NFC lors de certaines opérations.";
 "warning_old_device_old_card_title" = "Incompatibilité de l'appareil détecté";
-"warning_outdated_data_message" = "Sera mis à jour dès que possible";
-"warning_outdated_data_title" = "Données de soldes incomplètes";
+"warning_outdated_data_message" = "Certains soldes de jetons n'ont pas pu être mis à jour";
+"warning_outdated_data_title" = "Les soldes peuvent ne pas être à jour";
 "warning_rate_app_message" = "Votre avis nous motive à améliorer encore le Portefeuille Tangem";
 "warning_rate_app_title" = "Vous appréciez Tangem ?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Vous devez associer votre jeton avant de recevoir des jetons";

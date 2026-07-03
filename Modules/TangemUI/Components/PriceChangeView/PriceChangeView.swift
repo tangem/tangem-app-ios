@@ -46,17 +46,22 @@ public struct PriceChangeView: View {
                     skeleton
                 }
             }
-        case .loaded(let changeType, let text):
-            changeContent(changeType: changeType, text: text)
-        case .loadingCached(let changeType, let text):
-            changeContent(changeType: changeType, text: text)
+        case .loaded(let changeType, let text, let subtext):
+            changeContent(changeType: changeType, text: text, subtext: subtext)
+        case .loadingCached(let changeType, let text, let subtext):
+            changeContent(changeType: changeType, text: text, subtext: subtext)
                 .shimmer()
                 .environment(\.isShimmerActive, true)
         }
     }
 
-    private func changeContent(changeType: ChangeType, text: String) -> some View {
+    private func changeContent(changeType: ChangeType, text: String, subtext: String?) -> some View {
         HStack(spacing: 4) {
+            if let subtext {
+                SensitiveText(.string(subtext))
+                    .style(.Tangem.Caption12.medium.font, color: .Tangem.Text.Neutral.secondary)
+            }
+
             if shouldShowIcon(for: changeType) {
                 changeType.imageType.image
                     .renderingMode(.template)
@@ -122,12 +127,12 @@ public extension PriceChangeView {
         case noData
         case empty
         case loading
-        case loadingCached(changeType: ChangeType, text: String)
-        case loaded(changeType: ChangeType, text: String)
+        case loadingCached(changeType: ChangeType, text: String, subtext: String? = nil)
+        case loaded(changeType: ChangeType, text: String, subtext: String? = nil)
 
         public var changeType: ChangeType? {
             switch self {
-            case .loaded(let changeType, _), .loadingCached(let changeType, _):
+            case .loaded(let changeType, _, _), .loadingCached(let changeType, _, _):
                 return changeType
             default:
                 return nil
@@ -209,10 +214,10 @@ public extension PriceChangeView {
         PriceChangeView(state: .noData)
         PriceChangeView(state: .loading)
         PriceChangeView(state: .loading, showSkeletonWhenLoading: false)
-        PriceChangeView(state: .loaded(changeType: .positive, text: "+2.34%"))
-        PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"))
-        PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"), showIconForNeutral: false)
-        PriceChangeView(state: .loaded(changeType: .negative, text: "-1.23%"))
+        PriceChangeView(state: .loaded(changeType: .positive, text: "+2.34%", subtext: "+12.34 $"))
+        PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%", subtext: "0.00 $"))
+        PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%", subtext: "0.00 $"), showIconForNeutral: false)
+        PriceChangeView(state: .loaded(changeType: .negative, text: "-1.23%", subtext: "-12.34 $"))
     }
     .padding()
 }
