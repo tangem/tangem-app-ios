@@ -66,7 +66,7 @@
 "action_buttons_you_want_to_swap" = "Выберите токен для обмена";
 "actionbutton_addfunds_title" = "Пополнить";
 "actionbutton_swap_title" = "Обмен";
-"actionbutton_transfer_title" = "Перевод";
+"actionbutton_transfer_title" = "Перевести";
 "add_and_manage_sheet_manage_subtitle" = "Добавить в портфель";
 "add_and_manage_sheet_manage_title" = "Добавить токены";
 "add_and_manage_sheet_organize_subtitle" = "Сортировка и группировка";
@@ -327,6 +327,7 @@
 "common_or" = "или";
 "common_origin_card" = "Основная карта";
 "common_origin_ring" = "Основное кольцо";
+"common_other" = "Other";
 "common_passphrase" = "Парольная фраза";
 "common_paste" = "Вставить";
 "common_privacy_policy" = "Политикой конфиденциальности";
@@ -592,6 +593,7 @@
 "feedback_subject_tx_push_failed" = "Не могу протолкнуть транзакцию";
 "feedback_token_description_error" = "Ошибка в описании монеты";
 "for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Для обеспечения корректной работы обновите приложение до последней версии.";
@@ -607,6 +609,7 @@
 "gasless_transaction_fee" = "Комиссия за транзакцию";
 "generic_error_code" = "Произошла ошибка. Код: %@.";
 "generic_requires_memo_error" = "Требуется memo";
+"get_token_title" = "Get %1$@";
 "give_permission_current_transaction" = "Транзакция";
 "give_permission_policy_type_footer" = "Укажите лимит доступа к выбранному токену";
 "give_permission_rows_amount" = "Количество %@";
@@ -1177,6 +1180,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Код назначения";
 "send_dismiss_message" = "Вы действительно хотите закрыть экран отправки транзакции?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "ENS домен или адрес";
 "send_enter_address_field" = "Введите адрес";
 "send_error_address_same_as_wallet" = "Адрес совпадает с адресом кошелька";
@@ -1546,6 +1550,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "Комиссия в соответствии с тарифами обслуживания";
 "tangem_pay_transaction_reversed_notification_text" = "Транзакция частично или полностью возвращена продавцом";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "Продолжайте пользоваться картой, заморозить всегда успеете";
 "tangem_pay_unfreeze_card_alert_title" = "Разморозить карту?";
 "tangem_pay_unfreeze_card_failed" = "Не удалось разморозить карту, попробуйте еще раз";
@@ -2070,6 +2076,8 @@
 "warning_hedera_missing_token_association_message" = "Этот токен должен быть ассоциирован с вашей учетной записью Hedera, прежде чем вы сможете его принять. Стоимость ассоциации ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Ассоциируете свой токен";
 "warning_hedera_token_association_not_enough_hbar_message" = "Недостаточно %@. Пополните ваш аккаунт Hedera для ассоциации этого токена";
+"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
+"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
 "warning_ios_deprecation_message" = "Поддержка iOS %1$@ завершится %2$@. Чтобы продолжать получать обновления приложения и обеспечить полную работоспособность, обновите iOS до последней версии.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Вы уверены что хотите отменить эту транзакцию? Вы не сможете отправить ее еще раз";
 "warning_kaspa_unfinished_token_transaction_message" = "Ваша транзакция %1$@ %2$@ не была завершена. Вы можете попробовать отправить ее еще раз.";
@@ -2095,8 +2103,8 @@
 "warning_old_card_title" = "Ограничение iOS для старых карт";
 "warning_old_device_old_card_message" = "У iPhone 7/7+ могут возникнуть проблемы с NFC во время выполнения определенных операций";
 "warning_old_device_old_card_title" = "Устройство несовместимо";
-"warning_outdated_data_message" = "Обновление будет произведено в кратчайшие сроки.";
-"warning_outdated_data_title" = "Отсутствует часть баланса токенов.";
+"warning_outdated_data_message" = "Некоторые балансы токенов не удалось обновить";
+"warning_outdated_data_title" = "Балансы могут быть неактуальны";
 "warning_rate_app_message" = "Ваш отзыв мотивирует нас сделать кошелек Tangem еще лучше";
 "warning_rate_app_title" = "Нравится Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Вам необходимо провести ассоциацию токена для того, чтобы иметь возможность принимать его";
