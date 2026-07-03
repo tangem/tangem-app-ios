@@ -23,6 +23,12 @@ final class MarketsPortfolioTokenListRowViewModel: ObservableObject {
     @Published private(set) var cryptoBalanceState: BalanceState = .loading
     @Published private(set) var fiatBalanceState: BalanceState = .loading
 
+    let isNoAddress: Bool
+
+    var noAddressText: String {
+        Localization.commonNoAddress
+    }
+
     var tokenName: String {
         tokenInfo.name
     }
@@ -57,8 +63,16 @@ final class MarketsPortfolioTokenListRowViewModel: ObservableObject {
         self.tokenInfo = tokenInfo
         self.fiatTotalTokenBalancePublisher = fiatTotalTokenBalancePublisher
         self.cryptoTotalTokenBalancePublisher = cryptoTotalTokenBalancePublisher
+        isNoAddress = false
 
         bind()
+    }
+
+    init(noAddressTokenInfo tokenInfo: TokenInfo) {
+        self.tokenInfo = tokenInfo
+        fiatTotalTokenBalancePublisher = Empty<TokenBalanceType, Never>().eraseToAnyPublisher()
+        cryptoTotalTokenBalancePublisher = Empty<TokenBalanceType, Never>().eraseToAnyPublisher()
+        isNoAddress = true
     }
 }
 
