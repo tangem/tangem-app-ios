@@ -63,7 +63,7 @@ final class PriceAlertBellViewModel: ObservableObject {
         // notification-preferences on subscribe. Deferred: the bell only manages the subscription here.
         runTask(in: self) { viewModel in
             if shouldSubscribe {
-                let isAuthorized = await viewModel.ensurePushAuthorization()
+                let isAuthorized = await viewModel.pushNotificationsPermission.ensureAuthorized()
                 guard isAuthorized else {
                     // System push permission not granted; don't subscribe.
                     // [REDACTED_TODO_COMMENT]
@@ -119,18 +119,6 @@ private extension PriceAlertBellViewModel {
         runTask(in: self) { viewModel in
             try? await viewModel.provider?.fetch()
         }
-    }
-
-    /// Returns whether push notifications are authorized, requesting the system permission first when it
-    /// hasn't been determined yet. Mirrors the NotificationSettings flow; the denied-state "Enable
-    /// Notifications" sheet is handled separately ([REDACTED_INFO]).
-    func ensurePushAuthorization() async -> Bool {
-        if await pushNotificationsPermission.isAuthorized {
-            return true
-        }
-
-        await pushNotificationsPermission.requestAuthorizationAndRegister()
-        return await pushNotificationsPermission.isAuthorized
     }
 
     @MainActor

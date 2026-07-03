@@ -22,7 +22,7 @@ final class PriceAlertsViewModel: ObservableObject {
         viewState = makeInitialViewState()
     }
 
-    func onCloseTapAction() {
+    private func onCloseTapAction() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
