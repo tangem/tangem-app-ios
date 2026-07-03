@@ -47,14 +47,12 @@ public struct NewsRatingViewRedesign: View {
     }
 }
 
-#if DEBUG
 #Preview("New") {
     VStack(spacing: 20) {
         NewsRatingViewRedesign(rating: "8.6", isHighlighted: true)
         NewsRatingViewRedesign(rating: "8.6", isHighlighted: false)
     }
 }
-#endif
 
 public struct NewsRatingView: View {
     private let rating: String
@@ -111,19 +109,15 @@ public struct NewsRatingView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-struct NewsRatingView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 20) {
-            NewsRatingView(rating: "9.1", timeAgo: "1h ago")
+@available(iOS 17.0, *)
+#Preview(traits: .sizeThatFitsLayout) {
+    VStack(spacing: 20) {
+        NewsRatingView(rating: "9.1", timeAgo: "1h ago")
 
-            NewsRatingView(rating: "8.5", timeAgo: "2h ago")
+        NewsRatingView(rating: "8.5", timeAgo: "2h ago")
 
-            NewsRatingView(rating: "7.2", timeAgo: "3d ago")
-        }
-        .padding()
-        .background(Colors.Background.primary)
-        .previewLayout(.sizeThatFits)
+        NewsRatingView(rating: "7.2", timeAgo: "3d ago")
     }
+    .padding()
+    .background(Colors.Background.primary)
 }
-#endif

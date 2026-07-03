@@ -22,7 +22,9 @@ struct AddressBookRowView: View {
         )
         .verticalAlignment(.center)
         .start {
-            DesignSystem.Icons.AddressPolygon.regular20.image
+            DesignSystem.Icons.ContactBook.filled20.image
+                .renderingMode(.template)
+                .foregroundColor(DesignSystem.Color.iconBrand)
                 .padding(.all, 8)
                 .background(DesignSystem.Color.bgStatusInfoSubtle)
                 .cornerRadiusContinuous(12)

@@ -90,38 +90,31 @@ struct CheckmarkSwitch: View {
     }
 }
 
-struct CheckmarkSwitchPreview: View {
-    @State var isEvenChecked: Bool = false
-    @State var isOddChecked: Bool = true
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var isEvenChecked = false
+    @Previewable @State var isOddChecked = true
 
-    var body: some View {
-        VStack {
-            CheckmarkSwitch(
-                isChecked: $isOddChecked,
-                settings: .defaultCircled()
-            )
-            .frame(size: .init(width: 26, height: 26))
-            CheckmarkSwitch(
-                isChecked: $isEvenChecked,
-                settings: .defaultCircled()
-            )
-            .frame(size: .init(width: 26, height: 26))
-            CheckmarkSwitch(
-                isChecked: $isOddChecked,
-                settings: .defaultRoundedRect()
-            )
-            .frame(size: .init(width: 26, height: 26))
-            CheckmarkSwitch(
-                isChecked: $isEvenChecked,
-                settings: .defaultRoundedRect()
-            )
-            .frame(size: .init(width: 26, height: 26))
-        }
-    }
-}
-
-struct CheckmarkSwitch_Previews: PreviewProvider {
-    static var previews: some View {
-        CheckmarkSwitchPreview()
+    VStack {
+        CheckmarkSwitch(
+            isChecked: $isOddChecked,
+            settings: .defaultCircled()
+        )
+        .frame(size: .init(width: 26, height: 26))
+        CheckmarkSwitch(
+            isChecked: $isEvenChecked,
+            settings: .defaultCircled()
+        )
+        .frame(size: .init(width: 26, height: 26))
+        CheckmarkSwitch(
+            isChecked: $isOddChecked,
+            settings: .defaultRoundedRect()
+        )
+        .frame(size: .init(width: 26, height: 26))
+        CheckmarkSwitch(
+            isChecked: $isEvenChecked,
+            settings: .defaultRoundedRect()
+        )
+        .frame(size: .init(width: 26, height: 26))
     }
 }

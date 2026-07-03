@@ -15,6 +15,7 @@ enum GaslessApiTargetConstants {
     static let prodBaseURL = URL(string: "https://gasless.tangem.org")!
     static let devBaseURL = URL(string: "https://gasless.tests-d.com")!
     static let stageBaseURL = URL(string: "https://gasless.tests-d.com")!
+    static var mockBaseURL: URL { URL(string: "\(WireMockEnvironment.baseURL)/gasless")! }
 
     // Paths
     static let tokensPath = "/tokens"
@@ -42,6 +43,8 @@ struct GaslessTransactionsAPITarget: TargetType {
             baseUrl = GaslessApiTargetConstants.devBaseURL
         case .stage:
             baseUrl = GaslessApiTargetConstants.stageBaseURL
+        case .mock:
+            baseUrl = GaslessApiTargetConstants.mockBaseURL
         }
 
         return baseUrl.appendingPathComponent("api").appendingPathComponent("v1")

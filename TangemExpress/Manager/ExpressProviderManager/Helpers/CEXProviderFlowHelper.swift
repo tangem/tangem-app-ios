@@ -96,7 +96,7 @@ private extension CEXProviderFlowHelper {
         let estimatedFee = try await expressFeeProvider.estimatedFee(amount: request.amount)
         try Task.checkCancellation()
 
-        let subtractFee = try subtractFee(amount: request.amount, estimatedFee: estimatedFee)
+        let subtractFee = try subtractFee(amount: request.amount, estimatedFee: estimatedFee, rateType: request.rateType)
 
         guard isEnoughAmountToSubtractFee(amount: request.amount, subtractFee: subtractFee) else {
             return .restriction(.insufficientBalance(request.amount), quote: quote)
@@ -127,7 +127,7 @@ private extension CEXProviderFlowHelper {
             let estimatedFee = try await expressFeeProvider.estimatedFee(amount: request.amount)
             try Task.checkCancellation()
 
-            let subtractFee = try subtractFee(amount: request.amount, estimatedFee: estimatedFee)
+            let subtractFee = try subtractFee(amount: request.amount, estimatedFee: estimatedFee, rateType: request.rateType)
             return try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
         case .to:
             return request
@@ -184,7 +184,14 @@ private extension CEXProviderFlowHelper {
         return amount + fee <= balance
     }
 
-    func subtractFee(amount: Decimal, estimatedFee: BSDKFee) throws -> Decimal {
+    func subtractFee(amount: Decimal, estimatedFee: BSDKFee, rateType: ExpressProviderRateType) throws -> Decimal {
+        // Fixed rate: the user-entered amount is the contract — never silently reduce it.
+        // If `amount + fee > balance`, return 0 here and let downstream validation raise
+        // `.totalExceedsBalance` → `.notEnoughBalanceForSwapping`, surfacing "insufficient funds".
+        guard rateType == .float else {
+            return 0
+        }
+
         guard try !canCoverFee(amount: amount, estimatedFee: estimatedFee) else {
             return 0
         }

@@ -98,6 +98,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .infinityFrame(axis: .horizontal, alignment: .center)
+                    .accessibilityIdentifier(viewModel.addressAccessibilityIdentifier)
             }
         }
         .padding(.horizontal, 24)
