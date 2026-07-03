@@ -97,6 +97,43 @@ final class AddCustomTokenScreen: ScreenBase<AddCustomTokenScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifyUnsupportedCurveAlert(blockchain: String) -> Self {
+        XCTContext.runActivity(named: "Verify unsupported-curve alert for \(blockchain)") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Unsupported-curve alert should appear")
+            let predicate = NSPredicate(format: "label CONTAINS[c] %@ AND label CONTAINS[c] %@", blockchain, "reset the wallet")
+            let message = alert.staticTexts.containing(predicate).firstMatch
+            waitAndAssertTrue(message, "Alert should state \(blockchain) needs the wallet to be recreated")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyFirmwareLimitationAlert(blockchain: String) -> Self {
+        XCTContext.runActivity(named: "Verify firmware-limitation alert for \(blockchain)") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Firmware-limitation alert should appear")
+            let predicate = NSPredicate(format: "label CONTAINS[c] %@ AND label CONTAINS[c] %@", blockchain, "firmware limitation")
+            let message = alert.staticTexts.containing(predicate).firstMatch
+            waitAndAssertTrue(message, "Alert should state \(blockchain) is unsupported due to firmware limitation")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyDerivationOptionPath(option: String, expectedPath: String) -> Self {
+        XCTContext.runActivity(named: "Verify \(option) derivation path is \(expectedPath)") { _ in
+            let identifier = AddCustomTokenAccessibilityIdentifiers.derivationOptionRow(option)
+            let predicate = NSPredicate(format: "identifier == %@ AND label BEGINSWITH %@", identifier, "m/")
+            let pathText = app.staticTexts.matching(predicate).firstMatch
+            scrollToElement(pathText, attempts: .lazy)
+            waitAndAssertTrue(pathText, "Derivation path for \(option) should exist")
+            XCTAssertEqual(pathText.label, expectedPath, "\(option) derivation path should be \(expectedPath)")
+            return self
+        }
+    }
+
     private func element(withIdentifier identifier: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: identifier).firstMatch
     }
