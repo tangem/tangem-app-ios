@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 // Skeleton: the wallet list, "Don't ask again" and fan-out subscribe are [REDACTED_INFO].
 final class PriceAlertsWalletSelectorViewModel: ObservableObject {
