@@ -327,6 +327,7 @@
 "common_or" = "або";
 "common_origin_card" = "Основна картка";
 "common_origin_ring" = "Основне кільце";
+"common_other" = "Other";
 "common_passphrase" = "Парольна фраза";
 "common_paste" = "Вставити";
 "common_privacy_policy" = "Політикою конфіденційності";
@@ -592,6 +593,7 @@
 "feedback_subject_tx_push_failed" = "Не можу проштовхнути транзакцію";
 "feedback_token_description_error" = "Помилка в описі монети";
 "for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Для забезпечення коректної роботи оновіть застосунок до останньої версії.";
@@ -607,6 +609,7 @@
 "gasless_transaction_fee" = "Комісія за транзакцію";
 "generic_error_code" = "Виникла помилка. Код: %@.";
 "generic_requires_memo_error" = "Вимагається memo";
+"get_token_title" = "Get %1$@";
 "give_permission_current_transaction" = "Транзакція";
 "give_permission_policy_type_footer" = "Вкажіть ліміт доступу для обраного токена";
 "give_permission_rows_amount" = "Кількість %@";
@@ -1177,6 +1180,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Тег призначення";
 "send_dismiss_message" = "Ви дійсно хочете закрити екран надсилання транзакції?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "Ім’я ENS або адреса";
 "send_enter_address_field" = "Введіть адресу";
 "send_error_address_same_as_wallet" = "Адреса збігається з адресою гаманця";
@@ -1546,6 +1550,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "Комісія відповідно до тарифів обслуговування";
 "tangem_pay_transaction_reversed_notification_text" = "Транзакцію було частково або повністю скасовано продавцем";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "Продовжуйте користуватися карткою. Заморозити можна в будь-який момент.";
 "tangem_pay_unfreeze_card_alert_title" = "Розморозити картку?";
 "tangem_pay_unfreeze_card_failed" = "Не вдалося розморозити картку. Спробуйте пізніше.";
@@ -2070,6 +2076,8 @@
 "warning_hedera_missing_token_association_message" = "Цей токен повинен бути асоційований з вашим обліковим записом Hedera, перш ніж ви зможете його прийняти. Вартість асоціації ~ %1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Асоціюйте свій токен";
 "warning_hedera_token_association_not_enough_hbar_message" = "Недостатньо %@. Поповніть ваш обліковий запис Hedera для асоціації цього токена";
+"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
+"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
 "warning_ios_deprecation_message" = "Підтримка iOS %1$@ завершиться %2$@. Щоб і надалі отримувати оновлення застосунку та забезпечити повну функціональність, оновіть iOS до останньої версії.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Ви впевнені, що хочете скасувати цю транзакцію? Ви не зможете відправити її ще раз";
 "warning_kaspa_unfinished_token_transaction_message" = "Ваша транзакція %1$@ %2$@ не була завершена. Ви можете спробувати відправити її ще раз.";
@@ -2095,8 +2103,8 @@
 "warning_old_card_title" = "Обмеження iOS для старих карток";
 "warning_old_device_old_card_message" = "Деякі моделі iPhone 7/7+ можуть мати проблеми з NFC під час певних операцій.";
 "warning_old_device_old_card_title" = "Виявлено несумісність пристрою";
-"warning_outdated_data_message" = "Буде оновлено якнайшвидше.";
-"warning_outdated_data_title" = "Відсутня частина балансу токенів.";
+"warning_outdated_data_message" = "Деякі баланси токенів не вдалося оновити";
+"warning_outdated_data_title" = "Баланси можуть бути неактуальними";
 "warning_rate_app_message" = "Ваш відгук мотивує нас робити гаманець Tangem Wallet ще кращим";
 "warning_rate_app_title" = "Подобається Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Вам необхідно провести асоціацію токена, щоб мати можливість приймати його";
