@@ -23,7 +23,7 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: WalletAssetsDis
         switch blockchain {
         case .veChain, .near, .tezos, .aptos, .algorand, .binance, .stellar,
              .koinos, .sui, .internetComputer, .filecoin, .casper,
-             .cosmos, .terraV1, .terraV2, .sei, .ton, .polkadot, .kusama,
+             .cosmos, .terraV1, .terraV2, .sei, .gonka, .ton, .polkadot, .kusama,
              .azero, .joystream, .bittensor, .energyWebX, .xrp, .tron,
              .alephium, .kaspa, .cardano, .chia, .solana:
             return true
@@ -107,7 +107,7 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: WalletAssetsDis
             return try await CasperInitialWalletTokenSyncConfigurationProvider(
                 networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
-        case .cosmos, .terraV1, .terraV2, .sei:
+        case .cosmos, .terraV1, .terraV2, .sei, .gonka:
             return try await CosmosInitialWalletTokenSyncConfigurationProvider(
                 networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)

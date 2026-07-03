@@ -152,6 +152,7 @@ struct AccountDerivationPathHelper {
              .sui,
              .filecoin,
              .sei,
+             .gonka,
              .energyWebEVM,
              .energyWebX,
              .core,

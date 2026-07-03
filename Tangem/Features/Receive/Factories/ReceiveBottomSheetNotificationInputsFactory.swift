@@ -120,6 +120,7 @@ struct ReceiveBottomSheetNotificationInputsFactory {
              (_, .sui),
              (_, .filecoin),
              (_, .sei),
+             (_, .gonka),
              (_, .energyWebEVM),
              (_, .energyWebX),
              (_, .core),

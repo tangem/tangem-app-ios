@@ -391,6 +391,7 @@ private extension Blockchain {
         case .blast: return nil
         case .filecoin: return "filecoin"
         case .sei: return "sei"
+        case .gonka: return nil
         case .sui: return "sui"
         case .energyWebEVM: return nil
         case .energyWebX: return nil
@@ -494,6 +495,7 @@ private extension Blockchain {
         case .blast: return nil
         case .filecoin: return "fil"
         case .sei: return "sei_sei"
+        case .gonka: return nil
         case .sui: return "sui"
         case .energyWebEVM: return nil
         case .energyWebX: return nil
