@@ -31,7 +31,7 @@ struct ExpandedAccountItemHeaderView: View {
     @ScaledMetric private var verticalAlignmentGuideBase: CGFloat = 10
 
     /// Vertical offset to align expanded content with collapsed state position.
-    /// The collapsed view uses TwoLineRowWithIcon which centers content with a 36pt icon,
+    /// The collapsed view uses TwoLineRowWithIcon which centers content with a 40pt icon (redesign; 36pt legacy),
     /// while the expanded view has a simpler layout with a 14pt icon. This offset
     /// compensates for the vertical position difference, ensuring the matchedGeometryEffect
     /// animation moves horizontally rather than diagonally.
@@ -71,7 +71,7 @@ struct ExpandedAccountItemHeaderView: View {
                 name: name
             )
             .iconSettings(AccountItemConstants.expandedIconSettings)
-            .font(Fonts.Bold.subheadline)
+            .font(nameFont)
             .iconGeometryEffect(iconGeometryEffect)
             .iconBackgroundGeometryEffect(iconBackgroundGeometryEffect)
             .nameGeometryEffect(nameGeometryEffect)
@@ -97,7 +97,7 @@ struct ExpandedAccountItemHeaderView: View {
                 Assets.Accounts.minimize.image
             }
         }
-        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.horizontal, horizontalPadding)
         .padding(.top, 14.0)
         // There is an additional padding of 6.0 pt somewhere in the view hierarchy,
         // there is why we use 2.0 pt here to make total 8.0 pt to match the mockup
@@ -111,7 +111,7 @@ struct ExpandedAccountItemHeaderView: View {
                 .alignmentGuide(HorizontalAlignment.tokensCount) { dimensions in
                     // Moving alignment point RIGHT
                     dimensions[.leading] -
-                        Constants.horizontalPadding -
+                        horizontalPadding -
                         scaledIconWidth -
                         AccountItemConstants.expandedIconSettings.padding * 2 -
                         AccountInlineHeaderView.Constants.spacing
@@ -129,7 +129,7 @@ struct ExpandedAccountItemHeaderView: View {
         if shouldShowBalance {
             LoadableBalanceView(
                 state: totalFiatBalance,
-                style: .init(font: Font.Tangem.Caption12.semibold, textColor: .Tangem.Text.Neutral.tertiary),
+                style: .init(font: Font.Tangem.Caption12.medium, textColor: .Tangem.Text.Neutral.tertiary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
             .matchedGeometryEffect(balanceGeometryEffect)
@@ -144,13 +144,16 @@ struct ExpandedAccountItemHeaderView: View {
         Color.clear
             .frame(size: .zero)
     }
-}
 
-// MARK: - Constants
+    // [REDACTED_INFO]: drop gating, keep the redesign values.
+    private var nameFont: TangemFontStyle {
+        FeatureProvider.isAvailable(.redesign)
+            ? Font.Tangem.Body16.medium
+            : TangemFontStyle(font: Fonts.Bold.subheadline)
+    }
 
-private extension ExpandedAccountItemHeaderView {
-    enum Constants {
-        static let horizontalPadding: CGFloat = 14
+    private var horizontalPadding: CGFloat {
+        FeatureProvider.isAvailable(.redesign) ? .unit(.x3) : 14
     }
 }
 
