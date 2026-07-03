@@ -13,6 +13,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemButtonV2Demo()
     func openTangemBadgeDemo()
     func openTangemBadgeV2Demo()
+    func openTangemMessageBannerDemo()
     func openTangemRowDemo()
     func openTangemCalloutDemo()
     func openTangemTabsDemo()
@@ -40,6 +41,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemButtonV2DemoViewModel: TangemButtonV2DemoViewModel?
     @Published var tangemBadgeDemoViewModel: TangemBadgeDemoViewModel?
     @Published var tangemBadgeV2DemoViewModel: TangemBadgeV2DemoViewModel?
+    @Published var tangemMessageBannerDemoViewModel: TangemMessageBannerDemoViewModel?
     @Published var tangemRowDemoViewModel: TangemRowDemoViewModel?
     @Published var tangemCalloutDemoViewModel: TangemCalloutDemoViewModel?
     @Published var tangemTabsDemoViewModel: TangemTabsDemoModel?
@@ -85,6 +87,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemBadgeV2Demo() {
         tangemBadgeV2DemoViewModel = .init()
+    }
+
+    func openTangemMessageBannerDemo() {
+        tangemMessageBannerDemoViewModel = .init()
     }
 
     func openTangemRowDemo() {
