@@ -158,13 +158,26 @@ extension MockedCardScanner: CardScanner {
                     case .scan(let response):
                         completion(.success(response))
                     case .cardMock(let mock):
-                        let response = AppScanTaskResponse(
-                            card: mock.card,
-                            walletData: mock.walletData,
-                            primaryCard: nil
-                        )
+                        do {
+                            let environment = ProcessInfo.processInfo.environment
+                            let batchIdOverride = environment["UITEST_MOCK_CARD_BATCH_ID"].flatMap { $0.isEmpty ? nil : $0 }
+                            let firmwareOverride = environment["UITEST_MOCK_CARD_FIRMWARE"].flatMap { $0.isEmpty ? nil : $0 }
+                            let card: Card
+                            if batchIdOverride != nil || firmwareOverride != nil {
+                                card = try mock.card(batchIdOverride: batchIdOverride, firmwareOverride: firmwareOverride)
+                            } else {
+                                card = mock.card
+                            }
+                            let response = AppScanTaskResponse(
+                                card: card,
+                                walletData: mock.walletData,
+                                primaryCard: nil
+                            )
 
-                        completion(.success(response))
+                            completion(.success(response))
+                        } catch {
+                            completion(.failure(.underlying(error: error)))
+                        }
                     case .cobrandMock(let batchId, let cardsCount):
                         do {
                             let card = try CardMock.wallet2.cobrandMock(batchId: batchId, cardsCount: cardsCount)

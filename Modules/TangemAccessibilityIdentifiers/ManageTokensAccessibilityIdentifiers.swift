@@ -15,6 +15,10 @@ public enum ManageTokensAccessibilityIdentifiers {
         "manageTokens_coinRow_\(coinId)"
     }
 
+    public static func networkRow(_ networkName: String) -> String {
+        "manageTokens_networkRow_\(networkName.lowercased())"
+    }
+
     public static func networkToggle(_ networkName: String) -> String {
         "manageTokensNetworkToggle_\(networkName.lowercased())"
     }
