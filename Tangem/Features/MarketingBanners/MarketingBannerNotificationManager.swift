@@ -1,5 +1,5 @@
 //
-//  SwapMarketingBannerNotificationManager.swift
+//  MarketingBannerNotificationManager.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,10 +10,9 @@ import Foundation
 import Combine
 import TangemFoundation
 
-final class SwapMarketingBannerNotificationManager {
+final class MarketingBannerNotificationManager {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
 
-    private let service = MarketingBannerService()
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private let linkedBannersSubject = CurrentValueSubject<[MarketingBanner], Never>([])
     private var subscription: AnyCancellable?
@@ -21,35 +20,9 @@ final class SwapMarketingBannerNotificationManager {
 
 // MARK: - Setup
 
-extension SwapMarketingBannerNotificationManager {
-    func setup(
-        sourceTokenInput: SendSourceTokenInput,
-        sourceTokenAmountInput: SendSourceTokenAmountInput,
-        receiveTokenInput: SendReceiveTokenInput
-    ) {
-        guard FeatureProvider.isAvailable(.marketingBanners) else {
-            return
-        }
-
-        let requests = Publishers.CombineLatest3(
-            sourceTokenInput.sourceTokenPublisher,
-            receiveTokenInput.receiveTokenPublisher,
-            sourceTokenAmountInput.sourceAmountPublisher
-        )
-        .map { source, receive, amount -> SwapMarketingBannerRequest? in
-            guard let source = source.value, let receive = receive.value else {
-                return nil
-            }
-
-            return SwapMarketingBannerRequest(
-                source: source.tokenItem,
-                destination: receive.tokenItem,
-                sourceAmount: amount.value?.crypto
-            )
-        }
-        .eraseToAnyPublisher()
-
-        subscription = service.bannerPublisher(for: requests)
+extension MarketingBannerNotificationManager {
+    func setup(bannersPublisher: AnyPublisher<MarketingBanners, Never>) {
+        subscription = bannersPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { manager, banners in
@@ -61,7 +34,7 @@ extension SwapMarketingBannerNotificationManager {
 
 // MARK: - Private
 
-private extension SwapMarketingBannerNotificationManager {
+private extension MarketingBannerNotificationManager {
     func makeInput(for banner: MarketingBanner) -> NotificationViewInput {
         MarketingBannerNotificationInputFactory.makeInput(
             for: banner,
@@ -74,7 +47,7 @@ private extension SwapMarketingBannerNotificationManager {
 
 // MARK: - NotificationManager
 
-extension SwapMarketingBannerNotificationManager: NotificationManager {
+extension MarketingBannerNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
         notificationInputsSubject.value
     }
@@ -92,7 +65,7 @@ extension SwapMarketingBannerNotificationManager: NotificationManager {
 
 // MARK: - LinkedMarketingBannerProviding
 
-extension SwapMarketingBannerNotificationManager: LinkedMarketingBannerProviding {
+extension MarketingBannerNotificationManager: LinkedMarketingBannerProviding {
     // [REDACTED_TODO_COMMENT]
     var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
         linkedBannersSubject.eraseToAnyPublisher()
