@@ -285,6 +285,7 @@ private final class SendAnalyticsLoggerStub: SendAnalyticsLogger {
     // MARK: - SendSwapProvidersAnalyticsLogger
 
     func logSendSwapProvidersChosen(provider: ExpressProvider) {}
+    func logSendSwapFilterProviderTapped(type: Analytics.ParameterValue) {}
 
     // MARK: - SendSummaryAnalyticsLogger
 
