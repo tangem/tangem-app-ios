@@ -155,6 +155,7 @@ final class GaslessSwapUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(Constants.tokenName)
+            .waitForNonZeroTotalBalance()
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
@@ -166,6 +167,7 @@ final class GaslessSwapUITests: BaseTestCase {
     private func openHotWalletSwap(receiveToken: String, amount: String) -> SwapScreen {
         importHotWallet()
             .tapToken(Constants.tokenName)
+            .waitForNonZeroTotalBalance()
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
