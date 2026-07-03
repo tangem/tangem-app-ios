@@ -327,6 +327,7 @@
 "common_or" = "或者";
 "common_origin_card" = "主卡";
 "common_origin_ring" = "主指环";
+"common_other" = "Other";
 "common_passphrase" = "密码短语";
 "common_paste" = "粘贴";
 "common_privacy_policy" = "隐私政策";
@@ -592,6 +593,7 @@
 "feedback_subject_tx_push_failed" = "无法推送交易";
 "feedback_token_description_error" = "代币描述错误";
 "for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "请将应用更新至最新版本，以确保其正常运行";
@@ -607,6 +609,7 @@
 "gasless_transaction_fee" = "转账费";
 "generic_error_code" = "发生错误。错误代码： %@。";
 "generic_requires_memo_error" = "需要备忘录";
+"get_token_title" = "Get %1$@";
 "give_permission_current_transaction" = "交易";
 "give_permission_policy_type_footer" = "批准后，您即允许智能合约在未来的交易中使用您的代币。";
 "give_permission_rows_amount" = "金额 %@";
@@ -1177,6 +1180,7 @@
 "send_date_format" = "%1$@%2$@";
 "send_destination_tag_field" = "目的地址标签";
 "send_dismiss_message" = "您确定要关闭发送界面吗？";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "ENS名称或地址";
 "send_enter_address_field" = "输入地址";
 "send_error_address_same_as_wallet" = "地址与钱包地址相同";
@@ -1546,6 +1550,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "费用按服务费率收取";
 "tangem_pay_transaction_reversed_notification_text" = "商家部分或全部撤销了交易";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "继续使用您的资金。您可以随时冻结资金。";
 "tangem_pay_unfreeze_card_alert_title" = "要解冻您的卡片？";
 "tangem_pay_unfreeze_card_failed" = "卡片解冻失败，请稍后再试。";
@@ -2070,6 +2076,8 @@
 "warning_hedera_missing_token_association_message" = "您必须先将此代币关联到您的 Hedera 账户才能收到。关联费 ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "关联您的代币";
 "warning_hedera_token_association_not_enough_hbar_message" = "%@不够。请为您的 Hedera 账户充值以关联此代币";
+"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
+"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
 "warning_ios_deprecation_message" = "对 iOS %1$@ 的支持将于 %2$@终止。要继续接收应用程序更新并确保完整功能，请更新至最新版本的 iOS。";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "您确定要取消交易吗？取消后您将无法再次尝试交易。";
 "warning_kaspa_unfinished_token_transaction_message" = "您金额为 %1$@ %2$@ 的交易未完成。您可以再次尝试完成交易。";
@@ -2095,7 +2103,7 @@
 "warning_old_card_title" = "iOS 对旧卡片的限制";
 "warning_old_device_old_card_message" = "部分 iPhone 7/7+ 机型在进行某些操作时可能会出现 NFC 问题。";
 "warning_old_device_old_card_title" = "检测到设备不兼容";
-"warning_outdated_data_message" = "将尽快更新";
+"warning_outdated_data_message" = "部分代币余额无法更新";
 "warning_outdated_data_title" = "缺少部分代币余额";
 "warning_rate_app_message" = "您的评价激励我们不断改进 Tangem Wallet。";
 "warning_rate_app_title" = "喜欢 Tangem 吗？";
