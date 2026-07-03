@@ -422,6 +422,10 @@ extension CommonSendAnalyticsLogger: SendSwapProvidersAnalyticsLogger {
     func logSendSwapProvidersChosen(provider: ExpressProvider) {
         Analytics.log(event: .sendProviderChosen, params: [.provider: provider.name])
     }
+
+    func logSendSwapFilterProviderTapped(type: Analytics.ParameterValue) {
+        Analytics.log(.swapFilterProvider, params: [.type: type])
+    }
 }
 
 // MARK: - SendReceiveTokensListAnalyticsLogger
