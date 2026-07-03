@@ -109,6 +109,8 @@ struct EstimationFeeAddressFactory {
             return "f1wxdu6d25dc4hmebdfgriswooum22plhmmpxibzq"
         case .sei:
             return "sei1lhjvds604fvac32j4eygpr820lyc82dlfv0ea4"
+        case .gonka:
+            return "gonka1an29dzc6a8z4deqwy8e5jnux3gnazlfcmc45ua"
         case .energyWebX:
             return "5CogUCbb5PYYbEHhDVGDN6JRRYBkd4sFRVc4wwP8oy5Su34Z"
         case .clore:
