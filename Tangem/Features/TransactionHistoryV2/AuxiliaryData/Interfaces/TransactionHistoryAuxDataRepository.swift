@@ -31,8 +31,12 @@ protocol TransactionHistoryAuxDataRepository: Sendable {
     // MARK: Crypto currencies
 
     /// - Note: Fires a background load on a cache miss.
+    /// - Warning: The returned `TokenItem` has a `BlockchainNetwork` with no derivation path (`nil`). Callers that
+    ///   need a derivation-correct item (e.g. to add the token to a wallet) must enrich it themselves.
     nonisolated func cryptoCurrency(for currency: ExpressCurrency) -> TokenItem?
 
     /// - Note: Fires (and awaiting) a load on a cache miss.
+    /// - Warning: The returned `TokenItem` has a `BlockchainNetwork` with no derivation path (`nil`). Callers that
+    ///   need a derivation-correct item (e.g. to add the token to a wallet) must enrich it themselves.
     func cryptoCurrency(for currency: ExpressCurrency) async -> TokenItem?
 }

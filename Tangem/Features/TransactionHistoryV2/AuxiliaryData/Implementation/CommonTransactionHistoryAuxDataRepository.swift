@@ -171,7 +171,15 @@ actor CommonTransactionHistoryAuxDataRepository {
     // MARK: - Crypto currencies loading
 
     private func loadCryptoCurrenciesIfNeeded(_ currency: ExpressCurrency, key: String, isFromAsyncContext: Bool) async {
-        if cache.cryptoCurrencies[key] != nil {
+        if cache.cryptoCurrency(for: key) != nil {
+            return
+        }
+
+        // Offline-first: try to resolve from the local data before fetching the remote API endpoint
+        if let localTokenItem = resolveLocalCryptoCurrency(for: currency) {
+            cache.locallyResolvedCryptoCurrencies[key] = localTokenItem
+            mirrorToSyncCache()
+            subscribers.yield()
             return
         }
 
@@ -187,7 +195,7 @@ actor CommonTransactionHistoryAuxDataRepository {
         }
 
         await withCheckedContinuation { continuation in
-            guard cache.cryptoCurrencies[key] == nil else {
+            guard cache.cryptoCurrency(for: key) == nil else {
                 // The currency was loaded while we were waiting for the continuation to be called, early exit
                 continuation.resume()
                 return
@@ -195,6 +203,30 @@ actor CommonTransactionHistoryAuxDataRepository {
 
             pendingCryptoCurrencyContinuations[key, default: []].append(continuation)
         }
+    }
+
+    private func resolveLocalCryptoCurrency(for currency: ExpressCurrency) -> TokenItem? {
+        // Using `SupportedBlockchains.all` here is safe because it is just a static lookup table, it is a responsibility
+        // of the caller to ensure that the currency (derived from the `ExpressCurrency`) is actually supported by the app
+        guard let blockchain = SupportedBlockchains.all[currency.network] else {
+            return nil
+        }
+
+        // We explicitly check set the `derivationPath` to `nil` here because we don't know the derivation path of the currency.
+        // Callers that need a derivation-correct item (e.g. to add the token to a wallet) must enrich it themselves.
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: nil)
+
+        if currency.contractAddress == Constants.coinContractAddress {
+            return .blockchain(blockchainNetwork)
+        }
+
+        return AccountWalletModelsAggregator
+            .walletModels(from: userWalletRepository.models)
+            .lazy
+            .first { $0.tokenItem.blockchain == blockchain && $0.tokenItem.contractAddress == currency.contractAddress }?
+            .tokenItem
+            .token
+            .map { .token($0, blockchainNetwork) }
     }
 
     private func startCryptoCurrenciesLoadingDebounce() {
@@ -414,7 +446,7 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
 
     nonisolated func cryptoCurrency(for currency: ExpressCurrency) -> TokenItem? {
         let key = Self.makeCryptoCurrencyCacheKey(for: currency)
-        let cached = syncCache { $0.cryptoCurrencies[key] }
+        let cached = syncCache { $0.cryptoCurrency(for: key) }
 
         if cached == nil {
             runTask(in: self) { repository in
@@ -428,13 +460,13 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
     func cryptoCurrency(for currency: ExpressCurrency) async -> TokenItem? {
         let key = Self.makeCryptoCurrencyCacheKey(for: currency)
 
-        if let cached = cache.cryptoCurrencies[key] {
+        if let cached = cache.cryptoCurrency(for: key) {
             return cached
         }
 
         await loadCryptoCurrenciesIfNeeded(currency, key: key, isFromAsyncContext: true)
 
-        return cache.cryptoCurrencies[key]
+        return cache.cryptoCurrency(for: key)
     }
 }
 
@@ -456,6 +488,9 @@ private extension CommonTransactionHistoryAuxDataRepository {
         var fiatCurrencies: [String: OnrampFiatCurrency] = [:]
         var cryptoCurrencies: [String: TokenItem] = [:]
 
+        /// Crypto currencies resolved offline from the user's wallet models. Kept in memory only — never persisted.
+        var locallyResolvedCryptoCurrencies: [String: TokenItem] = [:]
+
         func providers(for branch: ExpressBranch) -> [ExpressProvider.Id: ExpressProvider] {
             switch branch {
             case .swap:
@@ -463,6 +498,10 @@ private extension CommonTransactionHistoryAuxDataRepository {
             case .onramp:
                 onrampProviders
             }
+        }
+
+        func cryptoCurrency(for key: String) -> TokenItem? {
+            return cryptoCurrencies[key] ?? locallyResolvedCryptoCurrencies[key]
         }
     }
 }
