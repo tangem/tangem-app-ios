@@ -53,11 +53,17 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.typographyDemoViewModel) {
                 TypographyDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.typographyV2DemoViewModel) {
+                TypographyV2DemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemTabsDemoViewModel) {
                 TangemTabsDemo(viewModel: $0)
             }
             .navigation(item: $coordinator.tangemSearchFieldDemoViewModel) {
                 TangemSearchFieldDemo(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tangemSearchDemoViewModel) {
+                TangemSearchDemoView(viewModel: $0)
             }
             .navigation(item: $coordinator.tangemDropDownDemoViewModel) {
                 TangemDropDownDemoView(viewModel: $0)
@@ -74,6 +80,7 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemShimmerDemoViewModel) {
                 TangemShimmerDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.glowRingDemoViewModel, destination: GlowRingDemoView.init)
     }
 }
 
@@ -102,6 +109,18 @@ struct DesignSystemDemoView: View {
 
                     MainButton(title: "TangemShimmer") {
                         viewModel.openTangemShimmerDemo()
+                    }
+
+                    MainButton(title: "GlowRing") {
+                        viewModel.openGlowRingDemo()
+                    }
+
+                    MainButton(title: "TangemSearch") {
+                        viewModel.openTangemSearchDemo()
+                    }
+
+                    MainButton(title: "Typography V2") {
+                        viewModel.openTypographyV2Demo()
                     }
                 }
 

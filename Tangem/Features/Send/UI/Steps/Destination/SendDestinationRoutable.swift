@@ -11,6 +11,8 @@ import SwiftUI
 
 protocol SendDestinationRoutable: AnyObject {
     func openQRScanner(with codeBinding: Binding<String>, networkName: String)
+    func openAddressBookChooseAddress(groups: [AddressBookContactAddressGroup], output: ChooseAddressOutput)
+    func openAddressBookViewAll(provider: any AddressBooksProvider, output: AddressBooksSelectionOutput)
 }
 
 protocol SendDestinationStepRoutable: AnyObject {
