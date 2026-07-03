@@ -42,6 +42,7 @@ enum Feature: String, Hashable, CaseIterable {
     case forYou
     case highFeeWarning
     case priceAlertsSubscription
+    case solanaUnstakeValidation
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -80,6 +81,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .forYou: return "TWI-1469_for_you_product_shelves_add_indicators"
         case .highFeeWarning: return "TWI-1367_high_fee_warning"
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
+        case .solanaUnstakeValidation: return "[REDACTED_INFO]_solana_unstake_validation"
         }
     }
 
@@ -118,6 +120,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .forYou: return .unspecified
         case .highFeeWarning: return .unspecified
         case .priceAlertsSubscription: return .unspecified
+        case .solanaUnstakeValidation: return .unspecified
         }
     }
 }

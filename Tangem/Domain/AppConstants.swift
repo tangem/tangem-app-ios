@@ -21,6 +21,7 @@ enum AppConstants {
     static let defaultScrollViewKeyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
 
     static let minusSign: String = .minusSign // shorter stick
+    static let plusSign: String = .plusSign // shorter stick
     static let enDashSign: String = .enDashSign // medium stick (en-dash)
     static let emDashSign: String = .emDashSign // longer stick (em-dash)
     static let unbreakableSpace: String = .unbreakableSpace
