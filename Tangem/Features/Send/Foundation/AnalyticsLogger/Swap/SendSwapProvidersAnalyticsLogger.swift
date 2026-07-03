@@ -10,4 +10,5 @@ import TangemExpress
 
 protocol SendSwapProvidersAnalyticsLogger {
     func logSendSwapProvidersChosen(provider: ExpressProvider)
+    func logSendSwapFilterProviderTapped(type: Analytics.ParameterValue)
 }
