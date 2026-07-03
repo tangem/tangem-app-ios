@@ -25,7 +25,7 @@ protocol AddressBookManager: AnyObject {
     var contacts: [AddressBookContact] { get }
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { get }
 
-    func load() async
+    func load(silent: Bool) async
 
     @discardableResult
     func createContact(name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID
@@ -41,4 +41,10 @@ protocol AddressBookManager: AnyObject {
     func updateContact(id: AddressBookContactID, name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws
 
     func deleteContact(id: AddressBookContactID) async throws
+}
+
+extension AddressBookManager {
+    func load() async {
+        await load(silent: false)
+    }
 }
