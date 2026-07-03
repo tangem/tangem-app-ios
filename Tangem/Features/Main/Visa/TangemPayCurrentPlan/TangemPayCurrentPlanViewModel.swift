@@ -13,7 +13,11 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
     let sections: [Section]
     let changePlanButtonTitle: String
 
-    init() {
+    private weak var coordinator: TangemPayCurrentPlanRoutable?
+
+    init(coordinator: TangemPayCurrentPlanRoutable? = nil) {
+        self.coordinator = coordinator
+
         // [REDACTED_TODO_COMMENT]
         planName = "Basic"
 
@@ -41,8 +45,15 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
         changePlanButtonTitle = "Change plan"
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func changePlan() {}
+    func changePlan() {
+        coordinator?.openSelectPlan()
+    }
+}
+
+// MARK: - Routable
+
+protocol TangemPayCurrentPlanRoutable: AnyObject {
+    func openSelectPlan()
 }
 
 extension TangemPayCurrentPlanViewModel {
