@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import TangemAccessibilityIdentifiers
 
 final class ManageTokensUITests: BaseTestCase {
     func testNetworkStandardLabels_DisplayedForTokenNetworks() {
@@ -48,9 +49,51 @@ final class ManageTokensUITests: BaseTestCase {
             .verifyNoAlertShown()
     }
 
-    private func openManageTokens() -> ManageTokensScreen {
+    func testSolanaToken_MissingCurveCard_ShowsUnsupportedCurveWarning() {
+        setAllureId(767)
+        let scenario = ScenarioConfig(name: "coins_api", initialState: "ManageTokensRich")
+        launchApp(tangemApiType: .mock, scenarios: [scenario])
+
+        openManageTokens(card: .wallet2NoEd25519Slip0010)
+            .expandTokenIfNeeded(coinId: "usd-coin")
+            .toggleNetwork("Solana")
+            .verifyUnsupportedCurveAlert(blockchain: "Solana")
+    }
+
+    func testSolanaToken_OldFirmwareCard_ShowsFirmwareLimitationWarning() {
+        setAllureId(737)
+        let scenario = ScenarioConfig(name: "coins_api", initialState: "ManageTokensRich")
+        launchApp(tangemApiType: .mock, scenarios: [scenario], mockCardFirmwareOverride: "4.51")
+
+        openManageTokens(card: .wallet)
+            .expandTokenIfNeeded(coinId: "usd-coin")
+            .toggleNetwork("Solana")
+            .verifyFirmwareLimitationAlertAndDismiss(blockchain: "Solana")
+            .verifyNetworkToggleOff("Solana")
+    }
+
+    func testLongPressNetwork_CopiesContractAddressWithToast() {
+        setAllureId(719)
+        let scenario = ScenarioConfig(name: "coins_api", initialState: "ManageTokensRich")
+        launchApp(tangemApiType: .mock, scenarios: [scenario])
+
+        let sentinel = "sentinel-not-copied"
+
+        openManageTokens()
+            .expandTokenIfNeeded(coinId: "bitcoin")
+            .seedPasteboard(sentinel)
+            .longPressNetworkToCopy("Bitcoin")
+            .verifyNothingCopied(sentinel: sentinel)
+            .expandTokenIfNeeded(coinId: "tether")
+            .seedPasteboard(sentinel)
+            .longPressNetworkToCopy("Ethereum")
+            .verifyCopySuccessToast(text: "Contract address copied!")
+            .verifyCopiedContract(equals: "0xdac17f958d2ee523a2206206994597c13d831ec7")
+    }
+
+    private func openManageTokens(card: CardMockAccessibilityIdentifiers = .wallet2) -> ManageTokensScreen {
         CreateWalletSelectorScreen(app)
-            .scanMockWallet(name: .wallet2)
+            .scanMockWallet(name: card)
             .openDetails()
             .openWalletSettings(for: "Wallet")
             .selectAccount("Main account")
