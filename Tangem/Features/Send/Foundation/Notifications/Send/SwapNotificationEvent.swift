@@ -54,6 +54,8 @@ enum SwapNotificationEvent: Hashable {
 
     /// The selected custom fee is anomalously high or too low
     case customFeeWarning(CustomFeeWarning)
+
+    case highNetworkFee
 }
 
 extension SwapNotificationEvent: NotificationEvent {
@@ -105,6 +107,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.swappingHighPriceImpactTitle)
         case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
             return .string(Localization.swappingTradeTooLargeTitle)
+        case .highNetworkFee:
+            return .string(Localization.highFeeWarningTitle)
         }
     }
 
@@ -163,6 +167,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.swappingHighPriceImpactText
         case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
             return Localization.swappingTradeTooLargeText
+        case .highNetworkFee:
+            return Localization.highFeeWarningDescription
         }
     }
 
@@ -177,7 +183,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .customFeeWarning,
              .notEnoughBalanceForSwapping,
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
-             .highPriceImpactWarning(.warningLoss, _):
+             .highPriceImpactWarning(.warningLoss, _),
+             .highNetworkFee:
             return .secondary
         case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
             return .action
@@ -210,7 +217,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .customFeeWarning,
              .longTimeAverageDuration,
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
-             .highPriceImpactWarning(.warningLoss, _):
+             .highPriceImpactWarning(.warningLoss, _),
+             .highNetworkFee:
             return .init(iconType: .image(Assets.attention))
         case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
             return .init(iconType: .image(Assets.redCircleWarning))
@@ -260,7 +268,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .notEnoughBalanceForSwapping,
              .customFeeWarning,
              .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
-             .highPriceImpactWarning(.warningLoss, _):
+             .highPriceImpactWarning(.warningLoss, _),
+             .highNetworkFee:
             return .warning
         case .highPriceImpactWarning(.highLossLowAmount, _),
              .highPriceImpactWarning(.highLossHighAmount, _):
@@ -324,7 +333,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .notEnoughBalanceForSwapping,
              .withdrawalNotificationEvent,
              .validationErrorEvent,
-             .highPriceImpactWarning:
+             .highPriceImpactWarning,
+             .highNetworkFee:
             return true
         }
     }
