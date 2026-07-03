@@ -237,8 +237,8 @@ extension CommonAddressBookManager: AddressBookManager {
         repository.syncStatePublisher
     }
 
-    func load() async {
-        await repository.load(silent: false)
+    func load(silent: Bool) async {
+        await repository.load(silent: silent)
     }
 
     func createContact(name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID {
