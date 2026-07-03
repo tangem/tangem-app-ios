@@ -82,7 +82,7 @@ struct AddressBookBlobCodecTests {
     }
 
     @Test
-    func signatureEncodesAsBase64NotHex() throws {
+    func signatureEncodesAsHexNotBase64() throws {
         let contact = try makeContact(
             id: Self.contactID,
             name: "Alice",
@@ -90,9 +90,10 @@ struct AddressBookBlobCodecTests {
         )
         let json = try encodedJSON(for: contact)
 
-        #expect(json.contains("\"3q2+7w==\""))
-        #expect(!json.contains("deadbeef"))
-        #expect(!json.contains("DEADBEEF"))
+        // TangemFoundation's `String.contains` defaults to `ignoreCase: true`, so pin the case explicitly.
+        #expect(json.contains("\"DEADBEEF\"", ignoreCase: false))
+        #expect(!json.contains("deadbeef", ignoreCase: false))
+        #expect(!json.contains("3q2+7w=="))
     }
 
     @Test
@@ -124,7 +125,7 @@ struct AddressBookBlobCodecTests {
     @Test
     func decodesAKnownBlob() throws {
         let json = """
-        {"contacts":[{"addresses":[{"address":"0xabc","id":"22222222-2222-2222-2222-222222222222","memo":"note","networkId":"ethereum","signature":"3q2+7w=="}],"createdAt":"2023-11-14T22:13:20.000Z","icon":"","iconColor":"MexicanPink","id":"11111111-1111-1111-1111-111111111111","name":"Alice","updatedAt":"2023-11-15T22:13:20.000Z","walletId":"AABB"}]}
+        {"contacts":[{"addresses":[{"address":"0xabc","id":"22222222-2222-2222-2222-222222222222","memo":"note","networkId":"ethereum","signature":"DEADBEEF"}],"createdAt":"2023-11-14T22:13:20.000Z","icon":"","iconColor":"MexicanPink","id":"11111111-1111-1111-1111-111111111111","name":"Alice","updatedAt":"2023-11-15T22:13:20.000Z","walletId":"AABB"}]}
         """
         let decoded = try codec.decode(Data(json.utf8))
 
@@ -146,6 +147,16 @@ struct AddressBookBlobCodecTests {
 
         let expectedCreatedAt = try #require(AddressBookBlobCodec.date(fromISO8601: "2023-11-14T22:13:20.000Z"))
         #expect(contact.createdAt == expectedCreatedAt)
+    }
+
+    @Test
+    func decodeThrowsOnInvalidHexSignature() {
+        let json = """
+        {"contacts":[{"addresses":[{"address":"0xabc","id":"22222222-2222-2222-2222-222222222222","networkId":"ethereum","signature":"zzzz"}],"createdAt":"2023-11-14T22:13:20.000Z","icon":"","iconColor":"MexicanPink","id":"11111111-1111-1111-1111-111111111111","name":"Alice","updatedAt":"2023-11-15T22:13:20.000Z","walletId":"AABB"}]}
+        """
+        #expect(throws: DecodingError.self) {
+            try codec.decode(Data(json.utf8))
+        }
     }
 
     // MARK: - Date parsing
