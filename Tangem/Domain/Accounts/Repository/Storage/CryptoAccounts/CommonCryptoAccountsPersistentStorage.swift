@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 final class CommonCryptoAccountsPersistentStorage {
     @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
@@ -16,6 +17,10 @@ final class CommonCryptoAccountsPersistentStorage {
     private let workingQueue: DispatchQueue
     private var storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject?
 
+    /// Warmed asynchronously right after init and kept in sync on every write.
+    /// Used to speed up application startup.
+    private let inMemoryCache = OSAllocatedUnfairLock<[StoredCryptoAccount]?>(initialState: nil)
+
     init(storageIdentifier: String) {
         key = .accounts(cid: storageIdentifier)
         workingQueue = DispatchQueue(
@@ -23,6 +28,8 @@ final class CommonCryptoAccountsPersistentStorage {
             attributes: .concurrent,
             target: .global(qos: .userInitiated)
         )
+
+        warmUpCache()
     }
 
     /// Unsafe because it must be called from `workingQueue` only.
@@ -39,10 +46,27 @@ final class CommonCryptoAccountsPersistentStorage {
     private func unsafeSave(_ items: [StoredCryptoAccount]) {
         do {
             try persistentStorage.store(value: items, for: key)
+            populateCache(with: items)
             storageDidUpdateSubject?.send()
         } catch {
             assertionFailure("CommonCryptoAccountsPersistentStorage saving error: \(error)")
         }
+    }
+
+    private func warmUpCache() {
+        workingQueue.async { [weak self] in
+            guard let self else { return }
+            let fetchedAccounts = unsafeFetch()
+            populateCache(with: fetchedAccounts)
+        }
+    }
+
+    private func populateCache(with accounts: [StoredCryptoAccount]) {
+        inMemoryCache.withLock { $0 = accounts }
+    }
+
+    private func retrieveFromCache() -> [StoredCryptoAccount]? {
+        inMemoryCache.withLock { $0 }
     }
 }
 
@@ -50,8 +74,14 @@ final class CommonCryptoAccountsPersistentStorage {
 
 extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage {
     func getList() -> [StoredCryptoAccount] {
-        workingQueue.sync {
-            return unsafeFetch()
+        if let cachedAccounts = retrieveFromCache() {
+            return cachedAccounts
+        }
+
+        return workingQueue.sync {
+            let fetchedAccounts = unsafeFetch()
+            populateCache(with: fetchedAccounts)
+            return fetchedAccounts
         }
     }
 
