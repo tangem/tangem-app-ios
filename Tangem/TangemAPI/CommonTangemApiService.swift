@@ -368,27 +368,27 @@ extension CommonTangemApiService: TangemApiService {
 
     // MARK: - Price Alerts Subscriptions
 
-    func subscribeToPriceAlerts(walletIds: [String], tokenId: String) async throws {
-        let request = PriceAlertsSubscriptionsDTO.Request(walletIds: walletIds, tokenId: tokenId)
+    func subscribeToPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
+        let requestModel = PriceAlertsSubscriptionsDTO.Request(userWalletIds: userWalletIds, tokenId: tokenId)
         // Decode the `{ "status": ... }` body so a malformed response surfaces as an error; the status
         // string itself carries no client-side meaning beyond the `200`.
-        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await self.request(
-            for: .subscribeToPriceAlerts(request: request),
+        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await request(
+            for: .subscribeToPriceAlerts(request: requestModel),
             decoder: decoder
         )
     }
 
-    func unsubscribeFromPriceAlerts(walletIds: [String], tokenId: String) async throws {
-        let request = PriceAlertsSubscriptionsDTO.Request(walletIds: walletIds, tokenId: tokenId)
-        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await self.request(
-            for: .unsubscribeFromPriceAlerts(request: request),
+    func unsubscribeFromPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
+        let requestModel = PriceAlertsSubscriptionsDTO.Request(userWalletIds: userWalletIds, tokenId: tokenId)
+        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await request(
+            for: .unsubscribeFromPriceAlerts(request: requestModel),
             decoder: decoder
         )
     }
 
-    func priceAlertsSubscriptions(walletId: String) async throws -> [String] {
+    func priceAlertsSubscriptions(userWalletId: String) async throws -> [String] {
         let list: PriceAlertsSubscriptionsDTO.List = try await request(
-            for: .getPriceAlertsSubscriptions(walletId: walletId),
+            for: .getPriceAlertsSubscriptions(userWalletId: userWalletId),
             decoder: decoder
         )
         return list.tokenIds
