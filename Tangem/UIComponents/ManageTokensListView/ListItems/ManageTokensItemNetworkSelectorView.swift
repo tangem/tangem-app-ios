@@ -39,6 +39,7 @@ struct ManageTokensItemNetworkSelectorView: View {
                     Text(viewModel.networkName.uppercased())
                         .style(Fonts.Bold.footnote, color: viewModel.networkNameForegroundColor)
                         .lineLimit(2)
+                        .accessibilityIdentifier(ManageTokensAccessibilityIdentifiers.networkRow(viewModel.networkName))
 
                     if let contractName = viewModel.contractName {
                         Text(contractName)
