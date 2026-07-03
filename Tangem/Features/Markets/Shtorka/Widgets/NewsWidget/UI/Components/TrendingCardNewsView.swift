@@ -172,7 +172,6 @@ private extension TrendingCardNewsItem {
     )
 }
 
-#if DEBUG
 #Preview {
     VStack(spacing: 16) {
         // Loading state
@@ -227,4 +226,3 @@ private extension TrendingCardNewsItem {
     .padding()
     .background(Colors.Background.secondary)
 }
-#endif
