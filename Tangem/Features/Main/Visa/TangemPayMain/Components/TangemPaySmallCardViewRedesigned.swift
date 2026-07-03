@@ -87,7 +87,6 @@ struct TangemPaySmallCardViewRedesigned: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     HStack(spacing: 8) {
         TangemPaySmallCardViewRedesigned(state: .issued(cardNumberEnd: "9092"))
@@ -96,4 +95,3 @@ struct TangemPaySmallCardViewRedesigned: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG
