@@ -205,6 +205,16 @@ actor CommonTransactionHistoryAuxDataRepository {
         }
     }
 
+    private nonisolated func isSupported(_ currency: ExpressCurrency, in supportedBlockchains: Set<Blockchain>) -> Bool {
+        // Check whether the blockchain is supported by the current app version
+        guard let blockchain = SupportedBlockchains.all[currency.network] else {
+            return false
+        }
+
+        // Check whether the blockchain is supported by the wallet (`supportedBlockchains` is derived from the wallet's config)
+        return supportedBlockchains.contains(blockchain)
+    }
+
     private func resolveLocalCryptoCurrency(for currency: ExpressCurrency) -> TokenItem? {
         // Using `SupportedBlockchains.all` here is safe because it is just a static lookup table, it is a responsibility
         // of the caller to ensure that the currency (derived from the `ExpressCurrency`) is actually supported by the app
@@ -444,7 +454,11 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
 
     // MARK: Crypto currencies
 
-    nonisolated func cryptoCurrency(for currency: ExpressCurrency) -> TokenItem? {
+    nonisolated func cryptoCurrency(for currency: ExpressCurrency, supportedBlockchains: Set<Blockchain>) -> TokenItem? {
+        guard isSupported(currency, in: supportedBlockchains) else {
+            return nil
+        }
+
         let key = Self.makeCryptoCurrencyCacheKey(for: currency)
         let cached = syncCache { $0.cryptoCurrency(for: key) }
 
@@ -457,7 +471,11 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
         return cached
     }
 
-    func cryptoCurrency(for currency: ExpressCurrency) async -> TokenItem? {
+    func cryptoCurrency(for currency: ExpressCurrency, supportedBlockchains: Set<Blockchain>) async -> TokenItem? {
+        guard isSupported(currency, in: supportedBlockchains) else {
+            return nil
+        }
+
         let key = Self.makeCryptoCurrencyCacheKey(for: currency)
 
         if let cached = cache.cryptoCurrency(for: key) {
