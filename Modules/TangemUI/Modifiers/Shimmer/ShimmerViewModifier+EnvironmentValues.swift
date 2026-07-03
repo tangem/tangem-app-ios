@@ -10,4 +10,5 @@ import SwiftUI
 
 public extension EnvironmentValues {
     @Entry var isShimmerActive = false
+    @Entry var isSkeletonShimmerActive = true
 }
