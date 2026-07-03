@@ -33,7 +33,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     // MARK: - Child view models (push navigation)
 
     @Published var cardManagementViewModel: TangemPayCardManagementViewModel?
-    @Published var currentPlanViewModel: TangemPayCurrentPlanViewModel?
+    @Published var currentPlanCoordinator: TangemPayCurrentPlanCoordinator?
 
     // MARK: - Child view models (sheets)
 
@@ -149,7 +149,17 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openCurrentPlan() {
-        currentPlanViewModel = TangemPayCurrentPlanViewModel()
+        let coordinator = TangemPayCurrentPlanCoordinator(
+            dismissAction: { [weak self] in
+                self?.currentPlanCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(closeFlow: { [weak self] in
+            self?.currentPlanCoordinator = nil
+            self?.dismiss(with: nil)
+        }))
+        currentPlanCoordinator = coordinator
     }
 
     func openFakedoorSheet() {
