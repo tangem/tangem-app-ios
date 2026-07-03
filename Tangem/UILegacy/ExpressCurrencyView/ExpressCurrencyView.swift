@@ -113,14 +113,18 @@ struct ExpressCurrencyView<Content: View>: View {
         HStack(spacing: 0) {
             HStack(spacing: 4) {
                 if !viewModel.state.isFiatAmountHidden {
-                    LoadableTextView(
-                        state: viewModel.state.alternativeAmountState,
-                        font: Fonts.Regular.footnote,
-                        textColor: Colors.Text.tertiary,
-                        loaderSize: CGSize(width: 70, height: 12),
-                        lineLimit: 1,
-                        isSensitiveText: false
-                    )
+                    if viewModel.state.isSwitchCurrencyAvailable, let didTapSwitchCurrency {
+                        Button(action: didTapSwitchCurrency) {
+                            HStack(spacing: 4) {
+                                switchCurrencyIcon
+
+                                alternativeAmountView
+                            }
+                        }
+                        .accessibilityIdentifier(SwapAccessibilityIdentifiers.currencyToggleButton)
+                    } else {
+                        alternativeAmountView
+                    }
                 }
 
                 infoButton
