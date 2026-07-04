@@ -102,3 +102,6 @@ Utilities/ds-core-generator/.npm-cache/
 # DS-Core icons xcassets — materialised at bootstrap from the vendored mirror
 Modules/TangemAssets/Assets/DSIcons.xcassets/DSIcons/
 
+# Claude Code local agent worktrees
+.claude/worktrees/
+
