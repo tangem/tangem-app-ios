@@ -29,12 +29,15 @@ extension TransactionHistoryMapper {
 
 // MARK: - Error
 
-enum TransactionHistoryMapperError: LocalizedError {
-    case notFound(String)
+extension TransactionHistory {
+    enum MapperError: LocalizedError {
+        case notFound(String)
 
-    var errorDescription: String? {
-        switch self {
-        case .notFound(let message): "\(message) not found"
+        var errorDescription: String? {
+            switch self {
+            case .notFound(let message):
+                "\(message) not found"
+            }
         }
     }
 }
