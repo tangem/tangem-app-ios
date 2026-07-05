@@ -500,21 +500,21 @@ struct ExpressAPIMapper {
     }
 
     private func mapToRefundedCurrency(network: String?, contractAddress: String?) -> ExpressCurrency? {
-        guard
-            let network,
-            let contractAddress
-        else {
+        guard let network else {
             ExpressLogger.info(
                 String(
-                    format: "Refunded currency missing required fields: network %@, contractAddress %@",
-                    String(describing: network),
-                    String(describing: contractAddress)
+                    format: "Refunded currency missing required field: network %@",
+                    String(describing: network)
                 )
             )
             return nil
         }
 
-        return ExpressCurrency(contractAddress: contractAddress, network: network)
+        // A `nil` contract address means the native coin
+        return ExpressCurrency(
+            contractAddress: contractAddress ?? ExpressConstants.coinContractAddress,
+            network: network
+        )
     }
 }
 
