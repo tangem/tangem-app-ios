@@ -14,8 +14,11 @@ public protocol TransactionHistoryProvider: CustomStringConvertible {
     var canFetchHistory: Bool { get }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error>
+    func shouldBeIncludedInHistory(amountType: Amount.AmountType, record: TransactionRecord) -> Bool
     func reset()
 }
+
+// MARK: - Default implementation
 
 public extension TransactionHistoryProvider {
     func shouldBeIncludedInHistory(amountType: Amount.AmountType, record: TransactionRecord) -> Bool {
@@ -37,6 +40,8 @@ public extension TransactionHistoryProvider {
     }
 }
 
+// MARK: - Error
+
 public extension TransactionHistory {
     enum ProviderError: LocalizedError {
         case requestKeyNotSupported
@@ -44,7 +49,7 @@ public extension TransactionHistory {
         public var errorDescription: String? {
             switch self {
             case .requestKeyNotSupported:
-                return "Request key is not supported by this provider"
+                "Request key is not supported by this provider"
             }
         }
     }
