@@ -6,8 +6,6 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
-
 /// Error thrown when a transaction fails local staking validation.
 public enum StakingTransactionValidationError: Error, Equatable {
     /// The unsigned data is empty or cannot be parsed.

@@ -6,16 +6,16 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-/// Validates staking transactions via BlockAid API (Ethereum, BNB, Solana).
+/// Validates staking transactions via remote API (Ethereum, BNB, Solana).
 struct RemoteStakingTransactionValidator: StakingTransactionValidator {
-    private let network: BlockaidSupportedNetwork
+    private let network: RemoteValidationNetwork
     private let accountAddress: String
-    private let verifier: BlockaidStakingVerifier
+    private let verifier: StakingTransactionVerifier
 
     init(
-        network: BlockaidSupportedNetwork,
+        network: RemoteValidationNetwork,
         accountAddress: String,
-        verifier: BlockaidStakingVerifier
+        verifier: StakingTransactionVerifier
     ) {
         self.network = network
         self.accountAddress = accountAddress
