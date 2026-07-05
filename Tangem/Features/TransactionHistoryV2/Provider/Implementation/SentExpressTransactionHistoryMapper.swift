@@ -17,7 +17,7 @@ enum SentExpressTransactionHistoryMapper {
         return ExchangeTransaction(
             txId: expressTransactionData.expressTransactionId,
             providerId: transaction.provider.id,
-            status: .waiting,
+            status: .created,
             rateType: nil, // [REDACTED_TODO_COMMENT]
             externalTx: mapToExternalTxInfo(
                 id: expressTransactionData.externalTxId,
@@ -31,19 +31,19 @@ enum SentExpressTransactionHistoryMapper {
             ),
             payOut: PayOutInfo(
                 address: transaction.receive.address ?? .unknown,
-                hash: nil // [REDACTED_TODO_COMMENT]
+                hash: nil // Unknown at this point because there is no blockchain transaction yet
             ),
             refund: nil, // No refunds for exchange transactions
             from: ExpressHistoryAsset(
                 currency: transaction.source.tokenItem.expressCurrency.asCurrency,
                 amount: expressTransactionData.fromAmount,
-                actualAmount: nil, // Unknown at this point
+                actualAmount: nil, // Unknown at this point because there is no blockchain transaction yet
                 decimals: transaction.source.tokenItem.decimalCount
             ),
             to: ExpressHistoryAsset(
                 currency: transaction.receive.tokenItem.expressCurrency.asCurrency,
                 amount: expressTransactionData.toAmount,
-                actualAmount: nil, // Unknown at this point
+                actualAmount: nil, // Unknown at this point because there is no blockchain transaction yet
                 decimals: transaction.receive.tokenItem.decimalCount
             ),
             createdAt: transaction.date,
@@ -57,12 +57,12 @@ enum SentExpressTransactionHistoryMapper {
         OnrampTransaction(
             txId: transaction.txId,
             providerId: transaction.provider.id,
-            status: .waitingForPayment,
+            status: .created,
             failReason: nil, // Obviously, the transaction has been just sent and cannot fail at this point
             externalTx: mapToExternalTxInfo(id: transaction.externalTxId, url: transaction.externalTxUrl.flatMap(URL.init(string:))),
             payOut: PayOutInfo(
                 address: transaction.destinationAddress,
-                hash: nil // Unknown at this point
+                hash: nil // Unknown at this point because there is no blockchain transaction yet
             ),
             from: OnrampHistoryFiatAsset(
                 currencyCode: transaction.fromCurrencyCode,
@@ -71,7 +71,7 @@ enum SentExpressTransactionHistoryMapper {
             to: OnrampHistoryCryptoAsset(
                 currency: transaction.destinationTokenItem.expressCurrency.asCurrency,
                 amount: transaction.toAmount,
-                actualAmount: nil, // Unknown at this point
+                actualAmount: nil, // Unknown at this point because there is no blockchain transaction yet
                 decimals: transaction.destinationTokenItem.decimalCount
             ),
             paymentMethod: transaction.paymentMethod.id,
