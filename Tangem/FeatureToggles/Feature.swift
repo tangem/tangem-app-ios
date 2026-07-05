@@ -32,6 +32,7 @@ enum Feature: String, Hashable, CaseIterable {
     case mobileWalletMultiCreation
     case approveFlowV2
     case addAndOrganizeRedesign
+    case stakingTransactionValidation
     case sendWithSwapAvailabilityCheck
     case swapFiatCalculation
     case addressBook
@@ -71,6 +72,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
         case .approveFlowV2: return "13786_Update_Swap_Phase_2_Permissions"
         case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
+        case .stakingTransactionValidation: return "TWI-1602_move_away_from_blind_signing_in_staking"
         case .sendWithSwapAvailabilityCheck: return "14316_Send_With_Swap_Availability_Check"
         case .swapFiatCalculation: return "14315_Swap_Fiat_Calculation"
         case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
@@ -110,6 +112,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWalletMultiCreation: return .unspecified
         case .approveFlowV2: return .version("6.0")
         case .addAndOrganizeRedesign: return .version("6.0")
+        case .stakingTransactionValidation: return .unspecified
         case .sendWithSwapAvailabilityCheck: return .unspecified
         case .swapChooseBestDEX: return .version("6.0")
         case .swapFiatCalculation: return .unspecified

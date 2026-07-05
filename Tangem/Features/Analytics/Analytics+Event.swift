@@ -523,6 +523,7 @@ extension Analytics {
         case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
         case stakingPermissionScreenOpened = "[Staking] Permission Screen Opened"
+        case stakingScamVerification = "[Staking] Scam Verification"
 
         // MARK: - Markets
 

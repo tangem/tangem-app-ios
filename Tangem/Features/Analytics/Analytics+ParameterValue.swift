@@ -237,6 +237,15 @@ extension Analytics {
         case stakeActionRebond = "Rebond"
         case stakeActionMigrate = "Migrate"
 
+        // MARK: - Staking Validation
+
+        case blockaidSafe = "Safe"
+        case blockaidNotPerformed = "Not performed"
+        case blockaidWarning = "Warning"
+        case blockaidUnsafe = "Unsafe"
+        case blockaidFailedToValidate = "Failed to validate"
+        case providerStakeKit = "StakeKit"
+
         // MARK: - Markets
 
         case marketsErrorCodeIsNotHTTPError = "Is not http error"
