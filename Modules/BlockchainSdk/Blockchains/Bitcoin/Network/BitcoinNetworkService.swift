@@ -1,5 +1,5 @@
 //
-//  BitcionNetworkService.swift
+//  BitcoinNetworkService.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

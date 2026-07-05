@@ -1,5 +1,5 @@
 //
-//  AlgorandBuildParams.swift
+//  AlgorandTransactionBuildParams.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
