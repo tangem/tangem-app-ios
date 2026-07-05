@@ -16,4 +16,7 @@ enum RemoteStakingValidationError: Error, Equatable {
 
     /// Remote validation failed (network error, API error, etc.).
     case validationFailed(description: String)
+
+    /// Unexpected/unclassified error surfaced during remote validation.
+    case unknown(description: String)
 }

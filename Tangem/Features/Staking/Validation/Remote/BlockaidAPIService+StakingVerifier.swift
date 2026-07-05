@@ -15,9 +15,9 @@ private enum StakingBlockaidConstants {
     static let stakingDomain = URL(string: "https://tangem.com")!
 }
 
-extension CommonBlockaidAPIService: BlockaidStakingVerifier {
+extension CommonBlockaidAPIService: StakingTransactionVerifier {
     func verify(
-        network: BlockaidSupportedNetwork,
+        network: RemoteValidationNetwork,
         accountAddress: String,
         unsignedTransaction: String
     ) async throws {
@@ -45,7 +45,7 @@ private extension CommonBlockaidAPIService {
         unsignedTransaction: String
     ) async throws {
         guard let jsonData = unsignedTransaction.data(using: .utf8) else {
-            throw StakingTransactionValidationError.emptyOrMalformedData
+            throw RemoteStakingValidationError.validationFailed(description: "Malformed EVM transaction payload")
         }
 
         let txParams: BlockaidDTO.TransactionParams
@@ -53,7 +53,7 @@ private extension CommonBlockaidAPIService {
             let decoded = try JSONDecoder().decode(EthereumCompiledTransactionData.self, from: jsonData)
             txParams = decoded.toBlockaidParams()
         } catch {
-            throw StakingTransactionValidationError.emptyOrMalformedData
+            throw RemoteStakingValidationError.validationFailed(description: "Failed to decode EVM transaction: \(error.localizedDescription)")
         }
 
         let response: BlockaidDTO.EvmScan.Response
@@ -80,7 +80,7 @@ private extension CommonBlockaidAPIService {
     ) async throws {
         let txData = Data(hex: unsignedTransaction)
         guard !txData.isEmpty else {
-            throw StakingTransactionValidationError.emptyOrMalformedData
+            throw RemoteStakingValidationError.validationFailed(description: "Malformed Solana transaction payload")
         }
 
         let base64Transaction = txData.base64EncodedString()
