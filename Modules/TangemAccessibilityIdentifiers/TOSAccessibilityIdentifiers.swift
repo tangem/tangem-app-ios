@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  TOSAccessibilityIdentifiers.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
