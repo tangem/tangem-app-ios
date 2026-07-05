@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  CoordinatorObject.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
