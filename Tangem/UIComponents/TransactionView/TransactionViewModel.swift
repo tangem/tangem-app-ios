@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BlockchainSdk
 import TangemAccounts
 import TangemLocalization
 import TangemAssets
@@ -122,7 +123,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         subtitleOwner: SubtitleOwner? = nil,
         cardName: String? = nil
     ) {
-        id = ViewModelId(hash: hash, index: index, statusRawValue: status.rawValue)
+        id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
         self.hash = hash
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
         self.amount = TransactionViewAmountViewData(
@@ -228,8 +229,7 @@ struct TransactionViewModel: Hashable, Identifiable {
 extension TransactionViewModel {
     /// An opaque unique identity for use with the `Identifiable` protocol.
     struct ViewModelId: Hashable {
-        fileprivate let hash: String
-        fileprivate let index: Int
+        fileprivate let id: TransactionRecord.ID
         fileprivate let statusRawValue: String
     }
 
