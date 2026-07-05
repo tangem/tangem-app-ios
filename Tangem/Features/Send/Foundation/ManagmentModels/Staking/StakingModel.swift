@@ -43,6 +43,7 @@ final class StakingModel {
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let accountInitializationService: BlockchainAccountInitializationService?
     private let minimalBalanceProvider: MinimalBalanceProvider?
+    private let validationHandler: StakingValidationHandler?
 
     private var timerTask: Task<Void, Error>?
     private var estimatedFeeTask: Task<Void, Never>?
@@ -60,6 +61,7 @@ final class StakingModel {
         analyticsLogger: StakingSendAnalyticsLogger,
         accountInitializationService: BlockchainAccountInitializationService?,
         minimalBalanceProvider: MinimalBalanceProvider?,
+        validationHandler: StakingValidationHandler?
     ) {
         self.stakingManager = stakingManager
         self.sendSourceToken = sendSourceToken
@@ -67,6 +69,7 @@ final class StakingModel {
         self.analyticsLogger = analyticsLogger
         self.accountInitializationService = accountInitializationService
         self.minimalBalanceProvider = minimalBalanceProvider
+        self.validationHandler = validationHandler
     }
 }
 
@@ -215,6 +218,34 @@ private extension StakingModel {
     func update(state: State) {
         log("update state: \(state)")
         _state.send(state)
+
+        switch state {
+        case .readyToStake(let readyToStake):
+            guard let target = _selectedTarget.value.value else {
+                validationHandler?.reset()
+                return
+            }
+            validationHandler?.validate(action: StakingAction(
+                amount: readyToStake.amount,
+                targetType: .target(target),
+                type: .stake
+            ))
+        case .readyToApprove:
+            prefetchStakingValidation()
+        case .loading, .approveTransactionInProgress,
+             .validationError, .networkError,
+             .blockchainAccountInitializationRequired, .blockchainAccountInitializationInProgress:
+            validationHandler?.reset()
+        }
+    }
+
+    func prefetchStakingValidation() {
+        guard let amount = bsdkAmount?.value, let target = _selectedTarget.value.value else { return }
+        validationHandler?.validate(action: StakingAction(
+            amount: amount,
+            targetType: .target(target),
+            type: .stake
+        ))
     }
 
     func makeAmount(value: Decimal) -> BSDKAmount {
@@ -305,7 +336,11 @@ private extension StakingModel {
                 type: .stake
             )
 
-            let transactionInfo = try await stakingManager.transaction(action: action)
+            let transactionInfo = try await validationHandler.resolveTransaction(
+                action: action,
+                blockchain: tokenItem.blockchain,
+                stakingManager: stakingManager
+            )
             let transactionsFee = transactionInfo.transactions.reduce(Decimal.zero) { $0 + $1.fee }
             if readyToStake.isFeeIncluded,
                transactionsFee > readyToStake.fee,
@@ -452,16 +487,21 @@ extension StakingModel: SendFeeInput {
 
 extension StakingModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        _state.map { state in
-            switch state {
-            case .readyToStake, .readyToApprove:
-                return true
-            case .none, .loading, .approveTransactionInProgress,
-                 .validationError, .networkError,
-                 .blockchainAccountInitializationRequired, .blockchainAccountInitializationInProgress:
-                return false
+        return Publishers.CombineLatest(_state, validationState)
+            .map { state, validationState in
+                let isModelReady: Bool
+                switch state {
+                case .readyToStake, .readyToApprove:
+                    isModelReady = true
+                case .none, .loading, .approveTransactionInProgress,
+                     .validationError, .networkError,
+                     .blockchainAccountInitializationRequired, .blockchainAccountInitializationInProgress:
+                    isModelReady = false
+                }
+
+                return isModelReady && validationState.allowsSending
             }
-        }.eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
@@ -570,6 +610,16 @@ extension StakingModel: NotificationTapDelegate {
     }
 }
 
+// MARK: - StakingValidationStateProvider
+
+extension StakingModel: StakingValidationStateProvider {
+    var validationState: AnyPublisher<StakingValidationState, Never> {
+        // Nil handler = staking validation isn't wired for this flow (feature off or network
+        // out of scope) → default to `.validated` so sending isn't blocked (pre-validation behavior).
+        validationHandler?.validationState ?? Just(.validated).eraseToAnyPublisher()
+    }
+}
+
 // MARK: - StakingBaseDataBuilderInput
 
 extension StakingModel: StakingBaseDataBuilderInput {
@@ -654,6 +704,7 @@ enum StakingModelError: String, Hashable, LocalizedError {
     case approveDataNotFound
     case accountIsNotInitialized
     case revokeAndApproveNotSupported
+    case transactionBlocked
 
     var errorDescription: String? { rawValue }
 }

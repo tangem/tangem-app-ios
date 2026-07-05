@@ -18,7 +18,7 @@ struct RemoteStakingTransactionValidatorTests {
 
     @Test
     func singleTransactionCallsVerifier() async throws {
-        let spy = BlockaidStakingVerifierSpy()
+        let spy = StakingTransactionVerifierSpy()
         let sut = makeSUT(verifier: spy)
 
         try await sut.validate([sampleTransaction])
@@ -29,7 +29,7 @@ struct RemoteStakingTransactionValidatorTests {
 
     @Test
     func multipleTransactionsAllVerified() async throws {
-        let spy = BlockaidStakingVerifierSpy()
+        let spy = StakingTransactionVerifierSpy()
         let sut = makeSUT(verifier: spy)
 
         try await sut.validate(multipleTransactions)
@@ -40,7 +40,7 @@ struct RemoteStakingTransactionValidatorTests {
 
     @Test
     func emptyArraySkipsVerifier() async throws {
-        let spy = BlockaidStakingVerifierSpy()
+        let spy = StakingTransactionVerifierSpy()
         let sut = makeSUT(verifier: spy)
 
         try await sut.validate([])
@@ -52,7 +52,7 @@ struct RemoteStakingTransactionValidatorTests {
 
     @Test
     func benignResponsePassesValidation() async throws {
-        let stub = BlockaidStakingVerifierSuccessStub()
+        let stub = StakingTransactionVerifierSuccessStub()
         let sut = makeSUT(verifier: stub)
 
         try await sut.validate([sampleTransaction])
@@ -62,7 +62,7 @@ struct RemoteStakingTransactionValidatorTests {
 
     @Test(arguments: errorCases)
     func verifierErrorPropagates(error: RemoteStakingValidationError) async {
-        let stub = BlockaidStakingVerifierErrorStub(error: error)
+        let stub = StakingTransactionVerifierErrorStub(error: error)
         let sut = makeSUT(verifier: stub)
 
         await #expect(throws: error) {
@@ -72,7 +72,7 @@ struct RemoteStakingTransactionValidatorTests {
 
     @Test
     func verifierStopsOnFirstError() async throws {
-        let spy = BlockaidStakingVerifierSpy(failOnCall: 2)
+        let spy = StakingTransactionVerifierSpy(failOnCall: 2)
         let sut = makeSUT(verifier: spy)
 
         await #expect(throws: RemoteStakingValidationError.self) {
@@ -101,9 +101,9 @@ private extension RemoteStakingTransactionValidatorTests {
 
 private extension RemoteStakingTransactionValidatorTests {
     func makeSUT(
-        network: BlockaidSupportedNetwork = .evm(.ethereum(testnet: false)),
+        network: RemoteValidationNetwork = .evm(.bsc(testnet: false)),
         accountAddress: String = defaultAccountAddress,
-        verifier: BlockaidStakingVerifier
+        verifier: StakingTransactionVerifier
     ) -> SUT {
         SUT(network: network, accountAddress: accountAddress, verifier: verifier)
     }
@@ -111,7 +111,7 @@ private extension RemoteStakingTransactionValidatorTests {
 
 // MARK: - Test Doubles
 
-private final class BlockaidStakingVerifierSpy: BlockaidStakingVerifier, @unchecked Sendable {
+private final class StakingTransactionVerifierSpy: StakingTransactionVerifier, @unchecked Sendable {
     private(set) var verifyCallCount = 0
     private(set) var lastUnsignedTransaction: String?
     private(set) var allUnsignedTransactions: [String] = []
@@ -122,7 +122,7 @@ private final class BlockaidStakingVerifierSpy: BlockaidStakingVerifier, @unchec
     }
 
     func verify(
-        network: BlockaidSupportedNetwork,
+        network: RemoteValidationNetwork,
         accountAddress: String,
         unsignedTransaction: String
     ) async throws {
@@ -136,11 +136,11 @@ private final class BlockaidStakingVerifierSpy: BlockaidStakingVerifier, @unchec
     }
 }
 
-private struct BlockaidStakingVerifierErrorStub: BlockaidStakingVerifier {
+private struct StakingTransactionVerifierErrorStub: StakingTransactionVerifier {
     let error: RemoteStakingValidationError
 
     func verify(
-        network: BlockaidSupportedNetwork,
+        network: RemoteValidationNetwork,
         accountAddress: String,
         unsignedTransaction: String
     ) async throws {
@@ -148,9 +148,9 @@ private struct BlockaidStakingVerifierErrorStub: BlockaidStakingVerifier {
     }
 }
 
-private struct BlockaidStakingVerifierSuccessStub: BlockaidStakingVerifier {
+private struct StakingTransactionVerifierSuccessStub: StakingTransactionVerifier {
     func verify(
-        network: BlockaidSupportedNetwork,
+        network: RemoteValidationNetwork,
         accountAddress: String,
         unsignedTransaction: String
     ) async throws {}

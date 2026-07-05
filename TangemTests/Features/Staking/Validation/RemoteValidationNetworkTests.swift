@@ -1,5 +1,5 @@
 //
-//  BlockaidSupportedNetworkTests.swift
+//  RemoteValidationNetworkTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,11 +10,11 @@ import Testing
 @testable import Tangem
 @testable import BlockchainSdk
 
-@Suite("BlockaidSupportedNetwork Tests")
-struct BlockaidSupportedNetworkTests {
+@Suite("RemoteValidationNetwork Tests")
+struct RemoteValidationNetworkTests {
     @Test(arguments: evmBlockchains)
     func evmBlockchainMapsToEvm(blockchain: Blockchain) {
-        let network = BlockaidSupportedNetwork(blockchain: blockchain)
+        let network = RemoteValidationNetwork(blockchain: blockchain)
         if case .evm(let mappedBlockchain) = network {
             #expect(mappedBlockchain == blockchain)
         } else {
@@ -24,7 +24,7 @@ struct BlockaidSupportedNetworkTests {
 
     @Test
     func solanaMapsToSolana() {
-        let network = BlockaidSupportedNetwork(blockchain: solanaBlockchain)
+        let network = RemoteValidationNetwork(blockchain: solanaBlockchain)
         guard case .solana = network else {
             Issue.record("Expected .solana case")
             return
@@ -33,17 +33,17 @@ struct BlockaidSupportedNetworkTests {
 
     @Test(arguments: unsupportedBlockchains)
     func unsupportedBlockchainReturnsNil(blockchain: Blockchain) {
-        let network = BlockaidSupportedNetwork(blockchain: blockchain)
+        let network = RemoteValidationNetwork(blockchain: blockchain)
         #expect(network == nil)
     }
 }
 
 // MARK: - Test Data
 
-private extension BlockaidSupportedNetworkTests {
+private extension RemoteValidationNetworkTests {
     static let evmBlockchains: [Blockchain] = [
-        .ethereum(testnet: false),
         .bsc(testnet: false),
+        .ethereum(testnet: false),
     ]
 
     var solanaBlockchain: Blockchain { .solana(curve: .ed25519, testnet: false) }
