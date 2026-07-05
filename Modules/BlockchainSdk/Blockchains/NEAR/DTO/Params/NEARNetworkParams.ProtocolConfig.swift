@@ -1,5 +1,5 @@
 //
-//  NEARNetworkParams..swift
+//  NEARNetworkParams.ProtocolConfig.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
