@@ -1,5 +1,5 @@
 //
-//  TONProviderContent.swift
+//  TONProviderModels.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
