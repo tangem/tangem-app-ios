@@ -189,7 +189,7 @@ struct TransactionHistoryExpressDataMerger {
         // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
         bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
         allBSDKTransactions: [TransactionRecord],
-        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>
     ) -> TransactionRecord? {
         guard exchangeTransaction.from.currency == currentToken.expressCurrency.asCurrency else {
             return nil
@@ -242,7 +242,7 @@ struct TransactionHistoryExpressDataMerger {
         // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
         bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
         allBSDKTransactions: [TransactionRecord],
-        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>
     ) -> TransactionRecord? {
         guard
             exchangeTransaction.status != .refunded,
@@ -298,7 +298,7 @@ struct TransactionHistoryExpressDataMerger {
     func heuristicallyMatchingRefundBSDKTransaction(
         for exchangeTransaction: ExchangeTransaction,
         from bsdkTransactions: [TransactionRecord],
-        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>
     ) -> TransactionRecord? {
         guard
             exchangeTransaction.status == .refunded,
@@ -334,7 +334,7 @@ struct TransactionHistoryExpressDataMerger {
         // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
         bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
         allBSDKTransactions: [TransactionRecord],
-        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>
     ) -> TransactionRecord? {
         guard
             onrampTransaction.to.currency == currentToken.expressCurrency.asCurrency,
@@ -418,7 +418,11 @@ struct TransactionHistoryExpressDataMerger {
                 return lhsNonce > rhsNonce // IFNULL(nonce, -1) DESC
             }
 
-            return lhs.hash < rhs.hash // hash ASC
+            if lhs.hash != rhs.hash {
+                return lhs.hash < rhs.hash // hash ASC
+            }
+
+            return lhs.index < rhs.index // index ASC
         }
     }
 

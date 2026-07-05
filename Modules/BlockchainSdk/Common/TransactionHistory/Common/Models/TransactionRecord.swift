@@ -51,7 +51,7 @@ public struct TransactionRecord: Hashable {
         tokenTransfers: [TokenTransfer],
         isFromYieldContract: Bool = false,
         nonce: Int?,
-        extraInfo: (any Hashable & ExtraInfo)? = nil
+        extraInfo: ExtraInfoType? = nil
     ) {
         self.index = index
         self.hash = hash
@@ -223,6 +223,8 @@ public extension TransactionRecord {
 // MARK: - ExtraInfo
 
 public extension TransactionRecord {
+    typealias ExtraInfoType = any Hashable & ExtraInfo
+
     /// A marker-only protocol used for passing various opaque data between `BSDK` <-> `Express` <-> `App` domains.
     @_marker
     protocol ExtraInfo {}
@@ -238,7 +240,7 @@ private extension TransactionRecord {
     /// - Generics don't fit either: they'd require fixing the concrete type at compile time, which requires specifying
     ///   a concrete type for optional extra info values instead of just `nil` for an absent value.
     struct AnyExtraInfo {
-        let wrapped: any Hashable & ExtraInfo
+        let wrapped: ExtraInfoType
     }
 }
 

@@ -1,14 +1,12 @@
 //
-//  TransactionHistoryExpressExtraInfo.swift
+//  TransactionRecord+ExpressExtraInfo.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import BlockchainSdk
-import TangemExpress
 
 extension TransactionRecord {
     var expressExtraInfo: TransactionHistoryExpressExtraInfo? {

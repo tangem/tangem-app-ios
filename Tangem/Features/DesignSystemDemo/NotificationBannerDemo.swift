@@ -70,7 +70,7 @@ struct NotificationBannerDemoView: View {
             .systemDeprecationTemporary,
             .systemDeprecationPermanent(version: "5.0", date: "01.01.2026"),
             .missingDerivation(numberOfNetworks: 2, icon: nil, hasNFCInteraction: false),
-            .walletLocked,
+            .walletLocked(hasNFCInteraction: false),
             .missingBackup,
             .supportedOnlySingleCurrencyWallet,
             .backupErrors,

@@ -1,16 +1,22 @@
 //
 //  TransactionRecord+Merge.swift
-//  TangemApp
+//  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Foundation
+import BlockchainSdk
 
 public extension Array where Element == TransactionRecord {
     /// Appends new records, zipping `source`/`destination` of any record that already exists by `hash` + `index`.
-    mutating func appendMerging(_ newRecords: [TransactionRecord]) {
+    ///
+    /// - Returns: The hashes of records that were zipped into existing entries (for caller-side logging).
+    @discardableResult
+    mutating func appendMerging(_ newRecords: [TransactionRecord]) -> [String] {
+        var zippedHashes: [String] = []
+
         for record in newRecords {
             if let index = firstIndex(where: { $0.hash == record.hash && $0.index == record.index }) {
                 let oldRecord = self[index]
@@ -25,11 +31,22 @@ public extension Array where Element == TransactionRecord {
                     type: oldRecord.type,
                     date: oldRecord.date,
                     tokenTransfers: oldRecord.tokenTransfers,
-                    nonce: oldRecord.nonce
+                    isFromYieldContract: oldRecord.isFromYieldContract,
+                    nonce: oldRecord.nonce,
+                    extraInfo: conditionalCast(oldRecord.extraInfo, to: TransactionRecord.ExtraInfoType.self)
                 )
+                zippedHashes.append(record.hash)
             } else {
                 append(record)
             }
         }
+
+        return zippedHashes
+    }
+
+    /// Workaround for casting to marker protocols, see https://forums.swift.org/t/82070 for details.
+    @inline(__always)
+    private func conditionalCast<T, U>(_ value: T, to: U.Type) -> U? {
+        return value as? U
     }
 }

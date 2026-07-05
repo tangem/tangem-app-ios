@@ -27,6 +27,7 @@ struct TangemPaySuccessView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(model.title)
                         .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                        .accessibilityIdentifier(model.titleAccessibilityIdentifier)
 
                     Text(model.subtitle)
                         .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textSecondary)
@@ -49,6 +50,7 @@ struct TangemPaySuccessView: View {
             .horizontalLayout(.infinity)
             .padding(.horizontal, 16)
             .padding(.bottom, 12)
+            .accessibilityIdentifier(model.buttonAccessibilityIdentifier)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(TangemPaySuccessGlowBackground())
@@ -61,6 +63,8 @@ extension TangemPaySuccessView {
         let title: String
         let subtitle: String
         let buttonTitle: String
+        var titleAccessibilityIdentifier: String?
+        var buttonAccessibilityIdentifier: String?
     }
 }
 

@@ -6,7 +6,6 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import BlockchainSdk
 
 enum TransactionHistoryExpressExtraInfo: TransactionRecord.ExtraInfo, Hashable {

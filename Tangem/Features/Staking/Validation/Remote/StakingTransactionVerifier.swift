@@ -1,5 +1,5 @@
 //
-//  BlockaidStakingVerifier.swift
+//  StakingTransactionVerifier.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,16 +8,15 @@
 
 import BlockchainSdk
 
-/// Verifies staking transactions via BlockAid API.
-protocol BlockaidStakingVerifier {
+protocol StakingTransactionVerifier {
     func verify(
-        network: BlockaidSupportedNetwork,
+        network: RemoteValidationNetwork,
         accountAddress: String,
         unsignedTransaction: String
     ) async throws
 }
 
-enum BlockaidSupportedNetwork {
+enum RemoteValidationNetwork {
     case evm(Blockchain)
     case solana
 

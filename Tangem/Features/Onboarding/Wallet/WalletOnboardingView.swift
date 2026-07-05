@@ -247,6 +247,8 @@ struct WalletOnboardingView: View {
     }
 }
 
+#if DEBUG
+
 #Preview {
     NavigationStack {
         WalletOnboardingView(
@@ -265,3 +267,5 @@ struct WalletOnboardingView: View {
         )
     }
 }
+
+#endif
