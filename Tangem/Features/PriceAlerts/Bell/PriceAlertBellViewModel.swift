@@ -60,7 +60,7 @@ final class PriceAlertBellViewModel: ObservableObject {
         }
 
         let shouldSubscribe = !isSubscribed
-        // Unsubscribe removes the coin from every wallet on the device
+        // Unsubscribe removes the coin from every wallet on the device.
         let deviceWalletIds = userWalletRepository.models.map(\.userWalletId.stringValue)
 
         // [REDACTED_TODO_COMMENT]
@@ -123,18 +123,6 @@ private extension PriceAlertBellViewModel {
         runTask(in: self) { viewModel in
             try? await viewModel.provider?.fetch()
         }
-    }
-
-    /// Returns whether push notifications are authorized. When permission hasn't been determined yet,
-    /// `requestAuthorizationAndRegister()` shows the system prompt; when already denied it's a no-op, and
-    /// the caller falls back to the "open Settings" alert. Mirrors the NotificationSettings flow.
-    func ensurePushAuthorization() async -> Bool {
-        if await pushNotificationsPermission.isAuthorized {
-            return true
-        }
-
-        await pushNotificationsPermission.requestAuthorizationAndRegister()
-        return await pushNotificationsPermission.isAuthorized
     }
 
     @MainActor
