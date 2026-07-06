@@ -66,20 +66,20 @@ public struct TangemRowShowcase: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: 12) {
-                controls
-
-                Divider()
-
-                Text("taps: \(tapCount)")
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-
                 rowPreview
                     .dynamicTypeSize(dynamicTypeSize)
                     .environment(\.layoutDirection, rightToLeft ? .rightToLeft : .leftToRight)
                     .padding(.vertical, 24)
                     .frame(maxWidth: .infinity)
                     .background(DesignSystem.Color.bgOpaquePrimary)
+
+                Text("taps: \(tapCount)")
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+
+                Divider()
+
+                controls
             }
             .padding()
         }
