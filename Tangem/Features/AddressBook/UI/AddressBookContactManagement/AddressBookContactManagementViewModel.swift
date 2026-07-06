@@ -342,6 +342,7 @@ private extension AddressBookContactManagementViewModel {
 
         do {
             try await interactor.save()
+            presentSuccessToast(title: Localization.addressBookCreateSuccessMessage)
             coordinator?.dismissContactManagement()
         } catch AddressBookValidationError.addressAlreadySaved(let contactName) {
             isProcessing = false
@@ -373,6 +374,13 @@ private extension AddressBookContactManagementViewModel {
 
     func presentGenericError(title: String = Localization.commonError, message: String) {
         alert = AlertBinder(title: title, message: message)
+    }
+
+    func presentSuccessToast(title: String) {
+        let snackbar = TangemSnackbar(title: title)
+            .icon(DesignSystem.Icons.Success.regular20)
+            .iconColor(DesignSystem.Color.iconAccentBlue)
+        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
     }
 }
 
@@ -417,10 +425,7 @@ extension AddressBookContactManagementViewModel: AddressActionsOutput {
     func addressActionsDidRequestCopy(_ group: AddressBookContactAddressGroup) {
         UIPasteboard.general.string = group.address
 
-        let snackbar = TangemSnackbar(title: Localization.addressBookAddressCopied)
-            .icon(DesignSystem.Icons.Success.regular20)
-            .iconColor(DesignSystem.Color.iconAccentBlue)
-        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
+        presentSuccessToast(title: Localization.addressBookAddressCopied)
     }
 
     func addressActionsDidRequestEdit(_ group: AddressBookContactAddressGroup) {
