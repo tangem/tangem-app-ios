@@ -22,6 +22,8 @@ struct CosmosWalletAssembly: WalletManagerAssembly {
             cosmosChain = .terraV2
         case .sei(let isTestnet):
             cosmosChain = .sei(testnet: isTestnet)
+        case .gonka(let isTestnet):
+            cosmosChain = .gonka(testnet: isTestnet)
         default:
             throw BlockchainSdkError.empty
         }

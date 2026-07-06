@@ -11,7 +11,7 @@ import Testing
 @testable import BlockchainSdk
 @testable import Tangem
 
-@Suite("TransactionHistoryMapper grouping (.dayThenMonth)")
+@Suite("TransactionHistoryMapper grouping")
 struct TransactionHistoryMapperGroupingTests {
     private let calendar = Calendar.current
     private let currentMonthStart: Date
@@ -19,6 +19,8 @@ struct TransactionHistoryMapperGroupingTests {
     private let dayB: Date
     private let prevMonthDate: Date
     private let prevPrevMonthDate: Date
+    private let today: Date
+    private let yesterday: Date
 
     init() {
         currentMonthStart = calendar.dateInterval(of: .month, for: Date())?.start ?? Date()
@@ -26,7 +28,11 @@ struct TransactionHistoryMapperGroupingTests {
         dayB = calendar.date(byAdding: .day, value: 1, to: currentMonthStart)!
         prevMonthDate = calendar.date(byAdding: .day, value: -5, to: currentMonthStart)!
         prevPrevMonthDate = calendar.date(byAdding: .day, value: -40, to: currentMonthStart)!
+        today = calendar.startOfDay(for: Date())
+        yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
     }
+
+    // MARK: - .dayThenMonth
 
     @Test("Current-month records bucket by day, sorted descending")
     func currentMonthRecordsBucketByDay() {
@@ -87,11 +93,11 @@ struct TransactionHistoryMapperGroupingTests {
     @Test("Day-bucket headers are never empty (today/yesterday/older same-month)")
     func dayBucketHeadersAreNeverEmpty() {
         let mapper = makeSUT()
-        let today = Date()
-        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        let todayDate = Date()
+        let yesterdayDate = calendar.date(byAdding: .day, value: -1, to: todayDate)!
 
-        var dates = [today, yesterday]
-        if let earlierSameMonth = calendar.date(byAdding: .day, value: -3, to: today),
+        var dates = [todayDate, yesterdayDate]
+        if let earlierSameMonth = calendar.date(byAdding: .day, value: -3, to: todayDate),
            earlierSameMonth >= currentMonthStart {
             dates.append(earlierSameMonth)
         }
@@ -102,6 +108,73 @@ struct TransactionHistoryMapperGroupingTests {
         )
 
         #expect(items.isNotEmpty)
+        #expect(items.allSatisfy { $0.header.isNotEmpty })
+    }
+
+    // MARK: - .day
+
+    @Test("Same-day records collapse into one section", arguments: [Tangem.TransactionHistoryMapper.DayFormatStyle.short, .long])
+    func sameDayRecordsCollapse(format: Tangem.TransactionHistoryMapper.DayFormatStyle) {
+        let mapper = makeSUT()
+        let items = mapper.mapTransactionListItem(
+            from: [
+                makeRecord(hash: "A", date: today),
+                makeRecord(hash: "B", date: calendar.date(byAdding: .hour, value: 2, to: today)!),
+            ],
+            groupingStyle: .day(format)
+        )
+
+        #expect(items.count == 1)
+        #expect(items[0].items.map(\.hash).sorted() == ["A", "B"])
+        #expect(items[0].header.isNotEmpty)
+    }
+
+    @Test("Short format header matches DateFormatter dateStyle .short")
+    func shortFormatHeader() {
+        let pastDate = calendar.date(byAdding: .day, value: -10, to: today)!
+        let items = makeSUT().mapTransactionListItem(
+            from: [makeRecord(hash: "A", date: pastDate)],
+            groupingStyle: .day(.short)
+        )
+
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.dateStyle = .short
+        formatter.doesRelativeDateFormatting = true
+
+        #expect(items.first?.header == formatter.string(from: pastDate))
+    }
+
+    @Test("Long format header matches DateFormatter dateStyle .long")
+    func longFormatHeader() {
+        let pastDate = calendar.date(byAdding: .day, value: -10, to: today)!
+        let items = makeSUT().mapTransactionListItem(
+            from: [makeRecord(hash: "A", date: pastDate)],
+            groupingStyle: .day(.long)
+        )
+
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.dateStyle = .long
+        formatter.doesRelativeDateFormatting = true
+
+        #expect(items.first?.header == formatter.string(from: pastDate))
+    }
+
+    @Test("Multi-day records produce separate sections sorted newest first", arguments: [Tangem.TransactionHistoryMapper.DayFormatStyle.short, .long])
+    func multiDaySortedDescending(format: Tangem.TransactionHistoryMapper.DayFormatStyle) {
+        let mapper = makeSUT()
+        let items = mapper.mapTransactionListItem(
+            from: [
+                makeRecord(hash: "old", date: yesterday),
+                makeRecord(hash: "new", date: today),
+            ],
+            groupingStyle: .day(format)
+        )
+
+        #expect(items.count == 2)
+        #expect(items[0].items.map(\.hash) == ["new"])
+        #expect(items[1].items.map(\.hash) == ["old"])
         #expect(items.allSatisfy { $0.header.isNotEmpty })
     }
 }
