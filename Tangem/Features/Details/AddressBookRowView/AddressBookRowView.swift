@@ -20,7 +20,6 @@ struct AddressBookRowView: View {
             title: Localization.addressBookTitle,
             subtitle: Localization.addressBookDescription
         )
-        .verticalAlignment(.center)
         .start {
             DesignSystem.Icons.ContactBook.filled20.image
                 .renderingMode(.template)
