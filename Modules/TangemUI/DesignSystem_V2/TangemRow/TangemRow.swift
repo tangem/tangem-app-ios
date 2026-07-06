@@ -35,6 +35,7 @@ public struct TangemRow<
     var config: TangemRowConfiguration
 
     @Environment(\.isEnabled) private var isEnabled
+    @ScaledMetric private var minOppositeWidth = TangemRowMetrics.minOppositeWidth
 
     init(
         title: String?,
@@ -65,20 +66,9 @@ public struct TangemRow<
     }
 
     public var body: some View {
-        mainWrapper
-            .padding(config.includesInnerPadding ? TangemRowMetrics.innerPadding : 0)
+        tappableContent
             .overlay(alignment: .bottom) { dividerView }
             .overlay { focusRingView }
-    }
-
-    private var mainWrapper: some View {
-        VStack(spacing: TangemRowMetrics.rootSpacing) {
-            tappableContent
-
-            if ExtraBottom.self != EmptyView.self {
-                extraBottomContent
-            }
-        }
     }
 
     private var tappableContent: some View {
@@ -93,10 +83,25 @@ public struct TangemRow<
     @ViewBuilder
     private var coreButton: some View {
         if let onTap = config.onTap {
-            Button(action: onTap) { contentCore }
+            Button(action: onTap) { paddedContent }
                 .buttonStyle(PressStyle())
         } else {
+            paddedContent
+        }
+    }
+
+    private var paddedContent: some View {
+        mainWrapper
+            .padding(config.includesInnerPadding ? TangemRowMetrics.innerPadding : 0)
+    }
+
+    private var mainWrapper: some View {
+        VStack(alignment: .leading, spacing: TangemRowMetrics.rootSpacing) {
             contentCore
+
+            if ExtraBottom.self != EmptyView.self {
+                extraBottomContent
+            }
         }
     }
 
@@ -105,7 +110,7 @@ public struct TangemRow<
             startContent
                 .opacity(contentOpacity)
 
-            TangemRowContentLayout(contentLead: config.contentLead) {
+            TangemRowContentLayout(contentLead: config.contentLead, minOppositeWidth: minOppositeWidth) {
                 titleColumn
                 valueColumn
             }
@@ -179,6 +184,7 @@ public struct TangemRow<
                 Text(text)
                     .style(role.font, color: colorOverride ?? role.color)
                     .lineLimit(lineLimit)
+                    .multilineTextAlignment(role.textAlignment)
                     .truncationMode(truncationMode)
             }
 
@@ -243,6 +249,13 @@ extension TangemRow {
             case .subtitle, .subvalue: DesignSystem.Color.textSecondary
             }
         }
+
+        var textAlignment: TextAlignment {
+            switch self {
+            case .title, .subtitle: .leading
+            case .value, .subvalue: .trailing
+            }
+        }
     }
 }
 
@@ -282,6 +295,7 @@ enum TangemRowMetrics {
     static let innerPadding: CGFloat = 16
     static let slotSpacing: CGFloat = 12
     static let columnSpacing: CGFloat = 12
+    static let minOppositeWidth: CGFloat = 96
     static let lineSpacing: CGFloat = 2
     static let inlineAccessorySpacing: CGFloat = 4
     static let dividerInset: CGFloat = 16
