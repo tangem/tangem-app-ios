@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import BlockchainSdk
 
 public extension Array where Element == TransactionRecord {
     /// Appends new records, zipping `source`/`destination` of any record that already exists by `hash` + `index`.
