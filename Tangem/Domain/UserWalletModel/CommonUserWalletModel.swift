@@ -107,13 +107,6 @@ extension CommonUserWalletModel {
     }
 }
 
-// [REDACTED_TODO_COMMENT]
-extension CommonUserWalletModel: TangemSdkFactory {
-    func makeTangemSdk() -> TangemSdk {
-        config.makeTangemSdk()
-    }
-}
-
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
