@@ -2395,6 +2395,8 @@
 "yield_module_transaction_exit" = "Modo Rendimiento desactivado";
 "yield_module_transaction_initialize" = "Iniciar Modo Rendimiento";
 "yield_module_transaction_reactivate" = "Reactivar Modo Rendimiento";
+"yield_module_transaction_returned" = "Returned";
+"yield_module_transaction_supplied" = "Supplied";
 "yield_module_transaction_topup_subtitle" = "%1$@ suministrado a Aave";
 "yield_module_transaction_topup" = "Suministrar a Aave";
 "yield_module_transaction_withdraw" = "Retirar de Aave";
