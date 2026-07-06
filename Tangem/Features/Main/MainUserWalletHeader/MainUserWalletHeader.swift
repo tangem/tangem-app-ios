@@ -42,7 +42,22 @@ struct MainUserWalletHeader: View {
         .animation(.easeInOut(duration: 0.2), value: subtitleAnimationKey)
     }
 
+    @ViewBuilder
     private var balance: some View {
+        if headerViewModel.isUserWalletLocked {
+            lockedBalance
+        } else {
+            loadableBalance
+        }
+    }
+
+    private var lockedBalance: some View {
+        Capsule()
+            .fill(Color.Tangem.Field.backgroundDefault)
+            .frame(size: Sizes.balanceSkeletonSize * scaleFactor)
+    }
+
+    private var loadableBalance: some View {
         LoadableBalanceView(
             state: headerViewModel.balance,
             style: .init(
@@ -50,7 +65,7 @@ struct MainUserWalletHeader: View {
                 textColor: Color.Tangem.Text.Neutral.primary
             ),
             loader: .init(
-                size: CGSize(width: 222, height: 36) * scaleFactor,
+                size: Sizes.balanceSkeletonSize * scaleFactor,
                 cornerRadiusStyle: .capsule
             ),
             accessibilityIdentifier: MainAccessibilityIdentifiers.totalBalance
@@ -218,12 +233,12 @@ extension MainUserWalletHeader {
 
     enum Sizes {
         static let pagingIndicatorHeight = CGFloat.unit(.x8)
+        static let balanceSkeletonSize = CGSize(width: 222, height: .unit(.x12))
     }
 }
 
 // MARK: - Previews
 
-#if DEBUG
 @available(iOS 17, *)
 #Preview {
     @Previewable @State var provider = FakeCardHeaderPreviewProvider()
@@ -243,4 +258,3 @@ extension MainUserWalletHeader {
     }
     .padding()
 }
-#endif // DEBUG

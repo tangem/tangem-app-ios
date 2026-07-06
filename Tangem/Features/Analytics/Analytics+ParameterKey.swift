@@ -186,5 +186,10 @@ extension Analytics {
         case variant
         case zone
         case walletId = "wallet_id"
+
+        // MARK: - Staking validation
+
+        case blockaid = "Blockaid"
+        case mobileCheck = "Mobile_check"
     }
 }

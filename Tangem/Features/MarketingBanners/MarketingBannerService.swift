@@ -76,9 +76,7 @@ private extension MarketingBannerService {
             return .empty
         }
 
-        let usdAmount = request.sourceAmount.flatMap { amount in
-            request.source.currencyId.flatMap { balanceConverter.convertToUsd(amount, currencyId: $0) }
-        }
+        let usdAmount = await usdValue(forCrypto: request.sourceAmount, currencyId: request.source.currencyId)
 
         return selectBanners(from: campaigns, usdAmount: usdAmount)
     }
@@ -97,26 +95,24 @@ private extension MarketingBannerService {
             return .empty
         }
 
-        let usdAmount = request.expectedCryptoAmount.flatMap { amount in
-            request.destination.currencyId.flatMap { balanceConverter.convertToUsd(amount, currencyId: $0) }
-        }
+        let usdAmount = await usdValue(forCrypto: request.expectedCryptoAmount, currencyId: request.destination.currencyId)
 
         return selectBanners(from: campaigns, usdAmount: usdAmount)
+    }
+
+    func usdValue(forCrypto amount: Decimal?, currencyId: String?) async -> Decimal? {
+        guard let amount, let currencyId else {
+            return nil
+        }
+
+        return try? await balanceConverter.convertToUsd(amount, currencyId: currencyId)
     }
 
     func selectBanners(
         from campaigns: [MarketingCampaignsDTO.Campaign],
         usdAmount: Decimal?
     ) -> MarketingBanners {
-        let eligible = campaigns
-            .filter { satisfiesAmount($0, usd: usdAmount) }
-            .sorted { $0.priority < $1.priority }
-            .compactMap { makeBanner(from: $0) }
-
-        return MarketingBanners(
-            standalone: eligible.first { $0.isStandalone },
-            linked: eligible.filter { !$0.isStandalone }
-        )
+        MarketingBannerMapper.banners(from: campaigns.filter { satisfiesAmount($0, usd: usdAmount) })
     }
 
     func satisfiesAmount(_ campaign: MarketingCampaignsDTO.Campaign, usd: Decimal?) -> Bool {
@@ -137,28 +133,5 @@ private extension MarketingBannerService {
         }
 
         return true
-    }
-
-    func makeBanner(from campaign: MarketingCampaignsDTO.Campaign) -> MarketingBanner? {
-        guard let text = campaign.banner.text else {
-            return nil
-        }
-
-        let placement: MarketingBanner.Placement = switch campaign.banner.uiType {
-        case .linkedToProvider:
-            .linkedToProvider(providerIds: campaign.providerIds ?? [])
-        case .standalone, .unknown:
-            .standalone
-        }
-
-        return MarketingBanner(
-            id: campaign.id,
-            text: text,
-            iconURL: campaign.banner.icon,
-            backgroundColorHex: campaign.banner.bgColor,
-            placement: placement,
-            action: campaign.banner.deeplink.map(MarketingBanner.Action.deeplink),
-            isDismissible: campaign.banner.dismissible
-        )
     }
 }

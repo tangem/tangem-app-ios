@@ -15,8 +15,6 @@ import BlockchainSdk
 struct AddressActionsView: View {
     let viewModel: AddressActionsViewModel
 
-    @ScaledMetric private var iconSize: CGFloat = 72
-
     var body: some View {
         VStack(spacing: 0) {
             FloatingSheetNavigationBarView(
@@ -39,9 +37,7 @@ struct AddressActionsView: View {
 
     private var details: some View {
         VStack(spacing: 32) {
-            AddressIconView(viewModel: viewModel.addressIconViewModel)
-                .scaleEffect(iconSize / viewModel.addressIconViewModel.size)
-                .frame(width: iconSize, height: iconSize)
+            AddressBlockiesIconView(viewData: viewModel.addressIcon, size: 72)
 
             VStack(spacing: 24) {
                 VStack(spacing: 8) {
@@ -101,16 +97,15 @@ struct AddressActionsView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-private final class AddressActionsPreviewStub: AddressActionsOutput, AddressActionsRoutable {
-    func addressActionsDidRequestCopy(_ group: AddressBookContactAddressGroup) {}
-    func addressActionsDidRequestEdit(_ group: AddressBookContactAddressGroup) {}
-    func addressActionsDidRequestRemove(_ group: AddressBookContactAddressGroup) {}
-    func dismissAddressActions() {}
-}
-
 #Preview {
-    AddressActionsView(
+    final class AddressActionsPreviewStub: AddressActionsOutput, AddressActionsRoutable {
+        func addressActionsDidRequestCopy(_ group: AddressBookContactAddressGroup) {}
+        func addressActionsDidRequestEdit(_ group: AddressBookContactAddressGroup) {}
+        func addressActionsDidRequestRemove(_ group: AddressBookContactAddressGroup) {}
+        func dismissAddressActions() {}
+    }
+
+    return AddressActionsView(
         viewModel: AddressActionsViewModel(
             group: .init(
                 address: "0xBef7B36845000000000000ac4e6752A9cE000000",
@@ -127,4 +122,3 @@ private final class AddressActionsPreviewStub: AddressActionsOutput, AddressActi
     .frame(maxHeight: .infinity, alignment: .bottom)
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
 }
-#endif // DEBUG

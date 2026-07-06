@@ -129,8 +129,7 @@ public extension AccountIconWithContentView where Subtitle == EmptyView, Trailin
 
 // MARK: - Previews
 
-#if DEBUG
-@available(iOS 17, *)
+@available(iOS 17.0, *)
 #Preview("Default vs Custom Styles", traits: .sizeThatFitsLayout) {
     VStack(alignment: .leading, spacing: 16) {
         AccountIconWithContentView(
@@ -149,4 +148,3 @@ public extension AccountIconWithContentView where Subtitle == EmptyView, Trailin
     }
     .padding()
 }
-#endif // DEBUG

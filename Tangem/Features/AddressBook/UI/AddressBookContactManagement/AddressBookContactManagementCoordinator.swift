@@ -38,14 +38,28 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        let interactor: AddressBookContactManagementInteractor = switch options {
-        case .add(let addressBookWallet):
-            CreateAddressBookContactManagementInteractor(addressBookWallet: addressBookWallet)
+        let interactor: AddressBookContactManagementInteractor
+        let focusesNameOnFirstAppear: Bool
+
+        switch options {
+        case .add(let addressBookWallet, let prefilledEntries):
+            interactor = CreateAddressBookContactManagementInteractor(
+                addressBookWallet: addressBookWallet,
+                prefilledEntries: prefilledEntries
+            )
+            focusesNameOnFirstAppear = prefilledEntries.isNotEmpty
         case .edit(let contact, let addressBookWallet):
-            EditAddressBookContactManagementInteractor(contact: contact, addressBookWallet: addressBookWallet)
+            interactor = EditAddressBookContactManagementInteractor(contact: contact, initialAddressBookWallet: addressBookWallet)
+            focusesNameOnFirstAppear = false
         }
 
-        rootViewModel = AddressBookContactManagementViewModel(interactor: interactor, coordinator: self)
+        let addressBooksProvider: any AddressBooksProvider = AllWalletsAddressBooksProvider()
+        rootViewModel = AddressBookContactManagementViewModel(
+            interactor: interactor,
+            coordinator: self,
+            addressBooksProvider: addressBooksProvider,
+            focusesNameOnFirstAppear: focusesNameOnFirstAppear
+        )
     }
 }
 
@@ -53,7 +67,7 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
 extension AddressBookContactManagementCoordinator {
     enum Options {
-        case add(addressBookWallet: AddressBookWallet)
+        case add(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft])
         case edit(contact: AddressBookContact, addressBookWallet: AddressBookWallet)
     }
 }
@@ -65,8 +79,8 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
         dismiss(with: ())
     }
 
-    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions) {
-        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, output: output, options: options)
+    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions, reservedContacts: [AddressBookContact]) {
+        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, output: output, options: options, reservedContacts: reservedContacts)
         addAddressViewModel = AddressBookAddAddressViewModel(interactor: interactor, coordinator: self, options: options)
     }
 
@@ -100,6 +114,10 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
 extension AddressBookContactManagementCoordinator: AddressBookAddAddressRoutable {
     func dismissAddAddress() {
         addAddressViewModel = nil
+    }
+
+    func dismissAddAddressFlow() {
+        dismiss(with: ())
     }
 
     func presentChooseNetwork(_ viewModel: ChooseNetworkViewModel) {

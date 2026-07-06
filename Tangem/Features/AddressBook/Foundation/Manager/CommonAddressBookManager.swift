@@ -39,7 +39,6 @@ final class CommonAddressBookManager {
         self.supportedBlockchains = supportedBlockchains
 
         bind()
-        Task { await load() }
     }
 
     private func bind() {
@@ -52,7 +51,7 @@ final class CommonAddressBookManager {
 
     private func handle(decoded: [AddressBookDecodedContact]) {
         decodedContacts.withLock { $0 = decoded }
-        contactsSubject.send(decoded.compactMap(verify(_:)))
+        contactsSubject.send(decoded.sorted { $0.createdAt > $1.createdAt }.compactMap(verify(_:)))
     }
 
     private var snapshot: [AddressBookDecodedContact] {
@@ -79,7 +78,13 @@ final class CommonAddressBookManager {
             return nil
         }
 
-        return AddressBookContact(id: contact.id, walletId: walletId, name: contact.name, iconColor: contact.iconColor, entries: entries)
+        return AddressBookContact(
+            id: contact.id,
+            walletId: walletId,
+            name: contact.name,
+            appearance: AddressBookContactAppearance(rawColor: contact.iconColor),
+            entries: entries
+        )
     }
 
     // MARK: - Signing
@@ -143,6 +148,22 @@ final class CommonAddressBookManager {
         }
     }
 
+    private func ensureAddressesUniqueInBook(_ drafts: [AddressBookEntryDraft], excluding contactId: AddressBookContactID?) throws {
+        let pairs = Set(drafts.map { pairKey(address: $0.address, networkId: $0.networkId) })
+
+        for existing in contactsSubject.value where existing.id != contactId {
+            let hasConflict = existing.entries.raw.contains { pairs.contains(pairKey(address: $0.address, networkId: $0.networkId)) }
+
+            if hasConflict {
+                throw AddressBookValidationError.addressAlreadySaved(contactName: existing.name.value)
+            }
+        }
+    }
+
+    private func pairKey(address: String, networkId: AddressBookNetworkID) -> String {
+        "\(address)|\(networkId.rawValue)"
+    }
+
     private func contact(with id: AddressBookContactID, in contacts: [AddressBookDecodedContact]) throws -> AddressBookDecodedContact {
         guard let contact = contacts.first(where: { $0.id == id }) else {
             throw AddressBookManagerError.contactNotFound
@@ -156,13 +177,13 @@ final class CommonAddressBookManager {
     }
 
     /// Rebuilds a contact preserving its identity, walletId, icon and createdAt while bumping updatedAt.
-    private func touched(_ contact: AddressBookDecodedContact, name: AddressBookContactName? = nil, iconColor: String? = nil, addresses: [AddressBookDecodedAddressEntry]) -> AddressBookDecodedContact {
+    private func touched(_ contact: AddressBookDecodedContact, name: AddressBookContactName? = nil, appearance: AddressBookContactAppearance? = nil, addresses: [AddressBookDecodedAddressEntry]) -> AddressBookDecodedContact {
         AddressBookDecodedContact(
             id: contact.id,
             walletId: contact.walletId,
             name: name ?? contact.name,
             icon: contact.icon,
-            iconColor: iconColor ?? contact.iconColor,
+            iconColor: appearance?.rawColor ?? contact.iconColor,
             createdAt: contact.createdAt,
             updatedAt: Date(),
             addresses: addresses
@@ -170,7 +191,7 @@ final class CommonAddressBookManager {
     }
 
     @discardableResult
-    private func insert(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID {
+    private func insert(id: AddressBookContactID, name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID {
         try repository.ensureBookMutable()
 
         let drafts = entries.raw
@@ -178,6 +199,7 @@ final class CommonAddressBookManager {
         try ensureAddressesNonEmpty(drafts)
         try AddressBookContactDraftEntries.validate(adding: drafts, to: [])
         try ensureNameUnique(name, excluding: nil)
+        try ensureAddressesUniqueInBook(drafts, excluding: id)
 
         let signed = try await sign(drafts, contactId: id, name: name)
         let now = Date()
@@ -186,7 +208,7 @@ final class CommonAddressBookManager {
             walletId: walletId.stringValue,
             name: name,
             icon: "",
-            iconColor: iconColor,
+            iconColor: appearance.rawColor,
             createdAt: now,
             updatedAt: now,
             addresses: signed
@@ -207,23 +229,27 @@ extension CommonAddressBookManager: AddressBookManager {
         contactsSubject.eraseToAnyPublisher()
     }
 
+    var contacts: [AddressBookContact] {
+        contactsSubject.value
+    }
+
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> {
         repository.syncStatePublisher
     }
 
-    func load() async {
-        await repository.load(silent: false)
+    func load(silent: Bool) async {
+        await repository.load(silent: silent)
     }
 
-    func createContact(name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID {
-        try await insert(id: AddressBookContactID(), name: name, iconColor: iconColor, entries: entries)
+    func createContact(name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID {
+        try await insert(id: AddressBookContactID(), name: name, appearance: appearance, entries: entries)
     }
 
-    func reSignContact(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws {
-        try await insert(id: id, name: name, iconColor: iconColor, entries: entries)
+    func reSignContact(id: AddressBookContactID, name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws {
+        try await insert(id: id, name: name, appearance: appearance, entries: entries)
     }
 
-    func updateContact(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws {
+    func updateContact(id: AddressBookContactID, name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws {
         // Fail fast before the signing card tap; `repository.save` re-checks this authoritatively.
         try repository.ensureBookMutable()
 
@@ -235,9 +261,10 @@ extension CommonAddressBookManager: AddressBookManager {
 
         let contact = try contact(with: id, in: snapshot)
         try ensureNameUnique(name, excluding: id)
+        try ensureAddressesUniqueInBook(drafts, excluding: id)
 
         let addresses = try await signedEntries(for: drafts, replacing: contact, name: name)
-        let updated = touched(contact, name: name, iconColor: iconColor, addresses: addresses)
+        let updated = touched(contact, name: name, appearance: appearance, addresses: addresses)
 
         // Re-read the snapshot after signing so a change that landed during the card tap is not
         // clobbered by a stale pre-await copy.

@@ -28,7 +28,6 @@ struct TangemPayCardPageIndicatorRedesigned: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 24) {
         TangemPayCardPageIndicatorRedesigned(count: 2, selectedIndex: 1)
@@ -37,4 +36,3 @@ struct TangemPayCardPageIndicatorRedesigned: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

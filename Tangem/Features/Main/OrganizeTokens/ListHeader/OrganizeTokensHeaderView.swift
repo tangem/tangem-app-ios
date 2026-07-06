@@ -37,17 +37,15 @@ struct OrganizeTokensHeaderView: View {
 
 // MARK: - Previews
 
-struct OrganizeTokensHeaderView_Previews: PreviewProvider {
-    static var previews: some View {
-        let optionsManager = FakeOrganizeTokensOptionsManager(
-            initialGroupingOption: .none,
-            initialSortingOption: .dragAndDrop
-        )
-        let viewModel = OrganizeTokensHeaderViewModel(
-            optionsProviding: optionsManager,
-            optionsEditing: optionsManager,
-            analyticsLogger: TokensManagementAnalyticsLogger()
-        )
-        return OrganizeTokensHeaderView(viewModel: viewModel)
-    }
+#Preview {
+    let optionsManager = FakeOrganizeTokensOptionsManager(
+        initialGroupingOption: .none,
+        initialSortingOption: .dragAndDrop
+    )
+    let viewModel = OrganizeTokensHeaderViewModel(
+        optionsProviding: optionsManager,
+        optionsEditing: optionsManager,
+        analyticsLogger: TokensManagementAnalyticsLogger()
+    )
+    return OrganizeTokensHeaderView(viewModel: viewModel)
 }

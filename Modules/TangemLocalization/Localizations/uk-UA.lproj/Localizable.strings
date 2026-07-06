@@ -82,12 +82,17 @@
 "address_book_add_address_description" = "Додати адресу та вибрати мережу";
 "address_book_add_address" = "Додати адресу";
 "address_book_add_contact" = "Додати контакт";
+"address_book_address_copied" = "Address copied";
+"address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Ім'я контакту";
 "address_book_contact" = "Контакт";
 "address_book_copy_address" = "Скопіювати адресу";
+"address_book_create_success_message" = "Contact added";
 "address_book_creating_error" = "Не вдалося створити контакт. Будь ласка, спробуйте пізніше.";
 "address_book_delete_contact_description" = "Цей контакт буде видалено з усіх ваших адресних книг";
+"address_book_delete_contact" = "Delete contact";
+"address_book_delete_last_address" = "\"%1$@\" has only one address. Deleting it will also delete the contact. Continue?";
 "address_book_deleting_error" = "Не вдалося видалити контакт. Будь ласка, спробуйте пізніше.";
 "address_book_description" = "Керування контактами та адресами";
 "address_book_discard" = "Скасувати";
@@ -105,8 +110,10 @@
 "address_book_no_contacts_description" = "Тут відображатимуться додані вами контакти.";
 "address_book_no_contacts" = "Немає доданих контактів";
 "address_book_remove_address" = "Видалити адресу";
+"address_book_save_contact" = "Save contact";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Цей контакт буде прив'язано до цього гаманця в адресній книзі.";
+"address_book_search_no_results" = "No results found.\nTry another name";
 "address_book_select_network" = "Вибрати мережу";
 "address_book_title" = "Адресна книга";
 "address_book_unsaved_changes_description" = "Ви впевнені, що хочете скасувати зміни?";
@@ -283,6 +290,7 @@
 "common_generate_addresses" = "Синхронізувати адреси";
 "common_get_started" = "Почати";
 "common_get_token" = "Отримати токен";
+"common_get" = "Get";
 "common_go_to_provider" = "Перейти до провайдера";
 "common_go_to_token" = "Перейти до токену";
 "common_go_to_verification" = "Go to verification";
@@ -319,6 +327,7 @@
 "common_or" = "або";
 "common_origin_card" = "Основна картка";
 "common_origin_ring" = "Основне кільце";
+"common_other" = "Other";
 "common_passphrase" = "Парольна фраза";
 "common_paste" = "Вставити";
 "common_privacy_policy" = "Політикою конфіденційності";
@@ -584,6 +593,7 @@
 "feedback_subject_tx_push_failed" = "Не можу проштовхнути транзакцію";
 "feedback_token_description_error" = "Помилка в описі монети";
 "for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Для забезпечення коректної роботи оновіть застосунок до останньої версії.";
@@ -599,6 +609,7 @@
 "gasless_transaction_fee" = "Комісія за транзакцію";
 "generic_error_code" = "Виникла помилка. Код: %@.";
 "generic_requires_memo_error" = "Вимагається memo";
+"get_token_title" = "Get %1$@";
 "give_permission_current_transaction" = "Транзакція";
 "give_permission_policy_type_footer" = "Вкажіть ліміт доступу для обраного токена";
 "give_permission_rows_amount" = "Кількість %@";
@@ -722,6 +733,12 @@
 "manage_tokens_toast_portfolio_updated" = "Ваше портфоліо оновлено";
 "manage_tokens_wallet_selector_title" = "Оберіть гаманець";
 "manage_tokens_wallet_support_only_one_network_title" = "Гаманець не підтримує більше однієї мережі";
+"market_chart_ai_total" = "AI Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
+"market_chart_bubble_no_data" = "No data";
+"market_chart_bubble_total_value" = "Total value";
+"market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_top_holding" = "Top holding %@";
 "markets_about_coin_header" = "Про монету";
 "markets_add_to_my_portfolio_description" = "Щоб купити, обміняти або отримати цей актив, додайте його до свого портфоліо";
 "markets_add_to_my_portfolio_unavailable_description" = "Цей актив наразі не підтримується в гаманці";
@@ -1014,6 +1031,7 @@
 "onramp_min_amount_restriction" = "Сума покупки повинна бути не менше %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "Загальна сума транзакцій, що перевищує еквівалент %1@, може вимагати верифікації особи через %2@";
 "onramp_native_payment_cumulative_limit" = "Загальна сума транзакцій понад %1@ може вимагати верифікації особи через %2@";
+"onramp_native_payment_identity_verification" = "Для транзакцій через Apple Pay може знадобитися верифікація особи в %1@";
 "onramp_native_payment_legal_notice" = "Натискаючи «Оплатити», ви погоджуєтеся з %1@'s %2@ і %3@.";
 "onramp_no_available_providers" = "Для данної валюти немає доступних провайдерів";
 "onramp_offer_type_fastet" = "Найшвидший";
@@ -1162,6 +1180,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Тег призначення";
 "send_dismiss_message" = "Ви дійсно хочете закрити екран надсилання транзакції?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "Ім’я ENS або адреса";
 "send_enter_address_field" = "Введіть адресу";
 "send_error_address_same_as_wallet" = "Адреса збігається з адресою гаманця";
@@ -1221,6 +1240,7 @@
 "send_recipient_address_error" = "Недійсна адреса";
 "send_recipient_address_footer" = "Переконайтеся, що адреса отримувача знаходиться **в мережі %@**, щоб уникнути втрати ваших коштів.";
 "send_recipient_memo_footer_v2_highlighted" = "Увага: відсутність Memo може призвести до втрати коштів.";
+"send_recipient_memo_footer_v2" = "Мемо / Destination Tag — це код, що розділяє транзакції до спільного одержувача в криптовалютній мережі.";
 "send_recipient_memo_footer" = "Memo/ Тег призначення — це унікальний ідентифікатор для розрізнення транзакцій, надісланих тому самому одержувачу в тій самій мережі.\n**Застереження: відсутність тегу може призвести до втрати коштів.**";
 "send_recipient_wallets_title" = "Мої гаманці";
 "send_recipient" = "Одержувач";
@@ -1530,6 +1550,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "Комісія відповідно до тарифів обслуговування";
 "tangem_pay_transaction_reversed_notification_text" = "Транзакцію було частково або повністю скасовано продавцем";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "Продовжуйте користуватися карткою. Заморозити можна в будь-який момент.";
 "tangem_pay_unfreeze_card_alert_title" = "Розморозити картку?";
 "tangem_pay_unfreeze_card_failed" = "Не вдалося розморозити картку. Спробуйте пізніше.";
@@ -1717,6 +1739,13 @@
 "tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
+"tangempay_select_plan_btn_cancel" = "Cancel";
+"tangempay_select_plan_btn_downgrade" = "Downgrade plan";
+"tangempay_select_plan_btn_select" = "Select";
+"tangempay_select_plan_btn_upgrade" = "Upgrade plan";
+"tangempay_select_plan_compare" = "Compare plans";
+"tangempay_select_plan_confirm_title" = "Confirm selection";
+"tangempay_select_plan_title" = "Select plan";
 "tangempay_service_unavailable_description" = "Ми усуваємо технічну проблему. Будь ласка, спробуйте пізніше.";
 "tangempay_service_unavailable_title" = "Сервіс тимчасово недоступний";
 "tangempay_service_unreachable_try_later" = "Не можемо показати дані картки, але оплати продовжують працювати.";
@@ -2047,6 +2076,8 @@
 "warning_hedera_missing_token_association_message" = "Цей токен повинен бути асоційований з вашим обліковим записом Hedera, перш ніж ви зможете його прийняти. Вартість асоціації ~ %1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Асоціюйте свій токен";
 "warning_hedera_token_association_not_enough_hbar_message" = "Недостатньо %@. Поповніть ваш обліковий запис Hedera для асоціації цього токена";
+"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
+"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
 "warning_ios_deprecation_message" = "Підтримка iOS %1$@ завершиться %2$@. Щоб і надалі отримувати оновлення застосунку та забезпечити повну функціональність, оновіть iOS до останньої версії.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Ви впевнені, що хочете скасувати цю транзакцію? Ви не зможете відправити її ще раз";
 "warning_kaspa_unfinished_token_transaction_message" = "Ваша транзакція %1$@ %2$@ не була завершена. Ви можете спробувати відправити її ще раз.";
@@ -2060,6 +2091,7 @@
 "warning_matic_migration_message" = "Токен MATIC мігрує до POL. Однак кінцевого терміну не встановлено і MATIC ще не застарілий. Ви можете спокійно продовжувати використовувати токен MATIC або обміняти його на POL.";
 "warning_matic_migration_title" = "Міграція MATIC у POL";
 "warning_missing_derivation_title" = "Деякі адреси відсутні";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "Мережа наразі недоступна. Будь ласка, спробуйте пізніше.";
 "warning_network_unreachable_title" = "Мережа недоступна";
 "warning_no_account_title" = "Поповніть свій гаманець";
@@ -2071,8 +2103,8 @@
 "warning_old_card_title" = "Обмеження iOS для старих карток";
 "warning_old_device_old_card_message" = "Деякі моделі iPhone 7/7+ можуть мати проблеми з NFC під час певних операцій.";
 "warning_old_device_old_card_title" = "Виявлено несумісність пристрою";
-"warning_outdated_data_message" = "Буде оновлено якнайшвидше.";
-"warning_outdated_data_title" = "Відсутня частина балансу токенів.";
+"warning_outdated_data_message" = "Деякі баланси токенів не вдалося оновити";
+"warning_outdated_data_title" = "Баланси можуть бути неактуальними";
 "warning_rate_app_message" = "Ваш відгук мотивує нас робити гаманець Tangem Wallet ще кращим";
 "warning_rate_app_title" = "Подобається Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Вам необхідно провести асоціацію токена, щоб мати можливість приймати його";

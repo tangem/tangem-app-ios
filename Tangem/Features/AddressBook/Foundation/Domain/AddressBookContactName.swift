@@ -14,6 +14,8 @@ import Foundation
 struct AddressBookContactName: Hashable {
     let value: String
 
+    var firstLetter: String { "\(value.prefix(1).uppercased())" }
+
     fileprivate init(value: String) {
         self.value = value
     }
@@ -42,21 +44,29 @@ struct AddressBookContactNameValidator {
     static let maxLength = 50
 
     func validate(_ raw: String) throws -> AddressBookContactName {
+        if let error = validationError(in: raw) {
+            throw error
+        }
+
+        return AddressBookContactName(value: raw.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
+    func validationError(in raw: String) -> AddressBookValidationError? {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard !trimmed.isEmpty else {
-            throw AddressBookValidationError.nameEmpty
+        if trimmed.isEmpty {
+            return .nameEmpty
         }
 
-        guard trimmed.count <= Self.maxLength else {
-            throw AddressBookValidationError.nameTooLong
+        if trimmed.count > Self.maxLength {
+            return .nameTooLong
         }
 
-        guard !Self.containsForbiddenCharacters(trimmed) else {
-            throw AddressBookValidationError.nameContainsForbiddenCharacters
+        if Self.containsForbiddenCharacters(trimmed) {
+            return .nameContainsForbiddenCharacters
         }
 
-        return AddressBookContactName(value: trimmed)
+        return nil
     }
 
     private static func containsForbiddenCharacters(_ string: String) -> Bool {

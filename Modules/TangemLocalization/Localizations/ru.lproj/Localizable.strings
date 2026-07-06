@@ -66,7 +66,7 @@
 "action_buttons_you_want_to_swap" = "Выберите токен для обмена";
 "actionbutton_addfunds_title" = "Пополнить";
 "actionbutton_swap_title" = "Обмен";
-"actionbutton_transfer_title" = "Перевод";
+"actionbutton_transfer_title" = "Перевести";
 "add_and_manage_sheet_manage_subtitle" = "Добавить в портфель";
 "add_and_manage_sheet_manage_title" = "Добавить токены";
 "add_and_manage_sheet_organize_subtitle" = "Сортировка и группировка";
@@ -82,12 +82,17 @@
 "address_book_add_address_description" = "Добавить адрес и выбрать сеть";
 "address_book_add_address" = "Добавить адрес";
 "address_book_add_contact" = "Добавить контакт";
+"address_book_address_copied" = "Address copied";
+"address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Имя контакта";
 "address_book_contact" = "Контакт";
 "address_book_copy_address" = "Копировать адрес";
+"address_book_create_success_message" = "Contact added";
 "address_book_creating_error" = "Не удалось создать контакт. Пожалуйста, попробуйте позже.";
 "address_book_delete_contact_description" = "Этот контакт будет удален из всех ваших адресных книг";
+"address_book_delete_contact" = "Delete contact";
+"address_book_delete_last_address" = "\"%1$@\" has only one address. Deleting it will also delete the contact. Continue?";
 "address_book_deleting_error" = "Не удалось удалить контакт. Пожалуйста, попробуйте позже.";
 "address_book_description" = "Управление контактами и адресами";
 "address_book_discard" = "Отменить";
@@ -105,8 +110,10 @@
 "address_book_no_contacts_description" = "Здесь отобразятся добавленные вами контакты.";
 "address_book_no_contacts" = "Нет добавленных контактов";
 "address_book_remove_address" = "Удалить адрес";
+"address_book_save_contact" = "Save contact";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Этот контакт будет привязан к этому кошельку в адресной книге.";
+"address_book_search_no_results" = "No results found.\nTry another name";
 "address_book_select_network" = "Выбрать сеть";
 "address_book_title" = "Адресная книга";
 "address_book_unsaved_changes_description" = "Вы уверены, что хотите отменить изменения?";
@@ -283,6 +290,7 @@
 "common_generate_addresses" = "Синхронизировать адреса";
 "common_get_started" = "Начать";
 "common_get_token" = "Получить токен";
+"common_get" = "Get";
 "common_go_to_provider" = "К провайдеру";
 "common_go_to_token" = "Перейти в токен";
 "common_go_to_verification" = "Go to verification";
@@ -319,6 +327,7 @@
 "common_or" = "или";
 "common_origin_card" = "Основная карта";
 "common_origin_ring" = "Основное кольцо";
+"common_other" = "Other";
 "common_passphrase" = "Парольная фраза";
 "common_paste" = "Вставить";
 "common_privacy_policy" = "Политикой конфиденциальности";
@@ -584,6 +593,7 @@
 "feedback_subject_tx_push_failed" = "Не могу протолкнуть транзакцию";
 "feedback_token_description_error" = "Ошибка в описании монеты";
 "for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Для обеспечения корректной работы обновите приложение до последней версии.";
@@ -599,6 +609,7 @@
 "gasless_transaction_fee" = "Комиссия за транзакцию";
 "generic_error_code" = "Произошла ошибка. Код: %@.";
 "generic_requires_memo_error" = "Требуется memo";
+"get_token_title" = "Get %1$@";
 "give_permission_current_transaction" = "Транзакция";
 "give_permission_policy_type_footer" = "Укажите лимит доступа к выбранному токену";
 "give_permission_rows_amount" = "Количество %@";
@@ -722,6 +733,12 @@
 "manage_tokens_toast_portfolio_updated" = "Ваш портфель был обновлен";
 "manage_tokens_wallet_selector_title" = "Выберите кошелек";
 "manage_tokens_wallet_support_only_one_network_title" = "Кошелёк не поддерживает более одной сети";
+"market_chart_ai_total" = "AI Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
+"market_chart_bubble_no_data" = "No data";
+"market_chart_bubble_total_value" = "Total value";
+"market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_top_holding" = "Top holding %@";
 "markets_about_coin_header" = "О монете";
 "markets_add_to_my_portfolio_description" = "Чтобы купить, обменять или получить данный токен, вам нужно добавить его к себе в портфель";
 "markets_add_to_my_portfolio_unavailable_description" = "Этот актив в настоящее время не поддерживается в кошельке";
@@ -1014,6 +1031,7 @@
 "onramp_min_amount_restriction" = "Сумма покупки должна составлять минимум %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "Общая сумма транзакций, превышающая эквивалент %1@, может потребовать верификации личности через %2@";
 "onramp_native_payment_cumulative_limit" = "Общая сумма транзакций свыше %1@ может потребовать верификации личности через %2@";
+"onramp_native_payment_identity_verification" = "Для транзакций через Apple Pay может потребоваться верификация личности в %1@";
 "onramp_native_payment_legal_notice" = "Нажимая «Оплатить», вы соглашаетесь с %1@'s %2@ и %3@.";
 "onramp_no_available_providers" = "Нет доступных провайдеров для выбранной валюты";
 "onramp_offer_type_fastet" = "Самый быстрый";
@@ -1162,6 +1180,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Код назначения";
 "send_dismiss_message" = "Вы действительно хотите закрыть экран отправки транзакции?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "ENS домен или адрес";
 "send_enter_address_field" = "Введите адрес";
 "send_error_address_same_as_wallet" = "Адрес совпадает с адресом кошелька";
@@ -1221,6 +1240,7 @@
 "send_recipient_address_error" = "Неверный адрес";
 "send_recipient_address_footer" = "Убедитесь, что адрес получателя находится **в сети %@**, чтобы избежать потери отправляемых средств";
 "send_recipient_memo_footer_v2_highlighted" = "Внимание: отсутствие Memo может привести к потере средств.";
+"send_recipient_memo_footer_v2" = "Memo / Destination Tag — это код, разделяющий транзакции, отправляемые одному и тому же получателю в криптовалютной сети.";
 "send_recipient_memo_footer" = "Мемо/ Код назначения - это код, разделяющий транзакции к общему получателю в сети криптовалют.\n**Внимание: отсутствие мемо может привести к потере средств.**";
 "send_recipient_wallets_title" = "Мои кошельки";
 "send_recipient" = "Получатель";
@@ -1530,6 +1550,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "Комиссия в соответствии с тарифами обслуживания";
 "tangem_pay_transaction_reversed_notification_text" = "Транзакция частично или полностью возвращена продавцом";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "Продолжайте пользоваться картой, заморозить всегда успеете";
 "tangem_pay_unfreeze_card_alert_title" = "Разморозить карту?";
 "tangem_pay_unfreeze_card_failed" = "Не удалось разморозить карту, попробуйте еще раз";
@@ -1717,6 +1739,13 @@
 "tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
+"tangempay_select_plan_btn_cancel" = "Cancel";
+"tangempay_select_plan_btn_downgrade" = "Downgrade plan";
+"tangempay_select_plan_btn_select" = "Select";
+"tangempay_select_plan_btn_upgrade" = "Upgrade plan";
+"tangempay_select_plan_compare" = "Compare plans";
+"tangempay_select_plan_confirm_title" = "Confirm selection";
+"tangempay_select_plan_title" = "Select plan";
 "tangempay_service_unavailable_description" = "Мы устраняем техническую проблему. Пожалуйста, попробуйте позже.";
 "tangempay_service_unavailable_title" = "Сервис временно недоступен";
 "tangempay_service_unreachable_try_later" = "Не можем показать данные карты, но оплаты продолжают работать.";
@@ -2047,6 +2076,8 @@
 "warning_hedera_missing_token_association_message" = "Этот токен должен быть ассоциирован с вашей учетной записью Hedera, прежде чем вы сможете его принять. Стоимость ассоциации ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Ассоциируете свой токен";
 "warning_hedera_token_association_not_enough_hbar_message" = "Недостаточно %@. Пополните ваш аккаунт Hedera для ассоциации этого токена";
+"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
+"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
 "warning_ios_deprecation_message" = "Поддержка iOS %1$@ завершится %2$@. Чтобы продолжать получать обновления приложения и обеспечить полную работоспособность, обновите iOS до последней версии.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Вы уверены что хотите отменить эту транзакцию? Вы не сможете отправить ее еще раз";
 "warning_kaspa_unfinished_token_transaction_message" = "Ваша транзакция %1$@ %2$@ не была завершена. Вы можете попробовать отправить ее еще раз.";
@@ -2060,6 +2091,7 @@
 "warning_matic_migration_message" = "Токен MATIC мигрирует на POL. Однако крайний срок не установлен, и MATIC пока не устарел. Вы можете спокойно продолжать использовать токен MATIC или обменять его на POL.";
 "warning_matic_migration_title" = "Миграция MATIC в POL";
 "warning_missing_derivation_title" = "Некоторые адреса отсутствуют";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "В данный момент сеть недоступна. Пожалуйста, попробуйте позже.";
 "warning_network_unreachable_title" = "Сеть недоступна";
 "warning_no_account_title" = "Пополните ваш кошелек";
@@ -2071,8 +2103,8 @@
 "warning_old_card_title" = "Ограничение iOS для старых карт";
 "warning_old_device_old_card_message" = "У iPhone 7/7+ могут возникнуть проблемы с NFC во время выполнения определенных операций";
 "warning_old_device_old_card_title" = "Устройство несовместимо";
-"warning_outdated_data_message" = "Обновление будет произведено в кратчайшие сроки.";
-"warning_outdated_data_title" = "Отсутствует часть баланса токенов.";
+"warning_outdated_data_message" = "Некоторые балансы токенов не удалось обновить";
+"warning_outdated_data_title" = "Балансы могут быть неактуальны";
 "warning_rate_app_message" = "Ваш отзыв мотивирует нас сделать кошелек Tangem еще лучше";
 "warning_rate_app_title" = "Нравится Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Вам необходимо провести ассоциацию токена для того, чтобы иметь возможность принимать его";

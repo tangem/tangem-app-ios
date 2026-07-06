@@ -8,20 +8,21 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 import TangemLocalization
 
 struct AddressBookContactAddressRowViewModel: Identifiable {
     let id: String
     let title: String
     let subtitle: String
-    let addressIconViewModel: AddressIconViewModel
+    let addressIcon: AddressBlockiesIconViewData
     let onTap: () -> Void
 
     init(id: String, address: String, networksCount: Int, onTap: @escaping () -> Void) {
         self.id = id
         title = address
         subtitle = Localization.commonNetworksCount(networksCount)
-        addressIconViewModel = AddressIconViewModel(address: address)
+        addressIcon = AddressIconProvider.makeBlockiesIconViewData(address: address)
         self.onTap = onTap
     }
 }
@@ -33,8 +34,9 @@ struct AddressBookContactAddressRowView: View {
         TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
             .verticalAlignment(.center)
             .start {
-                AddressIconView(viewModel: viewModel.addressIconViewModel)
+                AddressBlockiesIconView(viewData: viewModel.addressIcon)
             }
+            .truncationModes(.init(title: .middle))
             .onTap(viewModel.onTap)
     }
 }

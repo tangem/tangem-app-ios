@@ -21,6 +21,11 @@ struct AddressBookContactMatcher {
         return contacts.filter { matches($0, raw: raw) }
     }
 
+    func matches(_ contact: AddressBookContact, query: String) -> Bool {
+        let raw = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        return raw.isEmpty || matches(contact, raw: raw)
+    }
+
     private func matches(_ contact: AddressBookContact, raw: String) -> Bool {
         if contact.name.value.caseInsensitiveContains(raw) {
             return true

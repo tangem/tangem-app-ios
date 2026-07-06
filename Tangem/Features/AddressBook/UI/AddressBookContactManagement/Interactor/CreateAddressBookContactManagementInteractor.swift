@@ -18,22 +18,29 @@ final class CreateAddressBookContactManagementInteractor {
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
     private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
     private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
-    private let addressBooksProvider: any AddressBooksProvider
+    private let initialSnapshot: AddressBookContactSnapshot
 
-    init(addressBookWallet: AddressBookWallet, addressBooksProvider: any AddressBooksProvider = .common()) {
-        self.addressBooksProvider = addressBooksProvider
-
+    init(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft] = []) {
         nameSubject = .init("")
-        colorSubject = .init(AccountModelUtils.UI.newAccountIcon().color)
-        addressesSubject = .init([])
+        colorSubject = .init(CompositeIconColor.randomElement())
+        addressesSubject = .init(prefilledEntries)
         walletSubject = .init(addressBookWallet)
+
+        initialSnapshot = Self.makeSnapshot(
+            name: nameSubject.value,
+            color: colorSubject.value,
+            wallet: walletSubject.value,
+            addresses: addressesSubject.value
+        )
     }
 }
 
 // MARK: - AddressBookContactManagementInteractor
 
 extension CreateAddressBookContactManagementInteractor: AddressBookContactManagementInteractor {
-    var title: String { Localization.addressBookAddContact }
+    var title: String { Localization.addressBookNewContact }
+    var mainButtonTitle: String { Localization.addressBookAddContact }
+    var saveErrorMessage: String? { Localization.addressBookCreatingError }
 
     var contactNamePublisher: AnyPublisher<String, Never> {
         nameSubject.eraseToAnyPublisher()
@@ -60,10 +67,18 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
 
     var possibleToDeleteContact: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
 
+    var reservedContacts: [AddressBookContact] {
+        walletSubject.value.addressBookManager.contacts
+    }
+
+    var isNameTakenPublisher: AnyPublisher<Bool, Never> {
+        nameTakenPublisher
+    }
+
     var isMainButtonEnabledPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(nameSubject, addressesSubject)
-            .map { name, addresses in
-                !name.trimmed().isEmpty && !addresses.isEmpty
+        Publishers.CombineLatest3(nameSubject, addressesSubject, nameTakenPublisher)
+            .map { name, addresses, isNameTaken in
+                !name.trimmed().isEmpty && !addresses.isEmpty && !isNameTaken
             }
             .eraseToAnyPublisher()
     }
@@ -74,6 +89,31 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
                 CommonTangemIconProvider(config: addressBookWallet.wallet.config).getMainButtonIcon()
             }
             .eraseToAnyPublisher()
+    }
+
+    var hasUnsavedChanges: Bool {
+        Self.makeSnapshot(
+            name: nameSubject.value,
+            color: colorSubject.value,
+            wallet: walletSubject.value,
+            addresses: addressesSubject.value
+        ) != initialSnapshot
+    }
+
+    private static func makeSnapshot(
+        name: String,
+        color: AccountModel.CompositeIcon.Color,
+        wallet: AddressBookWallet,
+        addresses: [AddressBookEntryDraft]
+    ) -> AddressBookContactSnapshot {
+        AddressBookContactSnapshot(
+            name: name.trimmed(),
+            color: color,
+            walletId: wallet.wallet.id.stringValue,
+            entries: Set(addresses.map {
+                AddressBookContactSnapshot.Entry(address: $0.address, networkId: $0.networkId.rawValue, memo: $0.memo ?? "")
+            })
+        )
     }
 
     func update(name: String) {
@@ -107,8 +147,26 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
             throw AddressBookValidationError.noEntries
         }
 
-        try await addressBookManager.createContact(name: name, iconColor: colorSubject.value.rawValue, entries: entries)
+        try await addressBookManager.createContact(name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
     }
 
     func delete() async throws {}
+}
+
+// MARK: - Private
+
+private extension CreateAddressBookContactManagementInteractor {
+    var nameTakenPublisher: AnyPublisher<Bool, Never> {
+        walletSubject
+            .map { $0.addressBookManager.contactsPublisher }
+            .switchToLatest()
+            .combineLatest(nameSubject)
+            .map { contacts, name in
+                let trimmed = name.trimmed()
+                guard !trimmed.isEmpty else { return false }
+                return contacts.contains { $0.name.value.caseInsensitiveCompare(trimmed) == .orderedSame }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 }

@@ -379,7 +379,7 @@ private extension TransactionHistoryMapper {
         let magnitude = balanceFormatter.formatDecimal(amount)
         let magnitudeWithCurrency = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
 
-        let sign = showSign && !amount.isZero ? (isOutgoing ? AppConstants.minusSign : "+") : ""
+        let sign = showSign && !amount.isZero ? (isOutgoing ? AppConstants.minusSign : AppConstants.plusSign) : ""
         let redesignedSign = isFailed ? "" : sign
 
         return FormattedAmount(

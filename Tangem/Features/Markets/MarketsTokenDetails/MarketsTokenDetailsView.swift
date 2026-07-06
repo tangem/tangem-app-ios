@@ -113,6 +113,11 @@ struct MarketsTokenDetailsView: View {
         .infinityFrame(axis: .vertical, alignment: .top)
     }
 
+    private var redesignedBackButton: some View {
+        NavigationBarButton.back(action: viewModel.onBackButtonTap)
+            .redesigned()
+    }
+
     @ViewBuilder
     private var redesignedTrailingButtons: some View {
         HStack(spacing: 12) {
@@ -126,11 +131,6 @@ struct MarketsTokenDetailsView: View {
 
             redesignedShareButton
         }
-    }
-
-    private var redesignedBackButton: some View {
-        NavigationBarButton.back(action: viewModel.onBackButtonTap)
-            .redesigned()
     }
 
     private var redesignedAddButton: some View {
