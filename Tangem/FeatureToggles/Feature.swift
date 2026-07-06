@@ -95,9 +95,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .addAndOrganizeRedesign: return .version("6.0")
         case .swapChooseBestDEX: return .version("6.0")
         case .addressBook: return .unspecified
-        case .bitcoinDexSwap: return .unspecified
+        case .bitcoinDexSwap: return .version("6.0")
         case .hideStoriesInMobileWallet: return .version("6.0")
-        case .solanaUnstakeValidation: return .unspecified
+        case .solanaUnstakeValidation: return .version("6.0")
         }
     }
 }
