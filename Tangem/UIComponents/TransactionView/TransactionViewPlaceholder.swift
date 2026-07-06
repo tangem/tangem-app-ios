@@ -35,13 +35,11 @@ struct TransactionViewPlaceholder: View {
     }
 }
 
-struct TransactionViewPlaceholder_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            TransactionViewPlaceholder()
-            TransactionViewPlaceholder()
-            TransactionViewPlaceholder()
-        }
-        .padding(.horizontal, 8)
+#Preview {
+    VStack {
+        TransactionViewPlaceholder()
+        TransactionViewPlaceholder()
+        TransactionViewPlaceholder()
     }
+    .padding(.horizontal, 8)
 }
