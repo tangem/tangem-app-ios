@@ -342,6 +342,7 @@ private extension AddressBookContactManagementViewModel {
 
         do {
             try await interactor.save()
+            presentSuccessToast(title: Localization.addressBookCreateSuccessMessage)
             coordinator?.dismissContactManagement()
         } catch AddressBookValidationError.addressAlreadySaved(let contactName) {
             isProcessing = false
@@ -374,6 +375,13 @@ private extension AddressBookContactManagementViewModel {
     func presentGenericError(title: String = Localization.commonError, message: String) {
         alert = AlertBinder(title: title, message: message)
     }
+
+    func presentSuccessToast(title: String) {
+        let snackbar = TangemSnackbar(title: title)
+            .icon(DesignSystem.Icons.Success.regular20)
+            .iconColor(DesignSystem.Color.iconAccentBlue)
+        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
+    }
 }
 
 // MARK: - AddressBookAddAddressOutput
@@ -383,9 +391,20 @@ extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
         interactor.hasUnsavedChanges
     }
 
+    var contactEntries: [AddressBookEntryDraft] {
+        entries?.raw ?? []
+    }
+
+    var contactDisplayName: String {
+        let name = contactName.trimmed()
+        return name.isEmpty ? Localization.addressBookNewContact : name
+    }
+
     func userDidAddAddress(entries: [AddressBookEntryDraft], replacing: [AddressBookAddressEntryID]) {
         do {
             try interactor.update(entries: entries, replacing: replacing)
+        } catch AddressBookValidationError.duplicateAddressNetworkPair {
+            presentGenericError(message: Localization.addressBookAddressTakenError(contactDisplayName))
         } catch {
             presentGenericError(message: error.localizedDescription)
         }
@@ -406,10 +425,7 @@ extension AddressBookContactManagementViewModel: AddressActionsOutput {
     func addressActionsDidRequestCopy(_ group: AddressBookContactAddressGroup) {
         UIPasteboard.general.string = group.address
 
-        let snackbar = TangemSnackbar(title: Localization.addressBookAddressCopied)
-            .icon(DesignSystem.Icons.Success.regular20)
-            .iconColor(DesignSystem.Color.iconAccentBlue)
-        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
+        presentSuccessToast(title: Localization.addressBookAddressCopied)
     }
 
     func addressActionsDidRequestEdit(_ group: AddressBookContactAddressGroup) {

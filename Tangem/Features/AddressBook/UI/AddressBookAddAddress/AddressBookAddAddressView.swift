@@ -43,7 +43,6 @@ struct AddressBookAddAddressView: View {
             if case .resolved = viewModel.addressNetworksType {
                 GroupedSection(viewModel.addressNetworksType) { networks in
                     TangemRow(title: Localization.commonNetwork)
-                        .verticalAlignment(.center)
                         .end { makeNetworksValue(networks: networks) }
                         .if(networks.isEditable) { $0.onTap(viewModel.userDidRequestNetworksChange) }
                 }

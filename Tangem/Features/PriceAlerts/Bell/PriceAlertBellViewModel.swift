@@ -43,30 +43,10 @@ final class PriceAlertBellViewModel: ObservableObject {
         let shouldSubscribe = !isSubscribed
         let deviceWalletIds = userWalletRepository.models.map(\.userWalletId.stringValue)
 
-        // [REDACTED_TODO_COMMENT]
-        // notification-preferences on subscribe. Deferred: the bell only manages the subscription here.
-        runTask(in: self) { viewModel in
-            if shouldSubscribe {
-                let isAuthorized = await viewModel.pushNotificationsPermission.ensureAuthorized()
-                guard isAuthorized else {
-                    // Permission declined/denied — offer to open system Settings (mirrors PushSettings).
-                    await viewModel.presentEnablePushSettingsAlert()
-                    return
-                }
-            }
-
-            do {
-                if shouldSubscribe {
-                    try await provider.subscribe(tokenId: viewModel.tokenId, walletIds: [selectedWalletId])
-                } else {
-                    try await provider.unsubscribe(tokenId: viewModel.tokenId, walletIds: deviceWalletIds)
-                }
-
-                await viewModel.presentConfirmationToast(isSubscribed: shouldSubscribe)
-            } catch {
-                // The provider already rolled the optimistic flip back; just surface the error.
-                await viewModel.presentErrorAlert()
-            }
+        // Unsubscribe always removes the coin from every wallet on the device (spec §5.4) — no wallet choice.
+        guard shouldSubscribe else {
+            performBellSubscription(isSubscribe: false, walletIds: deviceWalletIds)
+            return
         }
 
         let walletCount = userWalletRepository.models.count
