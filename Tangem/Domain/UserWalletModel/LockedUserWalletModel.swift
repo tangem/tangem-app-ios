@@ -116,7 +116,7 @@ final class LockedUserWalletModel: UserWalletModel {
     var tangemPayAccount: TangemPayAccount? { nil }
 
     var keysDerivingInteractor: KeysDeriving {
-        DummyKeysDeriving(config: config)
+        DummyKeysDeriving(requiresCard: signer.hasNFCInteraction)
     }
 
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
@@ -320,8 +320,8 @@ private extension LockedUserWalletModel {
     final class DummyKeysDeriving: KeysDeriving {
         let requiresCard: Bool
 
-        init(config: UserWalletConfig) {
-            requiresCard = config.tangemSigner.hasNFCInteraction
+        init(requiresCard: Bool) {
+            self.requiresCard = requiresCard
         }
 
         func deriveKeys(
