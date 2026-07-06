@@ -187,6 +187,12 @@ extension Analytics {
         case zone
         case walletId = "wallet_id"
 
+        // MARK: - Address Book
+
+        case addressBookWalletId = "Wallet Id"
+        case contactId = "Contact Id"
+        case contactsCount = "Contacts Count"
+
         // MARK: - Staking validation
 
         case blockaid = "Blockaid"
