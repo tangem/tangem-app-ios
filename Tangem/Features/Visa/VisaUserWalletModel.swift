@@ -569,12 +569,20 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.userTokensPushNotificationsManager
     }
 
+    var priceAlertsSubscriptionsProvider: any PriceAlertsSubscriptionsProvider {
+        userWalletModel.priceAlertsSubscriptionsProvider
+    }
+
     var accountModelsManager: AccountModelsManager {
         userWalletModel.accountModelsManager
     }
 
     var backupState: UserWalletBackupState {
         userWalletModel.backupState
+    }
+
+    var addressBookManager: AddressBookManager {
+        userWalletModel.addressBookManager
     }
 
     func update(type: UpdateRequest) {
