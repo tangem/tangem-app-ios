@@ -2395,6 +2395,8 @@
 "yield_module_transaction_exit" = "利息モードが無効になりました";
 "yield_module_transaction_initialize" = "利息モードを初期化しました";
 "yield_module_transaction_reactivate" = "利息モードが再度有効になりました";
+"yield_module_transaction_returned" = "Returned";
+"yield_module_transaction_supplied" = "Supplied";
 "yield_module_transaction_topup_subtitle" = "%1$@がAaveに供給されました";
 "yield_module_transaction_topup" = "Aaveへの供給";
 "yield_module_transaction_withdraw" = "Aaveから引き出す";

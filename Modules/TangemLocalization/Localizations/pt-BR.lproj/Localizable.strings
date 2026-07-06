@@ -2395,6 +2395,8 @@
 "yield_module_transaction_exit" = "Modo de rendimento desativado";
 "yield_module_transaction_initialize" = "Modo de rendimento inicializado";
 "yield_module_transaction_reactivate" = "Modo de rendimento reativado";
+"yield_module_transaction_returned" = "Returned";
+"yield_module_transaction_supplied" = "Supplied";
 "yield_module_transaction_topup_subtitle" = "%1$@ fornecido à Aave";
 "yield_module_transaction_topup" = "Fornecimento para Aave";
 "yield_module_transaction_withdraw" = "Retirar do Aave";
