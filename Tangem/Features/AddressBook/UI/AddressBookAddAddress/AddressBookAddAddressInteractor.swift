@@ -14,6 +14,8 @@ import BlockchainSdk
 
 protocol AddressBookAddAddressOutput: AnyObject {
     var contactHasUnsavedChanges: Bool { get }
+    var contactEntries: [AddressBookEntryDraft] { get }
+    var contactDisplayName: String { get }
     func userDidAddAddress(entries: [AddressBookEntryDraft], replacing: [AddressBookAddressEntryID])
 }
 
@@ -256,13 +258,19 @@ private extension CommonAddressBookAddAddressInteractor {
 
         let networkIds = Set(networks.map(\.networkId))
 
-        guard let conflict = reservedContacts.first(where: { contact in
+        if let conflict = reservedContacts.first(where: { contact in
             contact.entries.raw.contains { networkIds.contains($0.networkId.rawValue) && $0.address == address }
-        }) else {
-            return nil
+        }) {
+            return AddressBookAddAddressError.addressAlreadySaved(contactName: conflict.name.value)
         }
 
-        return AddressBookAddAddressError.addressAlreadySaved(contactName: conflict.name.value)
+        if let output, output.contactEntries.contains(where: { entry in
+            !replacing.contains(entry.id) && networkIds.contains(entry.networkId.rawValue) && entry.address == address
+        }) {
+            return AddressBookAddAddressError.addressAlreadySaved(contactName: output.contactDisplayName)
+        }
+
+        return nil
     }
 }
 
