@@ -14,7 +14,7 @@ import TangemFoundation
 import TangemLocalization
 
 protocol AddressBooksSelectionOutput: AnyObject {
-    func addressBooksDidSelect(_ group: AddressBookContactAddressGroup)
+    func addressBooksDidSelect(_ group: AddressBookContactAddressGroup, of contact: AddressBookContact)
 }
 
 final class AddressBooksViewModel: ObservableObject {
@@ -43,6 +43,7 @@ final class AddressBooksViewModel: ObservableObject {
     private weak var coordinator: AddressBooksRoutable?
     private weak var selectionOutput: AddressBooksSelectionOutput?
     private let addressBooksProvider: any AddressBooksProvider
+    private let analyticsLogger: any AddressBookAnalyticsLogger
     private let addressBooksSubject: CurrentValueSubject<[AddressBookWallet], Never>
     private let matcher = AddressBookContactMatcher()
     private var bag = Set<AnyCancellable>()
@@ -50,11 +51,13 @@ final class AddressBooksViewModel: ObservableObject {
     init(
         coordinator: AddressBooksRoutable,
         addressBooksProvider: any AddressBooksProvider,
-        selectionOutput: AddressBooksSelectionOutput? = nil
+        selectionOutput: AddressBooksSelectionOutput? = nil,
+        analyticsLogger: any AddressBookAnalyticsLogger
     ) {
         self.coordinator = coordinator
         self.selectionOutput = selectionOutput
         self.addressBooksProvider = addressBooksProvider
+        self.analyticsLogger = analyticsLogger
         addressBooksSubject = .init(addressBooksProvider.addressBooks)
         selectedChipId = addressBooksSubject.value.count >= 2 ? Constants.allChipId : addressBooksSubject.value.first?.wallet.id.stringValue
 
@@ -64,11 +67,18 @@ final class AddressBooksViewModel: ObservableObject {
         loadAllAddressBooks()
     }
 
+    func onFirstAppear() {
+        let contactsCount = addressBooksSubject.value.reduce(0) { $0 + $1.addressBookManager.contacts.count }
+        analyticsLogger.logContactListScreenOpened(walletId: analyticsWalletId, source: analyticsSource, contactsCount: contactsCount)
+    }
+
     func dismiss() {
         coordinator?.dismiss()
     }
 
     func openAddContact() {
+        analyticsLogger.logAddContactTapped(walletId: analyticsWalletId, source: .settings)
+
         guard let addContactTarget else {
             return
         }
@@ -85,6 +95,14 @@ final class AddressBooksViewModel: ObservableObject {
 // MARK: - Private
 
 private extension AddressBooksViewModel {
+    var analyticsWalletId: String {
+        userWalletRepository.selectedModel?.userWalletId.stringValue ?? ""
+    }
+
+    var analyticsSource: AddressBookAnalyticsSource {
+        selectionOutput != nil ? .sendFlow : .settings
+    }
+
     var isAllScope: Bool {
         selectedChipId == Constants.allChipId
     }
@@ -271,32 +289,33 @@ private extension AddressBooksViewModel {
         // In selection mode (opened from Send "View All") a tap resolves the contact's address and
         // returns it instead of editing the contact.
         if selectionOutput != nil {
+            analyticsLogger.logContactSelected(walletId: contact.walletId.stringValue, contactId: contact.id.stringValue)
             let groups = contact.entries.groupedByAddress
 
             // A single-address contact is applied directly; a multi-address one opens the address picker.
             if let group = groups.singleElement {
-                finishSelection(with: group)
+                finishSelection(with: group, of: contact)
                 return
             }
 
-            coordinator?.openChooseAddress(groups: groups, output: self)
+            coordinator?.openChooseAddress(contact: contact, output: self)
 
         } else if let book {
             coordinator?.openEditContact(contact: contact, addressBookWallet: book)
         }
     }
 
-    func finishSelection(with group: AddressBookContactAddressGroup) {
+    func finishSelection(with group: AddressBookContactAddressGroup, of contact: AddressBookContact) {
         coordinator?.dismiss()
-        selectionOutput?.addressBooksDidSelect(group)
+        selectionOutput?.addressBooksDidSelect(group, of: contact)
     }
 }
 
 // MARK: - ChooseAddressOutput
 
 extension AddressBooksViewModel: ChooseAddressOutput {
-    func chooseAddressDidSelect(_ group: AddressBookContactAddressGroup) {
-        finishSelection(with: group)
+    func chooseAddressDidSelect(_ group: AddressBookContactAddressGroup, of contact: AddressBookContact) {
+        finishSelection(with: group, of: contact)
     }
 }
 

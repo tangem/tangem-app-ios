@@ -32,6 +32,8 @@ protocol AddressBookAddAddressInteractor {
     func update(selectedNetworks: Set<BSDKBlockchain>)
 
     func userDidRequestSave()
+
+    func logScreenOpened()
 }
 
 enum AddressBookAddAddressOptions {
@@ -40,6 +42,9 @@ enum AddressBookAddAddressOptions {
 }
 
 final class CommonAddressBookAddAddressInteractor {
+    private let contactId: AddressBookContactID?
+    private let analyticsLogger: any AddressBookAnalyticsLogger
+
     private let userWalletInfo: UserWalletInfo
     private weak var output: AddressBookAddAddressOutput?
     private let replacing: [AddressBookAddressEntryID]
@@ -56,11 +61,21 @@ final class CommonAddressBookAddAddressInteractor {
     private let _addressAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
     private let _resolvedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
     private let _selectedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
+    private var bag = Set<AnyCancellable>()
 
-    init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput, options: AddressBookAddAddressOptions, reservedContacts: [AddressBookContact]) {
+    init(
+        userWalletInfo: UserWalletInfo,
+        contactId: AddressBookContactID?,
+        output: AddressBookAddAddressOutput,
+        options: AddressBookAddAddressOptions,
+        reservedContacts: [AddressBookContact],
+        analyticsLogger: any AddressBookAnalyticsLogger
+    ) {
         self.userWalletInfo = userWalletInfo
+        self.contactId = contactId
         self.output = output
         self.reservedContacts = reservedContacts
+        self.analyticsLogger = analyticsLogger
 
         switch options {
         case .add:
@@ -78,6 +93,8 @@ final class CommonAddressBookAddAddressInteractor {
                 update(additionalField: memo)
             }
         }
+
+        bindAnalytics()
     }
 }
 
@@ -188,11 +205,27 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
 
         output?.userDidAddAddress(entries: entries, replacing: replacing)
     }
+
+    func logScreenOpened() {
+        analyticsLogger.logAddressScreenOpened(walletId: userWalletInfo.id.stringValue)
+    }
 }
 
 // MARK: - Private
 
 private extension CommonAddressBookAddAddressInteractor {
+    func bindAnalytics() {
+        _addressError
+            .map { $0 != nil }
+            .removeDuplicates()
+            .filter { $0 }
+            .sink { [weak self] _ in
+                guard let self else { return }
+                analyticsLogger.logAddressInvalid(walletId: userWalletInfo.id.stringValue, contactId: contactId?.stringValue)
+            }
+            .store(in: &bag)
+    }
+
     func apply(address: String, networks: Set<BSDKBlockchain>, valid: Bool, error: Error?) {
         _address.send(address)
         _resolvedNetworks.send(networks)

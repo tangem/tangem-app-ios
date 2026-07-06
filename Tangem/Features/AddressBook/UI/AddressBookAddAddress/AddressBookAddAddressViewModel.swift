@@ -55,6 +55,10 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
         bind()
     }
 
+    func onFirstAppear() {
+        interactor.logScreenOpened()
+    }
+
     func userDidRequestDismiss() {
         guard interactor.hasUnsavedChanges else {
             coordinator?.dismissAddAddressFlow()
