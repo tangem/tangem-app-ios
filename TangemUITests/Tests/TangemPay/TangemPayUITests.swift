@@ -25,10 +25,7 @@ final class TangemPayUITests: BaseTestCase {
             .waitForScreen()
             .tapChangePin()
             .waitForPinEntryScreen()
-            .verifySubmitDisabled()
             .enterPin("5217")
-            .verifySubmitEnabled()
-            .tapSubmit()
             .waitForSuccessScreen()
             .tapDone()
             .waitForScreen()
@@ -96,6 +93,8 @@ final class TangemPayUITests: BaseTestCase {
             .confirmFreeze()
             .verifyCardFrozen()
             .tapUnfreezeCard()
+            .waitForScreen()
+            .confirmUnfreeze()
             .verifyCardActive()
     }
 
