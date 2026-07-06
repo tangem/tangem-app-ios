@@ -115,7 +115,8 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
             sourceToken: sourceToken,
             destinationInput: sendWithSwapModel,
             receiveTokenInput: sendWithSwapModel,
-            coordinator: router
+            coordinator: router,
+            analyticsLogger: CommonAddressBookAnalyticsLogger()
         )
     }
 

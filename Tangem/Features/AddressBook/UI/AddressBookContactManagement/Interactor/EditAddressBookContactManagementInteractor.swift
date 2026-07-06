@@ -26,10 +26,16 @@ final class EditAddressBookContactManagementInteractor {
     private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
 
     private let initialSnapshot: AddressBookContactSnapshot
+    private let analyticsLogger: any AddressBookAnalyticsLogger
 
-    init(contact: AddressBookContact, initialAddressBookWallet: AddressBookWallet) {
+    init(
+        contact: AddressBookContact,
+        initialAddressBookWallet: AddressBookWallet,
+        analyticsLogger: any AddressBookAnalyticsLogger
+    ) {
         self.contact = contact
         self.initialAddressBookWallet = initialAddressBookWallet
+        self.analyticsLogger = analyticsLogger
 
         nameSubject = .init(contact.name.value)
         colorSubject = .init(contact.appearance.color)
@@ -53,6 +59,8 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     var title: String { Localization.addressBookContact }
     var mainButtonTitle: String { Localization.addressBookSaveContact }
     var saveErrorMessage: String? { nil }
+
+    var contactId: AddressBookContactID? { contact.id }
 
     var contactNamePublisher: AnyPublisher<String, Never> {
         nameSubject.eraseToAnyPublisher()
@@ -153,32 +161,56 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         addressesSubject.value.removeAll { $0.id == id }
     }
 
-    func save() async throws {
-        let name = try AddressBookContactNameValidator().validate(nameSubject.value)
-        let source = initialAddressBookWallet
-        let target = walletSubject.value
+    func save() async throws -> AddressBookContactID {
+        do {
+            let name = try AddressBookContactNameValidator().validate(nameSubject.value)
+            let source = initialAddressBookWallet
+            let target = walletSubject.value
 
-        // Deleting the last address deletes the contact; the chosen wallet is moot when nothing remains.
-        guard let entries = AddressBookContactDraftEntries(addressesSubject.value) else {
-            try await source.addressBookManager.deleteContact(id: contact.id)
-            return
-        }
+            // Deleting the last address deletes the contact; the chosen wallet is moot when nothing remains.
+            if let entries = AddressBookContactDraftEntries(addressesSubject.value) {
+                if target.wallet.id == contact.walletId {
+                    try await target.addressBookManager.updateContact(id: contact.id, name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
+                } else {
+                    try await move(from: source, to: target, name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
+                }
+            } else {
+                try await source.addressBookManager.deleteContact(id: contact.id)
+            }
 
-        if target.wallet.id == contact.walletId {
-            try await target.addressBookManager.updateContact(id: contact.id, name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
-        } else {
-            try await move(from: source, to: target, name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
+            analyticsLogger.logContactSaved(walletId: analyticsWalletId, contactId: contact.id.stringValue, mode: .edit)
+            return contact.id
+        } catch {
+            analyticsLogger.logSaveFailure(walletId: analyticsWalletId, contactId: contact.id.stringValue, error: error)
+            throw error
         }
     }
 
     func delete() async throws {
         try await initialAddressBookWallet.addressBookManager.deleteContact(id: contact.id)
+        analyticsLogger.logContactDeleted(walletId: contact.walletId.stringValue, contactId: contact.id.stringValue)
+    }
+
+    func logContactScreenOpened() {
+        analyticsLogger.logContactScreenOpened(walletId: analyticsWalletId, contactId: contact.id.stringValue)
+    }
+
+    func logWalletPickerOpened() {
+        analyticsLogger.logButtonSaveTo(walletId: analyticsWalletId)
+    }
+
+    func logAddressRemoved() {
+        analyticsLogger.logAddressRemoved(walletId: analyticsWalletId, contactId: contact.id.stringValue)
     }
 }
 
 // MARK: - Wallet change (move between books)
 
 private extension EditAddressBookContactManagementInteractor {
+    var analyticsWalletId: String {
+        walletSubject.value.wallet.id.stringValue
+    }
+
     var nameTakenPublisher: AnyPublisher<Bool, Never> {
         walletSubject
             .map { $0.addressBookManager.contactsPublisher }

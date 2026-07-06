@@ -95,6 +95,10 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
         loadAddressBooks()
     }
 
+    func onFirstAppear() {
+        interactor.logContactScreenOpened()
+    }
+
     func userDidRequestDismiss() {
         guard !isProcessing, interactor.hasUnsavedChanges else {
             coordinator?.dismissContactManagement()
@@ -123,6 +127,8 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
         guard addressBookWallets.isNotEmpty else {
             return
         }
+
+        interactor.logWalletPickerOpened()
 
         let viewModel = AddressBookWalletPickerViewModel(
             addressBookWallets: addressBookWallets,
@@ -286,7 +292,7 @@ private extension AddressBookContactManagementViewModel {
             return
         }
 
-        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self, options: .add, reservedContacts: interactor.reservedContacts)
+        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, contactId: interactor.contactId, output: self, options: .add, reservedContacts: interactor.reservedContacts)
     }
 
     func showMaxAddressesAlert() {
@@ -303,6 +309,7 @@ private extension AddressBookContactManagementViewModel {
 
         coordinator?.openAddAddress(
             userWalletInfo: wallet.userWalletInfo,
+            contactId: interactor.contactId,
             output: self,
             options: .edit(
                 address: group.address,
@@ -411,6 +418,7 @@ extension AddressBookContactManagementViewModel: AddressActionsOutput {
 
     func addressActionsDidRequestRemove(_ group: AddressBookContactAddressGroup) {
         guard canDeleteContact, (entries?.addressCount ?? 0) <= 1 else {
+            interactor.logAddressRemoved()
             deleteAddress(entryIds: group.networks.map(\.id))
             return
         }
@@ -421,6 +429,7 @@ extension AddressBookContactManagementViewModel: AddressActionsOutput {
             buttons: [
                 .init(title: Localization.commonDelete, role: .destructive) { [weak self] in
                     guard let self else { return }
+                    interactor.logAddressRemoved()
                     Task { await self.delete() }
                 },
                 .cancel,

@@ -327,8 +327,10 @@ extension SendCoordinator: SendDestinationRoutable {
         self.qrScanViewCoordinator = qrScanViewCoordinator
     }
 
-    func openAddressBookChooseAddress(groups: [AddressBookContactAddressGroup], output: ChooseAddressOutput) {
-        let viewModel = ChooseAddressViewModel(groups: groups, router: self, output: output)
+    func openAddressBookChooseAddress(contact: AddressBookContact, output: ChooseAddressOutput) {
+        let viewModel = ChooseAddressViewModel(groups: contact.entries.groupedByAddress, router: self) { [weak output] group in
+            output?.chooseAddressDidSelect(group, of: contact)
+        }
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)

@@ -17,22 +17,20 @@ protocol ChooseAddressRoutable: AnyObject {
 }
 
 protocol ChooseAddressOutput: AnyObject {
-    func chooseAddressDidSelect(_ group: AddressBookContactAddressGroup)
+    func chooseAddressDidSelect(_ group: AddressBookContactAddressGroup, of contact: AddressBookContact)
 }
 
 final class ChooseAddressViewModel: FloatingSheetContentViewModel {
     let rows: [ChooseAddressRowViewModel]
 
     private weak var router: ChooseAddressRoutable?
-    private weak var output: ChooseAddressOutput?
 
     init(
         groups: [AddressBookContactAddressGroup],
         router: ChooseAddressRoutable?,
-        output: ChooseAddressOutput?
+        onSelect: @escaping (AddressBookContactAddressGroup) -> Void
     ) {
         self.router = router
-        self.output = output
 
         rows = groups.map { group in
             let subtitle: String
@@ -42,9 +40,9 @@ final class ChooseAddressViewModel: FloatingSheetContentViewModel {
                 subtitle = Localization.commonNetworksCount(group.networks.count)
             }
 
-            return ChooseAddressRowViewModel(group: group, subtitle: subtitle) { [weak router, weak output] in
+            return ChooseAddressRowViewModel(group: group, subtitle: subtitle) { [weak router] in
                 router?.dismissChooseAddress()
-                output?.chooseAddressDidSelect(group)
+                onSelect(group)
             }
         }
     }
