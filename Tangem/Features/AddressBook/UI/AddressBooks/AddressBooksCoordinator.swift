@@ -24,6 +24,8 @@ class AddressBooksCoordinator: CoordinatorObject {
 
     @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator?
 
+    private let analyticsLogger: any AddressBookAnalyticsLogger = CommonAddressBookAnalyticsLogger()
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -36,7 +38,8 @@ class AddressBooksCoordinator: CoordinatorObject {
         rootViewModel = .init(
             coordinator: self,
             addressBooksProvider: options.addressBooksProvider,
-            selectionOutput: options.selectionOutput
+            selectionOutput: options.selectionOutput,
+            analyticsLogger: analyticsLogger
         )
     }
 }
@@ -69,8 +72,10 @@ extension AddressBooksCoordinator: AddressBooksRoutable {
         openContactManagement(options: .edit(contact: contact, addressBookWallet: addressBookWallet))
     }
 
-    func openChooseAddress(groups: [AddressBookContactAddressGroup], output: ChooseAddressOutput) {
-        let viewModel = ChooseAddressViewModel(groups: groups, router: self, output: output)
+    func openChooseAddress(contact: AddressBookContact, output: ChooseAddressOutput) {
+        let viewModel = ChooseAddressViewModel(groups: contact.entries.groupedByAddress, router: self) { [weak output] group in
+            output?.chooseAddressDidSelect(group, of: contact)
+        }
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)

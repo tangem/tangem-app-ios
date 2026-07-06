@@ -25,6 +25,7 @@ struct AddressBooksView: View {
                     trailingToolbarItem(trailingToolbarButton: trailingToolbarButton)
                 }
             }
+            .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     @ToolbarContentBuilder
