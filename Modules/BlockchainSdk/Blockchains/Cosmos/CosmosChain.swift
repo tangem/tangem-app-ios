@@ -14,6 +14,7 @@ enum CosmosChain {
     case terraV1
     case terraV2
     case sei(testnet: Bool)
+    case gonka(testnet: Bool)
     /// ancient testnet network, we only use it for unit tests
     case gaia
 }
@@ -35,6 +36,8 @@ extension CosmosChain {
             return "muon"
         case .sei:
             return "usei"
+        case .gonka:
+            return "ngonka"
         }
     }
 
@@ -50,6 +53,8 @@ extension CosmosChain {
             return .cosmos(testnet: true)
         case .sei(let isTestnet):
             return .sei(testnet: isTestnet)
+        case .gonka(let isTestnet):
+            return .gonka(testnet: isTestnet)
         }
     }
 
@@ -68,6 +73,8 @@ extension CosmosChain {
             return "gaia-13003"
         case .sei(let isTestnet):
             return isTestnet ? "atlantic-2" : "pacific-1"
+        case .gonka:
+            return "gonka-mainnet"
         }
     }
 
@@ -98,6 +105,8 @@ extension CosmosChain {
             ]
         case .sei(let isTestnet):
             return isTestnet ? [0.08] : [0.02, 0.02, 0.04]
+        case .gonka:
+            return [0]
         case .gaia:
             fatalError()
         }
@@ -118,7 +127,8 @@ extension CosmosChain {
             return 5
         case .terraV2:
             return 2
-        case .sei:
+        case .sei,
+             .gonka:
             return 2
         }
     }
@@ -133,6 +143,8 @@ extension CosmosChain {
             return 1
         case .terraV1, .terraV2, .sei:
             return 1.5
+        case .gonka:
+            return 1
         }
     }
 
@@ -146,6 +158,9 @@ extension CosmosChain {
             return .terraV2
         case .sei:
             return .sei
+        case .gonka:
+            // WalletCore doesn't support Gonka yet. But Gonka is similar to cosmos.
+            return .cosmos
         }
     }
 
@@ -153,7 +168,7 @@ extension CosmosChain {
         switch self {
         case .terraV2, .sei:
             return true
-        case .cosmos, .terraV1, .gaia:
+        case .cosmos, .terraV1, .gaia, .gonka:
             return false
         }
     }
@@ -169,7 +184,7 @@ extension CosmosChain {
             }
         case .terraV2:
             return tokenCurrencySymbol
-        case .cosmos, .gaia, .sei:
+        case .cosmos, .gaia, .sei, .gonka:
             return nil
         }
     }
@@ -185,7 +200,7 @@ extension CosmosChain {
             }
         case .terraV2, .sei:
             return smallestDenomination
-        case .cosmos, .gaia:
+        case .cosmos, .gaia, .gonka:
             return nil
         }
     }
@@ -196,7 +211,7 @@ extension CosmosChain {
             return [
                 Self.supportedTokenContractAddress: 0.2,
             ]
-        case .cosmos, .gaia, .terraV2, .sei:
+        case .cosmos, .gaia, .terraV2, .sei, .gonka:
             return [:]
         }
     }
@@ -208,7 +223,7 @@ extension CosmosChain {
             // https://classic-docs.terra.money/docs/learn/fees.html#spread-fee
             let minimumSpreadFeePercentage: Decimal = 0.5
             return amount * 0.01 * minimumSpreadFeePercentage
-        case .cosmos, .terraV2, .gaia, .sei:
+        case .cosmos, .terraV2, .gaia, .sei, .gonka:
             return nil
         }
     }

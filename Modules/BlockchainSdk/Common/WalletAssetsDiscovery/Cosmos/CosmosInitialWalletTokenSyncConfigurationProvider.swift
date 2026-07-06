@@ -23,7 +23,7 @@ struct CosmosInitialWalletTokenSyncConfigurationProvider {
         address: String
     ) async throws -> WalletAssetsDiscoveryBalanceConfiguration {
         switch blockchain {
-        case .cosmos, .terraV1, .terraV2, .sei:
+        case .cosmos, .terraV1, .terraV2, .sei, .gonka:
             break
         default:
             throw BlockchainSdkError.notImplemented

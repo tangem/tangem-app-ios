@@ -34,6 +34,27 @@ struct TransactionHistoryMapperAmountTests {
 
         #expect(viewModel.amount.amount.hasPrefix(AppConstants.minusSign))
     }
+
+    @Test("A staking record whose self destination carries a zeroed amount nets to the gross source amount with the outgoing minus, not to zero")
+    func zeroedSelfDestinationNetsToGrossAmount() {
+        let record = TransactionRecord(
+            hash: "hash",
+            index: 0,
+            source: .single(.init(address: "0xSource", amount: 2)),
+            destination: .single(.init(address: .user("0xSource"), amount: 0)),
+            fee: Fee(Amount(type: .coin, currencySymbol: "ETH", value: 0, decimals: 18)),
+            status: .confirmed,
+            isOutgoing: true,
+            type: .staking(type: .stake, target: nil),
+            date: Date(),
+            tokenTransfers: [],
+            nonce: nil
+        )
+
+        let viewModel = makeSUT().mapTransactionViewModel(record)
+
+        #expect(viewModel.amount.amount == AppConstants.minusSign + BalanceFormatter().formatCryptoBalance(2, currencyCode: "ETH"))
+    }
 }
 
 // MARK: - Helpers
