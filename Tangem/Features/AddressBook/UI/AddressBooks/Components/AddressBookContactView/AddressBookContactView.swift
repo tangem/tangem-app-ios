@@ -14,7 +14,6 @@ struct AddressBookContactView: View {
 
     var body: some View {
         TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
-            .verticalAlignment(.center)
             .start { AddressBookContactNameIconView(viewData: viewModel.iconViewData) }
             .onTap(viewModel.action)
     }

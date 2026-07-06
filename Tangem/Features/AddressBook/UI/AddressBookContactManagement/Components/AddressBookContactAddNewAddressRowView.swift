@@ -24,7 +24,6 @@ struct AddressBookContactAddNewAddressRowView: View {
             title: Localization.addressBookAddAddress,
             subtitle: Localization.addressBookAddAddressDescription
         )
-        .verticalAlignment(.center)
         .overrideTextColors(.init(title: titleColor))
         .start {
             DesignSystem.Icons.SignPlus.regular20.image

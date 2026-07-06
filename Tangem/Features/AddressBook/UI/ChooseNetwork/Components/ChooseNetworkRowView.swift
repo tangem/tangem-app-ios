@@ -16,7 +16,6 @@ struct ChooseNetworkRowView: View {
 
     var body: some View {
         TangemRow(title: viewModel.blockchain.displayName)
-            .verticalAlignment(.center)
             .titleLineLimit(1)
             .titleAccessory {
                 Text(viewModel.blockchain.currencySymbol)
