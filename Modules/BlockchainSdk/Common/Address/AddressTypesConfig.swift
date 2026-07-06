@@ -90,6 +90,7 @@ struct AddressTypesConfig {
              .sui,
              .filecoin,
              .sei,
+             .gonka,
              .energyWebEVM,
              .energyWebX,
              .core,
