@@ -118,6 +118,8 @@ struct AddFundsView: View {
             tangemButton(title: title)
         case .goToToken:
             tangemButton(title: Localization.commonGoToToken)
+        case .hidden:
+            EmptyView()
         }
     }
 

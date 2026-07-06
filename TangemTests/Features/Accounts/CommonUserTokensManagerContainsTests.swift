@@ -155,6 +155,32 @@ struct CommonUserTokensManagerContainsTests {
         #expect(result == false)
     }
 
+    @Test("Derivation insensitive matches nil derivation blockchain item")
+    func derivationInsensitiveMatchesNilDerivationBlockchainItem() throws {
+        let mainAccountPath = try derivationPath(for: ethereumMainnet, style: derivationStyle, accountIndex: mainAccountDerivationIndex)
+        let storedItem = TokenItem.blockchain(BlockchainNetwork(ethereumMainnet, derivationPath: mainAccountPath))
+        let sut = try makeSUT(derivationIndex: mainAccountDerivationIndex, derivationStyle: derivationStyle, storedTokenItems: [storedItem])
+
+        // Enrichment is skipped for derivation-insensitive checks, so a nil-derivation input must still match on network id
+        let result = sut.contains(.blockchain(BlockchainNetwork(ethereumMainnet, derivationPath: nil)), derivationInsensitive: true)
+
+        #expect(result == true)
+    }
+
+    @Test("Derivation insensitive matches nil derivation token item by contract address")
+    func derivationInsensitiveMatchesNilDerivationTokenByContractAddress() throws {
+        let mainAccountPath = try derivationPath(for: ethereumMainnet, style: derivationStyle, accountIndex: mainAccountDerivationIndex)
+        let usdt = Token(name: "Tether USD", symbol: "USDT", contractAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7", decimalCount: 6)
+        let storedItem = TokenItem.token(usdt, BlockchainNetwork(ethereumMainnet, derivationPath: mainAccountPath))
+        let sut = try makeSUT(derivationIndex: mainAccountDerivationIndex, derivationStyle: derivationStyle, storedTokenItems: [storedItem])
+
+        // Enrichment is skipped for derivation-insensitive checks, so a nil-derivation input must still match on network id + contract address
+        let inputItem = TokenItem.token(usdt, BlockchainNetwork(ethereumMainnet, derivationPath: nil))
+        let result = sut.contains(inputItem, derivationInsensitive: true)
+
+        #expect(result == true)
+    }
+
     // MARK: - Group 3: Main vs non-main account enrichment
 
     @Test("Main account enriches nil derivation blockchain item")
