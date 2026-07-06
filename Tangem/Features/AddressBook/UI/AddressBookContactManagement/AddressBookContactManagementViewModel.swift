@@ -383,9 +383,20 @@ extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
         interactor.hasUnsavedChanges
     }
 
+    var contactEntries: [AddressBookEntryDraft] {
+        entries?.raw ?? []
+    }
+
+    var contactDisplayName: String {
+        let name = contactName.trimmed()
+        return name.isEmpty ? Localization.addressBookNewContact : name
+    }
+
     func userDidAddAddress(entries: [AddressBookEntryDraft], replacing: [AddressBookAddressEntryID]) {
         do {
             try interactor.update(entries: entries, replacing: replacing)
+        } catch AddressBookValidationError.duplicateAddressNetworkPair {
+            presentGenericError(message: Localization.addressBookAddressTakenError(contactDisplayName))
         } catch {
             presentGenericError(message: error.localizedDescription)
         }
