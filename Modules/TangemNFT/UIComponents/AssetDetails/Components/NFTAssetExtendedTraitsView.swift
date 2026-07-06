@@ -31,7 +31,6 @@ public struct NFTAssetExtendedTraitsView: View {
     }
 }
 
-#if DEBUG
 #Preview {
     NFTAssetExtendedTraitsView(
         viewData: KeyValuePanelViewData(
@@ -43,4 +42,3 @@ public struct NFTAssetExtendedTraitsView: View {
         )
     )
 }
-#endif
