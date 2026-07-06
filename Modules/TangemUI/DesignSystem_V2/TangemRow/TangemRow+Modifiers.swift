@@ -70,7 +70,7 @@ public struct TangemRowTruncationModes {
 
 struct TangemRowConfiguration {
     var contentLead: TangemRowContentLead = .equal
-    var verticalAlignment: TangemRowVerticalAlignment = .top
+    var verticalAlignment: TangemRowVerticalAlignment = .center
     var lineOrder: TangemRowLineOrder = .primaryFirst
     var titleLineLimit: Int = 1
     var subtitleLineLimit: Int = 1
