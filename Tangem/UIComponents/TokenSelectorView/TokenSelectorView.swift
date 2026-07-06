@@ -21,6 +21,8 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
 
     private var searchType: SearchType?
     private var sectionHeaderConfiguration: TokenSelectorViewModel.SectionHeaderConfiguration?
+    private var showsSeparators = true
+    private var hidesSingleWalletName = false
 
     init(
         viewModel: TokenSelectorViewModel,
@@ -78,6 +80,8 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
                     reader.scrollTo(Constants.scrollToTopAnchorID, anchor: .top)
                 }
             }
+            .environment(\.tokenSelectorShowsSeparators, showsSeparators)
+            .environment(\.tokenSelectorHidesWalletNameHeader, hidesSingleWalletName && viewModel.wallets.count == 1)
         }
     }
 
@@ -234,6 +238,15 @@ extension TokenSelectorView: Setupable {
 
     func sectionHeader(_ configuration: TokenSelectorViewModel.SectionHeaderConfiguration) -> Self {
         map { $0.sectionHeaderConfiguration = configuration }
+    }
+
+    func showsSeparators(_ showsSeparators: Bool) -> Self {
+        map { $0.showsSeparators = showsSeparators }
+    }
+
+    /// Hides the wallet-name section header when the selector contains a single wallet (the name is redundant then).
+    func hidesSingleWalletName(_ hidesSingleWalletName: Bool) -> Self {
+        map { $0.hidesSingleWalletName = hidesSingleWalletName }
     }
 }
 
