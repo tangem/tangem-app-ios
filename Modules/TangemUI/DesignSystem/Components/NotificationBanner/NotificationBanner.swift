@@ -96,7 +96,7 @@ public struct NotificationBanner: View, Setupable {
     private func bannerBody<Buttons: View>(
         @ViewBuilder buttons: () -> Buttons = { EmptyView() }
     ) -> some View {
-        VStack(alignment: isCentered ? .center : .leading, spacing: SizeUnit.x4.value) {
+        VStack(alignment: isCentered ? .center : .leading, spacing: SizeUnit.x5.value) {
             contentView
             buttons()
         }
@@ -186,7 +186,7 @@ public struct NotificationBanner: View, Setupable {
             if title.characters.isNotEmpty {
                 Text(title)
                     .style(
-                        Font.Tangem.Body16.medium,
+                        Font.Tangem.Body16.semibold,
                         color: .Tangem.Text.Neutral.primary
                     )
                     .lineLimit(nil)
@@ -198,7 +198,7 @@ public struct NotificationBanner: View, Setupable {
             if subtitle.characters.isNotEmpty {
                 Text(subtitle)
                     .style(
-                        Font.Tangem.Caption12.semibold,
+                        Font.Tangem.Caption12.medium,
                         color: .Tangem.Text.Neutral.secondary
                     )
                     .lineLimit(nil)
@@ -209,7 +209,6 @@ public struct NotificationBanner: View, Setupable {
         }
         .padding(.horizontal, SizeUnit.x1.value)
         .padding(isCentered ? .horizontal : .trailing, closeButtonClearance)
-        .padding(.top, SizeUnit.x1.value)
     }
 
     @ViewBuilder
