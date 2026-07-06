@@ -2395,6 +2395,8 @@
 "yield_module_transaction_exit" = "Ertragsmodus deaktiviert";
 "yield_module_transaction_initialize" = "Yield-Modus initialisieren";
 "yield_module_transaction_reactivate" = "Yield-Modus reaktivieren";
+"yield_module_transaction_returned" = "Returned";
+"yield_module_transaction_supplied" = "Supplied";
 "yield_module_transaction_topup_subtitle" = "%1$@ geliefert an Aave";
 "yield_module_transaction_topup" = "Lieferung an Aave";
 "yield_module_transaction_withdraw" = "Abheben von Aave";
