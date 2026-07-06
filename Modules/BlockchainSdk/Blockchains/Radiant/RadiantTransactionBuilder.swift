@@ -1,5 +1,5 @@
 //
-//  RadiantCashTransactionBuilder.swift
+//  RadiantTransactionBuilder.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
