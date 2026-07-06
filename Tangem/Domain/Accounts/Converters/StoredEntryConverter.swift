@@ -17,9 +17,7 @@ enum StoredEntryConverter {
             symbol: tokenItem.currencySymbol,
             decimalCount: tokenItem.decimalCount,
             // By definition, all token domain entities are known
-            blockchainNetwork: .known(
-                blockchainNetwork: convertToStoredBlockchainNetwork(tokenItem.blockchainNetwork)
-            ),
+            blockchainNetwork: .known(blockchainNetwork: convertToStoredBlockchainNetwork(tokenItem.blockchainNetwork)),
             contractAddress: tokenItem.contractAddress
         )
     }

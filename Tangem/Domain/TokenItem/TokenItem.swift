@@ -87,7 +87,7 @@ enum TokenItem: Hashable, Codable {
         switch self {
         case .token(let token, _):
             return token
-        default:
+        case .blockchain:
             return nil
         }
     }

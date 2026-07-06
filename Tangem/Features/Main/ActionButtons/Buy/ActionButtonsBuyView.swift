@@ -58,6 +58,8 @@ struct ActionButtonsBuyView: View {
             }
         )
         .searchType(.native)
+        .showsSeparators(false)
+        .hidesSingleWalletName(true)
         .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.buyTokenSelectorTokensList)
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(Localization.swappingToTitle)
@@ -87,5 +89,7 @@ struct ActionButtonsBuyView: View {
         )
         .sectionHeader(.init(title: Localization.marketsSearchPortfolioHeader))
         .searchType(.native)
+        .showsSeparators(false)
+        .hidesSingleWalletName(true)
     }
 }
