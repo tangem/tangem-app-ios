@@ -85,6 +85,14 @@ extension CommonTransactionHistoryRepository: TransactionHistoryRepository {
             try await group.waitForAll()
         }
     }
+
+    func add(_ transaction: ExchangeTransaction) async throws {
+        try await exchangeStorage.updateOrAppend([transaction])
+    }
+
+    func add(_ transaction: OnrampTransaction) async throws {
+        try await onrampStorage.updateOrAppend([transaction])
+    }
 }
 
 // MARK: - CustomStringConvertible protocol conformance
