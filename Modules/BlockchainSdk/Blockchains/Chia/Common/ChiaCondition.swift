@@ -1,5 +1,5 @@
 //
-//  ChiaCreateCoinCondition.swift
+//  ChiaCondition.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

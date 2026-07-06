@@ -18,6 +18,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     /// Tracks token IDs for which the news carousel scroll event has been logged in the current session.
     /// Using a static set ensures the event is only logged once per app session per token.
@@ -52,6 +53,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
     @Published var securityScoreDetailsViewModel: MarketsTokenDetailsSecurityScoreDetailsViewModel?
     @Published private(set) var numberOfExchangesListedOn: Int?
+    @Published private(set) var marketingNotifications: [NotificationBannerItem] = []
 
     @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
     @Published var fullDescriptionBottomSheetInfo: DescriptionBottomSheetInfo?
@@ -158,6 +160,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     private let initialDate = Date()
 
     private let tokenInfo: MarketsTokenModel
+    private let marketingNotificationManager = MarketingBannerNotificationManager()
     private let dataProvider: MarketsTokenDetailsDataProvider
     private let marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper
 
@@ -457,6 +460,15 @@ private extension MarketsTokenDetailsViewModel {
 
 private extension MarketsTokenDetailsViewModel {
     func bind() {
+        marketingNotificationManager.setup(
+            bannersPublisher: marketingCampaignsRepository.bannersPublisher(forMarketsTokenId: tokenInfo.id)
+        )
+
+        let notificationBannerMapper = MultiWalletNotificationBannerMapper()
+        marketingNotificationManager.notificationPublisher
+            .map { notificationBannerMapper.mapItems($0) }
+            .assign(to: &$marketingNotifications)
+
         currentPricePublisher
             .assign(to: \.priceFromQuoteRepository, on: self, ownership: .weak)
             .store(in: &bag)

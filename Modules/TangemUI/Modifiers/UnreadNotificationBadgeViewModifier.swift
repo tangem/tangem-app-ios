@@ -51,23 +51,15 @@ struct UnreadNotificationBadgeViewModifier: ViewModifier {
     }
 }
 
-struct UnreadNotificationBadgeViewModifier_Previews: PreviewProvider {
-    struct Preview: View {
-        @State var showBadge = true
+@available(iOS 17.0, *)
+#Preview(traits: .sizeThatFitsLayout) {
+    @Previewable @State var showBadge = true
 
-        var body: some View {
-            Button("Button with badge") {
-                showBadge.toggle()
-            }
-            .buttonStyle(.borderedProminent)
-            .unreadNotificationBadge(showBadge, badgeColor: .red)
-            .padding()
-            .background(.black)
-        }
+    Button("Button with badge") {
+        showBadge.toggle()
     }
-
-    static var previews: some View {
-        Preview()
-            .previewLayout(.sizeThatFits)
-    }
+    .buttonStyle(.borderedProminent)
+    .unreadNotificationBadge(showBadge, badgeColor: .red)
+    .padding()
+    .background(.black)
 }

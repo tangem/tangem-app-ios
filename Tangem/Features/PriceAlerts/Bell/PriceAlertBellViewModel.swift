@@ -67,7 +67,7 @@ final class PriceAlertBellViewModel: ObservableObject {
         // notification-preferences on subscribe. Deferred: the bell only manages the subscription here.
         runTask(in: self) { viewModel in
             if shouldSubscribe {
-                let isAuthorized = await viewModel.ensurePushAuthorization()
+                let isAuthorized = await viewModel.pushNotificationsPermission.ensureAuthorized()
                 guard isAuthorized else {
                     // Permission declined/denied — offer to open system Settings (mirrors PushSettings).
                     await viewModel.presentEnablePushSettingsAlert()

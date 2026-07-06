@@ -77,6 +77,21 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
         bind(input: input)
     }
 
+    var providerTypeFilterSelection: BindingValue<ProviderTypeFilter> {
+        .init(root: self, default: .all) { root in
+            root.selectedProviderTypeFilter
+        } set: { root, filter in
+            root.userDidSelectProviderTypeFilter(filter)
+        }
+    }
+
+    func userDidSelectProviderTypeFilter(_ filter: ProviderTypeFilter) {
+        guard filter != selectedProviderTypeFilter else { return }
+
+        analyticsLogger.logSendSwapFilterProviderTapped(type: filter.analyticsValue)
+        selectedProviderTypeFilter = filter
+    }
+
     func isSelected(_ providerId: String) -> BindingValue<Bool> {
         .init(root: self, default: false) { root in
             root.input?.selectedExpressProvider?.value?.provider.id == providerId
@@ -323,6 +338,14 @@ extension SendSwapProvidersSelectorViewModel {
             case .all: Localization.commonAll
             case .cex: ExpressProviderType.cex.title
             case .dex: ExpressProviderType.dex.title
+            }
+        }
+
+        var analyticsValue: Analytics.ParameterValue {
+            switch self {
+            case .all: .all
+            case .cex: .cex
+            case .dex: .dex
             }
         }
 

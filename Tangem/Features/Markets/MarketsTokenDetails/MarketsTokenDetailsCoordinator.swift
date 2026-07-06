@@ -521,12 +521,14 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     @MainActor
     func openMatchedTokenList(
         walletModels: [any WalletModel],
+        underivedTokens: [MarketsPortfolioTokenListViewModel.UnderivedToken],
         iconURL: URL,
         addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData,
         walletDataProvider: MarketsWalletDataProvider
     ) {
         let portfolioViewModel = MarketsPortfolioTokenListViewModel(
             walletModels: walletModels,
+            underivedTokens: underivedTokens,
             onSelect: { [weak self] walletModel in
                 self?.openPortfolioTokenDetails(walletModel: walletModel)
             },

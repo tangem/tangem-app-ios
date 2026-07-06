@@ -327,6 +327,7 @@
 "common_or" = "or";
 "common_origin_card" = "Primary card";
 "common_origin_ring" = "Primary ring";
+"common_other" = "Other";
 "common_passphrase" = "Passphrase";
 "common_paste" = "Paste";
 "common_privacy_policy" = "Privacy Policy";
@@ -592,6 +593,7 @@
 "feedback_subject_tx_push_failed" = "Can't push a transaction";
 "feedback_token_description_error" = "Coin description error";
 "for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Update the app to its latest version to ensure proper functionality";
@@ -607,6 +609,7 @@
 "gasless_transaction_fee" = "Transaction fee";
 "generic_error_code" = "An error occurred. Code: %@.";
 "generic_requires_memo_error" = "Requires memo";
+"get_token_title" = "Get %1$@";
 "give_permission_current_transaction" = "Transaction";
 "give_permission_policy_type_footer" = "By approving, you allow the smart contract to use your tokens in future transactions.";
 "give_permission_rows_amount" = "Amount %@";
@@ -1177,6 +1180,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Destination Tag";
 "send_dismiss_message" = "Are you sure you want to close the send screen?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "ENS name or address";
 "send_enter_address_field" = "Enter address";
 "send_error_address_same_as_wallet" = "Address is the same as wallet address";
@@ -1546,6 +1550,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "A fee is charged due to the service tariffs";
 "tangem_pay_transaction_reversed_notification_text" = "The transaction was partially or fully reversed by the merchant";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "Keep using your money. You can freeze anytime.";
 "tangem_pay_unfreeze_card_alert_title" = "Unfreeze your card?";
 "tangem_pay_unfreeze_card_failed" = "Failed to unfreeze the card. Try again later.";
@@ -2070,6 +2076,8 @@
 "warning_hedera_missing_token_association_message" = "This token must be associated with your Hedera account before you can receive it. Association fee ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Associate your token";
 "warning_hedera_token_association_not_enough_hbar_message" = "Not enough %@. Top up your Hedera account to associate this token";
+"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
+"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
 "warning_ios_deprecation_message" = "Support for iOS %1$@ will end on %2$@. To continue receiving app updates and ensure full functionality, please update to the latest version of iOS.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Are you sure you want to cancel the transaction? You will not be able to retry the transaction again";
 "warning_kaspa_unfinished_token_transaction_message" = "Your transaction with an amount of %1$@ %2$@ was not completed. You can try again to complete it.";
@@ -2083,6 +2091,7 @@
 "warning_matic_migration_message" = "MATIC is being migrated to POL. However, there is no deadline set and MATIC isn't being deprecated yet. You can safely continue using MATIC token or swap it for POL.";
 "warning_matic_migration_title" = "MATIC to POL Migration";
 "warning_missing_derivation_title" = "Some addresses are missing";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "The network is currently unreachable. Please try again later.";
 "warning_network_unreachable_title" = "Network is unreachable";
 "warning_no_account_title" = "Top up your wallet";
@@ -2094,8 +2103,8 @@
 "warning_old_card_title" = "iOS restriction for older cards";
 "warning_old_device_old_card_message" = "Some iPhone 7/7+ models may have NFC issues during certain operations.";
 "warning_old_device_old_card_title" = "Device incompatibility detected";
-"warning_outdated_data_message" = "Will be updated as soon as possible";
-"warning_outdated_data_title" = "Missing some token balances";
+"warning_outdated_data_message" = "Some token balances couldn't be updated.";
+"warning_outdated_data_title" = "Balances may be outdated";
 "warning_rate_app_message" = "Your review keeps us motivated to make Tangem Wallet even better";
 "warning_rate_app_title" = "Enjoying Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "You must associate your token before receiving tokens";

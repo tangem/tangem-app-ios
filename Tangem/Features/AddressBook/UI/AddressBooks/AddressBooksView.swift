@@ -19,9 +19,6 @@ struct AddressBooksView: View {
         rootContent
             .navigationTitle(Text(Localization.addressBookTitle))
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $viewModel.searchText, prompt: Text(Localization.commonSearch))
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.never)
             .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
             .toolbar {
                 if let trailingToolbarButton = viewModel.trailingToolbarButton {
@@ -56,6 +53,26 @@ struct AddressBooksView: View {
             AddressBooksEmptyView(onAddContactTap: viewModel.openAddContact)
                 .infinityFrame()
 
+        case .loading:
+            GroupedScrollView(contentType: .lazy(spacing: 8)) {
+                AddressBooksLoadingView()
+            }
+
+        default:
+            searchableContent
+        }
+    }
+
+    private var searchableContent: some View {
+        nonEmptyContent
+            .tangemSearchable(text: $viewModel.searchText, prompt: Localization.commonSearch)
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
+    }
+
+    @ViewBuilder
+    private var nonEmptyContent: some View {
+        switch viewModel.contentState {
         case .failure:
             TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.retry)
                 .infinityFrame()
@@ -66,6 +83,9 @@ struct AddressBooksView: View {
 
         case .loading, .searching, .results:
             listContent
+
+        case .empty:
+            EmptyView()
         }
     }
 
@@ -100,7 +120,8 @@ struct AddressBooksView: View {
                 chips: viewModel.walletChips,
                 selectedId: $viewModel.selectedChipId,
                 horizontalInset: 8,
-                verticalInset: 8
+                verticalInset: 8,
+                chipHorizontalPadding: 12
             )
         }
     }
