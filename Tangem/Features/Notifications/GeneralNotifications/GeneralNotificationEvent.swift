@@ -106,7 +106,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .supportedOnlySingleCurrencyWallet:
             return .string(Localization.manageTokensWalletSupportOnlyOneNetworkTitle)
         case .backupErrors:
-            return .string(Localization.onboardingActivationErrorTitle)
+            return .string(Localization.warningIncompleteBackupNotificationTitle)
         case .mobileFinishActivation(let hasPositiveBalance, _):
             let text = Localization.hwActivationNeedTitle
             if hasPositiveBalance {
@@ -170,7 +170,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .supportedOnlySingleCurrencyWallet:
             return nil
         case .backupErrors:
-            return Localization.warningBackupErrorsMessage
+            return Localization.warningIncompleteBackupNotificationMessage
         case .mobileFinishActivation(_, let hasBackup):
             return hasBackup ? Localization.hwActivationNeedWarningDescription : Localization.hwActivationNeedDescription
         case .mobileUpgrade:
