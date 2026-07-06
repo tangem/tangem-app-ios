@@ -14,6 +14,14 @@ import TangemAccounts
 struct TokenSelectorAccountView: View {
     @ObservedObject var viewModel: TokenSelectorAccountViewModel
 
+    @Environment(\.tokenSelectorShowsSeparators) private var showsSeparators
+    @Environment(\.tokenSelectorHidesWalletNameHeader) private var hidesWalletNameHeader
+
+    private var hidesHeader: Bool {
+        guard hidesWalletNameHeader, case .wallet = viewModel.header else { return false }
+        return true
+    }
+
     private var backgroundColor: Color {
         if FeatureProvider.isAvailable(.redesign) {
             return Color.Tangem.Surface.level3
@@ -39,8 +47,11 @@ struct TokenSelectorAccountView: View {
         GroupedSection(viewModel.items, isLazy: true) { item in
             TokenSelectorItemView(viewModel: item)
         } header: {
-            TokenSelectorAccountHeaderView(header: viewModel.header)
+            if !hidesHeader {
+                TokenSelectorAccountHeaderView(header: viewModel.header)
+            }
         }
+        .separatorStyle(showsSeparators ? .minimum : .none)
         .backgroundColor(backgroundColor)
     }
 }
