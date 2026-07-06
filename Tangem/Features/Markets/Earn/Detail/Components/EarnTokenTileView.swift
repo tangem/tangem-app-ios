@@ -55,10 +55,6 @@ struct EarnTokenTileView: View {
                 with: .Tangem.Surface.level3,
                 cornerRadius: RedesignLayout.cornerRadius
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: RedesignLayout.cornerRadius)
-                    .strokeBorder(Color.Tangem.Border.Neutral.tertiary, lineWidth: 1.0)
-            )
         }
         .buttonStyle(.plain)
     }
