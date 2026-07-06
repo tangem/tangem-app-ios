@@ -47,6 +47,10 @@ class CommonUserWalletModel {
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
 
+    /// Built lazily once per config: `config.tangemSigner` constructs a heavy `TangemSdk` (NFC reader + CoreHaptics engine),
+    /// so reconstructing it on every `signer` / `userWalletInfo` read stalls the UI. Invalidated in `updateConfiguration`.
+    private let _cachedSigner = OSAllocatedUnfairLock<(any TangemSigner)?>(initialState: nil)
+
     init(
         walletInfo: WalletInfo,
         name: String,
@@ -80,6 +84,7 @@ class CommonUserWalletModel {
     private func updateConfiguration(walletInfo: WalletInfo, shouldSave: Bool = true) {
         self.walletInfo = walletInfo
         config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
+        _cachedSigner.withLock { $0 = nil }
         if shouldSave {
             userWalletRepository.save(userWalletModel: self)
             keysRepository.update(keys: walletInfo.keys)
@@ -134,7 +139,15 @@ extension CommonUserWalletModel: UserWalletModel {
     }
 
     var signer: TangemSigner {
-        config.tangemSigner
+        _cachedSigner.withLock { cached in
+            if let cached {
+                return cached
+            }
+
+            let created = config.tangemSigner
+            cached = created
+            return created
+        }
     }
 
     var cardSetLabel: String {

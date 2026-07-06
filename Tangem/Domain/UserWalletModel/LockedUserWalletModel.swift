@@ -27,6 +27,10 @@ final class LockedUserWalletModel: UserWalletModel {
     let walletImageProvider: WalletImageProviding
     var config: UserWalletConfig
 
+    /// `DummyTangemSigner` reads `config.tangemSigner`, which builds a heavy `TangemSdk`; cache it so it isn't rebuilt
+    /// on every `signer` / `userWalletInfo` read. Invalidated when `config` changes in `update(type:)`.
+    private let _cachedSigner = OSAllocatedUnfairLock<(any TangemSigner)?>(initialState: nil)
+
     var isUserWalletLocked: Bool { true }
 
     var tokensCount: Int? { nil }
@@ -40,7 +44,15 @@ final class LockedUserWalletModel: UserWalletModel {
     var emailConfig: EmailConfig? { nil }
 
     var signer: TangemSigner {
-        DummyTangemSigner(config: config)
+        _cachedSigner.withLock { cached in
+            if let cached {
+                return cached
+            }
+
+            let created = DummyTangemSigner(config: config)
+            cached = created
+            return created
+        }
     }
 
     var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
@@ -145,6 +157,7 @@ final class LockedUserWalletModel: UserWalletModel {
             mutableCardInfo.card.wallets = []
             userWallet.walletInfo = .cardWallet(mutableCardInfo)
             config = UserWalletConfigFactory().makeConfig(walletInfo: userWallet.walletInfo)
+            _cachedSigner.withLock { $0 = nil }
             userWalletRepository.savePublicData()
             updatePrivateDataAfterIncompletedBackup(cardInfo: cardInfo)
         case .updateSensitiveInfo,
