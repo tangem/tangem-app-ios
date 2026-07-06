@@ -13,6 +13,7 @@ import TangemUI
 
 protocol AddressBookContactManagementInteractor {
     var title: String { get }
+    var contactId: AddressBookContactID? { get }
     var mainButtonTitle: String { get }
     var saveErrorMessage: String? { get }
 
@@ -39,6 +40,11 @@ protocol AddressBookContactManagementInteractor {
     func update(entries: [AddressBookEntryDraft], replacing ids: [AddressBookAddressEntryID]) throws
     func deleteAddress(id: AddressBookAddressEntryID)
 
-    func save() async throws
+    func logContactScreenOpened()
+    func logWalletPickerOpened()
+    func logAddressRemoved()
+
+    @discardableResult
+    func save() async throws -> AddressBookContactID
     func delete() async throws
 }
