@@ -91,8 +91,11 @@ private extension CommonAddressBookNetworkService {
 
         runTask(in: self) { service in
             do {
-                let response = try await service.api.syncAddressBooks(AddressBookDTO.SyncRequest(wallets: wallets))
-                completion(.success(response))
+                let responses = try await TaskGroup<AddressBookDTO.Response>.tryExecuteKeepingOrder(items: wallets.chunked(into: Constants.syncChunkSize)) { chunk in
+                    try await service.api.syncAddressBooks(AddressBookDTO.SyncRequest(wallets: chunk))
+                }
+
+                completion(.success(AddressBookDTO.Response(items: responses.flatMap(\.items))))
             } catch {
                 completion(.failure(error))
             }
@@ -105,5 +108,14 @@ private extension CommonAddressBookNetworkService {
 private extension CommonAddressBookNetworkService {
     enum Constants {
         static let debounceInterval = 0.3
+        static let syncChunkSize = 20
+    }
+}
+
+// MARK: - Chunking
+
+private extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        stride(from: 0, to: count, by: size).map { Array(self[$0 ..< Swift.min($0 + size, count)]) }
     }
 }
