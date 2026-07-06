@@ -97,8 +97,6 @@ public extension ProgressDots {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview {
     VStack(spacing: 20) {
         ProgressDots(style: .small)
@@ -106,5 +104,3 @@ public extension ProgressDots {
         ProgressDots(style: .large)
     }
 }
-
-#endif // DEBUG

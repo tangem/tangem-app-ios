@@ -28,6 +28,9 @@ protocol SendAmountInteractor: AnyObject {
     var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> { get }
 
     func update(sourceAmount: Decimal?) throws -> SendAmount?
+    /// Same as `update(sourceAmount:)` but the value is always treated as crypto,
+    /// regardless of the current source calculation type.
+    func update(sourceCryptoAmount: Decimal?) throws -> SendAmount?
     func update(sourceType: SendAmountCalculationType) throws -> SendAmount?
     func updateToMaxAmount() throws -> SendAmount
     func update(receiveAmount: Decimal?) -> SendAmount?
@@ -393,6 +396,19 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
             }
         }()
 
+        _cachedAmount.send(amount)
+
+        return amount
+    }
+
+    func update(sourceCryptoAmount: Decimal?) throws -> SendAmount? {
+        guard let sourceCryptoAmount else {
+            _cachedAmount.send(nil)
+            return nil
+        }
+
+        let fiat = try convertToFiat(cryptoValue: sourceCryptoAmount)
+        let amount = makeSendAmount(crypto: sourceCryptoAmount, fiat: fiat)
         _cachedAmount.send(amount)
 
         return amount

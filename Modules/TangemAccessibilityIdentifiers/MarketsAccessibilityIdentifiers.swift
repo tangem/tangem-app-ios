@@ -9,6 +9,8 @@
 import Foundation
 
 public enum MarketsAccessibilityIdentifiers {
+    public static let tokenDetailsSubscribeButton = "marketsTokenDetailsSubscribeButton"
+
     public static let listedOnExchanges = "marketsTokenDetailsListedOnExchanges"
     public static let listedOnExchangesTitle = "marketsTokenDetailsListedOnExchangesTitle"
     public static let listedOnExchangesEmptyText = "marketsTokenDetailsListedOnExchangesEmptyText"

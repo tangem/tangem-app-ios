@@ -378,7 +378,6 @@ struct TangemPayMainView: View {
                 isReloadButtonBusy: false,
                 fetchMore: viewModel.fetchNextTransactionHistoryPage()
             )
-            .opacity(viewModel.isStale ? 0.6 : 1)
         }
     }
 
@@ -389,7 +388,7 @@ struct TangemPayMainView: View {
                     .opacity(viewModel.isStale ? 0.6 : 1)
 
                 Text(Localization.tokenDetailsBalanceTotal)
-                    .font(DesignSystem.Font.captionMediumToken)
+                    .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textTertiary)
             }
 
@@ -397,7 +396,7 @@ struct TangemPayMainView: View {
 
             TangemPayActionButtonsView(
                 actionButtonsDisabled: viewModel.actionButtonsDisabled,
-                isWithdrawLoading: viewModel.isWithdrawButtonLoading,
+                isWithdrawDisabled: viewModel.isWithdrawButtonDisabled,
                 addFundsAction: viewModel.addFunds,
                 withdrawAction: viewModel.withdraw
             )
@@ -449,7 +448,7 @@ struct TangemPayMainView: View {
                 viewModel.openCardManagement(entry: entry)
             } label: {
                 TangemPaySmallCardViewRedesigned(
-                    state: card.isReissuing
+                    state: card.isReissuing || card.isClosing
                         ? .replacing
                         : .issued(cardNumberEnd: card.cardNumberEnd)
                 )
@@ -478,17 +477,26 @@ struct TangemPayMainView: View {
         ToolbarItem(placement: .principal) {
             VStack(spacing: 4) {
                 Text(Localization.tangempayPaymentAccount)
-                    .font(DesignSystem.Font.subheadingMediumToken)
+                    .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
 
                 Text(Localization.tangempayUsdcOnPolygonNetwork)
-                    .font(DesignSystem.Font.captionMediumToken)
+                    .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textTertiary)
             }
         }
 
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
+                if FeatureProvider.isAvailable(.tangemPayTiers) {
+                    Button(action: viewModel.openCurrentPlan) {
+                        // [REDACTED_TODO_COMMENT]
+                        Label("Current plan", systemImage: "info.circle")
+                    }
+
+                    Divider()
+                }
+
                 Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }

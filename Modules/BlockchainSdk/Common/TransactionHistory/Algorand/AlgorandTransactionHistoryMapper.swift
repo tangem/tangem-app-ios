@@ -47,7 +47,9 @@ extension AlgorandTransactionHistoryMapper: TransactionHistoryMapper {
                 status: .confirmed,
                 isOutgoing: $0.sender.lowercased() == walletAddress.lowercased(),
                 type: .transfer,
-                date: $0.roundTime
+                date: $0.roundTime,
+                tokenTransfers: [],
+                nonce: nil
             )
         }
     }
