@@ -81,6 +81,19 @@ public extension TangemButtonV2 {
             }
         }
 
+        /// Optical-compensation padding the design keeps wrapped around the label at all times,
+        /// on top of the button's outer `horizontalPadding` — present whether or not icons are
+        /// shown. Icons render outside this wrapper, so it doubles as the icon-to-label gap.
+        var wrapperPadding: CGFloat {
+            switch self {
+            case .x14, .x12:
+                8
+
+            case .x11, .x10, .x9, .x8, .x7:
+                6
+            }
+        }
+
         var iconSize: CGFloat {
             switch self {
             case .x14, .x12:
@@ -132,7 +145,6 @@ public extension TangemButtonV2 {
         case material(Material)
         case outline
         case ghost
-        case inverse
         case positive
 
         var backgroundColor: Color {
@@ -143,7 +155,6 @@ public extension TangemButtonV2 {
             case .material: .clear
             case .outline: .clear
             case .ghost: .clear
-            case .inverse: DesignSystem.Color.bgPrimary
             case .positive: DesignSystem.Color.bgStatusSuccess
             }
         }
@@ -156,7 +167,7 @@ public extension TangemButtonV2 {
             case .default:
                 DesignSystem.Color.textInversePrimary
 
-            case .secondary, .material, .outline, .ghost, .inverse:
+            case .secondary, .material, .outline, .ghost:
                 DesignSystem.Color.textPrimary
             }
         }
@@ -166,7 +177,7 @@ public extension TangemButtonV2 {
             case .outline:
                 DesignSystem.Color.borderSecondary
 
-            case .brand, .default, .secondary, .material, .ghost, .inverse, .positive:
+            case .brand, .default, .secondary, .material, .ghost, .positive:
                 .clear
             }
         }
@@ -176,7 +187,7 @@ public extension TangemButtonV2 {
             case .outline:
                 1
 
-            case .brand, .default, .secondary, .material, .ghost, .inverse, .positive:
+            case .brand, .default, .secondary, .material, .ghost, .positive:
                 0
             }
         }
@@ -186,7 +197,7 @@ public extension TangemButtonV2 {
             case .brand, .default, .positive:
                 DesignSystem.Color.interactionPressStaticLight
 
-            case .secondary, .material, .outline, .ghost, .inverse:
+            case .secondary, .material, .outline, .ghost:
                 DesignSystem.Color.interactionPressDefault
             }
         }
