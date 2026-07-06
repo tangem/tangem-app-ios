@@ -50,6 +50,8 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     private var updatingTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
 
+    private var hasLoggedAddressBookWidgetShown = false
+
     weak var stepRouter: SendDestinationStepRoutable?
 
     // MARK: - Methods
@@ -72,6 +74,15 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
         destinationAddressViewModel.router = self
         bind()
+    }
+
+    func onAddressBookWidgetShown() {
+        guard !hasLoggedAddressBookWidgetShown else {
+            return
+        }
+
+        hasLoggedAddressBookWidgetShown = true
+        analyticsLogger.logAddressBookWidgetShown()
     }
 
     func onAppear() {
@@ -327,16 +338,19 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     }
 
     private func userDidTapAddressBookContact(_ contact: AddressBookContact) {
+        analyticsLogger.logAddressBookContactSelected(contact)
         let groups = contact.entries.groupedByAddress
         if let single = groups.singleElement {
-            applyAddressBookAddress(single)
+            applyAddressBookAddress(single, from: contact)
             return
         }
 
-        router?.openAddressBookChooseAddress(groups: groups, output: self)
+        router?.openAddressBookChooseAddress(contact: contact, output: self)
     }
 
-    private func applyAddressBookAddress(_ addressGroup: AddressBookContactAddressGroup) {
+    private func applyAddressBookAddress(_ addressGroup: AddressBookContactAddressGroup, from contact: AddressBookContact) {
+        analyticsLogger.logAddressBookAddressSubstituted(contact)
+
         FeedbackGenerator.success()
 
         let destination = SendDestinationAddressViewModel.Address(
@@ -403,16 +417,16 @@ private extension SendDestinationViewModel {
 // MARK: - AddressBooksSelectionOutput
 
 extension SendDestinationViewModel: AddressBooksSelectionOutput {
-    func addressBooksDidSelect(_ group: AddressBookContactAddressGroup) {
-        applyAddressBookAddress(group)
+    func addressBooksDidSelect(_ group: AddressBookContactAddressGroup, of contact: AddressBookContact) {
+        applyAddressBookAddress(group, from: contact)
     }
 }
 
 // MARK: - ChooseAddressOutput
 
 extension SendDestinationViewModel: ChooseAddressOutput {
-    func chooseAddressDidSelect(_ group: AddressBookContactAddressGroup) {
-        applyAddressBookAddress(group)
+    func chooseAddressDidSelect(_ group: AddressBookContactAddressGroup, of contact: AddressBookContact) {
+        applyAddressBookAddress(group, from: contact)
     }
 }
 

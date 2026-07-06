@@ -327,6 +327,14 @@ extension Analytics {
         case simple
         case detailed
 
+        // MARK: - Address Book
+
+        case addressBookSourceSendFlow = "Send Flow"
+        case addressBookSourceSendSuccess = "Send Success"
+        case addressBookModeCreate = "Create"
+        case addressBookErrorServer = "Server"
+        case addressBookErrorSigning = "Signing"
+
         // MARK: - Choose Provider Options
 
         case all = "ALL"

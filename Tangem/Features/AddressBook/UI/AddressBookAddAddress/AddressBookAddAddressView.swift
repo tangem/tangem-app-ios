@@ -61,6 +61,7 @@ struct AddressBookAddAddressView: View {
             NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
         }
         .alert(item: $viewModel.alert) { $0.alert }
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     private func makeNetworksValue(networks: AddressBookAddAddressViewModel.AddressNetworksType) -> some View {
