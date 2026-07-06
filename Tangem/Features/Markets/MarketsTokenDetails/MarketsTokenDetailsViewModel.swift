@@ -163,6 +163,8 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     private let marketingNotificationManager = MarketingBannerNotificationManager()
     private let dataProvider: MarketsTokenDetailsDataProvider
     private let marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper
+
+    let priceAlertBellViewModel: PriceAlertBellViewModel?
     private let walletDataProvider = MarketsWalletDataProvider()
     private let marketsNewsProvider = MarketsRelatedTokenNewsProvider()
 
@@ -187,6 +189,9 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         tokenName = tokenInfo.name
         selectedPriceChangeIntervalType = .day
         tokenSymbol = tokenInfo.symbol
+        priceAlertBellViewModel = FeatureProvider.isAvailable(.priceAlertsSubscription)
+            ? PriceAlertBellViewModel(tokenId: tokenInfo.id)
+            : nil
 
         // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
         super.init(overlayContentProgressInitialValue: 1.0)
