@@ -25,7 +25,6 @@ struct TransactionDetailsAddressView: View {
     var body: some View {
         TangemRow(title: title, subtitle: data.label)
             .lineOrder(.secondaryFirst)
-            .verticalAlignment(.center)
             .start { startIcon }
             .end { endAccessory }
             .background(
