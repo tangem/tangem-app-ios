@@ -109,6 +109,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         sheetRegistry.registerTokensManagementFloatingSheets()
         sheetRegistry.registerRatingFloatingSheets()
         sheetRegistry.registerAddFundsFloatingSheets()
+        sheetRegistry.registerPriceAlertsFloatingSheets()
 
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)

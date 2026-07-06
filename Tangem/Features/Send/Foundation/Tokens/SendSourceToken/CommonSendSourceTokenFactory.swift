@@ -69,7 +69,14 @@ struct CommonSendSourceTokenFactory {
             tokenItem: walletModel.tokenItem,
             fiatItem: fiatItem,
             address: walletModel.defaultAddressString,
-            extraId: nil
+            extraId: nil,
+            transactionHistoryEnricherFactory: { [weak walletModel] in
+                try? await walletModel?
+                    .featuresPublisher
+                    .first()
+                    .async()
+                    .transactionHistoryProvider
+            }
         )
     }
 }
