@@ -2395,6 +2395,8 @@
 "yield_module_transaction_exit" = "Режим доходности отключен";
 "yield_module_transaction_initialize" = "Режим доходности инициализирован";
 "yield_module_transaction_reactivate" = "Режим доходности реактивирован";
+"yield_module_transaction_returned" = "Returned";
+"yield_module_transaction_supplied" = "Supplied";
 "yield_module_transaction_topup_subtitle" = "%1$@ отправлено в Aave";
 "yield_module_transaction_topup" = "Перевод в Aave";
 "yield_module_transaction_withdraw" = "Вывод из Aave";
