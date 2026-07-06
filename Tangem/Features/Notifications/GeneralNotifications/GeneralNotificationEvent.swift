@@ -26,7 +26,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case systemDeprecationTemporary
     case systemDeprecationPermanent(version: String, date: String)
     case missingDerivation(numberOfNetworks: Int, icon: MainButton.Icon?, hasNFCInteraction: Bool)
-    case walletLocked
+    case walletLocked(hasNFCInteraction: Bool)
     case missingBackup
     case supportedOnlySingleCurrencyWallet
     case backupErrors
@@ -160,8 +160,11 @@ extension GeneralNotificationEvent: NotificationEvent {
             } else {
                 return Localization.warningMissingDerivationNoNfcMessage(numberOfNetworks)
             }
-        case .walletLocked:
-            return Localization.warningAccessDeniedMessage(BiometricsUtil.biometryType.name)
+        case .walletLocked(let hasNFCInteraction):
+            let biometryName = BiometricsUtil.biometryType.name
+            return hasNFCInteraction
+                ? Localization.warningAccessDeniedMessage(biometryName)
+                : Localization.warningMobileAccessDeniedMessage(biometryName)
         case .missingBackup:
             return Localization.warningNoBackupMessage
         case .supportedOnlySingleCurrencyWallet:
