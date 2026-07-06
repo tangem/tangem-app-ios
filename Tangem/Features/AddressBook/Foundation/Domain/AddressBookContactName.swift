@@ -34,8 +34,8 @@ extension AddressBookContactName: Codable {
 }
 
 /// Builds a validated `AddressBookContactName` from raw user input, enforcing the product rules —
-/// 1...50 characters after trimming and no line breaks, tabs, invisible characters or HTML. Emoji are
-/// allowed (per spec 1.3.1); ZWJ-composed sequences still trip the invisible-character rule.
+/// 1...50 characters after trimming; only letters, digits, spaces and emoji are allowed, the same
+/// whitelist as on Android.
 ///
 /// Declared in the same file as the model so it can reach the model's `fileprivate` initializer: this
 /// makes the validator the only path from raw input to a name, while the model itself carries no
@@ -62,31 +62,31 @@ struct AddressBookContactNameValidator {
             return .nameTooLong
         }
 
-        if Self.containsForbiddenCharacters(trimmed) {
+        if !Self.isMadeOfAllowedCharacters(trimmed) {
             return .nameContainsForbiddenCharacters
         }
 
         return nil
     }
 
-    private static func containsForbiddenCharacters(_ string: String) -> Bool {
+    private static func isMadeOfAllowedCharacters(_ string: String) -> Bool {
+        var containsBaseCharacter = false
+
         for scalar in string.unicodeScalars {
-            // HTML / script
-            if scalar == "<" || scalar == ">" {
-                return true
-            }
-
-            // Line breaks, tabs and other control characters
-            if CharacterSet.controlCharacters.contains(scalar) {
-                return true
-            }
-
-            // Invisible / formatting characters (zero-width joiners, BOM, directional marks, ...)
-            if scalar.properties.generalCategory == .format {
-                return true
+            switch scalar.properties.generalCategory {
+            case .uppercaseLetter, .lowercaseLetter, .titlecaseLetter, .modifierLetter, .otherLetter,
+                 .decimalNumber, .letterNumber, .otherNumber,
+                 .otherSymbol:
+                containsBaseCharacter = true
+            case .nonspacingMark, .spacingMark, .enclosingMark, .modifierSymbol:
+                break
+            default:
+                guard scalar == " " || scalar == "\u{200D}" else {
+                    return false
+                }
             }
         }
 
-        return false
+        return containsBaseCharacter
     }
 }
