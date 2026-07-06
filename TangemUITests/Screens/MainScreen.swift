@@ -26,7 +26,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var missingDerivationNotification = app.descendants(matching: .any)
         .matching(identifier: MainAccessibilityIdentifiers.missingDerivationNotification)
         .firstMatch
-    private lazy var walletLockedNotification = button(.walletLockedNotification)
+    private lazy var walletLockedNotification = otherElement(.walletLockedNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
 
@@ -445,7 +445,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func tapWalletLockedNotification() -> Self {
         XCTContext.runActivity(named: "Tap wallet locked notification to initiate unlock") { _ in
             waitAndAssertTrue(walletLockedNotification, "Wallet locked notification should be displayed")
-            walletLockedNotification.waitAndTap()
+            let unlockButton = walletLockedNotification.buttons[CommonUIAccessibilityIdentifiers.notificationButton].firstMatch
+            unlockButton.waitAndTap()
             return self
         }
     }
