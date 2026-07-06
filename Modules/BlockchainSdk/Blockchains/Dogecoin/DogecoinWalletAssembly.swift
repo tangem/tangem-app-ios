@@ -1,5 +1,5 @@
 //
-//  DogecoinAssembly.swift
+//  DogecoinWalletAssembly.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
