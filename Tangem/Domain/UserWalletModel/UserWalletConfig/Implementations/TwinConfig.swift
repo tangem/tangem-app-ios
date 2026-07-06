@@ -77,10 +77,10 @@ extension TwinConfig: UserWalletConfig {
 
     var tangemSigner: TangemSigner {
         if let twinKey {
-            return CardSigner(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: twinKey)
+            return CardSigner(filter: cardSessionFilter, sdkFactory: self, twinKey: twinKey)
         }
 
-        return CardSigner(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
+        return CardSigner(filter: cardSessionFilter, sdkFactory: self, twinKey: nil)
     }
 
     var emailData: [EmailCollectedData] {
