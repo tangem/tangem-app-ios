@@ -49,8 +49,6 @@ struct SelectorReceiveAssetsContentItemView: View {
                 SelectorReceiveAssetsAddressPageItemView(viewModel: vm)
             }
         }
-        // Prioritized for a reliable horizontal swipe; trade-off is the card eats the vertical scroll.
-        .dragPriority(.prioritized)
         .interItemSpacing(Layout.Container.horizontalSpacing)
         // Figma: 8 from card to the page-control frame, which adds 6 around the dots (→ 6 below them).
         .paginationSpacing(FeatureProvider.isAvailable(.redesign) ? 8 : SizeUnit.x4.value)
