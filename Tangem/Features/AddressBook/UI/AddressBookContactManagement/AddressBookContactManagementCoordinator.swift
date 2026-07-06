@@ -29,6 +29,8 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
     @Published var qrScanCoordinator: MainQRScanCoordinator?
 
+    private let analyticsLogger: any AddressBookAnalyticsLogger = CommonAddressBookAnalyticsLogger()
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -45,11 +47,16 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
         case .add(let addressBookWallet, let prefilledEntries):
             interactor = CreateAddressBookContactManagementInteractor(
                 addressBookWallet: addressBookWallet,
-                prefilledEntries: prefilledEntries
+                prefilledEntries: prefilledEntries,
+                analyticsLogger: analyticsLogger
             )
             focusesNameOnFirstAppear = prefilledEntries.isNotEmpty
         case .edit(let contact, let addressBookWallet):
-            interactor = EditAddressBookContactManagementInteractor(contact: contact, initialAddressBookWallet: addressBookWallet)
+            interactor = EditAddressBookContactManagementInteractor(
+                contact: contact,
+                initialAddressBookWallet: addressBookWallet,
+                analyticsLogger: analyticsLogger
+            )
             focusesNameOnFirstAppear = false
         }
 
@@ -79,8 +86,8 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
         dismiss(with: ())
     }
 
-    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions, reservedContacts: [AddressBookContact]) {
-        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, output: output, options: options, reservedContacts: reservedContacts)
+    func openAddAddress(userWalletInfo: UserWalletInfo, contactId: AddressBookContactID?, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions, reservedContacts: [AddressBookContact]) {
+        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, contactId: contactId, output: output, options: options, reservedContacts: reservedContacts, analyticsLogger: analyticsLogger)
         addAddressViewModel = AddressBookAddAddressViewModel(interactor: interactor, coordinator: self, options: options)
     }
 
