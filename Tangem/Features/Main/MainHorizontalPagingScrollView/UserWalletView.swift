@@ -10,6 +10,7 @@ import SwiftUI
 import func TangemFoundation.clamp
 import enum TangemFoundation.FeedbackGenerator
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct UserWalletView: View {
@@ -406,26 +407,13 @@ private extension View {
     }
 }
 
-private final class ClipToBoundsDisablerUIView: UIView {
-    override func didMoveToWindow() {
-        // [REDACTED_USERNAME], SwiftUIIntrospect's traversal fails inside UIHostingConfiguration — see MainHorizontalPagingScrollView+Backport.swift.
-        // Waiting for didMoveToWindow guarantees the cell is in the live window hierarchy before walking the superview chain.
-
-        super.didMoveToWindow()
-        guard window != nil else { return }
-
-        var candidate = superview
-        while let view = candidate {
-            if let scrollView = view as? UIScrollView {
-                scrollView.clipsToBounds = false
-                return
-            }
-            candidate = view.superview
-        }
-    }
-}
-
 private struct ClipToBoundsDisabler: UIViewRepresentable {
-    func makeUIView(context: Context) -> ClipToBoundsDisablerUIView { ClipToBoundsDisablerUIView() }
-    func updateUIView(_ uiView: ClipToBoundsDisablerUIView, context: Context) {}
+    func makeUIView(context: Context) -> OnWindowAttachView {
+        let view = OnWindowAttachView()
+        // [REDACTED_USERNAME], SwiftUIIntrospect's traversal fails inside UIHostingConfiguration — see MainHorizontalPagingScrollView+Backport.swift.
+        view.onAttachToWindow = { $0.enclosingScrollViews.first?.clipsToBounds = false }
+        return view
+    }
+
+    func updateUIView(_ uiView: OnWindowAttachView, context: Context) {}
 }
