@@ -14,7 +14,6 @@ struct ChooseAddressRowView: View {
 
     var body: some View {
         TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
-            .verticalAlignment(.center)
             .start {
                 AddressBlockiesIconView(viewData: viewModel.addressIcon)
             }
