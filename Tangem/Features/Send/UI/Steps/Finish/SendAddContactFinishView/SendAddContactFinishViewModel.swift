@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import TangemFoundation
 
 class SendAddContactFinishViewModel: ObservableObject {
@@ -69,12 +70,18 @@ private extension SendAddContactFinishViewModel {
     }
 
     func bind(destinationInput: SendDestinationInput) {
-        guard let contactsPublisher = addressBookWallet?.addressBookPublisher else {
+        let contactsPublishers = userWalletRepository.models
+            .filter { !$0.isUserWalletLocked }
+            .map(\.addressBookManager.contactsPublisher)
+
+        guard contactsPublishers.isNotEmpty else {
             return
         }
 
+        let allContactsPublisher = contactsPublishers.combineLatest().map { $0.flattened() }
+
         Publishers
-            .CombineLatest(destinationInput.destinationPublisher, contactsPublisher)
+            .CombineLatest(destinationInput.destinationPublisher, allContactsPublisher)
             .withWeakCaptureOf(self)
             .map { viewModel, args in
                 let (destination, contacts) = args
@@ -90,10 +97,8 @@ private extension SendAddContactFinishViewModel {
     }
 
     func isSaved(address: String, contacts: [AddressBookContact]) -> Bool {
-        let networkId = AddressBookNetworkID(destinationBlockchain.networkId)
-
-        return contacts.contains { contact in
-            contact.entries.caseInsensitiveContains(address: address, networkId: networkId)
+        contacts.contains { contact in
+            contact.entries.caseInsensitiveContains(address: address)
         }
     }
 
