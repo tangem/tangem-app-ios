@@ -14,6 +14,8 @@ import TangemFoundation
 class SendAddContactFinishViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    private let analyticsLogger: any AddressBookAnalyticsLogger
+
     @Published private(set) var isVisible: Bool = false
 
     private let sourceToken: SendSourceToken
@@ -27,17 +29,21 @@ class SendAddContactFinishViewModel: ObservableObject {
         sourceToken: SendSourceToken,
         destinationInput: SendDestinationInput,
         receiveTokenInput: SendReceiveTokenInput?,
-        coordinator: SendRoutable
+        coordinator: SendRoutable,
+        analyticsLogger: any AddressBookAnalyticsLogger
     ) {
         self.sourceToken = sourceToken
         self.destinationInput = destinationInput
         self.receiveTokenInput = receiveTokenInput
         self.coordinator = coordinator
+        self.analyticsLogger = analyticsLogger
 
         bind(destinationInput: destinationInput)
     }
 
     func userDidTapAddContact() {
+        analyticsLogger.logAddContactTapped(walletId: sourceToken.userWalletInfo.id.stringValue, source: .sendSuccess)
+
         guard
             let destination = destinationInput?.destination,
             let addressBookWallet
