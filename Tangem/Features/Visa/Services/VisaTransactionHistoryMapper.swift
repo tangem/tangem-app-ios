@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  VisaTransactionHistoryMapper.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]

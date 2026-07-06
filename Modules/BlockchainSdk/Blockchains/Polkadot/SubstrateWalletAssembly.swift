@@ -1,5 +1,5 @@
 //
-//  KusumaWalletAssembly.swift
+//  SubstrateWalletAssembly.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
