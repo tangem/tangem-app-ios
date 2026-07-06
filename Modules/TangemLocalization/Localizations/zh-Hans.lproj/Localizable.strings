@@ -2100,8 +2100,8 @@
 "warning_hedera_missing_token_association_message" = "您必须先将此代币关联到您的 Hedera 账户才能收到。关联费 ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "关联您的代币";
 "warning_hedera_token_association_not_enough_hbar_message" = "%@不够。请为您的 Hedera 账户充值以关联此代币";
-"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
-"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
+"warning_incomplete_backup_notification_message" = "我们发现，由于您的设备NFC模块存在问题，或者将卡片轻触手机的方式不正确，导致卡片激活流程未能正常完成。请联系我们的客服团队以获取更多详情。";
+"warning_incomplete_backup_notification_title" = "必须采取行动。不要用你的钱包！";
 "warning_ios_deprecation_message" = "对 iOS %1$@ 的支持将于 %2$@终止。要继续接收应用程序更新并确保完整功能，请更新至最新版本的 iOS。";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "您确定要取消交易吗？取消后您将无法再次尝试交易。";
 "warning_kaspa_unfinished_token_transaction_message" = "您金额为 %1$@ %2$@ 的交易未完成。您可以再次尝试完成交易。";
@@ -2395,6 +2395,8 @@
 "yield_module_transaction_exit" = "已禁用收益模式";
 "yield_module_transaction_initialize" = "收益模式已初始化";
 "yield_module_transaction_reactivate" = "收益模式重新激活";
+"yield_module_transaction_returned" = "Returned";
+"yield_module_transaction_supplied" = "Supplied";
 "yield_module_transaction_topup_subtitle" = "%1$@ 供应给 Aave";
 "yield_module_transaction_topup" = "供应给 Aave";
 "yield_module_transaction_withdraw" = "从 Aave提款";
