@@ -524,7 +524,7 @@ extension SingleTokenBaseViewModel {
             let redesignEnabled = FeatureProvider.isAvailable(.redesign)
             let listItems = transactionHistoryMapper.mapTransactionListItem(
                 from: records,
-                groupingStyle: redesignEnabled ? .dayThenMonth : .day,
+                groupingStyle: redesignEnabled ? .day(.long) : .day(.short),
                 subtitleOwnerResolver: redesignEnabled ? subtitleOwnerResolver : nil
             )
             transactionHistoryState = .loaded(listItems)
