@@ -20,10 +20,6 @@ final class MarketsPortfolioFlowViewModel: ObservableObject, FloatingSheetConten
     func showAddToken(_ viewModel: AddTokenFlowRedesignedViewModel) {
         state = .addToken(viewModel)
     }
-
-    func showAddFunds(_ viewModel: AddFundsViewModel) {
-        state = .addFunds(viewModel)
-    }
 }
 
 // MARK: - State
@@ -32,13 +28,11 @@ extension MarketsPortfolioFlowViewModel {
     enum State {
         case portfolio(MarketsPortfolioTokenListViewModel)
         case addToken(AddTokenFlowRedesignedViewModel)
-        case addFunds(AddFundsViewModel)
 
         var id: String {
             switch self {
             case .portfolio: return "portfolio"
             case .addToken: return "addToken"
-            case .addFunds: return "addFunds"
             }
         }
     }

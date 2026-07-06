@@ -16,6 +16,8 @@ struct TokenSelectorExpandableAccountSectionView: View {
     @ObservedObject var expandableViewModel: TokenSelectorExpandableAccountItemViewModel
     @ObservedObject var accountViewModel: TokenSelectorAccountViewModel
 
+    @Environment(\.tokenSelectorShowsSeparators) private var showsSeparators
+
     @Namespace private var namespace
 
     var body: some View {
@@ -69,7 +71,7 @@ struct TokenSelectorExpandableAccountSectionView: View {
                 TokenSelectorItemView(viewModel: item)
                     .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
 
-                if accountViewModel.items.last?.id != item.id {
+                if showsSeparators, accountViewModel.items.last?.id != item.id {
                     Separator(height: .minimal, color: Colors.Stroke.primary)
                         .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                 }
