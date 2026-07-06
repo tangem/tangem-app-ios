@@ -1,6 +1,6 @@
 //
 //  BitcoreTarget.swift
-//  TangemKit
+//  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2020 Smart Cash AG. All rights reserved.

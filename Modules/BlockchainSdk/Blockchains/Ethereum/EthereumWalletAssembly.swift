@@ -1,5 +1,5 @@
 //
-//  EthereumChildWalletAssembly.swift
+//  EthereumWalletAssembly.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

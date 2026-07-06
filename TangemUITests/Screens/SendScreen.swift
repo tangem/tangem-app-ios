@@ -211,6 +211,21 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     }
 
     @discardableResult
+    func verifyPendingTransactionSendUnavailableAlert(network: String) -> Self {
+        XCTContext.runActivity(named: "Verify send is unavailable due to pending transaction in \(network)") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Send unavailability alert should be displayed")
+
+            let expectedText = "Sending funds will be available once the pending transaction(s) in network \(network) is complete"
+            let message = alert.staticTexts.element(
+                matching: NSPredicate(format: NSPredicateFormat.labelContains.rawValue, expectedText)
+            ).firstMatch
+            waitAndAssertTrue(message, "Alert should contain the pending-transaction reason text")
+            return self
+        }
+    }
+
+    @discardableResult
     func waitForInvalidAmountBanner() -> Self {
         XCTContext.runActivity(named: "Validate invalid amount banner exists") { _ in
             waitAndAssertTrue(invalidAmountBanner, "Invalid amount banner should be displayed")

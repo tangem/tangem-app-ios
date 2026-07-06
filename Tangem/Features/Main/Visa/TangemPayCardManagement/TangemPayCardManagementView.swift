@@ -283,6 +283,12 @@ struct TangemPayCardManagementView: View {
                     TangemPayCardIssuingMessageView()
 
                     Spacer(minLength: 0)
+                } else if viewModel.isClosing {
+                    Spacer(minLength: 0)
+
+                    TangemPayCardClosingMessageView()
+
+                    Spacer(minLength: 0)
                 } else {
                     redesignedDetailsSection
                         .padding(.top, 28)
