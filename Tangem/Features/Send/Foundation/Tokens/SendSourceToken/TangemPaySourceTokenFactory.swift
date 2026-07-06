@@ -58,7 +58,8 @@ struct TangemPaySourceTokenFactory {
             tokenItem: tokenItem,
             fiatItem: fiatItem,
             address: defaultAddressString,
-            extraId: nil
+            extraId: nil,
+            transactionHistoryEnricherFactory: { nil } // [REDACTED_TODO_COMMENT]
         )
     }
 }

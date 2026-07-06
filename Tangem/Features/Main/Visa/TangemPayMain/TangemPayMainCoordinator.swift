@@ -33,6 +33,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     // MARK: - Child view models (push navigation)
 
     @Published var cardManagementViewModel: TangemPayCardManagementViewModel?
+    @Published var currentPlanCoordinator: TangemPayCurrentPlanCoordinator?
 
     // MARK: - Child view models (sheets)
 
@@ -83,7 +84,9 @@ extension TangemPayMainCoordinator {
             self?.sendCoordinator = nil
 
             switch options {
-            case .none, .closeButtonTap:
+            // Swap redirect is unreachable here: TangemPay opens only `.swap`-type flows,
+            // and the receive-token list exists only in the Send-with-Swap flow.
+            case .none, .closeButtonTap, .openSwap:
                 break
             case .openFeeCurrency(let feeCurrency):
                 self?.dismiss(with: feeCurrency)
@@ -143,6 +146,20 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             initialEntry: entry,
             coordinator: self
         )
+    }
+
+    func openCurrentPlan() {
+        let coordinator = TangemPayCurrentPlanCoordinator(
+            dismissAction: { [weak self] in
+                self?.currentPlanCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(closeFlow: { [weak self] in
+            self?.currentPlanCoordinator = nil
+            self?.dismiss(with: nil)
+        }))
+        currentPlanCoordinator = coordinator
     }
 
     func openFakedoorSheet() {
@@ -240,13 +257,15 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         transaction: TangemPayTransactionRecord,
         userWalletId: UserWalletId,
         customerId: String,
-        cardName: String?
+        cardName: String?,
+        cardNumberEnd: String?
     ) {
         let viewModel = TangemPayTransactionDetailsViewModel(
             transaction: transaction,
             userWalletId: userWalletId,
             customerId: customerId,
             cardName: cardName,
+            cardNumberEnd: cardNumberEnd,
             coordinator: self
         )
 

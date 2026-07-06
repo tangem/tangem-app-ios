@@ -1,5 +1,5 @@
 //
-//  AlgorandHistoryProvider.swift
+//  AlgorandTransactionHistoryProvider.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

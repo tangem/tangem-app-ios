@@ -65,7 +65,7 @@ extension CommonExpressManager: ExpressManager {
 
         case .some(let pair):
             let providers = try await loadProviders(for: pair)
-            let selected = bestProvider(from: providers.availableProviders(rate: .float))
+            let selected = bestProvider(from: providers.availableProviders(rate: preferredRate(providers, requested: .float)))
             return update(state: .swap(selected: selected, providers: providers))
 
         case .none:
@@ -87,16 +87,11 @@ extension CommonExpressManager: ExpressManager {
         case .none:
             // Reset all providers to idle
             providers.all.forEach { $0.reset() }
-            let selected = bestProvider(from: providers.availableProviders(rate: .float))
+            let selected = bestProvider(from: providers.availableProviders(rate: preferredRate(providers, requested: .float)))
             return update(state: .swap(selected: selected, providers: providers))
 
-        // Fall back to fixed-rate providers when the caller sends `.from` but only fixed-rate providers exist.
-        case .from where providers.availableProviders(rate: .float).isEmpty:
-            let candidates = providers.availableProviders(rate: .fixed)
-            return await reloadQuotes(candidates: candidates, type: .amount)
-
         case .some(let amountType):
-            let candidates = providers.availableProviders(rate: amountType.rateType)
+            let candidates = providers.availableProviders(rate: preferredRate(providers, requested: amountType.rateType))
             return await reloadQuotes(candidates: candidates, type: .amount)
         }
     }
@@ -158,7 +153,7 @@ private extension CommonExpressManager {
         // Check that task is still relevant after await (pair might have changed)
         guard providersTask == task else { return }
 
-        let selected = bestProvider(from: providers.availableProviders(rate: .float))
+        let selected = bestProvider(from: providers.availableProviders(rate: preferredRate(providers, requested: .float)))
         update(state: .swap(selected: selected, providers: providers))
     }
 
@@ -237,6 +232,18 @@ private extension CommonExpressManager {
         featureFlags.isChooseBestDEXEnabled ? providers.bestPreferringDEX() : providers.best()
     }
 
+    func preferredRate(
+        _ providers: ExpressManagerState.Providers,
+        requested: ExpressProviderRateType
+    ) -> ExpressProviderRateType {
+        Self.preferredRate(
+            operationType: _pair?.source.operationType ?? .swap,
+            hasFixedProviders: !providers.availableProviders(rate: .fixed).isEmpty,
+            hasFloatProviders: !providers.availableProviders(rate: .float).isEmpty,
+            requested: requested
+        )
+    }
+
     func stateWithBestProvider(from candidates: [ExpressAvailableProvider]) -> ExpressManagerState {
         guard case .swap(let previousSelected, let providers) = currentState else {
             return currentState
@@ -259,21 +266,29 @@ private extension CommonExpressManager {
     }
 }
 
+// MARK: - Rate selection
+
+extension CommonExpressManager {
+    static func preferredRate(
+        operationType: ExpressOperationType,
+        hasFixedProviders: Bool,
+        hasFloatProviders: Bool,
+        requested: ExpressProviderRateType
+    ) -> ExpressProviderRateType {
+        if operationType == .swapAndSend, hasFixedProviders {
+            return .fixed
+        }
+
+        if requested == .float, !hasFloatProviders {
+            return .fixed
+        }
+
+        return requested
+    }
+}
+
 // MARK: - CustomStringConvertible
 
 extension CommonExpressManager: @preconcurrency CustomStringConvertible {
     var description: String { objectDescription(self) }
-}
-
-// MARK: - SupportedProvidersFilter+
-
-private extension SupportedProvidersFilter {
-    func isSupported(provider: ExpressProvider) -> Bool {
-        switch self {
-        case .byTypes(let types):
-            return types.contains(provider.type)
-        case .byDifferentAddressExchangeSupport:
-            return !provider.exchangeOnlyWithinSingleAddress
-        }
-    }
 }

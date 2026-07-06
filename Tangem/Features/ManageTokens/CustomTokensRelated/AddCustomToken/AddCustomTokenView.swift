@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct AddCustomTokenView: View {
     @ObservedObject private var viewModel: AddCustomTokenViewModel
@@ -83,6 +84,7 @@ struct AddCustomTokenView: View {
                 ItemSelectorRow(title: Localization.customTokenNetworkInputTitle, selectedItem: viewModel.selectedBlockchainName)
             }
             .defaultRoundedBackground(with: cardBackgroundColor, cornerRadius: cardCornerRadius)
+            .accessibilityIdentifier(AddCustomTokenAccessibilityIdentifiers.networkSelectorRow)
 
             if viewModel.selectedBlockchainSupportsTokens {
                 tokenInputFields
@@ -93,10 +95,12 @@ struct AddCustomTokenView: View {
                     ItemSelectorRow(title: Localization.customTokenDerivationPath, selectedItem: viewModel.selectedDerivationOption?.name ?? "")
                 }
                 .defaultRoundedBackground(with: cardBackgroundColor, cornerRadius: cardCornerRadius)
+                .accessibilityIdentifier(AddCustomTokenAccessibilityIdentifiers.derivationSelectorRow)
             }
 
             if let notificationInput = viewModel.notificationInput {
                 NotificationView(input: notificationInput)
+                    .accessibilityIdentifier(AddCustomTokenAccessibilityIdentifiers.warningNotification)
             }
 
             MainButton(
@@ -104,6 +108,7 @@ struct AddCustomTokenView: View {
                 icon: addingIcon,
                 isLoading: viewModel.isLoading,
                 isDisabled: viewModel.addButtonDisabled,
+                accessibilityIdentifier: AddCustomTokenAccessibilityIdentifiers.addButton,
                 action: viewModel.createToken
             )
         }
@@ -119,7 +124,8 @@ struct AddCustomTokenView: View {
                 autocapitalizationType: .none,
                 isEnabled: true,
                 isLoading: false,
-                error: viewModel.contractAddressError
+                error: viewModel.contractAddressError,
+                accessibilityIdentifier: AddCustomTokenAccessibilityIdentifiers.contractAddressField
             )
             .focused($isFocusedAddressField)
             .onChange(of: isFocusedAddressField) { isFocused in
@@ -222,6 +228,7 @@ private struct TextInputWithTitle: View {
     let isEnabled: Bool
     let isLoading: Bool
     var error: Error?
+    var accessibilityIdentifier: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -248,6 +255,7 @@ private struct TextInputWithTitle: View {
                     isEnabled: isEnabled
                 )
                 .setAutocapitalizationType(autocapitalizationType)
+                .setAccessibilityIdentifier(accessibilityIdentifier)
                 .opacity(isLoading ? 0 : 1)
                 .overlay(skeleton, alignment: .leading)
 
