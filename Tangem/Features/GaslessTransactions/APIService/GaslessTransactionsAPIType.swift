@@ -12,6 +12,7 @@ enum GaslessTransactionsAPIType: String, CaseIterable {
     case dev
     case stage
     case prod
+    case mock
 
     public var title: String {
         rawValue

@@ -19,16 +19,12 @@ class KaspaCustomFeeService {
 
     private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
 
-    private lazy var customFeeSubject: CurrentValueSubject<Fee, Never> = .init(zeroFee)
+    private lazy var customFeeSubject: CurrentValueSubject<Fee, Never> = .init(feeTokenItem.zeroFee)
 
     private var cachedCustomFee: Fee?
     private var initialCustomFee: Fee
     private var customFeeEnricher: KaspaKRC20FeeParametersEnricher?
     private var bag: Set<AnyCancellable> = []
-
-    private var zeroFee: Fee {
-        Fee(Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: .zero))
-    }
 
     init(
         tokenItem: TokenItem,
@@ -71,7 +67,7 @@ class KaspaCustomFeeService {
 
     private func onFieldChange(decimalValue: Decimal?) {
         guard let decimalValue, decimalValue > 0 else {
-            customFeeSubject.send(zeroFee)
+            customFeeSubject.send(feeTokenItem.zeroFee)
             return
         }
 

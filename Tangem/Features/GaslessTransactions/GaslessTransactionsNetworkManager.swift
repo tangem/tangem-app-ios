@@ -130,9 +130,15 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
 
 private struct GaslessTransactionsNetworkManagerKey: InjectionKey {
     static var currentValue: GaslessTransactionsNetworkManager = {
-        let apiType: GaslessTransactionsAPIType = AppEnvironment.current.isProduction
-            ? .prod
-            : FeatureStorage.instance.gaslessTransactionsAPIType
+        let apiType: GaslessTransactionsAPIType = {
+            if AppEnvironment.current.isProduction {
+                return .prod
+            }
+            if FeatureStorage.instance.tangemAPIType == .mock {
+                return .mock
+            }
+            return FeatureStorage.instance.gaslessTransactionsAPIType
+        }()
 
         let provider = TangemProvider<GaslessTransactionsAPITarget>(
             configuration: TangemProviderConfiguration(
