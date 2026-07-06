@@ -77,7 +77,9 @@ private extension TransactionHistoryMapperAmountTests {
             status: status,
             isOutgoing: isOutgoing,
             type: .transfer,
-            date: Date()
+            date: Date(),
+            tokenTransfers: [],
+            nonce: nil
         )
     }
 }

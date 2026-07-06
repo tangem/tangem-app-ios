@@ -8,14 +8,28 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class AddressBookContactManagementCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
 
     @Published private(set) var rootViewModel: AddressBookContactManagementViewModel?
+
+    // MARK: - Child view models
+
+    @Published var addAddressViewModel: AddressBookAddAddressViewModel?
+    @Published var chooseNetworkViewModel: ChooseNetworkViewModel?
+
+    // MARK: - Child coordinators
+
+    @Published var qrScanCoordinator: MainQRScanCoordinator?
+
+    private let analyticsLogger: any AddressBookAnalyticsLogger = CommonAddressBookAnalyticsLogger()
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -26,14 +40,33 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        let interactor: AddressBookContactManagementInteractor = switch options {
-        case .add:
-            CreateAddressBookContactManagementInteractor()
-        case .edit(let contact):
-            EditAddressBookContactManagementInteractor(contact: contact)
+        let interactor: AddressBookContactManagementInteractor
+        let focusesNameOnFirstAppear: Bool
+
+        switch options {
+        case .add(let addressBookWallet, let prefilledEntries):
+            interactor = CreateAddressBookContactManagementInteractor(
+                addressBookWallet: addressBookWallet,
+                prefilledEntries: prefilledEntries,
+                analyticsLogger: analyticsLogger
+            )
+            focusesNameOnFirstAppear = prefilledEntries.isNotEmpty
+        case .edit(let contact, let addressBookWallet):
+            interactor = EditAddressBookContactManagementInteractor(
+                contact: contact,
+                initialAddressBookWallet: addressBookWallet,
+                analyticsLogger: analyticsLogger
+            )
+            focusesNameOnFirstAppear = false
         }
 
-        rootViewModel = AddressBookContactManagementViewModel(interactor: interactor, coordinator: self)
+        let addressBooksProvider: any AddressBooksProvider = AllWalletsAddressBooksProvider()
+        rootViewModel = AddressBookContactManagementViewModel(
+            interactor: interactor,
+            coordinator: self,
+            addressBooksProvider: addressBooksProvider,
+            focusesNameOnFirstAppear: focusesNameOnFirstAppear
+        )
     }
 }
 
@@ -41,8 +74,8 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
 extension AddressBookContactManagementCoordinator {
     enum Options {
-        case add
-        case edit(contact: AddressBookContact)
+        case add(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft])
+        case edit(contact: AddressBookContact, addressBookWallet: AddressBookWallet)
     }
 }
 
@@ -51,5 +84,68 @@ extension AddressBookContactManagementCoordinator {
 extension AddressBookContactManagementCoordinator: AddressBookContactManagementRoutable {
     func dismissContactManagement() {
         dismiss(with: ())
+    }
+
+    func openAddAddress(userWalletInfo: UserWalletInfo, contactId: AddressBookContactID?, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions, reservedContacts: [AddressBookContact]) {
+        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, contactId: contactId, output: output, options: options, reservedContacts: reservedContacts, analyticsLogger: analyticsLogger)
+        addAddressViewModel = AddressBookAddAddressViewModel(interactor: interactor, coordinator: self, options: options)
+    }
+
+    func presentAddressActions(_ viewModel: AddressActionsViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func dismissAddressActions() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func presentWalletPicker(_ viewModel: AddressBookWalletPickerViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func dismissWalletPicker() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - AddressBookAddAddressRoutable
+
+extension AddressBookContactManagementCoordinator: AddressBookAddAddressRoutable {
+    func dismissAddAddress() {
+        addAddressViewModel = nil
+    }
+
+    func dismissAddAddressFlow() {
+        dismiss(with: ())
+    }
+
+    func presentChooseNetwork(_ viewModel: ChooseNetworkViewModel) {
+        chooseNetworkViewModel = viewModel
+    }
+
+    func dismissChooseNetwork() {
+        chooseNetworkViewModel = nil
+    }
+
+    func openQRScanner(completion: @escaping (String) -> Void) {
+        let dismissAction: Action<String?> = { [weak self] scannedCode in
+            self?.qrScanCoordinator = nil
+
+            if let scannedCode {
+                completion(scannedCode)
+            }
+        }
+
+        let coordinator = MainQRScanCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(with: .init())
+        qrScanCoordinator = coordinator
     }
 }

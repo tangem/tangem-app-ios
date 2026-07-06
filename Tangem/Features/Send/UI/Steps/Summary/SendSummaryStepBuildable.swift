@@ -38,15 +38,18 @@ enum SendSummaryStepBuilder {
         let input: SendSummaryInput
         let output: SendSummaryOutput
         let swapModelStateProvider: SwapModelStateProvider?
+        let validationStateProvider: StakingValidationStateProvider?
 
         init(
             input: SendSummaryInput,
             output: SendSummaryOutput,
-            swapModelStateProvider: SwapModelStateProvider? = nil
+            swapModelStateProvider: SwapModelStateProvider? = nil,
+            validationStateProvider: StakingValidationStateProvider? = nil
         ) {
             self.input = input
             self.output = output
             self.swapModelStateProvider = swapModelStateProvider
+            self.validationStateProvider = validationStateProvider
         }
     }
 
@@ -98,9 +101,10 @@ enum SendSummaryStepBuilder {
             input: io.input,
             output: io.output,
             swapModelStateProvider: io.swapModelStateProvider,
+            validationStateProvider: io.validationStateProvider,
             sendDescriptionBuilder: dependencies.sendDescriptionBuilder,
             sendWithSwapDescriptionBuilder: dependencies.sendWithSwapDescriptionBuilder,
-            stakingDescriptionBuilder: dependencies.stakingDescriptionBuilder,
+            stakingDescriptionBuilder: dependencies.stakingDescriptionBuilder
         )
 
         let viewModel = SendSummaryViewModel(

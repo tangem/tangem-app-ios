@@ -6,12 +6,12 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import TangemSdk
-import Combine
-import BlockchainSdk
+#if DEBUG
 
-/// Should be wrapped in DEBUG
+import Foundation
+import BlockchainSdk
+import TangemSdk
+
 enum PreviewCard {
     case withoutWallet
     case twin
@@ -91,3 +91,5 @@ enum PreviewCard {
         }
     }
 }
+
+#endif

@@ -219,8 +219,14 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         )
 
         let coordinator = SendCoordinator(
-            dismissAction: { [weak self] _ in
+            dismissAction: { [weak self] options in
                 self?.sendCoordinator = nil
+
+                if case .openSwap(let option) = options {
+                    self?.openManualSwap(option: option)
+                    return
+                }
+
                 self?.dismissAction(())
             },
             popToRootAction: popToRootAction
@@ -229,6 +235,29 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
 
         sendCoordinator = coordinator
         viewState = .send
+    }
+
+    private func openManualSwap(option: SwapNavigatingDismissOption) {
+        guard let options = option.makeSwapFlowOptions(source: .qrScan) else {
+            dismissAction(())
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.swapNavigationDelay) { [weak self] in
+            guard let self else { return }
+
+            let coordinator = SendCoordinator(
+                dismissAction: { [weak self] _ in
+                    self?.sendCoordinator = nil
+                    self?.dismissAction(())
+                },
+                popToRootAction: popToRootAction
+            )
+            coordinator.start(with: options)
+
+            sendCoordinator = coordinator
+            viewState = .send
+        }
     }
 
     @MainActor
@@ -475,6 +504,14 @@ extension MainQRScanFlowCoordinator {
             }
             return .tokenSelector
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension MainQRScanFlowCoordinator {
+    enum Constants {
+        static let swapNavigationDelay: TimeInterval = 0.6
     }
 }
 
