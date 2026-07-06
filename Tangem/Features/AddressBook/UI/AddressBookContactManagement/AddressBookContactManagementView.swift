@@ -31,6 +31,7 @@ struct AddressBookContactManagementView: View {
             }
             .alert(item: $viewModel.alert) { $0.alert }
             .onFirstAppear {
+                viewModel.onFirstAppear()
                 if viewModel.focusesNameOnFirstAppear {
                     isNameFocused = true
                 }
