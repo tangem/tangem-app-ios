@@ -153,6 +153,8 @@ struct NetworkImageProvider: NFTChainIconProvider {
             filled ? Tokens.filecoinFill : Tokens.filecoin
         case .sei:
             filled ? Tokens.seiFill : Tokens.sei
+        case .gonka:
+            filled ? Tokens.gonkaFill : Tokens.gonka
         case .energyWebEVM:
             filled ? Tokens.energywebevmFill : Tokens.energywebevm
         case .energyWebX:

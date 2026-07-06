@@ -544,6 +544,8 @@ final class HostAnalyticsFormatterUtilTests: XCTestCase {
             "https://rpc.gnosischain.com/",
             "https://gnosis-mainnet.public.blastapi.io/",
             "https://rpc.ankr.com/gnosis/",
+            // gonka
+            "https://rpc.gonka.gg/chain-api/",
             // xdc-network
             "https://rpc.xdcrpc.com/",
             "https://erpc.xdcrpc.com/",
