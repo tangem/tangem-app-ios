@@ -46,7 +46,9 @@ struct TransactionHistoryMapperAmountTests {
             status: .confirmed,
             isOutgoing: true,
             type: .staking(type: .stake, target: nil),
-            date: Date()
+            date: Date(),
+            tokenTransfers: [],
+            nonce: nil
         )
 
         let viewModel = makeSUT().mapTransactionViewModel(record)
