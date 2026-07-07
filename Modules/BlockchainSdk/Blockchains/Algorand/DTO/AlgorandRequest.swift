@@ -1,5 +1,5 @@
 //
-//  AlgorandProviderRequests.swift
+//  AlgorandRequest.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

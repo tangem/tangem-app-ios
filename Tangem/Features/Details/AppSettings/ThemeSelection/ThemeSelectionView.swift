@@ -29,10 +29,8 @@ struct ThemeSelectionView: View {
     }
 }
 
-struct ThemeSelectionView_Preview: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            ThemeSelectionView(viewModel: .init())
-        }
+#Preview {
+    NavigationStack {
+        ThemeSelectionView(viewModel: .init())
     }
 }

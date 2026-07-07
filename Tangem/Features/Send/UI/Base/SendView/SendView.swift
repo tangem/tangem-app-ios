@@ -182,10 +182,10 @@ struct SendView: View {
 
     @ViewBuilder
     private func bottomActionButton(_ mainButtonType: SendMainButtonType) -> some View {
-        if viewModel.mainButtonUpdating {
-            bottomAction(type: mainButtonType, isLoading: true)
-        } else if viewModel.mainButtonNeedsHoldAction(mainButtonType: mainButtonType) {
+        if viewModel.mainButtonNeedsHoldAction(mainButtonType: mainButtonType) {
             bottomHoldAction(mainButtonType)
+        } else if viewModel.mainButtonUpdating {
+            bottomAction(type: mainButtonType, isLoading: true)
         } else {
             bottomAction(type: mainButtonType, isLoading: viewModel.mainButtonLoading)
         }
@@ -208,7 +208,7 @@ struct SendView: View {
     private func bottomHoldAction(_ mainButtonType: SendMainButtonType) -> some View {
         HoldToConfirmButton(
             title: mainButtonType.title(action: viewModel.flowActionType),
-            isLoading: viewModel.mainButtonLoading,
+            isLoading: viewModel.mainButtonUpdating || viewModel.mainButtonLoading,
             isDisabled: !viewModel.actionIsAvailable,
             action: {
                 viewModel.userDidTapActionButton(mainButtonType: mainButtonType)

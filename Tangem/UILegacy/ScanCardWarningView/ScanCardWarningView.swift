@@ -62,12 +62,10 @@ struct ScanCardWarningView: View {
     }
 }
 
-struct ScanCardWarningView_Preview: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Colors.Background.secondary
+#Preview {
+    ZStack {
+        Colors.Background.secondary
 
-            ScanCardWarningView {}.padding()
-        }
+        ScanCardWarningView {}.padding()
     }
 }
