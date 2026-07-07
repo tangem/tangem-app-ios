@@ -5,14 +5,15 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
 import TangemLocalization
 import TangemUI
 
 struct SwapTransactionDetailsViewData: TransactionDetailsOperationViewData {
     struct Leg {
         let amount: String
-        let symbol: String
-        let tokenIconInfo: TokenIconInfo
+        let symbol: String?
+        let tokenIconInfo: TokenIconInfo?
     }
 
     let stage: TransactionDetailsOperationStage
@@ -30,14 +31,14 @@ struct SwapTransactionDetailsViewData: TransactionDetailsOperationViewData {
         TransactionDetailsTokensViewData(
             from: .init(
                 direction: .init(label: Localization.swappingFromTitleV2, actor: nil),
-                icon: .token(source.tokenIconInfo),
+                icon: icon(for: source),
                 amountText: sourceAmountText,
                 fiatText: nil,
                 isAmountStrikethrough: false
             ),
             to: .init(
                 direction: .init(label: destinationLabel, actor: nil),
-                icon: .token(destination.tokenIconInfo),
+                icon: icon(for: destination),
                 amountText: destinationAmountText,
                 fiatText: nil,
                 isAmountStrikethrough: stage == .unsuccessful
@@ -58,10 +59,14 @@ struct SwapTransactionDetailsViewData: TransactionDetailsOperationViewData {
         }
 
         if let networkFee {
-            rows.append(.init(id: "fee", title: Localization.commonNetworkFeeTitle, content: .text(networkFee)))
+            rows.append(.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .text(networkFee)))
         }
 
         return rows.isEmpty ? nil : .init(rows: rows)
+    }
+
+    private func icon(for leg: Leg) -> TransactionDetailsTokensViewData.Leg.Icon {
+        leg.tokenIconInfo.map { .token($0) } ?? .loading
     }
 
     private var destinationLabel: String {
@@ -71,16 +76,36 @@ struct SwapTransactionDetailsViewData: TransactionDetailsOperationViewData {
         }
     }
 
-    private var sourceAmountText: String {
-        "− \(source.amount) \(source.symbol)"
+    private var sourceAmountText: String? {
+        amountText(prefix: String.minusSign, leg: source)
     }
 
-    private var destinationAmountText: String {
-        let base = "\(destination.amount) \(destination.symbol)"
-        switch stage {
-        case .inProgress: return isDestinationEstimated ? "\(AppConstants.tildeSign) \(base)" : base
-        case .finished: return "+ \(base)"
-        case .unsuccessful: return base
+    private var destinationAmountText: String? {
+        let prefix: String? = switch stage {
+        case .inProgress: isDestinationEstimated ? AppConstants.tildeSign : nil
+        case .finished: String.plusSign
+        case .unsuccessful: nil
         }
+        return amountText(prefix: prefix, leg: destination)
+    }
+
+    /// The amount needs both a number and a resolved ticker — without either it's `nil` and the view
+    /// hides it, so we never render a partial value like "+ETH" or "+100". The prefix (sign / "~") is an
+    /// optional decoration: a leg without one (e.g. failed) still shows its amount unsigned.
+    private func amountText(prefix: String?, leg: Leg) -> String? {
+        guard
+            let amount = leg.amount.nilIfEmpty,
+            let symbol = leg.symbol?.nilIfEmpty
+        else {
+            return nil
+        }
+
+        let value = "\(amount) \(symbol)"
+
+        guard let prefix = prefix?.nilIfEmpty else {
+            return value
+        }
+        // [REDACTED_TODO_COMMENT]
+        return "\(prefix) \(value)"
     }
 }

@@ -327,7 +327,7 @@
 "common_or" = "oder";
 "common_origin_card" = "Hauptkarte";
 "common_origin_ring" = "Primärring";
-"common_other" = "Other";
+"common_other" = "Sonstiges";
 "common_passphrase" = "Passphrase";
 "common_paste" = "Einfügen";
 "common_privacy_policy" = "Datenschutzrichtlinie";
@@ -504,6 +504,8 @@
 "error_wrong_wallet_tapped" = "Du hast eine Karte oder Ring aus einer anderen Wallet verwendet. Tippe auf die Karte oder Ring, die dieser Wallet zugeordnet ist.";
 "eth_gas_required_exceeds_allowance" = "Nicht genug Geld für die Transaktion. Bitte lade dein  Konto auf.";
 "exchange_token_description" = "Tausche einen beliebigen Vermögenswert in deinem Portfolio gegen diesen Token.";
+"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
+"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "Zur Verfügung gestellt von %@";
 "express_choose_provider" = "Anbieter auswählen";
 "express_error_provider_amount_roundup" = "Fehler %1$@. Der ausgewählte Anbieter kann die angegebene Transaktion nicht verarbeiten. Bitte runde den Wert auf %2$@ auf oder änder diesen.";
@@ -593,7 +595,7 @@
 "feedback_subject_tx_push_failed" = "Transaktion kann nicht gepusht werden";
 "feedback_token_description_error" = "Fehler in der Coinbeschreibung";
 "for_you_description" = "Portfolio prüfen und Verdienstmöglichkeiten erkunden";
-"for_you_portfolio_review_title" = "Portfolio review";
+"for_you_portfolio_review_title" = "Portfolio-Überprüfung";
 "for_you_title" = "Für dich";
 "force_update_action" = "Jetzt aktualisieren";
 "force_update_banner_message" = "Aktualisiere die Anwendung auf die neueste Version, um die ordnungsgemäße Funktionalität zu gewährleisten";
@@ -609,7 +611,7 @@
 "gasless_transaction_fee" = "Transaktionsgebühr";
 "generic_error_code" = "Es ist ein Fehler aufgetreten. Code: %@.";
 "generic_requires_memo_error" = "Memo erforderlich";
-"get_token_title" = "Get %1$@";
+"get_token_title" = "Erhalten %1$@";
 "give_permission_current_transaction" = "Nur diese";
 "give_permission_policy_type_footer" = "Mit Deiner Zustimmung erlaubst Du dem Smart Contract, Deine Token in zukünftigen Transaktionen zu verwenden.";
 "give_permission_rows_amount" = "Betrag %@";
@@ -1183,7 +1185,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Ziel-Tag";
 "send_dismiss_message" = "Möchtest du den Sendebildschirm wirklich schließen?";
-"send_enter_address_field_ens_name" = "Address, ENS or name";
+"send_enter_address_field_ens_name" = "Adresse, ENS oder Name";
 "send_enter_address_field_ens" = "ENS-Name oder Adresse";
 "send_enter_address_field" = "Adresse eingeben";
 "send_error_address_same_as_wallet" = "Die Adresse stimmt mit der Adresse Ihrer Brieftasche überein";
@@ -1553,8 +1555,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "Eine Gebühr wird gemäß den Servicetarifen erhoben";
 "tangem_pay_transaction_reversed_notification_text" = "Die Transaktion wurde vom Händler teilweise oder vollständig storniert";
-"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
-"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
+"tangem_pay_unavailable_region_description" = "Wir führen das System schrittweise ein und werden Sie informieren, sobald Tangem Pay hier verfügbar ist.";
+"tangem_pay_unavailable_region_title" = "Tangem Pay ist in Ihrer Region nicht verfügbar.";
 "tangem_pay_unfreeze_card_alert_body" = "Nutze Dein Geld weiterhin. Du kannst es jederzeit einfrieren.";
 "tangem_pay_unfreeze_card_alert_title" = "Karte entsperren?";
 "tangem_pay_unfreeze_card_failed" = "Entsperren der Karte fehlgeschlagen. Versuchen Sie es später erneut.";
@@ -2100,8 +2102,8 @@
 "warning_hedera_missing_token_association_message" = "Dieser Token muss mit Ihrem Hedera-Konto verbunden sein, bevor du diesen erhalten kannst. Zuordnungsgebühr ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Verknüpfe deinen Token";
 "warning_hedera_token_association_not_enough_hbar_message" = "Nicht genug %@. Lade dein Hedera-Konto auf, um dieses Token zuzuordnen";
-"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
-"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
+"warning_incomplete_backup_notification_message" = "Es scheint, dass die Aktivierung der Karte oder des Rings nicht korrekt abgeschlossen wurde. Dies kann an einem Problem mit dem NFC-Modul deines Gerätes oder an einem falschen Tippen der Karte oder Ring auf dein Gerät liegen. Bitte wende dich an unser Support-Team, um Unterstützung zu erhalten.";
+"warning_incomplete_backup_notification_title" = "Handeln ist gefragt. Benutzen Sie nicht Ihr Wallet!";
 "warning_ios_deprecation_message" = "Der Support für iOS %1$@ endet am %2$@. Um weiterhin App-Updates zu erhalten und die volle Funktionalität sicherzustellen, aktualisieren Sie bitte auf die neueste iOS-Version.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Bist Du sicher, dass Du die Transaktion stornieren willst? Du kannst die Transaktion nicht erneut starten.";
 "warning_kaspa_unfinished_token_transaction_message" = "Deine Transaktion mit einem Betrag von %1$@ %2$@ wurde nicht abgeschlossen. Du kannst versuchen, diese erneut abzuschließen.";

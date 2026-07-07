@@ -15,6 +15,7 @@ struct OnrampTransactionDetailsViewData: TransactionDetailsOperationViewData {
         let symbol: String
         let fiatPrice: String?
         let flagIconURL: URL?
+        let isFlagLoading: Bool
     }
 
     struct ReceivedLeg {
@@ -42,7 +43,7 @@ struct OnrampTransactionDetailsViewData: TransactionDetailsOperationViewData {
             from: .init(
                 // [REDACTED_TODO_COMMENT]
                 direction: .init(label: "You paid", actor: nil),
-                icon: .image(url: paid.flagIconURL),
+                icon: paid.isFlagLoading ? .loading : .image(url: paid.flagIconURL),
                 amountText: paidAmountText,
                 fiatText: paid.fiatPrice,
                 isAmountStrikethrough: false
