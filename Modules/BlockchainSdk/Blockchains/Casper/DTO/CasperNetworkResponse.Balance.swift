@@ -1,5 +1,5 @@
 //
-//  CasperNetworkResult.BalanceInfo.swift
+//  CasperNetworkResponse.Balance.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

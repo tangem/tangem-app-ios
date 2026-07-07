@@ -105,7 +105,6 @@ private extension KeyValuePanelView {
     }
 }
 
-#if DEBUG
 #Preview {
     ZStack {
         Color.gray
@@ -127,4 +126,3 @@ private extension KeyValuePanelView {
         .padding(.horizontal, 16)
     }
 }
-#endif
