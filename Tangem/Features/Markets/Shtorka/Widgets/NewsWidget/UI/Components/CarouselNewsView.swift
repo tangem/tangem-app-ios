@@ -177,7 +177,6 @@ private extension CarouselNewsItem {
     }
 }
 
-#if DEBUG
 #Preview {
     VStack {
         // Loading state
@@ -232,4 +231,3 @@ private extension CarouselNewsItem {
     .padding(.vertical)
     .background(Colors.Background.secondary)
 }
-#endif
