@@ -13,7 +13,7 @@ import Combine
 /// Useful for the API like `withTaskCancellationHandler(operation:onCancel:)` when there is no guarantee which closure
 /// (`operation` or `onCancel`) will be called first.
 /// - Note: This wrapper uses internal synchronization, so it marked with `@unchecked Sendable`.
-public final class ThreadSafeCancellableWrapper: @unchecked Sendable {
+public final class ThreadSafeCancellableWrapper: Cancellable, @unchecked Sendable {
     private let criticalSection = OSAllocatedUnfairLock()
     private var innerCancellable: Cancellable?
     private var isCancelled = false
@@ -60,6 +60,12 @@ public final class ThreadSafeCancellableWrapper: @unchecked Sendable {
 }
 
 // MARK: - Convenience extensions
+
+public extension ThreadSafeCancellableWrapper {
+    convenience init(onCancel: @escaping () -> Void) {
+        self.init(AnyCancellable(onCancel))
+    }
+}
 
 public extension AnyCancellable {
     func store(in wrapper: ThreadSafeCancellableWrapper) {

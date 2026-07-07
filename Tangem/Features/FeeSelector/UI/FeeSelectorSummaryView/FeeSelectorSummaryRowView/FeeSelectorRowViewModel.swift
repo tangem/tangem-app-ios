@@ -20,6 +20,7 @@ struct FeeSelectorRowViewModel: Hashable {
     let subtitle: SubtitleType
     let availability: Availability
     let accessibilityIdentifier: String
+    var subtitleAccessibilityIdentifier: String? = nil
 
     // MARK: - Expansion
 
@@ -63,6 +64,7 @@ extension FeeSelectorRowViewModel {
         title: String,
         subtitle: SubtitleType,
         accessibilityIdentifier: String,
+        subtitleAccessibilityIdentifier: String? = nil,
         availability: Availability = .available(isSubtitleHighlighted: false),
         expandAction: (() -> Void)?
     ) {
@@ -71,6 +73,7 @@ extension FeeSelectorRowViewModel {
         self.subtitle = subtitle
         self.availability = availability
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.subtitleAccessibilityIdentifier = subtitleAccessibilityIdentifier
         self.expandAction = expandAction
 
         // selection disabled

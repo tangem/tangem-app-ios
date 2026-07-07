@@ -1,6 +1,6 @@
 //
 //  XRPAccountInfo.swift
-//  BigInt
+//  XRPKit
 //
 //  Created by [REDACTED_AUTHOR]
 //
