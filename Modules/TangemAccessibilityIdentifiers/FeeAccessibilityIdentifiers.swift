@@ -18,13 +18,25 @@ public enum FeeAccessibilityIdentifiers {
 
     /// Fee selector title
     public static let feeSelectorChooseSpeedTitle = "feeSelectorChooseSpeedTitle"
+    public static let feeSelectorNetworkFeeTitle = "feeSelectorNetworkFeeTitle"
+    public static let feeSelectorChooseTokenTitle = "feeSelectorChooseTokenTitle"
 
     /// Token options
     public static let suggestedFeeCurrency = "feeCurrencySuggested"
-    public static let feeCurrencyOption = "feeCurrencyOption"
+
+    public static func feeCurrencyOption(symbol: String) -> String {
+        "feeCurrencyOption_\(symbol)"
+    }
+
+    /// Fee selector summary fee row
+    public static let feeSelectorSummaryFee = "feeSelectorSummaryFee"
+
+    /// Highlighted "Not enough funds" subtitle on the fee selector summary fee row
+    public static let feeSelectorInsufficientFundsError = "feeSelectorInsufficientFundsError"
 
     /// Fee selector actions
     public static let feeSelectorDoneButton = "feeSelectorDoneButton"
+    public static let feeSelectorApplyButton = "feeSelectorApplyButton"
 
     /// Custom fee fields
     public static let customFeeMaxFeeField = "customFeeMaxFeeField"
