@@ -566,7 +566,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private func back() {
         closeOnboarding()
 
-        backupService.discardIncompletedBackup()
+        backupService.discardIncompleteBackup()
     }
 
     private func fireConfettiIfNeeded() {
@@ -1093,7 +1093,7 @@ private extension WalletOnboardingViewModel {
     }
 
     func onDidFinishResetCardSet() {
-        backupService.discardIncompletedBackup()
+        backupService.discardIncompleteBackup()
         backupValidator.onBackupCompleted()
         closeOnboarding()
     }
