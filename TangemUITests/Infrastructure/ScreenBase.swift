@@ -11,7 +11,7 @@ import XCTest
 class ScreenBase<T: UIElement>: Screen {
     let app: XCUIApplication
 
-    init(_ app: XCUIApplication) {
+    required init(_ app: XCUIApplication) {
         self.app = app
     }
 }

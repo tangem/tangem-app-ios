@@ -70,7 +70,10 @@ private extension EarnAddTokenFlowConfigurationFactory {
                 navigateToToken(
                     tokenItem: tokenItem,
                     accountSelectorCell: accountSelectorCell,
-                    coordinator: coordinator
+                    coordinator: coordinator,
+                    present: { coordinator, walletModel, userWalletModel in
+                        coordinator.presentTokenDetails(by: walletModel, with: userWalletModel)
+                    }
                 )
             } else {
                 continueToNetworkSelection()
@@ -81,7 +84,8 @@ private extension EarnAddTokenFlowConfigurationFactory {
     static func navigateToToken(
         tokenItem: TokenItem,
         accountSelectorCell: AccountSelectorCellModel,
-        coordinator: EarnAddTokenRoutable?
+        coordinator: EarnAddTokenRoutable?,
+        present: @escaping @MainActor (EarnAddTokenRoutable, any WalletModel, UserWalletModel) -> Void
     ) {
         guard let coordinator else { return }
 
@@ -90,14 +94,24 @@ private extension EarnAddTokenFlowConfigurationFactory {
             for: tokenItem,
             in: account
         ) else {
-            coordinator.presentErrorToast(with: Localization.commonSomethingWentWrong)
-            Task { @MainActor in coordinator.close() }
+            Task { @MainActor in
+                coordinator.presentErrorToast(with: Localization.commonSomethingWentWrong)
+                coordinator.close()
+            }
             return
         }
 
         let userWalletModel = accountSelectorCell.userWalletModel
-        Task { @MainActor in coordinator.close() }
-        coordinator.presentTokenDetails(by: walletModel, with: userWalletModel)
+
+        Task { @MainActor in
+            coordinator.close()
+            // Wait for the floating sheet dismissal animation to finish before presenting the next screen.
+            // `try?` swallows the CancellationError; the guard then skips presentation when the task was
+            // cancelled, so we never present on top of an already-dismissed flow.
+            try? await Task.sleep(for: .seconds(0.2))
+            guard !Task.isCancelled else { return }
+            present(coordinator, walletModel, userWalletModel)
+        }
     }
 
     static func handleTokenAddedSuccessfully(
@@ -109,7 +123,10 @@ private extension EarnAddTokenFlowConfigurationFactory {
         navigateToToken(
             tokenItem: addedToken,
             accountSelectorCell: accountSelectorCell,
-            coordinator: coordinator
+            coordinator: coordinator,
+            present: { coordinator, walletModel, userWalletModel in
+                coordinator.presentAfterAdd(by: walletModel, with: userWalletModel)
+            }
         )
     }
 

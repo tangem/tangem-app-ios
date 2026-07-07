@@ -128,172 +128,163 @@ struct AnimatedView<Content: View>: View {
     }
 }
 
-private class AnimatedViewPreviewModel: ObservableObject {
-    enum Step: String {
-        case zero
-        case first
-        case second
-        case third
-        case fourth
+@available(iOS 17.0, *)
+#Preview {
+    final class AnimatedViewPreviewModel: ObservableObject {
+        enum Step: String {
+            case zero
+            case first
+            case second
+            case third
+            case fourth
 
-        var next: Step {
-            switch self {
-            case .zero: return .first
-            case .first: return .second
-            case .second: return .third
-            case .third: return .fourth
-            case .fourth: return .zero
-            }
-        }
-
-        var settings: AnimatedViewSettings {
-            .init(
-                targetSettings: target,
-                intermediateSettings: intermediateOffset
-            )
-        }
-
-        var target: CardAnimSettings {
-            switch self {
-            case .zero:
-                return .zero
-            case .first:
-                return .init(
-                    frame: .init(width: 75, height: 75),
-                    offset: .init(width: 100, height: -100),
-                    scale: 1.0,
-                    opacity: 1,
-                    zIndex: 1,
-                    rotationAngle: .zero,
-                    animType: .noAnim,
-                    animDuration: 0.3
-                )
-            case .second:
-                return .init(
-                    frame: .init(width: 75, height: 75),
-                    offset: .init(width: 100, height: 100),
-                    scale: 0.5,
-                    opacity: 0.4,
-                    zIndex: 1,
-                    rotationAngle: .init(degrees: 45),
-                    animType: .linear,
-                    animDuration: 0.3
-                )
-            case .third:
-                return .init(
-                    frame: .init(width: 75, height: 75),
-                    offset: .init(width: -100, height: 100),
-                    scale: 0.7,
-                    opacity: 0.8,
-                    zIndex: 1,
-                    rotationAngle: .init(degrees: 135),
-                    animType: .linear,
-                    animDuration: 0.3
-                )
-            case .fourth:
-                return .init(
-                    frame: .init(width: 75, height: 75),
-                    offset: .init(width: -100, height: -100),
-                    scale: 1,
-                    opacity: 1,
-                    zIndex: 1,
-                    rotationAngle: .init(degrees: 270),
-                    animType: .linear,
-                    animDuration: 0.3
-                )
-            }
-        }
-
-        var intermediateOffset: CardAnimSettings {
-            switch self {
-            case .zero:
-                return .zero
-            case .first:
-                return .init(
-                    frame: .init(width: 75, height: 75),
-                    offset: .init(width: -20, height: -40),
-                    scale: 0.6,
-                    opacity: 0.4,
-                    zIndex: 1,
-                    rotationAngle: .zero,
-                    animType: .linear,
-                    animDuration: 0.3
-                )
-            case .second:
-                return .init(
-                    frame: .init(width: 75, height: 75),
-                    offset: .init(width: 150, height: 0),
-                    scale: 0.5,
-                    opacity: 0.4,
-                    zIndex: 1,
-                    rotationAngle: .init(degrees: 45),
-                    animType: .linear,
-                    animDuration: 0.3
-                )
-            case .third:
-                return .init(
-                    frame: .init(width: 75, height: 75),
-                    offset: .init(width: 0, height: 30),
-                    scale: 0.7,
-                    opacity: 0.8,
-                    zIndex: 1,
-                    rotationAngle: .init(degrees: 135),
-                    animType: .linear,
-                    animDuration: 0.3
-                )
-            case .fourth:
-                return .init(
-                    frame: .init(width: 75, height: 75),
-                    offset: .init(width: -30, height: 20),
-                    scale: 1,
-                    opacity: 1,
-                    zIndex: 1,
-                    rotationAngle: .init(degrees: 270),
-                    animType: .linear,
-                    animDuration: 0.3
-                )
-            }
-        }
-    }
-
-    @Published var step: Step = .zero
-    @Published var settings: AnimatedViewSettings = .zero
-
-    func next() {
-        step = step.next
-        settings = step.settings
-    }
-}
-
-private struct AnimatedViewPreview: View {
-    @ObservedObject var viewModel: AnimatedViewPreviewModel
-
-    var body: some View {
-        GeometryReader { geom in
-            ZStack(alignment: .center) {
-                AnimatedView(settings: viewModel.$settings) {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.blue)
-                        .frame(size: .init(width: 75, height: 75))
+            var next: Step {
+                switch self {
+                case .zero: return .first
+                case .first: return .second
+                case .second: return .third
+                case .third: return .fourth
+                case .fourth: return .zero
                 }
-                Button(action: {
-                    viewModel.next()
-                }, label: {
-                    Text("Next")
-                        .padding()
-                })
-                .offset(x: 0, y: 100)
-                Text("\(viewModel.step.rawValue)")
-                    .offset(x: 0, y: 200)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.red.opacity(0.4))
+
+            var settings: AnimatedViewSettings {
+                .init(
+                    targetSettings: target,
+                    intermediateSettings: intermediateOffset
+                )
+            }
+
+            var target: CardAnimSettings {
+                switch self {
+                case .zero:
+                    return .zero
+                case .first:
+                    return .init(
+                        frame: .init(width: 75, height: 75),
+                        offset: .init(width: 100, height: -100),
+                        scale: 1.0,
+                        opacity: 1,
+                        zIndex: 1,
+                        rotationAngle: .zero,
+                        animType: .noAnim,
+                        animDuration: 0.3
+                    )
+                case .second:
+                    return .init(
+                        frame: .init(width: 75, height: 75),
+                        offset: .init(width: 100, height: 100),
+                        scale: 0.5,
+                        opacity: 0.4,
+                        zIndex: 1,
+                        rotationAngle: .init(degrees: 45),
+                        animType: .linear,
+                        animDuration: 0.3
+                    )
+                case .third:
+                    return .init(
+                        frame: .init(width: 75, height: 75),
+                        offset: .init(width: -100, height: 100),
+                        scale: 0.7,
+                        opacity: 0.8,
+                        zIndex: 1,
+                        rotationAngle: .init(degrees: 135),
+                        animType: .linear,
+                        animDuration: 0.3
+                    )
+                case .fourth:
+                    return .init(
+                        frame: .init(width: 75, height: 75),
+                        offset: .init(width: -100, height: -100),
+                        scale: 1,
+                        opacity: 1,
+                        zIndex: 1,
+                        rotationAngle: .init(degrees: 270),
+                        animType: .linear,
+                        animDuration: 0.3
+                    )
+                }
+            }
+
+            var intermediateOffset: CardAnimSettings {
+                switch self {
+                case .zero:
+                    return .zero
+                case .first:
+                    return .init(
+                        frame: .init(width: 75, height: 75),
+                        offset: .init(width: -20, height: -40),
+                        scale: 0.6,
+                        opacity: 0.4,
+                        zIndex: 1,
+                        rotationAngle: .zero,
+                        animType: .linear,
+                        animDuration: 0.3
+                    )
+                case .second:
+                    return .init(
+                        frame: .init(width: 75, height: 75),
+                        offset: .init(width: 150, height: 0),
+                        scale: 0.5,
+                        opacity: 0.4,
+                        zIndex: 1,
+                        rotationAngle: .init(degrees: 45),
+                        animType: .linear,
+                        animDuration: 0.3
+                    )
+                case .third:
+                    return .init(
+                        frame: .init(width: 75, height: 75),
+                        offset: .init(width: 0, height: 30),
+                        scale: 0.7,
+                        opacity: 0.8,
+                        zIndex: 1,
+                        rotationAngle: .init(degrees: 135),
+                        animType: .linear,
+                        animDuration: 0.3
+                    )
+                case .fourth:
+                    return .init(
+                        frame: .init(width: 75, height: 75),
+                        offset: .init(width: -30, height: 20),
+                        scale: 1,
+                        opacity: 1,
+                        zIndex: 1,
+                        rotationAngle: .init(degrees: 270),
+                        animType: .linear,
+                        animDuration: 0.3
+                    )
+                }
+            }
+        }
+
+        @Published var step: Step = .zero
+        @Published var settings: AnimatedViewSettings = .zero
+
+        func next() {
+            step = step.next
+            settings = step.settings
         }
     }
-}
 
-struct AnimatedView_Previews: PreviewProvider {
-    static var previews: some View {
-        AnimatedViewPreview(viewModel: AnimatedViewPreviewModel())
+    @Previewable @StateObject var viewModel = AnimatedViewPreviewModel()
+
+    return ZStack(alignment: .center) {
+        AnimatedView(settings: viewModel.$settings) {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.blue)
+                .frame(size: .init(width: 75, height: 75))
+        }
+        Button(action: {
+            viewModel.next()
+        }, label: {
+            Text("Next")
+                .padding()
+        })
+        .offset(x: 0, y: 100)
+        Text("\(viewModel.step.rawValue)")
+            .offset(x: 0, y: 200)
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color.red.opacity(0.4))
 }
