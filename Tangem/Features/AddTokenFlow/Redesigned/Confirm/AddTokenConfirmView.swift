@@ -160,11 +160,7 @@ struct AddTokenConfirmView: View {
 
     private var confirmButton: some View {
         TangemButton(
-            content: .combined(
-                text: AttributedString(Localization.commonConfirm),
-                icon: Assets.tangemIcon,
-                iconPosition: .left
-            ),
+            content: viewModel.confirmButtonContent,
             action: viewModel.handleConfirmTap
         )
         .setStyleType(.primary)

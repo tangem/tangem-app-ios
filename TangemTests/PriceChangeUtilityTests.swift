@@ -23,7 +23,7 @@ class PriceChangeUtilityTests: XCTestCase {
     func testFractionalPositiveReturnsLoadedPositive() throws {
         let fractional = try #require(Decimal(stringValue: "0.05"))
         let state = utility.convertToPriceChangeState(changeFractional: fractional)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .positive)
@@ -32,7 +32,7 @@ class PriceChangeUtilityTests: XCTestCase {
     func testFractionalNegativeReturnsLoadedNegative() throws {
         let fractional = try #require(Decimal(stringValue: "-0.05"))
         let state = utility.convertToPriceChangeState(changeFractional: fractional)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .negative)
@@ -41,7 +41,7 @@ class PriceChangeUtilityTests: XCTestCase {
     func testFractionalZeroReturnsLoadedNeutral() throws {
         let fractional = try #require(Decimal(stringValue: "0"))
         let state = utility.convertToPriceChangeState(changeFractional: fractional)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .neutral)
@@ -51,7 +51,7 @@ class PriceChangeUtilityTests: XCTestCase {
         // 0.00000001 rounds to 0.00% → neutral
         let fractional = try #require(Decimal(stringValue: "0.00000001"))
         let state = utility.convertToPriceChangeState(changeFractional: fractional)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .neutral)
@@ -60,7 +60,7 @@ class PriceChangeUtilityTests: XCTestCase {
     func testFractionalVerySmallNegativeRoundsToNeutral() throws {
         let fractional = try #require(Decimal(stringValue: "-0.00000001"))
         let state = utility.convertToPriceChangeState(changeFractional: fractional)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .neutral)
@@ -81,7 +81,7 @@ class PriceChangeUtilityTests: XCTestCase {
     func testPercentPositiveReturnsLoadedPositive() throws {
         let percent = try #require(Decimal(stringValue: "5.0"))
         let state = utility.convertToPriceChangeState(changePercent: percent)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .positive)
@@ -90,7 +90,7 @@ class PriceChangeUtilityTests: XCTestCase {
     func testPercentNegativeReturnsLoadedNegative() throws {
         let percent = try #require(Decimal(stringValue: "-5.0"))
         let state = utility.convertToPriceChangeState(changePercent: percent)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .negative)
@@ -99,7 +99,7 @@ class PriceChangeUtilityTests: XCTestCase {
     func testPercentZeroReturnsLoadedNeutral() throws {
         let percent = try #require(Decimal(stringValue: "0"))
         let state = utility.convertToPriceChangeState(changePercent: percent)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .neutral)
@@ -108,48 +108,10 @@ class PriceChangeUtilityTests: XCTestCase {
     func testPercentWithLoadingTrueReturnsLoadingCached() throws {
         let percent = try #require(Decimal(stringValue: "5.0"))
         let state = utility.convertToPriceChangeState(changePercent: percent, loading: true)
-        guard case .loadingCached(let changeType, _, _) = state else {
+        guard case .loadingCached(let changeType, _) = state else {
             return XCTFail("Expected .loadingCached, got \(state)")
         }
         XCTAssertEqual(changeType, .positive)
-    }
-
-    func testPercentWithoutChangeValueHasNoSubtext() throws {
-        let percent = try #require(Decimal(stringValue: "5.0"))
-        let state = utility.convertToPriceChangeState(changePercent: percent)
-        guard case .loaded(_, _, let subtext) = state else {
-            return XCTFail("Expected .loaded, got \(state)")
-        }
-        XCTAssertNil(subtext)
-    }
-
-    func testPercentWithChangeValueHasSubtext() throws {
-        let percent = try #require(Decimal(stringValue: "5.0"))
-        let value = try #require(Decimal(stringValue: "100.0"))
-        let state = utility.convertToPriceChangeState(changePercent: percent, changeValue: value)
-        guard case .loaded(_, _, let subtext) = state else {
-            return XCTFail("Expected .loaded, got \(state)")
-        }
-        XCTAssertNotNil(subtext)
-    }
-
-    func testPercentWithLoadingAndChangeValueReturnsLoadingCachedWithSubtext() throws {
-        let percent = try #require(Decimal(stringValue: "5.0"))
-        let value = try #require(Decimal(stringValue: "50.0"))
-        let state = utility.convertToPriceChangeState(changePercent: percent, changeValue: value, loading: true)
-        guard case .loadingCached(_, _, let subtext) = state else {
-            return XCTFail("Expected .loadingCached, got \(state)")
-        }
-        XCTAssertNotNil(subtext)
-    }
-
-    func testPercentWithLoadingAndNoChangeValueReturnsLoadingCachedWithNoSubtext() throws {
-        let percent = try #require(Decimal(stringValue: "5.0"))
-        let state = utility.convertToPriceChangeState(changePercent: percent, loading: true)
-        guard case .loadingCached(_, _, let subtext) = state else {
-            return XCTFail("Expected .loadingCached, got \(state)")
-        }
-        XCTAssertNil(subtext)
     }
 
     // MARK: - calculatePriceChangeStateBetween
@@ -159,7 +121,7 @@ class PriceChangeUtilityTests: XCTestCase {
         let previousPrice = try #require(Decimal(stringValue: "100.0"))
         // (110 - 100) / 100 * 100 = +10%
         let state = utility.calculatePriceChangeStateBetween(currentPrice: currentPrice, previousPrice: previousPrice)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .positive)
@@ -170,7 +132,7 @@ class PriceChangeUtilityTests: XCTestCase {
         let previousPrice = try #require(Decimal(stringValue: "100.0"))
         // (90 - 100) / 100 * 100 = -10%
         let state = utility.calculatePriceChangeStateBetween(currentPrice: currentPrice, previousPrice: previousPrice)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .negative)
@@ -180,7 +142,7 @@ class PriceChangeUtilityTests: XCTestCase {
         let currentPrice = try #require(Decimal(stringValue: "100.0"))
         let previousPrice = try #require(Decimal(stringValue: "100.0"))
         let state = utility.calculatePriceChangeStateBetween(currentPrice: currentPrice, previousPrice: previousPrice)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .neutral)
@@ -191,7 +153,7 @@ class PriceChangeUtilityTests: XCTestCase {
         let previousPrice = try #require(Decimal(stringValue: "100.0"))
         // (200 - 100) / 100 * 100 = +100%
         let state = utility.calculatePriceChangeStateBetween(currentPrice: currentPrice, previousPrice: previousPrice)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .positive)
@@ -202,7 +164,7 @@ class PriceChangeUtilityTests: XCTestCase {
         let previousPrice = try #require(Decimal(stringValue: "100.0"))
         // (50 - 100) / 100 * 100 = -50%
         let state = utility.calculatePriceChangeStateBetween(currentPrice: currentPrice, previousPrice: previousPrice)
-        guard case .loaded(let changeType, _, _) = state else {
+        guard case .loaded(let changeType, _) = state else {
             return XCTFail("Expected .loaded, got \(state)")
         }
         XCTAssertEqual(changeType, .negative)
