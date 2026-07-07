@@ -15,7 +15,7 @@ enum MarketingBannerMapper {
             .compactMap { makeBanner(from: $0) }
 
         return MarketingBanners(
-            standalone: banners.first { $0.isStandalone },
+            standalone: banners.filter { $0.isStandalone },
             linked: banners.filter { !$0.isStandalone }
         )
     }
