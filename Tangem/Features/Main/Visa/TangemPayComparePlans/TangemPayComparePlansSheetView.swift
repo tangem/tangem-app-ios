@@ -59,7 +59,7 @@ struct TangemPayComparePlansSheetView: View {
             ) {
                 HStack(spacing: Constants.tileSpacing) {
                     ForEach(Array(plan.cells.enumerated()), id: \.offset) { _, cell in
-                        TangemPayComparePlanCell(cell: cell)
+                        TangemPayComparePlanCell(value: cell)
                     }
                 }
             }

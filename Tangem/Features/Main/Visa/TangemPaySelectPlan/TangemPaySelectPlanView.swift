@@ -32,32 +32,34 @@ struct TangemPaySelectPlanView: View {
     }
 
     private var content: some View {
-        VStack(spacing: 0) {
-            carousel
-                .padding(.top, 8)
-                .padding(.bottom, 88)
+        ScrollView {
+            VStack(spacing: 0) {
+                carousel
+                    .padding(.top, 8)
+                    .padding(.bottom, 88)
 
-            TangemPayCardPageIndicatorRedesigned(
-                count: viewModel.plans.count,
-                selectedIndex: viewModel.selectedIndex
-            )
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, 24)
-            .padding(.top, 24)
+                TangemPayCardPageIndicatorRedesigned(
+                    count: viewModel.plans.count,
+                    selectedIndex: viewModel.selectedIndex
+                )
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 24)
+                .padding(.top, 24)
 
-            VStack(alignment: .leading, spacing: 16) {
-                Text(viewModel.selectedPlan.name)
-                    .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(viewModel.selectedPlan?.name ?? "")
+                        .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
-                pointsList
+                    pointsList
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
+                .padding(.bottom, 24)
+                .animation(.default, value: viewModel.selectedIndex)
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 20)
-            .animation(.default, value: viewModel.selectedIndex)
-
-            Spacer(minLength: 0)
         }
+        .scrollIndicators(.hidden)
     }
 
     @ViewBuilder
@@ -80,6 +82,7 @@ struct TangemPaySelectPlanView: View {
             ScrollView(.horizontal) {
                 HStack(spacing: Constants.cardSpacing) {
                     ForEach(viewModel.plans) { plan in
+                        // [REDACTED_TODO_COMMENT]
                         Assets.Visa.cardPlatinum.image
                             .resizable()
                             .frame(width: Constants.cardWidth, height: Constants.cardHeight)
@@ -109,6 +112,7 @@ struct TangemPaySelectPlanView: View {
     private var legacyCarousel: some View {
         TabView(selection: $viewModel.selectedPlanID) {
             ForEach(viewModel.plans) { plan in
+                // [REDACTED_TODO_COMMENT]
                 Assets.Visa.cardPlatinum.image
                     .resizable()
                     .frame(width: Constants.cardWidth, height: Constants.cardHeight)
@@ -121,7 +125,7 @@ struct TangemPaySelectPlanView: View {
 
     private var pointsList: some View {
         VStack(alignment: .leading, spacing: 16) {
-            ForEach(viewModel.selectedPlan.points) { point in
+            ForEach(viewModel.selectedPlan?.points ?? []) { point in
                 HStack(alignment: .top, spacing: 8) {
                     Assets.infoCircle20.image
                         .renderingMode(.template)
@@ -175,6 +179,9 @@ struct TangemPaySelectPlanView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .background(alignment: .bottom) {
+            BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
+        }
     }
 
     private var background: some View {
@@ -199,13 +206,3 @@ private extension TangemPaySelectPlanView {
         static let cardSpacing: CGFloat = 88
     }
 }
-
-// MARK: - Previews
-
-#if DEBUG
-#Preview {
-    NavigationStack {
-        TangemPaySelectPlanView(viewModel: TangemPaySelectPlanViewModel(coordinator: nil))
-    }
-}
-#endif // DEBUG
