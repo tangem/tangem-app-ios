@@ -504,6 +504,8 @@
 "error_wrong_wallet_tapped" = "您使用了另一個錢包中的卡。點按與此錢包關聯的卡片";
 "eth_gas_required_exceeds_allowance" = "沒有足夠的資金進行交易。請先入金";
 "exchange_token_description" = "Swap any asset in your portfolio for this token";
+"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
+"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "Provided by %@";
 "express_choose_provider" = "Choose provider";
 "express_error_provider_amount_roundup" = "Error %1$@. The selected provider cannot process the specified transaction. Please round the value up to %2$@ or change it";
