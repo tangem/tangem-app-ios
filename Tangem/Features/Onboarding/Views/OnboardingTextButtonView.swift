@@ -114,32 +114,31 @@ struct OnboardingTextButtonView: View {
     }
 }
 
-struct OnboardingTextButtonView_Previews: PreviewProvider {
-    @State static var isChecked: Bool = false
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var isChecked = false
 
-    static var previews: some View {
-        OnboardingTextButtonView(
-            title: "Create wallet",
-            subtitle: "Let's generate all the keys on your card and create a secure wallet",
-            textOffset: .init(width: 0, height: -100),
-            buttonsSettings:
-            .init(
-                main: MainButton.Settings(
-                    title: "Create wallet",
-                    isLoading: false,
-                    isDisabled: false,
-                    action: {}
-                ),
-                supplement: .init(
-                    title: "Other options",
-                    action: {}
-                )
+    OnboardingTextButtonView(
+        title: "Create wallet",
+        subtitle: "Let's generate all the keys on your card and create a secure wallet",
+        textOffset: .init(width: 0, height: -100),
+        buttonsSettings:
+        .init(
+            main: MainButton.Settings(
+                title: "Create wallet",
+                isLoading: false,
+                isDisabled: false,
+                action: {}
             ),
-            infoText: nil,
-            titleAction: {},
-            checkmarkText: "I understand",
-            isCheckmarkChecked: $isChecked
-        )
-        .padding(.horizontal, 40)
-    }
+            supplement: .init(
+                title: "Other options",
+                action: {}
+            )
+        ),
+        infoText: nil,
+        titleAction: {},
+        checkmarkText: "I understand",
+        isCheckmarkChecked: $isChecked
+    )
+    .padding(.horizontal, 40)
 }

@@ -40,9 +40,11 @@ extension XCUIElement {
         }
 
         let app = XCUIApplication()
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.05))
 
         for _ in 0 ..< scrollAttempts {
-            app.swipeUp()
+            start.press(forDuration: 0.1, thenDragTo: end)
             if isHittable {
                 return waitAndTap(timeout: timeout)
             }
