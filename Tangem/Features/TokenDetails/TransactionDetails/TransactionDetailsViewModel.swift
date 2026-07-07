@@ -52,9 +52,10 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     private var rawBlocks: [TransactionDetailsBlock] {
         switch content {
-        case .sendReceive(let data): data.blocks
+        case .single(let data): data.blocks
         case .swap(let viewModel): viewModel.blocks
         case .onramp(let viewModel): viewModel.blocks
+        case .yield(let data): data.blocks
         }
     }
 
@@ -66,7 +67,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         guard !isSuccessBannerDismissed, rawBlocks.contains(where: isSuccessBanner) else { return }
 
         Task { @MainActor [weak self] in
-            try? await ContinuousClock().sleep(for: .seconds(2))
+            try? await Task.sleep(for: .seconds(2), clock: .continuous)
             self?.isSuccessBannerDismissed = true
         }
     }
@@ -77,15 +78,18 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     }
 
     enum Content {
-        case sendReceive(TransactionDetailsSendReceiveViewData)
+        case single(TransactionDetailsSingleOperationViewData)
         case swap(SwapTransactionDetailsViewData)
         case onramp(OnrampTransactionDetailsViewData)
+        case yield(TransactionDetailsYieldViewData)
     }
 }
 
 enum TransactionDetailsBlock: Identifiable {
     case tokens(TransactionDetailsTokensViewData)
+    case yieldTokens(TransactionDetailsYieldTokensViewData)
     case statusBanner(TransactionDetailsStatusBannerViewData)
+    case principalAmount(TransactionDetailsPrincipalAmountViewData)
     case counterparty(TransactionDetailsAddressViewData)
     case info(TransactionDetailsInfoSectionViewData)
     case action(TransactionDetailsActionButtonViewData)
@@ -93,7 +97,9 @@ enum TransactionDetailsBlock: Identifiable {
     var id: String {
         switch self {
         case .tokens: "tokens"
+        case .yieldTokens: "yieldTokens"
         case .statusBanner: "statusBanner"
+        case .principalAmount: "principalAmount"
         case .counterparty: "counterparty"
         case .info: "info"
         case .action: "action"
