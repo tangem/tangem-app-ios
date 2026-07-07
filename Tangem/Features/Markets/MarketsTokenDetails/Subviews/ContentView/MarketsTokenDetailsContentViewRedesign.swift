@@ -38,7 +38,20 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                     .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
+            marketingBanner
+
             content
+        }
+    }
+
+    @ViewBuilder
+    private var marketingBanner: some View {
+        if let marketingNotifications = viewModel.marketingNotifications {
+            NotificationBannerContainer(
+                items: marketingNotifications,
+                stackingType: .carousel
+            )
+            .padding(.horizontal, Constants.contentHorizontalPadding)
         }
     }
 
