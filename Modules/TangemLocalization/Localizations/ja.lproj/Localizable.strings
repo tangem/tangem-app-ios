@@ -504,6 +504,8 @@
 "error_wrong_wallet_tapped" = "別のウォレットのカードまたはリングを使用しました。このウォレットにリンクしているカードまたはリングをタップしてください。";
 "eth_gas_required_exceeds_allowance" = "取引に必要な資金が不足しています。アカウントに入金してください。";
 "exchange_token_description" = "ポートフォリオ内のアセットをこのトークンと交換します";
+"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
+"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "提供元 %@";
 "express_choose_provider" = "プロバイダーを選択";
 "express_error_provider_amount_roundup" = "エラー%1$@ 。選択したプロバイダーは指定された取引を処理できません。値を%2$@に切り上げるか、変更してください。";
