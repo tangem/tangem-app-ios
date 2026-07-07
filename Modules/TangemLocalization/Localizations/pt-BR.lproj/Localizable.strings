@@ -504,6 +504,8 @@
 "error_wrong_wallet_tapped" = "Você usou um cartão ou anel de outra carteira. Toque no cartão ou anel associado a esta carteira.";
 "eth_gas_required_exceeds_allowance" = "Não há fundos suficientes para esta transação. Por favor, adicione mais fundos à sua conta.";
 "exchange_token_description" = "Troque qualquer ativo da sua carteira por este token.";
+"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
+"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "Fornecido por %@";
 "express_choose_provider" = "Escolha o fornecedor";
 "express_error_provider_amount_roundup" = "Erro %1$@O provedor selecionado não pode processar a transação especificada. Arredonde o valor para cima. %2$@ ou alterá-lo";

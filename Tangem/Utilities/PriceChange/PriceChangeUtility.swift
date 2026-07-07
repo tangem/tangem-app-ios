@@ -11,7 +11,6 @@ import TangemUI
 
 struct PriceChangeUtility {
     private let priceChangeFormatter = PriceChangeFormatter()
-    private let priceValueFormatter = PriceValueFormatter()
 
     func convertToPriceChangeState(changeFractional: Decimal?) -> PriceChangeView.State {
         guard let changeFractional else {
@@ -32,15 +31,13 @@ struct PriceChangeUtility {
         }
 
         let priceChangeResult = priceChangeFormatter.formatPercentValue(changePercent, option: .priceChange)
-        let valueChangeResult = changeValue.map { priceValueFormatter.formatValue($0) }
 
         let changeType = priceChangeResult.signType.priceChangeViewChangeType
         let text = priceChangeResult.formattedText
-        let subtext = valueChangeResult.map(\.formattedText)
 
         return loading
-            ? .loadingCached(changeType: changeType, text: text, subtext: subtext)
-            : .loaded(changeType: changeType, text: text, subtext: subtext)
+            ? .loadingCached(changeType: changeType, text: text)
+            : .loaded(changeType: changeType, text: text)
     }
 
     func calculatePriceChangeStateBetween(currentPrice: Decimal, previousPrice: Decimal) -> PriceChangeView.State {

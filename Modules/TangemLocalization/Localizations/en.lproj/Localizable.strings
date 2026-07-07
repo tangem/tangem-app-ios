@@ -504,6 +504,8 @@
 "error_wrong_wallet_tapped" = "You have used a card or ring from another wallet. Tap the card or ring associated with this wallet";
 "eth_gas_required_exceeds_allowance" = "Not enough funds for the transaction. Please top up your account.";
 "exchange_token_description" = "Swap any asset in your portfolio for this token";
+"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
+"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "Provided by %@";
 "express_choose_provider" = "Choose provider";
 "express_error_provider_amount_roundup" = "Error %1$@. The selected provider cannot process the specified transaction. Please round the value up to %2$@ or change it";
