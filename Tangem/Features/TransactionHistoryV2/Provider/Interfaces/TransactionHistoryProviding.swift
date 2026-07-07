@@ -12,4 +12,4 @@ protocol TransactionHistoryProviding:
     Identifiable,
     TransactionHistorySyncing,
     TransactionHistoryExpressDataEnriching,
-    WalletModelTransactionHistoryBridging {}
+    WalletModelTransactionHistoryEnriching {}
