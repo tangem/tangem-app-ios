@@ -85,6 +85,7 @@
 "address_book_address_copied" = "Address copied";
 "address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
+"address_book_clear_all_networks" = "Clear All";
 "address_book_contact_name" = "Nombre de contacto";
 "address_book_contact" = "Contacto";
 "address_book_copy_address" = "Copiar dirección";
@@ -114,6 +115,7 @@
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Este contacto se añadirá a la agenda de esta billetera.";
 "address_book_search_no_results" = "No results found.\nTry another name";
+"address_book_select_all_networks" = "Select All";
 "address_book_select_network" = "Seleccionar red";
 "address_book_title" = "Libreta de direcciones";
 "address_book_unsaved_changes_description" = "¿Está seguro de que quiere descartar los cambios?";
@@ -504,8 +506,6 @@
 "error_wrong_wallet_tapped" = "Ha usado una tarjeta de otra billetera. Toque la tarjeta asociada con esta billetera";
 "eth_gas_required_exceeds_allowance" = "No hay fondos suficientes para la transacción. Por favor, recargue su cuenta.";
 "exchange_token_description" = "Intercambie cualquier activo de su cartera por este token";
-"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
-"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "Proporcionado por %@";
 "express_choose_provider" = "Elegir proveedor";
 "express_error_provider_amount_roundup" = "Error %1$@. El proveedor seleccionado no puede procesar la transacción especificada. Por favor, redondee el valor a %2$@ o cámbielo";
@@ -1060,13 +1060,13 @@
 "onramp_title_available_up_to" = "Disponible hasta";
 "onramp_title_you_get" = "Obtiene";
 "onramp_token_is_not_supported_banner_subtitle" = "This token is not supported. Please choose a different token to buy.";
+"onramp_token_is_not_supported_banner_title" = "%@ is not supported";
 "onramp_tos_external_providers" = "El servicio es proporcionado por un proveedor externo. \nTangem no es responsable.";
 "onramp_transaction_status_footer_text" = "Puede comprobar el estado de la transacción desde la página detallada del token";
 "onramp_up_to_rate" = "Hasta";
 "onramp_via_provider" = "vía %@";
 "onramp_via" = "Vía";
 "onramp_you_will_pay_title" = "Pagará";
-"onramps_token_is_not_supported_banner_title" = "%@ is not supported";
 "organize_tokens_group" = "Agrupar";
 "organize_tokens_menu_group_by_networks" = "Agrupar por redes";
 "organize_tokens_menu_sort_by_balance" = "Ordenar por saldo";
