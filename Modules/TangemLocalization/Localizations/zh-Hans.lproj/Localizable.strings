@@ -85,10 +85,11 @@
 "address_book_address_copied" = "地址已复制";
 "address_book_address_taken_error" = "此地址已保存为 %1$@";
 "address_book_choose_address" = "选择地址";
+"address_book_clear_all_networks" = "Clear All";
 "address_book_contact_name" = "联系人姓名";
 "address_book_contact" = "联系人";
 "address_book_copy_address" = "复制地址";
-"address_book_create_success_message" = "Contact saved";
+"address_book_create_success_message" = "联系人已保存";
 "address_book_creating_error" = "无法创建联系人。请稍后再试。";
 "address_book_delete_contact_description" = "该联系人将从您所有的通讯录中删除";
 "address_book_delete_contact" = "删除联系人";
@@ -114,6 +115,7 @@
 "address_book_save_to_wallet_title" = "保存到钱包";
 "address_book_save_wallet_to_description" = "该联系人将与该钱包的通讯录关联。";
 "address_book_search_no_results" = "未找到结果。\n请尝试其他名称";
+"address_book_select_all_networks" = "Select All";
 "address_book_select_network" = "选择网络";
 "address_book_title" = "地址簿";
 "address_book_unsaved_changes_description" = "您确定要放弃这些修改吗？";
@@ -504,8 +506,6 @@
 "error_wrong_wallet_tapped" = "您使用了另一个钱包中的卡或指环。点击与此钱包关联的卡或指环";
 "eth_gas_required_exceeds_allowance" = "账户余额不足，请充值。";
 "exchange_token_description" = "将您投资组合中的任何资产交换为该代币";
-"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
-"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "提供者 %@";
 "express_choose_provider" = "选择提供商";
 "express_error_provider_amount_roundup" = "错误 %1$@。所选提供商无法处理指定交易。请将数值四舍五入至 %2$@ 或更改数值";
@@ -1060,13 +1060,13 @@
 "onramp_title_available_up_to" = "最高可提供";
 "onramp_title_you_get" = "你得到";
 "onramp_token_is_not_supported_banner_subtitle" = "This token is not supported. Please choose a different token to buy.";
+"onramp_token_is_not_supported_banner_title" = "%@ is not supported";
 "onramp_tos_external_providers" = "服务由外部供应商提供。\nTangem 不承担任何责任。";
 "onramp_transaction_status_footer_text" = "您可以关闭此屏幕，并在代币详情屏幕上查看交易状态。";
 "onramp_up_to_rate" = "至多";
 "onramp_via_provider" = "通过 %@";
 "onramp_via" = "通过";
 "onramp_you_will_pay_title" = "您将支付";
-"onramps_token_is_not_supported_banner_title" = "%@ is not supported";
 "organize_tokens_group" = "分组";
 "organize_tokens_menu_group_by_networks" = "按网络分组";
 "organize_tokens_menu_sort_by_balance" = "按余额排序";
