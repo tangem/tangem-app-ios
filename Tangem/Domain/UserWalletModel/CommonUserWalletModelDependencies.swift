@@ -111,6 +111,7 @@ struct CommonUserWalletModelDependencies {
         userWalletModelConfigurableDependencies.derivationManager?.configure(with: model)
         userWalletModelConfigurableDependencies.cryptoAccountsRepository.configure(with: model)
         userWalletModelConfigurableDependencies.keysRepository.configure(with: model)
+        addressBookManager.configure(with: model)
     }
 }
 
