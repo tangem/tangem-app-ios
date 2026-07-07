@@ -20,6 +20,7 @@ public class IncomingActionParser {
         BlockchainURLSchemesParser(),
         OnrampIncomingActionURLParser(),
         NewsIncomingLinkParser(),
+        TangemPayOnboardingLinkParser(),
         DefaultIncomingLinkParser(),
     ]
 

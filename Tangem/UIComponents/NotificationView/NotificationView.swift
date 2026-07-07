@@ -232,8 +232,9 @@ private extension View {
 
 // MARK: - Previews
 
-struct NotificationView_Previews: PreviewProvider {
-    class PreviewViewModel: ObservableObject {
+@available(iOS 17.0, *)
+#Preview {
+    final class PreviewViewModel: ObservableObject {
         lazy var notificationInputs: [NotificationViewInput] = [
             .init(
                 style: .withButtons([
@@ -286,33 +287,25 @@ struct NotificationView_Previews: PreviewProvider {
         }
     }
 
-    struct Preview: View {
-        @ObservedObject var viewModel: PreviewViewModel = .init()
+    @Previewable @StateObject var viewModel = PreviewViewModel()
 
-        var body: some View {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 14) {
-                    ForEach(viewModel.notifications) { input in
-                        NotificationView(input: input)
-                            .transition(.notificationTransition)
-                    }
-
-                    Button(action: viewModel.addNotification) {
-                        Text("Add notification")
-                    }
-                }
-                .padding(.vertical, 40)
-
-                .padding(.horizontal, 16)
-                .animation(.default, value: viewModel.notifications)
-                .infinityFrame()
+    return ScrollView(showsIndicators: false) {
+        VStack(spacing: 14) {
+            ForEach(viewModel.notifications) { input in
+                NotificationView(input: input)
+                    .transition(.notificationTransition)
             }
-            .infinityFrame()
-            .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        }
-    }
 
-    static var previews: some View {
-        Preview()
+            Button(action: viewModel.addNotification) {
+                Text("Add notification")
+            }
+        }
+        .padding(.vertical, 40)
+
+        .padding(.horizontal, 16)
+        .animation(.default, value: viewModel.notifications)
+        .infinityFrame()
     }
+    .infinityFrame()
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }

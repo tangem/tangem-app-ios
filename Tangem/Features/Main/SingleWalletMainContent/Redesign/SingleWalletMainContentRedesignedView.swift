@@ -67,7 +67,6 @@ private extension SingleWalletMainContentRedesignedView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     let userWalletModel = FakeUserWalletModel.xrpNote
     let walletModel = userWalletModel
@@ -76,6 +75,12 @@ private extension SingleWalletMainContentRedesignedView {
         .walletModelsManager
         .walletModels[0]
 
+    let expressStatusPollingHelper = ExpressStatusPollingHelper(
+        exchangePoller: FakeExpressStatusPoller<ExchangeStatusPollIteration>(),
+        onrampPoller: FakeExpressStatusPoller<OnrampStatusPollIteration>(),
+        enricherFactory: { nil }
+    )
+
     SingleWalletMainContentRedesignedView(
         viewModel: SingleWalletMainContentViewModel(
             userWalletModel: userWalletModel,
@@ -83,6 +88,7 @@ private extension SingleWalletMainContentRedesignedView {
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             promotionNotificationsManager: FakePromotionNotificationsManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
+            expressStatusPollingHelper: expressStatusPollingHelper,
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenRouter: SingleTokenRoutableMock(),
@@ -92,4 +98,3 @@ private extension SingleWalletMainContentRedesignedView {
         )
     )
 }
-#endif

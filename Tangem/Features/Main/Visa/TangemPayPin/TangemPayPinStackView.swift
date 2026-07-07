@@ -97,7 +97,6 @@ struct TangemPayPinStackView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 40) {
         TangemPayPinStackView(pinText: .constant("12"), length: 4)
@@ -107,4 +106,3 @@ struct TangemPayPinStackView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

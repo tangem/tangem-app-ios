@@ -64,29 +64,25 @@ extension GroupedScrollView: Setupable {
     }
 }
 
-#if DEBUG
-struct SettingsViewGroupedScrollView_Previews: PreviewProvider {
+#Preview {
     struct ViewModel: Identifiable {
         let id = UUID()
         let text: String
     }
 
-    static var previews: some View {
-        GroupedScrollView {
-            let models = [
-                ViewModel(text: "Text1"),
-                ViewModel(text: "Text2"),
-            ]
+    return GroupedScrollView {
+        let models = [
+            ViewModel(text: "Text1"),
+            ViewModel(text: "Text2"),
+        ]
 
-            GroupedSection(models) {
-                Text($0.text)
-            } footer: {
-                Text("I am footer")
-                    .frame(maxWidth: .infinity)
-                    .background(Colors.Background.action)
-            }
+        GroupedSection(models) {
+            Text($0.text)
+        } footer: {
+            Text("I am footer")
+                .frame(maxWidth: .infinity)
+                .background(Colors.Background.action)
         }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
-#endif
