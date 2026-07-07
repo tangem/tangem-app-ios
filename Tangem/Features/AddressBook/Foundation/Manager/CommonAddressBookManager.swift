@@ -15,13 +15,14 @@ final class CommonAddressBookManager {
     private let walletId: UserWalletId
     private let walletPublicKey: Data
     private let repository: AddressBookRepository
-    private let signer: AddressBookSigning
+    private let signer: OSAllocatedUnfairLock<AddressBookSigning>
     private let verifier: AddressBookSignatureVerifying
     private let supportedBlockchains: Set<BSDKBlockchain>
 
     private let decodedContacts = OSAllocatedUnfairLock(initialState: [AddressBookDecodedContact]())
     private let contactsSubject = CurrentValueSubject<[AddressBookContact], Never>([])
     private var bag = Set<AnyCancellable>()
+    private var configurationSubscription: AnyCancellable?
 
     init(
         walletId: UserWalletId,
@@ -34,7 +35,7 @@ final class CommonAddressBookManager {
         self.walletId = walletId
         self.walletPublicKey = walletPublicKey
         self.repository = repository
-        self.signer = signer
+        self.signer = OSAllocatedUnfairLock(initialState: signer)
         self.verifier = verifier
         self.supportedBlockchains = supportedBlockchains
 
@@ -94,7 +95,7 @@ final class CommonAddressBookManager {
             AddressBookSignedTuplePayload(address: $0.address, networkId: $0.networkId, memo: $0.memo, contactId: contactId, name: name)
         }
 
-        let signatures = try await signer.sign(digests: payloads.map(\.digest), walletPublicKey: walletPublicKey)
+        let signatures = try await signer.withLock { $0 }.sign(digests: payloads.map(\.digest), walletPublicKey: walletPublicKey)
 
         return zip(drafts, signatures).map { draft, signature in
             AddressBookDecodedAddressEntry(id: draft.id, address: draft.address, networkId: draft.networkId, memo: draft.memo, signature: signature)
@@ -235,6 +236,14 @@ extension CommonAddressBookManager: AddressBookManager {
 
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> {
         repository.syncStatePublisher
+    }
+
+    func configure(with userWalletModel: UserWalletModel) {
+        configurationSubscription = userWalletModel.updatePublisher
+            .sink { [weak self] result in
+                guard case .configurationChanged(let model) = result else { return }
+                self?.signer.withLock { $0 = CommonAddressBookSigner(signer: model.signer) }
+            }
     }
 
     func load(silent: Bool) async {
