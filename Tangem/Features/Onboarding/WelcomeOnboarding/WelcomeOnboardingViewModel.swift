@@ -102,7 +102,7 @@ extension WelcomeOnboardingViewModel: PushNotificationsPermissionRequestDelegate
     }
 
     func didPostponePushNotifications() {
-        guard experimentService.isOn(.warningScreenOnboarding) else {
+        guard isWarningSheetAvailable else {
             openNextStep()
             return
         }
@@ -114,6 +114,11 @@ extension WelcomeOnboardingViewModel: PushNotificationsPermissionRequestDelegate
 // MARK: - Push notifications warning sheet
 
 extension WelcomeOnboardingViewModel {
+    private var isWarningSheetAvailable: Bool {
+        FeatureProvider.isAvailable(.onboardingPushNotificationDoubleAsk)
+            && experimentService.isOn(.onboardingPushNotificationDoubleAsk)
+    }
+
     func dismissWarningSheet() {
         guard warningSheetViewModel != nil else { return }
 
@@ -124,7 +129,7 @@ extension WelcomeOnboardingViewModel {
     private func presentWarningSheet() {
         let analyticsContext = PushNotificationsWarningAnalyticsContext(
             zone: .onboarding,
-            variant: experimentService.isOn(.warningScreenOnboarding) ? .treatment : .control,
+            variant: isWarningSheetAvailable ? .treatment : .control,
             walletId: nil
         )
 
