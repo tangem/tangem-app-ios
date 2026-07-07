@@ -27,7 +27,7 @@ struct RedesignActionButtonsView: View {
         let visibility = viewModel.actionButtonsVisibility
 
         ColumnContainer(minWidth: TangemMainActionButton.Size.buttonSide, spacing: spacing) {
-            if visibility.isExchangeVisible {
+            if visibility.isAddFundsVisible {
                 RedesignActionButtonView(viewModel: viewModel.buyActionButtonViewModel)
                     .disabled(viewModel.isRedesignActionDisabled(viewModel.buyActionButtonViewModel))
             }
@@ -37,7 +37,7 @@ struct RedesignActionButtonsView: View {
                     .disabled(viewModel.isRedesignActionDisabled(viewModel.swapActionButtonViewModel))
             }
 
-            if visibility.isExchangeVisible {
+            if visibility.isTransferVisible {
                 RedesignActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
                     .disabled(viewModel.isRedesignActionDisabled(viewModel.sellActionButtonViewModel))
             }
