@@ -30,7 +30,7 @@ struct TangemApiTarget: TargetType {
             // (gateway-internal vs. a real path). If BE serves `/v2/...` without `/api`, revert this
             // case back to `apiBaseUrlv2` — same caveat as notification-preferences below.
             AppEnvironment.current.apiBaseUrlv2WithGatewaySegment
-        case .getNotificationPreferences, .updateNotificationPreferences:
+        case .getNotificationPreferences, .updateNotificationPreferences, .marketingCampaigns:
             // Contract v1.3 documents the full path as `/api/v1/notification-preferences/{walletId}`.
             // NOTE: the leading `/api` segment is applied here but still needs backend confirmation.
             // If BE serves `/v1/...` without `/api`, revert this case back to `apiBaseUrl`.
