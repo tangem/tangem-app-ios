@@ -11,15 +11,12 @@ import Foundation
 public struct BlockchainSdkDependencies {
     let accountCreator: any AccountCreator
     let dataStorage: any BlockchainDataStorage
-    let isYieldModuleUpdateEnabled: Bool
 
     public init(
         accountCreator: any AccountCreator,
-        dataStorage: any BlockchainDataStorage,
-        isYieldModuleUpdateEnabled: Bool
+        dataStorage: any BlockchainDataStorage
     ) {
         self.accountCreator = accountCreator
         self.dataStorage = dataStorage
-        self.isYieldModuleUpdateEnabled = isYieldModuleUpdateEnabled
     }
 }
