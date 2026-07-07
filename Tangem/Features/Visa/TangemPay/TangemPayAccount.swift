@@ -31,7 +31,7 @@ final class TangemPayAccount {
     var cardEntries: [TangemPayCardEntry] {
         TangemPayCardEntry.build(
             cards: cardsSubject.value,
-            pendingProductInstances: customerInfoSubject.value.productInstances.filter { $0.cardId == nil },
+            pendingProductInstances: customerInfoSubject.value.cardProductInstances.filter { $0.cardId == nil },
             activeIssueOrders: activeIssueOrdersSubject.value
         )
     }
@@ -41,7 +41,7 @@ final class TangemPayAccount {
             .map { cards, info, orders, _ in
                 TangemPayCardEntry.build(
                     cards: cards,
-                    pendingProductInstances: info.productInstances.filter { $0.cardId == nil },
+                    pendingProductInstances: info.cardProductInstances.filter { $0.cardId == nil },
                     activeIssueOrders: orders
                 )
             }
@@ -171,6 +171,27 @@ final class TangemPayAccount {
         customerInfoSubject.value.customerTariffPlan
     }
 
+    private var currentCustomerInfo: VisaCustomerInfoResponse {
+        multipleCardsEnabled
+            ? customerInfoSubject.value
+            : legacyCustomerInfoSubject.value.customerInfo
+    }
+
+    // MARK: - Virtual Account
+
+    var isKYCApproved: Bool {
+        currentCustomerInfo.kyc?.status == .approved
+    }
+
+    var virtualAccountEntry: VirtualAccountEntry {
+        if let productInstance = currentCustomerInfo.virtualAccountProductInstance {
+            return productInstance.status == .active
+                ? .active(productInstanceId: productInstance.id)
+                : .preparing
+        }
+        return placedVirtualAccountOrderId == nil ? .none : .preparing
+    }
+
     var isDeactivated: Bool {
         multipleCardsEnabled ? isDeactivatedNew : isDeactivatedLegacy
     }
@@ -178,8 +199,9 @@ final class TangemPayAccount {
     private var isDeactivatedNew: Bool {
         let info = customerInfoSubject.value
         if info.state == .former { return true }
-        return !info.productInstances.isEmpty &&
-            info.productInstances.allSatisfy { $0.status == .deactivated || $0.status == .canceled }
+        let cardInstances = info.cardProductInstances
+        return !cardInstances.isEmpty &&
+            cardInstances.allSatisfy { $0.status == .deactivated || $0.status == .canceled }
     }
 
     private var isDeactivatedLegacy: Bool {
@@ -222,6 +244,15 @@ final class TangemPayAccount {
     private let isReissuingCardSubject = CurrentValueSubject<Bool, Never>(false)
     private let cardIssueFailureSubject = PassthroughSubject<Void, Never>()
     private let cardIssueCompletedSubject = PassthroughSubject<Void, Never>()
+
+    private var placedVirtualAccountOrderId: String?
+
+    /// The VA order is polled on its own instance so it can't be cancelled by (or cancel) the shared
+    /// `orderStatusPollingService`, which is single-slot and reused for freeze/reissue/card-issue.
+    private lazy var virtualAccountOrderPollingService = TangemPayOrderStatusPollingService(
+        customerService: customerService,
+        multipleCardsEnabled: multipleCardsEnabled
+    )
 
     private var bag = Set<AnyCancellable>()
 
@@ -292,7 +323,65 @@ final class TangemPayAccount {
 
 enum TangemPayAccountError: Error {
     case missingPaymentAccountAddress
+    case missingDepositAddress
     case missingCardIssueOffer
+}
+
+extension TangemPayAccount {
+    enum VirtualAccountEntry {
+        case none
+        case preparing
+        case active(productInstanceId: String)
+    }
+}
+
+// MARK: - Virtual Account flow
+
+extension TangemPayAccount {
+    /// Places the VA issue order (Rain automation + deposit address on the collateral contract).
+    /// The button loader covers only this request; the banking credentials are prepared server-side
+    /// afterwards, so a background poll refreshes `customer/me` when the order completes.
+    func createVirtualAccount() async throws {
+        let info = currentCustomerInfo
+        guard let depositAddress else {
+            throw TangemPayAccountError.missingDepositAddress
+        }
+
+        let request = TangemPayPlaceOrderRequest(depositAddress: depositAddress)
+        let idempotencyKey = TangemPayIdempotencyKey.make(
+            info.id,
+            TangemPayOrderType.accountIssueVirtualRain.rawValue,
+            TangemPayPlaceOrderRequest.virtualAccountSpecificationName,
+            depositAddress
+        )
+
+        let order = try await customerService.placeOrder(request: request, idempotencyKey: idempotencyKey)
+        placedVirtualAccountOrderId = order.id
+        startVirtualAccountOrderPolling(orderId: order.id)
+    }
+
+    func loadBankCredentials(productInstanceId: String) async throws -> TangemPayBankCredentialsResponse {
+        try await customerService.getBankCredentials(productInstanceId: productInstanceId)
+    }
+
+    private func startVirtualAccountOrderPolling(orderId: String) {
+        virtualAccountOrderPollingService.startOrderStatusPolling(
+            orderId: orderId,
+            interval: Constants.virtualAccountOrderPollInterval,
+            onCompleted: { [weak self] in
+                runTask { await self?.loadCustomerInfo() }
+            },
+            onCanceled: { [weak self] in
+                // Drop the local flag so `virtualAccountEntry` falls back to `.none` and the info sheet
+                // (retry path) becomes reachable again instead of pinning the user on "preparing".
+                self?.placedVirtualAccountOrderId = nil
+            },
+            onFailed: { [weak self] error in
+                VisaLogger.error("Failed to poll virtual account order status", error: error)
+                self?.placedVirtualAccountOrderId = nil
+            }
+        )
+    }
 }
 
 // MARK: - Legacy single-card flow
@@ -365,7 +454,7 @@ private extension TangemPayAccount {
             switch error {
             case .unauthorized:
                 syncNeededSignalSubject.send(())
-            case .moyaError, .apiError, .decodingError:
+            case .moyaError, .apiError, .decodingError, .serverError:
                 unavailableSignalSubject.send(())
             }
             VisaLogger.error("Failed to load customer info", error: error)
@@ -500,7 +589,7 @@ extension TangemPayAccount {
             offerData.orderType,
             offerData.specificationName,
             customerWalletAddress,
-            String(info.productInstances.filter { $0.status == .active }.count)
+            String(info.cardProductInstances.filter { $0.status == .active }.count)
         )
 
         let existing = try await orderResolver.findActiveCardIssueOrder()
@@ -537,7 +626,7 @@ private extension TangemPayAccount {
             switch error {
             case .unauthorized:
                 syncNeededSignalSubject.send(())
-            case .moyaError, .apiError, .decodingError:
+            case .moyaError, .apiError, .decodingError, .serverError:
                 unavailableSignalSubject.send(())
             }
             VisaLogger.error("Failed to load customer info", error: error)
@@ -672,5 +761,6 @@ private extension TangemPayAccount {
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
         static let reissueOrderPollInterval: TimeInterval = 5
         static let cardIssuePollInterval: TimeInterval = 5
+        static let virtualAccountOrderPollInterval: TimeInterval = 5
     }
 }
