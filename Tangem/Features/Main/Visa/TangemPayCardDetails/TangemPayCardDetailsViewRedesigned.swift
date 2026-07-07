@@ -15,6 +15,8 @@ import TangemAccessibilityIdentifiers
 struct TangemPayCardDetailsViewRedesigned: View {
     @ObservedObject var viewModel: TangemPayCardDetailsViewModel
 
+    var showsInlineDetailsButton: Bool = false
+
     @FocusState private var isCardNameFocused: Bool
     @State private var animationProgress: CGFloat = .zero
     @State private var onHalfFlipCalled: Bool = false
@@ -116,6 +118,10 @@ struct TangemPayCardDetailsViewRedesigned: View {
                 }
 
                 Spacer()
+
+                if showsInlineDetailsButton, viewModel.state.showDetailsButtonVisible {
+                    showDetailsButton
+                }
             }
         }
         .padding(16)
@@ -183,6 +189,18 @@ struct TangemPayCardDetailsViewRedesigned: View {
         .screenCaptureProtection()
     }
 
+    private var showDetailsButton: some View {
+        Button(action: viewModel.toggleVisibility) {
+            Text(Localization.tangempayCardDetailsShowDetails)
+                .font(DesignSystem.Font.bodyMediumToken)
+                .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
+        }
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardDetailsShowButton)
+    }
+
     private var closeButton: some View {
         Button(action: viewModel.toggleVisibility) {
             DesignSystem.Icons.Cross.regular20.image
@@ -199,16 +217,13 @@ struct TangemPayCardDetailsViewRedesigned: View {
 
     private var cardHeader: some View {
         HStack(alignment: .center, spacing: 6) {
-            DesignSystem.Icons.Cloud.filled12.image
-                .renderingMode(.template)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 10)
-                .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
-
             Text(Localization.tangempayDigitalCard)
                 .font(DesignSystem.Font.bodyMediumToken)
                 .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
+
+            DesignSystem.Icons.Cloud.filled20.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconStaticDark)
 
             Spacer()
         }
