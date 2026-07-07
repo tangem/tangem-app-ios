@@ -11,7 +11,7 @@ import TangemLocalization
 struct TransactionDetailsProviderInfo {
     let name: String
     let iconURL: URL?
-    let onTap: () -> Void
+    let onTap: (() -> Void)?
 
     var infoRow: TransactionDetailsInfoSectionViewData.Row {
         .init(
