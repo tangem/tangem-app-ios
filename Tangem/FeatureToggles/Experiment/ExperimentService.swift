@@ -54,14 +54,17 @@ final class CommonExperimentService {
     private func bind() {
         userWalletRepository
             .eventProvider
-            .withWeakCaptureOf(self)
-            .sink { manager, event in
-                switch event {
-                case .selected(let userWalletId):
-                    manager.setContext(for: userWalletId)
-                default:
-                    break
+            .compactMap { event -> UserWalletId? in
+                guard case .selected(let userWalletId) = event else {
+                    return nil
                 }
+
+                return userWalletId
+            }
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { manager, userWalletId in
+                manager.setContext(for: userWalletId)
             }
             .store(in: &bag)
     }
