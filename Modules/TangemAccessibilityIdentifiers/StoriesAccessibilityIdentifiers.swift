@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  StoriesAccessibilityIdentifiers.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
