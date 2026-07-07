@@ -74,8 +74,13 @@ final class CommonAddressBookManager {
             )
         }
 
+        if !verified.isEmpty, verified.count != contact.addresses.count {
+            ABLogger.warning("Contact \(contact.id.stringValue) has \(contact.addresses.count - verified.count) unverifiable entries of \(contact.addresses.count)")
+        }
+
         // A contact whose entries all fail verification is not shown at all (spec 2.1.3).
         guard let entries = AddressBookContactEntries(verified) else {
+            ABLogger.warning("Contact \(contact.id.stringValue) hidden: no verifiable entries")
             return nil
         }
 
