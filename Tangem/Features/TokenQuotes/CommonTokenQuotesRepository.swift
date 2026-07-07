@@ -24,7 +24,7 @@ class CommonTokenQuotesRepository {
     init() {
         bind()
 
-        try? _quotes.send(storage.value())
+        loadCachedQuotes()
     }
 }
 
@@ -101,6 +101,24 @@ extension CommonTokenQuotesRepository: TokenQuotesRepositoryUpdater {
 // MARK: - Private
 
 private extension CommonTokenQuotesRepository {
+    func loadCachedQuotes() {
+        runTask(in: self) { repository in
+            guard let cached: Quotes = try? await repository.storage.value() else {
+                return
+            }
+
+            repository.lock {
+                var current = repository._quotes.value
+
+                for (currencyId, quote) in cached where current[currencyId] == nil {
+                    current[currencyId] = quote
+                }
+
+                repository._quotes.send(current)
+            }
+        }
+    }
+
     func bind() {
         loadingQueue
             .collect(debouncedTime: 0.3, scheduler: DispatchQueue.global())
