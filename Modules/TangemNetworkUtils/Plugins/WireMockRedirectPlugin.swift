@@ -22,7 +22,11 @@ public struct WireMockRedirectPlugin: PluginType {
     private static let wireMockRemoteHost = "wiremock.tests-d.com"
 
     /// Real third-party hosts whose mocks live under a host-prefixed path on the WireMock server.
-    private static let thirdPartyMockedHosts: Set<String> = ["api.etherscan.io"]
+    private static let thirdPartyMockedHosts: Set<String> = [
+        "api.etherscan.io",
+        "deep-index.moralis.io",
+        "eth-blockbook.nownodes.io",
+    ]
 
     private let overrideComponents: URLComponents?
 
