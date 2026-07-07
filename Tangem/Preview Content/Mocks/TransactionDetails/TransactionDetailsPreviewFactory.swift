@@ -16,26 +16,106 @@ enum TransactionDetailsPreviewFactory {
     // MARK: - Send / Receive
 
     static func sent() -> TransactionDetailsViewModel {
-        viewModel(
-            header: header(title: "Sent", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: true)),
-            content: .sendReceive(TransactionDetailsSendReceiveViewData(
-                tokens: .init(tokenIconInfo: icon("Tether"), amountText: "−350.31 USDT", fiatText: "$350.31"),
-                statusBanner: nil,
-                counterparty: .init(label: "Recipient", actor: .address(short: truncatedAddress, blockiesImage: .init(image: nil)), onCopy: {}),
-                info: .init(rows: [.init(id: "networkFee", title: "Network fee", content: .text("0.00056 ETH"))]),
-                action: nil
-            ))
-        )
+        single(title: "Sent", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: true), data: .init(
+            tokens: .init(tokenIconInfo: icon("Tether"), amountText: "−350.31 USDT", fiatText: "$350.31"),
+            statusBanner: nil,
+            principalAmount: nil,
+            counterparty: .init(label: "Recipient", actor: .address(short: truncatedAddress, blockiesImage: .init(image: nil)), onCopy: {}),
+            info: .init(rows: [.init(id: "networkFee", title: "Network fee", content: .text("0.00056 ETH"))]),
+            action: nil
+        ))
     }
 
     static func received() -> TransactionDetailsViewModel {
+        single(title: "Received", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false), data: .init(
+            tokens: .init(tokenIconInfo: icon("Tether"), amountText: "+350.31 USDT", fiatText: "$350.31"),
+            statusBanner: nil,
+            principalAmount: nil,
+            counterparty: .init(label: "From address", actor: .address(short: truncatedAddress, blockiesImage: .init(image: nil)), onCopy: {}),
+            info: nil,
+            action: nil
+        ))
+    }
+
+    // MARK: - Staking / Approve / Fee / Other (single-operation)
+
+    static func staking() -> TransactionDetailsViewModel {
+        single(title: "Staked", operationIcon: .init(type: .stake, status: .confirmed, isOutgoing: true), data: .init(
+            tokens: .init(tokenIconInfo: icon("Ethereum", color: .blue), amountText: "1.00 ETH", fiatText: "$3,900.00"),
+            statusBanner: nil,
+            principalAmount: nil,
+            counterparty: nil,
+            info: .init(rows: [
+                .init(id: "validator", title: "Validator", content: .text("Aave")),
+                .init(id: "networkFee", title: "Network fee", content: .text("0.0001 ETH")),
+            ]),
+            action: nil
+        ))
+    }
+
+    static func approve() -> TransactionDetailsViewModel {
+        single(title: "Approved", operationIcon: .init(type: .approve, status: .confirmed, isOutgoing: true), data: .init(
+            tokens: .init(tokenIconInfo: icon("Tether", color: .green), amountText: "Unlimited USDT", fiatText: nil),
+            statusBanner: nil,
+            principalAmount: nil,
+            counterparty: nil,
+            info: .init(rows: [
+                .init(id: "spender", title: "Spender", content: .text("Uniswap")),
+                .init(id: "networkFee", title: "Network fee", content: .text("0.0001 ETH")),
+            ]),
+            action: nil
+        ))
+    }
+
+    static func fee() -> TransactionDetailsViewModel {
+        single(title: "Network Fee", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: true), data: .init(
+            tokens: .init(tokenIconInfo: icon("Ethereum", color: .blue), amountText: "−0.000015 ETH", fiatText: "$0.01"),
+            statusBanner: nil,
+            principalAmount: principalAmount(),
+            counterparty: nil,
+            info: .init(rows: [
+                .init(id: "gasPrice", title: "Gas price", content: .text("32 Gwei")),
+                .init(id: "gasUsed", title: "Gas used", content: .text("21,000")),
+            ]),
+            action: nil
+        ))
+    }
+
+    static func other() -> TransactionDetailsViewModel {
+        single(title: "Operation", operationIcon: .init(type: .operation(name: "Operation"), status: .confirmed, isOutgoing: false), data: .init(
+            tokens: nil,
+            statusBanner: nil,
+            principalAmount: nil,
+            counterparty: nil,
+            info: .init(rows: [
+                .init(id: "provider", title: "Provider", content: .link(.init(text: "Mercuryo", iconURL: nil, handler: {}))),
+                .init(id: "rate", title: "Rate", content: .text("1 SOL ≈ 0.000075 BTC")),
+            ]),
+            action: nil
+        ))
+    }
+
+    // MARK: - Yield
+
+    static func yieldTokens() -> TransactionDetailsYieldTokensViewData {
+        .init(
+            accountIcon: .composite(backgroundColor: .purple, nameMode: .letter("M")),
+            tokenIconInfo: icon("Tether", color: .green),
+            amountText: "1,294.23 USDT",
+            subtitleText: "Activated"
+        )
+    }
+
+    static func yieldEnabled() -> TransactionDetailsViewModel {
         viewModel(
-            header: header(title: "Received", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false)),
-            content: .sendReceive(TransactionDetailsSendReceiveViewData(
-                tokens: .init(tokenIconInfo: icon("Tether"), amountText: "+350.31 USDT", fiatText: "$350.31"),
+            header: header(title: "Yield mode enabled", operationIcon: .init(type: .yieldEnter, status: .confirmed, isOutgoing: false)),
+            content: .yield(TransactionDetailsYieldViewData(
+                tokens: yieldTokens(),
                 statusBanner: nil,
-                counterparty: .init(label: "From address", actor: .address(short: truncatedAddress, blockiesImage: .init(image: nil)), onCopy: {}),
-                info: nil,
+                info: .init(rows: [
+                    .init(id: "validator", title: "Validator", content: .text("Aave")),
+                    .init(id: "networkFee", title: "Network fee", content: .text("$4.45")),
+                ]),
                 action: nil
             ))
         )
@@ -93,6 +173,13 @@ enum TransactionDetailsPreviewFactory {
         ))
     }
 
+    // MARK: - Principal amount (fee "For sending")
+
+    static func principalAmount() -> TransactionDetailsPrincipalAmountViewData {
+        // [REDACTED_TODO_COMMENT]
+        .init(icon: Assets.Send.arrowUp, label: "For sending", amount: "120.03 USDT", tokenIconInfo: icon("Tether", color: .green))
+    }
+
     // MARK: - Tokens block
 
     static func tokensSingle() -> TransactionDetailsTokensViewData {
@@ -106,7 +193,7 @@ enum TransactionDetailsPreviewFactory {
         )
     }
 
-    /// Pair with the destination token still resolving — shimmer symbol + icon.
+    /// Pair with the destination token still resolving — amount hidden, icon shimmering.
     static func tokensPairLoading() -> TransactionDetailsTokensViewData {
         .init(
             from: .init(direction: .init(label: "From", actor: nil), icon: .token(icon("Tether", color: .green)), amountText: "− 390 USDT", fiatText: "$391.12"),
@@ -120,6 +207,7 @@ enum TransactionDetailsPreviewFactory {
 private extension TransactionDetailsPreviewFactory {
     static let truncatedAddress = "33Bd321fS...ga21412B"
 
+    // [REDACTED_TODO_COMMENT]
     static let menuActions: [TransactionDetailsHeaderViewData.MenuAction] = [
         .init(id: "transactionID", title: "Transaction ID", icon: Assets.Glyphs.copy, handler: {}),
         .init(id: "explore", title: "Explore", icon: Assets.Glyphs.explore, handler: {}),
@@ -145,6 +233,10 @@ private extension TransactionDetailsPreviewFactory {
 
     static func header(title: String, operationIcon: TransactionViewIconViewData) -> TransactionDetailsHeaderViewData {
         .init(title: title, date: "Jan 20 2026, 9:24 PM", operationIcon: operationIcon, menuActions: menuActions, onClose: {})
+    }
+
+    static func single(title: String, operationIcon: TransactionViewIconViewData, data: TransactionDetailsSingleOperationViewData) -> TransactionDetailsViewModel {
+        viewModel(header: header(title: title, operationIcon: operationIcon), content: .single(data))
     }
 
     static func swap(title: String, status: TransactionViewModel.Status, data: SwapTransactionDetailsViewData) -> TransactionDetailsViewModel {
