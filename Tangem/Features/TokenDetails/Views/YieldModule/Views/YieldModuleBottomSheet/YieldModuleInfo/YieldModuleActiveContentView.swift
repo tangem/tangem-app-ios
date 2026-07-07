@@ -37,6 +37,8 @@ struct YieldModuleActiveContentView: View {
 
                 notificationsView
 
+                marketingBanner
+
                 myFundsSection
 
                 bottomSection
@@ -73,6 +75,16 @@ struct YieldModuleActiveContentView: View {
     private var notificationsView: some View {
         ForEach(viewModel.earnInfoNotifications) { notification in
             YieldModuleBottomSheetNotificationBannerView(params: notification)
+        }
+    }
+
+    @ViewBuilder
+    private var marketingBanner: some View {
+        if let marketingNotifications = viewModel.marketingNotifications {
+            NotificationBannerContainer(
+                items: marketingNotifications,
+                stackingType: .carousel
+            )
         }
     }
 

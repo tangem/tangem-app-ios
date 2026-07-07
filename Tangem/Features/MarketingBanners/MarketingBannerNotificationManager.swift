@@ -26,7 +26,7 @@ extension MarketingBannerNotificationManager {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { manager, banners in
-                manager.notificationInputsSubject.send(banners.standalone.map { [manager.makeInput(for: $0)] } ?? [])
+                manager.notificationInputsSubject.send(banners.standalone.map { manager.makeInput(for: $0) })
                 manager.linkedBannersSubject.send(banners.linked)
             }
     }

@@ -118,7 +118,7 @@ extension MarketingCampaignsDTO.Request {
                 "toNetwork": onramp.toNetwork,
             ]
             parameters["toContractAddress"] = onramp.toContractAddress
-            parameters["fiatCurrency"] = onramp.fiatCurrency
+            parameters["fromFiat"] = onramp.fiatCurrency
             parameters["language"] = onramp.language
             return parameters
 
@@ -138,7 +138,7 @@ extension MarketingCampaignsDTO.Request {
             return parameters
 
         case .marketsToken(let language):
-            var parameters: [String: Any] = ["type": "token_markets"]
+            var parameters: [String: Any] = ["type": "markets_token"]
             parameters["language"] = language
             return parameters
         }
