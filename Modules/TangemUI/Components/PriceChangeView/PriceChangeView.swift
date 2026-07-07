@@ -204,15 +204,15 @@ public extension PriceChangeView {
 // MARK: - Previews
 
 #Preview {
-            VStack(spacing: 16) {
-              PriceChangeView(state: .initialized)
-              PriceChangeView(state: .noData)
-              PriceChangeView(state: .loading)
-              PriceChangeView(state: .loading, showSkeletonWhenLoading: false)
-              PriceChangeView(state: .loaded(changeType: .positive, text: "+2.34%"))
-              PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"))
-              PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"), showIconForNeutral: false)
-              PriceChangeView(state: .loaded(changeType: .negative, text: "-1.23%"))
-        }
-        .padding()
+    VStack(spacing: 16) {
+        PriceChangeView(state: .initialized)
+        PriceChangeView(state: .noData)
+        PriceChangeView(state: .loading)
+        PriceChangeView(state: .loading, showSkeletonWhenLoading: false)
+        PriceChangeView(state: .loaded(changeType: .positive, text: "+2.34%"))
+        PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"))
+        PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"), showIconForNeutral: false)
+        PriceChangeView(state: .loaded(changeType: .negative, text: "-1.23%"))
+    }
+    .padding()
 }
