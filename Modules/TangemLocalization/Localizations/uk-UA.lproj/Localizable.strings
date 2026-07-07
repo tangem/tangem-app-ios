@@ -504,6 +504,8 @@
 "error_wrong_wallet_tapped" = "Ви використали картку або кільце від іншого гаманця. Прикладіть картку або кільце, пов'язану з цим гаманцем.";
 "eth_gas_required_exceeds_allowance" = "Недостатньо коштів для здійснення транзакції. Будь ласка, поповніть свій акаунт.";
 "exchange_token_description" = "Обміняйте будь-який актив у вашому портфелі на цей токен";
+"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
+"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "Послугу надає %@";
 "express_choose_provider" = "Виберіть провайдера";
 "express_error_provider_amount_roundup" = "Помилка %1$@. Обраний провайдер не може обробити зазначену транзакцію. Округліть значення до %2$@ або змініть його.";
@@ -2100,8 +2102,8 @@
 "warning_hedera_missing_token_association_message" = "Цей токен повинен бути асоційований з вашим обліковим записом Hedera, перш ніж ви зможете його прийняти. Вартість асоціації ~ %1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Асоціюйте свій токен";
 "warning_hedera_token_association_not_enough_hbar_message" = "Недостатньо %@. Поповніть ваш обліковий запис Hedera для асоціації цього токена";
-"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
-"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
+"warning_incomplete_backup_notification_message" = "Ми виявили, що процес активації картки не завершено належним чином через проблеми з NFC-модулем пристрою або неправильне прикладання карток до телефону. Будь ласка, зверніться до служби підтримки для уточнення деталей.";
+"warning_incomplete_backup_notification_title" = "Потрібна дія. Не використовуйте гаманець!";
 "warning_ios_deprecation_message" = "Підтримка iOS %1$@ завершиться %2$@. Щоб і надалі отримувати оновлення застосунку та забезпечити повну функціональність, оновіть iOS до останньої версії.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Ви впевнені, що хочете скасувати цю транзакцію? Ви не зможете відправити її ще раз";
 "warning_kaspa_unfinished_token_transaction_message" = "Ваша транзакція %1$@ %2$@ не була завершена. Ви можете спробувати відправити її ще раз.";
