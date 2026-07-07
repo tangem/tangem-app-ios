@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct YieldModuleStartView: View {
     @ObservedObject var viewModel: YieldModuleStartViewModel
@@ -112,6 +113,7 @@ struct YieldModuleStartView: View {
             isDisabled: !viewModel.isButtonEnabled,
             action: ctaButtonAction,
         ))
+        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.startEarningButton)
     }
 
     private var startEarningHoldButton: some View {
@@ -121,6 +123,7 @@ struct YieldModuleStartView: View {
             isDisabled: !viewModel.isButtonEnabled,
             action: ctaButtonAction
         )
+        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.startEarningButton)
     }
 
     @ViewBuilder
