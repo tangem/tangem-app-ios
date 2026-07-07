@@ -35,6 +35,7 @@ class BaseTestCase: XCTestCase {
         expressApiType: ExpressAPI? = nil,
         stakingApiType: StakingAPI? = nil,
         visaApiType: VisaAPI? = nil,
+        yieldApiType: YieldAPI? = nil,
         skipToS: Bool = true,
         clearStorage: Bool = false,
         keepWallets: Bool = false,
@@ -59,6 +60,10 @@ class BaseTestCase: XCTestCase {
 
         arguments.append(contentsOf: [
             "-visa_api_type", visaApiType?.rawValue ?? VisaAPI.prod.rawValue,
+        ])
+
+        arguments.append(contentsOf: [
+            "-yield_module_api_type", yieldApiType?.rawValue ?? YieldAPI.prod.rawValue,
         ])
 
         if skipToS {
