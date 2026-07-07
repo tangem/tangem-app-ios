@@ -8,7 +8,8 @@
 
 import Foundation
 
-public struct CachesDirectoryStorage {
+/// Safe to share: immutable value type; encoder/decoder are only used for encode/decode.
+public struct CachesDirectoryStorage: @unchecked Sendable {
     private let file: File
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
@@ -36,14 +37,19 @@ public struct CachesDirectoryStorage {
 
 public extension CachesDirectoryStorage {
     func value<T>() throws -> T where T: Decodable {
-        try queue.sync {
-            guard fileManager.fileExists(atPath: fileURL.path) else {
-                throw StorageError.fileNotFound
-            }
+        try queue.sync { try readValue() }
+    }
 
-            let data = try Data(contentsOf: fileURL)
-            let value = try decoder.decode(T.self, from: data)
-            return value
+    /// Prefer over the synchronous `value()` when called on the main thread.
+    func value<T>() async throws -> T where T: Decodable {
+        try await withCheckedThrowingContinuation { continuation in
+            queue.async {
+                do {
+                    continuation.resume(returning: try readValue())
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
         }
     }
 
@@ -72,6 +78,15 @@ public extension CachesDirectoryStorage {
 // MARK: - Private implementation
 
 private extension CachesDirectoryStorage {
+    func readValue<T>() throws -> T where T: Decodable {
+        guard fileManager.fileExists(atPath: fileURL.path) else {
+            throw StorageError.fileNotFound
+        }
+
+        let data = try Data(contentsOf: fileURL)
+        return try decoder.decode(T.self, from: data)
+    }
+
     func writeToFile(data: Data) throws {
         guard
             fileManager.fileExists(atPath: fileURL.path)

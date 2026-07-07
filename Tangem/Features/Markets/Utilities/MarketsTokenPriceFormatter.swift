@@ -12,9 +12,6 @@ import TangemAssets
 
 /// An experimental implementation, currently used only in the `Markets` module.
 /// Most likely requires some tuning and improvements ([REDACTED_INFO] and [REDACTED_INFO]).
-///
-/// This formatter maintains reference semantics and uses an internal cache; for performance reasons,
-/// consider keeping the instances of this formatter alive instead of creating and discarding them in place.
 final class MarketsTokenPriceFormatter {
     /// - threshold: Values like `0.1`, `0.01`, `0.001` and so on; used for the quick lookup of a cached scale value.
     /// - scale: Scale of a decimal number
@@ -26,8 +23,6 @@ final class MarketsTokenPriceFormatter {
         cachedScales.reserveCapacity(128) // Maximum scale of `Decimal`
         return cachedScales
     }()
-
-    private static let cachedNumberFormatters = NSCacheWrapper<CacheKey, NumberFormatter>()
 
     private let fractionalPartLengthAfterLeadingZeroes: Int
     private let balanceFormatter = BalanceFormatter()
@@ -85,14 +80,6 @@ final class MarketsTokenPriceFormatter {
     }
 
     func formatPrice(_ price: String) -> AttributedString {
-        let locale = Locale.current
-        let currencyCode = AppSettings.shared.selectedCurrencyCode
-        let numberFormatter = numberFormatter(
-            locale: locale,
-            currencyCode: currencyCode,
-            formattingOptions: defaultFormattingOptions
-        )
-
         let formattingOptions = TotalBalanceFormattingOptions(
             integerPartFont: Font.Tangem.Title44.semibold,
             fractionalPartFont: Font.Tangem.Title44.semibold,
@@ -103,8 +90,7 @@ final class MarketsTokenPriceFormatter {
 
         return balanceFormatter.formatAttributedTotalBalance(
             fiatBalance: price,
-            formattingOptions: formattingOptions,
-            formatter: numberFormatter
+            formattingOptions: formattingOptions
         )
     }
 
@@ -117,41 +103,13 @@ final class MarketsTokenPriceFormatter {
     }
 
     private func formatPrice(_ value: Decimal?, formattingOptions: BalanceFormattingOptions) -> String {
-        let locale = Locale.current
         let currencyCode = AppSettings.shared.selectedCurrencyCode
-        let numberFormatter = numberFormatter(
-            locale: locale,
-            currencyCode: currencyCode,
-            formattingOptions: formattingOptions
-        )
 
         return balanceFormatter.formatFiatBalance(
             value,
             currencyCode: currencyCode,
-            formattingOptions: formattingOptions,
-            formatter: numberFormatter
+            formattingOptions: formattingOptions
         )
-    }
-
-    private func numberFormatter(
-        locale: Locale,
-        currencyCode: String,
-        formattingOptions: BalanceFormattingOptions
-    ) -> NumberFormatter {
-        let cacheKey = CacheKey(localeIdentifier: locale.identifier, currencyCode: currencyCode, formattingOptions: formattingOptions)
-
-        if let cachedNumberFormatter = Self.cachedNumberFormatters.value(forKey: cacheKey) {
-            return cachedNumberFormatter
-        } else {
-            let numberFormatter = balanceFormatter.makeDefaultFiatFormatter(
-                forCurrencyCode: currencyCode,
-                locale: locale,
-                formattingOptions: formattingOptions
-            )
-
-            Self.cachedNumberFormatters.setValue(numberFormatter, forKey: cacheKey)
-            return numberFormatter
-        }
     }
 }
 
@@ -161,15 +119,5 @@ private extension MarketsTokenPriceFormatter {
     enum Constants {
         /// This default value of `fractionalPartLengthAfterLeadingZeroes` apparently corresponds to the one used by CMC.
         static let fractionalPartLengthAfterLeadingZeroes = 4
-    }
-}
-
-// MARK: - Auxiliary types
-
-private extension MarketsTokenPriceFormatter {
-    struct CacheKey: Hashable {
-        let localeIdentifier: String
-        let currencyCode: String
-        let formattingOptions: BalanceFormattingOptions
     }
 }
