@@ -41,8 +41,6 @@ struct TwinIntroBackgroundView: View {
     }
 }
 
-struct TwinIntroBackgroundView_Previews: PreviewProvider {
-    static var previews: some View {
-        TwinIntroBackgroundView(size: CGSize(width: 300 * 1.25, height: 300))
-    }
+#Preview {
+    TwinIntroBackgroundView(size: CGSize(width: 300 * 1.25, height: 300))
 }

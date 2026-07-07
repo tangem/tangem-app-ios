@@ -28,7 +28,7 @@ struct PendingExpressTransactionFactory {
         var statusesList: [PendingExpressTransactionStatus] = defaultStatusesList
         var transactionRecord = transactionRecord
         switch expressTransaction.status {
-        case .created, .waiting, .exchangeTxSent:
+        case .preview, .created, .waiting, .exchangeTxSent:
             currentStatus = .awaitingDeposit
         case .confirming:
             currentStatus = .confirming

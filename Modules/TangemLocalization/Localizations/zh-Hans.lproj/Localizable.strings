@@ -88,7 +88,7 @@
 "address_book_contact_name" = "联系人姓名";
 "address_book_contact" = "联系人";
 "address_book_copy_address" = "复制地址";
-"address_book_create_success_message" = "联系人已保存";
+"address_book_create_success_message" = "Contact saved";
 "address_book_creating_error" = "无法创建联系人。请稍后再试。";
 "address_book_delete_contact_description" = "该联系人将从您所有的通讯录中删除";
 "address_book_delete_contact" = "删除联系人";

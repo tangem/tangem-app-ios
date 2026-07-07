@@ -41,7 +41,7 @@ extension CommonWCBtcTransactionBuilder: WCBtcTransactionBuilder {
         let btcDecimals = amountDecimal / blockchain.decimalValue
         let amount = Amount(with: blockchain, type: .coin, value: btcDecimals)
 
-        await walletModel.update(silent: false, features: .balances)
+        await walletModel.update(silent: false, options: .balances)
         let fees = try await tokenFeeLoader.getFee(
             amount: amount.value,
             destination: wcTransaction.recipientAddress
