@@ -32,7 +32,6 @@ extension NFTAssetsGridView {
     }
 }
 
-#if DEBUG
 #Preview {
     ScrollView {
         NFTAssetsGridView(viewModel: NFTAssetsGridViewModel(assetsViewModels: (0 ... 10).map {
@@ -64,4 +63,3 @@ extension NFTAssetsGridView {
         .padding(16)
     }
 }
-#endif

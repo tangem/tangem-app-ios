@@ -37,5 +37,23 @@ struct EarnDeeplinkContainerView: View {
                 }
                 .tint(Colors.Text.primary1)
             }
+            .fullScreenCover(item: $coordinator.yieldModulePromoCoordinator) { promoCoordinator in
+                NavigationStack {
+                    YieldModulePromoCoordinatorView(coordinator: promoCoordinator)
+                        .toolbar {
+                            NavigationToolbarButton.close(
+                                placement: .topBarLeading,
+                                action: { promoCoordinator.dismiss() }
+                            )
+                        }
+                }
+                .tint(Colors.Text.primary1)
+            }
+            .sheet(item: $coordinator.yieldModuleActiveCoordinator) { activeCoordinator in
+                YieldModuleActiveCoordinatorView(coordinator: activeCoordinator)
+                    .onDisappear {
+                        activeCoordinator.dismiss()
+                    }
+            }
     }
 }

@@ -22,6 +22,7 @@ enum PersistentStorageKey {
     case onrampPreference
     case tokenSearchQueryHistory
     case tokenSearchAssetHistory
+    case addressBook(cid: String)
 
     var path: String {
         switch self {
@@ -45,6 +46,8 @@ enum PersistentStorageKey {
             return "token_search_query_history"
         case .tokenSearchAssetHistory:
             return "token_search_asset_history"
+        case .addressBook(let cid):
+            return "address_book_\(cid)"
         }
     }
 
@@ -70,6 +73,10 @@ enum PersistentStorageKey {
         case .tokenSearchQueryHistory:
             false
         case .tokenSearchAssetHistory:
+            false
+        case .addressBook:
+            // The cached blob is already AES-256-GCM encrypted, so it matches the convention of the
+            // other per-wallet caches (e.g. accounts) rather than enabling complete file protection.
             false
         }
     }

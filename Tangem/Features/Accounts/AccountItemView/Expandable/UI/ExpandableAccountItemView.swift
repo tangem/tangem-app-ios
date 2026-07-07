@@ -112,7 +112,6 @@ private extension ExpandableAccountItemView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     let infoProvider: FakeTokenItemInfoProvider = {
         let walletManagers: [FakeWalletManager] = [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager]
@@ -167,4 +166,3 @@ private extension ExpandableAccountItemView {
         }
     }
 }
-#endif
