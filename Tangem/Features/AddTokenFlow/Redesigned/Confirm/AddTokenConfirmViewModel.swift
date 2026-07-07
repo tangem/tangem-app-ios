@@ -35,6 +35,23 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
     let isAccountSelectionAvailable: Bool
     let isNetworkSelectionAvailable: Bool
 
+    // MARK: - UI
+
+    var confirmButtonContent: TangemButton.Content {
+        let providedIcon = CommonTangemIconProvider(config: accountSelectorCell.userWalletModel.config).getMainButtonIcon()
+        let text = AttributedString(Localization.commonConfirm)
+
+        if let providedIcon {
+            return .combined(
+                text: text,
+                icon: providedIcon.imageType,
+                iconPosition: .right
+            )
+        } else {
+            return .text(text)
+        }
+    }
+
     // MARK: - Private
 
     private let tokenItem: TokenItem
