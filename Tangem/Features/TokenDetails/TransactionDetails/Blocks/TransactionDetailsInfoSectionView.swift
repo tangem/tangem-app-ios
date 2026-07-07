@@ -44,10 +44,6 @@ struct TransactionDetailsInfoSectionView: View {
                 rowView(row, showsDivider: index != data.rows.count - 1)
             }
         }
-        .background(
-            DesignSystem.Color.bgTertiary,
-            in: RoundedRectangle(cornerRadius: 24)
-        )
     }
 
     @ViewBuilder
