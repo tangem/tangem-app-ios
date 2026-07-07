@@ -13,4 +13,5 @@ import Foundation
 /// in tests; the app side accepts any `Feature` rawValue via `-uitest-feature-<rawValue>-on/off`.
 enum TestFeature: String, CaseIterable {
     case redesign
+    case yieldModuleUpdate
 }
