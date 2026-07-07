@@ -88,8 +88,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .solanaUnstakeValidation: return "[REDACTED_INFO]_solana_unstake_validation"
         case .tangemPayVirtualAccount: return "TWI-1638_tangempay_virtual_account"
-        case .onboardingPushNotificationDoubleAsk: return "1403_onboarding_push_notification_double_ask"
-        case .mainPushNotificationDoubleAsk: return "1403_main_push_notification_double_ask"
+        case .onboardingPushNotificationDoubleAsk: return "TWI-1403_onboarding_push_notification_double_ask"
+        case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
         }
     }
 
