@@ -40,6 +40,12 @@ final class ActionButtonsViewModel: ObservableObject {
         ActionButtonsVisibility(config: userWalletModel.config)
     }
 
+    /// On a pinned row without exchange (e.g. Start2Coin) Add Funds and Transfer are plain
+    /// containers, so their state must not follow express/sell availability that never resolves.
+    private var isExchangeVisible: Bool {
+        actionButtonsVisibility.isExchangeVisible
+    }
+
     @Published private(set) var shouldShowSwapUnreadNotificationBadge = false
 
     // MARK: Private properties
@@ -166,6 +172,11 @@ private extension ActionButtonsViewModel {
 
     func updateBuyButtonStateWithExpress(_ expressUpdateState: ExpressAvailabilityUpdateState) {
         runTask(in: self) { @MainActor viewModel in
+            guard viewModel.isExchangeVisible else {
+                viewModel.handleBuyUpdatedState()
+                return
+            }
+
             let hasCache = viewModel.expressAvailabilityProvider.hasCache
 
             switch (expressUpdateState, hasCache) {
@@ -313,6 +324,11 @@ private extension ActionButtonsViewModel {
     func updateSellButtonState(_ sellServiceState: SellServiceState) {
         runTask(in: self) { @MainActor viewModel in
             viewModel.lastSellInitializeState = sellServiceState
+
+            guard viewModel.isExchangeVisible else {
+                viewModel.handleSellUpdatedState()
+                return
+            }
 
             switch sellServiceState {
             case .initializing: viewModel.handleSellUpdatingState()
