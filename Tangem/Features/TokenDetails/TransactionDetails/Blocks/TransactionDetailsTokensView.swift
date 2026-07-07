@@ -60,6 +60,8 @@ struct TransactionDetailsTokensViewData: Equatable {
 
         let direction: Direction
         let icon: Icon
+        /// Prefix + amount + ticker as one string. `nil` when any of those isn't available (e.g. the
+        /// token is still resolving), so the amount is hidden rather than shown partially.
         let amountText: String?
         let fiatText: String?
         let isAmountStrikethrough: Bool
