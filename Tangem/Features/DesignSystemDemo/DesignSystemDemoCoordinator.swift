@@ -11,6 +11,7 @@ import SwiftUI
 protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemButtonDemo()
     func openTangemButtonV2Demo()
+    func openTangemCheckboxV2Demo()
     func openTangemBadgeDemo()
     func openTangemBadgeV2Demo()
     func openTangemRowDemo()
@@ -38,6 +39,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var rootViewModel: DesignSystemDemoViewModel?
     @Published var tangemButtonDemoViewModel: TangemButtonDemoViewModel?
     @Published var tangemButtonV2DemoViewModel: TangemButtonV2DemoViewModel?
+    @Published var tangemCheckboxV2DemoViewModel: TangemCheckboxV2DemoViewModel?
     @Published var tangemBadgeDemoViewModel: TangemBadgeDemoViewModel?
     @Published var tangemBadgeV2DemoViewModel: TangemBadgeV2DemoViewModel?
     @Published var tangemRowDemoViewModel: TangemRowDemoViewModel?
@@ -77,6 +79,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemButtonV2Demo() {
         tangemButtonV2DemoViewModel = .init()
+    }
+
+    func openTangemCheckboxV2Demo() {
+        tangemCheckboxV2DemoViewModel = .init()
     }
 
     func openTangemBadgeDemo() {
