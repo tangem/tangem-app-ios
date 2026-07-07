@@ -20,7 +20,7 @@ final class UncompletedBackupViewModel: ObservableObject {
 
     private weak var coordinator: UncompletedBackupRoutable?
 
-    private lazy var backupHelper = BackupHelper()
+    private lazy var backupHelper = IncompleteBackupHelper()
 
     init(
         coordinator: UncompletedBackupRoutable
@@ -91,7 +91,7 @@ final class UncompletedBackupViewModel: ObservableObject {
 
     private func discardBackup() {
         Analytics.log(.backupNoticeCanceled)
-        backupHelper.discardIncompletedBackup()
+        backupHelper.discardIncompleteBackup()
         dismiss()
     }
 }
