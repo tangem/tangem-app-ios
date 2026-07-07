@@ -113,6 +113,16 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         }
     }
 
+    func isEnabled(_ option: AddFundsOptionView.Option) -> Bool {
+        switch option {
+        // `.exchange` is the config feature that gates buy/sell (onramp/offramp) — there is no separate
+        // buy feature. Not to be confused with the `.exchange` token action, which is swap.
+        case .buy: userWalletModel.config.isFeatureVisible(.exchange)
+        case .swap: userWalletModel.config.isFeatureVisible(.swapping)
+        case .receive: true
+        }
+    }
+
     func userDidTapPrimary() {
         switch primaryAction {
         case .close:
