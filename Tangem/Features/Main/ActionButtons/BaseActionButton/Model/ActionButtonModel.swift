@@ -19,11 +19,11 @@ enum ActionButtonModel: Hashable {
     var title: String {
         switch self {
         case .buy:
-            return Localization.commonAddFunds
+            return Localization.actionbuttonAddfundsTitle
         case .swap:
             return Localization.commonSwap
         case .sell:
-            return Localization.commonTransfer
+            return Localization.actionbuttonTransferTitle
         }
     }
 

@@ -31,7 +31,7 @@ struct BalanceFormatter {
             return Self.defaultEmptyBalanceString
         }
 
-        let formatter = formatter ?? makeDecimalFormatter(formattingOptions: formattingOptions)
+        let formatter = formatter ?? BalanceNumberFormatterCache.decimalFormatter(formattingOptions: formattingOptions)
         let valueToFormat = decimalRoundingUtility.roundDecimal(value, with: formattingOptions.roundingType)
 
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat)"
@@ -55,7 +55,7 @@ struct BalanceFormatter {
             return Self.defaultEmptyBalanceString
         }
 
-        let formatter = formatter ?? makeDefaultCryptoFormatter(forCurrencyCode: currencyCode, formattingOptions: formattingOptions)
+        let formatter = formatter ?? BalanceNumberFormatterCache.cryptoFormatter(forCurrencyCode: currencyCode, locale: .current, formattingOptions: formattingOptions)
         let valueToFormat = decimalRoundingUtility.roundDecimal(value, with: formattingOptions.roundingType)
 
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(currencyCode)"
@@ -116,7 +116,7 @@ struct BalanceFormatter {
             return Self.defaultEmptyBalanceString
         }
 
-        let formatter = formatter ?? makeDefaultFiatFormatter(forCurrencyCode: currencyCode, formattingOptions: formattingOptions)
+        let formatter = formatter ?? BalanceNumberFormatterCache.fiatFormatter(forCurrencyCode: currencyCode, locale: .current, formattingOptions: formattingOptions)
 
         let lowestRepresentableValue: Decimal = 1 / pow(10, formattingOptions.maxFractionDigits)
 
@@ -143,7 +143,7 @@ struct BalanceFormatter {
         formattingOptions: TotalBalanceFormattingOptions,
         formatter: NumberFormatter? = nil
     ) -> AttributedString {
-        let formatter = formatter ?? makeAttributedTotalBalanceFormatter()
+        let formatter = formatter ?? BalanceNumberFormatterCache.attributedTotalFormatter()
         let decimalSeparator = formatter.decimalSeparator ?? ""
         var attributedString = AttributedString(fiatBalance)
         attributedString.font = formattingOptions.integerPartFont.font
