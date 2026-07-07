@@ -10,6 +10,5 @@ import Foundation
 
 struct OnrampMarketingBannerRequest: Equatable {
     let destination: TokenItem
-    let expectedCryptoAmount: Decimal?
     let fiatCurrencyCode: String?
 }
