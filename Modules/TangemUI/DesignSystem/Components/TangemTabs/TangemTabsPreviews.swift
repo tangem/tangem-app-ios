@@ -84,10 +84,6 @@ public struct TangemTabsShowcase: View {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview("Interactive Demo") {
     TangemTabsShowcase()
 }
-
-#endif // DEBUG

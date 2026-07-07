@@ -64,7 +64,6 @@ extension RedesignedAccountSkeletonCardView: Setupable {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ZStack {
         Color.Tangem.Surface.level2
@@ -78,4 +77,3 @@ extension RedesignedAccountSkeletonCardView: Setupable {
         .padding(.horizontal, .unit(.x3))
     }
 }
-#endif

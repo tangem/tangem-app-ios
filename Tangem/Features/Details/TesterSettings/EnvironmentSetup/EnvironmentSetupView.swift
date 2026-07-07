@@ -151,12 +151,8 @@ struct EnvironmentSetupView: View {
     }
 }
 
-struct EnvironmentSetupView_Preview: PreviewProvider {
-    static let viewModel = EnvironmentSetupViewModel(coordinator: EnvironmentSetupRoutableMock())
-
-    static var previews: some View {
-        NavigationStack {
-            EnvironmentSetupView(viewModel: viewModel)
-        }
+#Preview {
+    NavigationStack {
+        EnvironmentSetupView(viewModel: EnvironmentSetupViewModel(coordinator: EnvironmentSetupRoutableMock()))
     }
 }
