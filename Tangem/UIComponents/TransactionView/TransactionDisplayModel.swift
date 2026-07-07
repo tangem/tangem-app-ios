@@ -63,19 +63,29 @@ extension TransactionDisplayModel {
                 addressDestination: addressDestination,
                 subtitleOwner: subtitleOwner
             ),
-            style: isChipStyle(transactionType: transactionType) ? .chip : .row
+            style: isChipStyle(
+                transactionType: transactionType,
+                isOutgoing: isOutgoing,
+                isFromYieldContract: isFromYieldContract
+            ) ? .chip : .row
         )
     }
 
-    private static func isChipStyle(transactionType: TransactionViewModel.TransactionType) -> Bool {
+    private static func isChipStyle(
+        transactionType: TransactionViewModel.TransactionType,
+        isOutgoing: Bool,
+        isFromYieldContract: Bool
+    ) -> Bool {
         switch transactionType {
         case .stake, .unstake, .vote, .restake, .withdraw,
              .approve,
              .yieldEnter, .yieldEnterCoin,
              .yieldWithdraw, .yieldWithdrawCoin,
              .yieldInit, .yieldDeploy, .yieldReactivate,
-             .yieldTopup, .yieldSend:
+             .yieldTopup:
             return true
+        case .yieldSend:
+            return !transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract)
         case .transfer, .swap, .claimRewards, .operation, .unknownOperation,
              .gaslessTransactionFee, .gaslessTransfer, .tangemPay:
             return false
@@ -90,9 +100,9 @@ extension TransactionDisplayModel {
         legacyName: String
     ) -> String {
         switch transactionType {
-        case .transfer,
-             .yieldSend where isOutgoing,
-             .yieldSend where !isFromYieldContract:
+        case .transfer:
+            return directionalTitle(isOutgoing: isOutgoing, status: status)
+        case .yieldSend where transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract):
             return directionalTitle(isOutgoing: isOutgoing, status: status)
         case .swap:
             return statusTitle(status: status, progress: Localization.commonSwapping, done: Localization.commonSwapped)
