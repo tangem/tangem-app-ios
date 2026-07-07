@@ -9,8 +9,10 @@
 import Foundation
 import Combine
 import CombineExt
+import SwiftUI
 import TangemFoundation
 import TangemUI
+import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 final class PriceAlertBellViewModel: ObservableObject {
@@ -22,13 +24,15 @@ final class PriceAlertBellViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     private let tokenId: PriceAlertTokenId
+    private weak var coordinator: PriceAlertBellRoutable?
 
     private var provider: PriceAlertsSubscriptionsProvider?
     private var providerSubscription: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
-    init(tokenId: PriceAlertTokenId) {
+    init(tokenId: PriceAlertTokenId, coordinator: PriceAlertBellRoutable?) {
         self.tokenId = tokenId
+        self.coordinator = coordinator
 
         bindWalletSelection()
         bindSelectedWalletProvider()
@@ -56,7 +60,7 @@ final class PriceAlertBellViewModel: ObservableObject {
         }
 
         let shouldSubscribe = !isSubscribed
-        // Unsubscribe removes the coin from every wallet on the device
+        // Unsubscribe removes the coin from every wallet on the device.
         let deviceWalletIds = userWalletRepository.models.map(\.userWalletId.stringValue)
 
         // [REDACTED_TODO_COMMENT]
@@ -65,8 +69,8 @@ final class PriceAlertBellViewModel: ObservableObject {
             if shouldSubscribe {
                 let isAuthorized = await viewModel.pushNotificationsPermission.ensureAuthorized()
                 guard isAuthorized else {
-                    // System push permission not granted; don't subscribe.
-                    // [REDACTED_TODO_COMMENT]
+                    // Permission declined/denied — offer to open system Settings (mirrors PushSettings).
+                    await viewModel.presentEnablePushSettingsAlert()
                     return
                 }
             }
@@ -133,5 +137,23 @@ private extension PriceAlertBellViewModel {
     func presentErrorAlert() {
         // [REDACTED_TODO_COMMENT]
         alert = AlertBinder(title: "Something went wrong", message: "Please try again later.")
+    }
+
+    /// Offers to open the app's system Settings when push permission is denied (Settings / Cancel),
+    /// reusing the existing push-permission alert strings. Mirrors NotificationSettings.
+    @MainActor
+    func presentEnablePushSettingsAlert() {
+        let buttons = AlertBuilder.Buttons(
+            primaryButton: .default(Text(Localization.pushNotificationsPermissionAlertNegativeButton)),
+            secondaryButton: .default(Text(Localization.pushNotificationsPermissionAlertPositiveButton)) { [weak self] in
+                self?.coordinator?.openAppSettings()
+            }
+        )
+
+        alert = AlertBuilder.makeAlert(
+            title: Localization.pushNotificationsPermissionAlertTitle,
+            message: Localization.pushNotificationsPermissionAlertDescription,
+            with: buttons
+        )
     }
 }
