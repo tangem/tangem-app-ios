@@ -149,8 +149,6 @@ struct TangemPayDailyLimitSectionView: View {
     }
 }
 
-#if DEBUG
-
 // MARK: - Previews
 
 #Preview {
@@ -165,5 +163,3 @@ struct TangemPayDailyLimitSectionView: View {
     }
     .preferredColorScheme(.dark)
 }
-
-#endif // DEBUG

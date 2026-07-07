@@ -1,5 +1,5 @@
 //
-//  CustomBlockBookConfig.swift
+//  MockBlockBookConfig.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

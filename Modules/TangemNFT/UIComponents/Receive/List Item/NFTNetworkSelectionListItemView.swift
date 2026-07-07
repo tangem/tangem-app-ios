@@ -35,7 +35,6 @@ struct NFTNetworkSelectionListItemView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     NFTNetworkSelectionListItemView(
         viewData: .init(
@@ -52,4 +51,3 @@ struct NFTNetworkSelectionListItemView: View {
         )
     )
 }
-#endif // DEBUG

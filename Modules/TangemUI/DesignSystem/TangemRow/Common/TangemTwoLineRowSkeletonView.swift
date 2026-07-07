@@ -69,7 +69,6 @@ public struct TangemTwoLineRowSkeletonView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ScrollView(.vertical) {
         VStack(spacing: .zero) {
@@ -79,4 +78,3 @@ public struct TangemTwoLineRowSkeletonView: View {
         }
     }
 }
-#endif // DEBUG
