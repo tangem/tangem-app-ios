@@ -87,7 +87,7 @@ struct ChooseAddressView: View {
                 ),
             ],
             router: nil,
-            output: nil
+            onSelect: { _ in }
         )
     )
     .frame(maxHeight: .infinity, alignment: .bottom)

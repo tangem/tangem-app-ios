@@ -36,11 +36,19 @@ extension MarketingBanner {
 
         return false
     }
+
+    func matchesProvider(id: String) -> Bool {
+        if case .linkedToProvider(let providerIds) = placement {
+            return providerIds.contains(id)
+        }
+
+        return false
+    }
 }
 
 struct MarketingBanners {
-    let standalone: MarketingBanner?
+    let standalone: [MarketingBanner]
     let linked: [MarketingBanner]
 
-    static let empty = MarketingBanners(standalone: nil, linked: [])
+    static let empty = MarketingBanners(standalone: [], linked: [])
 }

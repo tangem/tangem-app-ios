@@ -375,7 +375,12 @@ extension CommonWalletModel: WalletModel {
 // MARK: - WalletModelUpdater
 
 extension CommonWalletModel: WalletModelUpdater {
-    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable, stakingUpdateSource: StakingUpdateSource) async {
+    func update(
+        silent: Bool,
+        options: WalletModelUpdateOptions,
+        updateToken: some Hashable,
+        stakingUpdateSource: StakingUpdateSource
+    ) async {
         let logger = AppLogger.tag("WalletModelUpdater")
         logger.info(self, "Start update with token '\(updateToken)'")
 

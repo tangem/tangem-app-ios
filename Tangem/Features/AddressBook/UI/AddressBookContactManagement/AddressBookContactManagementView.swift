@@ -31,6 +31,7 @@ struct AddressBookContactManagementView: View {
             }
             .alert(item: $viewModel.alert) { $0.alert }
             .onFirstAppear {
+                viewModel.onFirstAppear()
                 if viewModel.focusesNameOnFirstAppear {
                     isNameFocused = true
                 }
@@ -77,7 +78,6 @@ struct AddressBookContactManagementView: View {
 
             GroupedSection(viewModel.selectedWallet) { wallet in
                 TangemRow(title: Localization.addressBookSaveToWalletTitle)
-                    .verticalAlignment(.center)
                     .end { makeWalletValue(wallet: wallet) }
                     .if(wallet.isEditable) { $0.onTap(viewModel.userDidRequestWalletChange) }
 
@@ -93,7 +93,6 @@ struct AddressBookContactManagementView: View {
 
             if viewModel.canDeleteContact {
                 TangemRow()
-                    .verticalAlignment(.center)
                     .start {
                         Text(Localization.addressBookDeleteContact)
                             .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textAccentRed)

@@ -116,14 +116,14 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendWithSwapAvailabilityCheck: return .unspecified
         case .swapChooseBestDEX: return .version("6.0")
         case .swapFiatCalculation: return .unspecified
-        case .addressBook: return .unspecified
-        case .bitcoinDexSwap: return .unspecified
+        case .addressBook: return .version("6.1")
+        case .bitcoinDexSwap: return .version("6.0")
         case .hideStoriesInMobileWallet: return .version("6.0")
         case .marketingBanners: return .unspecified
         case .forYou: return .unspecified
         case .highFeeWarning: return .unspecified
         case .priceAlertsSubscription: return .unspecified
-        case .solanaUnstakeValidation: return .unspecified
+        case .solanaUnstakeValidation: return .version("6.0")
         }
     }
 }

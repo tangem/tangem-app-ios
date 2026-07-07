@@ -30,8 +30,8 @@ enum WalletModelTransactionHistoryPublisherFactory {
                     return transactionHistoryPublisher.eraseToAnyPublisher()
                 }
 
-                return provider.bridgedTransactionHistoryPublisher(
-                    transactionHistoryPublisher: transactionHistoryPublisher,
+                return provider.enrichedTransactionHistoryPublisher(
+                    from: transactionHistoryPublisher,
                     feeTokenItem: feeTokenItem
                 )
             }

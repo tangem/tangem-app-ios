@@ -342,11 +342,11 @@ extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
     }
 }
 
-// MARK: - WalletModelTransactionHistoryBridging protocol conformance
+// MARK: - WalletModelTransactionHistoryEnriching protocol conformance
 
-extension TransactionHistoryProvider: WalletModelTransactionHistoryBridging {
-    nonisolated func bridgedTransactionHistoryPublisher(
-        transactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
+extension TransactionHistoryProvider: WalletModelTransactionHistoryEnriching {
+    nonisolated func enrichedTransactionHistoryPublisher(
+        from originalTransactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
         feeTokenItem: TokenItem
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
         let merger = TransactionHistoryExpressDataMerger(
