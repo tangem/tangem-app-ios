@@ -10,7 +10,7 @@ import TangemUI
 import TangemAssets
 
 struct TransactionDetailsView: View {
-    let viewModel: TransactionDetailsViewModel
+    @ObservedObject var viewModel: TransactionDetailsViewModel
 
     private let blocksSpacing: CGFloat = 16
 
@@ -19,8 +19,12 @@ struct TransactionDetailsView: View {
             TransactionDetailsHeaderView(data: viewModel.header)
 
             VStack(spacing: blocksSpacing) {
-                ForEach(viewModel.blocks) { blockView($0) }
+                ForEach(viewModel.blocks) { block in
+                    blockView(block)
+                        .transition(.opacity)
+                }
             }
+            .animation(.easeInOut(duration: 0.3), value: viewModel.blocks.map(\.id))
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 24)
@@ -29,7 +33,7 @@ struct TransactionDetailsView: View {
         .floatingSheetConfiguration { config in
             config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             config.backgroundInteractionBehavior = .tapToDismiss
-            config.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
+            // [REDACTED_TODO_COMMENT]
         }
     }
 

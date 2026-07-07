@@ -102,6 +102,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         sheetRegistry.registerCloreMigrationFloatingSheets()
         sheetRegistry.registerYieldModuleFloatingSheets()
         sheetRegistry.registerTokenDetailsActionsFloatingSheets()
+        sheetRegistry.registerTransactionDetailsFloatingSheets()
         sheetRegistry.registerEarnModuleFloatingSheets()
         sheetRegistry.registerSendFloatingSheets()
         sheetRegistry.registerMarketsDialogueFloatingSheets()
