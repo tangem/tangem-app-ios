@@ -788,12 +788,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func backupCard() {
-        // Sometimes a step state does not update for an unknown reason.
-        if backupServiceState == .finished {
-            goToNextStep()
-            return
-        }
-
         isMainButtonBusy = true
 
         let ringUtil = RingUtil()
@@ -874,7 +868,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
-            .delay(for: 0.1, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 guard let self else { return }
