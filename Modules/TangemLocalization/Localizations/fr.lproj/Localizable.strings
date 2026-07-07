@@ -85,6 +85,7 @@
 "address_book_address_copied" = "Address copied";
 "address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
+"address_book_clear_all_networks" = "Clear All";
 "address_book_contact_name" = "Nom du contact";
 "address_book_contact" = "Contact";
 "address_book_copy_address" = "Copier l'adresse";
@@ -114,6 +115,7 @@
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Ce contact va être lié au carnet d'adresses de ce portefeuille.";
 "address_book_search_no_results" = "No results found.\nTry another name";
+"address_book_select_all_networks" = "Select All";
 "address_book_select_network" = "Sélectionner un réseau";
 "address_book_title" = "Carnet d'adresses";
 "address_book_unsaved_changes_description" = "Êtes-vous certain de vouloir annuler les modifications?";
@@ -504,8 +506,6 @@
 "error_wrong_wallet_tapped" = "Vous avez utilisé une carte d'un autre portefeuille. Appuyez sur la carte associée à ce portefeuille";
 "eth_gas_required_exceeds_allowance" = "Pas assez de fonds pour la transaction. Veuillez recharger votre compte.";
 "exchange_token_description" = "Échangez n'importe quel actif de votre portefeuille contre ce jeton.";
-"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
-"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "Fourni par %@";
 "express_choose_provider" = "Choisir un fournisseur";
 "express_error_provider_amount_roundup" = "Erreur %1$@. Le fournisseur sélectionné ne peut pas traiter la transaction spécifiée. Veuillez arrondir la valeur à %2$@ ou la modifier";
@@ -1060,13 +1060,13 @@
 "onramp_title_available_up_to" = "Disponible jusqu'à";
 "onramp_title_you_get" = "Vous obtenez";
 "onramp_token_is_not_supported_banner_subtitle" = "This token is not supported. Please choose a different token to buy.";
+"onramp_token_is_not_supported_banner_title" = "%@ is not supported";
 "onramp_tos_external_providers" = "Le service est fourni par un prestataire externe. Tangem n'est pas responsable.";
 "onramp_transaction_status_footer_text" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton";
 "onramp_up_to_rate" = "Jusqu'à";
 "onramp_via_provider" = "via %@";
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "Vous paierez";
-"onramps_token_is_not_supported_banner_title" = "%@ is not supported";
 "organize_tokens_group" = "Grouper";
 "organize_tokens_menu_group_by_networks" = "Regrouper par réseaux";
 "organize_tokens_menu_sort_by_balance" = "Trier par solde";
@@ -2102,8 +2102,8 @@
 "warning_hedera_missing_token_association_message" = "Ce jeton doit être associé à votre compte Hedera avant que vous puissiez le recevoir. Frais d'association ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Associez votre jeton";
 "warning_hedera_token_association_not_enough_hbar_message" = "%@ insuffisant. Renflouez votre compte Hedera pour associer ce jeton";
-"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
-"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
+"warning_incomplete_backup_notification_message" = "Nous avons constaté que le processus d'activation de la carte n'a pas été effectué correctement en raison de problèmes avec le module NFC de votre appareil ou d'une méthode incorrecte pour maintenir les cartes sur votre téléphone. Veuillez contacter notre équipe d'assistance pour plus de détails.";
+"warning_incomplete_backup_notification_title" = "Action requise. N'utilisez pas votre portefeuille!";
 "warning_ios_deprecation_message" = "La prise en charge d’iOS %1$@ prendra fin le %2$@. Pour continuer à recevoir les mises à jour de l’app et garantir un fonctionnement complet, veuillez mettre à jour vers la dernière version d’iOS.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Êtes-vous sûr(e) de vouloir annuler la transaction ? Vous ne pourrez plus réessayer.";
 "warning_kaspa_unfinished_token_transaction_message" = "Votre transaction d'un montant de %1$@ %2$@ n'a pas été finalisée. Vous pouvez réessayer plus tard pour la finaliser.";

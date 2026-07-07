@@ -85,6 +85,7 @@
 "address_book_address_copied" = "Address copied";
 "address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
+"address_book_clear_all_networks" = "Clear All";
 "address_book_contact_name" = "Contact name";
 "address_book_contact" = "Contact";
 "address_book_copy_address" = "Copy address";
@@ -114,6 +115,7 @@
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "This contact will be linked to this wallet’s address book.";
 "address_book_search_no_results" = "No results found.\nTry another name";
+"address_book_select_all_networks" = "Select All";
 "address_book_select_network" = "Select network";
 "address_book_title" = "Address book";
 "address_book_unsaved_changes_description" = "Are you sure you want to discard edits?";
@@ -504,8 +506,6 @@
 "error_wrong_wallet_tapped" = "您使用了另一個錢包中的卡。點按與此錢包關聯的卡片";
 "eth_gas_required_exceeds_allowance" = "沒有足夠的資金進行交易。請先入金";
 "exchange_token_description" = "Swap any asset in your portfolio for this token";
-"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
-"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "Provided by %@";
 "express_choose_provider" = "Choose provider";
 "express_error_provider_amount_roundup" = "Error %1$@. The selected provider cannot process the specified transaction. Please round the value up to %2$@ or change it";
@@ -1060,13 +1060,13 @@
 "onramp_title_available_up_to" = "Available up to";
 "onramp_title_you_get" = "You get";
 "onramp_token_is_not_supported_banner_subtitle" = "This token is not supported. Please choose a different token to buy.";
+"onramp_token_is_not_supported_banner_title" = "%@ is not supported";
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "You can close this screen and check the transaction status on the token details screen.";
 "onramp_up_to_rate" = "Up to";
 "onramp_via_provider" = "via %@";
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "You will pay";
-"onramps_token_is_not_supported_banner_title" = "%@ is not supported";
 "organize_tokens_group" = "Group";
 "organize_tokens_menu_group_by_networks" = "Group by networks";
 "organize_tokens_menu_sort_by_balance" = "Sort by balance";
