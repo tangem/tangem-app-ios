@@ -279,6 +279,7 @@ private extension ActionButtonsBuyCoordinator {
             widgetsUpdateHandler: widgetsUpdateHandler,
             quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
             analyticsService: CommonMarketsWidgetAnalyticsService(),
+            includesMarketCapFilter: true,
             coordinator: self
         )
     }
