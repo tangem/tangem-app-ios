@@ -32,20 +32,7 @@ extension AccountModel {
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/common/ui/src/main/java/com/tangem/common/ui/account/CryptoPortfolioIconExt.kt
 /// https://github.com/tangem-developments/tangem-app-android/blob/develop/domain/models/src/main/kotlin/com/tangem/domain/models/account/CryptoPortfolioIcon.kt
 extension AccountModel.CompositeIcon {
-    enum Color: String, CaseIterable, Hashable {
-        case azure = "Azure"
-        case caribbeanBlue = "CaribbeanBlue"
-        case dullLavender = "DullLavender"
-        case candyGrapeFizz = "CandyGrapeFizz"
-        case sweetDesire = "SweetDesire"
-        case palatinateBlue = "PalatinateBlue"
-        case fuchsiaNebula = "FuchsiaNebula"
-        case mexicanPink = "MexicanPink"
-        case pelati = "Pelati"
-        case pattypan = "Pattypan"
-        case ufoGreen = "UFOGreen"
-        case vitalGreen = "VitalGreen"
-    }
+    typealias Color = CompositeIconColor
 
     enum Name: String, CaseIterable, Hashable {
         case letter = "Letter"

@@ -60,6 +60,10 @@ public struct TangemPayAPIService<Target: TargetType> {
             return .unauthorized
         }
 
+        if (500 ..< 600).contains(response.statusCode) {
+            return .serverError(statusCode: response.statusCode)
+        }
+
         do {
             switch responseFormat {
             case .wrapped:
@@ -90,6 +94,9 @@ public extension TangemPayAPIService {
 public enum TangemPayAPIServiceError: Error {
     case moyaError(Error)
     case unauthorized
+    /// A non-401 server-side HTTP failure (e.g. 5xx). Keeps the status code so callers can tell
+    /// a transient server error (like a 500 on challenge/token) apart from other failures.
+    case serverError(statusCode: Int)
     case apiError(TangemPayAPIError)
     case decodingError(Error)
 }
