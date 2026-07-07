@@ -9,10 +9,20 @@
 import Foundation
 import Moya
 
-/// Redirects requests to the remote WireMock host (`wiremock.tests-d.com`)
-/// to a local WireMock instance specified via `WIREMOCK_BASE_URL` env variable.
+/// Redirects WireMock-bound traffic to the local instance specified via the `WIREMOCK_BASE_URL` env variable.
+///
+/// Handles two layouts:
+/// - the canonical WireMock host (`wiremock.tests-d.com`), whose path already targets the mock — only the host is localized;
+/// - real third-party hosts served by WireMock under a host-prefixed path (e.g. `api.etherscan.io/v2/api` ->
+///   `<wiremock>/api.etherscan.io/v2/api`) — the host is localized and the original host is prepended to the path.
+///
+/// This lets providers point at their real production URL while staying hermetic in UI tests, instead of
+/// baking the mock decision into the provider itself.
 public struct WireMockRedirectPlugin: PluginType {
     private static let wireMockRemoteHost = "wiremock.tests-d.com"
+
+    /// Real third-party hosts whose mocks live under a host-prefixed path on the WireMock server.
+    private static let thirdPartyMockedHosts: Set<String> = ["api.etherscan.io"]
 
     private let overrideComponents: URLComponents?
 
@@ -31,15 +41,18 @@ public struct WireMockRedirectPlugin: PluginType {
         guard let overrideComponents,
               let originalURL = request.url,
               let host = originalURL.host,
-              host.contains(Self.wireMockRemoteHost) else {
+              var components = URLComponents(url: originalURL, resolvingAgainstBaseURL: false) else {
             return request
         }
 
-        if overrideComponents.host?.contains(Self.wireMockRemoteHost) == true {
-            return request
-        }
-
-        guard var components = URLComponents(url: originalURL, resolvingAgainstBaseURL: false) else {
+        if host.contains(Self.wireMockRemoteHost) {
+            // Already pointing at WireMock; nothing to localize when the override is the remote host too.
+            guard overrideComponents.host?.contains(Self.wireMockRemoteHost) != true else {
+                return request
+            }
+        } else if Self.thirdPartyMockedHosts.contains(host) {
+            components.path = "/\(host)\(originalURL.path)"
+        } else {
             return request
         }
 
