@@ -167,6 +167,10 @@ final class TangemPayAccount {
             : legacyCustomerInfoSubject.value.customerInfo.depositAddress
     }
 
+    var customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan? {
+        customerInfoSubject.value.customerTariffPlan
+    }
+
     var isDeactivated: Bool {
         multipleCardsEnabled ? isDeactivatedNew : isDeactivatedLegacy
     }
