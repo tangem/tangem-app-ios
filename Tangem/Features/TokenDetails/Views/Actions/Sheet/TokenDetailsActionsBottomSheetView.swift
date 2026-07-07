@@ -54,6 +54,7 @@ struct TokenDetailsActionsBottomSheetView: View {
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Color.Tangem.Surface.level2
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
+            configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
 
