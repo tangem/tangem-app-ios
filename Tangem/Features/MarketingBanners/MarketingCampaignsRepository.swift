@@ -13,10 +13,10 @@ import TangemFoundation
 final class MarketingCampaignsRepository {
     @Injected(\.tangemApiService) private var apiService: TangemApiService
 
-    private let language: String?
     private let campaignsSubject = CurrentValueSubject<[Kind: [MarketingCampaignsDTO.Campaign]], Never>([:])
     private let loadState = OSAllocatedUnfairLock(initialState: LoadState())
     private let storage = CachesDirectoryStorage(file: .cachedMarketingCampaigns)
+    private let language: String?
 
     init(language: String? = Locale.current.language.languageCode?.identifier) {
         self.language = language

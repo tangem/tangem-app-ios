@@ -20,10 +20,16 @@ final class YieldModuleActiveViewModel: ObservableObject {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: any UserWalletRepository
 
+    @Injected(\.marketingCampaignsRepository)
+    private var marketingCampaignsRepository: MarketingCampaignsRepository
+
     // MARK: - Published
 
     @Published
     private(set) var earnInfoNotifications = [YieldModuleNotificationBannerParams]()
+
+    @Published
+    private(set) var marketingNotifications: [NotificationBannerItem]?
 
     @Published
     private(set) var apyState: LoadableTextView.State = .loading
@@ -88,6 +94,8 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private let transactionFlowFactory: YieldModuleTransactionFlowFactory
     private let yieldManagerInteractor: YieldManagerInteractor
     private let notificationManager: YieldModuleNotificationManager
+    private let marketingNotificationManager = MarketingBannerNotificationManager()
+    private let notificationBannerMapper: MultiWalletNotificationBannerMapper
     private let logger: YieldAnalyticsLogger
 
     // MARK: - Properties
@@ -104,7 +112,8 @@ final class YieldModuleActiveViewModel: ObservableObject {
         transactionFlowFactory: YieldModuleTransactionFlowFactory,
         yieldManagerInteractor: YieldManagerInteractor,
         notificationManager: YieldModuleNotificationManager,
-        logger: YieldAnalyticsLogger
+        logger: YieldAnalyticsLogger,
+        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper()
     ) {
         self.walletModel = walletModel
         self.coordinator = coordinator
@@ -112,6 +121,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         self.yieldManagerInteractor = yieldManagerInteractor
         self.logger = logger
         self.notificationManager = notificationManager
+        self.notificationBannerMapper = notificationBannerMapper
 
         logger.logEarningInProgressScreenOpened()
 
@@ -165,6 +175,16 @@ final class YieldModuleActiveViewModel: ObservableObject {
     // MARK: - Private Implementation
 
     private func start() {
+        marketingNotificationManager.setup(
+            bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: walletModel.tokenItem, kind: .yield)
+        )
+
+        marketingNotificationManager.notificationPublisher
+            .map { [notificationBannerMapper] in
+                notificationBannerMapper.mapItems($0).nilIfEmpty
+            }
+            .assign(to: &$marketingNotifications)
+
         Task { await getAvailableFunds() }
         Task {
             await getEarnInfoFees()

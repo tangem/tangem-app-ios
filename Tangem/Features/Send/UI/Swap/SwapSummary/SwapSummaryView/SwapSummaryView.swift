@@ -39,6 +39,8 @@ struct SwapSummaryView: View {
                 VStack(spacing: 14) {
                     SwapAmountView(viewModel: viewModel.swapAmountViewModel)
 
+                    marketingBanner
+
                     providerSectionView
 
                     feeSectionView
@@ -116,6 +118,16 @@ struct SwapSummaryView: View {
             NotificationView(input: $0)
                 .setButtonsLoadingState(to: viewModel.notificationButtonIsLoading)
                 .transition(.notificationTransition)
+        }
+    }
+
+    @ViewBuilder
+    private var marketingBanner: some View {
+        if !viewModel.marketingNotifications.isEmpty {
+            NotificationBannerContainer(
+                items: viewModel.marketingNotifications,
+                stackingType: .carousel
+            )
         }
     }
 
