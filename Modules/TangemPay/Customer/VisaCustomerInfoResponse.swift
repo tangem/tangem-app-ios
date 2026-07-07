@@ -93,6 +93,47 @@ public extension VisaCustomerInfoResponse {
         public let displayName: String
         public let adminCardLimit: CardLimit
         public let actualCardLimit: CardLimit?
+        public let productSpecificationDataType: ProductSpecificationDataType
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case cardWalletAddress
+            case cardId
+            case cid
+            case status
+            case updatedAt
+            case paymentAccountId
+            case displayName
+            case adminCardLimit
+            case actualCardLimit
+            case productSpecificationDataType
+        }
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decode(String.self, forKey: .id)
+            cardWalletAddress = try container.decodeIfPresent(String.self, forKey: .cardWalletAddress)
+            cardId = try container.decodeIfPresent(String.self, forKey: .cardId)
+            cid = try container.decodeIfPresent(String.self, forKey: .cid)
+            status = try container.decodeIfPresent(ProductStatus.self, forKey: .status) ?? .undefined
+            updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? .distantPast
+            paymentAccountId = try container.decodeIfPresent(String.self, forKey: .paymentAccountId) ?? ""
+            displayName = try container.decodeIfPresent(String.self, forKey: .displayName) ?? ""
+            adminCardLimit = try container.decodeIfPresent(CardLimit.self, forKey: .adminCardLimit) ?? CardLimit(amount: 0, periodType: "")
+            actualCardLimit = try container.decodeIfPresent(CardLimit.self, forKey: .actualCardLimit)
+            productSpecificationDataType = try container.decodeIfPresent(ProductSpecificationDataType.self, forKey: .productSpecificationDataType) ?? .undefined
+        }
+    }
+
+    enum ProductSpecificationDataType: String, Codable {
+        case card = "CARD"
+        case account = "ACCOUNT"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     enum ProductStatus: String, Codable {
@@ -312,5 +353,16 @@ public extension VisaCustomerInfoResponse {
 
     func card(forCardId cardId: String) -> Card? {
         cards.first { $0.id == cardId }
+    }
+
+    /// First Virtual Account (`ACCOUNT`) product instance, regardless of status.
+    var virtualAccountProductInstance: ProductInstance? {
+        productInstances.first { $0.productSpecificationDataType == .account }
+    }
+
+    /// Card product instances only — excludes Virtual Account (`ACCOUNT`) instances, which share
+    /// `cardId == nil` with pending cards and would otherwise be rendered as pending card entries.
+    var cardProductInstances: [ProductInstance] {
+        productInstances.filter { $0.productSpecificationDataType != .account }
     }
 }
