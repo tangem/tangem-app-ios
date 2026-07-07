@@ -36,14 +36,12 @@ struct TokenSectionView: View {
 
 // MARK: - Previews
 
-struct TokenSectionView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            TokenSectionView(title: "Ethereum", topEdgeCornerRadius: nil)
+#Preview {
+    VStack {
+        TokenSectionView(title: "Ethereum", topEdgeCornerRadius: nil)
 
-            TokenSectionView(title: nil, topEdgeCornerRadius: nil)
+        TokenSectionView(title: nil, topEdgeCornerRadius: nil)
 
-            TokenSectionView(title: "A token list section header view with an extremely long title...", topEdgeCornerRadius: nil)
-        }
+        TokenSectionView(title: "A token list section header view with an extremely long title...", topEdgeCornerRadius: nil)
     }
 }
