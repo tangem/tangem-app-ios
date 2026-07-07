@@ -73,6 +73,7 @@ struct OnrampTransactionDetailsViewData: TransactionDetailsOperationViewData {
         return rows.isEmpty ? nil : .init(rows: rows)
     }
 
+    /// The paid amount is never signed, in any state.
     private var paidAmountText: String {
         "\(paid.amount) \(paid.symbol)"
     }
