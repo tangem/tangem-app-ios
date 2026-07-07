@@ -168,8 +168,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         isFromYieldContract: Bool
     ) -> String {
         switch transactionType {
-        case .yieldSend where isOutgoing,
-             .yieldSend where !isFromYieldContract: Localization.commonTransfer
+        case .yieldSend where transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract): Localization.commonTransfer
         case .transfer: Localization.commonTransfer
         case .swap: Localization.commonSwap
         case .approve: Localization.commonApproval
@@ -344,5 +343,12 @@ extension TransactionViewModel {
                 hasher.combine(fullAddress)
             }
         }
+    }
+}
+
+extension TransactionViewModel.TransactionType {
+    func isTransferLikeYieldSend(isOutgoing: Bool, isFromYieldContract: Bool) -> Bool {
+        guard case .yieldSend = self else { return false }
+        return isOutgoing || !isFromYieldContract
     }
 }
