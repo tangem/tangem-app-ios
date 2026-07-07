@@ -31,11 +31,16 @@ final class PushNotificationsMainViewModel: ObservableObject {
         delegate: self
     )
 
+    private var isWarningViewAvailable: Bool {
+        FeatureProvider.isAvailable(.mainPushNotificationDoubleAsk)
+            && experimentService.isOn(.mainPushNotificationDoubleAsk)
+    }
+
     private lazy var warningViewModel = PushNotificationsWarningViewModel(
         permissionManager: permissionManager,
         analyticsContext: PushNotificationsWarningAnalyticsContext(
             zone: .main,
-            variant: experimentService.isOn(.warningScreenOnboarding) ? .treatment : .control,
+            variant: isWarningViewAvailable ? .treatment : .control,
             walletId: walletId
         ),
         dismissAction: { [weak self] in
@@ -70,7 +75,7 @@ extension PushNotificationsMainViewModel: @MainActor PushNotificationsPermission
     }
 
     func didPostponePushNotifications() {
-        guard experimentService.isOn(.warningScreenOnboarding) else {
+        guard isWarningViewAvailable else {
             dismiss()
             return
         }
