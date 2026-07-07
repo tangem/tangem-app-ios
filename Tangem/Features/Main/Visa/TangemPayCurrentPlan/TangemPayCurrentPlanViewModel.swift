@@ -7,53 +7,95 @@
 //
 
 import Foundation
+import TangemFoundation
+import TangemLocalization
+import TangemPay
+import struct TangemUIUtils.AlertBinder
 
 final class TangemPayCurrentPlanViewModel: ObservableObject {
     let planName: String
     let sections: [Section]
     let changePlanButtonTitle: String
 
+    @Published private(set) var isLoadingPlans = false
+    @Published var alert: AlertBinder?
+
+    private let customerService: any CustomerInfoManagementService
     private weak var coordinator: TangemPayCurrentPlanRoutable?
 
-    init(coordinator: TangemPayCurrentPlanRoutable? = nil) {
+    init(
+        customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan,
+        customerService: any CustomerInfoManagementService,
+        coordinator: TangemPayCurrentPlanRoutable? = nil
+    ) {
+        self.customerService = customerService
         self.coordinator = coordinator
 
-        // [REDACTED_TODO_COMMENT]
-        planName = "Basic"
+        let tariffPlan = customerTariffPlan.tariffPlan
+        planName = tariffPlan.name
+        sections = Self.makeSections(from: tariffPlan.descriptionItems)
 
-        // [REDACTED_TODO_COMMENT]
-        sections = [
-            Section(
-                title: "Card related",
-                rows: [
-                    Row(label: "Visa Programme", value: "Platinum"),
-                    Row(label: "Max daily spending limit", value: "$10.000"),
-                    Row(label: "FX fee", value: "1%"),
-                ]
-            ),
-            Section(
-                title: "Plan related",
-                rows: [
-                    Row(label: "Plan fee", value: "$0.00"),
-                    Row(label: "Max cards issued", value: "3"),
-                    Row(label: "Additional benefits", value: "No"),
-                ]
-            ),
-        ]
-
-        // [REDACTED_TODO_COMMENT]
-        changePlanButtonTitle = "Change plan"
+        changePlanButtonTitle = Localization.tangempayCurrentPlanChange
     }
 
     func changePlan() {
-        coordinator?.openSelectPlan()
+        guard !isLoadingPlans else { return }
+
+        isLoadingPlans = true
+
+        runTask(in: self) { @MainActor viewModel in
+            do {
+                let transitions = try await viewModel.customerService.getTariffPlanTransitions()
+
+                viewModel.isLoadingPlans = false
+                viewModel.coordinator?.openSelectPlan(transitions: transitions)
+            } catch {
+                viewModel.isLoadingPlans = false
+                viewModel.alert = AlertBinder(
+                    title: Localization.commonError,
+                    message: Localization.commonUnknownError
+                )
+            }
+        }
+    }
+}
+
+// MARK: - Mapping
+
+private extension TangemPayCurrentPlanViewModel {
+    static func makeSections(
+        from items: [VisaCustomerInfoResponse.TariffPlan.DescriptionItem]
+    ) -> [Section] {
+        let grouped = Dictionary(grouping: items, by: \.type)
+        let orderedSections: [VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType] = [.cardRelated, .planRelated]
+
+        return orderedSections.compactMap { type in
+            guard let sectionItems = grouped[type], !sectionItems.isEmpty else {
+                return nil
+            }
+
+            let rows = sectionItems
+                .sorted { $0.order < $1.order }
+                .map { Row(label: $0.title, value: $0.body) }
+
+            return Section(title: type.sectionTitle, rows: rows)
+        }
+    }
+}
+
+private extension VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType {
+    var sectionTitle: String {
+        switch self {
+        case .cardRelated: Localization.tangempayCurrentPlanSectionCard
+        case .planRelated: Localization.tangempayCurrentPlanSectionPlan
+        }
     }
 }
 
 // MARK: - Routable
 
 protocol TangemPayCurrentPlanRoutable: AnyObject {
-    func openSelectPlan()
+    func openSelectPlan(transitions: TangemPayTariffPlanTransitionsResponse)
 }
 
 extension TangemPayCurrentPlanViewModel {
