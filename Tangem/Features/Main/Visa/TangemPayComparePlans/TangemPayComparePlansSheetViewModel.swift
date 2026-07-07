@@ -6,99 +6,80 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
+import TangemPay
 import TangemUI
 
 struct TangemPayComparePlansSheetViewModel: FloatingSheetContentViewModel {
     var id: String { String(describing: Self.self) }
 
-    // [REDACTED_TODO_COMMENT]
-    let title = "Compare plans"
+    let title = Localization.tangempaySelectPlanCompare
     let attributes: [Attribute]
     let plans: [ComparePlan]
 
     private let coordinator: TangemPayComparePlansRoutable
 
-    init(coordinator: TangemPayComparePlansRoutable) {
+    init(
+        transitions: TangemPayTariffPlanTransitionsResponse,
+        coordinator: TangemPayComparePlansRoutable
+    ) {
         self.coordinator = coordinator
 
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
-        attributes = [
-            Attribute(id: "availableCards", tabTitle: "Available cards"),
-            Attribute(id: "visaProgramme", tabTitle: "Visa programme"),
-            Attribute(id: "planFee", tabTitle: "Plan fee"),
-            Attribute(id: "fxFee", tabTitle: "FX fee"),
-            Attribute(id: "replacementFee", tabTitle: "Replacement fee"),
-            Attribute(id: "dailyLimit", tabTitle: "Daily spending limit"),
-            Attribute(id: "additionalBenefits", tabTitle: "Additional benefits"),
-        ]
+        let tariffPlans = transitions.map(\.tariffPlan)
+        let orderedAttributes = Self.makeOrderedAttributes(from: tariffPlans)
 
-        plans = [
-            ComparePlan(
-                name: "Basic",
-                cells: [
-                    .availableCards(cardType: "Virtual", cardCount: "Up to 3"),
-                    .value(primary: "Platinum", caption: nil),
-                    .value(primary: "$0", caption: nil),
-                    .value(primary: "1%", caption: "For non-USD purchases"),
-                    .value(primary: "$1", caption: nil),
-                    .value(primary: "$10,000", caption: "Per card"),
-                    .value(primary: "No", caption: nil),
-                ]
-            ),
-            ComparePlan(
-                name: "Plus",
-                cells: [
-                    .availableCards(cardType: "Virtual", cardCount: "Up to 5"),
-                    .value(primary: "Signature", caption: nil),
-                    .value(primary: "$29.99/month", caption: nil),
-                    .value(primary: "1%", caption: "For non-USD purchases"),
-                    .value(primary: "$0", caption: nil),
-                    .value(primary: "$50,000", caption: "Per card"),
-                    .value(primary: "Benefit 1, Benefit 2, Benefit 3", caption: nil),
-                ]
-            ),
-            ComparePlan(
-                name: "Premium",
-                cells: [
-                    .availableCards(cardType: "Virtual & Physical", cardCount: "Up to 8"),
-                    .value(primary: "Signature", caption: nil),
-                    .value(primary: "$49.99/month", caption: nil),
-                    .value(primary: "0.5%", caption: "For non-USD purchases"),
-                    .value(primary: "$0", caption: nil),
-                    .value(primary: "$100,000", caption: "Per card"),
-                    .value(primary: "Benefit 1, Benefit 2, Benefit 3, Benefit 4", caption: nil),
-                ]
-            ),
-            ComparePlan(
-                name: "Elite",
-                cells: [
-                    .availableCards(cardType: "Virtual & Physical", cardCount: "Up to 12"),
-                    .value(primary: "Infinite", caption: nil),
-                    .value(primary: "$99.99/month", caption: nil),
-                    .value(primary: "0.25%", caption: "For non-USD purchases"),
-                    .value(primary: "$0", caption: nil),
-                    .value(primary: "$250,000", caption: "Per card"),
-                    .value(primary: "All Visa Infinite benefits", caption: nil),
-                ]
-            ),
-            ComparePlan(
-                name: "Ultimate",
-                cells: [
-                    .availableCards(cardType: "Virtual & Physical", cardCount: "Unlimited"),
-                    .value(primary: "Infinite", caption: nil),
-                    .value(primary: "$199.99/month", caption: nil),
-                    .value(primary: "0%", caption: "For non-USD purchases"),
-                    .value(primary: "$0", caption: nil),
-                    .value(primary: "No limit", caption: "Per card"),
-                    .value(primary: "Concierge, lounges, insurance & more", caption: nil),
-                ]
-            ),
-        ]
+        attributes = orderedAttributes.map { Attribute(id: $0, tabTitle: $0) }
+
+        plans = tariffPlans.map { plan in
+            let valuesByTitle = Dictionary(
+                plan.descriptionItems.map { ($0.title, $0.body) },
+                uniquingKeysWith: { first, _ in first }
+            )
+
+            return ComparePlan(
+                name: plan.name,
+                cells: orderedAttributes.map { valuesByTitle[$0] ?? Constants.missingValue }
+            )
+        }
     }
 
     func close() {
         coordinator.closeComparePlans()
+    }
+}
+
+// MARK: - Mapping
+
+private extension TangemPayComparePlansSheetViewModel {
+    enum Constants {
+        static let missingValue = "—"
+    }
+
+    /// Distinct description-item titles across all plans, ordered card-related first, then by `order`.
+    static func makeOrderedAttributes(
+        from plans: [VisaCustomerInfoResponse.TariffPlan]
+    ) -> [String] {
+        var seen = Set<String>()
+        var attributes: [(title: String, sortIndex: Int, order: Int)] = []
+
+        for plan in plans {
+            for item in plan.descriptionItems where seen.insert(item.title).inserted {
+                attributes.append((item.title, item.type.sortIndex, item.order))
+            }
+        }
+
+        return attributes
+            .sorted { ($0.sortIndex, $0.order) < ($1.sortIndex, $1.order) }
+            .map(\.title)
+    }
+}
+
+private extension VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType {
+    var sortIndex: Int {
+        switch self {
+        case .cardRelated: 0
+        case .planRelated: 1
+        }
     }
 }
 
@@ -113,12 +94,7 @@ extension TangemPayComparePlansSheetViewModel {
     struct ComparePlan: Identifiable {
         var id: String { name }
         let name: String
-        let cells: [Cell]
-    }
-
-    enum Cell {
-        case availableCards(cardType: String, cardCount: String)
-        case value(primary: String, caption: String?)
+        let cells: [String]
     }
 }
 

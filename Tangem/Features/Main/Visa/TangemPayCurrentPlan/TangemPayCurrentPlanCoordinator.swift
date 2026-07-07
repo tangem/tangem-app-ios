@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemPay
 
 final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -24,6 +25,7 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
     @Published var selectPlanViewModel: TangemPaySelectPlanViewModel?
 
     private var options: Options?
+    private var transitions: TangemPayTariffPlanTransitionsResponse = []
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -35,7 +37,11 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         self.options = options
-        currentPlanViewModel = TangemPayCurrentPlanViewModel(coordinator: self)
+        currentPlanViewModel = TangemPayCurrentPlanViewModel(
+            customerTariffPlan: options.customerTariffPlan,
+            customerService: options.customerService,
+            coordinator: self
+        )
     }
 }
 
@@ -43,6 +49,8 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
 
 extension TangemPayCurrentPlanCoordinator {
     struct Options {
+        let customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan
+        let customerService: any CustomerInfoManagementService
         let closeFlow: () -> Void
     }
 }
@@ -50,8 +58,9 @@ extension TangemPayCurrentPlanCoordinator {
 // MARK: - TangemPayCurrentPlanRoutable
 
 extension TangemPayCurrentPlanCoordinator: TangemPayCurrentPlanRoutable {
-    func openSelectPlan() {
-        selectPlanViewModel = TangemPaySelectPlanViewModel(coordinator: self)
+    func openSelectPlan(transitions: TangemPayTariffPlanTransitionsResponse) {
+        self.transitions = transitions
+        selectPlanViewModel = TangemPaySelectPlanViewModel(transitions: transitions, coordinator: self)
     }
 }
 
@@ -64,7 +73,7 @@ extension TangemPayCurrentPlanCoordinator: TangemPaySelectPlanRoutable {
     }
 
     func openComparePlans() {
-        let viewModel = TangemPayComparePlansSheetViewModel(coordinator: self)
+        let viewModel = TangemPayComparePlansSheetViewModel(transitions: transitions, coordinator: self)
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
