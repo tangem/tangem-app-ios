@@ -20,4 +20,11 @@ enum AddressBookNetworkServiceError: LocalizedError {
         case .malformedResponse(let error): error.localizedDescription
         }
     }
+
+    var isCancellationError: Bool {
+        switch self {
+        case .underlyingError(let error): error.isCancellationError
+        case .inconsistentState, .malformedResponse: false
+        }
+    }
 }
