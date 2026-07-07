@@ -149,16 +149,27 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openCurrentPlan() {
+        guard
+            let tangemPayAccount = options?.tangemPayAccount,
+            let customerTariffPlan = tangemPayAccount.customerTariffPlan
+        else {
+            return
+        }
+
         let coordinator = TangemPayCurrentPlanCoordinator(
             dismissAction: { [weak self] in
                 self?.currentPlanCoordinator = nil
             },
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .init(closeFlow: { [weak self] in
-            self?.currentPlanCoordinator = nil
-            self?.dismiss(with: nil)
-        }))
+        coordinator.start(with: .init(
+            customerTariffPlan: customerTariffPlan,
+            customerService: tangemPayAccount.customerService,
+            closeFlow: { [weak self] in
+                self?.currentPlanCoordinator = nil
+                self?.dismiss(with: nil)
+            }
+        ))
         currentPlanCoordinator = coordinator
     }
 

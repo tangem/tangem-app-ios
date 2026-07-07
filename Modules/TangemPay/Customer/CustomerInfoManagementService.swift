@@ -65,6 +65,8 @@ public protocol CustomerInfoManagementService: AnyObject {
 
     func getCustomerOffers() async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse
 
+    func getTariffPlanTransitions() async throws(TangemPayAPIServiceError) -> TangemPayTariffPlanTransitionsResponse
+
     func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse
     func reissueCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayReissueCardResponse
 
@@ -235,6 +237,10 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
 
     public func getCustomerOffers() async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse {
         try await request(for: .getCustomerOffers)
+    }
+
+    public func getTariffPlanTransitions() async throws(TangemPayAPIServiceError) -> TangemPayTariffPlanTransitionsResponse {
+        try await request(for: .getTariffPlanTransitions)
     }
 
     public func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse {
