@@ -28,7 +28,7 @@ struct TransactionViewRedesigned: View {
             primaryLeading: { nameView },
             primaryTrailing: { amountView },
             secondaryLeading: { subtitleView },
-            secondaryTrailing: { currencyView }
+            secondaryTrailing: { secondaryTrailingView }
         )
         .compressionPolicy(.trailingPreserved)
     }
@@ -103,9 +103,9 @@ struct TransactionViewRedesigned: View {
     }
 
     @ViewBuilder
-    private var currencyView: some View {
-        if viewModel.amount.currencyCode.isNotEmpty {
-            Text(viewModel.amount.currencyCode)
+    private var secondaryTrailingView: some View {
+        if let text = viewModel.secondaryTrailingText {
+            Text(text)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 .lineLimit(1)
         }

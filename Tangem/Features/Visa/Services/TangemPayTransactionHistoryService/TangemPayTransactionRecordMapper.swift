@@ -18,7 +18,8 @@ struct TangemPayTransactionRecordMapper {
     private let amountFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.usesSignificantDigits = true
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
         return formatter
     }()
 
