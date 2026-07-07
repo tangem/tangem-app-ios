@@ -504,6 +504,8 @@
 "error_wrong_wallet_tapped" = "Ha usado una tarjeta de otra billetera. Toque la tarjeta asociada con esta billetera";
 "eth_gas_required_exceeds_allowance" = "No hay fondos suficientes para la transacción. Por favor, recargue su cuenta.";
 "exchange_token_description" = "Intercambie cualquier activo de su cartera por este token";
+"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
+"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "Proporcionado por %@";
 "express_choose_provider" = "Elegir proveedor";
 "express_error_provider_amount_roundup" = "Error %1$@. El proveedor seleccionado no puede procesar la transacción especificada. Por favor, redondee el valor a %2$@ o cámbielo";
