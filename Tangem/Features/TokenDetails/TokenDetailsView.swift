@@ -62,6 +62,8 @@ struct TokenDetailsView: View {
 
                 stakingView
 
+                marketingBanner
+
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
                 }
@@ -276,6 +278,16 @@ struct TokenDetailsView: View {
                     accessibilityIdentifier: notification.accessibilityIdentifier
                 )
             }
+        }
+    }
+
+    @ViewBuilder
+    private var marketingBanner: some View {
+        if let marketingNotifications = viewModel.marketingNotifications {
+            NotificationBannerContainer(
+                items: marketingNotifications,
+                stackingType: .carousel
+            )
         }
     }
 
