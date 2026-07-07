@@ -35,6 +35,13 @@ struct TransactionViewModel: Hashable, Identifiable {
         return timeFormatted ?? "-"
     }
 
+    var secondaryTrailingText: String? {
+        if case .tangemPay = transactionType {
+            return timeFormatted
+        }
+        return amount.currencyCode.nilIfEmpty
+    }
+
     var transactionDescriptionTruncationMode: Text.TruncationMode {
         switch transactionType {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
