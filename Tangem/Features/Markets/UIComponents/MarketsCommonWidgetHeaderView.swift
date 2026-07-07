@@ -120,7 +120,6 @@ extension MarketsCommonWidgetHeaderView {
     }
 }
 
-#if DEBUG
 #Preview {
     VStack(spacing: 20) {
         MarketsCommonWidgetHeaderView(
@@ -150,4 +149,3 @@ extension MarketsCommonWidgetHeaderView {
     .padding()
     .background(Colors.Background.primary)
 }
-#endif
