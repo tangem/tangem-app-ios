@@ -54,13 +54,9 @@ struct AddressBookContactSkeletonView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-struct AddressBooksLoadingView_Previews: PreviewProvider {
-    static var previews: some View {
-        GroupedScrollView(contentType: .lazy(spacing: 8)) {
-            AddressBooksLoadingView()
-        }
-        .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
+#Preview {
+    GroupedScrollView(contentType: .lazy(spacing: 8)) {
+        AddressBooksLoadingView()
     }
+    .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
 }
-#endif // DEBUG

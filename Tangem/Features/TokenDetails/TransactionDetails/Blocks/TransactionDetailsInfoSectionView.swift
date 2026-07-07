@@ -5,6 +5,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import SwiftUI
 import TangemAssets
 import TangemUI
@@ -29,7 +30,7 @@ struct TransactionDetailsInfoSectionViewData: Equatable {
         struct Link: Equatable {
             let text: String
             let iconURL: URL?
-            @IgnoredEquatable var handler: () -> Void
+            @IgnoredEquatable var handler: (() -> Void)?
         }
     }
 }
@@ -43,10 +44,6 @@ struct TransactionDetailsInfoSectionView: View {
                 rowView(row, showsDivider: index != data.rows.count - 1)
             }
         }
-        .background(
-            DesignSystem.Color.bgTertiary,
-            in: RoundedRectangle(cornerRadius: 24)
-        )
     }
 
     @ViewBuilder
@@ -54,12 +51,15 @@ struct TransactionDetailsInfoSectionView: View {
         switch row.content {
         case .text(let value):
             TangemRow(title: row.title, value: value)
+                .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+                .contentLead(.end)
+                .valueLineLimit(1)
                 .showDivider(showsDivider)
         case .link(let link):
             TangemRow(title: row.title)
                 .valueAccessory { linkValue(link) }
-                .onTap(link.handler)
                 .showDivider(showsDivider)
+                .ifLet(link.handler) { view, handler in view.onTap(handler) }
         }
     }
 
@@ -73,27 +73,27 @@ struct TransactionDetailsInfoSectionView: View {
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
 
-            // [REDACTED_TODO_COMMENT]
-            Assets.arrowRightUpMini.image
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(size: CGSize(bothDimensions: 16))
-                .foregroundStyle(DesignSystem.Color.iconSecondary)
+            if link.handler != nil {
+                // [REDACTED_TODO_COMMENT]
+                Assets.arrowRightUpMini.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(size: CGSize(bothDimensions: 16))
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+            }
         }
     }
 }
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Info section") {
     TransactionDetailsInfoSectionView(data: .init(rows: [
         .init(id: "provider", title: "Provider", content: .link(.init(text: "DEX • Mercuryo", iconURL: nil, handler: {}))),
         .init(id: "rate", title: "Rate", content: .text("1 POL ≈ 0.36 USDT")),
-        .init(id: "fee", title: "Network fee", content: .text("0.00056 ETH")),
+        .init(id: "networkFee", title: "Network fee", content: .text("0.00056 ETH")),
     ]))
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)
 }
-#endif // DEBUG

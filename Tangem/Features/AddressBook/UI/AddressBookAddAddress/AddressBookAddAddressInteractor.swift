@@ -13,6 +13,9 @@ import TangemLocalization
 import BlockchainSdk
 
 protocol AddressBookAddAddressOutput: AnyObject {
+    var contactHasUnsavedChanges: Bool { get }
+    var contactEntries: [AddressBookEntryDraft] { get }
+    var contactDisplayName: String { get }
     func userDidAddAddress(entries: [AddressBookEntryDraft], replacing: [AddressBookAddressEntryID])
 }
 
@@ -24,12 +27,15 @@ protocol AddressBookAddAddressInteractor {
     var resolvedNetworks: AnyPublisher<Set<BSDKBlockchain>, Never> { get }
     var selectedNetworks: AnyPublisher<Set<BSDKBlockchain>, Never> { get }
     var isAddAddressEnabledPublisher: AnyPublisher<Bool, Never> { get }
+    var hasUnsavedChanges: Bool { get }
 
     func update(address: String, source: Analytics.DestinationAddressSource)
     func update(additionalField: String)
     func update(selectedNetworks: Set<BSDKBlockchain>)
 
     func userDidRequestSave()
+
+    func logScreenOpened()
 }
 
 enum AddressBookAddAddressOptions {
@@ -38,9 +44,13 @@ enum AddressBookAddAddressOptions {
 }
 
 final class CommonAddressBookAddAddressInteractor {
+    private let contactId: AddressBookContactID?
+    private let analyticsLogger: any AddressBookAnalyticsLogger
+
     private let userWalletInfo: UserWalletInfo
     private weak var output: AddressBookAddAddressOutput?
     private let replacing: [AddressBookAddressEntryID]
+    private let reservedContacts: [AddressBookContact]
 
     private let addressResolver = AddressBlockchainResolver()
 
@@ -53,10 +63,21 @@ final class CommonAddressBookAddAddressInteractor {
     private let _addressAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
     private let _resolvedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
     private let _selectedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
+    private var bag = Set<AnyCancellable>()
 
-    init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput, options: AddressBookAddAddressOptions) {
+    init(
+        userWalletInfo: UserWalletInfo,
+        contactId: AddressBookContactID?,
+        output: AddressBookAddAddressOutput,
+        options: AddressBookAddAddressOptions,
+        reservedContacts: [AddressBookContact],
+        analyticsLogger: any AddressBookAnalyticsLogger
+    ) {
         self.userWalletInfo = userWalletInfo
+        self.contactId = contactId
         self.output = output
+        self.reservedContacts = reservedContacts
+        self.analyticsLogger = analyticsLogger
 
         switch options {
         case .add:
@@ -74,6 +95,8 @@ final class CommonAddressBookAddAddressInteractor {
                 update(additionalField: memo)
             }
         }
+
+        bindAnalytics()
     }
 }
 
@@ -105,9 +128,13 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
     }
 
     var isAddAddressEnabledPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(_address, _selectedNetworks)
-            .map { address, networks in !address.isEmpty && !networks.isEmpty }
+        Publishers.CombineLatest3(_address, _selectedNetworks, _addressError)
+            .map { address, networks, error in !address.isEmpty && !networks.isEmpty && error == nil }
             .eraseToAnyPublisher()
+    }
+
+    var hasUnsavedChanges: Bool {
+        output?.contactHasUnsavedChanges ?? false
     }
 
     func update(address: String, source: Analytics.DestinationAddressSource) {
@@ -160,6 +187,7 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
 
     func update(selectedNetworks: Set<BSDKBlockchain>) {
         _selectedNetworks.send(selectedNetworks.intersection(_resolvedNetworks.value))
+        _addressError.send(duplicateAddressError(address: _address.value, networks: _selectedNetworks.value))
         applyAdditionalFieldType()
         update(additionalField: _additionalField.value.extraId ?? "")
     }
@@ -179,19 +207,36 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
 
         output?.userDidAddAddress(entries: entries, replacing: replacing)
     }
+
+    func logScreenOpened() {
+        analyticsLogger.logAddressScreenOpened(walletId: userWalletInfo.id.stringValue)
+    }
 }
 
 // MARK: - Private
 
 private extension CommonAddressBookAddAddressInteractor {
+    func bindAnalytics() {
+        _addressError
+            .map { $0 != nil }
+            .removeDuplicates()
+            .filter { $0 }
+            .sink { [weak self] _ in
+                guard let self else { return }
+                analyticsLogger.logAddressInvalid(walletId: userWalletInfo.id.stringValue, contactId: contactId?.stringValue)
+            }
+            .store(in: &bag)
+    }
+
     func apply(address: String, networks: Set<BSDKBlockchain>, valid: Bool, error: Error?) {
         _address.send(address)
         _resolvedNetworks.send(networks)
         _selectedNetworks.send(networks.count == 1 ? networks : [])
         _addressValid.send(valid)
-        _addressError.send(error)
+        _addressError.send(error ?? duplicateAddressError(address: address, networks: _selectedNetworks.value))
 
         applyAdditionalFieldType()
+        update(additionalField: _additionalField.value.extraId ?? "")
     }
 
     func applyAdditionalFieldType() {
@@ -205,16 +250,42 @@ private extension CommonAddressBookAddAddressInteractor {
             _addressAdditionalFieldError.send(nil)
         }
     }
+
+    func duplicateAddressError(address: String, networks: Set<BSDKBlockchain>) -> Error? {
+        guard !address.isEmpty, !networks.isEmpty else {
+            return nil
+        }
+
+        let networkIds = Set(networks.map(\.networkId))
+
+        if let conflict = reservedContacts.first(where: { contact in
+            contact.entries.raw.contains { networkIds.contains($0.networkId.rawValue) && $0.address == address }
+        }) {
+            return AddressBookAddAddressError.addressAlreadySaved(contactName: conflict.name.value)
+        }
+
+        if let output, output.contactEntries.contains(where: { entry in
+            !replacing.contains(entry.id) && networkIds.contains(entry.networkId.rawValue) && entry.address == address
+        }) {
+            return AddressBookAddAddressError.addressAlreadySaved(contactName: output.contactDisplayName)
+        }
+
+        return nil
+    }
 }
 
 // MARK: - Error
 
 enum AddressBookAddAddressError: LocalizedError {
     case invalidAddress
+    case addressAlreadySaved(contactName: String)
 
     var errorDescription: String? {
         switch self {
-        case .invalidAddress: Localization.addressBookInvalidAddressError
+        case .invalidAddress:
+            Localization.addressBookInvalidAddressError
+        case .addressAlreadySaved(let contactName):
+            Localization.addressBookAddressTakenError(contactName)
         }
     }
 }

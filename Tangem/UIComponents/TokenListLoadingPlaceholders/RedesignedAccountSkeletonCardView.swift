@@ -15,6 +15,8 @@ struct RedesignedAccountSkeletonCardView: View {
     @ScaledMetric private var scaleFactor: CGFloat = 1
     @ScaledMetric private var iconDimension: CGFloat = 36
 
+    private var isShimmerActive: Bool = true
+
     var body: some View {
         HStack(spacing: 0) {
             HStack(spacing: .unit(.x3)) {
@@ -28,8 +30,9 @@ struct RedesignedAccountSkeletonCardView: View {
             makeSkeletonsStack(alignment: .trailing)
         }
         .padding(.unit(.x3))
-        .background(Color.Tangem.Surface.level2)
+        .background(Color.Tangem.Surface.level3)
         .cornerRadiusContinuous(.unit(.x5))
+        .environment(\.isSkeletonShimmerActive, isShimmerActive)
     }
 
     private var iconPlaceholder: some View {
@@ -51,9 +54,16 @@ struct RedesignedAccountSkeletonCardView: View {
     }
 }
 
+// MARK: - Setupable
+
+extension RedesignedAccountSkeletonCardView: Setupable {
+    func setShimmerActive(_ isShimmerActive: Bool) -> Self {
+        map { $0.isShimmerActive = isShimmerActive }
+    }
+}
+
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ZStack {
         Color.Tangem.Surface.level2
@@ -67,4 +77,3 @@ struct RedesignedAccountSkeletonCardView: View {
         .padding(.horizontal, .unit(.x3))
     }
 }
-#endif

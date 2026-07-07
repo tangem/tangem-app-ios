@@ -75,17 +75,15 @@ struct FinishStoryPage: View {
     }
 }
 
-struct FinishStoryPage_Previews: PreviewProvider {
-    static var previews: some View {
-        FinishStoryPage(
-            progress: 1,
-            isScanning: false,
-            createWallet: {},
-            scanCard: {},
-            orderCard: {},
-            scanTroubleshootingDialog: .constant(nil)
-        )
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
-        .environment(\.colorScheme, .dark)
-    }
+#Preview {
+    FinishStoryPage(
+        progress: 1,
+        isScanning: false,
+        createWallet: {},
+        scanCard: {},
+        orderCard: {},
+        scanTroubleshootingDialog: .constant(nil)
+    )
+    .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
+    .environment(\.colorScheme, .dark)
 }

@@ -14,6 +14,8 @@ enum MarketingCampaignsDTO {
         case onramp(Onramp)
         case staking(language: String?)
         case yield(language: String?)
+        case tokenDetails(language: String?)
+        case marketsToken(language: String?)
 
         struct Swap: Equatable {
             let fromNetwork: String
@@ -46,8 +48,9 @@ enum MarketingCampaignsDTO {
         let banner: Banner
 
         struct Token: Codable {
-            let networkId: String
+            let networkId: String?
             let contractAddress: String?
+            let id: String?
         }
     }
 
@@ -115,7 +118,7 @@ extension MarketingCampaignsDTO.Request {
                 "toNetwork": onramp.toNetwork,
             ]
             parameters["toContractAddress"] = onramp.toContractAddress
-            parameters["fiatCurrency"] = onramp.fiatCurrency
+            parameters["fromFiat"] = onramp.fiatCurrency
             parameters["language"] = onramp.language
             return parameters
 
@@ -126,6 +129,16 @@ extension MarketingCampaignsDTO.Request {
 
         case .yield(let language):
             var parameters: [String: Any] = ["type": "yield"]
+            parameters["language"] = language
+            return parameters
+
+        case .tokenDetails(let language):
+            var parameters: [String: Any] = ["type": "token_details"]
+            parameters["language"] = language
+            return parameters
+
+        case .marketsToken(let language):
+            var parameters: [String: Any] = ["type": "markets_token"]
             parameters["language"] = language
             return parameters
         }

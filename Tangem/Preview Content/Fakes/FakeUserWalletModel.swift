@@ -35,7 +35,7 @@ class FakeUserWalletModel: UserWalletModel {
     var nftManager: NFTManager { NFTManagerStub() }
     let totalBalanceProvider: TotalBalanceProvider
     let walletImageProvider: WalletImageProviding
-    let signer: TangemSigner = CardSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
+    let signer: TangemSigner = CardSigner(filter: .cardId(""), sdkFactory: GenericTangemSdkFactory(isAccessCodeSet: false), twinKey: nil)
     let config: UserWalletConfig
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
@@ -60,6 +60,10 @@ class FakeUserWalletModel: UserWalletModel {
 
     var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
+    }
+
+    var priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider {
+        PriceAlertsSubscriptionsProviderStub()
     }
 
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {

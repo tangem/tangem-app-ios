@@ -43,6 +43,8 @@ struct TransactionDetailsHeaderView: View {
                 Text(data.title)
                     .style(DesignSystem.Font.bodyMediumToken, color: titleColor)
                     .lineLimit(1)
+                    .contentTransition(.opacity)
+                    .animation(.easeInOut(duration: 0.3), value: data.title)
 
                 Text(data.date)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
@@ -102,7 +104,6 @@ struct TransactionDetailsHeaderView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Header states") {
     let menu: [TransactionDetailsHeaderViewData.MenuAction] = [
         // [REDACTED_TODO_COMMENT]
@@ -125,4 +126,3 @@ struct TransactionDetailsHeaderView: View {
     }
     .background(DesignSystem.Color.bgSecondary)
 }
-#endif // DEBUG

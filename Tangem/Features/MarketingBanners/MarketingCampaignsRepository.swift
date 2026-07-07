@@ -13,10 +13,10 @@ import TangemFoundation
 final class MarketingCampaignsRepository {
     @Injected(\.tangemApiService) private var apiService: TangemApiService
 
-    private let language: String?
     private let campaignsSubject = CurrentValueSubject<[Kind: [MarketingCampaignsDTO.Campaign]], Never>([:])
     private let loadState = OSAllocatedUnfairLock(initialState: LoadState())
     private let storage = CachesDirectoryStorage(file: .cachedMarketingCampaigns)
+    private let language: String?
 
     init(language: String? = Locale.current.language.languageCode?.identifier) {
         self.language = language
@@ -29,6 +29,8 @@ extension MarketingCampaignsRepository {
     enum Kind: String, Hashable {
         case staking
         case yield
+        case tokenDetails
+        case marketsToken
     }
 }
 
@@ -39,6 +41,15 @@ extension MarketingCampaignsRepository {
         campaignsSubject
             .map { campaignsByKind in
                 let eligible = (campaignsByKind[kind] ?? []).filter { Self.appliesTo($0, tokenItem: tokenItem) }
+                return MarketingBannerMapper.banners(from: eligible)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func bannersPublisher(forMarketsTokenId id: String) -> AnyPublisher<MarketingBanners, Never> {
+        campaignsSubject
+            .map { campaignsByKind in
+                let eligible = (campaignsByKind[.marketsToken] ?? []).filter { Self.appliesTo($0, coingeckoId: id) }
                 return MarketingBannerMapper.banners(from: eligible)
             }
             .eraseToAnyPublisher()
@@ -125,6 +136,14 @@ private extension MarketingCampaignsRepository {
             }
         }
     }
+
+    static func appliesTo(_ campaign: MarketingCampaignsDTO.Campaign, coingeckoId: String) -> Bool {
+        guard let tokens = campaign.tokens, !tokens.isEmpty else {
+            return false
+        }
+
+        return tokens.contains { $0.id == coingeckoId }
+    }
 }
 
 private extension MarketingCampaignsRepository.Kind {
@@ -132,6 +151,8 @@ private extension MarketingCampaignsRepository.Kind {
         switch self {
         case .staking: .staking(language: language)
         case .yield: .yield(language: language)
+        case .tokenDetails: .tokenDetails(language: language)
+        case .marketsToken: .marketsToken(language: language)
         }
     }
 }

@@ -29,6 +29,8 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
     @Published var qrScanCoordinator: MainQRScanCoordinator?
 
+    private let analyticsLogger: any AddressBookAnalyticsLogger = CommonAddressBookAnalyticsLogger()
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -38,18 +40,32 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        let interactor: AddressBookContactManagementInteractor = switch options {
-        case .add(let addressBookWallet):
-            CreateAddressBookContactManagementInteractor(addressBookWallet: addressBookWallet)
+        let interactor: AddressBookContactManagementInteractor
+        let focusesNameOnFirstAppear: Bool
+
+        switch options {
+        case .add(let addressBookWallet, let prefilledEntries):
+            interactor = CreateAddressBookContactManagementInteractor(
+                addressBookWallet: addressBookWallet,
+                prefilledEntries: prefilledEntries,
+                analyticsLogger: analyticsLogger
+            )
+            focusesNameOnFirstAppear = prefilledEntries.isNotEmpty
         case .edit(let contact, let addressBookWallet):
-            EditAddressBookContactManagementInteractor(contact: contact, initialAddressBookWallet: addressBookWallet)
+            interactor = EditAddressBookContactManagementInteractor(
+                contact: contact,
+                initialAddressBookWallet: addressBookWallet,
+                analyticsLogger: analyticsLogger
+            )
+            focusesNameOnFirstAppear = false
         }
 
         let addressBooksProvider: any AddressBooksProvider = AllWalletsAddressBooksProvider()
         rootViewModel = AddressBookContactManagementViewModel(
             interactor: interactor,
             coordinator: self,
-            addressBooksProvider: addressBooksProvider
+            addressBooksProvider: addressBooksProvider,
+            focusesNameOnFirstAppear: focusesNameOnFirstAppear
         )
     }
 }
@@ -58,7 +74,7 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
 extension AddressBookContactManagementCoordinator {
     enum Options {
-        case add(addressBookWallet: AddressBookWallet)
+        case add(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft])
         case edit(contact: AddressBookContact, addressBookWallet: AddressBookWallet)
     }
 }
@@ -70,8 +86,8 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
         dismiss(with: ())
     }
 
-    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions) {
-        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, output: output, options: options)
+    func openAddAddress(userWalletInfo: UserWalletInfo, contactId: AddressBookContactID?, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions, reservedContacts: [AddressBookContact]) {
+        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, contactId: contactId, output: output, options: options, reservedContacts: reservedContacts, analyticsLogger: analyticsLogger)
         addAddressViewModel = AddressBookAddAddressViewModel(interactor: interactor, coordinator: self, options: options)
     }
 
@@ -105,6 +121,10 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
 extension AddressBookContactManagementCoordinator: AddressBookAddAddressRoutable {
     func dismissAddAddress() {
         addAddressViewModel = nil
+    }
+
+    func dismissAddAddressFlow() {
+        dismiss(with: ())
     }
 
     func presentChooseNetwork(_ viewModel: ChooseNetworkViewModel) {

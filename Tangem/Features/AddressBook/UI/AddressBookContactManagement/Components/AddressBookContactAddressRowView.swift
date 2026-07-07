@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 import TangemLocalization
 
 struct AddressBookContactAddressRowViewModel: Identifiable {
@@ -31,10 +32,10 @@ struct AddressBookContactAddressRowView: View {
 
     var body: some View {
         TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
-            .verticalAlignment(.center)
             .start {
                 AddressBlockiesIconView(viewData: viewModel.addressIcon)
             }
+            .truncationModes(.init(title: .middle))
             .onTap(viewModel.onTap)
     }
 }

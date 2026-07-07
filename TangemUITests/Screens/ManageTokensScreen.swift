@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import UIKit
 import TangemAccessibilityIdentifiers
 
 final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
@@ -45,9 +46,62 @@ final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
     @discardableResult
     func longPressNetworkToCopy(_ networkName: String, duration: TimeInterval = 1.0) -> Self {
         XCTContext.runActivity(named: "Long press \(networkName) to copy") { _ in
-            let networkText = app.staticTexts[networkName]
-            waitAndAssertTrue(networkText, "Network row should exist: \(networkName)")
-            networkText.press(forDuration: duration)
+            let networkRow = app.staticTexts[ManageTokensAccessibilityIdentifiers.networkRow(networkName)]
+            waitAndAssertTrue(networkRow, "Network row should exist: \(networkName)")
+            networkRow.press(forDuration: duration)
+            return self
+        }
+    }
+
+    @discardableResult
+    func seedPasteboard(_ sentinel: String) -> Self {
+        XCTContext.runActivity(named: "Seed pasteboard with sentinel") { _ in
+            UIPasteboard.general.string = sentinel
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCopiedContract(equals expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify copied contract equals '\(expected)'") { _ in
+            // Paste inside the app: it reads the pasteboard it wrote itself (same process),
+            // which avoids the cross-app system paste-permission prompt the test runner would trigger.
+            waitAndAssertTrue(searchField, "Search field should exist")
+            searchField.waitAndTap()
+            searchField.press(forDuration: 1.0)
+
+            let pasteMenuItem = app.menuItems["Paste"].firstMatch
+            let pasteButton = app.buttons["Paste"].firstMatch
+            if pasteMenuItem.waitForExistence(timeout: .shortUIUpdate) {
+                pasteMenuItem.tap()
+            } else {
+                waitAndAssertTrue(pasteButton, "Paste option should appear")
+                pasteButton.tap()
+            }
+
+            let matched = searchField.waitForValue(expected, timeout: .conditional)
+            XCTAssertTrue(matched, "Search field should contain pasted contract '\(expected)' but was '\(searchField.value as? String ?? "")'")
+            clearText(element: searchField)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCopySuccessToast(text: String) -> Self {
+        XCTContext.runActivity(named: "Verify copy success toast: \(text)") { _ in
+            let toast = app.staticTexts[CommonUIAccessibilityIdentifiers.successToast].firstMatch
+            waitAndAssertTrue(toast, timeout: .conditional, "Copy success toast should be displayed")
+            XCTAssertEqual(toast.label, text, "Toast should show translated text '\(text)', not a raw key")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyNothingCopied(sentinel: String) -> Self {
+        XCTContext.runActivity(named: "Verify nothing copied") { _ in
+            let toast = app.staticTexts[CommonUIAccessibilityIdentifiers.successToast].firstMatch
+            XCTAssertFalse(toast.waitForExistence(timeout: .shortUIUpdate), "No copy toast should appear for a network without a contract")
+            XCTAssertEqual(UIPasteboard.general.string, sentinel, "Pasteboard should be unchanged for a network without a contract")
             return self
         }
     }
@@ -148,6 +202,43 @@ final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
     func verifyNoAlertShown() -> Self {
         XCTContext.runActivity(named: "Verify no alert shown") { _ in
             XCTAssertFalse(app.alerts.firstMatch.waitForExistence(timeout: .shortUIUpdate), "No alert should appear")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyUnsupportedCurveAlert(blockchain: String) -> Self {
+        XCTContext.runActivity(named: "Verify unsupported-curve alert for \(blockchain)") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Unsupported-curve alert should appear")
+            let predicate = NSPredicate(format: "label CONTAINS[c] %@ AND label CONTAINS[c] %@", blockchain, "reset the wallet")
+            let message = alert.staticTexts.containing(predicate).firstMatch
+            waitAndAssertTrue(message, "Alert should state \(blockchain) needs the wallet to be recreated")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyFirmwareLimitationAlertAndDismiss(blockchain: String) -> Self {
+        XCTContext.runActivity(named: "Verify firmware-limitation alert for \(blockchain)") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Firmware-limitation alert should appear")
+            let predicate = NSPredicate(format: "label CONTAINS[c] %@ AND label CONTAINS[c] %@", blockchain, "firmware limitation")
+            let message = alert.staticTexts.containing(predicate).firstMatch
+            waitAndAssertTrue(message, "Alert should state \(blockchain) is unsupported due to firmware limitation")
+            alert.buttons["OK"].waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyNetworkToggleOff(_ networkName: String) -> Self {
+        XCTContext.runActivity(named: "Verify network toggle off: \(networkName)") { _ in
+            let toggle = app.switches[ManageTokensAccessibilityIdentifiers.networkToggle(networkName)]
+            waitAndAssertTrue(toggle, "Network toggle for \(networkName) should exist")
+            let offExpectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == '0'"), object: toggle)
+            let result = XCTWaiter().wait(for: [offExpectation], timeout: .conditional)
+            XCTAssertEqual(result, .completed, "Network toggle '\(networkName)' should revert to off")
             return self
         }
     }

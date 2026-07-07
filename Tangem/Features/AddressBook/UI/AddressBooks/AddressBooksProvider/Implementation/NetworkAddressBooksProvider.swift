@@ -26,6 +26,7 @@ final class NetworkAddressBooksProvider {
     init(networkId: AddressBookNetworkID, currentWalletId: UserWalletId) {
         self.networkId = networkId
         self.currentWalletId = currentWalletId
+        loadAddressBooks()
     }
 }
 
@@ -65,6 +66,15 @@ extension NetworkAddressBooksProvider: AddressBooksProvider {
 private extension NetworkAddressBooksProvider {
     func models() -> [UserWalletModel] {
         userWalletRepository.models.filter { !$0.isUserWalletLocked }
+    }
+
+    func loadAddressBooks() {
+        let managers = models().map(\.addressBookManager)
+        Task {
+            await TaskGroup.executeKeepingOrder(items: managers, action: { manager in
+                await manager.load(silent: true)
+            })
+        }
     }
 
     /// De-duplicates contacts by their address set across wallets, keeping the copy from the send wallet on a

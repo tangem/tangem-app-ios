@@ -88,7 +88,7 @@
 "address_book_contact_name" = "Contact name";
 "address_book_contact" = "Contact";
 "address_book_copy_address" = "Copy address";
-"address_book_create_success_message" = "Contact added";
+"address_book_create_success_message" = "Contact saved";
 "address_book_creating_error" = "Couldn't create contact. Please try again later.";
 "address_book_delete_contact_description" = "This contact will be deleted from all your address books";
 "address_book_delete_contact" = "Delete contact";
@@ -327,6 +327,7 @@
 "common_or" = "or";
 "common_origin_card" = "主卡片";
 "common_origin_ring" = "Primary ring";
+"common_other" = "Other";
 "common_passphrase" = "Passphrase";
 "common_paste" = "Paste";
 "common_privacy_policy" = "Privacy Policy";
@@ -503,6 +504,8 @@
 "error_wrong_wallet_tapped" = "您使用了另一個錢包中的卡。點按與此錢包關聯的卡片";
 "eth_gas_required_exceeds_allowance" = "沒有足夠的資金進行交易。請先入金";
 "exchange_token_description" = "Swap any asset in your portfolio for this token";
+"express_buy_not_supported_text" = "This token is not supported. Please choose a different token to buy.";
+"express_buy_not_supported_title" = "%@ is not supported";
 "express_by_provider_placeholder" = "Provided by %@";
 "express_choose_provider" = "Choose provider";
 "express_error_provider_amount_roundup" = "Error %1$@. The selected provider cannot process the specified transaction. Please round the value up to %2$@ or change it";
@@ -592,6 +595,7 @@
 "feedback_subject_tx_push_failed" = "無法推送交易";
 "feedback_token_description_error" = "Coin description error";
 "for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Update the app to its latest version to ensure proper functionality";
@@ -607,6 +611,7 @@
 "gasless_transaction_fee" = "Transaction fee";
 "generic_error_code" = "An error occurred. Code: %@.";
 "generic_requires_memo_error" = "需要memo";
+"get_token_title" = "Get %1$@";
 "give_permission_current_transaction" = "Transaction";
 "give_permission_policy_type_footer" = "By approving, you allow the smart contract to use your tokens in future transactions.";
 "give_permission_rows_amount" = "數量 %@";
@@ -756,6 +761,7 @@
 "markets_portfolio_block_add_token_title" = "**Add to your portfolio** to start buying, exchanging or receiving this asset";
 "markets_portfolio_block_subtitle" = "In your portfolio";
 "markets_portfolio_block_title" = "Your portfolio";
+"markets_portfolio_block_token_unsupported" = "**Token not supported**. This token is currently not supported in the wallet";
 "markets_pulse_common_title" = "Market Pulse";
 "markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Search tokens";
@@ -1053,12 +1059,14 @@
 "onramp_title_available_from" = "Available from";
 "onramp_title_available_up_to" = "Available up to";
 "onramp_title_you_get" = "You get";
+"onramp_token_is_not_supported_banner_subtitle" = "This token is not supported. Please choose a different token to buy.";
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "You can close this screen and check the transaction status on the token details screen.";
 "onramp_up_to_rate" = "Up to";
 "onramp_via_provider" = "via %@";
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "You will pay";
+"onramps_token_is_not_supported_banner_title" = "%@ is not supported";
 "organize_tokens_group" = "Group";
 "organize_tokens_menu_group_by_networks" = "Group by networks";
 "organize_tokens_menu_sort_by_balance" = "Sort by balance";
@@ -1177,6 +1185,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Destination Tag";
 "send_dismiss_message" = "Are you sure you want to close the send screen?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "ENS name or address";
 "send_enter_address_field" = "Enter address";
 "send_error_address_same_as_wallet" = "地址與錢包地址相同";
@@ -1546,6 +1555,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "費用依服務費率收取";
 "tangem_pay_transaction_reversed_notification_text" = "該交易已被商家部分或全額撤銷";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "繼續使用您的資金。您可以隨時凍結。";
 "tangem_pay_unfreeze_card_alert_title" = "解凍您的卡片？";
 "tangem_pay_unfreeze_card_failed" = "無法解凍卡片。請稍後再試。";
@@ -1555,6 +1566,16 @@
 "tangempay_account_deactivated_message_title" = "您的帳戶已被關閉";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
 "tangempay_available_balance" = "Available balance";
+"tangempay_bank_transfer_fee_ach" = "ACH";
+"tangempay_bank_transfer_fee_fedwire" = "FedWire";
+"tangempay_bank_transfer_fee_header" = "Fee for onramp";
+"tangempay_bank_transfer_intro_subtitle" = "Received USD will be converted to USDC by 1:1 rate";
+"tangempay_bank_transfer_intro_title" = "Bank transfer might take 1-2 business days";
+"tangempay_bank_transfer_legal" = "By using service, you agree with provider %1$@ and %2$@";
+"tangempay_bank_transfer_show_details" = "Show details";
+"tangempay_bank_transfer_success_subtitle" = "This may take a little time";
+"tangempay_bank_transfer_success_title" = "Preparing your banking details";
+"tangempay_bank_transfer_swift_warning" = "Deposit via ACH or FedWire only. SWIFT transfers will be returned.";
 "tangempay_cancel_kyc" = "在主畫面隱藏身份驗證";
 "tangempay_card_default_name" = "Tangem Pay Card 1";
 "tangempay_card_details_add_funds_subtitle" = "充值选项";
@@ -1756,6 +1777,8 @@
 "tangempay_tangem_visa_card" = "使用 USDC 進行日常支付";
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时不可用";
 "tangempay_title" = "Tangem Pay";
+"tangempay_topup_bank_transfer_body" = "Receive fiat USD via ACH/FedWire";
+"tangempay_topup_bank_transfer_title" = "Bank transfer";
 "tangempay_topup_receive_body" = "将 USDC Polygon 发送至您账户地址";
 "tangempay_topup_receive_title" = "从其他钱包或交易所";
 "tangempay_topup_swap_body" = "使用您錢包中的任意代幣為支付帳戶充值";
@@ -1807,6 +1830,9 @@
 "token_details_unable_hide_alert_title" = "無法隱藏 %@";
 "token_market_metrics_no_data" = "N/A";
 "token_receive_show_qr_code_title" = "Show QR code";
+"token_summary_can_not_load_token" = "Can’t load data of the token";
+"token_summary_go_to_swap_button" = "Go to swap";
+"token_summary_title" = "Token summary";
 "token_swap_promotion_button" = "Swap now";
 "tokens_list_available_to_buy_header" = "Choose token you want to buy";
 "tokens_list_available_to_sell_header" = "Choose token you want to sell";
@@ -1885,6 +1911,12 @@
 "user_wallet_list_rename_popup_placeholder" = "錢包名稱";
 "user_wallet_list_rename_popup_title" = "重新命名錢包";
 "user_wallet_list_unlock_all_with" = "用 %@ 解鎖全部";
+"virtual_account_requisites_account_number" = "Account number";
+"virtual_account_requisites_bank_address" = "Bank address";
+"virtual_account_requisites_bank_name" = "Bank name";
+"virtual_account_requisites_beneficiary_address" = "Beneficiary address";
+"virtual_account_requisites_beneficiary_name" = "Beneficiary name";
+"virtual_account_requisites_routing_number" = "Routing number";
 "virtual_account_title" = "Virtual account";
 "virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "AML verifired";
@@ -2070,6 +2102,8 @@
 "warning_hedera_missing_token_association_message" = "This token must be associated with your Hedera account before you can receive it. Association fee ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Associate your token";
 "warning_hedera_token_association_not_enough_hbar_message" = "Not enough %@. Top up your Hedera account to associate this token";
+"warning_incomplete_backup_notification_message" = "We found out that the card activation process has not been completed accordingly due to issues with your device's NFC module or the incorrect way of tapping the cards to the phone. Please get in touch with our Support team for more details.";
+"warning_incomplete_backup_notification_title" = "Action is required. Don't use your wallet!";
 "warning_ios_deprecation_message" = "對 iOS %1$@ 的支援將於 %2$@ 結束。為了繼續接收 App 更新並確保完整功能，請更新至最新版本的 iOS。";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Are you sure you want to cancel the transaction? You will not be able to retry the transaction again";
 "warning_kaspa_unfinished_token_transaction_message" = "Your transaction with an amount of %1$@ %2$@ was not completed. You can try again to complete it.";
@@ -2083,6 +2117,7 @@
 "warning_matic_migration_message" = "MATIC is being migrated to POL. However, there is no deadline set and MATIC isn't being deprecated yet. You can safely continue using MATIC token or swap it for POL.";
 "warning_matic_migration_title" = "MATIC to POL Migration";
 "warning_missing_derivation_title" = "Some addresses are missing";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "The network is currently unreachable. Please try again later.";
 "warning_network_unreachable_title" = "網路無法使用";
 "warning_no_account_title" = "Top up your wallet";
@@ -2094,8 +2129,8 @@
 "warning_old_card_title" = "iOS restriction for older cards";
 "warning_old_device_old_card_message" = "Some iPhone 7/7+ models may have NFC issues during certain operations.";
 "warning_old_device_old_card_title" = "Device incompatibility detected";
-"warning_outdated_data_message" = "Will be updated as soon as possible";
-"warning_outdated_data_title" = "Missing some token balances";
+"warning_outdated_data_message" = "Some token balances couldn't be updated.";
+"warning_outdated_data_title" = "Balances may be outdated";
 "warning_rate_app_message" = "Your review keeps us motivated to make Tangem Wallet even better";
 "warning_rate_app_title" = "Enjoying Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "You must associate your token before receiving tokens";
@@ -2362,6 +2397,8 @@
 "yield_module_transaction_exit" = "Yield Mode disabled";
 "yield_module_transaction_initialize" = "Yield Mode initialized";
 "yield_module_transaction_reactivate" = "Yield Mode reactivated";
+"yield_module_transaction_returned" = "Returned";
+"yield_module_transaction_supplied" = "Supplied";
 "yield_module_transaction_topup_subtitle" = "%1$@ supplied to Aave";
 "yield_module_transaction_topup" = "Supply to Aave";
 "yield_module_transaction_withdraw" = "Withdraw from Aave";

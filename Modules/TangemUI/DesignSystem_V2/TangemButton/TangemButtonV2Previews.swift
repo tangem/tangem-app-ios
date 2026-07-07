@@ -18,7 +18,6 @@ private let showcaseStyleTypes: [TangemButtonV2.StyleType] = [
     .material(.glass),
     .outline,
     .ghost,
-    .inverse,
     .positive,
 ]
 
@@ -30,7 +29,6 @@ private func styleTypeLabel(_ style: TangemButtonV2.StyleType) -> String {
     case .material: "material"
     case .outline: "outline"
     case .ghost: "ghost"
-    case .inverse: "inverse"
     case .positive: "positive"
     }
 }
@@ -69,6 +67,15 @@ public struct TangemButtonV2Showcase: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: 12) {
+                previewStage(stage: "backdrop", background: materialBackdrop)
+                previewStage(stage: "clear", background: Color.clear)
+
+                Text("taps: \(tapCount)")
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+
+                Divider()
+
                 menuPickerRow(
                     title: "style",
                     cases: showcaseStyleTypes,
@@ -122,15 +129,6 @@ public struct TangemButtonV2Showcase: View {
                     Toggle("icon start", isOn: $iconStartEnabled)
                     Toggle("icon end", isOn: $iconEndEnabled)
                 }
-
-                Divider()
-
-                Text("taps: \(tapCount)")
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-
-                previewStage(stage: "backdrop", background: materialBackdrop)
-                previewStage(stage: "clear", background: Color.clear)
             }
             .padding()
         }
@@ -287,8 +285,6 @@ public struct TangemButtonV2Showcase: View {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview("Showcase") {
     TangemButtonV2Showcase()
 }
@@ -382,5 +378,3 @@ public struct TangemButtonV2Showcase: View {
         )
     )
 }
-
-#endif // DEBUG

@@ -29,6 +29,8 @@ struct ActionButtonsSellView: View {
             notifications
         }
         .searchType(.native)
+        .showsSeparators(false)
+        .hidesSingleWalletName(true)
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)

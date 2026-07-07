@@ -31,29 +31,42 @@ extension SwapMarketingBannerNotificationManager {
             return
         }
 
-        let requests = Publishers.CombineLatest3(
+        let requests = Publishers.CombineLatest(
             sourceTokenInput.sourceTokenPublisher,
-            receiveTokenInput.receiveTokenPublisher,
-            sourceTokenAmountInput.sourceAmountPublisher
+            receiveTokenInput.receiveTokenPublisher
         )
-        .map { source, receive, amount -> SwapMarketingBannerRequest? in
+        .map { source, receive -> SwapMarketingBannerRequest? in
             guard let source = source.value, let receive = receive.value else {
                 return nil
             }
 
             return SwapMarketingBannerRequest(
                 source: source.tokenItem,
-                destination: receive.tokenItem,
-                sourceAmount: amount.value?.crypto
+                destination: receive.tokenItem
             )
         }
         .eraseToAnyPublisher()
 
-        subscription = service.bannerPublisher(for: requests)
+        let amount = Publishers.CombineLatest(
+            sourceTokenInput.sourceTokenPublisher,
+            sourceTokenAmountInput.sourceAmountPublisher
+        )
+        .map { source, amount -> MarketingBannerAmount? in
+            guard let source = source.value,
+                  let value = amount.value?.crypto,
+                  let currencyId = source.tokenItem.currencyId else {
+                return nil
+            }
+
+            return MarketingBannerAmount(value: value, currencyId: currencyId)
+        }
+        .eraseToAnyPublisher()
+
+        subscription = service.bannerPublisher(for: requests, amount: amount)
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { manager, banners in
-                manager.notificationInputsSubject.send(banners.standalone.map { [manager.makeInput(for: $0)] } ?? [])
+                manager.notificationInputsSubject.send(banners.standalone.map { manager.makeInput(for: $0) })
                 manager.linkedBannersSubject.send(banners.linked)
             }
     }
@@ -63,26 +76,12 @@ extension SwapMarketingBannerNotificationManager {
 
 private extension SwapMarketingBannerNotificationManager {
     func makeInput(for banner: MarketingBanner) -> NotificationViewInput {
-        let event = MarketingBannerNotificationEvent(banner: banner)
-
-        let dismissAction: NotificationView.NotificationAction = { [weak self] id in
+        MarketingBannerNotificationInputFactory.makeInput(
+            for: banner,
+            incomingActionHandler: incomingActionHandler
+        ) { [weak self] id in
             self?.dismissNotification(with: id)
         }
-
-        let style: NotificationView.Style = switch banner.action {
-        case .deeplink(let url):
-            .tappable(hasChevron: true) { [weak self] _ in
-                _ = self?.incomingActionHandler.handleIncomingURL(url)
-            }
-        case .none:
-            .plain
-        }
-
-        return NotificationViewInput(
-            style: style,
-            severity: event.severity,
-            settings: .init(event: event, dismissAction: banner.isDismissible ? dismissAction : nil)
-        )
     }
 }
 

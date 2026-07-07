@@ -25,17 +25,24 @@ final class MarketingBannerService {
     }
 }
 
+struct MarketingBannerAmount: Equatable {
+    let value: Decimal
+    let currencyId: String
+}
+
 extension MarketingBannerService {
     func bannerPublisher(
-        for requests: AnyPublisher<SwapMarketingBannerRequest?, Never>
+        for requests: AnyPublisher<SwapMarketingBannerRequest?, Never>,
+        amount: AnyPublisher<MarketingBannerAmount?, Never>
     ) -> AnyPublisher<MarketingBanners, Never> {
-        makeBannerPublisher(for: requests, fetch: fetchBanners)
+        makeBannerPublisher(for: requests, amount: amount, fetch: fetchCampaigns)
     }
 
     func bannerPublisher(
-        for requests: AnyPublisher<OnrampMarketingBannerRequest?, Never>
+        for requests: AnyPublisher<OnrampMarketingBannerRequest?, Never>,
+        amount: AnyPublisher<MarketingBannerAmount?, Never>
     ) -> AnyPublisher<MarketingBanners, Never> {
-        makeBannerPublisher(for: requests, fetch: fetchBanners)
+        makeBannerPublisher(for: requests, amount: amount, fetch: fetchCampaigns)
     }
 }
 
@@ -44,13 +51,14 @@ extension MarketingBannerService {
 private extension MarketingBannerService {
     func makeBannerPublisher<Request: Equatable>(
         for requests: AnyPublisher<Request?, Never>,
-        fetch: @escaping (Request) async -> MarketingBanners
+        amount: AnyPublisher<MarketingBannerAmount?, Never>,
+        fetch: @escaping (Request) async -> [MarketingCampaignsDTO.Campaign]
     ) -> AnyPublisher<MarketingBanners, Never> {
-        requests
+        let campaigns = requests
             .removeDuplicates()
-            .map { request -> AnyPublisher<MarketingBanners, Never> in
+            .map { request -> AnyPublisher<[MarketingCampaignsDTO.Campaign], Never> in
                 guard let request else {
-                    return Just(MarketingBanners.empty).eraseToAnyPublisher()
+                    return Just([]).eraseToAnyPublisher()
                 }
 
                 return Just(request)
@@ -58,10 +66,20 @@ private extension MarketingBannerService {
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
+
+        return Publishers.CombineLatest(campaigns, amount.prepend(nil).removeDuplicates())
+            .asyncMap { [weak self] campaigns, amount -> MarketingBanners in
+                guard let self else {
+                    return .empty
+                }
+
+                let usdAmount = await usdValue(amount)
+                return selectBanners(from: campaigns, usdAmount: usdAmount)
+            }
             .eraseToAnyPublisher()
     }
 
-    func fetchBanners(for request: SwapMarketingBannerRequest) async -> MarketingBanners {
+    func fetchCampaigns(for request: SwapMarketingBannerRequest) async -> [MarketingCampaignsDTO.Campaign] {
         let dtoRequest = MarketingCampaignsDTO.Request.swap(
             .init(
                 fromNetwork: request.source.networkId,
@@ -72,18 +90,10 @@ private extension MarketingBannerService {
             )
         )
 
-        guard let campaigns = try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns else {
-            return .empty
-        }
-
-        let usdAmount = request.sourceAmount.flatMap { amount in
-            request.source.currencyId.flatMap { balanceConverter.convertToUsd(amount, currencyId: $0) }
-        }
-
-        return selectBanners(from: campaigns, usdAmount: usdAmount)
+        return (try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns) ?? []
     }
 
-    func fetchBanners(for request: OnrampMarketingBannerRequest) async -> MarketingBanners {
+    func fetchCampaigns(for request: OnrampMarketingBannerRequest) async -> [MarketingCampaignsDTO.Campaign] {
         let dtoRequest = MarketingCampaignsDTO.Request.onramp(
             .init(
                 toNetwork: request.destination.networkId,
@@ -93,15 +103,15 @@ private extension MarketingBannerService {
             )
         )
 
-        guard let campaigns = try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns else {
-            return .empty
+        return (try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns) ?? []
+    }
+
+    func usdValue(_ amount: MarketingBannerAmount?) async -> Decimal? {
+        guard let amount else {
+            return nil
         }
 
-        let usdAmount = request.expectedCryptoAmount.flatMap { amount in
-            request.destination.currencyId.flatMap { balanceConverter.convertToUsd(amount, currencyId: $0) }
-        }
-
-        return selectBanners(from: campaigns, usdAmount: usdAmount)
+        return try? await balanceConverter.convertToUsd(amount.value, currencyId: amount.currencyId)
     }
 
     func selectBanners(

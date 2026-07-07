@@ -14,20 +14,28 @@ final class CommonAddressBookNetworkService {
     private let api: TangemApiService
     private let mapper = AddressBookNetworkMapper()
 
+    private let pendingWallets = OSAllocatedUnfairLock(initialState: [AddressBookDTO.SyncRequest.Wallet]())
+
+    private lazy var loadDebouncer = Debouncer<Result<AddressBookDTO.Response, Error>>(interval: Constants.debounceInterval) { [weak self] completion in
+        self?.performPendingSync(completion: completion)
+    }
+
     init(api: TangemApiService = InjectedValues[\.tangemApiService]) {
         self.api = api
+        _ = loadDebouncer // Eager initialization of this lazy property to ensure that there are no race conditions
     }
 }
 
 extension CommonAddressBookNetworkService: AddressBookNetworkService {
     func loadAddressBook(walletId: UserWalletId, knownETag: String?) async throws -> AddressBookFetchResult {
         do {
-            let request = AddressBookDTO.SyncRequest(
-                wallets: [.init(walletId: walletId.stringValue, etag: knownETag)]
-            )
-            let response = try await api.syncAddressBooks(request)
+            pendingWallets.withLock { $0.append(.init(walletId: walletId.stringValue, etag: knownETag)) }
 
-            guard let item = response.items.first else {
+            let response = try await withCheckedThrowingContinuation { continuation in
+                loadDebouncer.debounce { continuation.resume(with: $0) }
+            }
+
+            guard let item = response.items.keyedFirst(by: \.walletId)[walletId.stringValue] else {
                 return knownETag == nil ? .notFound : .notModified
             }
 
@@ -63,5 +71,51 @@ extension CommonAddressBookNetworkService: AddressBookNetworkService {
         } catch {
             throw AddressBookNetworkServiceError.underlyingError(error)
         }
+    }
+}
+
+// MARK: - Batched loading
+
+private extension CommonAddressBookNetworkService {
+    func performPendingSync(completion: @escaping (Result<AddressBookDTO.Response, Error>) -> Void) {
+        let wallets = pendingWallets.withLock { pending in
+            let wallets = pending
+            pending.removeAll()
+            return wallets
+        }
+
+        guard wallets.isNotEmpty else {
+            completion(.failure(CancellationError()))
+            return
+        }
+
+        runTask(in: self) { service in
+            do {
+                let responses = try await TaskGroup<AddressBookDTO.Response>.tryExecuteKeepingOrder(items: wallets.chunked(into: Constants.syncChunkSize)) { chunk in
+                    try await service.api.syncAddressBooks(AddressBookDTO.SyncRequest(wallets: chunk))
+                }
+
+                completion(.success(AddressBookDTO.Response(items: responses.flatMap(\.items))))
+            } catch {
+                completion(.failure(error))
+            }
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension CommonAddressBookNetworkService {
+    enum Constants {
+        static let debounceInterval = 0.3
+        static let syncChunkSize = 20
+    }
+}
+
+// MARK: - Chunking
+
+private extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        stride(from: 0, to: count, by: size).map { Array(self[$0 ..< Swift.min($0 + size, count)]) }
     }
 }

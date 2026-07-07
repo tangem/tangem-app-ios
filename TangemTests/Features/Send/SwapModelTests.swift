@@ -265,6 +265,9 @@ private final class SendAnalyticsLoggerStub: SendAnalyticsLogger {
     func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource) {}
     func logQRScannerOpened() {}
     func logDestinationStepOpened() {}
+    func logAddressBookWidgetShown() {}
+    func logAddressBookContactSelected(_ contact: AddressBookContact) {}
+    func logAddressBookAddressSubstituted(_ contact: AddressBookContact) {}
     func logDestinationStepReopened() {}
     func setDestinationAnalyticsProvider(_ analyticsProvider: (any AccountModelAnalyticsProviding)?) {}
 
@@ -285,6 +288,7 @@ private final class SendAnalyticsLoggerStub: SendAnalyticsLogger {
     // MARK: - SendSwapProvidersAnalyticsLogger
 
     func logSendSwapProvidersChosen(provider: ExpressProvider) {}
+    func logSendSwapFilterProviderTapped(type: Analytics.ParameterValue) {}
 
     // MARK: - SendSummaryAnalyticsLogger
 

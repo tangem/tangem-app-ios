@@ -164,6 +164,13 @@ public extension MainButton {
     enum Icon: Hashable {
         case leading(_ icon: ImageType)
         case trailing(_ icon: ImageType)
+
+        public var imageType: ImageType {
+            switch self {
+            case .leading(let icon): icon
+            case .trailing(let icon): icon
+            }
+        }
     }
 
     enum Style: String, Hashable, CaseIterable {
@@ -322,7 +329,6 @@ extension MainButton: Setupable {
 
 // MARK: - Previews
 
-#if DEBUG
 @available(iOS 17.0, *)
 #Preview(traits: .sizeThatFitsLayout) {
     Group {
@@ -417,4 +423,3 @@ extension MainButton: Setupable {
         }
     }
 }
-#endif // DEBUG

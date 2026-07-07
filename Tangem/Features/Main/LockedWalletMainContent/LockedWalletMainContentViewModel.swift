@@ -22,12 +22,24 @@ final class LockedWalletMainContentViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
+    let organizeTokensButtonTitle = Localization.mainAddAndManageTokens
+
     lazy var lockedNotificationInput: NotificationViewInput = {
-        let event: GeneralNotificationEvent = .walletLocked
-        return NotificationViewInput(
-            style: .tappable(hasChevron: true) { [weak self] _ in
+        let hasNFCInteraction = userWalletModel.config.hasFeature(.nfcInteraction)
+        let event: GeneralNotificationEvent = .walletLocked(hasNFCInteraction: hasNFCInteraction)
+        let style: NotificationView.Style = FeatureProvider.isAvailable(.redesign)
+            ? .withButtons([
+                NotificationView.NotificationButton(
+                    action: { [weak self] _, _ in self?.onLockedWalletNotificationTap() },
+                    actionType: .unlock(icon: nil),
+                    isWithLoader: false
+                ),
+            ])
+            : .tappable(hasChevron: true) { [weak self] _ in
                 self?.onLockedWalletNotificationTap()
-            },
+            }
+        return NotificationViewInput(
+            style: style,
             severity: event.severity,
             settings: .init(event: event, dismissAction: nil)
         )

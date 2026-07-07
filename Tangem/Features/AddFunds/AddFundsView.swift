@@ -104,7 +104,7 @@ struct AddFundsView: View {
     private var optionsSection: some View {
         VStack(spacing: .unit(.x2)) {
             ForEach(viewModel.options) { option in
-                AddFundsOptionView(option: option, action: {
+                AddFundsOptionView(option: option, isEnabled: viewModel.isEnabled(option), action: {
                     viewModel.userDidTap(option)
                 })
             }
@@ -118,6 +118,8 @@ struct AddFundsView: View {
             tangemButton(title: title)
         case .goToToken:
             tangemButton(title: Localization.commonGoToToken)
+        case .hidden:
+            EmptyView()
         }
     }
 

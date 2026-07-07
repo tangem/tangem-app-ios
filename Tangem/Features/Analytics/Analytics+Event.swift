@@ -363,6 +363,7 @@ extension Analytics {
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
+        case swapFilterProvider = "[Swap] Filter provider"
         case swapFastAmountInput = "[Swap] Fast amount input"
 
         case swapTypeReselection = "[Swap] Swap type re-selection"
@@ -522,6 +523,7 @@ extension Analytics {
         case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
         case stakingPermissionScreenOpened = "[Staking] Permission Screen Opened"
+        case stakingScamVerification = "[Staking] Scam Verification"
 
         // MARK: - Markets
 
@@ -851,5 +853,22 @@ extension Analytics {
         case initialTokenSyncCompleted = "[Token Sync] Sync Completed"
         case initialTokenSyncButtonClosed = "[Token Sync] Button - Close Banner"
         case initialTokenSyncManageTokens = "[Token Sync] Button - Manage Tokens"
+
+        // MARK: - Address Book
+
+        case addressBookContactListScreenOpened = "[Address Book] Contact List Screen Opened"
+        case addressBookAddContactTapped = "[Address Book] Add Contact Tapped"
+        case addressBookContactScreenOpened = "[Address Book] Contact Screen Opened"
+        case addressBookButtonSaveTo = "[Address Book] Button - Save To"
+        case addressBookContactSaved = "[Address Book] Contact Saved"
+        case addressBookSaveErrorShown = "[Address Book] Save Error Shown"
+        case addressBookAddressScreenOpened = "[Address Book] Address Screen Opened"
+        case addressBookAddressInvalid = "[Address Book] Address Invalid"
+        case addressBookDuplicateNameErrorShown = "[Address Book] Duplicate Name Error Shown"
+        case addressBookAddressRemoved = "[Address Book] Address Removed"
+        case addressBookContactDeleted = "[Address Book] Contact Deleted"
+        case addressBookSendFlowWidgetShown = "[Address Book] Send Flow Widget Shown"
+        case addressBookContactSelected = "[Address Book] Contact Selected"
+        case addressBookAddressSubstitutedInSend = "[Address Book] Address Substituted In Send"
     }
 }

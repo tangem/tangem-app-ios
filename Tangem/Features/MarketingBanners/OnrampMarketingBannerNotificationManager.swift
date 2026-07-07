@@ -32,24 +32,30 @@ extension OnrampMarketingBannerNotificationManager {
             return
         }
 
-        let requests = Publishers.CombineLatest(
-            amountInput.fiatCurrencyPublisher,
-            providersInput.selectedOnrampProviderPublisher
-        )
-        .map { fiatCurrency, provider -> OnrampMarketingBannerRequest? in
-            OnrampMarketingBannerRequest(
-                destination: tokenItem,
-                expectedCryptoAmount: provider?.value?.quote?.expectedAmount,
-                fiatCurrencyCode: fiatCurrency?.identity.code
-            )
-        }
-        .eraseToAnyPublisher()
+        let requests = amountInput.fiatCurrencyPublisher
+            .map { fiatCurrency -> OnrampMarketingBannerRequest? in
+                OnrampMarketingBannerRequest(
+                    destination: tokenItem,
+                    fiatCurrencyCode: fiatCurrency?.identity.code
+                )
+            }
+            .eraseToAnyPublisher()
 
-        subscription = service.bannerPublisher(for: requests)
+        let amount = providersInput.selectedOnrampProviderPublisher
+            .map { provider -> MarketingBannerAmount? in
+                guard let value = provider?.value?.quote?.expectedAmount, let currencyId = tokenItem.currencyId else {
+                    return nil
+                }
+
+                return MarketingBannerAmount(value: value, currencyId: currencyId)
+            }
+            .eraseToAnyPublisher()
+
+        subscription = service.bannerPublisher(for: requests, amount: amount)
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { manager, banners in
-                manager.notificationInputsSubject.send(banners.standalone.map { [manager.makeInput(for: $0)] } ?? [])
+                manager.notificationInputsSubject.send(banners.standalone.map { manager.makeInput(for: $0) })
                 manager.linkedBannersSubject.send(banners.linked)
             }
     }
@@ -59,26 +65,12 @@ extension OnrampMarketingBannerNotificationManager {
 
 private extension OnrampMarketingBannerNotificationManager {
     func makeInput(for banner: MarketingBanner) -> NotificationViewInput {
-        let event = MarketingBannerNotificationEvent(banner: banner)
-
-        let dismissAction: NotificationView.NotificationAction = { [weak self] id in
+        MarketingBannerNotificationInputFactory.makeInput(
+            for: banner,
+            incomingActionHandler: incomingActionHandler
+        ) { [weak self] id in
             self?.dismissNotification(with: id)
         }
-
-        let style: NotificationView.Style = switch banner.action {
-        case .deeplink(let url):
-            .tappable(hasChevron: true) { [weak self] _ in
-                _ = self?.incomingActionHandler.handleIncomingURL(url)
-            }
-        case .none:
-            .plain
-        }
-
-        return NotificationViewInput(
-            style: style,
-            severity: event.severity,
-            settings: .init(event: event, dismissAction: banner.isDismissible ? dismissAction : nil)
-        )
     }
 }
 
@@ -103,7 +95,6 @@ extension OnrampMarketingBannerNotificationManager: NotificationManager {
 // MARK: - LinkedMarketingBannerProviding
 
 extension OnrampMarketingBannerNotificationManager: LinkedMarketingBannerProviding {
-    // [REDACTED_TODO_COMMENT]
     var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
         linkedBannersSubject.eraseToAnyPublisher()
     }

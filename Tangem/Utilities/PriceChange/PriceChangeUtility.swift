@@ -21,16 +21,23 @@ struct PriceChangeUtility {
         return .loaded(changeType: result.signType.priceChangeViewChangeType, text: result.formattedText)
     }
 
-    func convertToPriceChangeState(changePercent: Decimal?, loading: Bool = false) -> PriceChangeView.State {
+    func convertToPriceChangeState(
+        changePercent: Decimal?,
+        changeValue: Decimal? = nil,
+        loading: Bool = false
+    ) -> PriceChangeView.State {
         guard let changePercent else {
             return .noData
         }
 
-        let result = priceChangeFormatter.formatPercentValue(changePercent, option: .priceChange)
-        let changeType = result.signType.priceChangeViewChangeType
+        let priceChangeResult = priceChangeFormatter.formatPercentValue(changePercent, option: .priceChange)
+
+        let changeType = priceChangeResult.signType.priceChangeViewChangeType
+        let text = priceChangeResult.formattedText
+
         return loading
-            ? .loadingCached(changeType: changeType, text: result.formattedText)
-            : .loaded(changeType: changeType, text: result.formattedText)
+            ? .loadingCached(changeType: changeType, text: text)
+            : .loaded(changeType: changeType, text: text)
     }
 
     func calculatePriceChangeStateBetween(currentPrice: Decimal, previousPrice: Decimal) -> PriceChangeView.State {

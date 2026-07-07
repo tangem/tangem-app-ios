@@ -62,6 +62,8 @@ struct TokenDetailsView: View {
 
                 stakingView
 
+                marketingBanner
+
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
                 }
@@ -280,6 +282,16 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
+    private var marketingBanner: some View {
+        if let marketingNotifications = viewModel.marketingNotifications {
+            NotificationBannerContainer(
+                items: marketingNotifications,
+                stackingType: .carousel
+            )
+        }
+    }
+
+    @ViewBuilder
     private var marketPriceLegacy: some View {
         if !viewModel.isRedesign, viewModel.isMarketsDetailsAvailable {
             MarketPriceView(
@@ -346,7 +358,6 @@ private extension TokenDetailsView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
     let cryptoAccountModel = userWalletModel
@@ -421,4 +432,3 @@ private extension TokenDetailsView {
         )
     )
 }
-#endif // DEBUG

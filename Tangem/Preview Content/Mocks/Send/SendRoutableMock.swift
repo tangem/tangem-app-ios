@@ -20,8 +20,9 @@ class SendRoutableMock: SendRoutable {
     func openSwapSupportSelection(with dataCollector: EmailDataCollector, recipient: String, chatDataCollector: ChatDataCollector) {}
     func openExplorer(url: URL) {}
     func openShareSheet(url: URL) {}
+    func openAddContact(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
-    func openAddressBookChooseAddress(groups: [AddressBookContactAddressGroup], output: ChooseAddressOutput) {}
+    func openAddressBookChooseAddress(contact: AddressBookContact, output: ChooseAddressOutput) {}
     func openAddressBookViewAll(provider: any AddressBooksProvider, output: AddressBooksSelectionOutput) {}
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {}
     func openApproveView(flowFactory: ApproveFlowFactory) {}

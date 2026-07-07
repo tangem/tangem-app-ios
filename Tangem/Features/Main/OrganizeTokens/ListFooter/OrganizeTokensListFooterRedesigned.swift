@@ -70,17 +70,15 @@ struct OrganizeTokensListFooterRedesigned: View {
 
 // MARK: - Previews
 
-#if DEBUG
-private struct PreviewHandler: OrganizeTokensListFooterActionsHandler {
-    func onCancelButtonTap() {}
-    func onApplyButtonTap() {}
-}
-
 #Preview {
-    OrganizeTokensListFooterRedesigned(
+    struct PreviewHandler: OrganizeTokensListFooterActionsHandler {
+        func onCancelButtonTap() {}
+        func onApplyButtonTap() {}
+    }
+
+    return OrganizeTokensListFooterRedesigned(
         actionsHandler: PreviewHandler(),
         isTokenListFooterGradientHidden: false,
         contentInsets: EdgeInsets(top: 14, leading: 16, bottom: 0, trailing: 16)
     )
 }
-#endif // DEBUG

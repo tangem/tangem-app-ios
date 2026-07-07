@@ -34,12 +34,11 @@ struct TransactionDetailsActionButtonView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Action button") {
     VStack(spacing: 16) {
+        // [REDACTED_TODO_COMMENT]
         TransactionDetailsActionButtonView(data: .init(title: "Go to provider", icon: Assets.arrowRightUpMini, handler: {}))
     }
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)
 }
-#endif // DEBUG

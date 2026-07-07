@@ -32,6 +32,7 @@ enum Feature: String, Hashable, CaseIterable {
     case mobileWalletMultiCreation
     case approveFlowV2
     case addAndOrganizeRedesign
+    case stakingTransactionValidation
     case sendWithSwapAvailabilityCheck
     case swapFiatCalculation
     case addressBook
@@ -39,9 +40,11 @@ enum Feature: String, Hashable, CaseIterable {
     case hideStoriesInMobileWallet
     case marketingBanners
     case bitcoinDexSwap
+    case forYou
     case highFeeWarning
     case priceAlertsSubscription
     case backup4cards
+    case solanaUnstakeValidation
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -70,6 +73,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
         case .approveFlowV2: return "13786_Update_Swap_Phase_2_Permissions"
         case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
+        case .stakingTransactionValidation: return "TWI-1602_move_away_from_blind_signing_in_staking"
         case .sendWithSwapAvailabilityCheck: return "14316_Send_With_Swap_Availability_Check"
         case .swapFiatCalculation: return "14315_Swap_Fiat_Calculation"
         case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
@@ -77,9 +81,11 @@ enum Feature: String, Hashable, CaseIterable {
         case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_dex_lifi_swapkit"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         case .marketingBanners: return "TWI-1522_special_offer_promo_placement_for_onramp_and_swaps"
+        case .forYou: return "TWI-1469_for_you_product_shelves_add_indicators"
         case .highFeeWarning: return "TWI-1367_high_fee_warning"
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
+        case .solanaUnstakeValidation: return "[REDACTED_INFO]_solana_unstake_validation"
         }
     }
 
@@ -107,17 +113,20 @@ enum Feature: String, Hashable, CaseIterable {
         case .onrampApplePayHistoryFallback: return .version("6.0")
         case .approveFlowV2: return .version("6.0")
         case .addAndOrganizeRedesign: return .version("6.0")
+        case .stakingTransactionValidation: return .unspecified
         case .sendWithSwapAvailabilityCheck: return .unspecified
         case .swapChooseBestDEX: return .version("6.0")
         case .swapFiatCalculation: return .unspecified
-        case .addressBook: return .unspecified
-        case .bitcoinDexSwap: return .unspecified
+        case .addressBook: return .version("6.1")
+        case .bitcoinDexSwap: return .version("6.0")
         case .hideStoriesInMobileWallet: return .version("6.0")
         case .marketingBanners: return .unspecified
+        case .forYou: return .unspecified
         case .highFeeWarning: return .unspecified
         case .priceAlertsSubscription: return .unspecified
         case .backup4cards: return .unspecified
         case .redesign: return .version("6.0")
+        case .solanaUnstakeValidation: return .version("6.0")
         }
     }
 }

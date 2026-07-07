@@ -58,6 +58,8 @@ struct ActionButtonsBuyView: View {
             }
         )
         .searchType(.native)
+        .showsSeparators(false)
+        .hidesSingleWalletName(true)
         .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.buyTokenSelectorTokensList)
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(Localization.swappingToTitle)
@@ -73,7 +75,9 @@ struct ActionButtonsBuyView: View {
         TokenSelectorView(
             viewModel: viewModel.tokenSelectorViewModel,
             emptyContentView: {
-                TokenSelectorEmptyContentView(message: Localization.actionButtonsBuyEmptySearchMessage)
+                if viewModel.shouldShowSearchEmptyContent {
+                    TokenSelectorEmptyContentView(message: Localization.actionButtonsBuyEmptySearchMessage)
+                }
             },
             additionalContent: {
                 if let pulseMarketWidgetViewModel = viewModel.pulseMarketWidgetViewModel {
@@ -87,5 +91,7 @@ struct ActionButtonsBuyView: View {
         )
         .sectionHeader(.init(title: Localization.marketsSearchPortfolioHeader))
         .searchType(.native)
+        .showsSeparators(false)
+        .hidesSingleWalletName(true)
     }
 }

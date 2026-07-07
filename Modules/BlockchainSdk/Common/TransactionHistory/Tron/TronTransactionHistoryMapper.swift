@@ -161,17 +161,54 @@ final class TronTransactionHistoryMapper {
             let index = transactionIndicesCounter[hash, default: 0]
             transactionIndicesCounter[hash] = index + 1
 
+            let destination: TransactionRecord.Destination = {
+                switch type {
+                case .staking(let stakingType, _):
+                    switch stakingType {
+                    case .stake, .unstake:
+                        // Freeze/unfreeze are self-transfers (source == destination == own address) carrying
+                        // the staked amount as the value. The displayed amount is computed downstream as
+                        // "sent − change returned to self", so a non-zero destination would net it to zero —
+                        // keep the destination address but zero its amount.
+                        return TransactionRecord.Destination(address: transactionInfo.destination.address, amount: 0)
+                    case .vote:
+                        // Votes move no TRX — both amounts are already zero.
+                        return transactionInfo.destination
+                    case .withdraw, .claimRewards:
+                        // [REDACTED_TODO_COMMENT]
+                        return transactionInfo.destination
+                    case .restake:
+                        // Never produced by this mapper: no TRON contract type maps to it.
+                        return transactionInfo.destination
+                    }
+                case .transfer, .contractMethodIdentifier, .contractMethodName:
+                    return transactionInfo.destination
+                }
+            }()
+
+            // Withdraw/claim move TRX back to the account, but on-chain they are owner-initiated,
+            // so the generic "source == wallet" rule would wrongly classify them as outgoing.
+            let isOutgoing: Bool = {
+                switch type {
+                case .staking(.withdraw, _), .staking(.claimRewards, _):
+                    return false
+                default:
+                    return transactionInfo.isOutgoing
+                }
+            }()
+
             return TransactionRecord(
                 hash: hash,
                 index: index,
                 source: .single(transactionInfo.source),
-                destination: .single(transactionInfo.destination),
+                destination: .single(destination),
                 fee: fee,
                 status: status,
-                isOutgoing: transactionInfo.isOutgoing,
+                isOutgoing: isOutgoing,
                 type: type,
                 date: date,
-                tokenTransfers: tokenTransfers
+                tokenTransfers: tokenTransfers,
+                nonce: nil
             )
         }
     }
@@ -260,10 +297,8 @@ final class TronTransactionHistoryMapper {
         }
     }
 
-    private func tokenTransfers(_ transaction: BlockBookAddressResponse.Transaction) -> [TransactionRecord.TokenTransfer]? {
-        guard let tokenTransfers = transaction.tokenTransfers else {
-            return nil
-        }
+    private func tokenTransfers(_ transaction: BlockBookAddressResponse.Transaction) -> [TransactionRecord.TokenTransfer] {
+        let tokenTransfers = transaction.tokenTransfers ?? []
 
         return tokenTransfers.map { transfer -> TransactionRecord.TokenTransfer in
             let amount = Decimal(stringValue: transfer.value) ?? 0
