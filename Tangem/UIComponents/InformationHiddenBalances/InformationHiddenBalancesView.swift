@@ -58,54 +58,68 @@ struct InformationHiddenBalancesView: View {
     }
 }
 
-struct InformationHiddenBalancesView_Preview: PreviewProvider {
-    struct StatableContainer: View {
-        @ObservedObject private var coordinator = BottomSheetCoordinator()
+#if DEBUG
+private final class BottomSheetCoordinator: ObservableObject, InformationHiddenBalancesRoutable {
+    @Published var item: InformationHiddenBalancesViewModel?
 
-        var body: some View {
-            ZStack {
-                Colors.Background.primary
-                    .edgesIgnoringSafeArea(.all)
-
-                Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
-                    coordinator.toggleItem()
-                }
-                .font(Fonts.Bold.body)
-                .offset(y: -200)
-
-                NavHolder()
-                    .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
-                        InformationHiddenBalancesView(viewModel: $0)
-                    }
-            }
-        }
-    }
-
-    class BottomSheetCoordinator: ObservableObject, InformationHiddenBalancesRoutable {
-        @Published var item: InformationHiddenBalancesViewModel?
-
-        func toggleItem() {
-            if item == nil {
-                item = InformationHiddenBalancesViewModel(coordinator: self)
-            } else {
-                item = nil
-            }
-        }
-
-        func hiddenBalancesSheetDidRequestClose() {
-            item = nil
-        }
-
-        func hiddenBalancesSheetDidRequestDoNotShowAgain() {
+    func toggleItem() {
+        if item == nil {
+            item = InformationHiddenBalancesViewModel(coordinator: self)
+        } else {
             item = nil
         }
     }
 
-    static var previews: some View {
-        StatableContainer()
-            .preferredColorScheme(.light)
+    func hiddenBalancesSheetDidRequestClose() {
+        item = nil
+    }
 
-        StatableContainer()
-            .preferredColorScheme(.dark)
+    func hiddenBalancesSheetDidRequestDoNotShowAgain() {
+        item = nil
     }
 }
+
+@available(iOS 17.0, *)
+#Preview("Light") {
+    @Previewable @StateObject var coordinator = BottomSheetCoordinator()
+
+    ZStack {
+        Colors.Background.primary
+            .edgesIgnoringSafeArea(.all)
+
+        Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
+            coordinator.toggleItem()
+        }
+        .font(Fonts.Bold.body)
+        .offset(y: -200)
+
+        NavHolder()
+            .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
+                InformationHiddenBalancesView(viewModel: $0)
+            }
+    }
+    .preferredColorScheme(.light)
+}
+
+@available(iOS 17.0, *)
+#Preview("Dark") {
+    @Previewable @StateObject var coordinator = BottomSheetCoordinator()
+
+    ZStack {
+        Colors.Background.primary
+            .edgesIgnoringSafeArea(.all)
+
+        Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
+            coordinator.toggleItem()
+        }
+        .font(Fonts.Bold.body)
+        .offset(y: -200)
+
+        NavHolder()
+            .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
+                InformationHiddenBalancesView(viewModel: $0)
+            }
+    }
+    .preferredColorScheme(.dark)
+}
+#endif // DEBUG
