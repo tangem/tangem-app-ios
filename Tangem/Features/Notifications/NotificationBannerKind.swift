@@ -20,6 +20,7 @@ enum NotificationBannerKind {
     case survey
 
     enum Effect {
+        case plain
         case card
         case magic
     }
