@@ -490,8 +490,12 @@ struct TangemPayMainView: View {
             Menu {
                 if FeatureProvider.isAvailable(.tangemPayTiers) {
                     Button(action: viewModel.openCurrentPlan) {
-                        // [REDACTED_TODO_COMMENT]
-                        Label("Current plan", systemImage: "info.circle")
+                        Label {
+                            Text(Localization.tangempayCurrentPlanTitle)
+                        } icon: {
+                            DesignSystem.Icons.ArrowRefresh.regular20.image
+                                .renderingMode(.template)
+                        }
                     }
 
                     Divider()

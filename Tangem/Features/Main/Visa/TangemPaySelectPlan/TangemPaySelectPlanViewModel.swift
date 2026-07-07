@@ -7,12 +7,12 @@
 //
 
 import Foundation
+import TangemLocalization
+import TangemPay
 
 final class TangemPaySelectPlanViewModel: ObservableObject {
-    // [REDACTED_TODO_COMMENT]
-    let navigationTitle = "Select plan"
-    let selectButtonTitle = "Select"
-    let comparePlansButtonTitle = "Compare plans"
+    let navigationTitle = Localization.tangempaySelectPlanTitle
+    let comparePlansButtonTitle = Localization.tangempaySelectPlanCompare
 
     let plans: [Plan]
 
@@ -20,43 +20,36 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
 
     private weak var coordinator: TangemPaySelectPlanRoutable?
 
-    var selectedPlan: Plan {
-        plans.first { $0.id == selectedPlanID } ?? plans[0]
+    var selectedPlan: Plan? {
+        plans.first { $0.id == selectedPlanID } ?? plans.first
     }
 
     var selectedIndex: Int {
         plans.firstIndex { $0.id == selectedPlanID } ?? 0
     }
 
-    init(coordinator: TangemPaySelectPlanRoutable?) {
+    var selectButtonTitle: String {
+        switch selectedPlan?.transitionType {
+        case .upgrade: Localization.tangempaySelectPlanBtnUpgrade
+        case .downgrade: Localization.tangempaySelectPlanBtnDowngrade
+        case .activation, .none: Localization.tangempaySelectPlanBtnSelect
+        }
+    }
+
+    init(
+        transitions: TangemPayTariffPlanTransitionsResponse,
+        coordinator: TangemPaySelectPlanRoutable?
+    ) {
         self.coordinator = coordinator
 
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
-        plans = [
+        plans = transitions.map { transition in
             Plan(
-                id: "basic",
-                name: "Basic",
-                cardStyle: .platinum,
-                points: [
-                    Point(title: "$10.000 daily spending limit"),
-                    Point(title: "$0 / month"),
-                ]
-            ),
-            Plan(
-                id: "plus",
-                name: "Plus",
-                cardStyle: .signature,
-                points: [
-                    Point(
-                        title: "Airport lounge access, travel perks",
-                        subtitle: "and other Visa Signature benefits"
-                    ),
-                    Point(title: "$50.000 daily spending limit"),
-                    Point(title: "$29.99 / month"),
-                ]
-            ),
-        ]
+                id: transition.tariffPlan.id,
+                name: transition.tariffPlan.name,
+                transitionType: transition.type,
+                points: Self.makePoints(from: transition.tariffPlan.descriptionItems)
+            )
+        }
 
         selectedPlanID = plans.first?.id
     }
@@ -74,13 +67,34 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
     }
 }
 
+// MARK: - Mapping
+
+private extension TangemPaySelectPlanViewModel {
+    static func makePoints(
+        from items: [VisaCustomerInfoResponse.TariffPlan.DescriptionItem]
+    ) -> [Point] {
+        items
+            .sorted { ($0.type.sortIndex, $0.order) < ($1.type.sortIndex, $1.order) }
+            .map { Point(title: $0.title, subtitle: $0.body) }
+    }
+}
+
+private extension VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType {
+    var sortIndex: Int {
+        switch self {
+        case .cardRelated: 0
+        case .planRelated: 1
+        }
+    }
+}
+
 // MARK: - Types
 
 extension TangemPaySelectPlanViewModel {
     struct Plan: Identifiable {
         let id: String
         let name: String
-        let cardStyle: CardStyle
+        let transitionType: TangemPayTariffPlanTransition.TransitionType
         let points: [Point]
     }
 
@@ -88,11 +102,6 @@ extension TangemPaySelectPlanViewModel {
         let id = UUID()
         let title: String
         var subtitle: String?
-    }
-
-    enum CardStyle {
-        case platinum
-        case signature
     }
 }
 

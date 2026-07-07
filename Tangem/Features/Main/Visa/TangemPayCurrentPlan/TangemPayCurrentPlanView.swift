@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -23,6 +24,7 @@ struct TangemPayCurrentPlanView: View {
             .safeAreaInset(edge: .bottom) {
                 changePlanButton
             }
+            .bindAlert($viewModel.alert)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbar }
             .modifyView { view in
@@ -77,6 +79,7 @@ struct TangemPayCurrentPlanView: View {
         .size(.x12)
         .styleType(.default)
         .horizontalLayout(.infinity)
+        .isLoading(viewModel.isLoadingPlans)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
     }
@@ -85,21 +88,12 @@ struct TangemPayCurrentPlanView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .principal) {
             VStack(spacing: 4) {
-                // [REDACTED_TODO_COMMENT]
-                Text("Current plan")
+                Text(Localization.tangempayCurrentPlanTitle)
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Text(viewModel.planName)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
         }
-    }
-}
-
-// MARK: - Previews
-
-#Preview {
-    NavigationStack {
-        TangemPayCurrentPlanView(viewModel: TangemPayCurrentPlanViewModel())
     }
 }
