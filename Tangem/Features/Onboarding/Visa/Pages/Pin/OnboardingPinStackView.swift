@@ -125,10 +125,9 @@ extension View {
     }
 }
 
-struct OnboardingPinStackView_Previews: PreviewProvider {
-    @State static var pinText: String = ""
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var pinText = ""
 
-    static var previews: some View {
-        OnboardingPinStackView(maxDigits: 4, isDisabled: false, pinText: $pinText)
-    }
+    OnboardingPinStackView(maxDigits: 4, isDisabled: false, pinText: $pinText)
 }
