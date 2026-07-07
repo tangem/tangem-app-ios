@@ -21,6 +21,7 @@ public struct VisaCustomerInfoResponse: Codable {
     public let card: Card?
     public let cards: [Card]
     public let depositAddress: String?
+    public let customerTariffPlan: CustomerTariffPlan?
 
     public init(
         id: String,
@@ -32,7 +33,8 @@ public struct VisaCustomerInfoResponse: Codable {
         kyc: KYCInfo?,
         card: Card? = nil,
         cards: [Card],
-        depositAddress: String?
+        depositAddress: String?,
+        customerTariffPlan: CustomerTariffPlan? = nil
     ) {
         self.id = id
         self.state = state
@@ -44,6 +46,7 @@ public struct VisaCustomerInfoResponse: Codable {
         self.card = card
         self.cards = cards
         self.depositAddress = depositAddress
+        self.customerTariffPlan = customerTariffPlan
     }
 
     public init(from decoder: Decoder) throws {
@@ -59,6 +62,7 @@ public struct VisaCustomerInfoResponse: Codable {
         card = try container.decodeIfPresent(Card.self, forKey: .card)
         cards = try container.decodeIfPresent([Card].self, forKey: .cards) ?? []
         depositAddress = try container.decodeIfPresent(String.self, forKey: .depositAddress)
+        customerTariffPlan = try container.decodeIfPresent(CustomerTariffPlan.self, forKey: .customerTariffPlan)
     }
 }
 
@@ -201,6 +205,77 @@ public extension VisaCustomerInfoResponse {
     struct CardLimit: Codable {
         public let amount: Int
         public let periodType: String
+    }
+
+    struct CustomerTariffPlan: Codable {
+        public let status: Status
+        public let source: Source
+        public let transitionedAt: Date?
+        public let billedAt: Date?
+        public let nextBillingAt: Date?
+        public let pendingTransitionAt: Date?
+        public let tariffPlan: TariffPlan
+        public let pendingTariffPlan: TariffPlan?
+
+        public enum Status: String, Codable {
+            case active = "ACTIVE"
+            case transitioning = "TRANSITIONING"
+            case canceled = "CANCELED"
+        }
+
+        public enum Source: String, Codable {
+            case customer = "CUSTOMER"
+            case `default` = "DEFAULT"
+        }
+    }
+
+    struct TariffPlan: Codable {
+        public let id: String
+        public let type: String
+        public let name: String
+        public let descriptionItems: [DescriptionItem]
+        public let images: [Image]
+        public let fees: [Fee]
+
+        public struct DescriptionItem: Codable {
+            public let type: ItemType
+            public let order: Int
+            public let title: String
+            public let body: String
+
+            public enum ItemType: String, Codable {
+                case cardRelated = "CARD_RELATED"
+                case planRelated = "PLAN_RELATED"
+            }
+        }
+
+        public struct Image: Codable {
+            public let type: ImageType
+            public let url: String
+
+            public enum ImageType: String, Codable {
+                case main = "MAIN"
+            }
+        }
+
+        public struct Fee: Codable {
+            public let type: FeeType
+            public let amount: Decimal
+            public let currency: String
+            public let description: String?
+            public let period: Period?
+
+            public enum FeeType: String, Codable {
+                case free = "FREE"
+                case otc = "OTC"
+                case recurring = "RECURRING"
+            }
+
+            public enum Period: String, Codable {
+                case month = "MONTH"
+                case year = "YEAR"
+            }
+        }
     }
 }
 
