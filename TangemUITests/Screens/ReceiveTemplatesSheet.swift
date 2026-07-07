@@ -12,6 +12,8 @@ import Foundation
 
 final class ReceiveTemplatesSheet: ScreenBase<ReceiveTemplatesSheetElement> {
     private lazy var showQRCodeButton = button(.showQRCodeButton)
+    private lazy var segwitAddress = staticText(.segwitAddress)
+    private lazy var closeButton = button(.closeButton)
 
     @discardableResult
     func validateShowQRCodeButtonDisplayed() -> Self {
@@ -27,15 +29,35 @@ final class ReceiveTemplatesSheet: ScreenBase<ReceiveTemplatesSheetElement> {
             return ReceiveQRCodeSheet(app)
         }
     }
+
+    func readSegwitAddress() -> String {
+        XCTContext.runActivity(named: "Read segwit Bitcoin address") { _ in
+            waitAndAssertTrue(segwitAddress, "Segwit address should be displayed")
+            return segwitAddress.label.replacingOccurrences(of: "\u{200B}", with: "")
+        }
+    }
+
+    func close() -> TokenScreen {
+        XCTContext.runActivity(named: "Close Receive sheet") { _ in
+            closeButton.waitAndTap()
+            return TokenScreen(app)
+        }
+    }
 }
 
 enum ReceiveTemplatesSheetElement: String, UIElement {
     case showQRCodeButton
+    case segwitAddress
+    case closeButton
 
     var accessibilityIdentifier: String {
         switch self {
         case .showQRCodeButton:
             return "Show QR code"
+        case .segwitAddress:
+            return ReceiveAccessibilityIdentifiers.segwitAddress
+        case .closeButton:
+            return CommonUIAccessibilityIdentifiers.closeButton
         }
     }
 }
