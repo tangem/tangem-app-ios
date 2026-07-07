@@ -75,7 +75,9 @@ struct ActionButtonsBuyView: View {
         TokenSelectorView(
             viewModel: viewModel.tokenSelectorViewModel,
             emptyContentView: {
-                TokenSelectorEmptyContentView(message: Localization.actionButtonsBuyEmptySearchMessage)
+                if viewModel.shouldShowSearchEmptyContent {
+                    TokenSelectorEmptyContentView(message: Localization.actionButtonsBuyEmptySearchMessage)
+                }
             },
             additionalContent: {
                 if let pulseMarketWidgetViewModel = viewModel.pulseMarketWidgetViewModel {
