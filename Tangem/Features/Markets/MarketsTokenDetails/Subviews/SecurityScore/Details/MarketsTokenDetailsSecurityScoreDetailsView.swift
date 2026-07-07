@@ -41,7 +41,6 @@ struct MarketsTokenDetailsSecurityScoreDetailsView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     let helper = MarketsTokenDetailsSecurityScoreRatingHelper()
 
@@ -73,4 +72,3 @@ struct MarketsTokenDetailsSecurityScoreDetailsView: View {
         )
     )
 }
-#endif // DEBUG
