@@ -1,5 +1,5 @@
 //
-//  Finality.swift
+//  NEARNetworkParams.Finality.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

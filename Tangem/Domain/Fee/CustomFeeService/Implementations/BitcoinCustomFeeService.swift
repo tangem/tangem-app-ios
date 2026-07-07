@@ -21,13 +21,9 @@ class BitcoinCustomFeeService {
     private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
     private lazy var satoshiPerByteTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0, maximumTextLength: Constants.satoshiPerByteMaxLength)
 
-    private lazy var customFeeSubject: CurrentValueSubject<Fee, Never> = .init(zeroFee)
+    private lazy var customFeeSubject: CurrentValueSubject<Fee, Never> = .init(feeTokenItem.zeroFee)
     private var cachedCustomFee: Fee?
     private var bag: Set<AnyCancellable> = []
-
-    private var zeroFee: Fee {
-        return Fee(Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0))
-    }
 
     init(
         tokenItem: TokenItem,
@@ -84,7 +80,7 @@ class BitcoinCustomFeeService {
 
     private func recalculateCustomFee(satoshiPerByte: Int?, amount: Decimal, destination: String) async -> Fee {
         guard let satoshiPerByte else {
-            return zeroFee
+            return feeTokenItem.zeroFee
         }
 
         let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount)
@@ -98,7 +94,7 @@ class BitcoinCustomFeeService {
             return newFee
         } catch {
             AppLogger.error(error: error)
-            return zeroFee
+            return feeTokenItem.zeroFee
         }
     }
 
@@ -132,7 +128,7 @@ extension BitcoinCustomFeeService: CustomFeeProvider {
     }
 
     func initialSetupCustomFee(_ fee: BSDKFee) {
-        assert(customFeeSubject.value == zeroFee, "Duplicate initial setup")
+        assert(customFeeSubject.value == feeTokenItem.zeroFee, "Duplicate initial setup")
 
         customFeeSubject.send(fee)
         updateView(fee: fee)
@@ -142,12 +138,12 @@ extension BitcoinCustomFeeService: CustomFeeProvider {
 // MARK: - FeeSelectorCustomFeeAvailabilityProvider
 
 extension BitcoinCustomFeeService: FeeSelectorCustomFeeAvailabilityProvider {
-    var customFeeIsValid: Bool { customFeeSubject.value != zeroFee }
+    var customFeeIsValid: Bool { customFeeSubject.value != feeTokenItem.zeroFee }
 
     var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
         customFeeSubject
             .withWeakCaptureOf(self)
-            .map { $0.zeroFee != $1 }
+            .map { $0.feeTokenItem.zeroFee != $1 }
             .eraseToAnyPublisher()
     }
 

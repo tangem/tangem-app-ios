@@ -1,5 +1,5 @@
 //
-//  BlockchainDependencies.swift
+//  BlockchainSdkDependencies.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
