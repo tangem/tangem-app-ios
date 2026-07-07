@@ -21,9 +21,14 @@ final class ActionButtonsBuyViewModel: ObservableObject {
 
     @Published var alert: AlertBinder?
     @Published private(set) var hotCryptoItems: [HotCryptoToken] = []
+    @Published private(set) var isPulseResultEmpty: Bool = false
 
     let tokenSelectorViewModel: TokenSelectorViewModel
     let pulseMarketWidgetViewModel: PulseMarketWidgetViewModel?
+
+    var shouldShowSearchEmptyContent: Bool {
+        pulseMarketWidgetViewModel == nil || isPulseResultEmpty
+    }
 
     // MARK: - Private
 
@@ -72,6 +77,19 @@ private extension ActionButtonsBuyViewModel {
             }
             .receiveOnMain()
             .assign(to: &$hotCryptoItems)
+
+        guard let pulseMarketWidgetViewModel else { return }
+
+        pulseMarketWidgetViewModel.bind(searchTextPublisher: tokenSelectorViewModel.$searchText)
+
+        pulseMarketWidgetViewModel.$tokenViewModelsState
+            .map { state -> Bool in
+                guard case .success(let items) = state else { return false }
+                return items.isEmpty
+            }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$isPulseResultEmpty)
     }
 
     func mapHotCryptoItems(_ items: [HotCryptoDTO.Response.HotToken], selectedChipId: String?) -> [HotCryptoToken] {
