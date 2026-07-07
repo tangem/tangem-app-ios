@@ -167,6 +167,10 @@ final class TangemPayAccount {
             : legacyCustomerInfoSubject.value.customerInfo.depositAddress
     }
 
+    var customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan? {
+        customerInfoSubject.value.customerTariffPlan
+    }
+
     var isDeactivated: Bool {
         multipleCardsEnabled ? isDeactivatedNew : isDeactivatedLegacy
     }
@@ -277,6 +281,12 @@ final class TangemPayAccount {
         multipleCardsEnabled
             ? card(cardId: cardId)?.displayName
             : legacyCustomerInfoSubject.value.productInstance.displayName.nilIfEmpty
+    }
+
+    func cardNumberEnd(forCardId cardId: String) -> String? {
+        multipleCardsEnabled
+            ? card(cardId: cardId)?.cardNumberEnd
+            : legacyCustomerInfoSubject.value.customerInfo.card?.cardNumberEnd
     }
 }
 

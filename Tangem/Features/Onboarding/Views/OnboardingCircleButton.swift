@@ -123,42 +123,40 @@ struct OnboardingCircleButton: View {
     }
 }
 
-struct OnboardingCircleButton_Previews: PreviewProvider {
-    static var previews: some View {
-        Color.yellow
-            .overlay(
-                VStack {
-                    HStack {
-                        VStack {
-                            OnboardingCircleButton(refreshAction: {}, state: .refreshButton, size: .default)
-                            OnboardingCircleButton(refreshAction: {}, state: .refreshButton, size: .medium)
-                            OnboardingCircleButton(refreshAction: {}, state: .refreshButton, size: .small)
-                        }
-
-                        VStack {
-                            OnboardingCircleButton(refreshAction: {}, state: .activityIndicator, size: .default)
-                            OnboardingCircleButton(refreshAction: {}, state: .activityIndicator, size: .medium)
-                            OnboardingCircleButton(refreshAction: {}, state: .activityIndicator, size: .small)
-                        }
-
-                        VStack {
-                            OnboardingCircleButton(refreshAction: {}, state: .doneCheckmark, size: .default)
-                            OnboardingCircleButton(refreshAction: {}, state: .doneCheckmark, size: .medium)
-                            OnboardingCircleButton(refreshAction: {}, state: .doneCheckmark, size: .small)
-                        }
-
-                        VStack {
-                            OnboardingCircleButton(refreshAction: {}, state: .blank, size: .default)
-                            OnboardingCircleButton(refreshAction: {}, state: .blank, size: .medium)
-                            OnboardingCircleButton(refreshAction: {}, state: .blank, size: .small)
-                        }
+#Preview {
+    Color.yellow
+        .overlay(
+            VStack {
+                HStack {
+                    VStack {
+                        OnboardingCircleButton(refreshAction: {}, state: .refreshButton, size: .default)
+                        OnboardingCircleButton(refreshAction: {}, state: .refreshButton, size: .medium)
+                        OnboardingCircleButton(refreshAction: {}, state: .refreshButton, size: .small)
                     }
-                    HStack(spacing: 0) {
-                        OnboardingCircleButton(refreshAction: {}, state: .refreshButton, size: .huge)
-                        OnboardingCircleButton(refreshAction: {}, state: .activityIndicator, size: .huge)
-                        OnboardingCircleButton(refreshAction: {}, state: .doneCheckmark, size: .huge)
+
+                    VStack {
+                        OnboardingCircleButton(refreshAction: {}, state: .activityIndicator, size: .default)
+                        OnboardingCircleButton(refreshAction: {}, state: .activityIndicator, size: .medium)
+                        OnboardingCircleButton(refreshAction: {}, state: .activityIndicator, size: .small)
+                    }
+
+                    VStack {
+                        OnboardingCircleButton(refreshAction: {}, state: .doneCheckmark, size: .default)
+                        OnboardingCircleButton(refreshAction: {}, state: .doneCheckmark, size: .medium)
+                        OnboardingCircleButton(refreshAction: {}, state: .doneCheckmark, size: .small)
+                    }
+
+                    VStack {
+                        OnboardingCircleButton(refreshAction: {}, state: .blank, size: .default)
+                        OnboardingCircleButton(refreshAction: {}, state: .blank, size: .medium)
+                        OnboardingCircleButton(refreshAction: {}, state: .blank, size: .small)
                     }
                 }
-            )
-    }
+                HStack(spacing: 0) {
+                    OnboardingCircleButton(refreshAction: {}, state: .refreshButton, size: .huge)
+                    OnboardingCircleButton(refreshAction: {}, state: .activityIndicator, size: .huge)
+                    OnboardingCircleButton(refreshAction: {}, state: .doneCheckmark, size: .huge)
+                }
+            }
+        )
 }

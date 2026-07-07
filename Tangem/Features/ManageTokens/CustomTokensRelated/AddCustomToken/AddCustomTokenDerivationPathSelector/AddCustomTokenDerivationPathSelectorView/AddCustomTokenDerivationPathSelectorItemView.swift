@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct AddCustomTokenDerivationPathSelectorItemView: View {
     @ObservedObject var viewModel: AddCustomTokenDerivationPathSelectorItemViewModel
@@ -40,31 +41,30 @@ struct AddCustomTokenDerivationPathSelectorItemView: View {
         .onTapGesture {
             viewModel.didTap()
         }
+        .accessibilityIdentifier(AddCustomTokenAccessibilityIdentifiers.derivationOptionRow(viewModel.id))
     }
 }
 
-struct AddCustomTokenDerivationPathSelectorItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 14) {
-            Group {
-                AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .custom(derivationPath: nil), isSelected: true, didTapOption: { _ in }))
+#Preview {
+    VStack(spacing: 14) {
+        Group {
+            AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .custom(derivationPath: nil), isSelected: true, didTapOption: { _ in }))
 
-                VStack(spacing: 0) {
-                    AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .custom(derivationPath: try! .init(rawPath: "m/44’/0’/0")), isSelected: false, didTapOption: { _ in }))
+            VStack(spacing: 0) {
+                AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .custom(derivationPath: try! .init(rawPath: "m/44’/0’/0")), isSelected: false, didTapOption: { _ in }))
 
-                    AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .default(derivationPath: try! .init(rawPath: "m/44’/0’/0’/0’/0’")), isSelected: true, didTapOption: { _ in }))
+                AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .default(derivationPath: try! .init(rawPath: "m/44’/0’/0’/0’/0’")), isSelected: true, didTapOption: { _ in }))
 
-                    AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .blockchain(name: "Ethereum", derivationPath: try! .init(rawPath: "m/44’/643’/0’/0’/0’")), isSelected: false, didTapOption: { _ in }))
+                AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .blockchain(name: "Ethereum", derivationPath: try! .init(rawPath: "m/44’/643’/0’/0’/0’")), isSelected: false, didTapOption: { _ in }))
 
-                    AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .blockchain(name: "Bitcoin", derivationPath: try! .init(rawPath: "m/44’/643’/0’/0’/0’")), isSelected: false, didTapOption: { _ in }))
-                }
-
-                AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .blockchain(name: "Bitcoin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin", derivationPath: try! .init(rawPath: "m/44’/643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’")), isSelected: true, didTapOption: { _ in }))
+                AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .blockchain(name: "Bitcoin", derivationPath: try! .init(rawPath: "m/44’/643’/0’/0’/0’")), isSelected: false, didTapOption: { _ in }))
             }
-            .cornerRadiusContinuous(14)
-            .padding(.horizontal)
+
+            AddCustomTokenDerivationPathSelectorItemView(viewModel: .init(option: .blockchain(name: "Bitcoin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin coin", derivationPath: try! .init(rawPath: "m/44’/643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’643’/0’/0’/0’")), isSelected: true, didTapOption: { _ in }))
         }
-        .frame(maxHeight: .infinity)
-        .background(Colors.Background.tertiary.ignoresSafeArea())
+        .cornerRadiusContinuous(14)
+        .padding(.horizontal)
     }
+    .frame(maxHeight: .infinity)
+    .background(Colors.Background.tertiary.ignoresSafeArea())
 }

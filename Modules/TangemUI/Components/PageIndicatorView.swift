@@ -229,36 +229,34 @@ private extension PageIndicatorViewRedesign {
     }
 }
 
-#if DEBUG
+#Preview {
+    struct InteractiveDemo: View {
+        @State private var current: Int = 0
+        private let total: Int = 10
 
-private struct InteractiveDemo: View {
-    @State private var current: Int = 0
-    private let total: Int = 10
+        var body: some View {
+            VStack(spacing: 8) {
+                Text("\(current + 1)/\(total)")
+                    .font(.headline)
 
-    var body: some View {
-        VStack(spacing: 8) {
-            Text("\(current + 1)/\(total)")
-                .font(.headline)
+                PageIndicatorView(totalPages: total, currentIndex: current)
 
-            PageIndicatorView(totalPages: total, currentIndex: current)
+                HStack(spacing: 12) {
+                    Button("-") {
+                        current = max(current - 1, 0)
+                    }
+                    .buttonStyle(.bordered)
 
-            HStack(spacing: 12) {
-                Button("-") {
-                    current = max(current - 1, 0)
+                    Button("+") {
+                        current = min(current + 1, total - 1)
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
-
-                Button("+") {
-                    current = min(current + 1, total - 1)
-                }
-                .buttonStyle(.bordered)
             }
         }
     }
-}
 
-#Preview {
-    VStack(spacing: 12) {
+    return VStack(spacing: 12) {
         Group {
             PageIndicatorView(totalPages: 1, currentIndex: 0)
 
@@ -288,4 +286,3 @@ private struct InteractiveDemo: View {
     .padding()
     .background(Color.gray.opacity(0.2))
 }
-#endif

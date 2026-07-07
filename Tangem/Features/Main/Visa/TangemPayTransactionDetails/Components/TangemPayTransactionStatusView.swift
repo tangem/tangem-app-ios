@@ -98,19 +98,15 @@ extension TangemPayTransactionStatusView {
 
 // MARK: - Previews
 
-#if DEBUG
-struct TangemPayTransactionStatusView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 12) {
-            TangemPayTransactionStatusView(model: .init(style: .inProgress, title: "In progress", reason: nil))
-            TangemPayTransactionStatusView(model: .init(style: .completed, title: "Completed", reason: nil))
-            TangemPayTransactionStatusView(
-                model: .init(style: .rejected, title: "Declined", reason: "Reason: account credit limit exceeded")
-            )
-            TangemPayTransactionStatusView(model: .init(style: .reversed, title: "Reversed", reason: nil))
-        }
-        .padding()
-        .background(DesignSystem.Color.bgSecondary)
+#Preview {
+    VStack(spacing: 12) {
+        TangemPayTransactionStatusView(model: .init(style: .inProgress, title: "In progress", reason: nil))
+        TangemPayTransactionStatusView(model: .init(style: .completed, title: "Completed", reason: nil))
+        TangemPayTransactionStatusView(
+            model: .init(style: .rejected, title: "Declined", reason: "Reason: account credit limit exceeded")
+        )
+        TangemPayTransactionStatusView(model: .init(style: .reversed, title: "Reversed", reason: nil))
     }
+    .padding()
+    .background(DesignSystem.Color.bgSecondary)
 }
-#endif // DEBUG

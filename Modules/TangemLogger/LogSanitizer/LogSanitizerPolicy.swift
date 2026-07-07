@@ -23,9 +23,9 @@ extension LogSanitizerPolicy {
         preserveRules: [
             .walletConnectTypes,
             .walletConnectDeeplink,
+            .swapPayload,
             .objectAddress,
             .iso8601Timestamp,
-            .swapPayload,
             .tokenContractAddress,
         ],
         redactRules: [
