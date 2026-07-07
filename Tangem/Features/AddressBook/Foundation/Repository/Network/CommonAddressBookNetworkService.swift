@@ -91,12 +91,19 @@ private extension CommonAddressBookNetworkService {
 
         runTask(in: self) { service in
             do {
-                let responses = try await TaskGroup<AddressBookDTO.Response>.tryExecuteKeepingOrder(items: wallets.chunked(into: Constants.syncChunkSize)) { chunk in
+                let chunks = wallets.chunked(into: Constants.syncChunkSize)
+                ABLogger.info("Syncing \(wallets.count) wallet(s) in \(chunks.count) chunk(s)")
+
+                let responses = try await TaskGroup<AddressBookDTO.Response>.tryExecuteKeepingOrder(items: chunks) { chunk in
                     try await service.api.syncAddressBooks(AddressBookDTO.SyncRequest(wallets: chunk))
                 }
 
                 completion(.success(AddressBookDTO.Response(items: responses.flatMap(\.items))))
             } catch {
+                if !error.isCancellationError {
+                    ABLogger.error("Sync failed (\(wallets.count) wallet(s))", error: error)
+                }
+
                 completion(.failure(error))
             }
         }
