@@ -192,7 +192,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
     private var showDetailsButton: some View {
         Button(action: viewModel.toggleVisibility) {
             Text(Localization.tangempayCardDetailsShowDetails)
-                .font(DesignSystem.Font.bodyMediumToken)
+                .font(token: DesignSystem.Font.bodyMediumToken)
                 .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
