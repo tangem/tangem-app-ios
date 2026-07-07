@@ -33,8 +33,6 @@ struct IconWithMessagePlaceholderView: View {
     }
 }
 
-struct IconWithMessagePlaceholderView_Previews: PreviewProvider {
-    static var previews: some View {
-        IconWithMessagePlaceholderView(icon: Assets.cryptoCurrencies)
-    }
+#Preview {
+    IconWithMessagePlaceholderView(icon: Assets.cryptoCurrencies)
 }

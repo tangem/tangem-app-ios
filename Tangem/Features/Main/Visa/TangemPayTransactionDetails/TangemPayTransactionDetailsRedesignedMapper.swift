@@ -20,7 +20,7 @@ struct TangemPayTransactionDetailsRedesignedMapper {
         return formatter
     }()
 
-    func map(spend input: TangemPaySpendDisplayInput, cardName: String?) -> TangemPayTransactionDetailsDisplayModel {
+    func map(spend input: TangemPaySpendDisplayInput, cardName: String?, cardNumberEnd: String?) -> TangemPayTransactionDetailsDisplayModel {
         let merchantName = input.enrichedMerchantName
             ?? input.merchantName
             ?? Localization.tangempayCardDetailsTitle
@@ -54,8 +54,8 @@ struct TangemPayTransactionDetailsRedesignedMapper {
             ?? Localization.tangemPayOther
 
         var rows: [TangemPayTransactionDetailsDisplayModel.Row] = []
-        if let cardName {
-            rows.append(.init(title: Localization.tangempayDigitalCard, value: cardName))
+        if let cardName, let cardNumberEnd {
+            rows.append(.init(title: Localization.tangempayCommonCard, value: cardName + " *" + cardNumberEnd))
         }
         rows.append(.init(title: Localization.tangemPayTransactionDetailsCategory, value: category))
         if let mcc = input.merchantCategoryCode?.nilIfEmpty {
@@ -157,10 +157,11 @@ struct TangemPayTransactionDetailsRedesignedMapper {
 extension TangemPayTransactionRecord {
     func redesignedDisplayModel(
         using mapper: TangemPayTransactionDetailsRedesignedMapper,
-        cardName: String?
+        cardName: String?,
+        cardNumberEnd: String?
     ) -> TangemPayTransactionDetailsDisplayModel {
         switch record {
-        case .spend(let spend): mapper.map(spend: spend.displayInput, cardName: cardName)
+        case .spend(let spend): mapper.map(spend: spend.displayInput, cardName: cardName, cardNumberEnd: cardNumberEnd)
         case .collateral(let collateral): mapper.map(collateral: collateral.displayInput)
         case .payment(let payment): mapper.map(payment: payment.displayInput)
         case .fee(let fee): mapper.map(fee: fee.displayInput)
@@ -176,7 +177,7 @@ extension TangemPayPushPayload {
     ) -> TangemPayTransactionDetailsDisplayModel? {
         switch body {
         case .transactionSpend(let spend), .declinedTopUp(let spend):
-            mapper.map(spend: spend.displayInput, cardName: nil)
+            mapper.map(spend: spend.displayInput, cardName: nil, cardNumberEnd: nil)
         case .collateralWithdraw(let collateral):
             mapper.map(collateral: collateral.displayInput(isOutgoing: true))
         case .collateralDeposit(let collateral):

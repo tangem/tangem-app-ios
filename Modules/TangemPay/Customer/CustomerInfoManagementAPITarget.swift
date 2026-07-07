@@ -53,6 +53,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "order/\(orderId)"
         case .getCustomerOffers:
             "customer/offers"
+        case .getTariffPlanTransitions:
+            "customer/tariff-plan/transitions"
         case .cancelKYC:
             "customer/pay-enabled"
         case .updateCardDisplayNameLegacy, .setCardLimitLegacy:
@@ -73,6 +75,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getOrder,
              .findOrders,
              .getCustomerOffers,
+             .getTariffPlanTransitions,
              .getBalance,
              .getTransactionHistory,
              .getPinLegacy,
@@ -110,6 +113,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getKYCAccessToken,
              .getOrder,
              .getCustomerOffers,
+             .getTariffPlanTransitions,
              .getBalance,
              .getPinLegacy,
              .getPin,
@@ -251,6 +255,8 @@ extension CustomerInfoManagementAPITarget {
         case findOrders(orderTypes: [String], orderStatuses: [TangemPayOrderResponse.Status])
 
         case getCustomerOffers
+
+        case getTariffPlanTransitions
 
         case getFee(type: TangemPayFeeType)
         case reissueCard(cardId: String)
