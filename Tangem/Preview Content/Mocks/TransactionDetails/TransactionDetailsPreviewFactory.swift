@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import TangemAccounts
 import TangemAssets
 import TangemUI
@@ -15,20 +16,20 @@ enum TransactionDetailsPreviewFactory {
     // MARK: - Send / Receive
 
     static func sent() -> TransactionDetailsViewModel {
-        TransactionDetailsViewModel(
+        viewModel(
             header: header(title: "Sent", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: true)),
             content: .sendReceive(TransactionDetailsSendReceiveViewData(
                 tokens: .init(tokenIconInfo: icon("Tether"), amountText: "−350.31 USDT", fiatText: "$350.31"),
                 statusBanner: nil,
                 counterparty: .init(label: "Recipient", actor: .address(short: truncatedAddress, blockiesImage: .init(image: nil)), onCopy: {}),
-                info: .init(rows: [.init(id: "fee", title: "Network fee", content: .text("0.00056 ETH"))]),
+                info: .init(rows: [.init(id: "networkFee", title: "Network fee", content: .text("0.00056 ETH"))]),
                 action: nil
             ))
         )
     }
 
     static func received() -> TransactionDetailsViewModel {
-        TransactionDetailsViewModel(
+        viewModel(
             header: header(title: "Received", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false)),
             content: .sendReceive(TransactionDetailsSendReceiveViewData(
                 tokens: .init(tokenIconInfo: icon("Tether"), amountText: "+350.31 USDT", fiatText: "$350.31"),
@@ -104,6 +105,14 @@ enum TransactionDetailsPreviewFactory {
             to: .init(direction: .init(label: "To", actor: nil), icon: .token(icon("Polygon", color: .purple)), amountText: "~ 1,800.00 POL", fiatText: "$391.12")
         )
     }
+
+    /// Pair with the destination token still resolving — shimmer symbol + icon.
+    static func tokensPairLoading() -> TransactionDetailsTokensViewData {
+        .init(
+            from: .init(direction: .init(label: "From", actor: nil), icon: .token(icon("Tether", color: .green)), amountText: "− 390 USDT", fiatText: "$391.12"),
+            to: .init(direction: .init(label: "To", actor: nil), icon: .loading, amountText: nil, fiatText: nil)
+        )
+    }
 }
 
 // MARK: - Shared builders
@@ -120,7 +129,7 @@ private extension TransactionDetailsPreviewFactory {
     static let swapDestination = SwapTransactionDetailsViewData.Leg(amount: "1,800.00", symbol: "POL", tokenIconInfo: icon("Polygon", color: .purple))
     static let swapProvider = TransactionDetailsProviderInfo(name: "DEX • Mercuryo", iconURL: nil, onTap: {})
 
-    static let onrampPaid = OnrampTransactionDetailsViewData.PaidLeg(amount: "3,903.02", symbol: "SEK", fiatPrice: "$ 391.12", flagIconURL: nil)
+    static let onrampPaid = OnrampTransactionDetailsViewData.PaidLeg(amount: "3,903.02", symbol: "SEK", fiatPrice: "$ 391.12", flagIconURL: nil, isFlagLoading: false)
     static let onrampReceived = OnrampTransactionDetailsViewData.ReceivedLeg(
         destination: .account(name: "Main account", icon: .composite(backgroundColor: .blue, nameMode: .letter("M"))),
         amount: "0.0052",
@@ -139,16 +148,25 @@ private extension TransactionDetailsPreviewFactory {
     }
 
     static func swap(title: String, status: TransactionViewModel.Status, data: SwapTransactionDetailsViewData) -> TransactionDetailsViewModel {
-        .init(
+        viewModel(
             header: header(title: title, operationIcon: .init(type: .swap, status: status, isOutgoing: true)),
             content: .swap(data)
         )
     }
 
     static func onramp(title: String, status: TransactionViewModel.Status, data: OnrampTransactionDetailsViewData) -> TransactionDetailsViewModel {
-        .init(
+        viewModel(
             header: header(title: title, operationIcon: .init(type: .transfer, status: status, isOutgoing: false)),
             content: .onramp(data)
+        )
+    }
+
+    static func viewModel(header: TransactionDetailsHeaderViewData, content: TransactionDetailsViewModel.Content) -> TransactionDetailsViewModel {
+        TransactionDetailsViewModel(
+            header: header,
+            content: content,
+            recordUpdates: Empty(completeImmediately: false).eraseToAnyPublisher(),
+            rebuild: { _ in (header, content) }
         )
     }
 }

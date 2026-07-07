@@ -40,20 +40,24 @@ struct TransactionDetailsStatusBannerView: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            indicator
-                .frame(size: CGSize(bothDimensions: indicatorSide))
-
             VStack(alignment: .leading, spacing: 2) {
                 Text(data.title)
                     .style(DesignSystem.Font.bodyMediumToken, color: titleColor)
+                    .contentTransition(.opacity)
+                    .animation(.easeInOut(duration: 0.3), value: data.title)
 
                 if let subtitle = data.subtitle {
                     Text(subtitle)
                         .style(DesignSystem.Font.captionMediumToken, color: subtitleColor)
+                        .contentTransition(.opacity)
+                        .animation(.easeInOut(duration: 0.3), value: subtitle)
                 }
             }
 
             Spacer(minLength: .zero)
+
+            indicator
+                .frame(size: CGSize(bothDimensions: indicatorSide))
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
