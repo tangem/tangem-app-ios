@@ -12,7 +12,6 @@ enum TransactionDetailsOperationStage: Hashable {
 }
 
 protocol TransactionDetailsOperationViewData {
-    var stage: TransactionDetailsOperationStage { get }
     var tokensData: TransactionDetailsTokensViewData { get }
     var statusBanner: TransactionDetailsStatusBannerViewData? { get }
     var infoData: TransactionDetailsInfoSectionViewData? { get }
@@ -23,7 +22,7 @@ extension TransactionDetailsOperationViewData {
     var blocks: [TransactionDetailsBlock] {
         var blocks: [TransactionDetailsBlock] = [.tokens(tokensData)]
 
-        if stage != .finished, let statusBanner {
+        if let statusBanner {
             blocks.append(.statusBanner(statusBanner))
         }
 
