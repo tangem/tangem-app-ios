@@ -77,6 +77,7 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             tokenItem: tokenItem,
             analyticsLogger: analyticsLogger,
             buyActionBuilder: buyActionBuilder,
+            linkedBannersPublisher: marketingNotificationManager.linkedBannersPublisher,
             input: onrampModel,
             output: onrampModel
         )
@@ -190,6 +191,7 @@ extension OnrampFlowFactory: OnrampSummaryStepBuildable {
         OnrampSummaryStepBuilder.Dependencies(
             notificationManager: notificationManager,
             marketingNotificationManager: marketingNotificationManager,
+            linkedBannersPublisher: marketingNotificationManager.linkedBannersPublisher,
             analyticsLogger: analyticsLogger,
             buyActionBuilder: buyActionBuilder
         )

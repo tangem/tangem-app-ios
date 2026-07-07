@@ -32,24 +32,30 @@ extension OnrampMarketingBannerNotificationManager {
             return
         }
 
-        let requests = Publishers.CombineLatest(
-            amountInput.fiatCurrencyPublisher,
-            providersInput.selectedOnrampProviderPublisher
-        )
-        .map { fiatCurrency, provider -> OnrampMarketingBannerRequest? in
-            OnrampMarketingBannerRequest(
-                destination: tokenItem,
-                expectedCryptoAmount: provider?.value?.quote?.expectedAmount,
-                fiatCurrencyCode: fiatCurrency?.identity.code
-            )
-        }
-        .eraseToAnyPublisher()
+        let requests = amountInput.fiatCurrencyPublisher
+            .map { fiatCurrency -> OnrampMarketingBannerRequest? in
+                OnrampMarketingBannerRequest(
+                    destination: tokenItem,
+                    fiatCurrencyCode: fiatCurrency?.identity.code
+                )
+            }
+            .eraseToAnyPublisher()
 
-        subscription = service.bannerPublisher(for: requests)
+        let amount = providersInput.selectedOnrampProviderPublisher
+            .map { provider -> MarketingBannerAmount? in
+                guard let value = provider?.value?.quote?.expectedAmount, let currencyId = tokenItem.currencyId else {
+                    return nil
+                }
+
+                return MarketingBannerAmount(value: value, currencyId: currencyId)
+            }
+            .eraseToAnyPublisher()
+
+        subscription = service.bannerPublisher(for: requests, amount: amount)
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { manager, banners in
-                manager.notificationInputsSubject.send(banners.standalone.map { [manager.makeInput(for: $0)] } ?? [])
+                manager.notificationInputsSubject.send(banners.standalone.map { manager.makeInput(for: $0) })
                 manager.linkedBannersSubject.send(banners.linked)
             }
     }
@@ -89,7 +95,6 @@ extension OnrampMarketingBannerNotificationManager: NotificationManager {
 // MARK: - LinkedMarketingBannerProviding
 
 extension OnrampMarketingBannerNotificationManager: LinkedMarketingBannerProviding {
-    // [REDACTED_TODO_COMMENT]
     var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
         linkedBannersSubject.eraseToAnyPublisher()
     }
