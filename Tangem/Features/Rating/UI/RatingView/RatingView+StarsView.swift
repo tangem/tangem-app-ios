@@ -51,7 +51,6 @@ extension RatingView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 20) {
         RatingView.StarsView(displayRating: 0)
@@ -61,4 +60,3 @@ extension RatingView {
     }
     .padding()
 }
-#endif
