@@ -16,6 +16,7 @@ import TangemUIUtils
 
 struct AddFundsOptionView: View {
     let viewData: ViewData
+    let isEnabled: Bool
     let action: () -> Void
 
     @ScaledMetric(wrappedValue: .unit(.x10)) private var iconContainerSize: CGFloat
@@ -24,8 +25,9 @@ struct AddFundsOptionView: View {
     @ScaledMetric(wrappedValue: .unit(.x4)) private var horizontalPadding: CGFloat
     @ScaledMetric(wrappedValue: .unit(.x3)) private var verticalPadding: CGFloat
 
-    init(viewData: ViewData, action: @escaping () -> Void) {
+    init(viewData: ViewData, isEnabled: Bool = true, action: @escaping () -> Void) {
         self.viewData = viewData
+        self.isEnabled = isEnabled
         self.action = action
     }
 
@@ -45,6 +47,8 @@ struct AddFundsOptionView: View {
             .cornerRadiusContinuous(.unit(.x5))
         }
         .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : Constants.disabledOpacity)
         .accessibilityIdentifier(viewData.accessibilityIdentifier)
     }
 
@@ -85,6 +89,14 @@ struct AddFundsOptionView: View {
     }
 }
 
+// MARK: - Constants
+
+private extension AddFundsOptionView {
+    enum Constants {
+        static let disabledOpacity: CGFloat = 0.4
+    }
+}
+
 // MARK: - ViewData
 
 extension AddFundsOptionView {
@@ -99,8 +111,8 @@ extension AddFundsOptionView {
 // MARK: - Add Funds (buy) options
 
 extension AddFundsOptionView {
-    init(option: Option, action: @escaping () -> Void) {
-        self.init(viewData: option.viewData, action: action)
+    init(option: Option, isEnabled: Bool = true, action: @escaping () -> Void) {
+        self.init(viewData: option.viewData, isEnabled: isEnabled, action: action)
     }
 
     @RawCaseName
