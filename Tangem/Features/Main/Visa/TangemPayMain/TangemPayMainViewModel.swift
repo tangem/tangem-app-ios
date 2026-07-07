@@ -107,6 +107,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -184,6 +185,12 @@ final class TangemPayMainViewModel: ObservableObject {
         return transactionHistoryService.fetchNextTransactionHistoryPage()
     }
 
+    private var isBankTransferAvailable: Bool {
+        FeatureProvider.isAvailable(.tangemPayVirtualAccount)
+            && tangemPayAccount.isKYCApproved
+            && tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
+    }
+
     func addFunds() {
         Analytics.log(.visaScreenButtonVisaAddFunds, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
 
@@ -199,7 +206,8 @@ final class TangemPayMainViewModel: ObservableObject {
                 input: .init(
                     userWalletInfo: userWalletInfo,
                     address: depositAddress,
-                    swapableToken: swapableToken
+                    swapableToken: swapableToken,
+                    isBankTransferAvailable: isBankTransferAvailable
                 )
             )
         }
