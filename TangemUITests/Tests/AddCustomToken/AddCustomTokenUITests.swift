@@ -99,35 +99,37 @@ final class AddCustomTokenUITests: BaseTestCase {
             .verifyUnsupportedCurveAlert(blockchain: "Solana")
     }
 
-    func testDerivationPaths_MatchCardVersion() {
+    func testDerivationPaths_Wallet1_0Detached_v1() {
         setAllureId(776)
+        launchApp(tangemApiType: .mock, scenarios: [coinsScenario], mockCardBatchIdOverride: "AC01")
 
-        XCTContext.runActivity(named: "Wallet 1.0 detached batch → v1") { _ in
-            launchApp(tangemApiType: .mock, scenarios: [coinsScenario], mockCardBatchIdOverride: "AC01")
-            openAddCustomToken(card: .wallet)
-                .selectNetwork("Ethereum")
-                .openDerivationSelector()
-                .verifyDerivationOptionPath(option: "Bitcoin", expectedPath: "m/44'/0'/0'/0/0")
-                .verifyDerivationOptionPath(option: "Ethereum Classic", expectedPath: "m/44'/61'/0'/0/0")
-        }
+        openAddCustomToken(card: .wallet)
+            .selectNetwork("Ethereum")
+            .openDerivationSelector()
+            .verifyDerivationOptionPath(option: "Bitcoin", expectedPath: "m/44'/0'/0'/0/0")
+            .verifyDerivationOptionPath(option: "Ethereum Classic", expectedPath: "m/44'/61'/0'/0/0")
+    }
 
-        XCTContext.runActivity(named: "Wallet 1.0 → v2") { _ in
-            launchApp(tangemApiType: .mock, scenarios: [coinsScenario])
-            openAddCustomToken(card: .wallet)
-                .selectNetwork("Ethereum")
-                .openDerivationSelector()
-                .verifyDerivationOptionPath(option: "Bitcoin", expectedPath: "m/44'/0'/0'/0/0")
-                .verifyDerivationOptionPath(option: "Ethereum Classic", expectedPath: "m/44'/60'/0'/0/0")
-        }
+    func testDerivationPaths_Wallet1_0_v2() {
+        setAllureId(10204)
+        launchApp(tangemApiType: .mock, scenarios: [coinsScenario])
 
-        XCTContext.runActivity(named: "Wallet 2.0 → v3") { _ in
-            launchApp(tangemApiType: .mock, scenarios: [coinsScenario])
-            openAddCustomToken(card: .wallet2)
-                .selectNetwork("Ethereum")
-                .openDerivationSelector()
-                .verifyDerivationOptionPath(option: "Bitcoin", expectedPath: "m/84'/0'/0'/0/0")
-                .verifyDerivationOptionPath(option: "Ethereum Classic", expectedPath: "m/44'/61'/0'/0/0")
-        }
+        openAddCustomToken(card: .wallet)
+            .selectNetwork("Ethereum")
+            .openDerivationSelector()
+            .verifyDerivationOptionPath(option: "Bitcoin", expectedPath: "m/44'/0'/0'/0/0")
+            .verifyDerivationOptionPath(option: "Ethereum Classic", expectedPath: "m/44'/60'/0'/0/0")
+    }
+
+    func testDerivationPaths_Wallet2_0_v3() {
+        setAllureId(10205)
+        launchApp(tangemApiType: .mock, scenarios: [coinsScenario])
+
+        openAddCustomToken(card: .wallet2)
+            .selectNetwork("Ethereum")
+            .openDerivationSelector()
+            .verifyDerivationOptionPath(option: "Bitcoin", expectedPath: "m/84'/0'/0'/0/0")
+            .verifyDerivationOptionPath(option: "Ethereum Classic", expectedPath: "m/44'/61'/0'/0/0")
     }
 
     func testAddCustomToken_OldFirmwareCard_ShowsFirmwareLimitationWarning() {

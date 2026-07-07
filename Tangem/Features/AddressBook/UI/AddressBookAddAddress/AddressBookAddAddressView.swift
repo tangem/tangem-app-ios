@@ -43,7 +43,6 @@ struct AddressBookAddAddressView: View {
             if case .resolved = viewModel.addressNetworksType {
                 GroupedSection(viewModel.addressNetworksType) { networks in
                     TangemRow(title: Localization.commonNetwork)
-                        .verticalAlignment(.center)
                         .end { makeNetworksValue(networks: networks) }
                         .if(networks.isEditable) { $0.onTap(viewModel.userDidRequestNetworksChange) }
                 }
@@ -61,6 +60,7 @@ struct AddressBookAddAddressView: View {
             NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
         }
         .alert(item: $viewModel.alert) { $0.alert }
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     private func makeNetworksValue(networks: AddressBookAddAddressViewModel.AddressNetworksType) -> some View {

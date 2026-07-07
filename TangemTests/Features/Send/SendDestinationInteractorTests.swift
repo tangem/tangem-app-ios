@@ -334,6 +334,9 @@ private final class SendDestinationAnalyticsLoggerStub: SendDestinationAnalytics
     func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource) {}
     func logQRScannerOpened() {}
     func logDestinationStepOpened() {}
+    func logAddressBookWidgetShown() {}
+    func logAddressBookContactSelected(_ contact: AddressBookContact) {}
+    func logAddressBookAddressSubstituted(_ contact: AddressBookContact) {}
     func logDestinationStepReopened() {}
     func setDestinationAnalyticsProvider(_ analyticsProvider: (any AccountModelAnalyticsProviding)?) {}
 }

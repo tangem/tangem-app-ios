@@ -95,6 +95,10 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
         loadAddressBooks()
     }
 
+    func onFirstAppear() {
+        interactor.logContactScreenOpened()
+    }
+
     func userDidRequestDismiss() {
         guard !isProcessing, interactor.hasUnsavedChanges else {
             coordinator?.dismissContactManagement()
@@ -123,6 +127,8 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
         guard addressBookWallets.isNotEmpty else {
             return
         }
+
+        interactor.logWalletPickerOpened()
 
         let viewModel = AddressBookWalletPickerViewModel(
             addressBookWallets: addressBookWallets,
@@ -286,7 +292,7 @@ private extension AddressBookContactManagementViewModel {
             return
         }
 
-        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self, options: .add, reservedContacts: interactor.reservedContacts)
+        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, contactId: interactor.contactId, output: self, options: .add, reservedContacts: interactor.reservedContacts)
     }
 
     func showMaxAddressesAlert() {
@@ -303,6 +309,7 @@ private extension AddressBookContactManagementViewModel {
 
         coordinator?.openAddAddress(
             userWalletInfo: wallet.userWalletInfo,
+            contactId: interactor.contactId,
             output: self,
             options: .edit(
                 address: group.address,
@@ -335,6 +342,7 @@ private extension AddressBookContactManagementViewModel {
 
         do {
             try await interactor.save()
+            presentSuccessToast(title: Localization.addressBookCreateSuccessMessage)
             coordinator?.dismissContactManagement()
         } catch AddressBookValidationError.addressAlreadySaved(let contactName) {
             isProcessing = false
@@ -367,6 +375,13 @@ private extension AddressBookContactManagementViewModel {
     func presentGenericError(title: String = Localization.commonError, message: String) {
         alert = AlertBinder(title: title, message: message)
     }
+
+    func presentSuccessToast(title: String) {
+        let snackbar = TangemSnackbar(title: title)
+            .icon(DesignSystem.Icons.Success.regular20)
+            .iconColor(DesignSystem.Color.iconAccentBlue)
+        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
+    }
 }
 
 // MARK: - AddressBookAddAddressOutput
@@ -376,9 +391,20 @@ extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
         interactor.hasUnsavedChanges
     }
 
+    var contactEntries: [AddressBookEntryDraft] {
+        entries?.raw ?? []
+    }
+
+    var contactDisplayName: String {
+        let name = contactName.trimmed()
+        return name.isEmpty ? Localization.addressBookNewContact : name
+    }
+
     func userDidAddAddress(entries: [AddressBookEntryDraft], replacing: [AddressBookAddressEntryID]) {
         do {
             try interactor.update(entries: entries, replacing: replacing)
+        } catch AddressBookValidationError.duplicateAddressNetworkPair {
+            presentGenericError(message: Localization.addressBookAddressTakenError(contactDisplayName))
         } catch {
             presentGenericError(message: error.localizedDescription)
         }
@@ -399,10 +425,7 @@ extension AddressBookContactManagementViewModel: AddressActionsOutput {
     func addressActionsDidRequestCopy(_ group: AddressBookContactAddressGroup) {
         UIPasteboard.general.string = group.address
 
-        let snackbar = TangemSnackbar(title: Localization.addressBookAddressCopied)
-            .icon(DesignSystem.Icons.Success.regular20)
-            .iconColor(DesignSystem.Color.iconAccentBlue)
-        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
+        presentSuccessToast(title: Localization.addressBookAddressCopied)
     }
 
     func addressActionsDidRequestEdit(_ group: AddressBookContactAddressGroup) {
@@ -411,6 +434,7 @@ extension AddressBookContactManagementViewModel: AddressActionsOutput {
 
     func addressActionsDidRequestRemove(_ group: AddressBookContactAddressGroup) {
         guard canDeleteContact, (entries?.addressCount ?? 0) <= 1 else {
+            interactor.logAddressRemoved()
             deleteAddress(entryIds: group.networks.map(\.id))
             return
         }
@@ -421,6 +445,7 @@ extension AddressBookContactManagementViewModel: AddressActionsOutput {
             buttons: [
                 .init(title: Localization.commonDelete, role: .destructive) { [weak self] in
                     guard let self else { return }
+                    interactor.logAddressRemoved()
                     Task { await self.delete() }
                 },
                 .cancel,

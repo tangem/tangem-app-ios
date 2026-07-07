@@ -10,6 +10,7 @@ import SwiftUI
 
 struct TangemRowContentLayout: Layout {
     let contentLead: TangemRowContentLead
+    let minOppositeWidth: CGFloat
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) -> CGSize {
         let split = resolveSplit(proposal: proposal, subviews: subviews)
@@ -35,8 +36,6 @@ struct TangemRowContentLayout: Layout {
 
     // MARK: - Width sharing
 
-    private static let maxHugFraction: CGFloat = 0.84
-
     private struct Split {
         let rowWidth: CGFloat
         let titleWidth: CGFloat
@@ -60,8 +59,6 @@ struct TangemRowContentLayout: Layout {
 
         let available = rowWidth - columnSpacing
 
-        let maxHug = available * Self.maxHugFraction
-
         let titleWidth: CGFloat
         let valueWidth: CGFloat
         switch contentLead {
@@ -79,14 +76,21 @@ struct TangemRowContentLayout: Layout {
             }
 
         case .start:
-            titleWidth = min(titleIdeal.width, maxHug)
+            let cap = leadingCap(available: available, hasOpposite: hasRight)
+            titleWidth = min(titleIdeal.width, cap)
             valueWidth = available - titleWidth
 
         case .end:
-            valueWidth = min(valueIdeal.width, maxHug)
+            let cap = leadingCap(available: available, hasOpposite: hasLeft)
+            valueWidth = min(valueIdeal.width, cap)
             titleWidth = available - valueWidth
         }
 
         return Split(rowWidth: rowWidth, titleWidth: titleWidth, valueWidth: valueWidth)
+    }
+
+    private func leadingCap(available: CGFloat, hasOpposite: Bool) -> CGFloat {
+        guard hasOpposite else { return available }
+        return available > minOppositeWidth ? available - minOppositeWidth : available / 2
     }
 }
