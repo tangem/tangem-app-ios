@@ -62,39 +62,25 @@ struct BalanceWithButtonsView: View {
     }
 }
 
-struct BalanceWithButtonsView_Previews: PreviewProvider {
-    struct BalanceWithButtonsPreview: View {
-        private let provider = FakeBalanceWithButtonsInfoProvider()
-
-        var body: some View {
-            Group {
-                VStack {
-                    balanceStateViews(models: provider.models, opacity: 1)
-                }
-                .padding()
-                .frame(maxHeight: .infinity)
-                .background(Colors.Background.secondary)
-                .previewDisplayName("One by one")
-
-                ZStack {
-                    balanceStateViews(models: provider.modelsWithButtons, opacity: 0.1)
-                }
-                .padding()
-                .frame(maxHeight: .infinity)
-                .background(Color.black.edgesIgnoringSafeArea(.all))
-                .previewDisplayName("Overlaid")
-            }
-        }
-
-        func balanceStateViews(models: [BalanceWithButtonsViewModel], opacity: Double) -> some View {
-            ForEach(models, id: \.id) { model in
-                BalanceWithButtonsView(viewModel: model)
-                    .opacity(opacity)
-            }
+#Preview("One by one") {
+    VStack {
+        ForEach(FakeBalanceWithButtonsInfoProvider().models, id: \.id) { model in
+            BalanceWithButtonsView(viewModel: model)
         }
     }
+    .padding()
+    .frame(maxHeight: .infinity)
+    .background(Colors.Background.secondary)
+}
 
-    static var previews: some View {
-        BalanceWithButtonsPreview()
+#Preview("Overlaid") {
+    ZStack {
+        ForEach(FakeBalanceWithButtonsInfoProvider().models, id: \.id) { model in
+            BalanceWithButtonsView(viewModel: model)
+                .opacity(0.1)
+        }
     }
+    .padding()
+    .frame(maxHeight: .infinity)
+    .background(Color.black.edgesIgnoringSafeArea(.all))
 }

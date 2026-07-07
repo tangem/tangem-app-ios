@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct AddCustomTokenDerivationPathWriterView: View {
     @ObservedObject var viewModel: AddCustomTokenDerivationPathWriterViewModel
@@ -26,6 +27,7 @@ struct AddCustomTokenDerivationPathWriterView: View {
             MainButton(
                 title: Localization.commonSave,
                 isDisabled: !viewModel.derivationPathState.isSuccess,
+                accessibilityIdentifier: AddCustomTokenAccessibilityIdentifiers.derivationPathSaveButton,
                 action: viewModel.save
             )
         }
@@ -51,6 +53,7 @@ struct AddCustomTokenDerivationPathWriterView: View {
             .tint(textFieldColor)
             .autocapitalization(.none)
             .disableAutocorrection(true)
+            .accessibilityIdentifier(AddCustomTokenAccessibilityIdentifiers.derivationPathField)
         } header: {
             Text(Localization.customTokenCustomDerivation)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)

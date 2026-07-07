@@ -35,7 +35,6 @@ struct NFTCollectionsAccountsGrouped: View {
     }
 }
 
-#if DEBUG
 #Preview {
     ZStack {
         Color.gray
@@ -59,4 +58,3 @@ struct NFTCollectionsAccountsGrouped: View {
         )
     }
 }
-#endif
