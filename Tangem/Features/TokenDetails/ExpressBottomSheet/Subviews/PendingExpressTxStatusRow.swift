@@ -113,17 +113,15 @@ extension PendingExpressTxStatusRow {
     }
 }
 
-struct PendingExpressTxStatusRow_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 0) {
-            PendingExpressTxStatusRow(isFirstRow: true, info: .init(title: "Deposit received", state: .checkmark))
-            PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Exchanging...", state: .loader))
-            PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Failed", state: .cross(passed: false)))
-            PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Failed", state: .cross(passed: true)))
-            PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Canceled", state: .cross(passed: false)))
-            PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Refunded", state: .empty))
-            PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Refunded", state: .checkmark))
-            PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Verification required", state: .exclamationMark))
-        }
+#Preview {
+    VStack(spacing: 0) {
+        PendingExpressTxStatusRow(isFirstRow: true, info: .init(title: "Deposit received", state: .checkmark))
+        PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Exchanging...", state: .loader))
+        PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Failed", state: .cross(passed: false)))
+        PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Failed", state: .cross(passed: true)))
+        PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Canceled", state: .cross(passed: false)))
+        PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Refunded", state: .empty))
+        PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Refunded", state: .checkmark))
+        PendingExpressTxStatusRow(isFirstRow: false, info: .init(title: "Verification required", state: .exclamationMark))
     }
 }
