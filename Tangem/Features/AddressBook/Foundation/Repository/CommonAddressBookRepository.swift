@@ -112,8 +112,12 @@ private extension CommonAddressBookRepository {
             // A malformed/undecodable server response is an upstream fault, not a problem with the local blob
             // (loadLocalAddressBook validated that independently). Keep the cached copy rather than wiping the
             // user's offline data over a transient backend defect.
+            ABLogger.error("Malformed sync response for wallet \(redactedWalletId)", error: error)
             await apply(local: localBook, syncState: .failure(.decodingError(error.localizedDescription)))
+        } catch let error as AddressBookNetworkServiceError where error.isCancellationError {
+            await apply(local: localBook, syncState: .failure(.networkError(error.localizedDescription)))
         } catch {
+            ABLogger.error("Load failed for wallet \(redactedWalletId)", error: error)
             await apply(local: localBook, syncState: .failure(.networkError(error.localizedDescription)))
         }
     }
@@ -135,11 +139,13 @@ private extension CommonAddressBookRepository {
             let contacts = try decode(envelope: remote.envelope)
             save(envelope: remote.envelope, etag: remote.etag)
             publish(syncState: .synced(contacts))
-        } catch AddressBookRepositoryError.unsupportedBlobVersion {
+        } catch AddressBookRepositoryError.unsupportedBlobVersion(let version) {
+            ABLogger.warning("Unsupported blob version \(version) for wallet \(redactedWalletId)")
             publish(syncState: .failure(.updateRequired, cached: local.contacts))
         } catch {
             // The fetched remote blob failed to decrypt/decode; the separately-loaded local cache is still
             // good, so fall back to it instead of erasing it over a remote-side fault.
+            ABLogger.error("Failed to decode fetched blob for wallet \(redactedWalletId)", error: error)
             publish(syncState: .failure(.decodingError(error.localizedDescription), cached: local.contacts))
         }
     }
@@ -185,11 +191,18 @@ private extension CommonAddressBookRepository {
             publish(syncState: .synced(contacts))
 
         } catch AddressBookNetworkServiceError.inconsistentState {
+            ABLogger.info("Save conflict for wallet \(redactedWalletId), refetching")
             await performLoad(silent: true)
             throw AddressBookNetworkServiceError.inconsistentState
         } catch AddressBookNetworkServiceError.malformedResponse(let error) {
+            ABLogger.error("Malformed save response for wallet \(redactedWalletId)", error: error)
             await performLoad(silent: true)
             throw AddressBookNetworkServiceError.malformedResponse(error)
+        } catch let error as AddressBookNetworkServiceError where error.isCancellationError {
+            throw error
+        } catch {
+            ABLogger.error("Save failed for wallet \(redactedWalletId)", error: error)
+            throw error
         }
     }
 }
@@ -207,6 +220,7 @@ private extension CommonAddressBookRepository {
             let contacts = try decode(envelope: envelope)
             return .readable(contacts)
         } catch {
+            ABLogger.error("Corrupt local cache invalidated for wallet \(redactedWalletId)", error: error)
             invalidateCache()
             return .absent
         }
@@ -220,6 +234,7 @@ private extension CommonAddressBookRepository {
             // The etag must never outlive its blob: a stored etag with no local copy makes the next load echo
             // that etag in the sync request, get back "not modified" (empty items), and have nothing to show.
             // So a failed blob write clears both.
+            ABLogger.error("Failed to persist blob for wallet \(redactedWalletId)", error: error)
             invalidateCache()
         }
     }
@@ -227,6 +242,14 @@ private extension CommonAddressBookRepository {
     func invalidateCache() {
         persistentStorage.clear(for: walletId)
         eTagStorage.clearETag(for: .addressBook(walletId: walletId))
+    }
+}
+
+// MARK: - Logging
+
+private extension CommonAddressBookRepository {
+    var redactedWalletId: String {
+        "\(walletId.stringValue.prefix(4))...\(walletId.stringValue.suffix(4))"
     }
 }
 
