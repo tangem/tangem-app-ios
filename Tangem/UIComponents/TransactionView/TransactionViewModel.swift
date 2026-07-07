@@ -36,6 +36,13 @@ struct TransactionViewModel: Hashable, Identifiable {
         return timeFormatted ?? "-"
     }
 
+    var secondaryTrailingText: String? {
+        if case .tangemPay = transactionType {
+            return timeFormatted
+        }
+        return amount.currencyCode.nilIfEmpty
+    }
+
     var transactionDescriptionTruncationMode: Text.TruncationMode {
         switch transactionType {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
@@ -169,8 +176,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         isFromYieldContract: Bool
     ) -> String {
         switch transactionType {
-        case .yieldSend where isOutgoing,
-             .yieldSend where !isFromYieldContract: Localization.commonTransfer
+        case .yieldSend where transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract): Localization.commonTransfer
         case .transfer: Localization.commonTransfer
         case .swap: Localization.commonSwap
         case .approve: Localization.commonApproval
@@ -373,5 +379,12 @@ extension TransactionViewModel {
                 hasher.combine(fullAddress)
             }
         }
+    }
+}
+
+extension TransactionViewModel.TransactionType {
+    func isTransferLikeYieldSend(isOutgoing: Bool, isFromYieldContract: Bool) -> Bool {
+        guard case .yieldSend = self else { return false }
+        return isOutgoing || !isFromYieldContract
     }
 }

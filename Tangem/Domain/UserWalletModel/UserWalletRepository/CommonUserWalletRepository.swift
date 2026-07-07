@@ -77,6 +77,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
         let allUnlocked = self.models.allConforms { !$0.isUserWalletLocked }
         if allUnlocked {
+            let restoredSelectedId = selectedUserWalletId.flatMap { self.models[$0] }?.userWalletId
+            if let userWalletIdToSelect = restoredSelectedId ?? self.models.first?.userWalletId {
+                select(userWalletId: userWalletIdToSelect)
+            }
             unlockInternal()
         }
 
