@@ -83,6 +83,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
     private let userTokensManager: any UserTokensManager
+    private let hidesMarketPriceBanner: Bool
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -113,12 +114,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         xpubGenerator: XPUBGenerator?,
         coordinator: any TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable,
-        pendingTransactionDetails: PendingTransactionDetails?
+        pendingTransactionDetails: PendingTransactionDetails?,
+        hidesMarketPriceBanner: Bool
     ) {
         self.coordinator = coordinator
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
+        self.hidesMarketPriceBanner = hidesMarketPriceBanner
 
         actionsViewModel = FeatureProvider.isAvailable(.redesign)
             ? TokenDetailsActionsViewModel(walletModel: walletModel, userWalletInfo: userWalletInfo)
@@ -770,7 +773,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func makeMarketPriceViewModel() -> TokenDetailsMarketPriceViewModel? {
-        guard isRedesign, walletModel.tokenItem.id != nil else {
+        guard isRedesign, !hidesMarketPriceBanner, walletModel.tokenItem.id != nil else {
             return nil
         }
 
