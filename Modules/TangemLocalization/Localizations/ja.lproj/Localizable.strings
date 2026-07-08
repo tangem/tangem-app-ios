@@ -1378,9 +1378,9 @@
 "staking_notification_ton_account_initialization_message" = "ステーキングを開始するには、まずTONアカウントを有効化してください。";
 "staking_notification_ton_account_initialization_title" = "アカウントの有効化";
 "staking_notification_ton_activate_account" = "TONのステーキングを開始するには、まず自分のアドレスに少額の取引を送信します。これによりウォレットが有効になります。";
-"staking_notification_ton_extra_reserve_info" = "取引を完了するには、ネットワーク手数料に加えて最大0.2TONが必要になる場合があります。未使用分は返金されます。";
-"staking_notification_ton_extra_reserve_is_required" = "この操作を続行するには、ネットワーク手数料に加えて0.2 TONが必要です。残高を補充してください。";
-"staking_notification_ton_extra_reserve_title" = "TONの準備金が必要です";
+"staking_notification_ton_extra_reserve_info" = "取引を完了するには、ネットワーク手数料に加えて最大0.2GRAMが必要になる場合があります。未使用分は返金されます。";
+"staking_notification_ton_extra_reserve_is_required" = "この操作を続行するには、ネットワーク手数料に加えて0.2 GRAMが必要です。残高を補充してください。";
+"staking_notification_ton_extra_reserve_title" = "GRAMの準備金が必要です";
 "staking_notification_ton_have_to_unstake_all_text" = "このアクションは、ネットワークのルールに従って、他のポジションをクローズするか、引き出しステータスに切り替えます。";
 "staking_notification_ton_have_to_unstake_all_title" = "ポジション状況";
 "staking_notification_unlock_text" = "資金をステーキングから引き出すには、ロックを解除してください。ロック解除には%@かかります。";
@@ -1643,6 +1643,7 @@
 "tangempay_change_pin_code" = "PINコードを変更";
 "tangempay_come_back_if_forget_pin" = "忘れた場合はアプリに戻って確認できます。";
 "tangempay_common_card" = "Card";
+"tangempay_common_error_loading" = "Error loading";
 "tangempay_current_plan_change" = "Change plan";
 "tangempay_current_plan_section_card" = "Card related";
 "tangempay_current_plan_section_plan" = "Plan related";
@@ -1788,6 +1789,7 @@
 "tangempay_touch_id_not_set_title" = "Touch IDが設定されていません";
 "tangempay_usdc_on_polygon_network" = "Polygonネットワーク上のUSDC";
 "tangempay_use_tangem_device_to_restore_payment_account" = "下のボタンをクリックしてアクセスを復元してください";
+"tangempay_visa_benefits" = "Visa Benefits";
 "tangempay_withdrawal_note_description" = "返金分はオンチェーンのPolygon残高には戻らず、出金にも利用できません。ただし、カード残高として残り、支払いに利用できます。";
 "tangempay_withdrawal_note_title" = "ご注意ください";
 "tangempay_your_balance" = "残高";
