@@ -61,6 +61,13 @@ struct CommonAddressBookAnalyticsLogger: AddressBookAnalyticsLogger {
         ])
     }
 
+    func logSelectAllNetworksTapped(walletId: String, action: AddressBookSelectAllAction) {
+        Analytics.log(event: .addressBookSelectAllNetworksTapped, params: [
+            .addressBookWalletId: walletId,
+            .action: action.parameterValue.rawValue,
+        ])
+    }
+
     func logAddressInvalid(walletId: String, contactId: String?) {
         Analytics.log(event: .addressBookAddressInvalid, params: [
             .addressBookWalletId: walletId,
