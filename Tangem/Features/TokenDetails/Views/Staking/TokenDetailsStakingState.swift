@@ -42,5 +42,6 @@ extension TokenDetailsStakingState {
     struct UnavailableItem {
         let title: String
         let description: String
+        let action: (() -> Void)?
     }
 }
