@@ -10,28 +10,10 @@ import Foundation
 import TangemFoundation
 
 struct PriceValueFormatter {
-    fileprivate typealias CurrencyCode = String
-
-    private static let cachedNumberFormatters = NSCacheWrapper<CacheKey, NumberFormatter>()
-
     private let balanceFormatter = BalanceFormatter()
 
     func formatValue(_ value: Decimal) -> Result {
-        let currencyCode = AppSettings.shared.selectedCurrencyCode
-        let formattingOptions: BalanceFormattingOptions = .defaultFiatFormattingOptions
-
-        let numberFormatter = numberFormatter(
-            locale: .current,
-            currencyCode: currencyCode,
-            formattingOptions: formattingOptions
-        )
-
-        let formattedFiatBalance = balanceFormatter.formatFiatBalance(
-            value,
-            formattingOptions: formattingOptions,
-            formatter: numberFormatter
-        )
-
+        let formattedFiatBalance = balanceFormatter.formatFiatBalance(value)
         let formattedPrice = priceSign(value) + formattedFiatBalance
         return Result(formattedText: formattedPrice)
     }
@@ -40,44 +22,11 @@ struct PriceValueFormatter {
 // MARK: - Helpers
 
 private extension PriceValueFormatter {
-    func numberFormatter(
-        locale: Locale,
-        currencyCode: CurrencyCode,
-        formattingOptions: BalanceFormattingOptions
-    ) -> NumberFormatter {
-        let cacheKey = CacheKey(
-            localeIdentifier: locale.identifier,
-            currencyCode: currencyCode,
-            formattingOptions: formattingOptions
-        )
-
-        if let cached = Self.cachedNumberFormatters.value(forKey: cacheKey) {
-            return cached
-        } else {
-            let formatter = balanceFormatter.makeDefaultFiatFormatter(
-                forCurrencyCode: currencyCode,
-                formattingOptions: formattingOptions
-            )
-            Self.cachedNumberFormatters.setValue(formatter, forKey: cacheKey)
-            return formatter
-        }
-    }
-
     func priceSign(_ value: Decimal) -> String {
         switch ChangeSignType(from: value) {
         case .positive: .plusSign
         case .negative, .neutral: .empty
         }
-    }
-}
-
-// MARK: - Private types
-
-private extension PriceValueFormatter {
-    struct CacheKey: Hashable {
-        let localeIdentifier: String
-        let currencyCode: String
-        let formattingOptions: BalanceFormattingOptions
     }
 }
 

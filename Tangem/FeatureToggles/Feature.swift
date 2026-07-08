@@ -36,6 +36,8 @@ enum Feature: String, Hashable, CaseIterable {
     case hideStoriesInMobileWallet
     case bitcoinDexSwap
     case solanaUnstakeValidation
+    case onboardingPushNotificationDoubleAsk
+    case mainPushNotificationDoubleAsk
 
     var name: String {
         switch self {
@@ -66,6 +68,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .bitcoinDexSwap: return "14413_Bitcoin_support_for_DEX_(LiFi_/_SwapKit)"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         case .solanaUnstakeValidation: return "[REDACTED_INFO]_solana_unstake_validation"
+        case .onboardingPushNotificationDoubleAsk: return "1403_onboarding_push_notification_double_ask"
+        case .mainPushNotificationDoubleAsk: return "1403_main_push_notification_double_ask"
         }
     }
 
@@ -98,6 +102,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .bitcoinDexSwap: return .version("6.0")
         case .hideStoriesInMobileWallet: return .version("6.0")
         case .solanaUnstakeValidation: return .version("6.0")
+        case .onboardingPushNotificationDoubleAsk: return .unspecified
+        case .mainPushNotificationDoubleAsk: return .unspecified
         }
     }
 }

@@ -88,7 +88,7 @@ extension SwapNotificationEvent: NotificationEvent {
         case .notEnoughReceivedAmountForReserve(let amountFormatted):
             return .string(Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted))
         case .incompleteBackup:
-            return .string(Localization.onboardingActivationErrorTitle)
+            return .string(Localization.warningIncompleteBackupNotificationTitle)
         case .withdrawalNotificationEvent(let event):
             return event.title
         case .validationErrorEvent(let event):
@@ -129,7 +129,7 @@ extension SwapNotificationEvent: NotificationEvent {
         case .notEnoughReceivedAmountForReserve:
             return Localization.sendNotificationInvalidReserveAmountText
         case .incompleteBackup:
-            return Localization.warningBackupErrorsMessage
+            return Localization.warningIncompleteBackupNotificationMessage
         case .unsupportedPair:
             return Localization.warningExpressUnsupportedPairDescription
         case .verificationRequired:

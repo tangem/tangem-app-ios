@@ -403,7 +403,7 @@ extension MarketsTokenDetailsCoordinator: AddFundsRoutable {
 
     func addFundsRequestGoToToken(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         dismissAddFunds { [weak self] in
-            self?.openPortfolioTokenDetails(walletModel: walletModel)
+            self?.openPortfolioTokenDetails(walletModel: walletModel, hidesMarketPriceBanner: true)
         }
     }
 
@@ -635,7 +635,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         )
     }
 
-    private func openPortfolioTokenDetails(walletModel: any WalletModel) {
+    private func openPortfolioTokenDetails(walletModel: any WalletModel, hidesMarketPriceBanner: Bool = false) {
         guard
             let userWalletModel = userWalletRepository.models[walletModel.userWalletId],
             let account = walletModel.account
@@ -654,7 +654,8 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
                 keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
                 walletModelsManager: account.walletModelsManager,
                 userTokensManager: account.userTokensManager,
-                walletModel: walletModel
+                walletModel: walletModel,
+                hidesMarketPriceBanner: hidesMarketPriceBanner
             )
         )
         tokenDetailsCoordinator = coordinator
