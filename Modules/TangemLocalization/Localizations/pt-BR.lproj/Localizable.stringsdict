@@ -296,9 +296,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Escreva esta 1palavra na ordem indicada abaixo e guarde-a em um local seguro e secreto.</string>
+        <string>Escreva esta %li palavra na ordem indicada abaixo e guarde-a em um local seguro e secreto.</string>
         <key>other</key>
-        <string>Escreva estas %lipalavras na ordem indicada abaixo e guarde-as em um local seguro e secreto.</string>
+        <string>Escreva estas %li palavras na ordem indicada abaixo e guarde-as em um local seguro e secreto.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -312,9 +312,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%lipalavra</string>
+        <string>%li palavra</string>
         <key>other</key>
-        <string>%lipalavras</string>
+        <string>%li palavras</string>
       </dict>
     </dict>
     <key>onramp_providers_count</key>
