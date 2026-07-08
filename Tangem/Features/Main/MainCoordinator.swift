@@ -101,7 +101,10 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     }
 
     func start(with options: Options) {
-        let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
+        let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper? = FeatureProvider.isAvailable(.redesign)
+            ? nil
+            : WalletSwipeDiscoveryHelper()
+
         let factory = PushNotificationsHelpersFactory()
         let pushNotificationsAvailabilityProvider = factory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)
         let viewModel = MainViewModel(
@@ -112,7 +115,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
         )
 
-        swipeDiscoveryHelper.delegate = viewModel
+        swipeDiscoveryHelper?.delegate = viewModel
         mainViewModel = viewModel
 
         let userWalletModel = options.userWalletModel
