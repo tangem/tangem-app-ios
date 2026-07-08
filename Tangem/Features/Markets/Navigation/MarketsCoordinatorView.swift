@@ -34,7 +34,6 @@ struct MarketsCoordinatorView: CoordinatorView {
         .tint(Colors.Text.primary1)
     }
 
-    @ViewBuilder
     private var sheets: some View {
         NavHolder()
             .bottomSheet(
