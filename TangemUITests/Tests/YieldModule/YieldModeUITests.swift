@@ -65,6 +65,7 @@ final class YieldModeUITests: BaseTestCase {
         )
 
         tokenScreen
+            .waitForYieldEnabledBlock()
             .assertYieldInfoIconVisible()
             .waitForTransaction(key: Constants.txReceived)
 
@@ -83,6 +84,7 @@ final class YieldModeUITests: BaseTestCase {
         )
 
         tokenScreen
+            .waitForYieldEnabledBlock()
             .assertYieldInfoIconVisible()
             .tapYieldEnabledBlock()
             .assertNotificationDisplayed()
