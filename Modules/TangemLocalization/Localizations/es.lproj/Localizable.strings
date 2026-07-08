@@ -1378,9 +1378,9 @@
 "staking_notification_ton_account_initialization_message" = "Para empezar a hacer staking, primero debes activar tu cuenta de TON.";
 "staking_notification_ton_account_initialization_title" = "Activación de cuenta";
 "staking_notification_ton_activate_account" = "Para empezar a hacer staking en TON, realice primero una transacción de salida de cualquier importe - esto activará su billetera.";
-"staking_notification_ton_extra_reserve_info" = "Es posible que se requieran hasta 0.2 TON además de la tarifa de red para completar la transacción. Cualquier cantidad no utilizada será reembolsada.";
-"staking_notification_ton_extra_reserve_is_required" = "Se requieren 0.2 TON para realizar esta operación, además de la tarifa de red. Por favor, recargue su saldo.";
-"staking_notification_ton_extra_reserve_title" = "Se requiere reserva de TON";
+"staking_notification_ton_extra_reserve_info" = "Es posible que se requieran hasta 0.2 GRAM además de la tarifa de red para completar la transacción. Cualquier cantidad no utilizada será reembolsada.";
+"staking_notification_ton_extra_reserve_is_required" = "Se requieren 0.2 GRAM para realizar esta operación, además de la tarifa de red. Por favor, recargue su saldo.";
+"staking_notification_ton_extra_reserve_title" = "Se requiere reserva de GRAM";
 "staking_notification_ton_have_to_unstake_all_text" = "Esta acción cerrará otras posiciones o las cambiará al estado de retiro, de acuerdo con las reglas de la red.";
 "staking_notification_ton_have_to_unstake_all_title" = "Estado de las posiciones";
 "staking_notification_unlock_text" = "Desbloquee su dinero para retirarlo del proceso de staking. El desbloqueo demora %@ minuto.";
@@ -1643,6 +1643,7 @@
 "tangempay_change_pin_code" = "Cambiar código PIN";
 "tangempay_come_back_if_forget_pin" = "Vuelve a la app si lo olvidas.";
 "tangempay_common_card" = "Card";
+"tangempay_common_error_loading" = "Error loading";
 "tangempay_current_plan_change" = "Change plan";
 "tangempay_current_plan_section_card" = "Card related";
 "tangempay_current_plan_section_plan" = "Plan related";
@@ -1788,6 +1789,7 @@
 "tangempay_touch_id_not_set_title" = "Touch ID no está configurado";
 "tangempay_usdc_on_polygon_network" = "USDC en Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Haga clic en el botón de abajo para restaurar el acceso";
+"tangempay_visa_benefits" = "Visa Benefits";
 "tangempay_withdrawal_note_description" = "Los fondos de compras reembolsadas no se devolverán a tu saldo on-chain Polygon ni estarán disponibles para retiro, pero permanecerán en tu saldo de tarjeta para compras";
 "tangempay_withdrawal_note_title" = "Tenga en cuenta";
 "tangempay_your_balance" = "Su saldo";
