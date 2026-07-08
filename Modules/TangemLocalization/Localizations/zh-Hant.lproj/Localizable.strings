@@ -1834,6 +1834,10 @@
 "token_receive_show_qr_code_title" = "Show QR code";
 "token_summary_can_not_load_token" = "Can’t load data of the token";
 "token_summary_go_to_swap_button" = "Go to swap";
+"token_summary_last_update_subtitle" = "Last update: %1$@";
+"token_summary_negative_outlook_title" = "Negative outlook";
+"token_summary_neutral_outlook_title" = "Neutral outlook";
+"token_summary_positive_outlook_title" = "Positive outlook";
 "token_summary_title" = "Token summary";
 "token_swap_promotion_button" = "Swap now";
 "tokens_list_available_to_buy_header" = "Choose token you want to buy";
