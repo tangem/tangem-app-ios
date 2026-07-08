@@ -44,37 +44,40 @@ struct MainView: View {
         }
     }
 
+    @ViewBuilder
     private var cardsInfoPagerContent: some View {
-        CardsInfoPagerView(
-            data: viewModel.pages,
-            refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
-            selectedIndex: $viewModel.selectedCardIndex,
-            discoveryAnimationTrigger: viewModel.swipeDiscoveryAnimationTrigger,
-            headerViewBuilder: { userWalletPageBuilder in
-                userWalletPageBuilder.header
-                    .contextMenu {
-                        if !userWalletPageBuilder.isLockedWallet {
-                            if AppSettings.shared.saveUserWallets {
-                                renameButton
+        if let discoveryAnimationTrigger = viewModel.swipeDiscoveryAnimationTrigger {
+            CardsInfoPagerView(
+                data: viewModel.pages,
+                refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
+                selectedIndex: $viewModel.selectedCardIndex,
+                discoveryAnimationTrigger: discoveryAnimationTrigger,
+                headerViewBuilder: { userWalletPageBuilder in
+                    userWalletPageBuilder.header
+                        .contextMenu {
+                            if !userWalletPageBuilder.isLockedWallet {
+                                if AppSettings.shared.saveUserWallets {
+                                    renameButton
+                                }
                             }
                         }
-                    }
-            },
-            contentViewBuilder: { userWalletPageBuilder in
-                userWalletPageBuilder.content
-            },
-            bottomOverlayViewBuilder: { userWalletPageBuilder in
-                userWalletPageBuilder.bottomOverlay
-            },
-            footerOverlayViewBuilder: { userWalletPageBuilder in
-                userWalletPageBuilder.footerOverlay
-            }
-        )
-        .pageSwitchThreshold(0.4)
-        .contentViewVerticalOffset(64.0)
-        .horizontalScrollDisabled(viewModel.isPullToRefreshRunning)
-        .onPageChange(viewModel.onPageChange(dueTo:))
-        .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
+                },
+                contentViewBuilder: { userWalletPageBuilder in
+                    userWalletPageBuilder.content
+                },
+                bottomOverlayViewBuilder: { userWalletPageBuilder in
+                    userWalletPageBuilder.bottomOverlay
+                },
+                footerOverlayViewBuilder: { userWalletPageBuilder in
+                    userWalletPageBuilder.footerOverlay
+                }
+            )
+            .pageSwitchThreshold(0.4)
+            .contentViewVerticalOffset(64.0)
+            .horizontalScrollDisabled(viewModel.isPullToRefreshRunning)
+            .onPageChange(viewModel.onPageChange(dueTo:))
+            .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
+        }
     }
 
     private var renameButton: some View {

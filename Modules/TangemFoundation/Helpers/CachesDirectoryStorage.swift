@@ -29,7 +29,29 @@ public struct CachesDirectoryStorage: @unchecked Sendable {
         self.file = file
         self.encoder = encoder
         self.decoder = decoder
-        queue = DispatchQueue(label: "com.tangem.CachesDirectoryStorage_\(file.name)", attributes: .concurrent)
+        queue = Self.queue(for: file)
+    }
+}
+
+// MARK: - Shared per-file queue
+
+private extension CachesDirectoryStorage {
+    /// Distinct `CachesDirectoryStorage` instances constructed for the same `file` back the same on-disk JSON,
+    /// so their read-modify-write sequences (e.g. in callers that read the current value, mutate it, and store it
+    /// back) must share one serial-for-writes queue — otherwise those sequences can interleave across instances
+    /// and lose updates.
+    static let queuesLock = OSAllocatedUnfairLock<[String: DispatchQueue]>(initialState: [:])
+
+    static func queue(for file: File) -> DispatchQueue {
+        queuesLock.withLock { queues in
+            if let queue = queues[file.name] {
+                return queue
+            }
+
+            let queue = DispatchQueue(label: "com.tangem.CachesDirectoryStorage_\(file.name)", attributes: .concurrent)
+            queues[file.name] = queue
+            return queue
+        }
     }
 }
 
@@ -71,6 +93,24 @@ public extension CachesDirectoryStorage {
         try queue.sync(flags: .barrier) {
             let data = try encoder.encode(value)
             try writeToFile(data: data)
+        }
+    }
+
+    /// Atomically reads the current value (or `defaultValue` if absent), lets `mutate` transform it, and writes
+    /// the result back — the whole sequence runs as a single unit on the storage's serial-for-writes queue.
+    /// Prefer this over a separate `value()` + `store(value:)` pair whenever the new value depends on the current
+    /// one: separate calls race across concurrent callers (including other `CachesDirectoryStorage` instances
+    /// backed by the same `file`) and can silently lose one caller's update.
+    func modify<T>(defaultValue: T, _ mutate: @escaping (inout T) -> Void) where T: Codable {
+        queue.async(flags: .barrier) {
+            var value: T = (try? readValue()) ?? defaultValue
+            mutate(&value)
+
+            guard let data = try? encoder.encode(value) else {
+                return
+            }
+
+            try? writeToFile(data: data)
         }
     }
 }
