@@ -132,6 +132,14 @@ final class PulseMarketWidgetViewModel: ObservableObject {
             viewModel.coordinator?.openSeeAllPulseMarketWidget(with: viewModel.filterProvider.currentFilterValue.order)
         }
     }
+
+    func pauseQuotesUpdates() {
+        quotesUpdatesScheduler.suspend()
+    }
+
+    func resumeQuotesUpdates() {
+        quotesUpdatesScheduler.resume()
+    }
 }
 
 // MARK: - Private Implementation
