@@ -151,6 +151,36 @@ extension ScreenBase {
         }
     }
 
+    /// Pastes via the system edit menu to avoid the "Allow Paste" prompt a programmatic read triggers.
+    func pasteFromEditMenu(into element: XCUIElement) {
+        waitAndAssertTrue(element, "Element for paste should exist")
+        element.waitAndTap()
+        element.press(forDuration: 1.0)
+
+        let pasteMenuItem = app.menuItems["Paste"].firstMatch
+        let pasteButton = app.buttons["Paste"].firstMatch
+        if pasteMenuItem.waitForExistence(timeout: .shortUIUpdate) {
+            pasteMenuItem.tap()
+        } else {
+            waitAndAssertTrue(pasteButton, "Paste option should appear")
+            pasteButton.tap()
+        }
+    }
+
+    /// Types only after the field (or its descendant) holds keyboard focus, retrying the tap to survive CI focus races.
+    func typeWithFocus(into element: XCUIElement, text: String) {
+        waitAndAssertTrue(element, "Field for typing should exist")
+        let focusedDescendant = element.descendants(matching: .any)
+            .matching(NSPredicate(format: "hasKeyboardFocus == true")).firstMatch
+        for _ in 0 ..< 4 {
+            element.tap()
+            if element.hasFocus || focusedDescendant.waitForExistence(timeout: .shortUIUpdate) {
+                break
+            }
+        }
+        element.typeText(text)
+    }
+
     func clearText(element: XCUIElement) {
         scrollToElement(element)
         if !element.hasFocus {
