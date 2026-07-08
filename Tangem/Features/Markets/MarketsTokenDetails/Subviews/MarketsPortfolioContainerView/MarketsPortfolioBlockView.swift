@@ -26,6 +26,9 @@ struct MarketsPortfolioBlockView: View {
         case .addToken:
             AddToPortfolioPromoView(iconURL: iconURL, action: onAddTap)
 
+        case .notSupported:
+            MarketsPortfolioUnsupportedView(iconURL: iconURL)
+
         case .content(let data):
             MarketsPortfolioBlockContentView(
                 balanceText: data.balanceText,
