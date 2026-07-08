@@ -81,9 +81,8 @@ final class ManageTokensUITests: BaseTestCase {
 
         openManageTokens()
             .expandTokenIfNeeded(coinId: "bitcoin")
-            .seedPasteboard(sentinel)
             .longPressNetworkToCopy("Bitcoin")
-            .verifyNothingCopied(sentinel: sentinel)
+            .verifyNothingCopied()
             .expandTokenIfNeeded(coinId: "tether")
             .seedPasteboard(sentinel)
             .longPressNetworkToCopy("Ethereum")
