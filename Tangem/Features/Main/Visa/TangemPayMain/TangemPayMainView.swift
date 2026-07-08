@@ -135,6 +135,7 @@ struct TangemPayMainView: View {
                 } label: {
                     NavbarDotsImage()
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.moreActionsButton)
             }
         }
     }
@@ -513,6 +514,7 @@ struct TangemPayMainView: View {
                     .foregroundColor(Colors.Icon.primary1)
                     .accessibilityLabel(Localization.commonMore)
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.moreActionsButton)
         }
     }
 }
