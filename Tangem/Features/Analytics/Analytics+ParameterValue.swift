@@ -334,6 +334,8 @@ extension Analytics {
         case addressBookModeCreate = "Create"
         case addressBookErrorServer = "Server"
         case addressBookErrorSigning = "Signing"
+        case addressBookSelectAll = "Select All"
+        case addressBookClearAll = "Clear All"
 
         // MARK: - Choose Provider Options
 

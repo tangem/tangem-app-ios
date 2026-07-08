@@ -75,12 +75,23 @@ struct ChooseNetworkView: View {
             GroupedSection(viewModel.rows, isLazy: true) { row in
                 ChooseNetworkRowView(viewModel: row)
             } header: {
-                Text(Localization.commonAvailableNetworks)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 16)
-                    .padding(.bottom, 4)
+                HStack(spacing: 8) {
+                    Text(Localization.commonAvailableNetworks)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+
+                    if viewModel.isSelectAllVisible {
+                        Spacer(minLength: 0)
+
+                        Button(action: viewModel.toggleSelectAll) {
+                            Text(viewModel.selectAllTitle)
+                                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textBrand)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 4)
             }
             .backgroundColor(DesignSystem.Color.bgSecondary)
             .cornerRadius(24)
@@ -107,6 +118,7 @@ struct ChooseNetworkView: View {
 #Preview {
     final class PreviewHandler: ChooseNetworkOutput, ChooseNetworkRoutable {
         func chooseNetworkDidConfirm(_ selected: Set<BSDKBlockchain>) {}
+        func chooseNetworkDidTapSelectAll(didSelectAll: Bool) {}
         func dismissChooseNetwork() {}
     }
 
