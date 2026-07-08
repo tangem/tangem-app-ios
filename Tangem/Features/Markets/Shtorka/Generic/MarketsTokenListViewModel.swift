@@ -130,6 +130,14 @@ extension MarketsTokenListViewModel {
         dataProvider.fetch(searchText, with: filter)
     }
 
+    func pauseQuotesUpdates() {
+        quotesUpdatesScheduler.suspend()
+    }
+
+    func resumeQuotesUpdates() {
+        quotesUpdatesScheduler.resume()
+    }
+
     func onRequestMiniCharts(forRange range: ClosedRange<Int>, interval: MarketsPriceIntervalType) {
         let items = tokenViewModels
         let itemsToFetch: Array<MarketsItemViewModel>.SubSequence
