@@ -32,16 +32,6 @@ extension MainCoordinator {
         private let walletModelLocator = DeeplinkWalletModelLocator()
         private lazy var tokenDeeplinkHandler = TokenDeeplinkHandler(walletModelLocator: walletModelLocator)
 
-        // MARK: - Public Implementation
-
-        func becomeIncomingActionsResponder() {
-            incomingActionManager.becomeFirstResponder(self)
-        }
-
-        func resignIncomingActionsResponder() {
-            incomingActionManager.resignFirstResponder(self)
-        }
-
         // MARK: - Private Implementation
 
         private func routeIncomingAction(_ action: IncomingAction) -> Bool {
@@ -453,9 +443,17 @@ extension MainCoordinator.MainNavigationActionHandler {
     }
 }
 
-// MARK: - IncomingActionResponder
+// MARK: - IncomingActionRoutingHandler
 
-extension MainCoordinator.MainNavigationActionHandler: IncomingActionResponder {
+extension MainCoordinator.MainNavigationActionHandler: IncomingActionRoutingHandler {
+    func becomeIncomingActionsResponder() {
+        incomingActionManager.becomeFirstResponder(self)
+    }
+
+    func resignIncomingActionsResponder() {
+        incomingActionManager.resignFirstResponder(self)
+    }
+
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
         routeIncomingAction(action)
     }
