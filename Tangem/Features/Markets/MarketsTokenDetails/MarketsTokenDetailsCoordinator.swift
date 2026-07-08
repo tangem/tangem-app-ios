@@ -440,6 +440,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
 
         Task { @MainActor in
+            Analytics.log(.addFundsMethodScreenOpened, params: [.source: .market])
             addFundsViewModel = AddFundsViewModel(
                 input: .init(
                     mode: .stack,
@@ -624,6 +625,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             return
         }
 
+        Analytics.log(.addFundsMethodScreenOpened, params: [.source: .market])
         addFundsViewModel = AddFundsViewModel(
             input: .init(
                 mode: .stack,
