@@ -311,6 +311,43 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
 }
 
 extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
+    func openTransactionDetails(_ data: TransactionDetailsRouteData) {
+        Task { @MainActor in
+            let context = TransactionDetailsFactory.Context(
+                tokenIconInfo: data.tokenIconInfo,
+                tokenSymbol: data.tokenSymbol,
+                tokenCurrencyId: data.tokenCurrencyId,
+                receiverName: data.receiverName,
+                receiverAccountIcon: data.receiverAccountIcon,
+                resolveExpressToken: data.resolveExpressToken,
+                openExplorer: data.walletModel.exploreTransactionURL(for: data.transaction.hash).map { url in
+                    { [weak self] in
+                        self?.floatingSheetPresenter.removeActiveSheet()
+                        self?.openInSafari(url: url)
+                    }
+                },
+                openURL: { [weak self] url in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                    self?.openInSafari(url: url)
+                },
+                share: { [weak self] text in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                    AppPresenter.shared.show(UIActivityViewController(activityItems: [text], applicationActivities: nil))
+                },
+                onClose: { [weak self] in self?.floatingSheetPresenter.removeActiveSheet() }
+            )
+
+            let viewModel = TransactionDetailsFactory().makeViewModel(
+                transaction: data.transaction,
+                record: data.record,
+                context: context,
+                recordUpdates: data.recordUpdates
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openReceiveScreen(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,

@@ -77,13 +77,13 @@ struct SwapTransactionDetailsViewData: TransactionDetailsOperationViewData {
     }
 
     private var sourceAmountText: String? {
-        amountText(prefix: String.minusSign, leg: source)
+        amountText(prefix: AppConstants.minusSign, leg: source)
     }
 
     private var destinationAmountText: String? {
         let prefix: String? = switch stage {
         case .inProgress: isDestinationEstimated ? AppConstants.tildeSign : nil
-        case .finished: String.plusSign
+        case .finished: AppConstants.plusSign
         case .unsuccessful: nil
         }
         return amountText(prefix: prefix, leg: destination)

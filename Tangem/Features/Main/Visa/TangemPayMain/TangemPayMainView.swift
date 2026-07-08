@@ -373,7 +373,7 @@ struct TangemPayMainView: View {
                 state: viewModel.tangemPayTransactionHistoryState,
                 exploreAction: nil,
                 exploreConfirmationDialog: nil,
-                exploreTransactionAction: viewModel.openTransactionDetails,
+                openTransactionDetailsAction: { viewModel.openTransactionDetails(id: $0.hash) },
                 reloadButtonAction: viewModel.reloadHistory,
                 isReloadButtonBusy: false,
                 fetchMore: viewModel.fetchNextTransactionHistoryPage()

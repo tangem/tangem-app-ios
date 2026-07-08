@@ -102,7 +102,7 @@ enum TransactionDetailsPreviewFactory {
             accountIcon: .composite(backgroundColor: .purple, nameMode: .letter("M")),
             tokenIconInfo: icon("Tether", color: .green),
             amountText: "1,294.23 USDT",
-            subtitleText: "Activated"
+            statusTitle: "Supplied"
         )
     }
 
