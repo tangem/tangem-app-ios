@@ -38,6 +38,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemBadgeV2DemoViewModel) {
                 TangemBadgeV2DemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemMessageBannerDemoViewModel) {
+                TangemMessageBannerDemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemRowDemoViewModel) {
                 TangemRowDemoView(viewModel: $0)
             }
@@ -100,6 +103,10 @@ struct DesignSystemDemoView: View {
 
                     MainButton(title: "TangemBadgeV2") {
                         viewModel.openTangemBadgeV2Demo()
+                    }
+
+                    MainButton(title: "TangemMessageBanner") {
+                        viewModel.openTangemMessageBannerDemo()
                     }
 
                     MainButton(title: "TangemCheckboxV2") {
