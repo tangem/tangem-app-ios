@@ -8,18 +8,19 @@
 
 import Foundation
 import UIKit
-import Combine
+@preconcurrency import Combine
 import TangemFoundation
 
 class CommonTokenQuotesRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private var _quotes: CurrentValueSubject<Quotes, Never> = .init([:])
+    private let quotesSubject = CurrentValueSubject<Quotes, Never>([:])
+    private let quotesState = OSAllocatedUnfairLock(initialState: Quotes())
+    private let publishQueue = DispatchQueue(label: "com.tangem.CommonTokenQuotesRepository.publish")
     private var loadingQueue = PassthroughSubject<QueueItem, Never>()
     private var bag: Set<AnyCancellable> = []
     private let storage = CachesDirectoryStorage(file: .cachedQuotes)
-    private let lock = OSAllocatedUnfairLock()
 
     init() {
         bind()
@@ -32,11 +33,11 @@ class CommonTokenQuotesRepository {
 
 extension CommonTokenQuotesRepository: TokenQuotesRepository {
     var quotes: Quotes {
-        _quotes.value
+        quotesState.withLock { $0 }
     }
 
     var quotesPublisher: AnyPublisher<Quotes, Never> {
-        _quotes.eraseToAnyPublisher()
+        quotesSubject.eraseToAnyPublisher()
     }
 
     func fetchFreshQuoteFor(currencyId: String, shouldUpdateCache: Bool) async throws -> TokenQuote {
@@ -85,15 +86,13 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
 
 extension CommonTokenQuotesRepository: TokenQuotesRepositoryUpdater {
     func saveQuotes(_ quotes: [TokenQuote]) {
-        lock {
-            var current = _quotes.value
-
-            quotes.forEach { quote in
+        updateQuotes { current in
+            var didChange = false
+            for quote in quotes where current[quote.currencyId] != quote {
                 current[quote.currencyId] = quote
+                didChange = true
             }
-
-            _quotes.send(current)
-            storage.store(value: current)
+            return didChange
         }
     }
 }
@@ -107,14 +106,28 @@ private extension CommonTokenQuotesRepository {
                 return
             }
 
-            repository.lock {
-                var current = repository._quotes.value
-
+            repository.updateQuotes { current in
+                var didChange = false
                 for (currencyId, quote) in cached where current[currencyId] == nil {
                     current[currencyId] = quote
+                    didChange = true
                 }
+                return didChange
+            }
+        }
+    }
 
-                repository._quotes.send(current)
+    /// Enqueues publish/persist under the lock (FIFO order) but runs `send`/`store` off it, so downstream never executes while the lock is held.
+    func updateQuotes(_ transform: (inout Quotes) -> Bool) {
+        quotesState.withLock { state in
+            guard transform(&state) else {
+                return
+            }
+
+            let snapshot = state
+            publishQueue.async { [quotesSubject, storage] in
+                quotesSubject.send(snapshot)
+                storage.store(value: snapshot)
             }
         }
     }
