@@ -82,6 +82,12 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             publicKey: options.walletModel.publicKey
         )
 
+        let deeplinkHandler = TokenDetailsDeeplinkHandler(
+            coordinator: self,
+            walletModel: options.walletModel,
+            userWalletInfo: options.userWalletInfo
+        )
+
         tokenDetailsViewModel = .init(
             userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
@@ -92,7 +98,8 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             xpubGenerator: xpubGenerator,
             coordinator: self,
             tokenRouter: tokenRouter,
-            pendingTransactionDetails: options.pendingTransactionDetails
+            pendingTransactionDetails: options.pendingTransactionDetails,
+            deeplinkHandler: deeplinkHandler
         )
 
         notificationManager.interactionDelegate = tokenDetailsViewModel
