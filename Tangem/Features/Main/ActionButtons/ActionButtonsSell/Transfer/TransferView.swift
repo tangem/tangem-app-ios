@@ -33,6 +33,7 @@ struct TransferView: View {
         .padding(.bottom, 20)
         .background(Color.Tangem.Surface.level2.ignoresSafeArea())
         .navigationBarHidden(true)
+        .onFirstAppear(perform: viewModel.onAppear)
     }
 
     private var optionsSection: some View {
