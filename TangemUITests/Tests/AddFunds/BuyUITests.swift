@@ -76,13 +76,13 @@ final class BuyUITests: BaseTestCase {
             .verifyReceivingWalletMatches(receivingAddress)
     }
 
-    func testBuy_BuyAndSellIsNotAvailableForS2CCard() {
+    func testBuy_S2CCardShowsBuyAndSellButNotSwap() {
         setAllureId(3613)
 
         launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .s2c)
-            .verifyTradeActionButtonsHidden()
+            .verifySingleCurrencyWalletActionButtons()
     }
 }
