@@ -77,9 +77,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         PerformanceMonitorConfigurator.configureIfAvailable()
         AppsFlyerWrapper.shared.handleApplicationDidBecomeActive()
 
-        pendingColdLaunchUserActivities.forEach {
-            AppsFlyerWrapper.shared.handleUserActivity(userActivity: $0)
-        }
+        handleAppsFlyerActivities(pendingColdLaunchUserActivities)
         pendingColdLaunchUserActivities = []
     }
 
@@ -161,7 +159,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     /// Hot handle deeplinks `https://tangem.com, https://app.tangem.com`
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         handleActivities([userActivity])
-        AppsFlyerWrapper.shared.handleUserActivity(userActivity: userActivity)
+        handleAppsFlyerActivities([userActivity])
     }
 
     /// Hot handle universal links  with `tangem://` scheme
@@ -199,5 +197,11 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         return false
+    }
+
+    private func handleAppsFlyerActivities(_ userActivities: Set<NSUserActivity>) {
+        for activity in userActivities {
+            AppsFlyerWrapper.shared.handleUserActivity(userActivity: activity)
+        }
     }
 }
