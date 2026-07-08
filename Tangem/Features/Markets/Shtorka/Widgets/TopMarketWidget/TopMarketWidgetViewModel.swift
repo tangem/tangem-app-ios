@@ -87,6 +87,14 @@ final class TopMarketWidgetViewModel: ObservableObject {
         }
     }
 
+    func pauseQuotesUpdates() {
+        quotesUpdatesScheduler.suspend()
+    }
+
+    func resumeQuotesUpdates() {
+        quotesUpdatesScheduler.resume()
+    }
+
     var itemsOnListWidget: Int { Constants.itemsOnListWidget }
 }
 
