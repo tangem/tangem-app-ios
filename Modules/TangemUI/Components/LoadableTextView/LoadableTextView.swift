@@ -97,6 +97,10 @@ public struct LoadableTextView: View {
                 skeletonView
                     .frame(width: loaderSize.width, height: loaderSize.height)
             }
+        case .loadingCached(let text):
+            styledText(text, isSensitive: isSensitiveText)
+                .shimmer()
+                .environment(\.isShimmerActive, true)
         case .loaded(let text):
             styledText(text, isSensitive: isSensitiveText)
         }
@@ -139,6 +143,7 @@ public extension LoadableTextView {
         case initialized
         case noData
         case loading
+        case loadingCached(text: String)
         case loaded(text: String)
     }
 }
@@ -154,9 +159,9 @@ public extension LoadableTextView {
 
 // MARK: - Previews
 
-#if DEBUG
-struct LoadableTextView_Previews: PreviewProvider {
-    static let states: [(LoadableTextView.State, UUID)] = [
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var states: [(LoadableTextView.State, UUID)] = [
         (.initialized, UUID()),
         (.noData, UUID()),
         (.loading, UUID()),
@@ -164,66 +169,63 @@ struct LoadableTextView_Previews: PreviewProvider {
         (.loading, UUID()),
     ]
 
-    static var previews: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Rounded (default)")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+    VStack(spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Rounded (default)")
+                .font(.caption)
+                .foregroundColor(.gray)
 
-                HStack(spacing: 8) {
-                    LoadableTextView(
-                        state: .loading,
-                        style: Font.Tangem.Caption12.regular,
-                        textColor: .Tangem.Text.Neutral.tertiary,
-                        loaderSize: .init(width: 40, height: 12)
-                    )
-
-                    LoadableTextView(
-                        state: .loaded(text: "0.21432543264 ETH"),
-                        style: Font.Tangem.Caption12.regular,
-                        textColor: .Tangem.Text.Neutral.tertiary,
-                        loaderSize: .init(width: 40, height: 12)
-                    )
-                }
-            }
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Capsule style")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-
-                HStack(spacing: 8) {
-                    LoadableTextView(
-                        state: .loading,
-                        style: Font.Tangem.Caption12.regular,
-                        textColor: .Tangem.Text.Neutral.tertiary,
-                        loaderSize: .init(width: 40, height: 12),
-                        loaderCornerRadiusStyle: .capsule
-                    )
-
-                    LoadableTextView(
-                        state: .loaded(text: "0.21432543264 ETH"),
-                        style: Font.Tangem.Caption12.regular,
-                        textColor: .Tangem.Text.Neutral.tertiary,
-                        loaderSize: .init(width: 40, height: 12),
-                        loaderCornerRadiusStyle: .capsule
-                    )
-                }
-            }
-
-            Divider()
-
-            ForEach(states.indexed(), id: \.1.1) { _, state in
+            HStack(spacing: 8) {
                 LoadableTextView(
-                    state: state.0,
+                    state: .loading,
                     style: Font.Tangem.Caption12.regular,
                     textColor: .Tangem.Text.Neutral.tertiary,
-                    loaderSize: .init(width: 100, height: 20)
+                    loaderSize: .init(width: 40, height: 12)
+                )
+
+                LoadableTextView(
+                    state: .loaded(text: "0.21432543264 ETH"),
+                    style: Font.Tangem.Caption12.regular,
+                    textColor: .Tangem.Text.Neutral.tertiary,
+                    loaderSize: .init(width: 40, height: 12)
                 )
             }
         }
-        .padding()
+
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Capsule style")
+                .font(.caption)
+                .foregroundColor(.gray)
+
+            HStack(spacing: 8) {
+                LoadableTextView(
+                    state: .loading,
+                    style: Font.Tangem.Caption12.regular,
+                    textColor: .Tangem.Text.Neutral.tertiary,
+                    loaderSize: .init(width: 40, height: 12),
+                    loaderCornerRadiusStyle: .capsule
+                )
+
+                LoadableTextView(
+                    state: .loaded(text: "0.21432543264 ETH"),
+                    style: Font.Tangem.Caption12.regular,
+                    textColor: .Tangem.Text.Neutral.tertiary,
+                    loaderSize: .init(width: 40, height: 12),
+                    loaderCornerRadiusStyle: .capsule
+                )
+            }
+        }
+
+        Divider()
+
+        ForEach(states.indexed(), id: \.1.1) { _, state in
+            LoadableTextView(
+                state: state.0,
+                style: Font.Tangem.Caption12.regular,
+                textColor: .Tangem.Text.Neutral.tertiary,
+                loaderSize: .init(width: 100, height: 20)
+            )
+        }
     }
+    .padding()
 }
-#endif // DEBUG

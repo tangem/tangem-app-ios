@@ -44,7 +44,7 @@ struct NewProviderSelectorView: View {
             mainContent: { mainContentView }
         )
         .onDisappear {
-            viewModel.selectedProviderTypeFilter = .all
+            viewModel.resetState()
             allModeSectionHeight = .zero
         }
     }
@@ -75,7 +75,7 @@ struct NewProviderSelectorView: View {
             if !viewModel.providerTypeFilterOptions.isEmpty {
                 TangemSegmentedPicker(
                     data: viewModel.providerTypeFilterOptions,
-                    selection: $viewModel.selectedProviderTypeFilter
+                    selection: viewModel.providerTypeFilterSelection.asBinding
                 )
                 .style(.flexible)
                 .padding(.top, 8)

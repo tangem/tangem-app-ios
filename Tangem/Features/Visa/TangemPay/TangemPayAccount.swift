@@ -7,7 +7,6 @@
 
 import Combine
 import Foundation
-import UIKit
 import TangemFoundation
 import TangemPay
 import TangemVisa
@@ -32,7 +31,7 @@ final class TangemPayAccount {
     var cardEntries: [TangemPayCardEntry] {
         TangemPayCardEntry.build(
             cards: cardsSubject.value,
-            pendingProductInstances: customerInfoSubject.value.productInstances.filter { $0.cardId == nil },
+            pendingProductInstances: customerInfoSubject.value.cardProductInstances.filter { $0.cardId == nil },
             activeIssueOrders: activeIssueOrdersSubject.value
         )
     }
@@ -42,7 +41,7 @@ final class TangemPayAccount {
             .map { cards, info, orders, _ in
                 TangemPayCardEntry.build(
                     cards: cards,
-                    pendingProductInstances: info.productInstances.filter { $0.cardId == nil },
+                    pendingProductInstances: info.cardProductInstances.filter { $0.cardId == nil },
                     activeIssueOrders: orders
                 )
             }
@@ -51,6 +50,10 @@ final class TangemPayAccount {
 
     var offersPublisher: AnyPublisher<[TangemPayCustomerOffer], Never> {
         offersSubject.eraseToAnyPublisher()
+    }
+
+    var additionalCardIssueOffer: TangemPayCustomerOffer? {
+        offersSubject.value.first { $0.type.isAdditionalCardIssue }
     }
 
     var statePublisher: AnyPublisher<VisaCustomerInfoResponse.CustomerState, Never> {
@@ -74,6 +77,10 @@ final class TangemPayAccount {
 
     var cardIssueFailureSignal: AnyPublisher<Void, Never> {
         cardIssueFailureSubject.eraseToAnyPublisher()
+    }
+
+    var cardIssueCompletedSignal: AnyPublisher<Void, Never> {
+        cardIssueCompletedSubject.eraseToAnyPublisher()
     }
 
     var cards: [TangemPayCard] {
@@ -160,6 +167,31 @@ final class TangemPayAccount {
             : legacyCustomerInfoSubject.value.customerInfo.depositAddress
     }
 
+    var customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan? {
+        customerInfoSubject.value.customerTariffPlan
+    }
+
+    private var currentCustomerInfo: VisaCustomerInfoResponse {
+        multipleCardsEnabled
+            ? customerInfoSubject.value
+            : legacyCustomerInfoSubject.value.customerInfo
+    }
+
+    // MARK: - Virtual Account
+
+    var isKYCApproved: Bool {
+        currentCustomerInfo.kyc?.status == .approved
+    }
+
+    var virtualAccountEntry: VirtualAccountEntry {
+        if let productInstance = currentCustomerInfo.virtualAccountProductInstance {
+            return productInstance.status == .active
+                ? .active(productInstanceId: productInstance.id)
+                : .preparing
+        }
+        return placedVirtualAccountOrderId == nil ? .none : .preparing
+    }
+
     var isDeactivated: Bool {
         multipleCardsEnabled ? isDeactivatedNew : isDeactivatedLegacy
     }
@@ -167,8 +199,9 @@ final class TangemPayAccount {
     private var isDeactivatedNew: Bool {
         let info = customerInfoSubject.value
         if info.state == .former { return true }
-        return !info.productInstances.isEmpty &&
-            info.productInstances.allSatisfy { $0.status == .deactivated || $0.status == .canceled }
+        let cardInstances = info.cardProductInstances
+        return !cardInstances.isEmpty &&
+            cardInstances.allSatisfy { $0.status == .deactivated || $0.status == .canceled }
     }
 
     private var isDeactivatedLegacy: Bool {
@@ -203,10 +236,23 @@ final class TangemPayAccount {
     private let offersSubject = CurrentValueSubject<[TangemPayCustomerOffer], Never>([])
     private let activeIssueOrdersSubject = CurrentValueSubject<[TangemPayOrderResponse], Never>([])
     private let activeIssueOrderEventsSubject = PassthroughSubject<ActiveIssueOrderEvent, Never>()
+
+    private let loadOffersProcessor = SingleTaskProcessor<Void, Never>()
+    private let resumeIssuePollingProcessor = SingleTaskProcessor<Void, Never>()
     private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
     private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
     private let isReissuingCardSubject = CurrentValueSubject<Bool, Never>(false)
     private let cardIssueFailureSubject = PassthroughSubject<Void, Never>()
+    private let cardIssueCompletedSubject = PassthroughSubject<Void, Never>()
+
+    private var placedVirtualAccountOrderId: String?
+
+    /// The VA order is polled on its own instance so it can't be cancelled by (or cancel) the shared
+    /// `orderStatusPollingService`, which is single-slot and reused for freeze/reissue/card-issue.
+    private lazy var virtualAccountOrderPollingService = TangemPayOrderStatusPollingService(
+        customerService: customerService,
+        multipleCardsEnabled: multipleCardsEnabled
+    )
 
     private var bag = Set<AnyCancellable>()
 
@@ -242,8 +288,6 @@ final class TangemPayAccount {
         if multipleCardsEnabled {
             bindActiveIssueOrderEvents()
             cardsSubject.send(rebuildingCards(from: customerInfo, existing: []))
-            restoreInFlightCardIssueOrder()
-            observeAppLifecycle()
             observeCardRefreshSignals()
         }
     }
@@ -270,14 +314,74 @@ final class TangemPayAccount {
             : legacyCustomerInfoSubject.value.productInstance.displayName.nilIfEmpty
     }
 
-    deinit {
-        orderStatusPollingService.cancel()
+    func cardNumberEnd(forCardId cardId: String) -> String? {
+        multipleCardsEnabled
+            ? card(cardId: cardId)?.cardNumberEnd
+            : legacyCustomerInfoSubject.value.customerInfo.card?.cardNumberEnd
     }
 }
 
 enum TangemPayAccountError: Error {
     case missingPaymentAccountAddress
+    case missingDepositAddress
     case missingCardIssueOffer
+}
+
+extension TangemPayAccount {
+    enum VirtualAccountEntry {
+        case none
+        case preparing
+        case active(productInstanceId: String)
+    }
+}
+
+// MARK: - Virtual Account flow
+
+extension TangemPayAccount {
+    /// Places the VA issue order (Rain automation + deposit address on the collateral contract).
+    /// The button loader covers only this request; the banking credentials are prepared server-side
+    /// afterwards, so a background poll refreshes `customer/me` when the order completes.
+    func createVirtualAccount() async throws {
+        let info = currentCustomerInfo
+        guard let depositAddress else {
+            throw TangemPayAccountError.missingDepositAddress
+        }
+
+        let request = TangemPayPlaceOrderRequest(depositAddress: depositAddress)
+        let idempotencyKey = TangemPayIdempotencyKey.make(
+            info.id,
+            TangemPayOrderType.accountIssueVirtualRain.rawValue,
+            TangemPayPlaceOrderRequest.virtualAccountSpecificationName,
+            depositAddress
+        )
+
+        let order = try await customerService.placeOrder(request: request, idempotencyKey: idempotencyKey)
+        placedVirtualAccountOrderId = order.id
+        startVirtualAccountOrderPolling(orderId: order.id)
+    }
+
+    func loadBankCredentials(productInstanceId: String) async throws -> TangemPayBankCredentialsResponse {
+        try await customerService.getBankCredentials(productInstanceId: productInstanceId)
+    }
+
+    private func startVirtualAccountOrderPolling(orderId: String) {
+        virtualAccountOrderPollingService.startOrderStatusPolling(
+            orderId: orderId,
+            interval: Constants.virtualAccountOrderPollInterval,
+            onCompleted: { [weak self] in
+                runTask { await self?.loadCustomerInfo() }
+            },
+            onCanceled: { [weak self] in
+                // Drop the local flag so `virtualAccountEntry` falls back to `.none` and the info sheet
+                // (retry path) becomes reachable again instead of pinning the user on "preparing".
+                self?.placedVirtualAccountOrderId = nil
+            },
+            onFailed: { [weak self] error in
+                VisaLogger.error("Failed to poll virtual account order status", error: error)
+                self?.placedVirtualAccountOrderId = nil
+            }
+        )
+    }
 }
 
 // MARK: - Legacy single-card flow
@@ -350,7 +454,7 @@ private extension TangemPayAccount {
             switch error {
             case .unauthorized:
                 syncNeededSignalSubject.send(())
-            case .moyaError, .apiError, .decodingError:
+            case .moyaError, .apiError, .decodingError, .serverError:
                 unavailableSignalSubject.send(())
             }
             VisaLogger.error("Failed to load customer info", error: error)
@@ -428,38 +532,46 @@ extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
 
 extension TangemPayAccount {
     func loadOffers() async {
-        do {
-            let offers = try await customerService.getCustomerOffers()
-            offersSubject.send(offers)
-        } catch {
-            VisaLogger.error("Failed to load TangemPay offers", error: error)
+        await loadOffersProcessor.execute { @MainActor [weak self] in
+            guard let self else { return }
+
+            do {
+                let offers = try await customerService.getCustomerOffers()
+                offersSubject.send(offers)
+            } catch {
+                VisaLogger.error("Failed to load TangemPay offers", error: error)
+            }
         }
     }
 
     func resumeAdditionalCardIssuePolling() async {
-        let localOrdersBeforeFetch = activeIssueOrdersSubject.value
+        await resumeIssuePollingProcessor.execute { @MainActor [weak self] in
+            guard let self else { return }
 
-        let bffActiveOrders: [TangemPayOrderResponse]
-        do {
-            bffActiveOrders = try await customerService.findOrders(
-                types: TangemPayOrderType.cardIssueFamily,
-                statuses: [.new, .processing]
-            )
-        } catch {
-            VisaLogger.error("Failed to restore in-flight card-issue polling", error: error)
-            return
+            let localOrdersBeforeFetch = activeIssueOrdersSubject.value
+
+            let bffActiveOrders: [TangemPayOrderResponse]
+            do {
+                bffActiveOrders = try await customerService.findOrders(
+                    types: TangemPayOrderType.cardIssueFamily,
+                    statuses: [.new, .processing]
+                )
+            } catch {
+                VisaLogger.error("Failed to restore in-flight card-issue polling", error: error)
+                return
+            }
+
+            let bffOrderIds = Set(bffActiveOrders.map(\.id))
+            let staleIds = localOrdersBeforeFetch.map(\.id).filter { !bffOrderIds.contains($0) }
+            if !staleIds.isEmpty {
+                staleIds.forEach { self.activeIssueOrderEventsSubject.send(.remove(id: $0)) }
+                orderStatusPollingService.cancel()
+            }
+
+            guard let order = bffActiveOrders.mostRecentByUpdatedAt else { return }
+            activeIssueOrderEventsSubject.send(.upsert(order))
+            startAdditionalCardIssueTracking(orderId: order.id)
         }
-
-        let bffOrderIds = Set(bffActiveOrders.map(\.id))
-        let staleIds = localOrdersBeforeFetch.map(\.id).filter { !bffOrderIds.contains($0) }
-        if !staleIds.isEmpty {
-            staleIds.forEach { activeIssueOrderEventsSubject.send(.remove(id: $0)) }
-            orderStatusPollingService.cancel()
-        }
-
-        guard let order = bffActiveOrders.mostRecentByUpdatedAt else { return }
-        activeIssueOrderEventsSubject.send(.upsert(order))
-        startAdditionalCardIssueTracking(orderId: order.id)
     }
 
     func issueAdditionalCard() async throws -> TangemPayOrderResponse {
@@ -477,14 +589,10 @@ extension TangemPayAccount {
             offerData.orderType,
             offerData.specificationName,
             customerWalletAddress,
-            String(info.productInstances.filter { $0.status == .active }.count)
+            String(info.cardProductInstances.filter { $0.status == .active }.count)
         )
 
-        let existing = try? await orderResolver.findActiveOrder(types: TangemPayOrderType.cardIssueFamily) { order in
-            order.type == offerData.orderType
-                && order.data?.specificationName == offerData.specificationName
-                && order.data?.customerWalletAddress == customerWalletAddress
-        }
+        let existing = try await orderResolver.findActiveCardIssueOrder()
         let order: TangemPayOrderResponse
         if let existing {
             order = existing
@@ -518,30 +626,11 @@ private extension TangemPayAccount {
             switch error {
             case .unauthorized:
                 syncNeededSignalSubject.send(())
-            case .moyaError, .apiError, .decodingError:
+            case .moyaError, .apiError, .decodingError, .serverError:
                 unavailableSignalSubject.send(())
             }
             VisaLogger.error("Failed to load customer info", error: error)
         }
-    }
-
-    func restoreInFlightCardIssueOrder() {
-        runTask { [weak self] in
-            await self?.resumeAdditionalCardIssuePolling()
-        }
-    }
-
-    func observeAppLifecycle() {
-        NotificationCenter.default
-            .publisher(for: UIApplication.willEnterForegroundNotification)
-            .sink { [weak self] _ in
-                runTask { [weak self] in
-                    await self?.loadCustomerInfo()
-                    await self?.loadOffers()
-                    await self?.resumeAdditionalCardIssuePolling()
-                }
-            }
-            .store(in: &bag)
     }
 
     func observeCardRefreshSignals() {
@@ -600,6 +689,7 @@ private extension TangemPayAccount {
         await loadCustomerInfo()
         activeIssueOrderEventsSubject.send(.remove(id: orderId))
         await loadOffers()
+        cardIssueCompletedSubject.send(())
     }
 
     func startAdditionalCardIssueTracking(orderId: String) {
@@ -670,6 +760,7 @@ private extension TangemPayAccount {
     enum Constants {
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
         static let reissueOrderPollInterval: TimeInterval = 5
-        static let cardIssuePollInterval: TimeInterval = 60
+        static let cardIssuePollInterval: TimeInterval = 5
+        static let virtualAccountOrderPollInterval: TimeInterval = 5
     }
 }

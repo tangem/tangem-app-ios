@@ -79,6 +79,10 @@ class UserWalletModelMock: UserWalletModel {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
 
+    var priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider {
+        PriceAlertsSubscriptionsProviderStub()
+    }
+
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
@@ -91,13 +95,17 @@ class UserWalletModelMock: UserWalletModel {
         AccountModelsManagerMock()
     }
 
+    var addressBookManager: AddressBookManager {
+        NoopAddressBookManager()
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
 
     func getAnalyticsContextData() -> AnalyticsContextData? { nil }
 
-    func validate() -> Bool { true }
+    var backupState: UserWalletBackupState { .valid }
 
     func update(type: UpdateRequest) {}
 

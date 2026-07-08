@@ -126,33 +126,33 @@ private struct CrosshairShape: Shape {
 
 // MARK: - Previews
 
-#if DEBUG
+@available(iOS 17.0, *)
+#Preview("Sheet") {
+    @Previewable @State var code = ""
 
-struct QRScanView_Previews_Sheet: PreviewProvider {
-    @State static var code: String = ""
-
-    static var previews: some View {
-        Text("A")
-            .sheet(isPresented: .constant(true)) {
-                QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
-                    .background(
-                        Image("qr_code_example")
-                    )
-            }
-            .previewDisplayName("Sheet")
-    }
-}
-
-struct QRScanView_Previews_Inline: PreviewProvider {
-    @State static var code: String = ""
-
-    static var previews: some View {
-        QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
-            .background(
-                Image("qr_code_example")
+    Text("A")
+        .sheet(isPresented: .constant(true)) {
+            QRScanView(
+                viewModel: .init(
+                    code: $code,
+                    text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.",
+                    router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })
+                )
             )
-            .previewDisplayName("Inline")
-    }
+            .background(Image("qr_code_example"))
+        }
 }
 
-#endif
+@available(iOS 17.0, *)
+#Preview("Inline") {
+    @Previewable @State var code = ""
+
+    QRScanView(
+        viewModel: .init(
+            code: $code,
+            text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.",
+            router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })
+        )
+    )
+    .background(Image("qr_code_example"))
+}

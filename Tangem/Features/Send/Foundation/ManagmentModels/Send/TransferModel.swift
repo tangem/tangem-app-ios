@@ -477,7 +477,7 @@ extension TransferModel: NotificationTapDelegate {
              .openFeedbackMail,
              .openAppStoreReview,
              .empty,
-             .support,
+             .backupErrorSupport,
              .openCurrency,
              .unlock,
              .addTokenTrustline,
@@ -494,7 +494,9 @@ extension TransferModel: NotificationTapDelegate {
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
              .yieldBoostPromoLater,
-             .addFunds:
+             .addFunds,
+             .openGetTangemPay,
+             .closeGetTangemPay:
             assertionFailure("Notification tap not handled")
         }
     }

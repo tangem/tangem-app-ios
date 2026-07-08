@@ -8,25 +8,15 @@
 
 import Foundation
 
-protocol MainHeaderBalanceFormatter {
-    func formatBalance(balance: Decimal?, currencyCode: String) -> AttributedString
-}
-
-extension MainHeaderBalanceFormatter {
-    /// The `currencyCode` is  `AppSettings.shared.selectedCurrencyCode`
-    func formatBalance(balance: Decimal?) -> AttributedString {
-        formatBalance(balance: balance, currencyCode: AppSettings.shared.selectedCurrencyCode)
-    }
-}
-
-// MARK: - Crypto
-
-struct CommonMainHeaderBalanceFormatter: MainHeaderBalanceFormatter {
+struct MainHeaderBalanceFormatter {
     let balanceFormatter = BalanceFormatter()
 
-    func formatBalance(balance: Decimal?, currencyCode: String) -> AttributedString {
+    func formatBalance(balance: Decimal?, currencyCode: String = AppSettings.shared.selectedCurrencyCode) -> AttributedString {
         let formattedBalance = balanceFormatter.formatFiatBalance(balance)
-        let formattingOptions: TotalBalanceFormattingOptions = FeatureProvider.isAvailable(.redesign) ? .defaultOptionsRedesign : .defaultOptions
+        let formattingOptions: TotalBalanceFormattingOptions = FeatureProvider.isAvailable(.redesign)
+            ? .defaultOptionsRedesign
+            : .defaultOptions
+
         return balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance, formattingOptions: formattingOptions)
     }
 }

@@ -14,12 +14,12 @@ import TangemAccessibilityIdentifiers
 
 struct TangemPayActionButtonsView: View {
     let actionButtonsDisabled: Bool
-    let isWithdrawLoading: Bool
+    let isWithdrawDisabled: Bool
     let addFundsAction: () -> Void
     let withdrawAction: () -> Void
 
     var body: some View {
-        HStack(alignment: .top, spacing: DesignSystem.Tokens.Spacing.s500) {
+        HStack(alignment: .top, spacing: 40) {
             TangemMainActionButton(
                 title: Localization.tangempayCardDetailsAddFunds,
                 icon: DesignSystem.Icons.ArrowDown.regular16,
@@ -33,7 +33,7 @@ struct TangemPayActionButtonsView: View {
                 icon: DesignSystem.Icons.ArrowUp.regular16,
                 action: withdrawAction
             )
-            .disabled(actionButtonsDisabled || isWithdrawLoading)
+            .disabled(actionButtonsDisabled || isWithdrawDisabled)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.withdrawButton)
         }
     }
@@ -41,15 +41,13 @@ struct TangemPayActionButtonsView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     TangemPayActionButtonsView(
         actionButtonsDisabled: false,
-        isWithdrawLoading: true,
+        isWithdrawDisabled: true,
         addFundsAction: {},
         withdrawAction: {}
     )
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(DesignSystem.Tokens.Theme.Bg.primary)
+    .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

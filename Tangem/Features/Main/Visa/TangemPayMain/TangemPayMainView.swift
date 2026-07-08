@@ -268,8 +268,8 @@ struct TangemPayMainView: View {
                     .frame(width: 48, height: 32)
                     .background(Colors.Button.secondary.cornerRadiusContinuous(4))
             }
-            .disabled(viewModel.isStale)
-            .opacity(viewModel.isStale ? 0.6 : 1)
+            .disabled(viewModel.addCardDisabled)
+            .opacity(viewModel.addCardDisabled ? 0.6 : 1)
 
             Spacer()
         }
@@ -308,12 +308,12 @@ struct TangemPayMainView: View {
                 redesignedTransactionList
                     .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
             }
-            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-            .padding(.top, DesignSystem.Tokens.Spacing.s150)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
         }
         .background {
-            TangemPayBackgroundView(textureOpacity: redesignedHeaderOpacity)
-                .animation(.default, value: headerHeightRatio)
+            DesignSystem.Color.bgPrimary
+                .ignoresSafeArea()
         }
         .onReceive(elasticContainerModel.heightRatioPublisher) { headerHeightRatio = $0 }
         .onReceive(viewModel.refreshScrollViewStateObject.scrollViewInteractor.$visibleBodyHeight) { visibleBodyHeight = $0 }
@@ -337,7 +337,7 @@ struct TangemPayMainView: View {
     }
 
     private var redesignedCollapsingHeader: some View {
-        VStack(spacing: DesignSystem.Tokens.Spacing.s350) {
+        VStack(spacing: 28) {
             redesignedHeader
 
             if !viewModel.notificationBannerItems.isEmpty {
@@ -363,7 +363,7 @@ struct TangemPayMainView: View {
                 PendingExpressTransactionView(info: transactionInfo)
             }
         }
-        .padding(.bottom, DesignSystem.Tokens.Spacing.s350)
+        .padding(.bottom, 8)
     }
 
     @ViewBuilder
@@ -378,38 +378,37 @@ struct TangemPayMainView: View {
                 isReloadButtonBusy: false,
                 fetchMore: viewModel.fetchNextTransactionHistoryPage()
             )
-            .opacity(viewModel.isStale ? 0.6 : 1)
         }
     }
 
     private var redesignedHeader: some View {
-        VStack(spacing: DesignSystem.Tokens.Spacing.s300) {
-            VStack(spacing: DesignSystem.Tokens.Spacing.s050) {
+        VStack(spacing: 24) {
+            VStack(spacing: 4) {
                 TangemPayBalanceView(state: viewModel.balance)
                     .opacity(viewModel.isStale ? 0.6 : 1)
 
                 Text(Localization.tokenDetailsBalanceTotal)
-                    .font(DesignSystem.Tokens.Font.Caption.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.tertiary)
+                    .font(token: DesignSystem.Font.captionMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textTertiary)
             }
 
             redesignedCardsRow
 
             TangemPayActionButtonsView(
                 actionButtonsDisabled: viewModel.actionButtonsDisabled,
-                isWithdrawLoading: viewModel.isWithdrawButtonLoading,
+                isWithdrawDisabled: viewModel.isWithdrawButtonDisabled,
                 addFundsAction: viewModel.addFunds,
                 withdrawAction: viewModel.withdraw
             )
-            .padding(.top, DesignSystem.Tokens.Spacing.s100)
+            .padding(.top, 8)
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, DesignSystem.Tokens.Spacing.s400)
+        .padding(.top, 32)
     }
 
     @ViewBuilder
     private var redesignedCardsRow: some View {
-        HStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+        HStack(spacing: 8) {
             if viewModel.multipleCardsEnabled {
                 ForEach(viewModel.cardEntries) { entry in
                     redesignedCardEntryButton(for: entry)
@@ -418,8 +417,8 @@ struct TangemPayMainView: View {
                 Button(action: viewModel.tapAddCard) {
                     TangemPayAddCardView()
                 }
-                .disabled(viewModel.isStale)
-                .opacity(viewModel.isStale ? 0.6 : 1)
+                .disabled(viewModel.addCardDisabled)
+                .opacity(viewModel.addCardDisabled ? 0.6 : 1)
             } else {
                 Button(action: viewModel.openCardManagement) {
                     TangemPaySmallCardViewRedesigned(
@@ -449,7 +448,7 @@ struct TangemPayMainView: View {
                 viewModel.openCardManagement(entry: entry)
             } label: {
                 TangemPaySmallCardViewRedesigned(
-                    state: card.isReissuing
+                    state: card.isReissuing || card.isClosing
                         ? .replacing
                         : .issued(cardNumberEnd: card.cardNumberEnd)
                 )
@@ -476,19 +475,32 @@ struct TangemPayMainView: View {
     @ToolbarContentBuilder
     private var redesignedToolbar: some ToolbarContent {
         ToolbarItem(placement: .principal) {
-            VStack(spacing: DesignSystem.Tokens.Spacing.s050) {
+            VStack(spacing: 4) {
                 Text(Localization.tangempayPaymentAccount)
-                    .font(DesignSystem.Tokens.Font.Subheading.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+                    .font(token: DesignSystem.Font.subheadingMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textPrimary)
 
                 Text(Localization.tangempayUsdcOnPolygonNetwork)
-                    .font(DesignSystem.Tokens.Font.Caption.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.tertiary)
+                    .font(token: DesignSystem.Font.captionMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textTertiary)
             }
         }
 
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
+                if FeatureProvider.isAvailable(.tangemPayTiers) {
+                    Button(action: viewModel.openCurrentPlan) {
+                        Label {
+                            Text(Localization.tangempayCurrentPlanTitle)
+                        } icon: {
+                            DesignSystem.Icons.ArrowRefresh.regular20.image
+                                .renderingMode(.template)
+                        }
+                    }
+
+                    Divider()
+                }
+
                 Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }
@@ -497,7 +509,9 @@ struct TangemPayMainView: View {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
                 }
             } label: {
-                NavbarDotsImage()
+                Image(systemName: "ellipsis")
+                    .foregroundColor(Colors.Icon.primary1)
+                    .accessibilityLabel(Localization.commonMore)
             }
         }
     }

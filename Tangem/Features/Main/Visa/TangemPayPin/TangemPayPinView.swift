@@ -167,7 +167,7 @@ private extension TangemPayPinView {
                 ToolbarItem(placement: .principal) {
                     if viewModel.isEnteringPin {
                         Text(Localization.tangempaySetPinTitle)
-                            .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                     }
                 }
 
@@ -181,10 +181,11 @@ private extension TangemPayPinView {
 
     var redesignedEnterPinView: some View {
         VStack(spacing: 0) {
-            VStack(spacing: DesignSystem.Tokens.Spacing.s300) {
+            VStack(spacing: 24) {
                 Text(viewModel.enterPinHeader)
-                    .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.tertiary)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textTertiary)
                     .multilineTextAlignment(.center)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinScreenTitle)
 
                 TangemPayPinStackView(
                     pinText: $viewModel.pin,
@@ -192,19 +193,20 @@ private extension TangemPayPinView {
                     errorMessage: viewModel.errorMessage,
                     isDisabled: viewModel.isLoading
                 )
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinInputField)
 
                 if viewModel.isLoading {
                     TangemLoader()
                         .loaderSize(.size24)
                 }
             }
-            .padding(.top, DesignSystem.Tokens.Spacing.s800)
-            .padding(.horizontal, DesignSystem.Tokens.Spacing.s300)
+            .padding(.top, 64)
+            .padding(.horizontal, 24)
 
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DesignSystem.Tokens.Theme.Bg.primary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .onAppear(perform: viewModel.onAppear)
     }
 
@@ -214,7 +216,9 @@ private extension TangemPayPinView {
                 icon: DesignSystem.Icons.Success.regular20,
                 title: Localization.tangempayCardDetailsChangePinSuccessTitle,
                 subtitle: Localization.tangempayCardDetailsChangePinSuccessDescription,
-                buttonTitle: Localization.commonClose
+                buttonTitle: Localization.commonClose,
+                titleAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.pinSuccessTitle,
+                buttonAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.pinDoneButton
             ),
             action: viewModel.close
         )

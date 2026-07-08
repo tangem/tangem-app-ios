@@ -3,8 +3,8 @@
     "100": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s100",
-          "iOS": "DesignSystem.Tokens.Spacing.s100"
+          "Android": "8.dp",
+          "iOS": "8"
         },
         "com.figma.scopes": [
           "GAP"
@@ -16,8 +16,8 @@
     "125": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s125",
-          "iOS": "DesignSystem.Tokens.Spacing.s125"
+          "Android": "10.dp",
+          "iOS": "10"
         },
         "com.figma.scopes": [
           "GAP"
@@ -29,8 +29,8 @@
     "150": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s150",
-          "iOS": "DesignSystem.Tokens.Spacing.s150"
+          "Android": "12.dp",
+          "iOS": "12"
         },
         "com.figma.scopes": [
           "GAP"
@@ -42,8 +42,8 @@
     "200": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s200",
-          "iOS": "DesignSystem.Tokens.Spacing.s200"
+          "Android": "16.dp",
+          "iOS": "16"
         },
         "com.figma.scopes": [
           "GAP"
@@ -55,8 +55,8 @@
     "250": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s250",
-          "iOS": "DesignSystem.Tokens.Spacing.s250"
+          "Android": "20.dp",
+          "iOS": "20"
         },
         "com.figma.scopes": [
           "GAP"
@@ -68,8 +68,8 @@
     "300": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s300",
-          "iOS": "DesignSystem.Tokens.Spacing.s300"
+          "Android": "24.dp",
+          "iOS": "24"
         },
         "com.figma.scopes": [
           "GAP"
@@ -81,8 +81,8 @@
     "350": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s350",
-          "iOS": "DesignSystem.Tokens.Spacing.s350"
+          "Android": "28.dp",
+          "iOS": "28"
         },
         "com.figma.scopes": [
           "GAP"
@@ -94,8 +94,8 @@
     "400": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s400",
-          "iOS": "DesignSystem.Tokens.Spacing.s400"
+          "Android": "32.dp",
+          "iOS": "32"
         },
         "com.figma.scopes": [
           "GAP"
@@ -107,8 +107,8 @@
     "450": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s450",
-          "iOS": "DesignSystem.Tokens.Spacing.s450"
+          "Android": "36.dp",
+          "iOS": "36"
         },
         "com.figma.scopes": [
           "GAP"
@@ -120,8 +120,8 @@
     "500": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s500",
-          "iOS": "DesignSystem.Tokens.Spacing.s500"
+          "Android": "40.dp",
+          "iOS": "40"
         },
         "com.figma.scopes": [
           "GAP"
@@ -133,8 +133,8 @@
     "550": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s550",
-          "iOS": "DesignSystem.Tokens.Spacing.s550"
+          "Android": "44.dp",
+          "iOS": "44"
         },
         "com.figma.scopes": [
           "GAP"
@@ -146,8 +146,8 @@
     "600": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s600",
-          "iOS": "DesignSystem.Tokens.Spacing.s600"
+          "Android": "48.dp",
+          "iOS": "48"
         },
         "com.figma.scopes": [
           "GAP"
@@ -159,8 +159,8 @@
     "700": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s700",
-          "iOS": "DesignSystem.Tokens.Spacing.s700"
+          "Android": "56.dp",
+          "iOS": "56"
         },
         "com.figma.scopes": [
           "GAP"
@@ -172,8 +172,8 @@
     "800": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s800",
-          "iOS": "DesignSystem.Tokens.Spacing.s800"
+          "Android": "64.dp",
+          "iOS": "64"
         },
         "com.figma.scopes": [
           "GAP"
@@ -185,8 +185,8 @@
     "900": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s900",
-          "iOS": "DesignSystem.Tokens.Spacing.s900"
+          "Android": "72.dp",
+          "iOS": "72"
         },
         "com.figma.scopes": [
           "GAP"
@@ -198,8 +198,8 @@
     "1000": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s1000",
-          "iOS": "DesignSystem.Tokens.Spacing.s1000"
+          "Android": "80.dp",
+          "iOS": "80"
         },
         "com.figma.scopes": [
           "GAP"
@@ -211,8 +211,8 @@
     "025": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s025",
-          "iOS": "DesignSystem.Tokens.Spacing.s025"
+          "Android": "2.dp",
+          "iOS": "2"
         },
         "com.figma.scopes": [
           "GAP"
@@ -224,8 +224,8 @@
     "050": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s050",
-          "iOS": "DesignSystem.Tokens.Spacing.s050"
+          "Android": "4.dp",
+          "iOS": "4"
         },
         "com.figma.scopes": [
           "GAP"
@@ -237,8 +237,8 @@
     "075": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.s075",
-          "iOS": "DesignSystem.Tokens.Spacing.s075"
+          "Android": "6.dp",
+          "iOS": "6"
         },
         "com.figma.scopes": [
           "GAP"
@@ -250,8 +250,8 @@
     "none": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.spacing.none",
-          "iOS": "DesignSystem.Tokens.Spacing.none"
+          "Android": "0.dp",
+          "iOS": "0"
         },
         "com.figma.scopes": [
           "GAP"

@@ -60,10 +60,6 @@ final class WCCustomEvmFeeService {
     private var customMaxLimitBeforeEditing: BigUInt?
     private var customNonceBeforeEditing: Int?
 
-    private var zeroFee: Fee {
-        return Fee(Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0))
-    }
-
     private var cachedCustomFee: Fee?
     private var bag: Set<AnyCancellable> = []
 
@@ -99,7 +95,7 @@ final class WCCustomEvmFeeService {
             }
             .store(in: &bag)
 
-        customFeeTextField.valuePublisher
+        customFeeTextField.valuePublisher()
             .withWeakCaptureOf(self)
             .sink { service, value in
                 service.customFee.send(service.calculateFee(for: value))
@@ -107,10 +103,10 @@ final class WCCustomEvmFeeService {
             .store(in: &bag)
 
         Publishers.MergeMany(
-            gasLimitTextField.valuePublisher.removeDuplicates(),
-            gasPriceTextField.valuePublisher.removeDuplicates(),
-            maxFeePerGasTextField.valuePublisher.removeDuplicates(),
-            priorityFeeTextField.valuePublisher.removeDuplicates(),
+            gasLimitTextField.valuePublisher().removeDuplicates(),
+            gasPriceTextField.valuePublisher().removeDuplicates(),
+            maxFeePerGasTextField.valuePublisher().removeDuplicates(),
+            priorityFeeTextField.valuePublisher().removeDuplicates(),
         )
         .withWeakCaptureOf(self)
         .sink(receiveValue: { $0.0.customFee.send($0.0.recalculateFee()) })
@@ -135,7 +131,7 @@ final class WCCustomEvmFeeService {
                 let maxFeePerGas = maxFeePerGas,
                 let priorityFee = priorityFee
             else {
-                return zeroFee
+                return feeTokenItem.zeroFee
             }
 
             parameters = EthereumEIP1559FeeParameters(
@@ -146,7 +142,7 @@ final class WCCustomEvmFeeService {
             )
         } else {
             guard let gasLimit = gasLimit, let gasPrice = gasPrice else {
-                return zeroFee
+                return feeTokenItem.zeroFee
             }
 
             parameters = EthereumLegacyFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice, nonce: nil)
@@ -162,12 +158,12 @@ final class WCCustomEvmFeeService {
         let feeDecimalValue = feeTokenItem.decimalValue
 
         guard let feeValue, let currentGasLimit = gasLimit else {
-            return zeroFee
+            return feeTokenItem.zeroFee
         }
 
         let enteredFeeInSmallestDenomination = (feeValue * feeDecimalValue).rounded(roundingMode: .down)
         guard let enteredFeeInSmallestDenomination = BigUInt(decimal: enteredFeeInSmallestDenomination) else {
-            return zeroFee
+            return feeTokenItem.zeroFee
         }
 
         let parameters: EthereumFeeParameters
@@ -271,12 +267,12 @@ protocol WCCustomFeeServiceOutput: CustomFeeServiceOutput {
 // MARK: - FeeSelectorCustomFeeAvailabilityProvider
 
 extension WCCustomEvmFeeService: FeeSelectorCustomFeeAvailabilityProvider {
-    var customFeeIsValid: Bool { customFee.value != zeroFee }
+    var customFeeIsValid: Bool { customFee.value != feeTokenItem.zeroFee }
 
     var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
         customFee
             .withWeakCaptureOf(self)
-            .map { $0.zeroFee != $1 }
+            .map { $0.feeTokenItem.zeroFee != $1 }
             .eraseToAnyPublisher()
     }
 
@@ -298,7 +294,7 @@ extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
             suffix: feeTokenItem.currencySymbol,
             isEditable: true,
             textFieldViewModel: customFeeTextField,
-            amountAlternativePublisher: customFeeTextField.valuePublisher
+            amountAlternativePublisher: customFeeTextField.valuePublisher()
                 .map { [weak self] value in
                     self?.formatToFiat(value: value)
                 }

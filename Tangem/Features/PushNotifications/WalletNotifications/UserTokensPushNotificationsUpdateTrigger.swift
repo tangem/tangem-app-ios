@@ -164,8 +164,10 @@ final class UserTokensPushNotificationsUpdateTrigger {
             .subscribe(eventsSubject)
             .store(in: &bag)
 
-        // Backend transactional-push address sync when the settled remote toggle changes,
-        // gated on the token list being ready.
+        // Re-sync transactional-push addresses on every transaction-alerts change, gated on the token
+        // list being ready. The remote-state publisher carries the optimistic intent value (the manager
+        // pushes it before the backend sync completes), so this fires on the optimistic toggle and again
+        // if the value reverts.
         remoteTransactionAlertsStatePublisher
             .removeDuplicates()
             .pairwise()

@@ -10,7 +10,7 @@ import Foundation
 import TangemStaking
 
 protocol MarketsPortfolioContainerRoutable: AnyObject {
-    func openReceive(walletModel: any WalletModel)
+    func openReceive(userWalletInfo: UserWalletInfo, walletModel: any WalletModel)
 
     @MainActor
     func openSwap(input: PredefinedSwapParameters, destination: TokenItem)
@@ -22,8 +22,11 @@ protocol MarketsPortfolioContainerRoutable: AnyObject {
     @MainActor
     func openMatchedTokenList(
         walletModels: [any WalletModel],
+        underivedTokens: [MarketsPortfolioTokenListViewModel.UnderivedToken],
         iconURL: URL,
         addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData,
         walletDataProvider: MarketsWalletDataProvider
     )
+
+    func openAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider)
 }

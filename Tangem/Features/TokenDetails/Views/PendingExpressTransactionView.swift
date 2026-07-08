@@ -74,23 +74,18 @@ struct PendingExpressTransactionView: View {
 
     @ViewBuilder
     private var titleStack: some View {
-        if FeatureProvider.isAvailable(.swapPendingTxStateDate) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(info.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-                TimelineView(.periodic(from: .now, by: 60)) { context in
-                    let timeAgo = RelativeDateFormatter.shared.formatTimeAgo(
-                        from: info.referenceDate,
-                        relativeTo: context.date
-                    )
-                    Text("\(info.stateTitle) \(timeAgo)")
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                }
-            }
-        } else {
+        VStack(alignment: .leading, spacing: 2) {
             Text(info.title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+            TimelineView(.periodic(from: .now, by: 60)) { context in
+                let timeAgo = RelativeDateFormatter.shared.formatTimeAgo(
+                    from: info.referenceDate,
+                    relativeTo: context.date
+                )
+                Text("\(info.stateTitle) \(timeAgo)")
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            }
         }
     }
 
@@ -132,69 +127,66 @@ extension PendingExpressTransactionView {
 
 // MARK: - Previews
 
-#if DEBUG
-struct PendingExpressTransactionView_Previews: PreviewProvider {
-    static let iconInfoBuilder = TokenIconInfoBuilder()
-    static var previews: some View {
-        ZStack {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+#Preview {
+    let iconInfoBuilder = TokenIconInfoBuilder()
 
-            VStack {
-                PendingExpressTransactionView(info: .init(
-                    id: UUID().uuidString,
-                    title: Localization.expressExchangeBy("ChangeNow"),
-                    stateTitle: Localization.expressExchangeStatusConfirming,
-                    referenceDate: Date().addingTimeInterval(-59 * 60),
-                    sourceIconInfo: iconInfoBuilder.build(from: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)), isCustom: false),
-                    sourceAmountText: "10 BTC",
-                    destinationIconInfo: iconInfoBuilder.build(
-                        from: .token(.shibaInuMock, .init(.arbitrum(testnet: false), derivationPath: nil)),
-                        isCustom: false
-                    ),
-                    destinationAmountText: "SHIB",
-                    state: .inProgress,
-                    action: { _ in }
-                ))
+    ZStack {
+        Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-                PendingExpressTransactionView(info: .init(
-                    id: UUID().uuidString,
-                    title: Localization.expressExchangeBy("1inch"),
-                    stateTitle: Localization.expressExchangeStatusVerifying,
-                    referenceDate: Date().addingTimeInterval(-3 * 3600),
-                    sourceIconInfo: iconInfoBuilder.build(
-                        from: .token(.inverseBTCBlaBlaBlaMock, .init(.ethereum(testnet: false), derivationPath: nil)),
-                        isCustom: true
-                    ),
-                    sourceAmountText: "10 BTCblabla",
-                    destinationIconInfo: iconInfoBuilder.build(
-                        from: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
-                        isCustom: true
-                    ),
-                    destinationAmountText: "ETH",
-                    state: .warning,
-                    action: { _ in }
-                ))
+        VStack {
+            PendingExpressTransactionView(info: .init(
+                id: UUID().uuidString,
+                title: Localization.expressExchangeBy("ChangeNow"),
+                stateTitle: Localization.expressExchangeStatusConfirming,
+                referenceDate: Date().addingTimeInterval(-59 * 60),
+                sourceIconInfo: iconInfoBuilder.build(from: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)), isCustom: false),
+                sourceAmountText: "10 BTC",
+                destinationIconInfo: iconInfoBuilder.build(
+                    from: .token(.shibaInuMock, .init(.arbitrum(testnet: false), derivationPath: nil)),
+                    isCustom: false
+                ),
+                destinationAmountText: "SHIB",
+                state: .inProgress,
+                action: { _ in }
+            ))
 
-                PendingExpressTransactionView(info: .init(
-                    id: UUID().uuidString,
-                    title: Localization.expressExchangeBy("ChangeNow"),
-                    stateTitle: Localization.expressExchangeStatusFailed,
-                    referenceDate: Date().addingTimeInterval(-2 * 24 * 3600),
-                    sourceIconInfo: iconInfoBuilder.build(
-                        from: .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil)),
-                        isCustom: false
-                    ),
-                    sourceAmountText: "10 BTC",
-                    destinationIconInfo: iconInfoBuilder.build(
-                        from: .blockchain(.init(.cardano(extended: false), derivationPath: nil)),
-                        isCustom: false
-                    ),
-                    destinationAmountText: "ADA",
-                    state: .error,
-                    action: { _ in }
-                ))
-            }
+            PendingExpressTransactionView(info: .init(
+                id: UUID().uuidString,
+                title: Localization.expressExchangeBy("1inch"),
+                stateTitle: Localization.expressExchangeStatusVerifying,
+                referenceDate: Date().addingTimeInterval(-3 * 3600),
+                sourceIconInfo: iconInfoBuilder.build(
+                    from: .token(.inverseBTCBlaBlaBlaMock, .init(.ethereum(testnet: false), derivationPath: nil)),
+                    isCustom: true
+                ),
+                sourceAmountText: "10 BTCblabla",
+                destinationIconInfo: iconInfoBuilder.build(
+                    from: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
+                    isCustom: true
+                ),
+                destinationAmountText: "ETH",
+                state: .warning,
+                action: { _ in }
+            ))
+
+            PendingExpressTransactionView(info: .init(
+                id: UUID().uuidString,
+                title: Localization.expressExchangeBy("ChangeNow"),
+                stateTitle: Localization.expressExchangeStatusFailed,
+                referenceDate: Date().addingTimeInterval(-2 * 24 * 3600),
+                sourceIconInfo: iconInfoBuilder.build(
+                    from: .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil)),
+                    isCustom: false
+                ),
+                sourceAmountText: "10 BTC",
+                destinationIconInfo: iconInfoBuilder.build(
+                    from: .blockchain(.init(.cardano(extended: false), derivationPath: nil)),
+                    isCustom: false
+                ),
+                destinationAmountText: "ADA",
+                state: .error,
+                action: { _ in }
+            ))
         }
     }
 }
-#endif // DEBUG

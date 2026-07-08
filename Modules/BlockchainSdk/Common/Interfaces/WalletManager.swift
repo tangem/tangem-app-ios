@@ -1,6 +1,6 @@
 //
 //  WalletManager.swift
-//  blockchainSdk
+//  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2019 Tangem AG. All rights reserved.
@@ -47,6 +47,10 @@ public protocol MultipleTransactionsSender {
 
 public protocol CompiledTransactionSender {
     func send(compiledTransaction data: Data, signer: TransactionSigner) async throws -> TransactionSendResult
+}
+
+public protocol BitcoinPsbtSwapSender {
+    func send(psbtBase64: String, destination: String, signer: TransactionSigner) async throws -> TransactionSendResult
 }
 
 // MARK: - TransactionSigner

@@ -46,6 +46,11 @@ public struct TangemRowShowcase: View {
     @State private var valueLineLimit = 1
     @State private var subvalueLineLimit = 1
 
+    @State private var titleColorOverride: ShowcaseColor = .default
+    @State private var subtitleColorOverride: ShowcaseColor = .default
+    @State private var valueColorOverride: ShowcaseColor = .default
+    @State private var subvalueColorOverride: ShowcaseColor = .default
+
     @State private var dynamicTypeIndex = Self.dynamicTypeAllCases.firstIndex(of: .large) ?? 0
     @State private var tapCount = 0
     @State private var expanded: [String: Bool] = [:]
@@ -61,20 +66,20 @@ public struct TangemRowShowcase: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: 12) {
-                controls
-
-                Divider()
-
-                Text("taps: \(tapCount)")
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-
                 rowPreview
                     .dynamicTypeSize(dynamicTypeSize)
                     .environment(\.layoutDirection, rightToLeft ? .rightToLeft : .leftToRight)
                     .padding(.vertical, 24)
                     .frame(maxWidth: .infinity)
-                    .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
+                    .background(DesignSystem.Color.bgOpaquePrimary)
+
+                Text("taps: \(tapCount)")
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+
+                Divider()
+
+                controls
             }
             .padding()
         }
@@ -143,6 +148,13 @@ public struct TangemRowShowcase: View {
             voiceOverPanel
         }
 
+        group("Text color overrides") {
+            pickerRow(title: "title", cases: ShowcaseColor.allCases, binding: $titleColorOverride, label: { $0.label })
+            pickerRow(title: "subtitle", cases: ShowcaseColor.allCases, binding: $subtitleColorOverride, label: { $0.label })
+            pickerRow(title: "value", cases: ShowcaseColor.allCases, binding: $valueColorOverride, label: { $0.label })
+            pickerRow(title: "subvalue", cases: ShowcaseColor.allCases, binding: $subvalueColorOverride, label: { $0.label })
+        }
+
         group("Dynamic Type") {
             Stepper(
                 "DT: \(String(describing: dynamicTypeSize))",
@@ -188,7 +200,7 @@ public struct TangemRowShowcase: View {
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(DesignSystem.Tokens.Theme.Bg.Opaque.secondary, in: RoundedRectangle(cornerRadius: 8))
+        .background(DesignSystem.Color.bgOpaqueSecondary, in: RoundedRectangle(cornerRadius: 8))
     }
 
     // MARK: - Predicted VoiceOver output
@@ -281,7 +293,7 @@ public struct TangemRowShowcase: View {
         .extraBottom {
             if showExtraBottom {
                 Text("Extra bottom content")
-                    .style(DesignSystem.Tokens.Font.Caption.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -297,6 +309,12 @@ public struct TangemRowShowcase: View {
         .focusRing(focusRing)
         .accessibilityLabel(overrideLabel ? overrideLabelSample : nil)
         .accessibilityHint(customHint ? customHintSample : nil)
+        .overrideTextColors(.init(
+            title: titleColorOverride.color,
+            subtitle: subtitleColorOverride.color,
+            value: valueColorOverride.color,
+            subvalue: subvalueColorOverride.color
+        ))
 
         if isInteractive {
             row.onTap { tapCount += 1 }.disabled(!isEnabled)
@@ -321,7 +339,7 @@ public struct TangemRowShowcase: View {
             Text(title)
                 .font(.headline)
                 .textCase(.uppercase)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.Accent.violet)
+                .foregroundStyle(DesignSystem.Color.textAccentViolet)
         }
     }
 
@@ -354,9 +372,57 @@ public struct TangemRowShowcase: View {
     }
 }
 
+// MARK: - ShowcaseColor
+
+private enum ShowcaseColor: CaseIterable, Hashable {
+    case `default`
+    case red
+    case orange
+    case green
+    case purple
+
+    var label: String {
+        switch self {
+        case .default: "default"
+        case .red: "red"
+        case .orange: "orange"
+        case .green: "green"
+        case .purple: "purple"
+        }
+    }
+
+    var color: Color? {
+        switch self {
+        case .default: nil
+        case .red: .red
+        case .orange: .orange
+        case .green: .green
+        case .purple: .purple
+        }
+    }
+}
+
 // MARK: - Previews
 
 #if DEBUG
+private func tangemRowVAlignSample(_ alignment: TangemRowVerticalAlignment, extra: Bool) -> some View {
+    TangemRow(title: "Title", subtitle: "Subtitle", value: "Value", subvalue: "Subvalue")
+        .titleAccessory { TangemBadgeV2(label: "New", accessibilityLabel: nil) }
+        .valueAccessory { TangemBadgeV2(label: "+2.3%", accessibilityLabel: nil).appearance(.success) }
+        .start(icon: Assets.chevronRight)
+        .end(icon: Assets.chevronRight)
+        .extraBottom {
+            if extra {
+                Text("Extra bottom content")
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .contentLead(.end)
+        .verticalAlignment(alignment)
+        .showDivider()
+}
+
 #Preview("Showcase") {
     TangemRowShowcase()
 }
@@ -374,35 +440,17 @@ public struct TangemRowShowcase: View {
             .showDivider()
     }
     .padding()
-    .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
+    .background(DesignSystem.Color.bgOpaquePrimary)
     .environment(\.layoutDirection, .rightToLeft)
 }
 
 #Preview("VAlign debug") {
-    func sample(_ alignment: TangemRowVerticalAlignment, extra: Bool) -> some View {
-        TangemRow(title: "Title", subtitle: "Subtitle", value: "Value", subvalue: "Subvalue")
-            .titleAccessory { TangemBadgeV2(label: "New", accessibilityLabel: nil) }
-            .valueAccessory { TangemBadgeV2(label: "+2.3%", accessibilityLabel: nil).appearance(.success) }
-            .start(icon: Assets.chevronRight)
-            .end(icon: Assets.chevronRight)
-            .extraBottom {
-                if extra {
-                    Text("Extra bottom content")
-                        .style(DesignSystem.Tokens.Font.Caption.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            .contentLead(.end)
-            .verticalAlignment(alignment)
-            .showDivider()
-    }
-
-    return VStack(spacing: 24) {
-        sample(.center, extra: false)
-        sample(.center, extra: true)
-        sample(.top, extra: true)
+    VStack(spacing: 24) {
+        tangemRowVAlignSample(.center, extra: false)
+        tangemRowVAlignSample(.center, extra: true)
+        tangemRowVAlignSample(.top, extra: true)
     }
     .padding()
-    .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
+    .background(DesignSystem.Color.bgOpaquePrimary)
 }
 #endif // DEBUG

@@ -21,6 +21,7 @@ enum AppConstants {
     static let defaultScrollViewKeyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
 
     static let minusSign: String = .minusSign // shorter stick
+    static let plusSign: String = .plusSign // shorter stick
     static let enDashSign: String = .enDashSign // medium stick (en-dash)
     static let emDashSign: String = .emDashSign // longer stick (em-dash)
     static let unbreakableSpace: String = .unbreakableSpace
@@ -37,6 +38,10 @@ enum AppConstants {
     static let eurSign = "€"
     static let cadCurrencyCode = "CAD"
     static let gbpCurrencyCode = "GBP"
+
+    /// Duration of the launch (splash) screen fade-out when transitioning to the main screen.
+    /// Shared so that UI appearing on the main screen can wait for the splash screen to fully disappear.
+    static let launchScreenDismissalDuration: TimeInterval = 0.3
 
     static let sessionId = UUID().uuidString
     static let tosURL = URL(string: "https://tangem.com/tangem_tos.html")!

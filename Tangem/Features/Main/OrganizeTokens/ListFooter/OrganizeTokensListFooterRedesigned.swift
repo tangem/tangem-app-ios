@@ -40,7 +40,6 @@ struct OrganizeTokensListFooterRedesigned: View {
             )
             .setStyleType(.secondary)
             .setSize(buttonSize)
-            .setCornerStyle(.rounded)
             .setHorizontalLayout(.infinity)
             .background(.regularMaterial, in: Capsule())
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.cancelButton)
@@ -51,7 +50,6 @@ struct OrganizeTokensListFooterRedesigned: View {
             )
             .setStyleType(.primary)
             .setSize(buttonSize)
-            .setCornerStyle(.rounded)
             .setHorizontalLayout(.infinity)
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.applyButton)
         }
@@ -72,17 +70,15 @@ struct OrganizeTokensListFooterRedesigned: View {
 
 // MARK: - Previews
 
-#if DEBUG
-private struct PreviewHandler: OrganizeTokensListFooterActionsHandler {
-    func onCancelButtonTap() {}
-    func onApplyButtonTap() {}
-}
-
 #Preview {
-    OrganizeTokensListFooterRedesigned(
+    struct PreviewHandler: OrganizeTokensListFooterActionsHandler {
+        func onCancelButtonTap() {}
+        func onApplyButtonTap() {}
+    }
+
+    return OrganizeTokensListFooterRedesigned(
         actionsHandler: PreviewHandler(),
         isTokenListFooterGradientHidden: false,
         contentInsets: EdgeInsets(top: 14, leading: 16, bottom: 0, trailing: 16)
     )
 }
-#endif // DEBUG

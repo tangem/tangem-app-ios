@@ -22,6 +22,11 @@ final class WalletModelTestsMock: WalletModel {
     private let _isEmpty: Bool
     private let _fiatAvailableBalance: Decimal
     private let _account: (any CryptoAccountModel)?
+    private let _addresses: [Address]
+
+    var transactionCreatorMock: TransactionCreator?
+    var multipleTransactionsSenderMock: MultipleTransactionsSender?
+    private(set) var updateAfterSendingTransactionCallCount = 0
 
     init(fiatBalance: Decimal, priceChange24h: Decimal?) {
         _fiatBalance = fiatBalance
@@ -32,6 +37,7 @@ final class WalletModelTestsMock: WalletModel {
         _isEmpty = false
         _fiatAvailableBalance = 0
         _account = nil
+        _addresses = [PlainAddress(value: "mock", type: .default)]
     }
 
     init(fiatBalanceProvider: TokenBalanceProvider, priceChange24h: Decimal?) {
@@ -43,13 +49,15 @@ final class WalletModelTestsMock: WalletModel {
         _isEmpty = false
         _fiatAvailableBalance = 0
         _account = nil
+        _addresses = [PlainAddress(value: "mock", type: .default)]
     }
 
     init(
         tokenItem: TokenItem,
         isEmpty: Bool,
         fiatBalance: Decimal = 0,
-        account: (any CryptoAccountModel)? = nil
+        account: (any CryptoAccountModel)? = nil,
+        addresses: [Address] = [PlainAddress(value: "mock", type: .default)]
     ) {
         _tokenItem = tokenItem
         _id = WalletModelId(tokenItem: tokenItem)
@@ -59,6 +67,7 @@ final class WalletModelTestsMock: WalletModel {
         _fiatBalanceProvider = TokenBalanceProviderTestsMock(balance: fiatBalance)
         _fiatAvailableBalance = fiatBalance
         _account = account
+        _addresses = addresses
     }
 
     var quote: TokenQuote? {
@@ -118,11 +127,11 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelUpdater
 
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {}
+    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable, stakingUpdateSource: StakingUpdateSource) async {}
 
-    func updateTransactionsHistory() async {}
+    func updateTransactionHistory() async {}
 
-    func updateAfterSendingTransaction() {}
+    func updateAfterSendingTransaction() { updateAfterSendingTransactionCallCount += 1 }
 
     // MARK: - WalletModelRentProvider
 
@@ -145,9 +154,9 @@ final class WalletModelTestsMock: WalletModel {
 
     var userWalletId: UserWalletId { UserWalletId(value: Data()) }
     var name: String { "Mock" }
-    var allAddresses: [Address] { [defaultAddress] }
-    var addresses: [Address] { [defaultAddress] }
-    var defaultAddress: Address { PlainAddress(value: "mock", type: .default) }
+    var allAddresses: [Address] { _addresses }
+    var addresses: [Address] { _addresses }
+    var defaultAddress: Address { _addresses.first ?? PlainAddress(value: "mock", type: .default) }
 
     var isMainToken: Bool { true }
     var tokenItem: TokenItem { _tokenItem }
@@ -162,7 +171,6 @@ final class WalletModelTestsMock: WalletModel {
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
     var sendingRestrictions: SendingRestrictions? { nil }
-    var features: [WalletModelFeature] { [] }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { Empty().eraseToAnyPublisher() }
     var stakingManager: StakingManager? { nil }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }
@@ -179,12 +187,17 @@ final class WalletModelTestsMock: WalletModel {
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
     var assetRequirementsManager: AssetRequirementsManager? { nil }
     var transactionFeeProvider: TransactionFeeProvider { fatalError() }
-    var transactionCreator: TransactionCreator { fatalError() }
+    var transactionCreator: TransactionCreator {
+        guard let transactionCreatorMock else { fatalError("transactionCreatorMock is not set") }
+        return transactionCreatorMock
+    }
+
     var transactionValidator: TransactionValidator { fatalError() }
     var transactionSender: TransactionSender { fatalError() }
-    var multipleTransactionsSender: MultipleTransactionsSender? { nil }
+    var multipleTransactionsSender: MultipleTransactionsSender? { multipleTransactionsSenderMock }
     var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? { nil }
     var compiledTransactionSender: CompiledTransactionSender? { nil }
+    var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? { nil }
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { nil }
     var ethereumNetworkProvider: EthereumNetworkProvider? { nil }
     var ethereumTransactionSigner: EthereumTransactionSigner? { nil }

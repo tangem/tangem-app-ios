@@ -10,9 +10,17 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct ActionButtonsSellView: View {
     @ObservedObject var viewModel: ActionButtonsSellViewModel
+
+    private var navigationTitle: String {
+        if FeatureProvider.isAvailable(.redesign) {
+            return Localization.swappingTokenListTitle
+        }
+        return Localization.commonSell
+    }
 
     var body: some View {
         TokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
@@ -21,14 +29,17 @@ struct ActionButtonsSellView: View {
             notifications
         }
         .searchType(.native)
+        .showsSeparators(false)
+        .hidesSingleWalletName(true)
         .background(Colors.Background.tertiary.ignoresSafeArea())
-        .navigationTitle(Localization.commonSell)
+        .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .animation(.easeInOut, value: viewModel.notificationInput)
         .toolbar {
             NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
         }
         .onAppear(perform: viewModel.onAppear)
+        .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.sellTokenSelectorScreen)
     }
 
     @ViewBuilder

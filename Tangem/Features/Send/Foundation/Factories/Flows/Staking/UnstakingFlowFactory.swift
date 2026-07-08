@@ -12,6 +12,8 @@ import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 class UnstakingFlowFactory: StakingFlowDependenciesFactory {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     let stakingableToken: SendStakingableToken
     let manager: any StakingManager
     let action: RestakingModel.Action
@@ -19,6 +21,11 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
     var actionType: StakingAction.ActionType { action.displayType }
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
+    lazy var validationHandler = makeValidationHandler(
+        stakingManager: manager,
+        blockaidAPIKey: keysManager.blockaidAPIKey,
+        analyticsLogger: analyticsLogger
+    )
     lazy var unstakingModel = makeUnstakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
@@ -45,6 +52,7 @@ extension UnstakingFlowFactory {
             sendSourceToken: stakingableToken,
             analyticsLogger: analyticsLogger,
             action: action,
+            validationHandler: validationHandler
         )
     }
 }
@@ -89,6 +97,12 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
 
         // Notifications setup
         notificationManager.setup(provider: unstakingModel, input: unstakingModel)
+        if let validationHandler {
+            notificationManager.setup(
+                validationStatePublisher: validationHandler.validationState,
+                tokenName: tokenItem.currencySymbol
+            )
+        }
         notificationManager.setupManager(with: unstakingModel)
 
         // Analytics
@@ -160,11 +174,7 @@ extension UnstakingFlowFactory: SendAmountStepBuildable {
 
     var amountDependencies: SendAmountStepBuilder.Dependencies {
         SendAmountStepBuilder.Dependencies(
-            sendAmountValidator: UnstakingAmountValidator(
-                tokenItem: tokenItem,
-                stakedAmount: action.amount,
-                stakingManagerStatePublisher: manager.statePublisher
-            ),
+            sendAmountValidator: makeSendAmountValidator(),
             amountModifier: .none,
             notificationService: .none,
             analyticsLogger: analyticsLogger
@@ -176,7 +186,11 @@ extension UnstakingFlowFactory: SendAmountStepBuildable {
 
 extension UnstakingFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: unstakingModel, output: unstakingModel)
+        SendSummaryStepBuilder.IO(
+            input: unstakingModel,
+            output: unstakingModel,
+            validationStateProvider: unstakingModel
+        )
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {
@@ -212,6 +226,27 @@ extension UnstakingFlowFactory: SendFinishStepBuildable {
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
-        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
+        SendFinishStepBuilder.Dependencies(
+            analyticsLogger: analyticsLogger,
+            headerTitleProvider: StakingFinishHeaderTitleProvider()
+        )
+    }
+}
+
+private extension UnstakingFlowFactory {
+    func makeSendAmountValidator() -> SendAmountValidator {
+        switch tokenItem.blockchain {
+        case .solana where FeatureProvider.isAvailable(.solanaUnstakeValidation):
+            return SolanaUnstakingAmountValidator(
+                stakedAmount: action.amount,
+                stakingManagerStatePublisher: manager.statePublisher
+            )
+        default:
+            return UnstakingAmountValidator(
+                tokenItem: tokenItem,
+                stakedAmount: action.amount,
+                stakingManagerStatePublisher: manager.statePublisher
+            )
+        }
     }
 }

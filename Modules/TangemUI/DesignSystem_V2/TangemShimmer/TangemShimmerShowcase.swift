@@ -17,6 +17,7 @@ public struct TangemShimmerShowcase: View {
     @State private var customCornerRadius: CGFloat = 0
     @State private var useCapsuleCorner: Bool = true
     @State private var modifierActive = true
+    @State private var textAlignment: TangemShimmer.Alignment = .leading
     @State private var isRTL: Bool = false
     @State private var reduceMotion: Bool = false
     @State private var dynamicTypeIndex: Int = Self.dynamicTypeAllCases.firstIndex(of: .large) ?? 0
@@ -42,7 +43,7 @@ public struct TangemShimmerShowcase: View {
             }
             .padding(24)
         }
-        .background(DesignSystem.Tokens.Theme.Bg.primary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .dynamicTypeSize(dynamicTypeSize)
         .environment(\.layoutDirection, isRTL ? .rightToLeft : .leftToRight)
         // SPI: the public `accessibilityReduceMotion` is get-only; its writable backing key lets the
@@ -79,13 +80,20 @@ public struct TangemShimmerShowcase: View {
     private var textVariantSection: some View {
         section(title: "Text variant — every style") {
             VStack(alignment: .leading, spacing: 12) {
+                Picker("Alignment", selection: $textAlignment) {
+                    Text("Leading").tag(TangemShimmer.Alignment.leading)
+                    Text("Center").tag(TangemShimmer.Alignment.center)
+                    Text("Trailing").tag(TangemShimmer.Alignment.trailing)
+                }
+                .pickerStyle(.segmented)
+
                 ForEach(TangemShimmer.TextStyle.allCases, id: \.self) { style in
                     HStack(spacing: 12) {
                         Text(String(describing: style))
                             .font(.caption.monospaced())
                             .foregroundStyle(.secondary)
                             .frame(width: 110, alignment: .leading)
-                        TangemShimmer().variant(.text(style: style))
+                        TangemShimmer().variant(.text(style: style, alignment: textAlignment))
                     }
                 }
             }
@@ -147,7 +155,7 @@ public struct TangemShimmerShowcase: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
+            .background(DesignSystem.Color.bgOpaquePrimary)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
@@ -165,7 +173,7 @@ public struct TangemShimmerShowcase: View {
                 }
             }
             .padding(16)
-            .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
+            .background(DesignSystem.Color.bgOpaquePrimary)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }

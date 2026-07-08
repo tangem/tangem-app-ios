@@ -19,6 +19,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var feeCompactViewModel: SendFeeCompactViewModel
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
+    @Published private(set) var marketingNotifications: [NotificationBannerItem] = []
     @Published private(set) var notificationButtonIsLoading = false
 
     @Published private(set) var isMaxAmountButtonHidden: Bool = false
@@ -43,28 +44,34 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     private let interactor: SwapSummaryInteractor
     private let notificationManager: NotificationManager
+    private let marketingNotificationManager: NotificationManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
     private let formVariantResolver: SwapFormVariantResolver
+    private let notificationBannerMapper: MultiWalletNotificationBannerMapper
 
     weak var router: SwapSummaryStepRoutable?
 
     init(
         interactor: SwapSummaryInteractor,
         notificationManager: NotificationManager,
+        marketingNotificationManager: NotificationManager,
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
         sourceTokenInput: SendSourceTokenInput,
-        formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver()
+        formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver(),
+        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper()
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
+        self.marketingNotificationManager = marketingNotificationManager
         self.analyticsLogger = analyticsLogger
         self.swapAmountViewModel = swapAmountViewModel
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
         self.feeCompactViewModel = feeCompactViewModel
         self.formVariantResolver = formVariantResolver
+        self.notificationBannerMapper = notificationBannerMapper
         formVariant = formVariantResolver.currentVariant()
 
         bind()
@@ -82,7 +89,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func logScreenOpened() {
-        guard FeatureProvider.isAvailable(.swapSimpleMode) else { return }
         analyticsLogger.logSwapTypeScreenOpened(variant: formVariant)
     }
 
@@ -119,11 +125,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         router?.summaryStepRequestEditFee()
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func userDidTapMaxAmount() {
-        interactor.userDidRequestMaxAmount()
-    }
-
     func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {
         analyticsLogger.logTapAmountFraction(fraction)
         interactor.userDidRequestSourceAmount(fraction: fraction)
@@ -137,16 +138,16 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 // MARK: - SwapAmountCompactRoutable
 
 extension SwapSummaryViewModel: SwapAmountCompactRoutable {
-    func userDidTapChangeSourceTokenButton(tokenItem: TokenItem?) {
-        router?.summaryStepRequestEditSourceToken(tokenItem: tokenItem)
+    func userDidTapChangeSourceTokenButton(receiveToken: SendSourceToken?) {
+        router?.summaryStepRequestEditSourceToken(receiveToken: receiveToken?.walletTokenItem)
     }
 
     func userDidTapSwapSourceAndReceiveTokensButton() {
         interactor.userDidRequestSwapSourceAndReceiveToken()
     }
 
-    func userDidTapChangeReceiveTokenButton(tokenItem: TokenItem?) {
-        router?.summaryStepRequestEditReceiveToken(tokenItem: tokenItem)
+    func userDidTapChangeReceiveTokenButton(sourceToken: SendSourceToken?) {
+        router?.summaryStepRequestEditReceiveToken(sourceToken: sourceToken?.walletTokenItem)
     }
 }
 
@@ -202,10 +203,15 @@ private extension SwapSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$isActionInProcessing)
 
-        notificationManager
-            .notificationPublisher
+        notificationManager.notificationPublisher
             .receiveOnMain()
             .assign(to: &$notificationInputs)
+
+        marketingNotificationManager.notificationPublisher
+            .map { [notificationBannerMapper] in
+                notificationBannerMapper.mapItems($0)
+            }
+            .assign(to: &$marketingNotifications)
     }
 }
 

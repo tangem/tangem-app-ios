@@ -43,21 +43,37 @@ public struct PriceChangeView: View {
                 styledDashText
                     .opacity(0.01)
                 if showSkeletonWhenLoading {
-                    SkeletonView()
-                        .frame(width: 40, height: 12)
-                        .cornerRadiusContinuous(3)
+                    skeleton
                 }
             }
         case .loaded(let changeType, let text):
-            HStack(spacing: 4) {
-                if shouldShowIcon(for: changeType) {
-                    changeType.imageType.image
-                        .renderingMode(.template)
-                        .foregroundColor(resolvedIconColor(for: changeType))
-                }
+            changeContent(changeType: changeType, text: text)
+        case .loadingCached(let changeType, let text):
+            changeContent(changeType: changeType, text: text)
+                .shimmer()
+                .environment(\.isShimmerActive, true)
+        }
+    }
 
-                styledText(text, textColor: resolvedTextColor(for: changeType))
+    private func changeContent(changeType: ChangeType, text: String) -> some View {
+        HStack(spacing: 4) {
+            if shouldShowIcon(for: changeType) {
+                changeType.imageType.image
+                    .renderingMode(.template)
+                    .foregroundColor(resolvedIconColor(for: changeType))
             }
+
+            styledText(text, textColor: resolvedTextColor(for: changeType))
+        }
+    }
+
+    @ViewBuilder
+    private var skeleton: some View {
+        let base = SkeletonView().frame(width: 40, height: 12)
+        if useRedesignColors {
+            base.clipShape(.capsule)
+        } else {
+            base.cornerRadiusContinuous(3)
         }
     }
 
@@ -106,13 +122,16 @@ public extension PriceChangeView {
         case noData
         case empty
         case loading
+        case loadingCached(changeType: ChangeType, text: String)
         case loaded(changeType: ChangeType, text: String)
 
         public var changeType: ChangeType? {
-            if case .loaded(let changeType, _) = self {
+            switch self {
+            case .loaded(let changeType, _), .loadingCached(let changeType, _):
                 return changeType
+            default:
+                return nil
             }
-            return nil
         }
     }
 }
@@ -184,20 +203,16 @@ public extension PriceChangeView {
 
 // MARK: - Previews
 
-#if DEBUG
-struct PriceChangeView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 16) {
-            PriceChangeView(state: .initialized)
-            PriceChangeView(state: .noData)
-            PriceChangeView(state: .loading)
-            PriceChangeView(state: .loading, showSkeletonWhenLoading: false)
-            PriceChangeView(state: .loaded(changeType: .positive, text: "+2.34%"))
-            PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"))
-            PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"), showIconForNeutral: false)
-            PriceChangeView(state: .loaded(changeType: .negative, text: "-1.23%"))
-        }
-        .padding()
+#Preview {
+    VStack(spacing: 16) {
+        PriceChangeView(state: .initialized)
+        PriceChangeView(state: .noData)
+        PriceChangeView(state: .loading)
+        PriceChangeView(state: .loading, showSkeletonWhenLoading: false)
+        PriceChangeView(state: .loaded(changeType: .positive, text: "+2.34%"))
+        PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"))
+        PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"), showIconForNeutral: false)
+        PriceChangeView(state: .loaded(changeType: .negative, text: "-1.23%"))
     }
+    .padding()
 }
-#endif // DEBUG

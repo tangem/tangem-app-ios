@@ -18,7 +18,6 @@ final class DetailsCoordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Main view model
 
@@ -32,18 +31,18 @@ final class DetailsCoordinator: CoordinatorObject {
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
-    @Published var addressBookCoordinator: AddressBookCoordinator?
+    @Published var addressBooksCoordinator: AddressBooksCoordinator?
 
     // MARK: - Child view models
 
     @Published var tangemPayWalletSelectorViewModel: TangemPayWalletSelectorViewModel?
-    @Published var supportChatViewModel: SupportChatViewModel?
     @Published var tosViewModel: DetailsTOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
     @Published var logsViewModel: LogsViewModel?
 
     // MARK: - Helpers
 
+    let supportChatPresenter = SupportChatPresenter()
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
@@ -65,6 +64,10 @@ extension DetailsCoordinator {
         case `default`
     }
 }
+
+// MARK: - SupportChatPresenting
+
+extension DetailsCoordinator: SupportChatPresenting {}
 
 // MARK: - DetailsRoutable
 
@@ -149,11 +152,6 @@ extension DetailsCoordinator: DetailsRoutable {
         tangemPayOnboardingCoordinator = coordinator
     }
 
-    func openSupportChat(input: SupportChatInputModel) {
-        Analytics.log(.chatScreenOpened)
-        supportChatViewModel = SupportChatViewModel(input: input)
-    }
-
     func openTOS() {
         tosViewModel = DetailsTOSViewModel()
     }
@@ -172,12 +170,12 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openAddressBook() {
         let dismissAction: Action<Void> = { [weak self] _ in
-            self?.addressBookCoordinator = nil
+            self?.addressBooksCoordinator = nil
         }
 
-        let coordinator = AddressBookCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: .default)
-        addressBookCoordinator = coordinator
+        let coordinator = AddressBooksCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(with: .init(addressBooksProvider: NonEmptyAddressBooksProvider()))
+        addressBooksCoordinator = coordinator
     }
 
     func openEnvironmentSetup() {

@@ -24,12 +24,15 @@ protocol SendNotificationManager: NotificationManager {
 }
 
 class CommonSendNotificationManager {
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+
     private let tokenItem: TokenItem
     private let withdrawalNotificationProvider: WithdrawalNotificationProvider?
 
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private var bag: Set<AnyCancellable> = []
     private let analyticsService: NotificationsAnalyticsService
+    private let highNetworkFeeWarningCalculator = HighNetworkFeeWarningCalculator()
     private weak var delegate: NotificationTapDelegate?
 
     init(
@@ -66,6 +69,24 @@ private extension CommonSendNotificationManager {
 
         Publishers.CombineLatest(
             input.selectedTokenFeePublisher,
+            quotesRepository.quotesPublisher
+        )
+        .map { selectedTokenFee, quotes -> HighNetworkFeeWarningInput in
+            let currencyId = selectedTokenFee.tokenItem.currencyId
+            let priceUsd = currencyId.flatMap { quotes[$0]?.priceUsd }
+
+            return HighNetworkFeeWarningInput(selectedFee: selectedTokenFee, priceUsd: priceUsd)
+        }
+        .removeDuplicates()
+        .receive(on: DispatchQueue.main)
+        .withWeakCaptureOf(self)
+        .sink { manager, args in
+            manager.updateHighNetworkFeeWarning(selectedFee: args.selectedFee)
+        }
+        .store(in: &bag)
+
+        Publishers.CombineLatest(
+            input.selectedTokenFeePublisher,
             input.feeValues.removeDuplicates(),
         )
         .sink { [weak self] selectedFee, loadedFeeValues in
@@ -88,6 +109,11 @@ private extension CommonSendNotificationManager {
             .sink { $0.updateNotifications(bsdkTransaction: $1) }
             .store(in: &bag)
     }
+}
+
+private struct HighNetworkFeeWarningInput: Equatable {
+    let selectedFee: TokenFee
+    let priceUsd: Decimal?
 }
 
 // MARK: - Fee
@@ -128,48 +154,15 @@ private extension CommonSendNotificationManager {
     }
 
     func updateCustomFee(selectedFee: TokenFee, feeValues: [TokenFee]) {
-        switch (selectedFee.option, selectedFee.value) {
-        case (.custom, .success(let customFee)):
-            updateCustomFeeTooLow(
-                customFee: customFee,
-                lowestFee: feeValues.first(where: { $0.option == .slow })?.value.value
-            )
-
-            updateCustomFeeTooHigh(
-                customFee: customFee,
-                highestFee: feeValues.first(where: { $0.option == .fast })?.value.value
-            )
-
-        default:
-            hideAllNotification { event in
-                switch event {
-                case .customFeeTooLow, .customFeeTooHigh:
-                    return true
-                default:
-                    return false
-                }
-            }
-        }
-    }
-
-    func updateCustomFeeTooLow(customFee: Fee, lowestFee: Fee?) {
-        if let lowestFee, customFee.amount.value < lowestFee.amount.value {
-            show(notification: .customFeeTooLow)
-        } else {
+        switch CustomFeeThresholdEvaluator.evaluate(selectedFee: selectedFee, feeValues: feeValues) {
+        case .tooHigh(let orderOfMagnitude):
+            show(notification: .customFeeTooHigh(orderOfMagnitude: orderOfMagnitude))
             hideAllNotification { $0.isCustomFeeTooLow }
-        }
-    }
-
-    func updateCustomFeeTooHigh(customFee: Fee, highestFee: Fee?) {
-        let magnitudeTrigger: Decimal = 5
-
-        if let highestFee, customFee.amount.value > highestFee.amount.value * magnitudeTrigger {
-            let highFeeOrder = customFee.amount.value / highestFee.amount.value
-            let highFeeOrderOfMagnitude = highFeeOrder.intValue(roundingMode: .plain)
-
-            show(notification: .customFeeTooHigh(orderOfMagnitude: highFeeOrderOfMagnitude))
-        } else {
+        case .tooLow:
+            show(notification: .customFeeTooLow)
             hideAllNotification { $0.isCustomFeeTooHigh }
+        case .none:
+            hideAllNotification { $0.isCustomFeeTooLow || $0.isCustomFeeTooHigh }
         }
     }
 
@@ -198,6 +191,14 @@ private extension CommonSendNotificationManager {
 
     private func hideFeeWillBeSubtractedNotification() {
         hideAllNotification { $0.isFeeWillBeSubtractFromSendingAmount }
+    }
+
+    func updateHighNetworkFeeWarning(selectedFee: TokenFee) {
+        if highNetworkFeeWarningCalculator.shouldShowWarning(for: selectedFee) {
+            show(notification: .highNetworkFee)
+        } else {
+            hideAllNotification { $0.isHighNetworkFee }
+        }
     }
 }
 

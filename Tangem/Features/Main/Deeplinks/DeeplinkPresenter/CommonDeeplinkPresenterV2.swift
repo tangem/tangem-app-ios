@@ -17,6 +17,8 @@ final class CommonDeeplinkPresenterV2 {
 
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
     @Injected(\.overlayViewPresenter) private var overlayViewPresenter: OverlayViewPresenter
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+
     private let coordinatorFactory: MainCoordinatorChildFactory
 
     // MARK: - Init
@@ -95,8 +97,8 @@ private extension CommonDeeplinkPresenterV2 {
         case .sell(let userWalletModel):
             return constructSellView(userWalletModel: userWalletModel)
 
-        case .swapWithDeferredPairResolution(let parameters):
-            return constructSwapWithDeferredPairResolutionView(parameters: parameters)
+        case .swap(let parameters):
+            return constructSwapView(parameters: parameters)
 
         case .referral(let input):
             return constructReferralView(input: input)
@@ -114,7 +116,8 @@ private extension CommonDeeplinkPresenterV2 {
             return constructMarketsSearchView(filter: filter)
 
         case .onboardVisa(let deeplinkString):
-            return constructTangemPayOnboardView(deeplinkString: deeplinkString)
+            let source: TangemPayOnboardingSource = deeplinkString.map { .deeplink($0) } ?? .other
+            return constructTangemPayOnboardView(source: source)
 
         case .promo(let promoCode, let refcode, let campaign):
             return constructPromoView(promoCode: promoCode, refcode: refcode, campaign: campaign)
@@ -139,7 +142,7 @@ private extension CommonDeeplinkPresenterV2 {
             return .fullScreenCover
 
         case .expressTransactionStatus, .tokenDetails, .buy, .sell,
-             .swapWithDeferredPairResolution, .referral,
+             .swap, .referral,
              .staking, .yield, .marketsTokenDetails, .tokenExchanges, .externalLink,
              .markets, .tangemPayMain, .tangemPayTransactionDetails, .newsDetails,
              .newsList, .earn:
@@ -155,7 +158,7 @@ private extension CommonDeeplinkPresenterV2 {
             return false
 
         case .expressTransactionStatus, .tokenDetails, .buy, .sell,
-             .swapWithDeferredPairResolution, .referral,
+             .swap, .referral,
              .staking, .yield, .marketsTokenDetails, .tokenExchanges, .externalLink,
              .markets, .onboardVisa, .tangemPayMain, .tangemPayTransactionDetails,
              .newsDetails, .newsList, .earn:
@@ -225,12 +228,20 @@ private extension CommonDeeplinkPresenterV2 {
         )
     }
 
-    private func constructBuyView(userWalletModel: UserWalletModel) -> AnyView {
+    private func constructBuyView(userWalletModel: UserWalletModel) -> AnyView? {
+        if let backupAlert = UserWalletBackupStatusHelper().alert(for: userWalletModel.userWalletInfo) {
+            alertPresenter.present(alert: backupAlert)
+            return nil
+        }
+
         let presenter = overlayViewPresenter
         let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { _ in Task { @MainActor in presenter.dismiss() } })
 
         coordinator.start(
-            with: .init(userWalletModels: [userWalletModel])
+            with: .init(
+                userWalletModels: [userWalletModel],
+                preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel)
+            )
         )
 
         return AnyView(
@@ -258,7 +269,7 @@ private extension CommonDeeplinkPresenterV2 {
         )
     }
 
-    private func constructSwapWithDeferredPairResolutionView(parameters: PredefinedSwapParameters) -> AnyView {
+    private func constructSwapView(parameters: PredefinedSwapParameters) -> AnyView? {
         let presenter = overlayViewPresenter
         let coordinator = SendCoordinator(
             dismissAction: { _ in Task { @MainActor in presenter.dismiss() } },
@@ -333,7 +344,7 @@ private extension CommonDeeplinkPresenterV2 {
         )
     }
 
-    private func constructTangemPayOnboardView(deeplinkString: String) -> AnyView? {
+    private func constructTangemPayOnboardView(source: TangemPayOnboardingSource) -> AnyView? {
         guard let availableSelection = tangemPayAvailabilityRepository.tangemPayOfferAvailability.availableWalletSelection else {
             return nil
         }
@@ -342,7 +353,7 @@ private extension CommonDeeplinkPresenterV2 {
         let coordinator = coordinatorFactory.makeTangemPayOnboardingCoordinator { _ in
             Task { @MainActor in presenter.dismiss() }
         }
-        coordinator.start(with: .init(source: .deeplink(deeplinkString), availableSelection: availableSelection))
+        coordinator.start(with: .init(source: source, availableSelection: availableSelection))
 
         return AnyView(
             makeDeeplinkView(

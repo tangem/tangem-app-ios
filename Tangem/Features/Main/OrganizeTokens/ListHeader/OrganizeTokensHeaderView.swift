@@ -21,9 +21,7 @@ struct OrganizeTokensHeaderView: View {
                 isToggled: viewModel.isSortByBalanceEnabled,
                 action: viewModel.toggleSortState
             )
-            .if(FeatureProvider.isAvailable(.manageTokensImprovements)) {
-                $0.overrideBackgroundColor(Colors.Background.action)
-            }
+            .overrideBackgroundColor(Colors.Background.action)
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.sortByBalanceButton)
 
             FlexySizeButtonWithLeadingIcon(
@@ -31,9 +29,7 @@ struct OrganizeTokensHeaderView: View {
                 icon: Assets.OrganizeTokens.makeGroupIcon.image,
                 action: viewModel.toggleGroupState
             )
-            .if(FeatureProvider.isAvailable(.manageTokensImprovements)) {
-                $0.overrideBackgroundColor(Colors.Background.action)
-            }
+            .overrideBackgroundColor(Colors.Background.action)
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.groupButton)
         }
     }
@@ -41,17 +37,15 @@ struct OrganizeTokensHeaderView: View {
 
 // MARK: - Previews
 
-struct OrganizeTokensHeaderView_Previews: PreviewProvider {
-    static var previews: some View {
-        let optionsManager = FakeOrganizeTokensOptionsManager(
-            initialGroupingOption: .none,
-            initialSortingOption: .dragAndDrop
-        )
-        let viewModel = OrganizeTokensHeaderViewModel(
-            optionsProviding: optionsManager,
-            optionsEditing: optionsManager,
-            analyticsLogger: TokensManagementAnalyticsLogger()
-        )
-        return OrganizeTokensHeaderView(viewModel: viewModel)
-    }
+#Preview {
+    let optionsManager = FakeOrganizeTokensOptionsManager(
+        initialGroupingOption: .none,
+        initialSortingOption: .dragAndDrop
+    )
+    let viewModel = OrganizeTokensHeaderViewModel(
+        optionsProviding: optionsManager,
+        optionsEditing: optionsManager,
+        analyticsLogger: TokensManagementAnalyticsLogger()
+    )
+    return OrganizeTokensHeaderView(viewModel: viewModel)
 }

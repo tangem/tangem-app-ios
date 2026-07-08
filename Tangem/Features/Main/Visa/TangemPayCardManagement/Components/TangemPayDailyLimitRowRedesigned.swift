@@ -17,33 +17,33 @@ struct TangemPayDailyLimitRowRedesigned: View {
     let changeAction: () -> Void
 
     var body: some View {
-        HStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+        HStack(spacing: 12) {
             icon
 
             VStack(alignment: .leading, spacing: .zero) {
                 Text(Localization.tangempayCardPageDailyLimitTitle)
-                    .font(DesignSystem.Tokens.Font.Body.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
+                    .font(token: DesignSystem.Font.bodyMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textSecondary)
 
                 value
             }
 
-            Spacer(minLength: DesignSystem.Tokens.Spacing.s150)
+            Spacer(minLength: 12)
 
             trailing
         }
-        .padding(DesignSystem.Tokens.Spacing.s200)
+        .padding(16)
         .frame(maxWidth: .infinity)
-        .background(DesignSystem.Tokens.Theme.Bg.secondary)
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._300, style: .continuous))
+        .background(DesignSystem.Color.bgSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
     private var icon: some View {
         DesignSystem.Icons.Gauge.regular20.image
             .renderingMode(.template)
-            .foregroundStyle(DesignSystem.Tokens.Theme.Icon.Status.info)
-            .frame(width: DesignSystem.Tokens.Size.s500, height: DesignSystem.Tokens.Size.s500)
-            .background(DesignSystem.Tokens.Theme.Bg.Status.infoSubtle)
+            .foregroundStyle(DesignSystem.Color.iconStatusInfo)
+            .frame(width: 40, height: 40)
+            .background(DesignSystem.Color.bgStatusInfoSubtle)
             .clipShape(Circle())
     }
 
@@ -57,8 +57,8 @@ struct TangemPayDailyLimitRowRedesigned: View {
         }()
 
         Text(text)
-            .font(DesignSystem.Tokens.Font.Body.medium)
-            .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+            .font(token: DesignSystem.Font.bodyMediumToken)
+            .foregroundStyle(DesignSystem.Color.textPrimary)
             .lineLimit(1)
     }
 
@@ -86,9 +86,8 @@ struct TangemPayDailyLimitRowRedesigned: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
-    VStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+    VStack(spacing: 12) {
         TangemPayDailyLimitRowRedesigned(state: .loading, isFrozen: false, changeAction: {})
         TangemPayDailyLimitRowRedesigned(
             state: .loaded(TangemPayDailyLimit(currentLimit: "$50,000")),
@@ -102,8 +101,7 @@ struct TangemPayDailyLimitRowRedesigned: View {
         )
         TangemPayDailyLimitRowRedesigned(state: .error, isFrozen: false, changeAction: {})
     }
-    .padding(DesignSystem.Tokens.Spacing.s200)
+    .padding(16)
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(DesignSystem.Tokens.Theme.Bg.primary)
+    .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

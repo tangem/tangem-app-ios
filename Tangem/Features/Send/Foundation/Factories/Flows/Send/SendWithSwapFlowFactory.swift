@@ -15,6 +15,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     let sourceToken: SendWithSwapToken
     private let predefinedSendParameters: PredefinedSendParameters?
     private let coordinatorSource: SendCoordinator.Source
+    private let shouldStartFromTokenList: Bool
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var autoupdatingTimer = AutoupdatingTimer()
@@ -52,7 +53,13 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         autoupdatingTimer: autoupdatingTimer
     )
 
-    init(sourceToken: SendWithSwapToken, predefinedSendParameters: PredefinedSendParameters? = nil, coordinatorSource: SendCoordinator.Source = .main) {
+    init(
+        sourceToken: SendWithSwapToken,
+        predefinedSendParameters: PredefinedSendParameters? = nil,
+        shouldStartFromTokenList: Bool = false,
+        coordinatorSource: SendCoordinator.Source = .main
+    ) {
+        self.shouldStartFromTokenList = shouldStartFromTokenList
         self.sourceToken = sourceToken
         self.predefinedSendParameters = predefinedSendParameters
         self.coordinatorSource = coordinatorSource
@@ -99,6 +106,20 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         )
     }
 
+    private func makeAddContactViewModel(router: SendRoutable) -> SendAddContactFinishViewModel? {
+        guard FeatureProvider.isAvailable(.addressBook) else {
+            return nil
+        }
+
+        return SendAddContactFinishViewModel(
+            sourceToken: sourceToken,
+            destinationInput: sendWithSwapModel,
+            receiveTokenInput: sendWithSwapModel,
+            coordinator: router,
+            analyticsLogger: CommonAddressBookAnalyticsLogger()
+        )
+    }
+
     private func mapToInitialStep(parameters: PredefinedSendParameters?) -> CommonSendStepsManager.InitialStep {
         guard let parameters else {
             return .amount
@@ -118,8 +139,11 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
 // MARK: - SendGenericFlowFactory
 
 extension SendWithSwapFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
-        let amount = makeSendAmountStep()
+    func make(
+        router: any SendRoutable,
+        coordinatorStateProvider: SendCoordinatorStateProvider
+    ) -> SendViewModel {
+        let amount = makeSendAmountStep(shouldStartFromTokenList: shouldStartFromTokenList)
         let destination = makeSendDestinationStep(router: router)
         let fee = makeSendFeeStep(router: router)
         let providers = makeSwapProviders(router: router)
@@ -133,6 +157,7 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         let finish = makeSendFinishStep(
             sendAmountFinishViewModel: amount.finish,
             sendDestinationCompactViewModel: destination.compact,
+            addContactViewModel: makeAddContactViewModel(router: router),
             sendFeeFinishViewModel: fee.finish,
             router: router
         )
@@ -147,7 +172,6 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         transferModel.informationRelevanceService = CommonInformationRelevanceService(
             input: sendWithSwapModel, provider: sendWithSwapModel
         )
-
         swapModel.externalAmountUpdater = amount.amountUpdater
 
         // Steps setup
@@ -162,6 +186,7 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         swapNotificationManager.setup(
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
+            sendFeeInput: swapModel,
             swapModelStateProvider: swapModel
         )
 
@@ -199,7 +224,9 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         summary.set(router: stepsManager)
 
         transferModel.router = viewModel
-        sendWithSwapModel.alertPresenter = viewModel
+
+        swapModel.router = viewModel
+        swapModel.alertPresenter = viewModel
 
         sendWithSwapModel.router = viewModel
         sendWithSwapModel.alertPresenter = viewModel
@@ -371,6 +398,7 @@ extension SendWithSwapFlowFactory: SendFinishStepBuildable {
     var finishDependencies: SendFinishStepBuilder.Dependencies {
         SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
+            headerTitleProvider: SendWithSwapFinishHeaderTitleProvider()
         )
     }
 }

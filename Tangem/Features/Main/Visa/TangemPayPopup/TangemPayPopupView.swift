@@ -11,12 +11,12 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-struct TangemPayPopupView<AdditionalContent: View>: View {
-    let viewModel: any TangemPayPopupViewModel
+struct TangemPayPopupView<ViewModel: TangemPayPopupViewModel, AdditionalContent: View>: View {
+    @ObservedObject var viewModel: ViewModel
     private let additionalContent: AdditionalContent
 
     init(
-        viewModel: any TangemPayPopupViewModel,
+        viewModel: ViewModel,
         @ViewBuilder additionalContent: () -> AdditionalContent
     ) {
         self.viewModel = viewModel
@@ -33,7 +33,7 @@ struct TangemPayPopupView<AdditionalContent: View>: View {
 }
 
 extension TangemPayPopupView where AdditionalContent == EmptyView {
-    init(viewModel: any TangemPayPopupViewModel) {
+    init(viewModel: ViewModel) {
         self.init(viewModel: viewModel, additionalContent: { EmptyView() })
     }
 }
@@ -47,28 +47,28 @@ private extension TangemPayPopupView {
                     .size(.x11)
                     .styleType(.material(.glass))
             }
-            .padding(.top, DesignSystem.Tokens.Spacing.s200)
-            .padding(.bottom, DesignSystem.Tokens.Spacing.s200)
-            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+            .padding(.top, 16)
+            .padding(.bottom, 16)
+            .padding(.horizontal, 16)
 
-            VStack(spacing: DesignSystem.Tokens.Spacing.s400) {
+            VStack(spacing: 32) {
                 icon
 
                 texts
-                    .padding(.horizontal, DesignSystem.Tokens.Spacing.s400)
+                    .padding(.horizontal, 32)
             }
-            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-            .padding(.vertical, DesignSystem.Tokens.Spacing.s400)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 32)
             .frame(maxWidth: .infinity)
 
             additionalContent
 
             buttons
-                .padding(DesignSystem.Tokens.Spacing.s200)
+                .padding(16)
         }
         .floatingSheetConfiguration { config in
             config.backgroundInteractionBehavior = .tapToDismiss
-            config.sheetBackgroundColor = DesignSystem.Tokens.Theme.Bg.secondary
+            config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
         }
     }
 
@@ -77,17 +77,17 @@ private extension TangemPayPopupView {
             .renderingMode(.template)
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: DesignSystem.Tokens.Size.s350, height: DesignSystem.Tokens.Size.s350)
+            .frame(width: 28, height: 28)
             .foregroundStyle(viewModel.iconStyle.iconColor)
-            .frame(width: DesignSystem.Tokens.Size.s1000, height: DesignSystem.Tokens.Size.s1000)
+            .frame(width: 80, height: 80)
             .background(viewModel.iconStyle.circleColor, in: Circle())
     }
 
     var texts: some View {
-        VStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+        VStack(spacing: 8) {
             Text(viewModel.title)
-                .font(DesignSystem.Tokens.Font.Heading.small)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+                .font(token: DesignSystem.Font.headingSmallToken)
+                .foregroundStyle(DesignSystem.Color.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(viewModel.description)
@@ -95,15 +95,15 @@ private extension TangemPayPopupView {
                     viewModel.onHyperLinkTap(link)
                     return .handled
                 }))
-                .font(DesignSystem.Tokens.Font.Subheading.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
+                .font(token: DesignSystem.Font.subheadingMediumToken)
+                .foregroundStyle(DesignSystem.Color.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .multilineTextAlignment(.center)
     }
 
     var buttons: some View {
-        VStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+        VStack(spacing: 8) {
             if let secondaryButton = viewModel.secondaryButton {
                 button(secondaryButton, style: .secondary)
             }
@@ -130,17 +130,17 @@ private extension TangemPayPopupView {
 private extension TangemPayPopupIconStyle {
     var circleColor: Color {
         switch self {
-        case .info: DesignSystem.Tokens.Theme.Bg.Status.infoSubtle
-        case .warning: DesignSystem.Tokens.Theme.Bg.Status.warningSubtle
-        case .error: DesignSystem.Tokens.Theme.Bg.Status.errorSubtle
+        case .info: DesignSystem.Color.bgStatusInfoSubtle
+        case .warning: DesignSystem.Color.bgStatusWarningSubtle
+        case .error: DesignSystem.Color.bgStatusErrorSubtle
         }
     }
 
     var iconColor: Color {
         switch self {
-        case .info: DesignSystem.Tokens.Theme.Icon.Status.info
-        case .warning: DesignSystem.Tokens.Theme.Icon.Status.warning
-        case .error: DesignSystem.Tokens.Theme.Icon.Status.error
+        case .info: DesignSystem.Color.iconStatusInfo
+        case .warning: DesignSystem.Color.iconStatusWarning
+        case .error: DesignSystem.Color.iconStatusError
         }
     }
 }

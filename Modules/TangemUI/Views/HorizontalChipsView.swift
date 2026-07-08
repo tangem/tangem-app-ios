@@ -8,14 +8,26 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 public struct Chip: Identifiable, Hashable {
     public let id: String
     public let title: String
+    public let thumbnail: ThumbnailWalletViewType?
 
-    public init(id: String, title: String) {
+    public init(id: String, title: String, thumbnail: ThumbnailWalletViewType? = nil) {
         self.id = id
         self.title = title
+        self.thumbnail = thumbnail
+    }
+
+    public static func == (lhs: Chip, rhs: Chip) -> Bool {
+        lhs.id == rhs.id && lhs.title == rhs.title
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(title)
     }
 }
 
@@ -23,16 +35,19 @@ public struct HorizontalChipsView: View {
     private let chips: [Chip]
     @Binding private var selectedId: Chip.ID?
     private let horizontalInset: CGFloat
+    private let verticalInset: CGFloat
     private let chipHorizontalPadding: CGFloat
 
     public init(
         chips: [Chip],
         selectedId: Binding<Chip.ID?>,
         horizontalInset: CGFloat = 0,
+        verticalInset: CGFloat = 0,
         chipHorizontalPadding: CGFloat = 16
     ) {
         self.chips = chips
         _selectedId = selectedId
+        self.verticalInset = verticalInset
         self.horizontalInset = horizontalInset
         self.chipHorizontalPadding = chipHorizontalPadding
     }
@@ -43,6 +58,7 @@ public struct HorizontalChipsView: View {
                 ForEach(chips) { chip in
                     ChipView(
                         title: chip.title,
+                        thumbnail: chip.thumbnail,
                         isSelected: selectedId == chip.id,
                         horizontalPadding: chipHorizontalPadding
                     ) {
@@ -55,6 +71,7 @@ public struct HorizontalChipsView: View {
             .padding(.horizontal, horizontalInset)
         }
         .frame(height: Constants.chipHeight)
+        .padding(.vertical, verticalInset)
         .onAppear(perform: ensureDefaultSelectionIfNeeded)
         .onChange(of: chips) { _ in
             ensureDefaultSelectionIfNeeded()
@@ -74,29 +91,35 @@ extension HorizontalChipsView {
         static let chipCornerRadius: CGFloat = 24
         static let horizontalContentSpacing: CGFloat = 8
         static let verticalChipPadding: CGFloat = 8
+        static let chipIconSpacing: CGFloat = 6
+        static let chipIconSize: CGFloat = 16
     }
 
     struct ChipView: View {
         let title: String
+        let thumbnail: ThumbnailWalletViewType?
         let isSelected: Bool
         let horizontalPadding: CGFloat
         let action: () -> Void
 
         var body: some View {
             Button(action: action) {
-                Text(title)
-                    .style(Fonts.Bold.subheadline, color: foregroundColor)
-                    .lineLimit(1)
-                    .padding(.horizontal, horizontalPadding)
-                    .padding(.vertical, Constants.verticalChipPadding)
-                    .frame(height: Constants.chipHeight)
-                    .background(
-                        RoundedRectangle(
-                            cornerRadius: Constants.chipCornerRadius,
-                            style: .continuous
-                        )
-                        .fill(backgroundColor)
-                    )
+                HStack(spacing: Constants.chipIconSpacing) {
+                    Text(title)
+                        .style(Fonts.Bold.subheadline, color: foregroundColor)
+                        .lineLimit(1)
+
+                    if let thumbnail {
+                        MiniatureWalletView(type: thumbnail)
+                            .frame(width: Constants.chipIconSize, height: Constants.chipIconSize)
+                    }
+                }
+                .roundedBackground(
+                    with: backgroundColor,
+                    verticalPadding: Constants.verticalChipPadding,
+                    horizontalPadding: horizontalPadding,
+                    radius: Constants.chipCornerRadius
+                )
             }
             .buttonStyle(.plain)
         }
@@ -111,7 +134,6 @@ extension HorizontalChipsView {
     }
 }
 
-#if DEBUG
 @available(iOS 17.0, *)
 #Preview("HorizontalChipsView") {
     @Previewable @State var selectedId: Chip.ID? = nil
@@ -131,4 +153,3 @@ extension HorizontalChipsView {
     )
     .padding()
 }
-#endif

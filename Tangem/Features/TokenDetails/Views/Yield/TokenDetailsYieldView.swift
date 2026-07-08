@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct TokenDetailsYieldView: View {
     let state: TokenDetailsYieldState
@@ -82,7 +83,6 @@ private extension TokenDetailsYieldView {
 
                 TangemButton(content: .text(AttributedString(item.action.title)), action: item.action.closure)
                     .setStyleType(.positive)
-                    .setCornerStyle(.rounded)
                     .setSize(.x9)
             }
             .padding(padding)
@@ -100,6 +100,7 @@ private extension TokenDetailsYieldView {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.availableBlock)
     }
 
     func promoAvailableView(item: TokenDetailsYieldState.PromoAvailableItem) -> some View {
@@ -125,7 +126,6 @@ private extension TokenDetailsYieldView {
                     action: item.learnAction.closure
                 )
                 .setStyleType(.secondary)
-                .setCornerStyle(.rounded)
                 .setSize(.x9)
                 .setHorizontalLayout(.infinity)
 
@@ -134,7 +134,6 @@ private extension TokenDetailsYieldView {
                     action: item.activateAction.closure
                 )
                 .setStyleType(.positive)
-                .setCornerStyle(.rounded)
                 .setSize(.x9)
                 .setHorizontalLayout(.infinity)
             }
@@ -219,7 +218,6 @@ private extension TokenDetailsYieldView {
 
                 TangemButton(content: .text(AttributedString(item.action.title)), action: item.action.closure)
                     .setStyleType(.secondary)
-                    .setCornerStyle(.rounded)
                     .setSize(.x9)
             }
             .padding(padding)
@@ -230,6 +228,7 @@ private extension TokenDetailsYieldView {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.activeBlock)
         .task {
             badge = await item.badgeType()
         }
@@ -245,6 +244,7 @@ private extension TokenDetailsYieldView {
                 .scaledToFit()
                 .foregroundStyle(Color.Tangem.Graphic.Status.attention)
                 .frame(size: CGSize(bothDimensions: badgeDimension))
+                .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.earnBlockTitleIcon)
         case .warning:
             Assets.DesignSystem.warning.image
                 .renderingMode(.template)
@@ -252,6 +252,7 @@ private extension TokenDetailsYieldView {
                 .scaledToFit()
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
                 .frame(size: CGSize(bothDimensions: badgeDimension))
+                .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.earnBlockTitleIcon)
         case .none:
             EmptyView()
         }

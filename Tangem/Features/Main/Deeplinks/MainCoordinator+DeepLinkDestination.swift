@@ -16,7 +16,7 @@ extension MainCoordinator {
         case tokenDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel)
         case buy(userWalletModel: UserWalletModel)
         case sell(userWalletModel: UserWalletModel)
-        case swapWithDeferredPairResolution(parameters: PredefinedSwapParameters)
+        case swap(parameters: PredefinedSwapParameters)
         case referral(input: ReferralInputModel)
         case staking(options: StakingDetailsCoordinator.Options)
         case yield(walletModel: any WalletModel, userWalletModel: UserWalletModel)
@@ -24,7 +24,7 @@ extension MainCoordinator {
         case tokenExchanges(tokenId: String)
         case externalLink(url: URL)
         case markets(filter: MarketsDeeplinkFilter)
-        case onboardVisa(deeplinkString: String)
+        case onboardVisa(deeplinkString: String?)
         case tangemPayMain(customerWalletId: String)
         case tangemPayTransactionDetails(payload: TangemPayPushPayload)
         case newsDetails(newsId: Int)
@@ -49,7 +49,7 @@ extension MainCoordinator.DeepLinkDestination: Identifiable {
             return "\(rawCaseValue)_\(userWalletModel.userWalletId.stringValue)"
         case .sell(let userWalletModel):
             return "\(rawCaseValue)_\(userWalletModel.userWalletId.stringValue)"
-        case .swapWithDeferredPairResolution(let parameters):
+        case .swap(let parameters):
             return "\(rawCaseValue)_\(parameters.deeplinkIdentity)"
         case .referral(let input):
             return "\(rawCaseValue)_\(input.userWalletModel.userWalletId.stringValue)"
@@ -67,7 +67,7 @@ extension MainCoordinator.DeepLinkDestination: Identifiable {
         case .markets(let filter):
             return "\(rawCaseValue)_\(filter.order.rawValue)_\(filter.interval.rawValue)"
         case .onboardVisa(let deeplinkString):
-            return "\(rawCaseValue)_\(deeplinkString)"
+            return deeplinkString.map { "\(rawCaseValue)_\($0)" } ?? rawCaseValue
         case .tangemPayMain(let customerWalletId):
             return "\(rawCaseValue)_\(customerWalletId)"
         case .tangemPayTransactionDetails(let payload):

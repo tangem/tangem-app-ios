@@ -22,6 +22,7 @@ public struct TangemButtonV2: View, Setupable {
     private var isLoading: Bool = false
     private var accessibilityLabel: String?
     @ScaledMetric private var iconSide = Size.x10.iconSize
+    @ScaledMetric private var wrapperPadding = Size.x10.wrapperPadding
 
     private let action: () -> Void
 
@@ -55,6 +56,7 @@ public struct TangemButtonV2: View, Setupable {
         accessibilityLabel = model.accessibilityLabel
         action = model.action
         _iconSide = ScaledMetric(wrappedValue: model.size.iconSize, relativeTo: .body)
+        _wrapperPadding = ScaledMetric(wrappedValue: model.size.wrapperPadding, relativeTo: .body)
     }
 
     public var body: some View {
@@ -80,13 +82,14 @@ public struct TangemButtonV2: View, Setupable {
     private var label: some View {
         switch content {
         case .label(let attributedString, let iconStart, let iconEnd):
-            HStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+            HStack(spacing: 0) {
                 if let iconStart {
                     iconView(iconStart)
                 }
 
                 Text(attributedString)
                     .lineLimit(1)
+                    .padding(.horizontal, wrapperPadding)
 
                 if let iconEnd {
                     iconView(iconEnd)
@@ -117,6 +120,7 @@ public extension TangemButtonV2 {
         map {
             $0.size = size
             $0._iconSide = ScaledMetric(wrappedValue: size.iconSize, relativeTo: .body)
+            $0._wrapperPadding = ScaledMetric(wrappedValue: size.wrapperPadding, relativeTo: .body)
         }
     }
 

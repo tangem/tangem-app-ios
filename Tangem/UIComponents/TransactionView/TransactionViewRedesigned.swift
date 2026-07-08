@@ -7,10 +7,12 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemFoundation
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct TransactionViewRedesigned: View {
     let viewModel: TransactionViewModel
@@ -21,13 +23,20 @@ struct TransactionViewRedesigned: View {
 
     private var display: TransactionDisplayModel { viewModel.display }
 
+    private var isConfirmed: Bool {
+        if case .confirmed = viewModel.icon.status { return true }
+        return false
+    }
+
+    private var transactionKey: String { viewModel.transactionType.accessibilityIdentifierKey }
+
     var body: some View {
         TangemTwoLineRowLayout(
             icon: { iconView },
             primaryLeading: { nameView },
             primaryTrailing: { amountView },
             secondaryLeading: { subtitleView },
-            secondaryTrailing: { currencyView }
+            secondaryTrailing: { secondaryTrailingView }
         )
         .compressionPolicy(.trailingPreserved)
     }
@@ -36,14 +45,33 @@ struct TransactionViewRedesigned: View {
         ZStack {
             Circle().fill(iconBackgroundColor)
 
-            viewModel.icon.icon
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(width: glyphSize, height: glyphSize)
-                .foregroundStyle(iconGlyphColor)
+            iconContent
         }
         .frame(width: iconContainerSide, height: iconContainerSide)
+        .accessibilityIdentifier(isConfirmed ? TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: transactionKey) : nil)
+    }
+
+    @ViewBuilder
+    private var iconContent: some View {
+        if case .tangemPay(.spend(_, let iconURL?, _, _)) = viewModel.transactionType {
+            KFImage(iconURL)
+                .resizable()
+                .placeholder { glyphImage }
+                .aspectRatio(contentMode: .fit)
+                .frame(width: iconContainerSide, height: iconContainerSide)
+                .clipShape(Circle())
+        } else {
+            glyphImage
+        }
+    }
+
+    private var glyphImage: some View {
+        viewModel.icon.icon
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(width: glyphSize, height: glyphSize)
+            .foregroundStyle(iconGlyphColor)
     }
 
     private var nameView: some View {
@@ -51,6 +79,7 @@ struct TransactionViewRedesigned: View {
             Text(display.title)
                 .style(Font.Tangem.Body16.medium, color: nameColor)
                 .lineLimit(1)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionItem(key: transactionKey))
 
             if viewModel.inProgress {
                 ProgressDots(style: .small)
@@ -59,11 +88,12 @@ struct TransactionViewRedesigned: View {
     }
 
     private var amountView: some View {
-        Text(viewModel.amount.value)
+        SensitiveText(viewModel.amount.value)
             .style(Font.Tangem.Body16.medium, color: amountColor)
             .strikethrough(isFailed, color: amountColor)
             .lineLimit(1)
             .layoutPriority(1)
+            .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionAmount(key: transactionKey))
     }
 
     @ViewBuilder
@@ -84,11 +114,12 @@ struct TransactionViewRedesigned: View {
     }
 
     @ViewBuilder
-    private var currencyView: some View {
-        if viewModel.amount.currencyCode.isNotEmpty {
-            Text(viewModel.amount.currencyCode)
+    private var secondaryTrailingView: some View {
+        if let text = viewModel.secondaryTrailingText {
+            Text(text)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 .lineLimit(1)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionCurrency(key: transactionKey))
         }
     }
 }
@@ -107,9 +138,28 @@ private extension TransactionViewRedesigned {
     }
 
     var amountColor: Color {
+        if let tangemPayAmountColor {
+            return tangemPayAmountColor
+        }
+
         switch viewModel.icon.status {
-        case .failed, .undefined, .inProgress: .Tangem.Text.Neutral.tertiary
-        case .confirmed: .Tangem.Text.Neutral.primary
+        case .failed, .undefined, .inProgress: return .Tangem.Text.Neutral.tertiary
+        case .confirmed: return .Tangem.Text.Neutral.primary
+        }
+    }
+
+    var tangemPayAmountColor: Color? {
+        guard case .tangemPay(let payType) = viewModel.transactionType else { return nil }
+
+        switch payType {
+        case .spend(_, _, let isDeclined, _) where isDeclined:
+            return .Tangem.Text.Status.warning
+        case .spend(_, _, _, let isNegativeAmount) where isNegativeAmount:
+            return .Tangem.Text.Status.accent
+        case .transfer where !viewModel.isOutgoing:
+            return .Tangem.Text.Status.accent
+        case .spend, .transfer, .fee:
+            return nil
         }
     }
 
@@ -131,8 +181,6 @@ private extension TransactionViewRedesigned {
 }
 
 // MARK: - Previews
-
-#if DEBUG
 
 #Preview("States") {
     VStack(spacing: 16) {
@@ -219,5 +267,3 @@ private extension TransactionViewRedesigned {
     .padding()
     .background(Colors.Background.secondary)
 }
-
-#endif // DEBUG

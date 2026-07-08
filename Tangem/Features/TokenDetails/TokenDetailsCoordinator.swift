@@ -61,13 +61,20 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             coordinator: self
         )
 
-        let expressFactory = ExpressPendingTransactionsFactory(
+        let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: options.userWalletInfo,
             tokenItem: options.walletModel.tokenItem,
             walletModelUpdater: options.walletModel,
+            transactionHistoryEnricherFactory: { [weak walletModel = options.walletModel] in
+                try? await walletModel?
+                    .featuresPublisher
+                    .first()
+                    .async()
+                    .transactionHistoryProvider
+            }
         )
 
-        let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
+        let expressStatusTracking = expressFactory.makeExpressStatusTracking()
 
         let factory = XPUBGeneratorFactory(cardInteractor: options.keysDerivingInteractor)
         let xpubGenerator = factory.makeXPUBGenerator(
@@ -75,16 +82,24 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             publicKey: options.walletModel.publicKey
         )
 
+        let deeplinkHandler = TokenDetailsDeeplinkHandler(
+            coordinator: self,
+            walletModel: options.walletModel,
+            userWalletInfo: options.userWalletInfo
+        )
+
         tokenDetailsViewModel = .init(
             userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
             notificationManager: notificationManager,
             userTokensManager: options.userTokensManager,
-            pendingExpressTransactionsManager: pendingTransactionsManager,
+            pendingExpressTransactionsManager: expressStatusTracking.manager,
+            expressStatusPollingHelper: expressStatusTracking.pollingHelper,
             xpubGenerator: xpubGenerator,
             coordinator: self,
             tokenRouter: tokenRouter,
-            pendingTransactionDetails: options.pendingTransactionDetails
+            pendingTransactionDetails: options.pendingTransactionDetails,
+            deeplinkHandler: deeplinkHandler
         )
 
         notificationManager.interactionDelegate = tokenDetailsViewModel

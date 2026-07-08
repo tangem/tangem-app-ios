@@ -37,6 +37,7 @@ final class SendSourceTokenStub: SendSourceToken {
             name: "Test",
             id: UserWalletId(value: Data([0x01])),
             config: UserWalletConfigStub(),
+            backupState: .valid,
             refcode: nil,
             signer: TangemSignerStub(),
             emailDataProvider: EmailDataProviderStub()
@@ -52,6 +53,7 @@ final class SendSourceTokenStub: SendSourceToken {
     var allowanceService: (any AllowanceService)? { nil }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { EmailDataCollectorBuilderStub() }
+    var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { nil } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { TransactionDispatcherProviderStub() }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
     var tangemIconProvider: any TangemIconProvider { TangemIconProviderStub() }

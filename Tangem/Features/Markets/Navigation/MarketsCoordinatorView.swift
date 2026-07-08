@@ -34,7 +34,6 @@ struct MarketsCoordinatorView: CoordinatorView {
         .tint(Colors.Text.primary1)
     }
 
-    @ViewBuilder
     private var sheets: some View {
         NavHolder()
             .bottomSheet(
@@ -83,6 +82,9 @@ struct MarketsCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.portfolioTokenDetailsCoordinator) {
                 TokenDetailsCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.forYouViewModel) { _ in
+                ForYouView(onBackButtonAction: { coordinator.forYouViewModel = nil })
             }
     }
 

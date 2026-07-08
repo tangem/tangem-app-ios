@@ -25,6 +25,7 @@ final class SendCoordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
 
     // MARK: - Root view model
 
@@ -44,6 +45,14 @@ final class SendCoordinator: CoordinatorObject {
         willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
     }
 
+    @Published var addressBooksCoordinator: AddressBooksCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
+    @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
     // MARK: - Child view models
 
     @Published var expressApproveViewModel: ApproveViewModel? {
@@ -59,6 +68,8 @@ final class SendCoordinator: CoordinatorObject {
     @Published var onrampCurrencySelectorViewModel: OnrampCurrencySelectorViewModel?
     @Published var onrampRedirectingViewModel: OnrampRedirectingViewModel?
 
+    let supportChatPresenter = SupportChatPresenter()
+
     private var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionCoordinator?
     private var safariHandle: SafariHandle?
 
@@ -73,8 +84,29 @@ final class SendCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        guard isWalletBackupStatusValid(options) else {
+            assertionFailure("UserWalletBackupState is invalid. Do not allow to continue.")
+            return dismiss(reason: .other)
+        }
+
         let flowFactory = SendFactory().flowFactory(options: options)
-        rootViewModel = flowFactory.make(router: self, coordinatorStateProvider: stateProvider)
+        rootViewModel = flowFactory
+            .make(router: self, coordinatorStateProvider: stateProvider)
+    }
+
+    private func isWalletBackupStatusValid(_ options: Options) -> Bool {
+        switch options.type {
+        case .onramp(let sourceToken, _):
+            // Onramp credits the wallet, so block it on a card-linked (non-toppable) wallet.
+            if let alert = UserWalletBackupStatusHelper().alert(for: sourceToken.userWalletInfo) {
+                alertPresenter.present(alert: alert)
+                return false
+            }
+
+            return true
+        default:
+            return true
+        }
     }
 
     private func mapDismissReasonToDismissOptions(_ reason: SendDismissReason) -> DismissOptions? {
@@ -94,6 +126,17 @@ extension SendCoordinator {
     struct Options {
         let type: SendType
         let source: Source
+        let shouldStartFromTokenList: Bool
+
+        init(
+            type: SendType,
+            source: Source,
+            shouldStartFromTokenList: Bool = false
+        ) {
+            self.type = type
+            self.source = source
+            self.shouldStartFromTokenList = shouldStartFromTokenList
+        }
     }
 
     enum Source {
@@ -122,9 +165,14 @@ extension SendCoordinator {
 
     enum DismissOptions {
         case openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
+        case openSwap(SwapNavigatingDismissOption)
         case closeButtonTap
     }
 }
+
+// MARK: - SupportChatPresenting
+
+extension SendCoordinator: SupportChatPresenting {}
 
 // MARK: - SendRoutable
 
@@ -143,12 +191,35 @@ extension SendCoordinator: SendRoutable {
         }
     }
 
+    func openSwapSupportSelection(with dataCollector: EmailDataCollector, recipient: String, chatDataCollector: ChatDataCollector) {
+        let chatInput = SupportChatInputModel(
+            logsComposer: LogsComposer(infoProvider: dataCollector),
+            userIdentifier: chatDataCollector.userIdentifier,
+            source: .swap,
+            initialMessage: .swap(message: chatDataCollector.message)
+        )
+
+        openSupportTypeSelection(
+            emailAction: { [weak self] in self?.openMail(with: dataCollector, recipient: recipient) },
+            chatInput: chatInput
+        )
+    }
+
     func openExplorer(url: URL) {
         safariManager.openURL(url)
     }
 
     func openShareSheet(url: URL) {
         AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
+
+    func openAddContact(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {
+        let coordinator = AddressBookContactManagementCoordinator(
+            dismissAction: { [weak self] _ in self?.contactManagementCoordinator = nil },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .add(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries))
+        contactManagementCoordinator = coordinator
     }
 
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {
@@ -183,9 +254,13 @@ extension SendCoordinator: SendRoutable {
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?) {
         let coordinator = SendReceiveTokenCoordinator(
             receiveTokensListBuilder: tokensListBuilder,
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] swapOption in
                 self?.sendReceiveTokenCoordinator = nil
                 onDismiss?()
+
+                if let swapOption {
+                    self?.dismiss(with: .openSwap(swapOption))
+                }
             }, popToRootAction: popToRootAction
         )
 
@@ -251,11 +326,44 @@ extension SendCoordinator: SendDestinationRoutable {
 
         self.qrScanViewCoordinator = qrScanViewCoordinator
     }
+
+    func openAddressBookChooseAddress(contact: AddressBookContact, output: ChooseAddressOutput) {
+        let viewModel = ChooseAddressViewModel(groups: contact.entries.groupedByAddress, router: self) { [weak output] group in
+            output?.chooseAddressDidSelect(group, of: contact)
+        }
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openAddressBookViewAll(provider: any AddressBooksProvider, output: AddressBooksSelectionOutput) {
+        let coordinator = AddressBooksCoordinator(
+            dismissAction: { [weak self] _ in self?.addressBooksCoordinator = nil },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(addressBooksProvider: provider, selectionOutput: output))
+        addressBooksCoordinator = coordinator
+    }
+}
+
+// MARK: - ChooseAddressRoutable
+
+extension SendCoordinator: ChooseAddressRoutable {
+    func dismissChooseAddress() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
 }
 
 // MARK: - SwapRoutable
 
 extension SendCoordinator: SwapRoutable {
+    func openBackupErrorSupport(userWalletInfo: UserWalletInfo) {
+        UserWalletBackupStatusHelper().openBackupErrorSupport(for: userWalletInfo)
+    }
+
     func openSwapTokenSelector(
         swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder,
         direction: SwapTokenSelectorViewModel.SwapDirection

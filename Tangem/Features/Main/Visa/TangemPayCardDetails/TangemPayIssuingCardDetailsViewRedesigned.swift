@@ -14,10 +14,10 @@ struct TangemPayIssuingCardDetailsViewRedesigned: View {
         Assets.Visa.cardIssuing.image
             .resizable()
             .aspectRatio(Constants.plasticCardStandardWidthToHeightRatio, contentMode: .fit)
-            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._250, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._250, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.1), lineWidth: DesignSystem.Tokens.BorderWidth.sm)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
                     .allowsHitTesting(false)
             }
     }
@@ -31,11 +31,9 @@ private extension TangemPayIssuingCardDetailsViewRedesigned {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     TangemPayIssuingCardDetailsViewRedesigned()
-        .padding(DesignSystem.Tokens.Spacing.s200)
+        .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DesignSystem.Tokens.Theme.Bg.primary)
+        .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

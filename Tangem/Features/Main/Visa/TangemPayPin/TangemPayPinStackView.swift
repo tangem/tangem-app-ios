@@ -19,13 +19,13 @@ struct TangemPayPinStackView: View {
     @State private var isResponder: Bool? = false
 
     var body: some View {
-        VStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+        VStack(spacing: 12) {
             ZStack {
                 if !isDisabled {
                     backgroundField.opacity(0)
                 }
 
-                HStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+                HStack(spacing: 8) {
                     ForEach(0 ..< length, id: \.self) { index in
                         box(at: index)
                     }
@@ -38,7 +38,7 @@ struct TangemPayPinStackView: View {
 
             if let errorMessage {
                 Text(errorMessage)
-                    .style(DesignSystem.Tokens.Font.Caption.medium, color: DesignSystem.Tokens.Theme.Text.Status.error)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -51,29 +51,29 @@ struct TangemPayPinStackView: View {
     }
 
     private func box(at index: Int) -> some View {
-        RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._200, style: .continuous)
-            .fill(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
-            .frame(width: DesignSystem.Tokens.Size.s700, height: DesignSystem.Tokens.Size.s800)
+        RoundedRectangle(cornerRadius: 16, style: .continuous)
+            .fill(DesignSystem.Color.bgOpaquePrimary)
+            .frame(width: 56, height: 64)
             .overlay {
                 Text(digit(at: index))
-                    .style(DesignSystem.Tokens.Font.Heading.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                    .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
             }
             .overlay {
-                RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._200, style: .continuous)
-                    .strokeBorder(borderColor(at: index), lineWidth: DesignSystem.Tokens.BorderWidth.sm)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(borderColor(at: index), lineWidth: 1)
             }
     }
 
     private func borderColor(at index: Int) -> Color {
         if errorMessage != nil {
-            return DesignSystem.Tokens.Theme.Border.Status.error
+            return DesignSystem.Color.borderStatusError
         }
 
         if !isDisabled, index == pinText.count {
-            return DesignSystem.Tokens.Theme.Border.Status.info
+            return DesignSystem.Color.borderStatusInfo
         }
 
-        return DesignSystem.Tokens.Theme.Border.secondary
+        return DesignSystem.Color.borderSecondary
     }
 
     private func digit(at index: Int) -> String {
@@ -97,14 +97,12 @@ struct TangemPayPinStackView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
-    VStack(spacing: DesignSystem.Tokens.Spacing.s500) {
+    VStack(spacing: 40) {
         TangemPayPinStackView(pinText: .constant("12"), length: 4)
         TangemPayPinStackView(pinText: .constant("1234"), length: 4, errorMessage: "Codes don't match. Try again")
         TangemPayPinStackView(pinText: .constant("0000"), length: 4, isDisabled: true)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(DesignSystem.Tokens.Theme.Bg.primary)
+    .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

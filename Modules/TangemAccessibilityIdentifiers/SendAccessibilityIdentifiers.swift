@@ -37,6 +37,7 @@ public enum SendAccessibilityIdentifiers {
     /// SendFeeCompactView
     public static let networkFeeBlock = "sendNetworkFeeBlock"
     public static let networkFeeAmount = "sendNetworkFeeAmount"
+    public static let networkFeeCurrencySymbol = "sendNetworkFeeCurrencySymbol"
     public static let networkFeeUnreachableBanner = "sendNetworkFeeUnreachableBanner"
 
     /// AddressTextView
@@ -74,6 +75,7 @@ public enum SendAccessibilityIdentifiers {
     public static let amountExceedMaximumUTXOBanner = "sendAmountExceedMaximumUTXOBanner"
     public static let customFeeTooLowBanner = "sendCustomFeeTooLowBanner"
     public static let feeWillBeSubtractFromSendingAmountBanner = "sendfeeWillBeSubtractFromSendingAmountBanner"
+    public static let insufficientBalanceForFeeBanner = "sendInsufficientBalanceForFeeBanner"
     public static let customFeeTooHighBanner = "sendCustomFeeTooHighBanner"
     public static let highFeeNotificationBanner = "sendHighFeeNotificationBanner"
     public static let existentialDepositWarningBanner = "sendExistentialDepositWarningBanner"
@@ -90,6 +92,8 @@ public enum SendAccessibilityIdentifiers {
     public static let networkSelectorErrorTitle = "sendNetworkSelectorErrorTitle"
     public static let networkSelectorErrorSubtitle = "sendNetworkSelectorErrorSubtitle"
     public static let networkSelectorGotItButton = "sendNetworkSelectorGotItButton"
+    public static let networkSelectorSwapRequiredTitle = "sendNetworkSelectorSwapRequiredTitle"
+    public static let networkSelectorSwapTokenButton = "sendNetworkSelectorSwapTokenButton"
 
     public static func receiveTokenListItem(name: String) -> String {
         "sendReceiveTokenListItem_\(name)"
@@ -101,6 +105,7 @@ public enum SendAccessibilityIdentifiers {
 
     /// Swap Provider Selector
     public static let swapProviderBestRateBadge = "sendSwapProviderBestRateBadge"
+    public static let swapProviderBestDexRateBadge = "sendSwapProviderBestDexRateBadge"
 
     public static func swapProviderSelectorRow(name: String) -> String {
         "sendSwapProviderSelectorRow_\(name)"

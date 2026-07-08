@@ -22,12 +22,14 @@ struct MultiWalletMainContentRedesignedView: View {
         VStack(spacing: .unit(.x4)) {
             notificationBanners
 
-            if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
-                TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
-            }
+            VStack(spacing: .unit(.x2)) {
+                if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
+                    TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
+                }
 
-            listContent
-                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
+                listContent
+                    .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
+            }
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
                 TangemNFTEntrypointRow(viewModel: nftEntrypointViewModel)
@@ -86,9 +88,9 @@ struct MultiWalletMainContentRedesignedView: View {
             ),
             action: viewModel.onOpenOrganizeTokensButtonTap
         )
-        .setCornerStyle(.rounded)
-        .setStyleType(.secondary)
+        .setStyleType(.primaryInverse)
         .setSize(.x9)
+        .setFont(Font.Tangem.Body14.regular)
         .accessibilityIdentifier(MainAccessibilityIdentifiers.organizeTokensButton)
     }
 
@@ -115,7 +117,6 @@ struct MultiWalletMainContentRedesignedView: View {
                 content: .text(AttributedString(Localization.commonAddTokens)),
                 action: viewModel.onAddTokensTap
             )
-            .setCornerStyle(.rounded)
             .setStyleType(.secondary)
             .setSize(.x10)
             .setHorizontalLayout(.intrinsic)
@@ -126,7 +127,7 @@ struct MultiWalletMainContentRedesignedView: View {
     // MARK: - Accounts List
 
     private var accountsList: some View {
-        LazyVStack(spacing: .unit(.x2)) {
+        VStack(spacing: .unit(.x2)) {
             ForEach(viewModel.accountSections) { accountSection in
                 ExpandableAccountItemView(viewModel: accountSection.model) {
                     LazyVStack(spacing: 0) {

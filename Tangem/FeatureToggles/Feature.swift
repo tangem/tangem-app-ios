@@ -13,85 +13,83 @@ enum Feature: String, Hashable, CaseIterable {
     case visa // [REDACTED_TODO_COMMENT]
     case redesign
     case exchangeOnlyWithinSingleAddress
-    case experimentService
     case walletConnectBitcoin
     case surveySparrow
-    case solanaTxHistoryEnabled
-    case solanaScaledUIEnabled
-    case dynamicAddresses
     case usdtRevokeGaslessFee
     case yieldModuleUpdate
-    case tangemPayMobileOnboarding
-    case onrampNativePayment
     case xrplTransactionHistory
-    case sendBalanceSendSplitRows
-    case addFundsStage1
-    case swapProviderTypeFilter
-    case swapPendingTxStateDate
-    case swapInProgressV2
-    case dexApproveNotificationV2
-    case manageTokensImprovements
-    case swapSimpleMode
-    case swapMaxAmountFractions
     case pushNotificationsSettings
-    case swapExchangeRateDisplay
-    case swapRateExperience
-    case yieldApyBoostPromo
     case deeplinkPresentationWay
     case transactionHistoryV2
-    case adiMainScreenDefault
     case tangemPayMultipleCards
     case transfers
     case memoValidationBeforeConfirm
     case tangemPaySpendRedesign
+    case tangemPayTiers
+    case supportChat
+    case supportChatSwap
     case onrampApplePayHistoryFallback
     case mobileWalletMultiCreation
     case approveFlowV2
     case addAndOrganizeRedesign
+    case stakingTransactionValidation
+    case sendWithSwapAvailabilityCheck
+    case swapFiatCalculation
     case addressBook
+    case swapChooseBestDEX
+    case hideStoriesInMobileWallet
+    case marketingBanners
+    case bitcoinDexSwap
+    case forYou
+    case tangemPayVirtualAccount
+    case highFeeWarning
+    case priceAlertsSubscription
+    case solanaUnstakeValidation
+    case onboardingPushNotificationDoubleAsk
+    case mainPushNotificationDoubleAsk
 
+    /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
+    /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
     var name: String {
         switch self {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .visa: return "Visa"
         case .redesign: return "Redesign"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
-        case .experimentService: return "Experiment service"
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .surveySparrow: return "SurveySparrow service integration"
-        case .solanaTxHistoryEnabled: return "Solana Transaction History"
-        case .solanaScaledUIEnabled: return "Solana Scaled UI"
-        case .dynamicAddresses: return "XPUB Dynamic-addresses support"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
         case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
-        case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
-        case .tangemPayMobileOnboarding: return "1489_TangemPayNewMobileOnboarding"
-        case .onrampNativePayment: return "Onramp Native Payment (Apple Pay)"
         case .xrplTransactionHistory: return "XRPL Transaction History"
-        case .swapProviderTypeFilter: return "13675_Swap_Provider_Type_Filter"
-        case .swapInProgressV2: return "Swap In Progress V2"
-        case .swapPendingTxStateDate: return "Swap Pending Tx State Date"
-        case .dexApproveNotificationV2: return "DEX Approve Notification V2"
-        case .manageTokensImprovements: return "Manage Tokens Improvements"
-        case .swapSimpleMode: return "13763_Swap_Simple_Mode"
-        case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
-        case .adiMainScreenDefault: return "14071_show_ADI_on_main_screen"
         case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
-        case .swapExchangeRateDisplay: return "13768_Swap_Exchange_Rate_Display"
-        case .swapRateExperience: return "13956_Swap_Rate_Experience"
-        case .yieldApyBoostPromo: return "13839_Referral_programm._Yield_promotion_V2"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
-        case .addFundsStage1: return "[REDACTED_INFO]_ADDFUNDS_STAGE_1"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
         case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
         case .transfers: return "14042_Transfers"
         case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
+        case .tangemPayTiers: return "TWI-1066_tangem_pay_tiers_1"
+        case .supportChat: return "13815_Support_Chat_(Usedesk)"
+        case .supportChatSwap: return "13815_Support_Chat_in_Swap_(Usedesk)"
         case .onrampApplePayHistoryFallback: return "14115_Onramp_Apple_Pay_History_Fallback"
         case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
         case .approveFlowV2: return "13786_Update_Swap_Phase_2_Permissions"
         case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
-        case .addressBook: return "10801-Address-Book"
+        case .stakingTransactionValidation: return "TWI-1602_move_away_from_blind_signing_in_staking"
+        case .sendWithSwapAvailabilityCheck: return "14316_Send_With_Swap_Availability_Check"
+        case .swapFiatCalculation: return "14315_Swap_Fiat_Calculation"
+        case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
+        case .addressBook: return "TWI-83_address_book"
+        case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_dex_lifi_swapkit"
+        case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
+        case .marketingBanners: return "TWI-1522_special_offer_promo_placement_for_onramp_and_swaps"
+        case .forYou: return "TWI-1469_for_you_product_shelves_add_indicators"
+        case .highFeeWarning: return "TWI-1367_high_fee_warning"
+        case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
+        case .solanaUnstakeValidation: return "[REDACTED_INFO]_solana_unstake_validation"
+        case .tangemPayVirtualAccount: return "TWI-1638_tangempay_virtual_account"
+        case .onboardingPushNotificationDoubleAsk: return "TWI-1403_onboarding_push_notification_double_ask"
+        case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
         }
     }
 
@@ -99,44 +97,42 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
-        case .redesign: return .version("5.40")
+        case .redesign: return .version("6.0")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
-        case .experimentService: return .version("5.39")
         case .walletConnectBitcoin: return .unspecified
         case .surveySparrow: return .unspecified
-        case .solanaTxHistoryEnabled: return .version("5.39")
-        case .solanaScaledUIEnabled: return .version("5.39")
-        case .dynamicAddresses: return .version("5.39")
         case .usdtRevokeGaslessFee: return .unspecified
         case .yieldModuleUpdate: return .unspecified
-        case .tangemPayMobileOnboarding: return .version("5.39")
-        case .onrampNativePayment: return .version("5.39")
         case .xrplTransactionHistory: return .unspecified
-        case .sendBalanceSendSplitRows: return .version("5.39")
-        case .swapProviderTypeFilter: return .version("5.39")
-        case .swapInProgressV2: return .version("5.39")
-        case .swapPendingTxStateDate: return .version("5.39")
-        case .dexApproveNotificationV2: return .version("5.39")
-        case .manageTokensImprovements: return .version("5.39")
-        case .swapSimpleMode: return .version("5.39")
-        case .swapMaxAmountFractions: return .version("5.39")
         case .pushNotificationsSettings: return .unspecified
-        case .adiMainScreenDefault: return .version("5.39")
-        case .swapExchangeRateDisplay: return .version("5.39")
-        case .swapRateExperience: return .version("5.39")
-        case .yieldApyBoostPromo: return .unspecified
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
-        case .addFundsStage1: return .version("5.39")
-        case .tangemPayMultipleCards: return .unspecified
-        case .transfers: return .version("5.40")
-        case .memoValidationBeforeConfirm: return .unspecified
-        case .tangemPaySpendRedesign: return .unspecified
-        case .onrampApplePayHistoryFallback: return .unspecified
+        case .tangemPayMultipleCards: return .version("6.0")
+        case .transfers: return .version("6.0")
+        case .memoValidationBeforeConfirm: return .version("6.0")
+        case .tangemPaySpendRedesign: return .version("6.0")
+        case .tangemPayTiers: return .unspecified
+        case .supportChat: return .unspecified
+        case .supportChatSwap: return .unspecified
+        case .onrampApplePayHistoryFallback: return .version("6.0")
         case .mobileWalletMultiCreation: return .unspecified
-        case .approveFlowV2: return .unspecified
-        case .addAndOrganizeRedesign: return .version("5.40")
-        case .addressBook: return .unspecified
+        case .approveFlowV2: return .version("6.0")
+        case .addAndOrganizeRedesign: return .version("6.0")
+        case .stakingTransactionValidation: return .unspecified
+        case .sendWithSwapAvailabilityCheck: return .unspecified
+        case .swapChooseBestDEX: return .version("6.0")
+        case .swapFiatCalculation: return .unspecified
+        case .addressBook: return .version("6.1")
+        case .bitcoinDexSwap: return .version("6.0")
+        case .hideStoriesInMobileWallet: return .version("6.0")
+        case .marketingBanners: return .unspecified
+        case .forYou: return .unspecified
+        case .highFeeWarning: return .unspecified
+        case .priceAlertsSubscription: return .unspecified
+        case .tangemPayVirtualAccount: return .version("6.1")
+        case .solanaUnstakeValidation: return .version("6.0")
+        case .onboardingPushNotificationDoubleAsk: return .unspecified
+        case .mainPushNotificationDoubleAsk: return .unspecified
         }
     }
 }

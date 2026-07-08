@@ -1,5 +1,5 @@
 //
-//  EthereumChildWalletAssembly.swift
+//  EthereumWalletAssembly.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -33,8 +33,7 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
 
         let yieldSupplyServiceFactory = YieldSupplyServiceFactory(
             wallet: wallet,
-            dataStorage: input.blockchainSdkDependencies.dataStorage,
-            isYieldModuleUpdateEnabled: input.blockchainSdkDependencies.isYieldModuleUpdateEnabled
+            dataStorage: input.blockchainSdkDependencies.dataStorage
         )
 
         let apiList = APIList(dictionaryLiteral: (blockchain.networkId, input.networkInput.apiInfo))

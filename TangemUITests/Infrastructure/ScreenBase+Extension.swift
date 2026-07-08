@@ -101,6 +101,14 @@ extension ScreenBase {
         app.searchFields[element.accessibilityIdentifier].firstMatch
     }
 
+    func tangemSearchField(_ element: T, prompt: String) -> XCUIElement {
+        if #available(iOS 26.0, *) {
+            return app.searchFields[prompt].firstMatch
+        } else {
+            return app.textFields[element.accessibilityIdentifier].firstMatch
+        }
+    }
+
     func segmentedControl(_ element: T) -> XCUIElement {
         app.segmentedControls[element.accessibilityIdentifier].firstMatch
     }
@@ -132,8 +140,15 @@ extension ScreenBase {
         if clearButton.exists {
             clearButton.tap()
         }
-        element.typeText(text)
+        typeReliably(element: element, text: text)
         app.hideKeyboard()
+    }
+
+    /// Types per character so per-keystroke onChange handlers (e.g. length clamps) settle between inputs.
+    func typeReliably(element: XCUIElement, text: String) {
+        for character in text {
+            element.typeText(String(character))
+        }
     }
 
     func clearText(element: XCUIElement) {

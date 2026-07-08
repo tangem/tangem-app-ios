@@ -23,7 +23,7 @@ struct MetricsMarketPositionCard: View {
         let state = viewModel.redesign.marketPosition
         let color = rankColor(for: state.rankType)
 
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
                 HStack(spacing: .unit(.x1_5)) {
                     marketPositionValue(state: state, rankColor: color)
@@ -44,8 +44,8 @@ struct MetricsMarketPositionCard: View {
 
                     MetricsInfoLabel(
                         title: Localization.marketsTokenDetailsMarketRating,
-                        color: color,
-                        action: { viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketRating) }
+                        color: .Tangem.Text.Neutral.secondary,
+                        action: action
                     )
                 }
             }
@@ -85,10 +85,10 @@ struct MetricsMarketPositionCard: View {
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: trendImageSide, height: trendImageSide)
-                    .foregroundStyle(Color.Tangem.Graphic.Status.positive)
+                    .foregroundStyle(Color.Tangem.Graphic.Status.accent)
 
                 Text("\(value)")
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.accent)
             }
         case .down(let value):
             HStack(spacing: .unit(.half)) {
@@ -107,6 +107,10 @@ struct MetricsMarketPositionCard: View {
         case .none:
             EmptyView()
         }
+    }
+
+    private func action() {
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketRating)
     }
 
     // MARK: - Rank Colors

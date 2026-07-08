@@ -86,8 +86,16 @@ final class LockedUserWalletModel: UserWalletModel {
         )
     }
 
+    var priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider {
+        CommonPriceAlertsSubscriptionsProvider(walletId: userWalletId.stringValue)
+    }
+
     var accountModelsManager: AccountModelsManager {
         DummyCommonAccountModelsManager()
+    }
+
+    var addressBookManager: AddressBookManager {
+        NoopAddressBookManager()
     }
 
     var refcodeProvider: RefcodeProvider? {
@@ -123,9 +131,9 @@ final class LockedUserWalletModel: UserWalletModel {
         walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: userWallet.walletInfo)
     }
 
-    func validate() -> Bool {
+    var backupState: UserWalletBackupState {
         // Nothing to validate for locked wallets
-        return true
+        .valid
     }
 
     func update(type: UpdateRequest) {

@@ -16,6 +16,8 @@ final class CommonDeeplinkPresenter {
     // MARK: - Properties
 
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+
     private let coordinatorFactory: MainCoordinatorChildFactory
 
     // MARK: - Init
@@ -100,8 +102,8 @@ private extension CommonDeeplinkPresenter {
         case .sell(let userWalletModel):
             return constructSellViewController(userWalletModel: userWalletModel)
 
-        case .swapWithDeferredPairResolution(let parameters):
-            return constructSwapWithDeferredPairResolutionViewController(parameters: parameters)
+        case .swap(let parameters):
+            return constructSwapViewController(parameters: parameters)
 
         case .referral(let input):
             return constructReferralViewController(input: input)
@@ -119,9 +121,8 @@ private extension CommonDeeplinkPresenter {
             return constructMarketsSearchViewController(filter: filter)
 
         case .onboardVisa(let deeplinkString):
-            return constructTangemPayOnboardViewController(
-                deeplinkString: deeplinkString,
-            )
+            let source: TangemPayOnboardingSource = deeplinkString.map { .deeplink($0) } ?? .other
+            return constructTangemPayOnboardViewController(source: source)
 
         case .promo(let promoCode, let refcode, let campaign):
             return constructPromoViewController(promoCode: promoCode, refcode: refcode, campaign: campaign)
@@ -202,11 +203,19 @@ private extension CommonDeeplinkPresenter {
         )
     }
 
-    private func constructBuyViewController(userWalletModel: UserWalletModel) -> UIViewController {
+    private func constructBuyViewController(userWalletModel: UserWalletModel) -> UIViewController? {
+        if let backupAlert = UserWalletBackupStatusHelper().alert(for: userWalletModel.userWalletInfo) {
+            alertPresenter.present(alert: backupAlert)
+            return nil
+        }
+
         let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { _ in UIApplication.dismissTop() })
 
         coordinator.start(
-            with: .init(userWalletModels: [userWalletModel])
+            with: .init(
+                userWalletModels: [userWalletModel],
+                preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel)
+            )
         )
 
         return makeDeeplinkViewController(
@@ -232,7 +241,7 @@ private extension CommonDeeplinkPresenter {
         )
     }
 
-    private func constructSwapWithDeferredPairResolutionViewController(parameters: PredefinedSwapParameters) -> UIViewController {
+    private func constructSwapViewController(parameters: PredefinedSwapParameters) -> UIViewController? {
         let coordinator = SendCoordinator(
             dismissAction: { _ in UIApplication.dismissTop() },
             popToRootAction: { _ in UIApplication.dismissTop() }
@@ -301,7 +310,7 @@ private extension CommonDeeplinkPresenter {
         )
     }
 
-    private func constructTangemPayOnboardViewController(deeplinkString: String) -> UIViewController? {
+    private func constructTangemPayOnboardViewController(source: TangemPayOnboardingSource) -> UIViewController? {
         guard let availableSelection = tangemPayAvailabilityRepository.tangemPayOfferAvailability.availableWalletSelection else {
             return nil
         }
@@ -309,7 +318,7 @@ private extension CommonDeeplinkPresenter {
         let coordinator = coordinatorFactory.makeTangemPayOnboardingCoordinator { _ in
             UIApplication.dismissTop()
         }
-        coordinator.start(with: .init(source: .deeplink(deeplinkString), availableSelection: availableSelection))
+        coordinator.start(with: .init(source: source, availableSelection: availableSelection))
 
         return makeDeeplinkViewController(
             view: {

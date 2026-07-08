@@ -14,10 +14,10 @@ struct TangemPayCardPageIndicatorRedesigned: View {
     let selectedIndex: Int
 
     var body: some View {
-        HStack(spacing: DesignSystem.Tokens.Spacing.s050) {
+        HStack(spacing: 4) {
             ForEach(0 ..< count, id: \.self) { index in
                 Circle()
-                    .fill(DesignSystem.Tokens.Theme.Icon.primary)
+                    .fill(DesignSystem.Color.iconPrimary)
                     .opacity(index == selectedIndex ? 1 : 0.32)
                     .frame(width: 6, height: 6)
                     .animation(.easeInOut(duration: 0.2), value: selectedIndex)
@@ -28,13 +28,11 @@ struct TangemPayCardPageIndicatorRedesigned: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
-    VStack(spacing: DesignSystem.Tokens.Spacing.s300) {
+    VStack(spacing: 24) {
         TangemPayCardPageIndicatorRedesigned(count: 2, selectedIndex: 1)
         TangemPayCardPageIndicatorRedesigned(count: 3, selectedIndex: 0)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(DesignSystem.Tokens.Theme.Bg.primary)
+    .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

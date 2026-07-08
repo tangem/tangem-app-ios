@@ -20,6 +20,9 @@ final class CommonTokenFeeProvider {
     let feeTokenItemBalanceProvider: TokenBalanceProvider
     let supportingOptions: TokenFeeProviderSupportingOptions
 
+    private let balanceConverter = BalanceConverter()
+    private let balanceFormatter = BalanceFormatter()
+
     private var tokenFeeProviderInputData: TokenFeeProviderInputData?
 
     private let stateSubject: CurrentValueSubject<TokenFeeProviderState, Never> = .init(.idle)
@@ -52,7 +55,23 @@ final class CommonTokenFeeProvider {
 extension CommonTokenFeeProvider: TokenFeeProvider {
     var balanceFeeTokenState: TokenBalanceType { feeTokenItemBalanceProvider.balanceType }
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { feeTokenItemBalanceProvider.balanceTypePublisher }
-    var formattedFeeTokenBalance: FormattedTokenBalanceType { feeTokenItemBalanceProvider.formattedBalanceType }
+    var formattedFeeTokenBalance: FormattedTokenBalanceType {
+        let currencyId = feeTokenItem.currencyId
+        let currencySymbol = feeTokenItem.currencySymbol
+
+        let builder = FormattedTokenBalanceTypeBuilder(format: { [balanceConverter, balanceFormatter] cryptoValue in
+            if let cryptoValue,
+               let currencyId,
+               let fiatValue = balanceConverter.convertToFiat(cryptoValue, currencyId: currencyId) {
+                return balanceFormatter.formatFiatBalance(fiatValue)
+            }
+
+            return balanceFormatter.formatCryptoBalance(cryptoValue, currencyCode: currencySymbol)
+        })
+
+        return builder.mapToFormattedTokenBalanceType(type: feeTokenItemBalanceProvider.balanceType)
+    }
+
     var hasMultipleFeeOptions: Bool {
         if case .available(let fees) = state {
             return fees.count > 1
@@ -210,6 +229,13 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .dex(.solana(let data)):
             return try await updateFees(compiledTransaction: data)
 
+        case .dex(.bitcoinPsbt(let psbtBase64)):
+            guard FeatureProvider.isAvailable(.bitcoinDexSwap) else {
+                throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+            }
+
+            return try await updateFees(psbtBase64: psbtBase64)
+
         case .approve(let txData, let toContractAddress, let feeMultiplier):
             let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
             let allFees = try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
@@ -268,6 +294,9 @@ private extension CommonTokenFeeProvider {
             // Is available. Do nothing
             break
         case .dex(.solana) where tokenFeeLoader is SolanaTokenFeeLoader:
+            // Is available. Do nothing
+            break
+        case .dex(.bitcoinPsbt) where tokenFeeLoader is BitcoinTokenFeeLoader && FeatureProvider.isAvailable(.bitcoinDexSwap):
             // Is available. Do nothing
             break
         case .dex:
@@ -406,6 +435,14 @@ private extension CommonTokenFeeProvider {
 
     func updateFees(compiledTransaction data: Data) async throws -> [BSDKFee] {
         let fees = try await tokenFeeLoader.asSolanaTokenFeeLoader().getFee(compiledTransaction: data)
+        try Task.checkCancellation()
+        return fees
+    }
+
+    // MARK: - Bitcoin
+
+    func updateFees(psbtBase64: String) async throws -> [BSDKFee] {
+        let fees = try await tokenFeeLoader.asBitcoinTokenFeeLoader().getFee(psbtBase64: psbtBase64)
         try Task.checkCancellation()
         return fees
     }

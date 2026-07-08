@@ -112,17 +112,15 @@ struct ProviderRowView: View {
         case .bestRate:
             Text(Localization.expressProviderBestRate)
                 .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
-                .padding(.vertical, 2)
-                .padding(.horizontal, 6)
-                .background(Colors.Icon.accent.opacity(0.1))
-                .cornerRadiusContinuous(8)
+                .accentBadgeStyle()
+        case .bestDexRate:
+            Text(Localization.expressProviderBestDexRate)
+                .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
+                .accentBadgeStyle()
         case .recommended:
             Text(Localization.expressProviderRecommended)
                 .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
-                .padding(.vertical, 2)
-                .padding(.horizontal, 6)
-                .background(Colors.Icon.accent.opacity(0.1))
-                .cornerRadiusContinuous(8)
+                .accentBadgeStyle()
         }
     }
 
@@ -143,42 +141,8 @@ struct ProviderRowView: View {
     }
 }
 
-struct ProviderRowViewModel_Preview: PreviewProvider {
-    static var previews: some View {
-        views
-            .preferredColorScheme(.light)
-
-        views
-            .preferredColorScheme(.dark)
-    }
-
-    static var views: some View {
-        GroupedSection([
-            viewModel(titleFormat: .prefixAndName, badge: .none, detailsType: .chevron),
-            viewModel(titleFormat: .prefixAndName, badge: .bestRate, detailsType: .selected),
-            viewModel(
-                titleFormat: .name,
-                badge: .permissionNeeded,
-                subtitles: [.percent("-1.2%", signType: .negative)]
-            ),
-            viewModel(
-                titleFormat: .name,
-                badge: .permissionNeeded,
-                subtitles: [.percent("0.7%", signType: .positive)]
-            ),
-            viewModel(titleFormat: .name, badge: .none, isDisabled: true),
-            viewModel(titleFormat: .name, badge: .bestRate, isDisabled: true),
-            viewModel(titleFormat: .name, badge: .permissionNeeded, isDisabled: true),
-        ]) {
-            ProviderRowView(viewModel: $0)
-        }
-        .interItemSpacing(14)
-        .innerContentPadding(12)
-        .padding()
-        .background(Colors.Background.secondary)
-    }
-
-    static func viewModel(
+#Preview("Light") {
+    func viewModel(
         titleFormat: ProviderRowViewModel.TitleFormat,
         badge: ProviderRowViewModel.Badge?,
         isDisabled: Bool = false,
@@ -199,4 +163,78 @@ struct ProviderRowViewModel_Preview: PreviewProvider {
             detailsType: detailsType
         ) {}
     }
+
+    return GroupedSection([
+        viewModel(titleFormat: .prefixAndName, badge: .none, detailsType: .chevron),
+        viewModel(titleFormat: .prefixAndName, badge: .bestRate, detailsType: .selected),
+        viewModel(
+            titleFormat: .name,
+            badge: .permissionNeeded,
+            subtitles: [.percent("-1.2%", signType: .negative)]
+        ),
+        viewModel(
+            titleFormat: .name,
+            badge: .permissionNeeded,
+            subtitles: [.percent("0.7%", signType: .positive)]
+        ),
+        viewModel(titleFormat: .name, badge: .none, isDisabled: true),
+        viewModel(titleFormat: .name, badge: .bestRate, isDisabled: true),
+        viewModel(titleFormat: .name, badge: .permissionNeeded, isDisabled: true),
+    ]) {
+        ProviderRowView(viewModel: $0)
+    }
+    .interItemSpacing(14)
+    .innerContentPadding(12)
+    .padding()
+    .background(Colors.Background.secondary)
+    .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    func viewModel(
+        titleFormat: ProviderRowViewModel.TitleFormat,
+        badge: ProviderRowViewModel.Badge?,
+        isDisabled: Bool = false,
+        subtitles: [ProviderRowViewModel.Subtitle] = [],
+        detailsType: ProviderRowViewModel.DetailsType? = nil
+    ) -> ProviderRowViewModel {
+        ProviderRowViewModel(
+            provider: .init(
+                id: UUID().uuidString,
+                iconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/1inch_512.png")!,
+                name: "1inch",
+                type: "DEX"
+            ),
+            titleFormat: titleFormat,
+            isDisabled: isDisabled,
+            badge: badge,
+            subtitles: [.text("1 132,46 MATIC")] + subtitles,
+            detailsType: detailsType
+        ) {}
+    }
+
+    return GroupedSection([
+        viewModel(titleFormat: .prefixAndName, badge: .none, detailsType: .chevron),
+        viewModel(titleFormat: .prefixAndName, badge: .bestRate, detailsType: .selected),
+        viewModel(
+            titleFormat: .name,
+            badge: .permissionNeeded,
+            subtitles: [.percent("-1.2%", signType: .negative)]
+        ),
+        viewModel(
+            titleFormat: .name,
+            badge: .permissionNeeded,
+            subtitles: [.percent("0.7%", signType: .positive)]
+        ),
+        viewModel(titleFormat: .name, badge: .none, isDisabled: true),
+        viewModel(titleFormat: .name, badge: .bestRate, isDisabled: true),
+        viewModel(titleFormat: .name, badge: .permissionNeeded, isDisabled: true),
+    ]) {
+        ProviderRowView(viewModel: $0)
+    }
+    .interItemSpacing(14)
+    .innerContentPadding(12)
+    .padding()
+    .background(Colors.Background.secondary)
+    .preferredColorScheme(.dark)
 }

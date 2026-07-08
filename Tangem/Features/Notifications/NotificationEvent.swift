@@ -29,7 +29,16 @@ protocol NotificationEvent: Identifiable {
 
     var bannerKind: NotificationBannerKind? { get }
 
+    /// Redesign-only copy/icon, force-mapped by the redesign banner mapper. Legacy `NotificationView` ignores it.
+    var redesignedBannerContent: RedesignedBannerContent? { get }
+
     var descriptionLinkTint: Color? { get }
+}
+
+struct RedesignedBannerContent {
+    let title: NotificationView.Title?
+    let description: String?
+    let icon: NotificationView.MessageIcon
 }
 
 extension NotificationEvent where Self: Hashable {
@@ -72,6 +81,8 @@ extension NotificationEvent {
                     return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
                 case .amountExceedMaximumUTXO:
                     return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
+                case .insufficientBalanceForFee:
+                    return SendAccessibilityIdentifiers.insufficientBalanceForFeeBanner
                 default:
                     return nil
                 }
@@ -82,6 +93,15 @@ extension NotificationEvent {
                 default:
                     return nil
                 }
+            default:
+                return nil
+            }
+        } else if let swapNotificationEvent = self as? SwapNotificationEvent {
+            switch swapNotificationEvent {
+            case .customFeeWarning(.tooLow):
+                return SendAccessibilityIdentifiers.customFeeTooLowBanner
+            case .customFeeWarning(.tooHigh):
+                return SendAccessibilityIdentifiers.customFeeTooHighBanner
             default:
                 return nil
             }
@@ -103,6 +123,8 @@ extension NotificationEvent {
     }
 
     var bannerKind: NotificationBannerKind? { nil }
+
+    var redesignedBannerContent: RedesignedBannerContent? { nil }
 
     var colorTheme: NotificationView.ColorTheme {
         .system

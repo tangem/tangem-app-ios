@@ -20,12 +20,13 @@ struct AddressBookRowView: View {
             title: Localization.addressBookTitle,
             subtitle: Localization.addressBookDescription
         )
-        .verticalAlignment(.center)
         .start {
-            DesignSystem.Icons.AddressPolygon.regular20.image
-                .padding(.all, DesignSystem.Tokens.Spacing.s100)
-                .background(DesignSystem.Tokens.Theme.Bg.Status.infoSubtle)
-                .cornerRadiusContinuous(DesignSystem.Tokens.CornerRadius._150)
+            DesignSystem.Icons.ContactBook.filled20.image
+                .renderingMode(.template)
+                .foregroundColor(DesignSystem.Color.iconBrand)
+                .padding(.all, 8)
+                .background(DesignSystem.Color.bgStatusInfoSubtle)
+                .cornerRadiusContinuous(12)
         }
         .end(icon: DesignSystem.Icons.ChevronRight.regular20)
         .onTap(viewModel.action)

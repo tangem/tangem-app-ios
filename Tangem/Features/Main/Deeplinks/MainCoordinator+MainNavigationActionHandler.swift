@@ -32,16 +32,6 @@ extension MainCoordinator {
         private let walletModelLocator = DeeplinkWalletModelLocator()
         private lazy var tokenDeeplinkHandler = TokenDeeplinkHandler(walletModelLocator: walletModelLocator)
 
-        // MARK: - Public Implementation
-
-        func becomeIncomingActionsResponder() {
-            incomingActionManager.becomeFirstResponder(self)
-        }
-
-        func resignIncomingActionsResponder() {
-            incomingActionManager.resignFirstResponder(self)
-        }
-
         // MARK: - Private Implementation
 
         private func routeIncomingAction(_ action: IncomingAction) -> Bool {
@@ -284,7 +274,7 @@ extension MainCoordinator {
             )
 
             coordinator?.openDeepLink(
-                .swapWithDeferredPairResolution(
+                .swap(
                     parameters: .deferredPairResolution(source: sourceToken, resolver: resolver)
                 )
             )
@@ -349,7 +339,7 @@ extension MainCoordinator {
                 let tokenId = params.tokenId,
                 let networkId = params.networkId,
                 let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
-                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isStakeFeatureAvailable,
+                TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel).isStakeFeatureAvailable,
                 let stakingManager = walletModel.stakingManager
             else {
                 incomingActionManager.discardIncomingAction()
@@ -363,23 +353,30 @@ extension MainCoordinator {
         }
 
         private func routeYieldAction(params: DeeplinkNavigationAction.Params) -> Bool {
-            guard
-                let coordinator,
-                let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
-                let tokenId = params.tokenId,
-                let networkId = params.networkId,
-                let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
-                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable(),
-                walletModel.yieldModuleManager != nil,
-                walletModel.multipleTransactionsSender != nil
-            else {
+            guard let coordinator else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
 
-            coordinator.openDeepLink(
-                .yield(walletModel: walletModel, userWalletModel: userWalletModel)
-            )
+            if let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
+               let tokenId = params.tokenId,
+               let networkId = params.networkId,
+               let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
+               TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel).isTokenInteractionAvailable(),
+               walletModel.yieldModuleManager != nil,
+               walletModel.multipleTransactionsSender != nil {
+                coordinator.openDeepLink(
+                    .yield(walletModel: walletModel, userWalletModel: userWalletModel)
+                )
+                return true
+            }
+
+            // Silent fallback for any `tangem://yield` that can't reach the Yield-mode screen:
+            // empty or partial params, invalid values, opportunity not found, or a valid token
+            // that isn't added to the wallet. The network filter is preserved only when
+            // `network_id` is a supported network.
+            let fallbackNetworkId = params.networkId.flatMap { isSupportedNetwork($0) ? $0 : nil }
+            coordinator.openDeepLink(.earn(earnType: .yield, networkId: fallbackNetworkId))
             return true
         }
 
@@ -392,11 +389,10 @@ extension MainCoordinator {
                 return false
             }
 
-            coordinator.openDeepLink(
-                .onboardVisa(
-                    deeplinkString: deeplinkString
-                )
-            )
+            let hasDeeplinkParams = params.entry != nil || params.id != nil
+
+            coordinator.openDeepLink(.onboardVisa(deeplinkString: hasDeeplinkParams ? deeplinkString : nil))
+
             return true
         }
 
@@ -433,6 +429,10 @@ extension MainCoordinator.MainNavigationActionHandler {
         walletModelLocator.findUserWalletModel(userWalletModelId: userWalletModelId)
     }
 
+    private func isSupportedNetwork(_ networkId: String) -> Bool {
+        SupportedBlockchains.all.contains { $0.networkId == networkId }
+    }
+
     private func findWalletModel(
         in userWalletModel: any UserWalletModel,
         tokenId: String,
@@ -443,9 +443,17 @@ extension MainCoordinator.MainNavigationActionHandler {
     }
 }
 
-// MARK: - IncomingActionResponder
+// MARK: - IncomingActionRoutingHandler
 
-extension MainCoordinator.MainNavigationActionHandler: IncomingActionResponder {
+extension MainCoordinator.MainNavigationActionHandler: IncomingActionRoutingHandler {
+    func becomeIncomingActionsResponder() {
+        incomingActionManager.becomeFirstResponder(self)
+    }
+
+    func resignIncomingActionsResponder() {
+        incomingActionManager.resignFirstResponder(self)
+    }
+
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
         routeIncomingAction(action)
     }

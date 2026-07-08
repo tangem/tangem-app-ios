@@ -43,6 +43,10 @@ struct TokenDetailsView: View {
                         }
                     }
 
+                    if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+                        QuickTopUpBannerView(viewModel: quickTopUpVM)
+                    }
+
                     if let actionsViewModel = viewModel.actionsViewModel {
                         TokenDetailsActionsView(viewModel: actionsViewModel)
                     }
@@ -58,6 +62,8 @@ struct TokenDetailsView: View {
 
                 stakingView
 
+                marketingBanner
+
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
                 }
@@ -67,7 +73,7 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
 
-                if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+                if !viewModel.isRedesign, let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
                     QuickTopUpBannerView(viewModel: quickTopUpVM)
                 }
 
@@ -110,6 +116,9 @@ struct TokenDetailsView: View {
         .onAppear {
             viewModel.onAppear()
             scrollOffsetHandler.onViewAppear()
+        }
+        .onDisappear {
+            viewModel.onDisappear()
         }
         .onFirstAppear {
             viewModel.onFirstAppear()
@@ -245,6 +254,7 @@ struct TokenDetailsView: View {
             Menu("", systemImage: "ellipsis") {
                 ForEach(viewModel.dotsMenuItems) { menuItem in
                     Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
+                        .frame(width: .unit(.x11), height: .unit(.x11))
                         .accessibilityIdentifier(menuItem.type.accessibilityIdentifier)
                 }
             }
@@ -271,6 +281,16 @@ struct TokenDetailsView: View {
                     accessibilityIdentifier: notification.accessibilityIdentifier
                 )
             }
+        }
+    }
+
+    @ViewBuilder
+    private var marketingBanner: some View {
+        if let marketingNotifications = viewModel.marketingNotifications {
+            NotificationBannerContainer(
+                items: marketingNotifications,
+                stackingType: .carousel
+            )
         }
     }
 
@@ -339,6 +359,8 @@ private extension TokenDetailsView {
     }
 }
 
+// MARK: - Previews
+
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
     let cryptoAccountModel = userWalletModel
@@ -359,29 +381,41 @@ private extension TokenDetailsView {
     let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
         ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
     }
-    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
-        userWalletId: userWalletModel.userWalletId.stringValue,
+    let exchangeStatusPoller = ExchangeStatusPoller(
+        userWalletId: userWalletModel.userWalletId,
         tokenItem: walletModel.tokenItem,
-        walletModelUpdater: walletModel,
         cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
+    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
+        walletModelUpdater: walletModel,
+        poller: exchangeStatusPoller
+    )
     let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
-    let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
-        userWalletId: userWalletModel.userWalletId.stringValue,
+    let onrampStatusPoller = OnrampStatusPoller(
+        userWalletId: userWalletModel.userWalletId,
         tokenItem: walletModel.tokenItem,
-        expressAPIProvider: onrampExpressAPIProvider,
-        unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
-            userWalletId: userWalletModel.userWalletId.stringValue,
-            tokenItem: walletModel.tokenItem,
-            expressAPIProvider: onrampExpressAPIProvider
-        )
+        expressAPIProvider: onrampExpressAPIProvider
+    )
+    let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
+        userWalletId: userWalletModel.userWalletId,
+        tokenItem: walletModel.tokenItem,
+        expressAPIProvider: onrampExpressAPIProvider
+    )
+    let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
+        unknownStatusRecoveryService: unknownStatusRecoveryService,
+        poller: onrampStatusPoller
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
         first: pendingExpressTxsManager,
         second: pendingOnrampTxsManager
     )
     let coordinator = TokenDetailsCoordinator()
+    let expressStatusPollingHelper = ExpressStatusPollingHelper(
+        exchangePoller: exchangeStatusPoller,
+        onrampPoller: onrampStatusPoller,
+        enricherFactory: { nil }
+    )
 
     TokenDetailsView(
         viewModel: .init(
@@ -390,13 +424,19 @@ private extension TokenDetailsView {
             notificationManager: notifManager,
             userTokensManager: cryptoAccountModel.userTokensManager,
             pendingExpressTransactionsManager: pendingTxsManager,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             xpubGenerator: nil,
             coordinator: coordinator,
             tokenRouter: SingleTokenRouter(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 coordinator: coordinator
             ),
-            pendingTransactionDetails: nil
+            pendingTransactionDetails: nil,
+            deeplinkHandler: TokenDetailsDeeplinkHandler(
+                coordinator: coordinator,
+                walletModel: walletModel,
+                userWalletInfo: userWalletModel.userWalletInfo
+            )
         )
     )
 }

@@ -23,7 +23,7 @@ enum TokenNotificationEvent: Hashable {
     case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
     case bnbBeaconChainRetirement
     case hasUnfulfilledRequirements(configuration: UnfulfilledRequirementsConfiguration, icon: MainButton.Icon?)
-    case staking(tokenIconInfo: TokenIconInfo, earnUpToFormatted: String)
+    case staking(tokenIconInfo: TokenIconInfo, earnUpToFormatted: String, isBeta: Bool)
     case manaLevel(currentMana: String, maxMana: String)
     case maticMigration
     case cloreMigration
@@ -35,6 +35,10 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .noAccount:
             return .warning
+        case .staking, .manaLevel, .maticMigration, .cloreMigration, .existentialDepositWarning:
+            return .status
+        case .rentFee:
+            return .informational()
         default:
             return nil
         }
@@ -62,8 +66,12 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningKaspaUnfinishedTokenTransactionTitle)
         case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _):
             return .string(Localization.warningTokenTrustlineTitle)
-        case .staking:
-            return .string(Localization.tokenDetailsStakingBlockTitle)
+        case .staking(_, _, let isBeta):
+            return .string(
+                isBeta
+                    ? "\(Localization.tokenDetailsStakingBlockTitle) \(AppConstants.dotSign) \(Localization.betaModeWarningTitle)"
+                    : Localization.tokenDetailsStakingBlockTitle
+            )
         case .manaLevel:
             return .string(Localization.koinosManaLevelTitle)
         case .maticMigration:
@@ -172,7 +180,7 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.redCircleWarning))
         case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo), _):
             return .init(iconType: .image(trustlineInfo.icon))
-        case .staking(let tokenIconInfo, _):
+        case .staking(let tokenIconInfo, _, _):
             return .init(iconType: .icon(tokenIconInfo))
         }
     }

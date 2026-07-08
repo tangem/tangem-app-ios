@@ -23,6 +23,8 @@ struct ExpressCurrencyView<Content: View>: View {
     private let chevronIconSize = CGSize(width: 9, height: 9)
     private var didTapChangeCurrency: () -> Void = {}
     private var didTapNetworkFeeInfoButton: ((ExpressCurrencyViewModel.PriceChangeState) -> Void)?
+    private var didTapSwitchCurrency: (() -> Void)?
+    private var isCurrencySwitched: Bool = false
 
     @State private var symbolSize: CGSize = .zero
 
@@ -109,19 +111,23 @@ struct ExpressCurrencyView<Content: View>: View {
     @ViewBuilder
     private var bottomContent: some View {
         HStack(spacing: 0) {
-            if !viewModel.state.isFiatAmountHidden {
-                HStack(spacing: 4) {
-                    LoadableTextView(
-                        state: viewModel.state.fiatAmountState,
-                        font: Fonts.Regular.footnote,
-                        textColor: Colors.Text.tertiary,
-                        loaderSize: CGSize(width: 70, height: 12),
-                        lineLimit: 1,
-                        isSensitiveText: false
-                    )
+            HStack(spacing: 4) {
+                if !viewModel.state.isFiatAmountHidden {
+                    if viewModel.state.isSwitchCurrencyAvailable, let didTapSwitchCurrency {
+                        Button(action: didTapSwitchCurrency) {
+                            HStack(spacing: 4) {
+                                switchCurrencyIcon
 
-                    infoButton
+                                alternativeAmountView
+                            }
+                        }
+                        .accessibilityIdentifier(SwapAccessibilityIdentifiers.currencyToggleButton)
+                    } else {
+                        alternativeAmountView
+                    }
                 }
+
+                infoButton
             }
 
             Spacer()
@@ -139,6 +145,25 @@ struct ExpressCurrencyView<Content: View>: View {
             .padding(.trailing, 12)
             .offset(x: -tokenIconSize.width / 2 + symbolSize.width / 2)
         }
+    }
+
+    private var alternativeAmountView: some View {
+        LoadableTextView(
+            state: viewModel.state.alternativeAmountState,
+            font: Fonts.Regular.footnote,
+            textColor: Colors.Text.tertiary,
+            loaderSize: CGSize(width: 70, height: 12),
+            lineLimit: 1,
+            isSensitiveText: false
+        )
+    }
+
+    private var switchCurrencyIcon: some View {
+        DesignSystem.Icons.ArrowSwapHorizontal.regular16.image
+            .renderingMode(.template)
+            .foregroundColor(Colors.Icon.informative)
+            .rotation3DEffect(.degrees(isCurrencySwitched ? 180 : .zero), axis: (1, 0, 0))
+            .animation(SendAmountInputConstants.animation, value: isCurrencySwitched)
     }
 
     @ViewBuilder
@@ -230,14 +255,19 @@ extension ExpressCurrencyView: Setupable {
     func didTapNetworkFeeInfoButton(_ block: @escaping (ExpressCurrencyViewModel.PriceChangeState) -> Void) -> Self {
         map { $0.didTapNetworkFeeInfoButton = block }
     }
+
+    func didTapSwitchCurrency(isSwitched: Bool, _ block: @escaping () -> Void) -> Self {
+        map {
+            $0.isCurrencySwitched = isSwitched
+            $0.didTapSwitchCurrency = block
+        }
+    }
 }
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ChooseTokenPillView(action: {})
         .padding()
         .background(Colors.Background.action)
 }
-#endif // DEBUG
