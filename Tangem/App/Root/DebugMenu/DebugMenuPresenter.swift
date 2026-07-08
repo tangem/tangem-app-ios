@@ -34,7 +34,7 @@ final class DebugMenuPresenter {
         overlayViewPresenter.present(
             OverlayView(
                 id: Self.overlayId,
-                view: AnyView(rootView),
+                view: rootView,
                 style: .fullScreenCover
             )
         )

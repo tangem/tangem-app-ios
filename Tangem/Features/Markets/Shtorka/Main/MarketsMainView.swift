@@ -262,7 +262,6 @@ struct MarketsMainView: View {
 
     // MARK: - Widgets Implementation
 
-    @ViewBuilder
     private var widgetsListView: some View {
         ZStack {
             ScrollViewReader { proxy in
