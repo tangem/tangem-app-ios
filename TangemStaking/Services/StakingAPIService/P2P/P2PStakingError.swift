@@ -11,6 +11,7 @@ import Foundation
 public enum P2PStakingError: Error {
     case apiError(P2PAPIError?)
     case httpError(statusCode: Int)
+    case regionUnavailable
     case failedToGetFee
     case invalidVault
     case transactionNotFound
