@@ -61,9 +61,12 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             hardwareLimitationsUtil: HardwareLimitationsUtil(config: userWalletInfo.config)
         )
 
+        let isYieldModuleActive = walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true
+
         let supportedProvidersFilter: SupportedProvidersFilter = switch operationType {
         case .swapAndSend where FeatureProvider.isAvailable(.exchangeOnlyWithinSingleAddress): .byDifferentAddressExchangeSupport
         case .swapAndSend: .cex
+        case .swap where isYieldModuleActive && !FeatureProvider.isAvailable(.yieldModuleUpdate): .cex
         case .swap: .swap
         case .onramp: .onramp
         }
