@@ -9,10 +9,12 @@
 import Combine
 import Foundation
 import TangemFoundation
+import TangemLocalization
 import BlockchainSdk
 
 protocol ChooseNetworkOutput: AnyObject {
     func chooseNetworkDidConfirm(_ selected: Set<BSDKBlockchain>)
+    func chooseNetworkDidTapSelectAll(didSelectAll: Bool)
 }
 
 protocol ChooseNetworkRoutable: AnyObject {
@@ -23,12 +25,18 @@ final class ChooseNetworkViewModel: ObservableObject, Identifiable {
     @Published var searchText: String = ""
     @Published private(set) var rows: [ChooseNetworkRowViewModel] = []
     var isDoneEnabled: Bool { selected.isNotEmpty }
+    var isSelectAllVisible: Bool { candidates.count > 1 && searchText.trimmed().isEmpty }
+    var selectAllTitle: String {
+        isAllSelected ? Localization.addressBookClearAllNetworks : Localization.addressBookSelectAllNetworks
+    }
 
     private let candidates: [BSDKBlockchain]
     private var selected: Set<BSDKBlockchain>
     private weak var output: ChooseNetworkOutput?
     private weak var routable: ChooseNetworkRoutable?
     private var bag = Set<AnyCancellable>()
+
+    private var isAllSelected: Bool { Set(candidates).isSubset(of: selected) }
 
     init(
         candidates: Set<BSDKBlockchain>,
@@ -52,6 +60,13 @@ final class ChooseNetworkViewModel: ObservableObject, Identifiable {
 
     func close() {
         routable?.dismissChooseNetwork()
+    }
+
+    func toggleSelectAll() {
+        let willSelectAll = !isAllSelected
+        selected = willSelectAll ? Set(candidates) : []
+        output?.chooseNetworkDidTapSelectAll(didSelectAll: willSelectAll)
+        rebuildRows()
     }
 }
 

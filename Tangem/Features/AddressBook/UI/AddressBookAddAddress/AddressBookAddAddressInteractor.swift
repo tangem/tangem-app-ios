@@ -36,6 +36,7 @@ protocol AddressBookAddAddressInteractor {
     func userDidRequestSave()
 
     func logScreenOpened()
+    func logSelectAllTapped(didSelectAll: Bool)
 }
 
 enum AddressBookAddAddressOptions {
@@ -210,6 +211,13 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
 
     func logScreenOpened() {
         analyticsLogger.logAddressScreenOpened(walletId: userWalletInfo.id.stringValue)
+    }
+
+    func logSelectAllTapped(didSelectAll: Bool) {
+        analyticsLogger.logSelectAllNetworksTapped(
+            walletId: userWalletInfo.id.stringValue,
+            action: didSelectAll ? .selectAll : .clearAll
+        )
     }
 }
 
