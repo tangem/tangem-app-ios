@@ -502,9 +502,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
 
             // Searching expands all account sections, revealing the identical token regardless of collapse state.
             let searchField = app.searchFields["Search"].firstMatch
-            waitAndAssertTrue(searchField, "Receive token selector search field should exist")
-            searchField.tap()
-            searchField.typeText(tokenName)
+            typeWithFocus(into: searchField, text: tokenName)
 
             let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
             waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in receive token selector")
