@@ -202,6 +202,10 @@ extension AddressBookAddAddressViewModel: ChooseNetworkOutput {
     func chooseNetworkDidConfirm(_ selected: Set<BSDKBlockchain>) {
         interactor.update(selectedNetworks: selected)
     }
+
+    func chooseNetworkDidTapSelectAll(didSelectAll: Bool) {
+        interactor.logSelectAllTapped(didSelectAll: didSelectAll)
+    }
 }
 
 // MARK: - Types

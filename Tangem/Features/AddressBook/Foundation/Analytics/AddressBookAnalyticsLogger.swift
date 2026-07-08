@@ -23,6 +23,7 @@ protocol AddressBookAnalyticsLogger {
     func logSendFlowWidgetShown(walletId: String)
     func logContactSelected(walletId: String, contactId: String)
     func logAddressSubstitutedInSend(walletId: String, contactId: String)
+    func logSelectAllNetworksTapped(walletId: String, action: AddressBookSelectAllAction)
 }
 
 enum AddressBookAnalyticsMode {
@@ -47,6 +48,18 @@ enum AddressBookAnalyticsSource {
         case .settings: .settings
         case .sendFlow: .addressBookSourceSendFlow
         case .sendSuccess: .addressBookSourceSendSuccess
+        }
+    }
+}
+
+enum AddressBookSelectAllAction {
+    case selectAll
+    case clearAll
+
+    var parameterValue: Analytics.ParameterValue {
+        switch self {
+        case .selectAll: .addressBookSelectAll
+        case .clearAll: .addressBookClearAll
         }
     }
 }
