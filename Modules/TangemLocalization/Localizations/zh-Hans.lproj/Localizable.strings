@@ -85,7 +85,7 @@
 "address_book_address_copied" = "地址已复制";
 "address_book_address_taken_error" = "此地址已保存为 %1$@";
 "address_book_choose_address" = "选择地址";
-"address_book_clear_all_networks" = "Clear All";
+"address_book_clear_all_networks" = "全部清除";
 "address_book_contact_name" = "联系人姓名";
 "address_book_contact" = "联系人";
 "address_book_copy_address" = "复制地址";
@@ -115,7 +115,7 @@
 "address_book_save_to_wallet_title" = "保存到钱包";
 "address_book_save_wallet_to_description" = "该联系人将与该钱包的通讯录关联。";
 "address_book_search_no_results" = "未找到结果。\n请尝试其他名称";
-"address_book_select_all_networks" = "Select All";
+"address_book_select_all_networks" = "全选";
 "address_book_select_network" = "选择网络";
 "address_book_title" = "地址簿";
 "address_book_unsaved_changes_description" = "您确定要放弃这些修改吗？";
@@ -1073,6 +1073,18 @@
 "organize_tokens_sort_by_balance" = "按余额";
 "organize_tokens_title" = "整理代币";
 "organize_tokens_ungroup" = "取消分组";
+"promo_campaign_already_activated_subtitle" = "Eligible cashback will be distributed to:";
+"promo_campaign_already_activated_title" = "You're already enrolled in %1$@";
+"promo_campaign_eligible_tokens" = "Eligible tokens";
+"promo_campaign_enroll_success_title" = "You're successfully enrolled in %1$@";
+"promo_campaign_enroll" = "Enroll";
+"promo_campaign_not_active_subtitle" = "This campaign no longer exists or has expired";
+"promo_campaign_not_active_title" = "Campaign not active";
+"promo_campaign_select_cashback_account" = "Select cashback account";
+"promo_campaign_summary_title" = "Enroll in %1$@";
+"promo_campaign_terms_agreement" = "I agree with %1$@";
+"promo_campaign_terms_link" = "%1$@ Terms";
+"promo_campaign_whale_swap_summary_description" = "Earn cashback on every swap from $10K until the end of July.\n\nRates step up with size: 0.10% from $10K, 0.20% from $20K, 0.50% from $100K.\n\nMax payout: $500 per swap, and $10,000 per wallet per swap direction until campaign lasts. Stable coin into stablecoin swaps are excluded.\n\nPayout arrives weekly in USDT or USDC address of your choice.";
 "provider_name_support" = "%@ 支持";
 "push_notification_settings_banner_description" = "推送通知已启用，但需要您在设备设置中允许通知才能正常工作。";
 "push_notification_settings_banner_title" = "允许通知";
@@ -1106,7 +1118,7 @@
 "quick_action_buy_description" = "信用卡或银行账户";
 "quick_action_receive_description" = "分享您的地址或二维码";
 "quick_action_sell_description" = "安全出售加密货币";
-"quick_action_send_and_swap_description" = "Send with swap to another token";
+"quick_action_send_and_swap_description" = "发送并兑换成另一种代币";
 "quick_action_send_description" = "发送到另一个钱包";
 "quick_action_swap_description" = "在您的投资组合之间";
 "quick_top_up_chip_other" = "其他";
