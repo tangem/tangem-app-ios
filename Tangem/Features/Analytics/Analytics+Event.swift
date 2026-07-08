@@ -870,5 +870,6 @@ extension Analytics {
         case addressBookSendFlowWidgetShown = "[Address Book] Send Flow Widget Shown"
         case addressBookContactSelected = "[Address Book] Contact Selected"
         case addressBookAddressSubstitutedInSend = "[Address Book] Address Substituted In Send"
+        case addressBookSelectAllNetworksTapped = "[Address Book] Select All Networks Tapped"
     }
 }
