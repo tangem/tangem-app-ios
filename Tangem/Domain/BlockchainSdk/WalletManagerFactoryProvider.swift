@@ -19,7 +19,9 @@ class WalletManagerFactoryProvider {
         blockchainSdkKeysConfig: keysManager.blockchainSdkKeysConfig,
         dependencies: BlockchainSdkDependencies(
             accountCreator: BlockchainAccountCreator(),
-            dataStorage: UserDefaultsBlockchainDataStorage(suiteName: AppEnvironment.current.blockchainDataStorageSuiteName)
+            dataStorage: UserDefaultsBlockchainDataStorage(suiteName: AppEnvironment.current.blockchainDataStorageSuiteName),
+            isYieldModuleUpdateEnabled: FeatureProvider.isAvailable(.yieldModuleUpdate),
+            isGaslessYieldEnabled: FeatureProvider.isAvailable(.gaslessYieldFee)
         ),
         apiList: apiList
     )
