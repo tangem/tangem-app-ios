@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 extension View {
@@ -16,12 +17,10 @@ private struct NorthernLightsBackgroundModifier: ViewModifier {
 
     @State private var renderer: NorthernLightsRenderer?
     @State private var isOverlayContentExpanded = false
+    @State private var isLowPowerModeEnabled = ProcessInfo.processInfo.isLowPowerModeEnabled
+    @State private var appIsNotActive = false
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
-
-    private var isPaused: Bool {
-        opacity <= Self.pauseOpacityThreshold || isOverlayContentExpanded
-    }
 
     func body(content: Content) -> some View {
         content
@@ -44,6 +43,32 @@ private struct NorthernLightsBackgroundModifier: ViewModifier {
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { state in
                 isOverlayContentExpanded = !state.isCollapsed
             }
+            .onReceive(
+                NotificationCenter.default
+                    .publisher(for: Notification.Name.NSProcessInfoPowerStateDidChange)
+                    .map { _ in ProcessInfo.processInfo.isLowPowerModeEnabled }
+            ) { isLowPowerModeEnabled in
+                self.isLowPowerModeEnabled = isLowPowerModeEnabled
+            }
+            .onReceive(
+                NotificationCenter.default
+                    .publisher(for: UIApplication.willResignActiveNotification)
+            ) { _ in
+                appIsNotActive = true
+            }
+            .onReceive(
+                NotificationCenter.default
+                    .publisher(for: UIApplication.didBecomeActiveNotification)
+            ) { _ in
+                appIsNotActive = false
+            }
+    }
+
+    private var isPaused: Bool {
+        opacity <= Self.pauseOpacityThreshold
+            || isOverlayContentExpanded
+            || isLowPowerModeEnabled
+            || appIsNotActive
     }
 }
 

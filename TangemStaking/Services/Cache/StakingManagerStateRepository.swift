@@ -39,8 +39,8 @@ extension CommonStakingManagerStateRepository: StakingManagerStateRepository {
             date: Date()
         )
 
-        updateUserWalletState { stateForUserWallet in
-            stateForUserWallet.updateValue(stateToCache, forKey: stakingWallet.cacheId)
+        storage.modify(defaultValue: [String: CachedStakingManagerState]()) { [stakingWallet] currentState in
+            currentState.updateValue(stateToCache, forKey: stakingWallet.cacheId)
         }
     }
 
@@ -51,17 +51,9 @@ extension CommonStakingManagerStateRepository: StakingManagerStateRepository {
     }
 
     public func clearState() {
-        updateUserWalletState { stateForUserWallet in
-            stateForUserWallet.removeValue(forKey: stakingWallet.cacheId)
+        storage.modify(defaultValue: [String: CachedStakingManagerState]()) { [stakingWallet] currentState in
+            currentState.removeValue(forKey: stakingWallet.cacheId)
         }
-    }
-
-    private func updateUserWalletState(_ updateBlock: (inout [String: CachedStakingManagerState]) -> Void) {
-        var currentState = getCurrentState()
-
-        updateBlock(&currentState)
-
-        try? storage.storeAndWait(value: currentState)
     }
 
     private func getCurrentState() -> [String: CachedStakingManagerState] {
