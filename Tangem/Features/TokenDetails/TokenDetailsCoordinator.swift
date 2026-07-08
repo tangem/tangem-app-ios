@@ -205,6 +205,13 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
+    func openStakingRegionUnavailableSheet() {
+        let viewModel = StakingRegionUnavailableSheetViewModel(coordinator: self)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openDynamicAddressesDisableSheet(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
         compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,
@@ -248,6 +255,16 @@ extension TokenDetailsCoordinator: DynamicAddressesUnavailableSheetRoutable {
 
 extension TokenDetailsCoordinator: DynamicAddressesDisableSheetRoutable {
     func closeDynamicAddressesDisableSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - StakingRegionUnavailableSheetRoutable
+
+extension TokenDetailsCoordinator: StakingRegionUnavailableSheetRoutable {
+    func closeStakingRegionUnavailableSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }

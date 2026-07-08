@@ -22,6 +22,7 @@ protocol TokenDetailsRoutable: FeeCurrencyNavigating, CloreMigrationRoutable {
         analyticsLogger: DynamicAddressesAnalyticsLogger
     )
     func openDynamicAddressesUnavailableSheet(messageType: DynamicAddressesUnavailableSheetViewModel.MessageType)
+    func openStakingRegionUnavailableSheet()
     func openDynamicAddressesDisableSheet(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
         compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,
