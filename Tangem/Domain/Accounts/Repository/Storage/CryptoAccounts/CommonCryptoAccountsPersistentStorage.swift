@@ -19,7 +19,7 @@ final class CommonCryptoAccountsPersistentStorage {
 
     /// Warmed asynchronously right after init and kept in sync on every write.
     /// Used to speed up application startup.
-    private let inMemoryCache = OSAllocatedUnfairLock<[StoredCryptoAccount]?>(initialState: nil)
+    private let cache = OSAllocatedUnfairLock<Cache>(initialState: .notWarmedUp)
 
     init(storageIdentifier: String) {
         key = .accounts(cid: storageIdentifier)
@@ -42,11 +42,31 @@ final class CommonCryptoAccountsPersistentStorage {
         return (try? unsafeFetchOptional()) ?? []
     }
 
+    /// Unsafe because it must be called from `workingQueue` only. Fetches from disk and populates `cacheState`
+    /// in one step, so `accounts` and `isMigrationNeeded` are always derived consistently from the same read.
+    @discardableResult
+    private func unsafeFetchAndCache() -> (accounts: [StoredCryptoAccount], isMigrationNeeded: Bool) {
+        let fetchedAccounts: [StoredCryptoAccount]?
+        do {
+            fetchedAccounts = try unsafeFetchOptional()
+        } catch {
+            assertionFailure(
+                "CommonCryptoAccountsPersistentStorage unable to query migration status due to error: \(error)"
+            )
+            fetchedAccounts = nil
+        }
+
+        let accounts = fetchedAccounts ?? []
+        let isMigrationNeeded = fetchedAccounts == nil
+        populateCache(accounts: accounts, isMigrationNeeded: isMigrationNeeded)
+        return (accounts, isMigrationNeeded)
+    }
+
     /// Unsafe because it must be called from `workingQueue` only.
     private func unsafeSave(_ items: [StoredCryptoAccount]) {
         do {
             try persistentStorage.store(value: items, for: key)
-            populateCache(with: items)
+            populateCache(accounts: items, isMigrationNeeded: false)
             storageDidUpdateSubject?.send()
         } catch {
             assertionFailure("CommonCryptoAccountsPersistentStorage saving error: \(error)")
@@ -55,18 +75,30 @@ final class CommonCryptoAccountsPersistentStorage {
 
     private func warmUpCache() {
         workingQueue.async { [weak self] in
-            guard let self else { return }
-            let fetchedAccounts = unsafeFetch()
-            populateCache(with: fetchedAccounts)
+            self?.unsafeFetchAndCache()
         }
     }
 
-    private func populateCache(with accounts: [StoredCryptoAccount]) {
-        inMemoryCache.withLock { $0 = accounts }
+    private func populateCache(accounts: [StoredCryptoAccount], isMigrationNeeded: Bool) {
+        cache.withLock { $0 = .warmedUp(accounts: accounts, isMigrationNeeded: isMigrationNeeded) }
     }
 
-    private func retrieveFromCache() -> [StoredCryptoAccount]? {
-        inMemoryCache.withLock { $0 }
+    private func retrieveFromCache() -> (accounts: [StoredCryptoAccount], isMigrationNeeded: Bool)? {
+        cache.withLock { state in
+            guard case .warmedUp(let accounts, let isMigrationNeeded) = state else {
+                return nil
+            }
+            return (accounts, isMigrationNeeded)
+        }
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension CommonCryptoAccountsPersistentStorage {
+    enum Cache {
+        case notWarmedUp
+        case warmedUp(accounts: [StoredCryptoAccount], isMigrationNeeded: Bool)
     }
 }
 
@@ -74,14 +106,12 @@ final class CommonCryptoAccountsPersistentStorage {
 
 extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage {
     func getList() -> [StoredCryptoAccount] {
-        if let cachedAccounts = retrieveFromCache() {
-            return cachedAccounts
+        if let cached = retrieveFromCache() {
+            return cached.accounts
         }
 
         return workingQueue.sync {
-            let fetchedAccounts = unsafeFetch()
-            populateCache(with: fetchedAccounts)
-            return fetchedAccounts
+            unsafeFetchAndCache().accounts
         }
     }
 
@@ -134,13 +164,12 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
 
 extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorageController {
     func isMigrationNeeded() -> Bool {
+        if let cached = retrieveFromCache() {
+            return cached.isMigrationNeeded
+        }
+
         return workingQueue.sync {
-            do {
-                return try unsafeFetchOptional() == nil
-            } catch {
-                assertionFailure("CommonCryptoAccountsPersistentStorage unable to query migration status due to error: \(error)")
-                return true
-            }
+            unsafeFetchAndCache().isMigrationNeeded
         }
     }
 
