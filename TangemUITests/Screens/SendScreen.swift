@@ -149,7 +149,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         XCTContext.runActivity(named: "Enter address '\(address)' in destination field") { _ in
             // typeText() is flaky
             UIPasteboard.general.string = address
-            pasteButton.waitAndTap()
+            pasteFromEditMenu(into: destinationTextView)
         }
         return self
     }
@@ -582,9 +582,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     @discardableResult
     func enterAdditionalField(_ value: String) -> Self {
         XCTContext.runActivity(named: "Enter additional field value '\(value)'") { _ in
-            waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
-            additionalFieldTextField.waitAndTap()
-            additionalFieldTextField.typeText(value)
+            typeWithFocus(into: additionalFieldTextField, text: value)
         }
         return self
     }
@@ -745,7 +743,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func pasteDestination(_ address: String) -> Self {
         XCTContext.runActivity(named: "Paste address '\(address)' via Paste button") { _ in
             UIPasteboard.general.string = address
-            pasteButton.waitAndTap()
+            pasteFromEditMenu(into: destinationTextView)
         }
         return self
     }
