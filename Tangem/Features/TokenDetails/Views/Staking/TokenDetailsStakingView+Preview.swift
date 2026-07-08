@@ -18,6 +18,7 @@ import TangemUI
         case enableAuto = "Enable (Auto)"
         case enableEmpty = "Enable (Empty)"
         case unavailable = "Unavailable"
+        case unavailableInRegion = "Unavailable (Region)"
 
         var id: String { rawValue }
 
@@ -64,7 +65,15 @@ import TangemUI
             case .unavailable:
                 return .unavailable(item: .init(
                     title: "Staking unavailable",
-                    description: "Staking is temporarily unavailable for this token. Please try again later."
+                    description: "Staking is temporarily unavailable for this token. Please try again later.",
+                    action: nil
+                ))
+
+            case .unavailableInRegion:
+                return .unavailable(item: .init(
+                    title: "Staking",
+                    description: "Staking is unavailable in your region",
+                    action: {}
                 ))
             }
         }
