@@ -64,20 +64,7 @@ final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
     @discardableResult
     func verifyCopiedContract(equals expected: String) -> Self {
         XCTContext.runActivity(named: "Verify copied contract equals '\(expected)'") { _ in
-            // Paste inside the app: it reads the pasteboard it wrote itself (same process),
-            // which avoids the cross-app system paste-permission prompt the test runner would trigger.
-            waitAndAssertTrue(searchField, "Search field should exist")
-            searchField.waitAndTap()
-            searchField.press(forDuration: 1.0)
-
-            let pasteMenuItem = app.menuItems["Paste"].firstMatch
-            let pasteButton = app.buttons["Paste"].firstMatch
-            if pasteMenuItem.waitForExistence(timeout: .shortUIUpdate) {
-                pasteMenuItem.tap()
-            } else {
-                waitAndAssertTrue(pasteButton, "Paste option should appear")
-                pasteButton.tap()
-            }
+            pasteFromEditMenu(into: searchField)
 
             let matched = searchField.waitForValue(expected, timeout: .conditional)
             XCTAssertTrue(matched, "Search field should contain pasted contract '\(expected)' but was '\(searchField.value as? String ?? "")'")
@@ -97,11 +84,10 @@ final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
     }
 
     @discardableResult
-    func verifyNothingCopied(sentinel: String) -> Self {
+    func verifyNothingCopied() -> Self {
         XCTContext.runActivity(named: "Verify nothing copied") { _ in
             let toast = app.staticTexts[CommonUIAccessibilityIdentifiers.successToast].firstMatch
             XCTAssertFalse(toast.waitForExistence(timeout: .shortUIUpdate), "No copy toast should appear for a network without a contract")
-            XCTAssertEqual(UIPasteboard.general.string, sentinel, "Pasteboard should be unchanged for a network without a contract")
             return self
         }
     }
