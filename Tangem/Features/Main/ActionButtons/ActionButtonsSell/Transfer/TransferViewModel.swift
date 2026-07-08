@@ -26,6 +26,7 @@ final class TransferViewModel: ObservableObject {
     private weak var coordinator: TransferRoutable?
 
     private var bag = Set<AnyCancellable>()
+    private var didTrackScreenOpened = false
 
     init(walletModel: any WalletModel, userWalletInfo: UserWalletInfo, coordinator: TransferRoutable) {
         self.walletModel = walletModel
@@ -44,8 +45,17 @@ final class TransferViewModel: ObservableObject {
         bind()
     }
 
+    func onAppear() {
+        guard !didTrackScreenOpened else { return }
+        didTrackScreenOpened = true
+        // The transfer method screen is only reachable from the Main screen; Token uses its own actions sheet.
+        Analytics.log(.transferMethodScreenOpened, params: [.source: .main])
+    }
+
     @MainActor
     func userDidTap(_ option: TransferOption) {
+        Analytics.log(option.analyticsEvent)
+
         switch option {
         case .sell:
             Task { @MainActor in coordinator?.transferRequestSell(walletModel: walletModel, userWalletInfo: userWalletInfo) }
