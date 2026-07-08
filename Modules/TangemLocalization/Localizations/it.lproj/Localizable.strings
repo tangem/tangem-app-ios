@@ -1267,7 +1267,7 @@
 "send_validation_destination_tag_required_title" = "Destination Tag Required";
 "send_with_swap_change_token_alert_message" = "Are you sure you want to change the receiving token? This will reset your previously entered data.";
 "send_with_swap_change_token_alert_title" = "Changing token";
-"send_with_swap_confirm_title" = "Swap and send";
+"send_with_swap_confirm_title" = "Swap & Send";
 "send_with_swap_convert_token_alert_message" = "Proceed with swap? This will clear your previous data.";
 "send_with_swap_convert_token_alert_title" = "Confirm Conversion";
 "send_with_swap_correct_recipient_network_notification_message" = "Sending any other currency will result in its irreversible loss.";
@@ -1378,9 +1378,9 @@
 "staking_notification_ton_account_initialization_message" = "To begin staking, you need to activate your TON account first.";
 "staking_notification_ton_account_initialization_title" = "Account activation";
 "staking_notification_ton_activate_account" = "To start staking in TON, first send a small transaction to your own address — this will activate your wallet.";
-"staking_notification_ton_extra_reserve_info" = "Up to 0.2 TON may be required in addition to the network fee to complete the transaction. Any unused amount will be refunded.";
-"staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
-"staking_notification_ton_extra_reserve_title" = "TON reserve required";
+"staking_notification_ton_extra_reserve_info" = "Up to 0.2 GRAM may be required in addition to the network fee to complete the transaction. Any unused amount will be refunded.";
+"staking_notification_ton_extra_reserve_is_required" = "0.2 GRAM is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
+"staking_notification_ton_extra_reserve_title" = "GRAM reserve required";
 "staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
 "staking_notification_ton_have_to_unstake_all_title" = "Positions status";
 "staking_notification_unlock_text" = "Unlock your money to withdraw it from staking process. Unlocking takes %@.";
@@ -1643,6 +1643,7 @@
 "tangempay_change_pin_code" = "Cambia codice PIN";
 "tangempay_come_back_if_forget_pin" = "Torna all'app se lo dimentichi.";
 "tangempay_common_card" = "Card";
+"tangempay_common_error_loading" = "Error loading";
 "tangempay_current_plan_change" = "Change plan";
 "tangempay_current_plan_section_card" = "Card related";
 "tangempay_current_plan_section_plan" = "Plan related";
@@ -1788,6 +1789,7 @@
 "tangempay_touch_id_not_set_title" = "Touch ID not set";
 "tangempay_usdc_on_polygon_network" = "USDC sulla Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Fare clic sul pulsante in basso per ripristinare l'accesso";
+"tangempay_visa_benefits" = "Visa Benefits";
 "tangempay_withdrawal_note_description" = "I fondi degli acquisti rimborsati non verranno restituiti al tuo saldo on-chain Polygon né saranno disponibili per il prelievo, ma rimarranno sul saldo della tua carta per gli acquisti";
 "tangempay_withdrawal_note_title" = "Attenzione";
 "tangempay_your_balance" = "Your balance";
