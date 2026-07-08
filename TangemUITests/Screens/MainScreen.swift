@@ -62,12 +62,12 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func verifyTradeActionButtonsHidden() -> Self {
-        XCTContext.runActivity(named: "Verify Buy/Sell/Swap action buttons are hidden") { _ in
+    func verifySingleCurrencyWalletActionButtons() -> Self {
+        XCTContext.runActivity(named: "Verify Buy/Sell visible and Swap hidden for single-currency card") { _ in
             waitAndAssertTrue(detailsButton, "Main screen should be loaded")
-            XCTAssertFalse(buyActionButton.waitForExistence(timeout: .conditional), "Buy button should be hidden for S2C cards")
-            XCTAssertFalse(swapActionButton.exists, "Swap button should be hidden for S2C cards")
-            XCTAssertFalse(sellActionButton.exists, "Sell button should be hidden for S2C cards")
+            waitAndAssertTrue(buyActionButton, timeout: .conditional, "Buy button should be visible for S2C cards")
+            waitAndAssertTrue(sellActionButton, "Sell button should be visible for S2C cards")
+            XCTAssertFalse(swapActionButton.waitForExistence(timeout: .shortUIUpdate), "Swap button should be hidden for S2C cards")
             return self
         }
     }
@@ -515,9 +515,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
             scrollTokensListToVisible(token)
 
-            // Wait for balance to load — context menu captures content at presentation time
+            // Context menu snapshots content at open time; a still-loading balance hides Send, so wait for the value.
             let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)].firstMatch
-            _ = balanceElement.waitForExistence(timeout: .robustUIUpdate)
+            if balanceElement.waitForExistence(timeout: .robustUIUpdate) {
+                let loaded = NSPredicate { object, _ in
+                    guard let element = object as? XCUIElement, element.exists else { return false }
+                    return element.label.contains(where: \.isNumber)
+                }
+                _ = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: loaded, object: balanceElement)], timeout: .robustUIUpdate)
+            }
 
             // Retry long press if context menu doesn't appear (can be flaky on CI)
             let contextMenuIndicator = app.buttons["Buy"].firstMatch
