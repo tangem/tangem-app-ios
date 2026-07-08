@@ -350,6 +350,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     }
 
     func onAddFundsTap() {
+        Analytics.log(.marketsChartButtonAddFunds)
         portfolioViewModel?.onAddFundsTap()
     }
 
