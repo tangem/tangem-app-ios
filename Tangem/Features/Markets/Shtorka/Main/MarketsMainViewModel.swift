@@ -127,6 +127,8 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         bindToMainBottomSheetUIManager()
 
         widgetsProvider.reloadWidgets()
+
+        pauseQuotesUpdates()
     }
 
     deinit {
@@ -153,8 +155,10 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
             Analytics.log(.marketsScreenOpened)
 
             headerViewModel.onBottomSheetExpand(isTapGesture: state.isTapGesture)
+            resumeQuotesUpdates()
         case .collapsed:
             isBottomSheetExpanded = false
+            pauseQuotesUpdates()
         }
     }
 
@@ -292,6 +296,40 @@ private extension MarketsMainViewModel {
         )
     }
 
+    func pauseQuotesUpdates() {
+        tokenListViewModel.pauseQuotesUpdates()
+
+        guard case .present(let widgetItems) = widgetsViewState else { return }
+
+        for item in widgetItems {
+            switch item.content {
+            case .top(let viewModel):
+                viewModel.pauseQuotesUpdates()
+            case .pulse(let viewModel):
+                viewModel.pauseQuotesUpdates()
+            case .news, .earn:
+                break
+            }
+        }
+    }
+
+    func resumeQuotesUpdates() {
+        tokenListViewModel.resumeQuotesUpdates()
+
+        guard case .present(let widgetItems) = widgetsViewState else { return }
+
+        for item in widgetItems {
+            switch item.content {
+            case .top(let viewModel):
+                viewModel.resumeQuotesUpdates()
+            case .pulse(let viewModel):
+                viewModel.resumeQuotesUpdates()
+            case .news, .earn:
+                break
+            }
+        }
+    }
+
     func mapToWidgetItem(widgetModel: MarketsWidgetModel) -> WidgetStateItem? {
         let contentItem: WidgetContentItem
 
@@ -305,6 +343,9 @@ private extension MarketsMainViewModel {
                 analyticsService: widgetAnalyticsService,
                 coordinator: coordinator
             )
+            if !isBottomSheetExpanded {
+                viewModel.pauseQuotesUpdates()
+            }
             contentItem = .top(viewModel)
         case .news:
             let viewModel = NewsWidgetViewModel(
@@ -331,6 +372,9 @@ private extension MarketsMainViewModel {
                 analyticsService: widgetAnalyticsService,
                 coordinator: coordinator
             )
+            if !isBottomSheetExpanded {
+                viewModel.pauseQuotesUpdates()
+            }
             contentItem = .pulse(viewModel)
         }
 
