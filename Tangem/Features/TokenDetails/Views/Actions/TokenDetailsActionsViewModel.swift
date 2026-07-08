@@ -118,6 +118,7 @@ private extension TokenDetailsActionsViewModel {
             accessibilityIdentifier: ActionButtonsAccessibilityIdentifiers.addFundsButton,
             isAvailable: true,
             action: { [weak self] in
+                Analytics.log(.tokenButtonAddFunds)
                 self?.handleGroupTap(kind: .addFunds, options: options)
             },
             longPressAction: longPressAction
@@ -149,6 +150,7 @@ private extension TokenDetailsActionsViewModel {
             accessibilityIdentifier: ActionButtonsAccessibilityIdentifiers.transferButton,
             isAvailable: true,
             action: { [weak self] in
+                Analytics.log(.tokenButtonTransfer)
                 self?.handleGroupTap(kind: .transfer, options: options)
             },
             longPressAction: nil
@@ -174,6 +176,8 @@ private extension TokenDetailsActionsViewModel {
     }
 
     func presentSheet(kind: TokenDetailsActionsKind, options: [TokenActionType]) {
+        trackMethodScreenOpened(kind: kind)
+
         weak var sheetViewModelRef: TokenDetailsActionsBottomSheetViewModel?
 
         let items = options.map { type in
@@ -186,6 +190,9 @@ private extension TokenDetailsActionsViewModel {
                     case .receive:
                         morphToReceive(in: sheetViewModelRef)
                     case .buy, .send, .exchange, .stake, .sell, .copyAddress, .marketsDetails, .hide, .yield:
+                        if kind == .transfer, let event = Self.transferButtonEvent(for: type) {
+                            Analytics.log(event)
+                        }
                         dismissSheet()
                         perform(type, kind: kind)
                     }
@@ -311,6 +318,30 @@ private extension TokenDetailsActionsViewModel {
         case .send: return Localization.quickActionSendDescription
         case .sell: return Localization.quickActionSellDescription
         case .copyAddress, .hide, .stake, .marketsDetails, .yield: return nil
+        }
+    }
+}
+
+// MARK: - Analytics
+
+private extension TokenDetailsActionsViewModel {
+    func trackMethodScreenOpened(kind: TokenDetailsActionsKind) {
+        switch kind {
+        case .addFunds:
+            Analytics.log(.addFundsMethodScreenOpened, params: [.source: .token])
+        case .transfer:
+            Analytics.log(.transferMethodScreenOpened, params: [.source: .token])
+        case .swap:
+            break
+        }
+    }
+
+    static func transferButtonEvent(for type: TokenActionType) -> Analytics.Event? {
+        switch type {
+        case .send: .transferButtonSend
+        case .exchange: .transferButtonSwap
+        case .sell: .transferButtonSell
+        default: nil
         }
     }
 }
