@@ -1106,7 +1106,7 @@
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
 "quick_action_sell_description" = "Sell crypto securely";
-"quick_action_send_and_swap_description" = "Send with swap to another token";
+"quick_action_send_and_swap_description" = "Envoyer en échangeant vers un autre token";
 "quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
@@ -1267,7 +1267,7 @@
 "send_validation_destination_tag_required_title" = "Étiquette de destination requise";
 "send_with_swap_change_token_alert_message" = "Êtes-vous sûr de vouloir modifier le token de réception ? Cela réinitialisera les données que vous avez saisies précédemment.";
 "send_with_swap_change_token_alert_title" = "Changement de token";
-"send_with_swap_confirm_title" = "Échanger et envoyer";
+"send_with_swap_confirm_title" = "Échanger et Envoyer";
 "send_with_swap_convert_token_alert_message" = "Poursuivre l'échange ? Cela effacera vos données précédentes.";
 "send_with_swap_convert_token_alert_title" = "Confirmer la conversion";
 "send_with_swap_correct_recipient_network_notification_message" = "L'envoi de toute autre crypto entraînera sa perte irréversible.";
@@ -1834,6 +1834,10 @@
 "token_receive_show_qr_code_title" = "Afficher le code QR";
 "token_summary_can_not_load_token" = "Can’t load data of the token";
 "token_summary_go_to_swap_button" = "Go to swap";
+"token_summary_last_update_subtitle" = "Last update: %1$@";
+"token_summary_negative_outlook_title" = "Negative outlook";
+"token_summary_neutral_outlook_title" = "Neutral outlook";
+"token_summary_positive_outlook_title" = "Positive outlook";
 "token_summary_title" = "Token summary";
 "token_swap_promotion_button" = "Échangez maintenant";
 "tokens_list_available_to_buy_header" = "Sélectionnez le jeton que vous souhaitez acheter";
