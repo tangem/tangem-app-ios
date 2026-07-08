@@ -15,6 +15,7 @@ enum Feature: String, Hashable, CaseIterable {
     case exchangeOnlyWithinSingleAddress
     case walletConnectBitcoin
     case surveySparrow
+    case gaslessYieldFee
     case usdtRevokeGaslessFee
     case yieldModuleUpdate
     case xrplTransactionHistory
@@ -59,6 +60,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .surveySparrow: return "SurveySparrow service integration"
+        case .gaslessYieldFee: return "TWI-1327_smart_gas_support_for_tokens_in_yield_mode"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
         case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
         case .xrplTransactionHistory: return "XRPL Transaction History"
@@ -103,6 +105,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
         case .surveySparrow: return .unspecified
+        case .gaslessYieldFee: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
         case .yieldModuleUpdate: return .unspecified
         case .xrplTransactionHistory: return .unspecified
