@@ -26,6 +26,15 @@ enum TransferOption: String, Identifiable, CaseIterable {
             accessibilityIdentifier: accessibilityIdentifier
         )
     }
+
+    var analyticsEvent: Analytics.Event {
+        switch self {
+        case .sell: .transferButtonSell
+        case .swap: .transferButtonSwap
+        case .swapAndSend: .transferButtonSwapAndSend
+        case .send: .transferButtonSend
+        }
+    }
 }
 
 private extension TransferOption {
@@ -51,7 +60,7 @@ private extension TransferOption {
         switch self {
         case .sell: Localization.quickActionSellDescription
         case .swap: Localization.quickActionSwapDescription
-        case .swapAndSend: Localization.sendWithSwapTitle
+        case .swapAndSend: Localization.quickActionSendAndSwapDescription
         case .send: Localization.quickActionSendDescription
         }
     }
