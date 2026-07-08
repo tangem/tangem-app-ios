@@ -23,6 +23,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let paymentAccountBalance = "\(prefix)PaymentAccountBalance"
     public static let addFundsButton = "\(prefix)AddFundsButton"
     public static let withdrawButton = "\(prefix)WithdrawButton"
+    public static let moreActionsButton = "\(prefix)MoreActionsButton"
 
     // MARK: - Add funds flow
 
