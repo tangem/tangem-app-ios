@@ -145,13 +145,37 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
     }
 
     private var redesignedWalletChipsView: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Constants.redesignedChipsSpacing) {
-                ForEach(viewModel.walletChips) { redesignedWalletChip($0) }
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Constants.redesignedChipsSpacing) {
+                    ForEach(viewModel.walletChips) { chip in
+                        redesignedWalletChip(chip)
+                            .id(chip.id)
+                    }
+                }
+                .padding(.horizontal, 8)
             }
-            .padding(.horizontal, 8)
+            .frame(height: Constants.redesignedChipHeight)
+            .onAppear {
+                // Defer to the next runloop so the chips are laid out before scrolling to the preselected one.
+                DispatchQueue.main.async {
+                    scrollToSelectedChip(using: proxy, animated: false)
+                }
+            }
+            .onChange(of: viewModel.selectedChipId) { _ in
+                scrollToSelectedChip(using: proxy, animated: true)
+            }
         }
-        .frame(height: Constants.redesignedChipHeight)
+    }
+
+    private func scrollToSelectedChip(using proxy: ScrollViewProxy, animated: Bool) {
+        guard let selectedChipId = viewModel.selectedChipId else { return }
+
+        if animated {
+            withAnimation { proxy.scrollTo(selectedChipId, anchor: .center) }
+        } else {
+            proxy.scrollTo(selectedChipId, anchor: .center)
+        }
     }
 
     private func redesignedWalletChip(_ chip: TokenSelectorViewModel.WalletChipData) -> some View {
