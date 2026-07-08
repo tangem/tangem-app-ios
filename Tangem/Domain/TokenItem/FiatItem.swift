@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct FiatItem: Hashable {
     let iconURL: URL?
@@ -21,7 +22,7 @@ struct FiatItem: Hashable {
 
     public func convertToCents(value: Decimal) -> Decimal {
         let decimalValue = pow(10, fractionDigits)
-        return value * decimalValue
+        return (value * decimalValue).rounded(scale: 0, roundingMode: .down)
     }
 
     public func convertFromCents(value: Decimal) -> Decimal {
