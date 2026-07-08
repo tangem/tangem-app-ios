@@ -205,7 +205,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             return .loading
 
         case .unsupported, .unavailable:
-            return .hidden
+            return .notSupported
 
         case .empty:
             guard hasMultiCurrencyWallet, !isAddTokenButtonDisabled else { return .hidden }
@@ -713,6 +713,7 @@ extension MarketsPortfolioContainerViewModel {
         case hidden
         case loading
         case addToken
+        case notSupported
         case content(ContentData)
 
         struct ContentData: Equatable {
@@ -723,7 +724,7 @@ extension MarketsPortfolioContainerViewModel {
         var isVisible: Bool {
             switch self {
             case .hidden, .loading: false
-            case .addToken, .content: true
+            case .addToken, .notSupported, .content: true
             }
         }
     }

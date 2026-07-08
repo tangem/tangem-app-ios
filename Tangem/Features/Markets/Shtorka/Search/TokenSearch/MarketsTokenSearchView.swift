@@ -28,14 +28,6 @@ struct MarketsTokenSearchView: View {
         frameHeight * 0.5 - headerHeight
     }
 
-    private var scrollDismissesKeyboardMode: ScrollDismissesKeyboardMode {
-        switch viewModel.state {
-        case .search: .immediately
-        case .recent: .never
-        case .idle: .interactively
-        }
-    }
-
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: .unit(.x1)) {
@@ -46,7 +38,7 @@ struct MarketsTokenSearchView: View {
             }
         }
         .scrollIndicators(.hidden)
-        .scrollDismissesKeyboard(.immediately)
+        .scrollDismissesKeyboard(.never)
         .readGeometry(\.frame.height) { frameHeight = $0 }
     }
 }
