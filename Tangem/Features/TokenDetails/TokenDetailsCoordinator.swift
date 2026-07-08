@@ -84,8 +84,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             xpubGenerator: xpubGenerator,
             coordinator: self,
             tokenRouter: tokenRouter,
-            pendingTransactionDetails: options.pendingTransactionDetails,
-            hidesMarketPriceBanner: options.hidesMarketPriceBanner
+            pendingTransactionDetails: options.pendingTransactionDetails
         )
 
         notificationManager.interactionDelegate = tokenDetailsViewModel
@@ -103,8 +102,6 @@ extension TokenDetailsCoordinator {
         let walletModel: any WalletModel
         /// Initialized when a deeplink is received for an onramp or exchange (swap) status update related to a specific transaction
         let pendingTransactionDetails: PendingTransactionDetails?
-        /// Suppresses the market price banner when the screen is opened from within the Markets flow, to avoid navigating back into Markets recursively.
-        let hidesMarketPriceBanner: Bool
 
         init(
             userWalletInfo: UserWalletInfo,
@@ -112,8 +109,7 @@ extension TokenDetailsCoordinator {
             walletModelsManager: any WalletModelsManager,
             userTokensManager: any UserTokensManager,
             walletModel: any WalletModel,
-            pendingTransactionDetails: PendingTransactionDetails? = nil,
-            hidesMarketPriceBanner: Bool = false
+            pendingTransactionDetails: PendingTransactionDetails? = nil
         ) {
             self.userWalletInfo = userWalletInfo
             self.keysDerivingInteractor = keysDerivingInteractor
@@ -121,7 +117,6 @@ extension TokenDetailsCoordinator {
             self.userTokensManager = userTokensManager
             self.walletModel = walletModel
             self.pendingTransactionDetails = pendingTransactionDetails
-            self.hidesMarketPriceBanner = hidesMarketPriceBanner
         }
     }
 }

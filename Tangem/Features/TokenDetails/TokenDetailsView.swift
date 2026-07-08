@@ -401,8 +401,7 @@ private extension TokenDetailsView {
                 userWalletInfo: userWalletModel.userWalletInfo,
                 coordinator: coordinator
             ),
-            pendingTransactionDetails: nil,
-            hidesMarketPriceBanner: false
+            pendingTransactionDetails: nil
         )
     )
 }
