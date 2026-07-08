@@ -1378,9 +1378,9 @@
 "staking_notification_ton_account_initialization_message" = "要开始质押，您需要先激活您的 TON 账户。";
 "staking_notification_ton_account_initialization_title" = "激活账户";
 "staking_notification_ton_activate_account" = "要开始在 TON 上进行质押，首先向您自己的地址发送一笔小额交易——这将激活您的钱包。";
-"staking_notification_ton_extra_reserve_info" = "除网络费用外，完成交易可能还需要额外支付最多 0.2 TON 的费用。任何未使用的金额将予以退还。";
-"staking_notification_ton_extra_reserve_is_required" = "除网络费用外，本次操作还需要 0.2 TON。请充值。";
-"staking_notification_ton_extra_reserve_title" = "需要TON储备";
+"staking_notification_ton_extra_reserve_info" = "除网络费用外，完成交易可能还需要额外支付最多 0.2 GRAM 的费用。任何未使用的金额将予以退还。";
+"staking_notification_ton_extra_reserve_is_required" = "除网络费用外，本次操作还需要 0.2 GRAM。请充值。";
+"staking_notification_ton_extra_reserve_title" = "需要GRAM储备";
 "staking_notification_ton_have_to_unstake_all_text" = "根据网络规则，此操作将关闭其他仓位或将其切换为提现状态。";
 "staking_notification_ton_have_to_unstake_all_title" = "仓位状态";
 "staking_notification_unlock_text" = "解锁您的资金即可从质押过程中提款。解锁需要一定时间。 %@。";
@@ -1643,6 +1643,7 @@
 "tangempay_change_pin_code" = "更改PIN码";
 "tangempay_come_back_if_forget_pin" = "如果忘记了，请返回应用程序。";
 "tangempay_common_card" = "Card";
+"tangempay_common_error_loading" = "Error loading";
 "tangempay_current_plan_change" = "Change plan";
 "tangempay_current_plan_section_card" = "Card related";
 "tangempay_current_plan_section_plan" = "Plan related";
@@ -1788,6 +1789,7 @@
 "tangempay_touch_id_not_set_title" = "Touch ID 未设置";
 "tangempay_usdc_on_polygon_network" = "Polygon网络上的 USDC";
 "tangempay_use_tangem_device_to_restore_payment_account" = "点击下方按钮恢复访问权限";
+"tangempay_visa_benefits" = "Visa Benefits";
 "tangempay_withdrawal_note_description" = "您的Polygon链上 USDC  余额与您的卡片余额不同，并在购买后 2 个工作日内更新。购物退款的资金不会退还至您的链上余额，也不能提现，但会保留在您的卡片余额中用于购物。";
 "tangempay_withdrawal_note_title" = "请注意";
 "tangempay_your_balance" = "您的余额";
