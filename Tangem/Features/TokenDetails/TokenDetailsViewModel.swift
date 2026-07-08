@@ -631,7 +631,9 @@ private extension TokenDetailsViewModel {
             stakingState = makeEnableStakingState(staked: staked)
         case .loadingError, .temporaryUnavailable:
             stakingState = makeUnavailableStakingState()
-        case .notEnabled:
+        case .unavailableInRegion(.some):
+            stakingState = makeRegionUnavailableStakingState()
+        case .unavailableInRegion(.none), .notEnabled:
             stakingState = nil
         }
     }
@@ -688,9 +690,23 @@ private extension TokenDetailsViewModel {
     private func makeUnavailableStakingState() -> TokenDetailsStakingState {
         let item = TokenDetailsStakingState.UnavailableItem(
             title: Localization.commonStaking,
-            description: Localization.stakingNotificationNetworkErrorText
+            description: Localization.stakingNotificationNetworkErrorText,
+            action: nil
         )
         return .unavailable(item: item)
+    }
+
+    private func makeRegionUnavailableStakingState() -> TokenDetailsStakingState {
+        let item = TokenDetailsStakingState.UnavailableItem(
+            title: Localization.commonStaking,
+            description: Localization.stakingErrorUnavailableRegion,
+            action: weakify(self, forFunction: TokenDetailsViewModel.openStakingRegionUnavailableSheet)
+        )
+        return .unavailable(item: item)
+    }
+
+    private func openStakingRegionUnavailableSheet() {
+        coordinator?.openStakingRegionUnavailableSheet()
     }
 
     private func makeStakingRewardsState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState.RewardsState {
@@ -717,7 +733,7 @@ private extension TokenDetailsViewModel {
             break
         case .availableToStake, .notEnabled:
             activeStakingViewData = nil
-        case .loadingError, .temporaryUnavailable:
+        case .loadingError, .temporaryUnavailable, .unavailableInRegion:
             activeStakingViewData = .init(isBeta: isBeta, balance: .loadingError, rewards: .none)
         case .staked(let staked):
             let rewards = mapToRewardsState(staked: staked)
