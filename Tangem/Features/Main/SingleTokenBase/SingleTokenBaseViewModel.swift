@@ -162,18 +162,12 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
         let matchesRecord: (TransactionRecord) -> Bool = { $0.hash == transaction.hash && $0.index == transaction.index }
 
-        let realRecordUpdates = walletModel.transactionHistoryPublisher
+        let recordUpdates = walletModel.transactionHistoryPublisher
             .compactMap { state -> TransactionRecord? in
                 guard case .loaded(let records) = state else { return nil }
                 return records.first(where: matchesRecord)
             }
             .eraseToAnyPublisher()
-
-        #if DEBUG
-        let recordUpdates = TransactionDetailsMockData.liveUpdates(for: transaction, tokenItem: walletModel.tokenItem) ?? realRecordUpdates
-        #else
-        let recordUpdates = realRecordUpdates
-        #endif
 
         let supportedBlockchains = userWalletInfo.config.supportedBlockchains
         let currencyConverter = ExpressCurrencyConverter(supportedBlockchains: supportedBlockchains)

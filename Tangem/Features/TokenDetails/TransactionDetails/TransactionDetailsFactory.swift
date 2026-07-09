@@ -439,10 +439,9 @@ struct TransactionDetailsFactory {
         ).title
 
         var menuActions: [TransactionDetailsHeaderViewData.MenuAction] = [
-            // [REDACTED_TODO_COMMENT]
             .init(
                 id: "transactionID",
-                title: "Transaction ID",
+                title: Localization.commonTransactionId,
                 icon: Assets.Glyphs.copy,
                 handler: { copy(transaction.hash, toast: Localization.expressTransactionIdCopied) }
             ),

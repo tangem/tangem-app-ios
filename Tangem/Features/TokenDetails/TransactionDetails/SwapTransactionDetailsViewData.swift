@@ -54,8 +54,7 @@ struct SwapTransactionDetailsViewData: TransactionDetailsOperationViewData {
         }
 
         if let rate {
-            // [REDACTED_TODO_COMMENT]
-            rows.append(.init(id: "rate", title: "Rate", content: .text(rate)))
+            rows.append(.init(id: "rate", title: Localization.commonRate, content: .text(rate)))
         }
 
         if let networkFee {
