@@ -96,6 +96,10 @@ public extension NavigationBarButton {
         navigationBarButton(for: .priceAlert(isActive: isActive), action: action)
     }
 
+    static func details(action: @escaping () -> Void) -> some View {
+        navigationBarButton(for: .details, action: action)
+    }
+
     private static func navigationBarButton(for role: NavigationBarButtonRole, action: @escaping () -> Void) -> some View {
         NavigationBarButton(sfSymbol: role.sfSymbol, iconAsset: role.iconAsset, action: action)
             .accessibilityIdentifier(role.accessibilityIdentifier)
