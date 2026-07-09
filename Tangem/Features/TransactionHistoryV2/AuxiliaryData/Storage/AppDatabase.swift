@@ -65,12 +65,17 @@ final class AppDatabase {
         var migrator = DatabaseMigrator()
 
         migrator.registerMigration("v1") { database in
+
+            // MARK: - Express providers cache
+
             try database.create(table: "expressProviders", options: [.ifNotExists, .strict]) { table in
                 table.primaryKey("id", .text, onConflict: .replace).notNull()
                 table.column("name", .text).notNull()
                 table.column("imageURL", .text)
                 table.column("updatedAt", .datetime).notNull()
             }
+
+            // MARK: - Sync metadata
 
             try database.create(table: "expressSyncMetadata", options: [.ifNotExists, .strict]) { table in
                 let ownerAddressColumnName = "ownerAddress"
@@ -83,6 +88,8 @@ final class AppDatabase {
                 table.column("isInitialSyncDone", .boolean).notNull().defaults(to: false)
                 table.column("lastSyncAt", .datetime).notNull()
             }
+
+            // MARK: - Express onramp transactions
 
             let expressOnrampTransactionsTableName = "expressOnrampTransactions"
             let ownerAddressColumnName = "ownerAddress"
@@ -146,6 +153,8 @@ final class AppDatabase {
                     .ifNotExists,
                 ]
             )
+
+            // MARK: - Express swap transactions
 
             let expressExchangeTransactionsTableName = "expressExchangeTransactions"
             let payInHashColumnName = "payInHash"
