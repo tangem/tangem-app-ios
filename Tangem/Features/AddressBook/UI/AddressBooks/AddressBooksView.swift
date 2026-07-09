@@ -19,6 +19,13 @@ struct AddressBooksView: View {
         rootContent
             .navigationTitle(Text(Localization.addressBookTitle))
             .navigationBarTitleDisplayMode(.inline)
+            .modifyView { view in
+                if #unavailable(iOS 26.0) {
+                    view.backportTranslucentNavigationBar()
+                } else {
+                    view
+                }
+            }
             .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
             .toolbar {
                 if let trailingToolbarButton = viewModel.trailingToolbarButton {
