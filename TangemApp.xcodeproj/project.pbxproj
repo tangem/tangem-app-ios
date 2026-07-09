@@ -27,6 +27,7 @@
 		B62C16812CBE0BA000522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C16802CBE0BA000522683 /* Alamofire */; };
 		B63DFC4E2CD4EABB00720D9F /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B63DFC4D2CD4EABB00720D9F /* TangemModules */; };
 		B6457BD02F9120CA00C91066 /* TangemMacro in Frameworks */ = {isa = PBXBuildFile; productRef = B6457BCF2F9120CA00C91066 /* TangemMacro */; };
+		B6730F9F2FFF2C1C004B4795 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = B6730F9E2FFF2C1C004B4795 /* GRDB */; };
 		B67E38BB2CC7179000D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38BA2CC7179000D660EB /* TangemSdk */; };
 		B67E38BF2CC717A300D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38BE2CC717A300D660EB /* TangemSdk */; };
 		B67E38C12CC71A2C00D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38C02CC71A2C00D660EB /* TangemSdk */; };
@@ -320,6 +321,7 @@
 				B69FC9092CF67D9300A5C51D /* GDPerformanceView-Swift in Frameworks */,
 				B67E38C12CC71A2C00D660EB /* TangemSdk in Frameworks */,
 				B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */,
+				B6730F9F2FFF2C1C004B4795 /* GRDB in Frameworks */,
 				C24656702F575ACD00270AA7 /* MessagingPushFCM in Frameworks */,
 				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
 				B0776C372DA69090004A8765 /* Lottie in Frameworks */,
@@ -606,6 +608,7 @@
 				B6457BCF2F9120CA00C91066 /* TangemMacro */,
 				B6FBA5E0000000000000000A /* TangemFirebaseDynamicShim */,
 				B6DBDE492F97790F00885068 /* Hiero */,
+				B6730F9E2FFF2C1C004B4795 /* GRDB */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -931,6 +934,7 @@
 				B6457BCE2F9120CA00C91066 /* XCLocalSwiftPackageReference "TangemMacro" */,
 				B6FBA5E0000000000000000D /* XCLocalSwiftPackageReference "TangemFirebaseDynamicShim" */,
 				B6DBDE482F97790F00885068 /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */,
+				B6730F9D2FFF2C1B004B4795 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -7465,6 +7469,14 @@
 				minimumVersion = 0.6.7;
 			};
 		};
+		B6730F9D2FFF2C1B004B4795 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.1.1;
+			};
+		};
 		B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
@@ -7665,6 +7677,11 @@
 		B6457BCF2F9120CA00C91066 /* TangemMacro */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TangemMacro;
+		};
+		B6730F9E2FFF2C1C004B4795 /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6730F9D2FFF2C1B004B4795 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			productName = GRDB;
 		};
 		B67E38BA2CC7179000D660EB /* TangemSdk */ = {
 			isa = XCSwiftPackageProductDependency;
