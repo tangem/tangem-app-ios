@@ -18,6 +18,11 @@ public extension CGSize {
     init(bothDimensions value: CGFloat) {
         self.init(width: value, height: value)
     }
+
+    /// See `CGFloat.roundedToDeviceScale()`.
+    func roundedToDeviceScale() -> CGSize {
+        CGSize(width: width.roundedToDeviceScale(), height: height.roundedToDeviceScale())
+    }
 }
 
 public extension CGSize {
