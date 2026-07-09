@@ -47,7 +47,7 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
             TangemCarousel(wrappedItems) { wrappedItem in
                 bannerView(wrappedItem.item)
                     .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { height in
-                        itemHeights[wrappedItem.index] = height
+                        itemHeights[wrappedItem.index] = height.roundedToDeviceScale()
                     }
             }
             .isEndless(true)
@@ -65,7 +65,7 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
                 }
             }
             .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { width in
-                containerWidth = width
+                containerWidth = width.roundedToDeviceScale()
             }
             .frame(height: interpolatedHeight, alignment: .top)
             .if(hasClipShape) { $0.clipShape(RoundedRectangle(cornerRadius: SizeUnit.x6.value)) }
