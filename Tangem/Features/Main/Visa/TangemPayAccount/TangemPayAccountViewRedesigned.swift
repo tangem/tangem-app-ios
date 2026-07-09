@@ -138,7 +138,11 @@ private struct TangemPayAccountTile: View {
             }
 
             LoadableBalanceView(
-                state: TangemPayAccountTile.applyDecimalColoring(balance),
+                state: AttributedBalanceFormatter.decimalColored(
+                    balance,
+                    integerPart: AttributedBalanceFormatter.PartStyle(font: nil, color: TangemPayAccountTile.balanceIntegerColor),
+                    fractionalPart: AttributedBalanceFormatter.PartStyle(font: nil, color: TangemPayAccountTile.balanceDecimalColor)
+                ),
                 style: LoadableBalanceView.Style(
                     font: TangemPayAccountTile.balanceFont,
                     textColor: TangemPayAccountTile.balanceIntegerColor
@@ -193,33 +197,4 @@ private extension TangemPayAccountTile {
     static let balanceFont = TangemRowConstants.Style.Title.font
     static let balanceIntegerColor: Color = .Tangem.Text.Neutral.primary
     static let balanceDecimalColor: Color = .Tangem.Text.Neutral.secondary
-
-    static func applyDecimalColoring(_ state: LoadableBalanceView.State) -> LoadableBalanceView.State {
-        switch state {
-        case .loaded(let text):
-            return .loaded(text: recolor(text))
-        case .loading(let cached):
-            return .loading(cached: cached.map(recolor))
-        case .failed(let cached, let icon):
-            return .failed(cached: recolor(cached), icon: icon)
-        }
-    }
-
-    private static func recolor(_ text: LoadableBalanceView.Text) -> LoadableBalanceView.Text {
-        switch text {
-        case .string(let raw):
-            return .attributed(format(raw))
-        case .attributed, .builder:
-            return text
-        }
-    }
-
-    private static func format(_ raw: String) -> AttributedString {
-        TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
-            raw,
-            font: balanceFont,
-            integerColor: balanceIntegerColor,
-            decimalColor: balanceDecimalColor
-        )
-    }
 }
