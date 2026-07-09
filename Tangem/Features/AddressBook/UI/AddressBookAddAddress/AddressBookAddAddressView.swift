@@ -37,7 +37,7 @@ struct AddressBookAddAddressView: View {
         NavigationHeader(
             leadingContent: { NavigationBarButton.back(action: { dismiss() }).redesigned() },
             principalContent: {
-                Text(Localization.addressBookAddAddress)
+                Text(viewModel.screenTitle)
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             },
             trailingContent: {
@@ -130,8 +130,8 @@ struct AddressBookAddAddressView: View {
 
     private var bottomButton: some View {
         TangemButton(
-            content: .text(AttributedString(Localization.addressBookAddAddress)),
-            action: viewModel.userDidRequestAddAddress
+            content: .text(AttributedString(Localization.addressBookSaveAddress)),
+            action: viewModel.userDidRequestSaveAddress
         )
         .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)
