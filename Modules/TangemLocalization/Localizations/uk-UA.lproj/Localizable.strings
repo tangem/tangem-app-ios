@@ -111,6 +111,7 @@
 "address_book_no_contacts_description" = "Тут відображатимуться додані вами контакти.";
 "address_book_no_contacts" = "Немає доданих контактів";
 "address_book_remove_address" = "Видалити адресу";
+"address_book_save_address" = "Save address";
 "address_book_save_contact" = "Зберегти контакт";
 "address_book_save_to_wallet_title" = "Зберегти в гаманець";
 "address_book_save_wallet_to_description" = "Цей контакт буде прив'язано до цього гаманця в адресній книзі.";
@@ -1086,6 +1087,7 @@
 "promo_campaign_select_cashback_account" = "Select cashback account";
 "promo_campaign_select_token" = "Select token";
 "promo_campaign_summary_title" = "Enroll in %1$@";
+"promo_campaign_terms_agreement_android" = "I agree with";
 "promo_campaign_terms_agreement" = "I agree with %1$@";
 "promo_campaign_terms_link" = "%1$@ Terms";
 "promo_campaign_whale_swap_summary_description" = "Earn cashback on every swap from $10K until the end of July.\n\nRates step up with size: 0.10%% from $10K, 0.20%% from $20K, 0.50%% from $100K.\n\nMax payout: $500 per swap, and $10,000 per wallet per swap direction until campaign lasts. Stable coin into stablecoin swaps are excluded.\n\nPayout arrives weekly in USDT or USDC address of your choice.";
