@@ -144,7 +144,12 @@ class CommonWalletModelsManager {
                 }
                 _ = group.addTaskUnlessCancelled {
                     // Coalesce this whole refresh cycle's P2P staking balances into one batched request.
-                    await walletModels[index].update(silent: silent, options: options, updateToken: updateToken, stakingUpdateSource: .batch)
+                    await walletModels[index].update(
+                        silent: silent,
+                        options: options,
+                        updateToken: updateToken,
+                        stakingUpdateSource: .batch
+                    )
                 }
             }
             await group.waitForAll()

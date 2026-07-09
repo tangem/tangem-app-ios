@@ -8,4 +8,9 @@
 
 import Foundation
 
-protocol TransactionHistoryProviding: Identifiable, TransactionHistorySyncing, TransactionHistoryExpressDataEnriching {}
+protocol TransactionHistoryProviding:
+    Sendable,
+    Identifiable,
+    TransactionHistorySyncing,
+    TransactionHistoryExpressDataEnriching,
+    WalletModelTransactionHistoryEnriching {}
