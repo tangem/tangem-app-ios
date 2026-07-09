@@ -519,6 +519,8 @@
 "express_exchange_notification_long_transaction_time_title" = "Long transaction time";
 "express_exchange_notification_refund_text" = "The transaction amount was refunded in %1$@ to your wallet due to OKX or bridge rules. %2$@";
 "express_exchange_notification_refund_title" = "The amount was refunded in %1$@ (%2$@ network)";
+"express_exchange_notification_refunded_in_text" = "Your funds have been refunded in %1$@  to your wallet on the %2$@ network, in accordance with OKX exchange rules.";
+"express_exchange_notification_refunded_in_title" = "Refunded in %@";
 "express_exchange_notification_verification_text" = "Visit provider’s website for verification";
 "express_exchange_notification_verification_title" = "KYC verification required by provider";
 "express_exchange_status_bought" = "Purchase completed";
@@ -1080,7 +1082,9 @@
 "promo_campaign_enroll" = "Enroll";
 "promo_campaign_not_active_subtitle" = "This campaign no longer exists or has expired";
 "promo_campaign_not_active_title" = "Campaign not active";
+"promo_campaign_reactivation_summary_description" = "Earn 0.5%% cashback on every swap over $500, on any pair except stable to stable. Max payout $50 per swap.\n\nComplete five qualifying swaps and unlock an extra $10 bonus.\n\nRewards are paid weekly in USDT or USDC on the address selected.";
 "promo_campaign_select_cashback_account" = "Select cashback account";
+"promo_campaign_select_token" = "Select token";
 "promo_campaign_summary_title" = "Enroll in %1$@";
 "promo_campaign_terms_agreement" = "I agree with %1$@";
 "promo_campaign_terms_link" = "%1$@ Terms";
