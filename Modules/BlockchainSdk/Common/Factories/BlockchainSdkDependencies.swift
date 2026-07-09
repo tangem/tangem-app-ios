@@ -12,14 +12,17 @@ public struct BlockchainSdkDependencies {
     let accountCreator: any AccountCreator
     let dataStorage: any BlockchainDataStorage
     let isYieldModuleUpdateEnabled: Bool
+    let isGaslessYieldEnabled: Bool
 
     public init(
         accountCreator: any AccountCreator,
         dataStorage: any BlockchainDataStorage,
-        isYieldModuleUpdateEnabled: Bool
+        isYieldModuleUpdateEnabled: Bool,
+        isGaslessYieldEnabled: Bool
     ) {
         self.accountCreator = accountCreator
         self.dataStorage = dataStorage
         self.isYieldModuleUpdateEnabled = isYieldModuleUpdateEnabled
+        self.isGaslessYieldEnabled = isGaslessYieldEnabled
     }
 }

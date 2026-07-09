@@ -30,6 +30,7 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
 
     private var safariHandle: SafariHandle?
     private var userWalletModels: [UserWalletModel] = []
+    private var tokenListViewModel: ActionButtonsBuyViewModel?
 
     required init(
         dismissAction: @escaping Action<ActionButtonsBuyDismissPayload?>,
@@ -42,14 +43,14 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
     func start(with options: Options) {
         userWalletModels = options.userWalletModels
         let tokenSelectorViewModel = makeTokenSelectorViewModel(preferredWalletId: options.preferredWalletId)
-        viewState = .newTokenList(
-            ActionButtonsBuyViewModel(
-                userWalletModels: options.userWalletModels,
-                tokenSelectorViewModel: tokenSelectorViewModel,
-                pulseMarketWidgetViewModel: makePulseMarketWidgetViewModel(),
-                coordinator: self
-            )
+        let viewModel = ActionButtonsBuyViewModel(
+            userWalletModels: options.userWalletModels,
+            tokenSelectorViewModel: tokenSelectorViewModel,
+            pulseMarketWidgetViewModel: makePulseMarketWidgetViewModel(),
+            coordinator: self
         )
+        tokenListViewModel = viewModel
+        viewState = .newTokenList(viewModel)
     }
 
     func dismiss() {
@@ -94,12 +95,18 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
                     mode: .stack,
                     primaryAction: .hidden,
                     walletModel: walletModel,
-                    userWalletModel: userWalletModel
+                    userWalletModel: userWalletModel,
+                    onBack: { [weak self] in self?.showTokenList() }
                 ),
                 coordinator: self
             )
             viewState = .addFunds(viewModel)
         }
+    }
+
+    private func showTokenList() {
+        guard let tokenListViewModel else { return }
+        viewState = .newTokenList(tokenListViewModel)
     }
 
     func openAddToPortfolio(viewModel: HotCryptoAddToPortfolioBottomSheetViewModel) {
@@ -279,6 +286,7 @@ private extension ActionButtonsBuyCoordinator {
             widgetsUpdateHandler: widgetsUpdateHandler,
             quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
             analyticsService: CommonMarketsWidgetAnalyticsService(),
+            includesMarketCapFilter: true,
             coordinator: self
         )
     }

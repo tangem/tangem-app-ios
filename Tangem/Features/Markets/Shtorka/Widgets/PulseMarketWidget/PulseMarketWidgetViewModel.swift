@@ -11,32 +11,35 @@ import SwiftUI
 import Combine
 import CombineExt
 import TangemFoundation
+import TangemLocalization
 
 final class PulseMarketWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Published var filterSelectedId: String? = nil
+    @Published private(set) var searchText: String = ""
     @Published private(set) var isFirstLoading: Bool = true
     @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderView.LoadingState = .first
     @Published private(set) var tokenViewModelsState: LoadingResult<[MarketTokenItemViewModel], Error> = .loading
 
+    var isSearchActive: Bool {
+        searchText.trimmed().isNotEmpty
+    }
+
+    var headerTitle: String {
+        isSearchActive ? Localization.marketsCommonTitle : (widgetType.headerTitle ?? "")
+    }
+
     var isNeedDisplayFilter: Bool {
-        !isFirstLoading
+        !isFirstLoading && !isSearchActive
     }
 
     var availabilityToSelectionOrderType: [MarketsListOrderType] {
-        let allowed = MarketsListOrderType.allCases.filter {
-            switch $0 {
-            case .rating:
-                return false
-            default:
-                return true
-            }
+        var ordered: [MarketsListOrderType] = [.trending, .gainers, .losers, .buyers]
+        if includesMarketCapFilter {
+            ordered.insert(.rating, at: 0)
         }
-
-        // Required UI order: Trending -> Top Gainers -> Top Losers -> Experienced buyers
-        let ordered: [MarketsListOrderType] = [.trending, .gainers, .losers, .buyers]
-        return ordered.filter { allowed.contains($0) }
+        return ordered
     }
 
     // MARK: - Properties
@@ -47,8 +50,9 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
     private let analyticsService: PulseMarketWidgetAnalyticsProvider
+    private let includesMarketCapFilter: Bool
 
-    private let filterProvider = MarketsListDataFilterProvider(initialOrderType: Constants.initialOrderType)
+    private let filterProvider: MarketsListDataFilterProvider
     private let dataProvider = MarketsListDataProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
@@ -63,13 +67,19 @@ final class PulseMarketWidgetViewModel: ObservableObject {
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
         analyticsService: PulseMarketWidgetAnalyticsProvider,
+        includesMarketCapFilter: Bool = false,
         coordinator: PulseMarketWidgetRoutable?
     ) {
         self.widgetType = widgetType
         self.widgetsUpdateHandler = widgetsUpdateHandler
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.analyticsService = analyticsService
+        self.includesMarketCapFilter = includesMarketCapFilter
         self.coordinator = coordinator
+
+        filterProvider = MarketsListDataFilterProvider(
+            initialOrderType: includesMarketCapFilter ? .rating : Constants.initialOrderType
+        )
 
         marketCapFormatter = .init(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
@@ -80,10 +90,11 @@ final class PulseMarketWidgetViewModel: ObservableObject {
         bindToCurrencyCodeUpdate()
         dataProviderBind()
         bindToOrderUpdate()
+        bindToSearchUpdate()
 
         // Need for preload markets list, when bottom sheet it has not been opened yet
         quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
-        fetch(by: filterProvider.currentFilterValue)
+        performFetch()
     }
 
     deinit {
@@ -92,9 +103,20 @@ final class PulseMarketWidgetViewModel: ObservableObject {
 
     // MARK: - Public Implementation
 
+    func bind(searchTextPublisher: some Publisher<String, Never>) {
+        searchTextPublisher
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, searchText in
+                viewModel.searchText = searchText
+            }
+            .store(in: &bag)
+    }
+
     func tryLoadAgain() {
         dataProvider.reset()
-        fetch(by: filterProvider.currentFilterValue)
+        performFetch()
     }
 
     func onSeeAllTapAction() {
@@ -110,13 +132,45 @@ final class PulseMarketWidgetViewModel: ObservableObject {
             viewModel.coordinator?.openSeeAllPulseMarketWidget(with: viewModel.filterProvider.currentFilterValue.order)
         }
     }
+
+    func pauseQuotesUpdates() {
+        quotesUpdatesScheduler.suspend()
+    }
+
+    func resumeQuotesUpdates() {
+        quotesUpdatesScheduler.resume()
+    }
 }
 
 // MARK: - Private Implementation
 
 private extension PulseMarketWidgetViewModel {
-    func fetch(by filter: MarketsListDataProvider.Filter) {
-        dataProvider.fetch("", with: filter)
+    func performFetch() {
+        dataProvider.fetch(searchText.trimmed(), with: currentFetchFilter)
+    }
+
+    var currentFetchFilter: MarketsListDataProvider.Filter {
+        guard isSearchActive else {
+            return filterProvider.currentFilterValue
+        }
+
+        return MarketsListDataProvider.Filter(
+            interval: filterProvider.currentFilterValue.interval,
+            order: Constants.searchOrderType
+        )
+    }
+
+    func bindToSearchUpdate() {
+        $searchText
+            .removeDuplicates()
+            .dropFirst()
+            .debounce(for: Constants.searchDebounceInterval, scheduler: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.dataProvider.reset()
+                viewModel.performFetch()
+            }
+            .store(in: &bag)
     }
 
     func bindToCurrencyCodeUpdate() {
@@ -127,7 +181,7 @@ private extension PulseMarketWidgetViewModel {
             .sink { viewModel, newCurrencyCode in
                 viewModel.marketCapFormatter = .init(divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList, baseCurrencyCode: newCurrencyCode, notationFormatter: .init())
                 viewModel.dataProvider.reset()
-                viewModel.fetch(by: viewModel.filterProvider.currentFilterValue)
+                viewModel.performFetch()
             }
             .store(in: &bag)
     }
@@ -162,7 +216,7 @@ private extension PulseMarketWidgetViewModel {
                 let previousOrder = viewModel.dataProvider.lastFilterValue?.order
                 if previousOrder != newFilter.order {
                     viewModel.dataProvider.reset()
-                    viewModel.fetch(by: viewModel.filterProvider.currentFilterValue)
+                    viewModel.performFetch()
                 }
             }
             .store(in: &bag)
@@ -320,6 +374,8 @@ private extension PulseMarketWidgetViewModel {
 private extension PulseMarketWidgetViewModel {
     enum Constants {
         static let initialOrderType: MarketsListOrderType = .trending
+        static let searchOrderType: MarketsListOrderType = .rating
         static let itemsOnListWidget = 5
+        static let searchDebounceInterval: DispatchQueue.SchedulerTimeType.Stride = 0.45
     }
 }

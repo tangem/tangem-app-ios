@@ -19,6 +19,8 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
     let title: String
     let options: [AddFundsOptionView.Option] = [.buy, .swap, .receive]
 
+    var showsBackButton: Bool { onBack != nil }
+
     let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
 
     // Available-balance data for the legacy (non-redesign) layout.
@@ -34,6 +36,8 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
     private let walletModel: any WalletModel
     private let userWalletModel: any UserWalletModel
 
+    private let onBack: (() -> Void)?
+
     private weak var coordinator: AddFundsRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -43,6 +47,7 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         primaryAction = input.primaryAction
         walletModel = input.walletModel
         userWalletModel = input.userWalletModel
+        onBack = input.onBack
         self.coordinator = coordinator
 
         title = Self.makeTitle(tokenItem: input.walletModel.tokenItem)
@@ -113,6 +118,16 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         }
     }
 
+    func isEnabled(_ option: AddFundsOptionView.Option) -> Bool {
+        switch option {
+        // `.exchange` is the config feature that gates buy/sell (onramp/offramp) — there is no separate
+        // buy feature. Not to be confused with the `.exchange` token action, which is swap.
+        case .buy: userWalletModel.config.isFeatureVisible(.exchange)
+        case .swap: userWalletModel.config.isFeatureVisible(.swapping)
+        case .receive: true
+        }
+    }
+
     func userDidTapPrimary() {
         switch primaryAction {
         case .close:
@@ -132,9 +147,7 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
     }
 
     func userDidTapBack() {
-        Task { @MainActor in
-            coordinator?.addFundsClose()
-        }
+        onBack?()
     }
 
     func close() {
@@ -196,17 +209,20 @@ extension AddFundsViewModel {
         let primaryAction: PrimaryAction
         let walletModel: any WalletModel
         let userWalletModel: any UserWalletModel
+        let onBack: (() -> Void)?
 
         init(
             mode: Mode,
             primaryAction: PrimaryAction,
             walletModel: any WalletModel,
-            userWalletModel: any UserWalletModel
+            userWalletModel: any UserWalletModel,
+            onBack: (() -> Void)? = nil
         ) {
             self.mode = mode
             self.primaryAction = primaryAction
             self.walletModel = walletModel
             self.userWalletModel = userWalletModel
+            self.onBack = onBack
         }
     }
 

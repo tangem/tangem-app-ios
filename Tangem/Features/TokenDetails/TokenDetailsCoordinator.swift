@@ -82,6 +82,12 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             publicKey: options.walletModel.publicKey
         )
 
+        let deeplinkHandler = TokenDetailsDeeplinkHandler(
+            coordinator: self,
+            walletModel: options.walletModel,
+            userWalletInfo: options.userWalletInfo
+        )
+
         tokenDetailsViewModel = .init(
             userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
@@ -92,7 +98,8 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             xpubGenerator: xpubGenerator,
             coordinator: self,
             tokenRouter: tokenRouter,
-            pendingTransactionDetails: options.pendingTransactionDetails
+            pendingTransactionDetails: options.pendingTransactionDetails,
+            deeplinkHandler: deeplinkHandler
         )
 
         notificationManager.interactionDelegate = tokenDetailsViewModel
@@ -198,6 +205,13 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
+    func openStakingRegionUnavailableSheet() {
+        let viewModel = StakingRegionUnavailableSheetViewModel(coordinator: self)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openDynamicAddressesDisableSheet(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
         compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,
@@ -241,6 +255,16 @@ extension TokenDetailsCoordinator: DynamicAddressesUnavailableSheetRoutable {
 
 extension TokenDetailsCoordinator: DynamicAddressesDisableSheetRoutable {
     func closeDynamicAddressesDisableSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - StakingRegionUnavailableSheetRoutable
+
+extension TokenDetailsCoordinator: StakingRegionUnavailableSheetRoutable {
+    func closeStakingRegionUnavailableSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }

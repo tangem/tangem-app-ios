@@ -1,11 +1,6 @@
 {
   "shadow": {
     "button": {
-      "$extensions": {
-        "com.figma.codeSyntax": {
-          "Android": "Shadows.sm"
-        }
-      },
       "$type": "boxShadow",
       "$value": {
         "x": "{dimension.0}",
@@ -14,6 +9,19 @@
         "spread": "{dimension.0}",
         "color": "rgba({palette.base.black}, 0.12)",
         "type": "dropShadow"
+      }
+    },
+    "fallback": {
+      "button": {
+        "$type": "boxShadow",
+        "$value": {
+          "x": "0",
+          "y": "1",
+          "blur": "3",
+          "spread": "0",
+          "color": "rgba({palette.base.black}, 0.1)",
+          "type": "dropShadow"
+        }
       }
     }
   }

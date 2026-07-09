@@ -14,7 +14,6 @@ import CryptoSwift
 import TangemExpress
 import TangemFoundation
 
-// [REDACTED_TODO_COMMENT]
 final actor TransactionHistoryProvider {
     @Injected(\.transactionHistoryAuxDataRepository) private nonisolated var auxDataRepository: TransactionHistoryAuxDataRepository
 
@@ -52,6 +51,9 @@ final actor TransactionHistoryProvider {
         target: .global(qos: .userInitiated)
     )
 
+    /// - Note: Manual protection needed due to mutation from a non-isolated context, therefore the lock is used.
+    private nonisolated let bag = OSAllocatedUnfairLock(uncheckedState: Set<AnyCancellable>())
+
     init(
         repository: TransactionHistoryRepository,
         userWalletId: UserWalletId,
@@ -72,7 +74,7 @@ final actor TransactionHistoryProvider {
     }
 
     private nonisolated func subscribeToRepositoryUpdates() {
-        runTask { [weak self] in
+        let exchangeUpdatesSubscription = runTask { [weak self] in
             guard let stream = self?.repository.exchangeHistoryUpdates else {
                 return
             }
@@ -81,8 +83,9 @@ final actor TransactionHistoryProvider {
                 self?.exchangeUpdatesSubject.send(transactions)
             }
         }
+        .eraseToAnyCancellable()
 
-        runTask { [weak self] in
+        let onrampUpdatesSubscription = runTask { [weak self] in
             guard let stream = self?.repository.onrampHistoryUpdates else {
                 return
             }
@@ -91,15 +94,28 @@ final actor TransactionHistoryProvider {
                 self?.onrampUpdatesSubject.send(transactions)
             }
         }
+        .eraseToAnyCancellable()
+
+        bag { bag in
+            bag.insert(exchangeUpdatesSubscription)
+            bag.insert(onrampUpdatesSubscription)
+        }
     }
 
     private nonisolated func subscribeToAuxDataUpdates() {
-        let didLoadAuxData = auxDataRepository.didLoadAuxData
+        let auxDataSubscription = runTask { [weak self] in
+            guard let stream = self?.auxDataRepository.didLoadAuxData else {
+                return
+            }
 
-        runTask { [weak self] in
-            for await _ in didLoadAuxData {
+            for await _ in stream {
                 self?.auxDataUpdatesSubject.send(())
             }
+        }
+        .eraseToAnyCancellable()
+
+        bag { bag in
+            _ = bag.insert(auxDataSubscription)
         }
     }
 
@@ -356,7 +372,7 @@ extension TransactionHistoryProvider: WalletModelTransactionHistoryEnriching {
         )
 
         // [REDACTED_TODO_COMMENT]
-        return transactionHistoryPublisher
+        return originalTransactionHistoryPublisher
             .combineLatest(
                 exchangeUpdatesSubject,
                 onrampUpdatesSubject,

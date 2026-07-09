@@ -117,6 +117,9 @@ struct TokenDetailsView: View {
             viewModel.onAppear()
             scrollOffsetHandler.onViewAppear()
         }
+        .onDisappear {
+            viewModel.onDisappear()
+        }
         .onFirstAppear {
             viewModel.onFirstAppear()
         }
@@ -428,7 +431,12 @@ private extension TokenDetailsView {
                 userWalletInfo: userWalletModel.userWalletInfo,
                 coordinator: coordinator
             ),
-            pendingTransactionDetails: nil
+            pendingTransactionDetails: nil,
+            deeplinkHandler: TokenDetailsDeeplinkHandler(
+                coordinator: coordinator,
+                walletModel: walletModel,
+                userWalletInfo: userWalletModel.userWalletInfo
+            )
         )
     )
 }

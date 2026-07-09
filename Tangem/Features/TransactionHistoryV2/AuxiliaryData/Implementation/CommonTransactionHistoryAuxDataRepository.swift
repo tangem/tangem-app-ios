@@ -226,7 +226,7 @@ actor CommonTransactionHistoryAuxDataRepository {
             return nil
         }
 
-        // We explicitly check set the `derivationPath` to `nil` here because we don't know the derivation path of the currency.
+        // We explicitly set the `derivationPath` to `nil` here because we don't know the derivation path of the currency.
         // Callers that need a derivation-correct item (e.g. to add the token to a wallet) must enrich it themselves.
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: nil)
 
