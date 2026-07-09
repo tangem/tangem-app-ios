@@ -50,7 +50,7 @@ public struct TwoLineRowWithIcon<
                 firstLine
                 secondLine
             }
-            .readGeometry(\.size.width, bindTo: $textBlockWidth)
+            .readGeometry(\.size.width) { textBlockWidth = $0.roundedToDeviceScale() }
         }
     }
 
