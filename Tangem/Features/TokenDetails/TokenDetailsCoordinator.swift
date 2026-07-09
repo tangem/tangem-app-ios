@@ -84,7 +84,8 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             xpubGenerator: xpubGenerator,
             coordinator: self,
             tokenRouter: tokenRouter,
-            pendingTransactionDetails: options.pendingTransactionDetails
+            pendingTransactionDetails: options.pendingTransactionDetails,
+            presentSource: options.presentSource
         )
 
         notificationManager.interactionDelegate = tokenDetailsViewModel
@@ -102,6 +103,7 @@ extension TokenDetailsCoordinator {
         let walletModel: any WalletModel
         /// Initialized when a deeplink is received for an onramp or exchange (swap) status update related to a specific transaction
         let pendingTransactionDetails: PendingTransactionDetails?
+        let presentSource: TokenDetailsPresentSource
 
         init(
             userWalletInfo: UserWalletInfo,
@@ -109,7 +111,8 @@ extension TokenDetailsCoordinator {
             walletModelsManager: any WalletModelsManager,
             userTokensManager: any UserTokensManager,
             walletModel: any WalletModel,
-            pendingTransactionDetails: PendingTransactionDetails? = nil
+            pendingTransactionDetails: PendingTransactionDetails? = nil,
+            presentSource: TokenDetailsPresentSource = .navigation
         ) {
             self.userWalletInfo = userWalletInfo
             self.keysDerivingInteractor = keysDerivingInteractor
@@ -117,6 +120,7 @@ extension TokenDetailsCoordinator {
             self.userTokensManager = userTokensManager
             self.walletModel = walletModel
             self.pendingTransactionDetails = pendingTransactionDetails
+            self.presentSource = presentSource
         }
     }
 }
