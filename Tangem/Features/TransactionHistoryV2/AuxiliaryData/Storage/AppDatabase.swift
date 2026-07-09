@@ -83,6 +83,69 @@ final class AppDatabase {
                 table.column("isInitialSyncDone", .boolean).notNull().defaults(to: false)
                 table.column("lastSyncAt", .datetime).notNull()
             }
+
+            let expressOnrampTransactionsTableName = "expressOnrampTransactions"
+            let ownerAddressColumnName = "ownerAddress"
+            let payoutHashColumnName = "payoutHash"
+            let toNetworkColumnName = "toNetwork"
+            let toContractColumnName = "toContract"
+
+            try database.create(table: expressOnrampTransactionsTableName, options: [.ifNotExists, .strict]) { table in
+                table.primaryKey("id", .text, onConflict: .replace).notNull()
+                table.column(ownerAddressColumnName, .text).notNull()
+                table.column("providerID", .text).notNull()
+                table.column("payoutAddress", .text)
+                table.column("status", .text).notNull()
+                table.column("externalTxID", .text)
+                table.column("externalTxURL", .text)
+                table.column(payoutHashColumnName, .text)
+                table.column("fromCurrency", .text).notNull()
+                table.column("fromAmount", .text).notNull()
+                table.column("fromDecimals", .integer)
+                table.column(toContractColumnName, .text)
+                table.column(toNetworkColumnName, .text).notNull()
+                table.column("toAmount", .text).notNull()
+                table.column("toDecimals", .integer).notNull()
+                table.column("toActualAmount", .text)
+                table.column("failReason", .text)
+                table.column("createdAt", .datetime).notNull()
+                table.column("updatedAt", .datetime).notNull()
+            }
+
+            try database.create(
+                index: "idxOnOwner",
+                on: expressOnrampTransactionsTableName,
+                columns: [
+                    ownerAddressColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
+
+            try database.create(
+                index: "idxOnPayout",
+                on: expressOnrampTransactionsTableName,
+                columns: [
+                    payoutHashColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
+
+            try database.create(
+                index: "idxOnTokenFilter",
+                on: expressOnrampTransactionsTableName,
+                columns: [
+                    toNetworkColumnName,
+                    toContractColumnName,
+                    ownerAddressColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
         }
 
         return migrator
