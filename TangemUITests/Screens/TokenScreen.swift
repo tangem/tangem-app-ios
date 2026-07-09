@@ -150,7 +150,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     @discardableResult
     func tapGoToFeeCurrencyButton() -> TokenScreen {
-        XCTContext.runActivity(named: "Tap go to fee currency button") { _ in
+        _ = XCTContext.runActivity(named: "Tap go to fee currency button") { _ in
             goToFeeCurrencyButton.waitAndTap()
         }
         return TokenScreen(app)
