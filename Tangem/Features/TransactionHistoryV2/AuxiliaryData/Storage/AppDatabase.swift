@@ -86,7 +86,7 @@ final class AppDatabase {
 
             let expressOnrampTransactionsTableName = "expressOnrampTransactions"
             let ownerAddressColumnName = "ownerAddress"
-            let payoutHashColumnName = "payoutHash"
+            let payOutHashColumnName = "payOutHash"
             let toNetworkColumnName = "toNetwork"
             let toContractColumnName = "toContract"
 
@@ -94,11 +94,11 @@ final class AppDatabase {
                 table.primaryKey("id", .text, onConflict: .replace).notNull()
                 table.column(ownerAddressColumnName, .text).notNull()
                 table.column("providerID", .text).notNull()
-                table.column("payoutAddress", .text)
+                table.column("payOutAddress", .text)
                 table.column("status", .text).notNull()
                 table.column("externalTxID", .text)
                 table.column("externalTxURL", .text)
-                table.column(payoutHashColumnName, .text)
+                table.column(payOutHashColumnName, .text)
                 table.column("fromCurrency", .text).notNull()
                 table.column("fromAmount", .text).notNull()
                 table.column("fromDecimals", .integer)
@@ -124,10 +124,10 @@ final class AppDatabase {
             )
 
             try database.create(
-                index: "idxOnPayout",
+                index: "idxOnPayOut",
                 on: expressOnrampTransactionsTableName,
                 columns: [
-                    payoutHashColumnName,
+                    payOutHashColumnName,
                 ],
                 options: [
                     .ifNotExists,
@@ -148,7 +148,7 @@ final class AppDatabase {
             )
 
             let expressExchangeTransactionsTableName = "expressExchangeTransactions"
-            let payinHashColumnName = "payinHash"
+            let payInHashColumnName = "payInHash"
             let fromNetworkColumnName = "fromNetwork"
             let fromContractColumnName = "fromContract"
             let statusColumnName = "status"
@@ -162,13 +162,13 @@ final class AppDatabase {
                 table.column(ownerAddressColumnName, .text).notNull()
                 table.column("providerID", .text).notNull()
                 table.column("fromAddress", .text)
-                table.column("payinAddress", .text)
-                table.column("payoutAddress", .text)
+                table.column("payInAddress", .text)
+                table.column("payOutAddress", .text)
                 table.column(statusColumnName, .text).notNull()
                 table.column("externalTxID", .text)
                 table.column("externalTxURL", .text)
-                table.column(payinHashColumnName, .text)
-                table.column(payoutHashColumnName, .text)
+                table.column(payInHashColumnName, .text)
+                table.column(payOutHashColumnName, .text)
                 table.column(fromContractColumnName, .text)
                 table.column(fromNetworkColumnName, .text).notNull()
                 table.column("fromDecimals", .integer).notNull()
@@ -197,10 +197,10 @@ final class AppDatabase {
             )
 
             try database.create(
-                index: "idxExPayin",
+                index: "idxExPayIn",
                 on: expressExchangeTransactionsTableName,
                 columns: [
-                    payinHashColumnName,
+                    payInHashColumnName,
                 ],
                 options: [
                     .ifNotExists,
@@ -208,10 +208,10 @@ final class AppDatabase {
             )
 
             try database.create(
-                index: "idxExPayout",
+                index: "idxExPayOut",
                 on: expressExchangeTransactionsTableName,
                 columns: [
-                    payoutHashColumnName,
+                    payOutHashColumnName,
                 ],
                 options: [
                     .ifNotExists,
