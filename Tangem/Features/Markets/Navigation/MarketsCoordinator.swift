@@ -340,7 +340,8 @@ private extension MarketsCoordinator {
                 keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
                 walletModelsManager: accountModel.walletModelsManager,
                 userTokensManager: accountModel.userTokensManager,
-                walletModel: walletModel
+                walletModel: walletModel,
+                presentSource: .markets
             )
         )
 
