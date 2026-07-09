@@ -129,12 +129,11 @@ struct TransactionDetailsFactory {
         record: TransactionRecord?,
         context: Context
     ) -> TransactionDetailsSingleOperationViewData {
-        // [REDACTED_TODO_COMMENT]
         .init(
             tokens: tokensBlock(for: transaction, context: context),
             statusBanner: nil,
             principalAmount: nil,
-            counterparty: counterparty(for: transaction, label: "dApp"),
+            counterparty: counterparty(for: transaction, label: Localization.stakingValidator),
             info: networkFeeInfo(from: record),
             action: nil
         )
@@ -188,13 +187,12 @@ struct TransactionDetailsFactory {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func yieldStatusTitle(for type: TransactionViewModel.TransactionType) -> String? {
         switch type {
         case .yieldWithdraw, .yieldWithdrawCoin:
-            return "Returned"
+            return Localization.yieldModuleTransactionReturned
         case .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate, .yieldSend, .yieldTopup:
-            return "Supplied"
+            return Localization.yieldModuleTransactionSupplied
         default:
             return nil
         }
@@ -245,27 +243,32 @@ struct TransactionDetailsFactory {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func swapStatusBanner(_ status: ExpressTransactionStatus) -> TransactionDetailsStatusBannerViewData? {
         switch status {
-        case .finished:
-            return .init(kind: .success, title: "Funds received")
-        case .failed, .txFailed:
-            return .init(kind: .warning, title: "Failed", subtitle: "Visit the provider's website to refund your money")
-        case .refunded:
-            return .init(kind: .warning, title: "Refunded")
-        case .expired:
-            return .init(kind: .warning, title: "Expired")
+        case .preview, .created, .exchangeTxSent, .waiting:
+            return .init(kind: .inProgress, title: Localization.expressExchangeStatusReceivingActive)
+        case .waitingTxHash:
+            return .init(kind: .inProgress, title: Localization.expressExchangeStatusWaitingTxHash)
+        case .confirming:
+            return .init(kind: .inProgress, title: Localization.expressExchangeStatusConfirmingActive)
+        case .exchanging:
+            return .init(kind: .inProgress, title: Localization.expressExchangeStatusExchangingActive)
+        case .sending:
+            return .init(kind: .inProgress, title: Localization.expressExchangeStatusSendingActive)
         case .verifying:
-            return .init(kind: .attention, title: "Verification required")
+            return .init(kind: .attention, title: Localization.expressExchangeStatusVerifying, subtitle: Localization.expressExchangeNotificationVerificationText)
         case .paused:
-            return .init(kind: .attention, title: "On hold")
-        case .unknown, .preview, .created, .waiting, .waitingTxHash:
-            return .init(kind: .inProgress, title: "Awaiting deposit")
-        case .exchangeTxSent, .confirming:
-            return .init(kind: .inProgress, title: "Deposit confirmed")
-        case .exchanging, .sending:
-            return .init(kind: .inProgress, title: "Exchanging")
+            return .init(kind: .attention, title: Localization.expressExchangeStatusPaused)
+        case .refunded:
+            return .init(kind: .warning, title: Localization.expressExchangeStatusRefunded)
+        case .failed, .txFailed:
+            return .init(kind: .warning, title: Localization.expressExchangeStatusFailed, subtitle: Localization.expressExchangeNotificationFailedText)
+        case .expired:
+            return .init(kind: .warning, title: Localization.expressExchangeStatusFailed)
+        case .finished:
+            return .init(kind: .success, title: Localization.expressExchangeStatusExchanged)
+        case .unknown:
+            return nil
         }
     }
 
@@ -316,31 +319,32 @@ struct TransactionDetailsFactory {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func onrampStatusBanner(_ status: OnrampTransactionStatus) -> TransactionDetailsStatusBannerViewData? {
         switch status {
-        case .finished:
-            return .init(kind: .success, title: "Funds received")
-        case .failed:
-            return .init(kind: .warning, title: "Failed", subtitle: "The payment was not completed")
-        case .expired:
-            return .init(kind: .warning, title: "Expired")
-        case .refunded:
-            return .init(kind: .warning, title: "Refunded")
-        case .verifying:
-            return .init(kind: .attention, title: "Verification required")
-        case .paused:
-            return .init(kind: .attention, title: "On hold")
-        case .unknown, .created, .waitingForPayment:
-            return .init(kind: .inProgress, title: "Awaiting payment")
+        case .created, .waitingForPayment:
+            return .init(kind: .inProgress, title: Localization.expressExchangeStatusReceivingActive)
         case .paymentProcessing:
-            return .init(kind: .inProgress, title: "Processing payment")
+            return .init(kind: .inProgress, title: Localization.expressExchangeStatusConfirmingActive)
         case .paid:
-            return .init(kind: .inProgress, title: "Payment received")
+            return .init(kind: .inProgress, title: Localization.expressExchangeStatusBuyingActive)
         case .sending:
-            return .init(kind: .inProgress, title: "Sending funds")
+            return .init(kind: .inProgress, title: Localization.expressExchangeStatusSendingActive)
         case .refunding:
-            return .init(kind: .inProgress, title: "Refunding")
+            return .init(kind: .inProgress, title: Localization.expressExchangeStatusRefunding)
+        case .verifying:
+            return .init(kind: .attention, title: Localization.expressExchangeStatusVerifying, subtitle: Localization.expressExchangeNotificationVerificationText)
+        case .paused:
+            return .init(kind: .attention, title: Localization.expressExchangeStatusPaused)
+        case .refunded:
+            return .init(kind: .warning, title: Localization.expressExchangeStatusRefunded)
+        case .failed:
+            return .init(kind: .warning, title: Localization.expressExchangeStatusFailed, subtitle: Localization.expressExchangeNotificationFailedText)
+        case .expired:
+            return .init(kind: .warning, title: Localization.expressExchangeStatusFailed)
+        case .finished:
+            return .init(kind: .success, title: Localization.expressExchangeStatusBought)
+        case .unknown:
+            return nil
         }
     }
 
@@ -376,21 +380,20 @@ struct TransactionDetailsFactory {
     private func action(for swapStatus: ExpressTransactionStatus, externalURL: URL?, openURL: @escaping (URL) -> Void) -> TransactionDetailsActionButtonViewData? {
         switch swapStatus {
         case .verifying:
-            return externalURL.map { url in .init(title: "Go to verification", icon: Assets.arrowRightUpMini, handler: { openURL(url) }) }
+            return externalURL.map { url in .init(title: Localization.commonGoToVerification, icon: Assets.arrowRightUpMini, handler: { openURL(url) }) }
         case .paused:
-            return externalURL.map { url in .init(title: "Go to provider", icon: Assets.arrowRightUpMini, handler: { openURL(url) }) }
+            return externalURL.map { url in .init(title: Localization.commonGoToProvider, icon: Assets.arrowRightUpMini, handler: { openURL(url) }) }
         default:
             return nil
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     private func action(for onrampStatus: OnrampTransactionStatus, externalURL: URL?, openURL: @escaping (URL) -> Void) -> TransactionDetailsActionButtonViewData? {
         switch onrampStatus {
         case .verifying:
-            return externalURL.map { url in .init(title: "Go to verification", icon: Assets.arrowRightUpMini, handler: { openURL(url) }) }
+            return externalURL.map { url in .init(title: Localization.commonGoToVerification, icon: Assets.arrowRightUpMini, handler: { openURL(url) }) }
         case .paused, .waitingForPayment:
-            return externalURL.map { url in .init(title: "Go to provider", icon: Assets.arrowRightUpMini, handler: { openURL(url) }) }
+            return externalURL.map { url in .init(title: Localization.commonGoToProvider, icon: Assets.arrowRightUpMini, handler: { openURL(url) }) }
         default:
             return nil
         }

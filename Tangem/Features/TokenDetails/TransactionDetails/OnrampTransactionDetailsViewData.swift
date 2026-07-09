@@ -41,8 +41,7 @@ struct OnrampTransactionDetailsViewData: TransactionDetailsOperationViewData {
 
         return TransactionDetailsTokensViewData(
             from: .init(
-                // [REDACTED_TODO_COMMENT]
-                direction: .init(label: "You paid", actor: nil),
+                direction: .init(label: Localization.txHistoryYouPaid, actor: nil),
                 icon: paid.isFlagLoading ? .loading : .image(url: paid.flagIconURL),
                 amountText: paidAmountText,
                 fiatText: paid.fiatPrice,
