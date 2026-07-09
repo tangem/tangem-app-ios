@@ -71,6 +71,18 @@ final class AppDatabase {
                 table.column("imageURL", .text)
                 table.column("updatedAt", .datetime).notNull()
             }
+
+            try database.create(table: "expressSyncMetadata", options: [.ifNotExists, .strict]) { table in
+                let ownerAddressColumnName = "ownerAddress"
+                let endpointTypeColumnName = "endpointType"
+                table.primaryKey([ownerAddressColumnName, endpointTypeColumnName], onConflict: .replace)
+                table.column(ownerAddressColumnName, .text).notNull()
+                table.column(endpointTypeColumnName, .text).notNull()
+                table.column("archiveCursor", .text)
+                table.column("deltaCursor", .text)
+                table.column("isInitialSyncDone", .boolean).notNull().defaults(to: false)
+                table.column("lastSyncAt", .datetime).notNull()
+            }
         }
 
         return migrator
