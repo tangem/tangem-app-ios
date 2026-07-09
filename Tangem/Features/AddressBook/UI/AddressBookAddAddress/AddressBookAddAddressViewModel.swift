@@ -23,6 +23,8 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
 
     @Published var alert: AlertBinder?
 
+    let screenTitle: String
+
     private let interactor: AddressBookAddAddressInteractor
     private weak var coordinator: AddressBookAddAddressRoutable?
 
@@ -37,6 +39,13 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
     ) {
         self.interactor = interactor
         self.coordinator = coordinator
+
+        switch options {
+        case .add:
+            screenTitle = Localization.addressBookAddAddress
+        case .edit:
+            screenTitle = Localization.addressBookEditAddress
+        }
 
         destinationAddressViewModel = SendDestinationAddressViewModel(
             textViewModel: .init(),
@@ -90,7 +99,7 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
         coordinator.presentChooseNetwork(viewModel)
     }
 
-    func userDidRequestAddAddress() {
+    func userDidRequestSaveAddress() {
         interactor.userDidRequestSave()
         coordinator?.dismissAddAddress()
     }
