@@ -63,7 +63,7 @@ public struct TangemCarousel<Data, Content>: View
             }
         }
         .frame(maxWidth: .infinity, alignment: .top)
-        .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { containerWidth = $0 }
+        .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { containerWidth = $0.roundedToDeviceScale() }
         .onChange(of: data.count) { _ in
             let maxIndex = max(data.count - 1, 0)
             let clamped = clamp(currentIndex, min: 0, max: maxIndex)

@@ -40,6 +40,19 @@ struct WalletConnectDAppConnectionView: View {
             .scrollBounceBehavior(.basedOnSize)
             .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         }
+        .animation(.contentFrameUpdate, value: viewModel.state)
+        .animation(
+            .contentFrameUpdate,
+            value: viewModel.state.connectionRequestState?.connectionRequestSection.isExpanded
+        )
+        .animation(
+            .contentFrameUpdate,
+            value: viewModel.state.connectionRequestState?.dAppVerificationWarningSection
+        )
+        .animation(
+            .contentFrameUpdate,
+            value: viewModel.state.connectionRequestState?.networksWarningSection
+        )
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
@@ -52,9 +65,6 @@ struct WalletConnectDAppConnectionView: View {
             switch viewModel.state {
             case .connectionRequest(let viewModel):
                 WalletConnectDAppConnectionRequestView(viewModel: viewModel, kingfisherImageCache: kingfisherImageCache)
-                    .animation(.contentFrameUpdate, value: viewModel.state.connectionRequestSection.isExpanded)
-                    .animation(.contentFrameUpdate, value: viewModel.state.dAppVerificationWarningSection)
-                    .animation(.contentFrameUpdate, value: viewModel.state.networksWarningSection)
                     .transition(.content)
 
             case .verifiedDomain(let viewModel):
