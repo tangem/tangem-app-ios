@@ -63,6 +63,8 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     private weak var coordinator: AddressBookContactManagementRoutable?
     private var bag = Set<AnyCancellable>()
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     private var nameMode: AccountIconView.NameMode {
         if let firstLetter = contactName.trimmed().first {
             return .letter(String(firstLetter))
@@ -117,25 +119,35 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     }
 
     func userDidRequestWalletChange() {
-        guard let selectedWallet, let coordinator else {
-            return
-        }
-
-        let addressBookWallets = addressBooksProvider.addressBooks
-            .filter { $0.wallet.id != selectedWallet.userWalletInfo.id }
-
-        guard addressBookWallets.isNotEmpty else {
+        guard let coordinator else {
             return
         }
 
         interactor.logWalletPickerOpened()
 
-        let viewModel = AddressBookWalletPickerViewModel(
-            addressBookWallets: addressBookWallets,
-            output: self,
-            routable: coordinator
+        Task { @MainActor in
+            let viewModel = AccountSelectorViewModel(
+                userWalletModels: userWalletRepository.models,
+                preferredDisplayMode: .wallets,
+                onSelect: { [weak self] cellModel in
+                    self?.didSelectWallet(cellModel.userWalletModel)
+                }
+            )
+            coordinator.presentWalletPicker(viewModel)
+        }
+    }
+
+    private func didSelectWallet(_ userWalletModel: any UserWalletModel) {
+        coordinator?.dismissWalletPicker()
+
+        let addressBookManager = userWalletModel.addressBookManager
+        let addressBookWallet = AddressBookWallet(
+            wallet: userWalletModel.userWalletInfo,
+            addressBookManager: addressBookManager,
+            addressBookPublisher: addressBookManager.contactsPublisher,
+            syncStatePublisher: addressBookManager.syncStatePublisher
         )
-        coordinator.presentWalletPicker(viewModel)
+        interactor.update(addressBookWallet: addressBookWallet)
     }
 
     func userDidRequestDone() {
@@ -408,14 +420,6 @@ extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
         } catch {
             presentGenericError(message: error.localizedDescription)
         }
-    }
-}
-
-// MARK: - AddressBookWalletPickerOutput
-
-extension AddressBookContactManagementViewModel: AddressBookWalletPickerOutput {
-    func walletPickerDidSelect(_ addressBookWallet: AddressBookWallet) {
-        interactor.update(addressBookWallet: addressBookWallet)
     }
 }
 
