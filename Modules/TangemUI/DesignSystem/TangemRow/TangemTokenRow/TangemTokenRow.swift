@@ -206,10 +206,9 @@ public struct TangemTokenRow: View {
     // MARK: - Fiat Balance
 
     private func formattedFiatBalance(_ text: String) -> AttributedString {
-        TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+        // Colors only — LoadableBalanceView applies the font via `.style`, keeping Dynamic Type scaling.
+        AttributedBalanceFormatter.dimmingDecimals(
             text,
-            font: Constants.Style.FiatBalance.font,
-            integerColor: Constants.Style.FiatBalance.integerColor,
             decimalColor: Constants.Style.FiatBalance.decimalColor
         )
     }
