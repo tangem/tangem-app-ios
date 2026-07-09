@@ -111,6 +111,7 @@
 "address_book_no_contacts_description" = "Die von Ihnen hinzugefügten Kontakte werden hier angezeigt";
 "address_book_no_contacts" = "Noch keine Kontakte";
 "address_book_remove_address" = "Adresse entfernen";
+"address_book_save_address" = "Save address";
 "address_book_save_contact" = "Kontakt speichern";
 "address_book_save_to_wallet_title" = "In Wallet speichern";
 "address_book_save_wallet_to_description" = "Dieser Kontakt wird mit dem Adressbuch dieser Wallet verknüpft.";
@@ -1086,6 +1087,7 @@
 "promo_campaign_select_cashback_account" = "Cashback-Konto auswählen";
 "promo_campaign_select_token" = "Select token";
 "promo_campaign_summary_title" = "Melden Sie sich an %1$@";
+"promo_campaign_terms_agreement_android" = "Ich stimme zu, dass";
 "promo_campaign_terms_agreement" = "Ich stimme zu, dass %1$@";
 "promo_campaign_terms_link" = "%1$@ Bedingungen";
 "promo_campaign_whale_swap_summary_description" = "Erhalten Sie bis Ende Juli bei jedem Swap ab 10.000 $ Cashback.\n\nDie Sätze steigen mit dem Volumen: 0,10%% ab 10.000 $, 0,20%% ab 20.000 $, 0,50%% ab 100.000 $.\n\nMaximale Auszahlung: 500 $ pro Swap und 10.000 $ pro Wallet und Swap-Richtung, solange die Aktion läuft. Swaps von Stablecoins in andere Stablecoins sind ausgeschlossen.\n\nDie Auszahlung erfolgt wöchentlich an eine USDT- oder USDC-Adresse Ihrer Wahl.";
