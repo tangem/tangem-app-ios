@@ -555,6 +555,7 @@ private extension MainViewModel {
         )
 
         pages[index] = page
+        recreatePagesWithMissingBodyModelsIfNeeded()
     }
 }
 
