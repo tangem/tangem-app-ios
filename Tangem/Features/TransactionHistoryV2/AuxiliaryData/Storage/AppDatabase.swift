@@ -146,6 +146,118 @@ final class AppDatabase {
                     .ifNotExists,
                 ]
             )
+
+            let expressExchangeTransactionsTableName = "expressExchangeTransactions"
+            let payinHashColumnName = "payinHash"
+            let fromNetworkColumnName = "fromNetwork"
+            let fromContractColumnName = "fromContract"
+            let statusColumnName = "status"
+            let refundNetworkColumnName = "refundNetwork"
+            let refundContractAddressColumnName = "refundContractAddress"
+            let refundAddressColumnName = "refundAddress"
+            let createdAtColumnName = "createdAt"
+
+            try database.create(table: expressExchangeTransactionsTableName, options: [.ifNotExists, .strict]) { table in
+                table.primaryKey("id", .text, onConflict: .replace).notNull()
+                table.column(ownerAddressColumnName, .text).notNull()
+                table.column("providerID", .text).notNull()
+                table.column("fromAddress", .text)
+                table.column("payinAddress", .text)
+                table.column("payoutAddress", .text)
+                table.column(statusColumnName, .text).notNull()
+                table.column("externalTxID", .text)
+                table.column("externalTxURL", .text)
+                table.column(payinHashColumnName, .text)
+                table.column(payoutHashColumnName, .text)
+                table.column(fromContractColumnName, .text)
+                table.column(fromNetworkColumnName, .text).notNull()
+                table.column("fromDecimals", .integer).notNull()
+                table.column(toContractColumnName, .text)
+                table.column(toNetworkColumnName, .text).notNull()
+                table.column("toAmount", .text).notNull()
+                table.column("toDecimals", .integer).notNull()
+                table.column("toActualAmount", .text)
+                table.column("failReason", .text)
+                table.column(refundAddressColumnName, .text)
+                table.column(refundNetworkColumnName, .text)
+                table.column(refundContractAddressColumnName, .text)
+                table.column(createdAtColumnName, .datetime).notNull()
+                table.column("updatedAt", .datetime).notNull()
+            }
+
+            try database.create(
+                index: "idxOnOwner",
+                on: expressExchangeTransactionsTableName,
+                columns: [
+                    ownerAddressColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
+
+            try database.create(
+                index: "idxExPayin",
+                on: expressExchangeTransactionsTableName,
+                columns: [
+                    payinHashColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
+
+            try database.create(
+                index: "idxExPayout",
+                on: expressExchangeTransactionsTableName,
+                columns: [
+                    payoutHashColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
+
+            try database.create(
+                index: "idxExFromToken",
+                on: expressExchangeTransactionsTableName,
+                columns: [
+                    fromNetworkColumnName,
+                    fromContractColumnName,
+                    ownerAddressColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
+
+            try database.create(
+                index: "idxExToToken",
+                on: expressExchangeTransactionsTableName,
+                columns: [
+                    toNetworkColumnName,
+                    toContractColumnName,
+                    ownerAddressColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
+
+            try database.create(
+                index: "idxExRefundMatching",
+                on: expressExchangeTransactionsTableName,
+                columns: [
+                    statusColumnName,
+                    refundNetworkColumnName,
+                    refundContractAddressColumnName,
+                    refundAddressColumnName,
+                    createdAtColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
         }
 
         return migrator
