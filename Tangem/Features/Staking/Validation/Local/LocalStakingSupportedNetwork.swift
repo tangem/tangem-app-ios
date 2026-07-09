@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-enum LocalStakingSupportedNetwork {
+enum LocalStakingSupportedNetwork: CaseIterable {
     case tron
     case solana
     case cosmos
