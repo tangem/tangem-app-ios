@@ -81,6 +81,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel.tokenItem.token?.customTokenColor
     }
 
+    let presentSource: TokenDetailsPresentSource
+
     private weak var coordinator: (any TokenDetailsRoutable)?
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
@@ -122,7 +124,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         pendingTransactionDetails: PendingTransactionDetails?,
         deeplinkHandler: TokenDetailsDeeplinkHandler,
         marketingNotificationManager: MarketingBannerNotificationManager = MarketingBannerNotificationManager(),
-        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper()
+        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper(),
+        presentSource: TokenDetailsPresentSource
     ) {
         self.coordinator = coordinator
         self.xpubGenerator = xpubGenerator
@@ -131,6 +134,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.deeplinkHandler = deeplinkHandler
         self.marketingNotificationManager = marketingNotificationManager
         self.notificationBannerMapper = notificationBannerMapper
+        self.presentSource = presentSource
 
         actionsViewModel = FeatureProvider.isAvailable(.redesign)
             ? TokenDetailsActionsViewModel(walletModel: walletModel, userWalletInfo: userWalletInfo)
@@ -154,6 +158,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     deinit {
         AppLogger.debug("TokenDetailsViewModel deinit")
+    }
+
+    func onBack() {
+        coordinator?.dismiss()
     }
 
     func onAppear() {
