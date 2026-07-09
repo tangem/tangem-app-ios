@@ -32,6 +32,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemCheckboxV2DemoViewModel) {
                 TangemCheckboxV2DemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemCheckmarkV2DemoViewModel) {
+                TangemCheckmarkV2DemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemBadgeDemoViewModel) {
                 TangemBadgeDemoView(viewModel: $0)
             }
@@ -99,6 +102,10 @@ struct DesignSystemDemoView: View {
                 section(title: "Design System V2") {
                     MainButton(title: "TangemButtonV2") {
                         viewModel.openTangemButtonV2Demo()
+                    }
+
+                    MainButton(title: "TangemCheckmarkV2") {
+                        viewModel.openTangemCheckmarkV2Demo()
                     }
 
                     MainButton(title: "TangemBadgeV2") {
