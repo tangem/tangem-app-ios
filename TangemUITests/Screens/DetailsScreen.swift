@@ -37,6 +37,7 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
         }
     }
 
+    @discardableResult
     func openWalletConnections() -> WalletConnectionsScreen {
         XCTContext.runActivity(named: "Open WalletConnect") { _ in
             let walletConnectButton = button(.walletConnectButton)
@@ -45,6 +46,7 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
         }
     }
 
+    @discardableResult
     func tapAddNewWallet() -> Self {
         XCTContext.runActivity(named: "Add new wallet") { _ in
             addNewWallet.waitAndTap()
