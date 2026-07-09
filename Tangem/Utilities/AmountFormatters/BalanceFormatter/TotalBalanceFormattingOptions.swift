@@ -31,7 +31,7 @@ struct TotalBalanceFormattingOptions {
             integerPartFont: Font.Tangem.Title44.semibold,
             fractionalPartFont: Font.Tangem.Heading28.semibold,
             integerPartColor: .Tangem.Text.Neutral.primary,
-            fractionalPartColor: .Tangem.Text.Neutral.primary,
+            fractionalPartColor: .Tangem.Text.Neutral.secondary,
             fractionalPartIncludesDecimalSeparator: true
         )
     }
