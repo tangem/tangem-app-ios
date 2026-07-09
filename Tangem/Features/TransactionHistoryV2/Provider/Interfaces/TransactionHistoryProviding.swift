@@ -9,7 +9,6 @@
 import Foundation
 
 protocol TransactionHistoryProviding:
-    Sendable,
     Identifiable,
     TransactionHistorySyncing,
     TransactionHistoryExpressDataEnriching,

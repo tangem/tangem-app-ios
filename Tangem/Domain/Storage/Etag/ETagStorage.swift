@@ -30,5 +30,5 @@ extension InjectedValues {
 // MARK: - Private implementation
 
 private struct ETagStorageInjectionKey: InjectionKey {
-    static var currentValue: ETagStorage = CommonETagStorage()
+    static var currentValue: ETagStorage = CommonETagStorage(innerStorage: UserDefaultsBlockchainDataStorage())
 }
