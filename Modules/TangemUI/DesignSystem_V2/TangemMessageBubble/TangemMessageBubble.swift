@@ -78,6 +78,8 @@ public struct TangemMessageBubble: View, Setupable {
             .fill(variant.palette.background)
             .frame(width: tipSize, height: tipSize)
             .offset(x: tipLeadingInset, y: -tipSize)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 }
 
