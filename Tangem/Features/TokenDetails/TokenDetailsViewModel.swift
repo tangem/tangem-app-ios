@@ -628,11 +628,11 @@ private extension TokenDetailsViewModel {
             balanceConverter.convertToFiat(balance, currencyId: currencyId)
         }
         let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
-        let attributedFiatBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+        let attributedFiatBalance = AttributedBalanceFormatter.format(
             formattedFiatBalance,
             font: Font.Tangem.Body16.medium,
             integerColor: .Tangem.Text.Neutral.primary,
-            decimalColor: .Tangem.Text.Neutral.secondary
+            fractionalColor: .Tangem.Text.Neutral.secondary
         )
 
         let item = TokenDetailsStakingState.EnableItem(
