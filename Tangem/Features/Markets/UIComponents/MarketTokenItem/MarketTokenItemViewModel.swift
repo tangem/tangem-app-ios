@@ -18,6 +18,7 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
     // MARK: - Published
 
     @Published private(set) var priceValue: String = ""
+    @Published private(set) var priceValueAttributed: AttributedString = .init("")
     @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationChange = .neutral
     @Published private(set) var priceChangeState: PriceChangeView.State = .empty
     @Published private(set) var charts: [Double]? = nil
@@ -95,6 +96,7 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
 
     private func setupPriceInfo(input: ViewUpdateInput) {
         priceValue = input.priceValue
+        priceValueAttributed = AttributedBalanceFormatter.dimmingDecimals(input.priceValue)
         priceChangeState = input.priceChangeState
     }
 
