@@ -37,25 +37,42 @@ final class TransactionHistoryUpdater {
                 }
                 .async()
 
-            // 1. `syncInitial`/`syncDelta` calls are re-entrant and synchronized, so they can be safely called multiple times within the loop
-            // 2. In almost all cases there is only one, single provider, so `TaskGroup` is an overkill here - simple `for` loop is enough
-            for provider in transactionHistoryProviders {
-                let providerId = provider.id.toAnyHashable()
-                let shouldScheduleUpdate = await scheduledUpdatesStorage.shouldScheduleUpdate(
-                    updateToken: updateToken,
-                    providerId: providerId
-                )
+            guard transactionHistoryProviders.isNotEmpty else {
+                return
+            }
 
-                guard shouldScheduleUpdate else {
-                    // Update with this provider for this update iteration (determined by the `updateToken`) is already scheduled, skip it
-                    continue
+            // `syncInitial`/`syncDelta` are run in a fire-and-forget manner, so the caller doesn't need to await them
+            Task { [scheduledUpdatesStorage] in
+                // But we need to await all `syncInitial`/`syncDelta` to perform the scheduled updates storage cleanup (`removeScheduledUpdate` calls)
+                let scheduledProviderIds = await withTaskGroup { taskGroup in
+                    var scheduledProviderIds: [AnyHashable] = []
+
+                    for provider in transactionHistoryProviders {
+                        let providerId = provider.id.toAnyHashable()
+
+                        guard await scheduledUpdatesStorage.shouldScheduleUpdate(
+                            updateToken: updateToken,
+                            providerId: providerId
+                        ) else {
+                            // Update with this provider for this update iteration (determined by the `updateToken`) is already scheduled, skipping it
+                            continue
+                        }
+
+                        scheduledProviderIds.append(providerId)
+
+                        taskGroup.addTask {
+                            // Initial and delta syncs are mutually exclusive, and delta sync can start only after initial sync is completed,
+                            // so we can safely trigger both types of syncs here without any additional checks/synchronization
+                            await provider.syncInitial()
+                            await provider.syncDelta()
+                        }
+                    }
+
+                    return scheduledProviderIds
                 }
 
-                Task { [scheduledUpdatesStorage] in
-                    // Initial and delta syncs are mutually exclusive, and delta sync can start only after initial sync is completed,
-                    // so we can safely trigger both types of syncs here without any additional checks/synchronization
-                    await provider.syncInitial()
-                    await provider.syncDelta()
+                // Marking the providers as having completed their updates for this update iteration (determined by the `updateToken` and `providerId`)
+                for providerId in scheduledProviderIds {
                     await scheduledUpdatesStorage.removeScheduledUpdate(updateToken: updateToken, providerId: providerId)
                 }
             }
