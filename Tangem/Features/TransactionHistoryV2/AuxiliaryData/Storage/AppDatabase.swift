@@ -1,5 +1,5 @@
 //
-//  CommonTransactionHistoryAuxDataStorage.swift
+//  AppDatabase.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,27 +9,34 @@
 import Foundation
 import GRDB
 
-final class CommonTransactionHistoryAuxDataStorage {
+// [REDACTED_TODO_COMMENT]
+final class AppDatabase {
     typealias DatabaseHandle = DatabaseReader & DatabaseWriter
     typealias DatabaseHandleFactory = (_ databaseFilePath: String) throws -> DatabaseHandle
 
-    private let databaseHandleFactory: DatabaseHandleFactory
+    static let shared = AppDatabase { databaseFilePath in
+        // [REDACTED_TODO_COMMENT]
+        return try DatabaseQueue(path: databaseFilePath)
+    }
 
-    init(databaseHandleFactory: @escaping DatabaseHandleFactory) {
-        self.databaseHandleFactory = databaseHandleFactory
+    let databaseHandle: DatabaseHandle
+
+    private init(databaseHandleFactory: @escaping DatabaseHandleFactory) {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
-        try! configureDatabase()
+        databaseHandle = try! Self.makeDatabaseHandle(using: databaseHandleFactory)
     }
 
     // MARK: - Factory methods
 
-    private func configureDatabase() throws {
-        let databasePath = try Self.makeDatabaseFilePath()
-        let migrator = Self.makeDatabaseMigrator()
+    private static func makeDatabaseHandle(using databaseHandleFactory: DatabaseHandleFactory) throws -> DatabaseHandle {
+        let databasePath = try makeDatabaseFilePath()
+        let migrator = makeDatabaseMigrator()
         let databaseHandle = try databaseHandleFactory(databasePath)
 
         try migrator.migrate(databaseHandle)
+
+        return databaseHandle
     }
 
     private static func makeDatabaseFilePath() throws -> String {
@@ -72,9 +79,9 @@ final class CommonTransactionHistoryAuxDataStorage {
 
 // MARK: - Constants
 
-private extension CommonTransactionHistoryAuxDataStorage {
+private extension AppDatabase {
     enum Constants {
-        static let databaseDirectoryName = "TransactionHistoryAuxData"
+        static let databaseDirectoryName = "AppDatabase"
         static let databaseFileName = "db.sqlite"
     }
 }
