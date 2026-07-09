@@ -85,7 +85,7 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
 
     @discardableResult
     func selectSlow() -> Self {
-        XCTContext.runActivity(named: "Select Slow fee option") { _ in
+        _ = XCTContext.runActivity(named: "Select Slow fee option") { _ in
             slowOption.waitAndTap()
         }
         return self
@@ -93,7 +93,7 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
 
     @discardableResult
     func selectFast() -> SendSummaryScreen {
-        XCTContext.runActivity(named: "Select Fast fee option") { _ in
+        _ = XCTContext.runActivity(named: "Select Fast fee option") { _ in
             fastOption.waitAndTap()
         }
         return SendSummaryScreen(app)
@@ -101,7 +101,7 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
 
     @discardableResult
     func selectMarket() -> Self {
-        XCTContext.runActivity(named: "Select Market fee option") { _ in
+        _ = XCTContext.runActivity(named: "Select Market fee option") { _ in
             marketOption.waitAndTap()
         }
         return self
@@ -109,7 +109,7 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
 
     @discardableResult
     func selectCustom() -> Self {
-        XCTContext.runActivity(named: "Select Custom fee option") { _ in
+        _ = XCTContext.runActivity(named: "Select Custom fee option") { _ in
             customOption.waitAndTap()
         }
         return self
@@ -276,7 +276,7 @@ extension SendFeeSelectorScreen {
 
     @discardableResult
     func openTokenSelector(fromCoinSymbol coinSymbol: String) -> Self {
-        XCTContext.runActivity(named: "Open fee token selector via '\(coinSymbol)' row") { _ in
+        _ = XCTContext.runActivity(named: "Open fee token selector via '\(coinSymbol)' row") { _ in
             feeTokenRow(symbol: coinSymbol).waitAndTap()
         }
         return self
@@ -301,7 +301,7 @@ extension SendFeeSelectorScreen {
 
     @discardableResult
     func selectFeeToken(symbol: String) -> Self {
-        XCTContext.runActivity(named: "Select fee token '\(symbol)'") { _ in
+        _ = XCTContext.runActivity(named: "Select fee token '\(symbol)'") { _ in
             feeTokenRow(symbol: symbol).waitAndTap()
         }
         return self
@@ -317,7 +317,7 @@ extension SendFeeSelectorScreen {
 
     @discardableResult
     func tapApply() -> SendSummaryScreen {
-        XCTContext.runActivity(named: "Tap 'Apply' button on fee selector") { _ in
+        _ = XCTContext.runActivity(named: "Tap 'Apply' button on fee selector") { _ in
             applyButton.waitAndTap()
         }
         return SendSummaryScreen(app)
@@ -325,7 +325,7 @@ extension SendFeeSelectorScreen {
 
     @discardableResult
     func applyReturningToSwap() -> SwapScreen {
-        XCTContext.runActivity(named: "Tap 'Apply' button on fee selector and return to the swap screen") { _ in
+        _ = XCTContext.runActivity(named: "Tap 'Apply' button on fee selector and return to the swap screen") { _ in
             applyButton.waitAndTap()
         }
         return SwapScreen(app)
