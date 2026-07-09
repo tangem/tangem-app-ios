@@ -237,7 +237,7 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
 
     @discardableResult
     func tapFeeBlock() -> SendFeeSelectorScreen {
-        XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
+        _ = XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
             networkFeeBlock.waitAndTap()
         }
         return SendFeeSelectorScreen(app)
