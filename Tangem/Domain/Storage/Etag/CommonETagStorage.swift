@@ -9,17 +9,18 @@
 import Foundation
 import Combine
 import TangemFoundation
+import BlockchainSdk
 
 final class CommonETagStorage {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     /// - Note: Despite the name of the type, this inner storage is not limited to BlockchainSDK. It's just a convenient UserDefaults wrapper.
-    private let innerStorage: UserDefaultsBlockchainDataStorage
+    private let innerStorage: BlockchainDataStorage
 
     private var eventProviderSubscription: AnyCancellable?
 
-    init(suiteName: String? = nil) {
-        innerStorage = UserDefaultsBlockchainDataStorage(suiteName: suiteName)
+    init(innerStorage: BlockchainDataStorage) {
+        self.innerStorage = innerStorage
     }
 
     private func bind() {
