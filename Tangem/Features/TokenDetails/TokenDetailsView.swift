@@ -35,21 +35,7 @@ struct TokenDetailsView: View {
                     TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
                         .padding(.vertical, max(0, .unit(.x10) - Constants.sectionSpacing))
 
-                    if viewModel.isZeroBalance {
-                        VStack(spacing: .unit(.x2)) {
-                            redesignNotificationBanners
-                            redesignYieldView
-                            redesignStakingView
-                        }
-                    }
-
-                    if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
-                        QuickTopUpBannerView(viewModel: quickTopUpVM)
-                    }
-
-                    if let actionsViewModel = viewModel.actionsViewModel {
-                        TokenDetailsActionsView(viewModel: actionsViewModel)
-                    }
+                    redesignActionsSection
                 } else {
                     BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
                 }
@@ -192,10 +178,34 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    private var yieldView: some View {
-        if viewModel.isRedesign, !viewModel.isZeroBalance {
+    private var redesignActionsSection: some View {
+        if let actionsViewModel = viewModel.actionsViewModel {
+            TokenDetailsRedesignActionsSection(actionsViewModel: actionsViewModel) {
+                redesignBanners
+            } quickTopUp: {
+                quickTopUpBanner
+            }
+        }
+    }
+
+    private var redesignBanners: some View {
+        VStack(spacing: .unit(.x2)) {
+            redesignNotificationBanners
             redesignYieldView
-        } else {
+            redesignStakingView
+        }
+    }
+
+    @ViewBuilder
+    private var quickTopUpBanner: some View {
+        if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+            QuickTopUpBannerView(viewModel: quickTopUpVM)
+        }
+    }
+
+    @ViewBuilder
+    private var yieldView: some View {
+        if !viewModel.isRedesign {
             yieldStatusView
         }
     }
@@ -212,9 +222,7 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var stakingView: some View {
-        if viewModel.isRedesign, !viewModel.isZeroBalance {
-            redesignStakingView
-        } else {
+        if !viewModel.isRedesign {
             legacyStakingView
         }
     }
@@ -270,9 +278,7 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var notifications: some View {
-        if viewModel.isRedesign, !viewModel.isZeroBalance {
-            redesignNotificationBanners
-        } else {
+        if !viewModel.isRedesign {
             ForEach(viewModel.tokenNotificationInputs) { input in
                 NotificationView(input: input)
                     .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
