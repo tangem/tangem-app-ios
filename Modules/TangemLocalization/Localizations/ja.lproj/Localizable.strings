@@ -519,6 +519,8 @@
 "express_exchange_notification_long_transaction_time_title" = "長い取引時間";
 "express_exchange_notification_refund_text" = "OKXまたはブリッジのルールにより、取引金額は%1$@でウォレットに返金されました。%2$@";
 "express_exchange_notification_refund_title" = "金額は %1$@（%2$@ネットワーク）で返金されました";
+"express_exchange_notification_refunded_in_text" = "Your funds have been refunded in %1$@  to your wallet on the %2$@ network, in accordance with OKX exchange rules.";
+"express_exchange_notification_refunded_in_title" = "Refunded in %@";
 "express_exchange_notification_verification_text" = "確認するには、プロバイダーのウェブサイトにアクセスしてください。";
 "express_exchange_notification_verification_title" = "プロバイダーによる本人確認手続きが必要です。";
 "express_exchange_status_bought" = "買付完了";
@@ -1080,7 +1082,9 @@
 "promo_campaign_enroll" = "Enroll";
 "promo_campaign_not_active_subtitle" = "This campaign no longer exists or has expired";
 "promo_campaign_not_active_title" = "Campaign not active";
+"promo_campaign_reactivation_summary_description" = "Earn 0.5%% cashback on every swap over $500, on any pair except stable to stable. Max payout $50 per swap.\n\nComplete five qualifying swaps and unlock an extra $10 bonus.\n\nRewards are paid weekly in USDT or USDC on the address selected.";
 "promo_campaign_select_cashback_account" = "Select cashback account";
+"promo_campaign_select_token" = "Select token";
 "promo_campaign_summary_title" = "Enroll in %1$@";
 "promo_campaign_terms_agreement" = "I agree with %1$@";
 "promo_campaign_terms_link" = "%1$@ Terms";
@@ -1118,7 +1122,7 @@
 "quick_action_buy_description" = "クレジットカードまたは銀行口座";
 "quick_action_receive_description" = "アドレスまたはQRコードを共有してください";
 "quick_action_sell_description" = "暗号資産を安全に売却";
-"quick_action_send_and_swap_description" = "Send with swap to another token";
+"quick_action_send_and_swap_description" = "別のトークンにスワップして送る";
 "quick_action_send_description" = "別のウォレットに送信";
 "quick_action_swap_description" = "ポートフォリオ間で";
 "quick_top_up_chip_other" = "その他";
