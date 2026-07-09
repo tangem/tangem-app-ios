@@ -105,7 +105,12 @@ protocol WalletModelUpdater {
     /// from the same cycle can be recognized and deduplicated instead of redoing the same work more than once.
     /// - Parameter stakingUpdateSource: Selects the batched vs per-address P2P staking balances endpoint.
     /// Only the bulk refresh path opts into `.batch`; every other update keeps `.single`.
-    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable, stakingUpdateSource: StakingUpdateSource) async
+    func update(
+        silent: Bool,
+        options: WalletModelUpdateOptions,
+        updateToken: some Hashable,
+        stakingUpdateSource: StakingUpdateSource
+    ) async
 
     func updateTransactionHistory() async
     func updateAfterSendingTransaction()
