@@ -7,11 +7,13 @@
 //
 
 import Foundation
+import Combine
+import CombineExt
+import BlockchainSdk
 import CryptoSwift
 import TangemExpress
 import TangemFoundation
 
-// [REDACTED_TODO_COMMENT]
 final actor TransactionHistoryProvider {
     private let repository: TransactionHistoryRepository
     private let syncMetadataStorage: () async -> SyncMetadataStorage
@@ -32,6 +34,21 @@ final actor TransactionHistoryProvider {
     private var _hasCompletedInitialSync: Bool?
     private var lastSuccessfulPullToRefreshAt: Date?
 
+    /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
+    private nonisolated let exchangeUpdatesSubject = CurrentValueSubject<[ExchangeTransaction], Never>([])
+
+    /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
+    private nonisolated let onrampUpdatesSubject = CurrentValueSubject<[OnrampTransaction], Never>([])
+
+    private nonisolated let mappingQueue = DispatchQueue(
+        label: "com.tangem.TransactionHistoryProvider.mappingQueue",
+        qos: .userInitiated,
+        target: .global(qos: .userInitiated)
+    )
+
+    /// - Note: Manual protection needed due to mutation from a non-isolated context, therefore the lock is used.
+    private nonisolated let bag = OSAllocatedUnfairLock(uncheckedState: Set<AnyCancellable>())
+
     init(
         repository: TransactionHistoryRepository,
         userWalletId: UserWalletId,
@@ -45,6 +62,37 @@ final actor TransactionHistoryProvider {
 
         syncMetadataStorage = { @MainActor in
             SyncMetadataStorage(userWalletId: userWalletId, address: address)
+        }
+
+        subscribeToRepositoryUpdates()
+    }
+
+    private nonisolated func subscribeToRepositoryUpdates() {
+        let exchangeUpdatesSubscription = runTask { [weak self] in
+            guard let stream = self?.repository.exchangeHistoryUpdates else {
+                return
+            }
+
+            for await transactions in stream {
+                self?.exchangeUpdatesSubject.send(transactions)
+            }
+        }
+        .eraseToAnyCancellable()
+
+        let onrampUpdatesSubscription = runTask { [weak self] in
+            guard let stream = self?.repository.onrampHistoryUpdates else {
+                return
+            }
+
+            for await transactions in stream {
+                self?.onrampUpdatesSubject.send(transactions)
+            }
+        }
+        .eraseToAnyCancellable()
+
+        bag { bag in
+            bag.insert(exchangeUpdatesSubscription)
+            bag.insert(onrampUpdatesSubscription)
         }
     }
 
@@ -136,6 +184,21 @@ final actor TransactionHistoryProvider {
             TransactionHistoryLogger.error(self, "User-initiated sync failed: \(kind)", error: error)
             emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .userInitiated(kind))))
         }
+    }
+
+    private static func merge(
+        bsdkTransactions: [TransactionRecord],
+        exchangeTransactions: [ExchangeTransaction],
+        onrampTransactions: [OnrampTransaction],
+        using merger: TransactionHistoryExpressDataMerger
+    ) -> [TransactionRecord] {
+        ensureNotOnMainQueue()
+
+        return merger.merge(
+            bsdkTransactions: bsdkTransactions,
+            exchangeTransactions: exchangeTransactions,
+            onrampTransactions: onrampTransactions
+        )
     }
 }
 
@@ -269,6 +332,52 @@ extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
         } catch {
             TransactionHistoryLogger.error(self, "Failed to enrich with onramp transaction", error: error)
         }
+    }
+}
+
+// MARK: - WalletModelTransactionHistoryEnriching protocol conformance
+
+extension TransactionHistoryProvider: WalletModelTransactionHistoryEnriching {
+    nonisolated func enrichedTransactionHistoryPublisher(
+        from originalTransactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
+        feeTokenItem: TokenItem
+    ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
+        let merger = TransactionHistoryExpressDataMerger(
+            ownerAddress: address,
+            currentToken: tokenItem,
+            feeTokenItem: feeTokenItem
+        )
+
+        // [REDACTED_TODO_COMMENT]
+        return originalTransactionHistoryPublisher
+            .combineLatest(exchangeUpdatesSubject, onrampUpdatesSubject)
+            .receive(on: mappingQueue)
+            .map { transactionHistoryState, exchangeTransactions, onrampTransactions in
+                switch transactionHistoryState {
+                case .loaded(let bsdkTransactions):
+                    let mergedTransactions = Self.merge(
+                        bsdkTransactions: bsdkTransactions,
+                        exchangeTransactions: exchangeTransactions,
+                        onrampTransactions: onrampTransactions,
+                        using: merger
+                    )
+                    return .loaded(items: mergedTransactions)
+                case .notSupported:
+                    // The `.notSupported` state should be handled too, because merging can add synthetic transactions even without matching BSDK transactions.
+                    let mergedTransactions = Self.merge(
+                        bsdkTransactions: [],
+                        exchangeTransactions: exchangeTransactions,
+                        onrampTransactions: onrampTransactions,
+                        using: merger
+                    )
+                    return mergedTransactions.isEmpty ? .notSupported : .loaded(items: mergedTransactions)
+                case .error,
+                     .notLoaded,
+                     .loading:
+                    return transactionHistoryState
+                }
+            }
+            .eraseToAnyPublisher()
     }
 }
 
