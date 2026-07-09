@@ -9,11 +9,9 @@
 import Foundation
 import BlockchainSdk
 import TangemExpress
-import TangemFoundation
 
 struct ExpressCurrencyConverter {
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
 
     private let supportedBlockchains: Set<Blockchain>
 
@@ -25,74 +23,20 @@ struct ExpressCurrencyConverter {
         expressCurrency: ExpressCurrency,
         in blockchainNetwork: BlockchainNetwork
     ) async throws -> TokenItem {
-        do {
-            return try convertLocalOnly(expressCurrency: expressCurrency, in: blockchainNetwork)
-        } catch Error.notFound {
-            if let remoteToken = try await fetchRemoteToken(
-                blockchain: blockchainNetwork.blockchain,
-                contractAddress: expressCurrency.contractAddress
-            ) {
-                return .token(remoteToken, blockchainNetwork)
-            }
-        }
-
-        throw Error.notFound
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    @available(iOS, deprecated: 100000.0, message: "Temporary local-only converter, will be removed in future ([REDACTED_INFO])")
-    func convertLocalOnly(
-        expressCurrency: ExpressCurrency,
-        in blockchainNetwork: BlockchainNetwork
-    ) throws -> TokenItem {
-        let blockchain = blockchainNetwork.blockchain
-        let contractAddress = expressCurrency.contractAddress
-
-        guard supportedBlockchains.contains(blockchain) else {
+        guard supportedBlockchains.contains(blockchainNetwork.blockchain) else {
             throw Error.unsupportedBlockchain
         }
 
-        if contractAddress == ExpressConstants.coinContractAddress {
-            return .blockchain(blockchainNetwork)
+        guard let tokenItem = await auxDataRepository.cryptoCurrency(
+            for: expressCurrency,
+            supportedBlockchains: supportedBlockchains
+        ) else {
+            throw Error.notFound
         }
 
-        if let localToken = fetchLocalToken(blockchain: blockchain, contractAddress: contractAddress) {
-            return .token(localToken, blockchainNetwork)
-        }
-
-        throw Error.notFound
-    }
-
-    private func fetchLocalToken(
-        blockchain: Blockchain,
-        contractAddress: String
-    ) -> Token? {
-        return AccountWalletModelsAggregator
-            .walletModels(from: userWalletRepository.models)
-            .lazy
-            .first { $0.tokenItem.blockchain == blockchain && $0.tokenItem.contractAddress == contractAddress }?
-            .tokenItem
-            .token
-    }
-
-    private func fetchRemoteToken(
-        blockchain: Blockchain,
-        contractAddress: String
-    ) async throws -> Token? {
-        let requestModel = CoinsList.Request(
-            supportedBlockchains: Set([blockchain]),
-            contractAddress: contractAddress
-        )
-
-        let response = try await tangemApiService
-            .loadCoins(requestModel: requestModel)
-            .async()
-
-        return response
-            .flatMap { $0.items }
-            .lazy
-            .first(where: { $0.blockchain.networkId == blockchain.networkId })?
-            .token
+        // `TransactionHistoryAuxDataRepository` always returns a `TokenItem` with no derivation path,
+        // so we have to enrich it with the caller's network
+        return tokenItem.with(blockchainNetwork: blockchainNetwork)
     }
 }
 

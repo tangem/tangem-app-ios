@@ -13,4 +13,8 @@ struct ExchangeTransactionInfo: Hashable {
 
     /// - Note: Nullable since can be fetched asynchronously.
     let provider: ExpressProvider?
+
+    /// Use this dictionary to resolve an `ExchangeTransaction`'s `ExpressCurrency` to a `TokenItem` for use in the UI layer.
+    /// - Note: Cache misses are expected since this dictionary can be populated asynchronously.
+    let cryptoCurrencies: [ExpressCurrency: TokenItem]
 }
