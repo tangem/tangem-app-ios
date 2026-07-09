@@ -17,4 +17,8 @@ struct OnrampTransactionInfo: Hashable {
 
     /// - Note: Nullable since can be fetched asynchronously.
     let fiatCurrency: OnrampFiatCurrency?
+
+    /// Use this dictionary to resolve an `OnrampTransaction`'s `ExpressCurrency` to a `TokenItem` for use in the UI layer.
+    /// - Note: Cache misses are expected since this dictionary can be populated asynchronously.
+    let cryptoCurrencies: [ExpressCurrency: TokenItem]
 }

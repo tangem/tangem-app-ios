@@ -14,6 +14,8 @@ import TangemFoundation
 /// Builds synthetic `TransactionRecord` placeholders for Express (swap) and onramp transactions that have no
 /// matching on-chain transaction (e.g. a still in-flight deal), so they're still surfaced in the history.
 struct TransactionHistorySyntheticTransactionFactory {
+    @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
+
     private let ownerAddress: String
     private let currentToken: TokenItem
     private let feeTokenItem: TokenItem
@@ -29,9 +31,12 @@ struct TransactionHistorySyntheticTransactionFactory {
     }
 
     func makeSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> TransactionRecord {
+        let provider = auxDataRepository.provider(id: exchangeTransaction.providerId, branch: .swap)
+        let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: exchangeTransaction.expressCurrencies)
         let info = ExchangeTransactionInfo(
             transaction: exchangeTransaction,
-            provider: nil // [REDACTED_TODO_COMMENT]
+            provider: provider,
+            cryptoCurrencies: cryptoCurrencies
         )
         let outgoing = isOutgoing(exchangeTransaction)
         let source: TransactionRecord.SourceType
@@ -72,10 +77,14 @@ struct TransactionHistorySyntheticTransactionFactory {
     func makeSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> TransactionRecord {
         // Onramp only has a pay-out leg (fiat -> crypto), so the synthetic transactions for Onramp are always incoming
         let amount = onrampTransaction.to.actualAmount ?? onrampTransaction.to.amount ?? 0
+        let provider = auxDataRepository.provider(id: onrampTransaction.providerId, branch: .onramp)
+        let fiatCurrency = auxDataRepository.fiatCurrency(for: onrampTransaction.from)
+        let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: onrampTransaction.expressCurrencies)
         let info = OnrampTransactionInfo(
             onrampTransaction: onrampTransaction,
-            provider: nil, // [REDACTED_TODO_COMMENT]
-            fiatCurrency: nil // [REDACTED_TODO_COMMENT]
+            provider: provider,
+            fiatCurrency: fiatCurrency,
+            cryptoCurrencies: cryptoCurrencies
         )
 
         return TransactionRecord(
