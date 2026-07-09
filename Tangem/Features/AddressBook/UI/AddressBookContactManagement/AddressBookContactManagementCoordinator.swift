@@ -103,7 +103,7 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
         }
     }
 
-    func presentWalletPicker(_ viewModel: AddressBookWalletPickerViewModel) {
+    func presentWalletPicker(_ viewModel: AccountSelectorViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
