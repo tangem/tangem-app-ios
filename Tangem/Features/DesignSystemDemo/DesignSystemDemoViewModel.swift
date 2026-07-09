@@ -110,4 +110,8 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openTangemFadeDemo() {
         coordinator?.openTangemFadeDemo()
     }
+
+    func openTangemMessageBubbleDemo() {
+        coordinator?.openTangemMessageBubbleDemo()
+    }
 }
