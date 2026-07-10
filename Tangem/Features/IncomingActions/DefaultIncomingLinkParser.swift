@@ -43,6 +43,7 @@ struct DefaultIncomingLinkParser {
             categoryId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.categoryId],
             refcode: keyedQueryItems[IncomingActionConstants.DeeplinkParams.refcode],
             campaign: keyedQueryItems[IncomingActionConstants.DeeplinkParams.campaign],
+            campaignId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.campaignId],
             order: keyedQueryItems[IncomingActionConstants.DeeplinkParams.order]?.lowercased(),
             interval: keyedQueryItems[IncomingActionConstants.DeeplinkParams.interval]?.lowercased(),
             earnType: keyedQueryItems[IncomingActionConstants.DeeplinkParams.earnType]?.lowercased(),

@@ -125,10 +125,6 @@ public struct TangemDropDownShowcase: View {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview("Interactive Demo") {
     TangemDropDownShowcase()
 }
-
-#endif // DEBUG

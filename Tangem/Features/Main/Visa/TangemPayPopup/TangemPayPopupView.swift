@@ -86,7 +86,7 @@ private extension TangemPayPopupView {
     var texts: some View {
         VStack(spacing: 8) {
             Text(viewModel.title)
-                .font(DesignSystem.Font.headingSmallToken)
+                .font(token: DesignSystem.Font.headingSmallToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -95,7 +95,7 @@ private extension TangemPayPopupView {
                     viewModel.onHyperLinkTap(link)
                     return .handled
                 }))
-                .font(DesignSystem.Font.subheadingMediumToken)
+                .font(token: DesignSystem.Font.subheadingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }

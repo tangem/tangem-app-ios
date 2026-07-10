@@ -26,7 +26,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var missingDerivationNotification = app.descendants(matching: .any)
         .matching(identifier: MainAccessibilityIdentifiers.missingDerivationNotification)
         .firstMatch
-    private lazy var walletLockedNotification = button(.walletLockedNotification)
+    private lazy var walletLockedNotification = otherElement(.walletLockedNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
 
@@ -62,12 +62,12 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func verifyTradeActionButtonsHidden() -> Self {
-        XCTContext.runActivity(named: "Verify Buy/Sell/Swap action buttons are hidden") { _ in
+    func verifySingleCurrencyWalletActionButtons() -> Self {
+        XCTContext.runActivity(named: "Verify Buy/Sell visible and Swap hidden for single-currency card") { _ in
             waitAndAssertTrue(detailsButton, "Main screen should be loaded")
-            XCTAssertFalse(buyActionButton.waitForExistence(timeout: .conditional), "Buy button should be hidden for S2C cards")
-            XCTAssertFalse(swapActionButton.exists, "Swap button should be hidden for S2C cards")
-            XCTAssertFalse(sellActionButton.exists, "Sell button should be hidden for S2C cards")
+            waitAndAssertTrue(buyActionButton, timeout: .conditional, "Buy button should be visible for S2C cards")
+            waitAndAssertTrue(sellActionButton, "Sell button should be visible for S2C cards")
+            XCTAssertFalse(swapActionButton.waitForExistence(timeout: .shortUIUpdate), "Swap button should be hidden for S2C cards")
             return self
         }
     }
@@ -170,8 +170,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func skipPushNotificationsSetup() -> Self {
         XCTContext.runActivity(named: "Tap 'Later' on Push Notifications sheet") { _ in
-            if app.buttons["Later"].waitForExistence(timeout: .conditional) {
-                app.buttons["Later"].tap()
+            let laterButton = app.buttons[PushPermissionAccessibilityIdentifiers.laterButton]
+            if laterButton.waitForExistence(timeout: .conditional) {
+                laterButton.tap()
             }
             return self
         }
@@ -209,7 +210,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Verify token '\(tokenName)' exists on main screen") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
-            waitAndAssertTrue(token, "Token '\(tokenName)' should exist in the list")
+            XCTAssertTrue(scrollTokensListToVisible(token), "Token '\(tokenName)' should be visible after scrolling")
             return self
         }
     }
@@ -218,6 +219,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func verifyCustomTokenIndicatorExists(for tokenName: String) -> Self {
         XCTContext.runActivity(named: "Verify custom token indicator exists for '\(tokenName)'") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let token = tokenElement(named: tokenName)
+            XCTAssertTrue(scrollTokensListToVisible(token), "Token '\(tokenName)' should be visible after scrolling")
             let indicator = tokensList.descendants(matching: .any)
                 .matching(identifier: MainAccessibilityIdentifiers.tokenCustomIndicator(for: tokenName))
                 .firstMatch
@@ -229,13 +232,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func verifyTokenNotVisible(_ tokenName: String) -> Self {
         XCTContext.runActivity(named: "Verify token '\(tokenName)' is not visible on main screen") { _ in
-            let token = app.staticTexts
-                .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
-                .matching(NSPredicate(format: "label == %@", tokenName))
-                .firstMatch
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let token = tokenElement(named: tokenName)
             XCTAssertFalse(
-                token.waitForExistence(timeout: .conditional),
-                "Token '\(tokenName)' should not be visible"
+                scrollTokensListToVisible(token),
+                "Token '\(tokenName)' should not be present in the tokens list"
             )
             return self
         }
@@ -244,11 +245,12 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func verifyTokenVisible(_ tokenName: String) -> Self {
         XCTContext.runActivity(named: "Verify token '\(tokenName)' is visible on main screen") { _ in
-            let token = app.staticTexts
-                .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
-                .matching(NSPredicate(format: "label == %@", tokenName))
-                .firstMatch
-            waitAndAssertTrue(token, "Token '\(tokenName)' should be visible")
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let token = tokenElement(named: tokenName)
+            XCTAssertTrue(
+                scrollTokensListToVisible(token),
+                "Token '\(tokenName)' should be visible after scrolling the tokens list"
+            )
             return self
         }
     }
@@ -443,7 +445,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func tapWalletLockedNotification() -> Self {
         XCTContext.runActivity(named: "Tap wallet locked notification to initiate unlock") { _ in
             waitAndAssertTrue(walletLockedNotification, "Wallet locked notification should be displayed")
-            walletLockedNotification.waitAndTap()
+            let unlockButton = walletLockedNotification.buttons[CommonUIAccessibilityIdentifiers.notificationButton].firstMatch
+            unlockButton.waitAndTap()
             return self
         }
     }
@@ -512,9 +515,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
             scrollTokensListToVisible(token)
 
-            // Wait for balance to load — context menu captures content at presentation time
+            // Context menu snapshots content at open time; a still-loading balance hides Send, so wait for the value.
             let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)].firstMatch
-            _ = balanceElement.waitForExistence(timeout: .robustUIUpdate)
+            if balanceElement.waitForExistence(timeout: .robustUIUpdate) {
+                let loaded = NSPredicate { object, _ in
+                    guard let element = object as? XCUIElement, element.exists else { return false }
+                    return element.label.contains(where: \.isNumber)
+                }
+                _ = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: loaded, object: balanceElement)], timeout: .robustUIUpdate)
+            }
 
             // Retry long press if context menu doesn't appear (can be flaky on CI)
             let contextMenuIndicator = app.buttons["Buy"].firstMatch
@@ -839,7 +848,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     private func tokenElement(named label: String) -> XCUIElement {
-        tokensList.staticTexts
+        visibleTokensList().staticTexts
             .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
             .matching(NSPredicate(format: "label == %@", label))
             .firstMatch
@@ -893,12 +902,40 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     private func scrollTokensList(byOffset dy: CGFloat) {
-        // firstMatch can be an off-screen paged list with an infinite frame; scroll the on-screen one, fall back to the app.
-        let list = visibleTokensList()
-        let anchor: XCUIElement = hasVisibleFrame(list) ? list : app
-        let start = anchor.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
-        let end = start.withOffset(CGVector(dx: 0, dy: dy))
+        // Dragging from the list container (or bare app coordinates) can land the touch on the Markets
+        // sheet peeking at the bottom, which pulls the sheet open and hides every token. Anchor on a real
+        // visible token row so the list's scroll view captures the gesture, and keep both endpoints above the grabber.
+        let screen = app.frame
+        let grabberTop = grabber.exists ? grabber.frame.minY : screen.maxY
+        let rows = visibleTokenRows(above: grabberTop)
+
+        let anchorX: CGFloat
+        let startY: CGFloat
+        if dy < 0, let row = rows.last {
+            anchorX = row.frame.midX
+            startY = row.frame.midY
+        } else if dy > 0, let row = rows.first {
+            anchorX = row.frame.midX
+            startY = row.frame.midY
+        } else {
+            anchorX = screen.midX
+            startY = min(screen.midY, grabberTop - 100)
+        }
+
+        let endY = min(max(startY + dy, screen.minY + 100), grabberTop - 20)
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+        let start = origin.withOffset(CGVector(dx: anchorX, dy: startY))
+        let end = origin.withOffset(CGVector(dx: anchorX, dy: endY))
         start.press(forDuration: 0.1, thenDragTo: end)
+    }
+
+    /// Visible token rows above the Markets grabber, top-to-bottom, used as safe drag anchors.
+    private func visibleTokenRows(above grabberTop: CGFloat) -> [XCUIElement] {
+        visibleTokensList().staticTexts
+            .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+            .allElementsBoundByIndex
+            .filter { hasVisibleFrame($0) && $0.frame.maxY < grabberTop }
+            .sorted { $0.frame.minY < $1.frame.minY }
     }
 
     /// Horizontal paging keeps neighbor wallet pages mounted, so read tokens from the on-screen page's list, not firstMatch.

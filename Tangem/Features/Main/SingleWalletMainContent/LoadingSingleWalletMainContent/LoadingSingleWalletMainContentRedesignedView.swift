@@ -21,7 +21,6 @@ struct LoadingSingleWalletMainContentRedesignedView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ZStack {
         Color.Tangem.Surface.level2
@@ -30,4 +29,3 @@ struct LoadingSingleWalletMainContentRedesignedView: View {
         LoadingSingleWalletMainContentRedesignedView()
     }
 }
-#endif // DEBUG

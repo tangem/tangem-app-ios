@@ -215,7 +215,6 @@ public extension InfoChipView {
     }
 }
 
-#if DEBUG
 #Preview {
     VStack(spacing: 12) {
         InfoChipView(item: InfoChipItem(title: "BTC"))
@@ -223,4 +222,3 @@ public extension InfoChipView {
     }
     .padding()
 }
-#endif

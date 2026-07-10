@@ -20,7 +20,8 @@ extension VisaCustomerInfoResponse {
             kyc: nil,
             card: card?.sanitizedForDiskCache(),
             cards: cards.map { $0.sanitizedForDiskCache() },
-            depositAddress: depositAddress
+            depositAddress: depositAddress,
+            customerTariffPlan: customerTariffPlan
         )
     }
 }

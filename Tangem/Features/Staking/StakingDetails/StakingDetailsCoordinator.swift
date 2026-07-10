@@ -48,7 +48,12 @@ class StakingDetailsCoordinator: CoordinatorObject, SendFeeCurrencyNavigating {
             tokenItem: options.sendInput.walletModel.tokenItem,
             tokenBalanceProvider: options.sendInput.walletModel.availableBalanceProvider,
             stakingManager: options.manager,
-            coordinator: self
+            coordinator: self,
+            deeplinkHandler: PromotionDeeplinkHandler(
+                coordinator: self,
+                walletModel: options.sendInput.walletModel,
+                userWalletInfo: options.sendInput.userWalletInfo
+            )
         )
     }
 }
@@ -156,5 +161,30 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
         let tokenSymbol = options?.sendInput.walletModel.tokenItem.currencySymbol ?? ""
         Analytics.log(event: .stakingLinkWhatIsStaking, params: [.token: tokenSymbol])
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .whatIsStaking))
+    }
+}
+
+// MARK: - PromotionDeeplinkRoutable
+
+extension StakingDetailsCoordinator: PromotionDeeplinkRoutable {
+    func openSwap(parameters: PredefinedSwapParameters) {
+        let coordinator = makeSendCoordinator()
+        coordinator.start(with: .init(type: .swap(parameters), source: .stakingDetails))
+        sendCoordinator = coordinator
+    }
+
+    func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
+        let sourceToken = CommonSendTransferableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel
+        ).makeTransferableToken()
+
+        let coordinator = makeSendCoordinator()
+        coordinator.start(with: .init(type: .onramp(sourceToken, parameters: parameters), source: .stakingDetails))
+        sendCoordinator = coordinator
+    }
+
+    func openInSafari(url: URL) {
+        safariManager.openURL(url)
     }
 }
