@@ -123,11 +123,8 @@ struct SwapSummaryView: View {
 
     @ViewBuilder
     private var marketingBanner: some View {
-        if !viewModel.marketingNotifications.isEmpty {
-            NotificationBannerContainer(
-                items: viewModel.marketingNotifications,
-                stackingType: .carousel
-            )
+        if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
+            StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
         }
     }
 
