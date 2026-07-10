@@ -252,6 +252,7 @@ private final class MockTangemApiService: TangemApiService {
     func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response { fatalError("unused") }
     func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion] { fatalError("unused") }
     func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response { fatalError("unused") }
+    func registerForPromotionCampaign(request: PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response { fatalError("unused") }
     func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response { fatalError("unused") }
     func loadFeatures() async throws -> [String: Bool] { fatalError("unused") }
     func loadAPIList() async throws -> APIListDTO { fatalError("unused") }
