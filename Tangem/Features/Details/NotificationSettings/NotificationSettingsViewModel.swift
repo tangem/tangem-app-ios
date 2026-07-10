@@ -41,8 +41,6 @@ final class NotificationSettingsViewModel: ObservableObject {
 
     private var userTokensPushNotificationsManager: UserTokensPushNotificationsManager
 
-    @Published private var isSystemPermissionGranted: Bool = false
-
     private var isEnabledTransactionAlertsBinding: BindingValue<Bool> {
         BindingValue<Bool>(
             root: self,
@@ -79,11 +77,14 @@ final class NotificationSettingsViewModel: ObservableObject {
         )
     }
 
-    private var toggleTasks: [PushChannel: Task<Void, Never>] = [:]
     private var bannerActionTask: Task<Void, Never>?
     private var retryTask: Task<Void, Never>?
 
-    private var pendingEnableChannel: PushChannel?
+    /// Shared push-settings toggle flow (pending enable + system-permission handling).
+    private lazy var toggleInteractor = PushChannelToggleInteractor(
+        userTokensPushNotificationsManager: userTokensPushNotificationsManager,
+        output: self
+    )
 
     private var bag = Set<AnyCancellable>()
 
@@ -102,7 +103,7 @@ final class NotificationSettingsViewModel: ObservableObject {
     // MARK: - Lifecycle
 
     func onAppear() {
-        refreshSystemPermissionState()
+        toggleInteractor.refreshSystemPermissionState()
         logScreenOpened()
     }
 
@@ -140,28 +141,10 @@ extension NotificationSettingsViewModel {
 // MARK: - Private
 
 private extension NotificationSettingsViewModel {
-    enum PendingEnableAuthorizationUpdateSource {
-        case isAuthorizedPublisher
-        case authorizationRequestFallback
-    }
-
     func bind() {
-        // `isAuthorizedPublisher` only emits on `UIApplication.didBecomeActive`, so this branch
-        // covers the case when the user returns from system Settings. The initial state on screen
-        // open is primed by `refreshSystemPermissionState()` from `onAppear()`.
-        pushNotificationsPermission.isAuthorizedPublisher
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, isAuthorized in
-                viewModel.isSystemPermissionGranted = isAuthorized
-                viewModel.handlePendingEnableAuthorizationUpdate(
-                    isAuthorized: isAuthorized,
-                    source: .isAuthorizedPublisher
-                )
-            }
-            .store(in: &bag)
-
-        $isSystemPermissionGranted
+        // The interactor owns the system permission flag (primed from `onAppear` and refreshed on
+        // `didBecomeActive`); it drives the toggle disabled state.
+        toggleInteractor.isSystemPermissionGrantedPublisher
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
@@ -174,7 +157,7 @@ private extension NotificationSettingsViewModel {
         // system permission is missing AND at least one channel is enabled. With everything OFF there
         // is nothing to allow, hence no banner. Driven by both the permission flag and the toggles.
         Publishers.CombineLatest4(
-            $isSystemPermissionGranted,
+            toggleInteractor.isSystemPermissionGrantedPublisher,
             $transactionAlertsEnabled,
             $offersUpdatesEnabled,
             $priceAlertsEnabled
@@ -237,16 +220,6 @@ private extension NotificationSettingsViewModel {
         }
     }
 
-    /// Pulls the current system authorization status and writes it into `isSystemPermissionGranted`,
-    /// which in turn drives `rebuildToggleViewModels()` and `allowNotificationsBannerInput` through
-    /// the `$isSystemPermissionGranted` subscription in `bind()`.
-    func refreshSystemPermissionState() {
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            isSystemPermissionGranted = await pushNotificationsPermission.isAuthorized
-        }
-    }
-
     func makeAllowNotificationsBannerInput() -> NotificationViewInput {
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] _, _ in
             self?.handleBannerOpenSettingsTap()
@@ -269,14 +242,10 @@ private extension NotificationSettingsViewModel {
 // MARK: - Channel Toggle Handling
 
 private extension NotificationSettingsViewModel {
-    /// Optimistically updates the UI (via the binding setter), then sends the request to the
-    /// manager. On failure the `preferencesPublisher` subscription rolls back the toggle
-    /// automatically and we surface a generic error alert.
-    ///
-    /// When trying to enable while system permission is not granted, we switch into a pending
-    /// state and request iOS authorization. The final decision is primarily processed from
-    /// `isAuthorizedPublisher`; if iOS doesn't surface a system prompt anymore (already denied),
-    /// we fall back to showing our own settings alert.
+    /// Optimistically updates the UI (via the binding setter), then delegates the permission-aware
+    /// channel update to `PushChannelToggleInteractor`. On failure the `preferencesPublisher`
+    /// subscription rolls back the toggle automatically and the interactor reports back through
+    /// the output.
     func handleToggle(value: Bool, for channel: PushChannel) {
         Analytics.log(
             event: .pushNotificationSettingsToggleClicked,
@@ -286,93 +255,7 @@ private extension NotificationSettingsViewModel {
             ]
         )
 
-        toggleTasks[channel]?.cancel()
-
-        toggleTasks[channel] = Task { @MainActor [weak self] in
-            guard let self else { return }
-
-            if value, !isSystemPermissionGranted {
-                pendingEnableChannel = channel
-
-                // The awaits below aren't cooperatively cancellable, so guard explicitly after each:
-                // a superseding toggle cancels this task but can't stop these calls from resuming,
-                // and the resumed continuation would otherwise mutate pending state out of order.
-                await pushNotificationsPermission.requestAuthorizationAndRegister()
-                guard !Task.isCancelled else { return }
-
-                // If iOS prompt wasn't shown, `isAuthorizedPublisher` may not emit.
-                // Resolve pending state from a direct snapshot in this fallback path.
-                let isAuthorized = await pushNotificationsPermission.isAuthorized
-                guard !Task.isCancelled else { return }
-
-                handlePendingEnableAuthorizationUpdate(
-                    isAuthorized: isAuthorized,
-                    source: .authorizationRequestFallback
-                )
-                return
-            }
-
-            if !value, pendingEnableChannel == channel {
-                pendingEnableChannel = nil
-            }
-
-            // Don't start a backend write for a task that was already superseded by a newer toggle.
-            guard !Task.isCancelled else { return }
-
-            do {
-                try await userTokensPushNotificationsManager.tryUpdateEnableState(value: value, for: channel)
-            } catch is CancellationError {
-                return
-            } catch {
-                displayPreferenceUpdateFailedAlert()
-            }
-        }
-    }
-
-    func handlePendingEnableAuthorizationUpdate(
-        isAuthorized: Bool,
-        source: PendingEnableAuthorizationUpdateSource
-    ) {
-        guard let channel = pendingEnableChannel else {
-            return
-        }
-
-        if isAuthorized {
-            pendingEnableChannel = nil
-            tryEnablePendingChannel(channel)
-            return
-        }
-
-        switch source {
-        case .isAuthorizedPublisher:
-            pendingEnableChannel = nil
-            revertToggle(for: channel)
-        case .authorizationRequestFallback:
-            displayEnablePushSettingsAlert(for: channel)
-        }
-    }
-
-    func tryEnablePendingChannel(_ channel: PushChannel) {
-        toggleTasks[channel]?.cancel()
-        toggleTasks[channel] = Task { @MainActor [weak self] in
-            guard let self else { return }
-
-            do {
-                try await userTokensPushNotificationsManager.tryUpdateEnableState(value: true, for: channel)
-            } catch is CancellationError {
-                return
-            } catch {
-                displayPreferenceUpdateFailedAlert()
-            }
-        }
-    }
-
-    func revertToggle(for channel: PushChannel) {
-        switch channel {
-        case .transactionAlerts: transactionAlertsEnabled = false
-        case .offersUpdates: offersUpdatesEnabled = false
-        case .priceAlerts: priceAlertsEnabled = false
-        }
+        toggleInteractor.toggle(value, for: channel)
     }
 }
 
@@ -382,7 +265,7 @@ private extension NotificationSettingsViewModel {
     /// Handles the «Open Settings» tap on the allow-notifications banner:
     /// 1. Requests system authorization (shows the iOS prompt if not yet decided).
     /// 2. If authorization is still denied after the prompt, opens the app's system Settings page.
-    /// 3. No toggles are flipped — the `$isSystemPermissionGranted` pipeline reacts automatically
+    /// 3. No toggles are flipped — the interactor's permission pipeline reacts automatically
     ///    when the user returns from Settings via `isAuthorizedPublisher`.
     func handleBannerOpenSettingsTap() {
         logBannerOpenSettingsTapped()
@@ -402,44 +285,40 @@ private extension NotificationSettingsViewModel {
                 viewModel.coordinator?.openAppSettings()
             }
 
-            viewModel.refreshSystemPermissionState()
+            viewModel.toggleInteractor.refreshSystemPermissionState()
         }
     }
 }
 
-// MARK: - Alerts
+// MARK: - PushChannelToggleInteractorOutput
 
-private extension NotificationSettingsViewModel {
-    func displayPreferenceUpdateFailedAlert() {
-        alert = AlertBinder(
-            title: Localization.commonError,
-            message: Localization.commonSomethingWentWrong
+extension NotificationSettingsViewModel: PushChannelToggleInteractorOutput {
+    func revertToggle(for channel: PushChannel) {
+        switch channel {
+        case .transactionAlerts: transactionAlertsEnabled = false
+        case .offersUpdates: offersUpdatesEnabled = false
+        case .priceAlerts: priceAlertsEnabled = false
+        }
+    }
+
+    func presentEnablePushSettingsAlert(for channel: PushChannel) {
+        alert = AlertBuilder.makeEnablePushSettingsAlert(
+            onCancel: { [weak self] in
+                self?.toggleInteractor.cancelPendingEnable(for: channel)
+                self?.revertToggle(for: channel)
+                self?.coordinator?.onAlertDismiss()
+            },
+            onOpenSettings: { [weak self] in
+                self?.coordinator?.openAppSettings()
+                self?.coordinator?.onAlertDismiss()
+            }
         )
     }
 
-    func displayEnablePushSettingsAlert(for channel: PushChannel) {
-        let buttons: AlertBuilder.Buttons = .init(
-            primaryButton: .default(
-                Text(Localization.pushNotificationsPermissionAlertNegativeButton),
-                action: { [weak self] in
-                    self?.pendingEnableChannel = nil
-                    self?.revertToggle(for: channel)
-                    self?.coordinator?.onAlertDismiss()
-                }
-            ),
-            secondaryButton: .default(
-                Text(Localization.pushNotificationsPermissionAlertPositiveButton),
-                action: { [weak self] in
-                    self?.coordinator?.openAppSettings()
-                    self?.coordinator?.onAlertDismiss()
-                }
-            )
-        )
-
-        alert = AlertBuilder.makeAlert(
-            title: Localization.pushNotificationsPermissionAlertTitle,
-            message: Localization.pushNotificationsPermissionAlertDescription,
-            with: buttons
+    func handlePreferenceUpdateFailure(for channel: PushChannel) {
+        alert = AlertBinder(
+            title: Localization.commonError,
+            message: Localization.commonSomethingWentWrong
         )
     }
 }
