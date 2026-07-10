@@ -80,11 +80,11 @@ final class FeedbackUITests: BaseTestCase {
             .contactSupport()
             .validateFallbackSheet()
     }
-    
+
     func testContactSupportForS2C_ContactSupportButtonShown() throws {
         setAllureId(3603)
         launchApp()
-        
+
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .s2c)
             .openDetails()

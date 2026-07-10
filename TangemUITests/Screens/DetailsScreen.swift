@@ -136,7 +136,7 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
             return TermsOfServiceScreen(app)
         }
     }
-    
+
     @discardableResult
     func assertContactSupportButtonExists() -> Self {
         XCTContext.runActivity(named: "Verify 'Contact Support' button exists") { _ in
@@ -144,7 +144,7 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
             return self
         }
     }
-    
+
     private func anyElement(_ element: DetailsScreenElement) -> XCUIElement {
         app.descendants(matching: .any)
             .matching(identifier: element.accessibilityIdentifier)
