@@ -170,7 +170,10 @@ final class AppDatabase {
             ) { table in
                 let ownerAddressColumnName = "ownerAddress"
                 let endpointTypeColumnName = "endpointType"
-                table.primaryKey([ownerAddressColumnName, endpointTypeColumnName])
+                table.primaryKey([
+                    ownerAddressColumnName,
+                    endpointTypeColumnName,
+                ])
                 table.column(ownerAddressColumnName, .text).notNull()
                 table.column(endpointTypeColumnName, .text).notNull()
                 table.column("archiveCursor", .text)
