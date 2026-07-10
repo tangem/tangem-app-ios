@@ -103,7 +103,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
     }
 
     var walletThumbnailType: ThumbnailWalletViewType? {
-        .mobileWallet(.init(icon: .Tangem.Graphic.Status.attention))
+        .mobileWallet(.init(icon: .Tangem.CardCollection.tangem))
     }
 
     var cardSessionFilter: SessionFilter { .cardId("") }
