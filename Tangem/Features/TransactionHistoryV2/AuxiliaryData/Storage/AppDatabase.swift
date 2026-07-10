@@ -81,6 +81,35 @@ final class AppDatabase {
                 table.column("updatedAt", .datetime).notNull()
             }
 
+            // MARK: - Fiat currencies cache
+
+            let fiatCurrenciesCacheTableName = "fiatCurrenciesCache"
+            let nameColumnName = "name"
+
+            try database.create(
+                table: fiatCurrenciesCacheTableName,
+                options: [
+                    .ifNotExists,
+                ]
+            ) { table in
+                table.autoIncrementedPrimaryKey("id")
+                table.column("name", .text).notNull()
+                table.column("code", .text).notNull()
+                table.column("imageURL", .text)
+                table.column("precision", .integer).notNull()
+            }
+
+            try database.create(
+                index: "idxFiatCurrCode",
+                on: fiatCurrenciesCacheTableName,
+                columns: [
+                    nameColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
+
             // MARK: - Sync metadata
 
             try database.create(
