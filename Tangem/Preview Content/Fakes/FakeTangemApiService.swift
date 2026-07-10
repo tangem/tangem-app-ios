@@ -94,6 +94,10 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func registerForPromotionCampaign(request: PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response {
+        throw "Not implemented"
+    }
+
     func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response {
         throw "Not implemented"
     }
