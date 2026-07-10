@@ -229,21 +229,21 @@ private extension TokenDetailsBalanceViewModel {
     }
 
     func attributedFiatBalance(_ balance: String) -> Text {
-        let attributedBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+        let attributedBalance = AttributedBalanceFormatter.format(
             balance,
             font: Font.Tangem.Title44.semibold,
             integerColor: .Tangem.Text.Neutral.primary,
-            decimalColor: .Tangem.Text.Neutral.secondary
+            fractionalColor: .Tangem.Text.Neutral.secondary
         )
         return .attributed(attributedBalance)
     }
 
     func attributedCryptoBalance(_ balance: String) -> Text {
-        let attributedBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+        let attributedBalance = AttributedBalanceFormatter.format(
             balance,
             font: Font.Tangem.Body16.medium,
             integerColor: .Tangem.Text.Neutral.secondary,
-            decimalColor: .Tangem.Text.Neutral.secondary
+            fractionalColor: .Tangem.Text.Neutral.secondary
         )
         return .attributed(attributedBalance)
     }
