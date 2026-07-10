@@ -30,7 +30,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     @Published private(set) var isZeroBalance = true
     @Published private(set) var marketPriceViewModel: TokenDetailsMarketPriceViewModel?
-    @Published private(set) var marketingNotifications: [NotificationBannerItem]?
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
 
@@ -81,6 +81,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel.tokenItem.token?.customTokenColor
     }
 
+    let presentSource: TokenDetailsPresentSource
+
     private weak var coordinator: (any TokenDetailsRoutable)?
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
@@ -90,6 +92,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let balanceFormatter = BalanceFormatter()
     private let marketingNotificationManager: MarketingBannerNotificationManager
     private let notificationBannerMapper: MultiWalletNotificationBannerMapper
+    private let deeplinkHandler: PromotionDeeplinkHandler
     private var bag = Set<AnyCancellable>()
 
     private lazy var yieldStateFactory = TokenDetailsYieldStateFactory(
@@ -119,15 +122,19 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         coordinator: any TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable,
         pendingTransactionDetails: PendingTransactionDetails?,
+        deeplinkHandler: PromotionDeeplinkHandler,
         marketingNotificationManager: MarketingBannerNotificationManager = MarketingBannerNotificationManager(),
-        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper()
+        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper(),
+        presentSource: TokenDetailsPresentSource
     ) {
         self.coordinator = coordinator
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
+        self.deeplinkHandler = deeplinkHandler
         self.marketingNotificationManager = marketingNotificationManager
         self.notificationBannerMapper = notificationBannerMapper
+        self.presentSource = presentSource
 
         actionsViewModel = FeatureProvider.isAvailable(.redesign)
             ? TokenDetailsActionsViewModel(walletModel: walletModel, userWalletInfo: userWalletInfo)
@@ -153,8 +160,17 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         AppLogger.debug("TokenDetailsViewModel deinit")
     }
 
+    func onBack() {
+        coordinator?.dismiss()
+    }
+
     func onAppear() {
         logScreenOpenedAnalytics()
+        deeplinkHandler.becomeIncomingActionsResponder()
+    }
+
+    func onDisappear() {
+        deeplinkHandler.resignIncomingActionsResponder()
     }
 
     func onFirstAppear() {
@@ -505,11 +521,9 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
-        marketingNotificationManager.notificationPublisher
-            .map { [notificationBannerMapper] in
-                notificationBannerMapper.mapItems($0).nilIfEmpty
-            }
-            .assign(to: &$marketingNotifications)
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
 
         walletModel.yieldModuleManager?.statePublisher
             .compactMap { $0 }
@@ -623,7 +637,9 @@ private extension TokenDetailsViewModel {
             stakingState = makeEnableStakingState(staked: staked)
         case .loadingError, .temporaryUnavailable:
             stakingState = makeUnavailableStakingState()
-        case .notEnabled:
+        case .unavailableInRegion(.some):
+            stakingState = makeRegionUnavailableStakingState()
+        case .unavailableInRegion(.none), .notEnabled:
             stakingState = nil
         }
     }
@@ -680,9 +696,23 @@ private extension TokenDetailsViewModel {
     private func makeUnavailableStakingState() -> TokenDetailsStakingState {
         let item = TokenDetailsStakingState.UnavailableItem(
             title: Localization.commonStaking,
-            description: Localization.stakingNotificationNetworkErrorText
+            description: Localization.stakingNotificationNetworkErrorText,
+            action: nil
         )
         return .unavailable(item: item)
+    }
+
+    private func makeRegionUnavailableStakingState() -> TokenDetailsStakingState {
+        let item = TokenDetailsStakingState.UnavailableItem(
+            title: Localization.commonStaking,
+            description: Localization.stakingErrorUnavailableRegion,
+            action: weakify(self, forFunction: TokenDetailsViewModel.openStakingRegionUnavailableSheet)
+        )
+        return .unavailable(item: item)
+    }
+
+    private func openStakingRegionUnavailableSheet() {
+        coordinator?.openStakingRegionUnavailableSheet()
     }
 
     private func makeStakingRewardsState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState.RewardsState {
@@ -709,7 +739,7 @@ private extension TokenDetailsViewModel {
             break
         case .availableToStake, .notEnabled:
             activeStakingViewData = nil
-        case .loadingError, .temporaryUnavailable:
+        case .loadingError, .temporaryUnavailable, .unavailableInRegion:
             activeStakingViewData = .init(isBeta: isBeta, balance: .loadingError, rewards: .none)
         case .staked(let staked):
             let rewards = mapToRewardsState(staked: staked)

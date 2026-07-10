@@ -131,10 +131,10 @@ final class TokenSelectorViewModel: ObservableObject {
         let selectedWalletId: String?
         if let preferredWalletId, chipIds.contains(preferredWalletId.stringValue) {
             selectedWalletId = preferredWalletId.stringValue
-        } else if let stored = tokenSelectorStateStorage?.selectedWalletId?.stringValue, chipIds.contains(stored) {
-            selectedWalletId = stored
         } else if let currentWalletId, chipIds.contains(currentWalletId.stringValue) {
             selectedWalletId = currentWalletId.stringValue
+        } else if let stored = tokenSelectorStateStorage?.selectedWalletId?.stringValue, chipIds.contains(stored) {
+            selectedWalletId = stored
         } else {
             selectedWalletId = walletChips.first?.id
         }

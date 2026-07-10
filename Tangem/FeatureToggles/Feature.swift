@@ -15,6 +15,7 @@ enum Feature: String, Hashable, CaseIterable {
     case exchangeOnlyWithinSingleAddress
     case walletConnectBitcoin
     case surveySparrow
+    case gaslessYieldFee
     case usdtRevokeGaslessFee
     case yieldModuleUpdate
     case xrplTransactionHistory
@@ -40,14 +41,17 @@ enum Feature: String, Hashable, CaseIterable {
     case hideStoriesInMobileWallet
     case marketingBanners
     case bitcoinDexSwap
+    case stakingRegionUnavailable
     case forYou
     case tangemPayVirtualAccount
     case highFeeWarning
     case priceAlertsSubscription
     case backup4cards
     case solanaUnstakeValidation
+    case promoCampaignsAttribution
     case onboardingPushNotificationDoubleAsk
     case mainPushNotificationDoubleAsk
+    case backendAuthentication
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -59,6 +63,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .surveySparrow: return "SurveySparrow service integration"
+        case .gaslessYieldFee: return "TWI-1327_smart_gas_support_for_tokens_in_yield_mode"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
         case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
         case .xrplTransactionHistory: return "XRPL Transaction History"
@@ -84,14 +89,17 @@ enum Feature: String, Hashable, CaseIterable {
         case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_dex_lifi_swapkit"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         case .marketingBanners: return "TWI-1522_special_offer_promo_placement_for_onramp_and_swaps"
+        case .stakingRegionUnavailable: return "[REDACTED_INFO]_p2p_staking_region_unavailable"
         case .forYou: return "TWI-1469_for_you_product_shelves_add_indicators"
         case .highFeeWarning: return "TWI-1367_high_fee_warning"
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
         case .solanaUnstakeValidation: return "[REDACTED_INFO]_solana_unstake_validation"
         case .tangemPayVirtualAccount: return "TWI-1638_tangempay_virtual_account"
-        case .onboardingPushNotificationDoubleAsk: return "1403_onboarding_push_notification_double_ask"
-        case .mainPushNotificationDoubleAsk: return "1403_main_push_notification_double_ask"
+        case .onboardingPushNotificationDoubleAsk: return "TWI-1403_onboarding_push_notification_double_ask"
+        case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
+        case .promoCampaignsAttribution: return "TWI-1637_promo_campaigns_attribution"
+        case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
         }
     }
 
@@ -102,6 +110,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
         case .surveySparrow: return .unspecified
+        case .gaslessYieldFee: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
         case .yieldModuleUpdate: return .unspecified
         case .xrplTransactionHistory: return .unspecified
@@ -127,6 +136,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .bitcoinDexSwap: return .version("6.0")
         case .hideStoriesInMobileWallet: return .version("6.0")
         case .marketingBanners: return .unspecified
+        case .stakingRegionUnavailable: return .version("6.1")
         case .forYou: return .unspecified
         case .highFeeWarning: return .unspecified
         case .priceAlertsSubscription: return .unspecified
@@ -136,6 +146,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaUnstakeValidation: return .version("6.0")
         case .onboardingPushNotificationDoubleAsk: return .unspecified
         case .mainPushNotificationDoubleAsk: return .unspecified
+        case .promoCampaignsAttribution: return .version("6.1")
+        case .backendAuthentication: return .unspecified
         }
     }
 }

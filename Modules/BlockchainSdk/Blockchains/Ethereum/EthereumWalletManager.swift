@@ -19,6 +19,7 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
     let addressConverter: EthereumAddressConverter
     let yieldSupplyService: YieldSupplyService?
     let pendingTransactionsManager: EthereumPendingTransactionsManager
+    let isGaslessYieldEnabled: Bool
 
     private var bag = Set<AnyCancellable>()
 
@@ -30,13 +31,15 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
         txBuilder: EthereumTransactionBuilder,
         networkService: EthereumNetworkService,
         yieldSupplyService: YieldSupplyService? = nil,
-        pendingTransactionsManager: EthereumPendingTransactionsManager
+        pendingTransactionsManager: EthereumPendingTransactionsManager,
+        isGaslessYieldEnabled: Bool
     ) {
         self.txBuilder = txBuilder
         self.networkService = networkService
         self.addressConverter = addressConverter
         self.yieldSupplyService = yieldSupplyService
         self.pendingTransactionsManager = pendingTransactionsManager
+        self.isGaslessYieldEnabled = isGaslessYieldEnabled
 
         super.init(wallet: wallet)
 
@@ -541,7 +544,32 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
             feeToken: feeToken,
             feeRecipientAddress: feeRecipientAddress,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
-            transactionFeeParameters: params
+            transactionFeeParameters: params,
+            yieldFeeOptions: nil
+        )
+    }
+
+    func getGaslessYieldFee(
+        feeToken: Token,
+        amount originalAmount: Amount,
+        destination originalDestination: String,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal,
+        yieldFeeOptions: GaslessYieldFeeOptions
+    ) async throws -> Fee {
+        let sanitizedAmount = Self.sanitizeAmount(originalAmount, wallet: wallet)
+        let originalFee = try await getFee(amount: sanitizedAmount, destination: originalDestination).async()
+
+        guard let params = originalFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
+            throw BlockchainSdkError.failedToGetFee
+        }
+
+        return try await buildGaslessFee(
+            feeToken: feeToken,
+            feeRecipientAddress: feeRecipientAddress,
+            nativeToFeeTokenRate: nativeToFeeTokenRate,
+            transactionFeeParameters: params,
+            yieldFeeOptions: yieldFeeOptions
         )
     }
 
@@ -566,10 +594,49 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
             feeToken: feeToken,
             feeRecipientAddress: feeRecipientAddress,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
-            transactionFeeParameters: params
+            transactionFeeParameters: params,
+            yieldFeeOptions: nil
         )
 
         // Convert otherNativeFee (bridge fee) to fee token and add to the fee amount
+        if let otherNativeFee, otherNativeFee > 0 {
+            fee = addOtherNativeFee(otherNativeFee, to: fee, feeToken: feeToken, nativeToFeeTokenRate: nativeToFeeTokenRate)
+        }
+
+        return fee
+    }
+
+    func getGaslessYieldTransactionFee(
+        feeToken: Token,
+        destination: String,
+        value: String?,
+        data: Data?,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal,
+        yieldFeeOptions: GaslessYieldFeeOptions
+    ) async throws -> Fee {
+        let fees = try await getFee(destination: destination, value: value, data: data).async()
+
+        guard let params = fees[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
+            throw BlockchainSdkError.failedToGetFee
+        }
+        let transactionFeeParameters = try await makeUpgradeAwareYieldTransactionFeeParameters(
+            params,
+            destination: destination,
+            value: value,
+            data: data,
+            yieldFeeOptions: yieldFeeOptions
+        )
+
+        var fee = try await buildGaslessFee(
+            feeToken: feeToken,
+            feeRecipientAddress: feeRecipientAddress,
+            nativeToFeeTokenRate: nativeToFeeTokenRate,
+            transactionFeeParameters: transactionFeeParameters,
+            yieldFeeOptions: yieldFeeOptions
+        )
+
         if let otherNativeFee, otherNativeFee > 0 {
             fee = addOtherNativeFee(otherNativeFee, to: fee, feeToken: feeToken, nativeToFeeTokenRate: nativeToFeeTokenRate)
         }
@@ -596,10 +663,41 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
             feeToken: feeToken,
             feeRecipientAddress: feeRecipientAddress,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
-            transactionFeeParameters: eip1559Params
+            transactionFeeParameters: eip1559Params,
+            yieldFeeOptions: nil
         )
 
         // Convert otherNativeFee (bridge fee) to fee token and add to the fee amount
+        if let otherNativeFee, otherNativeFee > 0 {
+            fee = addOtherNativeFee(otherNativeFee, to: fee, feeToken: feeToken, nativeToFeeTokenRate: nativeToFeeTokenRate)
+        }
+
+        return fee
+    }
+
+    func getEstimatedGaslessYieldTransactionFee(
+        feeToken: Token,
+        estimatedGasLimit: Int,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal,
+        yieldFeeOptions: GaslessYieldFeeOptions
+    ) async throws -> Fee {
+        let feeHistory = try await networkService.getFeeHistory().async()
+        let eip1559Params = EthereumEIP1559FeeParameters(
+            gasLimit: BigUInt(estimatedGasLimit),
+            baseFee: feeHistory.marketBaseFee,
+            priorityFee: feeHistory.marketPriorityFee
+        )
+
+        var fee = try await buildGaslessFee(
+            feeToken: feeToken,
+            feeRecipientAddress: feeRecipientAddress,
+            nativeToFeeTokenRate: nativeToFeeTokenRate,
+            transactionFeeParameters: eip1559Params,
+            yieldFeeOptions: yieldFeeOptions
+        )
+
         if let otherNativeFee, otherNativeFee > 0 {
             fee = addOtherNativeFee(otherNativeFee, to: fee, feeToken: feeToken, nativeToFeeTokenRate: nativeToFeeTokenRate)
         }
@@ -617,7 +715,8 @@ private extension EthereumWalletManager {
         feeToken: Token,
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal,
-        transactionFeeParameters: EthereumEIP1559FeeParameters
+        transactionFeeParameters: EthereumEIP1559FeeParameters,
+        yieldFeeOptions: GaslessYieldFeeOptions?
     ) async throws -> Fee {
         // Addresses
         let ourAddress = wallet.defaultAddress.value
@@ -631,19 +730,32 @@ private extension EthereumWalletManager {
         let tokenTransferData = TransferERC20TokenMethod(destination: convertedFeeRecipientAddress, amount: baseTokenAmount).encodedData
 
         // 2) Estimate gas limit for fee token transfer
-        let feeTransferGasLimit = try await getGasLimit(
-            to: feeToken.contractAddress,
-            from: convertedOurAddress,
-            value: nil,
-            data: tokenTransferData
-        ).async()
+        let feeTransferGasLimit: BigUInt
+        do {
+            feeTransferGasLimit = try await getGasLimit(
+                to: feeToken.contractAddress,
+                from: convertedOurAddress,
+                value: nil,
+                data: tokenTransferData
+            ).async()
+        } catch let error where yieldFeeOptions != nil && error.isEVMExecutionReverted {
+            feeTransferGasLimit = EthereumFeeParametersConstants.gaslessYieldFallbackFeeTransferGasLimit
+        }
 
         // 3) Add 10% buffer to fee token transfer gas limit (multiply by 1.1 using integer math)
         let feeTransferGasLimitBuffered = feeTransferGasLimit * BigUInt(11) / BigUInt(10)
 
+        let yieldWithdraw = try await makeYieldWithdraw(
+            feeToken: feeToken,
+            from: convertedOurAddress,
+            yieldFeeOptions: yieldFeeOptions,
+            originalGasLimit: transactionFeeParameters.gasLimit
+        )
+
         // 4) Combine gas limits and add BASE_GAS buffer (60_000)
         let combinedGasLimit = transactionFeeParameters.gasLimit
             + feeTransferGasLimitBuffered
+            + (yieldWithdraw?.withdrawGasLimit ?? 0)
             + EthereumFeeParametersConstants.gaslessBaseGasBuffer
 
         // 5) Create updated fee params
@@ -652,7 +764,8 @@ private extension EthereumWalletManager {
             maxFeePerGas: transactionFeeParameters.maxFeePerGas,
             priorityFee: transactionFeeParameters.priorityFee,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
-            feeTokenTransferGasLimit: feeTransferGasLimitBuffered
+            feeTokenTransferGasLimit: feeTransferGasLimitBuffered,
+            yieldWithdraw: yieldWithdraw
         )
 
         // 6) Compute the fee amount.
@@ -665,6 +778,83 @@ private extension EthereumWalletManager {
 
         // 8) Return Fee with updated params and computed amount
         return Fee(.init(with: feeToken, value: fee), parameters: gaslessParams)
+    }
+
+    func makeYieldWithdraw(
+        feeToken: Token,
+        from: String,
+        yieldFeeOptions: GaslessYieldFeeOptions?,
+        originalGasLimit: BigUInt
+    ) async throws -> EthereumGaslessTransactionFeeParameters.YieldWithdraw? {
+        guard let yieldFeeOptions else {
+            return nil
+        }
+
+        let withdrawMethod = WithdrawMethod(
+            tokenContractAddress: feeToken.contractAddress,
+            amount: EthereumFeeParametersConstants.gaslessMinTokenAmount
+        )
+
+        let withdrawData: String
+        switch yieldFeeOptions.upgrade {
+        case .required(let upgradeImplementation):
+            let upgradeMethod = UpgradeToAndCallMethod(
+                newImplementation: upgradeImplementation,
+                callData: withdrawMethod.data
+            )
+            withdrawData = upgradeMethod.encodedData
+        case .none:
+            withdrawData = withdrawMethod.encodedData
+        }
+
+        let withdrawGasLimit = try await getGasLimit(
+            to: yieldFeeOptions.yieldContractAddress,
+            from: from,
+            value: nil,
+            data: withdrawData
+        ).async()
+
+        let withdrawGasLimitBuffered = withdrawGasLimit
+            + withdrawGasLimit * EthereumFeeParametersConstants.yieldModuleGasLimitIncreasePercent / 100
+
+        return EthereumGaslessTransactionFeeParameters.YieldWithdraw(
+            yieldContractAddress: yieldFeeOptions.yieldContractAddress,
+            originalGasLimit: originalGasLimit,
+            withdrawGasLimit: withdrawGasLimitBuffered,
+            upgrade: yieldFeeOptions.upgrade
+        )
+    }
+
+    func makeUpgradeAwareYieldTransactionFeeParameters(
+        _ transactionFeeParameters: EthereumEIP1559FeeParameters,
+        destination: String,
+        value: String?,
+        data: Data?,
+        yieldFeeOptions: GaslessYieldFeeOptions
+    ) async throws -> EthereumEIP1559FeeParameters {
+        guard case .required(let upgradeImplementation) = yieldFeeOptions.upgrade,
+              destination.caseInsensitiveEquals(to: yieldFeeOptions.yieldContractAddress)
+        else {
+            return transactionFeeParameters
+        }
+
+        let transactionData = data ?? Data()
+        guard !UpgradeToAndCallMethod.isEncodedCall(transactionData.hexString.addHexPrefix()) else {
+            return transactionFeeParameters
+        }
+
+        let upgradeMethod = UpgradeToAndCallMethod(
+            newImplementation: upgradeImplementation,
+            callData: transactionData
+        )
+        let wrappedGasLimit = try await getGasLimit(
+            to: destination,
+            from: wallet.defaultAddress.value,
+            value: value,
+            data: upgradeMethod.encodedData
+        ).async()
+
+        return transactionFeeParameters.changingGasLimit(to: wrappedGasLimit)
     }
 
     /// Converts `otherNativeFee` (e.g. bridge fee in native coin) to the fee token and adds it to the fee amount.
@@ -830,7 +1020,10 @@ extension EthereumWalletManager: EthereumGaslessDataProvider {
             throw EthereumTransactionBuilderError.missingChainId
         }
 
-        let contractAddress = try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(blockchain: wallet.blockchain)
+        let contractAddress = try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(
+            blockchain: wallet.blockchain,
+            isGaslessYieldEnabled: isGaslessYieldEnabled
+        )
 
         let data = try EthEip7702Util().encodeAuthorizationForSigning(
             chainId: BigUInt(chainId),
@@ -842,7 +1035,10 @@ extension EthereumWalletManager: EthereumGaslessDataProvider {
     }
 
     func getGaslessExecutorContractAddress() throws -> String {
-        try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(blockchain: wallet.blockchain)
+        try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(
+            blockchain: wallet.blockchain,
+            isGaslessYieldEnabled: isGaslessYieldEnabled
+        )
     }
 }
 
