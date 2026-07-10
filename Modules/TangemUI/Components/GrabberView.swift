@@ -29,7 +29,7 @@ public struct GrabberView: View {
                 .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.grabber)
         case .redesigned:
             Capsule(style: .continuous)
-                .fill(Color.Tangem.Graphic.Neutral.primaryInverted)
+                .fill(DesignSystem.Color.iconTertiary)
                 .frame(size: CGSize(width: 40, height: 4.0))
                 .padding(.vertical, 4)
                 .infinityFrame(axis: .horizontal)
