@@ -139,21 +139,11 @@ private extension PriceAlertBellViewModel {
         alert = AlertBinder(title: "Something went wrong", message: "Please try again later.")
     }
 
-    /// Offers to open the app's system Settings when push permission is denied (Settings / Cancel),
-    /// reusing the existing push-permission alert strings. Mirrors NotificationSettings.
+    /// Offers to open the app's system Settings when push permission is denied (Settings / Cancel).
     @MainActor
     func presentEnablePushSettingsAlert() {
-        let buttons = AlertBuilder.Buttons(
-            primaryButton: .default(Text(Localization.pushNotificationsPermissionAlertNegativeButton)),
-            secondaryButton: .default(Text(Localization.pushNotificationsPermissionAlertPositiveButton)) { [weak self] in
-                self?.coordinator?.openAppSettings()
-            }
-        )
-
-        alert = AlertBuilder.makeAlert(
-            title: Localization.pushNotificationsPermissionAlertTitle,
-            message: Localization.pushNotificationsPermissionAlertDescription,
-            with: buttons
-        )
+        alert = AlertBuilder.makeEnablePushSettingsAlert(onOpenSettings: { [weak self] in
+            self?.coordinator?.openAppSettings()
+        })
     }
 }
