@@ -59,7 +59,7 @@ public enum ThumbnailRingCardPathBuilder: ThumbnailPathBuilding {
             origin: path,
             subtracting: toSubtract,
             fillColor: colors.ring,
-            stroke: colorScheme.stroke(width: width * 0.05)
+            stroke: colorScheme.defaultStroke
         ))
         path = Path()
 
@@ -87,7 +87,7 @@ public enum ThumbnailRingCardPathBuilder: ThumbnailPathBuilding {
             .fill(
                 path: path,
                 fillColor: colors.card,
-                stroke: colorScheme.stroke(width: width * 0.03)
+                stroke: colorScheme.defaultStroke
             )
         )
         return result
