@@ -29,7 +29,12 @@ enum WCRequestDetailsBtcSignPsbtParser {
 
     private static func createRequestSection(request: WalletConnectBitcoinSignPsbtDTO.Request) -> WCTransactionDetailsSection {
         var items: [WCTransactionDetailsSection.WCTransactionDetailsItem] = [
-            .init(title: "PSBT", value: request.psbt),
+            .init(
+                title: "PSBT",
+                value: request.psbt.count > 64
+                    ? "\(String(request.psbt.prefix(16)))...\(String(request.psbt.suffix(16)))"
+                    : request.psbt
+            ),
         ]
 
         if let broadcast = request.broadcast {
