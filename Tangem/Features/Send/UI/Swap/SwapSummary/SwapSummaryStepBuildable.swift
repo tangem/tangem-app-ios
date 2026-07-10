@@ -40,7 +40,7 @@ enum SwapSummaryStepBuilder {
 
     struct Dependencies {
         let notificationManager: any NotificationManager
-        let marketingNotificationManager: any NotificationManager
+        let marketingNotificationManager: SwapMarketingBannerNotificationManager
         let autoupdatingTimer: AutoupdatingTimer
         let analyticsLogger: any SendSummaryAnalyticsLogger
         let swapDescriptionBuilder: any SwapTransactionSummaryDescriptionBuilder

@@ -44,11 +44,8 @@ struct OnrampSummaryView: View {
 
     @ViewBuilder
     private var marketingBanner: some View {
-        if let marketingNotifications = viewModel.marketingNotifications {
-            NotificationBannerContainer(
-                items: marketingNotifications,
-                stackingType: .carousel
-            )
+        if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
+            StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
         }
     }
 

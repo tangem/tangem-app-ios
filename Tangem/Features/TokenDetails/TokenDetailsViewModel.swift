@@ -30,7 +30,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     @Published private(set) var isZeroBalance = true
     @Published private(set) var marketPriceViewModel: TokenDetailsMarketPriceViewModel?
-    @Published private(set) var marketingNotifications: [NotificationBannerItem]?
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
 
@@ -521,11 +521,9 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
-        marketingNotificationManager.notificationPublisher
-            .map { [notificationBannerMapper] in
-                notificationBannerMapper.mapItems($0).nilIfEmpty
-            }
-            .assign(to: &$marketingNotifications)
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
 
         walletModel.yieldModuleManager?.statePublisher
             .compactMap { $0 }
