@@ -115,7 +115,6 @@ extension MarketsSearchNavigationBar where Content == DefaultNavigationBarTitle 
     }
 }
 
-#if DEBUG
 #Preview {
     MarketsSearchNavigationBar(
         title: "Market",
@@ -124,4 +123,3 @@ extension MarketsSearchNavigationBar where Content == DefaultNavigationBarTitle 
         onSearchButtonAction: {}
     )
 }
-#endif
