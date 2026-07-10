@@ -24,7 +24,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var onrampAmountViewModel: OnrampAmountViewModel
     @Published private(set) var viewState: ViewState = .idle
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
-    @Published private(set) var marketingNotifications: [NotificationBannerItem]?
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
     @Published private(set) var notificationButtonIsLoading = false
 
     weak var router: OnrampSummaryRoutable?
@@ -32,11 +32,10 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     private let tokenItem: TokenItem
     private let interactor: OnrampSummaryInteractor
     private let notificationManager: NotificationManager
-    private let marketingNotificationManager: any NotificationManager
+    private let marketingNotificationManager: OnrampMarketingBannerNotificationManager
     private let linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
     private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
-    private let notificationBannerMapper: MultiWalletNotificationBannerMapper
 
     private lazy var fiatPresetService = FiatPresetService()
     private lazy var onrampOfferViewModelBuilder = OnrampSuggestedOfferViewModelBuilder(tokenItem: tokenItem)
@@ -48,11 +47,10 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         tokenItem: TokenItem,
         interactor: OnrampSummaryInteractor,
         notificationManager: NotificationManager,
-        marketingNotificationManager: any NotificationManager,
+        marketingNotificationManager: OnrampMarketingBannerNotificationManager,
         linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>,
         analyticsLogger: SendOnrampOffersAnalyticsLogger,
-        buyActionBuilder: OnrampOfferViewModelBuyActionBuilder,
-        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper()
+        buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
     ) {
         self.onrampAmountViewModel = onrampAmountViewModel
         self.tokenItem = tokenItem
@@ -62,7 +60,6 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         self.linkedBannersPublisher = linkedBannersPublisher
         self.analyticsLogger = analyticsLogger
         self.buyActionBuilder = buyActionBuilder
-        self.notificationBannerMapper = notificationBannerMapper
 
         bind()
     }
@@ -90,11 +87,9 @@ private extension OnrampSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$notificationInputs)
 
-        marketingNotificationManager.notificationPublisher
-            .map { [notificationBannerMapper] in
-                notificationBannerMapper.mapItems($0).nilIfEmpty
-            }
-            .assign(to: &$marketingNotifications)
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
 
         interactor
             .isLoadingPublisher
