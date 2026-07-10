@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 /// Utility class for cleaning storage files during UI tests
 enum UITestsStorageCleaner {
@@ -59,8 +60,10 @@ enum UITestsStorageCleaner {
             "tangem_expandable_swap_wallet_account_item_state_storage",
             "tangem_swap_token_selector_selected_wallet_id",
         ]
+        /// State is persisted via @AppStorageCompat into the app-group suite, not .standard.
+        let store = UserDefaults(suiteName: AppEnvironment.current.suiteName) ?? .standard
         for key in keys {
-            UserDefaults.standard.removeObject(forKey: key)
+            store.removeObject(forKey: key)
         }
         AppLogger.info("Swap token selector state cleared for UI tests")
         #endif

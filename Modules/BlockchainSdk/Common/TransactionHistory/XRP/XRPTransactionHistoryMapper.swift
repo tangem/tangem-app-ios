@@ -121,7 +121,9 @@ private extension XRPTransactionHistoryMapper {
             status: status,
             isOutgoing: isOutgoing,
             type: transactionType,
-            date: item.tx.date.map { Date(timeIntervalSince1970: TimeInterval($0 + Constants.xrplEpochOffset)) }
+            date: item.tx.date.map { Date(timeIntervalSince1970: TimeInterval($0 + Constants.xrplEpochOffset)) },
+            tokenTransfers: [],
+            nonce: nil
         )
     }
 

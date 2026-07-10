@@ -51,7 +51,6 @@ private extension MarketsTokenSearchQueryRowView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 0) {
         MarketsTokenSearchQueryRowView(query: "Usdt", onTap: {})
@@ -61,4 +60,3 @@ private extension MarketsTokenSearchQueryRowView {
     .padding(.horizontal, .unit(.x4))
     .background(Color.Tangem.Surface.level2)
 }
-#endif // DEBUG
