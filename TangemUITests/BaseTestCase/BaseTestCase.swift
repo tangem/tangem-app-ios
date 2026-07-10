@@ -35,11 +35,14 @@ class BaseTestCase: XCTestCase {
         expressApiType: ExpressAPI? = nil,
         stakingApiType: StakingAPI? = nil,
         visaApiType: VisaAPI? = nil,
+        yieldApiType: YieldAPI? = nil,
         skipToS: Bool = true,
         clearStorage: Bool = false,
         keepWallets: Bool = false,
         features: [TestFeature: Bool] = [:],
-        scenarios: [ScenarioConfig] = []
+        scenarios: [ScenarioConfig] = [],
+        mockCardBatchIdOverride: String? = nil,
+        mockCardFirmwareOverride: String? = nil
     ) {
         var arguments: [String] = []
 
@@ -57,6 +60,10 @@ class BaseTestCase: XCTestCase {
 
         arguments.append(contentsOf: [
             "-visa_api_type", visaApiType?.rawValue ?? VisaAPI.prod.rawValue,
+        ])
+
+        arguments.append(contentsOf: [
+            "-yield_module_api_type", yieldApiType?.rawValue ?? YieldAPI.prod.rawValue,
         ])
 
         if skipToS {
@@ -84,6 +91,12 @@ class BaseTestCase: XCTestCase {
 
         var launchEnvironment = ["UITEST": "1"]
         launchEnvironment["WIREMOCK_BASE_URL"] = wireMockURL
+        if let mockCardBatchIdOverride {
+            launchEnvironment["UITEST_MOCK_CARD_BATCH_ID"] = mockCardBatchIdOverride
+        }
+        if let mockCardFirmwareOverride {
+            launchEnvironment["UITEST_MOCK_CARD_FIRMWARE"] = mockCardFirmwareOverride
+        }
         app.launchEnvironment = launchEnvironment
 
         // Setup WireMock scenarios before launching the app
@@ -184,6 +197,6 @@ class BaseTestCase: XCTestCase {
 
 extension XCUIApplication {
     func hideKeyboard() {
-        toolbars.firstMatch.buttons["hideKeyboard"].waitAndTap()
+        toolbars.firstMatch.buttons[CommonUIAccessibilityIdentifiers.hideKeyboardButton].waitAndTap()
     }
 }

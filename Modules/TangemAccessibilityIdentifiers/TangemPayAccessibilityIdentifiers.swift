@@ -23,11 +23,23 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let paymentAccountBalance = "\(prefix)PaymentAccountBalance"
     public static let addFundsButton = "\(prefix)AddFundsButton"
     public static let withdrawButton = "\(prefix)WithdrawButton"
+    public static let moreActionsButton = "\(prefix)MoreActionsButton"
 
     // MARK: - Add funds flow
 
     public static let addFundsSheetSwapOption = "\(prefix)AddFundsSheetSwapOption"
     public static let addFundsSheetReceiveOption = "\(prefix)AddFundsSheetReceiveOption"
+    public static let addFundsSheetBankTransferOption = "\(prefix)AddFundsSheetBankTransferOption"
+    public static let virtualAccountShowDetailsButton = "\(prefix)VirtualAccountShowDetailsButton"
+    public static let virtualAccountBankDetailsShareButton = "\(prefix)VirtualAccountBankDetailsShareButton"
+
+    public static func virtualAccountBankDetailValue(_ field: String) -> String {
+        "\(prefix)VirtualAccountBankDetailValue_\(field)"
+    }
+
+    public static func virtualAccountBankDetailCopyButton(_ field: String) -> String {
+        "\(prefix)VirtualAccountBankDetailCopy_\(field)"
+    }
 
     public static func paymentAccountCardButton(cardId: String) -> String {
         "\(paymentAccountCardButtonPrefix)_\(cardId)"
