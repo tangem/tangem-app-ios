@@ -571,6 +571,7 @@ extension SingleTokenBaseViewModel {
         case .notSupported:
             transactionHistoryState = .notSupported
         case .notLoaded:
+            loadedTransactionRecords = []
             transactionHistoryState = .loading
         case .loading:
             if case .notLoaded = newState {

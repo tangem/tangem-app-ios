@@ -30,5 +30,7 @@ protocol SingleTokenBaseRoutable: AnyObject {
 }
 
 extension SingleTokenBaseRoutable {
-    func openTransactionDetails(_ data: TransactionDetailsRouteData) {}
+    func openTransactionDetails(_ data: TransactionDetailsRouteData) {
+        assertionFailure("openTransactionDetails(_:) is not implemented for \(Self.self)")
+    }
 }
