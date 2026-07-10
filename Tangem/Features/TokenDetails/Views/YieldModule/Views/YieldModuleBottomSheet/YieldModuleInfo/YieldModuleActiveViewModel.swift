@@ -29,7 +29,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private(set) var earnInfoNotifications = [YieldModuleNotificationBannerParams]()
 
     @Published
-    private(set) var marketingNotifications: [NotificationBannerItem]?
+    private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     @Published
     private(set) var apyState: LoadableTextView.State = .loading
@@ -95,7 +95,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private let yieldManagerInteractor: YieldManagerInteractor
     private let notificationManager: YieldModuleNotificationManager
     private let marketingNotificationManager = MarketingBannerNotificationManager()
-    private let notificationBannerMapper: MultiWalletNotificationBannerMapper
     private let logger: YieldAnalyticsLogger
 
     // MARK: - Properties
@@ -112,8 +111,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         transactionFlowFactory: YieldModuleTransactionFlowFactory,
         yieldManagerInteractor: YieldManagerInteractor,
         notificationManager: YieldModuleNotificationManager,
-        logger: YieldAnalyticsLogger,
-        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper()
+        logger: YieldAnalyticsLogger
     ) {
         self.walletModel = walletModel
         self.coordinator = coordinator
@@ -121,7 +119,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
         self.yieldManagerInteractor = yieldManagerInteractor
         self.logger = logger
         self.notificationManager = notificationManager
-        self.notificationBannerMapper = notificationBannerMapper
 
         logger.logEarningInProgressScreenOpened()
 
@@ -179,11 +176,9 @@ final class YieldModuleActiveViewModel: ObservableObject {
             bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: walletModel.tokenItem, kind: .yield)
         )
 
-        marketingNotificationManager.notificationPublisher
-            .map { [notificationBannerMapper] in
-                notificationBannerMapper.mapItems($0).nilIfEmpty
-            }
-            .assign(to: &$marketingNotifications)
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
 
         Task { await getAvailableFunds() }
         Task {
