@@ -35,6 +35,10 @@ public struct TangemFontStyle: Hashable, Sendable {
         self.tracking = tracking
         metrics = nil
     }
+
+    public init(_ token: TangemTypographyToken) {
+        self.init(font: token.font, tracking: token.tracking)
+    }
 }
 
 public extension View {
