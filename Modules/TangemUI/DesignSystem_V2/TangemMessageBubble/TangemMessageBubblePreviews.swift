@@ -52,6 +52,7 @@ public struct TangemMessageBubbleShowcase: View {
         TangemMessageBubble(text: text, onClose: {})
             .variant(variant)
             .icon(hasIcon ? DesignSystem.Icons.ChartLineVertical.regular16 : nil)
+            .accessibilityIdentifier("messageBubble")
     }
 
     private var controls: some View {

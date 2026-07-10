@@ -17,6 +17,7 @@ public struct TangemMessageBubble: View, Setupable {
     private var variant: Variant = .neutral
     private var icon: ImageType?
     private var accessibilityLabel: String?
+    private var accessibilityIdentifier: String?
 
     @ScaledMetric private var iconSize: CGFloat = Metrics.iconSize
     @ScaledMetric private var tipSize: CGFloat = Metrics.tipSize
@@ -38,6 +39,9 @@ public struct TangemMessageBubble: View, Setupable {
                 .style(DesignSystem.Font.captionMediumToken, color: variant.palette.text)
                 .ifLet(accessibilityLabel) { view, label in
                     view.accessibilityLabel(Text(label))
+                }
+                .ifLet(accessibilityIdentifier) { view, identifier in
+                    view.accessibilityIdentifier(identifier)
                 }
 
             closeButton
@@ -71,6 +75,13 @@ public struct TangemMessageBubble: View, Setupable {
         .buttonStyle(.plain)
         .padding(.leading, Metrics.closeWrapperLeadingPadding)
         .accessibilityLabel(Text(Localization.commonClose))
+        .ifLet(closeAccessibilityIdentifier) { view, identifier in
+            view.accessibilityIdentifier(identifier)
+        }
+    }
+
+    private var closeAccessibilityIdentifier: String? {
+        accessibilityIdentifier.map { "\($0)CloseButton" }
     }
 
     private var tip: some View {
@@ -92,10 +103,6 @@ public extension TangemMessageBubble {
 
     func icon(_ icon: ImageType?) -> Self {
         map { $0.icon = icon }
-    }
-
-    func accessibilityLabel(_ label: String?) -> Self {
-        map { $0.accessibilityLabel = label }
     }
 }
 
