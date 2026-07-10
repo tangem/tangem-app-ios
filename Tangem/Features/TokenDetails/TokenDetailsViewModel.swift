@@ -645,7 +645,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func makeAvailableStakingState(info: StakingYieldInfo) -> TokenDetailsStakingState {
-        let rewardPercent = PercentFormatter().format(info.rewardRateValues.max, option: .staking)
+        let rewardPercent = makeFormattedRewardPercent(yieldInfo: info)
 
         let description = switch info.rewardType {
         case .apr: Localization.tokenDetailsEarnStakingSubtitle(rewardPercent)
@@ -676,11 +676,11 @@ private extension TokenDetailsViewModel {
             balanceConverter.convertToFiat(balance, currencyId: currencyId)
         }
         let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
-        let attributedFiatBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+        let attributedFiatBalance = AttributedBalanceFormatter.format(
             formattedFiatBalance,
             font: Font.Tangem.Body16.medium,
             integerColor: .Tangem.Text.Neutral.primary,
-            decimalColor: .Tangem.Text.Neutral.secondary
+            fractionalColor: .Tangem.Text.Neutral.secondary
         )
 
         let item = TokenDetailsStakingState.EnableItem(
@@ -722,12 +722,25 @@ private extension TokenDetailsViewModel {
         case (.manual, .zero):
             return .empty(Localization.stakingDetailsNoRewardsToClaim)
         case (.manual, let rewards):
+            let rewardPercent = makeFormattedRewardPercent(yieldInfo: staked.yieldInfo)
+            let rewardType = switch staked.yieldInfo.rewardType {
+            case .apr: Localization.stakingDetailsApr
+            case .apy: Localization.stakingDetailsApy
+            }
+            let rewardPercentType = "\(rewardPercent) \(rewardType)"
+
             let fiat: Decimal? = walletModel.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(rewards, currencyId: currencyId)
             }
             let formattedFiat = balanceFormatter.formatFiatBalance(fiat)
-            return .claimed(formattedFiat)
+
+            let claimed = "\(rewardPercentType) \(AppConstants.dotSign) \(formattedFiat)"
+            return .claimed(claimed)
         }
+    }
+
+    private func makeFormattedRewardPercent(yieldInfo: StakingYieldInfo) -> String {
+        PercentFormatter().format(yieldInfo.rewardRateValues.max, option: .staking)
     }
 
     private func updateLegacyStaking(state: StakingManagerState) {
