@@ -52,7 +52,7 @@ public enum ThumbnailCardPathBuilder: ThumbnailPathBuilding {
             .fill(
                 path: path,
                 fillColor: colors.card,
-                stroke: colorScheme.stroke(width: width * 0.03)
+                stroke: colorScheme.defaultStroke
             )
         )
 
