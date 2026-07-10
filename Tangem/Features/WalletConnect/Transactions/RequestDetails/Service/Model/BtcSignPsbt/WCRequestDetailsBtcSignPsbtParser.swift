@@ -29,7 +29,7 @@ enum WCRequestDetailsBtcSignPsbtParser {
 
     private static func createRequestSection(request: WalletConnectBitcoinSignPsbtDTO.Request) -> WCTransactionDetailsSection {
         var items: [WCTransactionDetailsSection.WCTransactionDetailsItem] = [
-            .init(title: "PSBT", value: formatLongValue(request.psbt)),
+            .init(title: "PSBT", value: request.psbt),
         ]
 
         if let broadcast = request.broadcast {
@@ -73,13 +73,5 @@ enum WCRequestDetailsBtcSignPsbtParser {
         return sighashTypes
             .map(String.init)
             .joined(separator: ", ")
-    }
-
-    private static func formatLongValue(_ value: String) -> String {
-        if value.count > 66 {
-            return "\(String(value.prefix(8)))...\(String(value.suffix(8)))"
-        }
-
-        return value
     }
 }
