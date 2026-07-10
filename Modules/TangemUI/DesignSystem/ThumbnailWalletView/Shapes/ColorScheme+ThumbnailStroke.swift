@@ -12,13 +12,16 @@ extension ColorScheme {
     func stroke(
         width: CGFloat
     ) -> ThumbnailPathFillMode.Stroke? {
-        guard self == .dark else {
-            return nil
-        }
-
-        return .init(
+        .init(
             color: Color.Tangem.CardCollection.border,
             style: .init(lineWidth: width)
+        )
+    }
+
+    var defaultStroke: ThumbnailPathFillMode.Stroke {
+        .init(
+            color: Color.Tangem.CardCollection.border,
+            style: .init(lineWidth: 1.0)
         )
     }
 }
