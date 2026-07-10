@@ -75,7 +75,7 @@ final class AppDatabase {
                     .ifNotExists,
                 ]
             ) { table in
-                table.primaryKey("id", .text, onConflict: .replace).notNull()
+                table.primaryKey("id", .text).notNull()
                 table.column("name", .text).notNull()
                 table.column("imageURL", .text)
                 table.column("updatedAt", .datetime).notNull()
@@ -91,7 +91,7 @@ final class AppDatabase {
             ) { table in
                 let ownerAddressColumnName = "ownerAddress"
                 let endpointTypeColumnName = "endpointType"
-                table.primaryKey([ownerAddressColumnName, endpointTypeColumnName], onConflict: .replace)
+                table.primaryKey([ownerAddressColumnName, endpointTypeColumnName])
                 table.column(ownerAddressColumnName, .text).notNull()
                 table.column(endpointTypeColumnName, .text).notNull()
                 table.column("archiveCursor", .text)
@@ -114,7 +114,7 @@ final class AppDatabase {
                     .ifNotExists,
                 ]
             ) { table in
-                table.primaryKey("id", .text, onConflict: .replace).notNull()
+                table.primaryKey("id", .text).notNull()
                 table.column(ownerAddressColumnName, .text).notNull()
                 table.column("providerID", .text).notNull()
                 table.column("payOutAddress", .text)
@@ -188,7 +188,7 @@ final class AppDatabase {
                     .ifNotExists,
                 ]
             ) { table in
-                table.primaryKey("id", .text, onConflict: .replace).notNull()
+                table.primaryKey("id", .text).notNull()
                 table.column(ownerAddressColumnName, .text).notNull()
                 table.column("providerID", .text).notNull()
                 table.column("fromAddress", .text)
