@@ -43,6 +43,10 @@ struct CommonDeepLinkValidator {
         params.surveyToken?.nilIfEmpty != nil
     }
 
+    private func hasEnoughCampaignsParams(params: DeeplinkNavigationAction.Params) -> Bool {
+        areParamsValid(params, keys: \.campaignId)
+    }
+
     /// Universal news-article link: `https://tangem.com/news/{category}/{id}-{slug}`.
     /// Numeric article id is mandatory — an article screen cannot be opened without it.
     private func hasEnoughNewsArticleParams(params: DeeplinkNavigationAction.Params) -> Bool {
@@ -135,6 +139,9 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
 
         case .survey:
             return hasEnoughSurveyParams(params: params)
+
+        case .campaigns:
+            return hasEnoughCampaignsParams(params: params)
 
         case .onboardVisa:
             return hasEnoughOnboardVisaParams(params: params)
