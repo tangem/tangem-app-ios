@@ -14,6 +14,7 @@ import TangemNetworkUtils
 protocol GaslessTransactionsNetworkManager {
     typealias FeeToken = GaslessTransactionsDTO.Response.FeeToken
     typealias GaslessTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
+    typealias GaslessBatchTransaction = GaslessTransactionsDTO.Request.GaslessBatchTransaction
 
     var availableFeeTokens: [FeeToken] { get }
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { get }
@@ -22,6 +23,7 @@ protocol GaslessTransactionsNetworkManager {
 
     func updateAvailableTokens()
     func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String
+    func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String
     func initialize()
 
     var cachedFeeRecipientAddress: String? { get }
@@ -119,6 +121,10 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
 
     func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String {
         try await apiService.sendGaslessTransaction(transaction)
+    }
+
+    func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String {
+        try await apiService.sendGaslessBatchTransaction(transaction)
     }
 
     func preloadFeeRecipientAddress() {

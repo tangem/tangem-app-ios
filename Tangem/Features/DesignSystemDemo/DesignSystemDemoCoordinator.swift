@@ -12,8 +12,10 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemButtonDemo()
     func openTangemButtonV2Demo()
     func openTangemCheckboxV2Demo()
+    func openTangemCheckmarkV2Demo()
     func openTangemBadgeDemo()
     func openTangemBadgeV2Demo()
+    func openTangemMessageBannerDemo()
     func openTangemRowDemo()
     func openTangemCalloutDemo()
     func openTangemTabsDemo()
@@ -40,8 +42,10 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemButtonDemoViewModel: TangemButtonDemoViewModel?
     @Published var tangemButtonV2DemoViewModel: TangemButtonV2DemoViewModel?
     @Published var tangemCheckboxV2DemoViewModel: TangemCheckboxV2DemoViewModel?
+    @Published var tangemCheckmarkV2DemoViewModel: TangemCheckmarkV2DemoViewModel?
     @Published var tangemBadgeDemoViewModel: TangemBadgeDemoViewModel?
     @Published var tangemBadgeV2DemoViewModel: TangemBadgeV2DemoViewModel?
+    @Published var tangemMessageBannerDemoViewModel: TangemMessageBannerDemoViewModel?
     @Published var tangemRowDemoViewModel: TangemRowDemoViewModel?
     @Published var tangemCalloutDemoViewModel: TangemCalloutDemoViewModel?
     @Published var tangemTabsDemoViewModel: TangemTabsDemoModel?
@@ -85,12 +89,20 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
         tangemCheckboxV2DemoViewModel = .init()
     }
 
+    func openTangemCheckmarkV2Demo() {
+        tangemCheckmarkV2DemoViewModel = .init()
+    }
+
     func openTangemBadgeDemo() {
         tangemBadgeDemoViewModel = .init()
     }
 
     func openTangemBadgeV2Demo() {
         tangemBadgeV2DemoViewModel = .init()
+    }
+
+    func openTangemMessageBannerDemo() {
+        tangemMessageBannerDemoViewModel = .init()
     }
 
     func openTangemRowDemo() {

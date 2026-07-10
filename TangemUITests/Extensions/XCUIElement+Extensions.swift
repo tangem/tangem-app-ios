@@ -91,7 +91,7 @@ extension XCUIElement {
 
 extension XCUIElement {
     func scrollToElement(_ element: XCUIElement, startPoint: Double = 0.8, attempts: SwipeAttempts = .standard) {
-        for attempt in 0 ..< attempts.rawValue {
+        for _ in 0 ..< attempts.rawValue {
             if !element.isHittable || !element.isEnabled {
                 let startCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: startPoint))
                 let endCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.1))
@@ -101,7 +101,7 @@ extension XCUIElement {
     }
 
     func scrollHorizontallyToElement(_ element: XCUIElement, startPoint: Double = 0.5, attempts: SwipeAttempts = .standard) {
-        for attempt in 0 ..< attempts.rawValue {
+        for _ in 0 ..< attempts.rawValue {
             if !element.isHittable || !element.isEnabled {
                 let startCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: startPoint))
                 let endCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: startPoint))

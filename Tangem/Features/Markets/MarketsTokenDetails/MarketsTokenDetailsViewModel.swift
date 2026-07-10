@@ -53,7 +53,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
     @Published var securityScoreDetailsViewModel: MarketsTokenDetailsSecurityScoreDetailsViewModel?
     @Published private(set) var numberOfExchangesListedOn: Int?
-    @Published private(set) var marketingNotifications: [NotificationBannerItem]?
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
     @Published var fullDescriptionBottomSheetInfo: DescriptionBottomSheetInfo?
@@ -161,7 +161,6 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     private let tokenInfo: MarketsTokenModel
     private let marketingNotificationManager = MarketingBannerNotificationManager()
-    private let notificationBannerMapper: MultiWalletNotificationBannerMapper
     private let dataProvider: MarketsTokenDetailsDataProvider
     private let marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper
 
@@ -180,15 +179,13 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         presentationStyle: MarketsTokenDetailsPresentationStyle,
         dataProvider: MarketsTokenDetailsDataProvider,
         marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper,
-        coordinator: MarketsTokenDetailsRoutable?,
-        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper()
+        coordinator: MarketsTokenDetailsRoutable?
     ) {
         self.tokenInfo = tokenInfo
         self.presentationStyle = presentationStyle
         self.dataProvider = dataProvider
         self.marketsQuotesUpdateHelper = marketsQuotesUpdateHelper
         self.coordinator = coordinator
-        self.notificationBannerMapper = notificationBannerMapper
         tokenName = tokenInfo.name
         selectedPriceChangeIntervalType = .day
         tokenSymbol = tokenInfo.symbol
@@ -350,6 +347,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     }
 
     func onAddFundsTap() {
+        Analytics.log(.marketsChartButtonAddFunds)
         portfolioViewModel?.onAddFundsTap()
     }
 
@@ -467,11 +465,9 @@ private extension MarketsTokenDetailsViewModel {
             bannersPublisher: marketingCampaignsRepository.bannersPublisher(forMarketsTokenId: tokenInfo.id)
         )
 
-        marketingNotificationManager.notificationPublisher
-            .map { [notificationBannerMapper] in
-                notificationBannerMapper.mapItems($0).nilIfEmpty
-            }
-            .assign(to: &$marketingNotifications)
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
 
         currentPricePublisher
             .assign(to: \.priceFromQuoteRepository, on: self, ownership: .weak)
