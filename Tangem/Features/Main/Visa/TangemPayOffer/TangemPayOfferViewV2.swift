@@ -66,11 +66,11 @@ struct TangemPayOfferViewV2: View {
     private var textSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(Localization.tangempayNewonboardTitle)
-                .font(DesignSystem.Font.headingMediumToken)
+                .font(token: DesignSystem.Font.headingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Text(Localization.tangempayNewonboardBody)
-                .font(DesignSystem.Font.subheadingMediumToken)
+                .font(token: DesignSystem.Font.subheadingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
@@ -109,7 +109,7 @@ struct TangemPayOfferViewV2: View {
                 + Text("\n" + secondary)
                 .foregroundColor(DesignSystem.Color.textSecondary)
         )
-        .font(DesignSystem.Font.captionMediumToken)
+        .font(token: DesignSystem.Font.captionMediumToken)
 
         return VStack(alignment: .leading, spacing: 28) {
             icon.image
@@ -161,12 +161,12 @@ struct TangemPayOfferViewV2: View {
             }
 
             Text(question)
-                .font(DesignSystem.Font.headingSmallToken)
+                .font(token: DesignSystem.Font.headingSmallToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(answer)
-                .font(DesignSystem.Font.subheadingMediumToken)
+                .font(token: DesignSystem.Font.subheadingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }

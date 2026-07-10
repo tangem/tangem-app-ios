@@ -16,6 +16,20 @@ struct OnrampOfferView: View {
     let viewModel: OnrampOfferViewModel
 
     var body: some View {
+        VStack(spacing: 0) {
+            cardContent
+                .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
+                .environment(\.colorScheme, resolvedColorScheme)
+                .opacity(viewModel.isAvailable ? 1 : 0.6)
+                .zIndex(1)
+
+            if let linkedBanner = viewModel.linkedBanner {
+                LinkedMarketingBannerView(viewModel: linkedBanner)
+            }
+        }
+    }
+
+    private var cardContent: some View {
         VStack(spacing: 12) {
             topView
 
@@ -30,9 +44,6 @@ struct OnrampOfferView: View {
                 legalNoticeView(legalNotice)
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
-        .environment(\.colorScheme, resolvedColorScheme)
-        .opacity(viewModel.isAvailable ? 1 : 0.6)
     }
 
     /// Read synchronously to avoid an `@Environment(\.colorScheme)` subscription that leaks inside floating sheets.

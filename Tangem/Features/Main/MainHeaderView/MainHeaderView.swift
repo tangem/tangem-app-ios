@@ -94,34 +94,27 @@ extension MainHeaderView {
     }
 }
 
-struct CardHeaderView_Previews: PreviewProvider {
-    struct CardHeaderPreview: View {
-        @ObservedObject var provider: FakeCardHeaderPreviewProvider = .init()
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @StateObject var provider = FakeCardHeaderPreviewProvider()
 
-        var body: some View {
-            ZStack {
-                Colors.Background.secondary
-                    .edgesIgnoringSafeArea(.all)
+    ZStack {
+        Colors.Background.secondary
+            .edgesIgnoringSafeArea(.all)
 
-                VStack(spacing: 16) {
-                    ForEach(
-                        provider.models.indices,
-                        id: \.self,
-                        content: { index in
-                            MainHeaderView(viewModel: provider.models[index])
-                                .onTapGesture {
-                                    let provider = provider.infoProviders[index]
-                                    provider.tapAction(provider)
-                                }
+        VStack(spacing: 16) {
+            ForEach(
+                provider.models.indices,
+                id: \.self,
+                content: { index in
+                    MainHeaderView(viewModel: provider.models[index])
+                        .onTapGesture {
+                            let provider = provider.infoProviders[index]
+                            provider.tapAction(provider)
                         }
-                    )
                 }
-                .padding()
-            }
+            )
         }
-    }
-
-    static var previews: some View {
-        CardHeaderPreview()
+        .padding()
     }
 }

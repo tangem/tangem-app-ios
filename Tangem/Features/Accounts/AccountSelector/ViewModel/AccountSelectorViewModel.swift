@@ -42,6 +42,7 @@ final class AccountSelectorViewModel: ObservableObject {
         cryptoAccountModelsFilter: @escaping (AccountSelectorItem) -> Bool = { _ in true },
         availabilityProvider: @escaping (AccountSelectorItem) -> AccountAvailability = { _ in .available },
         dropsLockedAccountSections: Bool = false,
+        preferredDisplayMode: AccountSelectorDisplayMode? = nil,
         onSelect: @escaping (AccountSelectorCellModel) -> Void
     ) {
         self.selectedItem = selectedItem
@@ -55,7 +56,7 @@ final class AccountSelectorViewModel: ObservableObject {
             userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
         }
 
-        displayMode = hasMultipleAccounts ? .accounts : .wallets
+        displayMode = preferredDisplayMode ?? (hasMultipleAccounts ? .accounts : .wallets)
 
         switch displayMode {
         case .accounts:
@@ -73,6 +74,7 @@ final class AccountSelectorViewModel: ObservableObject {
         cryptoAccountModelsFilter: @escaping (AccountSelectorItem) -> Bool = { _ in true },
         availabilityProvider: @escaping (AccountSelectorItem) -> AccountAvailability = { _ in .available },
         dropsLockedAccountSections: Bool = false,
+        preferredDisplayMode: AccountSelectorDisplayMode? = nil,
         onSelect: @escaping (AccountSelectorCellModel) -> Void
     ) {
         self.init(
@@ -81,6 +83,7 @@ final class AccountSelectorViewModel: ObservableObject {
             cryptoAccountModelsFilter: cryptoAccountModelsFilter,
             availabilityProvider: availabilityProvider,
             dropsLockedAccountSections: dropsLockedAccountSections,
+            preferredDisplayMode: preferredDisplayMode,
             onSelect: onSelect
         )
     }
