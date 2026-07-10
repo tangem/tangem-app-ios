@@ -36,6 +36,6 @@ struct HighNetworkFeeWarningCalculator {
 
 private extension HighNetworkFeeWarningCalculator {
     enum Constants {
-        static let thresholdUSD: Decimal = 10
+        static let thresholdUSD: Decimal = 0.01
     }
 }
