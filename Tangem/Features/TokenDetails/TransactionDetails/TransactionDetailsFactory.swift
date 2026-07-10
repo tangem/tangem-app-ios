@@ -28,7 +28,6 @@ struct TransactionDetailsFactory {
         let tokenCurrencyId: String?
         let receiverName: String
         let receiverAccountIcon: AccountIconView.ViewData?
-        let resolveExpressToken: (ExpressCurrency) -> TokenItem?
         let openExplorer: (() -> Void)?
         let openURL: (URL) -> Void
         let share: (String) -> Void
@@ -61,11 +60,11 @@ struct TransactionDetailsFactory {
         record: TransactionRecord?,
         context: Context
     ) -> TransactionDetailsViewModel.Content {
-        switch record?.extraInfo as? TransactionHistoryExpressExtraInfo {
-        case .exchange(let info)?:
+        switch record?.expressExtraInfo {
+        case .exchange(let info):
             return .swap(swapContent(info, record: record, context: context))
 
-        case .onramp(let info)?:
+        case .onramp(let info):
             return .onramp(onrampContent(info, context: context))
 
         case nil:
@@ -206,8 +205,8 @@ struct TransactionDetailsFactory {
         context: Context
     ) -> SwapTransactionDetailsViewData {
         let exchange = info.transaction
-        let source = leg(for: exchange.from, amount: exchange.from.amount, resolveToken: context.resolveExpressToken)
-        let destination = leg(for: exchange.to, amount: exchange.to.actualAmount ?? exchange.to.amount, resolveToken: context.resolveExpressToken)
+        let source = leg(amount: exchange.from.amount, token: info.cryptoCurrencies[exchange.from.currency])
+        let destination = leg(amount: exchange.to.actualAmount ?? exchange.to.amount, token: info.cryptoCurrencies[exchange.to.currency])
 
         return SwapTransactionDetailsViewData(
             stage: swapStage(exchange.status),
@@ -222,13 +221,8 @@ struct TransactionDetailsFactory {
         )
     }
 
-    private func leg(
-        for asset: ExpressHistoryAsset,
-        amount: Decimal,
-        resolveToken: (ExpressCurrency) -> TokenItem?
-    ) -> SwapTransactionDetailsViewData.Leg {
-        let token = resolveToken(asset.currency)
-        return .init(
+    private func leg(amount: Decimal, token: TokenItem?) -> SwapTransactionDetailsViewData.Leg {
+        .init(
             amount: balanceFormatter.formatDecimal(amount),
             symbol: token?.currencySymbol,
             tokenIconInfo: token.map { TokenIconInfoBuilder().build(from: $0, isCustom: false) }
@@ -430,16 +424,24 @@ struct TransactionDetailsFactory {
     ) -> TransactionDetailsHeaderViewData {
         let status = headerStatus(for: record, fallback: transaction.status)
 
-        let title = TransactionDisplayModel.make(
-            transactionType: transaction.transactionType,
-            status: status,
-            isOutgoing: transaction.isOutgoing,
-            isFromYieldContract: transaction.isFromYieldContract,
-            legacyName: transaction.name,
-            amount: transaction.amount.amount,
-            addressDestination: transaction.addressDestination,
-            subtitleOwner: transaction.subtitleOwner
-        ).title
+        let title: String
+        switch record?.expressExtraInfo {
+        case .exchange:
+            title = swapTitle(status: status)
+        case .onramp:
+            title = onrampTitle(status: status)
+        case nil:
+            title = TransactionDisplayModel.make(
+                transactionType: transaction.transactionType,
+                status: status,
+                isOutgoing: transaction.isOutgoing,
+                isFromYieldContract: transaction.isFromYieldContract,
+                legacyName: transaction.name,
+                amount: transaction.amount.amount,
+                addressDestination: transaction.addressDestination,
+                subtitleOwner: transaction.subtitleOwner
+            ).title
+        }
 
         var menuActions: [TransactionDetailsHeaderViewData.MenuAction] = [
             .init(
@@ -468,11 +470,27 @@ struct TransactionDetailsFactory {
         )
     }
 
+    private func swapTitle(status: TransactionViewModel.Status) -> String {
+        switch status {
+        case .failed: Localization.commonActionFailed(Localization.commonSwapping)
+        case .inProgress: Localization.commonSwapping
+        case .confirmed, .undefined: Localization.commonSwapped
+        }
+    }
+
+    private func onrampTitle(status: TransactionViewModel.Status) -> String {
+        switch status {
+        case .failed: Localization.commonActionFailed(Localization.expressExchangeStatusBuying)
+        case .inProgress: Localization.expressExchangeStatusBuying
+        case .confirmed, .undefined: Localization.expressExchangeStatusBought
+        }
+    }
+
     private func headerStatus(for record: TransactionRecord?, fallback: TransactionViewModel.Status) -> TransactionViewModel.Status {
-        switch record?.extraInfo as? TransactionHistoryExpressExtraInfo {
-        case .exchange(let info)?:
+        switch record?.expressExtraInfo {
+        case .exchange(let info):
             return status(for: swapStage(info.transaction.status))
-        case .onramp(let info)?:
+        case .onramp(let info):
             return status(for: onrampStage(info.onrampTransaction.status))
         case nil:
             guard let record else { return fallback }
@@ -542,20 +560,20 @@ struct TransactionDetailsFactory {
     // MARK: - Share
 
     private func shareText(for record: TransactionRecord?, context: Context) -> String? {
-        switch record?.extraInfo as? TransactionHistoryExpressExtraInfo {
-        case .exchange(let info)?:
-            return swapShareText(info, context: context)
-        case .onramp(let info)?:
+        switch record?.expressExtraInfo {
+        case .exchange(let info):
+            return swapShareText(info)
+        case .onramp(let info):
             return onrampShareText(info, context: context)
         case nil:
             return nil
         }
     }
 
-    private func swapShareText(_ info: ExchangeTransactionInfo, context: Context) -> String {
+    private func swapShareText(_ info: ExchangeTransactionInfo) -> String {
         let exchange = info.transaction
-        let from = amountWithSymbol(exchange.from.amount, context.resolveExpressToken(exchange.from.currency)?.currencySymbol)
-        let to = amountWithSymbol(exchange.to.actualAmount ?? exchange.to.amount, context.resolveExpressToken(exchange.to.currency)?.currencySymbol)
+        let from = amountWithSymbol(exchange.from.amount, info.cryptoCurrencies[exchange.from.currency]?.currencySymbol)
+        let to = amountWithSymbol(exchange.to.actualAmount ?? exchange.to.amount, info.cryptoCurrencies[exchange.to.currency]?.currencySymbol)
 
         var lines = ["tangem", ""]
         lines.append("\(Localization.commonSend) \(from)")

@@ -169,18 +169,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             }
             .eraseToAnyPublisher()
 
-        let supportedBlockchains = userWalletInfo.config.supportedBlockchains
-        let currencyConverter = ExpressCurrencyConverter(supportedBlockchains: supportedBlockchains)
-        let resolveExpressToken: (ExpressCurrency) -> TokenItem? = { currency in
-            guard let blockchain = supportedBlockchains.first(where: { $0.networkId == currency.network }) else {
-                return nil
-            }
-            return try? currencyConverter.convertLocalOnly(
-                expressCurrency: currency,
-                in: BlockchainNetwork(blockchain, derivationPath: nil)
-            )
-        }
-
         let receiverName: String
         let receiverAccountIcon: AccountIconView.ViewData?
         if isAccountsMode, let account = walletModel.account {
@@ -201,8 +189,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
                 tokenSymbol: walletModel.tokenItem.currencySymbol,
                 tokenCurrencyId: walletModel.tokenItem.currencyId,
                 receiverName: receiverName,
-                receiverAccountIcon: receiverAccountIcon,
-                resolveExpressToken: resolveExpressToken
+                receiverAccountIcon: receiverAccountIcon
             )
         )
     }

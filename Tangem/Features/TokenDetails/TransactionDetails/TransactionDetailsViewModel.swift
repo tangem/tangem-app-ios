@@ -32,7 +32,10 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     ) {
         self.header = header
         self.content = content
-        scheduleSuccessBannerDismissIfNeeded()
+        // A transaction that's already finished when the sheet opens shouldn't flash the success banner —
+        // suppress it up-front. The brief show-then-hide is reserved for a live transition into success
+        // (handled by `scheduleSuccessBannerDismissIfNeeded` on record updates).
+        isSuccessBannerDismissed = rawBlocks.contains(where: isSuccessBanner)
 
         updatesSubscription = recordUpdates
             .receive(on: DispatchQueue.main)
@@ -59,10 +62,11 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         }
     }
 
-    /// The success banner ("Funds received") is shown briefly on completion, then hidden — the success is
-    /// already conveyed by the amounts and the title. Every other banner (in progress / failed / attention)
-    /// stays as the content dictates. Once hidden it stays hidden (`isSuccessBannerDismissed` only flips
-    /// `false → true`), so repeated record re-emits can't bring it back.
+    /// When a transaction completes while the sheet is open, the success banner ("Funds received") is shown
+    /// briefly, then hidden — the success is already conveyed by the amounts and the title. Every other banner
+    /// (in progress / failed / attention) stays as the content dictates. Once hidden it stays hidden
+    /// (`isSuccessBannerDismissed` only flips `false → true`), so repeated record re-emits can't bring it back —
+    /// which also keeps an already-finished transaction (suppressed in `init`) from ever flashing it.
     private func scheduleSuccessBannerDismissIfNeeded() {
         guard !isSuccessBannerDismissed, rawBlocks.contains(where: isSuccessBanner) else { return }
 

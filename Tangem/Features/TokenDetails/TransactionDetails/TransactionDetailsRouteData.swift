@@ -8,7 +8,6 @@
 import Foundation
 import Combine
 import BlockchainSdk
-import TangemExpress
 import TangemUI
 import TangemAccounts
 
@@ -22,5 +21,4 @@ struct TransactionDetailsRouteData {
     let tokenCurrencyId: String?
     let receiverName: String
     let receiverAccountIcon: AccountIconView.ViewData?
-    let resolveExpressToken: (ExpressCurrency) -> TokenItem?
 }

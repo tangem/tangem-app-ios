@@ -323,7 +323,6 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
                 tokenCurrencyId: data.tokenCurrencyId,
                 receiverName: data.receiverName,
                 receiverAccountIcon: data.receiverAccountIcon,
-                resolveExpressToken: data.resolveExpressToken,
                 openExplorer: data.walletModel.exploreTransactionURL(for: data.transaction.hash).map { url in
                     { [weak self] in
                         self?.floatingSheetPresenter.removeActiveSheet()
