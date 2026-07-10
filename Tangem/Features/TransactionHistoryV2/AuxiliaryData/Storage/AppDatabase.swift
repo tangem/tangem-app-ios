@@ -83,32 +83,17 @@ final class AppDatabase {
 
             // MARK: - Fiat currencies cache
 
-            let fiatCurrenciesCacheTableName = "fiatCurrenciesCache"
-            let nameColumnName = "name"
-
             try database.create(
-                table: fiatCurrenciesCacheTableName,
+                table: "fiatCurrenciesCache",
                 options: [
                     .ifNotExists,
                 ]
             ) { table in
-                table.autoIncrementedPrimaryKey("id")
+                table.primaryKey("code", .text).notNull()
                 table.column("name", .text).notNull()
-                table.column("code", .text).notNull()
                 table.column("imageURL", .text)
                 table.column("precision", .integer).notNull()
             }
-
-            try database.create(
-                index: "idxFiatCurrCode",
-                on: fiatCurrenciesCacheTableName,
-                columns: [
-                    nameColumnName,
-                ],
-                options: [
-                    .ifNotExists,
-                ]
-            )
 
             // MARK: - Crypto currencies cache
 
@@ -127,13 +112,17 @@ final class AppDatabase {
                     networkIDColumnName,
                     contractAddressColumnName,
                 ])
-                // `id` SHOULD NOT be a pkey because token (`BlockchainSdk.Token`) may not have an `id` field at all (e.g. custom tokens)
+                // `id` MUST NOT not be the primary key because a `BlockchainSdk.Token` may have no `id` field at all (e.g., custom tokens).
                 table.column(idColumnName, .text)
-                // Matches `BlockchainSdk.Blockchain.codingKey` field
+                // Matches the `TokenItem.networkId` field.
                 table.column(networkIDColumnName, .text).notNull()
                 table.column("name", .text).notNull()
                 table.column("symbol", .text).notNull()
-                table.column(contractAddressColumnName, .text)
+                // 1. Can't be optional since it's part of the primary key (and NULLs are distinct in SQLite).
+                // `ExpressConstants.coinContractAddress` is used for coins that don't have a contract address.
+                // 2. Collation is used to make the contract address case-insensitive.
+                // This matches the current `BlockchainSdk.Token` equality implementation.
+                table.column(contractAddressColumnName, .text).notNull().collate(.nocase)
                 table.column("decimalCount", .integer).notNull()
             }
 
@@ -142,18 +131,6 @@ final class AppDatabase {
                 on: cryptoCurrenciesCacheTableName,
                 columns: [
                     idColumnName,
-                ],
-                options: [
-                    .ifNotExists,
-                ]
-            )
-
-            try database.create(
-                index: "idxCryptoCurrNetworkIdContract",
-                on: cryptoCurrenciesCacheTableName,
-                columns: [
-                    networkIDColumnName,
-                    contractAddressColumnName,
                 ],
                 options: [
                     .ifNotExists,
