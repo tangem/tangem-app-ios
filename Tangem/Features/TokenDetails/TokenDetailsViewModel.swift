@@ -92,7 +92,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let balanceFormatter = BalanceFormatter()
     private let marketingNotificationManager: MarketingBannerNotificationManager
     private let notificationBannerMapper: MultiWalletNotificationBannerMapper
-    private let deeplinkHandler: TokenDetailsDeeplinkHandler
+    private let deeplinkHandler: PromotionDeeplinkHandler
     private var bag = Set<AnyCancellable>()
 
     private lazy var yieldStateFactory = TokenDetailsYieldStateFactory(
@@ -122,7 +122,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         coordinator: any TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable,
         pendingTransactionDetails: PendingTransactionDetails?,
-        deeplinkHandler: TokenDetailsDeeplinkHandler,
+        deeplinkHandler: PromotionDeeplinkHandler,
         marketingNotificationManager: MarketingBannerNotificationManager = MarketingBannerNotificationManager(),
         notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper(),
         presentSource: TokenDetailsPresentSource
