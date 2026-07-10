@@ -11,7 +11,7 @@ import XCTest
 
 final class FeedbackUITests: BaseTestCase {
     func testRequestSupportFromScanOnAppLaunch_ContactSupportSheetShown() throws {
-        setAllureId(892)
+        setAllureId(3985)
         launchApp()
 
         CreateWalletSelectorScreen(app)
@@ -79,5 +79,15 @@ final class FeedbackUITests: BaseTestCase {
             .openDetails()
             .contactSupport()
             .validateFallbackSheet()
+    }
+    
+    func testContactSupportForS2C() throws {
+        setAllureId(3603)
+        launchApp()
+        
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .s2c)
+            .openDetails()
+            .assertContactSupportButtonExists()
     }
 }
