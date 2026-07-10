@@ -81,7 +81,7 @@ final class FeedbackUITests: BaseTestCase {
             .validateFallbackSheet()
     }
     
-    func testContactSupportForS2C() throws {
+    func testContactSupportForS2C_ContactSupportButtonShown() throws {
         setAllureId(3603)
         launchApp()
         

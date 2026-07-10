@@ -139,8 +139,8 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     
     @discardableResult
     func assertContactSupportButtonExists() -> Self {
-        XCTContext.runActivity(named: "Verify 'Contact support' button exists") { _ in
-            waitAndAssertTrue(contactSupportButton, "'Contact support' button should exist")
+        XCTContext.runActivity(named: "Verify 'Contact Support' button exists") { _ in
+            waitAndAssertTrue(contactSupportButton, "'Contact Support' button should exist")
             return self
         }
     }
