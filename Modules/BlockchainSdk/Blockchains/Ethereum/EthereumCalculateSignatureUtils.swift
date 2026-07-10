@@ -1,5 +1,5 @@
 //
-//  EthereumCalculateSignatureUtil.swift
+//  EthereumCalculateSignatureUtils.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

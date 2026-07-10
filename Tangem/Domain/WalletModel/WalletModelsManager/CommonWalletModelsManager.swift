@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemSdk
 import TangemFoundation
 import TangemAnalytics
+import TangemStaking
 
 class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
@@ -147,8 +148,10 @@ class CommonWalletModelsManager {
         // Therefore, n=5 is a reasonable limit for concurrent network requests (as for now)
         let maxConcurrentUpdates = 5
         let count = walletModels.count
-        // Coalesce this whole refresh cycle's P2P staking balances into one batched request.
-        let features: [WalletModelUpdaterFeatureType] = [.balances(stakingUpdateSource: .batch)]
+        // [REDACTED_TODO_COMMENT]
+        let options: WalletModelUpdateOptions = FeatureProvider.isAvailable(.transactionHistoryV2) ? .full : .balances
+        // Single token shared across the batch of all wallet models, so all updates belong to the same cycle
+        let updateToken = UUID()
 
         await withTaskGroup(of: Void.self) { group in
             for index in 0 ..< count {
@@ -157,7 +160,13 @@ class CommonWalletModelsManager {
                     await group.next()
                 }
                 _ = group.addTaskUnlessCancelled {
-                    await walletModels[index].update(silent: silent, features: features)
+                    // Coalesce this whole refresh cycle's P2P staking balances into one batched request.
+                    await walletModels[index].update(
+                        silent: silent,
+                        options: options,
+                        updateToken: updateToken,
+                        stakingUpdateSource: .batch
+                    )
                 }
             }
             await group.waitForAll()

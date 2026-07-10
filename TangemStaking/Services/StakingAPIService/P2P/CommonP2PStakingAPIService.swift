@@ -116,6 +116,11 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
             network: network
         )
         let response = try await provider.requestPublisher(targetType).async()
+
+        if response.statusCode == Constants.unavailableForLegalReasonsStatusCode {
+            throw P2PStakingError.regionUnavailable
+        }
+
         do {
             let decoder = decoder ?? self.decoder
             let p2pResponse = try decoder.decode(P2PDTO.GenericResponse<T>.self, from: response.data)
@@ -133,5 +138,11 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
             StakingLogger.error(error: error)
             throw error
         }
+    }
+}
+
+private extension CommonP2PStakingAPIService {
+    enum Constants {
+        static let unavailableForLegalReasonsStatusCode = 451
     }
 }

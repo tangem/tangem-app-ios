@@ -156,13 +156,11 @@ struct UserWalletSettingsView: View {
     }
 }
 
-struct UserWalletSettingsView_Preview: PreviewProvider {
-    static let viewModel = UserWalletSettingsViewModel(
-        userWalletModel: UserWalletModelMock(),
-        coordinator: UserWalletSettingsCoordinator()
+#Preview {
+    UserWalletSettingsView(
+        viewModel: UserWalletSettingsViewModel(
+            userWalletModel: UserWalletModelMock(),
+            coordinator: UserWalletSettingsCoordinator()
+        )
     )
-
-    static var previews: some View {
-        UserWalletSettingsView(viewModel: viewModel)
-    }
 }
