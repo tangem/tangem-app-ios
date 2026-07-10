@@ -37,12 +37,12 @@ extension PushSettingsNotificationsEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .allowNotifications:
-            return .init(iconType: .image(Assets.attention))
+            return .init(iconType: .image(Assets.redCircleWarning))
         }
     }
 
     var severity: NotificationView.Severity {
-        .warning
+        .critical
     }
 
     var isDismissable: Bool {
