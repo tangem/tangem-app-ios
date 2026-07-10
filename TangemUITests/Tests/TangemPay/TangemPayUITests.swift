@@ -25,10 +25,7 @@ final class TangemPayUITests: BaseTestCase {
             .waitForScreen()
             .tapChangePin()
             .waitForPinEntryScreen()
-            .verifySubmitDisabled()
             .enterPin("5217")
-            .verifySubmitEnabled()
-            .tapSubmit()
             .waitForSuccessScreen()
             .tapDone()
             .waitForScreen()
@@ -96,6 +93,8 @@ final class TangemPayUITests: BaseTestCase {
             .confirmFreeze()
             .verifyCardFrozen()
             .tapUnfreezeCard()
+            .waitForScreen()
+            .confirmUnfreeze()
             .verifyCardActive()
     }
 
@@ -117,6 +116,33 @@ final class TangemPayUITests: BaseTestCase {
             .verifyToastVisible(text: "Expiration date copied")
             .tapCopyCvc()
             .verifyToastVisible(text: "CVC copied")
+    }
+
+    func testTermsAndFees_OpensTariffsWebView_FromMoreActionsMenu() {
+        setAllureId(9592)
+
+        launchAndImportHotWallet()
+            .openTangemPay()
+            .waitForScreen()
+            .openTermsAndFees()
+            .verifyWebViewLoaded()
+            .verifyDocumentTitle()
+    }
+
+    func testAddFunds_ShowsServiceUnavailableError_WhenNoDepositAddress() {
+        setAllureId(9557)
+
+        let mainScreen = launchAndImportHotWallet(
+            scenarios: [ScenarioConfig(name: "tangem_pay_deposit_address", initialState: "NoDepositAddress")]
+        )
+
+        mainScreen
+            .openTangemPay()
+            .waitForScreen()
+            .tapAddFundsExpectingServiceUnavailable()
+            .waitForSheet()
+            .tapGotIt()
+            .waitForScreen()
     }
 
     private func launchAndImportHotWallet(scenarios: [ScenarioConfig] = []) -> MainScreen {
