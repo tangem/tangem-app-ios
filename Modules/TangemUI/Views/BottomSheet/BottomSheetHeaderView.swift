@@ -116,7 +116,7 @@ private extension BottomSheetHeaderView {
 
 private extension BottomSheetHeaderView {
     func updateSide(width: CGFloat) {
-        sideWidth = max(sideWidth ?? 0, width)
+        sideWidth = max(sideWidth ?? 0, width.roundedToDeviceScale())
     }
 }
 

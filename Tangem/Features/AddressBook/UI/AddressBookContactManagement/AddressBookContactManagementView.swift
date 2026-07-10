@@ -18,28 +18,47 @@ struct AddressBookContactManagementView: View {
 
     @FocusState private var isNameFocused: Bool
 
+    @State private var headerHeight: CGFloat = 0
+
     var body: some View {
-        scrollContent
-            .scrollDismissesKeyboard(.immediately)
-            .background(DesignSystem.Color.bgBase.ignoresSafeArea())
-            .navigationTitle(Text(viewModel.title))
-            .navigationBarTitleDisplayMode(.inline)
-            .safeAreaInset(edge: .bottom) { bottomButton }
-            .toolbar {
-                NavigationToolbarButton
-                    .close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
+        ZStack(alignment: .top) {
+            scrollContent
+                .scrollDismissesKeyboard(.immediately)
+
+            header
+        }
+        .infinityFrame(axis: .vertical, alignment: .top)
+        .background(DesignSystem.Color.bgBase.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom) { bottomButton }
+        .navigationBarHidden(true)
+        .alert(item: $viewModel.alert) { $0.alert }
+        .onFirstAppear {
+            viewModel.onFirstAppear()
+            if viewModel.focusesNameOnFirstAppear {
+                isNameFocused = true
             }
-            .alert(item: $viewModel.alert) { $0.alert }
-            .onFirstAppear {
-                viewModel.onFirstAppear()
-                if viewModel.focusesNameOnFirstAppear {
-                    isNameFocused = true
-                }
+        }
+    }
+
+    private var header: some View {
+        NavigationHeader(
+            leadingContent: { EmptyView() },
+            principalContent: {
+                Text(viewModel.title)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            },
+            trailingContent: {
+                NavigationBarButton.close(action: viewModel.userDidRequestDismiss).redesigned()
             }
+        )
+        .readGeometry(\.size.height, bindTo: $headerHeight)
     }
 
     private var scrollContent: some View {
         GroupedScrollView(contentType: .lazy(spacing: 16)) {
+            Color.clear
+                .frame(height: headerHeight)
+
             FormHeaderView(
                 accountName: $viewModel.contactName,
                 title: Localization.addressBookContactName,

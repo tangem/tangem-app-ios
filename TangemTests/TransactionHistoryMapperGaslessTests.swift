@@ -234,6 +234,7 @@ private final class StubGaslessTransactionsNetworkManager: GaslessTransactionsNe
 
     func updateAvailableTokens() {}
     func sendGaslessTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessTransaction) async throws -> String { "" }
+    func sendGaslessBatchTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction) async throws -> String { "" }
     func initialize() {}
     var feeRecipientAddress: String? { cachedFeeRecipientAddress }
     func preloadFeeRecipientAddress() {}

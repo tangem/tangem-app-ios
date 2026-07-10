@@ -111,6 +111,7 @@
 "address_book_no_contacts_description" = "追加した連絡先はここに表示されます。";
 "address_book_no_contacts" = "連絡先はまだありません";
 "address_book_remove_address" = "アドレスを削除";
+"address_book_save_address" = "Save address";
 "address_book_save_contact" = "連絡先を保存";
 "address_book_save_to_wallet_title" = "ウォレットに保存";
 "address_book_save_wallet_to_description" = "この連絡先は、このウォレットのアドレス帳に紐付けられます。";
@@ -519,6 +520,8 @@
 "express_exchange_notification_long_transaction_time_title" = "長い取引時間";
 "express_exchange_notification_refund_text" = "OKXまたはブリッジのルールにより、取引金額は%1$@でウォレットに返金されました。%2$@";
 "express_exchange_notification_refund_title" = "金額は %1$@（%2$@ネットワーク）で返金されました";
+"express_exchange_notification_refunded_in_text" = "Your funds have been refunded in %1$@  to your wallet on the %2$@ network, in accordance with OKX exchange rules.";
+"express_exchange_notification_refunded_in_title" = "Refunded in %@";
 "express_exchange_notification_verification_text" = "確認するには、プロバイダーのウェブサイトにアクセスしてください。";
 "express_exchange_notification_verification_title" = "プロバイダーによる本人確認手続きが必要です。";
 "express_exchange_status_bought" = "買付完了";
@@ -1073,6 +1076,21 @@
 "organize_tokens_sort_by_balance" = "残高順";
 "organize_tokens_title" = "トークンを整理する";
 "organize_tokens_ungroup" = "グループ解除";
+"promo_campaign_already_activated_subtitle" = "Eligible cashback will be distributed to:";
+"promo_campaign_already_activated_title" = "You're already enrolled in %1$@";
+"promo_campaign_eligible_tokens" = "Eligible tokens";
+"promo_campaign_enroll_success_title" = "You're successfully enrolled in %1$@";
+"promo_campaign_enroll" = "Enroll";
+"promo_campaign_not_active_subtitle" = "This campaign no longer exists or has expired";
+"promo_campaign_not_active_title" = "Campaign not active";
+"promo_campaign_reactivation_summary_description" = "Earn 0.5%% cashback on every swap over $500, on any pair except stable to stable. Max payout $50 per swap.\n\nComplete five qualifying swaps and unlock an extra $10 bonus.\n\nRewards are paid weekly in USDT or USDC on the address selected.";
+"promo_campaign_select_cashback_account" = "Select cashback account";
+"promo_campaign_select_token" = "Select token";
+"promo_campaign_summary_title" = "Enroll in %1$@";
+"promo_campaign_terms_agreement_android" = "I agree with";
+"promo_campaign_terms_agreement" = "I agree with %1$@";
+"promo_campaign_terms_link" = "%1$@ Terms";
+"promo_campaign_whale_swap_summary_description" = "Earn cashback on every swap from $10K until the end of July.\n\nRates step up with size: 0.10%% from $10K, 0.20%% from $20K, 0.50%% from $100K.\n\nMax payout: $500 per swap, and $10,000 per wallet per swap direction until campaign lasts. Stable coin into stablecoin swaps are excluded.\n\nPayout arrives weekly in USDT or USDC address of your choice.";
 "provider_name_support" = "%@サポート";
 "push_notification_settings_banner_description" = "プッシュ通知は有効ですが、許可するまで動作しません";
 "push_notification_settings_banner_title" = "通知を許可する";
@@ -1106,7 +1124,7 @@
 "quick_action_buy_description" = "クレジットカードまたは銀行口座";
 "quick_action_receive_description" = "アドレスまたはQRコードを共有してください";
 "quick_action_sell_description" = "暗号資産を安全に売却";
-"quick_action_send_and_swap_description" = "Send with swap to another token";
+"quick_action_send_and_swap_description" = "別のトークンにスワップして送る";
 "quick_action_send_description" = "別のウォレットに送信";
 "quick_action_swap_description" = "ポートフォリオ間で";
 "quick_top_up_chip_other" = "その他";
@@ -1378,9 +1396,9 @@
 "staking_notification_ton_account_initialization_message" = "ステーキングを開始するには、まずTONアカウントを有効化してください。";
 "staking_notification_ton_account_initialization_title" = "アカウントの有効化";
 "staking_notification_ton_activate_account" = "TONのステーキングを開始するには、まず自分のアドレスに少額の取引を送信します。これによりウォレットが有効になります。";
-"staking_notification_ton_extra_reserve_info" = "取引を完了するには、ネットワーク手数料に加えて最大0.2TONが必要になる場合があります。未使用分は返金されます。";
-"staking_notification_ton_extra_reserve_is_required" = "この操作を続行するには、ネットワーク手数料に加えて0.2 TONが必要です。残高を補充してください。";
-"staking_notification_ton_extra_reserve_title" = "TONの準備金が必要です";
+"staking_notification_ton_extra_reserve_info" = "取引を完了するには、ネットワーク手数料に加えて最大0.2GRAMが必要になる場合があります。未使用分は返金されます。";
+"staking_notification_ton_extra_reserve_is_required" = "この操作を続行するには、ネットワーク手数料に加えて0.2 GRAMが必要です。残高を補充してください。";
+"staking_notification_ton_extra_reserve_title" = "GRAMの準備金が必要です";
 "staking_notification_ton_have_to_unstake_all_text" = "このアクションは、ネットワークのルールに従って、他のポジションをクローズするか、引き出しステータスに切り替えます。";
 "staking_notification_ton_have_to_unstake_all_title" = "ポジション状況";
 "staking_notification_unlock_text" = "資金をステーキングから引き出すには、ロックを解除してください。ロック解除には%@かかります。";
@@ -1643,6 +1661,7 @@
 "tangempay_change_pin_code" = "PINコードを変更";
 "tangempay_come_back_if_forget_pin" = "忘れた場合はアプリに戻って確認できます。";
 "tangempay_common_card" = "Card";
+"tangempay_common_error_loading" = "Error loading";
 "tangempay_current_plan_change" = "Change plan";
 "tangempay_current_plan_section_card" = "Card related";
 "tangempay_current_plan_section_plan" = "Plan related";
@@ -1788,6 +1807,7 @@
 "tangempay_touch_id_not_set_title" = "Touch IDが設定されていません";
 "tangempay_usdc_on_polygon_network" = "Polygonネットワーク上のUSDC";
 "tangempay_use_tangem_device_to_restore_payment_account" = "下のボタンをクリックしてアクセスを復元してください";
+"tangempay_visa_benefits" = "Visa Benefits";
 "tangempay_withdrawal_note_description" = "返金分はオンチェーンのPolygon残高には戻らず、出金にも利用できません。ただし、カード残高として残り、支払いに利用できます。";
 "tangempay_withdrawal_note_title" = "ご注意ください";
 "tangempay_your_balance" = "残高";
@@ -1832,6 +1852,10 @@
 "token_receive_show_qr_code_title" = "QRコードを表示";
 "token_summary_can_not_load_token" = "Can’t load data of the token";
 "token_summary_go_to_swap_button" = "Go to swap";
+"token_summary_last_update_subtitle" = "Last update: %1$@";
+"token_summary_negative_outlook_title" = "Negative outlook";
+"token_summary_neutral_outlook_title" = "Neutral outlook";
+"token_summary_positive_outlook_title" = "Positive outlook";
 "token_summary_title" = "Token summary";
 "token_swap_promotion_button" = "今すぐスワップ";
 "tokens_list_available_to_buy_header" = "買付したいトークンを選択します";
