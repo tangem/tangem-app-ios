@@ -23,12 +23,24 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openTangemButtonV2Demo()
     }
 
+    func openTangemCheckboxV2Demo() {
+        coordinator?.openTangemCheckboxV2Demo()
+    }
+
+    func openTangemCheckmarkV2Demo() {
+        coordinator?.openTangemCheckmarkV2Demo()
+    }
+
     func openTangemBadgeDemo() {
         coordinator?.openTangemBadgeDemo()
     }
 
     func openTangemBadgeV2Demo() {
         coordinator?.openTangemBadgeV2Demo()
+    }
+
+    func openTangemMessageBannerDemo() {
+        coordinator?.openTangemMessageBannerDemo()
     }
 
     func openTangemRowDemo() {
@@ -51,6 +63,10 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openTypographyDemo()
     }
 
+    func openTypographyV2Demo() {
+        coordinator?.openTypographyV2Demo()
+    }
+
     func openTangemSegmentedPickerDemo() {
         coordinator?.openTangemSegmentedPickerDemo()
     }
@@ -61,6 +77,10 @@ final class DesignSystemDemoViewModel: ObservableObject {
 
     func openTangemSearchFieldDemo() {
         coordinator?.openTangemSearchFieldDemo()
+    }
+
+    func openTangemSearchDemo() {
+        coordinator?.openTangemSearchDemo()
     }
 
     func openTangemDropDownDemo() {
@@ -81,5 +101,9 @@ final class DesignSystemDemoViewModel: ObservableObject {
 
     func openTangemShimmerDemo() {
         coordinator?.openTangemShimmerDemo()
+    }
+
+    func openGlowRingDemo() {
+        coordinator?.openGlowRingDemo()
     }
 }
