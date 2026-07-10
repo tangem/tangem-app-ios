@@ -40,7 +40,7 @@ final class AddTokenFlowScreen: Screen {
     /// Taps the "Add Token" button to trigger token addition
     @discardableResult
     func tapAddTokenButton() -> Self {
-        XCTContext.runActivity(named: "Tap 'Add Token' button") { _ in
+        _ = XCTContext.runActivity(named: "Tap 'Add Token' button") { _ in
             addTokenButton.waitAndTap()
         }
         return self

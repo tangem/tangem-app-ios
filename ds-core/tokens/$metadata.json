@@ -19,9 +19,6 @@
     "semantic/theme/materials/blur",
     "semantic/theme/materials/solid",
     "semantic/theme/materials/light",
-    "semantic/theme/materials/dark",
-    "dimension",
-    "font",
-    "palette"
+    "semantic/theme/materials/dark"
   ]
 }
