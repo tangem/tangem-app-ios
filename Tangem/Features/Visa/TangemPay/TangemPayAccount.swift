@@ -111,7 +111,7 @@ final class TangemPayAccount {
 
     var cardDisplayNamePublisher: AnyPublisher<String, Never> {
         legacyCustomerInfoSubject
-            .map(\.productInstance.displayName)
+            .map { $0.productInstance.displayName ?? "" }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
@@ -276,7 +276,7 @@ final class TangemPayAccount {
     func cardDisplayName(forCardId cardId: String) -> String? {
         multipleCardsEnabled
             ? card(cardId: cardId)?.displayName
-            : legacyCustomerInfoSubject.value.productInstance.displayName.nilIfEmpty
+            : legacyCustomerInfoSubject.value.productInstance.displayName?.nilIfEmpty
     }
 }
 
