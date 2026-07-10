@@ -70,7 +70,7 @@ struct MarketTokenRowView: View {
     }
 
     private var priceView: some View {
-        Text(viewModel.priceValue)
+        Text(viewModel.priceValueAttributed)
             .lineLimit(1)
             .blinkForegroundColor(
                 publisher: viewModel.$priceChangeAnimation,
@@ -78,7 +78,7 @@ struct MarketTokenRowView: View {
                 negativeColor: .Tangem.Text.Status.warning,
                 originalColor: .Tangem.Text.Neutral.primary
             )
-            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+            .font(Font.Tangem.Body16.medium)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenPrice)
     }
 

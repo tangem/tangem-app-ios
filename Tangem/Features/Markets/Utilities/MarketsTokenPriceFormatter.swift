@@ -84,7 +84,7 @@ final class MarketsTokenPriceFormatter {
             integerPartFont: Font.Tangem.Title44.semibold,
             fractionalPartFont: Font.Tangem.Title44.semibold,
             integerPartColor: .Tangem.Text.Neutral.primary,
-            fractionalPartColor: .Tangem.Text.Neutral.tertiary,
+            fractionalPartColor: .Tangem.Text.Neutral.secondary,
             fractionalPartIncludesDecimalSeparator: true
         )
 
