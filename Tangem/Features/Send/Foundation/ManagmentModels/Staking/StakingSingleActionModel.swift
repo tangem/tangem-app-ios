@@ -38,6 +38,7 @@ class StakingSingleActionModel {
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let action: Action
     private let validationHandler: StakingValidationHandler?
+    private let preflightValidator: StakingPreflightValidator?
 
     private var transactionValidator: SendTransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
@@ -50,13 +51,15 @@ class StakingSingleActionModel {
         sendSourceToken: SendStakingableToken,
         analyticsLogger: StakingSendAnalyticsLogger,
         action: Action,
-        validationHandler: StakingValidationHandler?
+        validationHandler: StakingValidationHandler?,
+        preflightValidator: StakingPreflightValidator?
     ) {
         self.stakingManager = stakingManager
         self.sendSourceToken = sendSourceToken
         self.analyticsLogger = analyticsLogger
         self.action = action
         self.validationHandler = validationHandler
+        self.preflightValidator = preflightValidator
 
         updateState()
     }
@@ -92,10 +95,23 @@ private extension StakingSingleActionModel {
         estimatedFeeTask = runTask(in: self) { model in
             do {
                 model.update(state: .loading)
+
+                let preflightFailure = await model.preflightValidator?.validate()
+                try Task.checkCancellation()
+
+                if let preflightFailure {
+                    model.update(state: .validationError(preflightFailure.validationError, fee: preflightFailure.estimatedFee))
+                    return
+                }
+
                 let estimateFee = try await model.stakingManager.estimateFee(action: model.action)
                 let state = model.makeState(fee: estimateFee)
                 model.update(state: state)
+            } catch _ as CancellationError {
+                // Do nothing
             } catch {
+                guard !Task.isCancelled else { return }
+
                 StakingLogger.error(error: error)
                 model.update(state: .networkError(error))
             }

@@ -51,7 +51,8 @@ extension StakingSingleActionFlowFactory {
             sendSourceToken: stakingableToken,
             analyticsLogger: analyticsLogger,
             action: action,
-            validationHandler: validationHandler
+            validationHandler: validationHandler,
+            preflightValidator: makeStakingPreflightValidator()
         )
     }
 }
