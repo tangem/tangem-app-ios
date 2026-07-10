@@ -20,6 +20,8 @@ struct MultiWalletMainContentRedesignedView: View {
 
     var body: some View {
         VStack(spacing: .unit(.x4)) {
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+
             notificationBanners
 
             VStack(spacing: .unit(.x2)) {
