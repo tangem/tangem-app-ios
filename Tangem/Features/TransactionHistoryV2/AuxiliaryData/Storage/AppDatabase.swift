@@ -70,7 +70,7 @@ final class AppDatabase {
             // MARK: - Express providers cache
 
             try database.create(
-                table: "expressProviders",
+                table: "expressProvidersCache",
                 options: [
                     .ifNotExists,
                 ]
