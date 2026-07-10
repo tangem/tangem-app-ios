@@ -126,6 +126,8 @@ struct DefaultIncomingLinkParserTests {
             urlString = "tangem://\(rawValue)"
         case .survey:
             urlString = "tangem://\(rawValue)?token=ntt-abc123"
+        case .campaigns:
+            urlString = "tangem://\(rawValue)?campaignId=some-id"
         default:
             urlString = "tangem://\(rawValue)?type=income_transaction"
         }
