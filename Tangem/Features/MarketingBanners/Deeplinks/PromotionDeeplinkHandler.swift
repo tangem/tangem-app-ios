@@ -1,5 +1,5 @@
 //
-//  TokenDetailsDeeplinkHandler.swift
+//  PromotionDeeplinkHandler.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,15 +8,15 @@
 
 import Foundation
 
-final class TokenDetailsDeeplinkHandler {
+final class PromotionDeeplinkHandler {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
-    private weak var coordinator: (any SingleTokenBaseRoutable)?
+    private weak var coordinator: (any PromotionDeeplinkRoutable)?
     private let walletModel: any WalletModel
     private let userWalletInfo: UserWalletInfo
 
     init(
-        coordinator: any SingleTokenBaseRoutable,
+        coordinator: any PromotionDeeplinkRoutable,
         walletModel: any WalletModel,
         userWalletInfo: UserWalletInfo
     ) {
@@ -28,7 +28,7 @@ final class TokenDetailsDeeplinkHandler {
 
 // MARK: - Private
 
-private extension TokenDetailsDeeplinkHandler {
+private extension PromotionDeeplinkHandler {
     func route(_ action: IncomingAction) -> Bool {
         guard case .navigation(let navigationAction) = action else {
             return false
@@ -86,7 +86,7 @@ private extension TokenDetailsDeeplinkHandler {
 
 // MARK: - IncomingActionRoutingHandler
 
-extension TokenDetailsDeeplinkHandler: IncomingActionRoutingHandler {
+extension PromotionDeeplinkHandler: IncomingActionRoutingHandler {
     func becomeIncomingActionsResponder() {
         incomingActionManager.becomeFirstResponder(self)
     }

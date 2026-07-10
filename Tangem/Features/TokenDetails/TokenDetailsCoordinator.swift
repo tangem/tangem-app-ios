@@ -82,7 +82,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             publicKey: options.walletModel.publicKey
         )
 
-        let deeplinkHandler = TokenDetailsDeeplinkHandler(
+        let deeplinkHandler = PromotionDeeplinkHandler(
             coordinator: self,
             walletModel: options.walletModel,
             userWalletInfo: options.userWalletInfo
@@ -455,3 +455,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 // MARK: - SendFeeCurrencyNavigating
 
 extension TokenDetailsCoordinator: SendFeeCurrencyNavigating {}
+
+// MARK: - PromotionDeeplinkRoutable
+
+extension TokenDetailsCoordinator: PromotionDeeplinkRoutable {}
