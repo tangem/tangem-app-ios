@@ -90,7 +90,7 @@ public extension VisaCustomerInfoResponse {
         public let status: ProductStatus
         public let updatedAt: Date
         public let paymentAccountId: String
-        public let displayName: String
+        public let displayName: String?
         public let adminCardLimit: CardLimit
         public let actualCardLimit: CardLimit?
         public let productSpecificationDataType: ProductSpecificationDataType

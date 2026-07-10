@@ -81,7 +81,7 @@ import TangemAssets
             ("ring", .ring(.init(ring: CC.tangem))),
             ("ringCard", .ringCard(.init(ring: CC.tangem, card: CC.tangem))),
             ("ringTwoCards", .ringTwoCards(.init(ring: CC.tangem, card: CC.tangem, secondCard: CC.tangem))),
-            ("mobileWallet", .mobileWallet(.init(icon: .Tangem.Graphic.Status.attention))),
+            ("mobileWallet", .mobileWallet(.init(icon: CC.tangem))),
         ]
     }()
 
