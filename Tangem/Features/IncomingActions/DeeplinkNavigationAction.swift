@@ -34,6 +34,7 @@ extension DeeplinkNavigationAction {
         var categoryId: String?
         var refcode: String?
         var campaign: String?
+        var campaignId: String?
         var order: String?
         var interval: String?
         var earnType: String?

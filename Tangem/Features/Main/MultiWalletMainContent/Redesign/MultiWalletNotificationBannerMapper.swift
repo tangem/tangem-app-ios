@@ -105,6 +105,7 @@ private extension MultiWalletNotificationBannerMapper {
 
     func mapEffect(_ effect: NotificationBannerKind.Effect) -> NotificationBanner.Effect {
         switch effect {
+        case .plain: .none
         case .card: .bannerCard
         case .magic: .bannerMagic
         }

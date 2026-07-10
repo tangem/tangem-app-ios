@@ -428,6 +428,8 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
             redirectURL: URL(string: "https://stub")!,
             fromAmount: .zero,
             fromCurrencyCode: "",
+            toAmount: nil,
+            countryCode: "",
             externalTxId: nil,
             externalTxURL: nil
         )
@@ -440,6 +442,8 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
             redirectURL: URL(string: "https://stub")!,
             fromAmount: .zero,
             fromCurrencyCode: "",
+            toAmount: nil,
+            countryCode: "",
             externalTxId: nil,
             externalTxURL: nil
         ))

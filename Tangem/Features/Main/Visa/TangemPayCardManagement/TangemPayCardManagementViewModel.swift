@@ -537,7 +537,12 @@ private extension TangemPayCardManagementViewModel {
 
 private extension TangemPayCardManagementViewModel {
     func applyEntries(_ entries: [TangemPayCardEntry]) {
-        let resolution = selectionAnchor?.resolveSelection(in: entries)
+        let selectedIndex = cardDetailsItems.firstIndex { $0.id == selectedCardId }
+
+        // When the selected card is gone (e.g. its close order completed), fall back to the card
+        // before it so we stay in card management instead of leaving the screen.
+        let resolution = selectionAnchor?.resolveSelection(in: entries) ?? fallbackResolution(selectedIndex: selectedIndex, in: entries)
+
         rebuildCardDetailsItems(entries: entries)
 
         guard let resolution else {
@@ -553,6 +558,14 @@ private extension TangemPayCardManagementViewModel {
         if resolution.entry.id != selectedCardId {
             selectedCardId = resolution.entry.id
         }
+    }
+
+    func fallbackResolution(
+        selectedIndex: Int?,
+        in entries: [TangemPayCardEntry]
+    ) -> (entry: TangemPayCardEntry, newAnchor: SelectionAnchor)? {
+        let fallbackCard = selectedIndex.flatMap { entries[safe: $0 - 1] } ?? entries.first
+        return fallbackCard.map { ($0, SelectionAnchor(entry: $0)) }
     }
 
     func rebuildCardDetailsItems(entries: [TangemPayCardEntry]) {
