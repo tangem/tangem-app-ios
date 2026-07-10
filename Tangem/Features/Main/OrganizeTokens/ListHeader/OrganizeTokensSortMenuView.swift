@@ -70,7 +70,6 @@ struct OrganizeTokensSortMenuView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     let optionsManager = FakeOrganizeTokensOptionsManager(
         initialGroupingOption: .none,
@@ -85,4 +84,3 @@ struct OrganizeTokensSortMenuView: View {
     OrganizeTokensSortMenuView(viewModel: viewModel, appliesGlassBackground: false)
         .padding()
 }
-#endif // DEBUG

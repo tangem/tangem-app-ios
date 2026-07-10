@@ -67,8 +67,6 @@ struct MailFallbackView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     MailFallbackView(openMailAction: {}, shareLogsAction: {})
 }
-#endif
