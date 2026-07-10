@@ -69,7 +69,12 @@ final class AppDatabase {
 
             // MARK: - Express providers cache
 
-            try database.create(table: "expressProviders", options: [.ifNotExists]) { table in
+            try database.create(
+                table: "expressProviders",
+                options: [
+                    .ifNotExists,
+                ]
+            ) { table in
                 table.primaryKey("id", .text, onConflict: .replace).notNull()
                 table.column("name", .text).notNull()
                 table.column("imageURL", .text)
@@ -78,7 +83,12 @@ final class AppDatabase {
 
             // MARK: - Sync metadata
 
-            try database.create(table: "expressSyncMetadata", options: [.ifNotExists]) { table in
+            try database.create(
+                table: "expressSyncMetadata",
+                options: [
+                    .ifNotExists,
+                ]
+            ) { table in
                 let ownerAddressColumnName = "ownerAddress"
                 let endpointTypeColumnName = "endpointType"
                 table.primaryKey([ownerAddressColumnName, endpointTypeColumnName], onConflict: .replace)
@@ -98,7 +108,12 @@ final class AppDatabase {
             let toNetworkColumnName = "toNetwork"
             let toContractColumnName = "toContract"
 
-            try database.create(table: expressOnrampTransactionsTableName, options: [.ifNotExists]) { table in
+            try database.create(
+                table: expressOnrampTransactionsTableName,
+                options: [
+                    .ifNotExists,
+                ]
+            ) { table in
                 table.primaryKey("id", .text, onConflict: .replace).notNull()
                 table.column(ownerAddressColumnName, .text).notNull()
                 table.column("providerID", .text).notNull()
@@ -167,7 +182,12 @@ final class AppDatabase {
             let refundAddressColumnName = "refundAddress"
             let createdAtColumnName = "createdAt"
 
-            try database.create(table: expressExchangeTransactionsTableName, options: [.ifNotExists]) { table in
+            try database.create(
+                table: expressExchangeTransactionsTableName,
+                options: [
+                    .ifNotExists,
+                ]
+            ) { table in
                 table.primaryKey("id", .text, onConflict: .replace).notNull()
                 table.column(ownerAddressColumnName, .text).notNull()
                 table.column("providerID", .text).notNull()
