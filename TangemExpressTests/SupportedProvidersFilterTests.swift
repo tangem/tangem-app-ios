@@ -40,14 +40,38 @@ struct SupportedProvidersFilterTests {
 
         #expect(SupportedProvidersFilter.byDifferentAddressExchangeSupport.isSupported(provider: provider) == expected)
     }
+
+    @Test(
+        "Yield providers filter accepts CEX and allow-listed DEX providers",
+        arguments: [
+            ("cex-provider", ExpressProviderType.cex, true),
+            ("1inch", .dex, true),
+            ("lifi", .dexBridge, true),
+            ("unsupported-dex", .dex, false),
+            ("unsupported-bridge", .dexBridge, false),
+            ("onramp-provider", .onramp, false),
+            ("unknown-provider", .unknown, false),
+        ]
+    )
+    func yieldProvidersFilterAcceptsCEXAndAllowedDEX(id: ExpressProvider.Id, type: ExpressProviderType, expected: Bool) {
+        let provider = makeProvider(id: id, type: type, exchangeOnlyWithinSingleAddress: false)
+
+        let filter = SupportedProvidersFilter.yieldProviders(YieldProvidersFilter())
+
+        #expect(filter.isSupported(provider: provider) == expected)
+    }
 }
 
 // MARK: - Helpers
 
 private extension SupportedProvidersFilterTests {
-    func makeProvider(type: ExpressProviderType, exchangeOnlyWithinSingleAddress: Bool) -> ExpressProvider {
+    func makeProvider(
+        id: ExpressProvider.Id = "provider",
+        type: ExpressProviderType,
+        exchangeOnlyWithinSingleAddress: Bool
+    ) -> ExpressProvider {
         ExpressProvider(
-            id: "provider",
+            id: id,
             name: "Provider",
             type: type,
             exchangeOnlyWithinSingleAddress: exchangeOnlyWithinSingleAddress,
