@@ -20,6 +20,7 @@ struct TransactionViewRedesigned: View {
     @ScaledMetric private var iconContainerSide: CGFloat = 40
     @ScaledMetric private var glyphSize: CGFloat = 20
     @ScaledMetric private var iconBorderWidth: CGFloat = 1
+    @ScaledMetric private var warningIconSize: CGFloat = 16
 
     private var display: TransactionDisplayModel { viewModel.display }
 
@@ -31,6 +32,16 @@ struct TransactionViewRedesigned: View {
     private var transactionKey: String { viewModel.transactionType.accessibilityIdentifierKey }
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            rowLayout
+
+            if let warning = viewModel.warning {
+                warningView(warning)
+            }
+        }
+    }
+
+    private var rowLayout: some View {
         TangemTwoLineRowLayout(
             icon: { iconView },
             primaryLeading: { nameView },
@@ -39,6 +50,25 @@ struct TransactionViewRedesigned: View {
             secondaryTrailing: { secondaryTrailingView }
         )
         .compressionPolicy(.trailingPreserved)
+    }
+
+    private func warningView(_ warning: String) -> some View {
+        HStack(spacing: .unit(.x3)) {
+            Assets.attention.image
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: warningIconSize, height: warningIconSize)
+                .frame(width: iconContainerSide)
+                .foregroundStyle(Color.Tangem.Text.Status.warning)
+
+            Text(warning)
+                .style(Font.Tangem.Caption12.medium, color: .Tangem.Text.Status.warning)
+                .lineLimit(2)
+
+            Spacer(minLength: 0)
+        }
+        .padding(.top, .unit(.x2))
     }
 
     private var iconView: some View {
@@ -261,6 +291,23 @@ private extension TransactionViewRedesigned {
                 transactionType: .swap,
                 status: .inProgress,
                 isFromYieldContract: false
+            )
+        )
+
+        TransactionViewRedesigned(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .contract("33BdfS...ga2B"),
+                timeFormatted: "10:45",
+                amount: "−390.00 USDT",
+                value: "−390.00",
+                currencyCode: "USDT",
+                isOutgoing: true,
+                transactionType: .swap,
+                status: .inProgress,
+                isFromYieldContract: false,
+                warning: "KYC verification required by provider"
             )
         )
     }
