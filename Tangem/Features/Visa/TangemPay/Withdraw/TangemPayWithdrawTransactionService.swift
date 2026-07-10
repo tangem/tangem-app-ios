@@ -65,7 +65,9 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
         isWithdrawInProgress = true
         defer { isWithdrawInProgress = false }
 
-        let amountInCents = fiatItem.convertToCents(value: amount).description
+        // amount_in_cents must be a whole number of cents — drop any sub-cent fraction that
+        // slips in from amounts entered with 3+ decimal places (e.g. 18.023 -> 1802, not 1802.3).
+        let amountInCents = fiatItem.convertToCents(value: amount).rounded(roundingMode: .down).description
         let request = TangemPayWithdrawRequest(amount: amount, amountInCents: amountInCents, destination: destination)
 
         let preSignature = try await customerInfoManagementService

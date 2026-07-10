@@ -26,6 +26,18 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
         }
     }
 
+    func openWalletSettings() -> CardSettingsScreen {
+        XCTContext.runActivity(named: "Open settings for the current wallet") { _ in
+            let walletButton = app.buttons
+                .matching(NSPredicate(format: "identifier BEGINSWITH %@", "walletSettingsButton_"))
+                .firstMatch
+            waitAndAssertTrue(walletButton, "A saved wallet settings row should exist")
+            walletButton.waitAndTap()
+            return CardSettingsScreen(app)
+        }
+    }
+
+    @discardableResult
     func openWalletConnections() -> WalletConnectionsScreen {
         XCTContext.runActivity(named: "Open WalletConnect") { _ in
             let walletConnectButton = button(.walletConnectButton)
@@ -34,6 +46,7 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
         }
     }
 
+    @discardableResult
     func tapAddNewWallet() -> Self {
         XCTContext.runActivity(named: "Add new wallet") { _ in
             addNewWallet.waitAndTap()

@@ -116,9 +116,9 @@ public struct TokenIcon: View {
 
 // MARK: - Previews
 
-#if DEBUG
-struct TokenIcon_Preview: PreviewProvider {
-    static let coins = [
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var coins = [
         (id: "bitcoin", iconAsset: Tokens.bitcoin),
         (id: "bitcoin-2", iconAsset: Tokens.bitcoinFill),
         (id: "ethereum", iconAsset: nil),
@@ -135,24 +135,21 @@ struct TokenIcon_Preview: PreviewProvider {
         (id: "uniswap", iconAsset: Tokens.avalanche),
     ]
 
-    static var previews: some View {
-        ScrollView {
-            VStack {
-                ForEach(coins, id: \.id) { coin in
-                    TokenIcon(
-                        tokenIconInfo: .init(
-                            name: "",
-                            blockchainIconAsset: coin.iconAsset,
-                            imageURL: nil,
-                            isCustom: true,
-                            customTokenColor: nil
-                        ),
-                        size: CGSize(width: 40, height: 40)
-                    )
-                }
+    ScrollView {
+        VStack {
+            ForEach(coins, id: \.id) { coin in
+                TokenIcon(
+                    tokenIconInfo: .init(
+                        name: "",
+                        blockchainIconAsset: coin.iconAsset,
+                        imageURL: nil,
+                        isCustom: true,
+                        customTokenColor: nil
+                    ),
+                    size: CGSize(width: 40, height: 40)
+                )
             }
-            .infinityFrame()
         }
+        .infinityFrame()
     }
 }
-#endif // DEBUG
