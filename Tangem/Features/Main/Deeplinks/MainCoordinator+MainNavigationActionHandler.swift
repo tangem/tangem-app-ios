@@ -106,7 +106,15 @@ extension MainCoordinator {
 
             case .survey:
                 return routeSurveyAction(params: navigationAction.params)
+
+            case .campaigns:
+                return routeCampaignsAction(params: navigationAction.params)
             }
+        }
+
+        private func routeCampaignsAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            incomingActionManager.discardIncomingAction()
+            return false
         }
 
         private func routeSurveyAction(params: DeeplinkNavigationAction.Params) -> Bool {
