@@ -161,17 +161,34 @@ private extension NotificationSettingsViewModel {
             }
             .store(in: &bag)
 
-        // Single source of truth: any change to the system permission flag drives both the toggle
-        // disabled state and the "Allow notifications" banner visibility.
         $isSystemPermissionGranted
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, isAuthorized in
+            .sink { viewModel, _ in
                 viewModel.rebuildToggleViewModels()
-                viewModel.allowNotificationsBannerInput = isAuthorized ? nil : viewModel.makeAllowNotificationsBannerInput()
             }
             .store(in: &bag)
+
+        // The banner offers to grant a permission we actually need, so it only makes sense when the
+        // system permission is missing AND at least one channel is enabled. With everything OFF there
+        // is nothing to allow, hence no banner. Driven by both the permission flag and the toggles.
+        Publishers.CombineLatest4(
+            $isSystemPermissionGranted,
+            $transactionAlertsEnabled,
+            $offersUpdatesEnabled,
+            $priceAlertsEnabled
+        )
+        .map { isAuthorized, transactionAlerts, offersUpdates, priceAlerts in
+            !isAuthorized && (transactionAlerts || offersUpdates || priceAlerts)
+        }
+        .removeDuplicates()
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .sink { viewModel, shouldShowBanner in
+            viewModel.allowNotificationsBannerInput = shouldShowBanner ? viewModel.makeAllowNotificationsBannerInput() : nil
+        }
+        .store(in: &bag)
 
         userTokensPushNotificationsManager
             .preferencesPublisher
