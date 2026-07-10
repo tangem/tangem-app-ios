@@ -47,6 +47,7 @@ enum Feature: String, Hashable, CaseIterable {
     case highFeeWarning
     case priceAlertsSubscription
     case solanaUnstakeValidation
+    case promoCampaignsAttribution
     case onboardingPushNotificationDoubleAsk
     case mainPushNotificationDoubleAsk
     case backendAuthentication
@@ -95,6 +96,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayVirtualAccount: return "TWI-1638_tangempay_virtual_account"
         case .onboardingPushNotificationDoubleAsk: return "TWI-1403_onboarding_push_notification_double_ask"
         case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
+        case .promoCampaignsAttribution: return "TWI-1637_promo_campaigns_attribution"
         case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
         }
     }
@@ -141,6 +143,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaUnstakeValidation: return .version("6.0")
         case .onboardingPushNotificationDoubleAsk: return .unspecified
         case .mainPushNotificationDoubleAsk: return .unspecified
+        case .promoCampaignsAttribution: return .version("6.1")
         case .backendAuthentication: return .unspecified
         }
     }
