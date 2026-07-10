@@ -16,6 +16,7 @@ final class AppDatabase {
 
     static let shared = AppDatabase { databaseFilePath in
         // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
         return try DatabaseQueue(path: databaseFilePath)
     }
 
@@ -68,7 +69,7 @@ final class AppDatabase {
 
             // MARK: - Express providers cache
 
-            try database.create(table: "expressProviders", options: [.ifNotExists, .strict]) { table in
+            try database.create(table: "expressProviders", options: [.ifNotExists]) { table in
                 table.primaryKey("id", .text, onConflict: .replace).notNull()
                 table.column("name", .text).notNull()
                 table.column("imageURL", .text)
@@ -77,7 +78,7 @@ final class AppDatabase {
 
             // MARK: - Sync metadata
 
-            try database.create(table: "expressSyncMetadata", options: [.ifNotExists, .strict]) { table in
+            try database.create(table: "expressSyncMetadata", options: [.ifNotExists]) { table in
                 let ownerAddressColumnName = "ownerAddress"
                 let endpointTypeColumnName = "endpointType"
                 table.primaryKey([ownerAddressColumnName, endpointTypeColumnName], onConflict: .replace)
@@ -97,7 +98,7 @@ final class AppDatabase {
             let toNetworkColumnName = "toNetwork"
             let toContractColumnName = "toContract"
 
-            try database.create(table: expressOnrampTransactionsTableName, options: [.ifNotExists, .strict]) { table in
+            try database.create(table: expressOnrampTransactionsTableName, options: [.ifNotExists]) { table in
                 table.primaryKey("id", .text, onConflict: .replace).notNull()
                 table.column(ownerAddressColumnName, .text).notNull()
                 table.column("providerID", .text).notNull()
@@ -166,7 +167,7 @@ final class AppDatabase {
             let refundAddressColumnName = "refundAddress"
             let createdAtColumnName = "createdAt"
 
-            try database.create(table: expressExchangeTransactionsTableName, options: [.ifNotExists, .strict]) { table in
+            try database.create(table: expressExchangeTransactionsTableName, options: [.ifNotExists]) { table in
                 table.primaryKey("id", .text, onConflict: .replace).notNull()
                 table.column(ownerAddressColumnName, .text).notNull()
                 table.column("providerID", .text).notNull()
@@ -180,6 +181,7 @@ final class AppDatabase {
                 table.column(payOutHashColumnName, .text)
                 table.column(fromContractColumnName, .text)
                 table.column(fromNetworkColumnName, .text).notNull()
+                table.column("fromAmount", .text).notNull()
                 table.column("fromDecimals", .integer).notNull()
                 table.column(toContractColumnName, .text)
                 table.column(toNetworkColumnName, .text).notNull()
@@ -195,7 +197,7 @@ final class AppDatabase {
             }
 
             try database.create(
-                index: "idxOnOwner",
+                index: "idxExOwner",
                 on: expressExchangeTransactionsTableName,
                 columns: [
                     ownerAddressColumnName,
