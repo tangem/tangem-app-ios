@@ -24,6 +24,7 @@ enum SendNotificationEvent: Hashable {
     )
     case customFeeTooHigh(orderOfMagnitude: Int)
     case customFeeTooLow
+    case highNetworkFee
     case accountNotActivated(assetName: String)
 
     // Generic notifications is received from BSDK
@@ -45,6 +46,8 @@ extension SendNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationFeeTooHighTitle)
         case .customFeeTooLow:
             return .string(Localization.sendNotificationTransactionDelayTitle)
+        case .highNetworkFee:
+            return .string(Localization.highFeeWarningTitle)
         case .withdrawalNotificationEvent(let event):
             return event.title
         case .validationErrorEvent(let event):
@@ -66,6 +69,8 @@ extension SendNotificationEvent: NotificationEvent {
             return Localization.sendNotificationFeeTooHighText(orderOfMagnitude)
         case .customFeeTooLow:
             return Localization.sendNotificationTransactionDelayText
+        case .highNetworkFee:
+            return Localization.highFeeWarningDescription
         case .withdrawalNotificationEvent(let event):
             return event.description
         case .validationErrorEvent(let event):
@@ -85,7 +90,8 @@ extension SendNotificationEvent: NotificationEvent {
             return .action
         case .feeWillBeSubtractFromSendingAmount,
              .customFeeTooHigh,
-             .customFeeTooLow:
+             .customFeeTooLow,
+             .highNetworkFee:
             return .secondary
         case .withdrawalNotificationEvent(let event):
             return event.colorScheme
@@ -101,7 +107,8 @@ extension SendNotificationEvent: NotificationEvent {
         case .networkFeeUnreachable,
              .customFeeTooHigh,
              .customFeeTooLow,
-             .feeWillBeSubtractFromSendingAmount:
+             .feeWillBeSubtractFromSendingAmount,
+             .highNetworkFee:
             return .init(iconType: .image(Assets.attention))
         case .withdrawalNotificationEvent(let event):
             return event.icon
@@ -117,7 +124,8 @@ extension SendNotificationEvent: NotificationEvent {
         case .networkFeeUnreachable,
              .customFeeTooHigh,
              .customFeeTooLow,
-             .feeWillBeSubtractFromSendingAmount:
+             .feeWillBeSubtractFromSendingAmount,
+             .highNetworkFee:
             return .warning
         case .withdrawalNotificationEvent(let event):
             return event.severity
@@ -188,6 +196,7 @@ extension SendNotificationEvent {
         case .feeWillBeSubtractFromSendingAmount,
              .customFeeTooHigh,
              .customFeeTooLow,
+             .highNetworkFee,
              .accountNotActivated:
             return nil
         case .withdrawalNotificationEvent(let event):
