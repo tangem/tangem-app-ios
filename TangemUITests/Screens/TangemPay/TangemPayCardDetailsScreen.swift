@@ -48,10 +48,10 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     }
 
     @discardableResult
-    func tapUnfreezeCard() -> Self {
+    func tapUnfreezeCard() -> TangemPayUnfreezeConfirmationSheet {
         XCTContext.runActivity(named: "Tap Unfreeze card row") { _ in
             freezeRowFrozen.waitAndTap()
-            return self
+            return TangemPayUnfreezeConfirmationSheet(app)
         }
     }
 

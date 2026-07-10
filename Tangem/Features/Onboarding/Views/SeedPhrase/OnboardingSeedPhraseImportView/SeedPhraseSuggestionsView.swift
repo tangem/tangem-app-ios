@@ -41,13 +41,11 @@ struct SeedPhraseSuggestionsView: View {
     }
 }
 
-struct SeedPhraseSuggestionsView_Preview: PreviewProvider {
-    static var previews: some View {
-        SeedPhraseSuggestionsView(
-            suggestions: [
-                "tree", "banana", "tangem", "index", "wallet", "caret", "collection", "engine",
-            ],
-            suggestionTapped: { _ in }
-        )
-    }
+#Preview {
+    SeedPhraseSuggestionsView(
+        suggestions: [
+            "tree", "banana", "tangem", "index", "wallet", "caret", "collection", "engine",
+        ],
+        suggestionTapped: { _ in }
+    )
 }
