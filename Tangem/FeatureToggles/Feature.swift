@@ -49,6 +49,7 @@ enum Feature: String, Hashable, CaseIterable {
     case solanaUnstakeValidation
     case onboardingPushNotificationDoubleAsk
     case mainPushNotificationDoubleAsk
+    case backendAuthentication
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -94,6 +95,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayVirtualAccount: return "TWI-1638_tangempay_virtual_account"
         case .onboardingPushNotificationDoubleAsk: return "TWI-1403_onboarding_push_notification_double_ask"
         case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
+        case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
         }
     }
 
@@ -139,6 +141,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaUnstakeValidation: return .version("6.0")
         case .onboardingPushNotificationDoubleAsk: return .unspecified
         case .mainPushNotificationDoubleAsk: return .unspecified
+        case .backendAuthentication: return .unspecified
         }
     }
 }
