@@ -35,6 +35,8 @@ final class StakingDetailsViewModel: ObservableObject {
     @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
+
     private(set) lazy var scrollViewStateObject = RefreshScrollViewStateObject(
         settings: .init(stopRefreshingDelay: .zero),
         refreshable: { [weak self] in
@@ -46,10 +48,15 @@ final class StakingDetailsViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
+
     private let tokenItem: TokenItem
     private let tokenBalanceProvider: TokenBalanceProvider
     private let stakingManager: StakingManager
     private weak var coordinator: StakingDetailsRoutable?
+
+    private let deeplinkHandler: PromotionDeeplinkHandler
+    private let marketingNotificationManager = MarketingBannerNotificationManager()
 
     private lazy var balanceFormatter = BalanceFormatter()
     private lazy var percentFormatter = PercentFormatter()
@@ -62,14 +69,17 @@ final class StakingDetailsViewModel: ObservableObject {
         tokenItem: TokenItem,
         tokenBalanceProvider: TokenBalanceProvider,
         stakingManager: StakingManager,
-        coordinator: StakingDetailsRoutable
+        coordinator: StakingDetailsRoutable,
+        deeplinkHandler: PromotionDeeplinkHandler
     ) {
         self.tokenItem = tokenItem
         self.tokenBalanceProvider = tokenBalanceProvider
         self.stakingManager = stakingManager
         self.coordinator = coordinator
+        self.deeplinkHandler = deeplinkHandler
 
         bind()
+        setupMarketingBanners()
     }
 
     func userDidTapBanner() {
@@ -101,6 +111,9 @@ final class StakingDetailsViewModel: ObservableObject {
     func onAppear() {
         runTask(in: self) { await $0.refresh() }
 
+        deeplinkHandler.becomeIncomingActionsResponder()
+        marketingCampaignsRepository.loadCampaigns(for: .staking)
+
         let balances = stakingManager.balances.flatMap { String($0.count) } ?? String(0)
         Analytics.log(
             event: .stakingInfoScreenOpened,
@@ -110,6 +123,10 @@ final class StakingDetailsViewModel: ObservableObject {
             ],
             analyticsSystems: .all
         )
+    }
+
+    func onDisappear() {
+        deeplinkHandler.resignIncomingActionsResponder()
     }
 }
 
@@ -135,6 +152,16 @@ private extension StakingDetailsViewModel {
                 viewModel.setupMainActionButton(state: state)
             }
             .store(in: &bag)
+    }
+
+    func setupMarketingBanners() {
+        marketingNotificationManager.setup(
+            bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: tokenItem, kind: .staking)
+        )
+
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
     }
 
     func refresh() async {
