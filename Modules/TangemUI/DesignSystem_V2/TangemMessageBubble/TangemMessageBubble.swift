@@ -16,7 +16,6 @@ public struct TangemMessageBubble: View, Setupable {
     private let closeAction: () -> Void
     private var variant: Variant = .neutral
     private var icon: ImageType?
-    private var accessibilityLabel: String?
     private var accessibilityIdentifier: String?
 
     @ScaledMetric private var iconSize: CGFloat = Metrics.iconSize
@@ -37,9 +36,6 @@ public struct TangemMessageBubble: View, Setupable {
 
             Text(text)
                 .style(DesignSystem.Font.captionMediumToken, color: variant.palette.text)
-                .ifLet(accessibilityLabel) { view, label in
-                    view.accessibilityLabel(Text(label))
-                }
                 .ifLet(accessibilityIdentifier) { view, identifier in
                     view.accessibilityIdentifier(identifier)
                 }
