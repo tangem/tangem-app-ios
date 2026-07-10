@@ -34,7 +34,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.20")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.6.0")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.9.0")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.0.2"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.0.3"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMajor(from: "1.9.0")),
         // When a Swift macro target (`TangemMacro`) is used in the same package (`TangemModules`) in which it is defined,
         // and that package contains a test target (`BlockchainSdkTests`) that uses macros from that macro target,
