@@ -237,7 +237,7 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
 
     @discardableResult
     func tapFeeBlock() -> SendFeeSelectorScreen {
-        XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
+        _ = XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
             networkFeeBlock.waitAndTap()
         }
         return SendFeeSelectorScreen(app)
@@ -286,6 +286,107 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
             )
         }
         return self
+    }
+}
+
+// MARK: - Gasless (fee coverage)
+
+extension SendSummaryScreen {
+    private var feeCoverageWarning: XCUIElement {
+        app.descendants(matching: .any)[SendAccessibilityIdentifiers.feeWillBeSubtractFromSendingAmountBanner].firstMatch
+    }
+
+    private var insufficientCoinForFeeBanner: XCUIElement {
+        app.descendants(matching: .any)[SendAccessibilityIdentifiers.insufficientBalanceForFeeBanner].firstMatch
+    }
+
+    @discardableResult
+    func assertFeeCurrencySymbol(_ symbol: String) -> Self {
+        XCTContext.runActivity(named: "Assert the network fee is paid in '\(symbol)'") { _ in
+            let badge = app.staticTexts[SendAccessibilityIdentifiers.networkFeeCurrencySymbol].firstMatch
+            waitAndAssertTrue(badge, "Fee currency badge should exist")
+            XCTAssertEqual(badge.label, symbol, "Network fee should be paid in '\(symbol)' but badge was '\(badge.label)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertFeeCoverageWarningDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert 'Network fee coverage' notification is displayed") { _ in
+            waitAndAssertTrue(feeCoverageWarning, "'Network fee coverage' notification should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertFeeCoverageWarningNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert 'Network fee coverage' notification is not displayed") { _ in
+            XCTAssertTrue(
+                feeCoverageWarning.waitForNonExistence(timeout: .robustUIUpdate),
+                "'Network fee coverage' notification should not be displayed in the standard fee flow"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertInsufficientCoinForFeeNotificationNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert insufficient-coin-for-fee notification is not displayed") { _ in
+            XCTAssertTrue(
+                insufficientCoinForFeeBanner.waitForNonExistence(timeout: .robustUIUpdate),
+                "Insufficient-coin-for-fee notification should not be displayed when gasless covers the fee"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertSendButtonEnabled() -> Self {
+        XCTContext.runActivity(named: "Assert 'Send' button is enabled") { _ in
+            waitAndAssertTrue(activeFinishButton, "'Send' button should exist")
+            XCTAssertTrue(activeFinishButton.isEnabled, "'Send' button should be enabled")
+            return self
+        }
+    }
+}
+
+// MARK: - Send via Swap (summary amounts & recipient)
+
+extension SendSummaryScreen {
+    @discardableResult
+    func assertPrimaryAmountDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert the sent (primary) amount is displayed") { _ in
+            let sendCard = app.buttons[SendAccessibilityIdentifiers.fromWalletButton].firstMatch
+            let amount = sendCard.staticTexts[SendAccessibilityIdentifiers.sendAmountViewValue].firstMatch
+            waitAndAssertTrue(amount, "Sent (primary) amount should be displayed on the summary")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertReceiveAmountDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert the amount to receive after the swap is displayed") { _ in
+            let receiveCard = app.buttons[SendAccessibilityIdentifiers.receiveTokenBlock].firstMatch
+            let amount = receiveCard.staticTexts[SendAccessibilityIdentifiers.sendAmountViewValue].firstMatch
+            waitAndAssertTrue(amount, "Amount to receive after the swap should be displayed on the summary")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertRecipientAddress(_ address: String) -> Self {
+        XCTContext.runActivity(named: "Assert the recipient address '\(address)' is displayed") { _ in
+            waitAndAssertTrue(destinationBlock, "Destination block should exist")
+            // The address lives in a UITextView value inside the block, not in the block's label.
+            let addressField = destinationBlock.textViews.firstMatch
+            waitAndAssertTrue(addressField, "Recipient address field should exist")
+            let value = addressField.getValue()
+            XCTAssertTrue(
+                value.contains(address),
+                "Recipient address should contain '\(address)' but was '\(value)'"
+            )
+            return self
+        }
     }
 }
 

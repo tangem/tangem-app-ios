@@ -48,6 +48,8 @@ struct TokenDetailsView: View {
 
                 stakingView
 
+                marketingBanner
+
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
                 }
@@ -100,6 +102,9 @@ struct TokenDetailsView: View {
         .onAppear {
             viewModel.onAppear()
             scrollOffsetHandler.onViewAppear()
+        }
+        .onDisappear {
+            viewModel.onDisappear()
         }
         .onFirstAppear {
             viewModel.onFirstAppear()
@@ -298,6 +303,13 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
+    private var marketingBanner: some View {
+        if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
+            StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
+        }
+    }
+
+    @ViewBuilder
     private var marketPriceLegacy: some View {
         if !viewModel.isRedesign, viewModel.isMarketsDetailsAvailable {
             MarketPriceView(
@@ -415,6 +427,8 @@ private extension TokenDetailsView {
     }
 }
 
+// MARK: - Previews
+
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
     let cryptoAccountModel = userWalletModel
@@ -435,29 +449,41 @@ private extension TokenDetailsView {
     let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
         ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
     }
-    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
-        userWalletId: userWalletModel.userWalletId.stringValue,
+    let exchangeStatusPoller = ExchangeStatusPoller(
+        userWalletId: userWalletModel.userWalletId,
         tokenItem: walletModel.tokenItem,
-        walletModelUpdater: walletModel,
         cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
+    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
+        walletModelUpdater: walletModel,
+        poller: exchangeStatusPoller
+    )
     let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
-    let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
-        userWalletId: userWalletModel.userWalletId.stringValue,
+    let onrampStatusPoller = OnrampStatusPoller(
+        userWalletId: userWalletModel.userWalletId,
         tokenItem: walletModel.tokenItem,
-        expressAPIProvider: onrampExpressAPIProvider,
-        unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
-            userWalletId: userWalletModel.userWalletId.stringValue,
-            tokenItem: walletModel.tokenItem,
-            expressAPIProvider: onrampExpressAPIProvider
-        )
+        expressAPIProvider: onrampExpressAPIProvider
+    )
+    let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
+        userWalletId: userWalletModel.userWalletId,
+        tokenItem: walletModel.tokenItem,
+        expressAPIProvider: onrampExpressAPIProvider
+    )
+    let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
+        unknownStatusRecoveryService: unknownStatusRecoveryService,
+        poller: onrampStatusPoller
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
         first: pendingExpressTxsManager,
         second: pendingOnrampTxsManager
     )
     let coordinator = TokenDetailsCoordinator()
+    let expressStatusPollingHelper = ExpressStatusPollingHelper(
+        exchangePoller: exchangeStatusPoller,
+        onrampPoller: onrampStatusPoller,
+        enricherFactory: { nil }
+    )
 
     TokenDetailsView(
         viewModel: .init(
@@ -466,6 +492,7 @@ private extension TokenDetailsView {
             notificationManager: notifManager,
             userTokensManager: cryptoAccountModel.userTokensManager,
             pendingExpressTransactionsManager: pendingTxsManager,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             xpubGenerator: nil,
             coordinator: coordinator,
             tokenRouter: SingleTokenRouter(
@@ -473,6 +500,11 @@ private extension TokenDetailsView {
                 coordinator: coordinator
             ),
             pendingTransactionDetails: nil,
+            deeplinkHandler: PromotionDeeplinkHandler(
+                coordinator: coordinator,
+                walletModel: walletModel,
+                userWalletInfo: userWalletModel.userWalletInfo
+            ),
             presentSource: .navigation
         )
     )

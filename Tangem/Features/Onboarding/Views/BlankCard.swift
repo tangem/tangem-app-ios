@@ -81,15 +81,12 @@ extension CGSize {
     }
 }
 
-struct BlankCard_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            BlankCard(cardType: .dark)
-                .frame(size: .init(width: 272, height: 165))
-            BlankCard(cardType: .light)
-                .frame(size: .init(width: 168, height: 102))
-            BlankCard(cardType: .dark)
-//                .frame(size: .init(width: 272, height: 165))
-        }
+#Preview {
+    VStack {
+        BlankCard(cardType: .dark)
+            .frame(size: .init(width: 272, height: 165))
+        BlankCard(cardType: .light)
+            .frame(size: .init(width: 168, height: 102))
+        BlankCard(cardType: .dark)
     }
 }

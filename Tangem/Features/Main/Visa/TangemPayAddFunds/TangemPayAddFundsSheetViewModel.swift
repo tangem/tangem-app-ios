@@ -12,7 +12,7 @@ import TangemVisa
 import TangemPay
 
 final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetContentViewModel {
-    @Published private(set) var options: [TangemPayAddFundsSheetOptionView.Option] = [.swap, .receive]
+    @Published private(set) var options: [TangemPayAddFundsSheetOptionView.Option]
 
     private let userWalletInfo: UserWalletInfo
     private let address: String
@@ -24,6 +24,8 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
         userWalletInfo = input.userWalletInfo
         address = input.address
         swapableToken = input.swapableToken
+
+        options = [.swap, .receive] + (input.isBankTransferAvailable ? [.bankTransfer] : [])
 
         self.coordinator = coordinator
     }
@@ -37,6 +39,9 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
         case .receive:
             Analytics.log(.visaScreenButtonVisaReceive, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
             openReceiveSheet()
+
+        case .bankTransfer:
+            coordinator?.addFundsSheetRequestBankTransfer()
         }
     }
 
@@ -50,6 +55,7 @@ extension TangemPayAddFundsSheetViewModel {
         let userWalletInfo: UserWalletInfo
         let address: String
         let swapableToken: SendSwapableToken
+        let isBankTransferAvailable: Bool
     }
 }
 
