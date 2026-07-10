@@ -238,7 +238,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             let imageType = hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
             return .init(iconType: .image(imageType), size: CGSize(width: 16, height: 18))
         case .mobileUpgrade:
-            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), size: CGSize(width: 54, height: 54))
+            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), isLeading: false, size: CGSize(width: 54, height: 54))
         case .pushNotificationsPermissionRequest:
             return .init(iconType: .image(Assets.pushNotifyBannerIcon), size: CGSize(width: 54, height: 54))
         case .initialWalletTokenSyncCompleted:
