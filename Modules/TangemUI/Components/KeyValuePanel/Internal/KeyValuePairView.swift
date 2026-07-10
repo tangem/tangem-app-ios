@@ -69,7 +69,6 @@ struct KeyValuePairView: View {
     }
 }
 
-#if DEBUG
 #Preview("No icon, no action") {
     KeyValuePairView(
         pair: KeyValuePairViewData(
@@ -87,4 +86,3 @@ struct KeyValuePairView: View {
         )
     )
 }
-#endif

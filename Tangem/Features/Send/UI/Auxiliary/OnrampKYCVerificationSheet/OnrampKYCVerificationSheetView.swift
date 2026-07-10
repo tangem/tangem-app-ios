@@ -110,21 +110,17 @@ struct OnrampKYCVerificationSheetView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-private final class OnrampKYCVerificationSheetRoutableMock: OnrampKYCVerificationSheetRoutable {
-    func onChooseAnother() {}
-    func onProceedToWidget() {}
-    func onClose() {}
-}
-
-struct OnrampKYCVerificationSheetView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnrampKYCVerificationSheetView(
-            viewModel: OnrampKYCVerificationSheetViewModel(
-                providerName: "MoonPay",
-                routable: OnrampKYCVerificationSheetRoutableMock()
-            )
-        )
+#Preview {
+    final class OnrampKYCVerificationSheetRoutableMock: OnrampKYCVerificationSheetRoutable {
+        func onChooseAnother() {}
+        func onProceedToWidget() {}
+        func onClose() {}
     }
+
+    return OnrampKYCVerificationSheetView(
+        viewModel: OnrampKYCVerificationSheetViewModel(
+            providerName: "MoonPay",
+            routable: OnrampKYCVerificationSheetRoutableMock()
+        )
+    )
 }
-#endif // DEBUG

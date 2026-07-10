@@ -1,5 +1,5 @@
 //
-//  TONWalletINfo.swift
+//  TONWalletInfo.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

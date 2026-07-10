@@ -1,6 +1,6 @@
 //
 //  RavencoinTransactionRecordMapper.swift
-//  TangemApp
+//  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -32,7 +32,7 @@ extension RavencoinTransactionRecordMapper: TransactionRecordMapper {
         }
 
         let fee: Decimal = transaction.fees
-        let date = transaction.time.map { Date(timeIntervalSince1970: TimeInterval($0)) } ?? Date()
+        let date = transaction.time.map { Date(timeIntervalSince1970: TimeInterval($0)) }
         let isConfirmed: Bool = (transaction.blockheight) > 0
 
         return TransactionRecord(
@@ -45,7 +45,8 @@ extension RavencoinTransactionRecordMapper: TransactionRecordMapper {
             isOutgoing: isOutgoing,
             type: .transfer,
             date: date,
-            tokenTransfers: nil
+            tokenTransfers: [],
+            nonce: nil
         )
     }
 }
