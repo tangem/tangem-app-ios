@@ -110,6 +110,56 @@ final class AppDatabase {
                 ]
             )
 
+            // MARK: - Crypto currencies cache
+
+            let cryptoCurrenciesCacheTableName = "cryptoCurrenciesCache"
+            let idColumnName = "id"
+            let networkIDColumnName = "networkID"
+            let contractAddressColumnName = "contractAddress"
+
+            try database.create(
+                table: cryptoCurrenciesCacheTableName,
+                options: [
+                    .ifNotExists,
+                ]
+            ) { table in
+                table.primaryKey([
+                    networkIDColumnName,
+                    contractAddressColumnName,
+                ])
+                // `id` SHOULD NOT be a pkey because token (`BlockchainSdk.Token`) may not have an `id` field at all (e.g. custom tokens)
+                table.column(idColumnName, .text)
+                // Matches `BlockchainSdk.Blockchain.codingKey` field
+                table.column(networkIDColumnName, .text).notNull()
+                table.column("name", .text).notNull()
+                table.column("symbol", .text).notNull()
+                table.column(contractAddressColumnName, .text)
+                table.column("decimalCount", .integer).notNull()
+            }
+
+            try database.create(
+                index: "idxCryptoCurrId",
+                on: cryptoCurrenciesCacheTableName,
+                columns: [
+                    idColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
+
+            try database.create(
+                index: "idxCryptoCurrNetworkIdContract",
+                on: cryptoCurrenciesCacheTableName,
+                columns: [
+                    networkIDColumnName,
+                    contractAddressColumnName,
+                ],
+                options: [
+                    .ifNotExists,
+                ]
+            )
+
             // MARK: - Sync metadata
 
             try database.create(
