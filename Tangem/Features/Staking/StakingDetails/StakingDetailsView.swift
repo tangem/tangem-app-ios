@@ -38,6 +38,8 @@ struct StakingDetailsView: View {
                     DefaultRowView(viewModel: data)
                 }
 
+                marketingBanner
+
                 rewardView
 
                 GroupedSection(viewModel.stakes) { data in
@@ -64,6 +66,7 @@ struct StakingDetailsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier(StakingAccessibilityIdentifiers.title)
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.alert) { $0.alert }
         .bottomSheet(
             item: $viewModel.descriptionBottomSheetInfo,
@@ -72,6 +75,13 @@ struct StakingDetailsView: View {
             DescriptionBottomSheetView(
                 info: DescriptionBottomSheetInfo(title: $0.title, description: $0.description)
             )
+        }
+    }
+
+    @ViewBuilder
+    private var marketingBanner: some View {
+        if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
+            StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
         }
     }
 
@@ -151,7 +161,12 @@ struct StakingDetailsView: View {
             tokenItem: CommonWalletModel.mockETH.tokenItem,
             tokenBalanceProvider: CommonWalletModel.mockETH.availableBalanceProvider,
             stakingManager: StakingManagerMock(),
-            coordinator: StakingDetailsCoordinator()
+            coordinator: StakingDetailsCoordinator(),
+            deeplinkHandler: PromotionDeeplinkHandler(
+                coordinator: StakingDetailsCoordinator(),
+                walletModel: CommonWalletModel.mockETH,
+                userWalletInfo: UserWalletModelMock().userWalletInfo
+            )
         )
     )
 }
