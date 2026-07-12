@@ -37,8 +37,8 @@ struct AddressBookContactMatcher {
             }
 
             return entry.blockchain.isEvm
-                ? entry.address.caseInsensitiveContains(raw)
-                : entry.address.range(of: raw) != nil
+                ? entry.address.caseInsensitiveEquals(to: raw)
+                : entry.address == raw
         }
     }
 }

@@ -71,20 +71,42 @@ struct AddressBookContactMatcherTests {
         #expect(matcher.filter([contact], query: "BNB").map(\.name.value) == ["Sam"])
     }
 
-    // MARK: - Address matching (EVM vs non-EVM case policy)
+    // MARK: - Address matching (full match; case sensitivity per network)
 
     @Test
-    func evmAddressMatchIsCaseInsensitive() throws {
-        let contact = try makeContact(name: "Zed", address: "0xAABBccdd", blockchain: evm)
-        #expect(matcher.filter([contact], query: "0xaabbccdd").map(\.name.value) == ["Zed"])
+    func addressMatchesOnFullString() throws {
+        let zed = try makeContact(name: "Zed", address: "0xAABBccdd", blockchain: evm)
+        let yan = try makeContact(name: "Yan", address: "bc1qABCDxyz", blockchain: nonEvm)
+
+        #expect(matcher.filter([zed, yan], query: "0xAABBccdd").map(\.name.value) == ["Zed"])
+        #expect(matcher.filter([zed, yan], query: " bc1qABCDxyz \n").map(\.name.value) == ["Yan"])
+        #expect(matcher.matches(zed, query: "0xAABBccdd"))
     }
 
     @Test
-    func nonEvmAddressMatchIsCaseSensitive() throws {
-        let contact = try makeContact(name: "Yan", address: "bc1qABCDxyz", blockchain: nonEvm)
+    func evmAddressMatchIsCaseInsensitive() throws {
+        let zed = try makeContact(name: "Zed", address: "0xAABBccdd", blockchain: evm)
 
-        #expect(matcher.filter([contact], query: "ABCDxyz").map(\.name.value) == ["Yan"])
-        #expect(matcher.filter([contact], query: "abcdxyz").isEmpty)
+        #expect(matcher.filter([zed], query: "0xaabbccdd").map(\.name.value) == ["Zed"])
+        #expect(matcher.matches(zed, query: "0XAABBCCDD"))
+    }
+
+    @Test
+    func nonEvmAddressInDifferentCaseDoesNotMatch() throws {
+        let yan = try makeContact(name: "Yan", address: "bc1qABCDxyz", blockchain: nonEvm)
+
+        #expect(matcher.filter([yan], query: "bc1qabcdxyz").isEmpty)
+        #expect(!matcher.matches(yan, query: "bc1qabcdxyz"))
+    }
+
+    @Test
+    func partialAddressDoesNotMatch() throws {
+        let zed = try makeContact(name: "Zed", address: "0xAABBccdd", blockchain: evm)
+        let yan = try makeContact(name: "Yan", address: "bc1qABCDxyz", blockchain: nonEvm)
+
+        #expect(matcher.filter([zed, yan], query: "0xAABB").isEmpty)
+        #expect(matcher.filter([zed, yan], query: "0xaabb").isEmpty)
+        #expect(matcher.filter([zed, yan], query: "ABCDxyz").isEmpty)
     }
 
     // MARK: - No match
