@@ -15,7 +15,5 @@ public enum ExpressRestriction {
     case insufficientBalance(_ requiredAmount: Decimal)
     case feeCurrencyHasZeroBalance(isFeeCurrency: Bool)
     case feeCurrencyInsufficientBalanceForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
-    /// The swap can't be covered once the network fee is applied, and that fee is paid via gasless (in the source
-    /// token itself). The blocker is the fee, not the swap amount, so it must surface as a fee shortfall.
     case gaslessFeeShortfall
 }

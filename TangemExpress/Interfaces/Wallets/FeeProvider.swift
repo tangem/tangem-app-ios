@@ -11,10 +11,6 @@ import Foundation
 public typealias ExpressFeeProvider = FeeProvider
 
 public protocol FeeProvider {
-    /// `true` when the fee is paid via a gasless provider — i.e. in a token instead of the network's native coin,
-    /// because the selected fee provider isn't the network's default one. This is the authoritative signal for the
-    /// funds-vs-fee classification; do not infer gasless from the fee's denomination (breaks on chains like VeChain
-    /// where the native fee is itself a token).
     var isGaslessFeeSelected: Bool { get }
 
     func feeCurrency() -> ExpressWalletCurrency

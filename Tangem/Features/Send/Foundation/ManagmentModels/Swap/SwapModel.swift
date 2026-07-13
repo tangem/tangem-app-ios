@@ -495,7 +495,7 @@ extension SwapModel {
             // 2. Validate amount, fee and destination
             // We don't have `extraId` on Tangem addresses
             let destination = DestinationType.address(address, params: nil)
-            let isGaslessFeeSelected = (source.tokenFeeProvidersManager as? ExpressFeeProvider)?.isGaslessFeeSelected ?? false
+            let isGaslessFeeSelected = source.tokenFeeProvidersManager.isGaslessFeeSelected
             if let restriction = try await validate(amount: adjustedAmount, fee: fee, quote: quote, destination: destination, isGaslessFeeSelected: isGaslessFeeSelected) {
                 return .restriction(restriction, quote: quote)
             }
@@ -722,11 +722,8 @@ extension SwapModel {
 
     func proceedValidationError(_ error: Error, isGaslessFeeSelected: Bool) throws -> RestrictionType? {
         switch error {
-        // The amount alone exceeds the balance — a genuine funds shortage regardless of how the fee is paid.
         case ValidationError.amountExceedsBalance:
             return .notEnoughBalanceForSwapping
-        // amount + fee exceeds the balance. With gasless the fee is paid in the source token, so the blocker is
-        // the fee, not the amount — surface it as a fee shortfall instead of "insufficient funds".
         case ValidationError.totalExceedsBalance:
             return isGaslessFeeSelected ? .gaslessFeeShortfall : .notEnoughBalanceForSwapping
         case ValidationError.feeExceedsBalance(_, _, let isFeeCurrency):
@@ -1990,8 +1987,6 @@ extension SwapModel {
         case notEnoughBalanceForSwapping
         case notEnoughAmountForFee(isFeeCurrency: Bool)
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
-        /// The swap is blocked by a gasless fee (paid in the source token) that the balance can't cover on top of
-        /// the swap amount. Surfaced as a network-fee shortage, not "insufficient funds".
         case gaslessFeeShortfall
         case validationError(error: ValidationError)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)

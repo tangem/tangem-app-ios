@@ -13,7 +13,6 @@ protocol TokenFeeProvider {
     var feeTokenItem: TokenItem { get }
     var hasMultipleFeeOptions: Bool { get }
 
-    /// `true` for gasless providers, which pay the network fee in a token instead of the network's native coin.
     var isGasless: Bool { get }
 
     var balanceFeeTokenState: TokenBalanceType { get }

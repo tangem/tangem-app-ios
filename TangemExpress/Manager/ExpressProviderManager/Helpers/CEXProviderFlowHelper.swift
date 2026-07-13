@@ -174,11 +174,6 @@ private extension CEXProviderFlowHelper {
         return amount > sourceBalance
     }
 
-    /// Restriction to use when the source token can't cover the swap once the network fee is taken into account.
-    /// When the fee is paid via gasless (in the source token itself, because the native coin balance can't cover
-    /// gas), the blocker is the fee, not the swap amount — so it's surfaced as a fee shortfall instead of a
-    /// misleading "insufficient funds". A genuine funds shortage (fee paid in the native coin) keeps the
-    /// insufficient-balance restriction.
     func feeShortfallRestriction(amount: Decimal) -> ExpressRestriction {
         expressFeeProvider.isGaslessFeeSelected ? .gaslessFeeShortfall : .insufficientBalance(amount)
     }
