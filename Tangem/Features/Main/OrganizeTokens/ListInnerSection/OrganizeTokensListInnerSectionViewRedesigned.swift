@@ -9,21 +9,22 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct OrganizeTokensListInnerSectionViewRedesigned: View {
     let title: String
     let identifier: AnyHashable
     let isDraggable: Bool
 
-    @ScaledMetric private var leadingPadding: CGFloat = .unit(.x4)
-    @ScaledMetric private var trailingPadding: CGFloat = .unit(.x3)
-    @ScaledMetric private var topPadding: CGFloat = .unit(.x4)
-    @ScaledMetric private var bottomPadding: CGFloat = .unit(.x3)
+    @ScaledMetric private var leadingPadding: CGFloat = 16
+    @ScaledMetric private var trailingPadding: CGFloat = 12
+    @ScaledMetric private var topPadding: CGFloat = 16
+    @ScaledMetric private var bottomPadding: CGFloat = 12
 
     var body: some View {
-        HStack(spacing: .unit(.x2)) {
+        HStack(spacing: 8) {
             Text(title)
-                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.secondary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: .Tangem.Text.Neutral.secondary)
                 .lineLimit(1)
                 .fixedSize(horizontal: false, vertical: true)
 

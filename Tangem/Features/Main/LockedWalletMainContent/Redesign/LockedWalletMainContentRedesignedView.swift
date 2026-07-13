@@ -22,18 +22,18 @@ struct LockedWalletMainContentRedesignedView: View {
             )
             .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
 
-            VStack(spacing: .unit(.x2)) {
+            VStack(spacing: 8) {
                 ForEach(0 ..< Constants.skeletonCount, id: \.self) { _ in
                     RedesignedAccountSkeletonCardView()
                         .setShimmerActive(false)
                 }
             }
-            .padding(.top, .unit(.x3))
+            .padding(.top, 12)
 
             organizeButton
-                .padding(.top, .unit(.x5))
+                .padding(.top, 20)
         }
-        .padding(.horizontal, .unit(.x3))
+        .padding(.horizontal, 12)
         .bindAlert($viewModel.alert)
         .frame(maxHeight: .infinity, alignment: .top)
     }

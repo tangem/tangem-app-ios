@@ -37,7 +37,12 @@ public struct TangemFontStyle: Hashable, Sendable {
     }
 
     public init(_ token: TangemTypographyToken) {
-        self.init(font: token.font, tracking: token.letterSpacing)
+        self.init(
+            size: token.fontSize,
+            lineHeight: token.lineHeight,
+            weight: token.fontWeight,
+            tracking: token.letterSpacing
+        )
     }
 }
 

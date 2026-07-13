@@ -11,10 +11,10 @@ import TangemUI
 
 struct LoadingSingleWalletMainContentRedesignedView: View {
     var body: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 8) {
             RedesignedAccountSkeletonCardView()
         }
-        .padding(.horizontal, .unit(.x3))
+        .padding(.horizontal, 12)
         .frame(maxHeight: .infinity, alignment: .top)
     }
 }

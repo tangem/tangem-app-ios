@@ -15,7 +15,7 @@ struct SingleWalletMainContentRedesignedView: View {
     @ObservedObject var viewModel: SingleWalletMainContentViewModel
 
     var body: some View {
-        VStack(spacing: .unit(.x3)) {
+        VStack(spacing: 12) {
             if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
                 WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
             }
@@ -29,7 +29,7 @@ struct SingleWalletMainContentRedesignedView: View {
 
             tokenCard
         }
-        .padding(.horizontal, .unit(.x3))
+        .padding(.horizontal, 12)
         .bindAlert($viewModel.alert)
         .frame(maxHeight: .infinity, alignment: .top)
     }
@@ -60,7 +60,7 @@ struct SingleWalletMainContentRedesignedView: View {
 
 private extension SingleWalletMainContentRedesignedView {
     enum Constants {
-        static let cornerRadius: CGFloat = .unit(.x5)
+        static let cornerRadius: CGFloat = 20
         static let tokenListBackgroundColor = Color.Tangem.Surface.level3
     }
 }

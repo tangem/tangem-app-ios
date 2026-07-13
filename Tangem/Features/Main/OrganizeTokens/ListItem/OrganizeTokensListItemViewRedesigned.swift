@@ -13,8 +13,8 @@ import TangemUI
 struct OrganizeTokensListItemViewRedesigned: View {
     let viewModel: OrganizeTokensListItemViewModel
 
-    @ScaledMetric private var horizontalPadding: CGFloat = .unit(.x3)
-    @ScaledMetric private var verticalPadding: CGFloat = .unit(.x3)
+    @ScaledMetric private var horizontalPadding: CGFloat = 12
+    @ScaledMetric private var verticalPadding: CGFloat = 12
 
     var body: some View {
         TangemTokenRow(viewData: rowViewData)

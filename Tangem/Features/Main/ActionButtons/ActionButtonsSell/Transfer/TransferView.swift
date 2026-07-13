@@ -37,7 +37,7 @@ struct TransferView: View {
     }
 
     private var optionsSection: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 8) {
             ForEach(viewModel.options) { option in
                 AddFundsOptionView(viewData: option.viewData, action: {
                     viewModel.userDidTap(option)

@@ -8,6 +8,8 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
+import TangemAssets
 
 struct MainNavigationBalanceView: View {
     let state: MainNavigationBalanceState
@@ -16,7 +18,7 @@ struct MainNavigationBalanceView: View {
         switch state {
         case .loading(.some(let text)), .loaded(let text):
             SensitiveText(text)
-                .style(Font.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.bodyMediumToken, color: Color.Tangem.Text.Neutral.primary)
 
         case .loading(.none), .empty:
             EmptyView()

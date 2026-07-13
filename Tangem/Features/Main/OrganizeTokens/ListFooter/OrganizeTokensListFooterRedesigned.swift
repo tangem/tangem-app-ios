@@ -33,7 +33,7 @@ struct OrganizeTokensListFooterRedesigned: View {
     }
 
     var body: some View {
-        HStack(spacing: .unit(.x2)) {
+        HStack(spacing: 8) {
             TangemButton(
                 content: .text(AttributedString(Localization.commonCancel)),
                 action: actionsHandler.onCancelButtonTap

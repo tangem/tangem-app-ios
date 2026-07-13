@@ -26,7 +26,7 @@ struct MainBottomSheetFooterView: View {
     }
 
     var redesignBody: some View {
-        VStack(spacing: .unit(.half)) {
+        VStack(spacing: 2) {
             GrabberView(style: .redesigned)
 
             TangemSearchField(text: .constant(""))

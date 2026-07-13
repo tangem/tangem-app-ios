@@ -74,8 +74,8 @@ extension MainBottomSheetHeaderView {
     enum Constants {
         /// Not a scaled property because `RootViewControllerFactory` uses this control internally
         /// and its `Constants` values cannot be made scaled as it can't be added to the view hierarchy.
-        static let searchFieldInsets: EdgeInsets = .init(inset: .unit(.x4))
-        static let searchFieldHeight: CGFloat = .unit(.x11)
+        static let searchFieldInsets: EdgeInsets = .init(inset: 16)
+        static let searchFieldHeight: CGFloat = 44
     }
 }
 

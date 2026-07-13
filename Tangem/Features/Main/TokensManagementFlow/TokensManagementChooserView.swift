@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct TokensManagementChooserView: View {
@@ -31,16 +32,8 @@ struct TokensManagementChooserView: View {
         isRedesign ? Constants.redesignRowCornerRadius : Constants.rowCornerRadius
     }
 
-    private var titleFont: TangemFontStyle {
-        isRedesign ? Font.Tangem.Body16.medium : TangemFontStyle(font: Fonts.Bold.subheadline)
-    }
-
     private var titleColor: Color {
         isRedesign ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
-    }
-
-    private var subtitleFont: TangemFontStyle {
-        isRedesign ? Font.Tangem.Caption12.semibold : TangemFontStyle(font: Fonts.Regular.caption1)
     }
 
     private var subtitleColor: Color {
@@ -102,18 +95,25 @@ struct TokensManagementChooserView: View {
             .fill(rowBackgroundColor)
     }
 
+    @ViewBuilder
+    private func styledText(_ string: String, token: TangemTypographyToken, legacyFont: Font, color: Color) -> some View {
+        if isRedesign {
+            Text(string).style(token, color: color)
+        } else {
+            Text(string).style(legacyFont, color: color)
+        }
+    }
+
     private func row(icon: ImageType, title: String, subtitle: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(alignment: .center, spacing: 12) {
                 iconView(icon: icon)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .style(titleFont, color: titleColor)
+                    styledText(title, token: DesignSystem.Font.bodyMediumToken, legacyFont: Fonts.Bold.subheadline, color: titleColor)
                         .multilineTextAlignment(.leading)
 
-                    Text(subtitle)
-                        .style(subtitleFont, color: subtitleColor)
+                    styledText(subtitle, token: DesignSystem.Font.captionMediumToken, legacyFont: Fonts.Regular.caption1, color: subtitleColor)
                         .multilineTextAlignment(.leading)
                 }
 
@@ -161,7 +161,7 @@ private extension TokensManagementChooserView {
         static let iconCornerRadius: CGFloat = 18
         static let iconSize: CGFloat = 24
         static let rowCornerRadius: CGFloat = 14
-        static let redesignRowCornerRadius: CGFloat = .unit(.x5)
+        static let redesignRowCornerRadius: CGFloat = 20
         static let horizontalInset: CGFloat = 16
     }
 }

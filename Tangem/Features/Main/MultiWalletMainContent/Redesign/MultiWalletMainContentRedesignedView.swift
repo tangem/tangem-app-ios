@@ -19,12 +19,12 @@ struct MultiWalletMainContentRedesignedView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
 
     var body: some View {
-        VStack(spacing: .unit(.x3)) {
+        VStack(spacing: 12) {
             PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
 
             notificationBanners
 
-            VStack(spacing: .unit(.x2)) {
+            VStack(spacing: 8) {
                 if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
                     TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
                 }
@@ -42,7 +42,7 @@ struct MultiWalletMainContentRedesignedView: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoadingTokenList)
-        .padding(.horizontal, .unit(.x3))
+        .padding(.horizontal, 12)
         .onDidAppear(perform: viewModel.onDidAppear)
         .onWillDisappear(perform: viewModel.onWillDisappear)
         .bindAlert($viewModel.error)
@@ -99,7 +99,7 @@ struct MultiWalletMainContentRedesignedView: View {
     // MARK: - Skeleton Placeholders
 
     private var skeletonPlaceholders: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 8) {
             ForEach(0 ..< MultiWalletMainContentConstants.placeholderCount, id: \.self) { _ in
                 RedesignedAccountSkeletonCardView()
             }
@@ -109,11 +109,11 @@ struct MultiWalletMainContentRedesignedView: View {
     // MARK: - Empty List
 
     private var emptyList: some View {
-        VStack(spacing: .unit(.x4)) {
+        VStack(spacing: 16) {
             MultiWalletTokenItemsEmptyView()
                 .iconColor(Color.Tangem.Graphic.Neutral.quaternary)
                 .textColor(Color.Tangem.Text.Neutral.tertiary)
-                .spacing(.unit(.x5))
+                .spacing(20)
 
             TangemButton(
                 content: .text(AttributedString(Localization.commonAddTokens)),
@@ -123,20 +123,20 @@ struct MultiWalletMainContentRedesignedView: View {
             .setSize(.x10)
             .setHorizontalLayout(.intrinsic)
         }
-        .padding(.top, .unit(.x9))
+        .padding(.top, 36)
     }
 
     // MARK: - Accounts List
 
     private var accountsList: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 8) {
             ForEach(viewModel.accountSections) { accountSection in
                 ExpandableAccountItemView(viewModel: accountSection.model) {
                     LazyVStack(spacing: 0) {
                         tokenRowsContent(sections: accountSection.items, roundBottomCorners: true)
                     }
                 }
-                .cornerRadius(.unit(.x6))
+                .cornerRadius(24)
                 .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
             }
         }
@@ -229,7 +229,7 @@ private struct TokenItemContainerView: View {
                         TangemCallout.Sizes.arrowSide * scaleFactor * 2
                     }
                 }
-                .padding(.bottom, .unit(.x3))
+                .padding(.bottom, 12)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
@@ -240,6 +240,6 @@ private struct TokenItemContainerView: View {
 
 private enum MultiWalletMainContentConstants {
     static let placeholderCount = 3
-    static let cornerRadius: CGFloat = .unit(.x6)
+    static let cornerRadius: CGFloat = 24
     static let tokenListBackgroundColor = Color.Tangem.Surface.level3
 }

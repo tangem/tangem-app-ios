@@ -14,8 +14,8 @@ import TangemAccessibilityIdentifiers
 struct RedesignActionButtonsView: View {
     @ObservedObject var viewModel: ActionButtonsViewModel
 
-    @ScaledMetric private var spacing: CGFloat = .unit(.x3)
-    @ScaledMetric private var horizontalPadding: CGFloat = .unit(.x15)
+    @ScaledMetric private var spacing: CGFloat = 12
+    @ScaledMetric private var horizontalPadding: CGFloat = 60
 
     private var dynamicHorizontalPadding: CGFloat {
         let screenWidth = UIScreen.main.bounds.width

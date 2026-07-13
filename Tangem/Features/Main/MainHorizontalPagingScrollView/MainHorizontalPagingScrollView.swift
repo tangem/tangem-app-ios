@@ -29,7 +29,7 @@ struct MainHorizontalPagingScrollView: View {
     @State private var contentFooterHeight = CGFloat.zero
     @State private var safeAreaInsetsTop = CGFloat.zero
 
-    @ScaledMetric private var headerBalanceTextHeight = CGFloat.unit(.x12)
+    @ScaledMetric private var headerBalanceTextHeight = CGFloat(48)
 
     @StateObject private var scrollDetector = ScrollDetector()
 
@@ -106,7 +106,7 @@ struct MainHorizontalPagingScrollView: View {
         if userWalletPageBuilders.count > 1 {
             VStack(spacing: .zero) {
                 TangemPagination(totalPages: userWalletPageBuilders.count, currentIndex: selectedUserWalletIndex)
-                    .frame(height: .unit(.x8))
+                    .frame(height: 32)
                     .offset(y: selectedUserWalletScrollAdjustedValues.pagingIndicatorOffsetY)
                     .transaction { transaction in
                         guard pagingIndicatorAnimationIsBlocked else { return }
@@ -348,12 +348,12 @@ extension MainHorizontalPagingScrollView {
 
 extension MainHorizontalPagingScrollView {
     enum Paddings {
-        static let contentFooterTop = CGFloat.unit(.x10)
-        static let contentFooterBottom = CGFloat.unit(.x5)
+        static let contentFooterTop = CGFloat(40)
+        static let contentFooterBottom = CGFloat(20)
     }
 
     private enum Sizes {
-        static let navigationBalanceMaxYOffset = CGFloat.unit(.x4)
+        static let navigationBalanceMaxYOffset = CGFloat(16)
         static let pullToRefreshThreshold: CGFloat = 150
         static let scrolledToTopTolerance: CGFloat = 0.5
     }
