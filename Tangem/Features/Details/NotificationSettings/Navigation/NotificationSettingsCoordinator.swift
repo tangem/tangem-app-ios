@@ -23,6 +23,12 @@ final class NotificationSettingsCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: NotificationSettingsViewModel?
 
+    // MARK: - Child coordinators
+
+    @Published var priceAlertsScreenCoordinator: PriceAlertsScreenCoordinator?
+
+    // MARK: - Start
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -56,6 +62,17 @@ extension NotificationSettingsCoordinator: NotificationSettingsRoutable {
     func onAlertDismiss() {
         // No-op: required by `NotificationSettingsRoutable`. Reserved for future
         // pending-navigation handling, mirroring `UserWalletSettingsCoordinator`.
+    }
+
+    func openPriceAlerts(with userWalletModel: UserWalletModel) {
+        let coordinator = PriceAlertsScreenCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.priceAlertsScreenCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: userWalletModel)
+        priceAlertsScreenCoordinator = coordinator
     }
 }
 
