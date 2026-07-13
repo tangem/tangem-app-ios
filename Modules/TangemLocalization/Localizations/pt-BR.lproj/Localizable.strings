@@ -1060,6 +1060,7 @@
 "onramp_title_available_up_to" = "Disponível até";
 "onramp_title_you_get" = "Você recebe";
 "onramp_token_is_not_supported_banner_subtitle" = "This token is not supported. Please choose a different token to buy.";
+"onramp_token_is_not_supported_banner_title" = "%@ is not supported";
 "onramp_tos_external_providers" = "O serviço é fornecido por um provedor externo. A Tangem não se responsabiliza por ele.";
 "onramp_transaction_status_footer_text" = "Você pode fechar esta tela e verificar o status da transação na tela de detalhes do token.";
 "onramp_up_to_rate" = "Até";
