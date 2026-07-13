@@ -60,7 +60,7 @@ extension StakingTokenBalanceProvider: TokenBalanceProvider {
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         guard let strongInput = input else {
             assertionFailure("StakingTokenBalanceProviderInput not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return strongInput.stakingManagerStatePublisher

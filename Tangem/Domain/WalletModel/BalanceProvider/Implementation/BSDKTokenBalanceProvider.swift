@@ -47,7 +47,7 @@ extension BSDKTokenBalanceProvider: TokenBalanceProvider {
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         guard let input else {
             assertionFailure("BSDKTokenBalanceProviderInput not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input.balancePublisher(for: tokenItem)
