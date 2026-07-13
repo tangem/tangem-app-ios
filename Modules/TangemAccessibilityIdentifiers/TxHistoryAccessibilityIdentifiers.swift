@@ -24,4 +24,12 @@ public enum TxHistoryAccessibilityIdentifiers {
     public static func transactionConfirmedStatus(key: String) -> String {
         "txHistoryTransactionConfirmedStatus_\(key)"
     }
+
+    public static func transactionInProgressStatus(key: String) -> String {
+        "txHistoryTransactionInProgressStatus_\(key)"
+    }
+
+    public static func transactionSubtitle(key: String) -> String {
+        "txHistoryTransactionSubtitle_\(key)"
+    }
 }

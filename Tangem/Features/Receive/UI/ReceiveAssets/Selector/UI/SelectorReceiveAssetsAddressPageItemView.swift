@@ -36,6 +36,7 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
 
             SelectorReceiveQRCodeButtonView(qrCodeAction: viewModel.qrCodeButtonDidTap)
                 .disabled(viewModel.isLoading)
+                .accessibilityIdentifier(viewModel.qrCodeButtonAccessibilityIdentifier)
 
             FixedSpacer(height: Layout.Container.qrCodeButtonActionsVerticalSpacing)
 
