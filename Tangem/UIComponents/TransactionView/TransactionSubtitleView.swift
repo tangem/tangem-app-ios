@@ -18,6 +18,7 @@ import TangemUIUtils
 struct TransactionSubtitleView: View {
     let direction: TransactionDisplayModel.Direction
     let owner: TransactionViewModel.SubtitleOwner
+    var accessibilityIdentifier: String? = nil
 
     @ScaledMetric private var glyphSize: CGFloat = 16
 
@@ -44,12 +45,14 @@ struct TransactionSubtitleView: View {
                 Text(name)
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
+                    .accessibilityIdentifier(accessibilityIdentifier)
             }
 
         case .wallet(let name):
             Text(name)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                 .lineLimit(1)
+                .accessibilityIdentifier(accessibilityIdentifier)
 
         case .accountInWallet(let accountName, let accountIcon, let walletName):
             HStack(spacing: .unit(.x1)) {
@@ -58,6 +61,7 @@ struct TransactionSubtitleView: View {
                 Text(accountName)
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
+                    .accessibilityIdentifier(accessibilityIdentifier)
                 Text(Localization.commonIn)
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                 Text(walletName)
@@ -72,6 +76,7 @@ struct TransactionSubtitleView: View {
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                     .lineLimit(1)
                     .truncationMode(.middle)
+                    .accessibilityIdentifier(accessibilityIdentifier)
             }
         }
     }
