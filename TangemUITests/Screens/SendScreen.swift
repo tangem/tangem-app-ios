@@ -225,6 +225,13 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         }
     }
 
+    func dismissPendingTransactionAlert() -> TokenScreen {
+        XCTContext.runActivity(named: "Dismiss pending-transaction alert") { _ in
+            app.alerts.firstMatch.buttons["OK"].waitAndTap()
+            return TokenScreen(app)
+        }
+    }
+
     @discardableResult
     func waitForInvalidAmountBanner() -> Self {
         XCTContext.runActivity(named: "Validate invalid amount banner exists") { _ in
