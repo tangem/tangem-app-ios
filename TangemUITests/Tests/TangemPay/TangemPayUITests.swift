@@ -9,8 +9,6 @@
 import XCTest
 
 final class TangemPayUITests: BaseTestCase {
-    private let hotWalletSeedPhrase = "method abstract genre rough session noise soft hybrid exit learn razor illness"
-
     func testChangePin_SetsNewPinCode_FromCardDetails() {
         setAllureId(4549)
 
@@ -143,29 +141,5 @@ final class TangemPayUITests: BaseTestCase {
             .waitForSheet()
             .tapGotIt()
             .waitForScreen()
-    }
-
-    private func launchAndImportHotWallet(scenarios: [ScenarioConfig] = []) -> MainScreen {
-        let eligibilityScenario = ScenarioConfig(
-            name: "tangem_pay_eligibility",
-            initialState: "PaeraCustomer"
-        )
-
-        launchApp(
-            tangemApiType: .mock,
-            visaApiType: .mock,
-            clearStorage: true,
-            scenarios: [eligibilityScenario] + scenarios
-        )
-
-        return CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .enterSeedPhrase(hotWalletSeedPhrase)
-            .tapImportButton()
-            .tapContinue()
-            .skipAccessCode()
-            .tapFinish()
     }
 }

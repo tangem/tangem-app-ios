@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayOfferViewV2: View {
     @ObservedObject var viewModel: TangemPayOfferViewModel
@@ -188,6 +189,7 @@ struct TangemPayOfferViewV2: View {
         .size(.x12)
         .padding(.horizontal, 16)
         .padding(.bottom, 12)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.onboardingGetCardButton)
     }
 }
 

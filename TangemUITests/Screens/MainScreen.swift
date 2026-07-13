@@ -29,6 +29,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var walletLockedNotification = otherElement(.walletLockedNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
+    /// Type-agnostic: redesign and legacy notifications expose different element types.
+    private lazy var getTangemPayBanner = app.descendants(matching: .any)
+        .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
+        .firstMatch
 
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
@@ -496,6 +500,67 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             scrollToElement(tangemPayTile)
             tangemPayTile.waitAndTap()
             return TangemPayMainScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyGetTangemPayBannerExists() -> Self {
+        XCTContext.runActivity(named: "Verify Get Tangem Pay banner is displayed") { _ in
+            waitAndAssertTrue(getTangemPayBanner, timeout: .networkRequest, "Get Tangem Pay banner should be displayed on main screen")
+            return self
+        }
+    }
+
+    func tapGetTangemPayBanner() -> TangemPayOnboardingScreen {
+        XCTContext.runActivity(named: "Tap Get Tangem Pay banner CTA") { _ in
+            waitAndAssertTrue(getTangemPayBanner, timeout: .networkRequest, "Get Tangem Pay banner should be displayed on main screen")
+            app.buttons[TangemPayAccessibilityIdentifiers.getTangemPayBannerOpenButton].firstMatch.waitAndTap()
+            return TangemPayOnboardingScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileExists() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile is displayed on main screen") { _ in
+            scrollToElement(tangemPayTile)
+            waitAndAssertTrue(tangemPayTile, timeout: .networkRequest, "Tangem Pay tile should be displayed on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileShowsKycInProgress() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile shows KYC in progress") { _ in
+            scrollToElement(tangemPayTile)
+            let kycStatusLabel = tangemPayTile.staticTexts["KYC in progress"].firstMatch
+            waitAndAssertTrue(kycStatusLabel, timeout: .networkRequest, "Tangem Pay tile should show KYC in progress status")
+            return self
+        }
+    }
+
+    func openTangemPayKycStatusSheet() -> TangemPayKYCStatusSheet {
+        XCTContext.runActivity(named: "Open KYC status sheet from Tangem Pay tile") { _ in
+            scrollToElement(tangemPayTile)
+            tangemPayTile.waitAndTap()
+            return TangemPayKYCStatusSheet(app)
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileShowsKycRejected() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile shows KYC rejected") { _ in
+            scrollToElement(tangemPayTile)
+            let kycStatusLabel = tangemPayTile.staticTexts["KYC rejected"].firstMatch
+            waitAndAssertTrue(kycStatusLabel, timeout: .networkRequest, "Tangem Pay tile should show KYC rejected status")
+            return self
+        }
+    }
+
+    func openTangemPayKycDeclinedSheet() -> TangemPayKYCDeclinedSheet {
+        XCTContext.runActivity(named: "Open KYC rejected sheet from Tangem Pay tile") { _ in
+            scrollToElement(tangemPayTile)
+            tangemPayTile.waitAndTap()
+            return TangemPayKYCDeclinedSheet(app)
         }
     }
 

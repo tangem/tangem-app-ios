@@ -12,7 +12,7 @@ final class TangemPayWithdrawUITests: BaseTestCase {
     func testWithdrawFromTangemPay_SwapsUSDCToBitcoin_AppendsWithdrawalToHistory() {
         setAllureId(4972)
 
-        let mainScreen = launchAndImportHotWallet(scenarios: [
+        let mainScreen = launchAndImportHotWallet(expressApiType: .mock, scenarios: [
             ScenarioConfig(name: "bitcoin_utxo", initialState: "Started"),
             ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled"),
             ScenarioConfig(name: "exchange_status_provider", initialState: "Changelly"),
@@ -45,30 +45,5 @@ final class TangemPayWithdrawUITests: BaseTestCase {
             .verifyBalanceContains("$5.00")
             .verifyTransactionRowVisible(label: "Withdrawal")
             .verifyPendingExpressTransactionVisible()
-    }
-
-    private func launchAndImportHotWallet(scenarios: [ScenarioConfig] = []) -> MainScreen {
-        let eligibilityScenario = ScenarioConfig(
-            name: "tangem_pay_eligibility",
-            initialState: "PaeraCustomer"
-        )
-
-        launchApp(
-            tangemApiType: .mock,
-            expressApiType: .mock,
-            visaApiType: .mock,
-            clearStorage: true,
-            scenarios: [eligibilityScenario] + scenarios
-        )
-
-        return CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .enterSeedPhrase(TestSeedPhrases.hotWallet)
-            .tapImportButton()
-            .tapContinue()
-            .skipAccessCode()
-            .tapFinish()
     }
 }
