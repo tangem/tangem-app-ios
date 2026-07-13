@@ -198,6 +198,25 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
             return fee
 
+        case (.dex(let data), .tron):
+            guard let txData = data.txData.map(Data.init(hexString:)) else {
+                throw ExpressProviderError.transactionDataNotFound
+            }
+
+            // The `txValue` is always coin
+            let amount = BSDKAmount(with: blockchain, type: .coin, value: data.txValue)
+            update(input: .dex(.tron(
+                amount: amount,
+                destination: data.destinationAddress,
+                txData: txData,
+                otherNativeFee: data.otherNativeFee
+            )))
+
+            await updateFees().value
+            let fee = try selectedFeeProvider.selectedTokenFee.value.get()
+
+            return fee
+
         case (.dex(let data), _):
             guard let txData = data.txData.map(Data.init(hexString:)) else {
                 throw ExpressProviderError.transactionDataNotFound

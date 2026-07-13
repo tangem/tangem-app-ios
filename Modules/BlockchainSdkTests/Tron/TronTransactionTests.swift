@@ -130,6 +130,40 @@ struct TronTransactionTests {
     }
 
     @Test
+    func dexSwapContractCall() throws {
+        // Opaque router calldata, as delivered verbatim by the Express backend in EVM tx format (`txData`).
+        let calldata = Data(hex: "a9059cbb000000000000000000000000ec8c5a0fcbb28f14418eed9cf582af0d77e4256e0000000000000000000000000000000000000000000000000000000005f5e100")
+
+        let transaction = Transaction(
+            amount: Amount(with: blockchain, value: 12.5),
+            fee: Fee(.zeroCoin(for: blockchain)),
+            sourceAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            destinationAddress: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn",
+            changeAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            params: TronTransactionParams(transactionType: .contractCall(data: calldata))
+        )
+
+        let presignedInput = try txBuilder.buildForSign(transaction: transaction, block: tronBlock)
+
+        #expect(presignedInput.rawData.feeLimit == 100_000_000)
+        #expect(presignedInput.rawData.contract.count == 1)
+
+        let contract = presignedInput.rawData.contract[0]
+        #expect(contract.type == .triggerSmartContract)
+
+        let parameter = try Protocol_TriggerSmartContract(unpackingAny: contract.parameter)
+        let utils = TronUtils()
+        #expect(parameter.data == calldata)
+        #expect(parameter.callValue == 12_500_000)
+        #expect(parameter.contractAddress == (try utils.convertAddressToBytes("TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn")))
+        #expect(parameter.ownerAddress == (try utils.convertAddressToBytes("TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF")))
+
+        // Still signable/sendable end-to-end, same as the other contract types above.
+        let signature = Data(hex: "6b5de85a80b2f4f02351f691593fb0e49f14c5cb42451373485357e42d7890cd77ad7bfcb733555c098b992da79dabe5050f5e2db77d9d98f199074222de037701")
+        _ = try txBuilder.buildForSend(rawData: presignedInput.rawData, signature: signature)
+    }
+
+    @Test
     func balanceResponse() throws {
         let longConstantResult = "0000000000000000000000000000000000000000000000001e755ae3061df48700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 

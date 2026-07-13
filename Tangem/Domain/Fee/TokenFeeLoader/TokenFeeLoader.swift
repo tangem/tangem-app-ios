@@ -43,6 +43,12 @@ protocol BitcoinTokenFeeLoader: TokenFeeLoader {
     func getFee(psbtBase64: String) async throws -> [BSDKFee]
 }
 
+// MARK: - TronTokenFeeLoader
+
+protocol TronTokenFeeLoader: TokenFeeLoader {
+    func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee]
+}
+
 // MARK: - TokenFeeLoader+
 
 extension TokenFeeLoader {
@@ -68,6 +74,14 @@ extension TokenFeeLoader {
         }
 
         return bitcoinTokenFeeLoader
+    }
+
+    func asTronTokenFeeLoader() throws -> TronTokenFeeLoader {
+        guard let tronTokenFeeLoader = self as? TronTokenFeeLoader else {
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+        }
+
+        return tronTokenFeeLoader
     }
 }
 

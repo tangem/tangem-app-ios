@@ -64,7 +64,11 @@ class TronWalletManager: BaseWalletManager, WalletManager {
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
-        let energyFeePublisher = energyFeeParameters(amount: amount, destination: destination)
+        feePublisher(amount: amount, destination: destination, callData: nil)
+    }
+
+    private func feePublisher(amount: Amount, destination: String, callData: Data?) -> AnyPublisher<[Fee], Error> {
+        let energyFeePublisher = energyFeeParameters(amount: amount, destination: destination, callData: callData)
 
         let blockchain = wallet.blockchain
 
@@ -73,7 +77,8 @@ class TronWalletManager: BaseWalletManager, WalletManager {
             fee: Fee(.zeroCoin(for: blockchain)),
             sourceAddress: wallet.address,
             destinationAddress: destination,
-            changeAddress: wallet.address
+            changeAddress: wallet.address,
+            params: callData.map { TronTransactionParams(transactionType: .contractCall(data: $0)) }
         )
 
         let transactionDataPublisher = signedTransactionData(
@@ -93,7 +98,10 @@ class TronWalletManager: BaseWalletManager, WalletManager {
                 destinationExists,
                 transactionData,
                 resources -> [Fee] in
-            if !destinationExists, amount.type == .coin {
+            // A plain coin transfer to a not-yet-activated account is charged a fixed activation fee;
+            // a swap (coin amount + call data) targets an existing contract and must fall through to
+            // real energy estimation instead.
+            if !destinationExists, amount.type == .coin, callData == nil {
                 let amount = Amount(with: blockchain, value: 1.1)
                 return [Fee(amount)]
             }
@@ -134,7 +142,13 @@ class TronWalletManager: BaseWalletManager, WalletManager {
         .eraseToAnyPublisher()
     }
 
-    private func energyFeeParameters(amount: Amount, destination: String) -> AnyPublisher<TronEnergyFeeData, Error> {
+    private func energyFeeParameters(amount: Amount, destination: String, callData: Data?) -> AnyPublisher<TronEnergyFeeData, Error> {
+        // A native-value contract call (a DEX swap in EVM tx format) triggers the destination router
+        // with raw call data — estimate its energy from that call data, not the fixed transfer path below.
+        if let callData, amount.type == .coin {
+            return swapEnergyFeeParameters(destination: destination, callData: callData, callValue: amount)
+        }
+
         guard let contractAddress = amount.type.token?.contractAddress else {
             return .justWithError(output: TronEnergyFeeData(energyFee: 0, sunPerEnergyUnit: 0))
         }
@@ -152,24 +166,47 @@ class TronWalletManager: BaseWalletManager, WalletManager {
             )
         }
 
+        let skipDynamicIncrease = amount.type.token?.contractAddress == Constants.usdtContractAddress
+
         return energyUsagePublisher.zip(networkService.chainParameters())
             .map { energyUse, chainParameters in
-                // Contract's energy fee changes every maintenance period (6 hours) and
-                // since we don't know what period the transaction is going to be executed in
-                // we increase the fee just in case by 20%
-                let dynamicEnergyIncreaseFactorPresicion = 10_000
-                let dynamicEnergyIncreaseFactor: Double = amount.type.token?.contractAddress == Constants.usdtContractAddress
-                    ? .zero
-                    : Double(chainParameters.dynamicEnergyIncreaseFactor) / Double(dynamicEnergyIncreaseFactorPresicion)
-
-                let conservativeEnergyFee = Int(Double(energyUse) * (1 + dynamicEnergyIncreaseFactor))
-
-                return TronEnergyFeeData(
-                    energyFee: conservativeEnergyFee,
-                    sunPerEnergyUnit: chainParameters.sunPerEnergyUnit
-                )
+                Self.conservativeEnergyFeeData(energyUse: energyUse, chainParameters: chainParameters, skipDynamicIncrease: skipDynamicIncrease)
             }
             .eraseToAnyPublisher()
+    }
+
+    private func swapEnergyFeeParameters(destination: String, callData: Data, callValue: Amount) -> AnyPublisher<TronEnergyFeeData, Error> {
+        let callValueSun = UInt64(TronUtils().convertAmountToSun(callValue))
+
+        let energyUsagePublisher = networkService.contractEnergyUsage(
+            sourceAddress: wallet.address,
+            contractAddress: destination,
+            callDataHex: callData.hex(),
+            callValue: callValueSun
+        )
+
+        return energyUsagePublisher.zip(networkService.chainParameters())
+            .map { energyUse, chainParameters in
+                Self.conservativeEnergyFeeData(energyUse: energyUse, chainParameters: chainParameters, skipDynamicIncrease: false)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    /// Contract's energy fee changes every maintenance period (6 hours) and since we don't know what
+    /// period the transaction is going to be executed in we increase the fee just in case by 20%
+    /// (skipped for USDT, which Tron subsidizes with a fixed energy fee).
+    private static func conservativeEnergyFeeData(energyUse: Int, chainParameters: TronChainParameters, skipDynamicIncrease: Bool) -> TronEnergyFeeData {
+        let dynamicEnergyIncreaseFactorPresicion = 10_000
+        let dynamicEnergyIncreaseFactor: Double = skipDynamicIncrease
+            ? .zero
+            : Double(chainParameters.dynamicEnergyIncreaseFactor) / Double(dynamicEnergyIncreaseFactorPresicion)
+
+        let conservativeEnergyFee = Int(Double(energyUse) * (1 + dynamicEnergyIncreaseFactor))
+
+        return TronEnergyFeeData(
+            energyFee: conservativeEnergyFee,
+            sunPerEnergyUnit: chainParameters.sunPerEnergyUnit
+        )
     }
 
     private func signedTransactionData(transaction: Transaction, signer: TransactionSigner, publicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
@@ -265,6 +302,14 @@ extension TronWalletManager: TronNetworkProvider {
                 manager.networkService.getAllowance(owner: owner, contractAddress: contractAddress, allowanceData: allowanceData)
             }
             .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - TronDexTransactionFeeProvider
+
+extension TronWalletManager: TronDexTransactionFeeProvider {
+    func getFee(amount: Amount, destination: String, callData: Data) async throws -> [Fee] {
+        try await feePublisher(amount: amount, destination: destination, callData: callData).async()
     }
 }
 

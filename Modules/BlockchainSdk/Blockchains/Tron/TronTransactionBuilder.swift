@@ -16,8 +16,9 @@ class TronTransactionBuilder {
     private let utils = TronUtils()
 
     func buildForSign(transaction: Transaction, block: TronBlock) throws -> TronPresignedInput {
-        let contract = try contract(transaction: transaction)
-        let feeLimit = (transaction.amount.type == .coin) ? 0 : Constants.smartContractFeeLimit
+        let params = try getParams(from: transaction)
+        let contract = try contract(transaction: transaction, params: params)
+        let feeLimit = feeLimit(for: transaction, params: params)
 
         let blockHeaderRawData = block.block_header.raw_data
         let blockHeader = Protocol_BlockHeader.raw.with {
@@ -88,17 +89,26 @@ class TronTransactionBuilder {
 
     // MARK: - Private
 
-    private func contract(transaction: Transaction) throws -> Protocol_Transaction.Contract {
+    private func contract(transaction: Transaction, params: TronTransactionParams?) throws -> Protocol_Transaction.Contract {
         let amount = transaction.amount
         let sourceAddress = transaction.sourceAddress
         let destinationAddress = transaction.destinationAddress
 
         switch amount.type {
         case .coin:
+            if case .contractCall(let data) = params?.transactionType {
+                return try triggerSmartContract(
+                    ownerAddress: sourceAddress,
+                    contractAddress: destinationAddress,
+                    data: data,
+                    callValue: utils.convertAmountToSun(amount)
+                )
+            }
+
             let parameter = try Protocol_TransferContract.with {
                 $0.ownerAddress = try utils.convertAddressToBytes(sourceAddress)
                 $0.toAddress = try utils.convertAddressToBytes(destinationAddress)
-                $0.amount = amount.int64Value
+                $0.amount = utils.convertAmountToSun(amount)
             }
 
             return try Protocol_Transaction.Contract.with {
@@ -106,33 +116,55 @@ class TronTransactionBuilder {
                 $0.parameter = try Google_Protobuf_Any(message: parameter)
             }
         case .token(let token):
-            let contractData = try buildContractData(transaction: transaction)
+            let contractData = try buildContractData(transaction: transaction, params: params)
 
-            let parameter = try Protocol_TriggerSmartContract.with {
-                $0.contractAddress = try utils.convertAddressToBytes(token.contractAddress)
-                $0.data = contractData
-                $0.ownerAddress = try utils.convertAddressToBytes(sourceAddress)
-            }
-
-            return try Protocol_Transaction.Contract.with {
-                $0.type = .triggerSmartContract
-                $0.parameter = try Google_Protobuf_Any(message: parameter)
-            }
+            return try triggerSmartContract(
+                ownerAddress: sourceAddress,
+                contractAddress: token.contractAddress,
+                data: contractData,
+                callValue: 0
+            )
         default:
             assertionFailure("Not impkemented")
             throw BlockchainSdkError.notImplemented
         }
     }
 
-    private func buildContractData(transaction: Transaction) throws -> Data {
-        let params = try getParams(from: transaction)
-        let transactionType = params?.transactionType ?? .transfer
+    private func triggerSmartContract(ownerAddress: String, contractAddress: String, data: Data, callValue: Int64) throws -> Protocol_Transaction.Contract {
+        let parameter = try Protocol_TriggerSmartContract.with {
+            $0.contractAddress = try utils.convertAddressToBytes(contractAddress)
+            $0.data = data
+            $0.ownerAddress = try utils.convertAddressToBytes(ownerAddress)
+            $0.callValue = callValue
+        }
 
-        switch transactionType {
+        return try Protocol_Transaction.Contract.with {
+            $0.type = .triggerSmartContract
+            $0.parameter = try Google_Protobuf_Any(message: parameter)
+        }
+    }
+
+    private func buildContractData(transaction: Transaction, params: TronTransactionParams?) throws -> Data {
+        switch params?.transactionType ?? .transfer {
         case .transfer:
             return try buildTransferContractData(amount: transaction.amount, destinationAddress: transaction.destinationAddress)
         case .approval(let data):
             return buildApprovalContractData(data: data)
+        case .contractCall:
+            // Only reached for `.token` amounts; a DEX contract call always carries a `.coin` amount
+            // (native `call_value`), handled directly in `contract(transaction:params:)`.
+            throw BlockchainSdkError.failedToBuildTx
+        }
+    }
+
+    private func feeLimit(for transaction: Transaction, params: TronTransactionParams?) -> Int64 {
+        switch (transaction.amount.type, params?.transactionType) {
+        case (.coin, .contractCall):
+            return Constants.smartContractFeeLimit
+        case (.coin, _):
+            return 0
+        default:
+            return Constants.smartContractFeeLimit
         }
     }
 
@@ -167,15 +199,6 @@ class TronTransactionBuilder {
 private extension TronTransactionBuilder {
     enum Constants {
         static let smartContractFeeLimit: Int64 = 100_000_000
-    }
-}
-
-// MARK: - Amount+
-
-private extension Amount {
-    var int64Value: Int64 {
-        let decimalAmount = value * pow(Decimal(10), decimals)
-        return (decimalAmount.rounded() as NSDecimalNumber).int64Value
     }
 }
 

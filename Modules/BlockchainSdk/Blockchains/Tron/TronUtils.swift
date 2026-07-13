@@ -57,4 +57,10 @@ struct TronUtils {
 
         return amountData
     }
+
+    /// The raw sun (10^-6 TRX) integer value, e.g. for `TransferContract.amount` / `TriggerSmartContract.call_value`.
+    func convertAmountToSun(_ amount: Amount) -> Int64 {
+        let decimalAmount = amount.value * pow(Decimal(10), amount.decimals)
+        return (decimalAmount.rounded() as NSDecimalNumber).int64Value
+    }
 }

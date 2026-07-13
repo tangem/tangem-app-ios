@@ -69,6 +69,9 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
         case .bitcoin:
             return try await sendBitcoinPsbt(data: data)
 
+        case .tron:
+            return try await sendTron(data: data, fee: fee)
+
         case let blockchain:
             throw DEXTransactionDispatcherError.dexNotSupported(blockchain: blockchain.displayName)
         }
@@ -102,6 +105,27 @@ private extension ExpressDEXTransactionDispatcher {
         }
 
         return unsignedData
+    }
+
+    func sendTron(data: ExpressTransactionData, fee: BSDKFee) async throws -> TransactionDispatcherResult {
+        guard FeatureProvider.isAvailable(.tronDexSwap) else {
+            throw DEXTransactionDispatcherError.dexNotSupported(blockchain: walletModel.tokenItem.blockchain.displayName)
+        }
+
+        guard let txData = data.txData else {
+            throw DEXTransactionDispatcherError.transactionDataForSwapOperationNotFound
+        }
+
+        let amount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: data.txValue)
+        let transaction = try await transactionCreator.createTransaction(
+            amount: amount,
+            fee: fee,
+            destinationAddress: data.destinationAddress,
+            contractAddress: data.destinationAddress,
+            params: TronTransactionParams(transactionType: .contractCall(data: Data(hexString: txData)))
+        )
+
+        return try await transferTransactionDispatcher.send(transaction: .transfer(transaction))
     }
 
     func sendBitcoinPsbt(data: ExpressTransactionData) async throws -> TransactionDispatcherResult {

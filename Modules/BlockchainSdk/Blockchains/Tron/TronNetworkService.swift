@@ -149,6 +149,14 @@ class TronNetworkService: MultiNetworkProvider {
         }
     }
 
+    func contractEnergyUsage(sourceAddress: String, contractAddress: String, callDataHex: String, callValue: UInt64) -> AnyPublisher<Int, Error> {
+        providerPublisher {
+            $0.contractEnergyUsageForCallData(sourceAddress: sourceAddress, contractAddress: contractAddress, data: callDataHex, callValue: callValue)
+                .map(\.energy_used)
+                .eraseToAnyPublisher()
+        }
+    }
+
     func getAllowance(owner: String, contractAddress: String, allowanceData: String) -> AnyPublisher<Decimal, Error> {
         providerPublisher {
             $0.getAllowance(sourceAddress: owner, contractAddress: contractAddress, parameter: allowanceData)

@@ -53,6 +53,13 @@ public protocol BitcoinPsbtSwapSender {
     func send(psbtBase64: String, destination: String, signer: TransactionSigner) async throws -> TransactionSendResult
 }
 
+/// Estimates the fee for a Tron DEX swap in EVM tx format (`txTo`/`txData`/`txValue`) — a native-value
+/// `TriggerSmartContract` call with arbitrary calldata, as opposed to the fixed transfer/approve calldata
+/// the regular `TransactionFeeProvider.getFee` path builds.
+public protocol TronDexTransactionFeeProvider {
+    func getFee(amount: Amount, destination: String, callData: Data) async throws -> [Fee]
+}
+
 // MARK: - TransactionSigner
 
 public protocol TransactionSigner {

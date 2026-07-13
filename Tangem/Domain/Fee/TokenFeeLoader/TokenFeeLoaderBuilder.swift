@@ -20,9 +20,10 @@ struct TokenFeeLoaderBuilder {
             return DemoTokenFeeLoader(tokenItem: tokenItem)
         }
 
+        let transactionFeeProvider = dependenciesProvider.transactionFeeProvider
         let tokenFeeLoader = CommonTokenFeeLoader(
             tokenItem: tokenItem,
-            transactionFeeProvider: dependenciesProvider.transactionFeeProvider
+            transactionFeeProvider: transactionFeeProvider
         )
 
         if let compiledTransactionFeeProvider = dependenciesProvider.compiledTransactionFeeProvider {
@@ -42,6 +43,10 @@ struct TokenFeeLoaderBuilder {
 
         if case .bitcoin = tokenItem.blockchain {
             return CommonBitcoinTokenFeeLoader(tokenItem: tokenItem, tokenFeeLoader: tokenFeeLoader)
+        }
+
+        if let tronDexTransactionFeeProvider = transactionFeeProvider as? TronDexTransactionFeeProvider {
+            return CommonTronTokenFeeLoader(tokenFeeLoader: tokenFeeLoader, tronDexTransactionFeeProvider: tronDexTransactionFeeProvider)
         }
 
         return tokenFeeLoader

@@ -238,6 +238,13 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
             return try await updateFees(psbtBase64: psbtBase64)
 
+        case .dex(.tron(let amount, let destination, let txData, let otherNativeFee)):
+            guard FeatureProvider.isAvailable(.tronDexSwap) else {
+                throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+            }
+
+            return try await updateFees(tronAmount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee)
+
         case .approve(let txData, let toContractAddress, let feeMultiplier):
             let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
             let allFees = try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
@@ -299,6 +306,9 @@ private extension CommonTokenFeeProvider {
             // Is available. Do nothing
             break
         case .dex(.bitcoinPsbt) where tokenFeeLoader is BitcoinTokenFeeLoader && FeatureProvider.isAvailable(.bitcoinDexSwap):
+            // Is available. Do nothing
+            break
+        case .dex(.tron) where tokenFeeLoader is TronTokenFeeLoader && FeatureProvider.isAvailable(.tronDexSwap):
             // Is available. Do nothing
             break
         case .dex:
@@ -445,6 +455,19 @@ private extension CommonTokenFeeProvider {
 
     func updateFees(psbtBase64: String) async throws -> [BSDKFee] {
         let fees = try await tokenFeeLoader.asBitcoinTokenFeeLoader().getFee(psbtBase64: psbtBase64)
+        try Task.checkCancellation()
+        return fees
+    }
+
+    // MARK: - Tron
+
+    func updateFees(tronAmount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
+        let fees = try await tokenFeeLoader.asTronTokenFeeLoader().getFee(
+            amount: tronAmount,
+            destination: destination,
+            txData: txData,
+            otherNativeFee: otherNativeFee
+        )
         try Task.checkCancellation()
         return fees
     }
