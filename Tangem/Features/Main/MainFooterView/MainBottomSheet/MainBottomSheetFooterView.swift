@@ -95,7 +95,7 @@ struct MainBottomSheetFooterView: View {
 
     private var backgroundColor: Color {
         if FeatureProvider.isAvailable(.redesign) {
-            Color.Tangem.Surface.level3
+            DesignSystem.Color.bgSecondary
         } else {
             Colors.Background.primary
         }

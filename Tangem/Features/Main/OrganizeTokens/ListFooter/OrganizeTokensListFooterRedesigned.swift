@@ -61,7 +61,7 @@ struct OrganizeTokensListFooterRedesigned: View {
             }
         }
         .background(
-            ListFooterOverlayShadowView(color: Color.Tangem.Surface.level2)
+            ListFooterOverlayShadowView(color: DesignSystem.Color.bgPrimary)
                 .padding(.top, overlayViewTopPadding)
                 .hidden(isTokenListFooterGradientHidden)
         )

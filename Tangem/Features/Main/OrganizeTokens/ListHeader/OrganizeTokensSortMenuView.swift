@@ -49,7 +49,7 @@ struct OrganizeTokensSortMenuView: View {
         let icon = Assets.exchangeMini.image
             .resizable()
             .renderingMode(.template)
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
             .frame(width: 24, height: 24)
             .accessibilityLabel("\(Localization.organizeTokensMenuSortByBalance), \(Localization.organizeTokensMenuGroupByNetworks)")
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.sortMenuTrigger)

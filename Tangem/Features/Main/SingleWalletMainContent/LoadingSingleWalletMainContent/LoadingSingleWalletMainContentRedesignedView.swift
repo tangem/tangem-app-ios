@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct LoadingSingleWalletMainContentRedesignedView: View {
@@ -24,7 +25,7 @@ struct LoadingSingleWalletMainContentRedesignedView: View {
 #if DEBUG
 #Preview {
     ZStack {
-        Color.Tangem.Surface.level2
+        DesignSystem.Color.bgPrimary
             .ignoresSafeArea()
 
         LoadingSingleWalletMainContentRedesignedView()

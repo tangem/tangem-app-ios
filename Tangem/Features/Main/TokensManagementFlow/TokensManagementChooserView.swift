@@ -25,7 +25,7 @@ struct TokensManagementChooserView: View {
     }
 
     private var rowBackgroundColor: Color {
-        isRedesign ? Color.Tangem.Surface.level3 : Colors.Background.action
+        isRedesign ? DesignSystem.Color.bgSecondary : Colors.Background.action
     }
 
     private var rowCornerRadius: CGFloat {
@@ -33,15 +33,15 @@ struct TokensManagementChooserView: View {
     }
 
     private var titleColor: Color {
-        isRedesign ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
+        isRedesign ? DesignSystem.Color.textPrimary : Colors.Text.primary1
     }
 
     private var subtitleColor: Color {
-        isRedesign ? .Tangem.Text.Neutral.secondary : Colors.Text.tertiary
+        isRedesign ? DesignSystem.Color.textSecondary : Colors.Text.tertiary
     }
 
     private var accentColor: Color {
-        isRedesign ? Color.Tangem.Graphic.Status.accent : Colors.Icon.accent
+        isRedesign ? DesignSystem.Color.iconAccentBlue : Colors.Icon.accent
     }
 
     // MARK: - View Body
@@ -149,7 +149,7 @@ struct TokensManagementChooserView: View {
         DesignSystem.Icons.ChevronRight.regular20.image
             .renderingMode(.template)
             .bold()
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
     }
 }
 

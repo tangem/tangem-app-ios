@@ -18,7 +18,7 @@ struct MainNavigationBalanceView: View {
         switch state {
         case .loading(.some(let text)), .loaded(let text):
             SensitiveText(text)
-                .style(DesignSystem.Font.bodyMediumToken, color: Color.Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
         case .loading(.none), .empty:
             EmptyView()

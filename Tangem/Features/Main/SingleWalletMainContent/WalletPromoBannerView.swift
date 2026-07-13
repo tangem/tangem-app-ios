@@ -41,13 +41,13 @@ struct WalletPromoBannerView: View {
                 .frame(width: iconWidth, height: iconHeight)
 
             Text(Localization.walletPromoBannerTitle)
-                .style(DesignSystem.Font.bodyMediumToken, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, titlePadding)
 
             Text(Localization.walletPromoBannerDescription)
-                .style(DesignSystem.Font.captionMediumToken, color: .Tangem.Text.Neutral.secondary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, descriptionPadding)
@@ -62,7 +62,7 @@ struct WalletPromoBannerView: View {
             .padding(.top, actionPadding)
         }
         .padding(padding)
-        .background(Color.Tangem.Surface.level3)
+        .background(DesignSystem.Color.bgSecondary)
         .glowBorder(effect: .bannerMagic, cornerRadius: cornerRadius)
         .environment(\.colorScheme, .dark)
         .onAppear(perform: viewModel.onAppear)

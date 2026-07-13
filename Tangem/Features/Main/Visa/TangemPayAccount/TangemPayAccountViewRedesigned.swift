@@ -37,7 +37,7 @@ private struct TangemPayAccountTile: View {
         Button(action: onTap) {
             content
                 .padding(state.isSkeleton ? .zero : 12)
-                .background(Color.Tangem.Surface.level3)
+                .background(DesignSystem.Color.bgSecondary)
                 .cornerRadiusContinuous(24)
                 .opacity(state.isFullyVisible ? 1 : Constants.dimmedOpacity)
         }
@@ -176,7 +176,7 @@ private struct TangemPayAccountTile: View {
         Assets.failedCloud.image
             .resizable()
             .renderingMode(.template)
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(width: cachedIconSize, height: cachedIconSize)
     }
 }
@@ -195,6 +195,6 @@ private extension TangemPayAccountTile {
     }
 
     static let balanceFont = TangemRowConstants.Style.Title.font
-    static let balanceIntegerColor: Color = .Tangem.Text.Neutral.primary
-    static let balanceDecimalColor: Color = .Tangem.Text.Neutral.secondary
+    static let balanceIntegerColor: Color = DesignSystem.Color.textPrimary
+    static let balanceDecimalColor: Color = DesignSystem.Color.textSecondary
 }

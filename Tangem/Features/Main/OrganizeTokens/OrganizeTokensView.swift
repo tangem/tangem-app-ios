@@ -84,14 +84,14 @@ struct OrganizeTokensView: View {
 
     private var backgroundColor: Color {
         if isRedesign {
-            return Color.Tangem.Surface.level2
+            return DesignSystem.Color.bgPrimary
         }
         return .clear
     }
 
     private var cellBackgroundColor: Color {
         if isRedesign {
-            return Color.Tangem.Surface.level3
+            return DesignSystem.Color.bgSecondary
         }
         return Colors.Background.action
     }

@@ -26,17 +26,17 @@ struct MarketsHintView: View {
     private var redesignBody: some View {
         VStack(spacing: 4) {
             Text(Localization.marketsHintPartOne)
-                .style(DesignSystem.Font.subheadingMediumToken, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
             HStack(spacing: 4) {
                 Text(Localization.marketsHintPartTwo)
-                    .style(DesignSystem.Font.subheadingMediumToken, color: .Tangem.Text.Neutral.tertiary)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
 
                 Assets.Glyphs.tripleSparkles.image
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .frame(width: 20, height: 20)
             }
         }

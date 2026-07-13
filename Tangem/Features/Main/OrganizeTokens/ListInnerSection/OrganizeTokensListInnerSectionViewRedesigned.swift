@@ -24,7 +24,7 @@ struct OrganizeTokensListInnerSectionViewRedesigned: View {
     var body: some View {
         HStack(spacing: 8) {
             Text(title)
-                .style(DesignSystem.Font.subheadingMediumToken, color: .Tangem.Text.Neutral.secondary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -34,7 +34,7 @@ struct OrganizeTokensListInnerSectionViewRedesigned: View {
                 Assets.OrganizeTokens.groupDragAndDropIcon
                     .image
                     .renderingMode(.template)
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .overlay(
                         OrganizeTokensDragAndDropGestureMarkView(context: .init(identifier: identifier))
                             .frame(size: Constants.dragAndDropTapZoneSize)

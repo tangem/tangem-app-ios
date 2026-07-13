@@ -53,7 +53,7 @@ struct MainUserWalletHeader: View {
 
     private var lockedBalance: some View {
         Capsule()
-            .fill(Color.Tangem.Field.backgroundDefault)
+            .fill(DesignSystem.Color.bgOpaqueSecondary)
             .frame(size: Sizes.balanceSkeletonSize * scaleFactor)
     }
 
@@ -62,7 +62,7 @@ struct MainUserWalletHeader: View {
             state: headerViewModel.balance,
             style: .init(
                 font: DesignSystem.Font.displayMediumToken,
-                textColor: Color.Tangem.Text.Neutral.primary
+                textColor: DesignSystem.Color.textPrimary
             ),
             loader: .init(
                 size: Sizes.balanceSkeletonSize * scaleFactor,
@@ -97,7 +97,7 @@ struct MainUserWalletHeader: View {
     private var walletNameWithThumbnail: some View {
         HStack(spacing: 4) {
             Text(headerViewModel.userWalletName)
-                .style(DesignSystem.Font.subheadingMediumToken, color: .Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
 
             if let walletThumbnailType = headerViewModel.walletThumbnailType {
                 MiniatureWalletView(type: walletThumbnailType)
@@ -146,7 +146,7 @@ private extension MainUserWalletHeader {
         var body: some View {
             Text(Localization.initialWalletSyncRestoreProgress(displayedProgress))
                 .monospacedDigit()
-                .style(DesignSystem.Font.subheadingMediumToken, color: Color.Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .onAppear {
                     displayedProgress = progress
                 }
@@ -205,7 +205,7 @@ private extension MainUserWalletHeader {
                     width: ProgressChipConstants.iconSize,
                     height: ProgressChipConstants.iconSize
                 )
-                .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .rotationEffect(.degrees(isRotating ? 360 : 0))
                 .onAppear {
                     isRotating = false

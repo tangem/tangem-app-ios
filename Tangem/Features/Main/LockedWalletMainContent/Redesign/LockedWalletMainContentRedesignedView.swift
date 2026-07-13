@@ -79,7 +79,7 @@ private extension LockedWalletMainContentRedesignedView {
         )
     )
     .infinityFrame()
-    .background(Color.Tangem.Surface.level2.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }
 
 #Preview("Single-wallet") {
@@ -92,6 +92,6 @@ private extension LockedWalletMainContentRedesignedView {
         )
     )
     .infinityFrame()
-    .background(Color.Tangem.Surface.level2.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }
 #endif // DEBUG
