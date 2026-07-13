@@ -40,7 +40,7 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
     }
 
     public var body: some View {
-        LazyVStack(spacing: SizeUnit.x4.value) {
+        LazyVStack(spacing: SizeUnit.x2.value) {
             ForEach(nonStackableItems) { item in
                 NotificationBanner(
                     bannerType: item.bannerType,
