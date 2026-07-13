@@ -37,6 +37,14 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
         }
     }
 
+    func openGetTangemPay() -> TangemPayOnboardingScreen {
+        XCTContext.runActivity(named: "Open Tangem Pay onboarding from details") { _ in
+            let getTangemPayButton = app.buttons[DetailsAccessibilityIdentifiers.getTangemPayButton].firstMatch
+            getTangemPayButton.waitAndTapWithScroll()
+            return TangemPayOnboardingScreen(app)
+        }
+    }
+
     @discardableResult
     func openWalletConnections() -> WalletConnectionsScreen {
         XCTContext.runActivity(named: "Open WalletConnect") { _ in
