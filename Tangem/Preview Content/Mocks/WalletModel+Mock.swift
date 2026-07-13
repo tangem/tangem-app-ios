@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import Combine
+import TangemFoundation
 
 extension CommonWalletModel {
     static var mockETH = {
@@ -71,7 +72,7 @@ class EthereumWalletManagerMock: WalletManager {
     var outputsCount: Int? { nil }
 
     func send(_ transaction: BlockchainSdk.Transaction, signer: BlockchainSdk.TransactionSigner) -> AnyPublisher<BlockchainSdk.TransactionSendResult, SendTxError> {
-        Empty().eraseToAnyPublisher()
+        .empty
     }
 
     func validate(fee: BlockchainSdk.Fee) throws {}
