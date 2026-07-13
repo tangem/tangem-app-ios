@@ -34,6 +34,7 @@ protocol SendDestinationInteractor {
 
 class CommonSendDestinationInteractor {
     private let initialSourceToken: SendSourceToken
+    private var initialSourceTokenItem: TokenItem { initialSourceToken.tokenItem }
     private weak var input: SendDestinationInput?
     private weak var receiveTokenInput: SendReceiveTokenInput?
 
@@ -221,13 +222,13 @@ private extension CommonSendDestinationInteractor {
 extension CommonSendDestinationInteractor: SendDestinationInteractor {
     var tokenItemPublisher: AnyPublisher<TokenItem, Never> {
         guard let receiveTokenInput else {
-            return Empty().eraseToAnyPublisher()
+            return .just(output: initialSourceTokenItem)
         }
 
         return receiveTokenInput
             .receiveTokenPublisher
             .withWeakCaptureOf(self)
-            .map { $1.value?.tokenItem ?? $0.initialSourceToken.tokenItem }
+            .map { $1.value?.tokenItem ?? $0.initialSourceTokenItem }
             .eraseToAnyPublisher()
     }
 
@@ -241,7 +242,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
 
     var destinationResolvedAddress: AnyPublisher<String?, Never> {
         guard let input else {
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input.destinationPublisher.map { $0?.value.showableResolved }.eraseToAnyPublisher()

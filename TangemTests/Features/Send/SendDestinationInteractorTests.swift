@@ -20,7 +20,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     @Test("Does not retain input - uses weak reference")
     func doesNotRetainInput() async {
         var input: SendDestinationInputStub? = .init()
-        var sut: SUT? = makeSUT(input: input!)
+        var sut: SUT? = makeSUT(input: input!, receiveTokenInput: nil)
 
         weak var weakInput = input
 
@@ -34,12 +34,33 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         weakInput = nil // Silence "never mutated" warning
     }
 
+    // MARK: - Token Item Publisher Tests
+
+    @Test("Emits initial source token item when receive token input is nil")
+    func emitsInitialSourceTokenItemWhenReceiveTokenInputIsNil() async {
+        let blockchain = Blockchain.ton(curve: .ed25519, testnet: false)
+        let input = SendDestinationInputStub()
+        // nil receive token input reproduces the NFT send flow — the regression under test
+        let sut = makeSUT(input: input, receiveTokenInput: nil, blockchain: blockchain)
+
+        var receivedTokenItem: TokenItem?
+        let cancellable = sut.tokenItemPublisher.sink { receivedTokenItem = $0 }
+
+        await waitUntil { receivedTokenItem != nil }
+        cancellable.cancel()
+
+        #expect(
+            receivedTokenItem == SendSourceTokenStub(blockchain: blockchain).tokenItem,
+            "Should fall back to the initial source token item when there is no receive token input"
+        )
+    }
+
     // MARK: - Memo Validation Tests
 
     @Test("No error when destination is nil")
     func noErrorWhenDestinationIsNil() async {
         let input = SendDestinationInputStub()
-        let sut = makeSUT(input: input)
+        let sut = makeSUT(input: input, receiveTokenInput: nil)
 
         // Don't set any destination - stays nil
         sut.update(additionalField: emptyMemo)
@@ -55,7 +76,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     @Test("Shows error when memo required but empty")
     func showsErrorWhenMemoRequiredButEmpty() async throws {
         let input = SendDestinationInputStub()
-        let sut = makeSUT(input: input)
+        let sut = makeSUT(input: input, receiveTokenInput: nil)
 
         // Update with empty memo first
         sut.update(additionalField: emptyMemo)
@@ -75,7 +96,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     @Test("No error when memo required and filled")
     func noErrorWhenMemoRequiredAndFilled() async {
         let input = SendDestinationInputStub()
-        let sut = makeSUT(input: input)
+        let sut = makeSUT(input: input, receiveTokenInput: nil)
 
         // Fill memo FIRST, before setting memoRequired destination
         sut.update(additionalField: anyMemo)
@@ -95,7 +116,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     @Test("No error when memo not required and empty")
     func noErrorWhenMemoNotRequired() async {
         let input = SendDestinationInputStub()
-        let sut = makeSUT(input: input)
+        let sut = makeSUT(input: input, receiveTokenInput: nil)
 
         // Set destination with memoRequired = false
         input.send(destination: .memoNotRequired)
@@ -115,7 +136,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     @Test("Shows error when destination tag format is invalid (XRP)")
     func showsErrorWhenDestinationTagFormatIsInvalid() async throws {
         let input = SendDestinationInputStub()
-        let sut = makeSUT(input: input, blockchain: .xrp(curve: .secp256k1))
+        let sut = makeSUT(input: input, receiveTokenInput: nil, blockchain: .xrp(curve: .secp256k1))
 
         var receivedError: String?
         let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
@@ -132,7 +153,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     @Test("Format error is not cleared when destination changes to memoNotRequired")
     func formatErrorNotClearedOnDestinationChange() async throws {
         let input = SendDestinationInputStub()
-        let sut = makeSUT(input: input, blockchain: .xrp(curve: .secp256k1))
+        let sut = makeSUT(input: input, receiveTokenInput: nil, blockchain: .xrp(curve: .secp256k1))
 
         var receivedError: String?
         let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
@@ -157,7 +178,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     @Test("Feature OFF: No memo required error when memo is empty")
     func featureOffNoMemoRequiredError() async {
         let input = SendDestinationInputStub()
-        let sut = makeSUT(input: input, validateMemoBeforeConfirm: false)
+        let sut = makeSUT(input: input, receiveTokenInput: nil, validateMemoBeforeConfirm: false)
 
         var receivedError: String?
         let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
@@ -174,7 +195,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     @Test("Feature OFF: Next button enabled even when memo required but empty")
     func featureOffNextButtonEnabled() async {
         let input = SendDestinationInputStub()
-        let sut = makeSUT(input: input, validateMemoBeforeConfirm: false)
+        let sut = makeSUT(input: input, receiveTokenInput: nil, validateMemoBeforeConfirm: false)
 
         var isValid: Bool?
         let cancellable = sut.allFieldsIsValid.sink { isValid = $0 }
@@ -192,7 +213,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     @Test("Feature OFF: Format error still clears when field emptied")
     func featureOffFormatErrorClears() async throws {
         let input = SendDestinationInputStub()
-        let sut = makeSUT(input: input, blockchain: .xrp(curve: .secp256k1), validateMemoBeforeConfirm: false)
+        let sut = makeSUT(input: input, receiveTokenInput: nil, blockchain: .xrp(curve: .secp256k1), validateMemoBeforeConfirm: false)
 
         var receivedError: String?
         let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
@@ -217,7 +238,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     @Test("Next button disabled when memo required but empty")
     func nextButtonDisabledWhenMemoRequiredButEmpty() async {
         let input = SendDestinationInputStub()
-        let sut = makeSUT(input: input)
+        let sut = makeSUT(input: input, receiveTokenInput: nil)
 
         var isValid: Bool?
         let cancellable = sut.allFieldsIsValid.sink { isValid = $0 }
@@ -238,7 +259,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     @Test("Next button enabled when memo required and filled")
     func nextButtonEnabledWhenMemoFilled() async {
         let input = SendDestinationInputStub()
-        let sut = makeSUT(input: input)
+        let sut = makeSUT(input: input, receiveTokenInput: nil)
 
         var isValid: Bool?
         let cancellable = sut.allFieldsIsValid.sink { isValid = $0 }
@@ -265,13 +286,14 @@ private extension SendDestinationInteractorTests {
 
     func makeSUT(
         input: SendDestinationInputStub,
+        receiveTokenInput: SendReceiveTokenInput?,
         blockchain: Blockchain = .ton(curve: .ed25519, testnet: false),
         validateMemoBeforeConfirm: Bool = true
     ) -> SUT {
         let sut = SUT(
             initialSourceToken: SendSourceTokenStub(blockchain: blockchain),
             input: input,
-            receiveTokenInput: nil,
+            receiveTokenInput: receiveTokenInput,
             saver: SendDestinationInteractorSaverStub(input: input),
             dependenciesBuilder: SendDestinationDependenciesProviderStub(blockchain: blockchain),
             validateMemoBeforeConfirm: validateMemoBeforeConfirm
