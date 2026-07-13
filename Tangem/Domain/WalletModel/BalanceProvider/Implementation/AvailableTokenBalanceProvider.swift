@@ -46,7 +46,7 @@ class AvailableTokenBalanceProvider {
 extension AvailableTokenBalanceProvider: TokenBalanceProvider {
     var balanceType: TokenBalanceType {
         guard let strongInput = input else {
-            assertionFailure("StakingTokenBalanceProviderInput not found")
+            assertionFailure("AvailableTokenBalanceProviderInput not found")
             return .empty(.noData)
         }
 
@@ -55,8 +55,8 @@ extension AvailableTokenBalanceProvider: TokenBalanceProvider {
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         guard let strongInput = input else {
-            assertionFailure("StakingTokenBalanceProviderInput not found")
-            return Empty().eraseToAnyPublisher()
+            assertionFailure("AvailableTokenBalanceProviderInput not found")
+            return .empty
         }
 
         return strongInput.statePublisher
