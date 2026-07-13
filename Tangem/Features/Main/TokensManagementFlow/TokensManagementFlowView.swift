@@ -90,7 +90,7 @@ struct TokensManagementFlowView: View {
         case .derivationSelector(let derivationSelectorViewModel):
             AddCustomTokenDerivationPathSelectorView(viewModel: derivationSelectorViewModel)
         case .derivationPathWriter(let derivationPathWriterViewModel):
-            AddCustomTokenDerivationPathWriterView(viewModel: derivationPathWriterViewModel)
+            AddCustomTokenDerivationPathWriterView(viewModel: derivationPathWriterViewModel, style: .addTokenRedesigned)
         }
     }
 }
