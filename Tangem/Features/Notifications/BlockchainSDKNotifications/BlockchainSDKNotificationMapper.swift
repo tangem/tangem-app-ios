@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import struct BlockchainSdk.Amount
+import enum BlockchainSdk.Blockchain
 import enum BlockchainSdk.ValidationError
 import enum BlockchainSdk.WithdrawalNotification
 import enum BlockchainSdk.FeeResourceType
@@ -31,31 +33,7 @@ struct BlockchainSDKNotificationMapper {
             // We have to show just `insufficientBalance` without `openFeeCurrency` button
             return .insufficientBalance
         case .feeExceedsBalance(let fee, let blockchain, _):
-            let name: String = switch fee.amount.type {
-            case .token(let token): token.name
-            default: blockchain.coinDisplayName
-            }
-
-            let tokenIconInfo = TokenIconInfoBuilder().build(
-                for: fee.amount.type,
-                in: blockchain,
-                isCustom: false
-            )
-
-            return .insufficientBalanceForFee(
-                configuration: .init(
-                    amountCurrencySymbol: tokenItem.currencySymbol,
-                    amountCurrencyBlockchainName: tokenItem.blockchain.displayName,
-                    transactionAmountTypeName: tokenItem.name,
-                    feeAmountTypeName: name,
-                    feeAmountTypeCurrencySymbol: fee.amount.currencySymbol,
-                    feeTokenIconInfo: tokenIconInfo,
-                    networkName: tokenItem.networkName,
-                    currencyButtonTitle: nil,
-                    // We set true here because we have to show "Go to \(coin)" button
-                    isFeeCurrencyPurchaseAllowed: true
-                )
-            )
+            return makeInsufficientBalanceForFeeEvent(feeAmountType: fee.amount.type, blockchain: blockchain)
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
             let amountText = "\(minimumAmount.value) \(tokenItemSymbol)"
             return .dustRestriction(minimumAmountFormatted: amountText, minimumChangeFormatted: amountText)
@@ -90,6 +68,38 @@ struct BlockchainSDKNotificationMapper {
         case .noTrustlineAtDestination:
             return .noTrustlineAtDestination
         }
+    }
+
+    func mapToInsufficientBalanceForFeeEvent() -> ValidationErrorEvent {
+        guard tokenItem.isToken else {
+            return .insufficientBalance
+        }
+
+        return makeInsufficientBalanceForFeeEvent(feeAmountType: .coin, blockchain: tokenItem.blockchain)
+    }
+
+    private func makeInsufficientBalanceForFeeEvent(feeAmountType: Amount.AmountType, blockchain: Blockchain) -> ValidationErrorEvent {
+        let feeAmountTypeName: String = switch feeAmountType {
+        case .token(let token): token.name
+        default: blockchain.coinDisplayName
+        }
+
+        let feeTokenIconInfo = TokenIconInfoBuilder().build(for: feeAmountType, in: blockchain, isCustom: false)
+
+        return .insufficientBalanceForFee(
+            configuration: .init(
+                amountCurrencySymbol: tokenItem.currencySymbol,
+                amountCurrencyBlockchainName: tokenItem.blockchain.displayName,
+                transactionAmountTypeName: tokenItem.name,
+                feeAmountTypeName: feeAmountTypeName,
+                feeAmountTypeCurrencySymbol: feeAmountType.token?.symbol ?? blockchain.currencySymbol,
+                feeTokenIconInfo: feeTokenIconInfo,
+                networkName: tokenItem.networkName,
+                currencyButtonTitle: nil,
+                // We set true here because we have to show "Go to \(coin)" button
+                isFeeCurrencyPurchaseAllowed: true
+            )
+        )
     }
 
     func mapToWithdrawalNotificationEvent(_ notification: WithdrawalNotification) -> WithdrawalNotificationEvent {
