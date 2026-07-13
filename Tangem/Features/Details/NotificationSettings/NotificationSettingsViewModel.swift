@@ -31,6 +31,7 @@ final class NotificationSettingsViewModel: ObservableObject {
     @Published private(set) var transactionAlertsViewModel: DefaultToggleRowViewModel?
     @Published private(set) var offersUpdatesViewModel: DefaultToggleRowViewModel?
     @Published private(set) var priceAlertsViewModel: DefaultToggleRowViewModel?
+    @Published private(set) var priceAlertsRowViewModel: DefaultRowViewModel?
 
     @Published var alert: AlertBinder?
 
@@ -109,6 +110,14 @@ final class NotificationSettingsViewModel: ObservableObject {
 
     func onTapMoreInfoTransactionPushNotifications() {
         coordinator?.openTransactionNotifications()
+    }
+
+    var isPriceAlertsScreenAvailable: Bool {
+        FeatureProvider.isAvailable(.priceAlertsSubscription)
+    }
+
+    func onTapPriceAlerts() {
+        coordinator?.openPriceAlerts(with: userWalletModel)
     }
 
     /// Retries the preferences load from the error state. Screen state transitions are driven
@@ -200,10 +209,32 @@ private extension NotificationSettingsViewModel {
             isOn: isEnabledOffersUpdatesBinding
         )
 
-        priceAlertsViewModel = DefaultToggleRowViewModel(
+        rebuildPriceAlertsViewModel()
+    }
+
+    /// With the Price Alerts feature on, the consent toggle moves onto a dedicated screen ([REDACTED_INFO])
+    /// and this becomes a navigation row showing the current On/Off state. Otherwise it stays a toggle.
+    func rebuildPriceAlertsViewModel() {
+        guard isPriceAlertsScreenAvailable else {
+            priceAlertsRowViewModel = nil
+            priceAlertsViewModel = DefaultToggleRowViewModel(
+                title: Localization.pushNotificationSettingsPriceAlertsTitle,
+                isOn: isEnabledPriceAlertsEnabledBinding
+            )
+            return
+        }
+
+        priceAlertsViewModel = nil
+        priceAlertsRowViewModel = DefaultRowViewModel(
             title: Localization.pushNotificationSettingsPriceAlertsTitle,
-            isOn: isEnabledPriceAlertsEnabledBinding
+            detailsType: .text(priceAlertsDetailText),
+            action: weakify(self, forFunction: NotificationSettingsViewModel.onTapPriceAlerts)
         )
+    }
+
+    var priceAlertsDetailText: String {
+        // [REDACTED_TODO_COMMENT]
+        priceAlertsEnabled ? "On" : "Off"
     }
 
     func applyPreferences(_ preferences: RemotePushPreferences) {
@@ -216,6 +247,7 @@ private extension NotificationSettingsViewModel {
             transactionAlertsEnabled = preferences.preference(for: .transactionAlerts).isEnabled
             offersUpdatesEnabled = preferences.preference(for: .offersUpdates).isEnabled
             priceAlertsEnabled = preferences.preference(for: .priceAlerts).isEnabled
+            priceAlertsRowViewModel?.update(detailsType: .text(priceAlertsDetailText))
             viewState = .content
         }
     }
