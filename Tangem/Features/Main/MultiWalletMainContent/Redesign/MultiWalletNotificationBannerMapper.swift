@@ -260,6 +260,8 @@ private extension MultiWalletNotificationBannerMapper {
             return SendAccessibilityIdentifiers.leaveAmountButton
         case .openFeeCurrency:
             return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
+        case .openGetTangemPay:
+            return TangemPayAccessibilityIdentifiers.getTangemPayBannerOpenButton
         default:
             return CommonUIAccessibilityIdentifiers.notificationButton
         }

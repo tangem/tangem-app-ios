@@ -15,6 +15,16 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let mainScreenTile = "\(prefix)MainScreenTile"
     public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
+    public static let getTangemPayBannerOpenButton = "\(prefix)GetTangemPayBannerOpenButton"
+
+    // MARK: - Onboarding (offer) screen
+
+    public static let onboardingGetCardButton = "\(prefix)OnboardingGetCardButton"
+
+    // MARK: - KYC status sheet
+
+    public static let kycStatusSheetPrimaryButton = "\(prefix)KycStatusSheetPrimaryButton"
+    public static let kycDeclinedSheetPrimaryButton = "\(prefix)KycDeclinedSheetPrimaryButton"
 
     // MARK: - Tangem Pay payment account screen
 
