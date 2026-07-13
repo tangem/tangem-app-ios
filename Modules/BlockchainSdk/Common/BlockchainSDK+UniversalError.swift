@@ -1,6 +1,6 @@
 //
 //  BlockchainSDK+UniversalError.swift
-//  TangemApp
+//  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -567,6 +567,8 @@ extension BitcoinError: UniversalError {
             102026004
         case .wrongSignaturesCount:
             102026005
+        case .noSignableInputs:
+            102026006
         }
     }
 }

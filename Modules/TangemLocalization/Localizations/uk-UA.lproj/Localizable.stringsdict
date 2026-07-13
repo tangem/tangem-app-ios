@@ -13,13 +13,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>адреса</string>
+        <string>%li адреса</string>
         <key>few</key>
-        <string>адреси</string>
+        <string>%li адреси</string>
         <key>many</key>
-        <string>адрес</string>
+        <string>%li адрес</string>
         <key>other</key>
-        <string>адрес</string>
+        <string>%li адрес</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -508,13 +508,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>картка</string>
+        <string>%li картка</string>
         <key>few</key>
-        <string>картки</string>
+        <string>%li картки</string>
         <key>many</key>
-        <string>карток</string>
+        <string>%li карток</string>
         <key>other</key>
-        <string>картки</string>
+        <string>%li картки</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>

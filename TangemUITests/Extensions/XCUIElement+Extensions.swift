@@ -40,10 +40,11 @@ extension XCUIElement {
         }
 
         let app = XCUIApplication()
-        let shortTimeout: TimeInterval = 1.0
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.05))
 
         for _ in 0 ..< scrollAttempts {
-            app.swipeUp()
+            start.press(forDuration: 0.1, thenDragTo: end)
             if isHittable {
                 return waitAndTap(timeout: timeout)
             }
@@ -74,13 +75,23 @@ extension XCUIElement {
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
         return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
+
+    @discardableResult
+    func waitForValue(timeout: TimeInterval = .conditional, where matches: @escaping (String) -> Bool) -> Bool {
+        let predicate = NSPredicate { object, _ in
+            guard let value = (object as? XCUIElement)?.value as? String else { return false }
+            return matches(value)
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
 }
 
 // MARK: UI actions
 
 extension XCUIElement {
     func scrollToElement(_ element: XCUIElement, startPoint: Double = 0.8, attempts: SwipeAttempts = .standard) {
-        for attempt in 0 ..< attempts.rawValue {
+        for _ in 0 ..< attempts.rawValue {
             if !element.isHittable || !element.isEnabled {
                 let startCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: startPoint))
                 let endCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.1))
@@ -90,7 +101,7 @@ extension XCUIElement {
     }
 
     func scrollHorizontallyToElement(_ element: XCUIElement, startPoint: Double = 0.5, attempts: SwipeAttempts = .standard) {
-        for attempt in 0 ..< attempts.rawValue {
+        for _ in 0 ..< attempts.rawValue {
             if !element.isHittable || !element.isEnabled {
                 let startCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: startPoint))
                 let endCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: startPoint))
@@ -104,6 +115,39 @@ extension XCUIElement {
             return ""
         }
         return value
+    }
+
+    /// Redesigned rows register the gesture on the container, so the inner title is never hittable; fall back to a center-coordinate hit.
+    func tapEvenIfNotHittable() {
+        // A stale snapshot aborts isHittable/coordinate; wait for a finite frame first.
+        waitForStableFrame()
+        if isHittable {
+            tap()
+        } else {
+            coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        }
+    }
+
+    /// Waits for a finite, non-empty frame so later hittability reads don't abort on a stale snapshot.
+    @discardableResult
+    func waitForStableFrame(timeout: TimeInterval = .conditional) -> Bool {
+        let predicate = NSPredicate { object, _ in
+            guard let element = object as? XCUIElement else { return false }
+            let frame = element.frame
+            return frame.width > 0 && frame.height > 0
+                && frame.minX.isFinite && frame.minY.isFinite
+                && frame.width.isFinite && frame.height.isFinite
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    func pressEvenIfNotHittable(forDuration duration: TimeInterval) {
+        if isHittable {
+            press(forDuration: duration)
+        } else {
+            coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: duration)
+        }
     }
 }
 

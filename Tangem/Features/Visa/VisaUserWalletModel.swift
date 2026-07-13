@@ -253,7 +253,7 @@ final class VisaUserWalletModel {
             tokenItem = .token(interactor.visaToken, .init(blockchain, derivationPath: nil))
             if let authorizationTokensHandler,
                let customerInfo = customerCardInfo.customerInfo,
-               let productInstance = customerInfo.productInstance(forCardId: cardId) ?? customerInfo.productInstances.first {
+               let productInstance = customerInfo.productInstance(forCardId: cardId) ?? customerInfo.cardProductInstances.first {
                 setupTransactionHistoryService(
                     productInstanceId: productInstance.id,
                     authorizationTokensHandler: authorizationTokensHandler
@@ -458,7 +458,14 @@ extension VisaUserWalletModel: MainHeaderBalanceProvider {
             if let balances, let tokenItem {
                 let balanceFormatter = BalanceFormatter()
                 let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
-                let formattedForMain = balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance)
+                let formattingOptions: TotalBalanceFormattingOptions = FeatureProvider.isAvailable(.redesign)
+                    ? .defaultOptionsRedesign
+                    : .defaultOptions
+
+                let formattedForMain = balanceFormatter.formatAttributedTotalBalance(
+                    fiatBalance: formattedBalance,
+                    formattingOptions: formattingOptions
+                )
                 return .loaded(text: .attributed(formattedForMain))
             } else {
                 return .loading()
@@ -562,11 +569,21 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.userWalletPushNotificationsManager
     }
 
+    var priceAlertsSubscriptionsProvider: any PriceAlertsSubscriptionsProvider {
+        userWalletModel.priceAlertsSubscriptionsProvider
+    }
+
     var accountModelsManager: AccountModelsManager {
         userWalletModel.accountModelsManager
     }
 
-    func validate() -> Bool { userWalletModel.validate() }
+    var backupState: UserWalletBackupState {
+        userWalletModel.backupState
+    }
+
+    var addressBookManager: AddressBookManager {
+        userWalletModel.addressBookManager
+    }
 
     func update(type: UpdateRequest) {
         userWalletModel.update(type: type)

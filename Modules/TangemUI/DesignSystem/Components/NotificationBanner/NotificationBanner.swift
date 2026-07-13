@@ -44,12 +44,16 @@ public struct NotificationBanner: View, Setupable {
         }
     }
 
-    private var iconIsLeading: Bool {
+    private func iconIsLeading(for icon: Icon) -> Bool {
+        if let isLeading = icon.isLeading {
+            return isLeading
+        }
+
         switch bannerType {
         case .promo:
-            true
+            return true
         case .status, .critical, .warning, .survey, .informational:
-            false
+            return false
         }
     }
 
@@ -92,7 +96,7 @@ public struct NotificationBanner: View, Setupable {
     private func bannerBody<Buttons: View>(
         @ViewBuilder buttons: () -> Buttons = { EmptyView() }
     ) -> some View {
-        VStack(alignment: isCentered ? .center : .leading, spacing: SizeUnit.x4.value) {
+        VStack(alignment: isCentered ? .center : .leading, spacing: SizeUnit.x5.value) {
             contentView
             buttons()
         }
@@ -127,11 +131,12 @@ public struct NotificationBanner: View, Setupable {
             textStack(title: textOnly.title, subtitle: textOnly.subtitle)
 
         case .textWithIcon(let data):
+            let isLeading = iconIsLeading(for: data.icon)
             HStack(
                 alignment: data.icon.alignment.verticalAlignment,
-                spacing: iconIsLeading ? SizeUnit.x1.value : SizeUnit.x2.value
+                spacing: isLeading ? SizeUnit.x1.value : SizeUnit.x2.value
             ) {
-                if iconIsLeading {
+                if isLeading {
                     iconImage(for: data.icon)
                     textStack(title: data.text.title, subtitle: data.text.subtitle)
                     Spacer(minLength: 0)
@@ -166,6 +171,11 @@ public struct NotificationBanner: View, Setupable {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: iconWidth, height: iconHeight)
+            .foregroundColor(icon.color)
+    }
+
+    private var closeButtonClearance: CGFloat {
+        bannerType.isClosable ? SizeUnit.x6.value : 0
     }
 
     private func textStack(title: AttributedString, subtitle: AttributedString) -> some View {
@@ -176,7 +186,7 @@ public struct NotificationBanner: View, Setupable {
             if title.characters.isNotEmpty {
                 Text(title)
                     .style(
-                        Font.Tangem.Body16.medium,
+                        Font.Tangem.Body16.semibold,
                         color: .Tangem.Text.Neutral.primary
                     )
                     .lineLimit(nil)
@@ -188,7 +198,7 @@ public struct NotificationBanner: View, Setupable {
             if subtitle.characters.isNotEmpty {
                 Text(subtitle)
                     .style(
-                        Font.Tangem.Caption12.semibold,
+                        Font.Tangem.Caption12.medium,
                         color: .Tangem.Text.Neutral.secondary
                     )
                     .lineLimit(nil)
@@ -198,7 +208,7 @@ public struct NotificationBanner: View, Setupable {
             }
         }
         .padding(.horizontal, SizeUnit.x1.value)
-        .padding(.top, SizeUnit.x1.value)
+        .padding(isCentered ? .horizontal : .trailing, closeButtonClearance)
     }
 
     @ViewBuilder

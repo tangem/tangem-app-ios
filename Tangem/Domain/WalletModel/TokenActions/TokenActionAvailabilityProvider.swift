@@ -13,15 +13,17 @@ import enum BlockchainSdk.Blockchain
 struct TokenActionAvailabilityProvider {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
-    private let userWalletConfig: UserWalletConfig
+    private let userWalletInfo: UserWalletInfo
     private let walletModel: any WalletModel
     private let sellCryptoUtility: SellCryptoUtility
 
+    private var userWalletConfig: UserWalletConfig { userWalletInfo.config }
+
     init(
-        userWalletConfig: UserWalletConfig,
+        userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel
     ) {
-        self.userWalletConfig = userWalletConfig
+        self.userWalletInfo = userWalletInfo
         self.walletModel = walletModel
         sellCryptoUtility = SellCryptoUtility(
             tokenItem: walletModel.tokenItem,
@@ -59,6 +61,12 @@ struct TokenActionAvailabilityProvider {
 extension TokenActionAvailabilityProvider {
     func isTokenInteractionAvailable() -> Bool {
         return hasAddressToInteract()
+    }
+
+    /// Top-up operations (receive / onramp / swap-in) must be blocked on a card-linked wallet:
+    /// such a wallet must not receive new funds, while withdrawing from it stays allowed.
+    var isTopUpAvailable: Bool {
+        userWalletInfo.backupState.isValid
     }
 }
 
@@ -383,17 +391,25 @@ extension TokenActionAvailabilityProvider {
         case expressNotLoaded
         case demo(disabledLocalizedReason: String)
         case missingAssetRequirement
+        case incompleteBackup(UserWalletInfo)
     }
 
+    /// `.incompleteBackup` keeps the buy entry interactive (shown/enabled) so the tap shows the support alert;
+    /// only a genuine onramp/asset reason hides or disables it. Mirrors `isReceiveAvailable`.
     var isBuyAvailable: Bool {
-        if case .available = buyAvailablity {
+        switch buyAvailablity {
+        case .available, .incompleteBackup:
             return true
+        case .unavailable, .expressUnreachable, .expressLoading, .expressNotLoaded, .demo, .missingAssetRequirement:
+            return false
         }
-
-        return false
     }
 
     var buyAvailablity: BuyActionAvailabilityStatus {
+        if !isTopUpAvailable {
+            return .incompleteBackup(userWalletInfo)
+        }
+
         if case .assetRequirement = receiveAvailability {
             return .missingAssetRequirement
         }
@@ -422,17 +438,28 @@ extension TokenActionAvailabilityProvider {
     enum ReceiveActionAvailabilityStatus {
         case available
         case assetRequirement
+        case incompleteBackup(UserWalletInfo)
     }
 
+    /// `.incompleteBackup` keeps the receive entry interactive (so the tap shows the support alert);
+    /// only a real token-level requirement (`.assetRequirement`) hides/disables it.
     var isReceiveAvailable: Bool {
-        if case .available = receiveAvailability {
+        switch receiveAvailability {
+        case .available, .incompleteBackup:
             return true
+        case .assetRequirement:
+            return false
         }
-
-        return false
     }
 
     var receiveAvailability: ReceiveActionAvailabilityStatus {
+        // Card-linked blocks any top-up and must dominate: an asset requirement on a blockchain the
+        // alert builder doesn't message (non xrp/stellar/hedera) would otherwise yield a nil alert and
+        // silently let a card-linked wallet receive. Mirrors the incompleteBackup-first order in buyAvailablity.
+        if !isTopUpAvailable {
+            return .incompleteBackup(userWalletInfo)
+        }
+
         if let _ = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType) {
             return .assetRequirement
         }
@@ -489,7 +516,7 @@ extension TokenActionAvailabilityProvider {
             return yield.isAvailable
         case .loading(let cached), .loadingError(_, let cached):
             return cached != nil
-        case .notEnabled, .temporaryUnavailable:
+        case .notEnabled, .temporaryUnavailable, .unavailableInRegion:
             return false
         }
     }

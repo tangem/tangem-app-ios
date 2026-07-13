@@ -28,14 +28,35 @@ struct MarketsPortfolioTokenListRowView: View {
 // MARK: - Subviews
 
 private extension MarketsPortfolioTokenListRowView {
+    @ViewBuilder
     var content: some View {
-        TangemTwoLineRowLayout(
-            icon: icon,
-            primaryLeading: tokenName,
-            primaryTrailing: fiatBalance,
-            secondaryLeading: networkName,
-            secondaryTrailing: cryptoBalance
-        )
+        if viewModel.isNoAddress {
+            TangemTwoLineRowLayout(
+                icon: icon,
+                primaryLeading: tokenName,
+                primaryTrailing: noAddressLabel,
+                secondaryLeading: networkName,
+                secondaryTrailing: emptyTrailing
+            )
+        } else {
+            TangemTwoLineRowLayout(
+                icon: icon,
+                primaryLeading: tokenName,
+                primaryTrailing: fiatBalance,
+                secondaryLeading: networkName,
+                secondaryTrailing: cryptoBalance
+            )
+        }
+    }
+
+    func noAddressLabel() -> some View {
+        Text(viewModel.noAddressText)
+            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+            .lineLimit(1)
+    }
+
+    func emptyTrailing() -> some View {
+        EmptyView()
     }
 
     func icon() -> some View {

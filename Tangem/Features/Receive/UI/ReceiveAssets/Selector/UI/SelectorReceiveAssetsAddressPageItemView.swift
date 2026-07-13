@@ -36,6 +36,7 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
 
             SelectorReceiveQRCodeButtonView(qrCodeAction: viewModel.qrCodeButtonDidTap)
                 .disabled(viewModel.isLoading)
+                .accessibilityIdentifier(viewModel.qrCodeButtonAccessibilityIdentifier)
 
             FixedSpacer(height: Layout.Container.qrCodeButtonActionsVerticalSpacing)
 
@@ -69,6 +70,7 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
                     .multilineTextAlignment(.center)
                     .infinityFrame(axis: .horizontal, alignment: .center)
                     .padding(.horizontal, Layout.TokenContentView.addressHorizontalPadding)
+                    .accessibilityIdentifier(viewModel.addressAccessibilityIdentifier)
             }
         }
     }

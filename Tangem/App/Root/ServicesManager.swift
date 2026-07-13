@@ -42,7 +42,7 @@ final class CommonServicesManager {
     @Injected(\.userWalletPushNotificationsService) private var userWalletPushNotificationsService: UserWalletPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
-    @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
+    @Injected(\.eTagStorage) private var eTagStorage: ETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
     @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
     @Injected(\.tokenSelectorStateStorage) private var tokenSelectorStateStorage: TokenSelectorStateStorage

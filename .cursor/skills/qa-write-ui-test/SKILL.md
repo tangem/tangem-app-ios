@@ -48,6 +48,7 @@ All identifiers live in the `TangemAccessibilityIdentifiers` module (`Modules/Ta
 - Group by screen: one struct/enum per screen file (e.g., `SendAccessibilityIdentifiers.swift`).
 - **CRITICAL: apply every new identifier to the actual SwiftUI view** using `.accessibilityIdentifier(...)`. An identifier defined but not applied is a guaranteed test failure.
 - **CRITICAL: in app code, ONLY add `.accessibilityIdentifier(...)`.** Do not change layout, view hierarchy, bindings, modifier chains, or wrappers. Do not remove or rewrite comments. Do not "tidy up" surrounding code. Layout regressions caused by UI-test work are a known pain point on this team — keep the diff to identifier additions only.
+- **Optional identifiers: pass the optional directly, never `?? ""`.** `TangemUIUtils` ships a `View.accessibilityIdentifier(_: String?)` overload that skips the modifier on `nil` — `import TangemUIUtils` and write `.accessibilityIdentifier(model.identifier)`.
 
 ## 5. Page Object pattern
 

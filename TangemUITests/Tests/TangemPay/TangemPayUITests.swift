@@ -9,8 +9,6 @@
 import XCTest
 
 final class TangemPayUITests: BaseTestCase {
-    private let hotWalletSeedPhrase = "method abstract genre rough session noise soft hybrid exit learn razor illness"
-
     func testChangePin_SetsNewPinCode_FromCardDetails() {
         setAllureId(4549)
 
@@ -25,10 +23,7 @@ final class TangemPayUITests: BaseTestCase {
             .waitForScreen()
             .tapChangePin()
             .waitForPinEntryScreen()
-            .verifySubmitDisabled()
             .enterPin("5217")
-            .verifySubmitEnabled()
-            .tapSubmit()
             .waitForSuccessScreen()
             .tapDone()
             .waitForScreen()
@@ -96,6 +91,8 @@ final class TangemPayUITests: BaseTestCase {
             .confirmFreeze()
             .verifyCardFrozen()
             .tapUnfreezeCard()
+            .waitForScreen()
+            .confirmUnfreeze()
             .verifyCardActive()
     }
 
@@ -119,27 +116,30 @@ final class TangemPayUITests: BaseTestCase {
             .verifyToastVisible(text: "CVC copied")
     }
 
-    private func launchAndImportHotWallet(scenarios: [ScenarioConfig] = []) -> MainScreen {
-        let eligibilityScenario = ScenarioConfig(
-            name: "tangem_pay_eligibility",
-            initialState: "PaeraCustomer"
+    func testTermsAndFees_OpensTariffsWebView_FromMoreActionsMenu() {
+        setAllureId(9592)
+
+        launchAndImportHotWallet()
+            .openTangemPay()
+            .waitForScreen()
+            .openTermsAndFees()
+            .verifyWebViewLoaded()
+            .verifyDocumentTitle()
+    }
+
+    func testAddFunds_ShowsServiceUnavailableError_WhenNoDepositAddress() {
+        setAllureId(9557)
+
+        let mainScreen = launchAndImportHotWallet(
+            scenarios: [ScenarioConfig(name: "tangem_pay_deposit_address", initialState: "NoDepositAddress")]
         )
 
-        launchApp(
-            tangemApiType: .mock,
-            visaApiType: .mock,
-            clearStorage: true,
-            scenarios: [eligibilityScenario] + scenarios
-        )
-
-        return CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .enterSeedPhrase(hotWalletSeedPhrase)
-            .tapImportButton()
-            .tapContinue()
-            .skipAccessCode()
-            .tapFinish()
+        mainScreen
+            .openTangemPay()
+            .waitForScreen()
+            .tapAddFundsExpectingServiceUnavailable()
+            .waitForSheet()
+            .tapGotIt()
+            .waitForScreen()
     }
 }

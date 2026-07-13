@@ -15,9 +15,6 @@ import TangemUI
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
-    @Environment(\.overlayCollapsedHeight) private var overlayCollapsedHeight
-
-    @State private var headerHeightRatio: CGFloat = 1
 
     var body: some View {
         content
@@ -32,99 +29,55 @@ struct MainView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isRedesignEnabled {
-            fullPagePagerContent
-                .northernLightsBackground(
-                    backgroundColor: .Tangem.Surface.level2,
-                    opacity: clamp(2 * headerHeightRatio - 1, min: 0, max: 1)
-                )
-                .animation(.default, value: headerHeightRatio)
+            MainHorizontalPagingScrollView(
+                userWalletPageBuilders: viewModel.pages,
+                selectedCardIndex: $viewModel.selectedCardIndex,
+                onSelectedCardChanged: viewModel.onPageChange,
+                pullToRefreshAction: viewModel.pullToRefresh,
+                isPullToRefreshRunning: viewModel.isPullToRefreshRunning,
+                scanQRCodeAction: viewModel.openQRScan,
+                detailsAction: viewModel.openDetails
+            )
         } else {
             cardsInfoPagerContent
                 .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         }
     }
 
-    private var fullPagePagerContent: some View {
-        FullPagePagerView(
-            data: viewModel.pages,
-            refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
-            selectedIndex: $viewModel.selectedCardIndex,
-            headerHeightRatio: $headerHeightRatio,
-            navigationFactory: redesignToolbar,
-            headerFactory: makeRedesignedHeader,
-            bodyFactory: makeRedesignedBody,
-            bottomOverlayFactory: makeRedesignedBottomOverlay
-        )
-        .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
-        .onPageChange(viewModel.onPageChange(dueTo:))
-    }
-
-    private func redesignToolbar(pageBuilder: MainUserWalletPageBuilder) -> some ViewModifier {
-        MainViewRedesignToolbar(
-            principalContent: redesignPrincipalContent(pageBuilder),
-            scanQRCodeAction: viewModel.openQRScan,
-            detailsAction: viewModel.openDetails
-        )
-    }
-
-    private func redesignPrincipalContent(_ pageBuilder: MainUserWalletPageBuilder) -> some View {
-        pageBuilder.navigation
-            .opacity(clamp(3 - 5 * headerHeightRatio, min: 0, max: 1))
-            .animation(.default, value: headerHeightRatio)
-    }
-
-    private func makeRedesignedHeader(pageBuilder: MainUserWalletPageBuilder) -> some View {
-        pageBuilder.redesignedHeader(
-            totalPages: viewModel.pages.count,
-            currentIndex: viewModel.selectedCardIndex
-        )
-    }
-
-    private func makeRedesignedBody(pageBuilder: MainUserWalletPageBuilder) -> some View {
-        pageBuilder.content
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                Color.clear.frame(height: overlayCollapsedHeight)
-            }
-    }
-
-    private func makeRedesignedBottomOverlay(pageBuilder: MainUserWalletPageBuilder) -> some View {
-        RedesignedBottomOverlay(
-            refreshScrollViewInteractor: viewModel.refreshScrollViewStateObject.scrollViewInteractor,
-            pageBuilder: pageBuilder
-        )
-    }
-
+    @ViewBuilder
     private var cardsInfoPagerContent: some View {
-        CardsInfoPagerView(
-            data: viewModel.pages,
-            refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
-            selectedIndex: $viewModel.selectedCardIndex,
-            discoveryAnimationTrigger: viewModel.swipeDiscoveryAnimationTrigger,
-            headerViewBuilder: { userWalletPageBuilder in
-                userWalletPageBuilder.header
-                    .contextMenu {
-                        if !userWalletPageBuilder.isLockedWallet {
-                            if AppSettings.shared.saveUserWallets {
-                                renameButton
+        if let discoveryAnimationTrigger = viewModel.swipeDiscoveryAnimationTrigger {
+            CardsInfoPagerView(
+                data: viewModel.pages,
+                refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
+                selectedIndex: $viewModel.selectedCardIndex,
+                discoveryAnimationTrigger: discoveryAnimationTrigger,
+                headerViewBuilder: { userWalletPageBuilder in
+                    userWalletPageBuilder.header
+                        .contextMenu {
+                            if !userWalletPageBuilder.isLockedWallet {
+                                if AppSettings.shared.saveUserWallets {
+                                    renameButton
+                                }
                             }
                         }
-                    }
-            },
-            contentViewBuilder: { userWalletPageBuilder in
-                userWalletPageBuilder.content
-            },
-            bottomOverlayViewBuilder: { userWalletPageBuilder in
-                userWalletPageBuilder.bottomOverlay
-            },
-            footerOverlayViewBuilder: { userWalletPageBuilder in
-                userWalletPageBuilder.footerOverlay
-            }
-        )
-        .pageSwitchThreshold(0.4)
-        .contentViewVerticalOffset(64.0)
-        .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
-        .onPageChange(viewModel.onPageChange(dueTo:))
-        .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
+                },
+                contentViewBuilder: { userWalletPageBuilder in
+                    userWalletPageBuilder.content
+                },
+                bottomOverlayViewBuilder: { userWalletPageBuilder in
+                    userWalletPageBuilder.bottomOverlay
+                },
+                footerOverlayViewBuilder: { userWalletPageBuilder in
+                    userWalletPageBuilder.footerOverlay
+                }
+            )
+            .pageSwitchThreshold(0.4)
+            .contentViewVerticalOffset(64.0)
+            .horizontalScrollDisabled(viewModel.isPullToRefreshRunning)
+            .onPageChange(viewModel.onPageChange(dueTo:))
+            .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
+        }
     }
 
     private var renameButton: some View {
@@ -172,8 +125,8 @@ private struct MainViewNavigationModifier: ViewModifier {
     }
 }
 
-struct MainView_Preview: PreviewProvider {
-    static let viewModel: MainViewModel = {
+#Preview {
+    let viewModel: MainViewModel = {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         let coordinator = MainCoordinator()
         let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
@@ -189,9 +142,7 @@ struct MainView_Preview: PreviewProvider {
         return viewModel
     }()
 
-    static var previews: some View {
-        NavigationStack {
-            MainView(viewModel: viewModel)
-        }
+    NavigationStack {
+        MainView(viewModel: viewModel)
     }
 }

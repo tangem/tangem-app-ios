@@ -142,6 +142,7 @@ struct SupportedBlockchains {
             .filecoin,
             .internetComputer,
             .sei(testnet: false),
+            .gonka(testnet: false),
             .sui(curve: ed25519Curve(for: version), testnet: false),
             .energyWebEVM(testnet: false),
             .energyWebX(curve: ed25519Curve(for: version)),

@@ -19,7 +19,11 @@ final class StakeKitStakingManager {
     private let stateRepository: StakingManagerStateRepository
     private let analyticsLogger: StakingAnalyticsLogger
 
-    private(set) var balances: [StakingBalance]?
+    // `updateState`/`updateBalances` below are no longer `@MainActor`-isolated (see [REDACTED_INFO]), so this can now be
+    // written from a background thread while UI code reads it on main — guard it explicitly instead of relying
+    // on a plain `var`, which would otherwise be a real data race.
+    private let _balances = OSAllocatedUnfairLock<[StakingBalance]?>(initialState: nil)
+    var balances: [StakingBalance]? { _balances.withLock { $0 } }
 
     // MARK: Private
 
@@ -79,19 +83,19 @@ extension StakeKitStakingManager: StakingManager {
     var tosURL: URL { URL(string: "https://docs.yield.xyz/docs/terms-of-use#/")! }
     var privacyPolicyURL: URL { URL(string: "https://docs.yield.xyz/docs/privacy-policy#/")! }
 
-    func updateState(loadActions: Bool) async {
+    func updateState(loadActions: Bool, source: StakingUpdateSource) async {
         await updateState(loadActions: loadActions, startUpdateDate: nil)
     }
 
     func updateState(loadActions: Bool, startUpdateDate: Date? = nil, previousActions: [PendingAction]? = nil) async {
-        await updateState(.loading(cached: stateRepository.state()))
+        updateState(.loading(cached: stateRepository.state()))
         do {
             async let balances = apiProvider.balances(wallet: wallet, integrationId: integrationId)
             async let yield = yieldInfoProvider.yieldInfo(for: integrationId)
             async let actions = loadActions ? apiProvider.actions(wallet: wallet) : []
 
             let (loadedBalances, loadedYield, loadedActions) = try await (balances, yield, actions)
-            await updateState(state(balances: loadedBalances, yield: loadedYield, actions: loadedActions))
+            updateState(state(balances: loadedBalances, yield: loadedYield, actions: loadedActions))
 
             let effectiveStartUpdateDate = startUpdateDate ?? Date()
 
@@ -116,7 +120,7 @@ extension StakeKitStakingManager: StakingManager {
         } catch {
             analyticsLogger.logError(error, currencySymbol: wallet.item.symbol)
             StakingLogger.error(self, error: error)
-            await updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
+            updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
         }
     }
 
@@ -181,7 +185,6 @@ extension StakeKitStakingManager: StakingManager {
 // MARK: - Private
 
 private extension StakeKitStakingManager {
-    @MainActor
     func updateState(_ state: StakingManagerState) {
         StakingLogger.info(self, "Update state to \(state)")
         stateRepository.storeState(state)
@@ -194,12 +197,13 @@ private extension StakeKitStakingManager {
         case .loading:
             break
         case .staked(let stakeInfo):
-            balances = stakeInfo.balances
+            _balances.withLock { $0 = stakeInfo.balances }
         case .availableToStake,
              .loadingError,
+             .unavailableInRegion,
              .notEnabled,
              .temporaryUnavailable:
-            balances = nil
+            _balances.withLock { $0 = nil }
         }
     }
 

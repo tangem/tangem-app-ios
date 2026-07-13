@@ -89,7 +89,7 @@ final class UserWalletNotificationManager {
 
         var inputs: [NotificationViewInput] = []
 
-        if !userWalletModel.validate() {
+        if !userWalletModel.backupState.isValid {
             inputs.append(
                 factory.buildNotificationInput(
                     for: .backupErrors,

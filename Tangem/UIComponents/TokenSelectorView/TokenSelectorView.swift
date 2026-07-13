@@ -21,6 +21,8 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
 
     private var searchType: SearchType?
     private var sectionHeaderConfiguration: TokenSelectorViewModel.SectionHeaderConfiguration?
+    private var showsSeparators = true
+    private var hidesSingleWalletName = false
 
     init(
         viewModel: TokenSelectorViewModel,
@@ -60,13 +62,17 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
         }
     }
 
+    private var isRedesignedLayout: Bool {
+        FeatureProvider.isAvailable(.redesign)
+    }
+
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
         ScrollViewReader { reader in
             GroupedScrollView(contentType: .lazy(spacing: 8)) {
-                Color.clear.frame(height: 0)
-                    .id(Constants.scrollToTopAnchorID)
-
                 content()
+                    .overlay(alignment: .top) {
+                        Color.clear.frame(height: 0).id(Constants.scrollToTopAnchorID)
+                    }
                     .animation(.contentFrameUpdate, value: viewModel.contentVisibility)
             }
             .onChange(of: viewModel.scrollToTopTrigger) { _ in
@@ -74,6 +80,8 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
                     reader.scrollTo(Constants.scrollToTopAnchorID, anchor: .top)
                 }
             }
+            .environment(\.tokenSelectorShowsSeparators, showsSeparators)
+            .environment(\.tokenSelectorHidesWalletNameHeader, hidesSingleWalletName && viewModel.wallets.count == 1)
         }
     }
 
@@ -114,20 +122,103 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
 
             // Zero spacing prevents hidden (filtered-out) wallets from adding gaps between chips and the visible wallet
             VStack(spacing: 0) {
-                ForEach(viewModel.wallets) { TokenSelectorWalletItemView(viewModel: $0) }
+                ForEach(viewModel.wallets) {
+                    TokenSelectorWalletItemView(viewModel: $0)
+                }
             }
-            .padding(.top, Constants.chipsToListExtraSpacing)
         } else {
             ForEach(viewModel.wallets) { TokenSelectorWalletItemView(viewModel: $0) }
         }
     }
 
+    @ViewBuilder
     private var walletChipsView: some View {
-        HorizontalChipsView(
-            chips: viewModel.walletChips.map { Chip(id: $0.id, title: $0.name) },
-            selectedId: $viewModel.selectedChipId,
-            horizontalInset: 8
-        )
+        if isRedesignedLayout {
+            redesignedWalletChipsView
+        } else {
+            HorizontalChipsView(
+                chips: viewModel.walletChips.map { Chip(id: $0.id, title: $0.name) },
+                selectedId: $viewModel.selectedChipId,
+                horizontalInset: 8
+            )
+        }
+    }
+
+    private var redesignedWalletChipsView: some View {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Constants.redesignedChipsSpacing) {
+                    ForEach(viewModel.walletChips) { chip in
+                        redesignedWalletChip(chip)
+                            .id(chip.id)
+                    }
+                }
+                .padding(.horizontal, 8)
+            }
+            .frame(height: Constants.redesignedChipHeight)
+            .onAppear {
+                // Defer to the next runloop so the chips are laid out before scrolling to the preselected one.
+                DispatchQueue.main.async {
+                    scrollToSelectedChip(using: proxy, animated: false)
+                }
+            }
+            .onChange(of: viewModel.selectedChipId) { _ in
+                scrollToSelectedChip(using: proxy, animated: true)
+            }
+        }
+    }
+
+    private func scrollToSelectedChip(using proxy: ScrollViewProxy, animated: Bool) {
+        guard let selectedChipId = viewModel.selectedChipId else { return }
+
+        if animated {
+            withAnimation { proxy.scrollTo(selectedChipId, anchor: .center) }
+        } else {
+            proxy.scrollTo(selectedChipId, anchor: .center)
+        }
+    }
+
+    private func redesignedWalletChip(_ chip: TokenSelectorViewModel.WalletChipData) -> some View {
+        let isSelected = viewModel.selectedChipId == chip.id
+
+        return Button {
+            if viewModel.selectedChipId != chip.id {
+                viewModel.selectedChipId = chip.id
+            }
+        } label: {
+            HStack(spacing: Constants.redesignedChipIconSpacing) {
+                Text(chip.name)
+                    .style(
+                        Fonts.Bold.subheadline,
+                        color: isSelected
+                            ? Color.Tangem.Tabs.textPrimary
+                            : Color.Tangem.Tabs.textSecondary
+                    )
+                    .lineLimit(1)
+
+                if let thumbnail = chip.thumbnail {
+                    MiniatureWalletView(type: thumbnail)
+                        .frame(
+                            width: Constants.redesignedChipIconSide,
+                            height: Constants.redesignedChipIconSide
+                        )
+                }
+            }
+            .padding(.horizontal, Constants.redesignedChipHorizontalPadding)
+            .frame(height: Constants.redesignedChipHeight)
+            .background(
+                RoundedRectangle(
+                    cornerRadius: Constants.redesignedChipCornerRadius,
+                    style: .continuous
+                )
+                .fill(
+                    isSelected
+                        ? Color.Tangem.Tabs.backgroundPrimary
+                        : Color.Tangem.Tabs.backgroundSecondary
+                )
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     private func sectionHeader(
@@ -137,12 +228,22 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
         let itemsCountToDisplay = viewModel.itemsCountToDisplay(configuration: configuration, itemsCount: itemsCount)
 
         return HStack(spacing: 8) {
-            Text(configuration.title)
-                .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
+            if isRedesignedLayout {
+                Text(configuration.title)
+                    .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.primary)
 
-            if let itemsCountToDisplay {
-                Text("\(itemsCountToDisplay)")
-                    .style(Fonts.BoldStatic.title3, color: Colors.Text.tertiary)
+                if let itemsCountToDisplay {
+                    Text("\(itemsCountToDisplay)")
+                        .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.tertiary)
+                }
+            } else {
+                Text(configuration.title)
+                    .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
+
+                if let itemsCountToDisplay {
+                    Text("\(itemsCountToDisplay)")
+                        .style(Fonts.BoldStatic.title3, color: Colors.Text.tertiary)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -162,6 +263,15 @@ extension TokenSelectorView: Setupable {
     func sectionHeader(_ configuration: TokenSelectorViewModel.SectionHeaderConfiguration) -> Self {
         map { $0.sectionHeaderConfiguration = configuration }
     }
+
+    func showsSeparators(_ showsSeparators: Bool) -> Self {
+        map { $0.showsSeparators = showsSeparators }
+    }
+
+    /// Hides the wallet-name section header when the selector contains a single wallet (the name is redundant then).
+    func hidesSingleWalletName(_ hidesSingleWalletName: Bool) -> Self {
+        map { $0.hidesSingleWalletName = hidesSingleWalletName }
+    }
 }
 
 extension TokenSelectorView {
@@ -173,6 +283,12 @@ extension TokenSelectorView {
     private enum Constants {
         static var scrollToTopAnchorID: String { "TokenSelectorView.scrollToTopAnchor" }
         static var chipsToListExtraSpacing: CGFloat { 8 }
+        static var redesignedChipHeight: CGFloat { 36 }
+        static var redesignedChipCornerRadius: CGFloat { 24 }
+        static var redesignedChipsSpacing: CGFloat { 8 }
+        static var redesignedChipHorizontalPadding: CGFloat { 14 }
+        static var redesignedChipIconSpacing: CGFloat { 6 }
+        static var redesignedChipIconSide: CGFloat { 20 }
     }
 }
 

@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemSdk
 import TangemFoundation
 import TangemAnalytics
+import TangemStaking
 
 class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
@@ -30,6 +31,10 @@ class CommonWalletModelsManager {
 
     /// An update is tracked only once per lifecycle of this manager.
     private var shouldTrackWalletModelsUpdate = true
+
+    /// On a cold start, `updateAll(silent:)` is always called shortly after the initial wallet models are created,
+    /// so the very first update triggered by `updateWalletModels(with:)` would be a duplicate and is skipped.
+    private var shouldSkipUpdateOnInitialWalletModelsCreation = true
 
     init(
         walletManagersRepository: WalletManagersRepository,
@@ -53,22 +58,28 @@ class CommonWalletModelsManager {
     }
 
     private func updateWalletModels(with walletManagers: [BlockchainNetwork: WalletManager]) {
-        let existingWalletModelIds = Set(walletModels.map { $0.id })
+        let existingWalletModelIds = walletModels
+            .map(\.id)
+            .toSet()
 
-        let newWalletModelIds = Set(walletManagers.flatMap { network, walletManager in
-            let mainId = WalletModelId(tokenItem: .blockchain(network))
-            let tokenIds = walletManager.cardTokens.map { WalletModelId(tokenItem: .token($0, network)) }
-            return [mainId] + tokenIds
-        })
+        let newWalletModelIds = walletManagers
+            .flatMap { network, walletManager in
+                let mainId = WalletModelId(tokenItem: .blockchain(network))
+                let tokenIds = walletManager.cardTokens.map { WalletModelId(tokenItem: .token($0, network)) }
+                return [mainId] + tokenIds
+            }
+            .toSet()
 
         let walletModelIdsToDelete = existingWalletModelIds.subtracting(newWalletModelIds)
         let walletModelIdsToAdd = newWalletModelIds.subtracting(existingWalletModelIds)
 
         if walletModelIdsToAdd.isEmpty, walletModelIdsToDelete.isEmpty {
+            // Case with first card scan without derivations
             if _walletModels.value == nil {
-                // Emit initial list. Case with first card scan without derivations
-                _walletModels.send([])
+                _walletModels.send([]) // Emit initial list
             }
+
+            shouldSkipUpdateOnInitialWalletModelsCreation = false // Allow subsequent updates when derivations are obtained
 
             return
         }
@@ -96,40 +107,51 @@ class CommonWalletModelsManager {
             return []
         }
 
-        updateWalletModelsWithPerformanceTrackingIfNeeded(walletModels: walletModelsToAdd)
+        if walletModelsToAdd.isNotEmpty {
+            // Refresh only newly added wallet models. On a cold start, all wallet models are considered newly added.
+            // Also on a cold start, `updateAll(silent:)` is always called shortly after these wallet models are created,
+            // so the very first update triggered by this function would be a duplicate and therefore is skipped.
+            if shouldSkipUpdateOnInitialWalletModelsCreation {
+                shouldSkipUpdateOnInitialWalletModelsCreation = false
+            } else {
+                runTask(in: self) { manager in
+                    await Self.updateAllInternal(
+                        silent: false,
+                        walletModels: walletModelsToAdd,
+                        shouldTrackUpdate: &manager.shouldTrackWalletModelsUpdate
+                    )
+                }
+            }
 
-        existingWalletModels.append(contentsOf: walletModelsToAdd)
+            existingWalletModels.append(contentsOf: walletModelsToAdd)
+        }
 
         log(walletModels: existingWalletModels)
 
         _walletModels.send(existingWalletModels)
     }
 
-    private func updateWalletModelsWithPerformanceTrackingIfNeeded(walletModels: [any WalletModel]) {
+    /// Must be stateless, therefore it's static.
+    private static func updateAllInternal(
+        silent: Bool,
+        walletModels: [any WalletModel],
+        shouldTrackUpdate: inout Bool
+    ) async {
         var token: PerformanceMetricToken?
 
-        if shouldTrackWalletModelsUpdate, walletModels.isNotEmpty {
-            shouldTrackWalletModelsUpdate = false
+        if shouldTrackUpdate, walletModels.isNotEmpty {
+            shouldTrackUpdate = false
             token = PerformanceTracker.startTracking(metric: .totalBalanceLoaded(tokensCount: walletModels.count))
         }
 
-        Task {
-            await Self.updateAllInternal(silent: false, walletModels: walletModels)
-
-            if walletModels.contains(where: \.state.isBlockchainUnreachable) {
-                PerformanceTracker.endTracking(token: token, with: .failure)
-            } else {
-                PerformanceTracker.endTracking(token: token, with: .success)
-            }
-        }
-    }
-
-    /// Must be stateless, therefore it's static.
-    private static func updateAllInternal(silent: Bool, walletModels: [any WalletModel]) async {
         // Even modern iOS devices, like iPhone 17 Pro/Pro Max, have at most 6 CPU cores
         // Therefore, n=5 is a reasonable limit for concurrent network requests (as for now)
         let maxConcurrentUpdates = 5
         let count = walletModels.count
+        // [REDACTED_TODO_COMMENT]
+        let options: WalletModelUpdateOptions = FeatureProvider.isAvailable(.transactionHistoryV2) ? .full : .balances
+        // Single token shared across the batch of all wallet models, so all updates belong to the same cycle
+        let updateToken = UUID()
 
         await withTaskGroup(of: Void.self) { group in
             for index in 0 ..< count {
@@ -138,11 +160,22 @@ class CommonWalletModelsManager {
                     await group.next()
                 }
                 _ = group.addTaskUnlessCancelled {
-                    await walletModels[index].update(silent: silent, features: .balances)
+                    // Coalesce this whole refresh cycle's P2P staking balances into one batched request.
+                    await walletModels[index].update(
+                        silent: silent,
+                        options: options,
+                        updateToken: updateToken,
+                        stakingUpdateSource: .batch
+                    )
                 }
             }
             await group.waitForAll()
         }
+
+        PerformanceTracker.endTracking(
+            token: token,
+            with: walletModels.contains(where: \.state.isBlockchainUnreachable) ? .failure : .success
+        )
     }
 }
 
@@ -175,7 +208,7 @@ extension CommonWalletModelsManager: WalletModelsManager {
     }
 
     func updateAll(silent: Bool) async {
-        await Self.updateAllInternal(silent: silent, walletModels: walletModels)
+        await Self.updateAllInternal(silent: silent, walletModels: walletModels, shouldTrackUpdate: &shouldTrackWalletModelsUpdate)
     }
 }
 

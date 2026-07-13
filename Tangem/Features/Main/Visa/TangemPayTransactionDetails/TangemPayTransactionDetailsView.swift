@@ -117,21 +117,23 @@ private extension TangemPayTransactionDetailsView {
         VStack(spacing: 0) {
             redesignedHeader(title: model.headerTitle, subtitle: model.headerSubtitle)
 
-            VStack(spacing: DesignSystem.Tokens.Spacing.s400) {
+            VStack(spacing: 12) {
                 redesignedIcon(model.icon)
 
-                VStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+                VStack(spacing: 8) {
                     Text(model.amount)
-                        .style(DesignSystem.Tokens.Font.Display.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                        .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     if let amountSubtitle = model.amountSubtitle {
                         Text(amountSubtitle)
-                            .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                             .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
+                .padding(.top, 12)
+                .padding(.bottom, 36)
 
                 if let status = model.status {
                     TangemPayTransactionStatusView(model: status)
@@ -139,9 +141,9 @@ private extension TangemPayTransactionDetailsView {
 
                 redesignedRows(model.rows)
             }
-            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-            .padding(.top, DesignSystem.Tokens.Spacing.s400)
-            .padding(.bottom, DesignSystem.Tokens.Spacing.s100)
+            .padding(.horizontal, 16)
+            .padding(.top, 48)
+            .padding(.bottom, 8)
 
             TangemButtonV2(
                 label: AttributedString(model.mainButtonAction.title),
@@ -151,22 +153,22 @@ private extension TangemPayTransactionDetailsView {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
-            .padding(DesignSystem.Tokens.Spacing.s200)
+            .padding(16)
         }
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Tokens.Theme.Bg.secondary
+            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
 
     func redesignedHeader(title: String, subtitle: String) -> some View {
         ZStack {
-            VStack(spacing: DesignSystem.Tokens.Spacing.s050) {
+            VStack(spacing: 4) {
                 Text(title)
-                    .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Text(subtitle)
-                    .style(DesignSystem.Tokens.Font.Caption.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
             .multilineTextAlignment(.center)
 
@@ -182,19 +184,21 @@ private extension TangemPayTransactionDetailsView {
                 .styleType(.material(.glass))
             }
         }
-        .padding(.top, DesignSystem.Tokens.Spacing.s200)
-        .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+        .padding(.top, 16)
+        .padding(.horizontal, 16)
     }
 
     @ViewBuilder
     func redesignedIcon(_ icon: TangemPayTransactionDetailsDisplayModel.Icon) -> some View {
         switch icon {
-        case .merchantLogo(let url):
+        case .merchantLogo(let url?):
             IconView(
                 url: url,
-                size: CGSize(bothDimensions: DesignSystem.Tokens.Size.s1000),
-                cornerRadius: DesignSystem.Tokens.Size.s1000 / 2
+                size: CGSize(bothDimensions: 80),
+                cornerRadius: 80 / 2
             )
+        case .merchantLogo(nil):
+            redesignedGenericIcon(Assets.Visa.otherTransaction)
         case .withdrawal:
             redesignedGenericIcon(DesignSystem.Icons.ArrowUp.regular24)
         case .deposit:
@@ -209,10 +213,10 @@ private extension TangemPayTransactionDetailsView {
             .renderingMode(.template)
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: DesignSystem.Tokens.Size.s350, height: DesignSystem.Tokens.Size.s350)
-            .foregroundStyle(DesignSystem.Tokens.Theme.Icon.primary)
-            .frame(width: DesignSystem.Tokens.Size.s1000, height: DesignSystem.Tokens.Size.s1000)
-            .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary, in: Circle())
+            .frame(width: 28, height: 28)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
+            .frame(width: 80, height: 80)
+            .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
     }
 
     func redesignedRows(_ rows: [TangemPayTransactionDetailsDisplayModel.Row]) -> some View {
@@ -220,6 +224,7 @@ private extension TangemPayTransactionDetailsView {
             ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
                 TangemRow(title: row.title, value: row.value)
                     .showDivider(rows.count == 1 || index < rows.count - 1)
+                    .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
             }
         }
     }

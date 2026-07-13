@@ -18,7 +18,9 @@ struct TangemPayTransactionRecordMapper {
     private let amountFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.usesSignificantDigits = true
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
         return formatter
     }()
 
@@ -73,7 +75,7 @@ struct TangemPayTransactionRecordMapper {
         case .spend(let spend) where spend.amount == 0:
             return format(amount: spend.amount, currencyCode: spend.currency)
         case .spend(let spend):
-            let prefix = spend.amount < 0 ? "+" : ""
+            let prefix: String = spend.amount < 0 ? .plusSign : .empty
             return format(
                 amount: -(spend.isDeclined ? spend.authorizedAmount : spend.amount),
                 currencyCode: spend.currency,
@@ -82,7 +84,7 @@ struct TangemPayTransactionRecordMapper {
         case .collateral(let collateral):
             // In the `collateral.currency` we have `USDC` crypto token
             // But we have to show user just simple `$` currency
-            let prefix = collateral.amount > 0 ? "+" : ""
+            let prefix: String = collateral.amount > 0 ? .plusSign : .empty
             return format(amount: collateral.amount, currencyCode: AppConstants.usdCurrencyCode, prefix: prefix)
         case .payment(let payment):
             return format(amount: -payment.amount, currencyCode: payment.currency)

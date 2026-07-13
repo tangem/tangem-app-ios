@@ -54,6 +54,7 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) var isWithdrawButtonLoading: Bool = false
+    @Published private(set) var isWithdrawButtonDisabled: Bool = false
     @Published private(set) var inlineNotifications: [NotificationViewInput] = []
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
 
@@ -64,7 +65,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     // Multi-card
     @Published private(set) var cardEntries: [TangemPayCardEntry] = []
-    @Published private(set) var additionalCardIssueOffer: TangemPayCustomerOffer?
+    @Published private(set) var isAddCardLoading: Bool = false
 
     let cardDeactivatedNotificationInput: NotificationViewInput?
     @Published var alert: AlertBinder?
@@ -82,11 +83,19 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     var actionButtonsDisabled: Bool {
-        freezingState.shouldDisableActionButtons || isStale
+        let allCardsBlocked = cardEntries.allConforms { cardEntry in
+            cardEntry.card?.productInstance.status == .blocked
+        }
+
+        return freezingState.shouldDisableActionButtons || isStale || allCardsBlocked
     }
 
     var hasIssuingEntry: Bool {
         cardEntries.contains { $0.isIssuing }
+    }
+
+    var addCardDisabled: Bool {
+        isStale || hasIssuingEntry || isAddCardLoading
     }
 
     var notificationBannerItems: [NotificationBannerItem] {
@@ -98,6 +107,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -105,6 +115,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
+    private let expressStatusPollingHelper: ExpressStatusPollingHelper
     private let cardDetailsRepository: TangemPayCardDetailsRepository
 
     private var nextViewOpeningTask: Task<Void, Error>?
@@ -138,13 +149,17 @@ final class TangemPayMainViewModel: ObservableObject {
                 .eraseToAnyPublisher() ?? Empty<Bool, Never>().eraseToAnyPublisher()
         )
 
-        pendingExpressTransactionsManager = ExpressPendingTransactionsFactory(
+        let expressStatusTracking = ExpressStatusTrackingFactory(
             userWalletInfo: userWalletInfo,
             tokenItem: TangemPayUtilities.usdcTokenItem,
             // We don't handle update after transaction is done here yet.
-            walletModelUpdater: nil
+            walletModelUpdater: nil,
+            transactionHistoryEnricherFactory: { nil } // [REDACTED_TODO_COMMENT]
         )
-        .makePendingExpressTransactionsManager()
+        .makeExpressStatusTracking()
+
+        pendingExpressTransactionsManager = expressStatusTracking.manager
+        expressStatusPollingHelper = expressStatusTracking.pollingHelper
 
         bind()
         if !isDeactivated {
@@ -170,6 +185,12 @@ final class TangemPayMainViewModel: ObservableObject {
         return transactionHistoryService.fetchNextTransactionHistoryPage()
     }
 
+    private var isBankTransferAvailable: Bool {
+        FeatureProvider.isAvailable(.tangemPayVirtualAccount)
+            && tangemPayAccount.isKYCApproved
+            && tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
+    }
+
     func addFunds() {
         Analytics.log(.visaScreenButtonVisaAddFunds, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
 
@@ -185,7 +206,8 @@ final class TangemPayMainViewModel: ObservableObject {
                 input: .init(
                     userWalletInfo: userWalletInfo,
                     address: depositAddress,
-                    swapableToken: swapableToken
+                    swapableToken: swapableToken,
+                    isBankTransferAvailable: isBankTransferAvailable
                 )
             )
         }
@@ -234,14 +256,36 @@ final class TangemPayMainViewModel: ObservableObject {
             return
         }
 
-        guard let offer = additionalCardIssueOffer, let fee = offer.fee else {
-            showCardIssueFailureAlert()
-            runTask { [tangemPayAccount] in
-                await tangemPayAccount.loadOffers()
-            }
+        if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
+            openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
             return
         }
 
+        nextViewOpeningTask?.cancel()
+        nextViewOpeningTask = runWithDelayedLoading(
+            onLongRunning: { @MainActor [weak self] in
+                self?.isAddCardLoading = true
+            },
+            onCancel: { [weak self] in
+                self?.isAddCardLoading = false
+            },
+            operation: { @MainActor [weak self] in
+                guard let self else { return }
+
+                await tangemPayAccount.loadOffers()
+                isAddCardLoading = false
+
+                guard let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee else {
+                    showCardIssueFailureAlert()
+                    return
+                }
+
+                openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
+            }
+        )
+    }
+
+    private func openIssueAdditionalCardCostPopup(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee) {
         coordinator?.openIssueAdditionalCardCostPopup(
             offer: offer,
             fee: fee,
@@ -322,6 +366,10 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
+    func openCurrentPlan() {
+        coordinator?.openCurrentPlan()
+    }
+
     func termsAndLimits() {
         Analytics.log(.visaScreenTermsAndLimitsClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openTermsAndLimits()
@@ -364,12 +412,17 @@ final class TangemPayMainViewModel: ObservableObject {
             guard case .spend(let spend) = transaction.record else { return nil }
             return tangemPayAccount.cardDisplayName(forCardId: spend.cardId)
         }()
+        let cardNumberEnd: String? = {
+            guard case .spend(let spend) = transaction.record else { return nil }
+            return tangemPayAccount.cardNumberEnd(forCardId: spend.cardId)
+        }()
 
         coordinator?.openTangemPayTransactionDetailsSheet(
             transaction: transaction,
             userWalletId: userWalletInfo.id,
             customerId: tangemPayAccount.customerId,
-            cardName: cardName
+            cardName: cardName,
+            cardNumberEnd: cardNumberEnd
         )
     }
 }
@@ -399,6 +452,13 @@ private extension TangemPayMainViewModel {
             }
             .receiveOnMain()
             .assign(to: &$pendingExpressTransactions)
+
+        tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.balanceTypePublisher
+            .map { balance in
+                balance.value?.isZero == true
+            }
+            .receiveOnMain()
+            .assign(to: &$isWithdrawButtonDisabled)
 
         bindInlineNotifications()
 
@@ -445,11 +505,6 @@ private extension TangemPayMainViewModel {
             .receiveOnMain()
             .assign(to: &$cardEntries)
 
-        tangemPayAccount.offersPublisher
-            .receiveOnMain()
-            .map { offers in offers.first { $0.type.isAdditionalCardIssue } }
-            .assign(to: &$additionalCardIssueOffer)
-
         Publishers.CombineLatest3(
             AppSettings.shared.$tangemPayShowAddToApplePayGuide,
             tangemPayAccount.statePublisher,
@@ -469,6 +524,14 @@ private extension TangemPayMainViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.showCardIssueFailureAlert()
+            }
+            .store(in: &bag)
+
+        tangemPayAccount.cardIssueCompletedSignal
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.reloadHistory()
             }
             .store(in: &bag)
     }

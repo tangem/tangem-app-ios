@@ -34,17 +34,21 @@ public struct TangemStakingFactory {
         integrationId: String,
         wallet: StakingWallet,
         provider: P2PAPIProvider,
+        batchBalancesService: P2PBatchBalancesService,
         yieldInfoProvider: StakingYieldInfoProvider,
         stateRepository: StakingManagerStateRepository,
-        analyticsLogger: StakingAnalyticsLogger
+        analyticsLogger: StakingAnalyticsLogger,
+        isRegionUnavailableHandlingEnabled: Bool
     ) -> StakingManager {
         P2PStakingManager(
             integrationId: integrationId,
             wallet: wallet,
             apiProvider: provider,
+            batchBalancesService: batchBalancesService,
             yieldInfoProvider: yieldInfoProvider,
             stateRepository: stateRepository,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            isRegionUnavailableHandlingEnabled: isRegionUnavailableHandlingEnabled
         )
     }
 
@@ -82,6 +86,33 @@ public struct TangemStakingFactory {
         )
         let mapper = P2PMapper()
         return CommonP2PAPIProvider(service: service, mapper: mapper)
+    }
+
+    public func makeP2PBatchBalancesService(
+        credential: StakingAPICredential,
+        configuration: URLSessionConfiguration,
+        network: P2PNetwork,
+        addressProvider: P2PDelegatorAddressProvider,
+        yieldInfoProvider: StakingYieldInfoProvider
+    ) -> P2PBatchBalancesService {
+        let provider = TangemProvider<P2PTarget>(
+            configuration: TangemProviderConfiguration(
+                logOptions: .verbose,
+                urlSessionConfiguration: configuration
+            )
+        )
+        let service = CommonP2PStakingAPIService(
+            provider: provider,
+            credential: credential,
+            network: network
+        )
+        let mapper = P2PMapper()
+        return CommonP2PBatchBalancesService(
+            service: service,
+            mapper: mapper,
+            addressProvider: addressProvider,
+            yieldInfoProvider: yieldInfoProvider
+        )
     }
 
     public func makePendingHashesSender(

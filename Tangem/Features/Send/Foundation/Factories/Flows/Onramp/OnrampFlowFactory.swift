@@ -17,7 +17,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let parameters: PredefinedOnrampParameters
     let coordinatorSource: SendCoordinator.Source
 
-    let pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder
+    let onrampStatusTrackingFactory: OnrampStatusTrackingFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var autoupdatingTimer = AutoupdatingTimer()
@@ -25,6 +25,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     lazy var dependencies = makeOnrampDependencies(preferredValues: parameters.preferredValues)
     lazy var analyticsLogger = makeOnrampSendAnalyticsLogger(source: coordinatorSource)
     lazy var notificationManager = makeOnrampNotificationManager(input: onrampModel, delegate: onrampModel)
+    lazy var marketingNotificationManager = makeOnrampMarketingBannerNotificationManager()
 
     lazy var onrampModel = makeOnrampModel(
         onrampManager: dependencies.manager,
@@ -55,9 +56,12 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         self.parameters = parameters
         self.coordinatorSource = coordinatorSource
 
-        pendingExpressTransactionsManagerBuilder = .init(
-            userWalletId: sourceToken.userWalletInfo.id.stringValue,
+        onrampStatusTrackingFactory = .init(
+            userWalletId: sourceToken.userWalletInfo.id,
             tokenItem: sourceToken.tokenItem,
+            transactionHistoryEnricherFactory: { [sourceToken] in
+                await sourceToken.transactionHistoryEnricher
+            }
         )
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
@@ -73,8 +77,13 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             tokenItem: tokenItem,
             analyticsLogger: analyticsLogger,
             buyActionBuilder: buyActionBuilder,
+            linkedBannersPublisher: marketingNotificationManager.linkedBannersPublisher,
             input: onrampModel,
             output: onrampModel
+        )
+
+        let onrampStatusTracking = onrampStatusTrackingFactory.makeOnrampStatusTracking(
+            expressAPIProvider: expressDependenciesFactory.expressAPIProvider
         )
 
         let finish = makeSendFinishStep(
@@ -85,14 +94,19 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             ),
             onrampStatusCompactViewModel: OnrampStatusCompactViewModel(
                 input: onrampModel,
-                pendingTransactionsManager: pendingExpressTransactionsManagerBuilder.makePendingExpressTransactionsManager(
-                    expressAPIProvider: expressDependenciesFactory.expressAPIProvider
-                )
+                pendingTransactionsManager: onrampStatusTracking.manager,
+                expressStatusPollingHelper: onrampStatusTracking.pollingHelper
             ),
             router: router
         )
 
         notificationManager.setupManager(with: onrampModel)
+
+        marketingNotificationManager.setup(
+            tokenItem: tokenItem,
+            amountInput: onrampModel,
+            providersInput: onrampModel
+        )
 
         // Logger setup
         analyticsLogger.setup(onrampProvidersInput: onrampModel)
@@ -176,6 +190,8 @@ extension OnrampFlowFactory: OnrampSummaryStepBuildable {
     var onrampDependencies: OnrampSummaryStepBuilder.Dependencies {
         OnrampSummaryStepBuilder.Dependencies(
             notificationManager: notificationManager,
+            marketingNotificationManager: marketingNotificationManager,
+            linkedBannersPublisher: marketingNotificationManager.linkedBannersPublisher,
             analyticsLogger: analyticsLogger,
             buyActionBuilder: buyActionBuilder
         )
@@ -190,13 +206,13 @@ extension OnrampFlowFactory: SendFinishStepBuildable {
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(
-            title: Localization.commonInProgress,
-            tokenItem: tokenItem
-        )
+        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
-        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
+        SendFinishStepBuilder.Dependencies(
+            analyticsLogger: analyticsLogger,
+            headerTitleProvider: OnrampFinishHeaderTitleProvider()
+        )
     }
 }

@@ -77,10 +77,10 @@ extension TwinConfig: UserWalletConfig {
 
     var tangemSigner: TangemSigner {
         if let twinKey {
-            return CardSigner(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: twinKey)
+            return CardSigner(filter: cardSessionFilter, sdkFactory: self, twinKey: twinKey)
         }
 
-        return CardSigner(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
+        return CardSigner(filter: cardSessionFilter, sdkFactory: self, twinKey: nil)
     }
 
     var emailData: [EmailCollectedData] {
@@ -211,5 +211,13 @@ extension TwinConfig: UserWalletConfig {
 
     func makeTangemSdk() -> TangemSdk {
         TwinTangemSdkFactory(isAccessCodeSet: card.isAccessCodeSet).makeTangemSdk()
+    }
+}
+
+// MARK: - Action buttons
+
+extension TwinConfig {
+    func makeActionButtonsRole() -> ActionButtonsWalletRole {
+        return ActionButtonsWalletRole(providesHotCryptoTokens: false, forcesActionButtonsRow: true, preselectsUserWalletInBuy: true)
     }
 }

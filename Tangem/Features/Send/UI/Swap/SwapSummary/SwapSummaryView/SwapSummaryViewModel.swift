@@ -12,6 +12,7 @@ import TangemUI
 import TangemUIUtils
 import TangemLocalization
 import TangemMacro
+import TangemFoundation
 
 final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var swapAmountViewModel: SwapAmountViewModel
@@ -19,6 +20,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var feeCompactViewModel: SendFeeCompactViewModel
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
     @Published private(set) var notificationButtonIsLoading = false
 
     @Published private(set) var isMaxAmountButtonHidden: Bool = false
@@ -43,6 +45,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     private let interactor: SwapSummaryInteractor
     private let notificationManager: NotificationManager
+    private let marketingNotificationManager: SwapMarketingBannerNotificationManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
     private let formVariantResolver: SwapFormVariantResolver
 
@@ -51,6 +54,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     init(
         interactor: SwapSummaryInteractor,
         notificationManager: NotificationManager,
+        marketingNotificationManager: SwapMarketingBannerNotificationManager,
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
@@ -60,6 +64,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
+        self.marketingNotificationManager = marketingNotificationManager
         self.analyticsLogger = analyticsLogger
         self.swapAmountViewModel = swapAmountViewModel
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
@@ -82,7 +87,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func logScreenOpened() {
-        guard FeatureProvider.isAvailable(.swapSimpleMode) else { return }
         analyticsLogger.logSwapTypeScreenOpened(variant: formVariant)
     }
 
@@ -119,11 +123,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         router?.summaryStepRequestEditFee()
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func userDidTapMaxAmount() {
-        interactor.userDidRequestMaxAmount()
-    }
-
     func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {
         analyticsLogger.logTapAmountFraction(fraction)
         interactor.userDidRequestSourceAmount(fraction: fraction)
@@ -137,16 +136,16 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 // MARK: - SwapAmountCompactRoutable
 
 extension SwapSummaryViewModel: SwapAmountCompactRoutable {
-    func userDidTapChangeSourceTokenButton(tokenItem: TokenItem?) {
-        router?.summaryStepRequestEditSourceToken(tokenItem: tokenItem)
+    func userDidTapChangeSourceTokenButton(receiveToken: SendSourceToken?) {
+        router?.summaryStepRequestEditSourceToken(receiveToken: receiveToken?.walletTokenItem)
     }
 
     func userDidTapSwapSourceAndReceiveTokensButton() {
         interactor.userDidRequestSwapSourceAndReceiveToken()
     }
 
-    func userDidTapChangeReceiveTokenButton(tokenItem: TokenItem?) {
-        router?.summaryStepRequestEditReceiveToken(tokenItem: tokenItem)
+    func userDidTapChangeReceiveTokenButton(sourceToken: SendSourceToken?) {
+        router?.summaryStepRequestEditReceiveToken(sourceToken: sourceToken?.walletTokenItem)
     }
 }
 
@@ -202,10 +201,13 @@ private extension SwapSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$isActionInProcessing)
 
-        notificationManager
-            .notificationPublisher
+        notificationManager.notificationPublisher
             .receiveOnMain()
             .assign(to: &$notificationInputs)
+
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
     }
 }
 

@@ -21,6 +21,7 @@ import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
@@ -29,6 +30,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     @Published private(set) var isZeroBalance = true
     @Published private(set) var marketPriceViewModel: TokenDetailsMarketPriceViewModel?
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
 
@@ -79,6 +81,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel.tokenItem.token?.customTokenColor
     }
 
+    let presentSource: TokenDetailsPresentSource
+
     private weak var coordinator: (any TokenDetailsRoutable)?
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
@@ -86,6 +90,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
+    private let marketingNotificationManager: MarketingBannerNotificationManager
+    private let notificationBannerMapper: MultiWalletNotificationBannerMapper
+    private let deeplinkHandler: PromotionDeeplinkHandler
     private var bag = Set<AnyCancellable>()
 
     private lazy var yieldStateFactory = TokenDetailsYieldStateFactory(
@@ -110,15 +117,24 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         notificationManager: NotificationManager,
         userTokensManager: any UserTokensManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
+        expressStatusPollingHelper: ExpressStatusPollingHelper,
         xpubGenerator: XPUBGenerator?,
         coordinator: any TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable,
-        pendingTransactionDetails: PendingTransactionDetails?
+        pendingTransactionDetails: PendingTransactionDetails?,
+        deeplinkHandler: PromotionDeeplinkHandler,
+        marketingNotificationManager: MarketingBannerNotificationManager = MarketingBannerNotificationManager(),
+        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper(),
+        presentSource: TokenDetailsPresentSource
     ) {
         self.coordinator = coordinator
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
+        self.deeplinkHandler = deeplinkHandler
+        self.marketingNotificationManager = marketingNotificationManager
+        self.notificationBannerMapper = notificationBannerMapper
+        self.presentSource = presentSource
 
         actionsViewModel = FeatureProvider.isAvailable(.redesign)
             ? TokenDetailsActionsViewModel(walletModel: walletModel, userWalletInfo: userWalletInfo)
@@ -129,6 +145,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             walletModel: walletModel,
             notificationManager: notificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             tokenRouter: tokenRouter
         )
 
@@ -143,8 +160,17 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         AppLogger.debug("TokenDetailsViewModel deinit")
     }
 
+    func onBack() {
+        coordinator?.dismiss()
+    }
+
     func onAppear() {
         logScreenOpenedAnalytics()
+        deeplinkHandler.becomeIncomingActionsResponder()
+    }
+
+    func onDisappear() {
+        deeplinkHandler.resignIncomingActionsResponder()
     }
 
     func onFirstAppear() {
@@ -155,7 +181,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         switch action {
         case .empty,
              .unlock,
-             .yieldBoostPromoLater:
+             .yieldBoostPromoLater,
+             .openGetTangemPay,
+             .closeGetTangemPay:
             break
         case .openFeeCurrency:
             coordinator?.proceedFeeCurrencyNavigatingDismissOption(
@@ -186,7 +214,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .stake,
              .openFeedbackMail,
              .openAppStoreReview,
-             .support,
+             .backupErrorSupport,
              .openCurrency,
              .addTokenTrustline,
              .openMobileFinishActivation,
@@ -210,6 +238,13 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     override func copyDefaultAddress() {
+        if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
+            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
+        ) {
+            alert = unavailableAlert
+            return
+        }
+
         super.copyDefaultAddress()
         Analytics.log(
             event: .buttonCopyAddress,
@@ -312,7 +347,7 @@ extension TokenDetailsViewModel {
 
     func openDynamicAddressesManagementView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
         let availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
 
@@ -404,7 +439,7 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
-        Task { @MainActor [notificationManager, weak self] in
+        Task { @MainActor [notificationManager, notificationBannerMapper, weak self] in
             let tokenNotificationInputs = await notificationManager.notificationInputs
 
             guard self?.isRedesign == true else {
@@ -412,19 +447,20 @@ private extension TokenDetailsViewModel {
                 return
             }
 
-            self?.notifications = MultiWalletNotificationBannerMapper().mapItems(tokenNotificationInputs)
+            self?.notifications = notificationBannerMapper.mapItems(tokenNotificationInputs)
         }
 
         setupQuickTopUpBanner()
         dotsMenuItems = makeDotsMenuItems()
         marketPriceViewModel = makeMarketPriceViewModel()
+        marketingNotificationManager.setup(
+            bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: walletModel.tokenItem, kind: .tokenDetails)
+        )
 
         bind()
     }
 
     private func setupQuickTopUpBanner() {
-        guard FeatureProvider.isAvailable(.onrampNativePayment) else { return }
-
         expressAvailabilityProvider.availabilityDidChangePublisher
             .receiveOnMain()
             .map { [weak self] in self?.mapToQuickTopUpBannerViewModel() }
@@ -433,7 +469,7 @@ private extension TokenDetailsViewModel {
 
     private func mapToQuickTopUpBannerViewModel() -> QuickTopUpBannerViewModel? {
         let availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
         guard availabilityProvider.isBuyAvailable else { return nil }
@@ -461,11 +497,13 @@ private extension TokenDetailsViewModel {
             })
         }
 
-        let hasFeature = FeatureProvider.isAvailable(.dynamicAddresses)
         let isDynamicAddressesSupported = walletModel.tokenItem.blockchain.isDynamicAddressesSupported
+        // Dynamic addresses derive multiple receive addresses from an XPUB, so they require an HD wallet.
+        // Single-currency cards (Note, Twin, Start2Coin, legacy) lack HD derivation and must not offer it.
+        let isHDWalletsSupported = userWalletInfo.config.hasFeature(.hdWallets)
         let walletModelDynamicAddressesProvider = walletModel as? WalletModelDynamicAddressesProvider
 
-        if let walletModelDynamicAddressesProvider, hasFeature, isDynamicAddressesSupported {
+        if let walletModelDynamicAddressesProvider, isDynamicAddressesSupported, isHDWalletsSupported {
             items.append(DotsMenuItem(type: .dynamicAddresses) { [weak self] in
                 self?.openDynamicAddressesManagementView(
                     walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider
@@ -483,6 +521,10 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
+
         walletModel.yieldModuleManager?.statePublisher
             .compactMap { $0 }
             .filter { !$0.state.isLoading }
@@ -542,6 +584,27 @@ private extension TokenDetailsViewModel {
                 self?.isZeroBalance = isZeroBalance
             }
             .store(in: &bag)
+
+        let activeStaking = walletModel.stakingManagerStatePublisher
+            .map(\.isActive)
+            .removeDuplicates()
+            .filter { $0 }
+            .map { _ in MarketingCampaignsRepository.Kind.staking }
+            .eraseToAnyPublisher()
+
+        let activeYield = (walletModel.yieldModuleManager?.statePublisher
+            .map { $0?.state.isEffectivelyActive == true }
+            .eraseToAnyPublisher() ?? .just(output: false))
+            .removeDuplicates()
+            .filter { $0 }
+            .map { _ in MarketingCampaignsRepository.Kind.yield }
+            .eraseToAnyPublisher()
+
+        Publishers.Merge(activeStaking, activeYield)
+            .sink { [weak self] kind in
+                self?.marketingCampaignsRepository.loadCampaigns(for: kind)
+            }
+            .store(in: &bag)
     }
 
     private func updateYield(info: YieldModuleManagerStateInfo) {
@@ -574,13 +637,15 @@ private extension TokenDetailsViewModel {
             stakingState = makeEnableStakingState(staked: staked)
         case .loadingError, .temporaryUnavailable:
             stakingState = makeUnavailableStakingState()
-        case .notEnabled:
+        case .unavailableInRegion(.some):
+            stakingState = makeRegionUnavailableStakingState()
+        case .unavailableInRegion(.none), .notEnabled:
             stakingState = nil
         }
     }
 
     private func makeAvailableStakingState(info: StakingYieldInfo) -> TokenDetailsStakingState {
-        let rewardPercent = PercentFormatter().format(info.rewardRateValues.max, option: .staking)
+        let rewardPercent = makeFormattedRewardPercent(yieldInfo: info)
 
         let description = switch info.rewardType {
         case .apr: Localization.tokenDetailsEarnStakingSubtitle(rewardPercent)
@@ -611,11 +676,11 @@ private extension TokenDetailsViewModel {
             balanceConverter.convertToFiat(balance, currencyId: currencyId)
         }
         let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
-        let attributedFiatBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+        let attributedFiatBalance = AttributedBalanceFormatter.format(
             formattedFiatBalance,
             font: Font.Tangem.Body16.medium,
             integerColor: .Tangem.Text.Neutral.primary,
-            decimalColor: .Tangem.Text.Neutral.secondary
+            fractionalColor: .Tangem.Text.Neutral.secondary
         )
 
         let item = TokenDetailsStakingState.EnableItem(
@@ -631,9 +696,23 @@ private extension TokenDetailsViewModel {
     private func makeUnavailableStakingState() -> TokenDetailsStakingState {
         let item = TokenDetailsStakingState.UnavailableItem(
             title: Localization.commonStaking,
-            description: Localization.stakingNotificationNetworkErrorText
+            description: Localization.stakingNotificationNetworkErrorText,
+            action: nil
         )
         return .unavailable(item: item)
+    }
+
+    private func makeRegionUnavailableStakingState() -> TokenDetailsStakingState {
+        let item = TokenDetailsStakingState.UnavailableItem(
+            title: Localization.commonStaking,
+            description: Localization.stakingErrorUnavailableRegion,
+            action: weakify(self, forFunction: TokenDetailsViewModel.openStakingRegionUnavailableSheet)
+        )
+        return .unavailable(item: item)
+    }
+
+    private func openStakingRegionUnavailableSheet() {
+        coordinator?.openStakingRegionUnavailableSheet()
     }
 
     private func makeStakingRewardsState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState.RewardsState {
@@ -643,28 +722,44 @@ private extension TokenDetailsViewModel {
         case (.manual, .zero):
             return .empty(Localization.stakingDetailsNoRewardsToClaim)
         case (.manual, let rewards):
+            let rewardPercent = makeFormattedRewardPercent(yieldInfo: staked.yieldInfo)
+            let rewardType = switch staked.yieldInfo.rewardType {
+            case .apr: Localization.stakingDetailsApr
+            case .apy: Localization.stakingDetailsApy
+            }
+            let rewardPercentType = "\(rewardPercent) \(rewardType)"
+
             let fiat: Decimal? = walletModel.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(rewards, currencyId: currencyId)
             }
             let formattedFiat = balanceFormatter.formatFiatBalance(fiat)
-            return .claimed(formattedFiat)
+
+            let claimed = "\(rewardPercentType) \(AppConstants.dotSign) \(formattedFiat)"
+            return .claimed(claimed)
         }
     }
 
+    private func makeFormattedRewardPercent(yieldInfo: StakingYieldInfo) -> String {
+        PercentFormatter().format(yieldInfo.rewardRateValues.max, option: .staking)
+    }
+
     private func updateLegacyStaking(state: StakingManagerState) {
+        let isBeta = state.yieldInfo?.item.network == .ethereum
+
         switch state {
         case .loading:
             // Do nothing
             break
         case .availableToStake, .notEnabled:
             activeStakingViewData = nil
-        case .loadingError, .temporaryUnavailable:
-            activeStakingViewData = .init(balance: .loadingError, rewards: .none)
+        case .loadingError, .temporaryUnavailable, .unavailableInRegion:
+            activeStakingViewData = .init(isBeta: isBeta, balance: .loadingError, rewards: .none)
         case .staked(let staked):
             let rewards = mapToRewardsState(staked: staked)
             let balance = mapToStakedBalance(staked: staked)
 
             activeStakingViewData = ActiveStakingViewData(
+                isBeta: isBeta,
                 balance: .balance(balance) { [weak self] in self?.openStaking() },
                 rewards: rewards
             )

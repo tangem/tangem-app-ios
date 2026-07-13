@@ -96,6 +96,8 @@ extension Analytics {
         case buttonSell = "[Token] Button - Sell"
         case buttonExchange = "[Token] Button - Exchange"
         case buttonSend = "[Token] Button - Send"
+        case tokenButtonAddFunds = "[Token] Button - Add Funds"
+        case tokenButtonTransfer = "[Token] Button - Transfer"
         case buttonReceive = "[Token] Button - Receive"
         case buttonUnderstand = "[Token] Button - Understand"
         case tokenBought = "[Token] Token Bought"
@@ -183,6 +185,8 @@ extension Analytics {
         case sendSwapErrorExpressQuote = "[Token / Send] Error - Express quote"
         case sendSendWithSwapAmountScreenOpened = "[Token / Send] Send With Swap Amount Screen Opened"
         case sendNoticeCantSwapThisToken = "[Token / Send] Notice - Can't Swap This Token"
+        case sendNoticeSwapAvailable = "[Token / Send] Notice - Swap Available"
+        case sendNoticeSwapAvailableClicked = "[Token / Send] Notice - Swap Available Clicked"
         case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
         case sendNoticeNetworkFeeCoverage = "[Token / Send] Notice - Network Fee Coverage"
         case sendButtonSendWithSwap = "[Token / Send] Button - Send with Swap"
@@ -300,6 +304,14 @@ extension Analytics {
         case walletConnectTransactionSolanaLargeStatus = "[Wallet Connect] Solana Large Transaction Status"
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
+
+        // MARK: - Support chat
+
+        case settingsButtonOpenChat = "[Settings] Button - Open Chat"
+        case supportChatScreenOpened = "[Support] Chat Screen Opened"
+        case supportChatScreenError = "[Support] Chat Screen Error"
+        case supportChatScreenClosed = "[Support] Chat Screen Closed"
+
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
         case settingsLongtapWalletsOrder = "[Settings] Longtap - Wallets Order"
 
@@ -353,6 +365,7 @@ extension Analytics {
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
+        case swapFilterProvider = "[Swap] Filter provider"
         case swapFastAmountInput = "[Swap] Fast amount input"
 
         case swapTypeReselection = "[Swap] Swap type re-selection"
@@ -512,6 +525,7 @@ extension Analytics {
         case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
         case stakingPermissionScreenOpened = "[Staking] Permission Screen Opened"
+        case stakingScamVerification = "[Staking] Scam Verification"
 
         // MARK: - Markets
 
@@ -559,6 +573,7 @@ extension Analytics {
         case marketsChartButtonBuy = "[Markets / Chart] Button - Buy"
         case marketsChartButtonReceive = "[Markets / Chart] Button - Receive"
         case marketsChartButtonSwap = "[Markets / Chart] Button - Swap"
+        case marketsChartButtonAddFunds = "[Markets / Chart] Button - Add Funds"
         case marketsChartButtonStake = "[Markets / Chart] Button - Stake"
         case marketsChartButtonShare = "[Markets / Chart] Button - Share"
         case marketsChartButtonYieldMode = "[Markets/Charts] Button - Yield Mode"
@@ -640,6 +655,7 @@ extension Analytics {
 
         case actionButtonsBuyButton = "[Main Screen] Button - Buy"
         case mainScreenButtonAddFunds = "[Main Screen] Button - Add Funds"
+        case mainScreenButtonTransfer = "[Main Screen] Button - Transfer"
         case actionButtonsSellButton = "[Main Screen] Button - Sell"
         case actionButtonsSwapButton = "[Main Screen] Button - Swap"
         case actionButtonsSwapScreenOpened = "[Main Screen] Swap Screen Opened"
@@ -657,9 +673,18 @@ extension Analytics {
         // MARK: - Add Funds
 
         case addFundsButtonBuy = "[Add Funds] Button - Buy"
+        case addFundsMethodScreenOpened = "[Add Funds] Method Screen Opened"
         case addFundsButtonSwap = "[Add Funds] Button - Swap"
         case addFundsButtonReceive = "[Add Funds] Button - Receive"
         case addFundsButtonGoToToken = "[Add Funds] Button - Go to Token"
+
+        // MARK: - Transfer
+
+        case transferMethodScreenOpened = "[Transfer] Method Screen Opened"
+        case transferButtonSell = "[Transfer] Button - Sell"
+        case transferButtonSwap = "[Transfer] Button - Swap"
+        case transferButtonSwapAndSend = "[Transfer] Button - Swap&Send"
+        case transferButtonSend = "[Transfer] Button - Send"
 
         // MARK: - Stories
 
@@ -840,5 +865,23 @@ extension Analytics {
         case initialTokenSyncCompleted = "[Token Sync] Sync Completed"
         case initialTokenSyncButtonClosed = "[Token Sync] Button - Close Banner"
         case initialTokenSyncManageTokens = "[Token Sync] Button - Manage Tokens"
+
+        // MARK: - Address Book
+
+        case addressBookContactListScreenOpened = "[Address Book] Contact List Screen Opened"
+        case addressBookAddContactTapped = "[Address Book] Add Contact Tapped"
+        case addressBookContactScreenOpened = "[Address Book] Contact Screen Opened"
+        case addressBookButtonSaveTo = "[Address Book] Button - Save To"
+        case addressBookContactSaved = "[Address Book] Contact Saved"
+        case addressBookSaveErrorShown = "[Address Book] Save Error Shown"
+        case addressBookAddressScreenOpened = "[Address Book] Address Screen Opened"
+        case addressBookAddressInvalid = "[Address Book] Address Invalid"
+        case addressBookDuplicateNameErrorShown = "[Address Book] Duplicate Name Error Shown"
+        case addressBookAddressRemoved = "[Address Book] Address Removed"
+        case addressBookContactDeleted = "[Address Book] Contact Deleted"
+        case addressBookSendFlowWidgetShown = "[Address Book] Send Flow Widget Shown"
+        case addressBookContactSelected = "[Address Book] Contact Selected"
+        case addressBookAddressSubstitutedInSend = "[Address Book] Address Substituted In Send"
+        case addressBookSelectAllNetworksTapped = "[Address Book] Select All Networks Tapped"
     }
 }

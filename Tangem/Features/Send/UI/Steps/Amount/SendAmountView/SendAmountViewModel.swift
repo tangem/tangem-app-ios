@@ -107,6 +107,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private var balanceFormatter: BalanceFormatter = .init()
     private let balanceConverter = BalanceConverter()
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
+    private let shouldStartFromTokensList: Bool
 
     private var sourceCurrencySymbol: String = ""
     private var sourceCryptoBalance: String?
@@ -119,14 +120,15 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger,
+        shouldStartFromTokensList: Bool,
         providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
     ) {
         sourceAmountField = AmountInputFieldModel(
             tokenItem: sourceToken.tokenItem,
-            fiatItem: sourceToken.fiatItem,
-            possibleToConvertToFiat: sourceToken.possibleToConvertToFiat
+            fiatItem: sourceToken.fiatItem
         )
 
+        self.shouldStartFromTokensList = shouldStartFromTokensList
         self.flowActionType = flowActionType
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
@@ -139,7 +141,11 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         bind()
     }
 
-    func onAppear() {}
+    func onAppear() {
+        if shouldStartFromTokensList {
+            openReceiveTokensList()
+        }
+    }
 
     func userDidTapMaxAmount() {
         analyticsLogger.logTapMaxAmount()
@@ -486,8 +492,7 @@ extension SendAmountViewModel {
 
         sourceAmountField.reconfigure(
             tokenItem: sourceToken.tokenItem,
-            fiatItem: sourceToken.fiatItem,
-            possibleToConvertToFiat: sourceToken.possibleToConvertToFiat
+            fiatItem: sourceToken.fiatItem
         )
     }
 
@@ -584,8 +589,7 @@ extension SendAmountViewModel {
         if !isFirstSelection {
             field.reconfigure(
                 tokenItem: token.tokenItem,
-                fiatItem: token.fiatItem,
-                possibleToConvertToFiat: token.tokenItem.currencyId != nil
+                fiatItem: token.fiatItem
             )
             field.cryptoIconURL = iconInfo.imageURL
         }
@@ -682,8 +686,7 @@ extension SendAmountViewModel {
     ) -> AmountInputFieldModel {
         let field = AmountInputFieldModel(
             tokenItem: destinationToken.tokenItem,
-            fiatItem: destinationToken.fiatItem,
-            possibleToConvertToFiat: destinationToken.tokenItem.currencyId != nil
+            fiatItem: destinationToken.fiatItem
         )
         field.cryptoIconURL = tokenIconInfo.imageURL
 
@@ -709,7 +712,7 @@ extension SendAmountViewModel {
         case .success(let amount):
             if let crypto = amount.crypto {
                 let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
-                if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
+                if let balance = sourceCryptoBalance {
                     compactSourceSubtitle = .balanceAndSend(
                         balance: .loaded(text: .builder(
                             builder: { Localization.commonBalance($0) },
@@ -743,7 +746,7 @@ extension SendAmountViewModel {
     }
 
     private func makeLoadingCompactSourceSubtitle() -> SendAmountTokenViewData.SubtitleType {
-        if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
+        if let balance = sourceCryptoBalance {
             return .balanceAndSend(
                 balance: .loaded(text: .builder(
                     builder: { Localization.commonBalance($0) },

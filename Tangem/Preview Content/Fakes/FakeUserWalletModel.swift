@@ -35,7 +35,7 @@ class FakeUserWalletModel: UserWalletModel {
     var nftManager: NFTManager { NFTManagerStub() }
     let totalBalanceProvider: TotalBalanceProvider
     let walletImageProvider: WalletImageProviding
-    let signer: TangemSigner = CardSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
+    let signer: TangemSigner = CardSigner(filter: .cardId(""), sdkFactory: GenericTangemSdkFactory(isAccessCodeSet: false), twinKey: nil)
     let config: UserWalletConfig
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
@@ -62,6 +62,10 @@ class FakeUserWalletModel: UserWalletModel {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
 
+    var priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider {
+        PriceAlertsSubscriptionsProviderStub()
+    }
+
     var userWalletPushNotificationsManager: UserWalletPushNotificationsManager {
         CommonUserWalletPushNotificationsManager(
             userWalletId: userWalletId,
@@ -73,6 +77,10 @@ class FakeUserWalletModel: UserWalletModel {
 
     var accountModelsManager: AccountModelsManager {
         AccountModelsManagerMock()
+    }
+
+    var addressBookManager: AddressBookManager {
+        NoopAddressBookManager()
     }
 
     var refcodeProvider: RefcodeProvider? {
@@ -118,9 +126,7 @@ class FakeUserWalletModel: UserWalletModel {
         .just(output: totalBalance)
     }
 
-    func validate() -> Bool {
-        return true
-    }
+    var backupState: UserWalletBackupState { .valid }
 
     func update(type: UpdateRequest) {
         switch type {

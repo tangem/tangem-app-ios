@@ -34,6 +34,7 @@ class AmountInputFieldModel: ObservableObject {
     // MARK: - Private
 
     private(set) var sendAmountFormatter: SendAmountFormatter
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter: BalanceFormatter = .init()
     private let prefixSuffixOptionsFactory: SendDecimalNumberTextField.PrefixSuffixOptionsFactory
@@ -44,8 +45,7 @@ class AmountInputFieldModel: ObservableObject {
 
     init(
         tokenItem: TokenItem,
-        fiatItem: FiatItem,
-        possibleToConvertToFiat: Bool
+        fiatItem: FiatItem
     ) {
         let factory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
         prefixSuffixOptionsFactory = factory
@@ -62,10 +62,11 @@ class AmountInputFieldModel: ObservableObject {
         )
 
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
-        self.possibleToConvertToFiat = possibleToConvertToFiat
+        possibleToConvertToFiat = false
         currencyId = tokenItem.currencyId
 
         bind()
+        updatePossibleToConvertToFiat(quotes: quotesRepository.quotes)
     }
 
     // MARK: - Public API
@@ -92,9 +93,8 @@ class AmountInputFieldModel: ObservableObject {
         }
     }
 
-    func reconfigure(tokenItem: TokenItem, fiatItem: FiatItem, possibleToConvertToFiat: Bool) {
+    func reconfigure(tokenItem: TokenItem, fiatItem: FiatItem) {
         currencyId = tokenItem.currencyId
-        self.possibleToConvertToFiat = possibleToConvertToFiat
 
         cryptoTextFieldViewModel.update(maximumFractionDigits: tokenItem.decimalCount)
         cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: tokenItem.currencySymbol)
@@ -107,6 +107,8 @@ class AmountInputFieldModel: ObservableObject {
             fiatItem: fiatItem,
             balanceFormatter: balanceFormatter
         )
+
+        updatePossibleToConvertToFiat(quotes: quotesRepository.quotes)
     }
 
     func updateFromExternalAmount(_ amount: SendAmount?, tokenItem: TokenItem) {
@@ -136,7 +138,7 @@ class AmountInputFieldModel: ObservableObject {
 
 private extension AmountInputFieldModel {
     func bind() {
-        cryptoTextFieldViewModel.valuePublisher
+        cryptoTextFieldViewModel.valuePublisher()
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { model, value in
@@ -145,7 +147,7 @@ private extension AmountInputFieldModel {
             }
             .store(in: &bag)
 
-        fiatTextFieldViewModel.valuePublisher
+        fiatTextFieldViewModel.valuePublisher()
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { model, value in
@@ -163,6 +165,25 @@ private extension AmountInputFieldModel {
                 model.refreshAlternativeAmount()
             }
             .store(in: &bag)
+
+        quotesRepository.quotesPublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { model, quotes in
+                model.updatePossibleToConvertToFiat(quotes: quotes)
+            }
+            .store(in: &bag)
+    }
+
+    func updatePossibleToConvertToFiat(quotes: Quotes) {
+        let newValue = currencyId.map { quotes[$0] != nil } ?? false
+        guard possibleToConvertToFiat != newValue else { return }
+
+        possibleToConvertToFiat = newValue
+
+        if !newValue, amountType == .fiat {
+            amountType = .crypto
+        }
     }
 
     func refreshAlternativeAmount() {

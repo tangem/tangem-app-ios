@@ -8,9 +8,11 @@
 
 import UIKit
 import Combine
+import BlockchainSdk
 import TangemAssets
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 final class SelectorReceiveAssetsAddressPageItemViewModel: ObservableObject {
     var title: String {
@@ -27,6 +29,18 @@ final class SelectorReceiveAssetsAddressPageItemViewModel: ObservableObject {
 
     var address: AttributedString {
         stringForAddress(addressInfo.address)
+    }
+
+    var addressAccessibilityIdentifier: String {
+        addressInfo.type.isLegacy
+            ? ReceiveAccessibilityIdentifiers.legacyAddress
+            : ReceiveAccessibilityIdentifiers.segwitAddress
+    }
+
+    var qrCodeButtonAccessibilityIdentifier: String {
+        addressInfo.type.isLegacy
+            ? ReceiveAccessibilityIdentifiers.legacyShowQRCodeButton
+            : ReceiveAccessibilityIdentifiers.segwitShowQRCodeButton
     }
 
     var isLoading: Bool {

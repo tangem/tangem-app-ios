@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import UIKit
 import TangemFoundation
 import TangemPay
 import TangemVisa
@@ -53,6 +54,10 @@ final class TangemPayManager: TangemPayAccountModel {
 
     private var customerWalletId: String {
         userWalletId.stringValue
+    }
+
+    private var multipleCardsEnabled: Bool {
+        FeatureProvider.isAvailable(.tangemPayMultipleCards)
     }
 
     @Injected(\.tangemPayAssembly)
@@ -103,6 +108,7 @@ final class TangemPayManager: TangemPayAccountModel {
         self.tangemPayAccountBuilder = tangemPayAccountBuilder
 
         bind()
+        observeAppLifecycle()
 
         if let cached = lastKnownTangemPayAccount {
             stateSubject.value = .tangemPayAccount(cached)
@@ -195,7 +201,7 @@ final class TangemPayManager: TangemPayAccountModel {
             switch error {
             case .unauthorized:
                 stateSubject.value = .syncNeeded
-            case .moyaError, .apiError, .decodingError:
+            case .moyaError, .apiError, .decodingError, .serverError:
                 stateSubject.value = .unavailable
             }
             VisaLogger.error("Failed to get TangemPay enrollment state", error: error)
@@ -307,7 +313,28 @@ final class TangemPayManager: TangemPayAccountModel {
         runTask {
             await account.loadBalance()
         }
+        if multipleCardsEnabled {
+            runTask {
+                await account.resumeAdditionalCardIssuePolling()
+            }
+        }
         return account
+    }
+
+    private func observeAppLifecycle() {
+        guard multipleCardsEnabled else { return }
+
+        NotificationCenter.default
+            .publisher(for: UIApplication.willEnterForegroundNotification)
+            .sink { [weak self] _ in
+                runTask { [weak self] in
+                    guard let account = self?.state?.tangemPayAccount else { return }
+                    await account.loadCustomerInfo()
+                    await account.loadOffers()
+                    await account.resumeAdditionalCardIssuePolling()
+                }
+            }
+            .store(in: &bag)
     }
 
     private func bind() {
@@ -340,6 +367,6 @@ final class TangemPayManager: TangemPayAccountModel {
 
 private extension TangemPayManager {
     enum Constants {
-        static let cardIssuingOrderPollInterval: TimeInterval = 60
+        static let cardIssuingOrderPollInterval: TimeInterval = 5
     }
 }

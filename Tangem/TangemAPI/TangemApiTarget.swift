@@ -22,11 +22,24 @@ struct TangemApiTarget: TargetType {
             fullURL
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
-        case .promotion, .yieldBoostPromotionStatus, .saveUserWalletTokensV2:
-            // Contract v1.3 documents the full path as `/api/v2/wallets/{walletId}/tokens`.
-            // `apiBaseUrlv2` already carries the `/v2` segment; the leading `/api` is pending backend
-            // confirmation (gateway-internal vs. a real path) — same caveat as notification-preferences.
+        case .promotion, .yieldBoostPromotionStatus, .promotionRegistration:
             AppEnvironment.current.apiBaseUrlv2
+        case .saveUserWalletTokensV2:
+            // Contract v1.3 documents the full path as `/api/v2/wallets/{walletId}/tokens`.
+            // NOTE: the leading `/api` segment is applied here but still needs backend confirmation
+            // (gateway-internal vs. a real path). If BE serves `/v2/...` without `/api`, revert this
+            // case back to `apiBaseUrlv2` — same caveat as notification-preferences below.
+            AppEnvironment.current.apiBaseUrlv2WithGatewaySegment
+        case .getNotificationPreferences, .updateNotificationPreferences, .marketingCampaigns:
+            // Contract v1.3 documents the full path as `/api/v1/notification-preferences/{walletId}`.
+            // NOTE: the leading `/api` segment is applied here but still needs backend confirmation.
+            // If BE serves `/v1/...` without `/api`, revert this case back to `apiBaseUrl`.
+            AppEnvironment.current.apiBaseUrlWithGatewaySegment
+        case .subscribeToPriceAlerts, .unsubscribeFromPriceAlerts, .getPriceAlertsSubscriptions:
+            // Spec documents the full path as `/api/v1/price-alerts/subscriptions`. Same `/api`
+            // gateway-segment caveat as notification-preferences above; endpoints are not yet in the
+            // contract registry (OQ-1), so the exact host/segment still needs backend confirmation.
+            AppEnvironment.current.apiBaseUrlWithGatewaySegment
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -58,10 +71,14 @@ struct TangemApiTarget: TargetType {
             return "/promotion"
         case .yieldBoostPromotionStatus:
             return "/promotion/yield-apr-boost/status"
+        case .promotionRegistration:
+            return "/promotion/registrations"
         case .loadPromotions:
             return "/banner/displays"
         case .hidePromotion(let request):
             return "/banner/displays/\(request.displayId)"
+        case .marketingCampaigns:
+            return "/marketing/campaigns"
         case .createAccount:
             return "/user-network-account"
         case .apiList:
@@ -112,11 +129,17 @@ struct TangemApiTarget: TargetType {
             return "/user-wallets/wallets/\(userWalletId)"
         case .getNotificationPreferences(let userWalletId),
              .updateNotificationPreferences(let userWalletId, _):
-            // Contract v1.3 documents the full path as `/api/v1/notification-preferences/{walletId}`.
-            // `apiBaseUrl` already carries the `/v1` segment, so only the relative part is set here.
-            // The leading `/api` segment from the doc is pending backend confirmation (gateway-internal
-            // vs. a real path) — if it turns out real, route this case to a dedicated base URL instead.
+            // Contract v1.3: `/api/v1/notification-preferences/{walletId}`. The `/api/v1` part comes
+            // from `apiBaseUrlWithGatewaySegment` (see `baseURL`); only the relative part is set here.
             return "/notification-preferences/\(userWalletId)"
+
+        // MARK: - Price Alerts Subscriptions
+        case .subscribeToPriceAlerts,
+             .unsubscribeFromPriceAlerts,
+             .getPriceAlertsSubscriptions:
+            // `/api/v1` comes from `apiBaseUrlWithGatewaySegment` (see `baseURL`); walletId travels in the
+            // body (POST/DELETE) or as a query param (GET), so the path is identical for all three.
+            return "/price-alerts/subscriptions"
 
         // MARK: - Promo Code
         case .activatePromoCode:
@@ -130,6 +153,12 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(userWalletId)/accounts"
         case .getArchivedUserAccounts(let userWalletId):
             return "/wallets/\(userWalletId)/accounts/archived"
+
+        // MARK: - Address Book
+        case .syncAddressBooks:
+            return "/address-books/sync"
+        case .updateAddressBook(let walletId, _, _):
+            return "/address-books/\(walletId)"
 
         // MARK: - News
         case .newsList:
@@ -159,6 +188,7 @@ struct TangemApiTarget: TargetType {
              .promotion,
              .yieldBoostPromotionStatus,
              .loadPromotions,
+             .marketingCampaigns,
              .apiList,
              .features,
              .coinsList,
@@ -177,6 +207,7 @@ struct TangemApiTarget: TargetType {
              .getUserWallets,
              .getUserWallet,
              .getNotificationPreferences,
+             .getPriceAlertsSubscriptions,
              .newsList,
              .newsDetails,
              .newsCategories,
@@ -185,15 +216,21 @@ struct TangemApiTarget: TargetType {
         case .saveUserWalletTokensV2,
              .saveUserAccounts,
              .connectUserWallets,
-             .updateNotificationPreferences:
+             .updateNotificationPreferences,
+             .updateAddressBook:
             return .put
         case .participateInReferralProgram,
              .createAccount,
              .createUserWalletsApplication,
              .activatePromoCode,
              .createWallet,
-             .bindWalletsByCode:
+             .bindWalletsByCode,
+             .syncAddressBooks,
+             .subscribeToPriceAlerts,
+             .promotionRegistration:
             return .post
+        case .unsubscribeFromPriceAlerts:
+            return .delete
         case .updateUserWalletsApplication, .updateWallet, .hidePromotion:
             return .patch
         }
@@ -224,10 +261,14 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(request)
         case .yieldBoostPromotionStatus(let request):
             return .requestParameters(request)
+        case .promotionRegistration(let request):
+            return .requestJSONEncodable(request)
         case .loadPromotions(let request):
             return .requestParameters(request)
         case .hidePromotion(let request):
             return .requestJSONEncodable(request)
+        case .marketingCampaigns(let parameters):
+            return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
         case .createAccount(let parameters):
             return .requestJSONEncodable(parameters)
         case .apiList:
@@ -279,6 +320,12 @@ struct TangemApiTarget: TargetType {
             return .requestPlain
         case .updateNotificationPreferences(_, let body):
             return .requestJSONEncodable(body)
+        case .subscribeToPriceAlerts(let request),
+             .unsubscribeFromPriceAlerts(let request):
+            return .requestJSONEncodable(request)
+        case .getPriceAlertsSubscriptions(let userWalletId):
+            // Wire query key stays `walletId` (backend contract); the value is a UserWalletId.
+            return .requestParameters(parameters: ["walletId": userWalletId], encoding: URLEncoding.default)
         case .updateWallet(_, let context):
             return .requestJSONEncodable(context)
         case .connectUserWallets(_, let requestModel):
@@ -297,6 +344,12 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(accounts)
         case .getArchivedUserAccounts:
             return .requestPlain
+
+        // MARK: - Address Book
+        case .syncAddressBooks(let request):
+            return .requestJSONEncodable(request)
+        case .updateAddressBook(_, _, let body):
+            return .requestJSONEncodable(body)
 
         // MARK: - News
         case .newsList(let requestModel):
@@ -335,6 +388,9 @@ struct TangemApiTarget: TargetType {
             return [
                 TangemAPIHeaders.ifMatch.rawValue: revision,
             ]
+        case .updateAddressBook(_, let knownETag, _):
+            // Optimistic locking: send If-Match only when we already hold an etag (the client never mints one).
+            return knownETag.map { [TangemAPIHeaders.ifMatch.rawValue: $0] }
         case .rawData,
              .currencies,
              .coins,
@@ -348,8 +404,10 @@ struct TangemApiTarget: TargetType {
              .createAccount,
              .promotion,
              .yieldBoostPromotionStatus,
+             .promotionRegistration,
              .loadPromotions,
              .hidePromotion,
+             .marketingCampaigns,
              .activatePromoCode,
              .story,
              .coinsList,
@@ -374,11 +432,15 @@ struct TangemApiTarget: TargetType {
              .createWallet,
              .getNotificationPreferences,
              .updateNotificationPreferences,
+             .subscribeToPriceAlerts,
+             .unsubscribeFromPriceAlerts,
+             .getPriceAlertsSubscriptions,
              .trendingNews,
              .newsList,
              .newsDetails,
              .newsCategories,
-             .bindWalletsByCode:
+             .bindWalletsByCode,
+             .syncAddressBooks:
             return nil
         }
     }
@@ -403,10 +465,13 @@ extension TangemApiTarget {
 
         case promotion(request: BannerPromotion.Request)
         case yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request)
+        case promotionRegistration(request: PromotionRegistrationDTO.Request)
 
         // Promotions
         case loadPromotions(request: PromotionsDTO.Load.Request)
         case hidePromotion(request: PromotionsDTO.Hide.Request)
+
+        case marketingCampaigns(parameters: [String: Any])
 
         case story(_ id: String)
 
@@ -452,10 +517,19 @@ extension TangemApiTarget {
         case getNotificationPreferences(userWalletId: String)
         case updateNotificationPreferences(userWalletId: String, body: NotificationPreferencesDTO.Body)
 
+        // Price Alerts Subscriptions
+        case subscribeToPriceAlerts(request: PriceAlertsSubscriptionsDTO.Request)
+        case unsubscribeFromPriceAlerts(request: PriceAlertsSubscriptionsDTO.Request)
+        case getPriceAlertsSubscriptions(userWalletId: String)
+
         // Accounts
         case getUserAccounts(userWalletId: String)
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
+
+        // Address Book
+        case syncAddressBooks(_ request: AddressBookDTO.SyncRequest)
+        case updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest)
 
         // MARK: - News Targets
 
@@ -508,6 +582,9 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .createWallet,
              .getNotificationPreferences,
              .updateNotificationPreferences,
+             .subscribeToPriceAlerts,
+             .unsubscribeFromPriceAlerts,
+             .getPriceAlertsSubscriptions,
              .newsList,
              .newsCategories,
              .newsDetails,
@@ -523,12 +600,16 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .promotionRegistration,
              .loadPromotions,
              .hidePromotion,
+             .marketingCampaigns,
              .pushNotificationsEligible,
              .getUserAccounts,
              .saveUserAccounts,
              .getArchivedUserAccounts,
+             .syncAddressBooks,
+             .updateAddressBook,
              .activatePromoCode,
              .coinsSettings:
             return true

@@ -15,6 +15,8 @@ import TangemUIUtils
 struct PulseMarketWidgetViewRedesign: View {
     @ObservedObject var viewModel: PulseMarketWidgetViewModel
 
+    var showsSeeAllButton: Bool = true
+
     @Environment(\.mainWindowSize) private var mainWindowSize
 
     private var listStateID: Int {
@@ -32,7 +34,7 @@ struct PulseMarketWidgetViewRedesign: View {
 
             if viewModel.isNeedDisplayFilter {
                 filter
-            } else if case .loading = viewModel.tokenViewModelsState {
+            } else if !viewModel.isSearchActive, case .loading = viewModel.tokenViewModelsState {
                 filterSkeletons
             }
 
@@ -46,10 +48,10 @@ struct PulseMarketWidgetViewRedesign: View {
 
     private var header: some View {
         MarketsCommonWidgetHeaderViewRedesign(
-            headerTitle: viewModel.widgetType.headerTitle ?? "",
+            headerTitle: viewModel.headerTitle,
             headerImage: nil,
-            buttonTitle: Localization.commonSeeAll,
-            buttonAction: viewModel.onSeeAllTapAction,
+            buttonTitle: showsSeeAllButton ? Localization.commonSeeAll : nil,
+            buttonAction: showsSeeAllButton ? viewModel.onSeeAllTapAction : nil,
             isLoadingState: viewModel.headerLoadingState
         )
     }

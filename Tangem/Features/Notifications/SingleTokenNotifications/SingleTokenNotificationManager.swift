@@ -154,9 +154,7 @@ final class SingleTokenNotificationManager {
         notificationInputsSubject.send(inputs)
 
         setupRentFeeNotification()
-        if FeatureProvider.isAvailable(.dynamicAddresses) {
-            setupDynamicAddressesNotificationIfNeeded()
-        }
+        setupDynamicAddressesNotificationIfNeeded()
     }
 
     private func setupDynamicAddressesNotificationIfNeeded() {
@@ -407,8 +405,9 @@ final class SingleTokenNotificationManager {
 
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let apyFormatted = PercentFormatter().format(yield.rewardRateValues.max, option: .staking)
+        let isBeta = yield.item.network == .ethereum
 
-        return .staking(tokenIconInfo: tokenIconInfo, earnUpToFormatted: apyFormatted)
+        return .staking(tokenIconInfo: tokenIconInfo, earnUpToFormatted: apyFormatted, isBeta: isBeta)
     }
 
     private func hideNotification(_ notification: NotificationViewInput) {

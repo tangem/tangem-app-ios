@@ -38,6 +38,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         TokensManagementFlowRoutable
 
     @Injected(\.walletAssetsDiscoveryProgressProvider) private var walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
+    @Injected(\.promotionCampaignsRepository) private var promotionCampaignsRepository: PromotionCampaignsRepository
 
     weak var coordinator: MainContentRoutable?
 
@@ -60,7 +62,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let balanceProvider = providerFactory.makeHeaderBalanceProvider(for: model)
         let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
 
-        let navigationBalanceProvider = CommonMainNavigationBalanceProvider(
+        let navigationBalanceProvider = MainNavigationBalanceProvider(
             isUserWalletLocked: model.isUserWalletLocked,
             totalBalanceProvider: model
         )
@@ -101,6 +103,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             )
         }
+
+        marketingCampaignsRepository.loadCampaigns(for: .tokenDetails)
+        marketingCampaignsRepository.loadCampaigns(for: .marketsToken)
+
+        promotionCampaignsRepository.prewarm(userWalletId: model.userWalletId.stringValue)
 
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: model.userWalletInfo,
@@ -184,13 +191,20 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             placement: .main
         )
 
-        let expressFactory = ExpressPendingTransactionsFactory(
+        let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: model.userWalletInfo,
             tokenItem: dependencies.walletModel.tokenItem,
             walletModelUpdater: dependencies.walletModel,
+            transactionHistoryEnricherFactory: { [weak walletModel = dependencies.walletModel] in
+                try? await walletModel?
+                    .featuresPublisher
+                    .first()
+                    .async()
+                    .transactionHistoryProvider
+            }
         )
 
-        let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
+        let expressStatusTracking = expressFactory.makeExpressStatusTracking()
 
         let accountModel: (any CryptoAccountModel)? = {
             let cryptoAccounts = model.accountModelsManager.accountModels.cryptoAccounts()
@@ -203,7 +217,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             walletModel: dependencies.walletModel,
             userWalletNotificationManager: userWalletNotificationManager,
             promotionNotificationsManager: promotionNotificationsManager,
-            pendingExpressTransactionsManager: pendingTransactionsManager,
+            pendingExpressTransactionsManager: expressStatusTracking.manager,
+            expressStatusPollingHelper: expressStatusTracking.pollingHelper,
             tokenNotificationManager: singleWalletNotificationManager,
             rateAppController: rateAppController,
             tokenRouter: tokenRouter,
@@ -229,7 +244,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         multiWalletContentDelegate: MultiWalletMainContentDelegate?,
         nftLifecycleHandler: NFTFeatureLifecycleHandling
     ) -> [MainUserWalletPageBuilder] {
-        return models.compactMap {
+        models.map {
             createPage(
                 for: $0,
                 lockedUserWalletDelegate: lockedUserWalletDelegate,
@@ -246,7 +261,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let subtitleProvider = VisaWalletMainHeaderSubtitleProvider(isUserWalletLocked: isUserWalletLocked, dataSource: visaUserWalletModel)
 
-        let navigationBalanceProvider = CommonMainNavigationBalanceProvider(
+        let navigationBalanceProvider = MainNavigationBalanceProvider(
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
             totalBalanceProvider: visaUserWalletModel
         )

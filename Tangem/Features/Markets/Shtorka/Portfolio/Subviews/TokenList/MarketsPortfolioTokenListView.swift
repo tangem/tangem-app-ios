@@ -92,7 +92,6 @@ private extension MarketsPortfolioTokenListView {
                 action: viewModel.onCloseTap
             )
             .setStyleType(.secondary)
-            .setCornerStyle(.rounded)
             .setSize(.x10)
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
@@ -208,10 +207,15 @@ private extension MarketsPortfolioTokenListView {
         }
     }
 
+    @ViewBuilder
     func token(row: ViewModel.TokenRow) -> some View {
-        Button(action: row.onTap) {
+        if let onTap = row.onTap {
+            Button(action: onTap) {
+                MarketsPortfolioTokenListRowView(viewModel: row.model)
+            }
+            .buttonStyle(.plain)
+        } else {
             MarketsPortfolioTokenListRowView(viewModel: row.model)
         }
-        .buttonStyle(.plain)
     }
 }

@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
 import Foundation
 import TangemUI
 import UIKit
@@ -23,11 +24,13 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
     @Published private(set) var viewState: RootViewState?
 
     @Published var addToPortfolioBottomSheetInfo: HotCryptoAddToPortfolioBottomSheetViewModel?
+    @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
 
     // MARK: - Private property
 
     private var safariHandle: SafariHandle?
     private var userWalletModels: [UserWalletModel] = []
+    private var tokenListViewModel: ActionButtonsBuyViewModel?
 
     required init(
         dismissAction: @escaping Action<ActionButtonsBuyDismissPayload?>,
@@ -39,14 +42,15 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         userWalletModels = options.userWalletModels
-        let tokenSelectorViewModel = makeTokenSelectorViewModel()
-        viewState = .newTokenList(
-            ActionButtonsBuyViewModel(
-                userWalletModels: options.userWalletModels,
-                tokenSelectorViewModel: tokenSelectorViewModel,
-                coordinator: self
-            )
+        let tokenSelectorViewModel = makeTokenSelectorViewModel(preferredWalletId: options.preferredWalletId)
+        let viewModel = ActionButtonsBuyViewModel(
+            userWalletModels: options.userWalletModels,
+            tokenSelectorViewModel: tokenSelectorViewModel,
+            pulseMarketWidgetViewModel: makePulseMarketWidgetViewModel(),
+            coordinator: self
         )
+        tokenListViewModel = viewModel
+        viewState = .newTokenList(viewModel)
     }
 
     func dismiss() {
@@ -89,14 +93,20 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
             let viewModel = AddFundsViewModel(
                 input: .init(
                     mode: .stack,
-                    primaryAction: .goToToken,
+                    primaryAction: .hidden,
                     walletModel: walletModel,
-                    userWalletModel: userWalletModel
+                    userWalletModel: userWalletModel,
+                    onBack: { [weak self] in self?.showTokenList() }
                 ),
                 coordinator: self
             )
             viewState = .addFunds(viewModel)
         }
+    }
+
+    private func showTokenList() {
+        guard let tokenListViewModel else { return }
+        viewState = .newTokenList(tokenListViewModel)
     }
 
     func openAddToPortfolio(viewModel: HotCryptoAddToPortfolioBottomSheetViewModel) {
@@ -139,7 +149,8 @@ extension ActionButtonsBuyCoordinator: AddFundsRoutable {
         let helper = SwapPredefinedParametersHelper()
         guard let parameters = helper.makeParameters(
             walletModel: walletModel,
-            userWalletInfo: userWalletModel.userWalletInfo
+            userWalletInfo: userWalletModel.userWalletInfo,
+            position: .automatic
         ) else { return }
 
         Task { @MainActor [weak self] in
@@ -196,11 +207,31 @@ extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRo
     }
 }
 
+// MARK: - PulseMarketWidgetRoutable
+
+extension ActionButtonsBuyCoordinator: PulseMarketWidgetRoutable {
+    func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
+        let coordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.marketsTokenDetailsCoordinator = nil
+            }
+        )
+
+        coordinator.start(with: .init(info: tokenInfo, style: .addFundsSheet))
+        marketsTokenDetailsCoordinator = coordinator
+    }
+
+    func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType) {
+        assertionFailure("See all is hidden in the Buy pulse widget, so this is never invoked.")
+    }
+}
+
 // MARK: - Options
 
 extension ActionButtonsBuyCoordinator {
     struct Options {
         let userWalletModels: [UserWalletModel]
+        let preferredWalletId: UserWalletId?
     }
 
     enum RootViewState: Equatable {
@@ -231,8 +262,33 @@ struct ActionButtonsBuyDismissPayload {
 // MARK: - Factory method
 
 private extension ActionButtonsBuyCoordinator {
-    func makeTokenSelectorViewModel() -> TokenSelectorViewModel {
-        .common(walletsProvider: .standardAccountsOnly(), availabilityProvider: .buy())
+    func makeTokenSelectorViewModel(preferredWalletId: UserWalletId?) -> TokenSelectorViewModel {
+        .common(
+            walletsProvider: .standardAccountsOnly(),
+            availabilityProvider: FeatureProvider.isAvailable(.redesign)
+                ? .always() : .buy(),
+            preferredWalletId: preferredWalletId
+        )
+    }
+
+    func makePulseMarketWidgetViewModel() -> PulseMarketWidgetViewModel? {
+        guard FeatureProvider.isAvailable(.redesign) else {
+            return nil
+        }
+
+        let widgetsUpdateHandler = CommonMarketsMainWidgetDataService()
+        for widgetType in [MarketsWidgetType.market, .news, .earn] {
+            widgetsUpdateHandler.performUpdateLoading(state: .loaded, for: widgetType)
+        }
+
+        return PulseMarketWidgetViewModel(
+            widgetType: .pulse,
+            widgetsUpdateHandler: widgetsUpdateHandler,
+            quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
+            analyticsService: CommonMarketsWidgetAnalyticsService(),
+            includesMarketCapFilter: true,
+            coordinator: self
+        )
     }
 }
 

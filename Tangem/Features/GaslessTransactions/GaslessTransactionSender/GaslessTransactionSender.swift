@@ -38,11 +38,17 @@ final class GaslessTransactionSender {
             throw GaslessTransactionSenderError.noFeeRecipientAddress
         }
 
-        let buildTransaction = try await gaslessTransactionBuilder.buildGaslessTransaction(
+        let buildTransaction = try await gaslessTransactionBuilder.buildGaslessTransactionRequest(
             bsdkTransaction: transaction, feeRecipientAddress: feeRecipientAddress
         )
 
-        let transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessTransaction(buildTransaction)
+        let transactionHash: String
+        switch buildTransaction {
+        case .single(let transaction):
+            transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessTransaction(transaction)
+        case .batch(let transaction):
+            transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessBatchTransaction(transaction)
+        }
 
         walletModel.pendingTransactionRecordAdder?.addPendingTransaction(transaction, hash: transactionHash)
 
@@ -59,9 +65,15 @@ final class GaslessTransactionSender {
     }
 }
 
+// MARK: - GaslessMultipleTransactionSending
+
+protocol GaslessMultipleTransactionSending {
+    func send(transactions: [BSDKTransaction]) async throws -> [TransactionDispatcherResult]
+}
+
 // MARK: - Approve & swap flow
 
-extension GaslessTransactionSender {
+extension GaslessTransactionSender: GaslessMultipleTransactionSending {
     func send(transactions: [BSDKTransaction]) async throws -> [TransactionDispatcherResult] {
         guard transactions.allSatisfy({ $0.fee.amount.type.isToken }) else {
             assertionFailure("Gasless fee should be in token")

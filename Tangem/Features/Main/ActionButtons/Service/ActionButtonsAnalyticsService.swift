@@ -13,10 +13,10 @@ enum ActionButtonsAnalyticsService {
 
     static func trackActionButtonTap(button: ActionButtonModel, state: ActionButtonState) {
         let event: Analytics.Event = switch button {
-        case .buy:
-            FeatureProvider.isAvailable(.addFundsStage1) ? .mainScreenButtonAddFunds : .actionButtonsBuyButton
+        case .buy: .mainScreenButtonAddFunds
         case .swap: .actionButtonsSwapButton
-        case .sell: .actionButtonsSellButton
+        // In the redesign the `.sell` button is labeled "Transfer" and opens the transfer method screen.
+        case .sell: FeatureProvider.isAvailable(.redesign) ? .mainScreenButtonTransfer : .actionButtonsSellButton
         }
 
         let status: ActionButtonStatus = switch state {
@@ -29,13 +29,14 @@ enum ActionButtonsAnalyticsService {
     }
 
     static func trackScreenOpened(_ screenModel: ActionButtonModel) {
-        let event: Analytics.Event = switch screenModel {
-        case .buy: .actionButtonsBuyScreenOpened
-        case .swap: .actionButtonsSwapScreenOpened
-        case .sell: .actionButtonsSellScreenOpened
+        switch screenModel {
+        case .buy:
+            Analytics.log(.addFundsMethodScreenOpened, params: [.source: .main])
+        case .swap:
+            Analytics.log(.actionButtonsSwapScreenOpened)
+        case .sell:
+            Analytics.log(.actionButtonsSellScreenOpened)
         }
-
-        Analytics.log(event)
     }
 
     static func trackTokenClicked(_ screenModel: ActionButtonModel, tokenSymbol: String) {

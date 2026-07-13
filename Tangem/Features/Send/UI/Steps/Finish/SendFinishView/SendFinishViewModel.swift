@@ -9,16 +9,11 @@
 import Foundation
 import SwiftUI
 import Combine
-import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
     var headerTitle: String {
-        guard settings.isSwapFlow,
-              FeatureProvider.isAvailable(.swapInProgressV2) else {
-            return settings.title
-        }
-        return Localization.swapInProgress
+        headerTitleProvider.title
     }
 
     @Published private(set) var showHeader = false
@@ -30,6 +25,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     @Published private(set) var sendAmountFinishViewModel: SendAmountFinishViewModel?
     @Published private(set) var nftAssetCompactViewModel: NFTAssetCompactViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendDestinationCompactViewModel?
+    @Published private(set) var addContactViewModel: SendAddContactFinishViewModel?
     @Published private(set) var stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?
     @Published private(set) var sendFeeFinishViewModel: SendFeeFinishViewModel?
 
@@ -39,6 +35,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     @Published private(set) var onrampStatusCompactViewModel: OnrampStatusCompactViewModel?
 
     private let settings: Settings
+    private let headerTitleProvider: any SendFinishHeaderTitleProvider
     private let analyticsLogger: SendFinishAnalyticsLogger
 
     private weak var coordinator: SendRoutable?
@@ -48,22 +45,26 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         sendAmountFinishViewModel: SendAmountFinishViewModel?,
         nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
+        addContactViewModel: SendAddContactFinishViewModel?,
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
         sendFeeFinishViewModel: SendFeeFinishViewModel?,
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
         settings: Settings,
+        headerTitleProvider: any SendFinishHeaderTitleProvider,
         analyticsLogger: SendFinishAnalyticsLogger,
         coordinator: SendRoutable
     ) {
         self.sendAmountFinishViewModel = sendAmountFinishViewModel
         self.nftAssetCompactViewModel = nftAssetCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
+        self.addContactViewModel = addContactViewModel
         self.stakingTargetsCompactViewModel = stakingTargetsCompactViewModel
         self.sendFeeFinishViewModel = sendFeeFinishViewModel
         self.onrampAmountCompactViewModel = onrampAmountCompactViewModel
         self.onrampStatusCompactViewModel = onrampStatusCompactViewModel
         self.settings = settings
+        self.headerTitleProvider = headerTitleProvider
         self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
@@ -113,8 +114,6 @@ class SendFinishViewModel: ObservableObject, Identifiable {
 
 extension SendFinishViewModel {
     struct Settings {
-        let title: String
         let possibleToShowExploreButtons: Bool
-        let isSwapFlow: Bool
     }
 }

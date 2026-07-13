@@ -11,6 +11,8 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     let stakingableToken: SendStakingableToken
     let manager: any StakingManager
     let action: RestakingModel.Action
@@ -18,6 +20,11 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
     var actionType: StakingAction.ActionType { action.displayType }
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
+    lazy var validationHandler = makeValidationHandler(
+        stakingManager: manager,
+        blockaidAPIKey: keysManager.blockaidAPIKey,
+        analyticsLogger: analyticsLogger
+    )
     lazy var actionModel = makeStakingSingleActionModel(stakingManager: manager, analyticsLogger: analyticsLogger)
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
@@ -44,6 +51,7 @@ extension StakingSingleActionFlowFactory {
             sendSourceToken: stakingableToken,
             analyticsLogger: analyticsLogger,
             action: action,
+            validationHandler: validationHandler
         )
     }
 }
@@ -85,6 +93,12 @@ extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
 
         // Notifications setup
         notificationManager.setup(provider: actionModel, input: actionModel)
+        if let validationHandler {
+            notificationManager.setup(
+                validationStatePublisher: validationHandler.validationState,
+                tokenName: tokenItem.currencySymbol
+            )
+        }
         notificationManager.setupManager(with: actionModel)
 
         // Analytics
@@ -134,7 +148,11 @@ extension StakingSingleActionFlowFactory: SendBaseBuildable {
 
 extension StakingSingleActionFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: actionModel, output: actionModel)
+        SendSummaryStepBuilder.IO(
+            input: actionModel,
+            output: actionModel,
+            validationStateProvider: actionModel
+        )
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {
@@ -170,6 +188,9 @@ extension StakingSingleActionFlowFactory: SendFinishStepBuildable {
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
-        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
+        SendFinishStepBuilder.Dependencies(
+            analyticsLogger: analyticsLogger,
+            headerTitleProvider: StakingFinishHeaderTitleProvider()
+        )
     }
 }

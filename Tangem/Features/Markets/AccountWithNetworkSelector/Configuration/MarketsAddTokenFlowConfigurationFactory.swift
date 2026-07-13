@@ -138,10 +138,12 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
             case .exchange:
                 analyticsLogger.logExchangeTapped()
+
                 let helper = SwapPredefinedParametersHelper()
                 guard let parameters = helper.makeParameters(
                     walletModel: walletModel,
-                    userWalletInfo: userWalletInfo
+                    userWalletInfo: userWalletInfo,
+                    position: .automatic
                 ) else {
                     break
                 }
@@ -150,7 +152,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
             case .receive:
                 analyticsLogger.logReceiveTapped()
-                coordinator.openReceive(walletModel: walletModel)
+                coordinator.openReceive(userWalletInfo: userWalletInfo, walletModel: walletModel)
 
             default:
                 break

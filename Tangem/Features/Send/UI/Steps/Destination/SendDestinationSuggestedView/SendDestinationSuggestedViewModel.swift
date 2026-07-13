@@ -36,10 +36,11 @@ class SendDestinationSuggestedViewModel {
         suggestedWallets = wallets.map { wallet in
             Wallet(
                 id: wallet.address,
-                addressIconViewModel: AddressIconViewModel(address: wallet.address),
+                addressIconType: AddressIconProvider.makeViewType(address: wallet.address),
                 wallet: wallet
             ) { [weak self] in
                 self?.tapAction(SendDestinationSuggested(
+                    userWalletInfo: wallet.userWalletInfo,
                     address: wallet.address,
                     additionalField: nil,
                     type: .otherWallet,
@@ -51,10 +52,11 @@ class SendDestinationSuggestedViewModel {
         suggestedRecentTransaction = recentTransactions.map { record in
             RecentTransaction(
                 id: record.id,
-                addressIconViewModel: AddressIconViewModel(address: record.address),
+                addressIconType: AddressIconProvider.makeViewType(address: record.address),
                 record: record
             ) { [weak self] in
                 self?.tapAction(SendDestinationSuggested(
+                    userWalletInfo: nil,
                     address: record.address,
                     additionalField: record.additionalField,
                     type: .recentAddress,
@@ -70,14 +72,14 @@ class SendDestinationSuggestedViewModel {
 extension SendDestinationSuggestedViewModel {
     struct RecentTransaction: Identifiable {
         let id: String
-        let addressIconViewModel: AddressIconViewModel
+        let addressIconType: AddressIconProviderViewType?
         let record: SendDestinationSuggestedTransactionRecord
         let action: () -> Void
     }
 
     struct Wallet: Identifiable {
         let id: String
-        let addressIconViewModel: AddressIconViewModel
+        let addressIconType: AddressIconProviderViewType?
         let wallet: SendDestinationSuggestedWallet
         let action: () -> Void
     }
@@ -86,6 +88,7 @@ extension SendDestinationSuggestedViewModel {
 // MARK: - SendDestinationSuggested (selection result model)
 
 struct SendDestinationSuggested {
+    let userWalletInfo: UserWalletInfo?
     let address: String
     let additionalField: String?
     let type: DestinationType
@@ -100,6 +103,7 @@ struct SendDestinationSuggested {
 // MARK: - SuggestedWallet (User's wallets)
 
 struct SendDestinationSuggestedWallet {
+    let userWalletInfo: UserWalletInfo
     let name: String
     let address: String
     let account: Account?

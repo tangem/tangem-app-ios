@@ -184,6 +184,19 @@ extension CommonPushNotificationsSyncService: UserWalletPushNotificationsService
                 case .update:
                     try await service.applicationProvider.updateApplication(fcmToken: fcmToken, applicationUid: uid)
                 }
+            } catch let error as TangemAPIError where error.code == .notFound {
+                // The stored applicationUid is stale: the current backend has no application for it
+                // (e.g. the environment was switched or the application was wiped server-side).
+                // An `.update` would 404 on every retry, so re-register from scratch instead —
+                // `createApplication` overwrites applicationUid with a fresh value.
+                PushNotificationsSyncServiceLogger.warning("Stale applicationUid (404 on update) — recreating application")
+                do {
+                    try await service.applicationProvider.createApplication(fcmToken: fcmToken)
+                } catch {
+                    PushNotificationsSyncServiceLogger.error("Failed to recreate application after stale uid", error: error)
+                    service.isInitialized = false
+                    return
+                }
             } catch {
                 PushNotificationsSyncServiceLogger.error("Failed to initialize push notifications sync service", error: error)
                 // Reset the guard so a subsequent initialize() call can retry registration.

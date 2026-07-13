@@ -37,6 +37,12 @@ protocol SolanaTokenFeeLoader: TokenFeeLoader {
     func getFee(compiledTransaction data: Data) async throws -> [BSDKFee]
 }
 
+// MARK: - BitcoinTokenFeeLoader
+
+protocol BitcoinTokenFeeLoader: TokenFeeLoader {
+    func getFee(psbtBase64: String) async throws -> [BSDKFee]
+}
+
 // MARK: - TokenFeeLoader+
 
 extension TokenFeeLoader {
@@ -55,6 +61,14 @@ extension TokenFeeLoader {
 
         return solanaTokenFeeLoader
     }
+
+    func asBitcoinTokenFeeLoader() throws -> BitcoinTokenFeeLoader {
+        guard let bitcoinTokenFeeLoader = self as? BitcoinTokenFeeLoader else {
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+        }
+
+        return bitcoinTokenFeeLoader
+    }
 }
 
 enum TokenFeeLoaderError: LocalizedError {
@@ -64,6 +78,8 @@ enum TokenFeeLoaderError: LocalizedError {
     case gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
     case feeTokenIdNotFound
     case missingFeeRecipientAddress
+    case notEnoughFeeBalance
+    case noLatestImplementationForUpgrade
     case gaslessExecutionReverted(gaslessMinTokenAmount: Decimal)
     case executionReverted
 
@@ -75,6 +91,8 @@ enum TokenFeeLoaderError: LocalizedError {
         case .gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem: "GaslessEthereumTokenFeeLoader supports only token as fee token item"
         case .feeTokenIdNotFound: "Fee token id not found"
         case .missingFeeRecipientAddress: "Missing fee recipient address"
+        case .notEnoughFeeBalance: "Not enough fee balance"
+        case .noLatestImplementationForUpgrade: "No latest implementation for upgrade"
         case .gaslessExecutionReverted(let gaslessMinTokenAmount): "Gasless fee estimation execution reverted, min token amount: \(gaslessMinTokenAmount)"
         case .executionReverted: "Execution reverted"
         }

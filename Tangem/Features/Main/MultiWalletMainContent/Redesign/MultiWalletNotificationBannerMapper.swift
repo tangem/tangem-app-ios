@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 import TangemUI
 import TangemLocalization
 import TangemAccessibilityIdentifiers
@@ -68,9 +69,7 @@ private extension MultiWalletNotificationBannerMapper {
         return makeSeverityBasedBannerType(
             severity: input.severity,
             content: content,
-            textOnly: textOnly,
-            bannerAction: bannerAction,
-            input: input
+            bannerAction: bannerAction
         )
     }
 
@@ -79,11 +78,11 @@ private extension MultiWalletNotificationBannerMapper {
         content: NotificationBanner.Content,
         textOnly: NotificationBanner.TextOnly,
         bannerAction: NotificationBanner.BannerAction,
-        closeAction: NotificationBanner.CloseAction
+        closeAction: NotificationBanner.CloseAction?
     ) -> NotificationBanner.BannerType {
         switch bannerKind {
         case .status:
-            return .status(content)
+            return .status(content, bannerAction)
         case .critical:
             return .critical(content, bannerAction)
         case .warning:
@@ -106,6 +105,7 @@ private extension MultiWalletNotificationBannerMapper {
 
     func mapEffect(_ effect: NotificationBannerKind.Effect) -> NotificationBanner.Effect {
         switch effect {
+        case .plain: .none
         case .card: .bannerCard
         case .magic: .bannerMagic
         }
@@ -114,9 +114,7 @@ private extension MultiWalletNotificationBannerMapper {
     func makeSeverityBasedBannerType(
         severity: NotificationView.Severity,
         content: NotificationBanner.Content,
-        textOnly: NotificationBanner.TextOnly,
-        bannerAction: NotificationBanner.BannerAction,
-        input: NotificationViewInput
+        bannerAction: NotificationBanner.BannerAction
     ) -> NotificationBanner.BannerType {
         switch severity {
         case .critical:
@@ -124,24 +122,21 @@ private extension MultiWalletNotificationBannerMapper {
         case .warning:
             return .warning(content, bannerAction)
         case .info:
-            if input.settings.event.isDismissable {
-                let closeAction = makeCloseAction(from: input)
-                // [REDACTED_TODO_COMMENT]
-                return .informational(textOnly, bannerAction, closeAction)
-            }
-
-            return .status(content)
+            return .status(content, bannerAction)
         }
     }
 
     func makeTextOnly(from input: NotificationViewInput) -> NotificationBanner.TextOnly {
-        let title: AttributedString = switch input.settings.event.title {
+        let event = input.settings.event
+        let override = event.redesignedBannerContent
+
+        let title: AttributedString = switch override?.title ?? event.title {
         case .string(let string): AttributedString(string)
         case .attributed(let attributed): attributed
         case .none: AttributedString("")
         }
 
-        let subtitle = AttributedString(input.settings.event.description ?? "")
+        let subtitle = AttributedString(override?.description ?? event.description ?? "")
 
         return NotificationBanner.TextOnly(title: title, subtitle: subtitle)
     }
@@ -150,20 +145,31 @@ private extension MultiWalletNotificationBannerMapper {
         textOnly: NotificationBanner.TextOnly,
         input: NotificationViewInput
     ) -> NotificationBanner.Content {
-        let messageIcon = input.settings.event.icon
+        let messageIcon = input.settings.event.redesignedBannerContent?.icon ?? input.settings.event.icon
+
+        // Status pills center the trailing icon against the text (per design); other kinds keep top alignment.
+        let iconAlignment: NotificationBanner.Icon.Alignment = {
+            if case .status? = input.settings.event.bannerKind { return .center }
+            return .top
+        }()
 
         switch messageIcon.iconType {
         case .image(let imageType):
             let icon = NotificationBanner.Icon(
                 imageType: imageType,
+                alignment: iconAlignment,
                 width: mapSizeUnit(from: messageIcon.size.width),
                 height: mapSizeUnit(from: messageIcon.size.height),
-                renderingMode: messageIcon.renderingMode
+                renderingMode: messageIcon.renderingMode,
+                color: messageIcon.color,
+                isLeading: messageIcon.isLeading
             )
             return .textWithIcon(.init(text: textOnly, icon: icon))
         case .loadableIcon(let url):
+            let loadableAlignment: SwiftUI.Alignment = iconAlignment == .center ? .leading : .topLeading
             let icon = NotificationBanner.LoadableIcon(
                 url: url,
+                alignment: loadableAlignment,
                 width: mapSizeUnit(from: messageIcon.size.width),
                 height: mapSizeUnit(from: messageIcon.size.height)
             )
@@ -254,6 +260,8 @@ private extension MultiWalletNotificationBannerMapper {
             return SendAccessibilityIdentifiers.leaveAmountButton
         case .openFeeCurrency:
             return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
+        case .openGetTangemPay:
+            return TangemPayAccessibilityIdentifiers.getTangemPayBannerOpenButton
         default:
             return CommonUIAccessibilityIdentifiers.notificationButton
         }
@@ -328,7 +336,11 @@ private extension MultiWalletNotificationBannerMapper {
         }
     }
 
-    func makeCloseAction(from input: NotificationViewInput) -> NotificationBanner.CloseAction {
+    func makeCloseAction(from input: NotificationViewInput) -> NotificationBanner.CloseAction? {
+        guard input.settings.event.isDismissable else {
+            return nil
+        }
+
         let notificationId = input.settings.id
         let dismissAction = input.settings.dismissAction
 

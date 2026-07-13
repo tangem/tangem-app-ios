@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayOfferView: View {
     @ObservedObject var viewModel: TangemPayOfferViewModel
@@ -115,5 +116,6 @@ struct TangemPayOfferView: View {
             action: viewModel.getCard
         )
         .setIsLoading(to: viewModel.isLoading)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.onboardingGetCardButton)
     }
 }

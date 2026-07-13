@@ -15,6 +15,8 @@ import TangemAccessibilityIdentifiers
 struct TangemPayCardDetailsViewRedesigned: View {
     @ObservedObject var viewModel: TangemPayCardDetailsViewModel
 
+    var showsInlineDetailsButton: Bool = false
+
     @FocusState private var isCardNameFocused: Bool
     @State private var animationProgress: CGFloat = .zero
     @State private var onHalfFlipCalled: Bool = false
@@ -37,15 +39,15 @@ struct TangemPayCardDetailsViewRedesigned: View {
                 issuingStateContent()
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._250, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .aspectRatio(Constants.plasticCardStandardWidthToHeightRatio, contentMode: .fit)
         .background(
             Color.Tangem.Visa.cardDetailBackground,
-            in: RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._250, style: .continuous)
+            in: RoundedRectangle(cornerRadius: 20, style: .continuous)
         )
         .overlay {
-            RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._250, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.1), lineWidth: DesignSystem.Tokens.BorderWidth.sm)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
                 .allowsHitTesting(false)
         }
         .onAnimationTargetProgress(
@@ -81,7 +83,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
             cardHeader
             Spacer()
         }
-        .padding(DesignSystem.Tokens.Spacing.s200)
+        .padding(16)
         .background(cardArtBackground)
     }
 
@@ -91,14 +93,14 @@ struct TangemPayCardDetailsViewRedesigned: View {
 
             Spacer()
 
-            HStack(alignment: .bottom, spacing: DesignSystem.Tokens.Spacing.s075) {
-                VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.s025) {
+            HStack(alignment: .bottom, spacing: 6) {
+                VStack(alignment: .leading, spacing: 2) {
                     cardNameContent()
 
-                    HStack(spacing: DesignSystem.Tokens.Spacing.s075) {
+                    HStack(spacing: 6) {
                         Text("*" + viewModel.lastFourDigits)
-                            .font(DesignSystem.Tokens.Font.Body.medium)
-                            .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.primary)
+                            .font(token: DesignSystem.Font.bodyMediumToken)
+                            .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
 
                         Group {
                             if isLoading {
@@ -108,17 +110,21 @@ struct TangemPayCardDetailsViewRedesigned: View {
                                     .renderingMode(.template)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
-                                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.primary)
+                                    .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                             }
                         }
-                        .frame(width: DesignSystem.Tokens.Size.s200, height: DesignSystem.Tokens.Size.s200)
+                        .frame(width: 16, height: 16)
                     }
                 }
 
                 Spacer()
+
+                if showsInlineDetailsButton, viewModel.state.showDetailsButtonVisible {
+                    showDetailsButton
+                }
             }
         }
-        .padding(DesignSystem.Tokens.Spacing.s200)
+        .padding(16)
         .background(cardArtBackground)
         .overlay {
             if isFrozen {
@@ -134,7 +140,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
         isLoading: Bool = false
     ) -> some View {
         VStack {
-            VStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+            VStack(spacing: 12) {
                 cardDetailField(
                     label: Localization.tangempayCardDetailsCardNumber,
                     value: cardDetails.number,
@@ -143,7 +149,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
                     copyAction: viewModel.copyNumber
                 )
 
-                HStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+                HStack(spacing: 12) {
                     cardDetailField(
                         label: Localization.tangempayCardDetailsExpiry,
                         value: cardDetails.expirationDate,
@@ -167,7 +173,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
             HStack(alignment: .bottom) {
                 if isLoading {
                     CircularActivityIndicator(color: .white, lineWidth: 1.5)
-                        .frame(width: DesignSystem.Tokens.Size.s200, height: DesignSystem.Tokens.Size.s200)
+                        .frame(width: 16, height: 16)
                 }
 
                 Spacer()
@@ -175,7 +181,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
                 closeButton
             }
         }
-        .padding(DesignSystem.Tokens.Spacing.s200)
+        .padding(16)
         .background {
             Assets.Visa.cardCredentials.image
                 .resizable()
@@ -183,36 +189,45 @@ struct TangemPayCardDetailsViewRedesigned: View {
         .screenCaptureProtection()
     }
 
+    private var showDetailsButton: some View {
+        Button(action: viewModel.toggleVisibility) {
+            Text(Localization.tangempayCardDetailsShowDetails)
+                .font(token: DesignSystem.Font.bodyMediumToken)
+                .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(DesignSystem.Color.bgOpaquePrimary, in: Capsule())
+        }
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardDetailsShowButton)
+    }
+
     private var closeButton: some View {
         Button(action: viewModel.toggleVisibility) {
             DesignSystem.Icons.Cross.regular20.image
                 .renderingMode(.template)
                 .resizable()
-                .frame(width: DesignSystem.Tokens.Size.s250, height: DesignSystem.Tokens.Size.s250)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.primary)
-                .padding(DesignSystem.Tokens.Spacing.s075)
-                .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary, in: Circle())
+                .frame(width: 20, height: 20)
+                .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
+                .padding(6)
+                .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
         }
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardDetailsHideButton)
         .accessibilityLabel(Text(Localization.tangempayCardDetailsHideDetails))
     }
 
     private var cardHeader: some View {
-        HStack(alignment: .center, spacing: DesignSystem.Tokens.Spacing.s075) {
-            DesignSystem.Icons.Cloud.filled12.image
-                .renderingMode(.template)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: DesignSystem.Tokens.Size.s125)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.primary)
-
+        HStack(alignment: .center, spacing: 6) {
             Text(Localization.tangempayDigitalCard)
-                .font(DesignSystem.Tokens.Font.Body.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.primary)
+                .font(token: DesignSystem.Font.bodyMediumToken)
+                .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
+
+            DesignSystem.Icons.Cloud.filled20.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconStaticDark)
 
             Spacer()
         }
-        .padding(.top, DesignSystem.Tokens.Spacing.s050)
+        .padding(.top, 4)
     }
 
     private var cardArtBackground: some View {
@@ -225,20 +240,20 @@ struct TangemPayCardDetailsViewRedesigned: View {
         switch viewModel.cardNameDisplayMode {
         case .display:
             Text(viewModel.cardName)
-                .font(DesignSystem.Tokens.Font.Body.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.secondary)
+                .font(token: DesignSystem.Font.bodyMediumToken)
+                .foregroundStyle(DesignSystem.Color.textStaticDarkSecondary)
         case .interactive:
             Button(action: viewModel.cardNameTapped) {
-                HStack(spacing: DesignSystem.Tokens.Spacing.s050) {
+                HStack(spacing: 4) {
                     Text(viewModel.cardName)
-                        .font(DesignSystem.Tokens.Font.Body.medium)
-                        .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.secondary)
+                        .font(token: DesignSystem.Font.bodyMediumToken)
+                        .foregroundStyle(DesignSystem.Color.textStaticDarkSecondary)
 
                     DesignSystem.Icons.Edit.regular20.image
                         .renderingMode(.template)
                         .resizable()
-                        .frame(width: DesignSystem.Tokens.Size.s250, height: DesignSystem.Tokens.Size.s250)
-                        .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.primary)
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                 }
             }
         case .editing:
@@ -246,13 +261,13 @@ struct TangemPayCardDetailsViewRedesigned: View {
                 text: $viewModel.cardName,
                 label: {
                     Text(Localization.tangempayCardDetailsRenameCardPlaceholder)
-                        .font(DesignSystem.Tokens.Font.Body.medium)
-                        .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.tertiary)
+                        .font(token: DesignSystem.Font.bodyMediumToken)
+                        .foregroundStyle(DesignSystem.Color.textStaticDarkTertiary)
                 }
             )
-            .font(DesignSystem.Tokens.Font.Body.medium)
-            .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.primary)
-            .tint(DesignSystem.Tokens.Theme.Text.StaticDark.primary)
+            .font(token: DesignSystem.Font.bodyMediumToken)
+            .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
+            .tint(DesignSystem.Color.textStaticDarkPrimary)
             .focused($isCardNameFocused)
             .disabled(viewModel.isCardNameEditingDisabled)
             .task {
@@ -269,15 +284,15 @@ struct TangemPayCardDetailsViewRedesigned: View {
         copyAccessibilityIdentifier: String,
         copyAction: @escaping () -> Void
     ) -> some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.s050) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(DesignSystem.Tokens.Font.Caption.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.tertiary)
+                .font(token: DesignSystem.Font.captionMediumToken)
+                .foregroundStyle(DesignSystem.Color.textStaticDarkTertiary)
 
             HStack {
                 Text(value)
-                    .font(DesignSystem.Tokens.Font.Body.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.primary)
+                    .font(token: DesignSystem.Font.bodyMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                     .accessibilityIdentifier(valueAccessibilityIdentifier)
 
                 Spacer()
@@ -287,15 +302,15 @@ struct TangemPayCardDetailsViewRedesigned: View {
                         .renderingMode(.template)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: DesignSystem.Tokens.Size.s250, height: DesignSystem.Tokens.Size.s250)
-                        .foregroundStyle(DesignSystem.Tokens.Theme.Text.StaticDark.tertiary)
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(DesignSystem.Color.textStaticDarkTertiary)
                 }
                 .accessibilityIdentifier(copyAccessibilityIdentifier)
             }
         }
-        .padding(DesignSystem.Tokens.Spacing.s150)
-        .background(DesignSystem.Tokens.Theme.Text.StaticDark.primary.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._150, style: .continuous))
+        .padding(12)
+        .background(DesignSystem.Color.textStaticDarkPrimary.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 

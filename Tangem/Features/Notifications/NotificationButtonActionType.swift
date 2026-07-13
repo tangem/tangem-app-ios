@@ -48,13 +48,15 @@ enum NotificationButtonActionType: Identifiable {
     case openAppStoreReview
     /// No action
     case empty
-    case support
+    case backupErrorSupport
     case openCurrency
     case unlock(icon: MainButton.Icon?)
     case renewTangemPaySession(icon: MainButton.Icon?)
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
     case closeMobileUpgrade
+    case openGetTangemPay
+    case closeGetTangemPay
     case allowPushPermissionRequest
     case postponePushPermissionRequest
     case openPushNotificationsSystemSettings
@@ -88,13 +90,15 @@ enum NotificationButtonActionType: Identifiable {
         case .openFeedbackMail: "openFeedbackMail".hashValue
         case .openAppStoreReview: "openAppStoreReview".hashValue
         case .empty: "empty".hashValue
-        case .support: "support".hashValue
+        case .backupErrorSupport: "backupErrorSupport".hashValue
         case .openCurrency: "openCurrency".hashValue
         case .unlock: "unlock".hashValue
         case .renewTangemPaySession: "renewTangemPaySession".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
         case .closeMobileUpgrade: "closeMobileUpgrade".hashValue
+        case .openGetTangemPay: "openGetTangemPay".hashValue
+        case .closeGetTangemPay: "closeGetTangemPay".hashValue
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
         case .openPushNotificationsSystemSettings: "openPushNotificationsSystemSettings".hashValue
@@ -141,7 +145,7 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.tokenSwapPromotionButton
         case .empty:
             return ""
-        case .support:
+        case .backupErrorSupport:
             return Localization.commonContactSupport
         case .openCurrency:
             return Localization.commonGoToToken
@@ -156,6 +160,10 @@ enum NotificationButtonActionType: Identifiable {
         case .openMobileUpgrade:
             return Localization.hwUpgrade
         case .closeMobileUpgrade:
+            return Localization.commonLater
+        case .openGetTangemPay:
+            return Localization.commonLearnMore
+        case .closeGetTangemPay:
             return Localization.commonLater
         case .allowPushPermissionRequest:
             return Localization.commonEnable
@@ -206,12 +214,14 @@ enum NotificationButtonActionType: Identifiable {
              .openFeedbackMail,
              .openAppStoreReview,
              .empty,
-             .support,
+             .backupErrorSupport,
              .openCurrency,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
              .closeMobileUpgrade,
+             .openGetTangemPay,
+             .closeGetTangemPay,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .openPushNotificationsSystemSettings,
@@ -235,10 +245,10 @@ enum NotificationButtonActionType: Identifiable {
              .unlock,
              .renewTangemPaySession,
              .openMobileUpgrade,
+             .openGetTangemPay,
              .allowPushPermissionRequest,
              .activate,
-             .openYieldBoostPromo,
-             .addFunds:
+             .openYieldBoostPromo:
             return .primary
         case .backupCard,
              .openFeeCurrency,
@@ -251,7 +261,6 @@ enum NotificationButtonActionType: Identifiable {
              .leaveAmount,
              .openLink,
              .openDeeplink,
-             .support,
              .stake,
              .openFeedbackMail,
              .openCurrency,
@@ -263,8 +272,11 @@ enum NotificationButtonActionType: Identifiable {
              .openCloreMigration,
              .openDynamicAddressesEnter,
              .closeMobileUpgrade,
+             .closeGetTangemPay,
              .yieldBoostPromoLater,
-             .openManageTokensAfterWalletSuccessImport:
+             .openManageTokensAfterWalletSuccessImport,
+             .backupErrorSupport,
+             .addFunds:
             return .secondary
         case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary

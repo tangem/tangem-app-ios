@@ -36,7 +36,6 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ScrollView {
         MarketsTokenDetailsMetricsViewRedesign(
@@ -49,7 +48,8 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
                     volume24H: 7_900_000_000_000,
                     totalSupply: 21_000_000,
                     maxSupply: 21_000_000,
-                    fullyDilutedValuation: 2_785_400_000_000
+                    fullyDilutedValuation: 2_785_400_000_000,
+                    fullyDilutedValuationChange24H: 30_450_000_000
                 ),
                 notationFormatter: DefaultAmountNotationFormatter(),
                 cryptoCurrencyCode: "KAS",
@@ -73,7 +73,8 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
                     volume24H: 42_854_017_104,
                     totalSupply: 112_286_364_258,
                     maxSupply: 112_286_364_258,
-                    fullyDilutedValuation: 112_234_033_891
+                    fullyDilutedValuation: 112_234_033_891,
+                    fullyDilutedValuationChange24H: 1_350_000_000
                 ),
                 notationFormatter: DefaultAmountNotationFormatter(),
                 cryptoCurrencyCode: "USDT",
@@ -97,7 +98,8 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
                     volume24H: 50_000_000_000,
                     totalSupply: nil,
                     maxSupply: 0,
-                    fullyDilutedValuation: 600_000_000_000
+                    fullyDilutedValuation: 600_000_000_000,
+                    fullyDilutedValuationChange24H: 45_350_000_000
                 ),
                 notationFormatter: DefaultAmountNotationFormatter(),
                 cryptoCurrencyCode: "ETH",
@@ -108,4 +110,3 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
     }
     .background(Color.Tangem.Surface.level2)
 }
-#endif

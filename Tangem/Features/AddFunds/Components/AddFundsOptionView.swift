@@ -15,7 +15,8 @@ import TangemUI
 import TangemUIUtils
 
 struct AddFundsOptionView: View {
-    let option: Option
+    let viewData: ViewData
+    let isEnabled: Bool
     let action: () -> Void
 
     @ScaledMetric(wrappedValue: .unit(.x10)) private var iconContainerSize: CGFloat
@@ -23,6 +24,12 @@ struct AddFundsOptionView: View {
     @ScaledMetric(wrappedValue: .unit(.x6)) private var chevronSize: CGFloat
     @ScaledMetric(wrappedValue: .unit(.x4)) private var horizontalPadding: CGFloat
     @ScaledMetric(wrappedValue: .unit(.x3)) private var verticalPadding: CGFloat
+
+    init(viewData: ViewData, isEnabled: Bool = true, action: @escaping () -> Void) {
+        self.viewData = viewData
+        self.isEnabled = isEnabled
+        self.action = action
+    }
 
     var body: some View {
         Button(action: action) {
@@ -40,7 +47,9 @@ struct AddFundsOptionView: View {
             .cornerRadiusContinuous(.unit(.x5))
         }
         .buttonStyle(.plain)
-        .accessibilityIdentifier(option.accessibilityIdentifier)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : Constants.disabledOpacity)
+        .accessibilityIdentifier(viewData.accessibilityIdentifier)
     }
 
     private var iconView: some View {
@@ -48,7 +57,7 @@ struct AddFundsOptionView: View {
             Circle()
                 .fill(Color.Tangem.Markers.backgroundTintedBlue)
 
-            option.icon.image
+            viewData.icon.image
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
@@ -59,14 +68,14 @@ struct AddFundsOptionView: View {
     }
 
     private var titleView: some View {
-        Text(option.title)
-            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+        Text(viewData.title)
+            .style(.Tangem.Body16.medium.font, color: .Tangem.Text.Neutral.primary)
             .lineLimit(1)
     }
 
     private var subtitleView: some View {
-        Text(option.subtitle)
-            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+        Text(viewData.subtitle)
+            .style(.Tangem.Caption12.semibold.font, color: .Tangem.Text.Neutral.primary)
             .lineLimit(1)
     }
 
@@ -80,25 +89,56 @@ struct AddFundsOptionView: View {
     }
 }
 
+// MARK: - Constants
+
+private extension AddFundsOptionView {
+    enum Constants {
+        static let disabledOpacity: CGFloat = 0.4
+    }
+}
+
+// MARK: - ViewData
+
 extension AddFundsOptionView {
+    struct ViewData {
+        let icon: ImageType
+        let title: String
+        let subtitle: String
+        let accessibilityIdentifier: String
+    }
+}
+
+// MARK: - Add Funds (buy) options
+
+extension AddFundsOptionView {
+    init(option: Option, isEnabled: Bool = true, action: @escaping () -> Void) {
+        self.init(viewData: option.viewData, isEnabled: isEnabled, action: action)
+    }
+
     @RawCaseName
     enum Option: Identifiable {
         case buy
         case swap
         case receive
 
-        var accessibilityIdentifier: String {
+        var viewData: ViewData {
+            ViewData(
+                icon: icon,
+                title: title,
+                subtitle: subtitle,
+                accessibilityIdentifier: accessibilityIdentifier
+            )
+        }
+
+        private var accessibilityIdentifier: String {
             switch self {
-            case .buy:
-                ActionButtonsAccessibilityIdentifiers.addFundsBuyRow
-            case .swap:
-                ActionButtonsAccessibilityIdentifiers.addFundsSwapRow
-            case .receive:
-                ActionButtonsAccessibilityIdentifiers.addFundsReceiveRow
+            case .buy: ActionButtonsAccessibilityIdentifiers.addFundsBuyRow
+            case .swap: ActionButtonsAccessibilityIdentifiers.addFundsSwapRow
+            case .receive: ActionButtonsAccessibilityIdentifiers.addFundsReceiveRow
             }
         }
 
-        var title: String {
+        private var title: String {
             switch self {
             case .buy: Localization.commonBuy
             case .swap: Localization.commonSwap
@@ -106,7 +146,7 @@ extension AddFundsOptionView {
             }
         }
 
-        var subtitle: String {
+        private var subtitle: String {
             switch self {
             case .buy: Localization.addfundsBuyRowDescription
             case .swap: Localization.addfundsSwapRowDescription
@@ -114,7 +154,7 @@ extension AddFundsOptionView {
             }
         }
 
-        var icon: ImageType {
+        private var icon: ImageType {
             switch self {
             case .buy: Assets.AddFunds.addfundsBuy
             case .swap: Assets.AddFunds.addfundsSwapIcon

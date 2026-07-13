@@ -6,8 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import TangemLocalization
-
 protocol SendFinishStepBuildable {
     var finishIO: SendFinishStepBuilder.IO { get }
     var finishTypes: SendFinishStepBuilder.Types { get }
@@ -19,6 +17,7 @@ extension SendFinishStepBuildable {
         sendAmountFinishViewModel: SendAmountFinishViewModel? = nil,
         nftAssetCompactViewModel: NFTAssetCompactViewModel? = nil,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel? = nil,
+        addContactViewModel: SendAddContactFinishViewModel? = nil,
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel? = nil,
         sendFeeFinishViewModel: SendFeeFinishViewModel? = nil,
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel? = nil,
@@ -32,6 +31,7 @@ extension SendFinishStepBuildable {
             sendAmountFinishViewModel: sendAmountFinishViewModel,
             nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
+            addContactViewModel: addContactViewModel,
             stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
             sendFeeFinishViewModel: sendFeeFinishViewModel,
             onrampAmountCompactViewModel: onrampAmountCompactViewModel,
@@ -47,23 +47,12 @@ enum SendFinishStepBuilder {
     }
 
     struct Types {
-        let title: String
         let tokenItem: TokenItem
-        let isSwapFlow: Bool
-
-        init(
-            title: String = Localization.sentTransactionSentTitle,
-            tokenItem: TokenItem,
-            isSwapFlow: Bool = false
-        ) {
-            self.title = title
-            self.tokenItem = tokenItem
-            self.isSwapFlow = isSwapFlow
-        }
     }
 
     struct Dependencies {
         let analyticsLogger: any SendFinishAnalyticsLogger
+        let headerTitleProvider: any SendFinishHeaderTitleProvider
     }
 
     typealias ReturnValue = SendFinishStep
@@ -75,6 +64,7 @@ enum SendFinishStepBuilder {
         sendAmountFinishViewModel: SendAmountFinishViewModel?,
         nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
+        addContactViewModel: SendAddContactFinishViewModel?,
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
         sendFeeFinishViewModel: SendFeeFinishViewModel?,
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
@@ -82,9 +72,7 @@ enum SendFinishStepBuilder {
         router: SendRoutable,
     ) -> ReturnValue {
         let settings = SendFinishViewModel.Settings(
-            title: types.title,
-            possibleToShowExploreButtons: !types.tokenItem.blockchain.isTransactionAsync,
-            isSwapFlow: types.isSwapFlow
+            possibleToShowExploreButtons: !types.tokenItem.blockchain.isTransactionAsync
         )
 
         let viewModel = SendFinishViewModel(
@@ -92,11 +80,13 @@ enum SendFinishStepBuilder {
             sendAmountFinishViewModel: sendAmountFinishViewModel,
             nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
+            addContactViewModel: addContactViewModel,
             stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
             sendFeeFinishViewModel: sendFeeFinishViewModel,
             onrampAmountCompactViewModel: onrampAmountCompactViewModel,
             onrampStatusCompactViewModel: onrampStatusCompactViewModel,
             settings: settings,
+            headerTitleProvider: dependencies.headerTitleProvider,
             analyticsLogger: dependencies.analyticsLogger,
             coordinator: router
         )

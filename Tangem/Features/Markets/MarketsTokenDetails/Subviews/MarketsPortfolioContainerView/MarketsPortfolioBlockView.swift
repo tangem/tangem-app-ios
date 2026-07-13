@@ -26,6 +26,9 @@ struct MarketsPortfolioBlockView: View {
         case .addToken:
             AddToPortfolioPromoView(iconURL: iconURL, action: onAddTap)
 
+        case .notSupported:
+            MarketsPortfolioUnsupportedView(iconURL: iconURL)
+
         case .content(let data):
             MarketsPortfolioBlockContentView(
                 balanceText: data.balanceText,
@@ -44,7 +47,7 @@ private struct MarketsPortfolioBlockContentView: View {
     var body: some View {
         HStack(spacing: Constants.contentSpacing) {
             VStack(alignment: .leading, spacing: Constants.textSpacing) {
-                Text(attributedBalance)
+                SensitiveText(attributedBalance)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
 

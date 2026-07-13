@@ -17,7 +17,7 @@ public enum TangemRowConstants {
         }
 
         public enum Subtitle {
-            public static let font = Font.Tangem.Caption12.semibold
+            public static let font = Font.Tangem.Caption12.medium
             public static let color: Color = .Tangem.Text.Neutral.secondary
         }
 
@@ -28,7 +28,7 @@ public enum TangemRowConstants {
     }
 
     enum Spacings {
-        static let imageSpacing = SizeUnit.x2
+        static let imageSpacing = SizeUnit.x3
         static let multilineSpacing = SizeUnit.x1
 
         static let topLineInnerSpacing = SizeUnit.x1

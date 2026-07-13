@@ -15,6 +15,9 @@ public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>
     @Binding var selectedItem: Item
 
     private let items: [Item]
+    private let backgroundColor: Color
+    private let horizontalPadding: CGFloat
+    private let cornerRadius: CGFloat
     private let content: (Item, Bool) -> Content
 
     private let columns = Array(
@@ -25,10 +28,16 @@ public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>
     public init(
         selectedItem: Binding<Item>,
         items: [Item],
+        backgroundColor: Color = AccountFormGridViewConstants.backgroundColor,
+        horizontalPadding: CGFloat = 20,
+        cornerRadius: CGFloat = 14,
         content: @escaping (Item, Bool) -> Content
     ) {
         _selectedItem = selectedItem
         self.items = items
+        self.backgroundColor = backgroundColor
+        self.horizontalPadding = horizontalPadding
+        self.cornerRadius = cornerRadius
         self.content = content
     }
 
@@ -44,10 +53,10 @@ public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>
             }
         }
         .roundedBackground(
-            with: AccountFormGridViewConstants.backgroundColor,
+            with: backgroundColor,
             verticalPadding: 16,
-            horizontalPadding: 20,
-            radius: 14
+            horizontalPadding: horizontalPadding,
+            radius: cornerRadius
         )
     }
 }
@@ -56,7 +65,6 @@ public enum AccountFormGridViewConstants {
     public static let backgroundColor: Color = Colors.Background.action
 }
 
-#if DEBUG
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @State var selectedColor = GridItemColor(
@@ -176,4 +184,3 @@ public enum AccountFormGridViewConstants {
         .padding(.horizontal, 16)
     }
 }
-#endif

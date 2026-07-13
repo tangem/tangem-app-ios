@@ -17,9 +17,13 @@ class SendRoutableMock: SendRoutable {
     func dismiss(reason: SendDismissReason) {}
     func openFeeExplanation(url: URL) {}
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {}
+    func openSwapSupportSelection(with dataCollector: EmailDataCollector, recipient: String, chatDataCollector: ChatDataCollector) {}
     func openExplorer(url: URL) {}
     func openShareSheet(url: URL) {}
+    func openAddContact(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
+    func openAddressBookChooseAddress(contact: AddressBookContact, output: ChooseAddressOutput) {}
+    func openAddressBookViewAll(provider: any AddressBooksProvider, output: AddressBooksSelectionOutput) {}
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {}
     func openApproveView(flowFactory: ApproveFlowFactory) {}
     func openOnrampCountryDetection(country: OnrampCountry, repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
@@ -46,4 +50,5 @@ class SendRoutableMock: SendRoutable {
     func closeFeeSelector() {}
     func openFeeSelectorLearnMoreURL(_ url: URL) {}
     func openSwapTokenSelector(swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder, direction: SwapTokenSelectorViewModel.SwapDirection) {}
+    func openBackupErrorSupport(userWalletInfo: UserWalletInfo) {}
 }

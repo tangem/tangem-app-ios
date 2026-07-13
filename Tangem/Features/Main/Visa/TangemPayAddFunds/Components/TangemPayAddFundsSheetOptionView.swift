@@ -30,13 +30,13 @@ struct TangemPayAddFundsSheetOptionView: View {
 private extension TangemPayAddFundsSheetOptionView {
     var redesignedBody: some View {
         Button(action: action) {
-            HStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+            HStack(spacing: 12) {
                 redesignedIcon
 
                 redesignedTitleView
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, DesignSystem.Tokens.Spacing.s150)
+            .padding(.vertical, 12)
         }
         .accessibilityIdentifier(option.accessibilityIdentifier)
     }
@@ -45,21 +45,21 @@ private extension TangemPayAddFundsSheetOptionView {
         option.redesignedIcon.image
             .renderingMode(.template)
             .resizable()
-            .frame(width: DesignSystem.Tokens.Size.s250, height: DesignSystem.Tokens.Size.s250)
-            .foregroundStyle(DesignSystem.Tokens.Theme.Icon.brand)
-            .frame(width: DesignSystem.Tokens.Size.s500, height: DesignSystem.Tokens.Size.s500)
-            .background(DesignSystem.Tokens.Theme.Bg.Status.infoSubtle, in: Circle())
+            .frame(width: 20, height: 20)
+            .foregroundStyle(DesignSystem.Color.iconBrand)
+            .frame(width: 40, height: 40)
+            .background(DesignSystem.Color.bgStatusInfoSubtle, in: Circle())
     }
 
     var redesignedTitleView: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.s025) {
+        VStack(alignment: .leading, spacing: 2) {
             Text(option.title)
-                .font(DesignSystem.Tokens.Font.Subheading.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+                .font(token: DesignSystem.Font.subheadingMediumToken)
+                .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Text(option.subtitle)
-                .font(DesignSystem.Tokens.Font.Caption.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
+                .font(token: DesignSystem.Font.captionMediumToken)
+                .foregroundStyle(DesignSystem.Color.textSecondary)
         }
         .multilineTextAlignment(.leading)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -110,11 +110,13 @@ extension TangemPayAddFundsSheetOptionView {
     enum Option: Identifiable {
         case receive
         case swap
+        case bankTransfer
 
         var title: String {
             switch self {
             case .receive: Localization.tangempayTopupReceiveTitle
             case .swap: Localization.tangempayTopupSwapTitle
+            case .bankTransfer: Localization.tangempayTopupBankTransferTitle
             }
         }
 
@@ -122,6 +124,7 @@ extension TangemPayAddFundsSheetOptionView {
             switch self {
             case .receive: Localization.tangempayTopupReceiveBody
             case .swap: Localization.tangempayTopupSwapBody
+            case .bankTransfer: Localization.tangempayTopupBankTransferBody
             }
         }
 
@@ -129,6 +132,7 @@ extension TangemPayAddFundsSheetOptionView {
             switch self {
             case .receive: Assets.arrowDownMini
             case .swap: Assets.exchangeMini
+            case .bankTransfer: Assets.dollarMini
             }
         }
 
@@ -136,6 +140,7 @@ extension TangemPayAddFundsSheetOptionView {
             switch self {
             case .receive: Assets.Visa.grid
             case .swap: DesignSystem.Icons.LogoTangem.regular20
+            case .bankTransfer: Assets.dollarMini
             }
         }
 
@@ -143,6 +148,7 @@ extension TangemPayAddFundsSheetOptionView {
             switch self {
             case .receive: TangemPayAccessibilityIdentifiers.addFundsSheetReceiveOption
             case .swap: TangemPayAccessibilityIdentifiers.addFundsSheetSwapOption
+            case .bankTransfer: TangemPayAccessibilityIdentifiers.addFundsSheetBankTransferOption
             }
         }
     }

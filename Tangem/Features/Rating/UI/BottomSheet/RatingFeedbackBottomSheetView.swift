@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct RatingFeedbackBottomSheetView: View {
     @ObservedObject var viewModel: RatingFeedbackBottomSheetViewModel
@@ -42,6 +43,27 @@ struct RatingFeedbackBottomSheetView: View {
         .floatingSheetConfiguration { config in
             config.backgroundInteractionBehavior = .tapToDismiss
         }
+        .task(openKeyboard)
+        .onDisappear {
+            viewModel.dismiss()
+        }
+    }
+}
+
+private extension RatingFeedbackBottomSheetView {
+    // MARK: - Private logic
+
+    @MainActor
+    @Sendable
+    func openKeyboard() async {
+        do {
+            try await Task.sleep(for: .milliseconds(350))
+        } catch {
+            return
+        }
+
+        UIApplication.shared.makeOverlayWindowKey()
+        isFocused = true
     }
 }
 
@@ -98,6 +120,10 @@ private extension RatingFeedbackBottomSheetView {
             .background(Colors.Field.focused)
             .cornerRadius(14)
             .focused($isFocused)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                isFocused = true
+            }
     }
 
     var footer: some View {
@@ -113,9 +139,24 @@ private extension RatingFeedbackBottomSheetView {
     }
 }
 
+// MARK: - Keyboard support for FloatingSheet
+
+private extension UIApplication {
+    /// Makes the overlay window (PassThroughWindow) key so the keyboard can appear.
+    /// Needed because FloatingSheet lives in a separate window that is not key by default.
+    @MainActor
+    func makeOverlayWindowKey() {
+        let overlayWindow = connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first { $0 is PassThroughWindow }
+
+        overlayWindow?.makeKey()
+    }
+}
+
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     RatingFeedbackBottomSheetView(
         viewModel: RatingFeedbackBottomSheetViewModel(
@@ -125,4 +166,3 @@ private extension RatingFeedbackBottomSheetView {
         )
     )
 }
-#endif

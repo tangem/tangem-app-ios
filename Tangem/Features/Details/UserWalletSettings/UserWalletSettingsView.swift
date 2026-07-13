@@ -34,8 +34,6 @@ struct UserWalletSettingsView: View {
 
             nftSection
 
-            notificationSettingsSection
-
             forgetSection
         }
         .interContentPadding(8)
@@ -138,12 +136,6 @@ struct UserWalletSettingsView: View {
         }
     }
 
-    private var notificationSettingsSection: some View {
-        GroupedSection(viewModel.notificationSettingsViewModel) {
-            DefaultRowView(viewModel: $0)
-        }
-    }
-
     private var forgetSection: some View {
         GroupedSection(viewModel.forgetViewModel) {
             DefaultRowView(viewModel: $0)
@@ -155,13 +147,11 @@ struct UserWalletSettingsView: View {
     }
 }
 
-struct UserWalletSettingsView_Preview: PreviewProvider {
-    static let viewModel = UserWalletSettingsViewModel(
-        userWalletModel: UserWalletModelMock(),
-        coordinator: UserWalletSettingsCoordinator()
+#Preview {
+    UserWalletSettingsView(
+        viewModel: UserWalletSettingsViewModel(
+            userWalletModel: UserWalletModelMock(),
+            coordinator: UserWalletSettingsCoordinator()
+        )
     )
-
-    static var previews: some View {
-        UserWalletSettingsView(viewModel: viewModel)
-    }
 }

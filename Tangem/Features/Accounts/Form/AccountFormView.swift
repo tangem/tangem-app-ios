@@ -114,8 +114,9 @@ struct AccountFormView: View {
 
     private var mainContent: some View {
         VStack(spacing: 12) {
-            AccountFormHeaderView(
+            FormHeaderView(
                 accountName: $viewModel.accountName,
+                title: Localization.accountFormName,
                 maxCharacters: viewModel.maxNameLength,
                 placeholderText: viewModel.placeholder,
                 accountIconViewData: viewModel.iconViewData,
@@ -197,7 +198,6 @@ extension AccountFormView {
     }
 }
 
-#if DEBUG
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(
@@ -213,4 +213,3 @@ extension AccountFormView {
             }
         }
 }
-#endif

@@ -60,6 +60,9 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var rootViewWithTitle: some View {
         switch viewModel.presentationStyle {
+        case .addFundsSheet:
+            rootViewWithHiddenBackBarButton
+
         case .marketsSheet:
             rootView
 
@@ -71,15 +74,21 @@ struct MarketsTokenDetailsView: View {
         }
     }
 
+    private var rootViewWithHiddenBackBarButton: some View {
+        rootView
+            .navigationBarBackButtonHidden()
+    }
+
     private var rootView: some View {
         ZStack {
             scrollView
 
-            if viewModel.isMarketsSheetStyle {
+            if viewModel.shouldShowPortfolioBlock {
                 navigationBar
             }
         }
         .animation(.curve(.easeInOutRefined, duration: 0.5), value: viewModel.portfolioBlockState.isVisible)
+        .animation(.curve(.easeInOutRefined, duration: 0.5), value: viewModel.isAddButtonVisible)
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -98,7 +107,7 @@ struct MarketsTokenDetailsView: View {
         NavigationHeader(
             leadingContent: { redesignedBackButton },
             principalContent: { EmptyView() },
-            trailingContent: { redesignedShareButton }
+            trailingContent: { redesignedTrailingButtons }
         )
         .readGeometry(\.size.height, bindTo: $headerHeight)
         .infinityFrame(axis: .vertical, alignment: .top)
@@ -107,6 +116,28 @@ struct MarketsTokenDetailsView: View {
     private var redesignedBackButton: some View {
         NavigationBarButton.back(action: viewModel.onBackButtonTap)
             .redesigned()
+    }
+
+    @ViewBuilder
+    private var redesignedTrailingButtons: some View {
+        HStack(spacing: 12) {
+            if let priceAlertBellViewModel = viewModel.priceAlertBellViewModel {
+                PriceAlertBellView(viewModel: priceAlertBellViewModel)
+            }
+
+            if viewModel.isMarketsSheetStyle, viewModel.isAddButtonVisible {
+                redesignedAddButton
+            }
+
+            redesignedShareButton
+        }
+    }
+
+    private var redesignedAddButton: some View {
+        NavigationBarButton.add(action: viewModel.onTapAddButton)
+            .redesigned()
+            .accessibilityLabel(Localization.commonAddToken)
+            .transition(.opacity)
     }
 
     private var redesignedShareButton: some View {
@@ -211,7 +242,7 @@ struct MarketsTokenDetailsView: View {
             .padding(.top, Constants.scrollViewContentTopInset)
             .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 scrollOffsetHandler.contentOffsetSubject.send(contentOffset)
-                if viewModel.isMarketsSheetStyle {
+                if viewModel.shouldShowPortfolioBlock {
                     isListContentObscured = contentOffset.y > Constants.scrollViewContentTopInset
                 }
             }
@@ -234,10 +265,15 @@ struct MarketsTokenDetailsView: View {
                     onGeneratedAITapAction: viewModel.onGenerateAITapAction
                 )
         }
-        .sheet(item: $viewModel.securityScoreDetailsViewModel) { viewModel in
-            MarketsTokenDetailsSecurityScoreDetailsView(viewModel: viewModel)
-                .adaptivePresentationDetents()
-                .background(Colors.Background.tertiary.ignoresSafeArea())
+        .sheet(item: $viewModel.securityScoreDetailsViewModel) { detailsViewModel in
+            if viewModel.isRedesignEnabled {
+                MarketsTokenDetailsSecurityScoreDetailsRedesignedView(viewModel: detailsViewModel)
+            } else {
+                // [REDACTED_INFO]: legacy security score sheet
+                MarketsTokenDetailsSecurityScoreDetailsView(viewModel: detailsViewModel)
+                    .adaptivePresentationDetents()
+                    .background(Colors.Background.tertiary.ignoresSafeArea())
+            }
         }
         .animation(.default, value: viewModel.state)
         .animation(.default, value: viewModel.isLoading)
@@ -377,8 +413,9 @@ struct MarketsTokenDetailsView: View {
             )
             .padding(.horizontal, .unit(.x4))
             .padding(.vertical, .unit(.x2))
-            .background {
+            .background(alignment: .bottom) {
                 LinearGradient.Tangem.Common.tokenDetailsMarketPrice
+                    .padding(.top, -Constants.shadowTopExtension)
                     .ignoresSafeArea()
             }
             .transition(.portfolioBlock)
@@ -394,7 +431,7 @@ private extension MarketsTokenDetailsView {
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
-        static let bottomFadeHeight = 100.0
+        static let shadowTopExtension = 60.0
     }
 
     enum CoordinateSpaceName {

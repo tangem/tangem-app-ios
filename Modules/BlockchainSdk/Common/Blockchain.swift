@@ -1,6 +1,6 @@
 //
 //  Blockchain.swift
-//  blockchainSdk
+//  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2019 Tangem AG. All rights reserved.
@@ -86,6 +86,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case filecoin
     case sei(testnet: Bool)
     case seiEvm(testnet: Bool)
+    case gonka(testnet: Bool)
     /// EVM
     case energyWebEVM(testnet: Bool)
     /// Polkadot parachain
@@ -155,6 +156,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .blast(let testnet),
              .sei(let testnet),
              .seiEvm(let testnet),
+             .gonka(let testnet),
              .kaspa(let testnet),
              .energyWebEVM(let testnet),
              .core(let testnet),
@@ -373,7 +375,7 @@ public indirect enum Blockchain: Equatable, Hashable {
             return 6
         case .stellar:
             return 7
-        case .solana, .ton, .bittensor, .sui, .casper:
+        case .solana, .ton, .bittensor, .sui, .casper, .gonka:
             return 9
         case .polkadot(_, let testnet):
             return testnet ? 12 : 10
@@ -458,7 +460,7 @@ public indirect enum Blockchain: Equatable, Hashable {
         case .disChain:
             return "DIS"
         case .ton:
-            return "TON"
+            return "GRAM"
         case .kava:
             return "KAVA"
         case .kaspa:
@@ -528,6 +530,8 @@ public indirect enum Blockchain: Equatable, Hashable {
         case .sei,
              .seiEvm:
             return "SEI"
+        case .gonka:
+            return "GONKA"
         case .energyWebEVM:
             return isTestnet ? "VT" : "EWT"
         case .energyWebX:
@@ -648,6 +652,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "Sei" + testnetSuffix
         case .seiEvm:
             return "Sei EVM" + testnetSuffix
+        case .gonka:
+            return "Gonka" + testnetSuffix
         case .energyWebEVM:
             return "Energy Web Chain" + (isTestnet ? " Volta Testnet" : "")
         case .energyWebX:
@@ -690,7 +696,7 @@ public indirect enum Blockchain: Equatable, Hashable {
         case _ where isL2EthereumNetwork:
             "\(displayName) (ETH)"
         case .ton:
-            "Toncoin"
+            "Gram"
         case .fantom:
             "Fantom"
         case .odysseyChain:
@@ -798,6 +804,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .algorand,
              .hedera,
              .sei,
+             .gonka,
              .internetComputer,
              .casper:
             true
@@ -1209,6 +1216,7 @@ extension Blockchain: Codable {
         case .filecoin: return "filecoin"
         case .sei: return "sei"
         case .seiEvm: return "sei-v2"
+        case .gonka: return "gonka"
         case .energyWebEVM: return "energyWebEVM"
         case .energyWebX: return "energyWebX"
         case .core: return "core"
@@ -1328,6 +1336,7 @@ extension Blockchain: Codable {
         case "filecoin": self = .filecoin
         case "sei": self = .sei(testnet: isTestnet)
         case "sei-v2": self = .seiEvm(testnet: isTestnet)
+        case "gonka": self = .gonka(testnet: isTestnet)
         case "energyWebEVM": self = .energyWebEVM(testnet: isTestnet)
         case "energyWebX": self = .energyWebX(curve: curve)
         case "core": self = .core(testnet: isTestnet)
@@ -1581,6 +1590,8 @@ private extension Blockchain {
             return "sei-network"
         case .seiEvm:
             return "sei-v2"
+        case .gonka:
+            return "gonka"
         case .energyWebEVM:
             switch type {
             case .network: return "energy-web-chain"
@@ -1765,7 +1776,7 @@ extension Blockchain {
             return KaspaWalletAssembly()
         case .ravencoin:
             return RavencoinWalletAssembly()
-        case .cosmos, .terraV1, .terraV2, .sei:
+        case .cosmos, .terraV1, .terraV2, .sei, .gonka:
             return CosmosWalletAssembly()
         case .chia:
             return ChiaWalletAssembly()

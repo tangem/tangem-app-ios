@@ -30,5 +30,10 @@ struct DerivationTests {
         let xrp: Blockchain = .xrp(curve: .secp256k1)
         #expect(xrp.derivationPath(for: legacy)?.rawPath == "m/44'/144'/0'/0/0")
         #expect(xrp.derivationPath(for: new)?.rawPath == "m/44'/144'/0'/0/0")
+
+        let gonka: Blockchain = .gonka(testnet: false)
+        #expect(gonka.derivationPath(for: legacy)?.rawPath == "m/44'/1200'/0'/0/0")
+        #expect(gonka.derivationPath(for: new)?.rawPath == "m/44'/1200'/0'/0/0")
+        #expect(gonka.derivationPath(for: .v3)?.rawPath == "m/44'/1200'/0'/0/0")
     }
 }

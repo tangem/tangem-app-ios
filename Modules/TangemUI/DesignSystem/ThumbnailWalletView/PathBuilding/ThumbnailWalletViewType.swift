@@ -68,7 +68,6 @@ public struct MiniatureWalletView: View {
 #if DEBUG
 import TangemAssets
 
-@available(iOS 17.0, *)
 #Preview("All Thumbnail Types") {
     let types: [(String, ThumbnailWalletViewType)] = {
         typealias CC = Color.Tangem.CardCollection
@@ -82,7 +81,7 @@ import TangemAssets
             ("ring", .ring(.init(ring: CC.tangem))),
             ("ringCard", .ringCard(.init(ring: CC.tangem, card: CC.tangem))),
             ("ringTwoCards", .ringTwoCards(.init(ring: CC.tangem, card: CC.tangem, secondCard: CC.tangem))),
-            ("mobileWallet", .mobileWallet(.init(icon: .Tangem.Graphic.Status.attention))),
+            ("mobileWallet", .mobileWallet(.init(icon: CC.tangem))),
         ]
     }()
 

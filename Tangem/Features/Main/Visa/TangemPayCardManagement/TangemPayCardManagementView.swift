@@ -245,7 +245,7 @@ struct TangemPayCardManagementView: View {
 
     private var redesignedBody: some View {
         redesignedContent
-            .background { DesignSystem.Tokens.Theme.Bg.primary.ignoresSafeArea() }
+            .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
             .disabled(viewModel.isLoadingReissueFee)
             .overlay { redesignedReissueLoadingOverlay }
             .safeAreaInset(edge: .bottom) {
@@ -283,13 +283,19 @@ struct TangemPayCardManagementView: View {
                     TangemPayCardIssuingMessageView()
 
                     Spacer(minLength: 0)
+                } else if viewModel.isClosing {
+                    Spacer(minLength: 0)
+
+                    TangemPayCardClosingMessageView()
+
+                    Spacer(minLength: 0)
                 } else {
                     redesignedDetailsSection
-                        .padding(.top, DesignSystem.Tokens.Spacing.s350)
+                        .padding(.top, 28)
                 }
             }
-            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-            .padding(.top, DesignSystem.Tokens.Spacing.s300)
+            .padding(.horizontal, 16)
+            .padding(.top, 24)
             .frame(maxWidth: .infinity, minHeight: redesignedViewportHeight, alignment: .top)
         }
         .background {
@@ -339,19 +345,19 @@ struct TangemPayCardManagementView: View {
     @ViewBuilder
     private var redesignedCarousel: some View {
         if viewModel.hasMultipleCards {
-            VStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+            VStack(spacing: 12) {
                 if #available(iOS 17.0, *) {
                     PeekingCarouselView(
                         items: viewModel.cardDetailsItems,
                         selectedID: $viewModel.selectedCardId,
                         configuration: .init(
-                            peek: DesignSystem.Tokens.Spacing.s100,
-                            spacing: DesignSystem.Tokens.Spacing.s100
+                            peek: 8,
+                            spacing: 8
                         )
                     ) { item in
                         redesignedCardDetailsContent(for: item)
                     }
-                    .padding(.horizontal, -DesignSystem.Tokens.Spacing.s200)
+                    .padding(.horizontal, -16)
                 } else {
                     TabView(selection: $viewModel.selectedCardId) {
                         ForEach(viewModel.cardDetailsItems) { item in
@@ -393,7 +399,7 @@ struct TangemPayCardManagementView: View {
             if viewModel.isReissuing {
                 TangemPayReplacingCardBanner()
             } else {
-                VStack(spacing: DesignSystem.Tokens.Spacing.s300) {
+                VStack(spacing: 24) {
                     TangemPayCardActionButtonsView(
                         isFrozen: viewModel.freezingState.isFrozen,
                         actionsDisabled: viewModel.cardActionsDisabled,
@@ -402,7 +408,7 @@ struct TangemPayCardManagementView: View {
                         pinAction: viewModel.onPinButton
                     )
 
-                    VStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+                    VStack(spacing: 8) {
                         if viewModel.shouldDisplayAddToApplePayGuide {
                             redesignedAddToApplePayBanner
                         }
@@ -451,7 +457,9 @@ struct TangemPayCardManagementView: View {
                         .disabled(closeCardRow.action == nil)
                     }
                 } label: {
-                    NavbarDotsImage()
+                    Image(systemName: "ellipsis")
+                        .foregroundColor(Colors.Icon.primary1)
+                        .accessibilityLabel(Localization.commonMore)
                 }
             }
         }

@@ -21,10 +21,26 @@ final class AddTokenFlowScreen: Screen {
 
     // MARK: - Add Token
 
+    /// Selects a destination wallet in the "Choose wallet" sheet shown when multiple wallets can receive the token.
+    @discardableResult
+    func selectWallet(named walletName: String) -> Self {
+        XCTContext.runActivity(named: "Select wallet '\(walletName)' to add the token to") { _ in
+            let walletCell = app.descendants(matching: .any)[CommonUIAccessibilityIdentifiers.accountSelectorCell(name: walletName)].firstMatch
+            if walletCell.waitForExistence(timeout: .robustUIUpdate) {
+                walletCell.waitAndTap()
+                return
+            }
+            let walletButton = app.buttons.matching(NSPredicate(format: "label == %@", walletName)).firstMatch
+            waitAndAssertTrue(walletButton, "Wallet '\(walletName)' should be selectable in the Choose wallet sheet")
+            walletButton.waitAndTap()
+        }
+        return self
+    }
+
     /// Taps the "Add Token" button to trigger token addition
     @discardableResult
     func tapAddTokenButton() -> Self {
-        XCTContext.runActivity(named: "Tap 'Add Token' button") { _ in
+        _ = XCTContext.runActivity(named: "Tap 'Add Token' button") { _ in
             addTokenButton.waitAndTap()
         }
         return self
@@ -37,6 +53,14 @@ final class AddTokenFlowScreen: Screen {
         XCTContext.runActivity(named: "Wait for 'Token Added' toast on Add Funds screen") { _ in
             waitAndAssertTrue(tokenAddedToast, timeout: .conditional, "Wait for 'Token Added' toast is displayed")
             return AddFundsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func waitForTokenAddedToastOnMarketsTokenDetails() -> MarketsTokenDetailsScreen {
+        XCTContext.runActivity(named: "Wait for 'Token Added' toast on Markets token details screen") { _ in
+            waitAndAssertTrue(tokenAddedToast, timeout: .conditional, "Wait for 'Token Added' toast is displayed")
+            return MarketsTokenDetailsScreen(app)
         }
     }
 

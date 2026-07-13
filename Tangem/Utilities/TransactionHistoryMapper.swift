@@ -85,22 +85,26 @@ struct TransactionHistoryMapper {
         self.isToken = isToken
     }
 
-    // [REDACTED_INFO]: when the redesign toggle is removed, drop the `groupingStyle` parameter,
-    // delete the `.day` branch, and inline `.dayThenMonth` as the only behaviour.
+    // [REDACTED_INFO]: when the redesign toggle is removed, drop the `DayFormatStyle`.
     func mapTransactionListItem(
         from records: [TransactionRecord],
-        groupingStyle: GroupingStyle = .day,
+        groupingStyle: GroupingStyle = .day(.short),
         subtitleOwnerResolver: SubtitleOwnerResolver? = nil
     ) -> [TransactionListItem] {
         let mapRow = { mapTransactionViewModel($0, subtitleOwnerResolver: subtitleOwnerResolver) }
 
         switch groupingStyle {
-        case .day:
+        case .day(let format):
             let grouped = Dictionary(grouping: records, by: { Calendar.current.startOfDay(for: $0.date ?? Date()) })
+
+            let dateFormatter = switch format {
+            case .short: Self.dateFormatter
+            case .long: Self.longDateFormatter
+            }
 
             return grouped.sorted(by: { $0.key > $1.key }).map { key, value in
                 TransactionListItem(
-                    header: Self.dateFormatter.string(from: key),
+                    header: dateFormatter.string(from: key),
                     items: value.map(mapRow)
                 )
             }
@@ -129,10 +133,17 @@ struct TransactionHistoryMapper {
     }
 
     enum GroupingStyle {
-        /// All records grouped by day. Legacy transaction history behaviour.
-        case day
+        /// All records grouped by day.
+        /// - `.short`: legacy date format (e.g. "6/15/26")
+        /// - `.long`: redesign date format (e.g. "June 15, 2026")
+        case day(DayFormatStyle)
         /// Current-month records grouped by day; older records collapsed into month buckets.
         case dayThenMonth
+    }
+
+    enum DayFormatStyle {
+        case short
+        case long
     }
 
     private enum GroupingKey: Hashable {
@@ -379,7 +390,7 @@ private extension TransactionHistoryMapper {
         let magnitude = balanceFormatter.formatDecimal(amount)
         let magnitudeWithCurrency = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
 
-        let sign = showSign && !amount.isZero ? (isOutgoing ? AppConstants.minusSign : "+") : ""
+        let sign = showSign && !amount.isZero ? (isOutgoing ? AppConstants.minusSign : AppConstants.plusSign) : ""
         let redesignedSign = isFailed ? "" : sign
 
         return FormattedAmount(

@@ -43,8 +43,8 @@ public struct TangemTokenRow: View {
     @ViewBuilder
     private var contentView: some View {
         switch viewData.content {
-        case .loading(let cached):
-            loadingLayout(cached: cached)
+        case .loading(let cached, let priceInfo):
+            loadingLayout(cached: cached, priceInfo: priceInfo)
         case .loaded(let content):
             loadedLayout(content: content)
         case .error(let message):
@@ -56,12 +56,15 @@ public struct TangemTokenRow: View {
 
     // MARK: - Loading Layout
 
-    private func loadingLayout(cached: TangemTokenRowViewData.CachedContent?) -> some View {
+    private func loadingLayout(
+        cached: TangemTokenRowViewData.CachedContent?,
+        priceInfo: TangemTokenRowViewData.PriceInfo?
+    ) -> some View {
         TangemTwoLineRowLayout(
             icon: { tokenIconView },
             primaryLeading: { tokenNameWithBadge(isDisabled: false) },
             primaryTrailing: { fiatBalanceLoadingView(cached: cached?.fiatBalance) },
-            secondaryLeading: { tokenPriceLoadingView(cached: cached?.price) },
+            secondaryLeading: { priceWithChangeView(priceInfo: priceInfo) },
             secondaryTrailing: { cryptoBalanceLoadingView(cached: cached?.cryptoBalance) }
         )
         .compressionPolicy(.trailingPreserved)
@@ -152,10 +155,11 @@ public struct TangemTokenRow: View {
 
     private func priceWithChangeView(priceInfo: TangemTokenRowViewData.PriceInfo?) -> some View {
         HStack(spacing: Constants.Spacings.badgeSpacing) {
-            tokenPriceView(priceInfo: priceInfo)
+            tokenPriceView(state: priceInfo?.price ?? .noData)
 
-            priceChangeView(priceInfo: priceInfo)
+            priceChangeView(state: priceInfo?.change ?? .empty)
         }
+        .environment(\.isShimmerActive, true)
     }
 
     // MARK: - Token Name
@@ -202,10 +206,9 @@ public struct TangemTokenRow: View {
     // MARK: - Fiat Balance
 
     private func formattedFiatBalance(_ text: String) -> AttributedString {
-        TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+        // Colors only — LoadableBalanceView applies the font via `.style`, keeping Dynamic Type scaling.
+        AttributedBalanceFormatter.dimmingDecimals(
             text,
-            font: Constants.Style.FiatBalance.font,
-            integerColor: Constants.Style.FiatBalance.integerColor,
             decimalColor: Constants.Style.FiatBalance.decimalColor
         )
     }
@@ -269,7 +272,7 @@ public struct TangemTokenRow: View {
         case .value(let text):
             .loaded(text: .string(text))
         case .failed(let cached):
-            .failed(cached: .string(cached), icon: .trailing)
+            .failed(cached: .string(cached))
         }
 
         return LoadableBalanceView(
@@ -288,30 +291,8 @@ public struct TangemTokenRow: View {
 
     // MARK: - Token Price
 
-    private func tokenPriceLoadingView(cached: String?) -> some View {
-        let state: LoadableTextView.State = if let cached {
-            .loaded(text: cached)
-        } else {
-            .loading
-        }
-
-        return LoadableTextView(
-            state: state,
-            style: Constants.Style.TokenPrice.font,
-            textColor: Constants.Style.TokenPrice.color,
-            loaderSize: priceLoaderSize,
-            loaderCornerRadiusStyle: .capsule
-        )
-    }
-
-    private func tokenPriceView(priceInfo: TangemTokenRowViewData.PriceInfo?) -> some View {
-        let state: LoadableTextView.State = if let priceInfo {
-            .loaded(text: priceInfo.price)
-        } else {
-            .noData
-        }
-
-        return LoadableTextView(
+    private func tokenPriceView(state: LoadableTextView.State) -> some View {
+        LoadableTextView(
             state: state,
             style: Constants.Style.TokenPrice.font,
             textColor: Constants.Style.TokenPrice.color,
@@ -322,16 +303,13 @@ public struct TangemTokenRow: View {
 
     // MARK: - Price Change
 
-    @ViewBuilder
-    private func priceChangeView(priceInfo: TangemTokenRowViewData.PriceInfo?) -> some View {
-        if let change = priceInfo?.change {
-            PriceChangeView(
-                state: .loaded(changeType: change.type, text: change.text),
-                showSkeletonWhenLoading: false,
-                showIconForNeutral: true,
-                useRedesignColors: true
-            )
-        }
+    private func priceChangeView(state: PriceChangeView.State) -> some View {
+        PriceChangeView(
+            state: state,
+            showSkeletonWhenLoading: true,
+            showIconForNeutral: true,
+            useRedesignColors: true
+        )
     }
 
     private var cryptoLoaderSize: CGSize {

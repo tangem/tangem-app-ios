@@ -70,6 +70,13 @@
           "childNumber": 0,
           "parentFingerprint": "00000000"
         },
+        "m/44'/144'/1'/0/0": {
+          "depth": 0,
+          "publicKey": "0258E17255D57F242873FFAED35F8122F01AB6BE48360137F3B435CD6C9F20249C",
+          "chainCode": "9EDB9B3EF5422FD348A655A11D78B552830C9D3B0CBD2151D94E4F00388B8B33",
+          "childNumber": 0,
+          "parentFingerprint": "00000000"
+        },
         "m/44'/3'/0'/0/0": {
           "depth": 0,
           "publicKey": "02CD3E6119534BB11706D6A22D5BBE39B0B5D913A85F843227728A1B8630BB0791",
@@ -88,6 +95,13 @@
           "depth": 0,
           "publicKey": "03CD3E6119534BB11706D6A22D5BBE39B0B5D913A85F843227728A1B8630BB0791",
           "chainCode": "4D3F458EE76985D6A96B56D52E5CB295B8AF9A2D4B6188F6761BDECEA4032F82",
+          "childNumber": 0,
+          "parentFingerprint": "00000000"
+        },
+        "m/44'/111111'/1'/0/0": {
+          "depth": 0,
+          "publicKey": "0258E17255D57F242873FFAED35F8122F01AB6BE48360137F3B435CD6C9F20249C",
+          "chainCode": "9EDB9B3EF5422FD348A655A11D78B552830C9D3B0CBD2151D94E4F00388B8B33",
           "childNumber": 0,
           "parentFingerprint": "00000000"
         },
@@ -127,6 +141,20 @@
           "parentFingerprint": "00000000"
         },
         "m/44'/195'/1'/0/0": {
+          "depth": 0,
+          "publicKey": "0258E17255D57F242873FFAED35F8122F01AB6BE48360137F3B435CD6C9F20249C",
+          "chainCode": "9EDB9B3EF5422FD348A655A11D78B552830C9D3B0CBD2151D94E4F00388B8B33",
+          "childNumber": 0,
+          "parentFingerprint": "00000000"
+        },
+        "m/44'/118'/0'/0/0": {
+          "depth": 0,
+          "publicKey": "02CD3E6119534BB11706D6A22D5BBE39B0B5D913A85F843227728A1B8630BB0791",
+          "chainCode": "4D3F458EE76985D6A96B56D52E5CB295B8AF9A2D4B6188F6761BDECEA4032F82",
+          "childNumber": 0,
+          "parentFingerprint": "00000000"
+        },
+        "m/44'/118'/1'/0/0": {
           "depth": 0,
           "publicKey": "0258E17255D57F242873FFAED35F8122F01AB6BE48360137F3B435CD6C9F20249C",
           "chainCode": "9EDB9B3EF5422FD348A655A11D78B552830C9D3B0CBD2151D94E4F00388B8B33",
@@ -214,10 +242,24 @@
           "publicKey": "1E93D921A2B77932B55666FEB6E93FFD4FAE996A52AA95C1D2680712D70FA9D5",
           "depth": 0
         },
+        "m/44'/501'/1'": {
+          "childNumber": 0,
+          "chainCode": "4D3F458EE76985D6A96B56D52E5CB295B8AF9A2D4B6188F6761BDECEA4032F82",
+          "parentFingerprint": "00000000",
+          "publicKey": "CD3E6119534BB11706D6A22D5BBE39B0B5D913A85F843227728A1B8630BB0791",
+          "depth": 0
+        },
         "m/44'/148'/0'": {
           "depth": 0,
           "publicKey": "CD3E6119534BB11706D6A22D5BBE39B0B5D913A85F843227728A1B8630BB0791",
           "chainCode": "4D3F458EE76985D6A96B56D52E5CB295B8AF9A2D4B6188F6761BDECEA4032F82",
+          "childNumber": 0,
+          "parentFingerprint": "00000000"
+        },
+        "m/44'/148'/1'": {
+          "depth": 0,
+          "publicKey": "13A7D4E4C98C284451CBB6CDED67B55C6BA23818029FA2FED070DFC5D701CDFF",
+          "chainCode": "CC1E5567C8B15B9D6BA2814AD00F849FCFADC5F2ACE39042F68BB759EEA92510",
           "childNumber": 0,
           "parentFingerprint": "00000000"
         },
@@ -248,6 +290,41 @@
           "childNumber": 0,
           "chainCode": "CC1E5567C8B15B9D6BA2814AD00F849FCFADC5F2ACE39042F68BB759EEA92510",
           "depth": 0
+        },
+        "m/44'/607'/0'": {
+          "childNumber": 0,
+          "chainCode": "0F3DE3161E2DCDC4053EA9DD369FFBD4CA95F289FD5C5B4BBE1A70537AE7C028",
+          "parentFingerprint": "00000000",
+          "publicKey": "1E93D921A2B77932B55666FEB6E93FFD4FAE996A52AA95C1D2680712D70FA9D5",
+          "depth": 0
+        },
+        "m/44'/607'/1'": {
+          "childNumber": 0,
+          "chainCode": "4D3F458EE76985D6A96B56D52E5CB295B8AF9A2D4B6188F6761BDECEA4032F82",
+          "parentFingerprint": "00000000",
+          "publicKey": "CD3E6119534BB11706D6A22D5BBE39B0B5D913A85F843227728A1B8630BB0791",
+          "depth": 0
+        },
+        "m/44'/637'/0'/0'/0'": {
+          "depth": 0,
+          "publicKey": "13A7D4E4C98C284451CBB6CDED67B55C6BA23818029FA2FED070DFC5D701CDFF",
+          "chainCode": "CC1E5567C8B15B9D6BA2814AD00F849FCFADC5F2ACE39042F68BB759EEA92510",
+          "childNumber": 0,
+          "parentFingerprint": "00000000"
+        },
+        "m/44'/637'/1'/0'/0'": {
+          "childNumber": 0,
+          "chainCode": "0F3DE3161E2DCDC4053EA9DD369FFBD4CA95F289FD5C5B4BBE1A70537AE7C028",
+          "parentFingerprint": "00000000",
+          "publicKey": "1E93D921A2B77932B55666FEB6E93FFD4FAE996A52AA95C1D2680712D70FA9D5",
+          "depth": 0
+        },
+        "m/44'/3030'/0'/0'/0'": {
+          "depth": 0,
+          "publicKey": "BFCBC2F4C7E0DAF780CCADC34927290FB69F26349B3F4AC8EC0F398172A3EF93",
+          "chainCode": "AF0F7D1C8DEA57515785E7B65602016E8D41923FC053A39F987B0CE65E1B54FA",
+          "childNumber": 0,
+          "parentFingerprint": "00000000"
         }
       }
     }

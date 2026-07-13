@@ -262,7 +262,6 @@ struct MarketsMainView: View {
 
     // MARK: - Widgets Implementation
 
-    @ViewBuilder
     private var widgetsListView: some View {
         ZStack {
             ScrollViewReader { proxy in
@@ -283,6 +282,15 @@ struct MarketsMainView: View {
                         // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
                         Color.clear
                             .frame(height: overlayHeight)
+
+                        if FeatureProvider.isAvailable(.forYou) {
+                            Button(action: viewModel.onForYouBannerTap) {
+                                ForYouEntranceBannerView()
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, Layout.Widgets.verticalContentSpacing)
+                        }
 
                         if case .present(let widgetItems) = viewModel.widgetsViewState {
                             VStack(alignment: .leading, spacing: Layout.Widgets.verticalContentSpacing) {

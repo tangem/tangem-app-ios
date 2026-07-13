@@ -276,11 +276,16 @@ public struct TangemTokenRowShowcase: View {
                 ) : nil
             ))
         case .loading:
-            .loading(cached: hasCachedValues ? TangemTokenRowViewData.CachedContent(
-                fiatBalance: "$45,123.45",
-                cryptoBalance: "1.234 BTC",
-                price: "$45,000.00"
-            ) : nil)
+            .loading(
+                cached: hasCachedValues ? TangemTokenRowViewData.CachedContent(
+                    fiatBalance: "$45,123.45",
+                    cryptoBalance: "1.234 BTC"
+                ) : nil,
+                priceInfo: hasPriceInfo ? TangemTokenRowViewData.PriceInfo(
+                    price: "$45,000.00",
+                    change: priceChange
+                ) : nil
+            )
         case .error:
             .error(message: "Network error")
         case .compact:
@@ -320,9 +325,6 @@ private extension DynamicTypeSize {
     }
 }
 
-#if DEBUG
-
-@available(iOS 17, *)
 #Preview("Huge Dynamic Type") {
     ScrollView {
         VStack(spacing: 0) {
@@ -369,11 +371,16 @@ private extension DynamicTypeSize {
                     ),
                     name: "Ethereum",
                     badge: nil,
-                    content: .loading(cached: TangemTokenRowViewData.CachedContent(
-                        fiatBalance: "$3,200.00",
-                        cryptoBalance: "1.5 ETH",
-                        price: "$2,133.33"
-                    )),
+                    content: .loading(
+                        cached: TangemTokenRowViewData.CachedContent(
+                            fiatBalance: "$3,200.00",
+                            cryptoBalance: "1.5 ETH"
+                        ),
+                        priceInfo: TangemTokenRowViewData.PriceInfo(
+                            price: "$2,133.33",
+                            change: .positive("2.34%")
+                        )
+                    ),
                     hasMonochromeIcon: false
                 )
             )
@@ -394,7 +401,7 @@ private extension DynamicTypeSize {
                     ),
                     name: "Ethereum",
                     badge: nil,
-                    content: .loading(cached: nil),
+                    content: .loading(cached: nil, priceInfo: nil),
                     hasMonochromeIcon: false
                 )
             )
@@ -559,7 +566,7 @@ private extension DynamicTypeSize {
     .environment(\.dynamicTypeSize, .accessibility2)
 }
 
-@available(iOS 17, *)
+@available(iOS 17.0, *)
 #Preview("Dark Mode", traits: .sizeThatFitsLayout) {
     VStack(spacing: 16) {
         TangemTokenRow(
@@ -602,11 +609,16 @@ private extension DynamicTypeSize {
                 ),
                 name: "Ethereum",
                 badge: nil,
-                content: .loading(cached: TangemTokenRowViewData.CachedContent(
-                    fiatBalance: "$3,200.00",
-                    cryptoBalance: "1.5 ETH",
-                    price: "$2,133.33"
-                )),
+                content: .loading(
+                    cached: TangemTokenRowViewData.CachedContent(
+                        fiatBalance: "$3,200.00",
+                        cryptoBalance: "1.5 ETH"
+                    ),
+                    priceInfo: TangemTokenRowViewData.PriceInfo(
+                        price: "$2,133.33",
+                        change: .positive("2.34%")
+                    )
+                ),
                 hasMonochromeIcon: false
             )
         )
@@ -644,5 +656,3 @@ private extension DynamicTypeSize {
 #Preview("Interactive Showcase") {
     TangemTokenRowShowcase()
 }
-
-#endif // DEBUG

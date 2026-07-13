@@ -26,7 +26,7 @@ Every change starts with a Jira ticket whose key flows through the rest of the w
 
 - **Every change carries a Jira ticket key.** Branch names, commit subjects, and PR titles all include an `IOS-NNNNN` prefix. Before starting, decide whether the work belongs on an existing ticket or needs a new one — if it isn't obvious, ask. Either way, before any code is touched the ticket must be: assigned to you, in the active sprint, and have both required custom fields populated. The rule applies regardless of whether the ticket is fresh or reused — fill in anything that's missing on a reused one (it usually is).
   - **Story Points (`customfield_10025`)** — default to `3` unless context clearly suggests otherwise (trivial = 1; clear hotfix or multi-day work = 5+).
-  - **QA Notes (`customfield_11232`)** — per-scenario test plan using the team's template (Preconditions / Steps / Expected result). For changes with zero runtime impact (pure docs/comments, dead-code removal) the entire field can be the team's standard one-line "no QA needed" shorthand — don't fabricate fake scenarios; QA reads the field and noise wastes their time. Refactors, renames, or anything that produces a different binary still need real QA scenarios.
+  - **QA Notes (`customfield_11232`)** — per-scenario test plan using the team's template (Preconditions / Steps / Expected result). When the change can't affect the shipped app's runtime behaviour — pure docs/comments, dead-code removal, or CI/build/release tooling that never ships in the binary (GitHub Actions and other workflows, Fastlane, the version files, release/CI scripts) — the **entire** field is the team's standard one-line "no QA needed" shorthand and nothing else. Don't open with that line and then append scenarios anyway, and don't fabricate fake ones — QA reads the field and noise wastes their time. Only changes that alter the app binary (code, refactors, renames) get real QA scenarios.
 
   See [External Systems → Jira](#jira) for cloudId, field IDs, and the ADF caveat.
 - **Branch name:** `IOS-NNNNN_short_description` in snake_case (e.g. `[REDACTED_INFO]_crashfixes`).
@@ -42,6 +42,7 @@ Every change starts with a Jira ticket whose key flows through the rest of the w
 
 ### Initial Setup
 ```bash
+git submodule update --init --recursive   # Fetch the private tangem-app-config (required before building)
 ./bootstrap.sh                    # Full setup (Ruby, Mint deps, SwiftFormat, SwiftGen)
 ./bootstrap.sh --skip-ruby        # Skip Ruby installation
 ./bootstrap.sh --skip-mint        # Skip Mint dependencies
@@ -190,23 +191,31 @@ Key lanes defined in `fastlane/Fastfile`:
 
 ## Code Style
 
-**English only in committed content.** Code, comments, identifiers, commit messages, and PR titles (which mirror commit subjects) are English. Foreign-language product strings used as test data or fixtures are an exception, but commentary about them stays English. Non-versioned surfaces — PR descriptions, Jira fields and comments, Slack, Confluence — aren't constrained and typically follow the language of the current conversation. When that language isn't English, write the way a native speaker of it would: express each technical idea in the target language's own words rather than transliterating the English term, so the text reads as natural prose and not a calque. Only genuine code identifiers and proper nouns stay in English.
+**English only in committed content.** Code, comments, identifiers, commit messages, and PR titles (which mirror commit subjects) are English. Foreign-language product strings used as test data or fixtures are an exception, but commentary about them stays English. Non-versioned surfaces — PR descriptions, Jira issue bodies (description, QA Notes) and comments, Slack, Confluence — aren't constrained and typically follow the language of the current conversation; the sole exception is the Jira issue summary (title), which is always English like commit and PR titles. When that language isn't English, write the way a native speaker of it would: express each technical idea in the target language's own words rather than transliterating the English term, so the text reads as natural prose and not a calque. Only genuine code identifiers and proper nouns stay in English.
 
 **Style Guide:** Follow [Google's Swift Style Guide](https://google.github.io/swift/)
 
 **No redundant comments.** Don't add comments that merely restate what the code or the language already conveys — e.g. annotating a `static let` with "Resolved once" / "Cached / fixed for the process lifetime", or a `private` member with "Used internally". A comment must explain something the reader can't get from the declaration itself: a non-obvious *why*, a constraint, a gotcha, or intent that isn't visible in the code. When in doubt, leave it out — the diff and the type signatures already document the *what*.
 
-**SwiftUI Previews:** Must be wrapped in `#if DEBUG`/`#endif` and marked with `// MARK: - Previews`:
+**No spec paragraph numbers in comments.** Don't cite spec section/paragraph numbers in code comments (e.g. `(spec 2.1.3)`, `§3.9`). Specs get reorganized and the number rots, leaving the comment pointing at the wrong place. Explain the *why* in plain prose instead; if a pointer is genuinely needed, put it in the PR description or the Jira ticket, not in the code.
+
+**SwiftUI Previews:** Avoid using PreviewProvider protocol. Use #Preview macro instead.
+Do not wrap a preview inside a `#if DEBUG` block unless a DEBUG-only type is used inside it.
+If a view inside #Preview macro requires a DynamicProperty (e.g. `@State`, `@FocusState`), annotate #Preview with `@available(iOS 17.0, *)`.
+Add a `// MARK: - Previews` comment before the preview declaration:
 ```swift
 // MARK: - Previews
 
-#if DEBUG
-struct MyView_Previews: PreviewProvider {
-    static var previews: some View {
-        MyView()
-    }
+#Preview {
+    MyView()
 }
-#endif // DEBUG
+
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var toggle = false
+
+    AnotherView(isActive: $toggle)
+}
 ```
 
 **Generated Files:** Never modify files in:
