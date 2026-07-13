@@ -96,7 +96,7 @@ private extension CEXProviderFlowHelperFeeShortfallTests {
     }
 
     func coinFee(value: Decimal) -> BSDKFee {
-        Fee(Amount(with: .ethereum(testnet: false), value: value))
+        Fee(Amount(with: .polygon(testnet: false), value: value))
     }
 
     func makeSUT(
@@ -194,7 +194,7 @@ private final class FeeProviderFactoryStub: ExpressFeeProviderFactory {
         CEXFeeProviderStub(
             currency: ExpressWalletCurrency(contractAddress: "", network: "polygon", decimalCount: 18, symbol: "POL"),
             balance: 0,
-            fee: Fee(Amount(with: .ethereum(testnet: false), value: 0))
+            fee: Fee(Amount(with: .polygon(testnet: false), value: 0))
         )
     }
 }
