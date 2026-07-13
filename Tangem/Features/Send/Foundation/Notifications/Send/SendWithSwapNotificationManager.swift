@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 /// A unified notification manager that combines `SendNotificationManager` and `SwapNotificationManager`.
 /// It switches between send and swap modes based on the receive token state,
@@ -63,7 +64,7 @@ extension SendWithSwapNotificationManager: NotificationManager {
     var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
         guard let receiveTokenInput else {
             assertionFailure("SendReceiveTokenInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return receiveTokenInput
