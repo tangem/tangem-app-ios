@@ -19,7 +19,6 @@ final class CommonTokenFeeProvider {
     let customFeeProvider: (any CustomFeeProvider)?
     let feeTokenItemBalanceProvider: TokenBalanceProvider
     let supportingOptions: TokenFeeProviderSupportingOptions
-    let isGasless: Bool
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -40,14 +39,12 @@ final class CommonTokenFeeProvider {
         customFeeProvider: (any CustomFeeProvider)?,
         feeTokenItemBalanceProvider: TokenBalanceProvider,
         supportingOptions: TokenFeeProviderSupportingOptions,
-        isGasless: Bool = false,
     ) {
         self.feeTokenItem = feeTokenItem
         self.tokenFeeLoader = tokenFeeLoader
         self.customFeeProvider = customFeeProvider
         self.feeTokenItemBalanceProvider = feeTokenItemBalanceProvider
         self.supportingOptions = supportingOptions
-        self.isGasless = isGasless
 
         bind()
     }
@@ -56,6 +53,7 @@ final class CommonTokenFeeProvider {
 // MARK: - TokenFeeProvider
 
 extension CommonTokenFeeProvider: TokenFeeProvider {
+    var isGasless: Bool { tokenFeeLoader.isGasless }
     var balanceFeeTokenState: TokenBalanceType { feeTokenItemBalanceProvider.balanceType }
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { feeTokenItemBalanceProvider.balanceTypePublisher }
     var formattedFeeTokenBalance: FormattedTokenBalanceType {
@@ -305,7 +303,7 @@ private extension CommonTokenFeeProvider {
         case .dex:
             // DEX but tokenFeeLoader is not (EthereumTokenFeeLoader or SolanaTokenFeeLoader)
             updateState(state: .unavailable(.notSupported))
-        case .approve(_, _, let feeMultiplier) where tokenFeeLoader is CommonGaslessTokenFeeLoader && feeMultiplier == .triple && !FeatureProvider.isAvailable(.usdtRevokeGaslessFee):
+        case .approve(_, _, let feeMultiplier) where tokenFeeLoader.isGasless && feeMultiplier == .triple && !FeatureProvider.isAvailable(.usdtRevokeGaslessFee):
             updateState(state: .unavailable(.notSupported))
         case .approve where tokenFeeLoader is EthereumTokenFeeLoader:
             // ERC-20 approve — available for Ethereum loaders (includes gasless)

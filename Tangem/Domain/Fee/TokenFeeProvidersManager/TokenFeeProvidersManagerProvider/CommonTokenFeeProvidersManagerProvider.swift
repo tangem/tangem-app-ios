@@ -117,7 +117,6 @@ private extension CommonTokenFeeProvidersManagerProvider {
                 customFeeProvider: .none,
                 feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
                 supportingOptions: .exactly([.market]),
-                isGasless: true,
             )
         }
 

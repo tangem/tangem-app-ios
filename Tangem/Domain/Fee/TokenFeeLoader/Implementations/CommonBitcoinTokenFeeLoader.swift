@@ -27,6 +27,8 @@ extension CommonBitcoinTokenFeeLoader: BitcoinTokenFeeLoader {
 // MARK: - TokenFeeLoader Proxy
 
 extension CommonBitcoinTokenFeeLoader: TokenFeeLoader {
+    var isGasless: Bool { false }
+
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         try await tokenFeeLoader.estimatedFee(amount: amount)
     }

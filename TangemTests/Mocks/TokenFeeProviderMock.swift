@@ -10,6 +10,7 @@ import Foundation
 @testable import Tangem
 
 struct TokenFeeLoaderMock: TokenFeeLoader {
+    var isGasless: Bool { false }
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] { [] }
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] { [] }
 }

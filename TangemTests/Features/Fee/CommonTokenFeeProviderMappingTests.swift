@@ -132,6 +132,7 @@ struct CommonTokenFeeProviderMappingTests {
 // MARK: - Loader mocks
 
 private struct NoopFeeLoaderMock: TokenFeeLoader {
+    var isGasless: Bool { false }
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] { [] }
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] { [] }
 }
@@ -139,6 +140,7 @@ private struct NoopFeeLoaderMock: TokenFeeLoader {
 private struct ThrowingFeeLoaderMock: TokenFeeLoader {
     let error: any Error
 
+    var isGasless: Bool { false }
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] { throw error }
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] { throw error }
 }

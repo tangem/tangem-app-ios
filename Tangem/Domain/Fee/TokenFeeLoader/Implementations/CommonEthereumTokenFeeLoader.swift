@@ -108,6 +108,8 @@ private extension CommonEthereumTokenFeeLoader {
 // MARK: - TokenFeeLoader Proxy
 
 extension CommonEthereumTokenFeeLoader: TokenFeeLoader {
+    var isGasless: Bool { false }
+
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         try await tokenFeeLoader.estimatedFee(amount: amount)
     }
