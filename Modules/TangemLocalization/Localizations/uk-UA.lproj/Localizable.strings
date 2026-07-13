@@ -1060,6 +1060,7 @@
 "onramp_title_available_up_to" = "Доступно до";
 "onramp_title_you_get" = "Ви отримаєте";
 "onramp_token_is_not_supported_banner_subtitle" = "This token is not supported. Please choose a different token to buy.";
+"onramp_token_is_not_supported_banner_title" = "%@ is not supported";
 "onramp_tos_external_providers" = "Послуга надається зовнішнім провайдером. \nTangem не несе відповідальності.";
 "onramp_transaction_status_footer_text" = "Ви можете перевірити статус транзакції на сторінці токена";
 "onramp_up_to_rate" = "До";

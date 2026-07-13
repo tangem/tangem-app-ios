@@ -31,6 +31,9 @@ class OnrampModel {
     @Injected(\.onrampUnknownStatusRepository)
     private var onrampUnknownStatusRepository: OnrampUnknownStatusRepository
 
+    @Injected(\.expressAvailabilityProvider)
+    private var expressAvailabilityProvider: ExpressAvailabilityProvider
+
     weak var router: OnrampModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
@@ -148,6 +151,16 @@ private extension OnrampModel {
             .sink { model, provider in
                 let isSuccessfullyLoaded = provider?.value?.isSuccessfullyLoaded ?? false
                 isSuccessfullyLoaded ? model.restartTimer() : model.stopTimer()
+            }
+            .store(in: &bag)
+
+        // Log once, on the first resolved "not supported" — the publisher already gates on `.updated`.
+        unsupportedTokenPublisher
+            .compactMap { $0 }
+            .first()
+            .withWeakCaptureOf(self)
+            .sink { model, _ in
+                model.analyticsLogger.logOnrampNoticeBuyNotSupported()
             }
             .store(in: &bag)
     }
@@ -770,6 +783,21 @@ extension OnrampModel: SendBaseOutput {
 // MARK: - OnrampNotificationManagerInput
 
 extension OnrampModel: OnrampNotificationManagerInput {
+    var unsupportedTokenPublisher: AnyPublisher<TokenItem?, Never> {
+        expressAvailabilityProvider.expressAvailabilityUpdateState
+            .map { [tokenItem, expressAvailabilityProvider] state -> TokenItem? in
+                // "Not supported" only on a resolved `.unavailable` (`.updated`). During `.updating` the cached
+                // `.unavailable` may be stale and flip to `.available` once the in-flight load completes.
+                let isUnavailable = expressAvailabilityProvider.onrampState(for: tokenItem) == .unavailable
+                guard case .updated = state, isUnavailable else {
+                    return nil
+                }
+                return tokenItem
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     var errorPublisher: AnyPublisher<Error?, Never> {
         let currencyErrorPublisher = _currency
             .filter { !$0.isLoading }
