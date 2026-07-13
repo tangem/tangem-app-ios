@@ -52,8 +52,56 @@ final class CommonAddressBookManager {
 
     private func handle(decoded: [AddressBookDecodedContact]) {
         decodedContacts.withLock { $0 = decoded }
+
+        // TEMP signature-corruption harness for the security checklist, exists only on this
+        // build-only branch, DO NOT MERGE. The snapshot above keeps the real signatures, so
+        // saves never push corrupted data to the backend.
+        #if ALPHA || DEBUG
+        let decoded = Self.corruptForSecurityTest(decoded)
+        #endif
+
         contactsSubject.send(decoded.sorted { $0.createdAt > $1.createdAt }.compactMap(verify(_:)))
     }
+
+    #if ALPHA || DEBUG
+    /// Contact named "sec76…" gets its first entry corrupted; "sec77…" — all entries.
+    private static func corruptForSecurityTest(_ contacts: [AddressBookDecodedContact]) -> [AddressBookDecodedContact] {
+        contacts.map { contact in
+            let name = contact.name.value.lowercased()
+            let corruptAll = name.hasPrefix("sec77")
+            let corruptFirst = name.hasPrefix("sec76")
+
+            guard corruptAll || corruptFirst else {
+                return contact
+            }
+
+            let addresses = contact.addresses.enumerated().map { index, entry in
+                guard corruptAll || index == 0 else {
+                    return entry
+                }
+
+                return AddressBookDecodedAddressEntry(
+                    id: entry.id,
+                    address: entry.address,
+                    networkId: entry.networkId,
+                    memo: entry.memo,
+                    signature: Data([0x01])
+                )
+            }
+
+            return AddressBookDecodedContact(
+                id: contact.id,
+                walletId: contact.walletId,
+                name: contact.name,
+                icon: contact.icon,
+                iconColor: contact.iconColor,
+                createdAt: contact.createdAt,
+                updatedAt: contact.updatedAt,
+                addresses: addresses
+            )
+        }
+    }
+    #endif
 
     private var snapshot: [AddressBookDecodedContact] {
         decodedContacts.withLock { $0 }
