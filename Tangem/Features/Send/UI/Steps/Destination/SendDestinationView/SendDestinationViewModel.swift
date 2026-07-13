@@ -48,6 +48,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     private weak var router: SendDestinationRoutable?
 
     private var updatingTask: Task<Void, Error>?
+    private var updatingDestinationString: String?
     private var bag: Set<AnyCancellable> = []
 
     private var hasLoggedAddressBookWidgetShown = false
@@ -305,9 +306,9 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         }
 
         // Waiting when updatingTask is finished
-        Task {
+        Task { @MainActor in
             try await addressDidChanged(destination: destination).value
-            await MainActor.run { stepRouter?.destinationStepFulfilled() }
+            stepRouter?.destinationStepFulfilled()
         }
     }
 
@@ -362,29 +363,43 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         additionalFieldViewModel?.update(text: addressGroup.memo ?? "")
 
         // Waiting when updatingTask is finished
-        Task {
+        Task { @MainActor in
             try await addressDidChanged(destination: destination).value
-            await MainActor.run { stepRouter?.destinationStepFulfilled() }
+            stepRouter?.destinationStepFulfilled()
         }
     }
 
     @discardableResult
     func addressDidChanged(destination: SendDestinationAddressViewModel.Address) -> Task<Void, Error> {
+        if let updatingTask, !updatingTask.isCancelled, updatingDestinationString == destination.string {
+            return updatingTask
+        }
+
         let hasValue = !destination.string.isEmpty
         let shouldResolve = interactor.shouldResolve(address: destination.string)
         let shouldDebounce = hasValue && shouldResolve
 
         let newUpdatingTask = Task { [weak self] in
-            if shouldDebounce {
-                try await Task.sleep(for: .seconds(1))
-                try Task.checkCancellation()
-            }
+            do {
+                if shouldDebounce {
+                    try await Task.sleep(for: .seconds(1))
+                    try Task.checkCancellation()
+                }
 
-            try await self?.interactor.update(destination: destination.string, source: destination.source)
+                try await self?.interactor.update(destination: destination.string, source: destination.source)
+            } catch {
+                await MainActor.run { [weak self] in
+                    if self?.updatingDestinationString == destination.string {
+                        self?.updatingDestinationString = nil
+                    }
+                }
+                throw error
+            }
         }
 
         updatingTask?.cancel()
         updatingTask = newUpdatingTask
+        updatingDestinationString = destination.string
 
         return newUpdatingTask
     }
