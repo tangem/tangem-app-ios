@@ -65,35 +65,15 @@ final class AppDatabase {
     private static func makeDatabaseMigrator() -> DatabaseMigrator {
         var migrator = DatabaseMigrator()
 
+        for version in AppDatabaseVersion.allCases {
+            migrator.registerMigration(version.id) { database in
+                for tableKind in AppDatabaseTableKind.allCases {
+                    try tableKind.table.registerForVersion(version, in: database)
+                }
+            }
+        }
+
         migrator.registerMigration("v1") { database in
-
-            // MARK: - Express providers cache
-
-            try database.create(
-                table: "expressProvidersCache",
-                options: [
-                    .ifNotExists,
-                ]
-            ) { table in
-                table.primaryKey("id", .text).notNull()
-                table.column("name", .text).notNull()
-                table.column("imageURL", .text)
-                table.column("updatedAt", .datetime).notNull()
-            }
-
-            // MARK: - Fiat currencies cache
-
-            try database.create(
-                table: "fiatCurrenciesCache",
-                options: [
-                    .ifNotExists,
-                ]
-            ) { table in
-                table.primaryKey("code", .text).notNull()
-                table.column("name", .text).notNull()
-                table.column("imageURL", .text)
-                table.column("precision", .integer).notNull()
-            }
 
             // MARK: - Crypto currencies cache
 
