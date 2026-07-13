@@ -635,6 +635,7 @@ extension Analytics {
         case onrampAppErrors = "[Onramp] App Errors"
         case onrampBuyingInProgressScreenOpened = "[Onramp] Buying In Progress Screen Opened"
         case onrampNoticeKYC = "[Onramp] Notice - KYC"
+        case onrampNoticeBuyNotSupported = "[Onramp] Notice - Buy Not Supported"
         case onrampOnrampStatusOpened = "[Onramp] Onramp Status Opened"
         case onrampButtonGoToProvider = "[Onramp] Button - Go To Provider"
         case onrampOnrampStatus = "[Onramp] Onramp Status"
