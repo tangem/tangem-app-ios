@@ -11,5 +11,6 @@ import Foundation
 protocol NotificationSettingsRoutable: AnyObject, TransactionNotificationsRowToggleRoutable {
     func openAppSettings()
     func onAlertDismiss()
+    func openPriceAlerts(with userWalletModel: UserWalletModel)
     func dismiss()
 }
