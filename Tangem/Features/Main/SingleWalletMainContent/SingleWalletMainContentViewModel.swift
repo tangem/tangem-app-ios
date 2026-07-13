@@ -321,7 +321,7 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
             copyDefaultAddress()
         case .marketsDetails:
             openMarketsTokenDetails()
-        case .hide:
+        case .hide, .swapAndSend:
             break
         }
     }
