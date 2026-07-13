@@ -15,7 +15,7 @@ struct SingleWalletMainContentRedesignedView: View {
     @ObservedObject var viewModel: SingleWalletMainContentViewModel
 
     var body: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: .unit(.x3)) {
             if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
                 WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
             }
