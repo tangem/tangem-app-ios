@@ -284,9 +284,22 @@ public extension VisaCustomerInfoResponse {
             public let title: String
             public let body: String
 
+            public init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                type = try container.decode(ItemType.self, forKey: .type)
+                order = try container.decode(Int.self, forKey: .order)
+                title = try container.decode(String.self, forKey: .title)
+                body = try container.decodeIfPresent(String.self, forKey: .body) ?? ""
+            }
+
             public enum ItemType: String, Codable {
                 case cardRelated = "CARD_RELATED"
                 case planRelated = "PLAN_RELATED"
+
+                public init(from decoder: Decoder) throws {
+                    let raw = try decoder.singleValueContainer().decode(String.self)
+                    self = Self(rawValue: raw) ?? .cardRelated
+                }
             }
         }
 
@@ -296,6 +309,14 @@ public extension VisaCustomerInfoResponse {
 
             public enum ImageType: String, Codable {
                 case main = "MAIN"
+                case thumbnail = "THUMBNAIL"
+                case banner = "BANNER"
+                case undefined = "UNDEFINED"
+
+                public init(from decoder: Decoder) throws {
+                    let raw = try decoder.singleValueContainer().decode(String.self)
+                    self = Self(rawValue: raw) ?? .undefined
+                }
             }
         }
 
