@@ -13,6 +13,9 @@ protocol TokenFeeProvider {
     var feeTokenItem: TokenItem { get }
     var hasMultipleFeeOptions: Bool { get }
 
+    /// `true` for gasless providers, which pay the network fee in a token instead of the network's native coin.
+    var isGasless: Bool { get }
+
     var balanceFeeTokenState: TokenBalanceType { get }
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { get }
     var formattedFeeTokenBalance: FormattedTokenBalanceType { get }
@@ -36,6 +39,8 @@ protocol TokenFeeProvider {
 // MARK: - TokenFeeProvider+
 
 extension TokenFeeProvider {
+    var isGasless: Bool { false }
+
     var fees: [TokenFee] {
         state.loadedFees.map { key, value in
             TokenFee(option: key, tokenItem: feeTokenItem, value: .success(value))

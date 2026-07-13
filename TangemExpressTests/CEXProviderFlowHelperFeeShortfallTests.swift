@@ -12,61 +12,60 @@ import BlockchainSdk
 
 @Suite("CEXProviderFlowHelper — fee shortfall classification")
 struct CEXProviderFlowHelperFeeShortfallTests {
-    /// Gasless fallback: the fee is charged in the source token itself and the source token can't cover
-    /// amount + fee. The blocker is the network fee, so the `.to` flow must surface a fee-currency restriction
-    /// ("Not Enough Fee"), not `.insufficientBalance` ("Not Enough Funds"). Regression for [REDACTED_INFO].
-    @Test("to-flow: gasless token fee that can't be covered maps to a fee shortfall")
-    func toFlow_gaslessTokenFeeUncoverable_mapsToFeeShortfall() async {
+    /// Gasless: the fee is paid in the source token and the balance can't cover amount + fee. The blocker is the
+    /// fee, so the `.to` flow must surface `.gaslessFeeShortfall` ("Not Enough Fee"), not `.insufficientBalance`
+    /// ("Not Enough Funds"). Regression for [REDACTED_INFO].
+    @Test("to-flow: gasless fee that can't be covered maps to a gasless fee shortfall")
+    func toFlow_gaslessFeeUncoverable_mapsToFeeShortfall() async {
         let sut = makeSUT(
             feeCurrency: tokenCurrency,
             sourceCurrency: tokenCurrency,
             sourceBalance: 1,
             feeCurrencyBalance: 1,
-            estimatedFee: tokenFee(value: 5)
+            estimatedFee: tokenFee(value: 5),
+            isGaslessFeeSelected: true
         )
 
         let state = await sut.processAfterQuote(quote: makeQuote(fromAmount: 1), request: makeRequest(.to(1)))
 
-        guard case .restriction(.feeCurrencyInsufficientBalanceForTxValue(let value, let isFeeCurrency), _) = state else {
-            Issue.record("Expected .feeCurrencyInsufficientBalanceForTxValue, got \(state)")
+        guard case .restriction(.gaslessFeeShortfall, _) = state else {
+            Issue.record("Expected .gaslessFeeShortfall, got \(state)")
             return
         }
-        #expect(value == 5)
-        #expect(isFeeCurrency == false)
     }
 
-    /// Gasless fallback via the `.from` flow: the fee (in the source token) is larger than the amount being
-    /// swapped, so it can't be subtracted. Must also map to a fee shortfall rather than insufficient funds.
-    @Test("from-flow: gasless token fee larger than amount maps to a fee shortfall")
-    func fromFlow_gaslessTokenFeeExceedsAmount_mapsToFeeShortfall() async {
+    /// Gasless via the `.from` flow: the fee is larger than the amount being swapped, so it can't be subtracted.
+    /// Must also map to a gasless fee shortfall rather than insufficient funds.
+    @Test("from-flow: gasless fee larger than amount maps to a gasless fee shortfall")
+    func fromFlow_gaslessFeeExceedsAmount_mapsToFeeShortfall() async {
         let sut = makeSUT(
             feeCurrency: tokenCurrency,
             sourceCurrency: tokenCurrency,
             sourceBalance: 3,
             feeCurrencyBalance: 3,
-            estimatedFee: tokenFee(value: 5)
+            estimatedFee: tokenFee(value: 5),
+            isGaslessFeeSelected: true
         )
 
         let state = await sut.processAfterQuote(quote: makeQuote(fromAmount: 1), request: makeRequest(.from(1)))
 
-        guard case .restriction(.feeCurrencyInsufficientBalanceForTxValue(let value, let isFeeCurrency), _) = state else {
-            Issue.record("Expected .feeCurrencyInsufficientBalanceForTxValue, got \(state)")
+        guard case .restriction(.gaslessFeeShortfall, _) = state else {
+            Issue.record("Expected .gaslessFeeShortfall, got \(state)")
             return
         }
-        #expect(value == 5)
-        #expect(isFeeCurrency == false)
     }
 
-    /// A genuine coin-source swap pays the fee in the native coin. When it can't cover amount + fee that really
-    /// is an insufficient-funds situation, so the existing `.insufficientBalance` restriction must be preserved.
-    @Test("to-flow: coin fee that can't be covered stays an insufficient-balance restriction")
-    func toFlow_coinFeeUncoverable_staysInsufficientBalance() async {
+    /// A genuine coin-source swap pays the fee in the native coin (not gasless). When it can't cover amount + fee
+    /// that really is an insufficient-funds situation, so the `.insufficientBalance` restriction must be preserved.
+    @Test("to-flow: non-gasless fee that can't be covered stays an insufficient-balance restriction")
+    func toFlow_nonGaslessFeeUncoverable_staysInsufficientBalance() async {
         let sut = makeSUT(
             feeCurrency: coinCurrency,
             sourceCurrency: coinCurrency,
             sourceBalance: 1,
             feeCurrencyBalance: 1,
-            estimatedFee: coinFee(value: 5)
+            estimatedFee: coinFee(value: 5),
+            isGaslessFeeSelected: false
         )
 
         let state = await sut.processAfterQuote(quote: makeQuote(fromAmount: 1), request: makeRequest(.to(1)))
@@ -104,12 +103,14 @@ private extension CEXProviderFlowHelperFeeShortfallTests {
         sourceCurrency: ExpressWalletCurrency,
         sourceBalance: Decimal,
         feeCurrencyBalance: Decimal,
-        estimatedFee: BSDKFee
+        estimatedFee: BSDKFee,
+        isGaslessFeeSelected: Bool
     ) -> CEXProviderFlowHelper {
         let feeProvider = CEXFeeProviderStub(
             currency: feeCurrency,
             balance: feeCurrencyBalance,
-            fee: estimatedFee
+            fee: estimatedFee,
+            isGaslessFeeSelected: isGaslessFeeSelected
         )
         let source = SourceWalletStub(currency: sourceCurrency, balance: sourceBalance)
         let pair = ExpressManagerSwappingPair(source: source, destination: DestinationWalletStub())
@@ -160,6 +161,7 @@ private struct CEXFeeProviderStub: ExpressFeeProvider {
     let currency: ExpressWalletCurrency
     let balance: Decimal
     let fee: BSDKFee
+    let isGaslessFeeSelected: Bool
 
     func feeCurrency() -> ExpressWalletCurrency { currency }
     func feeCurrencyBalance() throws -> Decimal { balance }
@@ -194,7 +196,8 @@ private final class FeeProviderFactoryStub: ExpressFeeProviderFactory {
         CEXFeeProviderStub(
             currency: ExpressWalletCurrency(contractAddress: "", network: "polygon", decimalCount: 18, symbol: "POL"),
             balance: 0,
-            fee: Fee(Amount(with: .polygon(testnet: false), value: 0))
+            fee: Fee(Amount(with: .polygon(testnet: false), value: 0)),
+            isGaslessFeeSelected: false
         )
     }
 }

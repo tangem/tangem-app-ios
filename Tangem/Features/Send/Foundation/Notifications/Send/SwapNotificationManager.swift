@@ -196,7 +196,7 @@ private extension CommonSwapNotificationManager {
              .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _) where isFeeCurrency:
             return []
 
-        case .restriction(.notEnoughAmountForFee, _), .restriction(.notEnoughAmountForTxValue, _):
+        case .restriction(.notEnoughAmountForFee, _), .restriction(.notEnoughAmountForTxValue, _), .restriction(.gaslessFeeShortfall, _):
             let feeBlockchain = source.tokenItem.blockchain
 
             let noticeAnalyticsParams: [Analytics.ParameterKey: String] = [

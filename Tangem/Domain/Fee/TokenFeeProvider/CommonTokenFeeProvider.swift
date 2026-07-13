@@ -19,6 +19,7 @@ final class CommonTokenFeeProvider {
     let customFeeProvider: (any CustomFeeProvider)?
     let feeTokenItemBalanceProvider: TokenBalanceProvider
     let supportingOptions: TokenFeeProviderSupportingOptions
+    let isGasless: Bool
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -39,12 +40,14 @@ final class CommonTokenFeeProvider {
         customFeeProvider: (any CustomFeeProvider)?,
         feeTokenItemBalanceProvider: TokenBalanceProvider,
         supportingOptions: TokenFeeProviderSupportingOptions,
+        isGasless: Bool = false,
     ) {
         self.feeTokenItem = feeTokenItem
         self.tokenFeeLoader = tokenFeeLoader
         self.customFeeProvider = customFeeProvider
         self.feeTokenItemBalanceProvider = feeTokenItemBalanceProvider
         self.supportingOptions = supportingOptions
+        self.isGasless = isGasless
 
         bind()
     }

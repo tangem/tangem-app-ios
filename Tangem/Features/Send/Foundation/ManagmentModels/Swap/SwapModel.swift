@@ -354,7 +354,7 @@ private extension SwapModel {
                 analyticsLogger.logSwapErrorMinAmount(screen: screen)
             case .tooBigAmountForSwapping:
                 analyticsLogger.logSwapErrorMaxAmount(screen: screen)
-            case .notEnoughBalanceForSwapping, .notEnoughAmountForFee, .notEnoughAmountForTxValue, .validationError:
+            case .notEnoughBalanceForSwapping, .notEnoughAmountForFee, .notEnoughAmountForTxValue, .gaslessFeeShortfall, .validationError:
                 analyticsLogger.logSwapErrorInsufficientBalance(screen: screen)
             case .hasPendingTransaction, .hasPendingApproveTransaction, .incompleteBackup:
                 break
@@ -495,7 +495,8 @@ extension SwapModel {
             // 2. Validate amount, fee and destination
             // We don't have `extraId` on Tangem addresses
             let destination = DestinationType.address(address, params: nil)
-            if let restriction = try await validate(amount: adjustedAmount, fee: fee, quote: quote, destination: destination) {
+            let isGaslessFeeSelected = (source.tokenFeeProvidersManager as? ExpressFeeProvider)?.isGaslessFeeSelected ?? false
+            if let restriction = try await validate(amount: adjustedAmount, fee: fee, quote: quote, destination: destination, isGaslessFeeSelected: isGaslessFeeSelected) {
                 return .restriction(restriction, quote: quote)
             }
 
@@ -564,6 +565,9 @@ extension SwapModel {
 
         case .feeCurrencyInsufficientBalanceForTxValue(let fee, let isFeeCurrency):
             return .notEnoughAmountForTxValue(fee, isFeeCurrency: isFeeCurrency)
+
+        case .gaslessFeeShortfall:
+            return .gaslessFeeShortfall
         }
     }
 
@@ -574,7 +578,7 @@ extension SwapModel {
         let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: try sourceToken.get().tokenItem)
         let quote = try await map(provider: provider.provider, quote: permissionRequired.quote)
 
-        if let restriction = try validate(amount: amount, fee: permissionRequired.fee, quote: quote) {
+        if let restriction = try validate(amount: amount, fee: permissionRequired.fee, quote: quote, isGaslessFeeSelected: provider.expressFeeProvider.isGaslessFeeSelected) {
             return .restriction(restriction, quote: quote)
         }
 
@@ -602,7 +606,7 @@ extension SwapModel {
 
         let restriction = try isBitcoinDexSwap
             ? validate(amount: amount)
-            : validate(amount: amount, fee: fee, quote: quote)
+            : validate(amount: amount, fee: fee, quote: quote, isGaslessFeeSelected: provider.expressFeeProvider.isGaslessFeeSelected)
 
         if let restriction {
             return .restriction(restriction, quote: quote)
@@ -622,7 +626,7 @@ extension SwapModel {
         let amount = makeAmount(value: preview.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: preview.quote)
 
-        if let restriction = try validate(amount: amount, fee: fee, quote: quote) {
+        if let restriction = try validate(amount: amount, fee: fee, quote: quote, isGaslessFeeSelected: provider.expressFeeProvider.isGaslessFeeSelected) {
             return .restriction(restriction, quote: quote)
         }
 
@@ -642,7 +646,7 @@ extension SwapModel {
         let amount = makeAmount(value: previewCEX.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: previewCEX.quote)
 
-        if let restriction = try validate(amount: amount, fee: fee, quote: quote) {
+        if let restriction = try validate(amount: amount, fee: fee, quote: quote, isGaslessFeeSelected: provider.expressFeeProvider.isGaslessFeeSelected) {
             return .restriction(restriction, quote: quote)
         }
 
@@ -670,11 +674,11 @@ extension SwapModel {
             // All good
             return nil
         } catch {
-            return try proceedValidationError(error)
+            return try proceedValidationError(error, isGaslessFeeSelected: false)
         }
     }
 
-    func validate(amount: Amount, fee: Fee, quote: Quote) throws -> RestrictionType? {
+    func validate(amount: Amount, fee: Fee, quote: Quote, isGaslessFeeSelected: Bool) throws -> RestrictionType? {
         if let restriction = try validateExpectations(quote: quote) {
             return restriction
         }
@@ -685,11 +689,11 @@ extension SwapModel {
             // All good
             return nil
         } catch {
-            return try proceedValidationError(error)
+            return try proceedValidationError(error, isGaslessFeeSelected: isGaslessFeeSelected)
         }
     }
 
-    func validate(amount: Amount, fee: Fee, quote: Quote, destination: DestinationType) async throws -> RestrictionType? {
+    func validate(amount: Amount, fee: Fee, quote: Quote, destination: DestinationType, isGaslessFeeSelected: Bool) async throws -> RestrictionType? {
         if let restriction = try validateExpectations(quote: quote) {
             return restriction
         }
@@ -700,7 +704,7 @@ extension SwapModel {
             // All good
             return nil
         } catch {
-            return try proceedValidationError(error)
+            return try proceedValidationError(error, isGaslessFeeSelected: isGaslessFeeSelected)
         }
     }
 
@@ -716,12 +720,17 @@ extension SwapModel {
         return nil
     }
 
-    func proceedValidationError(_ error: Error) throws -> RestrictionType? {
+    func proceedValidationError(_ error: Error, isGaslessFeeSelected: Bool) throws -> RestrictionType? {
         switch error {
-        case ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance:
+        // The amount alone exceeds the balance — a genuine funds shortage regardless of how the fee is paid.
+        case ValidationError.amountExceedsBalance:
             return .notEnoughBalanceForSwapping
+        // amount + fee exceeds the balance. With gasless the fee is paid in the source token, so the blocker is
+        // the fee, not the amount — surface it as a fee shortfall instead of "insufficient funds".
+        case ValidationError.totalExceedsBalance:
+            return isGaslessFeeSelected ? .gaslessFeeShortfall : .notEnoughBalanceForSwapping
         case ValidationError.feeExceedsBalance(_, _, let isFeeCurrency):
-            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency)
+            return isGaslessFeeSelected ? .gaslessFeeShortfall : .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency)
         case let error as ValidationError:
             return .validationError(error: error)
         case let error:
@@ -1457,6 +1466,7 @@ extension SwapModel: SendFeeInput {
             return true
         case .loaded(.swap(.some(let selected), _), .restriction(.notEnoughAmountForFee, _)),
              .loaded(.swap(.some(let selected), _), .restriction(.notEnoughAmountForTxValue, _)),
+             .loaded(.swap(.some(let selected), _), .restriction(.gaslessFeeShortfall, _)),
              .loaded(.swap(.some(let selected), _), .restriction(.notEnoughBalanceForSwapping, _)):
             return !selected.getState().isPermissionRequired
         case .loaded(.transfer, .restriction):
@@ -1980,6 +1990,9 @@ extension SwapModel {
         case notEnoughBalanceForSwapping
         case notEnoughAmountForFee(isFeeCurrency: Bool)
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
+        /// The swap is blocked by a gasless fee (paid in the source token) that the balance can't cover on top of
+        /// the swap amount. Surfaced as a network-fee shortage, not "insufficient funds".
+        case gaslessFeeShortfall
         case validationError(error: ValidationError)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
         case incompleteBackup

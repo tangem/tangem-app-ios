@@ -77,7 +77,7 @@ private extension CEXProviderFlowHelper {
         try Task.checkCancellation()
 
         if try !canCoverFee(amount: quote.fromAmount, estimatedFee: estimatedFee) {
-            return .restriction(feeShortfallRestriction(amount: quote.fromAmount, estimatedFee: estimatedFee), quote: quote)
+            return .restriction(feeShortfallRestriction(amount: quote.fromAmount), quote: quote)
         }
 
         return .cexPreview(.init(provider: provider, subtractFee: 0, quote: quote, fee: estimatedFee))
@@ -99,7 +99,7 @@ private extension CEXProviderFlowHelper {
         let subtractFee = try subtractFee(amount: request.amount, estimatedFee: estimatedFee)
 
         guard isEnoughAmountToSubtractFee(amount: request.amount, subtractFee: subtractFee) else {
-            return .restriction(feeShortfallRestriction(amount: request.amount, estimatedFee: estimatedFee), quote: quote)
+            return .restriction(feeShortfallRestriction(amount: request.amount), quote: quote)
         }
 
         // If subtraction is needed, re-quote with reduced amount
@@ -175,16 +175,12 @@ private extension CEXProviderFlowHelper {
     }
 
     /// Restriction to use when the source token can't cover the swap once the network fee is taken into account.
-    /// When gas is paid in the source token itself (the gasless fallback that kicks in because the native coin
-    /// balance can't cover the fee), the blocker is the network fee, not the swap amount — so it's surfaced as a
-    /// native-coin fee shortfall ("not enough fee") instead of a misleading "insufficient funds". A genuine
-    /// coin-source swap pays the fee in the coin, so it keeps the insufficient-balance restriction.
-    func feeShortfallRestriction(amount: Decimal, estimatedFee: BSDKFee) -> ExpressRestriction {
-        guard estimatedFee.amount.type.isToken else {
-            return .insufficientBalance(amount)
-        }
-
-        return .feeCurrencyInsufficientBalanceForTxValue(estimatedFee.amount.value, isFeeCurrency: false)
+    /// When the fee is paid via gasless (in the source token itself, because the native coin balance can't cover
+    /// gas), the blocker is the fee, not the swap amount — so it's surfaced as a fee shortfall instead of a
+    /// misleading "insufficient funds". A genuine funds shortage (fee paid in the native coin) keeps the
+    /// insufficient-balance restriction.
+    func feeShortfallRestriction(amount: Decimal) -> ExpressRestriction {
+        expressFeeProvider.isGaslessFeeSelected ? .gaslessFeeShortfall : .insufficientBalance(amount)
     }
 
     func canCoverFee(amount: Decimal, estimatedFee: BSDKFee) throws -> Bool {
