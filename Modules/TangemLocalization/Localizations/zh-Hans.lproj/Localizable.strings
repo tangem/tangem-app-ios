@@ -1060,6 +1060,7 @@
 "onramp_title_available_up_to" = "最高可提供";
 "onramp_title_you_get" = "你得到";
 "onramp_token_is_not_supported_banner_subtitle" = "This token is not supported. Please choose a different token to buy.";
+"onramp_token_is_not_supported_banner_title" = "%@ is not supported";
 "onramp_tos_external_providers" = "服务由外部供应商提供。\nTangem 不承担任何责任。";
 "onramp_transaction_status_footer_text" = "您可以关闭此屏幕，并在代币详情屏幕上查看交易状态。";
 "onramp_up_to_rate" = "至多";
