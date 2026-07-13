@@ -116,7 +116,7 @@ private extension CommonTransactionHistoryService {
     }
 
     func addToStorage(records: [TransactionRecord]) async {
-        await storage.append(records)
+        await storage.merge(records)
     }
 }
 
@@ -130,8 +130,8 @@ private extension CommonTransactionHistoryService {
             records.removeAll()
         }
 
-        func append(_ newRecords: [TransactionRecord]) {
-            records += newRecords
+        func merge(_ newRecords: [TransactionRecord]) {
+            records.appendMerging(newRecords)
         }
     }
 }
