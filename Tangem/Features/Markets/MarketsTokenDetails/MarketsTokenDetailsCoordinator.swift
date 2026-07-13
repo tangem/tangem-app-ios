@@ -45,6 +45,12 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var newsPagerViewModel: NewsPagerViewModel? = nil
     @Published var newsRelatedTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
 
+    /// AddFunds presented modally from a Markets token.
+    @Published var addFundsViewModel: AddFundsViewModel? = nil
+
+    /// Navigation to run once the modal AddFunds cover has finished dismissing (set via `dismissAddFunds`).
+    private var addFundsFollowUpAction: (@MainActor () -> Void)?
+
     private var safariHandle: SafariHandle?
 
     private var isDeeplinkMode: Bool = false
@@ -373,9 +379,8 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
 extension MarketsTokenDetailsCoordinator: AddFundsRoutable {
     func addFundsRequestBuy(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-            openOnramp(input: input, parameters: .none)
+        dismissAddFunds { [weak self] in
+            self?.openOnramp(input: input, parameters: .none)
         }
     }
 
@@ -389,30 +394,42 @@ extension MarketsTokenDetailsCoordinator: AddFundsRoutable {
             return
         }
 
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-            openSwap(input: parameters, destination: walletModel.tokenItem)
+        dismissAddFunds { [weak self] in
+            self?.openSwap(input: parameters, destination: walletModel.tokenItem)
         }
     }
 
     func addFundsRequestReceive(viewModel: ReceiveMainViewModel) {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-            floatingSheetPresenter.enqueue(sheet: viewModel)
+        dismissAddFunds { [weak self] in
+            self?.floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
     func addFundsRequestGoToToken(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-            openPortfolioTokenDetails(walletModel: walletModel)
+        dismissAddFunds { [weak self] in
+            self?.openPortfolioTokenDetails(walletModel: walletModel)
         }
     }
 
     func addFundsClose() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        dismissAddFunds()
+    }
+
+    /// Dismisses the modal AddFunds screen, deferring `action` until the cover has fully dismissed.
+    /// Running the follow-up presentation (onramp/swap/token details) from the cover's `onDismiss`
+    /// avoids racing it against a full-screen cover that is still on screen.
+    private func dismissAddFunds(then action: (@MainActor () -> Void)? = nil) {
+        addFundsFollowUpAction = action
+        addFundsViewModel = nil
+    }
+
+    func addFundsDidDismiss() {
+        let action = addFundsFollowUpAction
+        addFundsFollowUpAction = nil
+
+        guard let action else { return }
+
+        Task { @MainActor in action() }
     }
 }
 
@@ -427,17 +444,16 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
 
         Task { @MainActor in
-            let viewModel = AddFundsViewModel(
+            Analytics.log(.addFundsMethodScreenOpened, params: [.source: .market])
+            addFundsViewModel = AddFundsViewModel(
                 input: .init(
-                    mode: .sheet(.full),
+                    mode: .stack,
                     primaryAction: .goToToken,
                     walletModel: input.walletModel,
                     userWalletModel: userWalletModel
                 ),
                 coordinator: self
             )
-
-            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
@@ -579,47 +595,50 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
 
     func openAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider) {
         Task { @MainActor in
-            weak var flowViewModelRef: MarketsPortfolioFlowViewModel?
-
-            let portfolioViewModel = MarketsPortfolioTokenListViewModel(
-                walletModels: walletModels,
-                dismissesOnSelect: false,
-                onSelect: { [weak self] walletModel in
-                    guard let self, let flowViewModel = flowViewModelRef else { return }
-                    showAddFunds(in: flowViewModel, walletModel: walletModel, walletDataProvider: walletDataProvider)
-                },
-                coordinator: self
-            )
-
-            let flowViewModel = MarketsPortfolioFlowViewModel(portfolioViewModel: portfolioViewModel)
-            flowViewModelRef = flowViewModel
-
-            floatingSheetPresenter.enqueue(sheet: flowViewModel)
+            // When the token lives in a single place, there's nothing to pick — present AddFunds right away.
+            if walletModels.count == 1, let walletModel = walletModels.first {
+                presentAddFunds(walletModel: walletModel, walletDataProvider: walletDataProvider, primaryAction: .hidden)
+            } else {
+                presentAddFundsTokenList(walletModels: walletModels, walletDataProvider: walletDataProvider)
+            }
         }
     }
 
-    private func showAddFunds(
-        in flowViewModel: MarketsPortfolioFlowViewModel,
+    @MainActor
+    private func presentAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider) {
+        let portfolioViewModel = MarketsPortfolioTokenListViewModel(
+            walletModels: walletModels,
+            onSelect: { [weak self] walletModel in
+                Task { @MainActor in
+                    self?.presentAddFunds(walletModel: walletModel, walletDataProvider: walletDataProvider, primaryAction: .goToToken)
+                }
+            },
+            coordinator: self
+        )
+
+        floatingSheetPresenter.enqueue(sheet: portfolioViewModel)
+    }
+
+    @MainActor
+    private func presentAddFunds(
         walletModel: any WalletModel,
-        walletDataProvider: MarketsWalletDataProvider
+        walletDataProvider: MarketsWalletDataProvider,
+        primaryAction: AddFundsViewModel.PrimaryAction
     ) {
         guard let userWalletModel = walletDataProvider.userWalletModels[walletModel.userWalletId] else {
             return
         }
 
-        Task { @MainActor in
-            let viewModel = AddFundsViewModel(
-                input: .init(
-                    mode: .sheet(.full),
-                    primaryAction: .goToToken,
-                    walletModel: walletModel,
-                    userWalletModel: userWalletModel
-                ),
-                coordinator: self
-            )
-
-            flowViewModel.showAddFunds(viewModel)
-        }
+        Analytics.log(.addFundsMethodScreenOpened, params: [.source: .market])
+        addFundsViewModel = AddFundsViewModel(
+            input: .init(
+                mode: .stack,
+                primaryAction: primaryAction,
+                walletModel: walletModel,
+                userWalletModel: userWalletModel
+            ),
+            coordinator: self
+        )
     }
 
     private func openPortfolioTokenDetails(walletModel: any WalletModel) {

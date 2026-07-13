@@ -42,6 +42,7 @@ Every change starts with a Jira ticket whose key flows through the rest of the w
 
 ### Initial Setup
 ```bash
+git submodule update --init --recursive   # Fetch the private tangem-app-config (required before building)
 ./bootstrap.sh                    # Full setup (Ruby, Mint deps, SwiftFormat, SwiftGen)
 ./bootstrap.sh --skip-ruby        # Skip Ruby installation
 ./bootstrap.sh --skip-mint        # Skip Mint dependencies

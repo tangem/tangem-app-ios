@@ -10,7 +10,7 @@ import TangemUI
 import TangemAssets
 
 struct TransactionDetailsView: View {
-    let viewModel: TransactionDetailsViewModel
+    @ObservedObject var viewModel: TransactionDetailsViewModel
 
     private let blocksSpacing: CGFloat = 16
 
@@ -19,8 +19,12 @@ struct TransactionDetailsView: View {
             TransactionDetailsHeaderView(data: viewModel.header)
 
             VStack(spacing: blocksSpacing) {
-                ForEach(viewModel.blocks) { blockView($0) }
+                ForEach(viewModel.blocks) { block in
+                    blockView(block)
+                        .transition(.opacity)
+                }
             }
+            .animation(.easeInOut(duration: 0.3), value: viewModel.blocks.map(\.id))
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 24)
@@ -29,7 +33,7 @@ struct TransactionDetailsView: View {
         .floatingSheetConfiguration { config in
             config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             config.backgroundInteractionBehavior = .tapToDismiss
-            config.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
+            // [REDACTED_TODO_COMMENT]
         }
     }
 
@@ -38,8 +42,12 @@ struct TransactionDetailsView: View {
         switch block {
         case .tokens(let data):
             TransactionDetailsTokensView(data: data)
+        case .yieldTokens(let data):
+            TransactionDetailsYieldTokensView(data: data)
         case .statusBanner(let data):
             TransactionDetailsStatusBannerView(data: data)
+        case .principalAmount(let data):
+            TransactionDetailsPrincipalAmountView(data: data)
         case .counterparty(let data):
             TransactionDetailsAddressView(data: data)
         case .info(let data):
@@ -89,5 +97,30 @@ struct TransactionDetailsView: View {
 
 #Preview("Onramp failed") {
     TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.onrampFailed())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Staking") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.staking())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Approve") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.approve())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Fee") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.fee())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Yield") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.yieldEnabled())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Other") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.other())
         .background(DesignSystem.Color.bgPrimary)
 }

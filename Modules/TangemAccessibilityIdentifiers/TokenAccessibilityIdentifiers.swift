@@ -33,6 +33,13 @@ public enum TokenAccessibilityIdentifiers {
     /// Pending express transaction
     public static let pendingExpressTransaction = "tokenPendingExpressTransaction"
 
+    /// Market price block elements
+    public static let marketPriceBlock = "tokenMarketPriceBlock"
+    public static let marketPriceTitle = "tokenMarketPriceTitle"
+    public static let marketPricePrice = "tokenMarketPricePrice"
+    public static let marketPricePriceChange = "tokenMarketPricePriceChange"
+    public static let marketPriceChart = "tokenMarketPriceChart"
+
     /// Network selector elements
     public static let mainNetworkSwitch = "tokenMainNetworkSwitch"
     public static let continueButton = "tokenContinueButton"

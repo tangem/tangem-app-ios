@@ -19,7 +19,6 @@ final class TokenDetailsCoordinator: CoordinatorObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     // MARK: - Root view model
 
@@ -57,16 +56,6 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             tangemIconProvider: CommonTangemIconProvider(config: options.userWalletInfo.config)
         )
 
-        let marketingNotificationManager = MarketingBannerNotificationManager()
-        marketingNotificationManager.setup(
-            bannersPublisher: marketingCampaignsRepository.bannersPublisher(
-                for: options.walletModel.tokenItem,
-                kind: .tokenDetails
-            )
-        )
-
-        let combinedNotificationManager = CompositeNotificationManager([notificationManager, marketingNotificationManager])
-
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: options.userWalletInfo,
             coordinator: self
@@ -93,17 +82,25 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             publicKey: options.walletModel.publicKey
         )
 
+        let deeplinkHandler = PromotionDeeplinkHandler(
+            coordinator: self,
+            walletModel: options.walletModel,
+            userWalletInfo: options.userWalletInfo
+        )
+
         tokenDetailsViewModel = .init(
             userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
-            notificationManager: combinedNotificationManager,
+            notificationManager: notificationManager,
             userTokensManager: options.userTokensManager,
             pendingExpressTransactionsManager: expressStatusTracking.manager,
             expressStatusPollingHelper: expressStatusTracking.pollingHelper,
             xpubGenerator: xpubGenerator,
             coordinator: self,
             tokenRouter: tokenRouter,
-            pendingTransactionDetails: options.pendingTransactionDetails
+            pendingTransactionDetails: options.pendingTransactionDetails,
+            deeplinkHandler: deeplinkHandler,
+            presentSource: options.presentSource
         )
 
         notificationManager.interactionDelegate = tokenDetailsViewModel
@@ -121,6 +118,7 @@ extension TokenDetailsCoordinator {
         let walletModel: any WalletModel
         /// Initialized when a deeplink is received for an onramp or exchange (swap) status update related to a specific transaction
         let pendingTransactionDetails: PendingTransactionDetails?
+        let presentSource: TokenDetailsPresentSource
 
         init(
             userWalletInfo: UserWalletInfo,
@@ -128,7 +126,8 @@ extension TokenDetailsCoordinator {
             walletModelsManager: any WalletModelsManager,
             userTokensManager: any UserTokensManager,
             walletModel: any WalletModel,
-            pendingTransactionDetails: PendingTransactionDetails? = nil
+            pendingTransactionDetails: PendingTransactionDetails? = nil,
+            presentSource: TokenDetailsPresentSource = .navigation
         ) {
             self.userWalletInfo = userWalletInfo
             self.keysDerivingInteractor = keysDerivingInteractor
@@ -136,6 +135,7 @@ extension TokenDetailsCoordinator {
             self.userTokensManager = userTokensManager
             self.walletModel = walletModel
             self.pendingTransactionDetails = pendingTransactionDetails
+            self.presentSource = presentSource
         }
     }
 }
@@ -209,6 +209,13 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
+    func openStakingRegionUnavailableSheet() {
+        let viewModel = StakingRegionUnavailableSheetViewModel(coordinator: self)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openDynamicAddressesDisableSheet(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
         compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,
@@ -252,6 +259,16 @@ extension TokenDetailsCoordinator: DynamicAddressesUnavailableSheetRoutable {
 
 extension TokenDetailsCoordinator: DynamicAddressesDisableSheetRoutable {
     func closeDynamicAddressesDisableSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - StakingRegionUnavailableSheetRoutable
+
+extension TokenDetailsCoordinator: StakingRegionUnavailableSheetRoutable {
+    func closeStakingRegionUnavailableSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
@@ -438,3 +455,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 // MARK: - SendFeeCurrencyNavigating
 
 extension TokenDetailsCoordinator: SendFeeCurrencyNavigating {}
+
+// MARK: - PromotionDeeplinkRoutable
+
+extension TokenDetailsCoordinator: PromotionDeeplinkRoutable {}

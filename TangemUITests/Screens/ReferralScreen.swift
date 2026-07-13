@@ -18,6 +18,7 @@ final class ReferralScreen: ScreenBase<ReferralScreenElement> {
     private lazy var promoCodeTitle = staticText(.promoCodeTitle)
     private lazy var promoCodeValue = staticText(.promoCodeValue)
 
+    @discardableResult
     func verifyReferralScreenDisplayed() -> Self {
         XCTContext.runActivity(named: "Validate Referral Screen") { _ in
             XCTAssertTrue(title.waitForExistence(timeout: .robustUIUpdate))

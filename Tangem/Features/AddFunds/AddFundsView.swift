@@ -44,9 +44,7 @@ struct AddFundsView: View {
 
     private var compactSheetContent: some View {
         VStack(spacing: 16) {
-            BottomSheetHeaderView(title: viewModel.title, trailing: {
-                NavigationBarButton.close(action: viewModel.close)
-            })
+            sheetHeader
 
             optionsSection
 
@@ -56,13 +54,25 @@ struct AddFundsView: View {
         .padding(.bottom, 20)
     }
 
+    private var sheetHeader: some View {
+        BottomSheetHeaderView(
+            title: viewModel.title,
+            leading: {
+                if viewModel.showsBackButton {
+                    NavigationBarButton.back(action: viewModel.userDidTapBack)
+                }
+            },
+            trailing: {
+                NavigationBarButton.close(action: viewModel.close)
+            }
+        )
+    }
+
     // MARK: - Sheet — full
 
     private var fullSheetContent: some View {
         VStack(spacing: 16) {
-            BottomSheetHeaderView(title: viewModel.title, trailing: {
-                NavigationBarButton.close(action: viewModel.close)
-            })
+            sheetHeader
 
             AddFundsTokenInfoView(viewData: viewModel.tokenInfoViewData)
 
@@ -81,6 +91,7 @@ struct AddFundsView: View {
             AddFundsStackNavigationBar(
                 title: viewModel.title,
                 accountBadge: viewModel.accountBadge,
+                onBack: viewModel.showsBackButton ? viewModel.userDidTapBack : nil,
                 onClose: viewModel.close
             )
 
@@ -104,7 +115,7 @@ struct AddFundsView: View {
     private var optionsSection: some View {
         VStack(spacing: .unit(.x2)) {
             ForEach(viewModel.options) { option in
-                AddFundsOptionView(option: option, action: {
+                AddFundsOptionView(option: option, isEnabled: viewModel.isEnabled(option), action: {
                     viewModel.userDidTap(option)
                 })
             }
@@ -118,6 +129,8 @@ struct AddFundsView: View {
             tangemButton(title: title)
         case .goToToken:
             tangemButton(title: Localization.commonGoToToken)
+        case .hidden:
+            EmptyView()
         }
     }
 

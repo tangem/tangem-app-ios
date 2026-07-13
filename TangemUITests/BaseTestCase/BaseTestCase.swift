@@ -35,6 +35,7 @@ class BaseTestCase: XCTestCase {
         expressApiType: ExpressAPI? = nil,
         stakingApiType: StakingAPI? = nil,
         visaApiType: VisaAPI? = nil,
+        yieldApiType: YieldAPI? = nil,
         skipToS: Bool = true,
         clearStorage: Bool = false,
         keepWallets: Bool = false,
@@ -59,6 +60,10 @@ class BaseTestCase: XCTestCase {
 
         arguments.append(contentsOf: [
             "-visa_api_type", visaApiType?.rawValue ?? VisaAPI.prod.rawValue,
+        ])
+
+        arguments.append(contentsOf: [
+            "-yield_module_api_type", yieldApiType?.rawValue ?? YieldAPI.prod.rawValue,
         ])
 
         if skipToS {
@@ -151,16 +156,38 @@ class BaseTestCase: XCTestCase {
     // MARK: - Hot Wallet
 
     @discardableResult
-    func importHotWallet() -> MainScreen {
-        CreateWalletSelectorScreen(app)
+    func importHotWallet(accessCode: String? = nil) -> MainScreen {
+        let accessCodeScreen = CreateWalletSelectorScreen(app)
             .skipStories()
             .startWithMobileWallet()
             .tapImportButton()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
-            .skipAccessCode()
-            .tapFinish()
+
+        let successScreen = accessCode.map(accessCodeScreen.setAccessCode) ?? accessCodeScreen.skipAccessCode()
+
+        return successScreen.tapFinish()
+    }
+
+    @discardableResult
+    func launchAndImportHotWallet(
+        eligibilityState: String = "PaeraCustomer",
+        accessCode: String? = nil,
+        expressApiType: ExpressAPI? = nil,
+        scenarios: [ScenarioConfig] = []
+    ) -> MainScreen {
+        let eligibilityScenario = ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState)
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: expressApiType,
+            visaApiType: .mock,
+            clearStorage: true,
+            scenarios: [eligibilityScenario] + scenarios
+        )
+
+        return importHotWallet(accessCode: accessCode)
     }
 
     // MARK: - Alert Handling

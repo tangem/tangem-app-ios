@@ -16,6 +16,7 @@ final class OnrampMarketingBannerNotificationManager {
 
     private let service = MarketingBannerService()
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
+    private let standaloneBannersSubject = CurrentValueSubject<[StandaloneMarketingBannerViewModel], Never>([])
     private let linkedBannersSubject = CurrentValueSubject<[MarketingBanner], Never>([])
     private var subscription: AnyCancellable?
 }
@@ -32,24 +33,31 @@ extension OnrampMarketingBannerNotificationManager {
             return
         }
 
-        let requests = Publishers.CombineLatest(
-            amountInput.fiatCurrencyPublisher,
-            providersInput.selectedOnrampProviderPublisher
-        )
-        .map { fiatCurrency, provider -> OnrampMarketingBannerRequest? in
-            OnrampMarketingBannerRequest(
-                destination: tokenItem,
-                expectedCryptoAmount: provider?.value?.quote?.expectedAmount,
-                fiatCurrencyCode: fiatCurrency?.identity.code
-            )
-        }
-        .eraseToAnyPublisher()
+        let requests = amountInput.fiatCurrencyPublisher
+            .map { fiatCurrency -> OnrampMarketingBannerRequest? in
+                OnrampMarketingBannerRequest(
+                    destination: tokenItem,
+                    fiatCurrencyCode: fiatCurrency?.identity.code
+                )
+            }
+            .eraseToAnyPublisher()
 
-        subscription = service.bannerPublisher(for: requests)
+        let amount = providersInput.selectedOnrampProviderPublisher
+            .map { provider -> MarketingBannerAmount? in
+                guard let value = provider?.value?.quote?.expectedAmount, let currencyId = tokenItem.currencyId else {
+                    return nil
+                }
+
+                return MarketingBannerAmount(value: value, currencyId: currencyId)
+            }
+            .eraseToAnyPublisher()
+
+        subscription = service.bannerPublisher(for: requests, amount: amount)
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { manager, banners in
-                manager.notificationInputsSubject.send(banners.standalone.map { [manager.makeInput(for: $0)] } ?? [])
+                manager.notificationInputsSubject.send(banners.standalone.map { manager.makeInput(for: $0) })
+                manager.standaloneBannersSubject.send(banners.standalone.map { manager.makeStandaloneViewModel(for: $0) })
                 manager.linkedBannersSubject.send(banners.linked)
             }
     }
@@ -65,6 +73,28 @@ private extension OnrampMarketingBannerNotificationManager {
         ) { [weak self] id in
             self?.dismissNotification(with: id)
         }
+    }
+
+    func makeStandaloneViewModel(for banner: MarketingBanner) -> StandaloneMarketingBannerViewModel {
+        let action: (() -> Void)? = switch banner.action {
+        case .deeplink(let url):
+            { [incomingActionHandler] in _ = incomingActionHandler.handleIncomingURL(url) }
+        case .none:
+            nil
+        }
+
+        return StandaloneMarketingBannerViewModel(
+            id: banner.id,
+            title: banner.text,
+            iconURL: banner.iconURL,
+            isDismissible: banner.isDismissible,
+            action: action,
+            dismiss: banner.isDismissible ? { [weak self] in self?.dismissStandaloneBanner(id: banner.id) } : nil
+        )
+    }
+
+    func dismissStandaloneBanner(id: Int) {
+        standaloneBannersSubject.value.removeAll { $0.id == id }
     }
 }
 
@@ -86,10 +116,17 @@ extension OnrampMarketingBannerNotificationManager: NotificationManager {
     }
 }
 
+// MARK: - Standalone banners
+
+extension OnrampMarketingBannerNotificationManager {
+    var standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never> {
+        standaloneBannersSubject.eraseToAnyPublisher()
+    }
+}
+
 // MARK: - LinkedMarketingBannerProviding
 
 extension OnrampMarketingBannerNotificationManager: LinkedMarketingBannerProviding {
-    // [REDACTED_TODO_COMMENT]
     var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
         linkedBannersSubject.eraseToAnyPublisher()
     }

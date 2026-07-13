@@ -18,9 +18,13 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
 
+    @Injected(\.incomingActionHandler)
+    private var incomingActionHandler: IncomingActionHandler
+
     @Published private(set) var onrampAmountViewModel: OnrampAmountViewModel
     @Published private(set) var viewState: ViewState = .idle
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
     @Published private(set) var notificationButtonIsLoading = false
 
     weak var router: OnrampSummaryRoutable?
@@ -28,7 +32,8 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     private let tokenItem: TokenItem
     private let interactor: OnrampSummaryInteractor
     private let notificationManager: NotificationManager
-    private let marketingNotificationManager: any NotificationManager
+    private let marketingNotificationManager: OnrampMarketingBannerNotificationManager
+    private let linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
     private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
 
@@ -42,7 +47,8 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         tokenItem: TokenItem,
         interactor: OnrampSummaryInteractor,
         notificationManager: NotificationManager,
-        marketingNotificationManager: any NotificationManager,
+        marketingNotificationManager: OnrampMarketingBannerNotificationManager,
+        linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>,
         analyticsLogger: SendOnrampOffersAnalyticsLogger,
         buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
     ) {
@@ -51,6 +57,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         self.interactor = interactor
         self.notificationManager = notificationManager
         self.marketingNotificationManager = marketingNotificationManager
+        self.linkedBannersPublisher = linkedBannersPublisher
         self.analyticsLogger = analyticsLogger
         self.buyActionBuilder = buyActionBuilder
 
@@ -76,28 +83,36 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
 
 private extension OnrampSummaryViewModel {
     func bind() {
-        Publishers.CombineLatest(
-            marketingNotificationManager.notificationPublisher,
-            notificationManager.notificationPublisher
-        )
-        .map { $0 + $1 }
-        .receiveOnMain()
-        .assign(to: &$notificationInputs)
+        notificationManager.notificationPublisher
+            .receiveOnMain()
+            .assign(to: &$notificationInputs)
+
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
 
         interactor
             .isLoadingPublisher
             .receiveOnMain()
             .assign(to: &$notificationButtonIsLoading)
 
-        interactor
-            .suggestedOffersPublisher
-            .withWeakCaptureOf(self)
-            .map { $0.mapToViewState(offers: $1) }
-            .receiveOnMain()
-            .assign(to: &$viewState)
+        Publishers.CombineLatest(
+            interactor.suggestedOffersPublisher,
+            linkedBannersPublisher
+        )
+        .withWeakCaptureOf(self)
+        .map { viewModel, values in
+            let (offers, banners) = values
+            return viewModel.mapToViewState(offers: offers, linkedBanners: banners)
+        }
+        .receiveOnMain()
+        .assign(to: &$viewState)
     }
 
-    func mapToViewState(offers: LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>) -> ViewState {
+    func mapToViewState(
+        offers: LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>,
+        linkedBanners: [MarketingBanner]
+    ) -> ViewState {
         switch offers {
         case .loading:
             return .loading
@@ -112,13 +127,13 @@ private extension OnrampSummaryViewModel {
 
         case .success(let offers):
             return .suggestedOffers(.init(
-                recent: offers.recent.map { mapToRecentOnrampOfferViewModel(provider: $0) },
-                recommended: offers.recommended.map { mapToRecommendedItem(suggestedOfferType: $0) },
+                recent: offers.recent.map { mapToRecentOnrampOfferViewModel(provider: $0, linkedBanners: linkedBanners) },
+                recommended: offers.recommended.map { mapToRecommendedItem(suggestedOfferType: $0, linkedBanners: linkedBanners) },
             ))
         }
     }
 
-    func mapToRecentOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
+    func mapToRecentOnrampOfferViewModel(provider: OnrampProvider, linkedBanners: [MarketingBanner]) -> OnrampOfferViewModel {
         let title = onrampOfferViewModelBuilder.mapToRecentOnrampOfferViewModelTitle(provider: provider)
         let buyAction = buyActionBuilder.make(
             provider: provider,
@@ -131,10 +146,23 @@ private extension OnrampSummaryViewModel {
             }
         )
 
-        return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider, buyAction: buyAction)
+        return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
+            title: title,
+            provider: provider,
+            buyAction: buyAction,
+            linkedBanner: linkedBanner(for: provider, in: linkedBanners)
+        )
     }
 
-    func mapToRecommendedItem(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem) -> RecommendedItem {
+    func linkedBanner(for provider: OnrampProvider, in banners: [MarketingBanner]) -> LinkedMarketingBannerViewModel? {
+        LinkedMarketingBannerViewModelFactory.make(
+            from: banners,
+            providerId: provider.provider.id,
+            incomingActionHandler: incomingActionHandler
+        )
+    }
+
+    func mapToRecommendedItem(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem, linkedBanners: [MarketingBanner]) -> RecommendedItem {
         let provider = suggestedOfferType.provider
         let title = onrampOfferViewModelBuilder.mapToRecommendedOnrampOfferViewModelTitle(suggestedOfferType: suggestedOfferType)
 
@@ -163,7 +191,8 @@ private extension OnrampSummaryViewModel {
             provider: provider,
             buyAction: buyAction,
             infoAction: infoAction,
-            legalNotice: legalNotice
+            legalNotice: legalNotice,
+            linkedBanner: linkedBanner(for: provider, in: linkedBanners)
         )
 
         return RecommendedItem(viewModel: viewModel, footnote: footnote)

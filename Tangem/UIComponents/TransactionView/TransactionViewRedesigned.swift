@@ -23,12 +23,15 @@ struct TransactionViewRedesigned: View {
 
     private var display: TransactionDisplayModel { viewModel.display }
 
-    private var isConfirmed: Bool {
-        if case .confirmed = viewModel.icon.status { return true }
-        return false
-    }
-
     private var transactionKey: String { viewModel.transactionType.accessibilityIdentifierKey }
+
+    private var statusAccessibilityIdentifier: String? {
+        switch viewModel.icon.status {
+        case .confirmed: TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: transactionKey)
+        case .inProgress: TxHistoryAccessibilityIdentifiers.transactionInProgressStatus(key: transactionKey)
+        case .failed, .undefined: nil
+        }
+    }
 
     var body: some View {
         TangemTwoLineRowLayout(
@@ -36,7 +39,7 @@ struct TransactionViewRedesigned: View {
             primaryLeading: { nameView },
             primaryTrailing: { amountView },
             secondaryLeading: { subtitleView },
-            secondaryTrailing: { currencyView }
+            secondaryTrailing: { secondaryTrailingView }
         )
         .compressionPolicy(.trailingPreserved)
     }
@@ -48,7 +51,7 @@ struct TransactionViewRedesigned: View {
             iconContent
         }
         .frame(width: iconContainerSide, height: iconContainerSide)
-        .accessibilityIdentifier(isConfirmed ? TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: transactionKey) : nil)
+        .accessibilityIdentifier(statusAccessibilityIdentifier)
     }
 
     @ViewBuilder
@@ -100,13 +103,18 @@ struct TransactionViewRedesigned: View {
     private var subtitleView: some View {
         switch display.subtitle {
         case .owner(let direction, let owner):
-            TransactionSubtitleView(direction: direction, owner: owner)
+            TransactionSubtitleView(
+                direction: direction,
+                owner: owner,
+                accessibilityIdentifier: TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey)
+            )
 
         case .text(let description):
             Text(description)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                 .lineLimit(1)
                 .truncationMode(viewModel.transactionDescriptionTruncationMode)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey))
 
         case .none:
             EmptyView()
@@ -114,9 +122,9 @@ struct TransactionViewRedesigned: View {
     }
 
     @ViewBuilder
-    private var currencyView: some View {
-        if viewModel.amount.currencyCode.isNotEmpty {
-            Text(viewModel.amount.currencyCode)
+    private var secondaryTrailingView: some View {
+        if let text = viewModel.secondaryTrailingText {
+            Text(text)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 .lineLimit(1)
                 .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionCurrency(key: transactionKey))

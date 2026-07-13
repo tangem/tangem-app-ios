@@ -421,6 +421,7 @@ private extension DetailsViewModel {
             models.append(
                 DefaultRowViewModel(
                     title: Localization.tangempayGetTangemPay,
+                    accessibilityIdentifier: DetailsAccessibilityIdentifiers.getTangemPayButton,
                     action: { [weak self] in
                         self?.openGetTangemPay(availableSelection: availableSelection)
                     }

@@ -29,7 +29,7 @@ final class MainViewModel: ObservableObject {
     @Published var selectedCardIndex = 0
     @Published private(set) var isPullToRefreshRunning = false
 
-    let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
+    let swipeDiscoveryAnimationTrigger: CardsInfoPagerSwipeDiscoveryAnimationTrigger?
 
     private(set) lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject(
         settings: .init(
@@ -48,7 +48,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper
+    private let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper?
     private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
     private weak var coordinator: MainRoutable?
@@ -70,7 +70,7 @@ final class MainViewModel: ObservableObject {
 
     init(
         coordinator: MainRoutable,
-        swipeDiscoveryHelper: WalletSwipeDiscoveryHelper,
+        swipeDiscoveryHelper: WalletSwipeDiscoveryHelper?,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory,
         pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
     ) {
@@ -79,6 +79,10 @@ final class MainViewModel: ObservableObject {
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
         self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
         nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
+
+        swipeDiscoveryAnimationTrigger = FeatureProvider.isAvailable(.redesign)
+            ? nil
+            : CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
@@ -97,7 +101,7 @@ final class MainViewModel: ObservableObject {
     convenience init(
         selectedUserWalletId: UserWalletId,
         coordinator: MainRoutable,
-        swipeDiscoveryHelper: WalletSwipeDiscoveryHelper,
+        swipeDiscoveryHelper: WalletSwipeDiscoveryHelper?,
         mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory,
         pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
     ) {
@@ -133,7 +137,7 @@ final class MainViewModel: ObservableObject {
         updateYieldMarkets()
         updateAvailableFeeTokens()
 
-        swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
+        swipeDiscoveryHelper?.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
     }
 
@@ -142,7 +146,7 @@ final class MainViewModel: ObservableObject {
         didLogMainScreenOpenedAnalytics = false
         mainScreenOpenedAnalyticsSubscription = nil
 
-        swipeDiscoveryHelper.cancelScheduledSwipeDiscovery()
+        swipeDiscoveryHelper?.cancelScheduledSwipeDiscovery()
         coordinator?.resignHandlingIncomingActions()
     }
 
@@ -177,10 +181,6 @@ final class MainViewModel: ObservableObject {
         if !AppSettings.shared.userDidSwipeWalletsOnMainScreen {
             AppSettings.shared.userDidSwipeWalletsOnMainScreen = true
         }
-    }
-
-    func updateIsBackupAllowed() {
-        // [REDACTED_TODO_COMMENT]
     }
 
     func didTapEditWallet() {
@@ -394,7 +394,7 @@ final class MainViewModel: ObservableObject {
                         return
                     }
                     removePages(with: userWalletIds)
-                    swipeDiscoveryHelper.reset()
+                    swipeDiscoveryHelper?.reset()
                 case .selected:
                     break
                 case .reordered(let orderedUserWalletIds):
@@ -555,6 +555,7 @@ private extension MainViewModel {
         )
 
         pages[index] = page
+        recreatePagesWithMissingBodyModelsIfNeeded()
     }
 }
 
@@ -589,15 +590,15 @@ extension MainViewModel: MultiWalletMainContentDelegate, SingleWalletMainContent
 
 extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
     func numberOfWallets(_ discoveryHelper: WalletSwipeDiscoveryHelper) -> Int {
-        return pages.count
+        pages.count
     }
 
     func userDidSwipeWallets(_ discoveryHelper: WalletSwipeDiscoveryHelper) -> Bool {
-        return AppSettings.shared.userDidSwipeWalletsOnMainScreen
+        AppSettings.shared.userDidSwipeWalletsOnMainScreen
     }
 
     func helperDidTriggerSwipeDiscoveryAnimation(_ discoveryHelper: WalletSwipeDiscoveryHelper) {
-        swipeDiscoveryAnimationTrigger.triggerDiscoveryAnimation()
+        swipeDiscoveryAnimationTrigger?.triggerDiscoveryAnimation()
     }
 }
 

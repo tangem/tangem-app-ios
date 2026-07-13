@@ -53,7 +53,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
     @Published var securityScoreDetailsViewModel: MarketsTokenDetailsSecurityScoreDetailsViewModel?
     @Published private(set) var numberOfExchangesListedOn: Int?
-    @Published private(set) var marketingNotifications: [NotificationBannerItem] = []
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
     @Published var fullDescriptionBottomSheetInfo: DescriptionBottomSheetInfo?
@@ -347,6 +347,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     }
 
     func onAddFundsTap() {
+        Analytics.log(.marketsChartButtonAddFunds)
         portfolioViewModel?.onAddFundsTap()
     }
 
@@ -464,10 +465,9 @@ private extension MarketsTokenDetailsViewModel {
             bannersPublisher: marketingCampaignsRepository.bannersPublisher(forMarketsTokenId: tokenInfo.id)
         )
 
-        let notificationBannerMapper = MultiWalletNotificationBannerMapper()
-        marketingNotificationManager.notificationPublisher
-            .map { notificationBannerMapper.mapItems($0) }
-            .assign(to: &$marketingNotifications)
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
 
         currentPricePublisher
             .assign(to: \.priceFromQuoteRepository, on: self, ownership: .weak)

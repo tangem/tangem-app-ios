@@ -21,6 +21,7 @@ public struct VisaCustomerInfoResponse: Codable {
     public let card: Card?
     public let cards: [Card]
     public let depositAddress: String?
+    public let customerTariffPlan: CustomerTariffPlan?
 
     public init(
         id: String,
@@ -32,7 +33,8 @@ public struct VisaCustomerInfoResponse: Codable {
         kyc: KYCInfo?,
         card: Card? = nil,
         cards: [Card],
-        depositAddress: String?
+        depositAddress: String?,
+        customerTariffPlan: CustomerTariffPlan? = nil
     ) {
         self.id = id
         self.state = state
@@ -44,6 +46,7 @@ public struct VisaCustomerInfoResponse: Codable {
         self.card = card
         self.cards = cards
         self.depositAddress = depositAddress
+        self.customerTariffPlan = customerTariffPlan
     }
 
     public init(from decoder: Decoder) throws {
@@ -59,6 +62,7 @@ public struct VisaCustomerInfoResponse: Codable {
         card = try container.decodeIfPresent(Card.self, forKey: .card)
         cards = try container.decodeIfPresent([Card].self, forKey: .cards) ?? []
         depositAddress = try container.decodeIfPresent(String.self, forKey: .depositAddress)
+        customerTariffPlan = try container.decodeIfPresent(CustomerTariffPlan.self, forKey: .customerTariffPlan)
     }
 }
 
@@ -86,9 +90,50 @@ public extension VisaCustomerInfoResponse {
         public let status: ProductStatus
         public let updatedAt: Date
         public let paymentAccountId: String
-        public let displayName: String
+        public let displayName: String?
         public let adminCardLimit: CardLimit
         public let actualCardLimit: CardLimit?
+        public let productSpecificationDataType: ProductSpecificationDataType
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case cardWalletAddress
+            case cardId
+            case cid
+            case status
+            case updatedAt
+            case paymentAccountId
+            case displayName
+            case adminCardLimit
+            case actualCardLimit
+            case productSpecificationDataType
+        }
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decode(String.self, forKey: .id)
+            cardWalletAddress = try container.decodeIfPresent(String.self, forKey: .cardWalletAddress)
+            cardId = try container.decodeIfPresent(String.self, forKey: .cardId)
+            cid = try container.decodeIfPresent(String.self, forKey: .cid)
+            status = try container.decodeIfPresent(ProductStatus.self, forKey: .status) ?? .undefined
+            updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? .distantPast
+            paymentAccountId = try container.decodeIfPresent(String.self, forKey: .paymentAccountId) ?? ""
+            displayName = try container.decodeIfPresent(String.self, forKey: .displayName) ?? ""
+            adminCardLimit = try container.decodeIfPresent(CardLimit.self, forKey: .adminCardLimit) ?? CardLimit(amount: 0, periodType: "")
+            actualCardLimit = try container.decodeIfPresent(CardLimit.self, forKey: .actualCardLimit)
+            productSpecificationDataType = try container.decodeIfPresent(ProductSpecificationDataType.self, forKey: .productSpecificationDataType) ?? .undefined
+        }
+    }
+
+    enum ProductSpecificationDataType: String, Codable {
+        case card = "CARD"
+        case account = "ACCOUNT"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     enum ProductStatus: String, Codable {
@@ -202,6 +247,77 @@ public extension VisaCustomerInfoResponse {
         public let amount: Int
         public let periodType: String
     }
+
+    struct CustomerTariffPlan: Codable {
+        public let status: Status
+        public let source: Source
+        public let transitionedAt: Date?
+        public let billedAt: Date?
+        public let nextBillingAt: Date?
+        public let pendingTransitionAt: Date?
+        public let tariffPlan: TariffPlan
+        public let pendingTariffPlan: TariffPlan?
+
+        public enum Status: String, Codable {
+            case active = "ACTIVE"
+            case transitioning = "TRANSITIONING"
+            case canceled = "CANCELED"
+        }
+
+        public enum Source: String, Codable {
+            case customer = "CUSTOMER"
+            case `default` = "DEFAULT"
+        }
+    }
+
+    struct TariffPlan: Codable {
+        public let id: String
+        public let type: String
+        public let name: String
+        public let descriptionItems: [DescriptionItem]
+        public let images: [Image]
+        public let fees: [Fee]
+
+        public struct DescriptionItem: Codable {
+            public let type: ItemType
+            public let order: Int
+            public let title: String
+            public let body: String
+
+            public enum ItemType: String, Codable {
+                case cardRelated = "CARD_RELATED"
+                case planRelated = "PLAN_RELATED"
+            }
+        }
+
+        public struct Image: Codable {
+            public let type: ImageType
+            public let url: String
+
+            public enum ImageType: String, Codable {
+                case main = "MAIN"
+            }
+        }
+
+        public struct Fee: Codable {
+            public let type: FeeType
+            public let amount: Decimal
+            public let currency: String
+            public let description: String?
+            public let period: Period?
+
+            public enum FeeType: String, Codable {
+                case free = "FREE"
+                case otc = "OTC"
+                case recurring = "RECURRING"
+            }
+
+            public enum Period: String, Codable {
+                case month = "MONTH"
+                case year = "YEAR"
+            }
+        }
+    }
 }
 
 public extension VisaCustomerInfoResponse.Card {
@@ -237,5 +353,16 @@ public extension VisaCustomerInfoResponse {
 
     func card(forCardId cardId: String) -> Card? {
         cards.first { $0.id == cardId }
+    }
+
+    /// First Virtual Account (`ACCOUNT`) product instance, regardless of status.
+    var virtualAccountProductInstance: ProductInstance? {
+        productInstances.first { $0.productSpecificationDataType == .account }
+    }
+
+    /// Card product instances only — excludes Virtual Account (`ACCOUNT`) instances, which share
+    /// `cardId == nil` with pending cards and would otherwise be rendered as pending card entries.
+    var cardProductInstances: [ProductInstance] {
+        productInstances.filter { $0.productSpecificationDataType != .account }
     }
 }

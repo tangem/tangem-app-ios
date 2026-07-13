@@ -22,7 +22,7 @@ struct TangemApiTarget: TargetType {
             fullURL
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
-        case .promotion, .yieldBoostPromotionStatus:
+        case .promotion, .yieldBoostPromotionStatus, .promotionRegistration:
             AppEnvironment.current.apiBaseUrlv2
         case .saveUserWalletTokensV2:
             // Contract v1.3 documents the full path as `/api/v2/wallets/{walletId}/tokens`.
@@ -30,7 +30,7 @@ struct TangemApiTarget: TargetType {
             // (gateway-internal vs. a real path). If BE serves `/v2/...` without `/api`, revert this
             // case back to `apiBaseUrlv2` — same caveat as notification-preferences below.
             AppEnvironment.current.apiBaseUrlv2WithGatewaySegment
-        case .getNotificationPreferences, .updateNotificationPreferences:
+        case .getNotificationPreferences, .updateNotificationPreferences, .marketingCampaigns:
             // Contract v1.3 documents the full path as `/api/v1/notification-preferences/{walletId}`.
             // NOTE: the leading `/api` segment is applied here but still needs backend confirmation.
             // If BE serves `/v1/...` without `/api`, revert this case back to `apiBaseUrl`.
@@ -72,6 +72,8 @@ struct TangemApiTarget: TargetType {
             return "/promotion"
         case .yieldBoostPromotionStatus:
             return "/promotion/yield-apr-boost/status"
+        case .promotionRegistration:
+            return "/promotion/registrations"
         case .loadPromotions:
             return "/banner/displays"
         case .hidePromotion(let request):
@@ -226,7 +228,8 @@ struct TangemApiTarget: TargetType {
              .createWallet,
              .bindWalletsByCode,
              .syncAddressBooks,
-             .subscribeToPriceAlerts:
+             .subscribeToPriceAlerts,
+             .promotionRegistration:
             return .post
         case .unsubscribeFromPriceAlerts:
             return .delete
@@ -261,6 +264,8 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(request)
         case .yieldBoostPromotionStatus(let request):
             return .requestParameters(request)
+        case .promotionRegistration(let request):
+            return .requestJSONEncodable(request)
         case .loadPromotions(let request):
             return .requestParameters(request)
         case .hidePromotion(let request):
@@ -403,6 +408,7 @@ struct TangemApiTarget: TargetType {
              .createAccount,
              .promotion,
              .yieldBoostPromotionStatus,
+             .promotionRegistration,
              .loadPromotions,
              .hidePromotion,
              .marketingCampaigns,
@@ -464,6 +470,7 @@ extension TangemApiTarget {
 
         case promotion(request: BannerPromotion.Request)
         case yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request)
+        case promotionRegistration(request: PromotionRegistrationDTO.Request)
 
         // Promotions
         case loadPromotions(request: PromotionsDTO.Load.Request)
@@ -599,6 +606,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .promotionRegistration,
              .loadPromotions,
              .hidePromotion,
              .marketingCampaigns,

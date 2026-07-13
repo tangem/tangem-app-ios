@@ -26,9 +26,13 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var missingDerivationNotification = app.descendants(matching: .any)
         .matching(identifier: MainAccessibilityIdentifiers.missingDerivationNotification)
         .firstMatch
-    private lazy var walletLockedNotification = button(.walletLockedNotification)
+    private lazy var walletLockedNotification = otherElement(.walletLockedNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
+    /// Type-agnostic: redesign and legacy notifications expose different element types.
+    private lazy var getTangemPayBanner = app.descendants(matching: .any)
+        .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
+        .firstMatch
 
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
@@ -62,12 +66,12 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func verifyTradeActionButtonsHidden() -> Self {
-        XCTContext.runActivity(named: "Verify Buy/Sell/Swap action buttons are hidden") { _ in
+    func verifySingleCurrencyWalletActionButtons() -> Self {
+        XCTContext.runActivity(named: "Verify Buy/Sell visible and Swap hidden for single-currency card") { _ in
             waitAndAssertTrue(detailsButton, "Main screen should be loaded")
-            XCTAssertFalse(buyActionButton.waitForExistence(timeout: .conditional), "Buy button should be hidden for S2C cards")
-            XCTAssertFalse(swapActionButton.exists, "Swap button should be hidden for S2C cards")
-            XCTAssertFalse(sellActionButton.exists, "Sell button should be hidden for S2C cards")
+            waitAndAssertTrue(buyActionButton, timeout: .conditional, "Buy button should be visible for S2C cards")
+            waitAndAssertTrue(sellActionButton, "Sell button should be visible for S2C cards")
+            XCTAssertFalse(swapActionButton.waitForExistence(timeout: .shortUIUpdate), "Swap button should be hidden for S2C cards")
             return self
         }
     }
@@ -445,7 +449,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func tapWalletLockedNotification() -> Self {
         XCTContext.runActivity(named: "Tap wallet locked notification to initiate unlock") { _ in
             waitAndAssertTrue(walletLockedNotification, "Wallet locked notification should be displayed")
-            walletLockedNotification.waitAndTap()
+            let unlockButton = walletLockedNotification.buttons[CommonUIAccessibilityIdentifiers.notificationButton].firstMatch
+            unlockButton.waitAndTap()
             return self
         }
     }
@@ -499,6 +504,67 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyGetTangemPayBannerExists() -> Self {
+        XCTContext.runActivity(named: "Verify Get Tangem Pay banner is displayed") { _ in
+            waitAndAssertTrue(getTangemPayBanner, timeout: .networkRequest, "Get Tangem Pay banner should be displayed on main screen")
+            return self
+        }
+    }
+
+    func tapGetTangemPayBanner() -> TangemPayOnboardingScreen {
+        XCTContext.runActivity(named: "Tap Get Tangem Pay banner CTA") { _ in
+            waitAndAssertTrue(getTangemPayBanner, timeout: .networkRequest, "Get Tangem Pay banner should be displayed on main screen")
+            app.buttons[TangemPayAccessibilityIdentifiers.getTangemPayBannerOpenButton].firstMatch.waitAndTap()
+            return TangemPayOnboardingScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileExists() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile is displayed on main screen") { _ in
+            scrollToElement(tangemPayTile)
+            waitAndAssertTrue(tangemPayTile, timeout: .networkRequest, "Tangem Pay tile should be displayed on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileShowsKycInProgress() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile shows KYC in progress") { _ in
+            scrollToElement(tangemPayTile)
+            let kycStatusLabel = tangemPayTile.staticTexts["KYC in progress"].firstMatch
+            waitAndAssertTrue(kycStatusLabel, timeout: .networkRequest, "Tangem Pay tile should show KYC in progress status")
+            return self
+        }
+    }
+
+    func openTangemPayKycStatusSheet() -> TangemPayKYCStatusSheet {
+        XCTContext.runActivity(named: "Open KYC status sheet from Tangem Pay tile") { _ in
+            scrollToElement(tangemPayTile)
+            tangemPayTile.waitAndTap()
+            return TangemPayKYCStatusSheet(app)
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileShowsKycRejected() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile shows KYC rejected") { _ in
+            scrollToElement(tangemPayTile)
+            let kycStatusLabel = tangemPayTile.staticTexts["KYC rejected"].firstMatch
+            waitAndAssertTrue(kycStatusLabel, timeout: .networkRequest, "Tangem Pay tile should show KYC rejected status")
+            return self
+        }
+    }
+
+    func openTangemPayKycDeclinedSheet() -> TangemPayKYCDeclinedSheet {
+        XCTContext.runActivity(named: "Open KYC rejected sheet from Tangem Pay tile") { _ in
+            scrollToElement(tangemPayTile)
+            tangemPayTile.waitAndTap()
+            return TangemPayKYCDeclinedSheet(app)
+        }
+    }
+
+    @discardableResult
     func longPressWalletHeader() -> Self {
         XCTContext.runActivity(named: "Long press wallet header") { _ in
             waitAndAssertTrue(headerCardImage, "Header card image should exist")
@@ -514,9 +580,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
             scrollTokensListToVisible(token)
 
-            // Wait for balance to load — context menu captures content at presentation time
+            // Context menu snapshots content at open time; a still-loading balance hides Send, so wait for the value.
             let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)].firstMatch
-            _ = balanceElement.waitForExistence(timeout: .robustUIUpdate)
+            if balanceElement.waitForExistence(timeout: .robustUIUpdate) {
+                let loaded = NSPredicate { object, _ in
+                    guard let element = object as? XCUIElement, element.exists else { return false }
+                    return element.label.contains(where: \.isNumber)
+                }
+                _ = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: loaded, object: balanceElement)], timeout: .robustUIUpdate)
+            }
 
             // Retry long press if context menu doesn't appear (can be flaky on CI)
             let contextMenuIndicator = app.buttons["Buy"].firstMatch

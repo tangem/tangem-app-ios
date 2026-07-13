@@ -150,7 +150,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     @discardableResult
     func tapGoToFeeCurrencyButton() -> TokenScreen {
-        XCTContext.runActivity(named: "Tap go to fee currency button") { _ in
+        _ = XCTContext.runActivity(named: "Tap go to fee currency button") { _ in
             goToFeeCurrencyButton.waitAndTap()
         }
         return TokenScreen(app)
@@ -188,6 +188,10 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             app.navigationBars.buttons["Back"].waitAndTap()
             return MainScreen(app)
         }
+    }
+
+    func marketPriceBlock() -> TokenDetailsMarketPriceScreen {
+        TokenDetailsMarketPriceScreen(app)
     }
 
     // MARK: - Segmented Control Methods
@@ -420,6 +424,35 @@ extension TokenScreen {
         XCTContext.runActivity(named: "Assert transaction '\(key)' is confirmed") { _ in
             let status = app.descendants(matching: .any)[TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: key)].firstMatch
             waitAndAssertTrue(status, "Transaction '\(key)' should have a confirmed status")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertTransactionInProgress(key: String) -> Self {
+        XCTContext.runActivity(named: "Assert transaction '\(key)' is in progress") { _ in
+            let status = app.descendants(matching: .any)[TxHistoryAccessibilityIdentifiers.transactionInProgressStatus(key: key)].firstMatch
+            waitAndAssertTrue(status, "Transaction '\(key)' should have an in-progress status")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertTransactionSubtitle(key: String, contains text: String) -> Self {
+        XCTContext.runActivity(named: "Assert transaction '\(key)' subtitle contains '\(text)'") { _ in
+            let subtitle = app.descendants(matching: .any)[TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: key)].firstMatch
+            waitAndAssertTrue(subtitle, "Transaction '\(key)' subtitle should be displayed")
+
+            let containsPredicate = NSPredicate(format: "label CONTAINS %@", text)
+            let matchesLabel = subtitle.label.contains(text)
+            let matchesDescendant = subtitle.staticTexts.containing(containsPredicate).firstMatch.exists
+            // The id may land on a container element; fall back to an app-wide static-text search (one tx on screen).
+            let matchesAppWide = app.staticTexts.containing(containsPredicate).firstMatch.exists
+
+            XCTAssertTrue(
+                matchesLabel || matchesDescendant || matchesAppWide,
+                "Transaction '\(key)' subtitle should contain '\(text)'; scoped label was '\(subtitle.label)'"
+            )
             return self
         }
     }

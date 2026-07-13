@@ -15,8 +15,43 @@ import TangemUIUtils
 struct AddressBookAddAddressView: View {
     @ObservedObject var viewModel: AddressBookAddAddressViewModel
 
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var headerHeight: CGFloat = 0
+
     var body: some View {
+        ZStack(alignment: .top) {
+            scrollContent
+
+            header
+        }
+        .infinityFrame(axis: .vertical, alignment: .top)
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom) { bottomButton }
+        .navigationBarHidden(true)
+        .alert(item: $viewModel.alert) { $0.alert }
+        .onFirstAppear(perform: viewModel.onFirstAppear)
+    }
+
+    private var header: some View {
+        NavigationHeader(
+            leadingContent: { NavigationBarButton.back(action: { dismiss() }).redesigned() },
+            principalContent: {
+                Text(viewModel.screenTitle)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            },
+            trailingContent: {
+                NavigationBarButton.close(action: viewModel.userDidRequestDismiss).redesigned()
+            }
+        )
+        .readGeometry(\.size.height, bindTo: $headerHeight)
+    }
+
+    private var scrollContent: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 20)) {
+            Color.clear
+                .frame(height: headerHeight)
+
             GroupedSection(viewModel.destinationAddressViewModel) {
                 SendDestinationAddressView(viewModel: $0)
                     .scanQRIconColor(DesignSystem.Color.iconPrimary)
@@ -52,15 +87,6 @@ struct AddressBookAddAddressView: View {
             }
         }
         .padding(.top, 12)
-        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .navigationTitle(Text(Localization.addressBookAddAddress))
-        .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .bottom) { bottomButton }
-        .toolbar {
-            NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
-        }
-        .alert(item: $viewModel.alert) { $0.alert }
-        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     private func makeNetworksValue(networks: AddressBookAddAddressViewModel.AddressNetworksType) -> some View {
@@ -104,8 +130,8 @@ struct AddressBookAddAddressView: View {
 
     private var bottomButton: some View {
         TangemButton(
-            content: .text(AttributedString(Localization.addressBookAddAddress)),
-            action: viewModel.userDidRequestAddAddress
+            content: .text(AttributedString(Localization.addressBookSaveAddress)),
+            action: viewModel.userDidRequestSaveAddress
         )
         .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)

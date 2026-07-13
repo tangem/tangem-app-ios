@@ -23,12 +23,24 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openTangemButtonV2Demo()
     }
 
+    func openTangemCheckboxV2Demo() {
+        coordinator?.openTangemCheckboxV2Demo()
+    }
+
+    func openTangemCheckmarkV2Demo() {
+        coordinator?.openTangemCheckmarkV2Demo()
+    }
+
     func openTangemBadgeDemo() {
         coordinator?.openTangemBadgeDemo()
     }
 
     func openTangemBadgeV2Demo() {
         coordinator?.openTangemBadgeV2Demo()
+    }
+
+    func openTangemMessageBannerDemo() {
+        coordinator?.openTangemMessageBannerDemo()
     }
 
     func openTangemRowDemo() {

@@ -50,6 +50,7 @@ struct TransactionDetailsTokensViewData: Equatable {
         enum Icon: Equatable {
             case token(TokenIconInfo)
             case image(url: URL?)
+            case loading
         }
 
         struct Direction: Equatable {
@@ -59,14 +60,16 @@ struct TransactionDetailsTokensViewData: Equatable {
 
         let direction: Direction
         let icon: Icon
-        let amountText: String
+        /// Prefix + amount + ticker as one string. `nil` when any of those isn't available (e.g. the
+        /// token is still resolving), so the amount is hidden rather than shown partially.
+        let amountText: String?
         let fiatText: String?
         let isAmountStrikethrough: Bool
 
         init(
             direction: Direction,
             icon: Icon,
-            amountText: String,
+            amountText: String?,
             fiatText: String?,
             isAmountStrikethrough: Bool = false
         ) {
@@ -144,14 +147,9 @@ struct TransactionDetailsTokensView: View {
                 directionCaption(leg.direction)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(leg.amountText)
-                        .style(
-                            DesignSystem.Font.headingSmallToken,
-                            color: leg.isAmountStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
-                        )
-                        .strikethrough(leg.isAmountStrikethrough)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+                    if let amountText = leg.amountText {
+                        legAmountLabel(amountText, isStrikethrough: leg.isAmountStrikethrough)
+                    }
 
                     if let fiatText = leg.fiatText {
                         Text(fiatText)
@@ -166,6 +164,17 @@ struct TransactionDetailsTokensView: View {
                 .frame(size: CGSize(bothDimensions: legTokenSide))
         }
         .padding(16)
+    }
+
+    private func legAmountLabel(_ text: String, isStrikethrough: Bool) -> some View {
+        Text(text)
+            .style(
+                DesignSystem.Font.headingSmallToken,
+                color: isStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
+            )
+            .strikethrough(isStrikethrough)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
     }
 
     @ViewBuilder
@@ -206,6 +215,10 @@ struct TransactionDetailsTokensView: View {
             TokenIcon(tokenIconInfo: tokenIconInfo, size: CGSize(bothDimensions: legTokenSide))
         case .image(let url):
             IconView(url: url, size: CGSize(bothDimensions: legTokenSide))
+                .clipShape(.circle)
+        case .loading:
+            TangemShimmer()
+                .frame(size: CGSize(bothDimensions: legTokenSide))
                 .clipShape(.circle)
         }
     }
@@ -252,6 +265,9 @@ private struct DashedDivider: View {
 
         // Pair (swap / onramp)
         TransactionDetailsTokensView(data: TransactionDetailsPreviewFactory.tokensPair())
+
+        // Pair with the destination token still resolving (skeleton symbol + icon)
+        TransactionDetailsTokensView(data: TransactionDetailsPreviewFactory.tokensPairLoading())
     }
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)

@@ -37,6 +37,12 @@ final class SelectorReceiveAssetsAddressPageItemViewModel: ObservableObject {
             : ReceiveAccessibilityIdentifiers.segwitAddress
     }
 
+    var qrCodeButtonAccessibilityIdentifier: String {
+        addressInfo.type.isLegacy
+            ? ReceiveAccessibilityIdentifiers.legacyShowQRCodeButton
+            : ReceiveAccessibilityIdentifiers.segwitShowQRCodeButton
+    }
+
     var isLoading: Bool {
         // Some blockchains (e.g., Hedera) delivers the address asynchronously,
         // so it may be empty at the moment of creating the view model

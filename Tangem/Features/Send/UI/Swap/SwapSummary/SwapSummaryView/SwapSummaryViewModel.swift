@@ -12,6 +12,7 @@ import TangemUI
 import TangemUIUtils
 import TangemLocalization
 import TangemMacro
+import TangemFoundation
 
 final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var swapAmountViewModel: SwapAmountViewModel
@@ -19,6 +20,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var feeCompactViewModel: SendFeeCompactViewModel
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
     @Published private(set) var notificationButtonIsLoading = false
 
     @Published private(set) var isMaxAmountButtonHidden: Bool = false
@@ -43,7 +45,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     private let interactor: SwapSummaryInteractor
     private let notificationManager: NotificationManager
-    private let marketingNotificationManager: NotificationManager
+    private let marketingNotificationManager: SwapMarketingBannerNotificationManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
     private let formVariantResolver: SwapFormVariantResolver
 
@@ -52,7 +54,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     init(
         interactor: SwapSummaryInteractor,
         notificationManager: NotificationManager,
-        marketingNotificationManager: NotificationManager,
+        marketingNotificationManager: SwapMarketingBannerNotificationManager,
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
@@ -199,13 +201,13 @@ private extension SwapSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$isActionInProcessing)
 
-        Publishers.CombineLatest(
-            marketingNotificationManager.notificationPublisher,
-            notificationManager.notificationPublisher
-        )
-        .map { $0 + $1 }
-        .receiveOnMain()
-        .assign(to: &$notificationInputs)
+        notificationManager.notificationPublisher
+            .receiveOnMain()
+            .assign(to: &$notificationInputs)
+
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
     }
 }
 
