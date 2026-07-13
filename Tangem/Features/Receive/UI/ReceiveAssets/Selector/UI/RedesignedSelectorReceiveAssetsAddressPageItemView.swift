@@ -58,6 +58,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
         .size(.x10)
         .styleType(.ghost)
         .disabled(viewModel.isLoading)
+        .accessibilityIdentifier(viewModel.qrCodeButtonAccessibilityIdentifier)
     }
 
     private var actionsButtons: some View {
