@@ -189,7 +189,7 @@ private extension TokenDetailsActionsViewModel {
                     switch type {
                     case .receive:
                         morphToReceive(in: sheetViewModelRef)
-                    case .buy, .send, .exchange, .stake, .sell, .copyAddress, .marketsDetails, .hide, .yield:
+                    case .buy, .send, .exchange, .swapAndSend, .stake, .sell, .copyAddress, .marketsDetails, .hide, .yield:
                         if kind == .transfer, let event = Self.transferButtonEvent(for: type) {
                             Analytics.log(event)
                         }
@@ -231,6 +231,7 @@ private extension TokenDetailsActionsViewModel {
         case .buy: availabilityProvider.isBuyAvailable
         case .send: true
         case .exchange: availabilityProvider.isSwapAvailable
+        case .swapAndSend: availabilityProvider.isSwapAvailable
         case .sell: availabilityProvider.isSellAvailable
         case .receive: availabilityProvider.isReceiveAvailable
         default: false
@@ -276,7 +277,7 @@ private extension TokenDetailsActionsViewModel {
     }
 
     func outgoingOptions() -> [TokenActionType] {
-        [.send, .exchange, .sell]
+        [.send, .exchange, .swapAndSend, .sell]
     }
 }
 
@@ -314,6 +315,7 @@ private extension TokenDetailsActionsViewModel {
         switch type {
         case .buy: return Localization.quickActionBuyDescription
         case .exchange: return Localization.quickActionSwapDescription
+        case .swapAndSend: return Localization.quickActionSendAndSwapDescription
         case .receive: return Localization.quickActionReceiveDescription
         case .send: return Localization.quickActionSendDescription
         case .sell: return Localization.quickActionSellDescription
@@ -340,6 +342,7 @@ private extension TokenDetailsActionsViewModel {
         switch type {
         case .send: .transferButtonSend
         case .exchange: .transferButtonSwap
+        case .swapAndSend: .transferButtonSwapAndSend
         case .sell: .transferButtonSell
         default: nil
         }
