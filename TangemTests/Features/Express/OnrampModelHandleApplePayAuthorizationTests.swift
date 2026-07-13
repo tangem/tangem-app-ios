@@ -595,6 +595,7 @@ private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
     func logOnrampButtonNAP(amount: Decimal, currencyCode: String) {}
     func logOnrampNAPScreenOpened() {}
     func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String) {}
+    func logOnrampNoticeBuyNotSupported() {}
 }
 
 // MARK: - Fixtures
