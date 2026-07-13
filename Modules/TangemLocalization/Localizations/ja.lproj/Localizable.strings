@@ -1060,6 +1060,7 @@
 "onramp_title_available_up_to" = "利用可能金額";
 "onramp_title_you_get" = "以下が手に入ります。";
 "onramp_token_is_not_supported_banner_subtitle" = "This token is not supported. Please choose a different token to buy.";
+"onramp_token_is_not_supported_banner_title" = "%@ is not supported";
 "onramp_tos_external_providers" = "サービスは外部プロバイダーによって提供されます。 \nTangemは責任を負いません。";
 "onramp_transaction_status_footer_text" = "この画面を閉じて、トークンの詳細画面で取引状況を確認できます。";
 "onramp_up_to_rate" = "最大";
