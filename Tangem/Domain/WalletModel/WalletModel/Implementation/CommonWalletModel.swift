@@ -600,7 +600,12 @@ extension CommonWalletModel: WalletModelHelpers {
 
 extension CommonWalletModel: WalletModelFeesProvider {
     var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
-        TokenFeeLoaderBuilder(tokenItem: tokenItem, dependenciesProvider: self, isDemo: isDemo)
+        TokenFeeLoaderBuilder(
+            tokenItem: tokenItem,
+            sourceAddress: defaultAddressString,
+            dependenciesProvider: self,
+            isDemo: isDemo
+        )
     }
 
     var customFeeProviderBuilder: CustomFeeProviderBuilder {
@@ -673,6 +678,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
         walletManager as? GaslessTransactionFeeProvider
+    }
+
+    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? {
+        walletManager as? TronGaslessTransactionsBuilder
     }
 
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {

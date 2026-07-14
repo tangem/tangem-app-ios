@@ -14,6 +14,9 @@ import TangemStaking
 import TangemFoundation
 
 final class SingleTokenNotificationManager {
+    @Injected(\.gaslessTransactionsNetworkManager)
+    private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
+
     weak var interactionDelegate: SingleTokenNotificationManagerInteractionDelegate?
 
     private let analyticsService: NotificationsAnalyticsService
@@ -131,7 +134,7 @@ final class SingleTokenNotificationManager {
         }
 
         switch walletModel.sendingRestrictions {
-        case .zeroFeeCurrencyBalance(let configuration) where !walletModel.isMainToken && !walletModel.tokenItem.blockchain.isGaslessTransactionSupported:
+        case .zeroFeeCurrencyBalance(let configuration) where !walletModel.isMainToken && !shouldSuppressNotEnoughFeeNotification():
             events.append(.notEnoughFeeForTransaction(configuration: configuration))
         default:
             break
@@ -408,6 +411,20 @@ final class SingleTokenNotificationManager {
         let isBeta = yield.item.network == .ethereum
 
         return .staking(tokenIconInfo: tokenIconInfo, earnUpToFormatted: apyFormatted, isBeta: isBeta)
+    }
+
+    func shouldSuppressNotEnoughFeeNotification() -> Bool {
+        if walletModel.tokenItem.blockchain.isGaslessTransactionSupported {
+            return true
+        }
+
+        guard FeatureProvider.isAvailable(.tronGasless),
+              case .tron = walletModel.tokenItem.blockchain,
+              let contractAddress = walletModel.tokenItem.contractAddress else {
+            return false
+        }
+
+        return gaslessTransactionsNetworkManager.availableTronFeeTokens.contains { $0.tokenAddress == contractAddress }
     }
 
     private func hideNotification(_ notification: NotificationViewInput) {

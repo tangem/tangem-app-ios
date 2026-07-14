@@ -193,6 +193,7 @@ extension Analytics {
         case sendNoticeNoAvailableTokens = "[Token / Send] Notice - No Available Tokens"
         case sendChooseTokenScreenOpened = "[Token / Send] Choose Token Screen Opened"
         case sendTokenSelected = "[Token / Send] Token Selected"
+        case gaslessTransactionUsed = "Gasless Transaction Used"
 
         // MARK: - QR Scan
 

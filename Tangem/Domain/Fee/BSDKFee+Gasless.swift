@@ -10,6 +10,10 @@ import BlockchainSdk
 
 extension BSDKFee {
     var isGasless: Bool {
+        if parameters is TronGaslessFeeParameters {
+            return true
+        }
+
         guard let ethereumFeeParameters = parameters as? EthereumFeeParameters else {
             return false
         }

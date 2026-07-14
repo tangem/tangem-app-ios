@@ -22,7 +22,7 @@ struct TronSendTransactionSummaryDescriptionBuilder {
 
 extension TronSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
     func makeDescription(amount: Decimal, fee: TokenFee) -> AttributedString? {
-        guard let bsdkFee = fee.value.value, let feeParameters = bsdkFee.parameters as? TronFeeParameters else {
+        guard let bsdkFee = fee.value.value else {
             AppLogger.error(error: "Fee parameters must be set for TronSendTransactionSummaryDescriptionBuilder")
             return nil
         }
@@ -44,16 +44,24 @@ extension TronSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDe
         let prefix = Localization.sendSummaryTransactionDescriptionPrefix(totalInFiatFormatted)
         let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat, formattingOptions: formattingOptions)
 
-        let energySpentString = String(feeParameters.energySpent)
-
-        let suffix = if feeParameters.energySpent > 0 {
-            if feeParameters.energyFullyCoversFee {
-                Localization.sendSummaryTransactionDescriptionSuffixFeeCovered(energySpentString)
+        let suffix: String
+        switch bsdkFee.parameters {
+        case is TronGaslessFeeParameters:
+            suffix = Localization.sendSummaryTransactionDescriptionSuffixIncluding(feeInFiatFormatted)
+        case let feeParameters as TronFeeParameters:
+            let energySpentString = String(feeParameters.energySpent)
+            suffix = if feeParameters.energySpent > 0 {
+                if feeParameters.energyFullyCoversFee {
+                    Localization.sendSummaryTransactionDescriptionSuffixFeeCovered(energySpentString)
+                } else {
+                    Localization.sendSummaryTransactionDescriptionSuffixFeeReduced(energySpentString)
+                }
             } else {
-                Localization.sendSummaryTransactionDescriptionSuffixFeeReduced(energySpentString)
+                Localization.sendSummaryTransactionDescriptionSuffixIncluding(feeInFiatFormatted)
             }
-        } else {
-            Localization.sendSummaryTransactionDescriptionSuffixIncluding(feeInFiatFormatted)
+        default:
+            AppLogger.error(error: "Unsupported fee parameters for TronSendTransactionSummaryDescriptionBuilder")
+            return nil
         }
 
         let attributedString = makeAttributedString([prefix, suffix].joined(separator: ", "))

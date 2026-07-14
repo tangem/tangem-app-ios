@@ -91,6 +91,40 @@ struct TronTransactionTests {
     }
 
     @Test
+    func trc20TransferGaslessJSON() throws {
+        let token = Token(
+            name: "Tether",
+            symbol: "USDT",
+            contractAddress: "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj",
+            decimalCount: 6
+        )
+        let transaction = Transaction(
+            amount: Amount(with: token, value: 1),
+            fee: Fee(.zeroCoin(for: blockchain)),
+            sourceAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            destinationAddress: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn",
+            changeAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF"
+        )
+        let presignedInput = try txBuilder.buildForSign(transaction: transaction, block: tronBlock)
+        let signature = Data(hex: "6b5de85a80b2f4f02351f691593fb0e49f14c5cb42451373485357e42d7890cd77ad7bfcb733555c098b992da79dabe5050f5e2db77d9d98f199074222de037701")
+
+        let json = try TronTransactionJSONEncoder().encode(rawData: presignedInput.rawData, signature: signature)
+        let data = try #require(json.data(using: .utf8))
+        let root = try JSONDecoder().decode(TronSignedTransactionJSON.self, from: data)
+        let contract = try #require(root.rawData.contract.first)
+        let value = contract.parameter.value
+
+        #expect(root.txID == presignedInput.hash.hex())
+        #expect(root.rawDataHex == (try presignedInput.rawData.serializedData()).hex())
+        #expect(root.signature == [signature.hex()])
+        #expect(root.rawData.feeLimit == 100_000_000)
+        #expect(contract.type == "TriggerSmartContract")
+        #expect(value.ownerAddress == "41c5d1c75825b30bb2e2e655798209d56448eb6b5e")
+        #expect(value.contractAddress == "41ea51342dabbb928ae1e576bd39eff8aaf070a8c6")
+        #expect(value.data == "a9059cbb000000000000000000000041ec8c5a0fcbb28f14418eed9cf582af0d77e4256e00000000000000000000000000000000000000000000000000000000000f4240")
+    }
+
+    @Test
     func trc20TransferJST() throws {
         let token = Token(
             name: "JST",
@@ -139,5 +173,50 @@ struct TronTransactionTests {
 
         try #expect(utils.parseBalance(response: [longConstantResult], decimals: 0) == Decimal(stringValue: "2194760324519687303"))
         try #expect(utils.parseBalance(response: [shortConstantResult], decimals: 0) == Decimal(stringValue: "31995384"))
+    }
+}
+
+private struct TronSignedTransactionJSON: Decodable {
+    let txID: String
+    let rawData: RawData
+    let rawDataHex: String
+    let signature: [String]
+
+    enum CodingKeys: String, CodingKey {
+        case txID
+        case rawData = "raw_data"
+        case rawDataHex = "raw_data_hex"
+        case signature
+    }
+
+    struct RawData: Decodable {
+        let contract: [Contract]
+        let feeLimit: Int64
+
+        enum CodingKeys: String, CodingKey {
+            case contract
+            case feeLimit = "fee_limit"
+        }
+    }
+
+    struct Contract: Decodable {
+        let parameter: Parameter
+        let type: String
+
+        struct Parameter: Decodable {
+            let value: Value
+
+            struct Value: Decodable {
+                let ownerAddress: String
+                let contractAddress: String
+                let data: String
+
+                enum CodingKeys: String, CodingKey {
+                    case ownerAddress = "owner_address"
+                    case contractAddress = "contract_address"
+                    case data
+                }
+            }
+        }
     }
 }

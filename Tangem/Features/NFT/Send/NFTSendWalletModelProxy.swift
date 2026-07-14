@@ -240,6 +240,7 @@ extension NFTSendWalletModelProxy: WalletModel {
     var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
         TokenFeeLoaderBuilder(
             tokenItem: tokenItem,
+            sourceAddress: mainTokenWalletModel.defaultAddressString,
             dependenciesProvider: self,
             isDemo: mainTokenWalletModel.isDemo
         )
@@ -391,6 +392,10 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
         mainTokenWalletModel.ethereumGaslessTransactionFeeProvider
+    }
+
+    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? {
+        mainTokenWalletModel.tronGaslessTransactionsBuilder
     }
 
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
