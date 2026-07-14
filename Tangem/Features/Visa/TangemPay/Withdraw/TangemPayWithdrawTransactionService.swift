@@ -135,7 +135,7 @@ private extension CommonTangemPayWithdrawTransactionService {
         let expectedAmount = requestAmountInFiat * usdcToken.decimalValue
 
         guard let messageRecipient = typedData.message[MessageKey.recipient]?.stringValue,
-              let messageAmount = typedData.message[MessageKey.amount]?.intValue.flatMap(Decimal.init),
+              let messageAmount = typedData.message[MessageKey.amount]?.intValue.map({ Decimal($0) }),
               messageRecipient == request.destination,
               messageAmount == expectedAmount
         else {
