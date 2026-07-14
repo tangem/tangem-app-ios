@@ -78,7 +78,8 @@ private extension TokenDetailsBalanceView {
     var fiatBalance: some View {
         TokenDetailsBalanceStateView(
             state: viewModel.fiatBalanceState,
-            skeletonSize: CGSize(width: 243, height: 48) * scaleFactor
+            skeletonSize: CGSize(width: 243, height: 48) * scaleFactor,
+            minimumScaleFactor: Constants.fiatBalanceMinimumScaleFactor
         )
         .accessibilityIdentifier(fiatBalanceAccessibilityIdentifier)
     }
@@ -97,5 +98,13 @@ private extension TokenDetailsBalanceView {
             state: viewModel.cryptoBalanceState,
             skeletonSize: CGSize(width: 115, height: 24) * scaleFactor
         )
+    }
+}
+
+// MARK: - Constants
+
+private extension TokenDetailsBalanceView {
+    enum Constants {
+        static let fiatBalanceMinimumScaleFactor = 15.0 / 44.0
     }
 }
