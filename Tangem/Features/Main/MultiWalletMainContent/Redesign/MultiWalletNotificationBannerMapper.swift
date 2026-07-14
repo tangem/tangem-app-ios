@@ -88,11 +88,11 @@ private extension MultiWalletNotificationBannerMapper {
     ) -> NotificationBanner.BannerType {
         switch bannerKind {
         case .status:
-            return .status(content, bannerAction)
+            return .status(content, bannerAction, closeAction)
         case .critical:
-            return .critical(content, bannerAction)
+            return .critical(content, bannerAction, closeAction)
         case .warning:
-            return .warning(content, bannerAction)
+            return .warning(content, bannerAction, closeAction)
         case .informational(let alignment):
             return .informational(textOnly, bannerAction, closeAction, mapTextAlignment(alignment))
         case .promo(let effect):
@@ -113,6 +113,22 @@ private extension MultiWalletNotificationBannerMapper {
         switch effect {
         case .card: .bannerCard
         case .magic: .bannerMagic
+        }
+    }
+
+    func makeSeverityBasedBannerType(
+        severity: NotificationView.Severity,
+        content: NotificationBanner.Content,
+        bannerAction: NotificationBanner.BannerAction,
+        closeAction: NotificationBanner.CloseAction?
+    ) -> NotificationBanner.BannerType {
+        switch severity {
+        case .critical:
+            return .critical(content, bannerAction, closeAction)
+        case .warning:
+            return .warning(content, bannerAction, closeAction)
+        case .info:
+            return .status(content, bannerAction, closeAction)
         }
     }
 
