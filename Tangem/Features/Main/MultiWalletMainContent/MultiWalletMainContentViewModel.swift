@@ -712,6 +712,10 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
             userWalletModel: userWalletModel
         )
     }
+
+    func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector) {
+        coordinator?.openTangemPaySelectPlan(tariffPlanSelector: tariffPlanSelector)
+    }
 }
 
 // MARK: - MultiWalletMainContentItemViewModelFactory protocol conformance
