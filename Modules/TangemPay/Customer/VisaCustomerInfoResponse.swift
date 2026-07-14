@@ -278,6 +278,25 @@ public extension VisaCustomerInfoResponse {
         public let images: [Image]
         public let fees: [Fee]
 
+        enum CodingKeys: String, CodingKey {
+            case id
+            case type
+            case name
+            case descriptionItems
+            case images
+            case fees
+        }
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
+            type = try container.decodeIfPresent(String.self, forKey: .type) ?? ""
+            name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+            descriptionItems = try container.decodeIfPresent([DescriptionItem].self, forKey: .descriptionItems) ?? []
+            images = try container.decodeIfPresent([Image].self, forKey: .images) ?? []
+            fees = try container.decodeIfPresent([Fee].self, forKey: .fees) ?? []
+        }
+
         public struct DescriptionItem: Codable {
             public let type: ItemType
             public let order: Int
