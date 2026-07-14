@@ -83,6 +83,9 @@ class BaseTestCase: XCTestCase {
             arguments.append("-uitest-feature-\(feature.rawValue)-\(suffix)")
         }
 
+        // Pin locale/language so currency, number and date assertions don't depend on the simulator region.
+        arguments.append(contentsOf: ["-AppleLocale", "en_US", "-AppleLanguages", "(en)"])
+
         app.launchArguments = arguments
 
         // Build launch environment with resolved WireMock URL for parallel test support
