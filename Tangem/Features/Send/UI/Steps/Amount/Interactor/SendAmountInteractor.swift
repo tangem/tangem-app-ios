@@ -333,7 +333,7 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
 
     var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> {
         guard let sourceTokenAmountInput else {
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return sourceTokenAmountInput.sourceAmountPublisher
@@ -341,7 +341,7 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
 
     var sourceTokenPublisher: AnyPublisher<LoadingResult<any SendSourceToken, any Error>, Never> {
         guard let sourceTokenInput else {
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return sourceTokenInput.sourceTokenPublisher.eraseToAnyPublisher()
@@ -349,7 +349,7 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
 
     var receivedTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> {
         guard let receiveTokenInput else {
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return receiveTokenInput.receiveTokenPublisher
@@ -357,7 +357,7 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
 
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> {
         guard let receiveTokenAmountInput else {
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return receiveTokenAmountInput.receiveAmountPublisher
@@ -365,7 +365,7 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
         guard let receiveTokenAmountInput else {
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return receiveTokenAmountInput.highPriceImpactPublisher

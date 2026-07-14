@@ -7,6 +7,7 @@
 //
 
 import Combine
+import BlockchainSdk
 import TangemExpress
 import TangemLocalization
 import TangemFoundation
@@ -134,7 +135,19 @@ private extension SwapTokenSelectorViewModel {
 extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
     func didSelectExternalToken(_ token: MarketsTokenModel) {
         Task { @MainActor in
-            guard let networks = token.networks, !networks.isEmpty else {
+            var networks = token.networks ?? []
+
+            // L2 networks are not returned by the markets list, so append them for Ethereum only,
+            // the same way token details does.
+            if token.id == Blockchain.ethereum(testnet: false).coinId {
+                let l2Items = SupportedBlockchains.l2Blockchains.map {
+                    NetworkModel(networkId: $0.networkId, contractAddress: nil, decimalCount: nil)
+                }
+
+                networks.append(contentsOf: l2Items)
+            }
+
+            guard !networks.isEmpty else {
                 AppLogger.error(error: "Selected tokens with no networks")
                 return
             }
