@@ -189,14 +189,17 @@ struct TransactionHistoryMapper {
     }
 
     private func expressWarning(from record: TransactionRecord) -> String? {
+        let requiresVerification: Bool
         switch record.expressExtraInfo {
         case .exchange(let info):
-            return info.transaction.status == .verifying ? Localization.expressExchangeNotificationVerificationTitle : nil
+            requiresVerification = info.transaction.status.requiresVerification
         case .onramp(let info):
-            return info.onrampTransaction.status == .verifying ? Localization.expressExchangeNotificationVerificationTitle : nil
+            requiresVerification = info.onrampTransaction.status.requiresVerification
         case nil:
             return nil
         }
+
+        return requiresVerification ? Localization.expressExchangeNotificationVerificationTitle : nil
     }
 
     func mapSuggestedRecord(_ record: TransactionRecord) -> SendDestinationSuggestedTransactionRecord? {
