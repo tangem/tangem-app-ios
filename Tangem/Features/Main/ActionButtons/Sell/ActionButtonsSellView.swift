@@ -22,16 +22,20 @@ struct ActionButtonsSellView: View {
         return Localization.commonSell
     }
 
+    private var backgroundColor: Color {
+        FeatureProvider.isAvailable(.redesign) ? .Tangem.Surface.level2 : Colors.Background.tertiary
+    }
+
     var body: some View {
         TokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
             TokenSelectorEmptyContentView(message: Localization.actionButtonsSellEmptySearchMessage)
         } headerContent: {
-            notifications
+            headerContent
         }
         .searchType(.native)
         .showsSeparators(false)
         .hidesSingleWalletName(true)
-        .background(Colors.Background.tertiary.ignoresSafeArea())
+        .background(backgroundColor.ignoresSafeArea())
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .animation(.easeInOut, value: viewModel.notificationInput)
@@ -42,11 +46,17 @@ struct ActionButtonsSellView: View {
         .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.sellTokenSelectorScreen)
     }
 
-    @ViewBuilder
-    private var notifications: some View {
-        if let notification = viewModel.notificationInput {
-            NotificationView(input: notification)
-                .transition(.notificationTransition)
+    private var headerContent: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if let notification = viewModel.notificationInput {
+                NotificationView(input: notification)
+                    .transition(.notificationTransition)
+            }
+
+            Text(Localization.marketsSearchPortfolioHeader)
+                .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.primary)
+                .padding(.leading, 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

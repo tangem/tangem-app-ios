@@ -38,7 +38,13 @@ protocol NotificationEvent: Identifiable {
 struct RedesignedBannerContent {
     let title: NotificationView.Title?
     let description: String?
-    let icon: NotificationView.MessageIcon
+    let icon: NotificationView.MessageIcon?
+
+    init(title: NotificationView.Title? = nil, description: String? = nil, icon: NotificationView.MessageIcon? = nil) {
+        self.title = title
+        self.description = description
+        self.icon = icon
+    }
 }
 
 extension NotificationEvent where Self: Hashable {
