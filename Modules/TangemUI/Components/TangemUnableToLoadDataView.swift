@@ -30,7 +30,6 @@ public struct TangemUnableToLoadDataView: View {
             )
             .setButtonState(isLoading: isButtonBusy)
             .setStyleType(.secondary)
-            .setCornerStyle(.rounded)
             .setHorizontalLayout(.intrinsic)
             .setSize(.x9)
             .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.retryButton)
@@ -40,7 +39,6 @@ public struct TangemUnableToLoadDataView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     struct PreviewHolder: View {
         @State var isLoading = false
@@ -58,4 +56,3 @@ public struct TangemUnableToLoadDataView: View {
 
     return PreviewHolder()
 }
-#endif // DEBUG

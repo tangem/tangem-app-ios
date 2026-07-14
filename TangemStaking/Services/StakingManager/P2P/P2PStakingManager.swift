@@ -14,9 +14,11 @@ final class P2PStakingManager {
     private let integrationId: String
     private let wallet: StakingWallet
     private let apiProvider: P2PAPIProvider
+    private let batchBalancesService: P2PBatchBalancesService
     private let yieldInfoProvider: StakingYieldInfoProvider
     private let analyticsLogger: StakingAnalyticsLogger
     private let stateRepository: StakingManagerStateRepository
+    private let isRegionUnavailableHandlingEnabled: Bool
 
     private let _state: CurrentValueSubject<StakingManagerState, Never>
     private var previousFee: Decimal?
@@ -25,16 +27,20 @@ final class P2PStakingManager {
         integrationId: String,
         wallet: StakingWallet,
         apiProvider: P2PAPIProvider,
+        batchBalancesService: P2PBatchBalancesService,
         yieldInfoProvider: StakingYieldInfoProvider,
         stateRepository: StakingManagerStateRepository,
-        analyticsLogger: StakingAnalyticsLogger
+        analyticsLogger: StakingAnalyticsLogger,
+        isRegionUnavailableHandlingEnabled: Bool
     ) {
         self.integrationId = integrationId
         self.wallet = wallet
         self.apiProvider = apiProvider
+        self.batchBalancesService = batchBalancesService
         self.yieldInfoProvider = yieldInfoProvider
         self.stateRepository = stateRepository
         self.analyticsLogger = analyticsLogger
+        self.isRegionUnavailableHandlingEnabled = isRegionUnavailableHandlingEnabled
 
         _state = CurrentValueSubject(.loading(cached: stateRepository.state()))
     }
@@ -43,7 +49,7 @@ final class P2PStakingManager {
 // MARK: - StakingManager
 
 extension P2PStakingManager: StakingManager {
-    func updateState(loadActions: Bool) async {
+    func updateState(loadActions: Bool, source: StakingUpdateSource) async {
         updateState(.loading(cached: stateRepository.state()))
 
         do {
@@ -56,16 +62,25 @@ extension P2PStakingManager: StakingManager {
             }
 
             let balances: [StakingBalanceInfo]
-            do {
-                balances = try await apiProvider.balances(
-                    walletAddress: wallet.address,
-                    vaults: yield.targets.map(\.address)
-                )
-            } catch is CancellationError {
-                return
-            } catch {
-                updateUnavailableState(error: error, yieldIsAvailable: yield.isAvailable)
-                return
+            switch source {
+            case .batch:
+                let allBalances = try await batchBalancesService.balances()
+                balances = allBalances[wallet.address.lowercased()] ?? []
+            case .single:
+                do {
+                    balances = try await apiProvider.balances(
+                        walletAddress: wallet.address,
+                        vaults: yield.targets.map(\.address)
+                    )
+                } catch is CancellationError {
+                    return
+                } catch let error where isRegionUnavailableHandlingEnabled && error.isStakingRegionUnavailable {
+                    updateRegionUnavailableState()
+                    return
+                } catch {
+                    updateUnavailableState(error: error, yieldIsAvailable: yield.isAvailable)
+                    return
+                }
             }
 
             let state = state(balances: balances, yield: yield)
@@ -73,6 +88,8 @@ extension P2PStakingManager: StakingManager {
         } catch is CancellationError {
             // Ignored intentionally
             return
+        } catch let error where isRegionUnavailableHandlingEnabled && error.isStakingRegionUnavailable {
+            updateRegionUnavailableState()
         } catch let error as StakingAvailabilityError {
             updateUnavailableState(error: error, yieldIsAvailable: false)
         } catch {
@@ -148,14 +165,25 @@ private extension P2PStakingManager {
         _state.send(state)
     }
 
+    func updateRegionUnavailableState() {
+        let cached = stateRepository.state()
+
+        switch cached?.stakeState {
+        case .staked:
+            updateState(.unavailableInRegion(cached: cached))
+        case .availableToStake, .none:
+            updateState(.notEnabled)
+        }
+    }
+
     func updateUnavailableState(error: Error, yieldIsAvailable: Bool) {
         let cached = stateRepository.state()
 
         let shouldHide: Bool
         switch cached?.stakeState {
-        case .staked, .none:
+        case .staked:
             shouldHide = false
-        case .availableToStake:
+        case .availableToStake, .none:
             shouldHide = !yieldIsAvailable
         }
 

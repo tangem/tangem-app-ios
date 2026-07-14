@@ -13,6 +13,7 @@ import TangemFoundation
 import TangemUI
 import TangemLocalization
 import TangemAssets
+import SwiftUI
 import TangemAccessibilityIdentifiers
 
 final class ReceiveMainViewModel: ObservableObject {
@@ -101,14 +102,23 @@ extension ReceiveMainViewModel: ReceiveFlowCoordinator {
     func copyToClipboard(with address: String) {
         UIPasteboard.general.string = address
 
+        guard FeatureProvider.isAvailable(.redesign) else {
+            // [REDACTED_INFO]: drop the legacy SuccessToast branch once redesign ships.
+            Toast(
+                view: SuccessToast(text: Localization.walletNotificationAddressCopied)
+                    .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
+            )
+            .present(layout: .top(padding: 12), type: .temporary())
+            return
+        }
+
         Toast(
-            view: SuccessToast(text: Localization.walletNotificationAddressCopied)
+            view: TangemSnackbar(title: Localization.walletNotificationAddressCopied)
+                .icon(DesignSystem.Icons.Checkmark.regular20)
+                .iconColor(Color.Tangem.Graphic.Status.accent)
                 .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
         )
-        .present(
-            layout: .top(padding: 12),
-            type: .temporary()
-        )
+        .present(layout: .top(padding: 12), type: .temporary())
     }
 
     func share(with address: String) {

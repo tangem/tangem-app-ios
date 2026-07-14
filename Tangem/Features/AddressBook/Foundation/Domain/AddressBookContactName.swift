@@ -14,6 +14,8 @@ import Foundation
 struct AddressBookContactName: Hashable {
     let value: String
 
+    var firstLetter: String { "\(value.prefix(1).uppercased())" }
+
     fileprivate init(value: String) {
         self.value = value
     }
@@ -32,8 +34,8 @@ extension AddressBookContactName: Codable {
 }
 
 /// Builds a validated `AddressBookContactName` from raw user input, enforcing the product rules —
-/// 1...50 characters after trimming and no line breaks, tabs, invisible characters or HTML. Emoji are
-/// allowed (per spec 1.3.1); ZWJ-composed sequences still trip the invisible-character rule.
+/// 1...50 characters after trimming; only letters, digits, spaces and emoji are allowed, the same
+/// whitelist as on Android.
 ///
 /// Declared in the same file as the model so it can reach the model's `fileprivate` initializer: this
 /// makes the validator the only path from raw input to a name, while the model itself carries no
@@ -42,41 +44,49 @@ struct AddressBookContactNameValidator {
     static let maxLength = 50
 
     func validate(_ raw: String) throws -> AddressBookContactName {
-        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard !trimmed.isEmpty else {
-            throw AddressBookValidationError.nameEmpty
+        if let error = validationError(in: raw) {
+            throw error
         }
 
-        guard trimmed.count <= Self.maxLength else {
-            throw AddressBookValidationError.nameTooLong
-        }
-
-        guard !Self.containsForbiddenCharacters(trimmed) else {
-            throw AddressBookValidationError.nameContainsForbiddenCharacters
-        }
-
-        return AddressBookContactName(value: trimmed)
+        return AddressBookContactName(value: raw.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
-    private static func containsForbiddenCharacters(_ string: String) -> Bool {
+    func validationError(in raw: String) -> AddressBookValidationError? {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmed.isEmpty {
+            return .nameEmpty
+        }
+
+        if trimmed.count > Self.maxLength {
+            return .nameTooLong
+        }
+
+        if !Self.isMadeOfAllowedCharacters(trimmed) {
+            return .nameContainsForbiddenCharacters
+        }
+
+        return nil
+    }
+
+    private static func isMadeOfAllowedCharacters(_ string: String) -> Bool {
+        var containsBaseCharacter = false
+
         for scalar in string.unicodeScalars {
-            // HTML / script
-            if scalar == "<" || scalar == ">" {
-                return true
-            }
-
-            // Line breaks, tabs and other control characters
-            if CharacterSet.controlCharacters.contains(scalar) {
-                return true
-            }
-
-            // Invisible / formatting characters (zero-width joiners, BOM, directional marks, ...)
-            if scalar.properties.generalCategory == .format {
-                return true
+            switch scalar.properties.generalCategory {
+            case .uppercaseLetter, .lowercaseLetter, .titlecaseLetter, .modifierLetter, .otherLetter,
+                 .decimalNumber, .letterNumber, .otherNumber,
+                 .otherSymbol:
+                containsBaseCharacter = true
+            case .nonspacingMark, .spacingMark, .enclosingMark, .modifierSymbol:
+                break
+            default:
+                guard scalar == " " || scalar == "\u{200D}" else {
+                    return false
+                }
             }
         }
 
-        return false
+        return containsBaseCharacter
     }
 }

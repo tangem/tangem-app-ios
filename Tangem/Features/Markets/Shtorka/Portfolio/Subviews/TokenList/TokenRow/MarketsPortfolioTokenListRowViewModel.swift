@@ -23,6 +23,12 @@ final class MarketsPortfolioTokenListRowViewModel: ObservableObject {
     @Published private(set) var cryptoBalanceState: BalanceState = .loading
     @Published private(set) var fiatBalanceState: BalanceState = .loading
 
+    let isNoAddress: Bool
+
+    var noAddressText: String {
+        Localization.commonNoAddress
+    }
+
     var tokenName: String {
         tokenInfo.name
     }
@@ -57,8 +63,16 @@ final class MarketsPortfolioTokenListRowViewModel: ObservableObject {
         self.tokenInfo = tokenInfo
         self.fiatTotalTokenBalancePublisher = fiatTotalTokenBalancePublisher
         self.cryptoTotalTokenBalancePublisher = cryptoTotalTokenBalancePublisher
+        isNoAddress = false
 
         bind()
+    }
+
+    init(noAddressTokenInfo tokenInfo: TokenInfo) {
+        self.tokenInfo = tokenInfo
+        fiatTotalTokenBalancePublisher = Empty<TokenBalanceType, Never>().eraseToAnyPublisher()
+        cryptoTotalTokenBalancePublisher = Empty<TokenBalanceType, Never>().eraseToAnyPublisher()
+        isNoAddress = true
     }
 }
 
@@ -133,11 +147,11 @@ private extension MarketsPortfolioTokenListRowViewModel {
     }
 
     func attributedCryptoBalance(_ balance: String) -> Text {
-        let attributedBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+        let attributedBalance = AttributedBalanceFormatter.format(
             balance,
             font: Font.Tangem.Caption12.semibold,
             integerColor: .Tangem.Text.Neutral.secondary,
-            decimalColor: .Tangem.Text.Neutral.secondary
+            fractionalColor: .Tangem.Text.Neutral.secondary
         )
         return .attributed(attributedBalance)
     }
@@ -195,11 +209,11 @@ private extension MarketsPortfolioTokenListRowViewModel {
     }
 
     func attributedFiatBalance(_ balance: String) -> Text {
-        let attributedBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+        let attributedBalance = AttributedBalanceFormatter.format(
             balance,
             font: Font.Tangem.Body16.medium,
             integerColor: .Tangem.Text.Neutral.primary,
-            decimalColor: .Tangem.Text.Neutral.secondary
+            fractionalColor: .Tangem.Text.Neutral.secondary
         )
         return .attributed(attributedBalance)
     }

@@ -25,11 +25,24 @@ final class MarketingBannerService {
     }
 }
 
+struct MarketingBannerAmount: Equatable {
+    let value: Decimal
+    let currencyId: String
+}
+
 extension MarketingBannerService {
     func bannerPublisher(
-        for requests: AnyPublisher<SwapMarketingBannerRequest?, Never>
-    ) -> AnyPublisher<MarketingBanner?, Never> {
-        makeBannerPublisher(for: requests, fetch: fetchBanner)
+        for requests: AnyPublisher<SwapMarketingBannerRequest?, Never>,
+        amount: AnyPublisher<MarketingBannerAmount?, Never>
+    ) -> AnyPublisher<MarketingBanners, Never> {
+        makeBannerPublisher(for: requests, amount: amount, fetch: fetchCampaigns)
+    }
+
+    func bannerPublisher(
+        for requests: AnyPublisher<OnrampMarketingBannerRequest?, Never>,
+        amount: AnyPublisher<MarketingBannerAmount?, Never>
+    ) -> AnyPublisher<MarketingBanners, Never> {
+        makeBannerPublisher(for: requests, amount: amount, fetch: fetchCampaigns)
     }
 }
 
@@ -38,13 +51,14 @@ extension MarketingBannerService {
 private extension MarketingBannerService {
     func makeBannerPublisher<Request: Equatable>(
         for requests: AnyPublisher<Request?, Never>,
-        fetch: @escaping (Request) async -> MarketingBanner?
-    ) -> AnyPublisher<MarketingBanner?, Never> {
-        requests
+        amount: AnyPublisher<MarketingBannerAmount?, Never>,
+        fetch: @escaping (Request) async -> [MarketingCampaignsDTO.Campaign]
+    ) -> AnyPublisher<MarketingBanners, Never> {
+        let campaigns = requests
             .removeDuplicates()
-            .map { request -> AnyPublisher<MarketingBanner?, Never> in
+            .map { request -> AnyPublisher<[MarketingCampaignsDTO.Campaign], Never> in
                 guard let request else {
-                    return Just(nil).eraseToAnyPublisher()
+                    return Just([]).eraseToAnyPublisher()
                 }
 
                 return Just(request)
@@ -52,10 +66,20 @@ private extension MarketingBannerService {
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
+
+        return Publishers.CombineLatest(campaigns, amount.prepend(nil).removeDuplicates())
+            .asyncMap { [weak self] campaigns, amount -> MarketingBanners in
+                guard let self else {
+                    return .empty
+                }
+
+                let usdAmount = await usdValue(amount)
+                return selectBanners(from: campaigns, usdAmount: usdAmount)
+            }
             .eraseToAnyPublisher()
     }
 
-    func fetchBanner(for request: SwapMarketingBannerRequest) async -> MarketingBanner? {
+    func fetchCampaigns(for request: SwapMarketingBannerRequest) async -> [MarketingCampaignsDTO.Campaign] {
         let dtoRequest = MarketingCampaignsDTO.Request.swap(
             .init(
                 fromNetwork: request.source.networkId,
@@ -66,41 +90,35 @@ private extension MarketingBannerService {
             )
         )
 
-        guard let campaigns = try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns else {
+        return (try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns) ?? []
+    }
+
+    func fetchCampaigns(for request: OnrampMarketingBannerRequest) async -> [MarketingCampaignsDTO.Campaign] {
+        let dtoRequest = MarketingCampaignsDTO.Request.onramp(
+            .init(
+                toNetwork: request.destination.networkId,
+                toContractAddress: request.destination.contractAddress,
+                fiatCurrency: request.fiatCurrencyCode,
+                language: language
+            )
+        )
+
+        return (try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns) ?? []
+    }
+
+    func usdValue(_ amount: MarketingBannerAmount?) async -> Decimal? {
+        guard let amount else {
             return nil
         }
 
-        let usdAmount = request.sourceAmount.flatMap { amount in
-            request.source.currencyId.flatMap { balanceConverter.convertToUsd(amount, currencyId: $0) }
-        }
-
-        return selectBanner(from: campaigns, providerId: request.providerId, usdAmount: usdAmount)
+        return try? await balanceConverter.convertToUsd(amount.value, currencyId: amount.currencyId)
     }
 
-    func selectBanner(
+    func selectBanners(
         from campaigns: [MarketingCampaignsDTO.Campaign],
-        providerId: String?,
         usdAmount: Decimal?
-    ) -> MarketingBanner? {
-        campaigns
-            .filter { matches($0, providerId: providerId) }
-            .filter { satisfiesAmount($0, usd: usdAmount) }
-            .sorted { $0.priority < $1.priority }
-            .lazy
-            .compactMap { self.makeBanner(from: $0) }
-            .first
-    }
-
-    func matches(_ campaign: MarketingCampaignsDTO.Campaign, providerId: String?) -> Bool {
-        guard let providerIds = campaign.providerIds, !providerIds.isEmpty else {
-            return true
-        }
-
-        guard let providerId else {
-            return false
-        }
-
-        return providerIds.contains(providerId)
+    ) -> MarketingBanners {
+        MarketingBannerMapper.banners(from: campaigns.filter { satisfiesAmount($0, usd: usdAmount) })
     }
 
     func satisfiesAmount(_ campaign: MarketingCampaignsDTO.Campaign, usd: Decimal?) -> Bool {
@@ -121,28 +139,5 @@ private extension MarketingBannerService {
         }
 
         return true
-    }
-
-    func makeBanner(from campaign: MarketingCampaignsDTO.Campaign) -> MarketingBanner? {
-        guard let text = campaign.banner.text else {
-            return nil
-        }
-
-        let placement: MarketingBanner.Placement = switch campaign.banner.uiType {
-        case .linkedToProvider:
-            .linkedToProvider(providerIds: campaign.providerIds ?? [])
-        case .standalone, .unknown:
-            .standalone
-        }
-
-        return MarketingBanner(
-            id: campaign.id,
-            text: text,
-            iconURL: campaign.banner.icon,
-            backgroundColorHex: campaign.banner.bgColor,
-            placement: placement,
-            action: campaign.banner.deeplink.map(MarketingBanner.Action.deeplink),
-            isDismissible: campaign.banner.dismissible
-        )
     }
 }

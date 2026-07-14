@@ -25,7 +25,7 @@ struct MarketingBannerNotificationEvent: NotificationEvent {
     var severity: NotificationView.Severity { .info }
     var isDismissable: Bool { banner.isDismissible }
     var buttonAction: NotificationButtonAction? { nil }
-    var bannerKind: NotificationBannerKind? { .promo(.magic) }
+    var bannerKind: NotificationBannerKind? { .promo(.plain) }
 
     var analyticsEvent: Analytics.Event? { nil }
     var analyticsParams: [Analytics.ParameterKey: String] { [:] }

@@ -10,11 +10,20 @@ import SwiftUI
 import TangemAssets
 
 public struct SkeletonView: View {
+    @Environment(\.isSkeletonShimmerActive) private var isShimmerActive
+
     @State var isAppeared = false
 
     // Animatable data - https://developer.apple.com/documentation/swiftui/animatable
     @State var gradientPoints = Constants.idlePoints
     @State var oldShouldAnimateSkeleton: Bool?
+
+    private var animation: Animation? {
+        guard isShimmerActive else {
+            return nil
+        }
+        return isAppeared ? activeAnimation : stopAnimation
+    }
 
     private let backgroundOpacity: Double = 1
     private let colors: [Color] = [
@@ -50,7 +59,7 @@ public struct SkeletonView: View {
             startPoint: gradientPoints.start,
             endPoint: gradientPoints.end
         )
-        .animation(isAppeared ? activeAnimation : stopAnimation, value: gradientPoints)
+        .animation(animation, value: gradientPoints)
         .opacity(0.8)
         .task {
             guard !isAppeared else {

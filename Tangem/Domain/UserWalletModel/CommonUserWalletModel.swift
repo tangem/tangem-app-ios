@@ -29,6 +29,7 @@ class CommonUserWalletModel {
     let totalBalanceProvider: TotalBalanceProvider
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
     let accountModelsManager: AccountModelsManager
     let addressBookManager: AddressBookManager
 
@@ -47,7 +48,6 @@ class CommonUserWalletModel {
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
-    private let backupValidator = BackupValidator()
 
     init(
         walletInfo: WalletInfo,
@@ -59,6 +59,7 @@ class CommonUserWalletModel {
         keysDerivingInteractor: KeysDeriving,
         totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
+        priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider,
         accountModelsManager: AccountModelsManager,
         addressBookManager: AddressBookManager
     ) {
@@ -71,6 +72,7 @@ class CommonUserWalletModel {
         self.keysDerivingInteractor = keysDerivingInteractor
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
+        self.priceAlertsSubscriptionsProvider = priceAlertsSubscriptionsProvider
         self.accountModelsManager = accountModelsManager
         self.addressBookManager = addressBookManager
 
@@ -108,13 +110,6 @@ extension CommonUserWalletModel {
     enum WalletsBalanceState {
         case inProgress
         case loaded
-    }
-}
-
-// [REDACTED_TODO_COMMENT]
-extension CommonUserWalletModel: TangemSdkFactory {
-    func makeTangemSdk() -> TangemSdk {
-        config.makeTangemSdk()
     }
 }
 
@@ -314,7 +309,7 @@ extension CommonUserWalletModel: UserWalletModel {
     var backupState: UserWalletBackupState {
         switch walletInfo {
         case .cardWallet(let cardInfo):
-            return backupValidator.validate(card: cardInfo.card) ? .valid : .incompleteBackup
+            return BackupValidator().validate(card: cardInfo.card) ? .valid : .incompleteBackup
         case .mobileWallet:
             return .valid
         }

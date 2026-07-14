@@ -103,7 +103,14 @@ protocol WalletModelUpdater {
     /// - Parameter updateToken: Identifies the update cycle this call belongs to. A batch update of multiple
     /// wallet models (e.g. `updateAll`) passes a single token to every wallet model, so calls originating
     /// from the same cycle can be recognized and deduplicated instead of redoing the same work more than once.
-    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async
+    /// - Parameter stakingUpdateSource: Selects the batched vs per-address P2P staking balances endpoint.
+    /// Only the bulk refresh path opts into `.batch`; every other update keeps `.single`.
+    func update(
+        silent: Bool,
+        options: WalletModelUpdateOptions,
+        updateToken: some Hashable,
+        stakingUpdateSource: StakingUpdateSource
+    ) async
 
     func updateTransactionHistory() async
     func updateAfterSendingTransaction()
@@ -115,6 +122,11 @@ extension WalletModelUpdater {
     /// Use when you need to update a single wallet model without triggering updates for other wallet models.
     func update(silent: Bool, options: WalletModelUpdateOptions) async {
         await update(silent: silent, options: options, updateToken: UUID())
+    }
+
+    /// Overload for callers that share an `updateToken` but don't need the batched staking endpoint.
+    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async {
+        await update(silent: silent, options: options, updateToken: updateToken, stakingUpdateSource: .single)
     }
 
     /// Overload for the `Fire-and-forget` style call.

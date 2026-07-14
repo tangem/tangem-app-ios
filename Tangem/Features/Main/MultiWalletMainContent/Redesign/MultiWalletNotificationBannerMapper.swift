@@ -69,9 +69,7 @@ private extension MultiWalletNotificationBannerMapper {
         return makeSeverityBasedBannerType(
             severity: input.severity,
             content: content,
-            textOnly: textOnly,
-            bannerAction: bannerAction,
-            input: input
+            bannerAction: bannerAction
         )
     }
 
@@ -80,11 +78,11 @@ private extension MultiWalletNotificationBannerMapper {
         content: NotificationBanner.Content,
         textOnly: NotificationBanner.TextOnly,
         bannerAction: NotificationBanner.BannerAction,
-        closeAction: NotificationBanner.CloseAction
+        closeAction: NotificationBanner.CloseAction?
     ) -> NotificationBanner.BannerType {
         switch bannerKind {
         case .status:
-            return .status(content)
+            return .status(content, bannerAction)
         case .critical:
             return .critical(content, bannerAction)
         case .warning:
@@ -107,6 +105,7 @@ private extension MultiWalletNotificationBannerMapper {
 
     func mapEffect(_ effect: NotificationBannerKind.Effect) -> NotificationBanner.Effect {
         switch effect {
+        case .plain: .none
         case .card: .bannerCard
         case .magic: .bannerMagic
         }
@@ -115,9 +114,7 @@ private extension MultiWalletNotificationBannerMapper {
     func makeSeverityBasedBannerType(
         severity: NotificationView.Severity,
         content: NotificationBanner.Content,
-        textOnly: NotificationBanner.TextOnly,
-        bannerAction: NotificationBanner.BannerAction,
-        input: NotificationViewInput
+        bannerAction: NotificationBanner.BannerAction
     ) -> NotificationBanner.BannerType {
         switch severity {
         case .critical:
@@ -125,13 +122,7 @@ private extension MultiWalletNotificationBannerMapper {
         case .warning:
             return .warning(content, bannerAction)
         case .info:
-            if input.settings.event.isDismissable {
-                let closeAction = makeCloseAction(from: input)
-                // [REDACTED_TODO_COMMENT]
-                return .informational(textOnly, bannerAction, closeAction)
-            }
-
-            return .status(content)
+            return .status(content, bannerAction)
         }
     }
 
@@ -169,7 +160,9 @@ private extension MultiWalletNotificationBannerMapper {
                 alignment: iconAlignment,
                 width: mapSizeUnit(from: messageIcon.size.width),
                 height: mapSizeUnit(from: messageIcon.size.height),
-                renderingMode: messageIcon.renderingMode
+                renderingMode: messageIcon.renderingMode,
+                color: messageIcon.color,
+                isLeading: messageIcon.isLeading
             )
             return .textWithIcon(.init(text: textOnly, icon: icon))
         case .loadableIcon(let url):
@@ -267,6 +260,8 @@ private extension MultiWalletNotificationBannerMapper {
             return SendAccessibilityIdentifiers.leaveAmountButton
         case .openFeeCurrency:
             return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
+        case .openGetTangemPay:
+            return TangemPayAccessibilityIdentifiers.getTangemPayBannerOpenButton
         default:
             return CommonUIAccessibilityIdentifiers.notificationButton
         }
@@ -341,7 +336,11 @@ private extension MultiWalletNotificationBannerMapper {
         }
     }
 
-    func makeCloseAction(from input: NotificationViewInput) -> NotificationBanner.CloseAction {
+    func makeCloseAction(from input: NotificationViewInput) -> NotificationBanner.CloseAction? {
+        guard input.settings.event.isDismissable else {
+            return nil
+        }
+
         let notificationId = input.settings.id
         let dismissAction = input.settings.dismissAction
 

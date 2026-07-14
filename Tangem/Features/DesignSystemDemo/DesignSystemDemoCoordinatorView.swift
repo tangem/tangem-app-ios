@@ -29,11 +29,20 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemButtonV2DemoViewModel) {
                 TangemButtonV2DemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemCheckboxV2DemoViewModel) {
+                TangemCheckboxV2DemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tangemCheckmarkV2DemoViewModel) {
+                TangemCheckmarkV2DemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemBadgeDemoViewModel) {
                 TangemBadgeDemoView(viewModel: $0)
             }
             .navigation(item: $coordinator.tangemBadgeV2DemoViewModel) {
                 TangemBadgeV2DemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tangemMessageBannerDemoViewModel) {
+                TangemMessageBannerDemoView(viewModel: $0)
             }
             .navigation(item: $coordinator.tangemRowDemoViewModel) {
                 TangemRowDemoView(viewModel: $0)
@@ -62,6 +71,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemSearchFieldDemoViewModel) {
                 TangemSearchFieldDemo(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemSearchDemoViewModel) {
+                TangemSearchDemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemDropDownDemoViewModel) {
                 TangemDropDownDemoView(viewModel: $0)
             }
@@ -77,6 +89,7 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemShimmerDemoViewModel) {
                 TangemShimmerDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.glowRingDemoViewModel, destination: GlowRingDemoView.init)
     }
 }
 
@@ -91,8 +104,20 @@ struct DesignSystemDemoView: View {
                         viewModel.openTangemButtonV2Demo()
                     }
 
+                    MainButton(title: "TangemCheckmarkV2") {
+                        viewModel.openTangemCheckmarkV2Demo()
+                    }
+
                     MainButton(title: "TangemBadgeV2") {
                         viewModel.openTangemBadgeV2Demo()
+                    }
+
+                    MainButton(title: "TangemMessageBanner") {
+                        viewModel.openTangemMessageBannerDemo()
+                    }
+
+                    MainButton(title: "TangemCheckboxV2") {
+                        viewModel.openTangemCheckboxV2Demo()
                     }
 
                     MainButton(title: "TangemRow") {
@@ -105,6 +130,14 @@ struct DesignSystemDemoView: View {
 
                     MainButton(title: "TangemShimmer") {
                         viewModel.openTangemShimmerDemo()
+                    }
+
+                    MainButton(title: "GlowRing") {
+                        viewModel.openGlowRingDemo()
+                    }
+
+                    MainButton(title: "TangemSearch") {
+                        viewModel.openTangemSearchDemo()
                     }
 
                     MainButton(title: "Typography V2") {

@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayOfferViewV2: View {
     @ObservedObject var viewModel: TangemPayOfferViewModel
@@ -37,7 +38,6 @@ struct TangemPayOfferViewV2: View {
             DesignSystem.Color.bgPrimary
                 .ignoresSafeArea()
         }
-        .environment(\.colorScheme, .dark)
         .sheet(item: $viewModel.termsFeesAndLimitsViewModel) {
             WebViewContainer(viewModel: $0)
         }
@@ -155,7 +155,7 @@ struct TangemPayOfferViewV2: View {
     private func faqItem(question: String, answer: String, showDivider: Bool) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             if showDivider {
-                Color.white.opacity(0.1)
+                DesignSystem.Color.borderSecondary
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
                     .padding(.bottom, 12)
@@ -189,6 +189,7 @@ struct TangemPayOfferViewV2: View {
         .size(.x12)
         .padding(.horizontal, 16)
         .padding(.bottom, 12)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.onboardingGetCardButton)
     }
 }
 

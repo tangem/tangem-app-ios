@@ -32,6 +32,15 @@ final class SellTokenSelectorScreen: ScreenBase<SellTokenSelectorScreenElement> 
             return MainScreen(app)
         }
     }
+
+    func tapToken(_ label: String) -> TransferSheetScreen {
+        XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
+            let tokenItem = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: label)].firstMatch
+            waitAndAssertTrue(tokenItem, "Token \(label) should exist in Sell Token Selector")
+            tokenItem.waitAndTap()
+            return TransferSheetScreen(app)
+        }
+    }
 }
 
 enum SellTokenSelectorScreenElement: String, UIElement {

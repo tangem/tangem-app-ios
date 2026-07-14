@@ -13,6 +13,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     private lazy var titleLabel = scrollView(.title)
     private lazy var fromAmountTextField = textField(.fromAmountTextField)
     private lazy var toAmountTextField = otherElement(.toAmountTextField)
+    private lazy var receiveAmountValue = app.staticTexts[SwapAccessibilityIdentifiers.receiveAmountValue].firstMatch
     private lazy var feeBlock = button(.feeBlock)
     private lazy var normalFeeOption = button(.normalFeeOption)
     private lazy var priorityFeeOption = button(.priorityFeeOption)
@@ -57,6 +58,10 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
                 let length = field.getValue().count
                 if length > 0 {
                     field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length))
+                }
+                // A swap-state re-render can resign focus between clearing and typing; refocus so typeText won't throw.
+                if !field.hasFocus {
+                    field.tap()
                 }
                 field.typeText(amount)
                 if field.waitForValue(timeout: .quick, where: { $0.filter { $0.isNumber || $0 == "." } == expectedDigits }) {
@@ -405,6 +410,31 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func waitForFeeCurrencyNavigationButton(label: String) -> Self {
+        XCTContext.runActivity(named: "Verify fee notification action button '\(label)'") { _ in
+            let button = app.buttons[TokenAccessibilityIdentifiers.feeCurrencyNavigationButton].firstMatch
+            waitAndAssertTrue(button, "Fee currency navigation button should exist in the fee notification")
+            XCTAssertEqual(button.label, label, "Fee notification action button should be '\(label)' but was '\(button.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForNotificationMessageContaining(_ substring: String) -> Self {
+        XCTContext.runActivity(named: "Wait for notification message containing '\(substring)'") { _ in
+            XCTAssertTrue(notificationMessage.waitForExistence(timeout: .robustUIUpdate), "Notification message should exist on swap screen")
+            let predicate = NSPredicate(format: "label CONTAINS %@", substring)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: notificationMessage)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Notification message should contain '\(substring)' but was '\(notificationMessage.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForNotificationIcon() -> Self {
         XCTContext.runActivity(named: "Wait for notification icon to be displayed") { _ in
             XCTAssertTrue(notificationIcon.waitForExistence(timeout: .robustUIUpdate), "Notification icon should exist on swap screen")
@@ -470,14 +500,32 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             waitAndAssertTrue(receiveTokenSelector, "Receive token selector should exist")
             receiveTokenSelector.waitAndTap()
 
+            // Searching expands all account sections, revealing the identical token regardless of collapse state.
+            let searchField = app.searchFields["Search"].firstMatch
+            typeWithFocus(into: searchField, text: tokenName)
+
             let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
-            if !tokenButton.waitForExistence(timeout: .quick) {
-                let accountCard = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Account")).firstMatch
-                waitAndAssertTrue(accountCard, "An account card should be visible in the receive token selector")
-                accountCard.waitAndTap()
-            }
             waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in receive token selector")
             tokenButton.waitAndTap()
+            return self
+        }
+    }
+
+    /// Selects an identical receive token located on a DIFFERENT wallet by first switching to its wallet chip.
+    @discardableResult
+    func selectIdenticalReceiveToken(_ tokenName: String, onWallet walletName: String) -> Self {
+        XCTContext.runActivity(named: "Select identical receive token '\(tokenName)' on wallet '\(walletName)'") { _ in
+            waitAndAssertTrue(receiveTokenSelector, "Receive token selector should exist")
+            receiveTokenSelector.waitAndTap()
+
+            // The source token is filtered out under its own wallet's chip; the identical token lives under the other wallet's chip.
+            let walletChip = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", walletName)).firstMatch
+            waitAndAssertTrue(walletChip, "Wallet chip '\(walletName)' should exist in the receive token selector")
+            walletChip.tapEvenIfNotHittable()
+
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
+            waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible under wallet '\(walletName)'")
+            tokenButton.tapEvenIfNotHittable()
             return self
         }
     }
@@ -503,6 +551,49 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         XCTContext.runActivity(named: "Assert provider block is hidden in Transfer mode") { _ in
             let providerBlock = app.descendants(matching: .any)[SendAccessibilityIdentifiers.swapProviderBlock]
             XCTAssertTrue(providerBlock.waitForNonExistence(timeout: .robustUIUpdate), "Provider block should be hidden in Transfer mode")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertConfirmButtonLabelIsSwap() -> Self {
+        XCTContext.runActivity(named: "Assert action button label is 'Swap'") { _ in
+            waitAndAssertTrue(confirmButton, "Confirm button should exist")
+            let predicate = NSPredicate(format: "label == %@", "Swap")
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: confirmButton)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Action button label should be 'Swap' but was '\(confirmButton.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForMemoFieldNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert manual memo/destination tag field is absent in Transfer mode") { _ in
+            let memoField = app.descendants(matching: .any)[SendAccessibilityIdentifiers.additionalFieldTextField]
+            XCTAssertTrue(memoField.waitForNonExistence(timeout: .robustUIUpdate), "Manual memo/destination tag field should not exist in Transfer mode")
+        }
+        return self
+    }
+
+    @discardableResult
+    func confirmTransferAndOpenFinish() -> SendFinishScreen {
+        XCTContext.runActivity(named: "Confirm transfer and open finish screen") { _ in
+            confirmSwap()
+            return SendFinishScreen(app)
+        }
+    }
+
+    @discardableResult
+    func waitForSendErrorAlert() -> Self {
+        XCTContext.runActivity(named: "Assert transaction error alert is shown and finish screen is not opened") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Transaction failed alert should be displayed")
+            let finishHeader = app.staticTexts[SendAccessibilityIdentifiers.finishHeader]
+            XCTAssertFalse(finishHeader.waitForExistence(timeout: .conditional), "Finish screen should not be opened after a broadcast error")
         }
         return self
     }
@@ -550,6 +641,102 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             "Editable from amount field should become hittable"
         )
         return query.allElementsBoundByIndex.first { $0.isHittable } ?? query.firstMatch
+    }
+}
+
+// MARK: - Gasless (fee token selection)
+
+extension SwapScreen {
+    @discardableResult
+    func openFeeSelector() -> SendFeeSelectorScreen {
+        XCTContext.runActivity(named: "Open the 'Network fee' bottom sheet") { _ in
+            waitAndAssertTrue(feeBlock, "Fee block should exist")
+            feeBlock.waitAndTap()
+        }
+        return SendFeeSelectorScreen(app)
+    }
+
+    @discardableResult
+    func switchFeeTokenAndApply(currentFeeToken: String, newFeeToken: String) -> Self {
+        openFeeSelector()
+            .waitForNetworkFeeSheet()
+            .openTokenSelector(fromCoinSymbol: currentFeeToken)
+            .waitForChooseTokenSheet()
+            .selectFeeToken(symbol: newFeeToken)
+            .applyReturningToSwap()
+        return self
+    }
+
+    @discardableResult
+    func assertBestRateDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert 'Best rate' badge is displayed") { _ in
+            let badge = app.descendants(matching: .any)[SendAccessibilityIdentifiers.swapProviderBestRateBadge].firstMatch
+            waitAndAssertTrue(badge, "'Best rate' badge should be displayed on the swap screen")
+        }
+        return self
+    }
+
+    func captureReceiveAmount() -> String {
+        XCTContext.runActivity(named: "Capture the received amount before changing the fee token") { _ in
+            waitAndAssertTrue(receiveAmountValue, "Receive amount should be present to capture")
+            return receiveAmountValue.label
+        }
+    }
+
+    @discardableResult
+    func assertReceiveAmount(equals expected: String) -> Self {
+        XCTContext.runActivity(named: "Assert the received amount equals '\(expected)'") { _ in
+            waitAndAssertTrue(receiveAmountValue, "Receive amount should be present")
+            let isEqual = waitForCondition(timeout: .robustUIUpdate) { self.receiveAmountValue.label == expected }
+            XCTAssertTrue(isEqual, "Receive amount should remain '\(expected)' but was '\(receiveAmountValue.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertFeeCurrencySymbol(_ symbol: String) -> Self {
+        XCTContext.runActivity(named: "Assert the network fee is shown in '\(symbol)'") { _ in
+            let badge = app.staticTexts[SendAccessibilityIdentifiers.networkFeeCurrencySymbol].firstMatch
+            waitAndAssertTrue(badge, "Fee currency badge should exist")
+            XCTAssertEqual(badge.label, symbol, "Network fee should be shown in '\(symbol)' but badge was '\(badge.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertFeeAmountContainsFiat(_ fiatSign: String = "$") -> Self {
+        XCTContext.runActivity(named: "Assert the fee amount shows its fiat ('\(fiatSign)') equivalent") { _ in
+            let feeAmount = app.staticTexts[SendAccessibilityIdentifiers.networkFeeAmount].firstMatch
+            waitAndAssertTrue(feeAmount, "Network fee amount element should exist")
+            let containsFiat = waitForCondition(timeout: .robustUIUpdate) { feeAmount.label.contains(fiatSign) }
+            XCTAssertTrue(containsFiat, "Fee amount should contain '\(fiatSign)' but was '\(feeAmount.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertNetworkFeeBlockDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert the 'Network fee' block is displayed") { _ in
+            waitAndAssertTrue(feeBlock, "Network fee block should be displayed on the swap screen")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertNoInsufficientFundsError() -> Self {
+        XCTContext.runActivity(named: "Assert no 'Insufficient funds' error is displayed") { _ in
+            XCTAssertTrue(
+                insufficientFundsText.waitForNonExistence(timeout: .robustUIUpdate),
+                "'Insufficient funds' error should not be displayed when the fee is reserved from the amount"
+            )
+        }
+        return self
+    }
+
+    private func waitForCondition(timeout: TimeInterval, _ condition: @escaping () -> Bool) -> Bool {
+        let predicate = NSPredicate { _, _ in condition() }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 }
 

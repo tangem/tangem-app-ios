@@ -58,7 +58,7 @@ class CommonWalletModel {
     private let _state: CurrentValueSubject<WalletModelState, Never> = .init(.created)
     private lazy var _rate: CurrentValueSubject<WalletModelRate, Never> = .init(.loading(cached: quotesRepository.quote(for: tokenItem)))
 
-    private let _localPendingTransactionSubject: PassthroughSubject<Void, Never> = .init()
+    private let transactionHistoryUpdateTrigger: PassthroughSubject<Void, Never> = .init()
     private var bag = Set<AnyCancellable>()
 
     private var amountType: Amount.AmountType {
@@ -375,7 +375,12 @@ extension CommonWalletModel: WalletModel {
 // MARK: - WalletModelUpdater
 
 extension CommonWalletModel: WalletModelUpdater {
-    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async {
+    func update(
+        silent: Bool,
+        options: WalletModelUpdateOptions,
+        updateToken: some Hashable,
+        stakingUpdateSource: StakingUpdateSource
+    ) async {
         let logger = AppLogger.tag("WalletModelUpdater")
         logger.info(self, "Start update with token '\(updateToken)'")
 
@@ -385,7 +390,7 @@ extension CommonWalletModel: WalletModelUpdater {
 
                 async let update: () = walletManager.update()
                 async let quotes: () = loadQuotes()
-                async let staking: ()? = _stakingManager?.updateState(loadActions: true)
+                async let staking: ()? = _stakingManager?.updateState(loadActions: true, source: stakingUpdateSource)
 
                 _ = await (update, quotes, staking)
                 await _receiveAddressService.update(with: wallet.addresses)
@@ -409,7 +414,7 @@ extension CommonWalletModel: WalletModelUpdater {
 
     func updateAfterSendingTransaction() {
         // Force update transactions history to take a new pending transaction from the local storage
-        _localPendingTransactionSubject.send(())
+        transactionHistoryUpdateTrigger.send(())
         startUpdatingTimer()
     }
 
@@ -684,7 +689,11 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
 
     /// Listen tx history changes
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> {
-        transactionHistoryState()
+        WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
+            transactionHistoryPublisher: transactionHistoryState(),
+            featuresPublisher: featureManager.featuresPublisher,
+            feeTokenItem: feeTokenItem
+        )
     }
 
     var hasPendingTransactions: Bool {
@@ -733,7 +742,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         }
 
         return Publishers.Merge3(
-            _localPendingTransactionSubject.withLatestFrom(_transactionHistoryService.statePublisher),
+            transactionHistoryUpdateTrigger.withLatestFrom(_transactionHistoryService.statePublisher),
             _transactionHistoryService.statePublisher,
             pendingTransactionPublisher.removeDuplicates().withLatestFrom(_transactionHistoryService.statePublisher)
         )

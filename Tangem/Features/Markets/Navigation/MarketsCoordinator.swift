@@ -40,6 +40,7 @@ final class MarketsCoordinator: CoordinatorObject {
     // MARK: - Child ViewModels
 
     @Published var marketsListOrderBottomSheetViewModel: MarketsListOrderBottomSheetViewModel?
+    @Published var forYouViewModel: ForYouViewModel?
 
     // MARK: - Private Properties
 
@@ -98,6 +99,10 @@ extension MarketsCoordinator: MarketsRoutable {
 // MARK: - MarketsMainRoutable
 
 extension MarketsCoordinator: MarketsMainRoutable {
+    func openForYou() {
+        forYouViewModel = ForYouViewModel()
+    }
+
     func openSeeAllTopMarketWidget() {
         openSeeAllMarket(with: .market)
     }
@@ -340,7 +345,8 @@ private extension MarketsCoordinator {
                 keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
                 walletModelsManager: accountModel.walletModelsManager,
                 userTokensManager: accountModel.userTokensManager,
-                walletModel: walletModel
+                walletModel: walletModel,
+                presentSource: .markets
             )
         )
 

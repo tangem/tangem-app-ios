@@ -81,6 +81,8 @@ extension NotificationEvent {
                     return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
                 case .amountExceedMaximumUTXO:
                     return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
+                case .insufficientBalanceForFee:
+                    return SendAccessibilityIdentifiers.insufficientBalanceForFeeBanner
                 default:
                     return nil
                 }
@@ -91,6 +93,15 @@ extension NotificationEvent {
                 default:
                     return nil
                 }
+            default:
+                return nil
+            }
+        } else if let swapNotificationEvent = self as? SwapNotificationEvent {
+            switch swapNotificationEvent {
+            case .customFeeWarning(.tooLow):
+                return SendAccessibilityIdentifiers.customFeeTooLowBanner
+            case .customFeeWarning(.tooHigh):
+                return SendAccessibilityIdentifiers.customFeeTooHighBanner
             default:
                 return nil
             }

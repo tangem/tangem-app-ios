@@ -527,7 +527,7 @@ extension SingleTokenBaseViewModel {
             let redesignEnabled = FeatureProvider.isAvailable(.redesign)
             let listItems = transactionHistoryMapper.mapTransactionListItem(
                 from: records,
-                groupingStyle: redesignEnabled ? .dayThenMonth : .day,
+                groupingStyle: redesignEnabled ? .day(.long) : .day(.short),
                 subtitleOwnerResolver: redesignEnabled ? subtitleOwnerResolver : nil
             )
             transactionHistoryState = .loaded(listItems)
@@ -762,14 +762,34 @@ extension SingleTokenBaseViewModel {
     }
 
     private func openReceiveAction() {
+        logReceiveTapped()
+        openReceive()
+    }
+
+    private func logReceiveTapped() {
         Analytics.log(event: .buttonReceive, params: [
             .token: walletModel.tokenItem.currencySymbol,
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .action: Analytics.ParameterValue.receive.rawValue,
             .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.receiveAvailability).rawValue,
         ])
+    }
 
-        openReceive()
+    func makeReceiveViewModel() -> ReceiveMainViewModel? {
+        logReceiveTapped()
+
+        if let availabilityAlert = tokenActionAvailabilityAlertBuilder.alert(
+            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
+        ) {
+            alert = availabilityAlert
+            return nil
+        }
+
+        return AvailabilityReceiveFlowFactory(
+            flow: .crypto,
+            tokenItem: walletModel.tokenItem,
+            addressTypesProvider: walletModel
+        ).makeAvailabilityReceiveFlow()
     }
 
     func performTokenAction(_ type: TokenActionType) {

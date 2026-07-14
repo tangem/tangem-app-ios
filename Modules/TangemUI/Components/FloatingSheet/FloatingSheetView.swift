@@ -17,7 +17,6 @@ public struct FloatingSheetView: View {
     private let dismissSheetAction: () -> Void
 
     @State private var sheetContentConfiguration = FloatingSheetConfiguration.default
-    @State private var isSheetFrameUpdateAnimationEnabled = false
 
     @State private var keyboardHeight: CGFloat = 0
     @State private var verticalDragAmount: CGFloat = 0
@@ -54,7 +53,7 @@ public struct FloatingSheetView: View {
         }
         .task(id: viewModel?.id) {
             if let viewModel {
-                await showRenderedSheet(viewModel)
+                showRenderedSheet(viewModel)
             } else {
                 hideRenderedSheet()
             }
@@ -88,6 +87,10 @@ public struct FloatingSheetView: View {
         if let renderedViewModel, let sheetContent = registry.view(for: renderedViewModel) {
             FloatingSheetLayout(maxHeight: sheetMaxHeight(proxy)) {
                 sheetContent
+                    .transaction { transaction in
+                        guard !transaction.disablesAnimations else { return }
+                        transaction.animation = nil
+                    }
             }
             .background(sheetContentConfiguration.sheetBackgroundColor)
             .clipShape(roundedRectangle)
@@ -98,11 +101,9 @@ public struct FloatingSheetView: View {
             .offset(y: verticalDragAmount)
             .animation(.keyboard, value: keyboardHeight)
             .animation(.floatingSheet, value: verticalDragAmount)
-            .if(sheetContentConfiguration.isSheetSwipeEnabled) {
-                $0.gesture(verticalSwipeGesture)
-            }
+            .gesture(verticalSwipeGesture, isEnabled: sheetContentConfiguration.isSheetSwipeEnabled)
             .transaction { transaction in
-                guard isSheetFrameUpdateAnimationEnabled else { return }
+                guard !transaction.disablesAnimations else { return }
                 transaction.animation = sheetContentConfiguration.sheetFrameUpdateAnimation
             }
             .accessibilityElement(children: .contain)
@@ -153,25 +154,20 @@ public struct FloatingSheetView: View {
         return isKeyboardShowing ? maxWithKeyboardHeight : maxHeight
     }
 
-    private func showRenderedSheet(_ viewModel: some FloatingSheetContentViewModel) async {
-        isSheetFrameUpdateAnimationEnabled = false
-        withAnimation(.floatingSheet) {
-            renderedViewModel = viewModel
-        }
-
-        try? await Task.sleep(for: .seconds(Animation.sheetAppearanceDuration))
-
-        guard !Task.isCancelled, renderedViewModel?.id == viewModel.id else { return }
-        isSheetFrameUpdateAnimationEnabled = true
+    private func showRenderedSheet(_ viewModel: some FloatingSheetContentViewModel) {
+        updateRenderedSheetPresentation(viewModel: viewModel)
     }
 
     private func hideRenderedSheet() {
-        isSheetFrameUpdateAnimationEnabled = false
+        updateRenderedSheetPresentation(viewModel: nil)
+    }
 
-        guard renderedViewModel != nil else { return }
+    private func updateRenderedSheetPresentation(viewModel: (any FloatingSheetContentViewModel)?) {
+        var transaction = Transaction(animation: .floatingSheet)
+        transaction.disablesAnimations = true
 
-        withAnimation(.floatingSheet) {
-            renderedViewModel = nil
+        withTransaction(transaction) {
+            renderedViewModel = viewModel
         }
     }
 }
@@ -181,10 +177,8 @@ private enum Layout {
 }
 
 private extension Animation {
-    static let sheetAppearanceDuration: TimeInterval = 0.3
-
     static let dimmedBackground = Animation.timingCurve(0.65, 0, 0.35, 1, duration: 0.2)
-    static let floatingSheet = Animation.timingCurve(0.28, 0.02, 0.35, 1, duration: sheetAppearanceDuration)
+    static let floatingSheet = Animation.timingCurve(0.28, 0.02, 0.35, 1, duration: 0.3)
 }
 
 /// A ``UIView`` wrapper that allows ``TangemUIUtils.PassthroughWindow.hitTest(_:with:)`` method to work properly in iOS 26.0, *.

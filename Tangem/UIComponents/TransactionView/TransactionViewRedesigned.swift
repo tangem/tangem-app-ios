@@ -12,6 +12,7 @@ import TangemAssets
 import TangemFoundation
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct TransactionViewRedesigned: View {
     let viewModel: TransactionViewModel
@@ -22,13 +23,23 @@ struct TransactionViewRedesigned: View {
 
     private var display: TransactionDisplayModel { viewModel.display }
 
+    private var transactionKey: String { viewModel.transactionType.accessibilityIdentifierKey }
+
+    private var statusAccessibilityIdentifier: String? {
+        switch viewModel.icon.status {
+        case .confirmed: TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: transactionKey)
+        case .inProgress: TxHistoryAccessibilityIdentifiers.transactionInProgressStatus(key: transactionKey)
+        case .failed, .undefined: nil
+        }
+    }
+
     var body: some View {
         TangemTwoLineRowLayout(
             icon: { iconView },
             primaryLeading: { nameView },
             primaryTrailing: { amountView },
             secondaryLeading: { subtitleView },
-            secondaryTrailing: { currencyView }
+            secondaryTrailing: { secondaryTrailingView }
         )
         .compressionPolicy(.trailingPreserved)
     }
@@ -40,6 +51,7 @@ struct TransactionViewRedesigned: View {
             iconContent
         }
         .frame(width: iconContainerSide, height: iconContainerSide)
+        .accessibilityIdentifier(statusAccessibilityIdentifier)
     }
 
     @ViewBuilder
@@ -70,6 +82,7 @@ struct TransactionViewRedesigned: View {
             Text(display.title)
                 .style(Font.Tangem.Body16.medium, color: nameColor)
                 .lineLimit(1)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionItem(key: transactionKey))
 
             if viewModel.inProgress {
                 ProgressDots(style: .small)
@@ -83,19 +96,25 @@ struct TransactionViewRedesigned: View {
             .strikethrough(isFailed, color: amountColor)
             .lineLimit(1)
             .layoutPriority(1)
+            .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionAmount(key: transactionKey))
     }
 
     @ViewBuilder
     private var subtitleView: some View {
         switch display.subtitle {
         case .owner(let direction, let owner):
-            TransactionSubtitleView(direction: direction, owner: owner)
+            TransactionSubtitleView(
+                direction: direction,
+                owner: owner,
+                accessibilityIdentifier: TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey)
+            )
 
         case .text(let description):
             Text(description)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                 .lineLimit(1)
                 .truncationMode(viewModel.transactionDescriptionTruncationMode)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey))
 
         case .none:
             EmptyView()
@@ -103,11 +122,12 @@ struct TransactionViewRedesigned: View {
     }
 
     @ViewBuilder
-    private var currencyView: some View {
-        if viewModel.amount.currencyCode.isNotEmpty {
-            Text(viewModel.amount.currencyCode)
+    private var secondaryTrailingView: some View {
+        if let text = viewModel.secondaryTrailingText {
+            Text(text)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 .lineLimit(1)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionCurrency(key: transactionKey))
         }
     }
 }
@@ -169,8 +189,6 @@ private extension TransactionViewRedesigned {
 }
 
 // MARK: - Previews
-
-#if DEBUG
 
 #Preview("States") {
     VStack(spacing: 16) {
@@ -257,5 +275,3 @@ private extension TransactionViewRedesigned {
     .padding()
     .background(Colors.Background.secondary)
 }
-
-#endif // DEBUG

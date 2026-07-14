@@ -25,8 +25,10 @@ public protocol EthereumFeeParameters where Self: FeeParameters {
 public enum EthereumFeeParametersConstants {
     public static let defaultGasLimitIncreasePercent = BigUInt(12)
     public static let yieldModuleGasLimitIncreasePercent = BigUInt(40)
+    public static let approveWithSwapGasPriceIncreasePercent = BigUInt(15)
     public static let gaslessMinTokenAmount = BigUInt(10_000)
     public static let gaslessMinTokenAmountDecimal = Decimal(stringValue: "10000")!
+    public static let gaslessYieldFallbackFeeTransferGasLimit = BigUInt(100_000)
     public static let gaslessBaseGasBuffer = BigUInt(60_000)
 }
 
@@ -165,6 +167,25 @@ extension EthereumEIP1559FeeParameters: EthereumFeeParameters {
 }
 
 public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
+    public struct YieldWithdraw: Hashable {
+        public let yieldContractAddress: String
+        public let originalGasLimit: BigUInt
+        public let withdrawGasLimit: BigUInt
+        public let upgrade: GaslessYieldUpgrade
+
+        public init(
+            yieldContractAddress: String,
+            originalGasLimit: BigUInt,
+            withdrawGasLimit: BigUInt,
+            upgrade: GaslessYieldUpgrade
+        ) {
+            self.yieldContractAddress = yieldContractAddress
+            self.originalGasLimit = originalGasLimit
+            self.withdrawGasLimit = withdrawGasLimit
+            self.upgrade = upgrade
+        }
+    }
+
     public let gasLimit: BigUInt
     /// Maximum fee which will be spend. Should include `priorityFee` in itself
     public let maxFeePerGas: BigUInt
@@ -178,6 +199,7 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
     private let nativeToFeeTokenRate: Decimal
 
     public let feeTokenTransferGasLimit: BigUInt
+    public let yieldWithdraw: YieldWithdraw?
 
     public var bufferedNativeToFeeTokenRate: Decimal {
         nativeToFeeTokenRate * 1.01
@@ -189,7 +211,8 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
         priorityFee: BigUInt,
         nonce: Int? = nil,
         nativeToFeeTokenRate: Decimal,
-        feeTokenTransferGasLimit: BigUInt
+        feeTokenTransferGasLimit: BigUInt,
+        yieldWithdraw: YieldWithdraw?
     ) {
         self.gasLimit = gasLimit
         maxFeePerGas = baseFee + priorityFee
@@ -197,6 +220,7 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
         self.nonce = nonce
         self.nativeToFeeTokenRate = nativeToFeeTokenRate
         self.feeTokenTransferGasLimit = feeTokenTransferGasLimit
+        self.yieldWithdraw = yieldWithdraw
     }
 
     public init(
@@ -205,7 +229,8 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
         priorityFee: BigUInt,
         nonce: Int? = nil,
         nativeToFeeTokenRate: Decimal,
-        feeTokenTransferGasLimit: BigUInt
+        feeTokenTransferGasLimit: BigUInt,
+        yieldWithdraw: YieldWithdraw?
     ) {
         self.gasLimit = gasLimit
         self.maxFeePerGas = maxFeePerGas
@@ -213,6 +238,7 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
         self.nonce = nonce
         self.nativeToFeeTokenRate = nativeToFeeTokenRate
         self.feeTokenTransferGasLimit = feeTokenTransferGasLimit
+        self.yieldWithdraw = yieldWithdraw
     }
 }
 
@@ -257,7 +283,8 @@ extension EthereumGaslessTransactionFeeParameters: EthereumFeeParameters {
             priorityFee: priorityFee,
             nonce: nonce,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
-            feeTokenTransferGasLimit: feeTokenTransferGasLimit
+            feeTokenTransferGasLimit: feeTokenTransferGasLimit,
+            yieldWithdraw: yieldWithdraw
         )
     }
 }

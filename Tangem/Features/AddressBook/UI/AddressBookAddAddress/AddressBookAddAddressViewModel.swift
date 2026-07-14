@@ -6,10 +6,13 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import Combine
 import Foundation
 import TangemFoundation
 import TangemLocalization
+import TangemUI
+import TangemUIUtils
 
 final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
     @Published private(set) var destinationAddressViewModel: SendDestinationAddressViewModel
@@ -17,6 +20,10 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var addressNetworksType: AddressNetworksType = .idle
     @Published private(set) var isAddAddressEnabled: Bool = false
+
+    @Published var alert: AlertBinder?
+
+    let screenTitle: String
 
     private let interactor: AddressBookAddAddressInteractor
     private weak var coordinator: AddressBookAddAddressRoutable?
@@ -33,14 +40,23 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
         self.interactor = interactor
         self.coordinator = coordinator
 
+        switch options {
+        case .add:
+            screenTitle = Localization.addressBookAddAddress
+        case .edit:
+            screenTitle = Localization.addressBookEditAddress
+        }
+
         destinationAddressViewModel = SendDestinationAddressViewModel(
             textViewModel: .init(),
-            address: .init(string: "", source: .textField)
+            address: .init(string: "", source: .textField),
+            title: Localization.commonAddress,
+            iconStyle: .blockies
         )
 
         destinationAddressViewModel.router = self
 
-        if case .edit(let address, let memo, _) = options {
+        if case .edit(let address, let memo, _, _) = options {
             prefilledMemo = memo
             destinationAddressViewModel.update(address: .init(string: address, source: .textField))
         }
@@ -48,15 +64,42 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
         bind()
     }
 
+    func onFirstAppear() {
+        interactor.logScreenOpened()
+    }
+
     func userDidRequestDismiss() {
-        coordinator?.dismissAddAddress()
+        guard interactor.hasUnsavedChanges else {
+            coordinator?.dismissAddAddressFlow()
+            return
+        }
+
+        alert = AlertBuilder.makeExitAlert(
+            title: Localization.addressBookUnsavedChanges,
+            message: Localization.addressBookUnsavedChangesDescription,
+            keepEditingButtonText: Localization.addressBookKeepEditing,
+            discardButtonText: Localization.addressBookDiscard,
+            discardAction: { [weak self] in
+                self?.coordinator?.dismissAddAddressFlow()
+            }
+        )
     }
 
     func userDidRequestNetworksChange() {
-        // [REDACTED_TODO_COMMENT]
+        guard case .resolved(let value) = addressNetworksType, let coordinator else {
+            return
+        }
+
+        let viewModel = ChooseNetworkViewModel(
+            candidates: value.resolved,
+            preselected: value.selected,
+            output: self,
+            routable: coordinator
+        )
+        coordinator.presentChooseNetwork(viewModel)
     }
 
-    func userDidRequestAddAddress() {
+    func userDidRequestSaveAddress() {
         interactor.userDidRequestSave()
         coordinator?.dismissAddAddress()
     }
@@ -93,11 +136,11 @@ private extension AddressBookAddAddressViewModel {
             .sink { $0.additionalFieldViewModel?.update(error: $1) }
             .store(in: &bag)
 
-        interactor.resolvedNetworks
-            .removeDuplicates()
+        Publishers.CombineLatest(interactor.resolvedNetworks, interactor.selectedNetworks)
+            .removeDuplicates { $0 == $1 }
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .map { $0.mapToAddressNetworksType(networks: $1) }
+            .map { $0.mapToAddressNetworksType(resolved: $1.0, selected: $1.1) }
             .assign(to: &$addressNetworksType)
 
         interactor.isAddAddressEnabledPublisher
@@ -106,12 +149,16 @@ private extension AddressBookAddAddressViewModel {
             .assign(to: &$isAddAddressEnabled)
     }
 
-    func mapToAddressNetworksType(networks: Set<BSDKBlockchain>) -> AddressNetworksType {
-        guard !networks.isEmpty else {
+    func mapToAddressNetworksType(resolved: Set<BSDKBlockchain>, selected: Set<BSDKBlockchain>) -> AddressNetworksType {
+        guard !resolved.isEmpty else {
             return .idle
         }
 
-        return .resolved(networks: networks)
+        let sortedSelected = selected.sorted { $0.networkId < $1.networkId }
+        let icons = sortedSelected.map { NetworkIconItem.image(NetworkImageProvider().provide(by: $0, filled: true)) }
+        let name = sortedSelected.count == 1 ? sortedSelected.first?.displayName : nil
+
+        return .resolved(.init(resolved: resolved, selected: selected, icons: icons, name: name))
     }
 
     func mapToAdditionalFieldViewModel(type: SendDestinationAdditionalFieldType?) -> SendDestinationAdditionalFieldViewModel? {
@@ -158,24 +205,45 @@ extension AddressBookAddAddressViewModel {
     }
 }
 
+// MARK: - ChooseNetworkOutput
+
+extension AddressBookAddAddressViewModel: ChooseNetworkOutput {
+    func chooseNetworkDidConfirm(_ selected: Set<BSDKBlockchain>) {
+        interactor.update(selectedNetworks: selected)
+    }
+
+    func chooseNetworkDidTapSelectAll(didSelectAll: Bool) {
+        interactor.logSelectAllTapped(didSelectAll: didSelectAll)
+    }
+}
+
 // MARK: - Types
 
 extension AddressBookAddAddressViewModel {
     enum AddressNetworksType: Identifiable {
         case idle
-        case resolved(networks: Set<BSDKBlockchain>)
+        case resolved(Resolved)
+
+        struct Resolved {
+            let resolved: Set<BSDKBlockchain>
+            let selected: Set<BSDKBlockchain>
+            let icons: [NetworkIconItem]
+            let name: String?
+
+            var isEditable: Bool { resolved.count > 1 }
+        }
 
         var id: String {
             switch self {
             case .idle: "idle"
-            case .resolved(let resolved): resolved.hashValue.description
+            case .resolved: "resolved"
             }
         }
 
         var isEditable: Bool {
             switch self {
             case .idle: false
-            case .resolved(let networks): networks.count > 1
+            case .resolved(let resolved): resolved.isEditable
             }
         }
     }

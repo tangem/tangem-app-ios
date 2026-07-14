@@ -88,6 +88,7 @@ struct MarketsTokenDetailsView: View {
             }
         }
         .animation(.curve(.easeInOutRefined, duration: 0.5), value: viewModel.portfolioBlockState.isVisible)
+        .animation(.curve(.easeInOutRefined, duration: 0.5), value: viewModel.isAddButtonVisible)
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -106,7 +107,7 @@ struct MarketsTokenDetailsView: View {
         NavigationHeader(
             leadingContent: { redesignedBackButton },
             principalContent: { EmptyView() },
-            trailingContent: { redesignedShareButton }
+            trailingContent: { redesignedTrailingButtons }
         )
         .readGeometry(\.size.height, bindTo: $headerHeight)
         .infinityFrame(axis: .vertical, alignment: .top)
@@ -115,6 +116,28 @@ struct MarketsTokenDetailsView: View {
     private var redesignedBackButton: some View {
         NavigationBarButton.back(action: viewModel.onBackButtonTap)
             .redesigned()
+    }
+
+    @ViewBuilder
+    private var redesignedTrailingButtons: some View {
+        HStack(spacing: 12) {
+            if let priceAlertBellViewModel = viewModel.priceAlertBellViewModel {
+                PriceAlertBellView(viewModel: priceAlertBellViewModel)
+            }
+
+            if viewModel.isMarketsSheetStyle, viewModel.isAddButtonVisible {
+                redesignedAddButton
+            }
+
+            redesignedShareButton
+        }
+    }
+
+    private var redesignedAddButton: some View {
+        NavigationBarButton.add(action: viewModel.onTapAddButton)
+            .redesigned()
+            .accessibilityLabel(Localization.commonAddToken)
+            .transition(.opacity)
     }
 
     private var redesignedShareButton: some View {
@@ -390,8 +413,9 @@ struct MarketsTokenDetailsView: View {
             )
             .padding(.horizontal, .unit(.x4))
             .padding(.vertical, .unit(.x2))
-            .background {
+            .background(alignment: .bottom) {
                 LinearGradient.Tangem.Common.tokenDetailsMarketPrice
+                    .padding(.top, -Constants.shadowTopExtension)
                     .ignoresSafeArea()
             }
             .transition(.portfolioBlock)
@@ -407,7 +431,7 @@ private extension MarketsTokenDetailsView {
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
-        static let bottomFadeHeight = 100.0
+        static let shadowTopExtension = 60.0
     }
 
     enum CoordinateSpaceName {

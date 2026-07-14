@@ -15,6 +15,8 @@ final class SwapMarketingBannerNotificationManager {
 
     private let service = MarketingBannerService()
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
+    private let standaloneBannersSubject = CurrentValueSubject<[StandaloneMarketingBannerViewModel], Never>([])
+    private let linkedBannersSubject = CurrentValueSubject<[MarketingBanner], Never>([])
     private var subscription: AnyCancellable?
 }
 
@@ -24,40 +26,51 @@ extension SwapMarketingBannerNotificationManager {
     func setup(
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
-        receiveTokenInput: SendReceiveTokenInput,
-        swapProvidersInput: SendSwapProvidersInput
+        receiveTokenInput: SendReceiveTokenInput
     ) {
         guard FeatureProvider.isAvailable(.marketingBanners) else {
             return
         }
 
-        let requests = Publishers.CombineLatest4(
+        let requests = Publishers.CombineLatest(
             sourceTokenInput.sourceTokenPublisher,
-            receiveTokenInput.receiveTokenPublisher,
-            sourceTokenAmountInput.sourceAmountPublisher,
-            swapProvidersInput.selectedExpressProviderPublisher
+            receiveTokenInput.receiveTokenPublisher
         )
-        .map { source, receive, amount, provider -> SwapMarketingBannerRequest? in
+        .map { source, receive -> SwapMarketingBannerRequest? in
             guard let source = source.value, let receive = receive.value else {
                 return nil
             }
 
             return SwapMarketingBannerRequest(
                 source: source.tokenItem,
-                destination: receive.tokenItem,
-                sourceAmount: amount.value?.crypto,
-                providerId: provider?.value?.provider.id
+                destination: receive.tokenItem
             )
         }
         .eraseToAnyPublisher()
 
-        subscription = service.bannerPublisher(for: requests)
-            .withWeakCaptureOf(self)
-            .map { manager, banner in
-                banner.map { [manager.makeInput(for: $0)] } ?? []
+        let amount = Publishers.CombineLatest(
+            sourceTokenInput.sourceTokenPublisher,
+            sourceTokenAmountInput.sourceAmountPublisher
+        )
+        .map { source, amount -> MarketingBannerAmount? in
+            guard let source = source.value,
+                  let value = amount.value?.crypto,
+                  let currencyId = source.tokenItem.currencyId else {
+                return nil
             }
+
+            return MarketingBannerAmount(value: value, currencyId: currencyId)
+        }
+        .eraseToAnyPublisher()
+
+        subscription = service.bannerPublisher(for: requests, amount: amount)
+            .withWeakCaptureOf(self)
             .receiveOnMain()
-            .assign(to: \.notificationInputsSubject.value, on: self, ownership: .weak)
+            .sink { manager, banners in
+                manager.notificationInputsSubject.send(banners.standalone.map { manager.makeInput(for: $0) })
+                manager.standaloneBannersSubject.send(banners.standalone.map { manager.makeStandaloneViewModel(for: $0) })
+                manager.linkedBannersSubject.send(banners.linked)
+            }
     }
 }
 
@@ -65,26 +78,34 @@ extension SwapMarketingBannerNotificationManager {
 
 private extension SwapMarketingBannerNotificationManager {
     func makeInput(for banner: MarketingBanner) -> NotificationViewInput {
-        let event = MarketingBannerNotificationEvent(banner: banner)
-
-        let dismissAction: NotificationView.NotificationAction = { [weak self] id in
+        MarketingBannerNotificationInputFactory.makeInput(
+            for: banner,
+            incomingActionHandler: incomingActionHandler
+        ) { [weak self] id in
             self?.dismissNotification(with: id)
         }
+    }
 
-        let style: NotificationView.Style = switch banner.action {
+    func makeStandaloneViewModel(for banner: MarketingBanner) -> StandaloneMarketingBannerViewModel {
+        let action: (() -> Void)? = switch banner.action {
         case .deeplink(let url):
-            .tappable(hasChevron: true) { [weak self] _ in
-                _ = self?.incomingActionHandler.handleIncomingURL(url)
-            }
+            { [incomingActionHandler] in _ = incomingActionHandler.handleIncomingURL(url) }
         case .none:
-            .plain
+            nil
         }
 
-        return NotificationViewInput(
-            style: style,
-            severity: event.severity,
-            settings: .init(event: event, dismissAction: banner.isDismissible ? dismissAction : nil)
+        return StandaloneMarketingBannerViewModel(
+            id: banner.id,
+            title: banner.text,
+            iconURL: banner.iconURL,
+            isDismissible: banner.isDismissible,
+            action: action,
+            dismiss: banner.isDismissible ? { [weak self] in self?.dismissStandaloneBanner(id: banner.id) } : nil
         )
+    }
+
+    func dismissStandaloneBanner(id: Int) {
+        standaloneBannersSubject.value.removeAll { $0.id == id }
     }
 }
 
@@ -103,5 +124,22 @@ extension SwapMarketingBannerNotificationManager: NotificationManager {
 
     func dismissNotification(with id: NotificationViewId) {
         notificationInputsSubject.value.removeAll { $0.id == id }
+    }
+}
+
+// MARK: - Standalone banners
+
+extension SwapMarketingBannerNotificationManager {
+    var standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never> {
+        standaloneBannersSubject.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - LinkedMarketingBannerProviding
+
+extension SwapMarketingBannerNotificationManager: LinkedMarketingBannerProviding {
+    // [REDACTED_TODO_COMMENT]
+    var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
+        linkedBannersSubject.eraseToAnyPublisher()
     }
 }

@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemLogger
 
 struct ExpressAPIMapper {
     let exchangeDataDecoder: ExpressExchangeDataDecoder
@@ -91,6 +92,7 @@ struct ExpressAPIMapper {
             txDetailsJson: response.txDetailsJson,
             signature: response.signature
         )
+        ExpressLogger.info(txDetails.logDescription)
 
         guard request.requestId == txDetails.requestId else {
             throw ExpressAPIMapperError.requestIdNotEqual
@@ -498,21 +500,21 @@ struct ExpressAPIMapper {
     }
 
     private func mapToRefundedCurrency(network: String?, contractAddress: String?) -> ExpressCurrency? {
-        guard
-            let network,
-            let contractAddress
-        else {
+        guard let network else {
             ExpressLogger.info(
                 String(
-                    format: "Refunded currency missing required fields: network %@, contractAddress %@",
-                    String(describing: network),
-                    String(describing: contractAddress)
+                    format: "Refunded currency missing required field: network %@",
+                    String(describing: network)
                 )
             )
             return nil
         }
 
-        return ExpressCurrency(contractAddress: contractAddress, network: network)
+        // A `nil` contract address means the native coin
+        return ExpressCurrency(
+            contractAddress: contractAddress ?? ExpressConstants.coinContractAddress,
+            network: network
+        )
     }
 }
 
@@ -531,5 +533,26 @@ enum ExpressAPIMapperError: LocalizedError {
         case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
         case .widgetUrlMissing: "Widget url is missing for a widget transaction"
         }
+    }
+}
+
+// MARK: - Logging
+
+private extension DecodedTransactionDetails {
+    var logDescription: String {
+        "Exchange data decoded transaction details payload:"
+            .appendingLogProperty(\.requestId, of: self)
+            .appendingLogProperty(\.txType, of: self)
+            .appendingLogProperty(\.txFrom, of: self)
+            .appendingLogProperty(\.txTo, of: self)
+            .appendingLogProperty(\.txExtraId, of: self)
+            // txData skipped intentionally
+            .appendingLogProperty(\.txValue, of: self)
+            .appendingLogProperty(\.otherNativeFee, of: self)
+            .appendingLogProperty(\.gas, of: self)
+            .appendingLogProperty(\.externalTxId, of: self)
+            .appendingLogProperty(\.externalTxUrl, of: self)
+            .appendingLogProperty(\.payoutAddress, of: self)
+            .appendingLogProperty(\.payoutExtraId, of: self)
     }
 }

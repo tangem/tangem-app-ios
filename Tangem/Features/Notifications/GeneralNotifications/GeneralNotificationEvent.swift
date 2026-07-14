@@ -26,7 +26,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case systemDeprecationTemporary
     case systemDeprecationPermanent(version: String, date: String)
     case missingDerivation(numberOfNetworks: Int, icon: MainButton.Icon?, hasNFCInteraction: Bool)
-    case walletLocked
+    case walletLocked(hasNFCInteraction: Bool)
     case missingBackup
     case supportedOnlySingleCurrencyWallet
     case backupErrors
@@ -45,7 +45,7 @@ extension GeneralNotificationEvent: NotificationEvent {
 
     var bannerKind: NotificationBannerKind? {
         switch self {
-        case .failedToVerifyCard, .demoCard, .devCard, .testnetCard:
+        case .failedToVerifyCard, .demoCard, .devCard, .testnetCard, .legacyDerivation:
             return .status
 
         case .backupErrors, .missingBackup, .lowSignatures, .mobileFinishActivation, .numberOfSignedHashesIncorrect:
@@ -57,10 +57,10 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .rateApp:
             return .survey
 
-        case .pushNotificationsPermissionRequest:
+        case .pushNotificationsPermissionRequest, .systemDeprecationTemporary:
             return .informational()
 
-        case .addFunds:
+        case .mobileUpgrade, .addFunds:
             return .promo(.magic)
 
         case .initialWalletTokenSyncCompleted:
@@ -106,7 +106,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .supportedOnlySingleCurrencyWallet:
             return .string(Localization.manageTokensWalletSupportOnlyOneNetworkTitle)
         case .backupErrors:
-            return .string(Localization.commonAttention)
+            return .string(Localization.warningIncompleteBackupNotificationTitle)
         case .mobileFinishActivation(let hasPositiveBalance, _):
             let text = Localization.hwActivationNeedTitle
             if hasPositiveBalance {
@@ -160,14 +160,17 @@ extension GeneralNotificationEvent: NotificationEvent {
             } else {
                 return Localization.warningMissingDerivationNoNfcMessage(numberOfNetworks)
             }
-        case .walletLocked:
-            return Localization.warningAccessDeniedMessage(BiometricsUtil.biometryType.name)
+        case .walletLocked(let hasNFCInteraction):
+            let biometryName = BiometricsUtil.biometryType.name
+            return hasNFCInteraction
+                ? Localization.warningAccessDeniedMessage(biometryName)
+                : Localization.warningMobileAccessDeniedMessage(biometryName)
         case .missingBackup:
             return Localization.warningNoBackupMessage
         case .supportedOnlySingleCurrencyWallet:
             return nil
         case .backupErrors:
-            return Localization.warningBackupErrorsMessage
+            return Localization.warningIncompleteBackupNotificationMessage
         case .mobileFinishActivation(_, let hasBackup):
             return hasBackup ? Localization.hwActivationNeedWarningDescription : Localization.hwActivationNeedDescription
         case .mobileUpgrade:
@@ -207,7 +210,7 @@ extension GeneralNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .failedToVerifyCard, .devCard, .backupErrors:
+        case .failedToVerifyCard, .devCard:
             return .init(iconType: .image(Assets.redCircleWarning))
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
@@ -218,6 +221,13 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingBackup,
              .supportedOnlySingleCurrencyWallet:
             return .init(iconType: .image(Assets.attention))
+        case .backupErrors:
+            return .init(
+                iconType: .image(Assets.DesignSystem.attention),
+                renderingMode: .template,
+                color: .Tangem.Text.Neutral.primary,
+                size: .init(bothDimensions: 28)
+            )
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
             return .init(iconType: .image(Assets.blueCircleWarning))
         case .rateApp:
@@ -228,7 +238,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             let imageType = hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
             return .init(iconType: .image(imageType), size: CGSize(width: 16, height: 18))
         case .mobileUpgrade:
-            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), size: CGSize(width: 54, height: 54))
+            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), isLeading: false, size: CGSize(width: 54, height: 54))
         case .pushNotificationsPermissionRequest:
             return .init(iconType: .image(Assets.pushNotifyBannerIcon), size: CGSize(width: 54, height: 54))
         case .initialWalletTokenSyncCompleted:
@@ -236,6 +246,9 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .addFunds:
             return .init(
                 iconType: .image(Assets.coinsSwap),
+                renderingMode: .template,
+                color: .Tangem.Text.Neutral.primary,
+                isLeading: false,
                 size: CGSize(width: 24, height: 24)
             )
         }

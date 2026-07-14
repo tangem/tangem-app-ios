@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct BalanceFormatter {
     static var defaultEmptyBalanceString: String { AppConstants.enDashSign }
@@ -31,7 +32,7 @@ struct BalanceFormatter {
             return Self.defaultEmptyBalanceString
         }
 
-        let formatter = formatter ?? makeDecimalFormatter(formattingOptions: formattingOptions)
+        let formatter = formatter ?? BalanceNumberFormatterCache.decimalFormatter(formattingOptions: formattingOptions)
         let valueToFormat = decimalRoundingUtility.roundDecimal(value, with: formattingOptions.roundingType)
 
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat)"
@@ -55,7 +56,7 @@ struct BalanceFormatter {
             return Self.defaultEmptyBalanceString
         }
 
-        let formatter = formatter ?? makeDefaultCryptoFormatter(forCurrencyCode: currencyCode, formattingOptions: formattingOptions)
+        let formatter = formatter ?? BalanceNumberFormatterCache.cryptoFormatter(forCurrencyCode: currencyCode, locale: .current, formattingOptions: formattingOptions)
         let valueToFormat = decimalRoundingUtility.roundDecimal(value, with: formattingOptions.roundingType)
 
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(currencyCode)"
@@ -116,7 +117,7 @@ struct BalanceFormatter {
             return Self.defaultEmptyBalanceString
         }
 
-        let formatter = formatter ?? makeDefaultFiatFormatter(forCurrencyCode: currencyCode, formattingOptions: formattingOptions)
+        let formatter = formatter ?? BalanceNumberFormatterCache.fiatFormatter(forCurrencyCode: currencyCode, locale: .current, formattingOptions: formattingOptions)
 
         let lowestRepresentableValue: Decimal = 1 / pow(10, formattingOptions.maxFractionDigits)
 
@@ -143,22 +144,21 @@ struct BalanceFormatter {
         formattingOptions: TotalBalanceFormattingOptions,
         formatter: NumberFormatter? = nil
     ) -> AttributedString {
-        let formatter = formatter ?? makeAttributedTotalBalanceFormatter()
-        let decimalSeparator = formatter.decimalSeparator ?? ""
-        var attributedString = AttributedString(fiatBalance)
-        attributedString.font = formattingOptions.integerPartFont.font
-        attributedString.tracking = formattingOptions.integerPartFont.tracking
-        attributedString.foregroundColor = formattingOptions.integerPartColor
+        let formatter = formatter ?? BalanceNumberFormatterCache.attributedTotalFormatter()
 
-        if let separatorRange = attributedString.range(of: decimalSeparator) {
-            let lowerBound = formattingOptions.fractionalPartIncludesDecimalSeparator ? separatorRange.lowerBound : separatorRange.upperBound
-            let fractionalPartRange = Range<AttributedString.Index>(uncheckedBounds: (lower: lowerBound, upper: attributedString.endIndex))
-            attributedString[fractionalPartRange].font = formattingOptions.fractionalPartFont.font
-            attributedString[fractionalPartRange].tracking = formattingOptions.fractionalPartFont.tracking
-            attributedString[fractionalPartRange].foregroundColor = formattingOptions.fractionalPartColor
-        }
-
-        return attributedString
+        return AttributedBalanceFormatter.format(
+            fiatBalance,
+            decimalSeparator: formatter.decimalSeparator ?? "",
+            integerPart: AttributedBalanceFormatter.PartStyle(
+                font: formattingOptions.integerPartFont,
+                color: formattingOptions.integerPartColor
+            ),
+            fractionalPart: AttributedBalanceFormatter.PartStyle(
+                font: formattingOptions.fractionalPartFont,
+                color: formattingOptions.fractionalPartColor
+            ),
+            fractionalIncludesSeparator: formattingOptions.fractionalPartIncludesDecimalSeparator
+        )
     }
 
     // MARK: - Factory methods

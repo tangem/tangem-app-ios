@@ -172,14 +172,14 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     }
 
     @Test("Feature OFF: Next button enabled even when memo required but empty")
-    func featureOffNextButtonEnabled() async {
+    func featureOffNextButtonEnabled() async throws {
         let input = SendDestinationInputStub()
         let sut = makeSUT(input: input, validateMemoBeforeConfirm: false)
 
         var isValid: Bool?
         let cancellable = sut.allFieldsIsValid.sink { isValid = $0 }
 
-        await sut.update(destination: SendDestination.validTONAddress, source: .qrCode)
+        try await sut.update(destination: SendDestination.validTONAddress, source: .qrCode)
         input.send(destination: .memoRequired)
         sut.update(additionalField: emptyMemo)
 
@@ -215,7 +215,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     // MARK: - Button State Tests (allFieldsIsValid)
 
     @Test("Next button disabled when memo required but empty")
-    func nextButtonDisabledWhenMemoRequiredButEmpty() async {
+    func nextButtonDisabledWhenMemoRequiredButEmpty() async throws {
         let input = SendDestinationInputStub()
         let sut = makeSUT(input: input)
 
@@ -223,7 +223,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         let cancellable = sut.allFieldsIsValid.sink { isValid = $0 }
 
         // Set valid destination through interactor (sets _destinationValid = true)
-        await sut.update(destination: SendDestination.validTONAddress, source: .qrCode)
+        try await sut.update(destination: SendDestination.validTONAddress, source: .qrCode)
 
         // Set empty memo, then trigger revalidation with memoRequired
         sut.update(additionalField: emptyMemo)
@@ -236,7 +236,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
     }
 
     @Test("Next button enabled when memo required and filled")
-    func nextButtonEnabledWhenMemoFilled() async {
+    func nextButtonEnabledWhenMemoFilled() async throws {
         let input = SendDestinationInputStub()
         let sut = makeSUT(input: input)
 
@@ -245,7 +245,7 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
 
         // Set valid destination through interactor (sets _destinationValid = true)
         input.send(destination: .memoRequired)
-        await sut.update(destination: SendDestination.validTONAddress, source: .qrCode)
+        try await sut.update(destination: SendDestination.validTONAddress, source: .qrCode)
 
         sut.update(additionalField: anyMemo)
 
@@ -334,6 +334,9 @@ private final class SendDestinationAnalyticsLoggerStub: SendDestinationAnalytics
     func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource) {}
     func logQRScannerOpened() {}
     func logDestinationStepOpened() {}
+    func logAddressBookWidgetShown() {}
+    func logAddressBookContactSelected(_ contact: AddressBookContact) {}
+    func logAddressBookAddressSubstituted(_ contact: AddressBookContact) {}
     func logDestinationStepReopened() {}
     func setDestinationAnalyticsProvider(_ analyticsProvider: (any AccountModelAnalyticsProviding)?) {}
 }

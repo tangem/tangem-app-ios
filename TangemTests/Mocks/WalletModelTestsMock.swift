@@ -22,6 +22,7 @@ final class WalletModelTestsMock: WalletModel {
     private let _isEmpty: Bool
     private let _fiatAvailableBalance: Decimal
     private let _account: (any CryptoAccountModel)?
+    private let _addresses: [Address]
 
     var transactionCreatorMock: TransactionCreator?
     var multipleTransactionsSenderMock: MultipleTransactionsSender?
@@ -36,6 +37,7 @@ final class WalletModelTestsMock: WalletModel {
         _isEmpty = false
         _fiatAvailableBalance = 0
         _account = nil
+        _addresses = [PlainAddress(value: "mock", type: .default)]
     }
 
     init(fiatBalanceProvider: TokenBalanceProvider, priceChange24h: Decimal?) {
@@ -47,13 +49,15 @@ final class WalletModelTestsMock: WalletModel {
         _isEmpty = false
         _fiatAvailableBalance = 0
         _account = nil
+        _addresses = [PlainAddress(value: "mock", type: .default)]
     }
 
     init(
         tokenItem: TokenItem,
         isEmpty: Bool,
         fiatBalance: Decimal = 0,
-        account: (any CryptoAccountModel)? = nil
+        account: (any CryptoAccountModel)? = nil,
+        addresses: [Address] = [PlainAddress(value: "mock", type: .default)]
     ) {
         _tokenItem = tokenItem
         _id = WalletModelId(tokenItem: tokenItem)
@@ -63,6 +67,7 @@ final class WalletModelTestsMock: WalletModel {
         _fiatBalanceProvider = TokenBalanceProviderTestsMock(balance: fiatBalance)
         _fiatAvailableBalance = fiatBalance
         _account = account
+        _addresses = addresses
     }
 
     var quote: TokenQuote? {
@@ -122,7 +127,7 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelUpdater
 
-    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async {}
+    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable, stakingUpdateSource: StakingUpdateSource) async {}
 
     func updateTransactionHistory() async {}
 
@@ -149,9 +154,9 @@ final class WalletModelTestsMock: WalletModel {
 
     var userWalletId: UserWalletId { UserWalletId(value: Data()) }
     var name: String { "Mock" }
-    var allAddresses: [Address] { [defaultAddress] }
-    var addresses: [Address] { [defaultAddress] }
-    var defaultAddress: Address { PlainAddress(value: "mock", type: .default) }
+    var allAddresses: [Address] { _addresses }
+    var addresses: [Address] { _addresses }
+    var defaultAddress: Address { _addresses.first ?? PlainAddress(value: "mock", type: .default) }
 
     var isMainToken: Bool { true }
     var tokenItem: TokenItem { _tokenItem }

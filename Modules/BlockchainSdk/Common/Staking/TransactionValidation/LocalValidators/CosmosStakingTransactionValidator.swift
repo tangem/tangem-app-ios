@@ -11,6 +11,11 @@ import Foundation
 /// Validates Cosmos staking transactions by checking message type prefix.
 public enum CosmosStakingTransactionValidator {
     static let stakingModulePrefix = "/cosmos.staking."
+    /// Reward operations live in the distribution module, not staking. Accept only the specific
+    /// distribution messages the staking flow uses — not the whole `/cosmos.distribution.` prefix.
+    static let allowedDistributionMessageTypes: Set<String> = [
+        "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+    ]
 
     public static func validate(_ unsignedData: String) throws {
         // Hex string must have even length (2 chars per byte)
@@ -33,10 +38,10 @@ public enum CosmosStakingTransactionValidator {
 
         let messageType = protoMessage.delegateContainer.delegate.messageType
 
-        guard messageType.hasPrefix(Self.stakingModulePrefix) else {
+        guard messageType.hasPrefix(Self.stakingModulePrefix) || Self.allowedDistributionMessageTypes.contains(messageType) else {
             throw StakingTransactionValidationError.notAStakingTransaction(
                 network: "Cosmos",
-                details: "Message type '\(messageType)' does not start with '\(Self.stakingModulePrefix)'"
+                details: "Message type '\(messageType)' is not a Cosmos staking or reward operation"
             )
         }
     }

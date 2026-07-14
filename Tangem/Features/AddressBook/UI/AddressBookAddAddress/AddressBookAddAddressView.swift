@@ -10,55 +10,88 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct AddressBookAddAddressView: View {
     @ObservedObject var viewModel: AddressBookAddAddressViewModel
 
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var headerHeight: CGFloat = 0
+
     var body: some View {
+        ZStack(alignment: .top) {
+            scrollContent
+
+            header
+        }
+        .infinityFrame(axis: .vertical, alignment: .top)
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom) { bottomButton }
+        .navigationBarHidden(true)
+        .alert(item: $viewModel.alert) { $0.alert }
+        .onFirstAppear(perform: viewModel.onFirstAppear)
+    }
+
+    private var header: some View {
+        NavigationHeader(
+            leadingContent: { NavigationBarButton.back(action: { dismiss() }).redesigned() },
+            principalContent: {
+                Text(viewModel.screenTitle)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            },
+            trailingContent: {
+                NavigationBarButton.close(action: viewModel.userDidRequestDismiss).redesigned()
+            }
+        )
+        .readGeometry(\.size.height, bindTo: $headerHeight)
+    }
+
+    private var scrollContent: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 20)) {
+            Color.clear
+                .frame(height: headerHeight)
+
             GroupedSection(viewModel.destinationAddressViewModel) {
                 SendDestinationAddressView(viewModel: $0)
+                    .scanQRIconColor(DesignSystem.Color.iconPrimary)
             }
-            .interItemSpacing(12)
-            .innerContentPadding(12)
+            .interItemSpacing(16)
+            .innerContentPadding(16)
             .backgroundColor(DesignSystem.Color.bgSecondary)
+            .cornerRadius(24)
 
             GroupedSection(viewModel.additionalFieldViewModel) {
                 SendDestinationAdditionalFieldView(viewModel: $0)
             } footer: {
-                DefaultFooterView(Localization.sendRecipientMemoFooter)
+                (Text(Localization.sendRecipientMemoFooterV2 + " ")
+                    .foregroundColor(DesignSystem.Color.textSecondary)
+                    + Text(Localization.sendRecipientMemoFooterV2Highlighted)
+                    .foregroundColor(DesignSystem.Color.textPrimary))
+                    .font(token: DesignSystem.Font.captionMediumToken)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            .innerContentPadding(12)
+            .innerContentPadding(16)
             .backgroundColor(DesignSystem.Color.bgSecondary)
+            .cornerRadius(24)
 
-            GroupedSection(viewModel.addressNetworksType) { networks in
-                TangemRow(title: Localization.commonNetwork)
-                    .verticalAlignment(.center)
-                    .end { makeNetworksValue(networks: networks) }
-                    .if(networks.isEditable) { $0.onTap(viewModel.userDidRequestNetworksChange) }
+            if case .resolved = viewModel.addressNetworksType {
+                GroupedSection(viewModel.addressNetworksType) { networks in
+                    TangemRow(title: Localization.commonNetwork)
+                        .end { makeNetworksValue(networks: networks) }
+                        .if(networks.isEditable) { $0.onTap(viewModel.userDidRequestNetworksChange) }
+                }
+                .backgroundColor(DesignSystem.Color.bgSecondary)
+                .cornerRadius(20)
+                .horizontalPadding(0)
             }
-            .backgroundColor(DesignSystem.Color.bgSecondary)
-            .horizontalPadding(0)
         }
-        .background(DesignSystem.Color.bgBase.ignoresSafeArea())
-        .navigationTitle(Text(Localization.addressBookAddAddress))
-        .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .bottom) { bottomButton }
+        .padding(.top, 12)
     }
 
     private func makeNetworksValue(networks: AddressBookAddAddressViewModel.AddressNetworksType) -> some View {
         HStack(spacing: 4) {
-            let title = switch networks {
-            case .idle:
-                Localization.addressBookSelectNetwork
-            case .resolved(let networks):
-                // [REDACTED_TODO_COMMENT]
-                networks.map { $0.currencySymbol }.joined(separator: ", ")
-            }
-
-            Text(title)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
-                .lineLimit(1)
+            networksValueContent(networks: networks)
 
             if networks.isEditable {
                 Assets.Glyphs.selectIcon.image
@@ -69,10 +102,36 @@ struct AddressBookAddAddressView: View {
         }
     }
 
+    @ViewBuilder
+    private func networksValueContent(networks: AddressBookAddAddressViewModel.AddressNetworksType) -> some View {
+        switch networks {
+        case .idle:
+            networksPlaceholder
+        case .resolved(let resolved) where resolved.icons.isEmpty:
+            networksPlaceholder
+        case .resolved(let resolved):
+            HStack(spacing: 8) {
+                NetworksIconsView(icons: resolved.icons)
+
+                if let name = resolved.name {
+                    Text(name)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                        .lineLimit(1)
+                }
+            }
+        }
+    }
+
+    private var networksPlaceholder: some View {
+        Text(Localization.addressBookSelectNetwork)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+            .lineLimit(1)
+    }
+
     private var bottomButton: some View {
         TangemButton(
-            content: .text(AttributedString(Localization.addressBookAddAddress)),
-            action: viewModel.userDidRequestAddAddress
+            content: .text(AttributedString(Localization.addressBookSaveAddress)),
+            action: viewModel.userDidRequestSaveAddress
         )
         .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)

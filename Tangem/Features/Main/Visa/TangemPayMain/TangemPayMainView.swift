@@ -135,6 +135,7 @@ struct TangemPayMainView: View {
                 } label: {
                     NavbarDotsImage()
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.moreActionsButton)
             }
         }
     }
@@ -448,7 +449,7 @@ struct TangemPayMainView: View {
                 viewModel.openCardManagement(entry: entry)
             } label: {
                 TangemPaySmallCardViewRedesigned(
-                    state: card.isReissuing
+                    state: card.isReissuing || card.isClosing
                         ? .replacing
                         : .issued(cardNumberEnd: card.cardNumberEnd)
                 )
@@ -490,8 +491,12 @@ struct TangemPayMainView: View {
             Menu {
                 if FeatureProvider.isAvailable(.tangemPayTiers) {
                     Button(action: viewModel.openCurrentPlan) {
-                        // [REDACTED_TODO_COMMENT]
-                        Label("Current plan", systemImage: "info.circle")
+                        Label {
+                            Text(Localization.tangempayCurrentPlanTitle)
+                        } icon: {
+                            DesignSystem.Icons.ArrowRefresh.regular20.image
+                                .renderingMode(.template)
+                        }
                     }
 
                     Divider()
@@ -509,6 +514,7 @@ struct TangemPayMainView: View {
                     .foregroundColor(Colors.Icon.primary1)
                     .accessibilityLabel(Localization.commonMore)
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.moreActionsButton)
         }
     }
 }

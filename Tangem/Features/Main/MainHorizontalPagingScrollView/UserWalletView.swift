@@ -10,6 +10,7 @@ import SwiftUI
 import func TangemFoundation.clamp
 import enum TangemFoundation.FeedbackGenerator
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct UserWalletView: View {
@@ -73,6 +74,7 @@ struct UserWalletView: View {
                         contentFooterSpacer
                         bottomOverlaySpacer
                     }
+                    .frame(minHeight: rootGeometryProxy.size.height + snapLayout.fullHeaderHeight, alignment: .top)
                     .onGeometryChange(
                         for: CGRect.self,
                         of: { contentGeometryProxy in
@@ -333,6 +335,17 @@ extension UserWalletView {
                             onNormalizedOffsetYChanged(contentOffsetY + refreshIndicatorHeight, nil)
                         }
                     )
+                    .modifyView { view in
+                        if #unavailable(iOS 17.0) {
+                            view
+                                .clipToBoundsDisableBackport()
+                                .task {
+                                    onNormalizedOffsetYChanged(0, nil)
+                                }
+                        } else {
+                            view
+                        }
+                    }
                 }
                 .scrollDisabled(scrollDisabled)
                 .coordinateSpace(name: RefreshableConstants.coordinateSpaceName)
@@ -379,4 +392,28 @@ extension UserWalletView {
             .accessibilityIdentifier(refreshTask == nil ? MainAccessibilityIdentifiers.refreshStateIdle : MainAccessibilityIdentifiers.refreshStateRefreshing)
         }
     }
+}
+
+// MARK: - iOS 16 ScrollView clip backport
+
+@available(iOS, obsoleted: 17.0, message: "Remove this extension and related types entirely.")
+private extension View {
+    func clipToBoundsDisableBackport() -> some View {
+        background(
+            ClipToBoundsDisabler()
+                .frame(width: .zero, height: .zero)
+                .accessibilityHidden(true)
+        )
+    }
+}
+
+private struct ClipToBoundsDisabler: UIViewRepresentable {
+    func makeUIView(context: Context) -> OnWindowAttachView {
+        let view = OnWindowAttachView()
+        // [REDACTED_USERNAME], SwiftUIIntrospect's traversal fails inside UIHostingConfiguration — see MainHorizontalPagingScrollView+Backport.swift.
+        view.onAttachToWindow = { $0.enclosingScrollViews.first?.clipsToBounds = false }
+        return view
+    }
+
+    func updateUIView(_ uiView: OnWindowAttachView, context: Context) {}
 }

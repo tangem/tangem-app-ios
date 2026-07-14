@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct YieldModulePromoView: View {
     // MARK: - Properties
@@ -123,6 +124,7 @@ struct YieldModulePromoView: View {
 
     private var continueButton: some View {
         MainButton(title: Localization.commonContinue, action: { viewModel.onContinueTap() })
+            .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.promoContinueButton)
     }
 
     private var bottomStack: some View {

@@ -25,6 +25,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     lazy var dependencies = makeOnrampDependencies(preferredValues: parameters.preferredValues)
     lazy var analyticsLogger = makeOnrampSendAnalyticsLogger(source: coordinatorSource)
     lazy var notificationManager = makeOnrampNotificationManager(input: onrampModel, delegate: onrampModel)
+    lazy var marketingNotificationManager = makeOnrampMarketingBannerNotificationManager()
 
     lazy var onrampModel = makeOnrampModel(
         onrampManager: dependencies.manager,
@@ -76,6 +77,7 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             tokenItem: tokenItem,
             analyticsLogger: analyticsLogger,
             buyActionBuilder: buyActionBuilder,
+            linkedBannersPublisher: marketingNotificationManager.linkedBannersPublisher,
             input: onrampModel,
             output: onrampModel
         )
@@ -99,6 +101,12 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
         )
 
         notificationManager.setupManager(with: onrampModel)
+
+        marketingNotificationManager.setup(
+            tokenItem: tokenItem,
+            amountInput: onrampModel,
+            providersInput: onrampModel
+        )
 
         // Logger setup
         analyticsLogger.setup(onrampProvidersInput: onrampModel)
@@ -182,6 +190,8 @@ extension OnrampFlowFactory: OnrampSummaryStepBuildable {
     var onrampDependencies: OnrampSummaryStepBuilder.Dependencies {
         OnrampSummaryStepBuilder.Dependencies(
             notificationManager: notificationManager,
+            marketingNotificationManager: marketingNotificationManager,
+            linkedBannersPublisher: marketingNotificationManager.linkedBannersPublisher,
             analyticsLogger: analyticsLogger,
             buyActionBuilder: buyActionBuilder
         )

@@ -44,24 +44,22 @@ struct IconWithMessageView: View {
     }
 }
 
-struct IconWithMessageView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            IconWithMessageView(
-                Assets.cryptoCurrencies,
-                header: { Text("You") },
-                description: {
-                    Text("Will get ") + Text("10 USDT").foregroundColor(Colors.Text.primary1) + Text(" for each wallet bought by your friend on your Tron network address 0x032980ca98fdfc67ab767b")
-                }
-            )
-            IconWithMessageView(
-                Assets.discount,
-                header: { Text("Your friend") },
-                description: {
-                    Text("Will get a ") + Text("10% discount").foregroundColor(Colors.Text.primary1) + Text(" when buying card on tangem.com")
-                }
-            )
-        }
-        .padding(16)
+#Preview {
+    VStack {
+        IconWithMessageView(
+            Assets.cryptoCurrencies,
+            header: { Text("You") },
+            description: {
+                Text("Will get ") + Text("10 USDT").foregroundColor(Colors.Text.primary1) + Text(" for each wallet bought by your friend on your Tron network address 0x032980ca98fdfc67ab767b")
+            }
+        )
+        IconWithMessageView(
+            Assets.discount,
+            header: { Text("Your friend") },
+            description: {
+                Text("Will get a ") + Text("10% discount").foregroundColor(Colors.Text.primary1) + Text(" when buying card on tangem.com")
+            }
+        )
     }
+    .padding(16)
 }

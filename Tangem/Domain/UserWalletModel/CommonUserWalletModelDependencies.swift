@@ -19,6 +19,7 @@ struct CommonUserWalletModelDependencies {
     let totalBalanceProvider: TotalBalanceProvider
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
     let accountModelsManager: AccountModelsManager
     let addressBookManager: AddressBookManager
 
@@ -83,6 +84,10 @@ struct CommonUserWalletModelDependencies {
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         accountModelsManagerDependencies.networkMapper.externalParametersProvider = userTokensPushNotificationsManager
 
+        // [REDACTED_TODO_COMMENT]
+        // once the backend subscriptions contract is finalized. Using the stub for now.
+        priceAlertsSubscriptionsProvider = PriceAlertsSubscriptionsProviderStub()
+
         totalBalanceProvider = Self.makeTotalBalanceProvider(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager
@@ -106,6 +111,7 @@ struct CommonUserWalletModelDependencies {
         userWalletModelConfigurableDependencies.derivationManager?.configure(with: model)
         userWalletModelConfigurableDependencies.cryptoAccountsRepository.configure(with: model)
         userWalletModelConfigurableDependencies.keysRepository.configure(with: model)
+        addressBookManager.configure(with: model)
     }
 }
 
@@ -316,6 +322,8 @@ private extension CommonUserWalletModelDependencies {
         let repository = CommonAddressBookRepository(
             walletId: userWalletId,
             walletPublicKeySeed: walletPublicKeySeed,
+            networkService: InjectedValues[\.addressBookNetworkService],
+            eTagStorage: InjectedValues[\.eTagStorage],
             persistentStorage: CommonAddressBookPersistentStorage(),
             encryptionService: CommonAddressBookEncryptionService(),
             keyProvider: CommonAddressBookEncryptionKeyProvider()

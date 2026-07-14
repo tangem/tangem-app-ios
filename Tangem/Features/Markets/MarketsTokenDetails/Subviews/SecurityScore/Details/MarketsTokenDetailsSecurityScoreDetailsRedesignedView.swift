@@ -51,7 +51,6 @@ struct MarketsTokenDetailsSecurityScoreDetailsRedesignedView: View {
                     viewModel.closeAction?()
                 }
                 .setStyleType(.secondary)
-                .setCornerStyle(.rounded)
                 .setSize(.x9)
                 .setHorizontalLayout(.intrinsic)
             }
@@ -77,7 +76,6 @@ struct MarketsTokenDetailsSecurityScoreDetailsRedesignedView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     let helper = MarketsTokenDetailsSecurityScoreRatingHelper()
 
@@ -109,4 +107,3 @@ struct MarketsTokenDetailsSecurityScoreDetailsRedesignedView: View {
         )
     )
 }
-#endif // DEBUG

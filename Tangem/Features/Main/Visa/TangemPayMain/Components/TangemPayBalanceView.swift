@@ -16,7 +16,13 @@ struct TangemPayBalanceView: View {
 
     var body: some View {
         LoadableBalanceView(
-            state: Self.applyFractionStyling(state),
+            state: AttributedBalanceFormatter.decimalColored(
+                state,
+                integerFont: TangemFontStyle(DesignSystem.Font.displayMediumToken),
+                fractionalFont: TangemFontStyle(DesignSystem.Font.headingMediumToken),
+                integerColor: DesignSystem.Color.textPrimary,
+                fractionalColor: DesignSystem.Color.textSecondary
+            ),
             style: .init(
                 font: DesignSystem.Font.displayMediumToken.font,
                 textColor: DesignSystem.Color.textPrimary
@@ -30,52 +36,8 @@ struct TangemPayBalanceView: View {
     }
 }
 
-// MARK: - Fraction styling
-
-private extension TangemPayBalanceView {
-    static func applyFractionStyling(_ state: LoadableBalanceView.State) -> LoadableBalanceView.State {
-        switch state {
-        case .loaded(let text):
-            return .loaded(text: styled(text))
-        case .loading(let cached):
-            return .loading(cached: cached.map(styled))
-        case .failed(let cached, let icon):
-            return .failed(cached: styled(cached), icon: icon)
-        }
-    }
-
-    static func styled(_ text: LoadableBalanceView.Text) -> LoadableBalanceView.Text {
-        switch text {
-        case .string(let raw):
-            return .attributed(format(raw))
-        case .attributed, .builder:
-            return text
-        }
-    }
-
-    static func format(_ raw: String) -> AttributedString {
-        BalanceFormatter().formatAttributedTotalBalance(
-            fiatBalance: raw,
-            formattingOptions: .init(
-                integerPartFont: TangemFontStyle(
-                    font: DesignSystem.Font.displayMediumToken.font,
-                    tracking: DesignSystem.Font.displayMediumToken.tracking
-                ),
-                fractionalPartFont: TangemFontStyle(
-                    font: DesignSystem.Font.headingMediumToken.font,
-                    tracking: DesignSystem.Font.headingMediumToken.tracking
-                ),
-                integerPartColor: DesignSystem.Color.textPrimary,
-                fractionalPartColor: DesignSystem.Color.textPrimary,
-                fractionalPartIncludesDecimalSeparator: true
-            )
-        )
-    }
-}
-
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 24) {
         TangemPayBalanceView(state: .loaded(text: "$18.97"))
@@ -85,4 +47,3 @@ private extension TangemPayBalanceView {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

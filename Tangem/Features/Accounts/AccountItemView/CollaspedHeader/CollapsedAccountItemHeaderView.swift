@@ -33,6 +33,15 @@ struct CollapsedAccountItemHeaderView: View {
             : .init(size: .init(width: .unit(.x10), height: .unit(.x3)))
     }
 
+    // [REDACTED_INFO]: drop gating, keep the redesign values (line spacing 4, padding 12).
+    private var lineSpacing: CGFloat {
+        FeatureProvider.isAvailable(.redesign) ? .unit(.x1) : 2
+    }
+
+    private var contentPadding: CGFloat {
+        FeatureProvider.isAvailable(.redesign) ? .unit(.x3) : 14
+    }
+
     var body: some View {
         TwoLineRowWithIcon(
             icon: {
@@ -56,8 +65,15 @@ struct CollapsedAccountItemHeaderView: View {
             },
             primaryTrailingView: {
                 LoadableBalanceView(
-                    state: totalFiatBalance,
-                    style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
+                    state: AttributedBalanceFormatter.decimalColored(
+                        totalFiatBalance,
+                        integerPart: AttributedBalanceFormatter.PartStyle(font: nil, color: TangemRowConstants.Style.Title.color),
+                        fractionalPart: AttributedBalanceFormatter.PartStyle(font: nil, color: Color.Tangem.Text.Neutral.secondary)
+                    ),
+                    style: .init(
+                        font: TangemRowConstants.Style.Title.font,
+                        textColor: TangemRowConstants.Style.Title.color
+                    ),
                     loader: balanceLoaderStyle
                 )
             },
@@ -74,38 +90,31 @@ struct CollapsedAccountItemHeaderView: View {
                 )
             }
         )
-        .linesSpacing(2)
-        .padding(14.0)
+        .linesSpacing(lineSpacing)
+        .padding(contentPadding)
     }
 }
 
-#if DEBUG
-private struct CollapsedAccountItemHeaderViewPreview: View {
-    @Namespace private var namespace
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @Namespace var namespace
 
-    var body: some View {
+    ZStack {
         let effects = AccountGeometryEffects(namespace: namespace)
 
-        ZStack {
-            Color.gray
+        Color.gray
 
-            CollapsedAccountItemHeaderView(
-                name: "Test",
-                iconData: .composite(backgroundColor: .red, nameMode: .letter("A")),
-                tokensCount: "5 Tokens",
-                totalFiatBalance: .loaded(text: "$1234.56"),
-                priceChange: .loaded(changeType: .positive, text: "+5.67%"),
-                iconGeometryEffect: effects.icon,
-                iconBackgroundGeometryEffect: effects.iconBackground,
-                nameGeometryEffect: effects.name,
-                tokensCountGeometryEffect: effects.tokensCount,
-                balanceGeometryEffect: effects.balance
-            )
-        }
+        CollapsedAccountItemHeaderView(
+            name: "Test",
+            iconData: .composite(backgroundColor: .red, nameMode: .letter("A")),
+            tokensCount: "5 Tokens",
+            totalFiatBalance: .loaded(text: "$1234.56"),
+            priceChange: .loaded(changeType: .positive, text: "+5.67%"),
+            iconGeometryEffect: effects.icon,
+            iconBackgroundGeometryEffect: effects.iconBackground,
+            nameGeometryEffect: effects.name,
+            tokensCountGeometryEffect: effects.tokensCount,
+            balanceGeometryEffect: effects.balance
+        )
     }
 }
-
-#Preview {
-    CollapsedAccountItemHeaderViewPreview()
-}
-#endif

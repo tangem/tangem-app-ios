@@ -11,6 +11,7 @@ import Foundation
 public enum P2PStakingError: Error {
     case apiError(P2PAPIError?)
     case httpError(statusCode: Int)
+    case regionUnavailable
     case failedToGetFee
     case invalidVault
     case transactionNotFound
@@ -19,6 +20,7 @@ public enum P2PStakingError: Error {
 
 public enum P2PAPIError: Int, Error, CaseIterable {
     case insufficientAccountBalance = 127102
+    case invalidDelegatorAddress = 127108
     case unknown = -1
 
     init(apiError: P2PDTO.APIError) {

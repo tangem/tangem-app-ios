@@ -1,6 +1,6 @@
 //
 //  KaspaTransactionHistoryMapper.swift
-//  TangemApp
+//  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -154,7 +154,9 @@ extension KaspaTransactionHistoryMapper: TransactionHistoryMapper {
                 status: transactionStatus,
                 isOutgoing: isOutgoing,
                 type: .transfer,
-                date: transaction.blockTime
+                date: transaction.blockTime,
+                tokenTransfers: [],
+                nonce: nil
             )
         }
     }

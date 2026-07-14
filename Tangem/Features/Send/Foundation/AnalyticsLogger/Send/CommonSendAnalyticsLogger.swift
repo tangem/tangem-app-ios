@@ -19,6 +19,7 @@ class CommonSendAnalyticsLogger {
 
     private let sendType: SendType
     private let coordinatorSource: SendCoordinator.Source
+    private let addressBookAnalyticsLogger: any AddressBookAnalyticsLogger
     private var destinationAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     private var sourceTokenItem: TokenItem? {
         sendSourceTokenInput?.sourceToken.value?.tokenItem
@@ -48,9 +49,14 @@ class CommonSendAnalyticsLogger {
         coordinatorSource == .qrScan ? .qr : .manually
     }
 
-    init(sendType: SendType, coordinatorSource: SendCoordinator.Source = .main) {
+    init(
+        sendType: SendType,
+        coordinatorSource: SendCoordinator.Source = .main,
+        addressBookAnalyticsLogger: any AddressBookAnalyticsLogger
+    ) {
         self.sendType = sendType
         self.coordinatorSource = coordinatorSource
+        self.addressBookAnalyticsLogger = addressBookAnalyticsLogger
     }
 
     private func buildRateTypeAnalyticsValue() -> String? {
@@ -119,6 +125,19 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
 
     func logQRScannerOpened() {
         Analytics.log(.sendButtonQRCode)
+    }
+
+    func logAddressBookWidgetShown() {
+        let walletId = sendSourceTokenInput?.sourceToken.value?.userWalletInfo.id.stringValue
+        addressBookAnalyticsLogger.logSendFlowWidgetShown(walletId: walletId ?? "")
+    }
+
+    func logAddressBookContactSelected(_ contact: AddressBookContact) {
+        addressBookAnalyticsLogger.logContactSelected(walletId: contact.walletId.stringValue, contactId: contact.id.stringValue)
+    }
+
+    func logAddressBookAddressSubstituted(_ contact: AddressBookContact) {
+        addressBookAnalyticsLogger.logAddressSubstitutedInSend(walletId: contact.walletId.stringValue, contactId: contact.id.stringValue)
     }
 
     func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource) {
@@ -421,6 +440,10 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
 extension CommonSendAnalyticsLogger: SendSwapProvidersAnalyticsLogger {
     func logSendSwapProvidersChosen(provider: ExpressProvider) {
         Analytics.log(event: .sendProviderChosen, params: [.provider: provider.name])
+    }
+
+    func logSendSwapFilterProviderTapped(type: Analytics.ParameterValue) {
+        Analytics.log(.swapFilterProvider, params: [.type: type])
     }
 }
 

@@ -18,6 +18,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     /// Tracks token IDs for which the news carousel scroll event has been logged in the current session.
     /// Using a static set ensures the event is only logged once per app session per token.
@@ -46,11 +47,13 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     @Published private(set) var portfolioViewModel: MarketsPortfolioContainerViewModel?
     @Published private(set) var portfolioBlockState: MarketsPortfolioContainerViewModel.PortfolioBlockState = .loading
+    @Published private(set) var isAddButtonVisible: Bool = false
 
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
     @Published var securityScoreDetailsViewModel: MarketsTokenDetailsSecurityScoreDetailsViewModel?
     @Published private(set) var numberOfExchangesListedOn: Int?
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
     @Published var fullDescriptionBottomSheetInfo: DescriptionBottomSheetInfo?
@@ -157,8 +160,11 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     private let initialDate = Date()
 
     private let tokenInfo: MarketsTokenModel
+    private let marketingNotificationManager = MarketingBannerNotificationManager()
     private let dataProvider: MarketsTokenDetailsDataProvider
     private let marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper
+
+    let priceAlertBellViewModel: PriceAlertBellViewModel?
     private let walletDataProvider = MarketsWalletDataProvider()
     private let marketsNewsProvider = MarketsRelatedTokenNewsProvider()
 
@@ -183,6 +189,9 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         tokenName = tokenInfo.name
         selectedPriceChangeIntervalType = .day
         tokenSymbol = tokenInfo.symbol
+        priceAlertBellViewModel = FeatureProvider.isAvailable(.priceAlertsSubscription)
+            ? PriceAlertBellViewModel(tokenId: tokenInfo.id, coordinator: coordinator)
+            : nil
 
         // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
         super.init(overlayContentProgressInitialValue: 1.0)
@@ -318,6 +327,14 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     }
 
     func onTapAddToPortfolioPromo() {
+        addTokenToPortfolio()
+    }
+
+    func onTapAddButton() {
+        addTokenToPortfolio()
+    }
+
+    private func addTokenToPortfolio() {
         guard
             let portfolioViewModel,
             !portfolioViewModel.isAddTokenButtonDisabled,
@@ -330,6 +347,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     }
 
     func onAddFundsTap() {
+        Analytics.log(.marketsChartButtonAddFunds)
         portfolioViewModel?.onAddFundsTap()
     }
 
@@ -443,6 +461,14 @@ private extension MarketsTokenDetailsViewModel {
 
 private extension MarketsTokenDetailsViewModel {
     func bind() {
+        marketingNotificationManager.setup(
+            bannersPublisher: marketingCampaignsRepository.bannersPublisher(forMarketsTokenId: tokenInfo.id)
+        )
+
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
+
         currentPricePublisher
             .assign(to: \.priceFromQuoteRepository, on: self, ownership: .weak)
             .store(in: &bag)
@@ -617,6 +643,13 @@ private extension MarketsTokenDetailsViewModel {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.portfolioBlockState, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        portfolioViewModel
+            .$isAddButtonVisible
+            .receiveOnMain()
+            .removeDuplicates()
+            .assign(to: \.isAddButtonVisible, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
