@@ -22,6 +22,7 @@ final class TransferViewModel: ObservableObject {
 
     private let walletModel: any WalletModel
     private let userWalletInfo: UserWalletInfo
+    private let availabilityProvider: TokenActionAvailabilityProvider
 
     private weak var coordinator: TransferRoutable?
 
@@ -32,6 +33,7 @@ final class TransferViewModel: ObservableObject {
         self.walletModel = walletModel
         self.userWalletInfo = userWalletInfo
         self.coordinator = coordinator
+        availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
 
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let badge = Self.makeAccountBadge(walletModel: walletModel, userWalletInfo: userWalletInfo)
@@ -39,7 +41,7 @@ final class TransferViewModel: ObservableObject {
             tokenIconInfo: tokenIconInfo,
             fiatBalance: walletModel.fiatTotalTokenBalanceProvider.formattedBalanceType.loadableTextViewState,
             cryptoBalance: walletModel.totalTokenBalanceProvider.formattedBalanceType.loadableTextViewState,
-            accountBadge: badge
+            badge: .account(badge)
         )
 
         bind()
@@ -68,6 +70,17 @@ final class TransferViewModel: ObservableObject {
         }
     }
 
+    func isEnabled(_ option: TransferOption) -> Bool {
+        switch option {
+        // Sell/swap/swap-and-send follow the wallet features (`.exchange`/`.swapping`), so wallets that hide
+        // them (e.g. Start2Coin) show the row disabled. Send stays gated by real send availability
+        // (blocked on zero balance and other sending restrictions).
+        case .sell: userWalletInfo.config.isFeatureVisible(.exchange)
+        case .swap, .swapAndSend: userWalletInfo.config.isFeatureVisible(.swapping)
+        case .send: availabilityProvider.isSendAvailable
+        }
+    }
+
     func close() {
         Task { @MainActor in coordinator?.transferClose() }
     }
@@ -88,7 +101,7 @@ private extension TransferViewModel {
                 tokenIconInfo: tokenInfoViewData.tokenIconInfo,
                 fiatBalance: fiat.loadableTextViewState,
                 cryptoBalance: crypto.loadableTextViewState,
-                accountBadge: tokenInfoViewData.accountBadge
+                badge: tokenInfoViewData.badge
             )
         }
         .store(in: &bag)
