@@ -21,8 +21,10 @@ struct TransferView: View {
                 onClose: viewModel.close
             )
 
-            AddFundsTokenInfoView(viewData: viewModel.tokenInfoViewData)
-                .padding(.top, 64)
+            viewModel.tokenInfoViewData.map {
+                AddFundsTokenInfoView(viewData: $0)
+                    .padding(.top, 64)
+            }
 
             Spacer()
 
