@@ -282,7 +282,7 @@ public extension VisaCustomerInfoResponse {
             public let type: ItemType
             public let order: Int
             public let title: String
-            public let body: String
+            public let body: String?
 
             public init(from decoder: Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -295,6 +295,7 @@ public extension VisaCustomerInfoResponse {
             public enum ItemType: String, Codable {
                 case cardRelated = "CARD_RELATED"
                 case planRelated = "PLAN_RELATED"
+                case onboardingRelated = "ONBOARDING_RELATED"
 
                 public init(from decoder: Decoder) throws {
                     let raw = try decoder.singleValueContainer().decode(String.self)
