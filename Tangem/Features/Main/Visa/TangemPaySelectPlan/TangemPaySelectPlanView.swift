@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -19,9 +20,15 @@ struct TangemPaySelectPlanView: View {
     var body: some View {
         content
             .background { background }
-            .safeAreaInset(edge: .bottom, spacing: 0) { footer }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if !viewModel.isLoading {
+                    footer
+                }
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbar }
+            .alert(item: $viewModel.alert) { $0.alert }
+            .task { await viewModel.loadTransitions() }
             .modifyView { view in
                 if #unavailable(iOS 26.0) {
                     view.backportTranslucentNavigationBar()
@@ -31,7 +38,17 @@ struct TangemPaySelectPlanView: View {
             }
     }
 
+    @ViewBuilder
     private var content: some View {
+        if viewModel.isLoading {
+            ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            plansContent
+        }
+    }
+
+    private var plansContent: some View {
         ScrollView {
             VStack(spacing: 0) {
                 carousel
@@ -82,10 +99,7 @@ struct TangemPaySelectPlanView: View {
             ScrollView(.horizontal) {
                 HStack(spacing: Constants.cardSpacing) {
                     ForEach(viewModel.plans) { plan in
-                        // [REDACTED_TODO_COMMENT]
-                        Assets.Visa.cardPlatinum.image
-                            .resizable()
-                            .frame(width: Constants.cardWidth, height: Constants.cardHeight)
+                        planCard(plan)
                             .id(plan.id)
                     }
                 }
@@ -112,15 +126,23 @@ struct TangemPaySelectPlanView: View {
     private var legacyCarousel: some View {
         TabView(selection: $viewModel.selectedPlanID) {
             ForEach(viewModel.plans) { plan in
-                // [REDACTED_TODO_COMMENT]
-                Assets.Visa.cardPlatinum.image
-                    .resizable()
-                    .frame(width: Constants.cardWidth, height: Constants.cardHeight)
+                planCard(plan)
                     .tag(plan.id as String?)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .frame(height: Constants.cardHeight)
+    }
+
+    private func planCard(_ plan: TangemPaySelectPlanViewModel.Plan) -> some View {
+        KFImage(plan.imageURL.flatMap { URL(string: $0) })
+            .placeholder {
+                Assets.Visa.cardPlatinum.image
+                    .resizable()
+            }
+            .resizable()
+            .scaledToFit()
+            .frame(width: Constants.cardWidth, height: Constants.cardHeight)
     }
 
     private var pointsList: some View {
@@ -166,6 +188,7 @@ struct TangemPaySelectPlanView: View {
             .size(.x12)
             .styleType(.secondary)
             .horizontalLayout(.infinity)
+            .disabled(viewModel.isPlacingOrder)
 
             TangemButtonV2(
                 label: AttributedString(viewModel.selectButtonTitle),
@@ -175,7 +198,8 @@ struct TangemPaySelectPlanView: View {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
-            .disabled(true) // [REDACTED_TODO_COMMENT]
+            .isLoading(viewModel.isPlacingOrder)
+            .disabled(!viewModel.isSelectEnabled)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
