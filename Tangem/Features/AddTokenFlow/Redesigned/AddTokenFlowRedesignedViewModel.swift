@@ -221,7 +221,7 @@ private extension AddTokenFlowRedesignedViewModel {
             case .executeAction(let action):
                 action(addedToken, accountSelectorCell)
             case .showGetToken:
-                coordinator?.close()
+                coordinator?.addTokenFlowShowGetToken(for: addedToken, accountSelectorCell: accountSelectorCell)
             }
 
         case .failure(let error):
@@ -308,6 +308,24 @@ extension AddTokenFlowRedesignedViewModel {
             case .confirm: return "confirm"
             case .networkPicker: return "networkPicker"
             case .accountPicker: return "accountPicker"
+            }
+        }
+
+        var canBeClosed: Bool {
+            switch self {
+            case .confirm, .accountPicker:
+                return true
+            case .networkPicker:
+                return false
+            }
+        }
+
+        var canGoBack: Bool {
+            switch self {
+            case .confirm, .accountPicker:
+                return false
+            case .networkPicker:
+                return true
             }
         }
 
