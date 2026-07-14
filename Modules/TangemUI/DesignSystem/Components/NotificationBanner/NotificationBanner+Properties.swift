@@ -247,8 +247,9 @@ public extension NotificationBanner {
 
 public extension NotificationBanner {
     enum Priority: Int, Comparable, Equatable, Sendable {
-        case low = 0
-        case high = 1
+        case low = 1
+        case mid = 2
+        case high = 3
 
         public static func < (lhs: Priority, rhs: Priority) -> Bool {
             lhs.rawValue < rhs.rawValue
