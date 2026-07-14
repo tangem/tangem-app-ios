@@ -18,7 +18,6 @@ struct TransferView: View {
         VStack(spacing: 16) {
             AddFundsStackNavigationBar(
                 title: viewModel.title,
-                accountBadge: nil,
                 onClose: viewModel.close
             )
 
@@ -39,7 +38,7 @@ struct TransferView: View {
     private var optionsSection: some View {
         VStack(spacing: .unit(.x2)) {
             ForEach(viewModel.options) { option in
-                AddFundsOptionView(viewData: option.viewData, action: {
+                AddFundsOptionView(viewData: option.viewData, isEnabled: viewModel.isEnabled(option), action: {
                     viewModel.userDidTap(option)
                 })
             }

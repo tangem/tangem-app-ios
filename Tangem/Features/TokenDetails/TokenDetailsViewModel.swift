@@ -778,11 +778,9 @@ private extension TokenDetailsViewModel {
         let subtitle: String
 
         if walletModel.tokenItem.isToken {
-            let tokenName = walletModel.tokenItem.blockchain.tokenTypeName ?? Localization.commonToken
             let networkName = walletModel.tokenItem.blockchain.displayName
-            let preposition = Localization.commonIn
             let network = Localization.wcCommonNetwork.lowercased()
-            subtitle = "\(tokenName) \(preposition) \(networkName) \(network)"
+            subtitle = "\(networkName) \(network)"
         } else {
             subtitle = Localization.commonMainNetwork
         }

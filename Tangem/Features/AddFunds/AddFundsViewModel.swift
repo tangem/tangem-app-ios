@@ -29,7 +29,6 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
     let cryptoBalanceText: String
 
     @Published private(set) var tokenInfoViewData: AddFundsTokenInfoView.ViewData
-    @Published private(set) var accountBadge: AddFundsTokenInfoView.AccountBadge
 
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
@@ -62,13 +61,12 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
             currencyCode: input.walletModel.tokenItem.currencySymbol
         )
 
-        let badge = Self.makeAccountBadge(walletModel: input.walletModel, userWalletModel: input.userWalletModel)
-        accountBadge = badge
+        let badge = Self.makeBadge(walletModel: input.walletModel, userWalletModel: input.userWalletModel)
         tokenInfoViewData = AddFundsTokenInfoView.ViewData(
             tokenIconInfo: tokenIconInfo,
             fiatBalance: input.walletModel.fiatTotalTokenBalanceProvider.formattedBalanceType.loadableTextViewState,
             cryptoBalance: input.walletModel.totalTokenBalanceProvider.formattedBalanceType.loadableTextViewState,
-            accountBadge: badge
+            badge: badge
         )
 
         bind()
@@ -172,7 +170,7 @@ private extension AddFundsViewModel {
                 tokenIconInfo: tokenInfoViewData.tokenIconInfo,
                 fiatBalance: fiat.loadableTextViewState,
                 cryptoBalance: crypto.loadableTextViewState,
-                accountBadge: tokenInfoViewData.accountBadge
+                badge: tokenInfoViewData.badge
             )
         }
         .store(in: &bag)
@@ -182,22 +180,29 @@ private extension AddFundsViewModel {
         return Localization.commonGet + " " + tokenItem.name
     }
 
-    static func makeAccountBadge(
+    static func makeBadge(
         walletModel: any WalletModel,
         userWalletModel: any UserWalletModel
-    ) -> AddFundsTokenInfoView.AccountBadge {
-        if let account = walletModel.account {
-            return AddFundsTokenInfoView.AccountBadge(
+    ) -> AddFundsTokenInfoView.Badge? {
+        let hasMultipleAccounts = userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+
+        if hasMultipleAccounts, let account = walletModel.account {
+            return .account(AddFundsTokenInfoView.AccountBadge(
                 iconData: AccountModelUtils.UI.iconViewData(accountModel: account),
                 name: account.name
-            )
+            ))
         }
 
-        let letter = userWalletModel.name.first.map(String.init) ?? ""
-        return AddFundsTokenInfoView.AccountBadge(
-            iconData: .composite(backgroundColor: Colors.Accounts.azureBlue, nameMode: .letter(letter)),
+        let hasMultipleWallets = InjectedValues[\.userWalletRepository].models.count > 1
+
+        guard hasMultipleWallets else {
+            return nil
+        }
+
+        return .wallet(AddFundsTokenInfoView.WalletBadge(
+            thumbnail: userWalletModel.config.walletThumbnailType,
             name: userWalletModel.name
-        )
+        ))
     }
 }
 
