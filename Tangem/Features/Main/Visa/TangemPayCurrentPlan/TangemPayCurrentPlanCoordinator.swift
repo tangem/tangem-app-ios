@@ -25,7 +25,6 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
     @Published var selectPlanViewModel: TangemPaySelectPlanViewModel?
 
     private var options: Options?
-    private var transitions: TangemPayTariffPlanTransitionsResponse = []
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -39,7 +38,6 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
         self.options = options
         currentPlanViewModel = TangemPayCurrentPlanViewModel(
             customerTariffPlan: options.customerTariffPlan,
-            customerService: options.customerService,
             coordinator: self
         )
     }
@@ -58,9 +56,16 @@ extension TangemPayCurrentPlanCoordinator {
 // MARK: - TangemPayCurrentPlanRoutable
 
 extension TangemPayCurrentPlanCoordinator: TangemPayCurrentPlanRoutable {
-    func openSelectPlan(transitions: TangemPayTariffPlanTransitionsResponse) {
-        self.transitions = transitions
-        selectPlanViewModel = TangemPaySelectPlanViewModel(transitions: transitions, coordinator: self)
+    func openSelectPlan() {
+        guard let customerService = options?.customerService else {
+            return
+        }
+
+        selectPlanViewModel = TangemPaySelectPlanViewModel(
+            transitionsLoader: { try await customerService.getTariffPlanTransitions() },
+            descriptionContext: .planChange,
+            coordinator: self
+        )
     }
 }
 
@@ -72,7 +77,7 @@ extension TangemPayCurrentPlanCoordinator: TangemPaySelectPlanRoutable {
         options?.closeFlow()
     }
 
-    func openComparePlans() {
+    func openComparePlans(transitions: TangemPayTariffPlanTransitionsResponse) {
         let viewModel = TangemPayComparePlansSheetViewModel(transitions: transitions, coordinator: self)
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
