@@ -425,7 +425,8 @@ extension TokenActionAvailabilityProvider {
         case (.notLoaded, .updated):
             return .expressNotLoaded
         case (.unavailable, .updated):
-            return .unavailable(tokenName: walletModel.tokenItem.name)
+            // Onramp doesn't support this token — open Buy anyway; the onramp screen shows the "not supported" notice.
+            return .available
         case (.notLoaded, .failed), (.unavailable, .failed):
             return .expressUnreachable
         }
