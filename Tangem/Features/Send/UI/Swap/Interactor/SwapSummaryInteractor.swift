@@ -55,7 +55,7 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
     var transactionDescription: AnyPublisher<AttributedString?, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input
@@ -68,7 +68,7 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
     var isMaxAmountButtonHiddenPublisher: AnyPublisher<Bool, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input.isMaxAmountButtonHiddenPublisher
@@ -77,7 +77,7 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
     var areAmountFractionsHiddenPublisher: AnyPublisher<Bool, Never> {
         guard let sourceTokenInput else {
             assertionFailure("SendSourceTokenInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return sourceTokenInput
@@ -100,7 +100,7 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input.isNotificationButtonIsLoading
@@ -109,7 +109,7 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input.isUpdatingPublisher
@@ -118,7 +118,7 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
     var isActionInProcessing: AnyPublisher<Bool, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input.isActionInProcessing
@@ -127,7 +127,7 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input.isReadyToSendPublisher
@@ -136,7 +136,7 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
     var mainButtonStatePublisher: AnyPublisher<SwapSummaryViewModel.MainButtonState, Never> {
         guard let swapModelStateProvider else {
             assertionFailure("SwapModelStateProvider is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return swapModelStateProvider.statePublisher

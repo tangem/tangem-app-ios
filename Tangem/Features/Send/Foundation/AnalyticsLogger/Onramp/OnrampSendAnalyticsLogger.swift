@@ -23,6 +23,7 @@ protocol OnrampSendAnalyticsLogger: OnrampManagementModelAnalyticsLogger,
 protocol OnrampManagementModelAnalyticsLogger {
     func logOnrampSelectedProvider(provider: OnrampProvider)
     func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String)
+    func logOnrampNoticeBuyNotSupported()
 }
 
 // MARK: - Offers

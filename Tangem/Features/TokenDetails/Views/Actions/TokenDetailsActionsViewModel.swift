@@ -20,6 +20,7 @@ final class TokenDetailsActionsViewModel: ObservableObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     private let walletModel: any WalletModel
+    private let userWalletConfig: UserWalletConfig
     private let availabilityProvider: TokenActionAvailabilityProvider
     private weak var actionsRoutable: (any TokenDetailsActionsRoutable)?
 
@@ -30,6 +31,7 @@ final class TokenDetailsActionsViewModel: ObservableObject {
         userWalletInfo: UserWalletInfo
     ) {
         self.walletModel = walletModel
+        userWalletConfig = userWalletInfo.config
         availabilityProvider = TokenActionAvailabilityProvider(
             userWalletInfo: userWalletInfo,
             walletModel: walletModel
@@ -131,7 +133,7 @@ private extension TokenDetailsActionsViewModel {
         return TokenDetailsActionsButton(
             id: .swap,
             title: Localization.commonSwap,
-            icon: Assets.exchangeMini,
+            icon: Assets.DesignSystem.exchange,
             accessibilityIdentifier: TokenActionType.exchange.accessibilityIdentifier,
             isAvailable: availabilityProvider.isSwapAvailable,
             action: { [weak self] in
@@ -189,7 +191,7 @@ private extension TokenDetailsActionsViewModel {
                     switch type {
                     case .receive:
                         morphToReceive(in: sheetViewModelRef)
-                    case .buy, .send, .exchange, .stake, .sell, .copyAddress, .marketsDetails, .hide, .yield:
+                    case .buy, .send, .exchange, .swapAndSend, .stake, .sell, .copyAddress, .marketsDetails, .hide, .yield:
                         if kind == .transfer, let event = Self.transferButtonEvent(for: type) {
                             Analytics.log(event)
                         }
@@ -228,10 +230,13 @@ private extension TokenDetailsActionsViewModel {
 
     func isRowItemAvailable(for actionType: TokenActionType) -> Bool {
         switch actionType {
-        case .buy: availabilityProvider.isBuyAvailable
-        case .send: true
-        case .exchange: availabilityProvider.isSwapAvailable
-        case .sell: availabilityProvider.isSellAvailable
+        // Buy/swap are gated by the wallet features (`.exchange`/`.swapping`): wallets that hide them
+        // (e.g. Start2Coin) keep the row visible but disabled instead of tappable.
+        case .buy: userWalletConfig.isFeatureVisible(.exchange) && availabilityProvider.isBuyAvailable
+        case .send: availabilityProvider.isSendAvailable
+        case .exchange: userWalletConfig.isFeatureVisible(.swapping) && availabilityProvider.isSwapAvailable
+        case .swapAndSend: userWalletConfig.isFeatureVisible(.swapping) && availabilityProvider.isSwapAvailable
+        case .sell: userWalletConfig.isFeatureVisible(.exchange) && availabilityProvider.isSellAvailable
         case .receive: availabilityProvider.isReceiveAvailable
         default: false
         }
@@ -276,7 +281,7 @@ private extension TokenDetailsActionsViewModel {
     }
 
     func outgoingOptions() -> [TokenActionType] {
-        [.send, .exchange, .sell]
+        [.send, .exchange, .swapAndSend, .sell]
     }
 }
 
@@ -314,6 +319,7 @@ private extension TokenDetailsActionsViewModel {
         switch type {
         case .buy: return Localization.quickActionBuyDescription
         case .exchange: return Localization.quickActionSwapDescription
+        case .swapAndSend: return Localization.quickActionSendAndSwapDescription
         case .receive: return Localization.quickActionReceiveDescription
         case .send: return Localization.quickActionSendDescription
         case .sell: return Localization.quickActionSellDescription
@@ -340,6 +346,7 @@ private extension TokenDetailsActionsViewModel {
         switch type {
         case .send: .transferButtonSend
         case .exchange: .transferButtonSwap
+        case .swapAndSend: .transferButtonSwapAndSend
         case .sell: .transferButtonSell
         default: nil
         }

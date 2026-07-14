@@ -680,7 +680,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             if let yieldModuleManager = walletModel.yieldModuleManager {
                 coordinator.openYield(input: sendInput, yieldModuleManager: yieldModuleManager)
             }
-        case .hide, .marketsDetails, .send, .sell, .copyAddress:
+        case .hide, .marketsDetails, .send, .sell, .copyAddress, .swapAndSend:
             break
         }
     }
