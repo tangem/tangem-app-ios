@@ -40,16 +40,20 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
     }
 
     public var body: some View {
-        LazyVStack(spacing: SizeUnit.x2.value) {
-            ForEach(nonStackableItems) { item in
-                NotificationBanner(
-                    bannerType: item.bannerType,
-                    accessibilityIdentifier: item.accessibilityIdentifier
-                )
-            }
+        if items.isEmpty {
+            EmptyView()
+        } else {
+            LazyVStack(spacing: SizeUnit.x2.value) {
+                ForEach(nonStackableItems) { item in
+                    NotificationBanner(
+                        bannerType: item.bannerType,
+                        accessibilityIdentifier: item.accessibilityIdentifier
+                    )
+                }
 
-            if !stackableItems.isEmpty {
-                collection(for: stackableItems)
+                if !stackableItems.isEmpty {
+                    collection(for: stackableItems)
+                }
             }
         }
     }
