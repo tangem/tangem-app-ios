@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 protocol InformationRelevanceService {
     var isActual: Bool { get }
@@ -66,7 +67,7 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
 
     func updateInformation() -> AnyPublisher<InformationRelevanceServiceUpdateResult, any Error> {
         guard let input else {
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         defer { provider?.updateFees() }
