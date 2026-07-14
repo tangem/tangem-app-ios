@@ -77,7 +77,7 @@ struct TokenSelectorItem: Hashable, Identifiable {
         case .crypto(let walletModel, _):
             walletModel.fiatTotalTokenBalanceProvider
         case .tangemPay(let tangemPayAccount, _, _):
-            tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider
+            tangemPayAccount.balancesProvider.fiatTotalTokenBalanceProvider
         }
     }
 
