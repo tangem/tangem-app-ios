@@ -16,34 +16,31 @@ import TangemUI
 
 final class TransferViewModel: ObservableObject {
     let title = Localization.actionbuttonTransferTitle
-    let options: [TransferOption] = [.sell, .swap, .swapAndSend, .send]
+    let options: [TransferOption] = [.send, .swap, .swapAndSend, .sell]
 
-    @Published private(set) var tokenInfoViewData: AddFundsTokenInfoView.ViewData
+    @Published private(set) var tokenInfoViewData: AddFundsTokenInfoView.ViewData?
+
+    // MARK: - Injected
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     private let walletModel: any WalletModel
     private let userWalletInfo: UserWalletInfo
+
+    private let tokenIconInfo: TokenIconInfo
     private let availabilityProvider: TokenActionAvailabilityProvider
 
     private weak var coordinator: TransferRoutable?
 
-    private var bag = Set<AnyCancellable>()
     private var didTrackScreenOpened = false
 
     init(walletModel: any WalletModel, userWalletInfo: UserWalletInfo, coordinator: TransferRoutable) {
         self.walletModel = walletModel
         self.userWalletInfo = userWalletInfo
         self.coordinator = coordinator
+        tokenIconInfo = Self.makeTokenIconInfo(walletModel: walletModel)
         availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
-
-        let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
-        let badge = Self.makeAccountBadge(walletModel: walletModel, userWalletInfo: userWalletInfo)
-        tokenInfoViewData = AddFundsTokenInfoView.ViewData(
-            tokenIconInfo: tokenIconInfo,
-            fiatBalance: walletModel.fiatTotalTokenBalanceProvider.formattedBalanceType.loadableTextViewState,
-            cryptoBalance: walletModel.totalTokenBalanceProvider.formattedBalanceType.loadableTextViewState,
-            badge: .account(badge)
-        )
-
         bind()
     }
 
@@ -60,6 +57,10 @@ final class TransferViewModel: ObservableObject {
 
         switch option {
         case .sell:
+            guard isSellAvailable() else {
+                showSellUnavailabilityAlert()
+                return
+            }
             Task { @MainActor in coordinator?.transferRequestSell(walletModel: walletModel, userWalletInfo: userWalletInfo) }
         case .swap:
             Task { @MainActor in coordinator?.transferRequestSwap(walletModel: walletModel, userWalletInfo: userWalletInfo) }
@@ -95,22 +96,53 @@ private extension TransferViewModel {
             walletModel.totalTokenBalanceProvider.formattedBalanceTypePublisher
         )
         .receiveOnMain()
-        .sink { [weak self] fiat, crypto in
-            guard let self else { return }
-            tokenInfoViewData = AddFundsTokenInfoView.ViewData(
-                tokenIconInfo: tokenInfoViewData.tokenIconInfo,
-                fiatBalance: fiat.loadableTextViewState,
-                cryptoBalance: crypto.loadableTextViewState,
-                badge: tokenInfoViewData.badge
+        .withWeakCaptureOf(self)
+        .map { viewModel, balanceTypes in
+            let (fiatBalanceType, cryptoBalanceType) = balanceTypes
+            return viewModel.makeTokenInfoViewData(
+                fiatBalanceType: fiatBalanceType,
+                cryptoBalanceType: cryptoBalanceType
             )
         }
-        .store(in: &bag)
+        .assign(to: &$tokenInfoViewData)
     }
 
-    static func makeAccountBadge(
-        walletModel: any WalletModel,
-        userWalletInfo: UserWalletInfo
-    ) -> AddFundsTokenInfoView.AccountBadge {
+    func makeTokenInfoViewData(
+        fiatBalanceType: FormattedTokenBalanceType,
+        cryptoBalanceType: FormattedTokenBalanceType
+    ) -> AddFundsTokenInfoView.ViewData {
+        let badge = makeBadge()
+
+        return AddFundsTokenInfoView.ViewData(
+            tokenIconInfo: tokenIconInfo,
+            fiatBalance: fiatBalanceType.loadableTextViewState,
+            cryptoBalance: cryptoBalanceType.loadableTextViewState,
+            badge: badge
+        )
+    }
+
+    func makeBadge() -> AddFundsTokenInfoView.Badge? {
+        let unlockedWallets = userWalletRepository.models.filter { !$0.isUserWalletLocked }
+        let hasMultipleAccounts = unlockedWallets.contains {
+            $0.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+        }
+
+        if hasMultipleAccounts {
+            let accountBadge = makeAccountBadge()
+            return .account(accountBadge)
+        }
+
+        let hasMultipleWallets = unlockedWallets.count > 1
+
+        if hasMultipleWallets {
+            let walletBadge = makeWalletBadge()
+            return .wallet(walletBadge)
+        }
+
+        return nil
+    }
+
+    func makeAccountBadge() -> AddFundsTokenInfoView.AccountBadge {
         if let account = walletModel.account {
             return AddFundsTokenInfoView.AccountBadge(
                 iconData: AccountModelUtils.UI.iconViewData(accountModel: account),
@@ -123,5 +155,28 @@ private extension TransferViewModel {
             iconData: .composite(backgroundColor: Colors.Accounts.azureBlue, nameMode: .letter(letter)),
             name: userWalletInfo.name
         )
+    }
+
+    func makeWalletBadge() -> AddFundsTokenInfoView.WalletBadge {
+        AddFundsTokenInfoView.WalletBadge(
+            thumbnail: userWalletInfo.config.walletThumbnailType,
+            name: userWalletInfo.name
+        )
+    }
+
+    func isSellAvailable() -> Bool {
+        availabilityProvider.isSellAvailable
+    }
+
+    @MainActor
+    func showSellUnavailabilityAlert() {
+        let status = availabilityProvider.sellAvailability
+        if let alert = TokenActionAvailabilityAlertBuilder().alert(for: status) {
+            alertPresenter.present(alert: alert)
+        }
+    }
+
+    static func makeTokenIconInfo(walletModel: any WalletModel) -> TokenIconInfo {
+        TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
     }
 }
