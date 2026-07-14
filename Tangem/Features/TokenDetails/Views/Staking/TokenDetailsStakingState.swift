@@ -35,7 +35,7 @@ extension TokenDetailsStakingState {
 
     enum RewardsState {
         case claimed(String)
-        case auto
+        case auto(String)
         case empty(String)
     }
 
