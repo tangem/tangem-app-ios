@@ -14,11 +14,11 @@ final class MockTangemPayAssembly: TangemPayAssembly {
         = MockTangemPayCustomerWalletAddressAndSavedTokensResolver()
 
     func makeCardDetailsRepository(for tangemPayAccount: TangemPayAccount) -> TangemPayCardDetailsRepository {
-        MockTangemPayCardDetailsRepository()
+        MockTangemPayCardDetailsRepository(tangemPayAccount: tangemPayAccount)
     }
 
     func makeCardDetailsRepository(for card: TangemPayCard) -> TangemPayCardDetailsRepository {
-        MockTangemPayCardDetailsRepository()
+        MockTangemPayCardDetailsRepository(card: card)
     }
 
     func makeTransactionDispatcher(
