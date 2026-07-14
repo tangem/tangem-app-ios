@@ -21,7 +21,7 @@ struct BlockchainSDKNotificationMapperTests {
     )
 
     @Test("Token send builds the native-coin insufficient-balance-for-fee event")
-    func tokenSend_buildsInsufficientBalanceForFee() throws {
+    func tokenSendBuildsInsufficientBalanceForFee() throws {
         let mapper = BlockchainSDKNotificationMapper(tokenItem: usdtTokenItem)
 
         let event = mapper.mapToInsufficientBalanceForFeeEvent()
@@ -43,7 +43,7 @@ struct BlockchainSDKNotificationMapperTests {
     }
 
     @Test("Coin send degrades to plain insufficient-balance (no fee currency to top up)")
-    func coinSend_degradesToInsufficientBalance() {
+    func coinSendDegradesToInsufficientBalance() {
         let mapper = BlockchainSDKNotificationMapper(tokenItem: ethTokenItem)
 
         let event = mapper.mapToInsufficientBalanceForFeeEvent()
@@ -52,5 +52,22 @@ struct BlockchainSDKNotificationMapperTests {
             Issue.record("Expected .insufficientBalance for a coin send, got \(event)")
             return
         }
+    }
+
+    @Test("Gasless event uses the token itself as the fee currency")
+    func gaslessBuildsInsufficientBalanceForFeeInToken() throws {
+        let mapper = BlockchainSDKNotificationMapper(tokenItem: usdtTokenItem)
+
+        let event = mapper.mapToInsufficientGaslessFeeEvent()
+
+        guard case .insufficientBalanceForFee(let configuration) = event else {
+            Issue.record("Expected .insufficientBalanceForFee, got \(event)")
+            return
+        }
+
+        // The gasless fee is paid in the token itself, so the fee currency is the token — not the native coin.
+        #expect(configuration.feeAmountTypeName == usdtTokenItem.name)
+        #expect(configuration.feeAmountTypeCurrencySymbol == usdtTokenItem.currencySymbol)
+        #expect(configuration.transactionAmountTypeName == usdtTokenItem.name)
     }
 }
