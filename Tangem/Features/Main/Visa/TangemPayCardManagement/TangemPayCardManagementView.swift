@@ -11,6 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayCardManagementView: View {
     @ObservedObject var viewModel: TangemPayCardManagementViewModel
@@ -441,6 +442,7 @@ struct TangemPayCardManagementView: View {
                                 .renderingMode(.template)
                         }
                     }
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.reissueCardRow)
 
                     if let closeCardRow = viewModel.closeCardRow {
                         Divider()
@@ -461,6 +463,7 @@ struct TangemPayCardManagementView: View {
                         .foregroundColor(Colors.Icon.primary1)
                         .accessibilityLabel(Localization.commonMore)
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardManagementMoreButton)
             }
         }
     }
