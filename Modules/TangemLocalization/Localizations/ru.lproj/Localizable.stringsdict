@@ -13,13 +13,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>адрес</string>
+        <string>%li адрес</string>
         <key>few</key>
-        <string>адреса</string>
+        <string>%li адреса</string>
         <key>many</key>
-        <string>адресов</string>
+        <string>%li адресов</string>
         <key>other</key>
-        <string>адресов</string>
+        <string>%li адресов</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
