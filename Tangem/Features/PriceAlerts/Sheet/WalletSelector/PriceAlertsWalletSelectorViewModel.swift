@@ -30,6 +30,10 @@ final class PriceAlertsWalletSelectorViewModel: ObservableObject {
         makeWalletItems()
     }
 
+    func closeTapped() {
+        closeAction()
+    }
+
     func addToPriceAlertTapped() {
         let selectedModels = userWalletRepository.models.filter { selectedWalletIds.contains($0.userWalletId) }
         guard !selectedModels.isEmpty else {
