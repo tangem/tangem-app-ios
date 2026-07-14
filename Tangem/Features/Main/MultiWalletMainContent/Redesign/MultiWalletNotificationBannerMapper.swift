@@ -37,13 +37,17 @@ private extension MultiWalletNotificationBannerMapper {
         NotificationBannerItem(
             id: input.id,
             bannerType: makeBannerType(from: input),
-            priority: mapPriority(from: input.severity),
+            priority: mapPriority(from: input),
             accessibilityIdentifier: input.settings.event.accessibilityIdentifier
         )
     }
 
-    func mapPriority(from severity: NotificationView.Severity) -> NotificationBanner.Priority {
-        switch severity {
+    func mapPriority(from input: NotificationViewInput) -> NotificationBanner.Priority {
+        if (input.settings.event as? GeneralNotificationEvent) == .addFunds {
+            return .mid
+        }
+
+        switch input.severity {
         case .critical, .warning:
             return .high
         case .info:
