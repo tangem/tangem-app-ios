@@ -2,11 +2,11 @@
 //  CommonTokenFeeProviderMappingTests.swift
 //  TangemTests
 //
-//  Covers CommonTokenFeeProvider.mapToLoadableTokenFee (surfaced via selectedTokenFee.value)
-//  and the [REDACTED_INFO] fix: only a zero-balance native-coin fee token maps to
-//  TokenFeeProviderError.notEnoughBalanceForFee (which drives the "insufficient balance for
-//  network fee" notification). Gasless providers pay the fee in the token itself, so they must
-//  NOT take that path — including the .notEnoughFeeBalance state and a zero token balance.
+//  Covers CommonTokenFeeProvider.mapToLoadableTokenFee (surfaced via selectedTokenFee.value):
+//  a zero-balance native-coin fee token maps to TokenFeeProviderError.notEnoughBalanceForFee,
+//  while a gasless provider (fee paid in the token itself) maps its insufficient-fee states
+//  (.notEnoughFeeBalance / zero token balance) to .notEnoughGaslessFeeBalance. Both drive an
+//  "insufficient balance for fee" notification, but for the correct fee currency.
 //
 
 import Foundation
@@ -45,22 +45,22 @@ struct CommonTokenFeeProviderMappingTests {
     // MARK: - .noTokenBalance (set by the balance observer on a zero fee-token balance)
 
     @Test("Zero native-coin balance → notEnoughBalanceForFee (token send / native-coin approve)")
-    func noTokenBalance_nativeCoinFeeToken_mapsToNotEnoughBalanceForFee() {
+    func nativeCoinZeroBalanceMapsToNotEnoughBalanceForFee() {
         let sut = makeProvider(feeTokenItem: nativeCoinFeeToken, balance: 0)
 
         #expect(isNotEnoughBalanceForFee(sut.selectedTokenFee.value))
     }
 
-    @Test("Zero gasless-token balance → generic providerUnavailable, NOT the native-coin notification")
-    func noTokenBalance_gaslessTokenFeeToken_mapsToProviderUnavailable() {
+    @Test("Zero gasless-token balance → notEnoughGaslessFeeBalance, NOT the native-coin notification")
+    func gaslessTokenZeroBalanceMapsToNotEnoughGaslessFeeBalance() {
         let sut = makeProvider(feeTokenItem: gaslessTokenFeeToken, balance: 0)
 
-        #expect(isProviderUnavailable(sut.selectedTokenFee.value))
+        #expect(isNotEnoughGaslessFeeBalance(sut.selectedTokenFee.value))
         #expect(!isNotEnoughBalanceForFee(sut.selectedTokenFee.value))
     }
 
     @Test("Positive native-coin balance → not a failure (state is available/idle, no fee error)")
-    func positiveBalance_nativeCoinFeeToken_notNotEnoughBalanceForFee() {
+    func positiveNativeCoinBalanceIsNotFeeFailure() {
         let sut = makeProvider(feeTokenItem: nativeCoinFeeToken, balance: 1)
 
         #expect(!isNotEnoughBalanceForFee(sut.selectedTokenFee.value))
@@ -68,8 +68,8 @@ struct CommonTokenFeeProviderMappingTests {
 
     // MARK: - .notEnoughFeeBalance (gasless execution reverted, token balance below the gasless threshold)
 
-    @Test("Gasless notEnoughFeeBalance → providerUnavailable, NOT the native-coin notification")
-    func gaslessNotEnoughFeeBalance_mapsToProviderUnavailable() async {
+    @Test("Gasless notEnoughFeeBalance → notEnoughGaslessFeeBalance, NOT the native-coin notification")
+    func gaslessNotEnoughFeeBalanceMapsToNotEnoughGaslessFeeBalance() async {
         // decimalValue for a 6-decimal token is 1_000_000, so a 5_000_000 minimum = 5 tokens.
         // Balance 1 < 5 → the provider enters .unavailable(.notEnoughFeeBalance).
         let loader = ThrowingFeeLoaderMock(error: TokenFeeLoaderError.gaslessExecutionReverted(gaslessMinTokenAmount: 5_000_000))
@@ -78,14 +78,14 @@ struct CommonTokenFeeProviderMappingTests {
         sut.setup(input: .common(amount: 0.5, destination: "0xTo"))
         await sut.updateFees().value
 
-        #expect(isProviderUnavailable(sut.selectedTokenFee.value))
+        #expect(isNotEnoughGaslessFeeBalance(sut.selectedTokenFee.value))
         #expect(!isNotEnoughBalanceForFee(sut.selectedTokenFee.value))
     }
 
     // MARK: - .notSupported / error passthrough
 
     @Test("Loader-not-found → unsupportedByProvider")
-    func loaderNotFound_mapsToUnsupportedByProvider() async {
+    func loaderNotFoundMapsToUnsupportedByProvider() async {
         let loader = ThrowingFeeLoaderMock(error: TokenFeeLoaderError.tokenFeeLoaderNotFound)
         let sut = makeProvider(feeTokenItem: nativeCoinFeeToken, balance: 1, loader: loader)
 
@@ -96,7 +96,7 @@ struct CommonTokenFeeProviderMappingTests {
     }
 
     @Test("EVM gas-estimation rejection passes through unchanged for the notification layer to route")
-    func gasRequiredExceedsAllowance_passesThrough() async {
+    func gasRequiredExceedsAllowancePassesThrough() async {
         // Partial native-coin balance (> 0, so no .noTokenBalance); gas estimation is rejected by the node.
         let loader = ThrowingFeeLoaderMock(error: ETHError.gasRequiredExceedsAllowance)
         let sut = makeProvider(feeTokenItem: nativeCoinFeeToken, balance: 0.0001, loader: loader)
@@ -118,8 +118,8 @@ struct CommonTokenFeeProviderMappingTests {
         return false
     }
 
-    private func isProviderUnavailable(_ value: LoadingResult<BSDKFee, any Error>) -> Bool {
-        if case .failure(let error) = value, case TokenFeeProviderError.providerUnavailable = error { return true }
+    private func isNotEnoughGaslessFeeBalance(_ value: LoadingResult<BSDKFee, any Error>) -> Bool {
+        if case .failure(let error) = value, case TokenFeeProviderError.notEnoughGaslessFeeBalance = error { return true }
         return false
     }
 
