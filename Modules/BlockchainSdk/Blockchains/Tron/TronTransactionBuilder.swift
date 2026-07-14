@@ -125,7 +125,7 @@ class TronTransactionBuilder {
                 callValue: 0
             )
         default:
-            assertionFailure("Not impkemented")
+            assertionFailure("Not implemented")
             throw BlockchainSdkError.notImplemented
         }
     }

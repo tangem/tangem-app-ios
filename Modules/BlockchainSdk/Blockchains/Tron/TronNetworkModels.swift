@@ -118,8 +118,6 @@ struct TronTriggerSmartContractRequest: Encodable {
     let visible: Bool
 }
 
-/// Same `triggerconstantcontract` endpoint as `TronTriggerSmartContractRequest`, but for simulating
-/// a call from raw calldata (e.g. a DEX swap in EVM tx format) instead of a known function selector.
 struct TronTriggerSmartContractCallDataRequest: Encodable {
     let owner_address: String
     let contract_address: String

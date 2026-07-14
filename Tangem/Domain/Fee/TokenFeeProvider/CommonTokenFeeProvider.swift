@@ -312,7 +312,7 @@ private extension CommonTokenFeeProvider {
             // Is available. Do nothing
             break
         case .dex:
-            // DEX but tokenFeeLoader is not (EthereumTokenFeeLoader or SolanaTokenFeeLoader)
+            // DEX but tokenFeeLoader isn't one of the loaders supported above
             updateState(state: .unavailable(.notSupported))
         case .approve(_, _, let feeMultiplier) where tokenFeeLoader is CommonGaslessTokenFeeLoader && feeMultiplier == .triple && !FeatureProvider.isAvailable(.usdtRevokeGaslessFee):
             updateState(state: .unavailable(.notSupported))

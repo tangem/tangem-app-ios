@@ -98,9 +98,6 @@ class TronWalletManager: BaseWalletManager, WalletManager {
                 destinationExists,
                 transactionData,
                 resources -> [Fee] in
-            // A plain coin transfer to a not-yet-activated account is charged a fixed activation fee;
-            // a swap (coin amount + call data) targets an existing contract and must fall through to
-            // real energy estimation instead.
             if !destinationExists, amount.type == .coin, callData == nil {
                 let amount = Amount(with: blockchain, value: 1.1)
                 return [Fee(amount)]
@@ -143,8 +140,6 @@ class TronWalletManager: BaseWalletManager, WalletManager {
     }
 
     private func energyFeeParameters(amount: Amount, destination: String, callData: Data?) -> AnyPublisher<TronEnergyFeeData, Error> {
-        // A native-value contract call (a DEX swap in EVM tx format) triggers the destination router
-        // with raw call data — estimate its energy from that call data, not the fixed transfer path below.
         if let callData, amount.type == .coin {
             return swapEnergyFeeParameters(destination: destination, callData: callData, callValue: amount)
         }
@@ -196,10 +191,10 @@ class TronWalletManager: BaseWalletManager, WalletManager {
     /// period the transaction is going to be executed in we increase the fee just in case by 20%
     /// (skipped for USDT, which Tron subsidizes with a fixed energy fee).
     private static func conservativeEnergyFeeData(energyUse: Int, chainParameters: TronChainParameters, skipDynamicIncrease: Bool) -> TronEnergyFeeData {
-        let dynamicEnergyIncreaseFactorPresicion = 10_000
+        let dynamicEnergyIncreaseFactorPrecision = 10_000
         let dynamicEnergyIncreaseFactor: Double = skipDynamicIncrease
             ? .zero
-            : Double(chainParameters.dynamicEnergyIncreaseFactor) / Double(dynamicEnergyIncreaseFactorPresicion)
+            : Double(chainParameters.dynamicEnergyIncreaseFactor) / Double(dynamicEnergyIncreaseFactorPrecision)
 
         let conservativeEnergyFee = Int(Double(energyUse) * (1 + dynamicEnergyIncreaseFactor))
 
