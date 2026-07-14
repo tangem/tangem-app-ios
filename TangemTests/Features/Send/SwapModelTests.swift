@@ -26,53 +26,229 @@ final class SwapModelTests: LeakTrackingTestSuite {
         _ = sut.receiveToken
         _ = sut.statePublisher
     }
+
+    // MARK: - [REDACTED_INFO]: pair reconciliation
+
+    @Test("A quote request reconciles a missing pair instead of stranding on .idle")
+    func amountEditReconcilesMissingPair() async throws {
+        let manager = ExpressManagerStub()
+        let handler = ReconcilingPairHandlerStub(expressManager: manager)
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: handler
+        )
+        let recorder = StateRecorder(sut)
+
+        let baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+
+        let state = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+        #expect(state.isLoaded)
+        #expect(await manager.currentPair != nil)
+        #expect(handler.callCount == 1)
+        #expect(sut.sourceAmount.value?.crypto == 1)
+    }
+
+    @Test("MAX during an in-flight uncached pair load recovers ([REDACTED_INFO] repro)")
+    func maxDuringPairLoadRecovers() async throws {
+        let manager = ExpressManagerStub()
+        let handler = ReconcilingPairHandlerStub(expressManager: manager, loadDelay: .milliseconds(200))
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: handler
+        )
+        let recorder = StateRecorder(sut)
+
+        let baseline = recorder.count
+        // Pick a receive token (starts a pair load) and immediately tap MAX (cancels that pair load).
+        sut.update(receive: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)))
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 22.619112, fiat: nil)))
+
+        let state = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+        #expect(state.isLoaded)
+        #expect(await manager.currentPair != nil)
+        #expect(sut.sourceAmount.value?.crypto == 22.619112)
+    }
+
+    @Test("An already-synchronized pair is not reloaded by a later quote request")
+    func inSyncPairIsNotReloaded() async throws {
+        let manager = ExpressManagerStub()
+        let handler = ReconcilingPairHandlerStub(expressManager: manager)
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: handler
+        )
+        let recorder = StateRecorder(sut)
+
+        var baseline = recorder.count
+        sut.update(receive: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+        #expect(handler.callCount == 1)
+
+        baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+        // The pair is already in sync, so reconciliation must not trigger another pair load.
+        #expect(handler.callCount == 1)
+    }
+
+    @Test("A failed pair load is recovered by a subsequent quote request (never blank .idle)")
+    func failedPairLoadRecoversOnAmountEdit() async throws {
+        let manager = ExpressManagerStub()
+        let handler = ReconcilingPairHandlerStub(expressManager: manager, failFirstCalls: 1)
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: handler
+        )
+        let recorder = StateRecorder(sut)
+
+        var baseline = recorder.count
+        sut.update(receive: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isFailure }
+
+        baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        let state = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+        #expect(state.isLoaded)
+        #expect(await manager.currentPair != nil)
+    }
+
+    @Test("Balance restriction defers the pair load until it is lifted ([REDACTED_INFO] / S10)")
+    func restrictionDefersPairLoad() async throws {
+        let manager = ExpressManagerStub()
+        let handler = ReconcilingPairHandlerStub(expressManager: manager)
+        let restriction = ConfigurableBalanceRestrictionChecker(isRestricted: true)
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: handler,
+            balanceRestrictionChecker: restriction
+        )
+        let recorder = StateRecorder(sut)
+
+        var baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+        // While restricted the pair must never be loaded.
+        #expect(await manager.currentPair == nil)
+
+        restriction.isRestricted = false
+        baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 2, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+        // Restriction lifted: the next quote request reconciles the deferred pair.
+        #expect(await manager.currentPair != nil)
+    }
 }
 
 // MARK: - Helpers
 
 private extension SwapModelTests {
-    func makeSUT() -> SwapModel {
+    func makeSUT(
+        sourceToken: SendSwapableToken? = nil,
+        receiveToken: SendReceiveToken? = nil,
+        expressManager: ExpressManager = ExpressManagerStub(),
+        pairUpdateHandler: SwapPairUpdateHandler = SwapPairUpdateHandlerStub(),
+        balanceRestrictionChecker: SwapBalanceRestrictionFeatureChecker = SwapBalanceRestrictionFeatureCheckerStub()
+    ) -> SwapModel {
         SwapModel(
-            sourceToken: nil,
-            receiveToken: nil,
-            expressManager: ExpressManagerStub(),
+            sourceToken: sourceToken,
+            receiveToken: receiveToken,
+            expressManager: expressManager,
             swapRepository: SwapRepositoryStub(),
             expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
             expressAPIProvider: ExpressAPIProviderStub(),
             expressUserWalletId: UserWalletId(value: Data()),
             analyticsLogger: SendAnalyticsLoggerStub(),
             autoupdatingTimer: AutoupdatingTimer(),
-            pairUpdateHandler: SwapPairUpdateHandlerStub(),
-            balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureCheckerStub(),
+            pairUpdateHandler: pairUpdateHandler,
+            balanceRestrictionFeatureChecker: balanceRestrictionChecker,
             shouldStartInitialLoading: false
         )
     }
+
+    /// Waits for a state published *after* `baseline` that satisfies `predicate`. Capturing the baseline
+    /// count before the triggering action makes the wait robust for back-to-back tasks, where the
+    /// `CurrentValueSubject` already holds a stale terminal state from the previous task.
+    func waitForNewState(
+        _ recorder: StateRecorder,
+        since baseline: Int,
+        timeout: Duration = .seconds(5),
+        where predicate: @escaping (SwapModel.ProvidersState) -> Bool
+    ) async throws -> SwapModel.ProvidersState {
+        for _ in 0 ..< 500 {
+            if recorder.count > baseline, let latest = recorder.latest, predicate(latest) {
+                return latest
+            }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+
+        throw TimeoutError()
+    }
+
+    struct TimeoutError: Error {}
+}
+
+// MARK: - StateRecorder
+
+private final class StateRecorder {
+    private let states = OSAllocatedUnfairLock(initialState: [SwapModel.ProvidersState]())
+    private var bag: AnyCancellable?
+
+    init(_ model: SwapModel) {
+        bag = model.statePublisher.sink { [states] state in
+            states.withLock { $0.append(state) }
+        }
+    }
+
+    var count: Int { states.withLock { $0.count } }
+    var latest: SwapModel.ProvidersState? { states.withLock { $0.last } }
 }
 
 // MARK: - Stubs
 
 private actor ExpressManagerStub: ExpressManager {
-    func getCurrentPair() -> ExpressManagerSwappingPair? { nil }
-    func getAmountType() -> ExpressAmountType? { nil }
+    private(set) var currentPair: ExpressManagerSwappingPair?
+    private var amountType: ExpressAmountType?
+    private(set) var updateAmountTypeCallCount = 0
+
+    func getCurrentPair() -> ExpressManagerSwappingPair? { currentPair }
+    func getAmountType() -> ExpressAmountType? { amountType }
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState {
-        .idle
+        currentPair = pair
+        amountType = nil
+        return state()
     }
 
     func update(amountType: ExpressAmountType?) async throws -> ExpressManagerState {
-        .idle
+        updateAmountTypeCallCount += 1
+        self.amountType = amountType
+        return state()
     }
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState {
-        .idle
+        state()
     }
 
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState {
-        .idle
+        state()
     }
 
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState {
-        .idle
+        state()
+    }
+
+    /// Mirrors the real manager: no pair ⇒ `.idle` (the degenerate state behind the bug),
+    /// a set pair ⇒ a loadable `.swap` state that `SwapModel` maps to `.loaded`.
+    private func state() -> ExpressManagerState {
+        currentPair == nil ? .idle : .swap(selected: .none, providers: .empty)
     }
 
     func requestData() async throws -> ExpressTransactionData {
@@ -330,4 +506,131 @@ private final class SwapPairUpdateHandlerStub: SwapPairUpdateHandler {
 
 private final class SwapBalanceRestrictionFeatureCheckerStub: SwapBalanceRestrictionFeatureChecker {
     func hasSwapTotalBalanceRestriction(for token: SendSourceToken) async throws -> Bool { false }
+}
+
+private final class ConfigurableBalanceRestrictionChecker: SwapBalanceRestrictionFeatureChecker {
+    var isRestricted: Bool
+
+    init(isRestricted: Bool) {
+        self.isRestricted = isRestricted
+    }
+
+    func hasSwapTotalBalanceRestriction(for token: SendSourceToken) async throws -> Bool {
+        isRestricted
+    }
+}
+
+/// Pair-update handler that reconciles into a shared `ExpressManagerStub`, mirroring the real handler:
+/// it (optionally slowly, cancellably) loads the pair and calls `update(pair:)` so the manager becomes
+/// "has pair". `loadDelay` reproduces the ~1s uncached fetch window; `failFirstCalls` reproduces a failed load.
+private final class ReconcilingPairHandlerStub: SwapPairUpdateHandler {
+    private let expressManager: ExpressManagerStub
+    private let loadDelay: Duration?
+    private let state: OSAllocatedUnfairLock<State>
+
+    private struct State {
+        var callCount = 0
+        var remainingFailures: Int
+    }
+
+    init(expressManager: ExpressManagerStub, loadDelay: Duration? = nil, failFirstCalls: Int = 0) {
+        self.expressManager = expressManager
+        self.loadDelay = loadDelay
+        state = OSAllocatedUnfairLock(initialState: State(remainingFailures: failFirstCalls))
+    }
+
+    var callCount: Int { state.withLock { $0.callCount } }
+
+    func updatePairLoadingType(source: SendSwapableToken?, destination: SendReceiveToken?) async -> SwapModel.LoadingType? {
+        .providers
+    }
+
+    func updatePair(source: SendSwapableToken, destination: SendReceiveToken) async throws -> ExpressManagerState {
+        let shouldFail = state.withLock { state -> Bool in
+            state.callCount += 1
+            guard state.remainingFailures > 0 else { return false }
+            state.remainingFailures -= 1
+            return true
+        }
+
+        if let loadDelay {
+            try await Task.sleep(for: loadDelay)
+        }
+
+        if shouldFail {
+            throw SwapPairHandlerError.failed
+        }
+
+        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+        return try await expressManager.update(pair: pair)
+    }
+}
+
+private enum SwapPairHandlerError: Error {
+    case failed
+}
+
+private final class SwapableTokenStub: SendSwapableToken {
+    private let inner: SendSourceTokenStub
+
+    init(blockchain: Blockchain) {
+        inner = SendSourceTokenStub(blockchain: blockchain)
+    }
+
+    // MARK: - SendSourceToken proxy
+
+    var tokenItem: TokenItem { inner.tokenItem }
+    var isCustom: Bool { inner.isCustom }
+    var fiatItem: FiatItem { inner.fiatItem }
+    var userWalletInfo: UserWalletInfo { inner.userWalletInfo }
+    var id: WalletModelId { inner.id }
+    var header: TokenHeader { inner.header }
+    var feeTokenItem: TokenItem { inner.feeTokenItem }
+    var defaultAddressString: String { inner.defaultAddressString }
+    var availableBalanceProvider: TokenBalanceProvider { inner.availableBalanceProvider }
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { inner.fiatAvailableBalanceProvider }
+    var allowanceService: (any AllowanceService)? { inner.allowanceService }
+    var withdrawalNotificationProvider: WithdrawalNotificationProvider? { inner.withdrawalNotificationProvider }
+    var emailDataCollectorBuilder: EmailDataCollectorBuilder { inner.emailDataCollectorBuilder }
+    var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { await inner.transactionHistoryEnricher } }
+    var transactionDispatcherProvider: any TransactionDispatcherProvider { inner.transactionDispatcherProvider }
+    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }
+    var tangemIconProvider: any TangemIconProvider { inner.tangemIconProvider }
+    var confirmTransactionPolicy: any ConfirmTransactionPolicy { inner.confirmTransactionPolicy }
+
+    // MARK: - Swap members
+
+    var isExemptFee: Bool { false }
+    var swapAvailabilityProvider: any SwapAvailabilityProvider { SwapAvailabilityProviderStub(isSwapAvailable: true) }
+    var supportedProvidersFilter: SupportedProvidersFilter { .byDifferentAddressExchangeSupport }
+    var sendYieldModuleHelper: SendYieldModuleHelper? { nil }
+    var operationType: ExpressOperationType { .swapAndSend }
+
+    // MARK: - Unused in these tests
+
+    var sendingRestrictionsProvider: any SendingRestrictionsProvider { fatalError("Unused in tests") }
+    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { fatalError("Unused in tests") }
+    var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { fatalError("Unused in tests") }
+    var tokenFeeProvidersManager: any TokenFeeProvidersManager { fatalError("Unused in tests") }
+    var transactionValidator: any SendTransactionValidator { fatalError("Unused in tests") }
+    var transactionCreator: any SendTransactionCreator { fatalError("Unused in tests") }
+    var balanceProvider: any TangemExpress.BalanceProvider { fatalError("Unused in tests") }
+    var analyticsLogger: any TangemExpress.AnalyticsLogger { fatalError("Unused in tests") }
+    var providerTransactionValidator: any ExpressProviderTransactionValidator { fatalError("Unused in tests") }
+}
+
+private final class ReceiveTokenStub: SendReceiveToken {
+    let tokenItem: TokenItem
+
+    init(blockchain: Blockchain) {
+        tokenItem = .blockchain(.init(blockchain, derivationPath: nil))
+    }
+
+    var isCustom: Bool { false }
+    var fiatItem: FiatItem { FiatItem(iconURL: nil, currencyCode: "USD") }
+    var destination: SendReceiveTokenDestination? { nil }
+}
+
+private struct SwapAvailabilityProviderStub: SwapAvailabilityProvider {
+    let isSwapAvailable: Bool
 }

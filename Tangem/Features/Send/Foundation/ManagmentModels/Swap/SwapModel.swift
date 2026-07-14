@@ -201,11 +201,14 @@ extension SwapModel {
             await manager.getCurrentPair()?.isTransfer == true ? .fee : .rates
         }
 
-        updateTask(loadingType: loadingType) { expressManager in
+        updateTask(loadingType: loadingType) { [weak self] expressManager in
             if amount != nil {
                 // Add some debounce
                 try await Task.sleep(for: .seconds(1))
             }
+
+            try await self?.ensurePairSynchronized()
+            try Task.checkCancellation()
 
             return try await expressManager.update(amountType: amount)
         }
@@ -249,6 +252,25 @@ private extension SwapModel {
 
             return try await pairUpdateHandler.updatePair(source: source, destination: destination)
         }
+    }
+
+    func ensurePairSynchronized() async throws {
+        guard let source = _sourceToken.value.value,
+              let destination = _receiveToken.value.value else {
+            return
+        }
+
+        if let currentPair = await expressManager.getCurrentPair(),
+           currentPair.source.currency == source.currency,
+           currentPair.destination.currency == destination.currency {
+            return
+        }
+
+        if let type = await pairUpdateHandler.updatePairLoadingType(source: source, destination: destination) {
+            update(providersState: .loading(type))
+        }
+
+        _ = try await pairUpdateHandler.updatePair(source: source, destination: destination)
     }
 
     func updateTask(
