@@ -229,9 +229,8 @@ private extension TokenDetailsActionsViewModel {
     func isRowItemAvailable(for actionType: TokenActionType) -> Bool {
         switch actionType {
         case .buy: availabilityProvider.isBuyAvailable
-        case .send: true
+        case .send, .sell: true
         case .exchange: availabilityProvider.isSwapAvailable
-        case .sell: availabilityProvider.isSellAvailable
         case .receive: availabilityProvider.isReceiveAvailable
         default: false
         }
