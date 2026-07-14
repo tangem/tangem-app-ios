@@ -7,28 +7,20 @@
 //
 
 import Foundation
-import TangemFoundation
 import TangemLocalization
 import TangemPay
-import struct TangemUIUtils.AlertBinder
 
 final class TangemPayCurrentPlanViewModel: ObservableObject {
     let planName: String
     let sections: [Section]
     let changePlanButtonTitle: String
 
-    @Published private(set) var isLoadingPlans = false
-    @Published var alert: AlertBinder?
-
-    private let customerService: any CustomerInfoManagementService
     private weak var coordinator: TangemPayCurrentPlanRoutable?
 
     init(
         customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan,
-        customerService: any CustomerInfoManagementService,
         coordinator: TangemPayCurrentPlanRoutable? = nil
     ) {
-        self.customerService = customerService
         self.coordinator = coordinator
 
         let tariffPlan = customerTariffPlan.tariffPlan
@@ -39,24 +31,7 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
     }
 
     func changePlan() {
-        guard !isLoadingPlans else { return }
-
-        isLoadingPlans = true
-
-        runTask(in: self) { @MainActor viewModel in
-            do {
-                let transitions = try await viewModel.customerService.getTariffPlanTransitions()
-
-                viewModel.isLoadingPlans = false
-                viewModel.coordinator?.openSelectPlan(transitions: transitions)
-            } catch {
-                viewModel.isLoadingPlans = false
-                viewModel.alert = AlertBinder(
-                    title: Localization.commonError,
-                    message: Localization.commonUnknownError
-                )
-            }
-        }
+        coordinator?.openSelectPlan()
     }
 }
 
@@ -76,7 +51,7 @@ private extension TangemPayCurrentPlanViewModel {
 
             let rows = sectionItems
                 .sorted { $0.order < $1.order }
-                .map { Row(label: $0.title, value: $0.body) }
+                .map { Row(label: $0.title, value: $0.body ?? "") }
 
             return Section(title: type.sectionTitle, rows: rows)
         }
@@ -88,6 +63,7 @@ private extension VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType {
         switch self {
         case .cardRelated: Localization.tangempayCurrentPlanSectionCard
         case .planRelated: Localization.tangempayCurrentPlanSectionPlan
+        case .onboardingRelated: ""
         }
     }
 }
@@ -95,7 +71,7 @@ private extension VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType {
 // MARK: - Routable
 
 protocol TangemPayCurrentPlanRoutable: AnyObject {
-    func openSelectPlan(transitions: TangemPayTariffPlanTransitionsResponse)
+    func openSelectPlan()
 }
 
 extension TangemPayCurrentPlanViewModel {
