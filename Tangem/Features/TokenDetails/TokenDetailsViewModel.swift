@@ -656,25 +656,30 @@ private extension TokenDetailsViewModel {
     private func makeStakingRewardsState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState.RewardsState {
         switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
         case (.auto, _):
-            return .auto
+            let rewardInfo = makeRewardInfo(staked.yieldInfo)
+            return .auto(rewardInfo)
         case (.manual, .zero):
             return .empty(Localization.stakingDetailsNoRewardsToClaim)
         case (.manual, let rewards):
-            let rewardPercent = makeFormattedRewardPercent(yieldInfo: staked.yieldInfo)
-            let rewardType = switch staked.yieldInfo.rewardType {
-            case .apr: Localization.stakingDetailsApr
-            case .apy: Localization.stakingDetailsApy
-            }
-            let rewardPercentType = "\(rewardPercent) \(rewardType)"
+            let rewardInfo = makeRewardInfo(staked.yieldInfo)
 
             let fiat: Decimal? = walletModel.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(rewards, currencyId: currencyId)
             }
             let formattedFiat = balanceFormatter.formatFiatBalance(fiat)
 
-            let claimed = "\(rewardPercentType) \(AppConstants.dotSign) \(formattedFiat)"
+            let claimed = "\(rewardInfo) \(AppConstants.dotSign) \(formattedFiat)"
             return .claimed(claimed)
         }
+    }
+
+    private func makeRewardInfo(_ yieldInfo: StakingYieldInfo) -> String {
+        let percentInfo = makeFormattedRewardPercent(yieldInfo: yieldInfo)
+        let typeInfo = switch yieldInfo.rewardType {
+        case .apr: Localization.stakingDetailsApr
+        case .apy: Localization.stakingDetailsApy
+        }
+        return "\(percentInfo) \(typeInfo)"
     }
 
     private func makeFormattedRewardPercent(yieldInfo: StakingYieldInfo) -> String {
