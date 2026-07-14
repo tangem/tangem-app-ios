@@ -34,8 +34,8 @@ struct PriceAlertsWalletSelectorView: View {
 
             MainButton(
                 title: Localization.commonSave,
-                isDisabled: !viewModel.isAddEnabled,
-                action: viewModel.addToPriceAlertTapped
+                isDisabled: !viewModel.isSaveEnabled,
+                action: viewModel.saveTapped
             )
         }
         .padding(.top, 8)
