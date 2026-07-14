@@ -90,7 +90,6 @@ struct AddFundsView: View {
         VStack(spacing: 16) {
             AddFundsStackNavigationBar(
                 title: viewModel.title,
-                accountBadge: viewModel.accountBadge,
                 onBack: viewModel.showsBackButton ? viewModel.userDidTapBack : nil,
                 onClose: viewModel.close
             )
