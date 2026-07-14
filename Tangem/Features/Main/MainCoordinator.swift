@@ -61,6 +61,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsBuyCoordinator: ActionButtonsBuyCoordinator? = nil
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
+    @Published var tangemPaySelectPlanCoordinator: TangemPaySelectPlanCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
@@ -483,6 +484,19 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             )
         )
         tangemPayMainCoordinator = coordinator
+    }
+
+    func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector) {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = TangemPaySelectPlanCoordinator(
+            dismissAction: { [weak self] in
+                self?.tangemPaySelectPlanCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(tariffPlanSelector: tariffPlanSelector))
+        tangemPaySelectPlanCoordinator = coordinator
     }
 
     private func openTangemPayMainFromDeeplink(customerWalletId: String) {
