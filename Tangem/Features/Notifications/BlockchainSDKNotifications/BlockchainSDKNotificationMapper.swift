@@ -78,6 +78,10 @@ struct BlockchainSDKNotificationMapper {
         return makeInsufficientBalanceForFeeEvent(feeAmountType: .coin, blockchain: tokenItem.blockchain)
     }
 
+    func mapToInsufficientGaslessFeeEvent() -> ValidationErrorEvent {
+        makeInsufficientBalanceForFeeEvent(feeAmountType: tokenItem.amountType, blockchain: tokenItem.blockchain)
+    }
+
     private func makeInsufficientBalanceForFeeEvent(feeAmountType: Amount.AmountType, blockchain: Blockchain) -> ValidationErrorEvent {
         let feeAmountTypeName: String = switch feeAmountType {
         case .token(let token): token.name
