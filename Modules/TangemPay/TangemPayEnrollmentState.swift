@@ -12,4 +12,5 @@ public enum TangemPayEnrollmentState {
     case issuingCard
     case enrolled(customerInfo: VisaCustomerInfoResponse, productInstance: VisaCustomerInfoResponse.ProductInstance)
     case cardDeactivated(customerInfo: VisaCustomerInfoResponse, productInstance: VisaCustomerInfoResponse.ProductInstance)
+    case planSelectNeeded
 }
