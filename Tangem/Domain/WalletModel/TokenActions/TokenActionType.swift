@@ -44,9 +44,9 @@ enum TokenActionType {
 
     var icon: ImageType {
         switch self {
-        case .buy: return Assets.plusMini
+        case .buy: return Assets.AddFunds.addfundsBuy
         case .send: return Assets.arrowUpMini
-        case .receive: return Assets.arrowDownMini
+        case .receive: return Assets.AddFunds.addfundsReceive
         case .exchange: return Assets.exchangeMini
         case .swapAndSend: return Assets.exchangeMini
         case .stake: return Assets.stakingIcon
