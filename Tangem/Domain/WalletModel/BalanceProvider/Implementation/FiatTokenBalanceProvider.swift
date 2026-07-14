@@ -48,7 +48,7 @@ extension FiatTokenBalanceProvider: TokenBalanceProvider {
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         guard let strongInput = input else {
             assertionFailure("FiatTokenBalanceProviderInput not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return Publishers.CombineLatest(
