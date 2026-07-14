@@ -78,6 +78,18 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let freezeSheetConfirmButton = "\(prefix)FreezeSheetConfirmButton"
     public static let unfreezeSheetConfirmButton = "\(prefix)UnfreezeSheetConfirmButton"
 
+    // MARK: - Card reissue
+
+    public static let cardManagementMoreButton = "\(prefix)CardManagementMoreButton"
+    public static let reissueCardRow = "\(prefix)ReissueCardRow"
+    public static let reissueSheetConfirmButton = "\(prefix)ReissueSheetConfirmButton"
+
+    // MARK: - Transaction details
+
+    public static let transactionDetailsTitle = "\(prefix)TransactionDetailsTitle"
+    public static let transactionDetailsAmount = "\(prefix)TransactionDetailsAmount"
+    public static let transactionDetailsMainButton = "\(prefix)TransactionDetailsMainButton"
+
     // MARK: - PIN setup screen
 
     public static let pinScreenTitle = "\(prefix)PinScreenTitle"
