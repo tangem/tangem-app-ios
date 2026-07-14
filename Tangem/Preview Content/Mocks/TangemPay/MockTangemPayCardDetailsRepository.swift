@@ -7,14 +7,47 @@
 //
 
 import Combine
+import TangemVisa
 import TangemPay
 
-/// Returns hardcoded card details without touching the network or crypto.
 final class MockTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
-    let lastFourDigits: String = "4242"
+    private enum Source {
+        case tangemPayAccount(TangemPayAccount)
+        case card(TangemPayCard)
+    }
+
+    private let source: Source
+
+    init(tangemPayAccount: TangemPayAccount) {
+        source = .tangemPayAccount(tangemPayAccount)
+    }
+
+    init(card: TangemPayCard) {
+        source = .card(card)
+    }
+
+    var lastFourDigits: String {
+        switch source {
+        case .tangemPayAccount(let tangemPayAccount):
+            tangemPayAccount.card?.cardNumberEnd ?? "4242"
+        case .card(let card):
+            card.cardNumberEnd
+        }
+    }
 
     var lastFourDigitsPublisher: AnyPublisher<String, Never> {
-        Just(lastFourDigits).eraseToAnyPublisher()
+        switch source {
+        case .tangemPayAccount(let tangemPayAccount):
+            tangemPayAccount.cardPublisher
+                .map { $0?.cardNumberEnd ?? "4242" }
+                .removeDuplicates()
+                .eraseToAnyPublisher()
+        case .card(let card):
+            card.snapshotPublisher
+                .map(\.card.cardNumberEnd)
+                .removeDuplicates()
+                .eraseToAnyPublisher()
+        }
     }
 
     var cardNamePublisher: AnyPublisher<String, Never> {
@@ -22,14 +55,19 @@ final class MockTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
     }
 
     var isReissuingPublisher: AnyPublisher<Bool, Never> {
-        Just(false).eraseToAnyPublisher()
+        switch source {
+        case .tangemPayAccount(let tangemPayAccount):
+            tangemPayAccount.isReissuingCardPublisher
+        case .card(let card):
+            card.isReissuingPublisher
+        }
     }
 
     func updateCardDisplayName(_ name: String) async throws {}
 
     func revealRequest() async throws -> TangemPayCardDetailsData {
         TangemPayCardDetailsData(
-            number: "4242 4242 4242 4242",
+            number: "4242 4242 4242 \(lastFourDigits)",
             expirationDate: "12/28",
             cvc: "123",
             isPinSet: false
