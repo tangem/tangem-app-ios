@@ -120,7 +120,11 @@ private extension MarketingBannerService {
     ) -> MarketingBanners {
         MarketingBannerMapper.banners(from: campaigns.filter { satisfiesAmount($0, usd: usdAmount) })
     }
+}
 
+// MARK: - Amount filter
+
+extension MarketingBannerService {
     func satisfiesAmount(_ campaign: MarketingCampaignsDTO.Campaign, usd: Decimal?) -> Bool {
         if campaign.minAmount == nil, campaign.maxAmount == nil {
             return true
