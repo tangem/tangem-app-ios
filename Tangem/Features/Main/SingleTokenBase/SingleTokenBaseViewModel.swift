@@ -558,6 +558,8 @@ extension SingleTokenBaseViewModel {
             return !tokenActionAvailabilityProvider.isReceiveAvailable
         case .exchange:
             return !tokenActionAvailabilityProvider.isSwapAvailable
+        case .swapAndSend:
+            return !tokenActionAvailabilityProvider.isSwapAvailable
         case .sell:
             return !tokenActionAvailabilityProvider.isSellAvailable
         case .copyAddress, .hide, .stake, .marketsDetails, .yield:
@@ -580,6 +582,7 @@ extension SingleTokenBaseViewModel {
         case .send: return openSendAction
         case .receive: return openReceiveAction
         case .exchange: return { [weak self] in self?.openExchangeAction() }
+        case .swapAndSend: return { [weak self] in self?.openSwapAndSendAction() }
         case .sell: return openSellAction
         case .copyAddress, .hide, .stake, .marketsDetails, .yield: return nil
         }
@@ -589,7 +592,7 @@ extension SingleTokenBaseViewModel {
         switch buttonType {
         case .receive:
             return weakify(self, forFunction: SingleTokenBaseViewModel.copyDefaultAddress)
-        case .buy, .send, .exchange, .sell, .copyAddress, .hide, .stake, .marketsDetails, .yield:
+        case .buy, .send, .exchange, .swapAndSend, .sell, .copyAddress, .hide, .stake, .marketsDetails, .yield:
             return nil
         }
     }
@@ -761,6 +764,15 @@ extension SingleTokenBaseViewModel {
         openSend()
     }
 
+    private func openSwapAndSendAction() {
+        if let swapUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.swapAvailability) {
+            alert = swapUnavailableAlert
+            return
+        }
+
+        tokenRouter.openSwapAndSend(walletModel: walletModel)
+    }
+
     private func openReceiveAction() {
         logReceiveTapped()
         openReceive()
@@ -798,6 +810,7 @@ extension SingleTokenBaseViewModel {
         case .send: openSendAction()
         case .receive: openReceiveAction()
         case .exchange: openExchangeAction()
+        case .swapAndSend: openSwapAndSendAction()
         case .sell: openSellAction()
         case .copyAddress, .hide, .stake, .marketsDetails, .yield: break
         }

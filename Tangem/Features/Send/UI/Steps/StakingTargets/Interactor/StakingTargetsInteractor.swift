@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemStaking
+import TangemFoundation
 
 protocol StakingTargetsInteractor {
     var targetsPublisher: AnyPublisher<[StakingTargetInfo], Never> { get }
@@ -79,7 +80,7 @@ extension CommonStakingTargetsInteractor: StakingTargetsInteractor {
     var selectedTargetPublisher: AnyPublisher<StakingTargetInfo, Never> {
         guard let input else {
             assertionFailure("StakingTargetsInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input.selectedTargetPublisher
