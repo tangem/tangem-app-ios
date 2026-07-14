@@ -221,7 +221,7 @@ private extension AddTokenFlowRedesignedViewModel {
             case .executeAction(let action):
                 action(addedToken, accountSelectorCell)
             case .showGetToken:
-                coordinator?.close()
+                coordinator?.addTokenFlowShowGetToken(for: addedToken, accountSelectorCell: accountSelectorCell)
             }
 
         case .failure(let error):

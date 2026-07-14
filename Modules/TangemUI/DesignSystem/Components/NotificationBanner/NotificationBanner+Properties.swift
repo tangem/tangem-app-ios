@@ -11,31 +11,31 @@ import TangemAssets
 
 public extension NotificationBanner {
     enum BannerType: Equatable, Sendable {
-        case status(Content, BannerAction = .buttons(.none))
-        case critical(Content, BannerAction)
-        case warning(Content, BannerAction)
+        case status(Content, BannerAction = .buttons(.none), CloseAction? = nil)
+        case critical(Content, BannerAction, CloseAction? = nil)
+        case warning(Content, BannerAction, CloseAction? = nil)
         case promo(Content, BannerAction, CloseAction?, Effect, BannerTextAlignment = .center)
         case survey(TextOnly, BannerAction, CloseAction?)
         case informational(TextOnly, BannerAction, CloseAction?, BannerTextAlignment = .center)
 
         var content: Content {
             switch self {
-            case .status(let c, _), .critical(let c, _), .warning(let c, _), .promo(let c, _, _, _, _): c
+            case .status(let c, _, _), .critical(let c, _, _), .warning(let c, _, _), .promo(let c, _, _, _, _): c
             case .survey(let text, _, _), .informational(let text, _, _, _): .text(text)
             }
         }
 
         var bannerAction: BannerAction {
             switch self {
-            case .status(_, let a), .critical(_, let a), .warning(_, let a),
+            case .status(_, let a, _), .critical(_, let a, _), .warning(_, let a, _),
                  .promo(_, let a, _, _, _), .survey(_, let a, _), .informational(_, let a, _, _): a
             }
         }
 
         var closeAction: CloseAction? {
             switch self {
-            case .status, .critical, .warning: nil
-            case .promo(_, _, let a, _, _), .survey(_, _, let a), .informational(_, _, let a, _): a
+            case .status(_, _, let a), .critical(_, _, let a), .warning(_, _, let a),
+                 .promo(_, _, let a, _, _), .survey(_, _, let a), .informational(_, _, let a, _): a
             }
         }
 
