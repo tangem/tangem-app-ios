@@ -254,6 +254,25 @@ extension GeneralNotificationEvent: NotificationEvent {
         }
     }
 
+    var redesignedBannerContent: RedesignedBannerContent? {
+        switch self {
+        case .missingDerivation:
+            return RedesignedBannerContent(icon: nil)
+        case .mobileFinishActivation:
+            return RedesignedBannerContent(
+                title: .string(Localization.hwActivationNeedTitle),
+                icon: NotificationView.MessageIcon(
+                    iconType: .image(Assets.DesignSystem.flashShield),
+                    renderingMode: .template,
+                    color: .Tangem.Graphic.Neutral.primary,
+                    isLeading: false
+                )
+            )
+        default:
+            return nil
+        }
+    }
+
     var severity: NotificationView.Severity {
         switch self {
         case .walletLocked,

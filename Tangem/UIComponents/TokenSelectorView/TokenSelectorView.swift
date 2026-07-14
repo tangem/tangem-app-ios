@@ -87,23 +87,26 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
 
     @ViewBuilder
     private var scrollContent: some View {
-        if !viewModel.contentVisibility.isEmpty {
-            headerContent
-        }
+        VStack(alignment: .leading, spacing: 16) {
+            if !viewModel.contentVisibility.isEmpty {
+                headerContent
+            }
 
-        switch viewModel.contentVisibility {
-        case .empty:
-            emptyContentView.transition(.move(edge: .top).combined(with: .opacity))
-        case .loading:
-            TokenSelectorLoadingView().transition(.content)
-        case .visible(let itemsCount):
-            // zIndex keeps the token list above other content during animated transitions
-            tokenListContent(itemsCount: itemsCount).transition(.content).zIndex(1)
-        }
+            switch viewModel.contentVisibility {
+            case .empty:
+                emptyContentView.transition(.move(edge: .top).combined(with: .opacity))
+            case .loading:
+                TokenSelectorLoadingView().transition(.content)
+            case .visible(let itemsCount):
+                // zIndex keeps the token list above other content during animated transitions
+                tokenListContent(itemsCount: itemsCount).transition(.content).zIndex(1)
+            }
 
-        if !viewModel.contentVisibility.isLoading {
-            additionalContent.transition(.content)
+            if !viewModel.contentVisibility.isLoading {
+                additionalContent.transition(.content)
+            }
         }
+        .padding(.top, 24)
     }
 
     @ViewBuilder

@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import Testing
 import BigInt
+import TangemFoundation
 @testable import BlockchainSdk
 
 struct AllowanceCheckerTests {
@@ -94,18 +95,18 @@ private final class EthereumTransactionDataBuilderSpy: EthereumTransactionDataBu
 
 private struct EthereumNetworkProviderStub: EthereumNetworkProvider {
     func getFee(destination: String, value: String?, data: Data?, stateOverride: EthereumStateOverride?) -> AnyPublisher<[Fee], Error> {
-        Empty().eraseToAnyPublisher()
+        .empty
     }
 
-    func getGasPrice() -> AnyPublisher<BigUInt, Error> { Empty().eraseToAnyPublisher() }
-    func getGasLimit(to: String, from: String, value: String?, data: String?) -> AnyPublisher<BigUInt, Error> { Empty().eraseToAnyPublisher() }
-    func getFeeHistory() -> AnyPublisher<EthereumFeeHistory, Error> { Empty().eraseToAnyPublisher() }
-    func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<Decimal, Error> { Empty().eraseToAnyPublisher() }
-    func getAllowanceRaw(owner: String, spender: String, contractAddress: String) -> AnyPublisher<String, Error> { Empty().eraseToAnyPublisher() }
-    func getBalance(_ address: String) -> AnyPublisher<Decimal, Error> { Empty().eraseToAnyPublisher() }
-    func getTxCount(_ address: String) -> AnyPublisher<Int, Error> { Empty().eraseToAnyPublisher() }
-    func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error> { Empty().eraseToAnyPublisher() }
-    func getSmartContractNonce(for address: String) -> AnyPublisher<Int, Error> { Empty().eraseToAnyPublisher() }
+    func getGasPrice() -> AnyPublisher<BigUInt, Error> { .empty }
+    func getGasLimit(to: String, from: String, value: String?, data: String?) -> AnyPublisher<BigUInt, Error> { .empty }
+    func getFeeHistory() -> AnyPublisher<EthereumFeeHistory, Error> { .empty }
+    func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<Decimal, Error> { .empty }
+    func getAllowanceRaw(owner: String, spender: String, contractAddress: String) -> AnyPublisher<String, Error> { .empty }
+    func getBalance(_ address: String) -> AnyPublisher<Decimal, Error> { .empty }
+    func getTxCount(_ address: String) -> AnyPublisher<Int, Error> { .empty }
+    func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error> { .empty }
+    func getSmartContractNonce(for address: String) -> AnyPublisher<Int, Error> { .empty }
 }
 
 private enum AllowanceCheckerTestsError: Error {
