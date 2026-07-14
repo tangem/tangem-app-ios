@@ -29,7 +29,6 @@ struct TokenDetailsActionRowView: View {
     }
 
     var body: some View {
-        // An unavailable row stays tappable so `item.action` can surface the reason alert; dimming is cosmetic.
         Button(action: item.action) {
             TangemTwoLineRowLayout(
                 icon: { iconView },
@@ -45,6 +44,7 @@ struct TokenDetailsActionRowView: View {
             .cornerRadiusContinuous(.unit(.x5))
         }
         .buttonStyle(.plain)
+        .disabled(!item.isAvailable)
         .accessibilityIdentifier(item.accessibilityIdentifier)
     }
 

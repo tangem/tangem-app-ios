@@ -190,8 +190,9 @@ private extension TokenDetailsStakingView {
         case .empty(let text):
             Text(text)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
-        case .auto: // [REDACTED_TODO_COMMENT]
-            EmptyView()
+        case .auto(let text):
+            Text(text)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.accent)
         }
     }
 

@@ -38,7 +38,7 @@ struct GetTangemPayBannerNotificationEvent: NotificationEvent, Hashable {
     }
 
     var isDismissable: Bool {
-        true
+        false
     }
 
     var buttonAction: NotificationButtonAction? {

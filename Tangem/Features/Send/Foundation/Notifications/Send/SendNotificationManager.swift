@@ -148,6 +148,10 @@ private extension CommonSendNotificationManager {
             updateNotification(error: error)
         case .some(BlockchainSdkError.accountNotActivated):
             show(notification: .accountNotActivated(assetName: tokenItem.name))
+        case .some(TokenFeeProviderError.notEnoughBalanceForFee),
+             .some(TokenFeeProviderError.notEnoughGaslessFeeBalance),
+             .some(ETHError.gasRequiredExceedsAllowance):
+            hideAllNotification { $0.isNetworkFeeUnreachable }
         case .some:
             show(notification: .networkFeeUnreachable)
         }
@@ -269,6 +273,13 @@ private extension CommonSendNotificationManager {
         case .some(SuiError.oneSuiCoinIsRequiredForTokenTransaction):
             let currencySymbol = tokenItem.blockchain.currencySymbol
             show(notification: .oneSuiCoinIsRequiredForTokenTransaction(currencySymbol: currencySymbol))
+        case .some(TokenFeeProviderError.notEnoughBalanceForFee),
+             .some(ETHError.gasRequiredExceedsAllowance):
+            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
+            show(notification: .validationErrorEvent(factory.mapToInsufficientBalanceForFeeEvent()))
+        case .some(TokenFeeProviderError.notEnoughGaslessFeeBalance):
+            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
+            show(notification: .validationErrorEvent(factory.mapToInsufficientGaslessFeeEvent()))
         case .some(let error):
             AppLogger.error("Transaction error will not show to user", error: error)
             hideAllValidationErrorEvent()
