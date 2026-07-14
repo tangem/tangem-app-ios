@@ -64,22 +64,21 @@ private extension TokenDetailsActionsViewModel {
     }
 
     func rebuildMode(for balanceType: TokenBalanceType) {
-//        if isBalanceNonZero(balanceType) {
-        let buttons = makeButtonsRow()
-        mode = .buttonsRow(buttons: buttons)
-//            mode = buttons.isNotEmpty ? .buttonsRow(buttons: buttons) : .hidden
-//        } else {
-//            let items = incomingOptions().map { type in
-//                makeRowItem(
-//                    for: type,
-//                    isAvailable: isRowItemAvailable(for: type),
-//                    onTap: { [weak self] in
-//                        self?.perform(type, kind: .addFunds)
-//                    }
-//                )
-//            }
-//            mode = items.isNotEmpty ? .inlineList(items: items) : .hidden
-//        }
+        if isBalanceNonZero(balanceType) {
+            let buttons = makeButtonsRow()
+            mode = buttons.isNotEmpty ? .buttonsRow(buttons: buttons) : .hidden
+        } else {
+            let items = incomingOptions().map { type in
+                makeRowItem(
+                    for: type,
+                    isAvailable: isRowItemAvailable(for: type),
+                    onTap: { [weak self] in
+                        self?.perform(type, kind: .addFunds)
+                    }
+                )
+            }
+            mode = items.isNotEmpty ? .inlineList(items: items) : .hidden
+        }
     }
 }
 
