@@ -20,6 +20,7 @@ final class TokenDetailsActionsViewModel: ObservableObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     private let walletModel: any WalletModel
+    private let userWalletConfig: UserWalletConfig
     private let availabilityProvider: TokenActionAvailabilityProvider
     private weak var actionsRoutable: (any TokenDetailsActionsRoutable)?
 
@@ -30,6 +31,7 @@ final class TokenDetailsActionsViewModel: ObservableObject {
         userWalletInfo: UserWalletInfo
     ) {
         self.walletModel = walletModel
+        userWalletConfig = userWalletInfo.config
         availabilityProvider = TokenActionAvailabilityProvider(
             userWalletInfo: userWalletInfo,
             walletModel: walletModel
@@ -62,21 +64,22 @@ private extension TokenDetailsActionsViewModel {
     }
 
     func rebuildMode(for balanceType: TokenBalanceType) {
-        if isBalanceNonZero(balanceType) {
-            let buttons = makeButtonsRow()
-            mode = buttons.isNotEmpty ? .buttonsRow(buttons: buttons) : .hidden
-        } else {
-            let items = incomingOptions().map { type in
-                makeRowItem(
-                    for: type,
-                    isAvailable: isRowItemAvailable(for: type),
-                    onTap: { [weak self] in
-                        self?.perform(type, kind: .addFunds)
-                    }
-                )
-            }
-            mode = items.isNotEmpty ? .inlineList(items: items) : .hidden
-        }
+//        if isBalanceNonZero(balanceType) {
+        let buttons = makeButtonsRow()
+        mode = .buttonsRow(buttons: buttons)
+//            mode = buttons.isNotEmpty ? .buttonsRow(buttons: buttons) : .hidden
+//        } else {
+//            let items = incomingOptions().map { type in
+//                makeRowItem(
+//                    for: type,
+//                    isAvailable: isRowItemAvailable(for: type),
+//                    onTap: { [weak self] in
+//                        self?.perform(type, kind: .addFunds)
+//                    }
+//                )
+//            }
+//            mode = items.isNotEmpty ? .inlineList(items: items) : .hidden
+//        }
     }
 }
 
@@ -131,7 +134,7 @@ private extension TokenDetailsActionsViewModel {
         return TokenDetailsActionsButton(
             id: .swap,
             title: Localization.commonSwap,
-            icon: Assets.exchangeMini,
+            icon: Assets.DesignSystem.exchange,
             accessibilityIdentifier: TokenActionType.exchange.accessibilityIdentifier,
             isAvailable: availabilityProvider.isSwapAvailable,
             action: { [weak self] in
@@ -228,11 +231,13 @@ private extension TokenDetailsActionsViewModel {
 
     func isRowItemAvailable(for actionType: TokenActionType) -> Bool {
         switch actionType {
-        case .buy: availabilityProvider.isBuyAvailable
-        case .send: true
-        case .exchange: availabilityProvider.isSwapAvailable
-        case .swapAndSend: availabilityProvider.isSwapAvailable
-        case .sell: availabilityProvider.isSellAvailable
+        // Buy/swap are gated by the wallet features (`.exchange`/`.swapping`): wallets that hide them
+        // (e.g. Start2Coin) keep the row visible but disabled instead of tappable.
+        case .buy: userWalletConfig.isFeatureVisible(.exchange) && availabilityProvider.isBuyAvailable
+        case .send: availabilityProvider.isSendAvailable
+        case .exchange: userWalletConfig.isFeatureVisible(.swapping) && availabilityProvider.isSwapAvailable
+        case .swapAndSend: userWalletConfig.isFeatureVisible(.swapping) && availabilityProvider.isSwapAvailable
+        case .sell: userWalletConfig.isFeatureVisible(.exchange) && availabilityProvider.isSellAvailable
         case .receive: availabilityProvider.isReceiveAvailable
         default: false
         }
