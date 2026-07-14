@@ -177,7 +177,7 @@ private extension AddFundsViewModel {
     }
 
     static func makeTitle(tokenItem: TokenItem) -> String {
-        return Localization.commonGet + " " + tokenItem.name
+        return Localization.getTokenTitle(tokenItem.name)
     }
 
     static func makeBadge(
