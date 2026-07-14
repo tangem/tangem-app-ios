@@ -56,7 +56,7 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
     var currencyPublisher: AnyPublisher<OnrampFiatCurrency?, Never> {
         guard let amountInput else {
             assertionFailure("OnrampAmountInput not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return amountInput.fiatCurrencyPublisher.eraseToAnyPublisher()
@@ -65,7 +65,7 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
     var bottomInfoPublisher: AnyPublisher<LoadingResult<Decimal, OnrampSummaryInteractorBottomInfoError>?, Never> {
         guard let providersInput else {
             assertionFailure("OnrampProvidersInput not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         let hasProviders = providersInput
@@ -107,7 +107,7 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
     var suggestedOffersPublisher: AnyPublisher<LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>, Never> {
         guard let providersInput else {
             assertionFailure("OnrampProvidersInput not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return Publishers.CombineLatest(
@@ -128,7 +128,7 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
     var isLoadingPublisher: AnyPublisher<Bool, Never> {
         guard let providersInput else {
             assertionFailure("OnrampProvidersInput not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return Publishers.CombineLatest(

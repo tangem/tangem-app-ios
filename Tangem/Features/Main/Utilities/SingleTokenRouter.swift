@@ -14,6 +14,7 @@ import TangemExpress
 protocol SingleTokenRoutable {
     func openReceive(walletModel: any WalletModel)
     func openSend(walletModel: any WalletModel)
+    func openSwapAndSend(walletModel: any WalletModel)
     func openSwap(parameters: PredefinedSwapParameters)
     func openStaking(walletModel: any WalletModel)
     func openSell(for walletModel: any WalletModel)
@@ -63,6 +64,11 @@ final class SingleTokenRouter: SingleTokenRoutable {
     func openSend(walletModel: any WalletModel) {
         let input = makeSendInput(for: walletModel)
         coordinator?.openSend(input: input)
+    }
+
+    func openSwapAndSend(walletModel: any WalletModel) {
+        let input = makeSendInput(for: walletModel)
+        coordinator?.openSwapAndSend(input: input)
     }
 
     func openSwap(parameters: PredefinedSwapParameters) {

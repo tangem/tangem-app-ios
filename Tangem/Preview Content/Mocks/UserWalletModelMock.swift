@@ -57,9 +57,9 @@ class UserWalletModelMock: UserWalletModel {
 
     var backupInput: OnboardingInput? { nil }
 
-    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { .empty }
 
-    var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { Empty().eraseToAnyPublisher() }
+    var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { .empty }
 
     var cardSetLabel: String { config.cardSetLabel }
 
