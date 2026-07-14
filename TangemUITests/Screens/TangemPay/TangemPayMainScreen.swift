@@ -145,6 +145,18 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func tapTransactionRow(containing text: String) -> TangemPayTransactionDetailsScreen {
+        XCTContext.runActivity(named: "Tap transaction row containing '\(text)'") { _ in
+            let row = app.buttons
+                .containing(NSPredicate(format: "label CONTAINS %@", text))
+                .firstMatch
+            waitAndAssertTrue(row, "Transaction row containing '\(text)' should exist")
+            row.tapEvenIfNotHittable()
+            return TangemPayTransactionDetailsScreen(app)
+        }
+    }
+
+    @discardableResult
     func verifyTransactionNotVisible(merchantName: String) -> Self {
         XCTContext.runActivity(named: "Verify transaction with merchant '\(merchantName)' is NOT visible") { _ in
             let txCell = app.staticTexts[merchantName].firstMatch
