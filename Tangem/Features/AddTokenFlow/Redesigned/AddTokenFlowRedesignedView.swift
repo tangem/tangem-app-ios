@@ -82,10 +82,18 @@ struct AddTokenFlowRedesignedView: View {
             .frame(height: 80)
             .allowsHitTesting(false)
 
+            let backButtonAction = viewModel.viewState.canGoBack
+                ? { viewModel.back() }
+                : nil
+            let closeButtonAction = viewModel.viewState.canBeClosed
+                ? { viewModel.close() }
+                : nil
+
             FloatingSheetNavigationBarView(
                 title: viewModel.viewState.title,
                 backgroundColor: .clear,
-                closeButtonAction: viewModel.close
+                backButtonAction: backButtonAction,
+                closeButtonAction: closeButtonAction
             )
             .id(viewModel.viewState.id)
             .transition(.opacity)
