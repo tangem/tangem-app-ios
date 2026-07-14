@@ -24,7 +24,6 @@ struct TangemPayCurrentPlanView: View {
             .safeAreaInset(edge: .bottom) {
                 changePlanButton
             }
-            .bindAlert($viewModel.alert)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbar }
             .modifyView { view in
@@ -79,7 +78,6 @@ struct TangemPayCurrentPlanView: View {
         .size(.x12)
         .styleType(.default)
         .horizontalLayout(.infinity)
-        .isLoading(viewModel.isLoadingPlans)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
     }

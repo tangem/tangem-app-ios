@@ -38,7 +38,8 @@ struct TangemPayComparePlansSheetViewModel: FloatingSheetContentViewModel {
 
             return ComparePlan(
                 name: plan.name,
-                cells: orderedAttributes.map { valuesByTitle[$0] ?? Constants.missingValue }
+                thumbnailURL: plan.images.first { $0.type == .thumbnail }?.url,
+                cells: orderedAttributes.map { valuesByTitle[$0].flatMap { $0 } ?? Constants.missingValue }
             )
         }
     }
@@ -79,6 +80,7 @@ private extension VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType {
         switch self {
         case .cardRelated: 0
         case .planRelated: 1
+        case .onboardingRelated: 2
         }
     }
 }
@@ -94,6 +96,7 @@ extension TangemPayComparePlansSheetViewModel {
     struct ComparePlan: Identifiable {
         var id: String { name }
         let name: String
+        let thumbnailURL: String?
         let cells: [String]
     }
 }

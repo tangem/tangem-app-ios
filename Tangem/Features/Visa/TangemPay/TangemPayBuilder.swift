@@ -31,7 +31,8 @@ final class TangemPayBuilder {
     private lazy var enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
         customerWalletId: customerWalletId,
         availabilityService: availabilityService,
-        customerService: customerService
+        customerService: customerService,
+        tiersEnabled: FeatureProvider.isAvailable(.tangemPayTiers)
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
@@ -90,6 +91,7 @@ final class TangemPayBuilder {
             customerService: customerService,
             enrollmentStateFetcher: enrollmentStateFetcher,
             orderStatusPollingService: orderStatusPollingService,
+            orderResolver: orderResolver,
             orderIdStorage: AppSettings.shared,
             paeraCustomerFlagRepository: AppSettings.shared,
             cachedStateStorage: AppSettings.shared,
