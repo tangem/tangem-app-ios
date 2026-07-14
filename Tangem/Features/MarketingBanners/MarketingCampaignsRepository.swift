@@ -17,9 +17,14 @@ final class MarketingCampaignsRepository {
     private let loadState = OSAllocatedUnfairLock(initialState: LoadState())
     private let storage = CachesDirectoryStorage(file: .cachedMarketingCampaigns)
     private let language: String?
+    private let isFeatureAvailable: () -> Bool
 
-    init(language: String? = Locale.current.language.languageCode?.identifier) {
+    init(
+        language: String? = Locale.current.language.languageCode?.identifier,
+        isFeatureAvailable: @escaping () -> Bool = { FeatureProvider.isAvailable(.marketingBanners) }
+    ) {
         self.language = language
+        self.isFeatureAvailable = isFeatureAvailable
     }
 }
 
@@ -56,7 +61,7 @@ extension MarketingCampaignsRepository {
     }
 
     func loadCampaigns(for kind: Kind) {
-        guard FeatureProvider.isAvailable(.marketingBanners) else {
+        guard isFeatureAvailable() else {
             return
         }
 
@@ -115,7 +120,11 @@ private extension MarketingCampaignsRepository {
         var inFlight: Set<Kind> = []
         var loaded: Set<Kind> = []
     }
+}
 
+// MARK: - Token matching
+
+extension MarketingCampaignsRepository {
     static func appliesTo(_ campaign: MarketingCampaignsDTO.Campaign, tokenItem: TokenItem) -> Bool {
         guard let tokens = campaign.tokens, !tokens.isEmpty else {
             return false
