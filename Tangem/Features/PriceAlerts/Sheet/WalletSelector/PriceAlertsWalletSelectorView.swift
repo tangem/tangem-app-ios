@@ -32,11 +32,8 @@ struct PriceAlertsWalletSelectorView: View {
         VStack(spacing: 16) {
             walletList
 
-            dontAskAgainRow
-
-            // [REDACTED_TODO_COMMENT]
             MainButton(
-                title: "Add to price alert",
+                title: Localization.commonSave,
                 isDisabled: !viewModel.isAddEnabled,
                 action: viewModel.addToPriceAlertTapped
             )
@@ -53,22 +50,6 @@ struct PriceAlertsWalletSelectorView: View {
         }
         .background(Colors.Background.action)
         .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
-    private var dontAskAgainRow: some View {
-        Button(action: { viewModel.isDontAskAgainEnabled.toggle() }) {
-            HStack(spacing: 8) {
-                Image(systemName: viewModel.isDontAskAgainEnabled ? "checkmark.square.fill" : "square")
-                    .foregroundStyle(viewModel.isDontAskAgainEnabled ? Colors.Icon.accent : Colors.Icon.informative)
-
-                // [REDACTED_TODO_COMMENT]
-                Text("Don't ask again")
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-
-                Spacer()
-            }
-            .contentShape(.rect)
-        }
     }
 }
 
