@@ -179,14 +179,17 @@ private extension SwapModelTests {
     func waitForNewState(
         _ recorder: StateRecorder,
         since baseline: Int,
-        timeout: Duration = .seconds(5),
         where predicate: @escaping (SwapModel.ProvidersState) -> Bool
     ) async throws -> SwapModel.ProvidersState {
-        for _ in 0 ..< 500 {
+        let pollInterval: Duration = .milliseconds(10)
+        // ~5s budget: must comfortably outlast the amount path's 1s quote debounce.
+        let maxAttempts = 500
+
+        for _ in 0 ..< maxAttempts {
             if recorder.count > baseline, let latest = recorder.latest, predicate(latest) {
                 return latest
             }
-            try await Task.sleep(for: .milliseconds(10))
+            try await Task.sleep(for: pollInterval)
         }
 
         throw TimeoutError()
