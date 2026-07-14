@@ -13,7 +13,6 @@ import TangemUI
 
 struct AddFundsStackNavigationBar: View {
     let title: String
-    let accountBadge: AddFundsTokenInfoView.AccountBadge?
     var onBack: (() -> Void)? = nil
     let onClose: () -> Void
 
