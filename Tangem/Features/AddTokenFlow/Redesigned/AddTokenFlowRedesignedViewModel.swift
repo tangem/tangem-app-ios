@@ -311,6 +311,24 @@ extension AddTokenFlowRedesignedViewModel {
             }
         }
 
+        var canBeClosed: Bool {
+            switch self {
+            case .confirm, .accountPicker:
+                return true
+            case .networkPicker:
+                return false
+            }
+        }
+
+        var canGoBack: Bool {
+            switch self {
+            case .confirm, .accountPicker:
+                return false
+            case .networkPicker:
+                return true
+            }
+        }
+
         var title: String {
             switch self {
             case .confirm:
