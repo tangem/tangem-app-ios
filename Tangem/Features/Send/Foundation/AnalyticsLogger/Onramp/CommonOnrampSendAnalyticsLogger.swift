@@ -74,6 +74,14 @@ extension CommonOnrampSendAnalyticsLogger: OnrampManagementModelAnalyticsLogger 
     func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String) {
         Analytics.log(event: .onrampVerifyScreenOpened, params: napParams(amount: amount, currencyCode: currencyCode))
     }
+
+    func logOnrampNoticeBuyNotSupported() {
+        Analytics.log(event: .onrampNoticeBuyNotSupported, params: [
+            .source: source.analytics.rawValue,
+            .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
+        ])
+    }
 }
 
 // MARK: - SendOnrampNAPAnalyticsLogger
