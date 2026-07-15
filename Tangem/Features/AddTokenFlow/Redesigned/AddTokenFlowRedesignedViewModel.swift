@@ -36,11 +36,22 @@ final class AddTokenFlowRedesignedViewModel: ObservableObject, FloatingSheetCont
     init?(
         tokenItem: TokenItem,
         userWalletModels: [any UserWalletModel],
+        preferredWalletId: UserWalletId? = nil,
         configuration: AddTokenFlowConfiguration,
         coordinator: AddTokenFlowRedesignedRoutable?
     ) {
         let oneAndOnly = OneAndOnlyAccountFinder.find(in: userWalletModels)
-        let firstEligible = AddTokenEligibleAccountsResolver.resolveAll(in: userWalletModels).first.map {
+        let eligibleAccounts = AddTokenEligibleAccountsResolver.resolveAll(in: userWalletModels)
+
+        let eligibleAccount: AddTokenEligibleAccountsResolver.EligibleAccount? = if let preferredWalletId {
+            eligibleAccounts.first(where: { userWalletModel, cryptoAccountModel in
+                userWalletModel.userWalletId == preferredWalletId
+            })
+        } else {
+            eligibleAccounts.first
+        }
+
+        let firstEligible = eligibleAccount.map {
             AccountSelectorCellModel.wallet(
                 AccountSelectorWalletItem(userWallet: $0.userWallet, cryptoAccountModel: $0.cryptoAccount, isLocked: false)
             )

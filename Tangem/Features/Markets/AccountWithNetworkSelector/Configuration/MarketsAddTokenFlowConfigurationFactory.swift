@@ -233,6 +233,38 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     }
 }
 
+// MARK: - Pulse widget flow
+
+extension MarketsAddTokenFlowConfigurationFactory {
+    /// Creates a configuration for the Pulse widget add-token flow that calls `onConfirm` after the
+    /// token is added, instead of showing the "Get token" screen.
+    static func makeForPulseWidget(
+        inputData: InputData,
+        onConfirm: @escaping (TokenItem, AccountSelectorCellModel) -> Void
+    ) -> AddTokenFlowConfiguration {
+        AddTokenFlowConfiguration(
+            getAvailableTokenItems: { accountSelectorCell in
+                makeTokenItems(
+                    inputData: inputData,
+                    supportedBlockchains: accountSelectorCell.userWalletModel.config.supportedBlockchains,
+                    cryptoAccount: accountSelectorCell.cryptoAccountModel
+                )
+            },
+            isTokenAdded: { tokenItem, account in
+                account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
+            },
+            postAddBehavior: .executeAction(onConfirm),
+            accountFilter: makeAccountFilter(inputData: inputData),
+            accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
+                coinId: inputData.coinId,
+                coinName: inputData.coinName,
+                coinSymbol: inputData.coinSymbol,
+                availableNetworks: inputData.networks
+            )
+        )
+    }
+}
+
 // MARK: - Preselected token
 
 extension MarketsAddTokenFlowConfigurationFactory {
