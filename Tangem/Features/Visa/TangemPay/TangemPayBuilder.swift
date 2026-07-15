@@ -36,8 +36,7 @@ final class TangemPayBuilder {
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
-        customerService: customerService,
-        multipleCardsEnabled: FeatureProvider.isAvailable(.tangemPayMultipleCards)
+        customerService: customerService
     )
 
     private lazy var tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)

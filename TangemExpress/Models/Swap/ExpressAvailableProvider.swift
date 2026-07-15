@@ -143,28 +143,6 @@ public extension Array where Element == ExpressAvailableProvider {
         return bestDEX ?? best()
     }
 
-    func updateIsBestFlag() {
-        let candidates = eligibleForBestCandidates()
-
-        guard candidates.count > 1 else {
-            forEach { provider in
-                provider.update(isBest: false)
-                provider.update(isBestDEX: false)
-            }
-            return
-        }
-
-        let best = candidates.best()
-
-        forEach { provider in
-            provider.update(isBest: provider === best)
-            provider.update(isBestDEX: false)
-        }
-
-        let providers = map(\.provider.name).joined(separator: ", ")
-        ExpressLogger.info("Update providers \(providers). Best: \(best?.provider.name ?? "no best provider")")
-    }
-
     func updateIsBestFlagPreferringDEX() {
         let candidates = eligibleForBestCandidates()
 
