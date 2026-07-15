@@ -103,13 +103,11 @@ final class TangemPayBuilder {
 extension TangemPayBuilder: TangemPayAccountBuilder {
     func makeTangemPayAccount(
         customerInfo: VisaCustomerInfoResponse,
-        productInstance: VisaCustomerInfoResponse.ProductInstance,
         account: (any TangemPayAccountModel)?
     ) -> TangemPayAccount {
         TangemPayAccount(
             userWalletId: userWalletId,
             customerInfo: customerInfo,
-            productInstance: productInstance,
             customerService: customerService,
             balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService,

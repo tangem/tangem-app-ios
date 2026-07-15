@@ -59,17 +59,13 @@ struct TangemPayMainView: View {
 
                 balanceCard
 
-                if !viewModel.multipleCardsEnabled, viewModel.shouldDisplayReplacingCardBanner {
-                    TangemPayReplacingCardBanner()
-                }
-
                 if viewModel.shouldDisplayAddToApplePayGuide {
                     Button(action: viewModel.openAddToApplePayGuide) {
                         TangemPayAddToApplePayBanner(closeAction: viewModel.dismissAddToApplePayGuideBanner)
                     }
                 }
 
-                if viewModel.multipleCardsEnabled, viewModel.hasIssuingEntry {
+                if viewModel.hasIssuingEntry {
                     TangemPayIssuingCardBanner()
                 }
 
@@ -106,7 +102,6 @@ struct TangemPayMainView: View {
         .background(Colors.Background.secondary)
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: scrollOffsetHandler.onViewAppear)
-        .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.alert) { $0.alert }
         .coordinateSpace(name: Constants.coordinateSpaceName)
         .toolbar {
@@ -189,14 +184,8 @@ struct TangemPayMainView: View {
             )
             .opacity(viewModel.isStale ? 0.6 : 1)
 
-            Group {
-                if viewModel.multipleCardsEnabled {
-                    cardListRow
-                } else {
-                    cardIconRow
-                }
-            }
-            .padding(.vertical, 4)
+            cardListRow
+                .padding(.vertical, 4)
 
             ScrollableButtonsView(
                 itemsHorizontalOffset: 14,
@@ -225,36 +214,7 @@ struct TangemPayMainView: View {
         .cornerRadiusContinuous(14)
     }
 
-    // MARK: - Legacy single-card
-
-    private var cardIconRow: some View {
-        HStack(spacing: 8) {
-            Button(action: viewModel.openCardManagement) {
-                TangemPaySmallCardView(
-                    state: viewModel.shouldDisplayReplacingCardBanner
-                        ? .replacing
-                        : .issued(cardNumberEnd: viewModel.cardNumberEnd)
-                )
-            }
-            .disabled(viewModel.isStale)
-            .opacity(viewModel.isStale ? 0.6 : 1)
-            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton)
-
-            Button(action: viewModel.openFakedoorSheet) {
-                Image(systemName: "plus")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Colors.Text.tertiary)
-                    .frame(width: 48, height: 32)
-                    .background(Colors.Button.secondary.cornerRadiusContinuous(4))
-            }
-            .disabled(viewModel.isStale)
-            .opacity(viewModel.isStale ? 0.6 : 1)
-
-            Spacer()
-        }
-    }
-
-    // MARK: - Legacy multi-card
+    // MARK: - Card list
 
     private var cardListRow: some View {
         HStack(spacing: 8) {
@@ -319,7 +279,6 @@ struct TangemPayMainView: View {
         .onReceive(elasticContainerModel.heightRatioPublisher) { headerHeightRatio = $0 }
         .onReceive(viewModel.refreshScrollViewStateObject.scrollViewInteractor.$visibleBodyHeight) { visibleBodyHeight = $0 }
         .onAppear(perform: viewModel.onAppear)
-        .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { redesignedToolbar }
@@ -348,15 +307,11 @@ struct TangemPayMainView: View {
                 )
             }
 
-            if !viewModel.multipleCardsEnabled, viewModel.shouldDisplayReplacingCardBanner {
-                TangemPayReplacingCardBanner()
-            }
-
             if viewModel.shouldDisplayAddToApplePayGuide {
                 redesignedAddToApplePayBanner
             }
 
-            if viewModel.multipleCardsEnabled, viewModel.hasIssuingEntry {
+            if viewModel.hasIssuingEntry {
                 TangemPayIssuingCardBannerRedesigned()
             }
 
@@ -407,37 +362,17 @@ struct TangemPayMainView: View {
         .padding(.top, 32)
     }
 
-    @ViewBuilder
     private var redesignedCardsRow: some View {
         HStack(spacing: 8) {
-            if viewModel.multipleCardsEnabled {
-                ForEach(viewModel.cardEntries) { entry in
-                    redesignedCardEntryButton(for: entry)
-                }
-
-                Button(action: viewModel.tapAddCard) {
-                    TangemPayAddCardView()
-                }
-                .disabled(viewModel.addCardDisabled)
-                .opacity(viewModel.addCardDisabled ? 0.6 : 1)
-            } else {
-                Button(action: viewModel.openCardManagement) {
-                    TangemPaySmallCardViewRedesigned(
-                        state: viewModel.shouldDisplayReplacingCardBanner
-                            ? .replacing
-                            : .issued(cardNumberEnd: viewModel.cardNumberEnd)
-                    )
-                }
-                .disabled(viewModel.isStale)
-                .opacity(viewModel.isStale ? 0.6 : 1)
-                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton)
-
-                Button(action: viewModel.openFakedoorSheet) {
-                    TangemPayAddCardView()
-                }
-                .disabled(viewModel.isStale)
-                .opacity(viewModel.isStale ? 0.6 : 1)
+            ForEach(viewModel.cardEntries) { entry in
+                redesignedCardEntryButton(for: entry)
             }
+
+            Button(action: viewModel.tapAddCard) {
+                TangemPayAddCardView()
+            }
+            .disabled(viewModel.addCardDisabled)
+            .opacity(viewModel.addCardDisabled ? 0.6 : 1)
         }
     }
 
