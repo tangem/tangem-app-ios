@@ -103,15 +103,6 @@ struct ForYouTokenRowData: Identifiable, Equatable {
     }
 }
 
-// MARK: - Wallet tabs
-
-struct ForYouWalletTab: Identifiable, Equatable {
-    let id: String
-    let name: String
-    let isSelected: Bool
-    let count: Int?
-}
-
 // MARK: - Period picker
 
 struct ForYouPeriodSegment: Identifiable, Hashable {

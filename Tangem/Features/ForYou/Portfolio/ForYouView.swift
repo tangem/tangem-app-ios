@@ -48,20 +48,11 @@ struct ForYouView: View {
     private var content: some View {
         ScrollView {
             VStack(spacing: 8) {
-                notifications
-
                 periodPicker
 
                 PortfolioTokenListView(viewModel: viewModel.tokenListViewModel)
             }
             .padding(16)
-        }
-    }
-
-    @ViewBuilder
-    private var notifications: some View {
-        ForEach(viewModel.notifications) { input in
-            NotificationView(input: input)
         }
     }
 
@@ -95,47 +86,5 @@ struct ForYouView: View {
         }
         .padding(.horizontal, 16)
         .frame(height: 64, alignment: .bottom)
-    }
-}
-
-// MARK: - Previews
-
-#Preview("Content") {
-    func item(id: String, symbol: String, subtitle: String, fiat: String, percent: String) -> ForYouTokenListItem {
-        ForYouTokenListItem(
-            id: id,
-            assetRow: ForYouTokenRowData(
-                id: id,
-                isLoading: false,
-                symbol: symbol,
-                tokenIconInfo: nil,
-                sentiment: .positive,
-                subtitle: .text(subtitle),
-                end: .values(fiat: fiat, percent: percent)
-            ),
-            networkRows: [],
-            isExpanded: false,
-            isExpandable: true
-        )
-    }
-
-    let content = PortfolioReviewState.content(
-        PortfolioReviewState.Content(
-            tokenList: [
-                item(id: "btc", symbol: "Bitcoin", subtitle: "Main network", fiat: "$849", percent: "8.49%"),
-                item(id: "sol", symbol: "Solana", subtitle: "2 networks", fiat: "$700", percent: "7.0%"),
-            ],
-            periodSegments: ForYouPeriodSegment.all
-        )
-    )
-
-    return NavigationStack {
-        ForYouView(viewModel: ForYouViewModel(previewState: content), onBackButtonAction: {})
-    }
-}
-
-#Preview("Loading") {
-    NavigationStack {
-        ForYouView(viewModel: ForYouViewModel(previewState: PortfolioReviewState.loadingPlaceholder), onBackButtonAction: {})
     }
 }

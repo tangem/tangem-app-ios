@@ -19,10 +19,3 @@ struct ForYouPeriodPickerView: View {
             .style(.flexible)
     }
 }
-
-#Preview {
-    ForYouPeriodPickerView(
-        segments: ForYouPeriodSegment.all,
-        selection: .constant(ForYouPeriodSegment.initial)
-    )
-}

@@ -12,8 +12,6 @@ import TangemUI
 import TangemUIUtils
 
 extension PortfolioTokenItemView {
-    /// Summary header shown while the asset group is expanded. Fed into `ExpandableItemView`'s
-    /// `expandedViewHeader` slot — the component owns the tap/toggle, so this view carries no gesture.
     struct ExpandedHeaderView: View {
         let assetRow: ForYouTokenRowData
 
@@ -27,7 +25,6 @@ extension PortfolioTokenItemView {
         }
     }
 
-    /// Per-network breakdown revealed under the header (`expandedView` slot).
     struct ExpandedNetworksView: View {
         let networkRows: [ForYouTokenRowData]
 
@@ -41,8 +38,6 @@ extension PortfolioTokenItemView {
         }
     }
 }
-
-// MARK: - Header content
 
 private extension PortfolioTokenItemView.ExpandedHeaderView {
     var header: some View {
