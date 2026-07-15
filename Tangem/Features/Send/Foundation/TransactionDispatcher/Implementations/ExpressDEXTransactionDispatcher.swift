@@ -129,10 +129,6 @@ private extension ExpressDEXTransactionDispatcher {
     }
 
     func sendBitcoinPsbt(data: ExpressTransactionData) async throws -> TransactionDispatcherResult {
-        guard FeatureProvider.isAvailable(.bitcoinDexSwap) else {
-            throw DEXTransactionDispatcherError.dexNotSupported(blockchain: walletModel.tokenItem.blockchain.displayName)
-        }
-
         guard let sender = walletModel.bitcoinPsbtSwapSender else {
             throw TransactionDispatcherResult.Error.actionNotSupported
         }
