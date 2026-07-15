@@ -26,10 +26,7 @@ private extension ExpressOnrampTransactionsTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                table: Constants.expressOnrampTransactionsTableName,
-                options: [
-                    .ifNotExists,
-                ]
+                table: Constants.expressOnrampTransactionsTableName
             ) { table in
                 table.primaryKey("id", .text).notNull()
                 table.column(Constants.ownerAddressColumnName, .text).notNull()
@@ -57,9 +54,6 @@ private extension ExpressOnrampTransactionsTable {
                 on: Constants.expressOnrampTransactionsTableName,
                 columns: [
                     Constants.ownerAddressColumnName,
-                ],
-                options: [
-                    .ifNotExists,
                 ]
             )
 
@@ -68,9 +62,6 @@ private extension ExpressOnrampTransactionsTable {
                 on: Constants.expressOnrampTransactionsTableName,
                 columns: [
                     Constants.payOutHashColumnName,
-                ],
-                options: [
-                    .ifNotExists,
                 ]
             )
 
@@ -81,9 +72,6 @@ private extension ExpressOnrampTransactionsTable {
                     Constants.toNetworkColumnName,
                     Constants.toContractColumnName,
                     Constants.ownerAddressColumnName,
-                ],
-                options: [
-                    .ifNotExists,
                 ]
             )
         }

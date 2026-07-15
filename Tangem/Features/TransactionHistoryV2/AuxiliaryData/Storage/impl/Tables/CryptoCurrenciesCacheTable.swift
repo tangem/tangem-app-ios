@@ -26,9 +26,6 @@ private extension CryptoCurrenciesCacheTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                options: [
-                    .ifNotExists,
-                ]
                 table: Constants.tableName
             ) { table in
                 table.primaryKey([
@@ -54,9 +51,6 @@ private extension CryptoCurrenciesCacheTable {
                 on: Constants.tableName,
                 columns: [
                     Constants.idColumnName,
-                ],
-                options: [
-                    .ifNotExists,
                 ]
             )
         }

@@ -26,10 +26,7 @@ private extension ExpressExchangeTransactionsTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                table: Constants.expressExchangeTransactionsTableName,
-                options: [
-                    .ifNotExists,
-                ]
+                table: Constants.expressExchangeTransactionsTableName
             ) { table in
                 table.primaryKey("id", .text).notNull()
                 table.column(Constants.ownerAddressColumnName, .text).notNull()
@@ -64,9 +61,6 @@ private extension ExpressExchangeTransactionsTable {
                 on: Constants.expressExchangeTransactionsTableName,
                 columns: [
                     Constants.ownerAddressColumnName,
-                ],
-                options: [
-                    .ifNotExists,
                 ]
             )
 
@@ -75,9 +69,6 @@ private extension ExpressExchangeTransactionsTable {
                 on: Constants.expressExchangeTransactionsTableName,
                 columns: [
                     Constants.payInHashColumnName,
-                ],
-                options: [
-                    .ifNotExists,
                 ]
             )
 
@@ -86,9 +77,6 @@ private extension ExpressExchangeTransactionsTable {
                 on: Constants.expressExchangeTransactionsTableName,
                 columns: [
                     Constants.payOutHashColumnName,
-                ],
-                options: [
-                    .ifNotExists,
                 ]
             )
 
@@ -99,9 +87,6 @@ private extension ExpressExchangeTransactionsTable {
                     Constants.fromNetworkColumnName,
                     Constants.fromContractColumnName,
                     Constants.ownerAddressColumnName,
-                ],
-                options: [
-                    .ifNotExists,
                 ]
             )
 
@@ -112,9 +97,6 @@ private extension ExpressExchangeTransactionsTable {
                     Constants.toNetworkColumnName,
                     Constants.toContractColumnName,
                     Constants.ownerAddressColumnName,
-                ],
-                options: [
-                    .ifNotExists,
                 ]
             )
 
@@ -127,9 +109,6 @@ private extension ExpressExchangeTransactionsTable {
                     Constants.refundContractAddressColumnName,
                     Constants.refundAddressColumnName,
                     Constants.createdAtColumnName,
-                ],
-                options: [
-                    .ifNotExists,
                 ]
             )
         }

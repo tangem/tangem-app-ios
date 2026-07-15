@@ -26,10 +26,7 @@ private extension FiatCurrenciesCacheTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                table: "fiatCurrenciesCache",
-                options: [
-                    .ifNotExists,
-                ]
+                table: "fiatCurrenciesCache"
             ) { table in
                 table.primaryKey("code", .text).notNull()
                 table.column("name", .text).notNull()

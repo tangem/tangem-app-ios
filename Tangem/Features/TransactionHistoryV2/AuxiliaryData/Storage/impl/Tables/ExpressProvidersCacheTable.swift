@@ -26,10 +26,7 @@ private extension ExpressProvidersCacheTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                table: "expressProvidersCache",
-                options: [
-                    .ifNotExists,
-                ]
+                table: "expressProvidersCache"
             ) { table in
                 table.primaryKey("id", .text).notNull()
                 table.column("name", .text).notNull()

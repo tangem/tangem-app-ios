@@ -26,10 +26,7 @@ private extension ExpressSyncMetadataTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                table: "expressSyncMetadata",
-                options: [
-                    .ifNotExists,
-                ]
+                table: "expressSyncMetadata"
             ) { table in
                 table.primaryKey([
                     Constants.ownerAddressColumnName,
