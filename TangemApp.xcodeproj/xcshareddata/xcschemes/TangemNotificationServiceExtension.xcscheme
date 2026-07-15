@@ -57,8 +57,7 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2"
-      queueDebuggingEnableBacktraceRecording = "Yes"
-      notificationPayloadFile = "Examples/apps/watchOSExample/watchOSExample WatchKit Extension/PushNotificationPayload.apns">
+      queueDebuggingEnableBacktraceRecording = "Yes">
       <RemoteRunnable
          runnableDebuggingMode = "0"
          BundleIdentifier = "com.tangem.TangemAlpha"
