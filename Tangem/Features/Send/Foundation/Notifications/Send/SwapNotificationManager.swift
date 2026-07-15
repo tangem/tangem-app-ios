@@ -161,7 +161,11 @@ private extension CommonSwapNotificationManager {
                 ),
             ]
 
-        case .requiredRefresh:
+        case .requiredRefresh(let occurredError, _):
+            if let feeErrorEvent = mapToFeeErrorEvent(occurredError: occurredError, tokenItem: source.tokenItem) {
+                return [feeErrorEvent]
+            }
+
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
 
         case .restriction(.tooSmallAmountForSwapping(let minAmount, let currencySymbol), _):
@@ -197,21 +201,7 @@ private extension CommonSwapNotificationManager {
             return []
 
         case .restriction(.notEnoughAmountForFee, _), .restriction(.notEnoughAmountForTxValue, _):
-            let feeBlockchain = source.tokenItem.blockchain
-
-            let noticeAnalyticsParams: [Analytics.ParameterKey: String] = [
-                .token: source.tokenItem.currencySymbol,
-                .blockchain: source.tokenItem.blockchain.displayName,
-            ]
-
-            return [
-                .notEnoughFeeForTokenTx(
-                    mainTokenName: feeBlockchain.displayName,
-                    mainTokenSymbol: feeBlockchain.currencySymbol,
-                    blockchainIconAsset: NetworkImageProvider().provide(by: feeBlockchain, filled: true),
-                    analyticsParams: noticeAnalyticsParams
-                ),
-            ]
+            return [makeNotEnoughFeeForTokenTxEvent(tokenItem: source.tokenItem)]
 
         case .restriction(.notEnoughReceivedAmount(let minAmount, let tokenSymbol), _):
             return [.notEnoughReceivedAmountForReserve(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)")]
@@ -381,6 +371,40 @@ private extension CommonSwapNotificationManager {
              .noTrustlineAtDestination:
             return .validationErrorEvent(event: validationErrorEvent)
         }
+    }
+}
+
+// MARK: - Fee error mapping
+
+extension CommonSwapNotificationManager {
+    func mapToFeeErrorEvent(occurredError: any Error, tokenItem: TokenItem) -> SwapNotificationEvent? {
+        switch occurredError {
+        case TokenFeeProviderError.notEnoughBalanceForFee:
+            return makeNotEnoughFeeForTokenTxEvent(tokenItem: tokenItem)
+
+        case TokenFeeProviderError.notEnoughGaslessFeeBalance:
+            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
+            return .validationErrorEvent(event: factory.mapToInsufficientGaslessFeeEvent())
+
+        default:
+            return nil
+        }
+    }
+
+    func makeNotEnoughFeeForTokenTxEvent(tokenItem: TokenItem) -> SwapNotificationEvent {
+        let feeBlockchain = tokenItem.blockchain
+
+        let analyticsParams: [Analytics.ParameterKey: String] = [
+            .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
+        ]
+
+        return .notEnoughFeeForTokenTx(
+            mainTokenName: feeBlockchain.displayName,
+            mainTokenSymbol: feeBlockchain.currencySymbol,
+            blockchainIconAsset: NetworkImageProvider().provide(by: feeBlockchain, filled: true),
+            analyticsParams: analyticsParams
+        )
     }
 }
 
