@@ -33,7 +33,13 @@ private extension ExpressProvidersCacheTable {
             ) { table in
                 table.primaryKey("id", .text).notNull()
                 table.column("name", .text).notNull()
+                table.column("type", .text).notNull()
+                table.column("exchangeOnlyWithinSingleAddress", .boolean).notNull()
                 table.column("imageURL", .text)
+                table.column("termsOfUse", .text)
+                table.column("privacyPolicy", .text)
+                table.column("recommended", .boolean)
+                table.column("slippage", .text)
                 table.column("updatedAt", .datetime).notNull()
             }
         }
