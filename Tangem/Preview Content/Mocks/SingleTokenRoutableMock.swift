@@ -39,5 +39,7 @@ class SingleTokenRoutableMock: SingleTokenRoutable {
 
     func openPendingExpressTransactionDetails(pendingTransaction: PendingTransaction, tokenItem: TokenItem, pendingTransactionsManager: any PendingExpressTransactionsManager) {}
 
+    func openTransactionDetails(_ data: TransactionDetailsRouteData) {}
+
     func openYieldModule(walletModel: any WalletModel) {}
 }

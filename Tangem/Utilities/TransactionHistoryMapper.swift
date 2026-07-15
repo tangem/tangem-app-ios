@@ -325,6 +325,10 @@ private extension TransactionHistoryMapper {
     }
 
     func transactionType(from record: TransactionRecord) -> TransactionViewModel.TransactionType {
+        if case .exchange = record.expressExtraInfo {
+            return .swap
+        }
+
         switch record.type {
         case .transfer:
             return .transfer

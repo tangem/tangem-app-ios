@@ -41,8 +41,7 @@ struct OnrampTransactionDetailsViewData: TransactionDetailsOperationViewData {
 
         return TransactionDetailsTokensViewData(
             from: .init(
-                // [REDACTED_TODO_COMMENT]
-                direction: .init(label: "You paid", actor: nil),
+                direction: .init(label: Localization.txHistoryYouPaid, actor: nil),
                 icon: paid.isFlagLoading ? .loading : .image(url: paid.flagIconURL),
                 amountText: paidAmountText,
                 fiatText: paid.fiatPrice,
@@ -66,8 +65,7 @@ struct OnrampTransactionDetailsViewData: TransactionDetailsOperationViewData {
         }
 
         if let rate {
-            // [REDACTED_TODO_COMMENT]
-            rows.append(.init(id: "rate", title: "Rate", content: .text(rate)))
+            rows.append(.init(id: "rate", title: Localization.commonRate, content: .text(rate)))
         }
 
         return rows.isEmpty ? nil : .init(rows: rows)

@@ -27,4 +27,11 @@ protocol SingleTokenBaseRoutable: AnyObject {
         userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
+    func openTransactionDetails(_ data: TransactionDetailsRouteData)
+}
+
+extension SingleTokenBaseRoutable {
+    func openTransactionDetails(_ data: TransactionDetailsRouteData) {
+        assertionFailure("openTransactionDetails(_:) is not implemented for \(Self.self)")
+    }
 }

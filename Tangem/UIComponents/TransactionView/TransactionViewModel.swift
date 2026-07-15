@@ -17,6 +17,7 @@ import TangemMacro
 struct TransactionViewModel: Hashable, Identifiable {
     let id: ViewModelId
     let hash: String
+    let index: Int
     let icon: TransactionViewIconViewData
     let amount: TransactionViewAmountViewData
 
@@ -132,6 +133,7 @@ struct TransactionViewModel: Hashable, Identifiable {
     ) {
         id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
         self.hash = hash
+        self.index = index
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
         self.amount = TransactionViewAmountViewData(
             amount: amount,

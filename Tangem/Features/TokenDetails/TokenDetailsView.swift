@@ -68,7 +68,7 @@ struct TokenDetailsView: View {
                         state: viewModel.transactionHistoryState,
                         exploreAction: viewModel.openExplorer,
                         exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
-                        exploreTransactionAction: viewModel.openTransactionExplorer,
+                        openTransactionDetailsAction: viewModel.openTransactionDetails,
                         reloadButtonAction: viewModel.onButtonReloadHistory,
                         isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
                         fetchMore: viewModel.fetchMoreHistory()

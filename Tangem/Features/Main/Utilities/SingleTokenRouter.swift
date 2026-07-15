@@ -28,6 +28,7 @@ protocol SingleTokenRoutable {
         tokenItem: TokenItem,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
+    func openTransactionDetails(_ data: TransactionDetailsRouteData)
     func openYieldModule(walletModel: any WalletModel)
 }
 
@@ -146,6 +147,10 @@ final class SingleTokenRouter: SingleTokenRoutable {
             userWalletInfo: userWalletInfo,
             pendingTransactionsManager: pendingTransactionsManager
         )
+    }
+
+    func openTransactionDetails(_ data: TransactionDetailsRouteData) {
+        coordinator?.openTransactionDetails(data)
     }
 
     func openYieldModule(walletModel: any WalletModel) {}
