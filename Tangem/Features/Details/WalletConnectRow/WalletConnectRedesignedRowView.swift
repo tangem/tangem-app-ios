@@ -20,7 +20,6 @@ struct WalletConnectRedesignedRowView: View {
 
     var body: some View {
         TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
-            .verticalAlignment(.center)
             .start {
                 Assets.walletConnect.image
                     .resizable()
