@@ -53,19 +53,17 @@ struct OnboardingCardView: View {
     }
 }
 
-struct OnboardingCardView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            OnboardingCardView(
-                placeholderCardType: .dark,
-                cardImage: nil,
-                cardScanned: false
-            )
-            OnboardingCardView(
-                placeholderCardType: .light,
-                cardImage: nil,
-                cardScanned: false
-            )
-        }
+#Preview {
+    VStack {
+        OnboardingCardView(
+            placeholderCardType: .dark,
+            cardImage: nil,
+            cardScanned: false
+        )
+        OnboardingCardView(
+            placeholderCardType: .light,
+            cardImage: nil,
+            cardScanned: false
+        )
     }
 }

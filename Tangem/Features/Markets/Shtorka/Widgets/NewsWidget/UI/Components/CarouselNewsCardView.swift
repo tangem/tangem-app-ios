@@ -221,7 +221,6 @@ private extension CarouselNewsItem {
     )
 }
 
-#if DEBUG
 #Preview {
     VStack(alignment: .center, spacing: 16) {
         // Loading state
@@ -276,4 +275,3 @@ private extension CarouselNewsItem {
     .padding()
     .background(Colors.Background.secondary)
 }
-#endif

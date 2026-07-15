@@ -482,12 +482,74 @@ final class SendViaSwapUITests: BaseTestCase {
             .tapCloseButton()
             .goBackToMain()
     }
+
+    func testSingleCurrencyCardHasNoConvertButtonInSend() {
+        setAllureId(3972)
+
+        launchApp(tangemApiType: .mock, clearStorage: true)
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .xrpNote)
+            .validate(cardType: .xrpNote)
+            .waitForSwapButtonNotAvailable()
+            .tapMainSell()
+            .waitSellTokenSelectorDisplayed()
+            .tapToken(Constants.xrpTokenName)
+            .waitForDisplay()
+            .tapSend()
+            .waitForDisplay()
+            .waitForConvertButtonNotDisplayed()
+    }
+
+    func testMemoRestrictedNetworkNotSelectableAsReceiveToken() {
+        setAllureId(10196)
+
+        let bitcoinBalanceScenario = ScenarioConfig(
+            name: "bitcoin_utxo",
+            initialState: "Balance"
+        )
+
+        let assetsScenario = ScenarioConfig(
+            name: "express_api_assets",
+            initialState: "BitcoinExchangeEnabled"
+        )
+
+        let coinsScenario = ScenarioConfig(
+            name: "coins_api",
+            initialState: "WithAlgorand"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            clearStorage: true,
+            scenarios: [bitcoinBalanceScenario, assetsScenario, coinsScenario]
+        )
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(Constants.bitcoinTokenName)
+            .tapSendButton()
+            .waitForDisplay()
+            .waitForConvertButton()
+            .tapConvertButton()
+            .enterTokenSearch(Constants.algorandTokenName)
+            .waitForReceiveToken(name: Constants.algorandTokenName)
+            .tapReceiveToken(name: Constants.algorandTokenName)
+            .tapReceiveNetworkOption(name: Constants.algorandTokenName)
+            .waitForNetworkSelectorError(tokenName: Constants.algorandTokenName)
+            .tapNetworkSelectorGotItButton()
+            .tapChooseTokenCloseButton()
+            .tapCloseButton()
+            .goBackToMain()
+    }
 }
 
 private extension SendViaSwapUITests {
     enum Constants {
         static let bitcoinTokenName = "Bitcoin"
         static let xrpTokenName = "XRP Ledger"
+        static let algorandTokenName = "Algorand"
         static let solanaTokenName = "Solana"
         static let stellarTokenName = "Stellar"
         static let tetherTokenName = "Tether"

@@ -70,9 +70,8 @@ struct SingleWalletMainContentView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-struct SingleWalletContentView_Preview: PreviewProvider {
-    static let viewModel: SingleWalletMainContentViewModel = {
+#Preview {
+    let viewModel: SingleWalletMainContentViewModel = {
         let userWalletModel = FakeUserWalletModel.xrpNote
 
         let accountModel = userWalletModel
@@ -85,12 +84,19 @@ struct SingleWalletContentView_Preview: PreviewProvider {
 
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: [userWalletModel])
 
+        let expressStatusPollingHelper = ExpressStatusPollingHelper(
+            exchangePoller: FakeExpressStatusPoller<ExchangeStatusPollIteration>(),
+            onrampPoller: FakeExpressStatusPoller<OnrampStatusPollIteration>(),
+            enricherFactory: { nil }
+        )
+
         return SingleWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             promotionNotificationsManager: FakePromotionNotificationsManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
+            expressStatusPollingHelper: expressStatusPollingHelper,
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenRouter: SingleTokenRoutableMock(),
@@ -100,9 +106,6 @@ struct SingleWalletContentView_Preview: PreviewProvider {
         )
     }()
 
-    static var previews: some View {
-        SingleWalletMainContentView(viewModel: viewModel)
-            .background(Colors.Background.secondary)
-    }
+    SingleWalletMainContentView(viewModel: viewModel)
+        .background(Colors.Background.secondary)
 }
-#endif // DEBUG

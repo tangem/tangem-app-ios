@@ -187,7 +187,8 @@ struct CardStackAnimator<Card: View>: View {
     }
 }
 
-class CardStackAnimatorPreviewModel: ObservableObject {
+#if DEBUG
+final class CardStackAnimatorPreviewModel: ObservableObject {
     enum Content {
         case twins
         case backup(numberOfCards: Int)
@@ -304,11 +305,10 @@ struct CardStackAnimatorPreview: View {
     }
 }
 
-struct CardStackAnimator_Previews: PreviewProvider {
-    static var previews: some View {
-        CardStackAnimatorPreview(
-            viewModel:
-            CardStackAnimatorPreviewModel(content: .twins)
-        )
-    }
+#Preview {
+    CardStackAnimatorPreview(
+        viewModel:
+        CardStackAnimatorPreviewModel(content: .twins)
+    )
 }
+#endif // DEBUG

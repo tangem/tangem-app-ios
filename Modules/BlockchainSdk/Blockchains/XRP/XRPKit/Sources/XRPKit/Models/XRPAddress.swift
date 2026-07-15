@@ -1,6 +1,6 @@
 //
 //  XRPAddress.swift
-//  AnyCodable
+//  XRPKit
 //
 //  Created by [REDACTED_AUTHOR]
 //

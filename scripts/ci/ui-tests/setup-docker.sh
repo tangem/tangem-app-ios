@@ -1,11 +1,12 @@
 #!/bin/bash
 # Setup Docker environment using Colima
-# Optional env: COLIMA_CPU (default: 4), COLIMA_MEMORY (GiB, default: 8)
-# Note: CPU/memory only apply when the VM is created; a running instance keeps its size
+# Optional env: COLIMA_CPU (default: 2), COLIMA_MEMORY (GiB, default: 8)
+# Note: CPU/memory only apply when the VM is created; a running instance keeps its size.
+# WireMock is I/O-light, so the VM stays small to leave host cores for the parallel simulators.
 
 set -e
 
-COLIMA_CPU="${COLIMA_CPU:-4}"
+COLIMA_CPU="${COLIMA_CPU:-2}"
 COLIMA_MEMORY="${COLIMA_MEMORY:-8}"
 
 # Set custom paths to avoid permission issues

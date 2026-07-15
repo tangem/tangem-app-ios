@@ -414,7 +414,6 @@ public extension NavigationBar where LeftButtons == ArrowBack, RightButtons == E
     }
 }
 
-#if DEBUG
 #Preview {
     Group {
         VStack {
@@ -433,4 +432,3 @@ public extension NavigationBar where LeftButtons == ArrowBack, RightButtons == E
         }.deviceForPreview(.iPhone11ProMax)
     }
 }
-#endif

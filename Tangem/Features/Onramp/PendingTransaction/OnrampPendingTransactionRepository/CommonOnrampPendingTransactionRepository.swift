@@ -90,7 +90,7 @@ extension CommonOnrampPendingTransactionRepository: OnrampPendingTransactionRepo
         }
     }
 
-    func hideSwapTransaction(with id: String) {
+    func hideOnrampTransaction(with id: String) {
         lockQueue.async { [weak self] in
             guard let self else { return }
 

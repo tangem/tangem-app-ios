@@ -38,7 +38,6 @@ struct TangemPayBalanceView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 24) {
         TangemPayBalanceView(state: .loaded(text: "$18.97"))
@@ -48,4 +47,3 @@ struct TangemPayBalanceView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

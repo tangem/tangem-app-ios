@@ -50,24 +50,22 @@ private extension OrganizeTokensListInnerSectionView {
 
 // MARK: - Previews
 
-struct OrganizeTokensListInnerSectionView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            Group {
-                OrganizeTokensListInnerSectionView(
-                    title: "Bitcoin network",
-                    isDraggable: true
-                )
+@available(iOS 17.0, *)
+#Preview(traits: .sizeThatFitsLayout) {
+    VStack {
+        Group {
+            OrganizeTokensListInnerSectionView(
+                title: "Bitcoin network",
+                isDraggable: true
+            )
 
-                OrganizeTokensListInnerSectionView(
-                    title: "Bitcoin network",
-                    isDraggable: false
-                )
-            }
-            .background(Colors.Background.primary)
+            OrganizeTokensListInnerSectionView(
+                title: "Bitcoin network",
+                isDraggable: false
+            )
         }
-        .padding()
-        .previewLayout(.sizeThatFits)
-        .background(Colors.Background.secondary)
+        .background(Colors.Background.primary)
     }
+    .padding()
+    .background(Colors.Background.secondary)
 }

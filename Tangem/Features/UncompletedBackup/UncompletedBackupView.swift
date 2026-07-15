@@ -27,10 +27,8 @@ struct UncompletedBackupView: View {
     }
 }
 
-struct UncompletedBackupView_Preview: PreviewProvider {
-    static let viewModel = UncompletedBackupViewModel(coordinator: UncompletedBackupCoordinator())
-
-    static var previews: some View {
-        UncompletedBackupView(viewModel: viewModel)
-    }
+#Preview {
+    UncompletedBackupView(
+        viewModel: UncompletedBackupViewModel(coordinator: UncompletedBackupCoordinator())
+    )
 }
