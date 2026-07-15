@@ -33,7 +33,6 @@ struct ActionButtonsBuyView: View {
         }
         .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.buyTokenSelectorTokensList)
         .background(backgroundColor.ignoresSafeArea())
-        .navigationTitle(Localization.swappingToTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
@@ -93,5 +92,6 @@ struct ActionButtonsBuyView: View {
         .searchType(.native)
         .showsSeparators(false)
         .hidesSingleWalletName(true)
+        .navigationTitle(Localization.commonChooseToken)
     }
 }
