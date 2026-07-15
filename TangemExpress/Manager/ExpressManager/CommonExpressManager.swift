@@ -196,11 +196,7 @@ private extension CommonExpressManager {
 
     func reloadQuotes(candidates: [ExpressAvailableProvider], type: ExpressManagerUpdatingType) async -> ExpressManagerState {
         defer {
-            if featureFlags.isChooseBestDEXEnabled {
-                candidates.updateIsBestFlagPreferringDEX()
-            } else {
-                candidates.updateIsBestFlag()
-            }
+            candidates.updateIsBestFlagPreferringDEX()
         }
 
         let names = candidates.map { $0.provider.name }.joined(separator: ", ")
@@ -229,7 +225,7 @@ private extension CommonExpressManager {
     }
 
     func bestProvider(from providers: [ExpressAvailableProvider]) -> ExpressAvailableProvider? {
-        featureFlags.isChooseBestDEXEnabled ? providers.bestPreferringDEX() : providers.best()
+        providers.bestPreferringDEX()
     }
 
     func preferredRate(

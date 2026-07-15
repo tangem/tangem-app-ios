@@ -43,7 +43,6 @@ class CommonSendDestinationInteractor {
 
     private var saver: SendDestinationInteractorSaver
     private var dependenciesBuilder: SendDestinationInteractorDependenciesProvider
-    private let validateMemoBeforeConfirm: Bool
 
     private let _isValidatingDestination: CurrentValueSubject<Bool, Never> = .init(false)
     private let _canEmbedAdditionalField: CurrentValueSubject<Bool, Never> = .init(true)
@@ -67,15 +66,13 @@ class CommonSendDestinationInteractor {
         input: SendDestinationInput,
         receiveTokenInput: SendReceiveTokenInput?,
         saver: SendDestinationInteractorSaver,
-        dependenciesBuilder: SendDestinationInteractorDependenciesProvider,
-        validateMemoBeforeConfirm: Bool = FeatureProvider.isAvailable(.memoValidationBeforeConfirm)
+        dependenciesBuilder: SendDestinationInteractorDependenciesProvider
     ) {
         self.initialSourceToken = initialSourceToken
         self.input = input
         self.receiveTokenInput = receiveTokenInput
         self.saver = saver
         self.dependenciesBuilder = dependenciesBuilder
-        self.validateMemoBeforeConfirm = validateMemoBeforeConfirm
 
         bind()
     }
@@ -157,8 +154,6 @@ class CommonSendDestinationInteractor {
 
 private extension CommonSendDestinationInteractor {
     func bindMemoRevalidation() {
-        guard validateMemoBeforeConfirm else { return }
-
         // Re-validate additional field when destination changes (memoRequired flag may change)
         input?.destinationPublisher
             .receiveOnMain()
@@ -177,15 +172,6 @@ private extension CommonSendDestinationInteractor {
             return true
         case .plain, .resolved:
             return false
-        }
-    }
-
-    func applyMemoValidationIfEnabled() {
-        if validateMemoBeforeConfirm {
-            applyMemoRequirementValidation()
-        } else {
-            _destinationAdditionalFieldError.send(nil)
-            _additionalFieldValid.send(true)
         }
     }
 
@@ -357,7 +343,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
 
         guard !value.isEmpty else {
             saver.update(additionalField: .empty(type: type))
-            applyMemoValidationIfEnabled()
+            applyMemoRequirementValidation()
             return
         }
 
