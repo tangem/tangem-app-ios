@@ -11,6 +11,7 @@ import TangemNetworkUtils
 
 protocol GaslessTransactionsAPIService {
     typealias FeeToken = GaslessTransactionsDTO.Response.FeeToken
+    typealias TronFeeToken = GaslessTransactionsDTO.Response.TronFeeToken
     typealias GaslessTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
     typealias GaslessBatchTransaction = GaslessTransactionsDTO.Request.GaslessBatchTransaction
     typealias SendResponse = GaslessTransactionsDTO.Response.SendResponse
@@ -20,7 +21,7 @@ protocol GaslessTransactionsAPIService {
     typealias TronSubmitResponse = GaslessTransactionsDTO.Response.TronSubmit
 
     func getAvailableTokens() async throws -> [FeeToken]
-    func getAvailableTronTokens() async throws -> [FeeToken]
+    func getAvailableTronTokens() async throws -> [TronFeeToken]
     // Sends a constructed transaction to the backend, which submits it and returns the transaction hash
     func sendGaslessTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessTransaction) async throws -> String
     func sendGaslessBatchTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction) async throws -> String
@@ -45,7 +46,7 @@ extension CommonGaslessTransactionAPIService: GaslessTransactionsAPIService {
         return response.tokens
     }
 
-    func getAvailableTronTokens() async throws -> [FeeToken] {
+    func getAvailableTronTokens() async throws -> [TronFeeToken] {
         let response: GaslessTransactionsDTO.Response.TronTokens = try await request(for: .tronTokens)
         return response.tokens
     }

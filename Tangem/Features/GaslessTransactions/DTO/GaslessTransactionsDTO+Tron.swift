@@ -26,7 +26,7 @@ extension GaslessTransactionsDTO.Request {
 
 extension GaslessTransactionsDTO.Response {
     struct TronTokens: Decodable {
-        let tokens: [FeeToken]
+        let tokens: [TronFeeToken]
 
         private enum CodingKeys: String, CodingKey {
             case result
@@ -39,7 +39,27 @@ extension GaslessTransactionsDTO.Response {
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             let result = try container.nestedContainer(keyedBy: ResultKeys.self, forKey: .result)
-            tokens = try result.decode([FeeToken].self, forKey: .tokens)
+            tokens = try result.decode([TronFeeToken].self, forKey: .tokens)
+        }
+    }
+
+    struct TronFeeToken: Decodable {
+        static let chainId = 728_126_428
+
+        let address: String
+        let symbol: String
+        let decimals: Int
+        let chain: String
+
+        func mapToFeeToken() -> FeeToken {
+            FeeToken(
+                tokenAddress: address,
+                tokenSymbol: symbol,
+                tokenName: symbol,
+                decimals: decimals,
+                chainId: Self.chainId,
+                chain: chain
+            )
         }
     }
 

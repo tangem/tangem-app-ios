@@ -76,10 +76,6 @@ private extension CommonTokenFeeProvidersManagerProvider {
     }
 
     func makeGaslessTokenFeeProviders() -> [any TokenFeeProvider] {
-        if case .tron = walletModel.tokenItem.blockchain {
-            return makeTronGaslessTokenFeeProviders()
-        }
-
         let availableTokens = gaslessTransactionsNetworkManager.availableFeeTokens
             .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
 
@@ -99,6 +95,9 @@ private extension CommonTokenFeeProvidersManagerProvider {
             guard model.tokenItem.blockchain.chainId == sourceTokenChainId else { return nil }
             if model.yieldModuleManager?.state?.state.isEffectivelyActive == true {
                 guard FeatureProvider.isAvailable(.gaslessYieldFee) else { return nil }
+            }
+            if model.tokenItem.blockchain.chainId == GaslessTransactionsAPIService.TronFeeToken.chainId {
+                guard FeatureProvider.isAvailable(.tronGasless) else { return nil }
             }
             return model
         }
@@ -136,44 +135,6 @@ private extension CommonTokenFeeProvidersManagerProvider {
         }
 
         return gaslessTokenFeeProviders
-    }
-
-    func makeTronGaslessTokenFeeProviders() -> [any TokenFeeProvider] {
-        guard FeatureProvider.isAvailable(.tronGasless),
-              walletModel.tokenItem.isToken,
-              !gaslessTransactionsNetworkManager.availableTronFeeTokens.isEmpty else {
-            return []
-        }
-
-        let availableTokenAddresses = Set(gaslessTransactionsNetworkManager.availableTronFeeTokens.map(\.tokenAddress))
-        let currentAccountWalletModels = walletModel.account?.walletModelsManager.walletModels ?? []
-
-        return currentAccountWalletModels.compactMap { feeWalletModel in
-            guard case .tron = feeWalletModel.tokenItem.blockchain else { return nil }
-            guard let contractAddress = feeWalletModel.tokenItem.contractAddress,
-                  availableTokenAddresses.contains(contractAddress) else {
-                return nil
-            }
-
-            let feeTokenItem = feeWalletModel.tokenItem
-            let feeTokenItemBalanceProvider = feeWalletModel.availableBalanceProvider
-
-            guard let feeToken = feeTokenItem.token,
-                  let tokenFeeLoader = walletModel.tokenFeeLoaderBuilder.makeGaslessTokenFeeLoader(
-                      feeToken: feeToken,
-                      yieldFeeContext: nil
-                  ) else {
-                return nil
-            }
-
-            return CommonTokenFeeProvider(
-                feeTokenItem: feeTokenItem,
-                tokenFeeLoader: tokenFeeLoader,
-                customFeeProvider: .none,
-                feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
-                supportingOptions: .exactly([.market])
-            )
-        }
     }
 
     func makeYieldFeeContext(

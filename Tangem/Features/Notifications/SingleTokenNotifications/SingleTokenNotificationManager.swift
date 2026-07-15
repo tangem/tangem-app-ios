@@ -424,7 +424,10 @@ final class SingleTokenNotificationManager {
             return false
         }
 
-        return gaslessTransactionsNetworkManager.availableTronFeeTokens.contains { $0.tokenAddress == contractAddress }
+        return gaslessTransactionsNetworkManager.availableFeeTokens.contains {
+            $0.chainId == GaslessTransactionsDTO.Response.TronFeeToken.chainId
+                && $0.tokenAddress == contractAddress
+        }
     }
 
     private func hideNotification(_ notification: NotificationViewInput) {

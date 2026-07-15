@@ -22,7 +22,6 @@ protocol GaslessTransactionsNetworkManager {
 
     var availableFeeTokens: [FeeToken] { get }
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { get }
-    var availableTronFeeTokens: [FeeToken] { get }
 
     var currentHost: String { get }
 
@@ -43,7 +42,6 @@ protocol GaslessTransactionsNetworkManager {
 final class CommonGaslessTransactionsNetworkManager {
     private let apiService: GaslessTransactionsAPIService
     private let availableFeeTokensSubject = CurrentValueSubject<[FeeToken], Never>([])
-    private let availableTronFeeTokensSubject = CurrentValueSubject<[FeeToken], Never>([])
     private var fetchFeeTokensTask: Task<Void, Never>?
     private var feeRecipientTask: Task<String?, Never>?
     private var _feeRecipientAddress: String?
@@ -100,10 +98,6 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         availableFeeTokensSubject.eraseToAnyPublisher()
     }
 
-    var availableTronFeeTokens: [FeeToken] {
-        availableTronFeeTokensSubject.value
-    }
-
     func initialize() {
         updateAvailableTokens()
         preloadFeeRecipientAddress()
@@ -118,17 +112,15 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
             defer { self.fetchFeeTokensTask = nil }
 
             do {
-                let availableTokens = try await apiService.getAvailableTokens()
-                try Task.checkCancellation()
-                availableFeeTokensSubject.send(availableTokens)
+                var availableTokens = try await apiService.getAvailableTokens()
 
                 if FeatureProvider.isAvailable(.tronGasless) {
                     let availableTronTokens = try await apiService.getAvailableTronTokens()
-                    try Task.checkCancellation()
-                    availableTronFeeTokensSubject.send(availableTronTokens)
-                } else {
-                    availableTronFeeTokensSubject.send([])
+                    availableTokens.append(contentsOf: availableTronTokens.map { $0.mapToFeeToken() })
                 }
+
+                try Task.checkCancellation()
+                availableFeeTokensSubject.send(availableTokens)
             } catch is CancellationError {
                 AppLogger.debug("Fetching gasless fee tokens was cancelled")
             } catch {
