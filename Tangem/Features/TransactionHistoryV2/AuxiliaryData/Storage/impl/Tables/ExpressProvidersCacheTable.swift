@@ -20,7 +20,7 @@ enum ExpressProvidersCacheTable: AppDatabaseTable {
     }
 }
 
-// MARK: - Individual table versions
+// MARK: - Individual table versions (V1, V2, V3 and so on)
 
 private extension ExpressProvidersCacheTable {
     enum V1: AppDatabaseTable {

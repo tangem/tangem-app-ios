@@ -20,7 +20,7 @@ enum FiatCurrenciesCacheTable: AppDatabaseTable {
     }
 }
 
-// MARK: - Individual table versions
+// MARK: - Individual table versions (V1, V2, V3 and so on)
 
 private extension FiatCurrenciesCacheTable {
     enum V1: AppDatabaseTable {

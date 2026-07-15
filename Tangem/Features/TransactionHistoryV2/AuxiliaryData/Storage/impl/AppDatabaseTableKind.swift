@@ -11,6 +11,10 @@ import Foundation
 enum AppDatabaseTableKind: CaseIterable {
     case expressProvidersCache
     case fiatCurrenciesCache
+    case cryptoCurrenciesCacheTable
+    case expressExchangeTransactionsTable
+    case expressOnrampTransactionsTable
+    case expressSyncMetadataTable
 
     var table: AppDatabaseTable.Type {
         switch self {
@@ -18,6 +22,14 @@ enum AppDatabaseTableKind: CaseIterable {
             ExpressProvidersCacheTable.self
         case .fiatCurrenciesCache:
             FiatCurrenciesCacheTable.self
+        case .cryptoCurrenciesCacheTable:
+            CryptoCurrenciesCacheTable.self
+        case .expressExchangeTransactionsTable:
+            ExpressExchangeTransactionsTable.self
+        case .expressOnrampTransactionsTable:
+            ExpressOnrampTransactionsTable.self
+        case .expressSyncMetadataTable:
+            ExpressSyncMetadataTable.self
         }
     }
 }
