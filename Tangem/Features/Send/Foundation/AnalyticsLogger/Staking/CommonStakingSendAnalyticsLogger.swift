@@ -78,6 +78,49 @@ extension CommonStakingSendAnalyticsLogger: StakingAnalyticsLogger {
     }
 }
 
+// MARK: - StakingValidationAnalyticsLogger
+
+extension CommonStakingSendAnalyticsLogger: StakingValidationAnalyticsLogger {
+    func logSuccess() {
+        let isBlockaidSupported = RemoteValidationNetwork(blockchain: tokenItem.blockchain) != nil
+        let blockaidValue: Analytics.ParameterValue = isBlockaidSupported ? .blockaidSafe : .blockaidNotPerformed
+        logEvent(blockaidValue: blockaidValue, mobileCheckValue: .true)
+    }
+
+    func logLocalError(_ error: StakingTransactionValidationError) {
+        logEvent(blockaidValue: .blockaidNotPerformed, mobileCheckValue: .false)
+    }
+
+    func logRemoteError(_ error: RemoteStakingValidationError) {
+        let blockaidValue: Analytics.ParameterValue
+        switch error {
+        case .warning:
+            blockaidValue = .blockaidWarning
+        case .malicious:
+            blockaidValue = .blockaidUnsafe
+        case .validationFailed:
+            blockaidValue = .blockaidFailedToValidate
+        case .unknown:
+            blockaidValue = .blockaidFailedToValidate
+        }
+        logEvent(blockaidValue: blockaidValue, mobileCheckValue: .true)
+    }
+
+    func logNoRawTransactions() {
+        logEvent(blockaidValue: .blockaidNotPerformed, mobileCheckValue: .false)
+    }
+
+    private func logEvent(blockaidValue: Analytics.ParameterValue, mobileCheckValue: Analytics.ParameterValue) {
+        Analytics.log(event: .stakingScamVerification, params: [
+            .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
+            .provider: Analytics.ParameterValue.providerStakeKit.rawValue,
+            .blockaid: blockaidValue.rawValue,
+            .mobileCheck: mobileCheckValue.rawValue,
+        ])
+    }
+}
+
 // MARK: - SendAmountAnalyticsLogger
 
 extension CommonStakingSendAnalyticsLogger: SendAmountAnalyticsLogger {

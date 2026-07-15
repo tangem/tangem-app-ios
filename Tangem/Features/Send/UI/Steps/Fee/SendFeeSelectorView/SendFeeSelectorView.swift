@@ -28,7 +28,7 @@ struct SendFeeSelectorView: View {
     // MARK: - Sub Views
 
     private var content: some View {
-        FeeSelectorBottomSheetContainerView(
+        FloatingSheetContainerView(
             state: viewModel.state.hashValue,
             showsButton: button != nil,
             button: { button },
@@ -45,6 +45,7 @@ struct SendFeeSelectorView: View {
                     title: Localization.commonApply,
                     style: .primary,
                     isDisabled: !viewModel.isMainButtonEnabled,
+                    accessibilityIdentifier: FeeAccessibilityIdentifiers.feeSelectorApplyButton,
                     action: viewModel.userDidTapConfirmButton
                 )
             )

@@ -231,7 +231,6 @@ private extension MarketsTokenDetailsView.ContentBlockSkeletonsRedesign {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ScrollView {
         VStack(spacing: 16) {
@@ -243,4 +242,3 @@ private extension MarketsTokenDetailsView.ContentBlockSkeletonsRedesign {
     }
     .background(Color.Tangem.Surface.level2.edgesIgnoringSafeArea(.all))
 }
-#endif // DEBUG

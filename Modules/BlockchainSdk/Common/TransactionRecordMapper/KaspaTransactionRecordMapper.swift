@@ -1,6 +1,6 @@
 //
 //  KaspaTransactionRecordMapper.swift
-//  TangemApp
+//  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -28,7 +28,7 @@ extension KaspaTransactionRecordMapper: TransactionRecordMapper {
             .init(address: .user($0.scriptPublicKeyAddress), amount: Decimal($0.amount) / blockchain.decimalValue)
         }
         let fee = (Decimal(stringValue: transaction.mass) ?? 0) / blockchain.decimalValue
-        let date = transaction.blockTime.map { Date(timeIntervalSince1970: TimeInterval($0)) } ?? Date()
+        let date = transaction.blockTime.map { Date(timeIntervalSince1970: TimeInterval($0)) }
         let isConfirmed: Bool = (transaction.blockTime ?? 0) > 0
 
         return TransactionRecord(
@@ -41,7 +41,8 @@ extension KaspaTransactionRecordMapper: TransactionRecordMapper {
             isOutgoing: isOutgoing,
             type: .transfer,
             date: date,
-            tokenTransfers: nil
+            tokenTransfers: [],
+            nonce: nil
         )
     }
 }
