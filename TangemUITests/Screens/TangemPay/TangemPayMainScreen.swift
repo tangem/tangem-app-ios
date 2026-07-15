@@ -16,6 +16,8 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var balanceText = staticText(.paymentAccountBalance)
     private lazy var addFundsButton = button(.addFundsButton)
     private lazy var withdrawButton = button(.withdrawButton)
+    private lazy var moreActionsButton = button(.moreActionsButton)
+    private lazy var termsAndFeesMenuItem = button("Terms and fees")
     private lazy var backButton = app.navigationBars.buttons.element(boundBy: 0)
 
     @discardableResult
@@ -82,6 +84,23 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func tapAddFundsExpectingServiceUnavailable() -> TangemPayNoDepositAddressSheet {
+        XCTContext.runActivity(named: "Tap Add funds button expecting service unavailable sheet") { _ in
+            addFundsButton.waitAndTap()
+            return TangemPayNoDepositAddressSheet(app)
+        }
+    }
+
+    @discardableResult
+    func openTermsAndFees() -> TangemPayTermsAndFeesSheet {
+        XCTContext.runActivity(named: "Open Terms and fees from more actions menu") { _ in
+            moreActionsButton.waitAndTap()
+            termsAndFeesMenuItem.waitAndTap()
+            return TangemPayTermsAndFeesSheet(app)
+        }
+    }
+
+    @discardableResult
     func tapWithdraw() -> TangemPayWithdrawNoteSheet {
         XCTContext.runActivity(named: "Tap Withdraw button") { _ in
             withdrawButton.waitAndTap()
@@ -126,6 +145,18 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func tapTransactionRow(containing text: String) -> TangemPayTransactionDetailsScreen {
+        XCTContext.runActivity(named: "Tap transaction row containing '\(text)'") { _ in
+            let row = app.buttons
+                .containing(NSPredicate(format: "label CONTAINS %@", text))
+                .firstMatch
+            waitAndAssertTrue(row, "Transaction row containing '\(text)' should exist")
+            row.tapEvenIfNotHittable()
+            return TangemPayTransactionDetailsScreen(app)
+        }
+    }
+
+    @discardableResult
     func verifyTransactionNotVisible(merchantName: String) -> Self {
         XCTContext.runActivity(named: "Verify transaction with merchant '\(merchantName)' is NOT visible") { _ in
             let txCell = app.staticTexts[merchantName].firstMatch
@@ -142,6 +173,7 @@ enum TangemPayMainScreenElement: String, UIElement {
     case paymentAccountBalance
     case addFundsButton
     case withdrawButton
+    case moreActionsButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -151,6 +183,8 @@ enum TangemPayMainScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.addFundsButton
         case .withdrawButton:
             TangemPayAccessibilityIdentifiers.withdrawButton
+        case .moreActionsButton:
+            TangemPayAccessibilityIdentifiers.moreActionsButton
         }
     }
 }

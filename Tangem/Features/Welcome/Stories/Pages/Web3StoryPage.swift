@@ -99,16 +99,14 @@ struct Web3StoryPage: View {
     }
 }
 
-struct Web3StoryPage_Previews: PreviewProvider {
-    static var previews: some View {
-        Web3StoryPage(
-            progress: 1,
-            isScanning: false,
-            createWallet: {},
-            scanCard: {},
-            orderCard: {},
-            scanTroubleshootingDialog: .constant(nil)
-        )
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
-    }
+#Preview {
+    Web3StoryPage(
+        progress: 1,
+        isScanning: false,
+        createWallet: {},
+        scanCard: {},
+        orderCard: {},
+        scanTroubleshootingDialog: .constant(nil)
+    )
+    .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
 }

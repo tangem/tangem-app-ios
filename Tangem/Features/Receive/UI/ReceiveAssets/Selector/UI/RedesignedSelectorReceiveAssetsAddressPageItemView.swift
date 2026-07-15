@@ -58,6 +58,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
         .size(.x10)
         .styleType(.ghost)
         .disabled(viewModel.isLoading)
+        .accessibilityIdentifier(viewModel.qrCodeButtonAccessibilityIdentifier)
     }
 
     private var actionsButtons: some View {
@@ -98,6 +99,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .infinityFrame(axis: .horizontal, alignment: .center)
+                    .accessibilityIdentifier(viewModel.addressAccessibilityIdentifier)
             }
         }
         .padding(.horizontal, 24)

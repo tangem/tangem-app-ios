@@ -302,29 +302,8 @@ private extension BottomSheetContainer {
 
 // MARK: - Previews
 
-struct BottomSheetContainer_Previews: PreviewProvider {
-    struct StatableContainer: View {
-        @ObservedObject private var coordinator = BottomSheetCoordinator()
-
-        var body: some View {
-            ZStack {
-                Colors.Background.primary
-                    .edgesIgnoringSafeArea(.all)
-
-                Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
-                    coordinator.toggleItem()
-                }
-                .font(Fonts.Bold.body)
-                .offset(y: -200)
-
-                NavHolder()
-                    .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
-                        BottomSheetView(viewModel: $0)
-                    }
-            }
-        }
-    }
-
+#if DEBUG
+private enum BottomSheetContainerPreviewData {
     struct BottomSheetViewModel: Identifiable {
         var id: String { payload }
 
@@ -379,9 +358,27 @@ struct BottomSheetContainer_Previews: PreviewProvider {
             }
         }
     }
-
-    static var previews: some View {
-        StatableContainer()
-            .preferredColorScheme(.dark)
-    }
 }
+
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @StateObject var coordinator = BottomSheetContainerPreviewData.BottomSheetCoordinator()
+
+    ZStack {
+        Colors.Background.primary
+            .edgesIgnoringSafeArea(.all)
+
+        Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
+            coordinator.toggleItem()
+        }
+        .font(Fonts.Bold.body)
+        .offset(y: -200)
+
+        NavHolder()
+            .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
+                BottomSheetContainerPreviewData.BottomSheetView(viewModel: $0)
+            }
+    }
+    .preferredColorScheme(.dark)
+}
+#endif // DEBUG

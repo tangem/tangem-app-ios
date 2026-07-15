@@ -77,10 +77,8 @@ extension DecimalNumberTextField: Setupable {
     }
 }
 
-struct DecimalNumberTextField_Previews: PreviewProvider {
-    static var previews: some View {
-        DecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-    }
+#Preview {
+    DecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
 }
 
 // MARK: - Appearance

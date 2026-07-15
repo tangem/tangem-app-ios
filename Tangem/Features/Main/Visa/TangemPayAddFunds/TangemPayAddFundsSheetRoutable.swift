@@ -9,6 +9,7 @@
 protocol TangemPayAddFundsSheetRoutable: AnyObject {
     func addFundsSheetRequestReceive(viewModel: ReceiveMainViewModel)
     func addFundsSheetRequestSwap(input: PredefinedSwapParameters)
+    func addFundsSheetRequestBankTransfer()
 
     func closeAddFundsSheet()
 }

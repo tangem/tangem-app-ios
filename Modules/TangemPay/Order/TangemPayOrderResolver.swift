@@ -22,6 +22,14 @@ public struct TangemPayOrderResolver {
         return orders.mostRecentByUpdatedAt
     }
 
+    public func findActiveTariffPlanTransitionOrder() async throws -> TangemPayOrderResponse? {
+        let orders = try await customerService.findOrders(
+            types: TangemPayOrderType.tariffPlanTransitionFamily,
+            statuses: [.new, .processing]
+        )
+        return orders.mostRecentByUpdatedAt
+    }
+
     public func placeOrder(
         request: TangemPayPlaceOrderRequest,
         idempotencyKey: String

@@ -196,6 +196,8 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
             } else {
                 updateState(state: .error(TokenFeeLoaderError.executionReverted))
             }
+        } catch TokenFeeLoaderError.notEnoughFeeBalance {
+            updateState(state: .unavailable(.notEnoughFeeBalance))
         } catch is CancellationError {
             updateState(state: .idle)
         } catch {
