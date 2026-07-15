@@ -94,28 +94,21 @@ class TronTransactionBuilder {
         let sourceAddress = transaction.sourceAddress
         let destinationAddress = transaction.destinationAddress
 
-        switch amount.type {
-        case .coin:
-            if case .contractCall(let data) = params?.transactionType {
-                return try triggerSmartContract(
-                    ownerAddress: sourceAddress,
-                    contractAddress: destinationAddress,
-                    data: data,
-                    callValue: utils.convertAmountToSun(amount)
-                )
-            }
-
-            let parameter = try Protocol_TransferContract.with {
-                $0.ownerAddress = try utils.convertAddressToBytes(sourceAddress)
-                $0.toAddress = try utils.convertAddressToBytes(destinationAddress)
-                $0.amount = utils.convertAmountToSun(amount)
-            }
-
-            return try Protocol_Transaction.Contract.with {
-                $0.type = .transferContract
-                $0.parameter = try Google_Protobuf_Any(message: parameter)
-            }
-        case .token(let token):
+        switch (amount.type, params?.transactionType) {
+        case (.coin, .contractCall(let data)):
+            return try triggerSmartContract(
+                ownerAddress: sourceAddress,
+                contractAddress: destinationAddress,
+                data: data,
+                callValue: utils.convertAmountToSun(amount)
+            )
+        case (.coin, _):
+            return try transferContract(
+                ownerAddress: sourceAddress,
+                toAddress: destinationAddress,
+                amount: utils.convertAmountToSun(amount)
+            )
+        case (.token(let token), _):
             let contractData = try buildContractData(transaction: transaction, params: params)
 
             return try triggerSmartContract(
@@ -127,6 +120,19 @@ class TronTransactionBuilder {
         default:
             assertionFailure("Not implemented")
             throw BlockchainSdkError.notImplemented
+        }
+    }
+
+    private func transferContract(ownerAddress: String, toAddress: String, amount: Int64) throws -> Protocol_Transaction.Contract {
+        let parameter = try Protocol_TransferContract.with {
+            $0.ownerAddress = try utils.convertAddressToBytes(ownerAddress)
+            $0.toAddress = try utils.convertAddressToBytes(toAddress)
+            $0.amount = amount
+        }
+
+        return try Protocol_Transaction.Contract.with {
+            $0.type = .transferContract
+            $0.parameter = try Google_Protobuf_Any(message: parameter)
         }
     }
 
