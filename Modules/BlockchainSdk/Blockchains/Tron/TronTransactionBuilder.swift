@@ -157,8 +157,6 @@ class TronTransactionBuilder {
         case .approval(let data):
             return buildApprovalContractData(data: data)
         case .contractCall:
-            // Only reached for `.token` amounts; a DEX contract call always carries a `.coin` amount
-            // (native `call_value`), handled directly in `contract(transaction:params:)`.
             throw BlockchainSdkError.failedToBuildTx
         }
     }
