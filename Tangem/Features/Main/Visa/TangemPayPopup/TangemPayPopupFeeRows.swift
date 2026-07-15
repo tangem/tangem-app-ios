@@ -32,12 +32,12 @@ struct TangemPayPopupFeeRows: View {
     private func infoRow(label: String, value: String) -> some View {
         HStack(spacing: 12) {
             Text(label)
-                .font(DesignSystem.Font.bodyMediumToken)
+                .font(token: DesignSystem.Font.bodyMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(value)
-                .font(DesignSystem.Font.bodyMediumToken)
+                .font(token: DesignSystem.Font.bodyMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
         }
         .padding(.vertical, 12)

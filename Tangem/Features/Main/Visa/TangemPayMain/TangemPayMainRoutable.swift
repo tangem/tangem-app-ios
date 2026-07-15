@@ -11,9 +11,8 @@ import TangemFoundation
 import TangemPay
 
 protocol TangemPayMainRoutable: AnyObject {
-    func openCardManagement()
     func openCardManagement(entry: TangemPayCardEntry)
-    func openFakedoorSheet()
+    func openCurrentPlan()
     func openMaximumCardsIssuedSheet()
     func openIssueAdditionalCardCostPopup(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee, issueCard: @escaping () async throws -> Void)
     func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel)
@@ -29,7 +28,8 @@ protocol TangemPayMainRoutable: AnyObject {
         transaction: TangemPayTransactionRecord,
         userWalletId: UserWalletId,
         customerId: String,
-        cardName: String?
+        cardName: String?,
+        cardNumberEnd: String?
     )
 
     func openPendingExpressTransactionDetails(

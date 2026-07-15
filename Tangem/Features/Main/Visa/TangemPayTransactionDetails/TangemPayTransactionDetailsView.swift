@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayTransactionDetailsView: View {
     @ObservedObject var viewModel: TangemPayTransactionDetailsViewModel
@@ -117,13 +118,14 @@ private extension TangemPayTransactionDetailsView {
         VStack(spacing: 0) {
             redesignedHeader(title: model.headerTitle, subtitle: model.headerSubtitle)
 
-            VStack(spacing: 32) {
+            VStack(spacing: 12) {
                 redesignedIcon(model.icon)
 
                 VStack(spacing: 8) {
                     Text(model.amount)
                         .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsAmount)
 
                     if let amountSubtitle = model.amountSubtitle {
                         Text(amountSubtitle)
@@ -132,6 +134,8 @@ private extension TangemPayTransactionDetailsView {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
+                .padding(.top, 12)
+                .padding(.bottom, 36)
 
                 if let status = model.status {
                     TangemPayTransactionStatusView(model: status)
@@ -140,7 +144,7 @@ private extension TangemPayTransactionDetailsView {
                 redesignedRows(model.rows)
             }
             .padding(.horizontal, 16)
-            .padding(.top, 32)
+            .padding(.top, 48)
             .padding(.bottom, 8)
 
             TangemButtonV2(
@@ -152,6 +156,7 @@ private extension TangemPayTransactionDetailsView {
             .styleType(.default)
             .horizontalLayout(.infinity)
             .padding(16)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsMainButton)
         }
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
@@ -164,6 +169,7 @@ private extension TangemPayTransactionDetailsView {
             VStack(spacing: 4) {
                 Text(title)
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsTitle)
 
                 Text(subtitle)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
@@ -222,6 +228,7 @@ private extension TangemPayTransactionDetailsView {
             ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
                 TangemRow(title: row.title, value: row.value)
                     .showDivider(rows.count == 1 || index < rows.count - 1)
+                    .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
             }
         }
     }

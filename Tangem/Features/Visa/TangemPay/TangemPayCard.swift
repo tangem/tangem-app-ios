@@ -107,7 +107,7 @@ final class TangemPayCard: Identifiable {
         cardId = card.id
         paymentAccountId = productInstance.paymentAccountId
         self.customerService = customerService
-        orderStatusPollingService = TangemPayOrderStatusPollingService(customerService: customerService, multipleCardsEnabled: true)
+        orderStatusPollingService = TangemPayOrderStatusPollingService(customerService: customerService)
         snapshotSubject = .init(Snapshot(productInstance: productInstance, card: card))
     }
 

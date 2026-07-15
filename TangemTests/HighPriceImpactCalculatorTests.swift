@@ -15,14 +15,14 @@ import Combine
 @Suite("HighPriceImpactCalculator Tests", .serialized)
 @MainActor
 struct HighPriceImpactCalculatorTests {
+    private static let sourceCurrencyId = "source-token"
+    private static let destinationCurrencyId = "dest-token"
+
     // MARK: - Test cases
 
     @Test("Loss below 10% returns negligible")
     func lossBelowThresholdReturnsNegligible() async throws {
-        let (sut, input, teardown) = makeSUT(sourceAmount: 1000, destinationAmount: 950)
-        defer { teardown() }
-
-        let result = try await sut.calculate(input: input)
+        let result = try await calculate(sourceAmount: 1000, destinationAmount: 950)
 
         #expect(result != nil)
         #expect(result?.level == .negligible)
@@ -33,10 +33,7 @@ struct HighPriceImpactCalculatorTests {
 
     @Test("Loss between 10%-50% returns warningLoss")
     func lossBetween10And50ReturnsWarning() async throws {
-        let (sut, input, teardown) = makeSUT(sourceAmount: 1000, destinationAmount: 800)
-        defer { teardown() }
-
-        let result = try await sut.calculate(input: input)
+        let result = try await calculate(sourceAmount: 1000, destinationAmount: 800)
 
         #expect(result != nil)
         #expect(result?.level == .warningLoss)
@@ -45,10 +42,7 @@ struct HighPriceImpactCalculatorTests {
 
     @Test("Loss above 50% with source <= $5000 returns highLossLowAmount")
     func highLossLowAmountReturnsWarningNotBlocked() async throws {
-        let (sut, input, teardown) = makeSUT(sourceAmount: 1000, destinationAmount: 400)
-        defer { teardown() }
-
-        let result = try await sut.calculate(input: input)
+        let result = try await calculate(sourceAmount: 1000, destinationAmount: 400)
 
         #expect(result != nil)
         #expect(result?.level == .highLossLowAmount)
@@ -57,10 +51,7 @@ struct HighPriceImpactCalculatorTests {
 
     @Test("Loss above 50% with source > $5000 returns highLossHighAmount and blocks")
     func highLossHighAmountReturnsBlocked() async throws {
-        let (sut, input, teardown) = makeSUT(sourceAmount: 10000, destinationAmount: 4000)
-        defer { teardown() }
-
-        let result = try await sut.calculate(input: input)
+        let result = try await calculate(sourceAmount: 10000, destinationAmount: 4000)
 
         #expect(result != nil)
         #expect(result?.level == .highLossHighAmount)
@@ -69,10 +60,7 @@ struct HighPriceImpactCalculatorTests {
 
     @Test("Small trade <= $25 is exempt — returns negligible")
     func smallTradeIsExempt() async throws {
-        let (sut, input, teardown) = makeSUT(sourceAmount: 20, destinationAmount: 5)
-        defer { teardown() }
-
-        let result = try await sut.calculate(input: input)
+        let result = try await calculate(sourceAmount: 20, destinationAmount: 5)
 
         #expect(result != nil)
         #expect(result?.level == .negligible)
@@ -80,50 +68,15 @@ struct HighPriceImpactCalculatorTests {
 
     @Test("No USD rate available - never blocks, still warns")
     func noUsdRateNeverBlocksStillWarns() async throws {
-        let sourceCurrencyId = "source-token"
-        let destCurrencyId = "dest-token"
-
-        let previousCurrency = AppSettings.shared.selectedCurrencyCode
-        AppSettings.shared.selectedCurrencyCode = "EUR"
-
-        let quotes: Quotes = [
-            sourceCurrencyId: TokenQuote(
-                currencyId: sourceCurrencyId,
-                price: 1.0,
-                priceUsd: nil,
-                priceChange24h: nil,
-                priceChange7d: nil,
-                priceChange30d: nil,
-                currencyCode: "EUR"
-            ),
-            destCurrencyId: TokenQuote(
-                currencyId: destCurrencyId,
-                price: 1.0,
-                priceUsd: nil,
-                priceChange24h: nil,
-                priceChange7d: nil,
-                priceChange30d: nil,
-                currencyCode: "EUR"
-            ),
-        ]
-
-        let previousRepo = injectRepository(MockTokenQuotesRepository(quotes: quotes))
-        defer {
-            AppSettings.shared.selectedCurrencyCode = previousCurrency
-            InjectedValues.setTokenQuotesRepository(previousRepo)
-        }
-
-        let input = HighPriceImpactCalculator.Input(
-            provider: makeDexProvider(),
-            sourceToken: makeTokenItem(currencyId: sourceCurrencyId),
-            destinationToken: makeTokenItem(currencyId: destCurrencyId),
+        // 70% loss, above 50% threshold, but no USD rate → cannot determine high amount → highLossLowAmount
+        let result = try await calculate(
             sourceAmount: 10000,
-            destinationAmount: 3000
+            destinationAmount: 3000,
+            currencyCode: "EUR",
+            price: 1.0,
+            priceUsd: nil
         )
 
-        let result = try await HighPriceImpactCalculator().calculate(input: input)
-
-        // 70% loss, above 50% threshold, but no USD rate → cannot determine high amount → highLossLowAmount
         #expect(result != nil)
         #expect(result?.level == .highLossLowAmount)
         #expect(result?.isBlocked == false)
@@ -131,10 +84,7 @@ struct HighPriceImpactCalculatorTests {
 
     @Test("Exact 50% boundary is highLossLowAmount (blockLimit is exclusive)")
     func exact50PercentBoundaryIsHighLoss() async throws {
-        let (sut, input, teardown) = makeSUT(sourceAmount: 1000, destinationAmount: 500)
-        defer { teardown() }
-
-        let result = try await sut.calculate(input: input)
+        let result = try await calculate(sourceAmount: 1000, destinationAmount: 500)
 
         #expect(result != nil)
         #expect(result?.level == .highLossLowAmount)
@@ -142,10 +92,7 @@ struct HighPriceImpactCalculatorTests {
 
     @Test("Exact 10% boundary triggers warning")
     func exact10PercentBoundaryTriggersWarning() async throws {
-        let (sut, input, teardown) = makeSUT(sourceAmount: 1000, destinationAmount: 900)
-        defer { teardown() }
-
-        let result = try await sut.calculate(input: input)
+        let result = try await calculate(sourceAmount: 1000, destinationAmount: 900)
 
         #expect(result != nil)
         #expect(result?.level == .warningLoss)
@@ -156,10 +103,7 @@ struct HighPriceImpactCalculatorTests {
     @Test("Loss below 10% but absolute USD diff > $100K triggers warningLoss")
     func lowPercentHighAbsoluteLossTriggersWarning() async throws {
         // 5% loss, source = $2,100,000, dest = $1,995,000 → diff = $105,000 > $100K
-        let (sut, input, teardown) = makeSUT(sourceAmount: 2_100_000, destinationAmount: 1_995_000)
-        defer { teardown() }
-
-        let result = try await sut.calculate(input: input)
+        let result = try await calculate(sourceAmount: 2_100_000, destinationAmount: 1_995_000)
 
         #expect(result != nil)
         #expect(result?.level == .warningLoss)
@@ -168,10 +112,7 @@ struct HighPriceImpactCalculatorTests {
     @Test("Loss below 10% and absolute USD diff < $100K stays negligible")
     func lowPercentLowAbsoluteLossStaysNegligible() async throws {
         // ~8.6% loss, source = $1,100,000, dest = $1,005,000 → diff = $95,000 < $100K
-        let (sut, input, teardown) = makeSUT(sourceAmount: 1_100_000, destinationAmount: 1_005_000)
-        defer { teardown() }
-
-        let result = try await sut.calculate(input: input)
+        let result = try await calculate(sourceAmount: 1_100_000, destinationAmount: 1_005_000)
 
         #expect(result != nil)
         #expect(result?.level == .negligible)
@@ -180,10 +121,7 @@ struct HighPriceImpactCalculatorTests {
     @Test("Loss below 10%, absolute USD diff exactly $100K triggers warningLoss (threshold is inclusive)")
     func exactThresholdBoundaryTriggersWarning() async throws {
         // ~4.76% loss, source = $2,100,000, dest = $2,000,000 → diff = exactly $100,000
-        let (sut, input, teardown) = makeSUT(sourceAmount: 2_100_000, destinationAmount: 2_000_000)
-        defer { teardown() }
-
-        let result = try await sut.calculate(input: input)
+        let result = try await calculate(sourceAmount: 2_100_000, destinationAmount: 2_000_000)
 
         #expect(result != nil)
         #expect(result?.level == .warningLoss)
@@ -191,50 +129,15 @@ struct HighPriceImpactCalculatorTests {
 
     @Test("Loss below 10%, absolute USD diff > $100K, but no priceUsd — stays negligible")
     func lowPercentHighAbsoluteLossNoPriceUsdStaysNegligible() async throws {
-        let sourceCurrencyId = "source-token"
-        let destCurrencyId = "dest-token"
-
-        let previousCurrency = AppSettings.shared.selectedCurrencyCode
-        AppSettings.shared.selectedCurrencyCode = "EUR"
-
-        let quotes: Quotes = [
-            sourceCurrencyId: TokenQuote(
-                currencyId: sourceCurrencyId,
-                price: 0.92,
-                priceUsd: nil,
-                priceChange24h: nil,
-                priceChange7d: nil,
-                priceChange30d: nil,
-                currencyCode: "EUR"
-            ),
-            destCurrencyId: TokenQuote(
-                currencyId: destCurrencyId,
-                price: 0.92,
-                priceUsd: nil,
-                priceChange24h: nil,
-                priceChange7d: nil,
-                priceChange30d: nil,
-                currencyCode: "EUR"
-            ),
-        ]
-
-        let previousRepo = injectRepository(MockTokenQuotesRepository(quotes: quotes))
-        defer {
-            AppSettings.shared.selectedCurrencyCode = previousCurrency
-            InjectedValues.setTokenQuotesRepository(previousRepo)
-        }
-
         // 5% loss, source = 2,100,000 EUR, dest = 1,995,000 EUR → diff > $100K equivalent
         // but no priceUsd → can't determine USD amounts → stays negligible
-        let input = HighPriceImpactCalculator.Input(
-            provider: makeDexProvider(),
-            sourceToken: makeTokenItem(currencyId: sourceCurrencyId),
-            destinationToken: makeTokenItem(currencyId: destCurrencyId),
+        let result = try await calculate(
             sourceAmount: 2_100_000,
-            destinationAmount: 1_995_000
+            destinationAmount: 1_995_000,
+            currencyCode: "EUR",
+            price: 0.92,
+            priceUsd: nil
         )
-
-        let result = try await HighPriceImpactCalculator().calculate(input: input)
 
         #expect(result != nil)
         #expect(result?.level == .negligible)
@@ -244,50 +147,15 @@ struct HighPriceImpactCalculatorTests {
 
     @Test("Non-USD currency with priceUsd present still blocks on highLossHighAmount")
     func nonUsdCurrencyWithPriceUsdBlocksHighLoss() async throws {
-        let sourceCurrencyId = "source-token"
-        let destCurrencyId = "dest-token"
-
-        let previousCurrency = AppSettings.shared.selectedCurrencyCode
-        AppSettings.shared.selectedCurrencyCode = "EUR"
-
-        let quotes: Quotes = [
-            sourceCurrencyId: TokenQuote(
-                currencyId: sourceCurrencyId,
-                price: 0.92,
-                priceUsd: 1.0,
-                priceChange24h: nil,
-                priceChange7d: nil,
-                priceChange30d: nil,
-                currencyCode: "EUR"
-            ),
-            destCurrencyId: TokenQuote(
-                currencyId: destCurrencyId,
-                price: 0.92,
-                priceUsd: 1.0,
-                priceChange24h: nil,
-                priceChange7d: nil,
-                priceChange30d: nil,
-                currencyCode: "EUR"
-            ),
-        ]
-
-        let previousRepo = injectRepository(MockTokenQuotesRepository(quotes: quotes))
-        defer {
-            AppSettings.shared.selectedCurrencyCode = previousCurrency
-            InjectedValues.setTokenQuotesRepository(previousRepo)
-        }
-
-        let input = HighPriceImpactCalculator.Input(
-            provider: makeDexProvider(),
-            sourceToken: makeTokenItem(currencyId: sourceCurrencyId),
-            destinationToken: makeTokenItem(currencyId: destCurrencyId),
+        // 60% loss, source = $10,000 USD via priceUsd path → highLossHighAmount
+        let result = try await calculate(
             sourceAmount: 10000,
-            destinationAmount: 4000
+            destinationAmount: 4000,
+            currencyCode: "EUR",
+            price: 0.92,
+            priceUsd: 1.0
         )
 
-        let result = try await HighPriceImpactCalculator().calculate(input: input)
-
-        // 60% loss, source = $10,000 USD via priceUsd path → highLossHighAmount
         #expect(result != nil)
         #expect(result?.level == .highLossHighAmount)
         #expect(result?.isBlocked == true)
@@ -304,111 +172,69 @@ struct HighPriceImpactCalculatorTests {
         ] as [(String, Decimal)]
     )
     func consistentResultsAcrossCurrencies(currencyCode: String, fiatPrice: Decimal) async throws {
-        let sourceCurrencyId = "source-token"
-        let destCurrencyId = "dest-token"
-
-        let previousCurrency = AppSettings.shared.selectedCurrencyCode
-        AppSettings.shared.selectedCurrencyCode = currencyCode
-
-        let quotes: Quotes = [
-            sourceCurrencyId: TokenQuote(
-                currencyId: sourceCurrencyId,
-                price: fiatPrice,
-                priceUsd: 1.0,
-                priceChange24h: nil,
-                priceChange7d: nil,
-                priceChange30d: nil,
-                currencyCode: currencyCode
-            ),
-            destCurrencyId: TokenQuote(
-                currencyId: destCurrencyId,
-                price: fiatPrice,
-                priceUsd: 1.0,
-                priceChange24h: nil,
-                priceChange7d: nil,
-                priceChange30d: nil,
-                currencyCode: currencyCode
-            ),
-        ]
-
-        let previousRepo = injectRepository(MockTokenQuotesRepository(quotes: quotes))
-        defer {
-            AppSettings.shared.selectedCurrencyCode = previousCurrency
-            InjectedValues.setTokenQuotesRepository(previousRepo)
-        }
-
-        let input = HighPriceImpactCalculator.Input(
-            provider: makeDexProvider(),
-            sourceToken: makeTokenItem(currencyId: sourceCurrencyId),
-            destinationToken: makeTokenItem(currencyId: destCurrencyId),
+        // 30% loss → warningLoss regardless of currency
+        let result = try await calculate(
             sourceAmount: 1000,
-            destinationAmount: 700
+            destinationAmount: 700,
+            currencyCode: currencyCode,
+            price: fiatPrice,
+            priceUsd: 1.0
         )
 
-        let result = try await HighPriceImpactCalculator().calculate(input: input)
-
-        // 30% loss → warningLoss regardless of currency
         #expect(result != nil)
         #expect(result?.level == .warningLoss)
     }
 
     // MARK: - Helpers
 
-    /// Creates a SUT with price = 1.0 and priceUsd = 1.0 in USD so crypto amount == fiat == USD.
-    /// Returns a teardown closure that restores DI and AppSettings.
-    /// - Warning: Mutates `AppSettings.shared.selectedCurrencyCode` (UserDefaults-backed global state).
-    ///   The suite is `.serialized` to prevent races, and `defer` restores the original value.
-    private func makeSUT(
+    /// Runs the calculator with the quotes repository and app currency swapped for the duration of
+    /// the call. The whole swap-calculate-restore sequence holds `InjectedDependenciesIsolation`,
+    /// so parallel suites touching the same globals cannot observe the mock.
+    private func calculate(
         sourceAmount: Decimal,
-        destinationAmount: Decimal
-    ) -> (HighPriceImpactCalculator, HighPriceImpactCalculator.Input, () -> Void) {
-        let sourceCurrencyId = "source-token"
-        let destCurrencyId = "dest-token"
+        destinationAmount: Decimal,
+        currencyCode: String = "USD",
+        price: Decimal = 1.0,
+        priceUsd: Decimal? = 1.0
+    ) async throws -> HighPriceImpactCalculator.Result? {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousCurrency = AppSettings.shared.selectedCurrencyCode
+            let previousRepo = injectRepository(MockTokenQuotesRepository(
+                quotes: makeQuotes(price: price, priceUsd: priceUsd, currencyCode: currencyCode)
+            ))
+            AppSettings.shared.selectedCurrencyCode = currencyCode
+            defer {
+                AppSettings.shared.selectedCurrencyCode = previousCurrency
+                InjectedValues.setTokenQuotesRepository(previousRepo)
+            }
 
-        let previousCurrency = AppSettings.shared.selectedCurrencyCode
-        AppSettings.shared.selectedCurrencyCode = "USD"
+            let input = HighPriceImpactCalculator.Input(
+                provider: makeDexProvider(),
+                sourceToken: makeTokenItem(currencyId: Self.sourceCurrencyId),
+                destinationToken: makeTokenItem(currencyId: Self.destinationCurrencyId),
+                sourceAmount: sourceAmount,
+                destinationAmount: destinationAmount
+            )
 
-        let quotes: Quotes = [
-            sourceCurrencyId: TokenQuote(
-                currencyId: sourceCurrencyId,
-                price: 1.0,
-                priceUsd: 1.0,
-                priceChange24h: nil,
-                priceChange7d: nil,
-                priceChange30d: nil,
-                currencyCode: "USD"
-            ),
-            destCurrencyId: TokenQuote(
-                currencyId: destCurrencyId,
-                price: 1.0,
-                priceUsd: 1.0,
-                priceChange24h: nil,
-                priceChange7d: nil,
-                priceChange30d: nil,
-                currencyCode: "USD"
-            ),
-        ]
-
-        let previousRepo = injectRepository(MockTokenQuotesRepository(quotes: quotes))
-
-        let input = HighPriceImpactCalculator.Input(
-            provider: makeDexProvider(),
-            sourceToken: makeTokenItem(currencyId: sourceCurrencyId),
-            destinationToken: makeTokenItem(currencyId: destCurrencyId),
-            sourceAmount: sourceAmount,
-            destinationAmount: destinationAmount
-        )
-
-        let teardown = {
-            AppSettings.shared.selectedCurrencyCode = previousCurrency
-            InjectedValues.setTokenQuotesRepository(previousRepo)
+            return try await HighPriceImpactCalculator().calculate(input: input)
         }
+    }
 
-        return (HighPriceImpactCalculator(), input, teardown)
+    private func makeQuotes(price: Decimal, priceUsd: Decimal?, currencyCode: String) -> Quotes {
+        [Self.sourceCurrencyId, Self.destinationCurrencyId].reduce(into: Quotes()) { quotes, currencyId in
+            quotes[currencyId] = TokenQuote(
+                currencyId: currencyId,
+                price: price,
+                priceUsd: priceUsd,
+                priceChange24h: nil,
+                priceChange7d: nil,
+                priceChange30d: nil,
+                currencyCode: currencyCode
+            )
+        }
     }
 
     /// Swaps the quotes repository with a mock and returns the previous one for teardown.
-    /// - Note: Mutates global DI state. Tests in this suite run serialized to avoid races.
     private func injectRepository(
         _ mock: MockTokenQuotesRepository
     ) -> TokenQuotesRepository & TokenQuotesRepositoryUpdater {

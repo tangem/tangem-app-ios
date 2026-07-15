@@ -34,7 +34,7 @@ struct NewProviderSelectorView: View {
     }
 
     var body: some View {
-        FeeSelectorBottomSheetContainerView(
+        FloatingSheetContainerView(
             state: viewModel.viewState,
             showsButton: viewModel.viewState.showsButton,
             verticalSwipeBehavior: .init(target: .sheet, threshold: 100),
