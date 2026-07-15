@@ -305,6 +305,12 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .apiList)
     }
 
+    // MARK: - Application versions
+
+    func loadApplicationVersions() async throws -> ApplicationVersionsDTO {
+        try await request(for: .applicationVersions)
+    }
+
     func loadFeatures() async throws -> [String: Bool] {
         try await request(for: .features)
     }
