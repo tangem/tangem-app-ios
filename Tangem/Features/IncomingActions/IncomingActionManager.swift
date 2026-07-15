@@ -30,6 +30,11 @@ public protocol IncomingActionResponder: AnyObject {
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool
 }
 
+protocol IncomingActionRoutingHandler: IncomingActionResponder {
+    func becomeIncomingActionsResponder()
+    func resignIncomingActionsResponder()
+}
+
 // MARK: - Dependencies
 
 private struct IncomingActionManagerKey: InjectionKey {

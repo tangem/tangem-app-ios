@@ -44,8 +44,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         Localization.tangempaySetPinHeader
     }
 
-    /// `nil` in the legacy single-card flow; set in the multi-card flow.
-    private let card: TangemPayCard?
+    private let card: TangemPayCard
     private let tangemPayAccount: TangemPayAccount
     private let userWalletId: UserWalletId
     private weak var coordinator: TangemPayPinRoutable?
@@ -53,14 +52,6 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     private let pinValidator = VisaPinValidator()
     private let isRedesigned = FeatureProvider.isAvailable(.tangemPaySpendRedesign)
     private var bag = Set<AnyCancellable>()
-
-    init(tangemPayAccount: TangemPayAccount, coordinator: TangemPayPinRoutable) {
-        card = nil
-        self.tangemPayAccount = tangemPayAccount
-        userWalletId = tangemPayAccount.userWalletId
-        self.coordinator = coordinator
-        isRedesigned ? bindRedesigned() : bind()
-    }
 
     init(
         card: TangemPayCard,
@@ -109,21 +100,12 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
                 let (secretKey, sessionId) = try RainCryptoUtilities.generateSecretKeyAndSessionId(publicKey: publicKey)
                 let (encryptedPin, iv) = try RainCryptoUtilities.encryptPin(pin: pin, secretKey: secretKey)
 
-                let response: TangemPaySetPinResponse
-                if let card = viewModel.card {
-                    response = try await card.customerService.setPin(
-                        cardId: card.cardId,
-                        pin: encryptedPin,
-                        sessionId: sessionId,
-                        iv: iv
-                    )
-                } else {
-                    response = try await viewModel.tangemPayAccount.customerService.setPin(
-                        pin: encryptedPin,
-                        sessionId: sessionId,
-                        iv: iv
-                    )
-                }
+                let response = try await viewModel.card.customerService.setPin(
+                    cardId: viewModel.card.cardId,
+                    pin: encryptedPin,
+                    sessionId: sessionId,
+                    iv: iv
+                )
 
                 await MainActor.run {
                     viewModel.isLoading = false
