@@ -105,7 +105,11 @@ public struct TransactionHistoryProviderFactory {
             return EtherscanTransactionHistoryProvider(
                 mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
                 networkConfiguration: input.tangemProviderConfig,
-                targetConfiguration: .etherscan(chainId: chainId, apiKey: keysConfig.etherscanApiKey)
+                targetConfiguration: .etherscan(
+                    chainId: chainId,
+                    apiKey: keysConfig.etherscanApiKey,
+                    baseURL: URL(string: "https://api.etherscan.io/v2")!
+                )
             )
         case .zkSync:
             return EtherscanTransactionHistoryProvider(

@@ -409,32 +409,16 @@ private extension UserWalletSettingsViewModel {
     }
 
     func displayEnablePushSettingsAlert() {
-        let buttons: AlertBuilder.Buttons = .init(
-            primaryButton: .default(
-                Text(Localization.pushNotificationsPermissionAlertNegativeButton),
-                action: { [weak self] in
-                    guard let self else { return }
-
-                    pushNotificationsViewModel?.isPushNotifyEnabled = false
-                    coordinator?.onAlertDismiss()
-                }
-            ),
-            secondaryButton: .default(
-                Text(Localization.pushNotificationsPermissionAlertPositiveButton),
-                action: { [weak self] in
-                    guard let self else { return }
-
-                    pushNotificationsViewModel?.isPushNotifyEnabled = false
-                    coordinator?.openAppSettings()
-                    coordinator?.onAlertDismiss()
-                }
-            )
-        )
-
-        alert = AlertBuilder.makeAlert(
-            title: Localization.pushNotificationsPermissionAlertTitle,
-            message: Localization.pushNotificationsPermissionAlertDescription,
-            with: buttons
+        alert = AlertBuilder.makeEnablePushSettingsAlert(
+            onCancel: { [weak self] in
+                self?.pushNotificationsViewModel?.isPushNotifyEnabled = false
+                self?.coordinator?.onAlertDismiss()
+            },
+            onOpenSettings: { [weak self] in
+                self?.pushNotificationsViewModel?.isPushNotifyEnabled = false
+                self?.coordinator?.openAppSettings()
+                self?.coordinator?.onAlertDismiss()
+            }
         )
     }
 }

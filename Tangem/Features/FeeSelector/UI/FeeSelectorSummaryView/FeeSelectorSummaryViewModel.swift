@@ -108,7 +108,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
             rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
             title: feeTokenItem.name,
             subtitle: .balance(subtitleBalanceState),
-            accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.feeCurrencyOption(symbol: feeTokenItem.currencySymbol),
             expandAction: canExpand ? userDidTapToken : nil
         )
     }
@@ -149,6 +149,15 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
         let supportsMultipleOptions = tokenFeeProvider.hasMultipleFeeOptions
 
+        let isInsufficientFundsError: Bool = {
+            switch (state, feeCoverage) {
+            case (.unavailable(.notEnoughFeeBalance), _), (.available, .uncovered):
+                return true
+            default:
+                return false
+            }
+        }()
+
         var feeTokenAvailability: FeeSelectorRowViewModel.Availability {
             switch (state, feeCoverage) {
             case (.unavailable(.notEnoughFeeBalance), _):
@@ -172,7 +181,8 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
             rowType: .fee(image: option.icon.image),
             title: option.title,
             subtitle: .fee(subtitleState),
-            accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.feeSelectorSummaryFee,
+            subtitleAccessibilityIdentifier: isInsufficientFundsError ? FeeAccessibilityIdentifiers.feeSelectorInsufficientFundsError : nil,
             availability: feeTokenAvailability,
             expandAction: supportsMultipleOptions ? userDidTapFee : nil
         )

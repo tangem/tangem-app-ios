@@ -318,6 +318,13 @@
           "parentFingerprint": "00000000",
           "publicKey": "1E93D921A2B77932B55666FEB6E93FFD4FAE996A52AA95C1D2680712D70FA9D5",
           "depth": 0
+        },
+        "m/44'/3030'/0'/0'/0'": {
+          "depth": 0,
+          "publicKey": "BFCBC2F4C7E0DAF780CCADC34927290FB69F26349B3F4AC8EC0F398172A3EF93",
+          "chainCode": "AF0F7D1C8DEA57515785E7B65602016E8D41923FC053A39F987B0CE65E1B54FA",
+          "childNumber": 0,
+          "parentFingerprint": "00000000"
         }
       }
     }

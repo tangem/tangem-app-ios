@@ -1,5 +1,5 @@
 //
-//  XRPNetworkService.swift
+//  XrpNetworkProvider.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
