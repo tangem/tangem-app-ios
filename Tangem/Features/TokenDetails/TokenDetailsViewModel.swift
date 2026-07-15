@@ -228,7 +228,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .renewTangemPaySession,
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
-             .addFunds:
+             .addFunds,
+             .openAppStore:
             super.didTapNotification(with: id, action: action)
         }
     }
