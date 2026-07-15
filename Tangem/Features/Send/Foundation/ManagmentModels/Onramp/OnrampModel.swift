@@ -58,8 +58,6 @@ class OnrampModel {
 
     private var bag: Set<AnyCancellable> = []
 
-    private let isHistoryFallbackEnabled: Bool
-
     init(
         userWalletId: String,
         tokenItem: TokenItem,
@@ -71,8 +69,7 @@ class OnrampModel {
         autoupdatingTimer: AutoupdatingTimer,
         redirectSettingsBuilder: OnrampRedirectSettingsBuilder,
         transactionHistoryEnricherFactory: @escaping TransactionHistoryExpressDataEnriching.Factory,
-        predefinedValues: PredefinedValues,
-        isHistoryFallbackEnabled: Bool = FeatureProvider.isAvailable(.onrampApplePayHistoryFallback)
+        predefinedValues: PredefinedValues
     ) {
         self.userWalletId = userWalletId
         self.tokenItem = tokenItem
@@ -84,7 +81,6 @@ class OnrampModel {
         self.autoupdatingTimer = autoupdatingTimer
         self.redirectSettingsBuilder = redirectSettingsBuilder
         self.transactionHistoryEnricherFactory = transactionHistoryEnricherFactory
-        self.isHistoryFallbackEnabled = isHistoryFallbackEnabled
 
         _amount = .init(predefinedValues.amount)
         _currency = .init(
@@ -680,7 +676,7 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                 }
             } catch is CancellationError {
                 await runOnMain { result.fail() }
-            } catch let error where error.networkErrorCode == .timedOut && model.isHistoryFallbackEnabled {
+            } catch let error where error.networkErrorCode == .timedOut {
                 await model.handleNativePaymentTimeout(
                     provider: provider,
                     applePayStartDate: applePayStartDate,
