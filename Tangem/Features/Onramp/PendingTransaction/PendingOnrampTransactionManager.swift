@@ -44,9 +44,7 @@ class CommonPendingOnrampTransactionsManager {
             onrampPendingTransactionsRepository.updateItems(iteration.changed)
         }
 
-        if FeatureProvider.isAvailable(.onrampApplePayHistoryFallback) {
-            unknownStatusRecoveryService.start()
-        }
+        unknownStatusRecoveryService.start()
     }
 }
 
