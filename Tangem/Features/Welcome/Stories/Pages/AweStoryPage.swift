@@ -77,17 +77,15 @@ struct AweStoryPage: View {
     }
 }
 
-struct AweStoryPage_Previews: PreviewProvider {
-    static var previews: some View {
-        AweStoryPage(
-            progress: 1,
-            isScanning: false,
-            createWallet: {},
-            scanCard: {},
-            orderCard: {},
-            scanTroubleshootingDialog: .constant(nil)
-        )
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
-        .environment(\.colorScheme, .dark)
-    }
+#Preview {
+    AweStoryPage(
+        progress: 1,
+        isScanning: false,
+        createWallet: {},
+        scanCard: {},
+        orderCard: {},
+        scanTroubleshootingDialog: .constant(nil)
+    )
+    .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
+    .environment(\.colorScheme, .dark)
 }

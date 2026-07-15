@@ -176,36 +176,32 @@ public extension CustomSearchBar {
 
 // MARK: - Previews
 
-#if DEBUG
 @available(iOS 17.0, *)
 #Preview("Light appearance") {
     @Previewable @State var text = ""
-    StatefulPreviewWrapper(text) { text in
-        CustomSearchBar(
-            searchText: text,
-            placeholder: Localization.commonSearch,
-            clearButtonAction: {},
-            cancelButtonAction: {},
-        )
-        .padding(.horizontal, 16)
-        .padding(.top, 20)
-        .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, 20))
-        .background(Colors.Background.primary)
-    }
+
+    CustomSearchBar(
+        searchText: $text,
+        placeholder: Localization.commonSearch,
+        clearButtonAction: {},
+        cancelButtonAction: {},
+    )
+    .padding(.horizontal, 16)
+    .padding(.top, 20)
+    .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, 20))
+    .background(Colors.Background.primary)
 }
 
 @available(iOS 17.0, *)
 #Preview("Dark appearance", traits: .sizeThatFitsLayout) {
     @Previewable @State var text = ""
-    StatefulPreviewWrapper(text) { text in
-        CustomSearchBar(
-            searchText: text,
-            placeholder: Localization.commonSearch,
-            clearButtonAction: {},
-            cancelButtonAction: {}
-        )
-        .padding(.horizontal, 16)
-    }
+
+    CustomSearchBar(
+        searchText: $text,
+        placeholder: Localization.commonSearch,
+        clearButtonAction: {},
+        cancelButtonAction: {}
+    )
+    .padding(.horizontal, 16)
     .preferredColorScheme(.dark)
 }
-#endif // DEBUG

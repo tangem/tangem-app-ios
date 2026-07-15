@@ -42,34 +42,27 @@ public struct ProgressBar: View {
     }
 }
 
-struct ProgressBarPreviewView: View {
-    @State var progress: CGFloat = 0.4
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var progress: CGFloat = 0.4
 
-    var body: some View {
-        VStack {
-            ProgressBar(height: 5, currentProgress: progress, backgroundColor: Colors.Old.tangemGrayDark.opacity(0.12), progressColor: .blue)
+    VStack {
+        ProgressBar(height: 5, currentProgress: progress, backgroundColor: Colors.Old.tangemGrayDark.opacity(0.12), progressColor: .blue)
+            .padding()
+        Spacer()
+            .frame(height: 50)
+        Button(action: {
+            var newProgress = progress + 0.3
+            if newProgress > 2 {
+                newProgress = -2
+            }
+            withAnimation {
+                progress = newProgress
+            }
+        }, label: {
+            Text("Animate progress")
                 .padding()
-            Spacer()
-                .frame(height: 50)
-            Button(action: {
-                var newProgress = progress + 0.3
-                if newProgress > 2 {
-                    newProgress = -2
-                }
-                withAnimation {
-                    progress = newProgress
-                }
-            }, label: {
-                Text("Animate progress")
-                    .padding()
-            })
-            Spacer()
-        }
-    }
-}
-
-struct ProgressBar_Previews: PreviewProvider {
-    static var previews: some View {
-        ProgressBarPreviewView()
+        })
+        Spacer()
     }
 }

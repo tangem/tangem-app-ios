@@ -67,7 +67,6 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 20) {
         MarketsTokenDetailsListedOnExchangesViewRedesign(exchangesCount: 244, buttonAction: {})
@@ -77,4 +76,3 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
     .padding()
     .background(Color.Tangem.Surface.level1)
 }
-#endif // DEBUG

@@ -9,7 +9,7 @@
 import Foundation
 
 enum GaslessTransactionAddressFactory {
-    static func gaslessExecutorContractAddress(blockchain: Blockchain) throws -> String {
+    static func gaslessExecutorContractAddress(blockchain: Blockchain, isGaslessYieldEnabled: Bool) throws -> String {
         switch blockchain {
         case .ethereum:
             return Constants.ethereumAddress
@@ -18,7 +18,7 @@ enum GaslessTransactionAddressFactory {
         case .base:
             return Constants.baseAddress
         case .polygon:
-            return Constants.polygonAddress
+            return isGaslessYieldEnabled ? ConstantsV2.polygonAddress : Constants.polygonAddress
         case .arbitrum:
             return Constants.arbitrumAddress
         default:
@@ -40,5 +40,9 @@ extension GaslessTransactionAddressFactory {
         static let baseAddress = "0x61dD8620410a2372CbE4946f9148671F38F93fC7"
         static let polygonAddress = "0x2C2397c7605dc6d5493518260BDdeebE743B3faD"
         static let arbitrumAddress = "0x20e7016ff14Dd10f04028fE52aBBca34F44b6965"
+    }
+
+    enum ConstantsV2 {
+        static let polygonAddress = "0x5c5eB829353bdb38456B54480aB436cAE421B75C"
     }
 }

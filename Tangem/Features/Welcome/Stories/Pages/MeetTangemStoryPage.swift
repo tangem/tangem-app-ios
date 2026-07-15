@@ -63,17 +63,15 @@ struct MeetTangemStoryPage: View {
     }
 }
 
-struct MeetTangemStoryPage_Previews: PreviewProvider {
-    static var previews: some View {
-        MeetTangemStoryPage(
-            progress: 0.8,
-            isScanning: false,
-            createWallet: {},
-            scanCard: {},
-            orderCard: {},
-            scanTroubleshootingDialog: .constant(nil)
-        )
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
-        .environment(\.colorScheme, .dark)
-    }
+#Preview {
+    MeetTangemStoryPage(
+        progress: 0.8,
+        isScanning: false,
+        createWallet: {},
+        scanCard: {},
+        orderCard: {},
+        scanTroubleshootingDialog: .constant(nil)
+    )
+    .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
+    .environment(\.colorScheme, .dark)
 }

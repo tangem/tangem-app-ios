@@ -1,5 +1,5 @@
 //
-//  TransferERC20SmartContractMethod.swift
+//  TransferERC20TokenMethod.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

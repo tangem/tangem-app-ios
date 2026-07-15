@@ -21,13 +21,11 @@ struct CheckIconView: View {
     }
 }
 
-struct CheckIconView_Preview: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            CheckIconView(isSelected: true)
+#Preview {
+    VStack {
+        CheckIconView(isSelected: true)
 
-            CheckIconView(isSelected: false)
-        }
-        .background(Color.white)
+        CheckIconView(isSelected: false)
     }
+    .background(Color.white)
 }

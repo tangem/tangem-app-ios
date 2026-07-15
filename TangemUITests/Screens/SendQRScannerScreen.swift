@@ -34,7 +34,7 @@ final class SendQRScannerScreen: ScreenBase<SendQRScannerScreenElement> {
 
     @discardableResult
     func tapCloseButton() -> SendScreen {
-        XCTContext.runActivity(named: "Close Send QR scanner screen") { _ in
+        _ = XCTContext.runActivity(named: "Close Send QR scanner screen") { _ in
             closeButton.waitAndTap()
         }
         return SendScreen(app)

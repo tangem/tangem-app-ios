@@ -4,17 +4,34 @@
 # Optional env: TEST_CLASS (for filtering specific test classes),
 #               MARATHON_RETRY_QUOTA (default: 15),
 #               MARATHON_OUTPUT_TIMEOUT_MS (default: 300000),
-#               MARATHON_BATCH_TIMEOUT_MS (default: 360000),
+#               MARATHON_BATCH_SIZE (default: 3),
+#               MARATHON_LAST_MILE_LENGTH (default: 10),
+#               MARATHON_BATCH_TIMEOUT_MS (default: derived from batch size),
 #               MARATHON_TEST_TIME_ALLOWANCE_SEC (default: 240)
 
 set -e
 
 MARATHON_RETRY_QUOTA="${MARATHON_RETRY_QUOTA:-15}"
-# Kill escalation ladder: XCTest allowance (240s, clean kill with a test result)
-# < output timeout (300s) < batch timeout (360s, last resort)
 MARATHON_OUTPUT_TIMEOUT_MS="${MARATHON_OUTPUT_TIMEOUT_MS:-300000}"
-MARATHON_BATCH_TIMEOUT_MS="${MARATHON_BATCH_TIMEOUT_MS:-360000}"
 MARATHON_TEST_TIME_ALLOWANCE_SEC="${MARATHON_TEST_TIME_ALLOWANCE_SEC:-240}"
+
+# Batch tests instead of one-per-command (isolate): each command cold-launches the
+# runner, the main driver of AX-init timeouts and host load.
+MARATHON_BATCH_SIZE="${MARATHON_BATCH_SIZE:-3}"
+# Run the last few tests unbatched so a slow final batch doesn't serialise the tail.
+MARATHON_LAST_MILE_LENGTH="${MARATHON_LAST_MILE_LENGTH:-10}"
+
+# Must be positive integers: the batch timeout below is computed from them.
+for _var in MARATHON_BATCH_SIZE MARATHON_TEST_TIME_ALLOWANCE_SEC; do
+  if ! [[ "${!_var}" =~ ^[1-9][0-9]*$ ]]; then
+    echo "ERROR: $_var must be a positive integer, got '${!_var}'"
+    exit 1
+  fi
+done
+
+# Cover the whole batch (per-test allowance + launch buffer, times size) so a healthy
+# slow batch isn't killed before XCTest's per-test allowance kills a hung test.
+MARATHON_BATCH_TIMEOUT_MS="${MARATHON_BATCH_TIMEOUT_MS:-$(( MARATHON_BATCH_SIZE * (MARATHON_TEST_TIME_ALLOWANCE_SEC * 1000 + 60000) ))}"
 
 if [ -z "$DERIVED_DATA_PATH" ]; then
   echo "ERROR: DERIVED_DATA_PATH environment variable is required"
@@ -104,7 +121,9 @@ cat Marathondevices
   echo '  type: "omni"'
   echo ''
   echo 'batchingStrategy:'
-  echo '  type: "isolate"'
+  echo '  type: "fixed-size"'
+  echo "  size: $MARATHON_BATCH_SIZE"
+  echo "  lastMileLength: $MARATHON_LAST_MILE_LENGTH"
   echo ''
   echo 'sortingStrategy:'
   echo '  type: "no-sorting"'

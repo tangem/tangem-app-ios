@@ -49,24 +49,16 @@ struct DefaultSelectableRowView<ID: Hashable>: View {
     }
 }
 
-struct DefaultSelectableRowView_Preview: PreviewProvider {
-    struct ContainerView: View {
-        @State private var selection: Int = 1
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var selection = 1
 
-        var data: DefaultSelectableRowViewModel<Int> {
-            DefaultSelectableRowViewModel(
-                id: 1,
-                title: "Long Tap",
-                subtitle: Date().timeIntervalSince1970.description
-            )
-        }
+    let data = DefaultSelectableRowViewModel(
+        id: 1,
+        title: "Long Tap",
+        subtitle: Date().timeIntervalSince1970.description
+    )
 
-        var body: some View {
-            DefaultSelectableRowView(data: data, selection: $selection)
-        }
-    }
-
-    static var previews: some View {
-        ContainerView().padding()
-    }
+    DefaultSelectableRowView(data: data, selection: $selection)
+        .padding()
 }

@@ -17,15 +17,15 @@ struct SendDestinationAdditionalFieldView: View {
     @ObservedObject var viewModel: SendDestinationAdditionalFieldViewModel
 
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            VStack(alignment: .leading, spacing: 4) {
-                title
+        VStack(alignment: .leading, spacing: 20) {
+            title
 
+            HStack(alignment: .center, spacing: 12) {
                 textField
-            }
 
-            if !viewModel.disabled {
-                trailingView
+                if !viewModel.disabled {
+                    trailingView
+                }
             }
         }
     }
@@ -36,10 +36,10 @@ struct SendDestinationAdditionalFieldView: View {
             switch viewModel.error {
             case .none:
                 Text(viewModel.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             case .some(let string):
                 Text(string)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.warning)
+                    .style(DesignSystem.Font.captionMediumToken, color: Colors.Text.warning)
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.invalidMemoBanner)
             }
         }

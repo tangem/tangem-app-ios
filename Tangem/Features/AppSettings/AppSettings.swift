@@ -13,6 +13,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.twinCardOnboardingDisplayed)
     var isTwinCardOnboardingWasDisplayed: Bool = false
 
+    @AppStorageCompat(StorageType.priceAlertsOnboardingShown)
+    var isPriceAlertsOnboardingShown: Bool = false
+
     @AppStorageCompat(StorageType.numberOfAppLaunches)
     var numberOfLaunches: Int = 0
 

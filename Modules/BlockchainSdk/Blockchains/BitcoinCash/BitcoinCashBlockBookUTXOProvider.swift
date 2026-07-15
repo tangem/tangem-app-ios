@@ -1,5 +1,5 @@
 //
-//  BitcoinCashNowNodesNetworkProvider.swift
+//  BitcoinCashBlockBookUTXOProvider.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
