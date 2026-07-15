@@ -18,6 +18,7 @@ final class TokenSelectorViewModelsMapper {
     }
 
     private var cache: [TokenSelectorItem: TokenSelectorItemViewModel] = [:]
+    private var bag = Set<AnyCancellable>()
 
     // MARK: - Dependencies
 
@@ -169,6 +170,13 @@ private extension TokenSelectorViewModelsMapper {
                 }
                 .eraseToAnyPublisher()
 
+            // [REDACTED_TODO_COMMENT]
+            // [REDACTED_INFO]
+            let balanceSubject = CurrentValueSubject<LoadableBalanceView.State, Never>(.empty)
+            filteredBalancePublisher
+                .subscribe(balanceSubject)
+                .store(in: &bag)
+
             let isInitiallyExpanded = accountIsInitiallyExpanded(account, walletId: walletId)
                 || accountStateStorage.isExpanded(account.account)
 
@@ -179,7 +187,7 @@ private extension TokenSelectorViewModelsMapper {
                 initiallyExpanded: isInitiallyExpanded,
                 itemsCountPublisher: rawItemsPublisher.map(\.count).eraseToAnyPublisher(),
                 searchTextPublisher: searchText.eraseToAnyPublisher(),
-                filteredBalancePublisher: filteredBalancePublisher
+                filteredBalancePublisher: balanceSubject.eraseToAnyPublisher()
             )
         }
 
