@@ -9,6 +9,8 @@ public enum TangemPayOrderType: String, Decodable {
     case cardIssueVirtualRainKyc = "CARD_ISSUE_VIRTUAL_RAIN_KYC"
     case cardIssueVirtualRainKycV2 = "CARD_ISSUE_VIRTUAL_RAIN_KYC_V2"
     case cardIssueVirtualRain = "CARD_ISSUE_VIRTUAL_RAIN"
+    case accountIssueVirtualRain = "ACCOUNT_ISSUE_VIRTUAL_RAIN"
+    case tariffPlanTransition = "TARIFF_PLAN_TRANSITION"
     case unknown
 
     public init(from decoder: Decoder) throws {
@@ -22,5 +24,9 @@ public extension TangemPayOrderType {
         cardIssueVirtualRain.rawValue,
         cardIssueVirtualRainKyc.rawValue,
         cardIssueVirtualRainKycV2.rawValue,
+    ]
+
+    static let tariffPlanTransitionFamily: [String] = [
+        tariffPlanTransition.rawValue,
     ]
 }
