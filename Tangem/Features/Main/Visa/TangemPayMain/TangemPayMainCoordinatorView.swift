@@ -30,6 +30,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.cardManagementViewModel) {
                 TangemPayCardManagementView(viewModel: $0)
             }
+            .navigation(item: $coordinator.currentPlanCoordinator) {
+                TangemPayCurrentPlanCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -49,6 +52,18 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: TangemPayAddFundsSheetViewModel.self) {
                 TangemPayAddFundsSheetView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayVirtualAccountInfoSheetViewModel.self) {
+                TangemPayVirtualAccountInfoSheetView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayVirtualAccountPreparingPopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayVirtualAccountBankDetailsErrorPopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayVirtualAccountBankDetailsViewModel.self) {
+                TangemPayVirtualAccountBankDetailsView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayFreezeSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
@@ -98,6 +113,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 backgroundColor: Colors.Background.tertiary
             ) {
                 PendingExpressTxStatusBottomSheetView(viewModel: $0)
+            }
+            .fullScreenCover(item: $coordinator.virtualAccountSuccessViewModel) {
+                TangemPayVirtualAccountSuccessView(viewModel: $0)
             }
     }
 }

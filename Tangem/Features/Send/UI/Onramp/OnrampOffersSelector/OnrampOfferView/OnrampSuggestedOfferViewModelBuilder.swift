@@ -47,7 +47,8 @@ struct OnrampSuggestedOfferViewModelBuilder {
         provider: OnrampProvider,
         buyAction: OnrampOfferViewModel.BuyAction,
         infoAction: (() -> Void)? = nil,
-        legalNotice: OnrampOfferViewModel.LegalNotice? = nil
+        legalNotice: OnrampOfferViewModel.LegalNotice? = nil,
+        linkedBanner: LinkedMarketingBannerViewModel? = nil
     ) -> OnrampOfferViewModel {
         let formattedAmount = formatter.formatCryptoBalance(
             provider.quote?.expectedAmount,
@@ -73,7 +74,8 @@ struct OnrampSuggestedOfferViewModelBuilder {
             provider: offerProvider,
             isAvailable: provider.isSuccessfullyLoaded,
             buyAction: buyAction,
-            legalNotice: legalNotice
+            legalNotice: legalNotice,
+            linkedBanner: linkedBanner
         )
     }
 }
