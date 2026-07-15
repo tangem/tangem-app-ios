@@ -100,7 +100,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapChooseBestDEX: return .version("6.0")
         case .addressBook: return .unspecified
         case .bitcoinDexSwap: return .version("6.0")
-        case .hideStoriesInMobileWallet: return .version("6.0")
+        case .hideStoriesInMobileWallet: return .version("6.1")
         case .solanaUnstakeValidation: return .version("6.0")
         case .onboardingPushNotificationDoubleAsk: return .unspecified
         case .mainPushNotificationDoubleAsk: return .unspecified
