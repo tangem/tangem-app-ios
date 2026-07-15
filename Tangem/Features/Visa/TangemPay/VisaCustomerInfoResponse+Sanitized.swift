@@ -37,8 +37,7 @@ private extension VisaCustomerInfoResponse.Card {
             embossName: "",
             cardType: cardType,
             cardStatus: cardStatus,
-            // The legacy single-card flow drops `isPinSet` from the disk cache; the multi-card flow keeps it.
-            isPinSet: FeatureProvider.isAvailable(.tangemPayMultipleCards) ? isPinSet : false
+            isPinSet: isPinSet
         )
     }
 }
