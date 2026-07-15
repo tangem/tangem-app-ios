@@ -96,7 +96,6 @@ struct MarketsTokenSearchRecentsView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     MarketsTokenSearchRecentsView(
         queries: ["Usdt", "Eth", "volume > 1M"],
@@ -107,4 +106,3 @@ struct MarketsTokenSearchRecentsView: View {
     .padding(.horizontal, .unit(.x4))
     .background(Color.Tangem.Surface.level2)
 }
-#endif // DEBUG

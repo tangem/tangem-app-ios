@@ -62,6 +62,7 @@ struct FeeCompactView: View {
                 .padding(.horizontal, 6)
                 .background(Colors.Background.tertiary)
                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeCurrencySymbol)
         }
     }
 }

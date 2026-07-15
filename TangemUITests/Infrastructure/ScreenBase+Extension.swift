@@ -101,6 +101,14 @@ extension ScreenBase {
         app.searchFields[element.accessibilityIdentifier].firstMatch
     }
 
+    func tangemSearchField(_ element: T, prompt: String) -> XCUIElement {
+        if #available(iOS 26.0, *) {
+            return app.searchFields[prompt].firstMatch
+        } else {
+            return app.textFields[element.accessibilityIdentifier].firstMatch
+        }
+    }
+
     func segmentedControl(_ element: T) -> XCUIElement {
         app.segmentedControls[element.accessibilityIdentifier].firstMatch
     }
@@ -143,6 +151,36 @@ extension ScreenBase {
         }
     }
 
+    /// Pastes via the system edit menu to avoid the "Allow Paste" prompt a programmatic read triggers.
+    func pasteFromEditMenu(into element: XCUIElement) {
+        waitAndAssertTrue(element, "Element for paste should exist")
+        element.waitAndTap()
+        element.press(forDuration: 1.0)
+
+        let pasteMenuItem = app.menuItems["Paste"].firstMatch
+        let pasteButton = app.buttons["Paste"].firstMatch
+        if pasteMenuItem.waitForExistence(timeout: .shortUIUpdate) {
+            pasteMenuItem.tap()
+        } else {
+            waitAndAssertTrue(pasteButton, "Paste option should appear")
+            pasteButton.tap()
+        }
+    }
+
+    /// Types only after the field (or its descendant) holds keyboard focus, retrying the tap to survive CI focus races.
+    func typeWithFocus(into element: XCUIElement, text: String) {
+        waitAndAssertTrue(element, "Field for typing should exist")
+        let focusedDescendant = element.descendants(matching: .any)
+            .matching(NSPredicate(format: "hasKeyboardFocus == true")).firstMatch
+        for _ in 0 ..< 4 {
+            element.tap()
+            if element.hasFocus || focusedDescendant.waitForExistence(timeout: .shortUIUpdate) {
+                break
+            }
+        }
+        element.typeText(text)
+    }
+
     func clearText(element: XCUIElement) {
         scrollToElement(element)
         if !element.hasFocus {
@@ -172,9 +210,8 @@ extension ScreenBase {
     }
 
     func scrollToElement(_ element: XCUIElement, attempts: SwipeAttempts = .standard) {
-        for attempt in 0 ..< attempts.rawValue {
+        for _ in 0 ..< attempts.rawValue {
             if !element.isHittable || !element.isEnabled {
-//                log.debug("Swiping - attempt \(attempt)")
                 let startCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.8))
                 let endCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.1))
                 startCoordinate.press(forDuration: 0.1, thenDragTo: endCoordinate)

@@ -65,4 +65,5 @@ enum StorageType: String {
     case yieldApyBoostHiddenPromos = "yield_apy_boost_hidden_promos"
     case yieldApyBoostQualificationEndDates = "yield_apy_boost_qualification_end_dates"
     case yieldApyBoostFirstSeenCompletedDates = "yield_apy_boost_first_seen_completed_dates"
+    case priceAlertsOnboardingShown = "price_alerts_onboarding_shown"
 }
