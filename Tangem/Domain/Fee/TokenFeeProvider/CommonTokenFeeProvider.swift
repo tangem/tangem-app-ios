@@ -232,10 +232,6 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
             return try await updateFees(compiledTransaction: data)
 
         case .dex(.bitcoinPsbt(let psbtBase64)):
-            guard FeatureProvider.isAvailable(.bitcoinDexSwap) else {
-                throw TokenFeeLoaderError.tokenFeeLoaderNotFound
-            }
-
             return try await updateFees(psbtBase64: psbtBase64)
 
         case .approve(let txData, let toContractAddress, let feeMultiplier):
@@ -298,7 +294,7 @@ private extension CommonTokenFeeProvider {
         case .dex(.solana) where tokenFeeLoader is SolanaTokenFeeLoader:
             // Is available. Do nothing
             break
-        case .dex(.bitcoinPsbt) where tokenFeeLoader is BitcoinTokenFeeLoader && FeatureProvider.isAvailable(.bitcoinDexSwap):
+        case .dex(.bitcoinPsbt) where tokenFeeLoader is BitcoinTokenFeeLoader:
             // Is available. Do nothing
             break
         case .dex:

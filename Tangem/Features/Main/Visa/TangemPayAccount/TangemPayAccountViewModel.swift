@@ -26,7 +26,7 @@ final class TangemPayAccountViewModel: ObservableObject {
     @Published private(set) var state: ViewState = .skeleton
 
     private var multipleCardsEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayMultipleCards)
+        true
     }
 
     private let tangemPayLocalState: TangemPayLocalState

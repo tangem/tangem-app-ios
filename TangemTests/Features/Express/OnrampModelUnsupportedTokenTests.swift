@@ -151,8 +151,7 @@ private extension OnrampModelUnsupportedTokenTests {
             autoupdatingTimer: AutoupdatingTimer(),
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
             transactionHistoryEnricherFactory: { nil },
-            predefinedValues: .init(amount: nil),
-            isHistoryFallbackEnabled: true
+            predefinedValues: .init(amount: nil)
         )
 
         return (trackForMemoryLeaks(sut), provider, analytics)
