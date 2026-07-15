@@ -30,7 +30,7 @@ struct SendDestinationSuggestedView: View {
             let index = viewModel.suggestedWallets.firstIndex(where: { $0.id == wallet.id }) ?? 0
             SendDestinationSuggestedWalletView(
                 address: wallet.wallet.address,
-                iconViewModel: wallet.addressIconViewModel,
+                addressIconType: wallet.addressIconType,
                 addressAccessibilityIdentifier: SendAccessibilityIdentifiers.suggestedDestinationWalletCell(index: index),
                 action: wallet.action
             ) {
@@ -67,7 +67,7 @@ struct SendDestinationSuggestedView: View {
             let index = viewModel.suggestedRecentTransaction.firstIndex(where: { $0.id == transaction.id }) ?? 0
             SendDestinationSuggestedWalletView(
                 address: transaction.record.address,
-                iconViewModel: transaction.addressIconViewModel,
+                addressIconType: transaction.addressIconType,
                 addressAccessibilityIdentifier: SendAccessibilityIdentifiers.suggestedDestinationTransactionCell(index: index),
                 action: transaction.action
             ) {
@@ -107,7 +107,7 @@ struct SendDestinationSuggestedView: View {
 
 struct SendDestinationSuggestedWalletView<BottomView: View>: View {
     let address: String
-    let iconViewModel: AddressIconViewModel
+    let addressIconType: AddressIconProviderViewType?
     let addressAccessibilityIdentifier: String
     let action: () -> Void
     let bottomView: () -> BottomView
@@ -115,8 +115,7 @@ struct SendDestinationSuggestedWalletView<BottomView: View>: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                AddressIconView(viewModel: iconViewModel)
-                    .frame(size: CGSize(bothDimensions: 36))
+                AddressIconProviderView(type: addressIconType, size: 36)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(address)
