@@ -130,6 +130,13 @@ final class TangemPayAccount {
         return placedVirtualAccountOrderId == nil ? .none : .preparing
     }
 
+    var hasVirtualAccount: Bool {
+        if case .none = virtualAccountEntry {
+            return false
+        }
+        return true
+    }
+
     var isDeactivated: Bool {
         let info = customerInfoSubject.value
         if info.state == .former { return true }
