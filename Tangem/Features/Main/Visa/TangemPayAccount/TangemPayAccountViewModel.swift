@@ -25,10 +25,6 @@ protocol TangemPayAccountRoutable: AnyObject {
 final class TangemPayAccountViewModel: ObservableObject {
     @Published private(set) var state: ViewState = .skeleton
 
-    private var multipleCardsEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayMultipleCards)
-    }
-
     private let tangemPayLocalState: TangemPayLocalState
     private let userWalletId: UserWalletId
     private let cachedStateStorage: TangemPayCachedStateStorage
@@ -106,9 +102,7 @@ private extension TangemPayAccountViewModel {
                 case .failedToIssueCard:
                     .just(output: .failedToIssueCard)
                 case .tangemPayAccount(let tangemPayAccount):
-                    viewModel.multipleCardsEnabled
-                        ? viewModel.makeAccountViewStatePublisherNew(tangemPayAccount)
-                        : viewModel.makeAccountViewStatePublisherLegacy(tangemPayAccount)
+                    viewModel.makeAccountViewStatePublisherNew(tangemPayAccount)
                 case .cardDeactivated(let tangemPayAccount):
                     tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
                         .map { balanceType in
@@ -132,30 +126,6 @@ private extension TangemPayAccountViewModel {
             .assign(to: &$state)
     }
 
-    func makeAccountViewStatePublisherLegacy(_ tangemPayAccount: TangemPayAccount) -> AnyPublisher<ViewState, Never> {
-        Publishers.CombineLatest3(
-            tangemPayAccount.cardPublisher,
-            tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.formattedBalanceTypePublisher,
-            tangemPayAccount.isReissuingCardPublisher
-        )
-        .map { card, balanceType, isReissuing in
-            if isReissuing {
-                let balance = LoadableBalanceViewStateBuilder().build(type: balanceType)
-                return .replacingCard(balance: balance)
-            }
-
-            switch card {
-            case .none:
-                return .skeleton
-            case .some(let card):
-                let cardInfo = CardInfo(cardNumberEnd: card.cardNumberEnd)
-                let balance = LoadableBalanceViewStateBuilder().build(type: balanceType)
-                return .normal(card: cardInfo, balance: balance, cardCount: 1)
-            }
-        }
-        .eraseToAnyPublisher()
-    }
-
     func makeAccountViewStatePublisherNew(_ tangemPayAccount: TangemPayAccount) -> AnyPublisher<ViewState, Never> {
         Publishers.CombineLatest3(
             tangemPayAccount.cardsPublisher,
@@ -168,7 +138,7 @@ private extension TangemPayAccountViewModel {
                 return .replacingCard(balance: balance)
             }
             guard let firstActive = cards.first(where: { $0.productInstance.status == .active || $0.productInstance.status == .blocked }) else {
-                return .skeleton
+                return .issuingYourCard
             }
             return .normal(
                 card: CardInfo(cardNumberEnd: firstActive.cardNumberEnd),
