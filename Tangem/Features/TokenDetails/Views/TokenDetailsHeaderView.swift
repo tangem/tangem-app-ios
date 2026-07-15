@@ -57,19 +57,15 @@ struct TokenDetailsHeaderView: View {
     }
 }
 
-struct SwiftUIView_Previews: PreviewProvider {
-    private static var tokenItem: TokenItem {
-        .token(.inverseBTCBlaBlaBlaMock, .init(.polygon(testnet: false), derivationPath: nil))
-        //        .blockchain(.avalanche(testnet: false))
-        //        .token(.sushiMock, .ethereum(testnet: false))
-    }
+#Preview {
+    VStack {
+        TokenDetailsHeaderView(
+            viewModel: .init(
+                tokenItem: TokenItem.token(.inverseBTCBlaBlaBlaMock, .init(.polygon(testnet: false), derivationPath: nil))
+            )
+        )
+        .padding(16)
 
-    static var previews: some View {
-        VStack {
-            TokenDetailsHeaderView(viewModel: .init(tokenItem: tokenItem))
-                .padding(16)
-
-            Spacer()
-        }
+        Spacer()
     }
 }

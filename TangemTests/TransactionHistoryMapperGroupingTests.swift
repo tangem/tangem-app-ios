@@ -201,7 +201,9 @@ private extension TransactionHistoryMapperGroupingTests {
             status: .confirmed,
             isOutgoing: true,
             type: .transfer,
-            date: date
+            date: date,
+            tokenTransfers: [],
+            nonce: nil
         )
     }
 }
