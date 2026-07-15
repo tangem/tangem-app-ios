@@ -77,6 +77,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: DynamicAddressesDisableSheetViewModel.self) {
                 DynamicAddressesDisableSheetView(viewModel: $0)
             }
+            .floatingSheetContent(for: StakingRegionUnavailableSheetViewModel.self) {
+                StakingRegionUnavailableSheetView(viewModel: $0)
+            }
             .sheet(item: $coordinator.dynamicAddressesEnterViewModel) {
                 DynamicAddressesEnterView(viewModel: $0)
             }

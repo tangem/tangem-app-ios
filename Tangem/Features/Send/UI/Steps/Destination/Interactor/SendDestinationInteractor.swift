@@ -7,6 +7,7 @@
 //
 
 import Combine
+import CombineExt
 import TangemFoundation
 import BlockchainSdk
 
@@ -14,6 +15,8 @@ protocol SendDestinationInteractor {
     var tokenItemPublisher: AnyPublisher<TokenItem, Never> { get }
     var suggestedWalletsPublisher: AnyPublisher<[SendDestinationSuggestedWallet], Never> { get }
     var transactionHistoryPublisher: AnyPublisher<[SendDestinationSuggestedTransactionRecord], Never> { get }
+    var addressBookContactsPublisher: AnyPublisher<[SendDestinationAddressBookContact], Never> { get }
+    var addressBooksProvider: (any AddressBooksProvider)? { get }
 
     var destinationResolvedAddress: AnyPublisher<String?, Never> { get }
     var isValidatingDestination: AnyPublisher<Bool, Never> { get }
@@ -26,10 +29,10 @@ protocol SendDestinationInteractor {
     func shouldResolve(address: String) -> Bool
 
     @MainActor
-    func update(destination: String, source: Analytics.DestinationAddressSource) async
+    func update(destination: String, source: Analytics.DestinationAddressSource) async throws
     func update(additionalField: String)
 
-    func preloadTransactionsHistoryIfNeeded()
+    func preloadTransactionHistoryIfNeeded()
 }
 
 class CommonSendDestinationInteractor {
@@ -53,7 +56,10 @@ class CommonSendDestinationInteractor {
 
     private let _suggestedWallets: CurrentValueSubject<[SendDestinationSuggestedWallet], Never> = .init([])
     private let _suggestedDestination: CurrentValueSubject<[SendDestinationSuggestedTransactionRecord], Never> = .init([])
+    private let _addressBookContacts: CurrentValueSubject<[SendDestinationAddressBookContact], Never> = .init([])
 
+    private var transactionHistorySubscription: AnyCancellable?
+    private var addressBookContactsSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -94,10 +100,12 @@ class CommonSendDestinationInteractor {
         dependenciesBuilder.update(receivedToken: receivedToken)
 
         _suggestedWallets.send(dependenciesBuilder.suggestedWallets)
-        dependenciesBuilder.transactionHistoryProvider
+        transactionHistorySubscription = dependenciesBuilder.transactionHistoryProvider
             .transactionHistoryPublisher
             .assign(to: \._suggestedDestination.value, on: self, ownership: .weak)
-            .store(in: &bag)
+
+        addressBookContactsSubscription = dependenciesBuilder.addressBookContactsPublisher
+            .assign(to: \._addressBookContacts.value, on: self, ownership: .weak)
     }
 
     private func update(destination result: Result<SendDestination?, Error>, source: Analytics.DestinationAddressSource) {
@@ -240,6 +248,14 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
         _suggestedWallets.eraseToAnyPublisher()
     }
 
+    var addressBookContactsPublisher: AnyPublisher<[SendDestinationAddressBookContact], Never> {
+        _addressBookContacts.eraseToAnyPublisher()
+    }
+
+    var addressBooksProvider: (any AddressBooksProvider)? {
+        dependenciesBuilder.addressBooksProvider
+    }
+
     var destinationResolvedAddress: AnyPublisher<String?, Never> {
         guard let input else {
             return .empty
@@ -280,7 +296,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
         return addressResolver.requiresResolution(address: address)
     }
 
-    func update(destination address: String, source: Analytics.DestinationAddressSource) async {
+    func update(destination address: String, source: Analytics.DestinationAddressSource) async throws {
         let validator = dependenciesBuilder.validator
         _canEmbedAdditionalField.send(validator.canEmbedAdditionalField(into: address))
 
@@ -291,7 +307,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
 
         if let validationError = validate(destination: address) {
             update(destination: .failure(validationError), source: source)
-            return
+            throw validationError
         }
 
         guard let addressResolver = dependenciesBuilder.addressResolver,
@@ -311,12 +327,15 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
             )
             update(destination: .success(resolvedDestination), source: source)
         } catch is CancellationError {
-            // Do nothing
+            // A superseded/cancelled resolution must not advance the step.
+            throw CancellationError()
         } catch let error as SendAddressServiceError {
             update(destination: .failure(error), source: source)
+            throw error
         } catch {
             AppLogger.error("Resolving address error: ", error: error)
             update(destination: .failure(SendAddressServiceError.invalidAddress), source: source)
+            throw SendAddressServiceError.invalidAddress
         }
     }
 
@@ -354,8 +373,8 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
         }
     }
 
-    func preloadTransactionsHistoryIfNeeded() {
-        dependenciesBuilder.transactionHistoryProvider.preloadTransactionsHistoryIfNeeded()
+    func preloadTransactionHistoryIfNeeded() {
+        dependenciesBuilder.transactionHistoryProvider.preloadTransactionHistoryIfNeeded()
     }
 }
 
