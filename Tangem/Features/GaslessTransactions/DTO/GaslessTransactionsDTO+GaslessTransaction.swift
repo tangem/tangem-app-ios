@@ -24,6 +24,7 @@ extension GaslessTransactionsDTO.Request {
             struct Transaction: Encodable, Equatable {
                 let to: String
                 let value: String
+                let gasLimit: String?
                 let data: String
             }
 
@@ -44,6 +45,24 @@ extension GaslessTransactionsDTO.Request {
             let yParity: Int
             let r: String
             let s: String
+        }
+    }
+
+    struct GaslessBatchTransaction: Encodable, Equatable {
+        typealias Transaction = GaslessTransaction.TransactionData.Transaction
+        typealias Fee = GaslessTransaction.TransactionData.Fee
+        typealias EIP7702Auth = GaslessTransaction.EIP7702Auth
+
+        let gaslessTransaction: TransactionData
+        let signature: String
+        let userAddress: String
+        let chainId: Int
+        let eip7702auth: EIP7702Auth
+
+        struct TransactionData: Encodable, Equatable {
+            let transactions: [Transaction]
+            let fee: Fee
+            let nonce: String
         }
     }
 }
@@ -85,6 +104,7 @@ extension GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Tran
         {
           "to": "\(to)",
           "value": "\(value)",
+          "gasLimit": "\(gasLimit ?? "no-limit")",
           "data": "\(data)"
         }
         """
