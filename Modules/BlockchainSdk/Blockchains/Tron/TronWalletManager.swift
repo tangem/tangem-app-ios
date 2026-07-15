@@ -141,7 +141,7 @@ class TronWalletManager: BaseWalletManager, WalletManager {
 
     private func energyFeeParameters(amount: Amount, destination: String, callData: Data?) -> AnyPublisher<TronEnergyFeeData, Error> {
         if let callData, amount.type == .coin {
-            return swapEnergyFeeParameters(destination: destination, callData: callData, callValue: amount)
+            return contractCallEnergyFeeParameters(destination: destination, callData: callData, callValue: amount)
         }
 
         guard let contractAddress = amount.type.token?.contractAddress else {
@@ -170,7 +170,7 @@ class TronWalletManager: BaseWalletManager, WalletManager {
             .eraseToAnyPublisher()
     }
 
-    private func swapEnergyFeeParameters(destination: String, callData: Data, callValue: Amount) -> AnyPublisher<TronEnergyFeeData, Error> {
+    private func contractCallEnergyFeeParameters(destination: String, callData: Data, callValue: Amount) -> AnyPublisher<TronEnergyFeeData, Error> {
         let callValueSun = UInt64(TronUtils().convertAmountToSun(callValue))
 
         let energyUsagePublisher = networkService.contractEnergyUsage(
@@ -300,9 +300,9 @@ extension TronWalletManager: TronNetworkProvider {
     }
 }
 
-// MARK: - TronDexTransactionFeeProvider
+// MARK: - TronContractCallFeeProvider
 
-extension TronWalletManager: TronDexTransactionFeeProvider {
+extension TronWalletManager: TronContractCallFeeProvider {
     func getFee(amount: Amount, destination: String, callData: Data) async throws -> [Fee] {
         try await feePublisher(amount: amount, destination: destination, callData: callData).async()
     }

@@ -53,10 +53,6 @@ public protocol BitcoinPsbtSwapSender {
     func send(psbtBase64: String, destination: String, signer: TransactionSigner) async throws -> TransactionSendResult
 }
 
-public protocol TronDexTransactionFeeProvider {
-    func getFee(amount: Amount, destination: String, callData: Data) async throws -> [Fee]
-}
-
 // MARK: - TransactionSigner
 
 public protocol TransactionSigner {

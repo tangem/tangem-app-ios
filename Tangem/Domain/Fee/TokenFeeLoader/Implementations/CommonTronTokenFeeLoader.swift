@@ -10,14 +10,14 @@ import BlockchainSdk
 
 struct CommonTronTokenFeeLoader {
     let tokenFeeLoader: any TokenFeeLoader
-    let tronDexTransactionFeeProvider: any TronDexTransactionFeeProvider
+    let tronContractCallFeeProvider: any TronContractCallFeeProvider
 }
 
 // MARK: - TronTokenFeeLoader
 
 extension CommonTronTokenFeeLoader: TronTokenFeeLoader {
     func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
-        let fees = try await tronDexTransactionFeeProvider.getFee(amount: amount, destination: destination, callData: txData)
+        let fees = try await tronContractCallFeeProvider.getFee(amount: amount, destination: destination, callData: txData)
 
         guard let otherNativeFee, otherNativeFee > 0 else {
             return fees

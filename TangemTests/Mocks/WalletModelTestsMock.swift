@@ -198,6 +198,7 @@ final class WalletModelTestsMock: WalletModel {
     var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? { nil }
     var compiledTransactionSender: CompiledTransactionSender? { nil }
     var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? { nil }
+    var tronContractCallFeeProvider: TronContractCallFeeProvider? { nil }
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { nil }
     var ethereumNetworkProvider: EthereumNetworkProvider? { nil }
     var ethereumTransactionSigner: EthereumTransactionSigner? { nil }

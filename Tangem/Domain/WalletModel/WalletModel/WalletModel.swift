@@ -208,6 +208,7 @@ protocol WalletModelDependenciesProvider {
     var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? { get }
     var compiledTransactionSender: CompiledTransactionSender? { get }
     var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? { get }
+    var tronContractCallFeeProvider: TronContractCallFeeProvider? { get }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }
     var ethereumNetworkProvider: EthereumNetworkProvider? { get }

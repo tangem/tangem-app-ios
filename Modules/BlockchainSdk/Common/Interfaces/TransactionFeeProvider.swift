@@ -31,6 +31,10 @@ public protocol CompiledTransactionFeeProvider {
     func getFee(compiledTransaction data: Data) async throws -> [Fee]
 }
 
+public protocol TronContractCallFeeProvider {
+    func getFee(amount: Amount, destination: String, callData: Data) async throws -> [Fee]
+}
+
 public protocol GaslessTransactionFeeProvider {
     typealias YieldFeeOptions = GaslessYieldFeeOptions
 

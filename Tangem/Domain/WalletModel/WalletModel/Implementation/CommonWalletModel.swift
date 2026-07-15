@@ -643,6 +643,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? CompiledTransactionSender
     }
 
+    var tronContractCallFeeProvider: TronContractCallFeeProvider? {
+        walletManager as? TronContractCallFeeProvider
+    }
+
     var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? {
         walletManager as? BitcoinPsbtSwapSender
     }

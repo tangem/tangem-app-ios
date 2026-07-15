@@ -285,6 +285,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.compiledTransactionSender
     }
 
+    var tronContractCallFeeProvider: TronContractCallFeeProvider? {
+        mainTokenWalletModel.tronContractCallFeeProvider
+    }
+
     var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? {
         mainTokenWalletModel.bitcoinPsbtSwapSender
     }
