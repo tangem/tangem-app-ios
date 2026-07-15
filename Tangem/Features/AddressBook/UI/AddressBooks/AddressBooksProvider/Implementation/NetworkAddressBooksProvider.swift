@@ -12,20 +12,17 @@ import TangemFoundation
 
 /// Address books scoped to a single network — used by the Send destination and its "View All" screen.
 ///
-/// Each contact keeps only the entries saved on `networkId`. Since a contact name is unique only within a
-/// `walletId`, the same address can appear under different names across wallets; per spec 1.3.1 the list is
-/// de-duplicated by address, keeping the contact from the send wallet (`currentWalletId`) on a collision so
-/// its name is the one shown. Wallets left without contacts are dropped.
+/// Each contact keeps only the entries saved on `networkId`; wallets left without contacts are dropped.
+/// The same address can be saved in several wallets under different names — every copy is shown, and the
+/// wallet name rendered with the contact disambiguates them.
 final class NetworkAddressBooksProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
     private let networkId: AddressBookNetworkID
-    private let currentWalletId: UserWalletId
 
-    init(networkId: AddressBookNetworkID, currentWalletId: UserWalletId) {
+    init(networkId: AddressBookNetworkID) {
         self.networkId = networkId
-        self.currentWalletId = currentWalletId
         loadAddressBooks()
     }
 }
@@ -38,7 +35,7 @@ extension NetworkAddressBooksProvider: AddressBooksProvider {
         let perWallet = models().map { model in
             (model, model.addressBookManager.contacts.compactMap { $0.onNetwork(networkId) })
         }
-        return makeDedupedBooks(from: perWallet)
+        return makeBooks(from: perWallet)
     }
 
     var addressBooksPublisher: AnyPublisher<[AddressBookWallet], Never> {
@@ -56,7 +53,7 @@ extension NetworkAddressBooksProvider: AddressBooksProvider {
             }
             .combineLatest()
             .withWeakCaptureOf(self)
-            .map { provider, perWallet in provider.makeDedupedBooks(from: perWallet) }
+            .map { provider, perWallet in provider.makeBooks(from: perWallet) }
             .eraseToAnyPublisher()
     }
 }
@@ -77,31 +74,9 @@ private extension NetworkAddressBooksProvider {
         }
     }
 
-    /// De-duplicates contacts by their address set across wallets, keeping the copy from the send wallet on a
-    /// collision so its name wins. Wallets left with no contacts afterwards are dropped.
-    func makeDedupedBooks(from perWallet: [(UserWalletModel, [AddressBookContact])]) -> [AddressBookWallet] {
-        let currentWalletId = currentWalletId.stringValue
-        var owner: [String: String] = [:]
-
-        for (model, contacts) in perWallet {
-            let walletId = model.userWalletInfo.id.stringValue
-            for contact in contacts {
-                let key = Self.addressKey(contact)
-                switch owner[key] {
-                case .none:
-                    owner[key] = walletId
-                case .some(let existing) where existing != currentWalletId && walletId == currentWalletId:
-                    owner[key] = walletId
-                case .some:
-                    break
-                }
-            }
-        }
-
-        return perWallet.compactMap { model, contacts in
-            let walletId = model.userWalletInfo.id.stringValue
-            let kept = contacts.filter { owner[Self.addressKey($0)] == walletId }
-            guard kept.isNotEmpty else {
+    func makeBooks(from perWallet: [(UserWalletModel, [AddressBookContact])]) -> [AddressBookWallet] {
+        perWallet.compactMap { model, contacts in
+            guard contacts.isNotEmpty else {
                 return nil
             }
 
@@ -109,14 +84,10 @@ private extension NetworkAddressBooksProvider {
             return AddressBookWallet(
                 wallet: model.userWalletInfo,
                 addressBookManager: manager,
-                addressBookPublisher: Just(kept).eraseToAnyPublisher(),
+                addressBookPublisher: Just(contacts).eraseToAnyPublisher(),
                 syncStatePublisher: manager.syncStatePublisher
             )
         }
-    }
-
-    static func addressKey(_ contact: AddressBookContact) -> String {
-        Set(contact.entries.raw.map { $0.address.lowercased() }).sorted().joined(separator: "|")
     }
 }
 
