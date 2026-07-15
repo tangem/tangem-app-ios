@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemUI
 
 /// Shimmer placeholder row shown in the Portfolio Review list while data loads.
@@ -27,9 +26,7 @@ struct PortfolioTokenSkeletonRow: View {
             }
         }
         .padding(16)
-        .frame(maxWidth: .infinity)
-        .background(DesignSystem.Color.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .portfolioTokenCard()
     }
 }
 

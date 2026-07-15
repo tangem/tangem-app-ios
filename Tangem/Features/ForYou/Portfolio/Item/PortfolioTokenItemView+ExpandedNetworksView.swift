@@ -16,7 +16,6 @@ extension PortfolioTokenItemView {
             VStack(spacing: 0) {
                 ForEach(networkRows) { row in
                     RowView(data: row)
-                        .padding(16)
                 }
             }
         }

@@ -35,7 +35,6 @@ final class PortfolioReviewViewModel: ObservableObject {
             return
         }
 
-        // Toggle: adds the id if absent, removes it if present.
         expandedIds.formSymmetricDifference([id])
         state = state.expanding(expandedIds)
     }
@@ -55,7 +54,7 @@ private extension PortfolioReviewViewModel {
     }
 
     func apply(_ newState: ViewState) {
-        // Seed default expansion from the first content emission; user taps drive it afterwards.
+        // Seed expansion from the first content; user taps drive it afterwards.
         if expandedIds.isEmpty, case .content(let content) = newState {
             expandedIds = Set(content.tokenList.filter(\.isExpanded).map(\.id))
         }

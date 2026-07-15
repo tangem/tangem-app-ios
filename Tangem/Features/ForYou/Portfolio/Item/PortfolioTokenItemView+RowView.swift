@@ -27,6 +27,7 @@ extension PortfolioTokenItemView {
                     bottomLine
                 }
             }
+            .padding(16)
         }
     }
 }
@@ -108,9 +109,7 @@ extension PortfolioTokenItemView.RowView {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
 
-                Circle()
-                    .fill(DesignSystem.Color.iconTertiary)
-                    .frame(width: 4, height: 4)
+                DotSeparator(size: 4)
 
                 Text(trailing)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)

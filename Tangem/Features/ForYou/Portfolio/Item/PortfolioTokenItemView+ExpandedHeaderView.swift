@@ -35,7 +35,7 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
                     DesignSystem.Font.subheadingMediumToken,
                     color: DesignSystem.Color.textPrimary
                 )
-                dot
+                DotSeparator()
                 summary
             }
             .lineLimit(1)
@@ -59,7 +59,7 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
                 DesignSystem.Font.subheadingMediumToken,
                 color: DesignSystem.Color.textPrimary
             )
-            dot
+            DotSeparator()
             Text(percent).style(
                 DesignSystem.Font.subheadingMediumToken,
                 color: DesignSystem.Color.textSecondary
@@ -69,7 +69,7 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
                 DesignSystem.Font.subheadingMediumToken,
                 color: DesignSystem.Color.textPrimary
             )
-            dot
+            DotSeparator()
             Text(label).style(
                 DesignSystem.Font.subheadingMediumToken,
                 color: DesignSystem.Color.textStatusWarning
@@ -86,22 +86,16 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
                 isWithOverlays: false
             )
         } else {
-            Circle()
-                .fill(DesignSystem.Color.bgTertiary)
+            Assets.emptyTokenList.image
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
                 .frame(width: iconSize, height: iconSize)
         }
     }
 
-    var dot: some View {
-        Circle()
-            .fill(DesignSystem.Color.iconTertiary)
-            .frame(width: 3, height: 3)
-    }
-
     var divider: some View {
-        Rectangle()
-            .fill(DesignSystem.Color.borderSecondary)
-            .frame(height: 1)
+        Separator(color: DesignSystem.Color.borderSecondary)
             .padding(.horizontal, 16)
     }
 }

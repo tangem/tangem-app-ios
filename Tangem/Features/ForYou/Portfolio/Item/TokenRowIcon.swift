@@ -19,7 +19,6 @@ struct TokenRowIcon: View {
     var body: some View {
         content
             .overlay(alignment: .bottomTrailing) {
-                // No indicator on the empty-icon "Other" bucket.
                 if showsIndicator, iconInfo != nil {
                     indicatorDot
                 }
@@ -31,15 +30,13 @@ private extension TokenRowIcon {
     @ViewBuilder
     var content: some View {
         if let iconInfo {
-            // Overlays on: the per-network glyph shows for child rows (their info carries a network
-            // asset); aggregate rows carry a nil asset, so no glyph appears.
             TokenIcon(
                 tokenIconInfo: iconInfo,
                 size: CGSize(width: size, height: size),
                 isWithOverlays: true
             )
         } else {
-            // "Other" bucket — the empty-currency glyph (equivalent of the empty icon state).
+            // "Other" bucket — the empty-currency glyph.
             Assets.emptyTokenList.image
                 .resizable()
                 .scaledToFit()
@@ -48,8 +45,7 @@ private extension TokenRowIcon {
         }
     }
 
-    /// [REDACTED_TODO_COMMENT]
-    /// per-network indicator comes with the data pipeline. Ring uses the card fill so it "punches out".
+    // [REDACTED_TODO_COMMENT]
     var indicatorDot: some View {
         Circle()
             .fill(DesignSystem.Color.iconAccentRed)

@@ -47,16 +47,16 @@ private extension PortfolioTokenItemView {
     }
 
     func collapsedView() -> some View {
-        RowView(data: item.assetRow, showsIndicator: true)
-            .padding(16)
+        rowContent
     }
 
     var staticCard: some View {
+        rowContent
+            .portfolioTokenCard()
+    }
+
+    var rowContent: some View {
         RowView(data: item.assetRow, showsIndicator: true)
-            .padding(16)
-            .frame(maxWidth: .infinity)
-            .background(DesignSystem.Color.bgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }
 
