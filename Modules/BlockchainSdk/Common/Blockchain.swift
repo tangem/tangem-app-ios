@@ -111,6 +111,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case scroll(testnet: Bool)
     case linea(testnet: Bool)
     case monad(testnet: Bool)
+    case robinhood(testnet: Bool)
     case arbitrumNova
     case plasma(testnet: Bool)
     case adi(testnet: Bool)
@@ -174,6 +175,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .scroll(let testnet),
              .linea(let testnet),
              .monad(let testnet),
+             .robinhood(let testnet),
              .plasma(let testnet),
              .adi(let testnet):
             return testnet
@@ -359,6 +361,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .scroll,
              .linea,
              .monad,
+             .robinhood,
              .arbitrumNova,
              .plasma,
              .adi,
@@ -413,6 +416,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .zkLinkNova,
              .scroll,
              .linea,
+             .robinhood,
              .arbitrumNova:
             return "ETH"
         case .ethereumClassic:
@@ -678,6 +682,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return isTestnet ? "Quai Orchard Testnet" : "Quai Network"
         case .monad:
             return "Monad" + testnetSuffix
+        case .robinhood:
+            return "Robinhood Chain" + testnetSuffix
         case .arbitrumNova:
             return "Arbitrum Nova"
         case .adi:
@@ -977,6 +983,7 @@ public extension Blockchain {
         case .scroll: return isTestnet ? 534351 : 534352
         case .linea: return isTestnet ? 59141 : 59144
         case .monad: return isTestnet ? 10143 : 143
+        case .robinhood: return isTestnet ? 46630 : 4663
         case .arbitrumNova: return 42170
         case .plasma: return isTestnet ? 9746 : 9745
         case .adi: return isTestnet ? 99999 : 36900
@@ -1000,6 +1007,7 @@ public extension Blockchain {
              .zkLinkNova,
              .scroll,
              .linea,
+             .robinhood,
              .arbitrumNova:
             return true
         default:
@@ -1068,6 +1076,7 @@ public extension Blockchain {
         case .scroll: return true
         case .linea: return true
         case .monad: return true
+        case .robinhood: return true
         case .arbitrumNova: return true
         case .plasma: return true
         case .adi: return false // eth_feeHistory respond without reward field, further logic produces error
@@ -1239,6 +1248,7 @@ extension Blockchain: Codable {
         case .scroll: return "scroll"
         case .linea: return "linea"
         case .monad: return "monad"
+        case .robinhood: return "robinhood"
         case .arbitrumNova: return "arbitrum-nova"
         case .plasma: return "plasma"
         case .adi: return "adi-token"
@@ -1359,6 +1369,7 @@ extension Blockchain: Codable {
         case "scroll": self = .scroll(testnet: isTestnet)
         case "linea": self = .linea(testnet: isTestnet)
         case "monad": self = .monad(testnet: isTestnet)
+        case "robinhood": self = .robinhood(testnet: isTestnet)
         case "arbitrum-nova": self = .arbitrumNova
         case "plasma": self = .plasma(testnet: isTestnet)
         case "adi-token": self = .adi(testnet: isTestnet)
@@ -1663,6 +1674,11 @@ private extension Blockchain {
             }
         case .monad:
             return "monad"
+        case .robinhood:
+            switch type {
+            case .network: return "robihood"
+            case .coin: return "robinhood-ethereum"
+            }
         case .arbitrumNova:
             switch type {
             case .network: return "arbitrum-nova"
@@ -1739,6 +1755,7 @@ extension Blockchain {
              .hyperliquidEVM,
              .linea,
              .monad,
+             .robinhood,
              .arbitrumNova,
              .plasma,
              .adi,

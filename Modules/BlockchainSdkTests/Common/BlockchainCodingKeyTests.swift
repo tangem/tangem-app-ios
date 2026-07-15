@@ -23,4 +23,23 @@ struct BlockchainCodingKeyTests {
             #expect(recoveredFromCodable == $0, "\($0.displayName)")
         }
     }
+
+    @Test
+    func robinhoodConfiguration() {
+        let mainnet = Blockchain.robinhood(testnet: false)
+        let testnet = Blockchain.robinhood(testnet: true)
+
+        #expect(mainnet.chainId == 4663)
+        #expect(testnet.chainId == 46630)
+        #expect(mainnet.networkId == "robihood")
+        #expect(mainnet.coinId == "robinhood-ethereum")
+        #expect(mainnet.currencySymbol == "ETH")
+        #expect(mainnet.supportsEIP1559)
+        #expect(mainnet.isL2EthereumNetwork)
+
+        let mainnetLinks = ExternalLinkProviderFactory().makeProvider(for: mainnet)
+        let testnetLinks = ExternalLinkProviderFactory().makeProvider(for: testnet)
+        #expect(mainnetLinks.url(transaction: "hash")?.absoluteString == "https://robinhoodchain.blockscout.com/tx/hash")
+        #expect(testnetLinks.url(address: "address", contractAddress: nil)?.absoluteString == "https://explorer.testnet.chain.robinhood.com/address/address")
+    }
 }

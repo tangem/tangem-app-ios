@@ -199,6 +199,9 @@ struct NetworkImageProvider: NFTChainIconProvider {
             filled ? Tokens.lineaFill : Tokens.linea
         case .monad:
             filled ? Tokens.monadFill : Tokens.monad
+        case .robinhood:
+            // filled ? Tokens.robinhoodFill : Tokens.robinhood
+            filled ? Tokens.ethereumFill : Tokens.ethereum
         case .arbitrumNova:
             filled ? Tokens.arbitrumnovaFill : Tokens.arbitrumnova
         case .plasma:

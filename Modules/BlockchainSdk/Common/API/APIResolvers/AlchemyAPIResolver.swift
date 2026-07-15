@@ -27,6 +27,8 @@ struct AlchemyAPIResolver {
         switch blockchain {
         case .adi(let testnet):
             return testnet ? "adi-testnet" : "adi-mainnet"
+        case .robinhood(let testnet):
+            return testnet ? "robinhood-testnet" : nil
         default:
             return nil
         }

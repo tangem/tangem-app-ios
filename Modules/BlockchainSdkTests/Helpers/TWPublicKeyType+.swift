@@ -82,6 +82,7 @@ extension PublicKeyType {
              .scroll,
              .linea,
              .monad,
+             .robinhood,
              .arbitrumNova,
              .plasma,
              .adi,
