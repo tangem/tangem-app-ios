@@ -150,6 +150,7 @@ private extension OnrampModelUnsupportedTokenTests {
             analyticsLogger: analytics,
             autoupdatingTimer: AutoupdatingTimer(),
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
+            transactionHistoryEnricherFactory: { nil },
             predefinedValues: .init(amount: nil),
             isHistoryFallbackEnabled: true
         )

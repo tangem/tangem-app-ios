@@ -74,8 +74,6 @@ struct MarketsTokenDetailsExchangeItemViewRedesign: View {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview {
     VStack(spacing: 0) {
         MarketsTokenDetailsExchangeItemViewRedesign(info: MarketsTokenDetailsExchangeItemInfo(
@@ -107,5 +105,3 @@ struct MarketsTokenDetailsExchangeItemViewRedesign: View {
     }
     .padding()
 }
-
-#endif // DEBUG

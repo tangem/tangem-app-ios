@@ -45,6 +45,14 @@ final class SendCoordinator: CoordinatorObject {
         willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
     }
 
+    @Published var addressBooksCoordinator: AddressBooksCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
+    @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
     // MARK: - Child view models
 
     @Published var expressApproveViewModel: ApproveViewModel? {
@@ -157,6 +165,7 @@ extension SendCoordinator {
 
     enum DismissOptions {
         case openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
+        case openSwap(SwapNavigatingDismissOption)
         case closeButtonTap
     }
 }
@@ -204,6 +213,15 @@ extension SendCoordinator: SendRoutable {
         AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 
+    func openAddContact(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {
+        let coordinator = AddressBookContactManagementCoordinator(
+            dismissAction: { [weak self] _ in self?.contactManagementCoordinator = nil },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .add(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries))
+        contactManagementCoordinator = coordinator
+    }
+
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {
         dismiss(with: .openFeeCurrency(feeCurrency: feeCurrency))
     }
@@ -236,9 +254,13 @@ extension SendCoordinator: SendRoutable {
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?) {
         let coordinator = SendReceiveTokenCoordinator(
             receiveTokensListBuilder: tokensListBuilder,
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] swapOption in
                 self?.sendReceiveTokenCoordinator = nil
                 onDismiss?()
+
+                if let swapOption {
+                    self?.dismiss(with: .openSwap(swapOption))
+                }
             }, popToRootAction: popToRootAction
         )
 
@@ -303,6 +325,35 @@ extension SendCoordinator: SendDestinationRoutable {
         qrScanViewCoordinator.start(with: options)
 
         self.qrScanViewCoordinator = qrScanViewCoordinator
+    }
+
+    func openAddressBookChooseAddress(contact: AddressBookContact, output: ChooseAddressOutput) {
+        let viewModel = ChooseAddressViewModel(groups: contact.entries.groupedByAddress, router: self) { [weak output] group in
+            output?.chooseAddressDidSelect(group, of: contact)
+        }
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openAddressBookViewAll(provider: any AddressBooksProvider, output: AddressBooksSelectionOutput) {
+        let coordinator = AddressBooksCoordinator(
+            dismissAction: { [weak self] _ in self?.addressBooksCoordinator = nil },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(addressBooksProvider: provider, selectionOutput: output))
+        addressBooksCoordinator = coordinator
+    }
+}
+
+// MARK: - ChooseAddressRoutable
+
+extension SendCoordinator: ChooseAddressRoutable {
+    func dismissChooseAddress() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
