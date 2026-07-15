@@ -8,7 +8,6 @@
 
 import Foundation
 import SwiftUI
-import Combine
 import TangemAccounts
 import TangemAssets
 import TangemUI
@@ -17,10 +16,14 @@ import TangemLocalization
 
 final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Injected(\.cryptoAccountsGlobalStateProvider) private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
-    @Published private(set) var viewState: ViewState = .idle
-    @Published private(set) var selectedTokenRowViewModel: TokenSelectorItemViewModel?
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    let campaignId: String
+    @Published private(set) var viewState: ViewState = .idle
+    @Published var tokenSelectorViewModel: CampaignTokenSelectorViewModel?
+    @Published private(set) var selectedTokenRowViewModel: TokenSelectorItemViewModel?
+    @Published private(set) var isEnrolling = false
+
+    private let campaignId: String
 
     var selectedTokenNetworkName: String {
         selectedToken?.tokenItem.networkName ?? ""
@@ -85,21 +88,25 @@ final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
     }
 
     private let cashbackPromoService: CashbackPromoService
+    private let analyticsLogger: CampaignAnalyticsLogger?
     private weak var coordinator: CampaignRoutable?
 
     private var campaign: CampaignBannerData?
     private var selectedToken: TokenSelectorItem?
     private var campaignLoadTask: Task<Void, Never>?
+    private var enrollTask: Task<Void, Never>?
 
     init(
         campaignId: String,
         coordinator: CampaignRoutable?,
         cashbackPromoService: CashbackPromoService,
+        analyticsLogger: CampaignAnalyticsLogger?,
         initialState: ViewState = .idle
     ) {
         self.campaignId = campaignId
         self.coordinator = coordinator
         self.cashbackPromoService = cashbackPromoService
+        self.analyticsLogger = analyticsLogger
         viewState = initialState
     }
 
@@ -123,6 +130,7 @@ final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
 
     func close() {
         campaignLoadTask?.cancel()
+        enrollTask?.cancel()
         coordinator?.closeCampaign()
     }
 
@@ -142,9 +150,65 @@ final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
         coordinator?.openLearnMore(url: termsURL)
     }
 
-    func enroll() {}
+    func enroll() {
+        guard
+            !isEnrolling,
+            let selectedToken,
+            let walletModel = selectedToken.kind.walletModel,
+            let tokenAddress = selectedToken.tokenItem.contractAddress
+        else {
+            return
+        }
 
-    func selectToken() {}
+        analyticsLogger?.logEnrollButtonClicked(tokenItem: selectedToken.tokenItem)
+
+        let registration = CashbackRegistration(
+            campaignId: campaignId,
+            walletIds: userWalletRepository.models.filter { !$0.isUserWalletLocked }.map(\.userWalletId.stringValue),
+            tokenReward: CashbackRegistration.TokenReward(
+                networkId: selectedToken.tokenItem.networkId,
+                userAddress: walletModel.defaultAddressString,
+                tokenAddress: tokenAddress,
+                tokenId: selectedToken.tokenItem.id
+            )
+        )
+
+        isEnrolling = true
+
+        enrollTask = runTask(in: self) { viewModel in
+            do {
+                let result = try await viewModel.cashbackPromoService.register(registration)
+
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                await viewModel.handleRegistration(result)
+            } catch {
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                await viewModel.handleRegistrationError()
+            }
+        }
+    }
+
+    func selectToken() {
+        guard let campaign else {
+            return
+        }
+
+        tokenSelectorViewModel = CampaignTokenSelectorViewModel(
+            eligibleTokens: campaign.eligibleTokens,
+            onSelect: { [weak self] item in
+                self?.handleSelectedToken(item)
+            },
+            onClose: { [weak self] in
+                self?.tokenSelectorViewModel = nil
+            }
+        )
+    }
 }
 
 // MARK: - Private
@@ -179,12 +243,33 @@ private extension CampaignViewModel {
 
         self.campaign = campaign
         viewState = .summary
+        analyticsLogger?.logPromotionScreenOpened()
+    }
+
+    @MainActor
+    func handleRegistration(_ result: CashbackRegistrationResult) {
+        isEnrolling = false
+
+        switch result {
+        case .registered:
+            viewState = .enrollSuccess
+        case .alreadyEnrolled:
+            viewState = .alreadyActivated
+            analyticsLogger?.logAlreadyEnrolledScreenOpened()
+        }
+    }
+
+    @MainActor
+    func handleRegistrationError() {
+        isEnrolling = false
+        coordinator?.presentErrorToast(with: Localization.commonSomethingWentWrong)
     }
 
     func handleSelectedToken(_ item: TokenSelectorItem) {
         selectedToken = item
         selectedTokenRowViewModel = TokenSelectorItemViewModelBuilder(availabilityProvider: AvailableTokenSelectorItemAvailabilityProvider())
             .mapToTokenSelectorItemViewModel(item: item, action: {})
+        tokenSelectorViewModel = nil
         viewState = .readyToEnroll
     }
 }
