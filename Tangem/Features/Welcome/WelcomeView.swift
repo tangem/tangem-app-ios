@@ -22,8 +22,6 @@ struct WelcomeView: View {
     }
 }
 
-struct WelcomeOnboardingView_Previews: PreviewProvider {
-    static var previews: some View {
-        WelcomeView(viewModel: WelcomeViewModel(coordinator: WelcomeCoordinator(), storiesModel: .init()))
-    }
+#Preview {
+    WelcomeView(viewModel: WelcomeViewModel(coordinator: WelcomeCoordinator(), storiesModel: .init()))
 }

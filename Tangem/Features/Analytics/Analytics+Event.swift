@@ -185,6 +185,8 @@ extension Analytics {
         case sendSwapErrorExpressQuote = "[Token / Send] Error - Express quote"
         case sendSendWithSwapAmountScreenOpened = "[Token / Send] Send With Swap Amount Screen Opened"
         case sendNoticeCantSwapThisToken = "[Token / Send] Notice - Can't Swap This Token"
+        case sendNoticeSwapAvailable = "[Token / Send] Notice - Swap Available"
+        case sendNoticeSwapAvailableClicked = "[Token / Send] Notice - Swap Available Clicked"
         case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
         case sendNoticeNetworkFeeCoverage = "[Token / Send] Notice - Network Fee Coverage"
         case sendButtonSendWithSwap = "[Token / Send] Button - Send with Swap"
@@ -454,6 +456,10 @@ extension Analytics {
         case promotionButtonJoinNow = "[Promotion] Button - Join Now"
         case promotionButtonClose = "[Promotion] Button - Close"
 
+        case promotionScreenOpened = "[Promotion] Promotion Screen Opened"
+        case promotionEnrollButtonClicked = "[Promotion] Enroll Button Clicked"
+        case promotionAlreadyEnrolledScreenOpened = "[Promotion] Already Enrolled Screen Opened"
+
         // MARK: - Promotion Banner
 
         case promotionBannerBannerShown = "[Promo Banner] Banner Shown"
@@ -523,6 +529,7 @@ extension Analytics {
         case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
         case stakingPermissionScreenOpened = "[Staking] Permission Screen Opened"
+        case stakingScamVerification = "[Staking] Scam Verification"
 
         // MARK: - Markets
 
@@ -786,8 +793,6 @@ extension Analytics {
 
         case visaCardIconClicked = "[Visa Card Management] Visa Card Icon Clicked"
         case visaAddExtraCardClicked = "[Visa Card Management] Visa Add Extra Card Clicked"
-        case visaFakedoorPopupDisplayed = "[Visa Card Management] Visa Fakedoor Popup Displayed"
-        case visaFakedoorGotitClicked = "[Visa Card Management] Visa Fakedoor Gotit Clicked"
         case visaExtraCardIssuancePopupDisplayed = "[Visa Screen] Visa Extra Card Issuance Popup Displayed"
         case visaExtraCardIssuanceConfirmed = "[Visa Screen] Visa Extra Card Issuance Confirmed"
 
@@ -863,5 +868,23 @@ extension Analytics {
         case initialTokenSyncCompleted = "[Token Sync] Sync Completed"
         case initialTokenSyncButtonClosed = "[Token Sync] Button - Close Banner"
         case initialTokenSyncManageTokens = "[Token Sync] Button - Manage Tokens"
+
+        // MARK: - Address Book
+
+        case addressBookContactListScreenOpened = "[Address Book] Contact List Screen Opened"
+        case addressBookAddContactTapped = "[Address Book] Add Contact Tapped"
+        case addressBookContactScreenOpened = "[Address Book] Contact Screen Opened"
+        case addressBookButtonSaveTo = "[Address Book] Button - Save To"
+        case addressBookContactSaved = "[Address Book] Contact Saved"
+        case addressBookSaveErrorShown = "[Address Book] Save Error Shown"
+        case addressBookAddressScreenOpened = "[Address Book] Address Screen Opened"
+        case addressBookAddressInvalid = "[Address Book] Address Invalid"
+        case addressBookDuplicateNameErrorShown = "[Address Book] Duplicate Name Error Shown"
+        case addressBookAddressRemoved = "[Address Book] Address Removed"
+        case addressBookContactDeleted = "[Address Book] Contact Deleted"
+        case addressBookSendFlowWidgetShown = "[Address Book] Send Flow Widget Shown"
+        case addressBookContactSelected = "[Address Book] Contact Selected"
+        case addressBookAddressSubstitutedInSend = "[Address Book] Address Substituted In Send"
+        case addressBookSelectAllNetworksTapped = "[Address Book] Select All Networks Tapped"
     }
 }
