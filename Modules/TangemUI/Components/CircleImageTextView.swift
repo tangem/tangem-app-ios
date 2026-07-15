@@ -29,8 +29,6 @@ public struct CircleImageTextView: View {
     }
 }
 
-struct TokenImage_Previews: PreviewProvider {
-    static var previews: some View {
-        CircleImageTextView(name: "Aave (OLD)", color: .gray, size: CGSize(bothDimensions: 40))
-    }
+#Preview {
+    CircleImageTextView(name: "Aave (OLD)", color: .gray, size: CGSize(bothDimensions: 40))
 }
