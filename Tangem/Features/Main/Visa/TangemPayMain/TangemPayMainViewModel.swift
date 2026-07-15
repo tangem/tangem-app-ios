@@ -162,9 +162,13 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     private var isBankTransferAvailable: Bool {
-        FeatureProvider.isAvailable(.tangemPayVirtualAccount)
-            && tangemPayAccount.isKYCApproved
-            && tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
+        guard FeatureProvider.isAvailable(.tangemPayVirtualAccount), tangemPayAccount.isKYCApproved else {
+            return false
+        }
+
+        // Eligibility only gates issuing a brand-new VA. An already-issued one stays reachable.
+        return tangemPayAccount.hasVirtualAccount
+            || tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
     }
 
     func addFunds() {
