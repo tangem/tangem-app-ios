@@ -21,6 +21,7 @@ struct FloatingSheetContainerView<HeaderContent: View, DescriptionContent: View,
     private let buttonContent: ButtonContent
     private let showsButton: Bool
     private let maxHeightFraction: CGFloat?
+    private let mainContentBottomPadding: CGFloat?
     private let verticalSwipeBehavior: FloatingSheetConfiguration.VerticalSwipeBehavior?
 
     // MARK: - Init
@@ -29,6 +30,7 @@ struct FloatingSheetContainerView<HeaderContent: View, DescriptionContent: View,
         state: AnyHashable,
         showsButton: Bool = true,
         maxHeightFraction: CGFloat? = nil,
+        mainContentBottomPadding: CGFloat? = nil,
         verticalSwipeBehavior: FloatingSheetConfiguration.VerticalSwipeBehavior? = nil,
         @ViewBuilder button: () -> ButtonContent,
         @ViewBuilder headerContent: () -> HeaderContent = { EmptyView() },
@@ -38,6 +40,7 @@ struct FloatingSheetContainerView<HeaderContent: View, DescriptionContent: View,
         self.state = state
         self.showsButton = showsButton
         self.maxHeightFraction = maxHeightFraction
+        self.mainContentBottomPadding = mainContentBottomPadding
         self.verticalSwipeBehavior = verticalSwipeBehavior
         buttonContent = button()
         self.headerContent = headerContent()
@@ -66,7 +69,7 @@ struct FloatingSheetContainerView<HeaderContent: View, DescriptionContent: View,
         ScrollView {
             mainContentView
                 .padding(.top, Constants.standardSpacing)
-                .padding(.bottom, showsButton ? Constants.mainContentViewBottomPadding : .zero)
+                .padding(.bottom, showsButton ? (mainContentBottomPadding ?? Constants.mainContentViewBottomPadding) : .zero)
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) {
             buttonView
