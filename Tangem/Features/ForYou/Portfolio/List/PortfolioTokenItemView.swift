@@ -16,46 +16,62 @@ struct PortfolioTokenItemView: View {
     let onAssetTap: (String) -> Void
 
     var body: some View {
-        content
-            .frame(maxWidth: .infinity)
-            .background(DesignSystem.Color.bgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        if item.isExpandable {
+            expandableCard
+        } else {
+            staticCard
+        }
     }
 }
 
 private extension PortfolioTokenItemView {
-    // MARK: - Content
+    // MARK: - Expandable asset group
 
-    @ViewBuilder
-    var content: some View {
-        if item.isExpanded {
-            ExpandedRowView(
-                assetRow: item.assetRow,
-                networkRows: item.networkRows,
-                onToggle: toggle
-            )
-        } else {
-            collapsedRow
-                .transition(.opacity)
-        }
+    /// Reuses the shared `ExpandableItemView` (as on the main screen) for the collapse/expand
+    /// mechanics, animation and haptics — we only supply the row content.
+    var expandableCard: some View {
+        ExpandableItemView(
+            isExpanded: item.isExpanded,
+            backgroundColor: DesignSystem.Color.bgSecondary,
+            cornerRadius: Constants.cornerRadius,
+            expandedViewTransition: Constants.expandedContentTransition,
+            collapsedView: {
+                RowView(data: item.assetRow, showsIndicator: true)
+                    .padding(16)
+            },
+            expandedView: {
+                ExpandedNetworksView(networkRows: item.networkRows)
+            },
+            expandedViewHeader: {
+                ExpandedHeaderView(assetRow: item.assetRow)
+            },
+            onExpandedChange: { _ in onAssetTap(item.id) }
+        )
     }
 
-    // MARK: - Collapsed aggregate row
+    // MARK: - Non-expandable card ("Other", single-network assets, loading skeletons)
 
-    var collapsedRow: some View {
+    var staticCard: some View {
         RowView(data: item.assetRow, showsIndicator: true)
             .padding(16)
-            .contentShape(Rectangle())
-            .onTapGesture(perform: toggle)
+            .frame(maxWidth: .infinity)
+            .background(DesignSystem.Color.bgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
     }
+}
 
-    // MARK: - Actions
+// MARK: - Constants
 
-    func toggle() {
-        guard item.isExpandable else { return }
+private extension PortfolioTokenItemView {
+    enum Constants {
+        static let cornerRadius: CGFloat = 24
 
-        withAnimation(.easeInOut(duration: 0.3)) {
-            onAssetTap(item.id)
+        /// Matches the main-screen expandable item (`ExpandableAccountItemView`).
+        static var expandedContentTransition: AnyTransition {
+            .asymmetric(
+                insertion: .offset(y: 20).combined(with: .opacity),
+                removal: .opacity
+            )
         }
     }
 }
@@ -85,6 +101,57 @@ private extension PortfolioTokenItemView {
             ),
             networkRows: [],
             isExpanded: false,
+            isExpandable: true
+        ),
+        onAssetTap: { _ in }
+    )
+    .padding(16)
+}
+
+#Preview("Expanded") {
+    func icon(_ id: String, network: ImageType? = nil) -> TokenIconInfo {
+        TokenIconInfo(
+            name: "",
+            blockchainIconAsset: network,
+            imageURL: IconURLBuilder().tokenIconURL(id: id),
+            isCustom: false,
+            customTokenColor: nil
+        )
+    }
+
+    return PortfolioTokenItemView(
+        item: ForYouTokenListItem(
+            id: "eth",
+            assetRow: ForYouTokenRowData(
+                id: "eth",
+                isLoading: false,
+                symbol: "Ethereum",
+                tokenIconInfo: icon("ethereum"),
+                sentiment: .negative,
+                subtitle: .text("2 networks"),
+                end: .values(fiat: "$5,231", percent: "25.94%")
+            ),
+            networkRows: [
+                ForYouTokenRowData(
+                    id: "eth-mainnet",
+                    isLoading: false,
+                    symbol: "ETH",
+                    tokenIconInfo: icon("ethereum", network: Tokens.ethereumFill),
+                    sentiment: .negative,
+                    subtitle: .dotted("Ethereum", "1.24 ETH"),
+                    end: .values(fiat: "$3,980", percent: "19.73%")
+                ),
+                ForYouTokenRowData(
+                    id: "eth-arbitrum",
+                    isLoading: false,
+                    symbol: "ETH",
+                    tokenIconInfo: icon("ethereum", network: Tokens.arbitrumFill),
+                    sentiment: .positive,
+                    subtitle: .dotted("Arbitrum", "0.31 ETH"),
+                    end: .values(fiat: "$995", percent: "4.93%")
+                ),
+            ],
+            isExpanded: true,
             isExpandable: true
         ),
         onAssetTap: { _ in }
