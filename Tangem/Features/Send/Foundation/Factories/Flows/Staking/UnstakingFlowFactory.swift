@@ -236,7 +236,7 @@ extension UnstakingFlowFactory: SendFinishStepBuildable {
 private extension UnstakingFlowFactory {
     func makeSendAmountValidator() -> SendAmountValidator {
         switch tokenItem.blockchain {
-        case .solana where FeatureProvider.isAvailable(.solanaUnstakeValidation):
+        case .solana:
             return SolanaUnstakingAmountValidator(
                 stakedAmount: action.amount,
                 stakingManagerStatePublisher: manager.statePublisher
