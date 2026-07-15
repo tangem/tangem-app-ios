@@ -353,6 +353,10 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .coinsSettings, decoder: decoder)
     }
 
+    func loadCoinIndicators(requestModel: CoinIndicatorsDTO.Request) async throws -> CoinIndicatorsDTO.Response {
+        try await request(for: .coinIndicators(requestModel), decoder: decoder)
+    }
+
     // MARK: - Action Buttons
 
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {

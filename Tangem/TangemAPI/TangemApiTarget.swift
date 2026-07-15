@@ -108,6 +108,8 @@ struct TangemApiTarget: TargetType {
         // MARK: - Coins paths
         case .coinsSettings:
             return "/coins/settings"
+        case .coinIndicators:
+            return "/coins/indicators"
 
         // MARK: - Action Buttons
         case .hotCrypto:
@@ -201,6 +203,7 @@ struct TangemApiTarget: TargetType {
              .earnYieldMarkets,
              .earnNetworks,
              .coinsSettings,
+             .coinIndicators,
              .story,
              .pushNotificationsEligible,
              .getUserAccounts,
@@ -309,6 +312,8 @@ struct TangemApiTarget: TargetType {
         // MARK: - Coins tasks
         case .coinsSettings:
             return .requestPlain
+        case .coinIndicators(let requestModel):
+            return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
 
         // MARK: - News tasks
         case .hotCrypto(let requestModel):
@@ -423,6 +428,7 @@ struct TangemApiTarget: TargetType {
              .earnYieldMarkets,
              .earnNetworks,
              .coinsSettings,
+             .coinIndicators,
              .apiList,
              .pushNotificationsEligible,
              .createUserWalletsApplication,
@@ -496,6 +502,7 @@ extension TangemApiTarget {
         // MARK: - Coins Targets
 
         case coinsSettings
+        case coinIndicators(_ requestModel: CoinIndicatorsDTO.Request)
 
         // MARK: - Action Buttons
 
@@ -575,6 +582,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .tokenExchangesList,
              .earnYieldMarkets,
              .earnNetworks,
+             .coinIndicators,
              .story,
              .rawData,
              .hotCrypto,
