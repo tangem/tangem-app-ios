@@ -26,10 +26,10 @@ private extension CryptoCurrenciesCacheTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                table: Constants.cryptoCurrenciesCacheTableName,
                 options: [
                     .ifNotExists,
                 ]
+                table: Constants.tableName
             ) { table in
                 table.primaryKey([
                     Constants.networkIDColumnName,
@@ -51,7 +51,7 @@ private extension CryptoCurrenciesCacheTable {
 
             try database.create(
                 index: "idxCryptoCurrId",
-                on: Constants.cryptoCurrenciesCacheTableName,
+                on: Constants.tableName,
                 columns: [
                     Constants.idColumnName,
                 ],
@@ -65,12 +65,12 @@ private extension CryptoCurrenciesCacheTable {
 
 // MARK: - Constants
 
-private extension CryptoCurrenciesCacheTable {
+extension CryptoCurrenciesCacheTable {
     /// - Note: only names used twice or more are extracted to constants.
     enum Constants {
-        static let cryptoCurrenciesCacheTableName = "cryptoCurrenciesCache"
-        static let idColumnName = "id"
-        static let networkIDColumnName = "networkID"
-        static let contractAddressColumnName = "contractAddress"
+        static let tableName = "cryptoCurrenciesCache"
+        fileprivate static let idColumnName = "id"
+        fileprivate static let networkIDColumnName = "networkID"
+        fileprivate static let contractAddressColumnName = "contractAddress"
     }
 }
