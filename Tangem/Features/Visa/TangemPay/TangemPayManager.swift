@@ -41,23 +41,18 @@ final class TangemPayManager: TangemPayAccountModel {
     var lastKnownTangemPayAccount: TangemPayAccount? {
         guard
             let cached = customerInfoCacheStorage.cachedCustomerInfo(customerWalletId: customerWalletId),
-            let productInstance = cached.productInstance
+            !cached.productInstances.isEmpty
         else {
             return nil
         }
         return tangemPayAccountBuilder.makeTangemPayAccount(
             customerInfo: cached,
-            productInstance: productInstance,
             account: self
         )
     }
 
     private var customerWalletId: String {
         userWalletId.stringValue
-    }
-
-    private var multipleCardsEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayMultipleCards)
     }
 
     @Injected(\.tangemPayAssembly)
@@ -223,11 +218,8 @@ final class TangemPayManager: TangemPayAccountModel {
             }
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
-        case .enrolled(let customerInfo, let productInstance):
-            let account = makePaymentAccount(
-                customerInfo: customerInfo,
-                productInstance: productInstance
-            )
+        case .enrolled(let customerInfo, _):
+            let account = makePaymentAccount(customerInfo: customerInfo)
             customerInfoCacheStorage.saveCachedCustomerInfo(
                 customerInfo,
                 customerWalletId: customerWalletId
@@ -235,11 +227,8 @@ final class TangemPayManager: TangemPayAccountModel {
             stateSubject.value = .tangemPayAccount(account)
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
-        case .cardDeactivated(let customerInfo, let productInstance):
-            let account = makePaymentAccount(
-                customerInfo: customerInfo,
-                productInstance: productInstance
-            )
+        case .cardDeactivated(let customerInfo, _):
+            let account = makePaymentAccount(customerInfo: customerInfo)
             stateSubject.value = .cardDeactivated(account)
 
         case .kycRequired(let productInstanceExists):
@@ -359,30 +348,24 @@ final class TangemPayManager: TangemPayAccountModel {
     }
 
     private func makePaymentAccount(
-        customerInfo: VisaCustomerInfoResponse,
-        productInstance: VisaCustomerInfoResponse.ProductInstance
+        customerInfo: VisaCustomerInfoResponse
     ) -> TangemPayAccount {
         orderStatusPollingService.cancel()
         orderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
         let account = tangemPayAccountBuilder.makeTangemPayAccount(
             customerInfo: customerInfo,
-            productInstance: productInstance,
             account: self
         )
         runTask {
             await account.loadBalance()
         }
-        if multipleCardsEnabled {
-            runTask {
-                await account.resumeAdditionalCardIssuePolling()
-            }
+        runTask {
+            await account.resumeAdditionalCardIssuePolling()
         }
         return account
     }
 
     private func observeAppLifecycle() {
-        guard multipleCardsEnabled else { return }
-
         NotificationCenter.default
             .publisher(for: UIApplication.willEnterForegroundNotification)
             .sink { [weak self] _ in

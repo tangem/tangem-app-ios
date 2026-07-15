@@ -36,8 +36,7 @@ final class TangemPayBuilder {
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
-        customerService: customerService,
-        multipleCardsEnabled: FeatureProvider.isAvailable(.tangemPayMultipleCards)
+        customerService: customerService
     )
 
     private lazy var tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
@@ -104,13 +103,11 @@ final class TangemPayBuilder {
 extension TangemPayBuilder: TangemPayAccountBuilder {
     func makeTangemPayAccount(
         customerInfo: VisaCustomerInfoResponse,
-        productInstance: VisaCustomerInfoResponse.ProductInstance,
         account: (any TangemPayAccountModel)?
     ) -> TangemPayAccount {
         TangemPayAccount(
             userWalletId: userWalletId,
             customerInfo: customerInfo,
-            productInstance: productInstance,
             customerService: customerService,
             balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService,

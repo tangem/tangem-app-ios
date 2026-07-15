@@ -14,10 +14,6 @@ import TangemVisa
 final class TangemPayAccount {
     static let maxCardsAllowed = 3
 
-    private var multipleCardsEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayMultipleCards)
-    }
-
     var paymentTokenItem: TokenItem {
         TangemPayUtilities.usdcTokenItem
     }
@@ -91,58 +87,6 @@ final class TangemPayAccount {
         cardsSubject.value.filter { $0.productInstance.status == .active || $0.productInstance.status == .blocked }
     }
 
-    // MARK: - Legacy single-card surface
-
-    var statusPublisher: AnyPublisher<VisaCustomerInfoResponse.ProductStatus, Never> {
-        legacyCustomerInfoSubject
-            .map(\.productInstance.status)
-            .eraseToAnyPublisher()
-    }
-
-    var card: VisaCustomerInfoResponse.Card? {
-        legacyCustomerInfoSubject.value.customerInfo.cardIfActiveOrBlocked
-    }
-
-    var cardPublisher: AnyPublisher<VisaCustomerInfoResponse.Card?, Never> {
-        legacyCustomerInfoSubject
-            .map(\.customerInfo.cardIfActiveOrBlocked)
-            .eraseToAnyPublisher()
-    }
-
-    var cardDisplayNamePublisher: AnyPublisher<String, Never> {
-        legacyCustomerInfoSubject
-            .map { $0.productInstance.displayName ?? "" }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-
-    var cardLimit: Int? {
-        legacyCustomerInfoSubject.value.productInstance.actualCardLimit?.amount
-    }
-
-    var adminCardLimit: Int {
-        legacyCustomerInfoSubject.value.productInstance.adminCardLimit.amount
-    }
-
-    var cardLimitPublisher: AnyPublisher<Int?, Never> {
-        legacyCustomerInfoSubject
-            .map { $0.productInstance.actualCardLimit?.amount }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-
-    var isReissuingCardPublisher: AnyPublisher<Bool, Never> {
-        isReissuingCardSubject.eraseToAnyPublisher()
-    }
-
-    var isReissuingCard: Bool {
-        isReissuingCardSubject.value
-    }
-
-    var cardId: String {
-        legacyCustomerInfoSubject.value.productInstance.cardId ?? ""
-    }
-
     // MARK: - Shared signals
 
     var syncNeededSignalPublisher: AnyPublisher<Void, Never> {
@@ -156,15 +100,11 @@ final class TangemPayAccount {
     // MARK: - Shared, dispatched
 
     var customerId: String {
-        multipleCardsEnabled
-            ? customerInfoSubject.value.id
-            : legacyCustomerInfoSubject.value.customerInfo.id
+        customerInfoSubject.value.id
     }
 
     var depositAddress: String? {
-        multipleCardsEnabled
-            ? customerInfoSubject.value.depositAddress
-            : legacyCustomerInfoSubject.value.customerInfo.depositAddress
+        customerInfoSubject.value.depositAddress
     }
 
     var customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan? {
@@ -172,9 +112,7 @@ final class TangemPayAccount {
     }
 
     private var currentCustomerInfo: VisaCustomerInfoResponse {
-        multipleCardsEnabled
-            ? customerInfoSubject.value
-            : legacyCustomerInfoSubject.value.customerInfo
+        customerInfoSubject.value
     }
 
     // MARK: - Virtual Account
@@ -193,20 +131,11 @@ final class TangemPayAccount {
     }
 
     var isDeactivated: Bool {
-        multipleCardsEnabled ? isDeactivatedNew : isDeactivatedLegacy
-    }
-
-    private var isDeactivatedNew: Bool {
         let info = customerInfoSubject.value
         if info.state == .former { return true }
         let cardInstances = info.cardProductInstances
         return !cardInstances.isEmpty &&
             cardInstances.allSatisfy { $0.status == .deactivated || $0.status == .canceled }
-    }
-
-    private var isDeactivatedLegacy: Bool {
-        let value = legacyCustomerInfoSubject.value
-        return value.customerInfo.state == .former || value.productInstance.status == .deactivated
     }
 
     // MARK: - Withdraw
@@ -231,7 +160,6 @@ final class TangemPayAccount {
     private let orderResolver: TangemPayOrderResolver
 
     private let customerInfoSubject: CurrentValueSubject<VisaCustomerInfoResponse, Never>
-    private let legacyCustomerInfoSubject: CurrentValueSubject<(customerInfo: VisaCustomerInfoResponse, productInstance: VisaCustomerInfoResponse.ProductInstance), Never>
     private let cardsSubject = CurrentValueSubject<[TangemPayCard], Never>([])
     private let offersSubject = CurrentValueSubject<[TangemPayCustomerOffer], Never>([])
     private let activeIssueOrdersSubject = CurrentValueSubject<[TangemPayOrderResponse], Never>([])
@@ -241,7 +169,6 @@ final class TangemPayAccount {
     private let resumeIssuePollingProcessor = SingleTaskProcessor<Void, Never>()
     private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
     private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
-    private let isReissuingCardSubject = CurrentValueSubject<Bool, Never>(false)
     private let cardIssueFailureSubject = PassthroughSubject<Void, Never>()
     private let cardIssueCompletedSubject = PassthroughSubject<Void, Never>()
 
@@ -250,8 +177,7 @@ final class TangemPayAccount {
     /// The VA order is polled on its own instance so it can't be cancelled by (or cancel) the shared
     /// `orderStatusPollingService`, which is single-slot and reused for freeze/reissue/card-issue.
     private lazy var virtualAccountOrderPollingService = TangemPayOrderStatusPollingService(
-        customerService: customerService,
-        multipleCardsEnabled: multipleCardsEnabled
+        customerService: customerService
     )
 
     private var bag = Set<AnyCancellable>()
@@ -259,7 +185,6 @@ final class TangemPayAccount {
     init(
         userWalletId: UserWalletId,
         customerInfo: VisaCustomerInfoResponse,
-        productInstance: VisaCustomerInfoResponse.ProductInstance,
         customerService: any CustomerInfoManagementService,
         balancesService: any TangemPayBalancesService,
         withdrawTransactionService: any TangemPayWithdrawTransactionService,
@@ -273,7 +198,6 @@ final class TangemPayAccount {
     ) {
         self.userWalletId = userWalletId
         customerInfoSubject = CurrentValueSubject(customerInfo)
-        legacyCustomerInfoSubject = CurrentValueSubject((customerInfo, productInstance))
         self.customerService = customerService
         self.balancesService = balancesService
         self.withdrawTransactionService = withdrawTransactionService
@@ -285,11 +209,9 @@ final class TangemPayAccount {
         self.feeRepository = feeRepository
         self.account = account
 
-        if multipleCardsEnabled {
-            bindActiveIssueOrderEvents()
-            cardsSubject.send(rebuildingCards(from: customerInfo, existing: []))
-            observeCardRefreshSignals()
-        }
+        bindActiveIssueOrderEvents()
+        cardsSubject.send(rebuildingCards(from: customerInfo, existing: []))
+        observeCardRefreshSignals()
     }
 
     func loadBalance() async {
@@ -297,11 +219,7 @@ final class TangemPayAccount {
     }
 
     func loadCustomerInfo() async {
-        if multipleCardsEnabled {
-            await loadCustomerInfoNew()
-        } else {
-            await loadCustomerInfoLegacy()
-        }
+        await loadCustomerInfoNew()
     }
 
     func card(cardId: String) -> TangemPayCard? {
@@ -309,15 +227,11 @@ final class TangemPayAccount {
     }
 
     func cardDisplayName(forCardId cardId: String) -> String? {
-        multipleCardsEnabled
-            ? card(cardId: cardId)?.displayName
-            : legacyCustomerInfoSubject.value.productInstance.displayName?.nilIfEmpty
+        card(cardId: cardId)?.displayName
     }
 
     func cardNumberEnd(forCardId cardId: String) -> String? {
-        multipleCardsEnabled
-            ? card(cardId: cardId)?.cardNumberEnd
-            : legacyCustomerInfoSubject.value.customerInfo.card?.cardNumberEnd
+        card(cardId: cardId)?.cardNumberEnd
     }
 }
 
@@ -384,135 +298,9 @@ extension TangemPayAccount {
     }
 }
 
-// MARK: - Legacy single-card flow
-
-extension TangemPayAccount {
-    func getPin() async throws -> String {
-        let publicKey = try await RainCryptoUtilities
-            .getRainRSAPublicKey(for: FeatureStorage.instance.visaAPIType)
-
-        let (secretKey, sessionId) = try RainCryptoUtilities
-            .generateSecretKeyAndSessionId(publicKey: publicKey)
-
-        let response = try await customerService.getPin(sessionId: sessionId)
-        let decryptedBlock = try RainCryptoUtilities.decryptSecret(
-            base64Secret: response.secret,
-            base64Iv: response.iv,
-            secretKey: secretKey
-        )
-
-        return try RainCryptoUtilities.decryptPinBlock(encryptedBlock: decryptedBlock)
-    }
-
-    func freeze() async throws {
-        let response = try await customerService.freeze(cardId: cardId)
-        switch response.status {
-        case .completed, .canceled:
-            await loadCustomerInfo()
-        case .new, .processing:
-            startFreezeUnfreezeOrderStatusPolling(orderId: response.orderId)
-        case .failed, .undefined:
-            throw TangemPayCardError.operationFailed
-        }
-    }
-
-    func unfreeze() async throws {
-        let response = try await customerService.unfreeze(cardId: cardId)
-        switch response.status {
-        case .completed, .canceled:
-            await loadCustomerInfo()
-        case .new, .processing:
-            startFreezeUnfreezeOrderStatusPolling(orderId: response.orderId)
-        case .failed, .undefined:
-            throw TangemPayCardError.operationFailed
-        }
-    }
-
-    func startReissueOrderTracking(orderId: String) {
-        isReissuingCardSubject.send(true)
-        startReissueOrderStatusPolling(orderId: orderId)
-    }
-}
-
 private extension TangemPayAccount {
-    func loadCustomerInfoLegacy() async {
-        do throws(TangemPayAPIServiceError) {
-            let customerInfo = try await customerService.loadCustomerInfo()
-            guard let productInstance = customerInfo.productInstance else {
-                unavailableSignalSubject.send(())
-                VisaLogger.info("Product instance was unexpectedly nil")
-                return
-            }
-
-            legacyCustomerInfoSubject.send((customerInfo, productInstance))
-
-            if productInstance.status == .active
-                || productInstance.status == .deactivated {
-                await loadBalance()
-            }
-        } catch {
-            switch error {
-            case .unauthorized:
-                syncNeededSignalSubject.send(())
-            case .moyaError, .apiError, .decodingError, .serverError:
-                unavailableSignalSubject.send(())
-            }
-            VisaLogger.error("Failed to load customer info", error: error)
-        }
-    }
-
-    func startReissueOrderStatusPolling(orderId: String) {
-        orderStatusPollingService.startOrderStatusPolling(
-            orderId: orderId,
-            interval: Constants.reissueOrderPollInterval,
-            onCompleted: { [weak self] in
-                runTask {
-                    await self?.handleReissueCompleted()
-                }
-            },
-            onCanceled: { [weak self] in
-                self?.isReissuingCardSubject.send(false)
-            },
-            onFailed: { [weak self] error in
-                VisaLogger.error("Failed to poll reissue order status", error: error)
-                self?.isReissuingCardSubject.send(false)
-            }
-        )
-    }
-
-    func handleReissueCompleted() async {
-        await loadCustomerInfo()
-        isReissuingCardSubject.send(false)
-    }
-
-    func startFreezeUnfreezeOrderStatusPolling(orderId: String) {
-        orderStatusPollingService.startOrderStatusPolling(
-            orderId: orderId,
-            interval: Constants.freezeUnfreezeOrderPollInterval,
-            onCompleted: { [weak self] in
-                runTask {
-                    await self?.loadCustomerInfo()
-                }
-            },
-            onCanceled: {
-                // [REDACTED_TODO_COMMENT]
-            },
-            onFailed: { error in
-                VisaLogger.error("Failed to poll order status", error: error)
-            }
-        )
-    }
-
     func setupBalance() async {
         await balancesService.loadBalance()
-    }
-}
-
-private extension VisaCustomerInfoResponse {
-    var cardIfActiveOrBlocked: VisaCustomerInfoResponse.Card? {
-        [.active, .blocked].contains(productInstance?.status)
-            ? card
-            : nil
     }
 }
 
@@ -758,8 +546,6 @@ private extension TangemPayAccount {
     }
 
     enum Constants {
-        static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
-        static let reissueOrderPollInterval: TimeInterval = 5
         static let cardIssuePollInterval: TimeInterval = 5
         static let virtualAccountOrderPollInterval: TimeInterval = 5
     }
