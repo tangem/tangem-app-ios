@@ -88,6 +88,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let promotionNotificationsManager: PromotionNotificationsManager
     private let tangemPayNotificationManager: NotificationManager
     private let getTangemPayBannerNotificationManager: NotificationManager
+    private let forceUpdateBannerNotificationManager: NotificationManager
     private let yieldApyBoostBannerNotificationManager: YieldAPYBoostBannerService
     private let tokenRouter: SingleTokenRoutable
     private let rateAppController: RateAppInteractionController
@@ -115,6 +116,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         tangemPayNotificationManager: NotificationManager,
         getTangemPayBannerNotificationManager: NotificationManager,
         yieldApyBoostBannerNotificationManager: YieldAPYBoostBannerService,
+        forceUpdateBannerNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
         tokenRouter: SingleTokenRoutable,
@@ -129,18 +131,23 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.tangemPayNotificationManager = tangemPayNotificationManager
         self.getTangemPayBannerNotificationManager = getTangemPayBannerNotificationManager
         self.yieldApyBoostBannerNotificationManager = yieldApyBoostBannerNotificationManager
+        self.forceUpdateBannerNotificationManager = forceUpdateBannerNotificationManager
         self.rateAppController = rateAppController
         self.tokenRouter = tokenRouter
         self.coordinator = coordinator
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
         self.tokenItemPromoProvider = tokenItemPromoProvider
 
+        // Order defines display priority — force-update banner renders above the rest.
         notificationBannerItemsProvider = NotificationBannerItemsProvider(
-            userWalletNotificationManager: userWalletNotificationManager,
-            tokensNotificationManager: tokensNotificationManager,
-            tangemPayNotificationManager: tangemPayNotificationManager,
-            getTangemPayBannerNotificationManager: getTangemPayBannerNotificationManager,
-            yieldApyBoostBannerNotificationManager: yieldApyBoostBannerNotificationManager
+            managers: [
+                forceUpdateBannerNotificationManager,
+                userWalletNotificationManager,
+                yieldApyBoostBannerNotificationManager,
+                tokensNotificationManager,
+                tangemPayNotificationManager,
+                getTangemPayBannerNotificationManager,
+            ]
         )
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
@@ -318,8 +325,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             accountSectionsPublisher: accountSectionsPublisher
         )
 
-        userWalletNotificationManager
+        // Force-update banner is prepended so it always renders above the wallet notifications.
+        forceUpdateBannerNotificationManager
             .notificationPublisher
+            .removeDuplicates()
+            .combineLatest(userWalletNotificationManager.notificationPublisher.removeDuplicates())
+            .map { forceUpdateInputs, userWalletInputs in forceUpdateInputs + userWalletInputs }
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
