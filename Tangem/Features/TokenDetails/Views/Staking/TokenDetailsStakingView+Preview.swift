@@ -47,7 +47,7 @@ import TangemUI
             case .enableAuto:
                 return .enable(item: .init(
                     title: "Staking",
-                    rewardsState: .auto,
+                    rewardsState: .auto("5.2% APY"),
                     fiatBalance: AttributedString("$2,450.00"),
                     cryptoBalance: "1.0 ETH",
                     action: {}

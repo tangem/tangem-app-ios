@@ -381,6 +381,10 @@ private extension CommonTokenFeeProvider {
                 return .loading
             case .unavailable(.notSupported):
                 return .failure(TokenFeeProviderError.unsupportedByProvider)
+            case .unavailable(.noTokenBalance) where feeTokenItem.isBlockchain:
+                return .failure(TokenFeeProviderError.notEnoughBalanceForFee)
+            case .unavailable(.notEnoughFeeBalance), .unavailable(.noTokenBalance):
+                return .failure(TokenFeeProviderError.notEnoughGaslessFeeBalance)
             case .unavailable:
                 return .failure(TokenFeeProviderError.providerUnavailable)
             case .error(let error):
