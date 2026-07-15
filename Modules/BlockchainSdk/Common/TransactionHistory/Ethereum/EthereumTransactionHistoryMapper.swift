@@ -259,10 +259,8 @@ private extension EthereumTransactionHistoryMapper {
         return String(methodId).addHexPrefix()
     }
 
-    func tokenTransfers(_ transaction: BlockBookAddressResponse.Transaction) -> [TransactionRecord.TokenTransfer]? {
-        guard let tokenTransfers = transaction.tokenTransfers else {
-            return nil
-        }
+    func tokenTransfers(_ transaction: BlockBookAddressResponse.Transaction) -> [TransactionRecord.TokenTransfer] {
+        let tokenTransfers = transaction.tokenTransfers ?? []
 
         return tokenTransfers.map { transfer -> TransactionRecord.TokenTransfer in
             let amount = Decimal(stringValue: transfer.value) ?? 0
@@ -304,7 +302,8 @@ private extension EthereumTransactionHistoryMapper {
                 type: transactionType(transaction),
                 date: Date(timeIntervalSince1970: TimeInterval(transaction.blockTime)),
                 tokenTransfers: tokenTransfers(transaction),
-                isFromYieldContract: isFromYieldContract
+                isFromYieldContract: isFromYieldContract,
+                nonce: transaction.ethereumSpecific?.nonce
             )
         }
     }

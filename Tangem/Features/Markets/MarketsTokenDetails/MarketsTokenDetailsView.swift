@@ -121,6 +121,10 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var redesignedTrailingButtons: some View {
         HStack(spacing: 12) {
+            if let priceAlertBellViewModel = viewModel.priceAlertBellViewModel {
+                PriceAlertBellView(viewModel: priceAlertBellViewModel)
+            }
+
             if viewModel.isMarketsSheetStyle, viewModel.isAddButtonVisible {
                 redesignedAddButton
             }

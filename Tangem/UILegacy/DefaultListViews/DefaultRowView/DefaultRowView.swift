@@ -160,33 +160,31 @@ extension DefaultRowView {
     }
 }
 
-struct DefaultRowView_Preview: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Colors.Background.secondary.ignoresSafeArea()
+#Preview {
+    ZStack {
+        Colors.Background.secondary.ignoresSafeArea()
 
-            GroupedSection(
-                [
-                    DefaultRowViewModel(
-                        title: "App settings",
-                        detailsType: .text("A Long long long long long long long text"),
-                        action: nil
-                    ),
-                    DefaultRowViewModel(
-                        title: "App settings",
-                        detailsType: .loadable(state: .loading),
-                        action: nil
-                    ),
-                    DefaultRowViewModel(
-                        title: "App settings",
-                        detailsType: .loader,
-                        action: nil
-                    ),
-                ]
-            ) {
-                DefaultRowView(viewModel: $0)
-            }
-            .padding()
+        GroupedSection(
+            [
+                DefaultRowViewModel(
+                    title: "App settings",
+                    detailsType: .text("A Long long long long long long long text"),
+                    action: nil
+                ),
+                DefaultRowViewModel(
+                    title: "App settings",
+                    detailsType: .loadable(state: .loading),
+                    action: nil
+                ),
+                DefaultRowViewModel(
+                    title: "App settings",
+                    detailsType: .loader,
+                    action: nil
+                ),
+            ]
+        ) {
+            DefaultRowView(viewModel: $0)
         }
+        .padding()
     }
 }
