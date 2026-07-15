@@ -53,7 +53,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     private let includesMarketCapFilter: Bool
 
     private let filterProvider: MarketsListDataFilterProvider
-    private let dataProvider = MarketsListDataProvider()
+    private let dataProvider = MarketsListDataProvider(loadNetworks: true)
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
 
