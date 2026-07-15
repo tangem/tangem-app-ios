@@ -1,5 +1,5 @@
 //
-//  FeeSelectorBottomSheetContainerView.swift
+//  FloatingSheetContainerView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemUIUtils
 
-struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionContent: View, MainContent: View, ButtonContent: View>: View {
+struct FloatingSheetContainerView<HeaderContent: View, DescriptionContent: View, MainContent: View, ButtonContent: View>: View {
     // MARK: - UI
 
     private let state: AnyHashable
@@ -20,6 +20,7 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
     private let mainContent: MainContent
     private let buttonContent: ButtonContent
     private let showsButton: Bool
+    private let maxHeightFraction: CGFloat?
     private let verticalSwipeBehavior: FloatingSheetConfiguration.VerticalSwipeBehavior?
 
     // MARK: - Init
@@ -27,6 +28,7 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
     init(
         state: AnyHashable,
         showsButton: Bool = true,
+        maxHeightFraction: CGFloat? = nil,
         verticalSwipeBehavior: FloatingSheetConfiguration.VerticalSwipeBehavior? = nil,
         @ViewBuilder button: () -> ButtonContent,
         @ViewBuilder headerContent: () -> HeaderContent = { EmptyView() },
@@ -35,6 +37,7 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
     ) {
         self.state = state
         self.showsButton = showsButton
+        self.maxHeightFraction = maxHeightFraction
         self.verticalSwipeBehavior = verticalSwipeBehavior
         buttonContent = button()
         self.headerContent = headerContent()
@@ -52,6 +55,10 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
                 configuration.backgroundInteractionBehavior = .tapToDismiss
                 configuration.verticalSwipeBehavior = verticalSwipeBehavior
+
+                if let maxHeightFraction {
+                    configuration.maxHeightFraction = maxHeightFraction
+                }
             }
     }
 
