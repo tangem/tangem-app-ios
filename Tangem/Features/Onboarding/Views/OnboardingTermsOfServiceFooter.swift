@@ -42,9 +42,7 @@ struct OnboardingTermsOfServiceFooter: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     OnboardingTermsOfServiceFooter(onTap: {})
         .padding()
 }
-#endif // DEBUG

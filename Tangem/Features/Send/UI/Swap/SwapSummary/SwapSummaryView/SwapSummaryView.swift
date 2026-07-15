@@ -39,6 +39,8 @@ struct SwapSummaryView: View {
                 VStack(spacing: 14) {
                     SwapAmountView(viewModel: viewModel.swapAmountViewModel)
 
+                    marketingBanner
+
                     providerSectionView
 
                     feeSectionView
@@ -55,7 +57,7 @@ struct SwapSummaryView: View {
         .keyboardToolbar(toolbarContent)
         .keyboardAutoHide(
             isActive: $keyboardActive,
-            onInput: viewModel.swapAmountViewModel.sourceDecimalNumberTextFieldViewModel.valuePublisher()
+            onInput: viewModel.swapAmountViewModel.sourceAmountInputPublisher
         )
         .readGeometry(bindTo: $viewGeometryInfo)
         .ignoresSafeArea(.keyboard)
@@ -116,6 +118,13 @@ struct SwapSummaryView: View {
             NotificationView(input: $0)
                 .setButtonsLoadingState(to: viewModel.notificationButtonIsLoading)
                 .transition(.notificationTransition)
+        }
+    }
+
+    @ViewBuilder
+    private var marketingBanner: some View {
+        if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
+            StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
         }
     }
 

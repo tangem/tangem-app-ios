@@ -11,9 +11,14 @@ import UIKit
 import TangemAccessibilityIdentifiers
 
 final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenElement> {
+    private static let replaceCardTitle = "Replace card"
+    private static let replacingInProgressText = "Replacing your digital card"
+
     private lazy var changePinRow = button(.changePinRow)
     private lazy var freezeRowActive = button(.freezeCardRowStateActive)
     private lazy var freezeRowFrozen = button(.freezeCardRowStateFrozen)
+    private lazy var moreMenuButton = button(.cardManagementMoreButton)
+    private lazy var replaceCardMenuItem = button(Self.replaceCardTitle)
     private lazy var showDetailsButton = button(.cardDetailsShowButton)
     private lazy var hideDetailsButton = button(.cardDetailsHideButton)
     private lazy var cardNumberValue = staticText(.cardDetailsNumberValue)
@@ -48,10 +53,10 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     }
 
     @discardableResult
-    func tapUnfreezeCard() -> Self {
+    func tapUnfreezeCard() -> TangemPayUnfreezeConfirmationSheet {
         XCTContext.runActivity(named: "Tap Unfreeze card row") { _ in
             freezeRowFrozen.waitAndTap()
-            return self
+            return TangemPayUnfreezeConfirmationSheet(app)
         }
     }
 
@@ -67,6 +72,69 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     func verifyCardActive() -> Self {
         XCTContext.runActivity(named: "Verify card is active (Freeze row present)") { _ in
             waitAndAssertTrue(freezeRowActive, timeout: .networkRequest, "Freeze row should be displayed when card is active")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapBack() -> TangemPayMainScreen {
+        XCTContext.runActivity(named: "Tap back to return to Tangem Pay payment account") { _ in
+            tapBackButton(to: TangemPayMainScreen.self)
+        }
+    }
+
+    @discardableResult
+    func tapReplaceCard() -> TangemPayReissueSheet {
+        XCTContext.runActivity(named: "Open Replace card from more menu") { _ in
+            openReplaceCardFromMoreMenu()
+            return TangemPayReissueSheet(app)
+        }
+    }
+
+    @discardableResult
+    func tapReplaceCardExpectingFeeError() -> Self {
+        XCTContext.runActivity(named: "Open Replace card from more menu expecting fee error") { _ in
+            openReplaceCardFromMoreMenu()
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyReplacingInProgress() -> Self {
+        XCTContext.runActivity(named: "Verify 'Replacing your digital card' state") { _ in
+            waitAndAssertTrue(
+                app.staticTexts[Self.replacingInProgressText].firstMatch,
+                "'Replacing your digital card' should be displayed while reissue is in progress"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func waitForReissueCompleted() -> Self {
+        XCTContext.runActivity(named: "Wait for reissue to complete") { _ in
+            waitAndAssertTrue(changePinRow, timeout: .robustUIUpdate, "Card actions should return after reissue completes")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyFeeUnreachableAlertAndDismiss() -> Self {
+        XCTContext.runActivity(named: "Verify reissue fee error alert and dismiss") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Reissue fee error alert should be displayed")
+
+            let title = alert.staticTexts
+                .element(matching: NSPredicate(format: "label CONTAINS %@", "Something went wrong"))
+                .firstMatch
+            XCTAssertTrue(title.exists, "Alert title 'Something went wrong' should be displayed")
+
+            let message = alert.staticTexts
+                .element(matching: NSPredicate(format: "label CONTAINS %@", "Replacement fee info unreachable"))
+                .firstMatch
+            XCTAssertTrue(message.exists, "Alert message 'Replacement fee info unreachable' should be displayed")
+
+            alert.buttons["OK"].waitAndTap()
             return self
         }
     }
@@ -155,12 +223,19 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
             return self
         }
     }
+
+    private func openReplaceCardFromMoreMenu() {
+        moreMenuButton.waitAndTap()
+        replaceCardMenuItem.waitAndTap()
+    }
 }
 
 enum TangemPayCardDetailsScreenElement: String, UIElement {
     case changePinRow
     case freezeCardRowStateActive
     case freezeCardRowStateFrozen
+    case cardManagementMoreButton
+    case reissueCardRow
     case cardDetailsShowButton
     case cardDetailsHideButton
     case cardDetailsNumberValue
@@ -178,6 +253,10 @@ enum TangemPayCardDetailsScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.freezeCardRowStateActive
         case .freezeCardRowStateFrozen:
             TangemPayAccessibilityIdentifiers.freezeCardRowStateFrozen
+        case .cardManagementMoreButton:
+            TangemPayAccessibilityIdentifiers.cardManagementMoreButton
+        case .reissueCardRow:
+            TangemPayAccessibilityIdentifiers.reissueCardRow
         case .cardDetailsShowButton:
             TangemPayAccessibilityIdentifiers.cardDetailsShowButton
         case .cardDetailsHideButton:
