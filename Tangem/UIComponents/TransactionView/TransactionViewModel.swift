@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BlockchainSdk
 import TangemAccounts
 import TangemLocalization
 import TangemAssets
@@ -129,7 +130,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         subtitleOwner: SubtitleOwner? = nil,
         cardName: String? = nil
     ) {
-        id = ViewModelId(hash: hash, index: index, statusRawValue: status.rawValue)
+        id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
         self.hash = hash
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
         self.amount = TransactionViewAmountViewData(
@@ -234,8 +235,7 @@ struct TransactionViewModel: Hashable, Identifiable {
 extension TransactionViewModel {
     /// An opaque unique identity for use with the `Identifiable` protocol.
     struct ViewModelId: Hashable {
-        fileprivate let hash: String
-        fileprivate let index: Int
+        fileprivate let id: TransactionRecord.ID
         fileprivate let statusRawValue: String
     }
 
@@ -275,6 +275,35 @@ extension TransactionViewModel {
         case gaslessTransfer
 
         case tangemPay(TangemPayTransactionType)
+
+        /// Stable, non-localized key for UI-test accessibility identifiers.
+        var accessibilityIdentifierKey: String {
+            switch self {
+            case .transfer: "transfer"
+            case .swap: "swap"
+            case .stake: "stake"
+            case .approve: "approve"
+            case .unstake: "unstake"
+            case .vote: "vote"
+            case .withdraw: "withdraw"
+            case .claimRewards: "claimRewards"
+            case .restake: "restake"
+            case .unknownOperation: "unknownOperation"
+            case .operation: "operation"
+            case .yieldDeploy: "yieldDeploy"
+            case .yieldEnter: "yieldEnter"
+            case .yieldEnterCoin: "yieldEnterCoin"
+            case .yieldInit: "yieldInit"
+            case .yieldReactivate: "yieldReactivate"
+            case .yieldSend: "yieldSend"
+            case .yieldTopup: "yieldTopup"
+            case .yieldWithdraw: "yieldWithdraw"
+            case .yieldWithdrawCoin: "yieldWithdrawCoin"
+            case .gaslessTransactionFee: "gaslessTransactionFee"
+            case .gaslessTransfer: "gaslessTransfer"
+            case .tangemPay: "tangemPay"
+            }
+        }
     }
 
     enum TangemPayTransactionType: Hashable {
@@ -312,7 +341,7 @@ extension TransactionViewModel {
         case wallet(name: String)
         case accountInWallet(accountName: String, accountIcon: AccountIconView.ViewData, walletName: String)
         /// Pre-rendered blockies are carried alongside the address so the SwiftUI body doesn't
-        /// rebuild `AddressIconViewModel` on every recomputation (long lists scroll-allocate).
+        /// regenerate the blockies image on every recomputation (long lists scroll-allocate).
         case unresolved(short: String, fullAddress: String, blockiesImage: UIImage?)
 
         static func == (lhs: SubtitleOwner, rhs: SubtitleOwner) -> Bool {

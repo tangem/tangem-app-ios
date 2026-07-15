@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemPay
+
 /// Provides scoped access to `TangemPayManager` via protocol conformances.
 /// Weak reference avoids retain cycles (stored as associated value in `TangemPayLocalState`).
 final class TangemPayManagerWeakReferenceHolder {
@@ -33,5 +35,26 @@ extension TangemPayManagerWeakReferenceHolder: TangemPayKYCInteractor {
         } else {
             onFinish(false)
         }
+    }
+}
+
+// MARK: - TangemPayManagerWeakReferenceHolder+TangemPayTariffPlanSelector
+
+extension TangemPayManagerWeakReferenceHolder: TangemPayTariffPlanSelector {
+    func getTariffPlanTransitions() async throws -> TangemPayTariffPlanTransitionsResponse {
+        guard let tangemPayManager else {
+            throw TangemPayManagerError.managerDeallocated
+        }
+        return try await tangemPayManager.getTariffPlanTransitions()
+    }
+
+    func selectTariffPlan(
+        targetTariffPlanId: String,
+        transitionType: TangemPayTariffPlanTransition.TransitionType
+    ) async throws {
+        try await tangemPayManager?.selectTariffPlan(
+            targetTariffPlanId: targetTariffPlanId,
+            transitionType: transitionType
+        )
     }
 }
