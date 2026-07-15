@@ -121,7 +121,7 @@ extension DEXProviderFlowHelper {
                 case .enoughAllowance:
                     break
                 case .permissionRequired(let data):
-                    if context.featureFlags.isApproveWithSwapEnabled, let owner = pair.source.address {
+                    if let owner = pair.source.address {
                         return .dexApproveFlowState(
                             .init(
                                 provider: provider,
