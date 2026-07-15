@@ -98,7 +98,7 @@ struct PendingExpressTransactionsConverter {
             // Always display cross for failed state
             // [REDACTED_TODO_COMMENT]
             switch status {
-            case .failed, .expired, .unknown, .refunded, .txFailed:
+            case .failed, .expired, .unknown, .refunded, .txFailed, .paused:
                 return .init(title: status.passedStatusTitle, state: .cross(passed: false))
             case .awaitingHash:
                 return .init(title: status.passedStatusTitle, state: .exclamationMark)
