@@ -169,12 +169,24 @@ struct SingleCardOnboardingView: View {
 }
 
 #if DEBUG
+
 #Preview {
-    SingleCardOnboardingView(viewModel: .init(
-        input: PreviewData.previewNoteCardOnboardingInput,
-        coordinator: OnboardingCoordinator()
-    ))
+    SingleCardOnboardingView(
+        viewModel: .init(
+            input: OnboardingInput(
+                backupService: .init(sdk: .init(), networkService: .init(session: .shared, additionalHeaders: [:])),
+                primaryCardId: "",
+                cardInitializer: nil,
+                pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
+                steps: .singleWallet([.createWallet, .success]),
+                cardInput: .cardInfo(PreviewCard.ethEmptyNote.cardInfo),
+                twinData: nil
+            ),
+            coordinator: OnboardingCoordinator()
+        )
+    )
 }
+
 #endif
 
 struct CardOnboardingBackgroundCircle: View {

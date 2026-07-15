@@ -65,8 +65,12 @@ public protocol CustomerInfoManagementService: AnyObject {
 
     func getCustomerOffers() async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffersResponse
 
+    func getTariffPlanTransitions() async throws(TangemPayAPIServiceError) -> TangemPayTariffPlanTransitionsResponse
+
     func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse
     func reissueCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayReissueCardResponse
+
+    func getBankCredentials(productInstanceId: String) async throws(TangemPayAPIServiceError) -> TangemPayBankCredentialsResponse
 
     @discardableResult
     func cancelKYC() async throws(TangemPayAPIServiceError) -> TangemPayCancelKYCResponse
@@ -237,11 +241,19 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         try await request(for: .getCustomerOffers)
     }
 
+    public func getTariffPlanTransitions() async throws(TangemPayAPIServiceError) -> TangemPayTariffPlanTransitionsResponse {
+        try await request(for: .getTariffPlanTransitions)
+    }
+
     public func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse {
         try await request(for: .getFee(type: type))
     }
 
     public func reissueCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayReissueCardResponse {
         try await request(for: .reissueCard(cardId: cardId))
+    }
+
+    public func getBankCredentials(productInstanceId: String) async throws(TangemPayAPIServiceError) -> TangemPayBankCredentialsResponse {
+        try await request(for: .getBankCredentials(productInstanceId: productInstanceId))
     }
 }

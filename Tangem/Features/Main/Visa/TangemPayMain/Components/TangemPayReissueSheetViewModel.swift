@@ -13,6 +13,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemPay
 import TangemVisa
+import TangemAccessibilityIdentifiers
 
 protocol TangemPayReissueSheetRoutable: AnyObject {
     func closeReissueSheet()
@@ -72,6 +73,10 @@ final class TangemPayReissueSheetViewModel: ObservableObject, FloatingSheetConte
 
     var feeLabel: String {
         Localization.tangempayReissueCardFeeLabel
+    }
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.reissueSheetConfirmButton
     }
 
     let feeText: String
