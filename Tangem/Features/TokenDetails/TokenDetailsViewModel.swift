@@ -461,9 +461,10 @@ private extension TokenDetailsViewModel {
     }
 
     private func setupQuickTopUpBanner() {
-        expressAvailabilityProvider.availabilityDidChangePublisher
+        walletModel.actionsUpdatePublisher
             .receiveOnMain()
             .map { [weak self] in self?.mapToQuickTopUpBannerViewModel() }
+            .removeDuplicates { $0 === $1 }
             .assign(to: &$quickTopUpBannerViewModel)
     }
 
