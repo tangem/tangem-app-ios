@@ -121,14 +121,29 @@ private extension CommonExpressAvailabilityProvider {
 
     func loadAvailabilityStates(currencies: CurrenciesSet) async throws -> Availability {
         let provider = try getApiProvider()
+        // Backend omits currencies it doesn't know, so `assets` can be shorter than what we requested.
         let assets = try await provider.assets(currencies: currencies)
+        return makeAvailabilityStates(requested: currencies, returned: assets)
+    }
 
-        return assets.reduce(into: [:]) { result, asset in
-            result[asset.currency] = .init(
+    /// Marks currencies the backend didn't return as onramp-unavailable, so "not supported" stays distinct from "not loaded yet".
+    func makeAvailabilityStates(requested currencies: CurrenciesSet, returned assets: [ExpressAsset]) -> Availability {
+        var states: Availability = [:]
+
+        // Seed everything we asked about as onramp-unavailable — assume "no" until the response proves otherwise.
+        for currency in currencies {
+            states[currency.asCurrency] = .init(swap: .notLoaded, onramp: .unavailable)
+        }
+
+        // Returned currencies overwrite the seed with their real state; the omitted ones keep `.unavailable`.
+        for asset in assets {
+            states[asset.currency] = .init(
                 swap: asset.isExchangeable ? .available : .unavailable,
                 onramp: asset.isOnrampable ? .available : .unavailable
             )
         }
+
+        return states
     }
 
     func save(states: Availability) {

@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayTransactionDetailsView: View {
     @ObservedObject var viewModel: TangemPayTransactionDetailsViewModel
@@ -124,6 +125,7 @@ private extension TangemPayTransactionDetailsView {
                     Text(model.amount)
                         .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsAmount)
 
                     if let amountSubtitle = model.amountSubtitle {
                         Text(amountSubtitle)
@@ -154,6 +156,7 @@ private extension TangemPayTransactionDetailsView {
             .styleType(.default)
             .horizontalLayout(.infinity)
             .padding(16)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsMainButton)
         }
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
@@ -166,6 +169,7 @@ private extension TangemPayTransactionDetailsView {
             VStack(spacing: 4) {
                 Text(title)
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsTitle)
 
                 Text(subtitle)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
