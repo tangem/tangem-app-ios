@@ -196,7 +196,7 @@ class TronWalletManager: BaseWalletManager, WalletManager {
             ? .zero
             : Double(chainParameters.dynamicEnergyIncreaseFactor) / Double(dynamicEnergyIncreaseFactorPrecision)
 
-        let conservativeEnergyFee = Int(Double(energyUse) * (1 + dynamicEnergyIncreaseFactor))
+        let conservativeEnergyFee = Int((Double(energyUse) * (1 + dynamicEnergyIncreaseFactor)).rounded(.up))
 
         return TronEnergyFeeData(
             energyFee: conservativeEnergyFee,
