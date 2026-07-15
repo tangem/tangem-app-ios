@@ -12,9 +12,8 @@ import TangemUI
 /// Content of a single token row (asset aggregate, per-network child, or the "Other" bucket).
 struct ForYouTokenRowData: Identifiable, Equatable {
     let id: String
-    let isLoading: Bool
     let symbol: String
-    /// `nil` while loading; carries a network glyph only for per-network child rows.
+    /// Carries a network glyph only for per-network child rows.
     let tokenIconInfo: TokenIconInfo?
     let sentiment: Sentiment?
     let subtitle: Subtitle
@@ -40,17 +39,5 @@ struct ForYouTokenRowData: Identifiable, Equatable {
     enum Subtitle: Equatable {
         case text(String)
         case dotted(String, String)
-    }
-
-    static func loading(id: String) -> ForYouTokenRowData {
-        ForYouTokenRowData(
-            id: id,
-            isLoading: true,
-            symbol: "",
-            tokenIconInfo: nil,
-            sentiment: nil,
-            subtitle: .text(""),
-            end: .values(fiat: "", percent: "")
-        )
     }
 }

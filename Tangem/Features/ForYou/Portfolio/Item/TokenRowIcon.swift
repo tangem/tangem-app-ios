@@ -12,7 +12,6 @@ import TangemUI
 
 struct TokenRowIcon: View {
     let iconInfo: TokenIconInfo?
-    let isLoading: Bool
     var showsIndicator: Bool = false
 
     @ScaledMetric private var size: CGFloat = 40
@@ -21,7 +20,7 @@ struct TokenRowIcon: View {
         content
             .overlay(alignment: .bottomTrailing) {
                 // No indicator on the empty-icon "Other" bucket.
-                if showsIndicator, !isLoading, iconInfo != nil {
+                if showsIndicator, iconInfo != nil {
                     indicatorDot
                 }
             }
@@ -31,12 +30,7 @@ struct TokenRowIcon: View {
 private extension TokenRowIcon {
     @ViewBuilder
     var content: some View {
-        if isLoading {
-            TangemShimmer()
-                .variant(.custom(width: size, height: size))
-                .clipShape(Circle())
-                .frame(width: size, height: size)
-        } else if let iconInfo {
+        if let iconInfo {
             // Overlays on: the per-network glyph shows for child rows (their info carries a network
             // asset); aggregate rows carry a nil asset, so no glyph appears.
             TokenIcon(

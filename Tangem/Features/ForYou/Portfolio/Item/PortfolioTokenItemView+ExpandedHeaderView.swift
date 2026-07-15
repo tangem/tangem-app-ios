@@ -30,15 +30,12 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
     var header: some View {
         HStack(spacing: 12) {
             icon
-
             HStack(spacing: 4) {
                 Text(assetRow.symbol).style(
                     DesignSystem.Font.subheadingMediumToken,
                     color: DesignSystem.Color.textPrimary
                 )
-
                 dot
-
                 summary
             }
             .lineLimit(1)
@@ -62,9 +59,7 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
                 DesignSystem.Font.subheadingMediumToken,
                 color: DesignSystem.Color.textPrimary
             )
-
             dot
-
             Text(percent).style(
                 DesignSystem.Font.subheadingMediumToken,
                 color: DesignSystem.Color.textSecondary
@@ -74,9 +69,7 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
                 DesignSystem.Font.subheadingMediumToken,
                 color: DesignSystem.Color.textPrimary
             )
-
             dot
-
             Text(label).style(
                 DesignSystem.Font.subheadingMediumToken,
                 color: DesignSystem.Color.textStatusWarning

@@ -47,25 +47,8 @@ struct ForYouView: View {
 
     private var content: some View {
         ScrollView {
-            VStack(spacing: 8) {
-                periodPicker
-
-                PortfolioTokenListView(viewModel: viewModel.tokenListViewModel)
-            }
-            .padding(16)
-        }
-    }
-
-    @ViewBuilder
-    private var periodPicker: some View {
-        switch viewModel.portfolioReview {
-        case .content(let content):
-            ForYouPeriodPickerView(segments: content.periodSegments, selection: $viewModel.selectedPeriod)
-
-        case .loading:
-            TangemShimmer()
-                .variant(.custom(height: 40, cornerRadius: 20))
-                .frame(maxWidth: .infinity)
+            PortfolioReviewView(viewModel: viewModel.portfolioReview)
+                .padding(16)
         }
     }
 

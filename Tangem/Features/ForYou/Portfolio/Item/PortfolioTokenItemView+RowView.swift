@@ -20,7 +20,6 @@ extension PortfolioTokenItemView {
             HStack(spacing: 12) {
                 TokenRowIcon(
                     iconInfo: data.tokenIconInfo,
-                    isLoading: data.isLoading,
                     showsIndicator: showsIndicator
                 )
                 VStack(spacing: 4) {
@@ -37,25 +36,19 @@ extension PortfolioTokenItemView.RowView {
 
     var topLine: some View {
         HStack(spacing: 4) {
-            if data.isLoading {
-                shimmer(width: 96, height: 14)
-                Spacer(minLength: 8)
-                shimmer(width: 64, height: 14)
-            } else {
-                Text(data.symbol)
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                    .lineLimit(1)
+            Text(data.symbol)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .lineLimit(1)
 
-                if let sentiment = data.sentiment {
-                    SentimentBadge(sentiment: sentiment)
-                }
-
-                Spacer(minLength: 8)
-
-                Text(fiatText)
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                    .lineLimit(1)
+            if let sentiment = data.sentiment {
+                SentimentBadge(sentiment: sentiment)
             }
+
+            Spacer(minLength: 8)
+
+            Text(fiatText)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .lineLimit(1)
         }
     }
 
@@ -70,17 +63,9 @@ extension PortfolioTokenItemView.RowView {
 
     var bottomLine: some View {
         HStack(spacing: 4) {
-            if data.isLoading {
-                shimmer(width: 60, height: 12)
-                Spacer(minLength: 8)
-                shimmer(width: 44, height: 12)
-            } else {
-                subtitleView
-
-                Spacer(minLength: 8)
-
-                trailingContent
-            }
+            subtitleView
+            Spacer(minLength: 8)
+            trailingContent
         }
     }
 
@@ -132,9 +117,5 @@ extension PortfolioTokenItemView.RowView {
                     .lineLimit(1)
             }
         }
-    }
-
-    func shimmer(width: CGFloat, height: CGFloat) -> some View {
-        TangemShimmer().variant(.custom(width: width, height: height))
     }
 }
