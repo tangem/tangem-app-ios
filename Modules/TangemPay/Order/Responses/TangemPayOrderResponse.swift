@@ -43,5 +43,18 @@ public extension TangemPayOrderResponse {
         public let productInstanceId: String?
         public let paymentAccountId: String?
         public let transactionHash: String?
+        public let targetTariffPlanId: String?
+    }
+
+    enum Step: String {
+        case awaitingDeposit = "AWAITING_DEPOSIT"
+    }
+
+    var isAwaitingDeposit: Bool {
+        step == Step.awaitingDeposit.rawValue
+    }
+
+    var targetTariffPlanId: String? {
+        data?.targetTariffPlanId
     }
 }

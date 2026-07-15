@@ -16,6 +16,10 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayMainViewModel: ObservableObject {
+    private var tiersEnabled: Bool {
+        FeatureProvider.isAvailable(.tangemPayTiers)
+    }
+
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
 
@@ -27,7 +31,7 @@ final class TangemPayMainViewModel: ObservableObject {
             async let transactionsUpdate: Void = transactionHistoryService.reloadHistory()
             async let customerInfoUpdate: Void = tangemPayAccount.loadCustomerInfo()
             async let offersUpdate: Void = tangemPayAccount.loadOffers()
-            async let resumePolling: Void = tangemPayAccount.resumeAdditionalCardIssuePolling()
+            async let resumePolling: Void = tangemPayAccount.resumeActiveIssueOrderPolling()
             _ = await (stateRefresh, transactionsUpdate, customerInfoUpdate, offersUpdate, resumePolling)
         } else {
             async let balanceUpdate: Void = tangemPayAccount.loadBalance()
@@ -46,6 +50,8 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var cardEntries: [TangemPayCardEntry] = []
     @Published private(set) var isAddCardLoading: Bool = false
+
+    @Published private(set) var awaitingDepositMonthlyFee: String?
 
     let cardDeactivatedNotificationInput: NotificationViewInput?
     @Published var alert: AlertBinder?
@@ -72,6 +78,10 @@ final class TangemPayMainViewModel: ObservableObject {
 
     var hasIssuingEntry: Bool {
         cardEntries.contains { $0.isIssuing }
+    }
+
+    var isAwaitingDeposit: Bool {
+        tiersEnabled && cardEntries.contains { $0.order?.isAwaitingDeposit == true }
     }
 
     var addCardDisabled: Bool {
@@ -162,9 +172,17 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     private var isBankTransferAvailable: Bool {
-        FeatureProvider.isAvailable(.tangemPayVirtualAccount)
-            && tangemPayAccount.isKYCApproved
-            && tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
+        guard FeatureProvider.isAvailable(.tangemPayVirtualAccount), tangemPayAccount.isKYCApproved else {
+            return false
+        }
+
+        // Eligibility only gates issuing a brand-new VA. An already-issued one stays reachable.
+        return tangemPayAccount.hasVirtualAccount
+            || tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
+    }
+
+    func cancelPlus() {
+        // [REDACTED_TODO_COMMENT]
     }
 
     func addFunds() {
@@ -306,7 +324,7 @@ final class TangemPayMainViewModel: ObservableObject {
             await tangemPayAccount.loadCustomerInfo()
             await tangemPayAccount.loadBalance()
             await tangemPayAccount.loadOffers()
-            await tangemPayAccount.resumeAdditionalCardIssuePolling()
+            await tangemPayAccount.resumeActiveIssueOrderPolling()
         }
     }
 
@@ -443,6 +461,12 @@ private extension TangemPayMainViewModel {
                 viewModel.reloadHistory()
             }
             .store(in: &bag)
+
+        if tiersEnabled {
+            tangemPayAccount.awaitingDepositMonthlyFeePublisher
+                .receiveOnMain()
+                .assign(to: &$awaitingDepositMonthlyFee)
+        }
     }
 
     func bindInlineNotifications() {
