@@ -43,18 +43,15 @@ struct LockedWalletMainContentRedesignedView: View {
 
 private extension LockedWalletMainContentRedesignedView {
     var organizeButton: some View {
-        TangemButton(
-            content: .combined(
-                text: AttributedString(viewModel.organizeTokensButtonTitle),
-                icon: Assets.OrganizeTokens.filterIcon,
-                iconPosition: .left
-            ),
+        TangemButtonV2(
+            label: viewModel.organizeTokensButtonTitle,
+            accessibilityLabel: viewModel.organizeTokensButtonTitle,
             action: {}
         )
-        .setStyleType(.primaryInverse)
-        .setButtonState(isLoading: false, isDisabled: true)
-        .setSize(.x9)
-        .setFont(Font.Tangem.Body14.regular)
+        .iconStart(Assets.OrganizeTokens.filterIcon)
+        .styleType(.secondary)
+        .size(.x9)
+        .disabled(true)
     }
 }
 

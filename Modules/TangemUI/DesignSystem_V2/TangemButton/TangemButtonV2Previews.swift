@@ -154,20 +154,20 @@ public struct TangemButtonV2Showcase: View {
             switch contentKind {
             case .label:
                 return TangemButtonV2(
-                    label: AttributedString(customText),
-                    iconStart: iconStart,
-                    iconEnd: iconEnd,
+                    label: customText,
                     accessibilityLabel: nil,
                     action: action
                 )
+                .iconStart(iconStart)
+                .iconEnd(iconEnd)
             case .longLabel:
                 return TangemButtonV2(
-                    label: AttributedString("This is a very long button label that may wrap or truncate"),
-                    iconStart: iconStart,
-                    iconEnd: iconEnd,
+                    label: "This is a very long button label that may wrap or truncate",
                     accessibilityLabel: nil,
                     action: action
                 )
+                .iconStart(iconStart)
+                .iconEnd(iconEnd)
             case .iconOnly:
                 return TangemButtonV2(
                     icon: DesignSystem.Icons.ArrowDown.regular24,

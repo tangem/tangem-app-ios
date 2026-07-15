@@ -20,7 +20,7 @@ struct OrganizeTokensListFooterRedesigned: View {
 
     @State private var hasBottomSafeAreaInset = false
 
-    private let buttonSize: TangemButton.Size = .x12
+    private let buttonSize: TangemButtonV2.Size = .x12
 
     private var buttonsPadding: EdgeInsets {
         var contentInsets = contentInsets
@@ -29,28 +29,29 @@ struct OrganizeTokensListFooterRedesigned: View {
     }
 
     private var overlayViewTopPadding: CGFloat {
-        return -max(75.0 - buttonsPadding.top - buttonSize.sizeUnit.value, 0.0)
+        return -max(75.0 - buttonsPadding.top - buttonSize.height, 0.0)
     }
 
     var body: some View {
         HStack(spacing: 8) {
-            TangemButton(
-                content: .text(AttributedString(Localization.commonCancel)),
+            TangemButtonV2(
+                label: Localization.commonCancel,
+                accessibilityLabel: nil,
                 action: actionsHandler.onCancelButtonTap
             )
-            .setStyleType(.secondary)
-            .setSize(buttonSize)
-            .setHorizontalLayout(.infinity)
-            .background(.regularMaterial, in: Capsule())
+            .styleType(.secondary)
+            .size(buttonSize)
+            .horizontalLayout(.infinity)
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.cancelButton)
 
-            TangemButton(
-                content: .text(AttributedString(Localization.commonApply)),
+            TangemButtonV2(
+                label: Localization.commonApply,
+                accessibilityLabel: nil,
                 action: actionsHandler.onApplyButtonTap
             )
-            .setStyleType(.primary)
-            .setSize(buttonSize)
-            .setHorizontalLayout(.infinity)
+            .styleType(.default)
+            .size(buttonSize)
+            .horizontalLayout(.infinity)
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.applyButton)
         }
         .padding(buttonsPadding)

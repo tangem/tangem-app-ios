@@ -27,14 +27,24 @@ public struct TangemButtonV2: View, Setupable {
 
     public init(
         label: AttributedString,
-        iconStart: ImageType? = nil,
-        iconEnd: ImageType? = nil,
         accessibilityLabel: String?,
         action: @escaping () -> Void
     ) {
-        content = .label(label, iconStart: iconStart, iconEnd: iconEnd)
+        content = .label(label, iconStart: nil, iconEnd: nil)
         self.accessibilityLabel = accessibilityLabel
         self.action = action
+    }
+
+    public init(
+        label: String,
+        accessibilityLabel: String?,
+        action: @escaping () -> Void
+    ) {
+        self.init(
+            label: AttributedString(label),
+            accessibilityLabel: accessibilityLabel,
+            action: action
+        )
     }
 
     public init(
@@ -111,6 +121,20 @@ public struct TangemButtonV2: View, Setupable {
 public extension TangemButtonV2 {
     func content(_ content: Content) -> Self {
         map { $0.content = content }
+    }
+
+    func iconStart(_ icon: ImageType?) -> Self {
+        map {
+            guard case .label(let text, _, let iconEnd) = $0.content else { return }
+            $0.content = .label(text, iconStart: icon, iconEnd: iconEnd)
+        }
+    }
+
+    func iconEnd(_ icon: ImageType?) -> Self {
+        map {
+            guard case .label(let text, let iconStart, _) = $0.content else { return }
+            $0.content = .label(text, iconStart: iconStart, iconEnd: icon)
+        }
     }
 
     func size(_ size: Size) -> Self {

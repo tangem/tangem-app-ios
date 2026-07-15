@@ -82,17 +82,14 @@ struct MultiWalletMainContentRedesignedView: View {
     }
 
     private var organizeButton: some View {
-        TangemButton(
-            content: .combined(
-                text: AttributedString(viewModel.organizeTokensButtonTitle),
-                icon: Assets.OrganizeTokens.filterIcon,
-                iconPosition: .left
-            ),
+        TangemButtonV2(
+            label: viewModel.organizeTokensButtonTitle,
+            accessibilityLabel: viewModel.organizeTokensButtonTitle,
             action: viewModel.onOpenOrganizeTokensButtonTap
         )
-        .setStyleType(.primaryInverse)
-        .setSize(.x9)
-        .setFont(Font.Tangem.Body14.regular)
+        .iconStart(Assets.OrganizeTokens.filterIcon)
+        .styleType(.secondary)
+        .size(.x9)
         .accessibilityIdentifier(MainAccessibilityIdentifiers.organizeTokensButton)
     }
 
@@ -115,13 +112,14 @@ struct MultiWalletMainContentRedesignedView: View {
                 .textColor(DesignSystem.Color.textSecondary)
                 .spacing(20)
 
-            TangemButton(
-                content: .text(AttributedString(Localization.commonAddTokens)),
+            TangemButtonV2(
+                label: Localization.commonAddTokens,
+                accessibilityLabel: nil,
                 action: viewModel.onAddTokensTap
             )
-            .setStyleType(.secondary)
-            .setSize(.x10)
-            .setHorizontalLayout(.intrinsic)
+            .styleType(.secondary)
+            .size(.x10)
+            .horizontalLayout(.intrinsic)
         }
         .padding(.top, 36)
     }
