@@ -16,7 +16,10 @@ public struct TangemMessageBubble: View, Setupable {
     private let closeAction: () -> Void
     private var variant: Variant = .neutral
     private var icon: ImageType?
+    private var textLineLimit: Int? = Metrics.textLineLimit
     private var accessibilityIdentifier: String?
+
+    @Environment(\.layoutDirection) private var layoutDirection
 
     @ScaledMetric private var iconSize: CGFloat = Metrics.iconSize
     @ScaledMetric private var tipSize: CGFloat = Metrics.tipSize
@@ -36,6 +39,7 @@ public struct TangemMessageBubble: View, Setupable {
 
             Text(text)
                 .style(DesignSystem.Font.captionMediumToken, color: variant.palette.text)
+                .lineLimit(textLineLimit)
                 .ifLet(accessibilityIdentifier) { view, identifier in
                     view.accessibilityIdentifier(identifier)
                 }
@@ -81,10 +85,13 @@ public struct TangemMessageBubble: View, Setupable {
     }
 
     private var tip: some View {
-        TipShape()
+        let horizontalSign: CGFloat = layoutDirection == .rightToLeft ? -1 : 1
+
+        return TipShape()
             .fill(variant.palette.background)
             .frame(width: tipSize, height: tipSize)
-            .offset(x: tipLeadingInset, y: -tipSize)
+            .scaleEffect(x: horizontalSign, y: 1)
+            .offset(x: tipLeadingInset * horizontalSign, y: -tipSize)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
     }
@@ -99,6 +106,14 @@ public extension TangemMessageBubble {
 
     func icon(_ icon: ImageType?) -> Self {
         map { $0.icon = icon }
+    }
+
+    func lineLimit(_ lineLimit: Int?) -> Self {
+        map { $0.textLineLimit = lineLimit }
+    }
+
+    func accessibilityIdentifier(_ accessibilityIdentifier: String) -> Self {
+        map { $0.accessibilityIdentifier = accessibilityIdentifier }
     }
 }
 
@@ -169,6 +184,7 @@ private extension TangemMessageBubble {
     enum Metrics {
         static let cornerRadius: CGFloat = 12
         static let iconSize: CGFloat = 16
+        static let textLineLimit: Int = 2
         static let itemSpacing: CGFloat = 4
         static let paddingTop: CGFloat = 4
         static let paddingBottom: CGFloat = 4
