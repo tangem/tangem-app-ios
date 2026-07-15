@@ -100,7 +100,7 @@ extension MarketsCoordinator: MarketsRoutable {
 
 extension MarketsCoordinator: MarketsMainRoutable {
     func openForYou() {
-        forYouViewModel = ForYouViewModel(dataSource: MockForYouPortfolioDataSource())
+        forYouViewModel = ForYouViewModel()
     }
 
     func openSeeAllTopMarketWidget() {

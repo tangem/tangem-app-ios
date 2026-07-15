@@ -15,13 +15,12 @@ final class ForYouViewModel: ObservableObject {
 
     let tokenListViewModel: PortfolioTokenListViewModel
 
-    private let dataSource: ForYouPortfolioDataSource
+    private let dataSource = MockForYouPortfolioDataSource()
     private var bag: Set<AnyCancellable> = []
 
-    init(dataSource: ForYouPortfolioDataSource) {
+    init() {
         let initialState = PortfolioReviewState.loadingPlaceholder
 
-        self.dataSource = dataSource
         portfolioReview = initialState
         tokenListViewModel = PortfolioTokenListViewModel(items: initialState.tokenList)
 

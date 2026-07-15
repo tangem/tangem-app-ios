@@ -1,5 +1,5 @@
 //
-//  PortfolioTokenItemView+ExpandedViews.swift
+//  PortfolioTokenItemView+ExpandedHeaderView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -21,19 +21,6 @@ extension PortfolioTokenItemView {
             VStack(spacing: 0) {
                 header
                 divider
-            }
-        }
-    }
-
-    struct ExpandedNetworksView: View {
-        let networkRows: [ForYouTokenRowData]
-
-        var body: some View {
-            VStack(spacing: 0) {
-                ForEach(networkRows) { row in
-                    RowView(data: row)
-                        .padding(16)
-                }
             }
         }
     }

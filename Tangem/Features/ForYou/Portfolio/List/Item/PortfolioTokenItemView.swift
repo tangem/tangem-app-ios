@@ -31,18 +31,24 @@ private extension PortfolioTokenItemView {
             backgroundColor: DesignSystem.Color.bgSecondary,
             cornerRadius: 24,
             expandedViewTransition: .expandedContentTransition,
-            collapsedView: {
-                RowView(data: item.assetRow, showsIndicator: true)
-                    .padding(16)
-            },
-            expandedView: {
-                ExpandedNetworksView(networkRows: item.networkRows)
-            },
-            expandedViewHeader: {
-                ExpandedHeaderView(assetRow: item.assetRow)
-            },
+            collapsedView: collapsedView,
+            expandedView: expandedView,
+            expandedViewHeader: expandedViewHeader,
             onExpandedChange: { _ in onAssetTap(item.id) }
         )
+    }
+
+    func expandedViewHeader() -> some View {
+        ExpandedHeaderView(assetRow: item.assetRow)
+    }
+
+    func expandedView() -> some View {
+        ExpandedNetworksView(networkRows: item.networkRows)
+    }
+
+    func collapsedView() -> some View {
+        RowView(data: item.assetRow, showsIndicator: true)
+            .padding(16)
     }
 
     var staticCard: some View {

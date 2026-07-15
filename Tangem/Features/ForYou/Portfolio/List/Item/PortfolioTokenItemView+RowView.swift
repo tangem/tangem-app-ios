@@ -16,11 +16,13 @@ extension PortfolioTokenItemView {
         let data: ForYouTokenRowData
         var showsIndicator: Bool = false
 
-        @ScaledMetric private var iconSize: CGFloat = 40
-
         var body: some View {
             HStack(spacing: 12) {
-                icon
+                TokenRowIcon(
+                    iconInfo: data.tokenIconInfo,
+                    isLoading: data.isLoading,
+                    showsIndicator: showsIndicator
+                )
                 VStack(spacing: 4) {
                     topLine
                     bottomLine
@@ -45,7 +47,7 @@ extension PortfolioTokenItemView.RowView {
                     .lineLimit(1)
 
                 if let sentiment = data.sentiment {
-                    sentimentBadge(sentiment)
+                    SentimentBadge(sentiment: sentiment)
                 }
 
                 Spacer(minLength: 8)
@@ -129,86 +131,6 @@ extension PortfolioTokenItemView.RowView {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             }
-        }
-    }
-
-    // MARK: - Icon
-
-    var icon: some View {
-        iconContent
-            .overlay(alignment: .bottomTrailing) {
-                // No indicator on the empty-icon "Other" bucket.
-                if showsIndicator, !data.isLoading, data.tokenIconInfo != nil {
-                    indicatorDot
-                }
-            }
-    }
-
-    @ViewBuilder
-    var iconContent: some View {
-        if data.isLoading {
-            TangemShimmer()
-                .variant(.custom(width: iconSize, height: iconSize))
-                .clipShape(Circle())
-                .frame(width: iconSize, height: iconSize)
-        } else if let tokenIconInfo = data.tokenIconInfo {
-            // Overlays on: the per-network glyph shows for child rows (their info carries a network
-            // asset); aggregate rows carry a nil asset, so no glyph appears.
-            TokenIcon(
-                tokenIconInfo: tokenIconInfo,
-                size: CGSize(width: iconSize, height: iconSize),
-                isWithOverlays: true
-            )
-        } else {
-            // "Other" bucket — the empty-currency glyph (equivalent of the empty icon state).
-            Assets.emptyTokenList.image
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(DesignSystem.Color.iconPrimary)
-                .frame(width: iconSize, height: iconSize)
-        }
-    }
-
-    /// [REDACTED_TODO_COMMENT]
-    /// per-network indicator comes with the data pipeline. Ring uses the card fill so it "punches out".
-    var indicatorDot: some View {
-        Circle()
-            .fill(DesignSystem.Color.iconAccentRed)
-            .frame(width: 4, height: 4)
-            .padding(1)
-            .background(DesignSystem.Color.bgSecondary, in: Circle())
-            .offset(x: -3, y: -3)
-    }
-
-    // MARK: - Sentiment badge
-
-    /// Placeholder price-change badge; real sentiment data lands with the price-change pipeline.
-    func sentimentBadge(_ sentiment: ForYouTokenRowData.Sentiment) -> some View {
-        let colors = sentimentColors(sentiment)
-        return Text(sentimentTitle(sentiment))
-            .style(DesignSystem.Font.captionMediumToken, color: colors.foreground)
-            .padding(.horizontal, 4)
-            .frame(minHeight: 16)
-            .background(colors.background)
-            .clipShape(Capsule())
-    }
-
-    func sentimentTitle(_ sentiment: ForYouTokenRowData.Sentiment) -> String {
-        switch sentiment {
-        case .positive: return "Positive"
-        case .neutral: return "Neutral"
-        case .negative: return "Negative"
-        }
-    }
-
-    func sentimentColors(_ sentiment: ForYouTokenRowData.Sentiment) -> (foreground: Color, background: Color) {
-        switch sentiment {
-        case .negative:
-            return (DesignSystem.Color.textStatusError, DesignSystem.Color.bgStatusErrorSubtle)
-        case .neutral:
-            return (DesignSystem.Color.textStatusInfo, DesignSystem.Color.bgStatusInfoSubtle)
-        case .positive:
-            return (DesignSystem.Color.textStatusSuccess, DesignSystem.Color.bgStatusSuccessSubtle)
         }
     }
 
