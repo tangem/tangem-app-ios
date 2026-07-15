@@ -96,7 +96,7 @@ private extension CommonTokenFeeProvidersManagerProvider {
             if model.yieldModuleManager?.state?.state.isEffectivelyActive == true {
                 guard FeatureProvider.isAvailable(.gaslessYieldFee) else { return nil }
             }
-            if model.tokenItem.blockchain.chainId == GaslessTransactionsAPIService.TronFeeToken.chainId {
+            if case .tron(testnet: false) = model.tokenItem.blockchain {
                 guard FeatureProvider.isAvailable(.tronGasless) else { return nil }
             }
             return model
