@@ -12,8 +12,6 @@ import TangemPay
 protocol TangemPayAssembly {
     var customerWalletAddressAndSavedTokensResolver: TangemPayCustomerWalletAddressAndSavedTokensResolver { get }
 
-    func makeCardDetailsRepository(for tangemPayAccount: TangemPayAccount) -> TangemPayCardDetailsRepository
-
     func makeCardDetailsRepository(for card: TangemPayCard) -> TangemPayCardDetailsRepository
 
     func makeTransactionDispatcher(
