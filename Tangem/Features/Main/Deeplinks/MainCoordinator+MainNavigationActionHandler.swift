@@ -113,8 +113,16 @@ extension MainCoordinator {
         }
 
         private func routeCampaignsAction(params: DeeplinkNavigationAction.Params) -> Bool {
-            incomingActionManager.discardIncomingAction()
-            return false
+            guard FeatureProvider.isAvailable(.promoCampaignsAttribution),
+                  let campaignId = params.campaignId?.nilIfEmpty,
+                  let coordinator,
+                  coordinator.openCampaignIfNeeded(campaignId: campaignId)
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            return true
         }
 
         private func routeSurveyAction(params: DeeplinkNavigationAction.Params) -> Bool {
