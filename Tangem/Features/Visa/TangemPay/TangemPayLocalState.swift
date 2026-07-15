@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemPay
+
 enum TangemPayLocalState {
     case loading
 
@@ -21,6 +23,8 @@ enum TangemPayLocalState {
 
     case tangemPayAccount(TangemPayAccount)
     case cardDeactivated(TangemPayAccount)
+
+    case planSelectNeeded(tariffPlanSelector: any TangemPayTariffPlanSelector)
 }
 
 enum TangemPayCachedLocalState: Codable {
@@ -66,7 +70,8 @@ extension TangemPayLocalState {
         case .unavailable, .syncNeeded:
             return true
         case .loading, .syncInProgress, .kycRequired, .kycDeclined,
-             .issuingCard, .failedToIssueCard, .tangemPayAccount, .cardDeactivated:
+             .issuingCard, .failedToIssueCard, .tangemPayAccount, .cardDeactivated,
+             .planSelectNeeded:
             return false
         }
     }
@@ -94,7 +99,7 @@ extension TangemPayLocalState {
             account.cardsSummary.map(TangemPayCachedLocalState.tangemPayAccount)
         case .cardDeactivated(let account):
             account.cardsSummary.map(TangemPayCachedLocalState.cardDeactivated)
-        case .loading, .syncNeeded, .syncInProgress, .unavailable:
+        case .loading, .syncNeeded, .syncInProgress, .unavailable, .planSelectNeeded:
             nil
         }
     }

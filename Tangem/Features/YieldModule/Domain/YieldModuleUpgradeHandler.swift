@@ -74,7 +74,7 @@ final class CommonYieldModuleUpgradeHandler: YieldModuleUpgradeHandler {
     }
 
     func isUpgradeWrapped(_ data: ExpressTransactionData) -> Bool {
-        data.txData?.removeHexPrefix().hasPrefix(Constants.upgradeToAndCallMethodId.removeHexPrefix()) == true
+        data.txData.map(UpgradeToAndCallMethod.isEncodedCall) == true
     }
 }
 
@@ -108,9 +108,5 @@ private extension CommonYieldModuleUpgradeHandler {
             externalTxURL: data.externalTxURL,
             payInAddress: data.payInAddress
         )
-    }
-
-    enum Constants {
-        static let upgradeToAndCallMethodId = "0x4f1ef286"
     }
 }

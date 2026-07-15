@@ -13,6 +13,7 @@ import TangemLocalization
 import TangemAssets
 import let TangemVisa.VisaLogger
 import TangemPay
+import TangemAccessibilityIdentifiers
 
 final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
     @Injected(\.alertPresenter)
@@ -45,6 +46,10 @@ final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
         isRedesigned
             ? .init(title: Localization.tangempayKycInProgressNotificationButton, style: .secondary, action: viewStatus)
             : .init(title: Localization.tangempayCancelKyc, style: .secondary, action: showAlert)
+    }
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.kycStatusSheetPrimaryButton
     }
 
     private var isRedesigned: Bool {

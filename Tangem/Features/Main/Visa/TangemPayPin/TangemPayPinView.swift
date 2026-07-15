@@ -185,6 +185,7 @@ private extension TangemPayPinView {
                 Text(viewModel.enterPinHeader)
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textTertiary)
                     .multilineTextAlignment(.center)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinScreenTitle)
 
                 TangemPayPinStackView(
                     pinText: $viewModel.pin,
@@ -192,6 +193,7 @@ private extension TangemPayPinView {
                     errorMessage: viewModel.errorMessage,
                     isDisabled: viewModel.isLoading
                 )
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinInputField)
 
                 if viewModel.isLoading {
                     TangemLoader()
@@ -214,7 +216,9 @@ private extension TangemPayPinView {
                 icon: DesignSystem.Icons.Success.regular20,
                 title: Localization.tangempayCardDetailsChangePinSuccessTitle,
                 subtitle: Localization.tangempayCardDetailsChangePinSuccessDescription,
-                buttonTitle: Localization.commonClose
+                buttonTitle: Localization.commonClose,
+                titleAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.pinSuccessTitle,
+                buttonAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.pinDoneButton
             ),
             action: viewModel.close
         )

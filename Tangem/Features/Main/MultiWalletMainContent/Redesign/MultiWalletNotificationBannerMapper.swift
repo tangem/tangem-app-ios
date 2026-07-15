@@ -115,6 +115,7 @@ private extension MultiWalletNotificationBannerMapper {
 
     func mapEffect(_ effect: NotificationBannerKind.Effect) -> NotificationBanner.Effect {
         switch effect {
+        case .plain: .none
         case .card: .bannerCard
         case .magic: .bannerMagic
         }
@@ -322,6 +323,8 @@ private extension MultiWalletNotificationBannerMapper {
             return SendAccessibilityIdentifiers.leaveAmountButton
         case .openFeeCurrency:
             return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
+        case .openGetTangemPay:
+            return TangemPayAccessibilityIdentifiers.getTangemPayBannerOpenButton
         default:
             return CommonUIAccessibilityIdentifiers.notificationButton
         }
