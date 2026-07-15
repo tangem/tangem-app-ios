@@ -57,7 +57,7 @@ final class TangemPayManager: TangemPayAccountModel {
     }
 
     private var multipleCardsEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayMultipleCards)
+        true
     }
 
     @Injected(\.tangemPayAssembly)

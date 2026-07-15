@@ -15,7 +15,7 @@ final class TangemPayAccount {
     static let maxCardsAllowed = 3
 
     private var multipleCardsEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayMultipleCards)
+        true
     }
 
     var paymentTokenItem: TokenItem {
@@ -250,8 +250,7 @@ final class TangemPayAccount {
     /// The VA order is polled on its own instance so it can't be cancelled by (or cancel) the shared
     /// `orderStatusPollingService`, which is single-slot and reused for freeze/reissue/card-issue.
     private lazy var virtualAccountOrderPollingService = TangemPayOrderStatusPollingService(
-        customerService: customerService,
-        multipleCardsEnabled: multipleCardsEnabled
+        customerService: customerService
     )
 
     private var bag = Set<AnyCancellable>()
