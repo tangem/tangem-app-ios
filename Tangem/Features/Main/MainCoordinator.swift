@@ -229,7 +229,8 @@ extension MainCoordinator: MainRoutable {
             return false
         }
 
-        let coordinator = CampaignCoordinator(
+        campaignCoordinator = CampaignFlowFactory().makeCampaignCoordinator(
+            campaignId: campaignId,
             dismissAction: { [weak self] _ in
                 self?.campaignCoordinator = nil
             },
@@ -238,8 +239,6 @@ extension MainCoordinator: MainRoutable {
                 self?.popToRoot(with: options)
             }
         )
-        coordinator.start(with: .init(campaignId: campaignId))
-        campaignCoordinator = coordinator
         return true
     }
 
