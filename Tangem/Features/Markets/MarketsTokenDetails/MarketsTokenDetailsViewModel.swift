@@ -18,6 +18,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     /// Tracks token IDs for which the news carousel scroll event has been logged in the current session.
     /// Using a static set ensures the event is only logged once per app session per token.
@@ -52,6 +53,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
     @Published var securityScoreDetailsViewModel: MarketsTokenDetailsSecurityScoreDetailsViewModel?
     @Published private(set) var numberOfExchangesListedOn: Int?
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
     @Published var fullDescriptionBottomSheetInfo: DescriptionBottomSheetInfo?
@@ -158,8 +160,11 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     private let initialDate = Date()
 
     private let tokenInfo: MarketsTokenModel
+    private let marketingNotificationManager = MarketingBannerNotificationManager()
     private let dataProvider: MarketsTokenDetailsDataProvider
     private let marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper
+
+    let priceAlertBellViewModel: PriceAlertBellViewModel?
     private let walletDataProvider = MarketsWalletDataProvider()
     private let marketsNewsProvider = MarketsRelatedTokenNewsProvider()
 
@@ -184,6 +189,9 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         tokenName = tokenInfo.name
         selectedPriceChangeIntervalType = .day
         tokenSymbol = tokenInfo.symbol
+        priceAlertBellViewModel = FeatureProvider.isAvailable(.priceAlertsSubscription)
+            ? PriceAlertBellViewModel(tokenId: tokenInfo.id, coordinator: coordinator)
+            : nil
 
         // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
         super.init(overlayContentProgressInitialValue: 1.0)
@@ -453,6 +461,14 @@ private extension MarketsTokenDetailsViewModel {
 
 private extension MarketsTokenDetailsViewModel {
     func bind() {
+        marketingNotificationManager.setup(
+            bannersPublisher: marketingCampaignsRepository.bannersPublisher(forMarketsTokenId: tokenInfo.id)
+        )
+
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
+
         currentPricePublisher
             .assign(to: \.priceFromQuoteRepository, on: self, ownership: .weak)
             .store(in: &bag)
