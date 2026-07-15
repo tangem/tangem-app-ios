@@ -27,9 +27,9 @@ class SendDestinationInteractorDependenciesProvider {
         .type(for: tokenItem.blockchain)
     }
 
-    /// Address-book contacts for the current network — already de-duplicated by address across wallets by
-    /// `NetworkAddressBooksProvider` — paired with their source wallet name for the breadcrumb. Empty when
-    /// the feature is off.
+    /// Address-book contacts for the current network across all unlocked wallets, paired with their source
+    /// wallet name for the breadcrumb; an address saved in several wallets appears once per wallet. Empty
+    /// when the feature is off.
     var addressBookContactsPublisher: AnyPublisher<[SendDestinationAddressBookContact], Never> {
         guard let addressBooksProvider else {
             return .just(output: [])
@@ -135,10 +135,7 @@ private extension SendDestinationInteractorDependenciesProvider {
             return nil
         }
 
-        return NetworkAddressBooksProvider(
-            networkId: AddressBookNetworkID(tokenItem.blockchain.networkId),
-            currentWalletId: sourceToken.userWalletInfo.id
-        )
+        return NetworkAddressBooksProvider(networkId: AddressBookNetworkID(tokenItem.blockchain.networkId))
     }
 }
 
