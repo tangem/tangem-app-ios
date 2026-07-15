@@ -288,6 +288,7 @@ private extension TangemPayCardManagementViewModel {
 
         let replaceCardRow = DefaultRowViewModel(
             title: Localization.tangempayCardDetailsReissueCard,
+            accessibilityIdentifier: TangemPayAccessibilityIdentifiers.reissueCardRow,
             action: freezingState.isFreezingUnfreezingInProgress ? nil : { [weak self] in
                 self?.onReplaceCardLegacy()
             }
@@ -659,6 +660,7 @@ private extension TangemPayCardManagementViewModel {
             ),
             row(
                 title: Localization.tangempayCardDetailsReissueCard,
+                accessibilityIdentifier: TangemPayAccessibilityIdentifiers.reissueCardRow,
                 isBusy: isBusy,
                 action: { [weak self] in self?.onReplaceCard() }
             ),
