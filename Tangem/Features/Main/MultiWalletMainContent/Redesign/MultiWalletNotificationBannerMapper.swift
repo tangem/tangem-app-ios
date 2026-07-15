@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemUI
+import TangemAssets
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 
@@ -36,13 +37,17 @@ private extension MultiWalletNotificationBannerMapper {
         NotificationBannerItem(
             id: input.id,
             bannerType: makeBannerType(from: input),
-            priority: mapPriority(from: input.severity),
+            priority: mapPriority(from: input),
             accessibilityIdentifier: input.settings.event.accessibilityIdentifier
         )
     }
 
-    func mapPriority(from severity: NotificationView.Severity) -> NotificationBanner.Priority {
-        switch severity {
+    func mapPriority(from input: NotificationViewInput) -> NotificationBanner.Priority {
+        if (input.settings.event as? GeneralNotificationEvent) == .addFunds {
+            return .mid
+        }
+
+        switch input.severity {
         case .critical, .warning:
             return .high
         case .info:
@@ -51,26 +56,31 @@ private extension MultiWalletNotificationBannerMapper {
     }
 
     func makeBannerType(from input: NotificationViewInput) -> NotificationBanner.BannerType {
+        let bannerKind = effectiveBannerKind(for: input)
         let textOnly = makeTextOnly(from: input)
-        let content = makeContent(textOnly: textOnly, input: input)
+        let content = makeContent(textOnly: textOnly, input: input, bannerKind: bannerKind)
         let bannerAction = makeBannerAction(from: input)
+        let closeAction = makeCloseAction(from: input)
 
+        return makeBannerType(
+            bannerKind: bannerKind,
+            content: content,
+            textOnly: textOnly,
+            bannerAction: bannerAction,
+            closeAction: closeAction
+        )
+    }
+
+    func effectiveBannerKind(for input: NotificationViewInput) -> NotificationBannerKind {
         if let bannerKind = input.settings.event.bannerKind {
-            let closeAction = makeCloseAction(from: input)
-            return makeBannerType(
-                bannerKind: bannerKind,
-                content: content,
-                textOnly: textOnly,
-                bannerAction: bannerAction,
-                closeAction: closeAction
-            )
+            return bannerKind
         }
 
-        return makeSeverityBasedBannerType(
-            severity: input.severity,
-            content: content,
-            bannerAction: bannerAction
-        )
+        switch input.severity {
+        case .critical: return .critical
+        case .warning: return .warning
+        case .info: return .status
+        }
     }
 
     func makeBannerType(
@@ -82,11 +92,11 @@ private extension MultiWalletNotificationBannerMapper {
     ) -> NotificationBanner.BannerType {
         switch bannerKind {
         case .status:
-            return .status(content, bannerAction)
+            return .status(content, bannerAction, closeAction)
         case .critical:
-            return .critical(content, bannerAction)
+            return .critical(content, bannerAction, closeAction)
         case .warning:
-            return .warning(content, bannerAction)
+            return .warning(content, bannerAction, closeAction)
         case .informational(let alignment):
             return .informational(textOnly, bannerAction, closeAction, mapTextAlignment(alignment))
         case .promo(let effect):
@@ -114,15 +124,16 @@ private extension MultiWalletNotificationBannerMapper {
     func makeSeverityBasedBannerType(
         severity: NotificationView.Severity,
         content: NotificationBanner.Content,
-        bannerAction: NotificationBanner.BannerAction
+        bannerAction: NotificationBanner.BannerAction,
+        closeAction: NotificationBanner.CloseAction?
     ) -> NotificationBanner.BannerType {
         switch severity {
         case .critical:
-            return .critical(content, bannerAction)
+            return .critical(content, bannerAction, closeAction)
         case .warning:
-            return .warning(content, bannerAction)
+            return .warning(content, bannerAction, closeAction)
         case .info:
-            return .status(content, bannerAction)
+            return .status(content, bannerAction, closeAction)
         }
     }
 
@@ -143,26 +154,32 @@ private extension MultiWalletNotificationBannerMapper {
 
     func makeContent(
         textOnly: NotificationBanner.TextOnly,
-        input: NotificationViewInput
+        input: NotificationViewInput,
+        bannerKind: NotificationBannerKind
     ) -> NotificationBanner.Content {
-        let messageIcon = input.settings.event.redesignedBannerContent?.icon ?? input.settings.event.icon
+        let messageIcon: NotificationView.MessageIcon? = if let redesignedContent = input.settings.event.redesignedBannerContent {
+            redesignedContent.icon
+        } else {
+            input.settings.event.icon
+        }
+
+        guard let messageIcon else {
+            return .text(textOnly)
+        }
 
         // Status pills center the trailing icon against the text (per design); other kinds keep top alignment.
         let iconAlignment: NotificationBanner.Icon.Alignment = {
-            if case .status? = input.settings.event.bannerKind { return .center }
+            if case .status = bannerKind { return .center }
             return .top
         }()
 
         switch messageIcon.iconType {
         case .image(let imageType):
-            let icon = NotificationBanner.Icon(
+            let icon = makeImageIcon(
                 imageType: imageType,
-                alignment: iconAlignment,
-                width: mapSizeUnit(from: messageIcon.size.width),
-                height: mapSizeUnit(from: messageIcon.size.height),
-                renderingMode: messageIcon.renderingMode,
-                color: messageIcon.color,
-                isLeading: messageIcon.isLeading
+                messageIcon: messageIcon,
+                bannerKind: bannerKind,
+                alignment: iconAlignment
             )
             return .textWithIcon(.init(text: textOnly, icon: icon))
         case .loadableIcon(let url):
@@ -170,13 +187,59 @@ private extension MultiWalletNotificationBannerMapper {
             let icon = NotificationBanner.LoadableIcon(
                 url: url,
                 alignment: loadableAlignment,
-                width: mapSizeUnit(from: messageIcon.size.width),
-                height: mapSizeUnit(from: messageIcon.size.height)
+                width: mapSizeUnit(from: redesignIconSide(messageIcon.size.width)),
+                height: mapSizeUnit(from: redesignIconSide(messageIcon.size.height))
             )
             return .textWithLoadableIcon(.init(text: textOnly, icon: icon))
         default:
             return .text(textOnly)
         }
+    }
+
+    private static let legacyWarningGlyphs: Set<ImageType> = [
+        Assets.redCircleWarning,
+        Assets.blueCircleWarning,
+        Assets.attention,
+        Assets.warningIcon,
+    ]
+
+    private func redesignIconSide(_ dimension: CGFloat) -> CGFloat {
+        max(dimension, 28)
+    }
+
+    private func makeImageIcon(
+        imageType: ImageType,
+        messageIcon: NotificationView.MessageIcon,
+        bannerKind: NotificationBannerKind,
+        alignment: NotificationBanner.Icon.Alignment
+    ) -> NotificationBanner.Icon {
+        guard Self.legacyWarningGlyphs.contains(imageType) else {
+            return NotificationBanner.Icon(
+                imageType: imageType,
+                alignment: alignment,
+                width: mapSizeUnit(from: redesignIconSide(messageIcon.size.width)),
+                height: mapSizeUnit(from: redesignIconSide(messageIcon.size.height)),
+                renderingMode: messageIcon.renderingMode,
+                color: messageIcon.color,
+                isLeading: messageIcon.isLeading
+            )
+        }
+
+        let tint: Color = if case .critical = bannerKind {
+            .Tangem.Graphic.Neutral.primary
+        } else {
+            .Tangem.Graphic.Status.attention
+        }
+
+        return NotificationBanner.Icon(
+            imageType: Assets.DesignSystem.attention,
+            alignment: alignment,
+            width: .x7,
+            height: .x7,
+            renderingMode: .template,
+            color: tint,
+            isLeading: messageIcon.isLeading
+        )
     }
 
     func mapSizeUnit(from dimension: CGFloat) -> SizeUnit {
@@ -260,6 +323,8 @@ private extension MultiWalletNotificationBannerMapper {
             return SendAccessibilityIdentifiers.leaveAmountButton
         case .openFeeCurrency:
             return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
+        case .openGetTangemPay:
+            return TangemPayAccessibilityIdentifiers.getTangemPayBannerOpenButton
         default:
             return CommonUIAccessibilityIdentifiers.notificationButton
         }

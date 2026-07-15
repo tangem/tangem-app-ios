@@ -31,6 +31,9 @@ class OnrampModel {
     @Injected(\.onrampUnknownStatusRepository)
     private var onrampUnknownStatusRepository: OnrampUnknownStatusRepository
 
+    @Injected(\.expressAvailabilityProvider)
+    private var expressAvailabilityProvider: ExpressAvailabilityProvider
+
     weak var router: OnrampModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
 
@@ -55,8 +58,6 @@ class OnrampModel {
 
     private var bag: Set<AnyCancellable> = []
 
-    private let isHistoryFallbackEnabled: Bool
-
     init(
         userWalletId: String,
         tokenItem: TokenItem,
@@ -68,8 +69,7 @@ class OnrampModel {
         autoupdatingTimer: AutoupdatingTimer,
         redirectSettingsBuilder: OnrampRedirectSettingsBuilder,
         transactionHistoryEnricherFactory: @escaping TransactionHistoryExpressDataEnriching.Factory,
-        predefinedValues: PredefinedValues,
-        isHistoryFallbackEnabled: Bool = FeatureProvider.isAvailable(.onrampApplePayHistoryFallback)
+        predefinedValues: PredefinedValues
     ) {
         self.userWalletId = userWalletId
         self.tokenItem = tokenItem
@@ -81,7 +81,6 @@ class OnrampModel {
         self.autoupdatingTimer = autoupdatingTimer
         self.redirectSettingsBuilder = redirectSettingsBuilder
         self.transactionHistoryEnricherFactory = transactionHistoryEnricherFactory
-        self.isHistoryFallbackEnabled = isHistoryFallbackEnabled
 
         _amount = .init(predefinedValues.amount)
         _currency = .init(
@@ -151,6 +150,16 @@ private extension OnrampModel {
             .sink { model, provider in
                 let isSuccessfullyLoaded = provider?.value?.isSuccessfullyLoaded ?? false
                 isSuccessfullyLoaded ? model.restartTimer() : model.stopTimer()
+            }
+            .store(in: &bag)
+
+        // Log once, on the first resolved "not supported" — the publisher already gates on `.updated`.
+        unsupportedTokenPublisher
+            .compactMap { $0 }
+            .first()
+            .withWeakCaptureOf(self)
+            .sink { model, _ in
+                model.analyticsLogger.logOnrampNoticeBuyNotSupported()
             }
             .store(in: &bag)
     }
@@ -667,7 +676,7 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                 }
             } catch is CancellationError {
                 await runOnMain { result.fail() }
-            } catch let error where error.networkErrorCode == .timedOut && model.isHistoryFallbackEnabled {
+            } catch let error where error.networkErrorCode == .timedOut {
                 await model.handleNativePaymentTimeout(
                     provider: provider,
                     applePayStartDate: applePayStartDate,
@@ -792,6 +801,21 @@ extension OnrampModel: SendBaseOutput {
 // MARK: - OnrampNotificationManagerInput
 
 extension OnrampModel: OnrampNotificationManagerInput {
+    var unsupportedTokenPublisher: AnyPublisher<TokenItem?, Never> {
+        expressAvailabilityProvider.expressAvailabilityUpdateState
+            .map { [tokenItem, expressAvailabilityProvider] state -> TokenItem? in
+                // "Not supported" only on a resolved `.unavailable` (`.updated`). During `.updating` the cached
+                // `.unavailable` may be stale and flip to `.available` once the in-flight load completes.
+                let isUnavailable = expressAvailabilityProvider.onrampState(for: tokenItem) == .unavailable
+                guard case .updated = state, isUnavailable else {
+                    return nil
+                }
+                return tokenItem
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     var errorPublisher: AnyPublisher<Error?, Never> {
         let currencyErrorPublisher = _currency
             .filter { !$0.isLoading }
