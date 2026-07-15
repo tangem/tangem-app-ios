@@ -28,11 +28,7 @@ struct TangemPayCardManagementView: View {
 
     private var legacyBody: some View {
         ScrollView {
-            if viewModel.multipleCardsEnabled {
-                multiCardContent
-            } else {
-                legacyContent
-            }
+            multiCardContent
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .disabled(viewModel.isLoadingReissueFee)
@@ -66,50 +62,6 @@ struct TangemPayCardManagementView: View {
         }
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
-    }
-
-    // MARK: - Legacy single-card
-
-    private var legacyContent: some View {
-        VStack(spacing: 14) {
-            Group {
-                if let renameVM = viewModel.cardRenameViewModel {
-                    TangemPayCardRenameView(viewModel: renameVM)
-                } else if let detailsViewModel = viewModel.tangemPayCardDetailsViewModel {
-                    TangemPayCardDetailsView(viewModel: detailsViewModel)
-                }
-            }
-            .transition(.identity)
-
-            if viewModel.cardRenameViewModel == nil {
-                if viewModel.isReissuing {
-                    TangemPayReplacingCardBanner()
-                } else {
-                    if viewModel.shouldDisplayAddToApplePayGuide {
-                        Button(action: viewModel.openAddToApplePayGuide) {
-                            TangemPayAddToApplePayBanner(closeAction: viewModel.dismissAddToApplePayGuideBanner)
-                        }
-                    }
-
-                    if let dailyLimitState = viewModel.dailyLimitState {
-                        TangemPayDailyLimitSectionView(
-                            state: dailyLimitState,
-                            isFrozen: viewModel.freezingState.isFrozen,
-                            changeAction: viewModel.openChangeDailyLimit
-                        )
-                    }
-
-                    GroupedSection(viewModel.cardSettingsRows) {
-                        DefaultRowView(viewModel: $0)
-                    } header: {
-                        DefaultHeaderView(Localization.tangempayCardPageSettingsTitle)
-                            .padding(.vertical, 12)
-                    }
-                }
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
     }
 
     // MARK: - Multi-card
@@ -336,10 +288,8 @@ struct TangemPayCardManagementView: View {
     private var redesignedCardSection: some View {
         if let renameVM = viewModel.cardRenameViewModel {
             TangemPayCardRenameViewRedesigned(viewModel: renameVM)
-        } else if viewModel.multipleCardsEnabled {
+        } else {
             redesignedCarousel
-        } else if let detailsViewModel = viewModel.tangemPayCardDetailsViewModel {
-            TangemPayCardDetailsViewRedesigned(viewModel: detailsViewModel)
         }
     }
 
