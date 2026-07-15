@@ -9,7 +9,7 @@
 import Foundation
 import TangemFoundation
 
-final class CashbackPromoService {
+struct CashbackPromoService {
     private let repository = CashbackPromoRepository()
 
     func campaign(id: String) async -> CampaignBannerData? {
@@ -31,7 +31,8 @@ struct CashbackRegistration {
     struct TokenReward {
         let networkId: String
         let userAddress: String
-        let tokenAddress: String?
+        let tokenAddress: String
+        let tokenId: String?
     }
 }
 
@@ -62,7 +63,8 @@ private final class CashbackPromoRepository {
             tokenReward: .init(
                 tokenAddress: registration.tokenReward.tokenAddress,
                 networkId: registration.tokenReward.networkId,
-                userAddress: registration.tokenReward.userAddress
+                userAddress: registration.tokenReward.userAddress,
+                tokenId: registration.tokenReward.tokenId
             )
         )
 

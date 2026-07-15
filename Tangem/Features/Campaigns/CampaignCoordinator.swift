@@ -13,6 +13,7 @@ import TangemUI
 protocol CampaignRoutable: AnyObject {
     func closeCampaign()
     func openLearnMore(url: URL)
+    func presentErrorToast(with text: String)
 }
 
 final class CampaignCoordinator: CoordinatorObject {
@@ -33,16 +34,10 @@ final class CampaignCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        let viewModel = CampaignViewModel(
-            campaignId: options.campaignId,
-            coordinator: self,
-            cashbackPromoService: CashbackPromoService()
-        )
-
         subscribeToSheetDismiss()
 
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
+            floatingSheetPresenter.enqueue(sheet: options.viewModel)
         }
     }
 }
@@ -51,7 +46,7 @@ final class CampaignCoordinator: CoordinatorObject {
 
 extension CampaignCoordinator {
     struct Options {
-        let campaignId: String
+        let viewModel: CampaignViewModel
     }
 }
 
@@ -61,8 +56,9 @@ private extension CampaignCoordinator {
     func subscribeToSheetDismiss() {
         sheetDismissSubscription = sheetStateProvider.hasPresentedSheetPublisher
             .drop(while: { !$0 })
-            .filter { [weak self] hasPresentedSheet in
-                !hasPresentedSheet && self?.isSafariPresented == false
+            .filter { [weak self] isPresented in
+                guard let self else { return false }
+                return !isPresented && !isSafariPresented
             }
             .first()
             .sink { [weak self] _ in
@@ -101,5 +97,18 @@ extension CampaignCoordinator: CampaignRoutable {
                 onSuccess: { [weak self] _ in self?.resumeSheetAfterSafari() }
             )
         }
+    }
+
+    func presentErrorToast(with text: String) {
+        Toast(view: WarningToast(text: text))
+            .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
+    }
+}
+
+// MARK: - Constants
+
+private extension CampaignCoordinator {
+    enum Constants {
+        static let toastTopPadding: CGFloat = 52
     }
 }
