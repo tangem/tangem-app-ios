@@ -12,16 +12,10 @@ import TangemFoundation
 public final class TangemPayOrderStatusPollingService {
     private let customerService: CustomerInfoManagementService
 
-    /// Legacy single-card polling stops on the first request failure; the multi-card flow treats
-    /// request failures as transient and keeps polling. Hardcoded by the construction site in
-    /// Part 1; threaded from `FeatureProvider.isAvailable(.tangemPayMultipleCards)` in Part 2.
-    private let multipleCardsEnabled: Bool
-
     private var orderStatusPollingTask: Task<Void, Never>?
 
-    public init(customerService: CustomerInfoManagementService, multipleCardsEnabled: Bool) {
+    public init(customerService: CustomerInfoManagementService) {
         self.customerService = customerService
-        self.multipleCardsEnabled = multipleCardsEnabled
     }
 
     public func startOrderStatusPolling(
@@ -41,7 +35,7 @@ public final class TangemPayOrderStatusPollingService {
             }
         )
 
-        orderStatusPollingTask = runTask { [multipleCardsEnabled] in
+        orderStatusPollingTask = runTask {
             for await result in polling {
                 switch result {
                 case .success(let order):
@@ -59,13 +53,8 @@ public final class TangemPayOrderStatusPollingService {
                         onFailed(TangemPayOrderStatusPollingError.terminalStatus(order.status))
                         return
                     }
-                case .failure(let error):
-                    if multipleCardsEnabled {
-                        continue
-                    } else {
-                        onFailed(error)
-                        return
-                    }
+                case .failure:
+                    continue
                 }
             }
         }
