@@ -11,6 +11,7 @@ import BlockchainSdk
 
 protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
     StakingManagementModelAnalyticsLogger,
+    StakingValidationAnalyticsLogger,
     SendBaseViewAnalyticsLogger,
     SendAmountAnalyticsLogger,
     SendTargetsAnalyticsLogger,
