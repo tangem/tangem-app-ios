@@ -21,11 +21,15 @@ struct CampaignView: View {
             state: viewModel.viewState,
             showsButton: showsButton,
             maxHeightFraction: viewModel.viewState == .readyToEnroll ? 0.9 : nil,
+            mainContentBottomPadding: viewModel.viewState == .readyToEnroll ? 12 : nil,
             button: { button },
             headerContent: { header },
             mainContent: { mainContent }
         )
         .onAppear(perform: viewModel.onAppear)
+        .sheet(item: $viewModel.tokenSelectorViewModel) { tokenSelectorViewModel in
+            CampaignTokenSelectorView(viewModel: tokenSelectorViewModel)
+        }
     }
 
     // MARK: - Header
@@ -87,13 +91,16 @@ struct CampaignView: View {
     }
 
     private var readyToEnrollContent: some View {
-        VStack(spacing: 24) {
-            campaignInfo
-            accountSection
+        VStack(spacing: 0) {
+            VStack(spacing: 32) {
+                campaignInfo
+                accountSection
+            }
+
             termsView
+                .padding(.top, 44)
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 20)
     }
 
     private var campaignInfo: some View {
@@ -122,7 +129,7 @@ struct CampaignView: View {
 
     @ViewBuilder
     private var accountSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(Localization.promoCampaignSelectCashbackAccount)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
@@ -186,9 +193,9 @@ struct CampaignView: View {
         case .campaignNotActive, .alreadyActivated, .enrollSuccess:
             MainButton(settings: MainButton.Settings(title: Localization.commonClose, action: viewModel.close))
         case .summary:
-            MainButton(settings: MainButton.Settings(title: Localization.promoCampaignSelectToken, isDisabled: true, action: viewModel.selectToken))
+            MainButton(settings: MainButton.Settings(title: Localization.promoCampaignSelectToken, action: viewModel.selectToken))
         case .readyToEnroll:
-            MainButton(settings: MainButton.Settings(title: Localization.promoCampaignEnroll, isDisabled: true, action: viewModel.enroll))
+            MainButton(settings: MainButton.Settings(title: Localization.promoCampaignEnroll, isLoading: viewModel.isEnrolling, action: viewModel.enroll))
         case .idle, .loading:
             EmptyView()
         }
@@ -218,6 +225,7 @@ private extension CampaignView {
             campaignId: CashbackCampaign.whaleSwap.rawValue,
             coordinator: nil,
             cashbackPromoService: CashbackPromoService(),
+            analyticsLogger: nil,
             initialState: state
         ))
     }
