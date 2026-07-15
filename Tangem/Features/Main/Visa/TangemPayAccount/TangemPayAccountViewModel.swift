@@ -138,7 +138,7 @@ private extension TangemPayAccountViewModel {
                 return .replacingCard(balance: balance)
             }
             guard let firstActive = cards.first(where: { $0.productInstance.status == .active || $0.productInstance.status == .blocked }) else {
-                return .skeleton
+                return .issuingYourCard
             }
             return .normal(
                 card: CardInfo(cardNumberEnd: firstActive.cardNumberEnd),

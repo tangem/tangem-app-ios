@@ -14,6 +14,9 @@ struct TangemPaySmallCardViewRedesigned: View {
         case issued(cardNumberEnd: String)
         case issuing
         case replacing
+        /// It's used when user requested to issue the card but don't have money on account to do that.
+        /// For example select paid plan after onboarding
+        case ghost
     }
 
     let state: State
@@ -47,7 +50,7 @@ struct TangemPaySmallCardViewRedesigned: View {
         case .issued:
             Assets.Visa.chipIssued.image
                 .resizable()
-        case .issuing, .replacing:
+        case .issuing, .replacing, .ghost:
             Assets.Visa.chipIssuing.image
                 .resizable()
         }
@@ -63,7 +66,7 @@ struct TangemPaySmallCardViewRedesigned: View {
                 .frame(height: 6)
                 .foregroundStyle(.white)
                 .frame(width: 12, height: 12)
-        case .issuing, .replacing:
+        case .issuing, .replacing, .ghost:
             DesignSystem.Icons.Clock.regular16.image
                 .renderingMode(.template)
                 .resizable()
@@ -75,13 +78,22 @@ struct TangemPaySmallCardViewRedesigned: View {
 
     @ViewBuilder
     private var cardNumber: some View {
-        if case .issued(let cardNumberEnd) = state {
-            Text(cardNumberEnd)
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 50, height: 12, alignment: .trailing)
-                .offset(x: 0, y: 23)
+        switch state {
+        case .issued(let cardNumberEnd):
+            numberText(cardNumberEnd)
+        case .ghost:
+            numberText("0000")
+        case .issuing, .replacing:
+            EmptyView()
         }
+    }
+
+    private func numberText(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 10, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 50, height: 12, alignment: .trailing)
+            .offset(x: 0, y: 23)
     }
 }
 
