@@ -19,7 +19,7 @@ final class TangemPayCard: Identifiable {
     var productInstance: VisaCustomerInfoResponse.ProductInstance { snapshotSubject.value.productInstance }
     var card: VisaCustomerInfoResponse.Card { snapshotSubject.value.card }
 
-    var displayName: String { productInstance.displayName }
+    var displayName: String { productInstance.displayName ?? "" }
     var cardNumberEnd: String { card.cardNumberEnd }
 
     var snapshotPublisher: AnyPublisher<Snapshot, Never> {
@@ -28,7 +28,7 @@ final class TangemPayCard: Identifiable {
 
     var displayNamePublisher: AnyPublisher<String, Never> {
         snapshotSubject
-            .map(\.productInstance.displayName)
+            .map { $0.productInstance.displayName ?? "" }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }

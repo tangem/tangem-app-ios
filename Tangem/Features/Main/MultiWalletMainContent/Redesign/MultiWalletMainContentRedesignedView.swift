@@ -19,7 +19,9 @@ struct MultiWalletMainContentRedesignedView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
 
     var body: some View {
-        VStack(spacing: .unit(.x4)) {
+        VStack(spacing: .unit(.x3)) {
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+
             notificationBanners
 
             VStack(spacing: .unit(.x2)) {

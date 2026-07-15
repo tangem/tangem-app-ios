@@ -82,7 +82,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             publicKey: options.walletModel.publicKey
         )
 
-        let deeplinkHandler = TokenDetailsDeeplinkHandler(
+        let deeplinkHandler = PromotionDeeplinkHandler(
             coordinator: self,
             walletModel: options.walletModel,
             userWalletInfo: options.userWalletInfo
@@ -99,7 +99,8 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             coordinator: self,
             tokenRouter: tokenRouter,
             pendingTransactionDetails: options.pendingTransactionDetails,
-            deeplinkHandler: deeplinkHandler
+            deeplinkHandler: deeplinkHandler,
+            presentSource: options.presentSource
         )
 
         notificationManager.interactionDelegate = tokenDetailsViewModel
@@ -117,6 +118,7 @@ extension TokenDetailsCoordinator {
         let walletModel: any WalletModel
         /// Initialized when a deeplink is received for an onramp or exchange (swap) status update related to a specific transaction
         let pendingTransactionDetails: PendingTransactionDetails?
+        let presentSource: TokenDetailsPresentSource
 
         init(
             userWalletInfo: UserWalletInfo,
@@ -124,7 +126,8 @@ extension TokenDetailsCoordinator {
             walletModelsManager: any WalletModelsManager,
             userTokensManager: any UserTokensManager,
             walletModel: any WalletModel,
-            pendingTransactionDetails: PendingTransactionDetails? = nil
+            pendingTransactionDetails: PendingTransactionDetails? = nil,
+            presentSource: TokenDetailsPresentSource = .navigation
         ) {
             self.userWalletInfo = userWalletInfo
             self.keysDerivingInteractor = keysDerivingInteractor
@@ -132,6 +135,7 @@ extension TokenDetailsCoordinator {
             self.userTokensManager = userTokensManager
             self.walletModel = walletModel
             self.pendingTransactionDetails = pendingTransactionDetails
+            self.presentSource = presentSource
         }
     }
 }
@@ -351,6 +355,27 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
+    func openSwapAndSend(input: SendInput) {
+        guard SendFeatureProvider.shared.isAvailable else {
+            return
+        }
+
+        let sourceToken = CommonSendSwapableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel,
+            operationType: .swapAndSend
+        ).makeSwapableToken()
+
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(
+            type: .send(sourceToken),
+            source: .tokenDetails,
+            shouldStartFromTokenList: true
+        )
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
     func openSwap(parameters: PredefinedSwapParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .swap(parameters), source: .tokenDetails)
@@ -451,3 +476,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 // MARK: - SendFeeCurrencyNavigating
 
 extension TokenDetailsCoordinator: SendFeeCurrencyNavigating {}
+
+// MARK: - PromotionDeeplinkRoutable
+
+extension TokenDetailsCoordinator: PromotionDeeplinkRoutable {}

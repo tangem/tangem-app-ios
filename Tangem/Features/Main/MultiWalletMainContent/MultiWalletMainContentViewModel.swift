@@ -712,6 +712,10 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
             userWalletModel: userWalletModel
         )
     }
+
+    func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector) {
+        coordinator?.openTangemPaySelectPlan(tariffPlanSelector: tariffPlanSelector)
+    }
 }
 
 // MARK: - MultiWalletMainContentItemViewModelFactory protocol conformance
@@ -884,7 +888,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             tokenRouter.openStaking(walletModel: walletModel)
         case .yield:
             tokenRouter.openYieldModule(walletModel: walletModel)
-        case .marketsDetails, .hide:
+        case .marketsDetails, .hide, .swapAndSend:
             return
         }
     }

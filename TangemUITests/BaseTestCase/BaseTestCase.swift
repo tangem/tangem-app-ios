@@ -83,6 +83,9 @@ class BaseTestCase: XCTestCase {
             arguments.append("-uitest-feature-\(feature.rawValue)-\(suffix)")
         }
 
+        // Pin locale/language so currency, number and date assertions don't depend on the simulator region.
+        arguments.append(contentsOf: ["-AppleLocale", "en_US", "-AppleLanguages", "(en)"])
+
         app.launchArguments = arguments
 
         // Build launch environment with resolved WireMock URL for parallel test support
@@ -156,16 +159,38 @@ class BaseTestCase: XCTestCase {
     // MARK: - Hot Wallet
 
     @discardableResult
-    func importHotWallet() -> MainScreen {
-        CreateWalletSelectorScreen(app)
+    func importHotWallet(accessCode: String? = nil) -> MainScreen {
+        let accessCodeScreen = CreateWalletSelectorScreen(app)
             .skipStories()
             .startWithMobileWallet()
             .tapImportButton()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
-            .skipAccessCode()
-            .tapFinish()
+
+        let successScreen = accessCode.map(accessCodeScreen.setAccessCode) ?? accessCodeScreen.skipAccessCode()
+
+        return successScreen.tapFinish()
+    }
+
+    @discardableResult
+    func launchAndImportHotWallet(
+        eligibilityState: String = "PaeraCustomer",
+        accessCode: String? = nil,
+        expressApiType: ExpressAPI? = nil,
+        scenarios: [ScenarioConfig] = []
+    ) -> MainScreen {
+        let eligibilityScenario = ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState)
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: expressApiType,
+            visaApiType: .mock,
+            clearStorage: true,
+            scenarios: [eligibilityScenario] + scenarios
+        )
+
+        return importHotWallet(accessCode: accessCode)
     }
 
     // MARK: - Alert Handling

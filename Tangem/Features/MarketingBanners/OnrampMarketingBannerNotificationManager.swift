@@ -16,6 +16,7 @@ final class OnrampMarketingBannerNotificationManager {
 
     private let service = MarketingBannerService()
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
+    private let standaloneBannersSubject = CurrentValueSubject<[StandaloneMarketingBannerViewModel], Never>([])
     private let linkedBannersSubject = CurrentValueSubject<[MarketingBanner], Never>([])
     private var subscription: AnyCancellable?
 }
@@ -56,6 +57,7 @@ extension OnrampMarketingBannerNotificationManager {
             .receiveOnMain()
             .sink { manager, banners in
                 manager.notificationInputsSubject.send(banners.standalone.map { manager.makeInput(for: $0) })
+                manager.standaloneBannersSubject.send(banners.standalone.map { manager.makeStandaloneViewModel(for: $0) })
                 manager.linkedBannersSubject.send(banners.linked)
             }
     }
@@ -71,6 +73,28 @@ private extension OnrampMarketingBannerNotificationManager {
         ) { [weak self] id in
             self?.dismissNotification(with: id)
         }
+    }
+
+    func makeStandaloneViewModel(for banner: MarketingBanner) -> StandaloneMarketingBannerViewModel {
+        let action: (() -> Void)? = switch banner.action {
+        case .deeplink(let url):
+            { [incomingActionHandler] in _ = incomingActionHandler.handleIncomingURL(url) }
+        case .none:
+            nil
+        }
+
+        return StandaloneMarketingBannerViewModel(
+            id: banner.id,
+            title: banner.text,
+            iconURL: banner.iconURL,
+            isDismissible: banner.isDismissible,
+            action: action,
+            dismiss: banner.isDismissible ? { [weak self] in self?.dismissStandaloneBanner(id: banner.id) } : nil
+        )
+    }
+
+    func dismissStandaloneBanner(id: Int) {
+        standaloneBannersSubject.value.removeAll { $0.id == id }
     }
 }
 
@@ -89,6 +113,14 @@ extension OnrampMarketingBannerNotificationManager: NotificationManager {
 
     func dismissNotification(with id: NotificationViewId) {
         notificationInputsSubject.value.removeAll { $0.id == id }
+    }
+}
+
+// MARK: - Standalone banners
+
+extension OnrampMarketingBannerNotificationManager {
+    var standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never> {
+        standaloneBannersSubject.eraseToAnyPublisher()
     }
 }
 

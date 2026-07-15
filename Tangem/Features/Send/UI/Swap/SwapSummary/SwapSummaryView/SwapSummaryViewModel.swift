@@ -12,6 +12,7 @@ import TangemUI
 import TangemUIUtils
 import TangemLocalization
 import TangemMacro
+import TangemFoundation
 
 final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var swapAmountViewModel: SwapAmountViewModel
@@ -19,7 +20,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var feeCompactViewModel: SendFeeCompactViewModel
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
-    @Published private(set) var marketingNotifications: [NotificationBannerItem] = []
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
     @Published private(set) var notificationButtonIsLoading = false
 
     @Published private(set) var isMaxAmountButtonHidden: Bool = false
@@ -44,24 +45,22 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     private let interactor: SwapSummaryInteractor
     private let notificationManager: NotificationManager
-    private let marketingNotificationManager: NotificationManager
+    private let marketingNotificationManager: SwapMarketingBannerNotificationManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
     private let formVariantResolver: SwapFormVariantResolver
-    private let notificationBannerMapper: MultiWalletNotificationBannerMapper
 
     weak var router: SwapSummaryStepRoutable?
 
     init(
         interactor: SwapSummaryInteractor,
         notificationManager: NotificationManager,
-        marketingNotificationManager: NotificationManager,
+        marketingNotificationManager: SwapMarketingBannerNotificationManager,
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
         sourceTokenInput: SendSourceTokenInput,
-        formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver(),
-        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper()
+        formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver()
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
@@ -71,7 +70,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
         self.feeCompactViewModel = feeCompactViewModel
         self.formVariantResolver = formVariantResolver
-        self.notificationBannerMapper = notificationBannerMapper
         formVariant = formVariantResolver.currentVariant()
 
         bind()
@@ -207,11 +205,9 @@ private extension SwapSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$notificationInputs)
 
-        marketingNotificationManager.notificationPublisher
-            .map { [notificationBannerMapper] in
-                notificationBannerMapper.mapItems($0)
-            }
-            .assign(to: &$marketingNotifications)
+        marketingNotificationManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
     }
 }
 

@@ -238,7 +238,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             let imageType = hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
             return .init(iconType: .image(imageType), size: CGSize(width: 16, height: 18))
         case .mobileUpgrade:
-            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), size: CGSize(width: 54, height: 54))
+            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), isLeading: false, size: CGSize(width: 54, height: 54))
         case .pushNotificationsPermissionRequest:
             return .init(iconType: .image(Assets.pushNotifyBannerIcon), size: CGSize(width: 54, height: 54))
         case .initialWalletTokenSyncCompleted:
@@ -251,6 +251,25 @@ extension GeneralNotificationEvent: NotificationEvent {
                 isLeading: false,
                 size: CGSize(width: 24, height: 24)
             )
+        }
+    }
+
+    var redesignedBannerContent: RedesignedBannerContent? {
+        switch self {
+        case .missingDerivation:
+            return RedesignedBannerContent(icon: nil)
+        case .mobileFinishActivation:
+            return RedesignedBannerContent(
+                title: .string(Localization.hwActivationNeedTitle),
+                icon: NotificationView.MessageIcon(
+                    iconType: .image(Assets.DesignSystem.flashShield),
+                    renderingMode: .template,
+                    color: .Tangem.Graphic.Neutral.primary,
+                    isLeading: false
+                )
+            )
+        default:
+            return nil
         }
     }
 

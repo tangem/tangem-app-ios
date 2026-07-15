@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TokenDetailsMarketPriceView: View {
     let viewModel: TokenDetailsMarketPriceViewModel
@@ -46,16 +47,19 @@ struct TokenDetailsMarketPriceView: View {
                 view.buttonStyle(.scaled(scaleAmount: 0.95, dimmingAmount: 1, animation: .easeInOut))
             }
         }
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.marketPriceBlock)
     }
 
     private var labels: some View {
         VStack(alignment: .leading, spacing: .unit(.x1)) {
             Text(viewModel.title)
                 .font(Font.Tangem.Body16.medium)
+                .accessibilityIdentifier(TokenAccessibilityIdentifiers.marketPriceTitle)
 
             HStack(spacing: .unit(.x1)) {
                 Text(viewModel.subtitle)
                     .font(Font.Tangem.Caption12.semibold)
+                    .accessibilityIdentifier(TokenAccessibilityIdentifiers.marketPricePrice)
 
                 PriceChangeView(
                     state: viewModel.priceChange,
@@ -63,6 +67,7 @@ struct TokenDetailsMarketPriceView: View {
                     showIconForNeutral: true,
                     useRedesignColors: true
                 )
+                .accessibilityIdentifier(TokenAccessibilityIdentifiers.marketPricePriceChange)
             }
         }
     }
@@ -76,6 +81,7 @@ struct TokenDetailsMarketPriceView: View {
                 data: points
             )
             .frame(width: .unit(.x13))
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.marketPriceChart)
 
         case .loading:
             SkeletonView()

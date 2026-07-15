@@ -13,6 +13,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemAssets
 import TangemPay
+import TangemAccessibilityIdentifiers
 
 final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     @Injected(\.mailComposePresenter)
@@ -35,6 +36,10 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
 
     var title: AttributedString {
         .init(Localization.tangempayKycRejected)
+    }
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.kycDeclinedSheetPrimaryButton
     }
 
     var iconStyle: TangemPayPopupIconStyle {

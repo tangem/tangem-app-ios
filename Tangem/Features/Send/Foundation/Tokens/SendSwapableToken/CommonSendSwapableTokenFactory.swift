@@ -61,19 +61,13 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             hardwareLimitationsUtil: HardwareLimitationsUtil(config: userWalletInfo.config)
         )
 
-        let supportedProvidersFilter: SupportedProvidersFilter = switch operationType {
-        case .swapAndSend where FeatureProvider.isAvailable(.exchangeOnlyWithinSingleAddress): .byDifferentAddressExchangeSupport
-        case .swapAndSend: .cex
-        case .swap: .swap
-        case .onramp: .onramp
-        }
-
         let swapAvailabilityProvider = CommonSwapAvailabilityProvider(
             tokenItem: walletModel.tokenItem,
             userWalletConfig: userWalletInfo.config
         )
 
         let sendYieldModuleHelper = makeSendYieldModuleHelper()
+        let supportedProvidersFilter = makeSupportedProvidersFilter()
 
         return CommonSendSwapableToken(
             sourceToken: sourceToken,
@@ -96,6 +90,20 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
 }
 
 private extension CommonSendSwapableTokenFactory {
+    func makeSupportedProvidersFilter() -> SupportedProvidersFilter {
+        let isYieldModuleActive = walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true
+        let isYieldModuleUpdateAvailable = FeatureProvider.isAvailable(.yieldModuleUpdate)
+
+        return switch operationType {
+        case .swapAndSend where FeatureProvider.isAvailable(.exchangeOnlyWithinSingleAddress): .byDifferentAddressExchangeSupport
+        case .swapAndSend: .cex
+        case .swap where isYieldModuleActive && !isYieldModuleUpdateAvailable: .cex
+        case .swap where isYieldModuleActive && isYieldModuleUpdateAvailable: .yieldProviders(YieldProvidersFilter())
+        case .swap: .swap
+        case .onramp: .onramp
+        }
+    }
+
     func makeSendYieldModuleHelper() -> SendYieldModuleHelper? {
         guard FeatureProvider.isAvailable(.yieldModuleUpdate),
               walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true,

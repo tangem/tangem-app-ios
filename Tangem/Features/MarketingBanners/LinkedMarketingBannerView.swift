@@ -15,14 +15,16 @@ struct LinkedMarketingBannerViewModel: Hashable {
     let id: Int
     let text: String
     let iconURL: URL?
+    let backgroundColorHex: String?
 
     @IgnoredEquatable
     var action: (() -> Void)?
 
-    init(id: Int, text: String, iconURL: URL?, action: (() -> Void)? = nil) {
+    init(id: Int, text: String, iconURL: URL?, backgroundColorHex: String?, action: (() -> Void)? = nil) {
         self.id = id
         self.text = text
         self.iconURL = iconURL
+        self.backgroundColorHex = backgroundColorHex
         self.action = action
     }
 }
@@ -51,7 +53,7 @@ struct LinkedMarketingBannerView: View {
             .padding(.top, Self.contentVerticalInset + Self.topOverlap)
             .padding(.bottom, Self.contentVerticalInset)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.Tangem.Markers.backgroundTintedBlue)
+            .background(viewModel.backgroundColorHex.map { Color(hex: $0, fallback: Color.Tangem.Markers.backgroundTintedBlue) } ?? Color.Tangem.Markers.backgroundTintedBlue)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -78,6 +80,7 @@ enum LinkedMarketingBannerViewModelFactory {
             id: banner.id,
             text: banner.text,
             iconURL: banner.iconURL,
+            backgroundColorHex: banner.backgroundColorHex,
             action: makeAction(for: banner, incomingActionHandler: incomingActionHandler)
         )
     }
