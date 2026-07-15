@@ -721,23 +721,15 @@ private var pageSwitchAnimationDurationConfigStorage: [AnyHashable: TimeInterval
 
 // MARK: - Previews
 
-struct CardsInfoPagerView_Previews: PreviewProvider {
-    private struct CardsInfoPagerPreview: View {
-        var previewConfigs: [CardInfoPagePreviewConfig] {
-            return [
-                CardInfoPagePreviewConfig(initiallySelectedIndex: 0, hasPullToRefresh: true),
-                CardInfoPagePreviewConfig(initiallySelectedIndex: 2, hasPullToRefresh: false),
-            ]
-        }
-
-        var body: some View {
-            ForEach(previewConfigs) { previewConfig in
-                CardInfoPagePreviewContainerView(previewConfig: previewConfig)
-            }
-        }
+#Preview {
+    var previewConfigs: [CardInfoPagePreviewConfig] {
+        [
+            CardInfoPagePreviewConfig(initiallySelectedIndex: 0, hasPullToRefresh: true),
+            CardInfoPagePreviewConfig(initiallySelectedIndex: 2, hasPullToRefresh: false),
+        ]
     }
 
-    static var previews: some View {
-        CardsInfoPagerPreview()
+    ForEach(previewConfigs) { previewConfig in
+        CardInfoPagePreviewContainerView(previewConfig: previewConfig)
     }
 }

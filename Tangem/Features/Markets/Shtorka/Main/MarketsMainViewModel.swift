@@ -167,6 +167,10 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     func onTryLoadAgain() {
         widgetsProvider.reloadWidgets()
     }
+
+    func onForYouBannerTap() {
+        coordinator?.openForYou()
+    }
 }
 
 // MARK: - Private Implementation

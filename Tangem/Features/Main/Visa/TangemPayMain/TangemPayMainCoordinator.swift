@@ -33,6 +33,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     // MARK: - Child view models (push navigation)
 
     @Published var cardManagementViewModel: TangemPayCardManagementViewModel?
+    @Published var currentPlanCoordinator: TangemPayCurrentPlanCoordinator?
 
     // MARK: - Child view models (sheets)
 
@@ -41,6 +42,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var tangemPayDailyLimitViewModel: TangemPayDailyLimitViewModel?
     @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
+    @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
 
     private var options: Options?
 
@@ -57,7 +59,6 @@ class TangemPayMainCoordinator: CoordinatorObject {
         rootViewModel = TangemPayMainViewModel(
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
-            cardDetailsRepository: tangemPayAssembly.makeCardDetailsRepository(for: options.tangemPayAccount),
             coordinator: self
         )
     }
@@ -83,7 +84,9 @@ extension TangemPayMainCoordinator {
             self?.sendCoordinator = nil
 
             switch options {
-            case .none, .closeButtonTap:
+            // Swap redirect is unreachable here: TangemPay opens only `.swap`-type flows,
+            // and the receive-token list exists only in the Send-with-Swap flow.
+            case .none, .closeButtonTap, .openSwap:
                 break
             case .openFeeCurrency(let feeCurrency):
                 self?.dismiss(with: feeCurrency)
@@ -117,20 +120,6 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
     }
 
-    func openCardManagement() {
-        guard let options else {
-            assertionFailure("TangemPayMainCoordinator.Options not found")
-            return
-        }
-
-        cardManagementViewModel = TangemPayCardManagementViewModel(
-            userWalletInfo: options.userWalletInfo,
-            tangemPayAccount: options.tangemPayAccount,
-            cardDetailsRepository: tangemPayAssembly.makeCardDetailsRepository(for: options.tangemPayAccount),
-            coordinator: self
-        )
-    }
-
     func openCardManagement(entry: TangemPayCardEntry) {
         guard let options else {
             assertionFailure("TangemPayMainCoordinator.Options not found")
@@ -145,19 +134,29 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
     }
 
-    func openFakedoorSheet() {
-        guard let options else {
-            assertionFailure("TangemPayMainCoordinator.Options not found")
+    func openCurrentPlan() {
+        guard
+            let tangemPayAccount = options?.tangemPayAccount,
+            let customerTariffPlan = tangemPayAccount.customerTariffPlan
+        else {
             return
         }
 
-        Task { @MainActor in
-            let viewModel = TangemPayFakedoorSheetViewModel(
-                userWalletId: options.userWalletInfo.id,
-                coordinator: self
-            )
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
+        let coordinator = TangemPayCurrentPlanCoordinator(
+            dismissAction: { [weak self] in
+                self?.currentPlanCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(
+            customerTariffPlan: customerTariffPlan,
+            customerService: tangemPayAccount.customerService,
+            closeFlow: { [weak self] in
+                self?.currentPlanCoordinator = nil
+                self?.dismiss(with: nil)
+            }
+        ))
+        currentPlanCoordinator = coordinator
     }
 
     func openMaximumCardsIssuedSheet() {
@@ -240,13 +239,15 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         transaction: TangemPayTransactionRecord,
         userWalletId: UserWalletId,
         customerId: String,
-        cardName: String?
+        cardName: String?,
+        cardNumberEnd: String?
     ) {
         let viewModel = TangemPayTransactionDetailsViewModel(
             transaction: transaction,
             userWalletId: userWalletId,
             customerId: customerId,
             cardName: cardName,
+            cardNumberEnd: cardNumberEnd,
             coordinator: self
         )
 
@@ -376,9 +377,138 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
         }
     }
 
+    func addFundsSheetRequestBankTransfer() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+
+            // Give some time to hide sheet with animation
+            try? await Task.sleep(for: .seconds(0.2))
+            routeVirtualAccountEntry()
+        }
+    }
+
     func closeAddFundsSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - Virtual Account
+
+private extension TangemPayMainCoordinator {
+    func routeVirtualAccountEntry() {
+        guard let tangemPayAccount = options?.tangemPayAccount else { return }
+
+        switch tangemPayAccount.virtualAccountEntry {
+        case .none:
+            openVirtualAccountInfoSheet()
+        case .preparing:
+            openVirtualAccountPreparingPopup()
+        case .active(let productInstanceId):
+            loadVirtualAccountBankDetails(productInstanceId: productInstanceId)
+        }
+    }
+
+    func openVirtualAccountInfoSheet() {
+        guard let tangemPayAccount = options?.tangemPayAccount else { return }
+
+        Task { @MainActor in
+            let viewModel = TangemPayVirtualAccountInfoSheetViewModel(
+                tangemPayAccount: tangemPayAccount,
+                coordinator: self
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openVirtualAccountPreparingPopup() {
+        Task { @MainActor in
+            let viewModel = TangemPayVirtualAccountPreparingPopupViewModel(
+                onClose: { [weak self] in
+                    Task { @MainActor in
+                        self?.floatingSheetPresenter.removeActiveSheet()
+                    }
+                }
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func loadVirtualAccountBankDetails(productInstanceId: String) {
+        guard let tangemPayAccount = options?.tangemPayAccount else { return }
+
+        Task { @MainActor in
+            do {
+                let credentials = try await tangemPayAccount.loadBankCredentials(productInstanceId: productInstanceId)
+                let viewModel = TangemPayVirtualAccountBankDetailsViewModel(
+                    credentials: credentials,
+                    onClose: { [weak self] in
+                        Task { @MainActor in
+                            self?.floatingSheetPresenter.removeActiveSheet()
+                        }
+                    }
+                )
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            } catch {
+                VisaLogger.error("Failed to load virtual account bank credentials", error: error)
+                openVirtualAccountBankDetailsErrorPopup(productInstanceId: productInstanceId)
+            }
+        }
+    }
+
+    func openVirtualAccountBankDetailsErrorPopup(productInstanceId: String) {
+        Task { @MainActor in
+            let viewModel = TangemPayVirtualAccountBankDetailsErrorPopupViewModel(
+                onRetry: { [weak self] in
+                    Task { @MainActor in
+                        self?.floatingSheetPresenter.removeActiveSheet()
+                        try? await Task.sleep(for: .seconds(0.2))
+                        self?.loadVirtualAccountBankDetails(productInstanceId: productInstanceId)
+                    }
+                },
+                onContactSupport: { [weak self] in
+                    Task { @MainActor in
+                        self?.floatingSheetPresenter.removeActiveSheet()
+                        self?.rootViewModel?.contactSupport()
+                    }
+                },
+                onClose: { [weak self] in
+                    Task { @MainActor in
+                        self?.floatingSheetPresenter.removeActiveSheet()
+                    }
+                }
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - TangemPayVirtualAccountInfoSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
+    func virtualAccountInfoSheetDidCreateOrder() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            virtualAccountSuccessViewModel = TangemPayVirtualAccountSuccessViewModel(
+                onClose: { [weak self] in
+                    self?.virtualAccountSuccessViewModel = nil
+                }
+            )
+        }
+    }
+
+    func closeVirtualAccountInfoSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openVirtualAccountURL(_ url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            safariManager.openURL(url)
         }
     }
 }
@@ -434,26 +564,9 @@ extension TangemPayMainCoordinator: TangemPayPinCheckRoutable {
     }
 }
 
-// MARK: - TangemPayFakedoorSheetRoutable
-
-extension TangemPayMainCoordinator: TangemPayFakedoorSheetRoutable {
-    func closeFakedoorSheet() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
-    }
-}
-
 // MARK: - TangemPayCardManagementRoutable
 
 extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
-    func openTangemPaySetPin(tangemPayAccount: TangemPayAccount) {
-        tangemPayPinViewModel = TangemPayPinViewModel(
-            tangemPayAccount: tangemPayAccount,
-            coordinator: self
-        )
-    }
-
     func openTangemPaySetPin(card: TangemPayCard) {
         guard let options else { return }
         tangemPayPinViewModel = TangemPayPinViewModel(
@@ -462,16 +575,6 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
             userWalletId: options.userWalletInfo.id,
             coordinator: self
         )
-    }
-
-    func openTangemPayCheckPin(tangemPayAccount: TangemPayAccount) {
-        let viewModel = TangemPayPinCheckViewModel(
-            account: tangemPayAccount,
-            coordinator: self
-        )
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
     }
 
     func openTangemPayCheckPin(card: TangemPayCard) {
@@ -523,10 +626,6 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
         }
     }
 
-    func openChangeDailyLimit(tangemPayAccount: TangemPayAccount) {
-        tangemPayDailyLimitViewModel = TangemPayDailyLimitViewModel(tangemPayAccount: tangemPayAccount, coordinator: self)
-    }
-
     func openChangeDailyLimit(card: TangemPayCard) {
         guard let options else { return }
         tangemPayDailyLimitViewModel = TangemPayDailyLimitViewModel(
@@ -534,46 +633,6 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
             userWalletId: options.userWalletInfo.id,
             coordinator: self
         )
-    }
-
-    func openTangemPayReissueSheet(
-        userWalletId: UserWalletId,
-        tangemPayAccount: TangemPayAccount,
-        onLoadingChange: @escaping (Bool) -> Void,
-        onError: @escaping () -> Void
-    ) {
-        Task { @MainActor in
-            onLoadingChange(true)
-            defer { onLoadingChange(false) }
-            do {
-                let feeResponse: TangemPayFeeResponse
-                if let cached = await tangemPayAccount.feeRepository.getFee(for: .cardReplacement) {
-                    feeResponse = cached
-                } else {
-                    feeResponse = try await tangemPayAccount.customerService.getFee(type: .cardReplacement)
-                    await tangemPayAccount.feeRepository.setFee(feeResponse, for: .cardReplacement)
-                }
-                let balance = try await tangemPayAccount.customerService.getBalance()
-
-                let feeText = Self.formatFee(amount: feeResponse.amount, currency: feeResponse.currency)
-                let balanceText = Self.formatFee(amount: balance.fiat.availableBalance, currency: feeResponse.currency)
-                let isInsufficientFunds = balance.fiat.availableBalance < feeResponse.amount
-
-                let viewModel = TangemPayReissueSheetViewModel(
-                    userWalletId: userWalletId,
-                    tangemPayAccount: tangemPayAccount,
-                    feeText: feeText,
-                    balanceText: balanceText,
-                    isInsufficientFunds: isInsufficientFunds,
-                    coordinator: self,
-                    onError: onError
-                )
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            } catch {
-                VisaLogger.error("Failed to load reissue fee", error: error)
-                onError()
-            }
-        }
     }
 
     func openTangemPayReissueSheet(
