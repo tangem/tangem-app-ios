@@ -57,7 +57,7 @@ private struct TangemPayAccountTile: View {
         case .failedToIssueCard:
             stateRow(subtitle: state.subtitle, trailing: .warningIcon)
 
-        case .kycInProgress, .kycDeclined, .issuingYourCard, .rootedDevice:
+        case .kycInProgress, .kycDeclined, .issuingYourCard, .rootedDevice, .planSelectNeeded:
             stateRow(subtitle: state.subtitle, trailing: .none)
 
         case .syncNeeded(let cached), .unavailable(let cached):
