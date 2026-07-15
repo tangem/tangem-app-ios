@@ -135,7 +135,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapFiatCalculation: return .unspecified
         case .addressBook: return .version("6.1")
         case .bitcoinDexSwap: return .version("6.0")
-        case .hideStoriesInMobileWallet: return .version("6.0")
+        case .hideStoriesInMobileWallet: return .version("6.1")
         case .marketingBanners: return .unspecified
         case .stakingRegionUnavailable: return .version("6.1")
         case .forYou: return .unspecified
