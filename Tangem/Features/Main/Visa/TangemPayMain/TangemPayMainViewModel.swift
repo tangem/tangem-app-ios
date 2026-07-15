@@ -17,7 +17,7 @@ import TangemVisa
 
 final class TangemPayMainViewModel: ObservableObject {
     var multipleCardsEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayMultipleCards)
+        true
     }
 
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
