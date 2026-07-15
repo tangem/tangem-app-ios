@@ -227,7 +227,8 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
                 type: mapType(transaction, amountType: amountType),
                 date: Date(timeIntervalSince1970: timeStamp),
                 tokenTransfers: tokenTransfer(transaction),
-                isFromYieldContract: isFromYieldContract
+                isFromYieldContract: isFromYieldContract,
+                nonce: nil
             )
         }
     }

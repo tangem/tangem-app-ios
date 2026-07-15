@@ -66,8 +66,6 @@ struct WelcomeBackgroundView: View {
     }
 }
 
-struct WelcomeBackgroundView_Previews: PreviewProvider {
-    static var previews: some View {
-        WelcomeBackgroundView()
-    }
+#Preview {
+    WelcomeBackgroundView()
 }

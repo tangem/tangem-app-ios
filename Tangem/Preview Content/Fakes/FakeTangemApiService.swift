@@ -20,6 +20,12 @@ final class FakeTangemApiService: TangemApiService {
     var loadNewsCategoriesHandler: (() async throws -> NewsDTO.Categories.Response)?
     var loadTrendingNewsHandler: ((Int?, String?) async throws -> TrendingNewsResponse)?
 
+    // MARK: - Campaigns Handlers (Tests/Previews)
+
+    var loadMarketingCampaignsHandler: ((MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response)?
+    var loadPromotionCampaignsHandler: ((String) async throws -> [BannerPromotion.Response.Promotion])?
+    var loadYieldBoostPromotionStatusHandler: ((String) async throws -> YieldBoostPromotionDTO.Response)?
+
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
     }
@@ -87,10 +93,30 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion] {
+        if let handler = loadPromotionCampaignsHandler {
+            return try await handler(userWalletId)
+        }
+
         throw "Not implemented"
     }
 
     func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response {
+        if let handler = loadYieldBoostPromotionStatusHandler {
+            return try await handler(userWalletId)
+        }
+
+        throw "Not implemented"
+    }
+
+    func registerForPromotionCampaign(request: PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response {
+        throw "Not implemented"
+    }
+
+    func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response {
+        if let handler = loadMarketingCampaignsHandler {
+            return try await handler(request)
+        }
+
         throw "Not implemented"
     }
 
@@ -149,6 +175,18 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func subscribeToPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
+        throw "Not implemented"
+    }
+
+    func unsubscribeFromPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
+        throw "Not implemented"
+    }
+
+    func priceAlertsSubscriptions(userWalletId: String) async throws -> [String] {
+        throw "Not implemented"
+    }
+
     func createUserWalletsApplications(requestModel: ApplicationDTO.Request) async throws -> ApplicationDTO.Create.Response {
         throw "Not implemented"
     }
@@ -194,6 +232,14 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts {
+        throw "Not implemented"
+    }
+
+    func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {
+        throw "Not implemented"
+    }
+
+    func updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest) async throws -> AddressBookDTO.UpdateResponse {
         throw "Not implemented"
     }
 
