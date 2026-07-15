@@ -42,7 +42,7 @@ struct MainHorizontalPagingScrollView: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .northernLightsBackground(
-            backgroundColor: .Tangem.Surface.level2,
+            backgroundColor: DesignSystem.Color.bgPrimary,
             opacity: selectedUserWalletScrollAdjustedValues.backgroundOpacity
         )
         .redesignToolbar(

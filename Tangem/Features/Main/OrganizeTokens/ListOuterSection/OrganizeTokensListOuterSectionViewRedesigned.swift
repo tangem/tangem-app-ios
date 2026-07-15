@@ -24,7 +24,7 @@ struct OrganizeTokensListOuterSectionViewRedesigned: View {
     var body: some View {
         AccountIconWithContentView(iconData: iconData, name: title)
             .iconSettings(.smallSized)
-            .nameStyle(font: DesignSystem.Font.captionMediumToken, color: .Tangem.Text.Neutral.primary)
+            .nameStyle(font: DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
             .padding(.horizontal, horizontalPadding)
             .padding(.vertical, verticalPadding)
             .accessibilityIdentifier(

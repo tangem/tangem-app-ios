@@ -23,7 +23,7 @@ struct MainBottomSheetHeaderView: View {
 
     init(
         viewModel: MainBottomSheetHeaderViewModel,
-        backgroundColor: Color = .Tangem.Surface.level2
+        backgroundColor: Color = DesignSystem.Color.bgPrimary
     ) {
         self.viewModel = viewModel
         self.backgroundColor = backgroundColor
