@@ -456,6 +456,10 @@ extension Analytics {
         case promotionButtonJoinNow = "[Promotion] Button - Join Now"
         case promotionButtonClose = "[Promotion] Button - Close"
 
+        case promotionScreenOpened = "[Promotion] Promotion Screen Opened"
+        case promotionEnrollButtonClicked = "[Promotion] Enroll Button Clicked"
+        case promotionAlreadyEnrolledScreenOpened = "[Promotion] Already Enrolled Screen Opened"
+
         // MARK: - Promotion Banner
 
         case promotionBannerBannerShown = "[Promo Banner] Banner Shown"
