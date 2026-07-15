@@ -112,7 +112,7 @@ private extension ExpressDEXTransactionDispatcher {
             throw DEXTransactionDispatcherError.dexNotSupported(blockchain: walletModel.tokenItem.blockchain.displayName)
         }
 
-        guard let txData = data.txData else {
+        guard let txData = data.txData.map(Data.init(hexString:)), !txData.isEmpty else {
             throw DEXTransactionDispatcherError.transactionDataForSwapOperationNotFound
         }
 
@@ -122,7 +122,7 @@ private extension ExpressDEXTransactionDispatcher {
             fee: fee,
             destinationAddress: data.destinationAddress,
             contractAddress: data.destinationAddress,
-            params: TronTransactionParams(transactionType: .contractCall(data: Data(hexString: txData)))
+            params: TronTransactionParams(transactionType: .contractCall(data: txData))
         )
 
         return try await transferTransactionDispatcher.send(transaction: .transfer(transaction))

@@ -38,16 +38,21 @@ struct CommonTokenFeeProvidersManagerTronDexTests {
         #expect(result.amount.value == loadedFee.amount.value)
     }
 
-    /// A Tron DEX transaction without calldata has no swap semantics to execute —
+    /// A Tron DEX transaction without usable calldata has no swap semantics to execute —
     /// the manager must refuse it instead of degrading into a plain transfer.
-    @Test("transactionFee throws when txData is missing")
-    func transactionFee_tronDexWithoutTxData_throwsTransactionDataNotFound() async {
+    /// `Data(hexString:)` decodes invalid hex to empty data, so empty and malformed strings
+    /// are rejected the same way as a missing one.
+    @Test(
+        "transactionFee throws when txData is missing, empty or not hex",
+        arguments: [nil, "", "not-a-hex-string"] as [String?]
+    )
+    func transactionFee_tronDexWithoutUsableTxData_throwsTransactionDataNotFound(txData: String?) async {
         let loadedFee = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: 1))
         let provider = makeProvider(loadedFee: loadedFee)
         let sut = CommonTokenFeeProvidersManager(feeProviders: [provider], initialSelectedProvider: provider)
 
         do {
-            _ = try await sut.transactionFee(data: .dex(data: makeExpressTransactionData(txData: nil)))
+            _ = try await sut.transactionFee(data: .dex(data: makeExpressTransactionData(txData: txData)))
             Issue.record("Expected transactionFee to throw transactionDataNotFound")
         } catch ExpressProviderError.transactionDataNotFound {
         } catch {

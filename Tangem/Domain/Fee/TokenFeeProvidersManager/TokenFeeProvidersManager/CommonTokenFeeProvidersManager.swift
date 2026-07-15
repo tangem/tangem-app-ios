@@ -199,7 +199,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
             return fee
 
         case (.dex(let data), .tron):
-            guard let txData = data.txData.map(Data.init(hexString:)) else {
+            guard let txData = data.txData.map(Data.init(hexString:)), !txData.isEmpty else {
                 throw ExpressProviderError.transactionDataNotFound
             }
 
