@@ -66,6 +66,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
 
+    private var campaignCoordinator: CampaignCoordinator?
+
     // MARK: - Child view models
 
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
@@ -220,6 +222,25 @@ extension MainCoordinator: MainRoutable {
              .earn:
             deeplinkDestination.send(deepLink)
         }
+    }
+
+    func openCampaignIfNeeded(campaignId: String) -> Bool {
+        guard campaignCoordinator == nil else {
+            return false
+        }
+
+        let coordinator = CampaignCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.campaignCoordinator = nil
+            },
+            popToRootAction: { [weak self] options in
+                self?.campaignCoordinator = nil
+                self?.popToRoot(with: options)
+            }
+        )
+        coordinator.start(with: .init(campaignId: campaignId))
+        campaignCoordinator = coordinator
+        return true
     }
 
     func openDetails() {
@@ -661,6 +682,28 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .send(sourceToken), source: .main)
+
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
+    func openSwapAndSend(input: SendInput) {
+        guard SendFeatureProvider.shared.isAvailable else {
+            return
+        }
+
+        let sourceToken = CommonSendSwapableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel,
+            operationType: .swapAndSend
+        ).makeSwapableToken()
+
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(
+            type: .send(sourceToken),
+            source: .main,
+            shouldStartFromTokenList: true
+        )
 
         coordinator.start(with: options)
         sendCoordinator = coordinator
