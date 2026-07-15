@@ -29,6 +29,9 @@ struct TransactionViewModel: Hashable, Identifiable {
     /// re-evaluations don't re-run the matrix.
     let display: TransactionDisplayModel
 
+    /// Optional warning line rendered under the row (e.g. an Express deal awaiting KYC verification).
+    let warning: String?
+
     var inProgress: Bool {
         status == .inProgress
     }
@@ -129,7 +132,8 @@ struct TransactionViewModel: Hashable, Identifiable {
         status: TransactionViewModel.Status,
         isFromYieldContract: Bool,
         subtitleOwner: SubtitleOwner? = nil,
-        cardName: String? = nil
+        cardName: String? = nil,
+        warning: String? = nil
     ) {
         id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
         self.hash = hash
@@ -153,6 +157,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         self.status = status
         self.subtitleOwner = subtitleOwner
         self.cardName = cardName
+        self.warning = warning
 
         display = TransactionDisplayModel.make(
             transactionType: transactionType,

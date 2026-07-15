@@ -8,7 +8,9 @@
 
 import Foundation
 import BlockchainSdk
+import TangemExpress
 import TangemFoundation
+import TangemLocalization
 
 protocol WalletModelTransactionHistoryAddressesProvider {
     var walletAddresses: [String] { get }
@@ -181,8 +183,23 @@ struct TransactionHistoryMapper {
             transactionType: transactionType(from: record),
             status: status(from: record),
             isFromYieldContract: record.isFromYieldContract,
-            subtitleOwner: subtitleOwnerResolver?.resolve(for: interaction)
+            subtitleOwner: subtitleOwnerResolver?.resolve(for: interaction),
+            warning: expressWarning(from: record)
         )
+    }
+
+    private func expressWarning(from record: TransactionRecord) -> String? {
+        let requiresVerification: Bool
+        switch record.expressExtraInfo {
+        case .exchange(let info):
+            requiresVerification = info.transaction.status.requiresVerification
+        case .onramp(let info):
+            requiresVerification = info.onrampTransaction.status.requiresVerification
+        case nil:
+            return nil
+        }
+
+        return requiresVerification ? Localization.expressExchangeNotificationVerificationTitle : nil
     }
 
     func mapSuggestedRecord(_ record: TransactionRecord) -> SendDestinationSuggestedTransactionRecord? {

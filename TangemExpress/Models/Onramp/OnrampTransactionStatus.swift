@@ -36,4 +36,16 @@ public extension OnrampTransactionStatus {
             return false
         }
     }
+
+    /// The provider is holding the transaction until the user completes verification (e.g. KYC).
+    /// Single source of truth for whether a verification warning should be surfaced in history and details.
+    var requiresVerification: Bool {
+        switch self {
+        case .verifying:
+            return true
+        case .unknown, .created, .expired, .waitingForPayment, .paymentProcessing, .failed,
+             .paid, .sending, .refunding, .refunded, .finished, .paused:
+            return false
+        }
+    }
 }
