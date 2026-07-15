@@ -15,9 +15,10 @@ enum PromotionRegistrationDTO {
         let tokenReward: TokenReward
 
         struct TokenReward: Encodable {
-            let tokenAddress: String?
+            let tokenAddress: String
             let networkId: String
             let userAddress: String
+            let tokenId: String?
         }
     }
 
