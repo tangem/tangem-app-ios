@@ -26,6 +26,8 @@ extension TangemBlogUrlBuilder {
         case giveRevokePermission
         case seedPhraseFaq
         case yieldMode
+        case whaleSwapCashback
+        case reactivationCashback
     }
 }
 
@@ -48,6 +50,10 @@ private extension TangemBlogUrlBuilder.Post {
             "seed-phrase-faq"
         case .yieldMode:
             "yield-mode"
+        case .whaleSwapCashback:
+            "whale-swap"
+        case .reactivationCashback:
+            "summer-swap"
         }
     }
 }
