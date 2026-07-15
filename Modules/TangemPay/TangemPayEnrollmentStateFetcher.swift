@@ -62,12 +62,20 @@ public struct TangemPayEnrollmentStateFetcher {
         }
 
         if tiersEnabled {
+            if customerInfo.paymentAccount != nil {
+                return (.enrolled(customerInfo: customerInfo, productInstance: nil), customerId)
+            }
+
             let activeTransitionOrders = try await customerService.findOrders(
                 types: TangemPayOrderType.tariffPlanTransitionFamily,
                 statuses: [.new, .processing]
             )
 
-            return (activeTransitionOrders.isEmpty ? .planSelectNeeded : .issuingCard, customerId)
+            if !activeTransitionOrders.isEmpty {
+                return (.enrolled(customerInfo: customerInfo, productInstance: nil), customerId)
+            }
+
+            return (.planSelectNeeded, customerId)
         } else {
             // Legacy flow: the card is auto-issued right after KYC.
             return (.issuingCard, customerId)
