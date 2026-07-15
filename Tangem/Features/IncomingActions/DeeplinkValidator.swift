@@ -21,8 +21,11 @@ struct CommonDeepLinkValidator {
         areParamsValid(params, keys: \.tokenId, \.networkId)
     }
 
+    /// `tangem://yield` never requires parameters: any link that can't reach the Yield-mode
+    /// screen (empty, partial, invalid values, opportunity not found) silently falls back to
+    /// the Earn screen at the routing layer. The validator only rejects malformed characters.
     private func hasEnoughYieldParams(params: DeeplinkNavigationAction.Params) -> Bool {
-        areParamsValid(params, keys: \.tokenId, \.networkId)
+        paramsHaveOnlyValidCharacters([params.tokenId, params.networkId].compactMap { $0 })
     }
 
     private func hasEnoughOnboardVisaParams(params: DeeplinkNavigationAction.Params) -> Bool {
@@ -38,6 +41,10 @@ struct CommonDeepLinkValidator {
     /// check presence, not character set, to avoid rejecting valid tokens.
     private func hasEnoughSurveyParams(params: DeeplinkNavigationAction.Params) -> Bool {
         params.surveyToken?.nilIfEmpty != nil
+    }
+
+    private func hasEnoughCampaignsParams(params: DeeplinkNavigationAction.Params) -> Bool {
+        areParamsValid(params, keys: \.campaignId)
     }
 
     /// Universal news-article link: `https://tangem.com/news/{category}/{id}-{slug}`.
@@ -132,6 +139,9 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
 
         case .survey:
             return hasEnoughSurveyParams(params: params)
+
+        case .campaigns:
+            return hasEnoughCampaignsParams(params: params)
 
         case .onboardVisa:
             return hasEnoughOnboardVisaParams(params: params)

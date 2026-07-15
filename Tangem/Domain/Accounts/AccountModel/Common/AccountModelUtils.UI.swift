@@ -15,32 +15,7 @@ import TangemAccounts
 extension AccountModelUtils {
     enum UI {
         static func iconColor(from color: AccountModel.CompositeIcon.Color) -> Color {
-            switch color {
-            case .azure:
-                return Colors.Accounts.azureBlue
-            case .caribbeanBlue:
-                return Colors.Accounts.caribbeanBlue
-            case .dullLavender:
-                return Colors.Accounts.dullLavender
-            case .candyGrapeFizz:
-                return Colors.Accounts.candyGrapeFizz
-            case .sweetDesire:
-                return Colors.Accounts.sweetDesire
-            case .palatinateBlue:
-                return Colors.Accounts.palatinateBlue
-            case .fuchsiaNebula:
-                return Colors.Accounts.fuchsiaNebula
-            case .mexicanPink:
-                return Colors.Accounts.mexicanPink
-            case .pelati:
-                return Colors.Accounts.pelati
-            case .pattypan:
-                return Colors.Accounts.pattypan
-            case .ufoGreen:
-                return Colors.Accounts.ufoGreen
-            case .vitalGreen:
-                return Colors.Accounts.vitalGreen
-            }
+            CompositeIconColorPalette.color(for: color)
         }
 
         static func iconAsset(from name: AccountModel.CompositeIcon.Name) -> ImageType {
@@ -92,7 +67,7 @@ extension AccountModelUtils {
         }
 
         static func newAccountIcon() -> AccountModel.CompositeIcon {
-            let iconColor = AccountModel.CompositeIcon.Color.allCases.randomElement() ?? .azure
+            let iconColor = CompositeIconColor.randomElement()
 
             var allIconNames = AccountModel.CompositeIcon.Name.allCases.toSet()
             allIconNames.remove(.letter)

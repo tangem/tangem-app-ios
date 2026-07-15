@@ -148,28 +148,26 @@ struct LockedWalletMainContentView: View {
     }
 }
 
-struct LockedWalletMainContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        LockedWalletMainContentView(
-            viewModel: .init(
-                userWalletModel: FakeUserWalletModel.wallet3Cards,
-                isMultiWallet: true,
-                lockedUserWalletDelegate: nil,
-                coordinator: MainCoordinator()
-            )
+#Preview {
+    LockedWalletMainContentView(
+        viewModel: .init(
+            userWalletModel: FakeUserWalletModel.wallet3Cards,
+            isMultiWallet: true,
+            lockedUserWalletDelegate: nil,
+            coordinator: MainCoordinator()
         )
-        .infinityFrame()
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    )
+    .infinityFrame()
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 
-        LockedWalletMainContentView(
-            viewModel: .init(
-                userWalletModel: FakeUserWalletModel.twins,
-                isMultiWallet: false,
-                lockedUserWalletDelegate: nil,
-                coordinator: MainCoordinator()
-            )
+    LockedWalletMainContentView(
+        viewModel: .init(
+            userWalletModel: FakeUserWalletModel.twins,
+            isMultiWallet: false,
+            lockedUserWalletDelegate: nil,
+            coordinator: MainCoordinator()
         )
-        .infinityFrame()
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-    }
+    )
+    .infinityFrame()
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
