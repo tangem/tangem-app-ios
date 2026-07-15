@@ -10,6 +10,7 @@ import TangemFoundation
 import Foundation
 import TangemUI
 import UIKit
+import BlockchainSdk
 
 final class ActionButtonsBuyCoordinator: CoordinatorObject {
     let dismissAction: Action<ActionButtonsBuyDismissPayload?>
@@ -181,9 +182,13 @@ extension ActionButtonsBuyCoordinator: AddFundsRoutable {
     }
 }
 
-// MARK: - HotCryptoAddTokenRoutable, AddTokenFlowRoutable
+// MARK: - HotCryptoAddTokenRoutable, AddTokenFlowRoutable, AddTokenFlowRedesignedRoutable
 
-extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRoutable {
+extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRoutable, AddTokenFlowRedesignedRoutable {
+    func addTokenFlowShowGetToken(for tokenItem: TokenItem, accountSelectorCell: AccountSelectorCellModel) {
+        close()
+    }
+
     func close() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
@@ -211,12 +216,100 @@ extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRo
 
 extension ActionButtonsBuyCoordinator: PulseMarketWidgetRoutable {
     func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
+        guard
+            let userWalletIdString = tokenListViewModel?.tokenSelectorViewModel.selectedChipId,
+            let userWalletModel = userWalletModels.first(where: { $0.userWalletId.stringValue == userWalletIdString })
+        else {
+            openMarketsDetailsCoordinator(for: tokenInfo)
+            return
+        }
+
+        let isAdded = TokenAdditionChecker.areTokenItemsAddedInAllAccounts(userWalletModels: [userWalletModel]) {
+            account, supportedBlockchains in
+
+            MarketsTokenItemsProvider.calculateTokenItems(
+                coinId: tokenInfo.id,
+                coinName: tokenInfo.name,
+                coinSymbol: tokenInfo.symbol,
+                networks: tokenInfo.networks ?? [],
+                supportedBlockchains: supportedBlockchains,
+                cryptoAccount: account
+            )
+        }
+
+        guard
+            var networks = tokenInfo.networks,
+            !isAdded
+        else {
+            openMarketsDetailsCoordinator(for: tokenInfo)
+            return
+        }
+
+        if tokenInfo.id == Blockchain.ethereum(testnet: false).coinId {
+            let l2Items = SupportedBlockchains.l2Blockchains.map {
+                NetworkModel(networkId: $0.networkId, contractAddress: nil, decimalCount: nil)
+            }
+            networks.append(contentsOf: l2Items)
+        }
+
+        let inputData = MarketsAddTokenFlowConfigurationFactory.InputData(
+            coinId: tokenInfo.id,
+            coinName: tokenInfo.name,
+            coinSymbol: tokenInfo.symbol,
+            networks: networks
+        )
+
+        let configuration = MarketsAddTokenFlowConfigurationFactory.makeForPulseWidget(
+            inputData: inputData,
+            onConfirm: { [weak self] tokenItem, accountSelectorCell in
+                Task { @MainActor in
+                    guard let self else { return }
+
+                    let walletModel = accountSelectorCell.cryptoAccountModel
+                        .walletModelsManager.walletModels
+                        .first { $0.tokenItem == tokenItem }
+
+                    guard let walletModel else { return }
+
+                    self.close()
+                    self.openAddFunds(
+                        userWalletInfo: accountSelectorCell.userWalletModel.userWalletInfo,
+                        walletModel: walletModel
+                    )
+                }
+            }
+        )
+
+        guard let tokenItem = MarketsAddTokenFlowConfigurationFactory.makePreselectedTokenItem(
+            inputData: inputData,
+            userWalletModels: userWalletModels,
+            isTokenAdded: configuration.isTokenAdded
+        ) else {
+            openMarketsDetailsCoordinator(for: tokenInfo)
+            return
+        }
+
+        Task { @MainActor in
+            guard let viewModel = AddTokenFlowRedesignedViewModel(
+                tokenItem: tokenItem,
+                userWalletModels: userWalletModels,
+                preferredWalletId: userWalletModel.userWalletId,
+                configuration: configuration,
+                coordinator: self
+            ) else {
+                openMarketsDetailsCoordinator(for: tokenInfo)
+                return
+            }
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    private func openMarketsDetailsCoordinator(for tokenInfo: MarketsTokenModel) {
         let coordinator = MarketsTokenDetailsCoordinator(
             dismissAction: { [weak self] in
                 self?.marketsTokenDetailsCoordinator = nil
             }
         )
-
         coordinator.start(with: .init(info: tokenInfo, style: .addFundsSheet))
         marketsTokenDetailsCoordinator = coordinator
     }
