@@ -125,8 +125,8 @@ private struct MainViewNavigationModifier: ViewModifier {
     }
 }
 
-struct MainView_Preview: PreviewProvider {
-    static let viewModel: MainViewModel = {
+#Preview {
+    let viewModel: MainViewModel = {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         let coordinator = MainCoordinator()
         let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
@@ -142,9 +142,7 @@ struct MainView_Preview: PreviewProvider {
         return viewModel
     }()
 
-    static var previews: some View {
-        NavigationStack {
-            MainView(viewModel: viewModel)
-        }
+    NavigationStack {
+        MainView(viewModel: viewModel)
     }
 }

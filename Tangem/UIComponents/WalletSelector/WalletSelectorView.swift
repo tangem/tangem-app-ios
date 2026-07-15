@@ -33,9 +33,9 @@ struct WalletSelectorView: View {
     }
 }
 
-struct WalletSelectorView_Previews: PreviewProvider {
-    private class PreviewWalletSelectorDataSource: WalletSelectorDataSource {
-        private var _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
+#Preview {
+    final class PreviewWalletSelectorDataSource: WalletSelectorDataSource {
+        var _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
 
         var itemViewModels: [WalletSelectorItemViewModel] = []
         var selectedUserWalletIdPublisher: AnyPublisher<UserWalletId?, Never> {
@@ -43,9 +43,7 @@ struct WalletSelectorView_Previews: PreviewProvider {
         }
     }
 
-    static var previews: some View {
-        WalletSelectorView(
-            viewModel: WalletSelectorViewModel(dataSource: PreviewWalletSelectorDataSource())
-        )
-    }
+    return WalletSelectorView(
+        viewModel: WalletSelectorViewModel(dataSource: PreviewWalletSelectorDataSource())
+    )
 }

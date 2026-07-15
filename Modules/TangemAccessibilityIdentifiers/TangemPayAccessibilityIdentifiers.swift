@@ -15,6 +15,16 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let mainScreenTile = "\(prefix)MainScreenTile"
     public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
+    public static let getTangemPayBannerOpenButton = "\(prefix)GetTangemPayBannerOpenButton"
+
+    // MARK: - Onboarding (offer) screen
+
+    public static let onboardingGetCardButton = "\(prefix)OnboardingGetCardButton"
+
+    // MARK: - KYC status sheet
+
+    public static let kycStatusSheetPrimaryButton = "\(prefix)KycStatusSheetPrimaryButton"
+    public static let kycDeclinedSheetPrimaryButton = "\(prefix)KycDeclinedSheetPrimaryButton"
 
     // MARK: - Tangem Pay payment account screen
 
@@ -23,11 +33,23 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let paymentAccountBalance = "\(prefix)PaymentAccountBalance"
     public static let addFundsButton = "\(prefix)AddFundsButton"
     public static let withdrawButton = "\(prefix)WithdrawButton"
+    public static let moreActionsButton = "\(prefix)MoreActionsButton"
 
     // MARK: - Add funds flow
 
     public static let addFundsSheetSwapOption = "\(prefix)AddFundsSheetSwapOption"
     public static let addFundsSheetReceiveOption = "\(prefix)AddFundsSheetReceiveOption"
+    public static let addFundsSheetBankTransferOption = "\(prefix)AddFundsSheetBankTransferOption"
+    public static let virtualAccountShowDetailsButton = "\(prefix)VirtualAccountShowDetailsButton"
+    public static let virtualAccountBankDetailsShareButton = "\(prefix)VirtualAccountBankDetailsShareButton"
+
+    public static func virtualAccountBankDetailValue(_ field: String) -> String {
+        "\(prefix)VirtualAccountBankDetailValue_\(field)"
+    }
+
+    public static func virtualAccountBankDetailCopyButton(_ field: String) -> String {
+        "\(prefix)VirtualAccountBankDetailCopy_\(field)"
+    }
 
     public static func paymentAccountCardButton(cardId: String) -> String {
         "\(paymentAccountCardButtonPrefix)_\(cardId)"
@@ -55,6 +77,18 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let freezeCardRowStateFrozen = "\(prefix)FreezeCardRowStateFrozen"
     public static let freezeSheetConfirmButton = "\(prefix)FreezeSheetConfirmButton"
     public static let unfreezeSheetConfirmButton = "\(prefix)UnfreezeSheetConfirmButton"
+
+    // MARK: - Card reissue
+
+    public static let cardManagementMoreButton = "\(prefix)CardManagementMoreButton"
+    public static let reissueCardRow = "\(prefix)ReissueCardRow"
+    public static let reissueSheetConfirmButton = "\(prefix)ReissueSheetConfirmButton"
+
+    // MARK: - Transaction details
+
+    public static let transactionDetailsTitle = "\(prefix)TransactionDetailsTitle"
+    public static let transactionDetailsAmount = "\(prefix)TransactionDetailsAmount"
+    public static let transactionDetailsMainButton = "\(prefix)TransactionDetailsMainButton"
 
     // MARK: - PIN setup screen
 

@@ -22,7 +22,6 @@ struct LoadingSingleWalletMainContentRedesignedView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ZStack {
         DesignSystem.Color.bgPrimary
@@ -31,4 +30,3 @@ struct LoadingSingleWalletMainContentRedesignedView: View {
         LoadingSingleWalletMainContentRedesignedView()
     }
 }
-#endif // DEBUG

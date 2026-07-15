@@ -7,6 +7,7 @@
 //
 
 import Combine
+import BlockchainSdk
 
 protocol WalletConnectAccountsWalletModelProvider {
     /// This info is based on information from WC and they didn't know anything about derivation
@@ -25,6 +26,7 @@ protocol WalletConnectAccountsWalletModelProvider {
 
 final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
     private let accountModelsManager: AccountModelsManager
+    private let addressComparisonHelper = AddressComparisonHelper()
 
     private var allMainWalletModels: [any WalletModel] = []
 
@@ -52,7 +54,7 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
 
         if let model = modelsInAccount.first(where: {
             $0.tokenItem.blockchain.networkId == blockchainId
-                && $0.walletConnectAddress.caseInsensitiveCompare(address) == .orderedSame
+                && matches(model: $0, address: address)
         }) {
             return model
         }
@@ -60,7 +62,7 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
         if shouldUseFallback(accountId: accountId),
            let fallbackModel = getMainWalletModelsFromAllAccounts().first(where: {
                $0.tokenItem.blockchain.networkId == blockchainId
-                   && $0.walletConnectAddress.caseInsensitiveCompare(address) == .orderedSame
+                   && matches(model: $0, address: address)
            }) {
             return fallbackModel
         }
@@ -130,6 +132,30 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
 
     private func shouldUseFallback(accountId: String) -> Bool {
         accountId.isEmpty
+    }
+
+    private func matches(model: any WalletModel, address: String) -> Bool {
+        let blockchain = model.tokenItem.blockchain
+
+        if addressComparisonHelper.matches(lhs: model.walletConnectAddress, rhs: address, blockchain: blockchain) {
+            return true
+        }
+
+        return addressComparisonHelper.matchesAnyAddress(addresses: model.addressesString, address: address, blockchain: blockchain)
+    }
+}
+
+extension CommonWalletConnectAccountsWalletModelProvider {
+    struct AddressComparisonHelper {
+        let addressComparator = AddressComparator()
+
+        func matches(lhs: String, rhs: String, blockchain: Blockchain) -> Bool {
+            addressComparator.addressesMatch(lhs, rhs, blockchain: blockchain)
+        }
+
+        func matchesAnyAddress(addresses: [String], address: String, blockchain: Blockchain) -> Bool {
+            addresses.contains { addressComparator.addressesMatch($0, address, blockchain: blockchain) }
+        }
     }
 }
 

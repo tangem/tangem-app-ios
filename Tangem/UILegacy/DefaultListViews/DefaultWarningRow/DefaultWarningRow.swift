@@ -88,43 +88,45 @@ struct DefaultWarningRow: View {
     }
 }
 
-struct DefaultWarningRow_Preview: PreviewProvider {
-    static let viewModels: [DefaultWarningRowViewModel] = [
+#Preview {
+    let viewModels: [DefaultWarningRowViewModel] = [
         DefaultWarningRowViewModel(
             title: "Enable biometric authentication",
             subtitle: "Not enough funds for fee on your Polygon wallet to create a transaction. Top up your Polygon wallet first.",
             leftView: .icon(Assets.attention)
-        ), DefaultWarningRowViewModel(
+        ),
+        DefaultWarningRowViewModel(
             title: "Exchange rate has expired",
             subtitle: "Recalculate route",
             leftView: .icon(Assets.attention),
             rightView: .icon(Assets.refreshWarningIcon)
-        ), DefaultWarningRowViewModel(
+        ),
+        DefaultWarningRowViewModel(
             title: "Exchange rate has expired",
             subtitle: "Recalculate route",
             leftView: .icon(Assets.attention),
             rightView: .loader
-        ), DefaultWarningRowViewModel(
+        ),
+        DefaultWarningRowViewModel(
             title: "Give Permission",
             subtitle: "To continue you need to allow 1inch smart contracts to use your Dai",
             leftView: .icon(Assets.swapLock)
-        ), DefaultWarningRowViewModel(
+        ),
+        DefaultWarningRowViewModel(
             title: "Waiting",
             subtitle: "Transaction in progress...",
             leftView: .loader
         ),
     ]
 
-    static var previews: some View {
-        ZStack {
-            Colors.Background.secondary
+    ZStack {
+        Colors.Background.secondary
 
-            VStack {
-                ForEach(viewModels) {
-                    DefaultWarningRow(viewModel: $0)
-                        .padding(.horizontal, 16)
-                        .background(Color.white)
-                }
+        VStack {
+            ForEach(viewModels) {
+                DefaultWarningRow(viewModel: $0)
+                    .padding(.horizontal, 16)
+                    .background(Color.white)
             }
         }
     }

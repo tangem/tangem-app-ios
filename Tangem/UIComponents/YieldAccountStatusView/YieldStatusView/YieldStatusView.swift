@@ -28,6 +28,7 @@ struct YieldStatusView: View {
             Button(action: viewModel.onTapAction) {
                 content
             }
+            .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.activeBlock)
         }
     }
 
@@ -117,8 +118,10 @@ struct YieldStatusView: View {
             EmptyView()
         case .approveNeeded:
             yellowWarningSign
+                .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.earnBlockTitleIcon)
         case .hasUndepositedAmounts:
             blueWarningSign
+                .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.earnBlockTitleIcon)
         }
     }
 

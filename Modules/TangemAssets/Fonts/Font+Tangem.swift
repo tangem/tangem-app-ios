@@ -41,7 +41,7 @@ public struct TangemFontStyle: Hashable, Sendable {
             size: token.fontSize,
             lineHeight: token.lineHeight,
             weight: token.fontWeight,
-            tracking: token.letterSpacing
+            tracking: token.tracking
         )
     }
 }

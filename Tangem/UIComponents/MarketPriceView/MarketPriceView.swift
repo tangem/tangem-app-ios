@@ -89,21 +89,19 @@ struct MarketPriceView: View {
     }
 }
 
-struct MarketPriceView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            MarketPriceView(currencySymbol: "BTC", price: "5,43 $", priceChangeState: .loaded(changeType: .positive, text: "0,08 %"), miniChartData: .loading, tapAction: {})
+#Preview {
+    VStack {
+        MarketPriceView(currencySymbol: "BTC", price: "5,43 $", priceChangeState: .loaded(changeType: .positive, text: "0,08 %"), miniChartData: .loading, tapAction: {})
 
-            MarketPriceView(currencySymbol: "ETH", price: "1 847.90$", priceChangeState: .loaded(changeType: .positive, text: "0,08 %"), miniChartData: .failure(""), tapAction: {})
+        MarketPriceView(currencySymbol: "ETH", price: "1 847.90$", priceChangeState: .loaded(changeType: .positive, text: "0,08 %"), miniChartData: .failure(""), tapAction: {})
 
-            MarketPriceView(currencySymbol: "ETH", price: "1 234.50$", priceChangeState: .loaded(changeType: .neutral, text: "0,0 %"), miniChartData: .loading, tapAction: {})
+        MarketPriceView(currencySymbol: "ETH", price: "1 234.50$", priceChangeState: .loaded(changeType: .neutral, text: "0,0 %"), miniChartData: .loading, tapAction: {})
 
-            MarketPriceView(currencySymbol: "XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP", price: "1 000 000 000 000 000 000 000 000 000 000 000,33 $", priceChangeState: .loaded(changeType: .positive, text: "100000000000,33%"), miniChartData: .success([0, 1, 5, 3, 4, 9]), tapAction: {})
+        MarketPriceView(currencySymbol: "XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP XRP", price: "1 000 000 000 000 000 000 000 000 000 000 000,33 $", priceChangeState: .loaded(changeType: .positive, text: "100000000000,33%"), miniChartData: .success([0, 1, 5, 3, 4, 9]), tapAction: {})
 
-            Spacer()
-        }
-        .frame(maxHeight: .infinity)
-        .padding()
-        .background(Colors.Background.secondary)
+        Spacer()
     }
+    .frame(maxHeight: .infinity)
+    .padding()
+    .background(Colors.Background.secondary)
 }

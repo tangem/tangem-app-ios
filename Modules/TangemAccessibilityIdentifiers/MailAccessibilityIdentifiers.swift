@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  MailAccessibilityIdentifiers.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]

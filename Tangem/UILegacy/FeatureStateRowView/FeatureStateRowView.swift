@@ -50,21 +50,15 @@ struct FeatureStateRowView: View {
     }
 }
 
-struct FeatureStateRowView_Preview: PreviewProvider {
-    struct ContentView: View {
-        @State private var state: FeatureState = .default
-        var body: some View {
-            FeatureStateRowView(
-                viewModel: FeatureStateRowViewModel(
-                    feature: .disableFirmwareVersionLimit,
-                    enabledByDefault: true,
-                    state: $state.asBindingValue
-                )
-            )
-        }
-    }
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var state: FeatureState = .default
 
-    static var previews: some View {
-        ContentView()
-    }
+    FeatureStateRowView(
+        viewModel: FeatureStateRowViewModel(
+            feature: .disableFirmwareVersionLimit,
+            enabledByDefault: true,
+            state: $state.asBindingValue
+        )
+    )
 }

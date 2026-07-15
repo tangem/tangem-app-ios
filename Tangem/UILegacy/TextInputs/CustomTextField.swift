@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct CustomTextField: UIViewRepresentable {
     class Coordinator: NSObject, UITextFieldDelegate {
@@ -171,18 +172,21 @@ struct CustomTextField: UIViewRepresentable {
 
         var toolbarItems = [UIBarButtonItem]()
         if handleKeyboard {
+            let hideKeyboardButton = UIBarButtonItem(
+                image: UIImage(systemName: "keyboard.chevron.compact.down"),
+                style: .plain,
+                target: context.coordinator,
+                action: #selector(context.coordinator.hideKeyboard)
+            )
+            hideKeyboardButton.accessibilityIdentifier = CommonUIAccessibilityIdentifiers.hideKeyboardButton
+
             toolbarItems = [
                 UIBarButtonItem(
                     barButtonSystemItem: .flexibleSpace,
                     target: nil,
                     action: nil
                 ),
-                UIBarButtonItem(
-                    image: UIImage(systemName: "keyboard.chevron.compact.down"),
-                    style: .plain,
-                    target: context.coordinator,
-                    action: #selector(context.coordinator.hideKeyboard)
-                ),
+                hideKeyboardButton,
             ]
         }
 

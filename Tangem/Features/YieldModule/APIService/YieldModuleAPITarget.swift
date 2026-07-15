@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemNetworkUtils
 
 struct YieldModuleAPITarget: TargetType {
     let yieldModuleAPIType: YieldModuleAPIType
@@ -44,6 +45,8 @@ struct YieldModuleAPITarget: TargetType {
             return URL(string: "https://yield.tests-d.com/api/v1")!
         case .stage:
             return URL(string: "https://yield.tests-s.com/api/v1")!
+        case .mock:
+            return URL(string: "\(WireMockEnvironment.baseURL)/api/v1")!
         }
     }
 
@@ -139,6 +142,7 @@ enum YieldModuleAPIType: String, CaseIterable {
     case dev
     case stage
     case prod
+    case mock
 
     public var title: String {
         rawValue

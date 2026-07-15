@@ -7,10 +7,11 @@
 //
 
 struct SendAmountFormatter {
-    let fiatCurrencyCode: String
-    let balanceFormatter: BalanceFormatter
-    let decimalNumberFormatter: DecimalNumberFormatter
-    let cryptoValueFormatter: SendCryptoValueFormatter
+    private let fiatCurrencyCode: String
+    private let balanceFormatter: BalanceFormatter
+    private let decimalNumberFormatter: DecimalNumberFormatter
+    private let cryptoValueFormatter: SendCryptoValueFormatter
+    private let fiatPrefixSuffixOptions: SendDecimalNumberTextField.PrefixSuffixOptions
 
     init(
         tokenItem: TokenItem,
@@ -26,15 +27,18 @@ struct SendAmountFormatter {
             currencySymbol: tokenItem.currencySymbol,
             trimFractions: false
         )
+        fiatPrefixSuffixOptions = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
+            .makeFiatOptions(fiatCurrencyCode: fiatItem.currencyCode)
     }
 
-    /// Without `currencySymbol`. Just number
+    /// Crypto values come without a `currencySymbol` (the token symbol is shown separately),
+    /// fiat values carry the localized currency symbol
     func formatMain(amount: SendAmount?) -> String {
         switch amount?.type {
         case .typical(.some(let crypto), _):
             return cryptoValueFormatter.string(from: crypto, prefixSuffixOptions: .none)
         case .alternative(.some(let fiat), _):
-            return cryptoValueFormatter.string(from: fiat, prefixSuffixOptions: .none)
+            return cryptoValueFormatter.string(from: fiat, prefixSuffixOptions: fiatPrefixSuffixOptions)
         default:
             return decimalNumberFormatter.mapToString(decimal: .zero)
         }

@@ -16,6 +16,9 @@ struct NotificationSettingsCoordinatorView: CoordinatorView {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 NotificationSettingsView(viewModel: rootViewModel)
+                    .navigation(item: $coordinator.priceAlertsScreenCoordinator) {
+                        PriceAlertsScreenCoordinatorView(coordinator: $0)
+                    }
             }
 
             sheets

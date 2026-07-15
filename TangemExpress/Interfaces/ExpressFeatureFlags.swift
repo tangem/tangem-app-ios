@@ -7,12 +7,7 @@
 
 import Foundation
 
+/// Empty for now — kept as the threading seam so a future Express flag needs no re-plumbing.
 public struct ExpressFeatureFlags {
-    public let isApproveWithSwapEnabled: Bool
-    public let isChooseBestDEXEnabled: Bool
-
-    public init(isApproveWithSwapEnabled: Bool, isChooseBestDEXEnabled: Bool) {
-        self.isApproveWithSwapEnabled = isApproveWithSwapEnabled
-        self.isChooseBestDEXEnabled = isChooseBestDEXEnabled
-    }
+    public init() {}
 }

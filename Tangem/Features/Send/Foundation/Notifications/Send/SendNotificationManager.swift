@@ -24,12 +24,15 @@ protocol SendNotificationManager: NotificationManager {
 }
 
 class CommonSendNotificationManager {
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+
     private let tokenItem: TokenItem
     private let withdrawalNotificationProvider: WithdrawalNotificationProvider?
 
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private var bag: Set<AnyCancellable> = []
     private let analyticsService: NotificationsAnalyticsService
+    private let highNetworkFeeWarningCalculator = HighNetworkFeeWarningCalculator()
     private weak var delegate: NotificationTapDelegate?
 
     init(
@@ -66,6 +69,24 @@ private extension CommonSendNotificationManager {
 
         Publishers.CombineLatest(
             input.selectedTokenFeePublisher,
+            quotesRepository.quotesPublisher
+        )
+        .map { selectedTokenFee, quotes -> HighNetworkFeeWarningInput in
+            let currencyId = selectedTokenFee.tokenItem.currencyId
+            let priceUsd = currencyId.flatMap { quotes[$0]?.priceUsd }
+
+            return HighNetworkFeeWarningInput(selectedFee: selectedTokenFee, priceUsd: priceUsd)
+        }
+        .removeDuplicates()
+        .receive(on: DispatchQueue.main)
+        .withWeakCaptureOf(self)
+        .sink { manager, args in
+            manager.updateHighNetworkFeeWarning(selectedFee: args.selectedFee)
+        }
+        .store(in: &bag)
+
+        Publishers.CombineLatest(
+            input.selectedTokenFeePublisher,
             input.feeValues.removeDuplicates(),
         )
         .sink { [weak self] selectedFee, loadedFeeValues in
@@ -88,6 +109,11 @@ private extension CommonSendNotificationManager {
             .sink { $0.updateNotifications(bsdkTransaction: $1) }
             .store(in: &bag)
     }
+}
+
+private struct HighNetworkFeeWarningInput: Equatable {
+    let selectedFee: TokenFee
+    let priceUsd: Decimal?
 }
 
 // MARK: - Fee
@@ -123,6 +149,7 @@ private extension CommonSendNotificationManager {
         case .some(BlockchainSdkError.accountNotActivated):
             show(notification: .accountNotActivated(assetName: tokenItem.name))
         case .some(TokenFeeProviderError.notEnoughBalanceForFee),
+             .some(TokenFeeProviderError.notEnoughGaslessFeeBalance),
              .some(ETHError.gasRequiredExceedsAllowance):
             hideAllNotification { $0.isNetworkFeeUnreachable }
         case .some:
@@ -168,6 +195,14 @@ private extension CommonSendNotificationManager {
 
     private func hideFeeWillBeSubtractedNotification() {
         hideAllNotification { $0.isFeeWillBeSubtractFromSendingAmount }
+    }
+
+    func updateHighNetworkFeeWarning(selectedFee: TokenFee) {
+        if highNetworkFeeWarningCalculator.shouldShowWarning(for: selectedFee) {
+            show(notification: .highNetworkFee)
+        } else {
+            hideAllNotification { $0.isHighNetworkFee }
+        }
     }
 }
 
@@ -242,6 +277,9 @@ private extension CommonSendNotificationManager {
              .some(ETHError.gasRequiredExceedsAllowance):
             let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
             show(notification: .validationErrorEvent(factory.mapToInsufficientBalanceForFeeEvent()))
+        case .some(TokenFeeProviderError.notEnoughGaslessFeeBalance):
+            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
+            show(notification: .validationErrorEvent(factory.mapToInsufficientGaslessFeeEvent()))
         case .some(let error):
             AppLogger.error("Transaction error will not show to user", error: error)
             hideAllValidationErrorEvent()

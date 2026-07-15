@@ -14,6 +14,7 @@ struct WalletModelsFactoryProvider {
     let keysRepository: KeysRepository
     let keysDerivingInteractor: KeysDeriving
     let transactionHistoryProviderRegistry: TransactionHistoryProviderRegistry
+    let transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage
 
     func makeWalletModelsFactory(
         blockchainSettingsUpdater: BlockchainSettingsUpdater,
@@ -39,7 +40,8 @@ struct WalletModelsFactoryProvider {
             config: userWalletConfig,
             userWalletId: userWalletId,
             walletModelFeaturesManagerFactory: featuresManagerFactory,
-            transactionHistoryServiceProvider: transactionHistoryServiceProvider
+            transactionHistoryServiceProvider: transactionHistoryServiceProvider,
+            transactionHistoryScheduledUpdatesStorage: transactionHistoryScheduledUpdatesStorage
         )
 
         if userWalletConfig.isDemo {

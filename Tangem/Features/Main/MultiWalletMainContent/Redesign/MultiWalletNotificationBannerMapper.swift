@@ -17,6 +17,7 @@ struct NotificationBannerItem: NotificationBannerContainerItem, Equatable {
     let id: NotificationViewId
     let bannerType: NotificationBanner.BannerType
     let priority: NotificationBanner.Priority
+    let stackableOverride: Bool?
     let accessibilityIdentifier: String?
 }
 
@@ -38,8 +39,17 @@ private extension MultiWalletNotificationBannerMapper {
             id: input.id,
             bannerType: makeBannerType(from: input),
             priority: mapPriority(from: input),
+            stackableOverride: stackableOverride(from: input),
             accessibilityIdentifier: input.settings.event.accessibilityIdentifier
         )
+    }
+
+    func stackableOverride(from input: NotificationViewInput) -> Bool? {
+        if (input.settings.event as? GeneralNotificationEvent) == .addFunds {
+            return false
+        }
+
+        return nil
     }
 
     func mapPriority(from input: NotificationViewInput) -> NotificationBanner.Priority {
@@ -115,6 +125,7 @@ private extension MultiWalletNotificationBannerMapper {
 
     func mapEffect(_ effect: NotificationBannerKind.Effect) -> NotificationBanner.Effect {
         switch effect {
+        case .plain: .none
         case .card: .bannerCard
         case .magic: .bannerMagic
         }
@@ -322,6 +333,8 @@ private extension MultiWalletNotificationBannerMapper {
             return SendAccessibilityIdentifiers.leaveAmountButton
         case .openFeeCurrency:
             return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
+        case .openGetTangemPay:
+            return TangemPayAccessibilityIdentifiers.getTangemPayBannerOpenButton
         default:
             return CommonUIAccessibilityIdentifiers.notificationButton
         }

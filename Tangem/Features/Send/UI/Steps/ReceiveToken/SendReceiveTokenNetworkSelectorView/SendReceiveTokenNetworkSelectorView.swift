@@ -19,7 +19,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
         ZStack(alignment: .top) {
             VStack(spacing: .zero) {
                 BottomSheetHeaderView(
-                    title: viewModel.state.isSuccess ? Localization.commonChooseNetwork : "",
+                    title: viewModel.headerTitle,
                     trailing: {
                         NavigationBarButton.close(action: viewModel.dismiss)
                     }
@@ -43,7 +43,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
 
     @ViewBuilder
     private var scrollContent: some View {
-        if case .success(let items) = viewModel.state {
+        if case .networks(let items) = viewModel.state {
             ScrollView(.vertical) {
                 VStack(spacing: .zero) {
                     if let notification = viewModel.notification {
@@ -71,12 +71,15 @@ struct SendReceiveTokenNetworkSelectorView: View {
         case .loading:
             ProgressView()
                 .padding(.vertical, 150)
-        case .success:
+        case .networks:
             EmptyView()
-        case .failure(let error):
+        case .swapRequired(let viewData):
+            SendReceiveTokenSwapRequiredContentView(viewData: viewData)
+                .accessibilityElement(children: .contain)
+        case .notSupported(let text):
             BottomSheetErrorContentView(
                 title: viewModel.notSupportedTitle,
-                subtitle: error,
+                subtitle: text,
                 secondaryButton: .init(
                     title: Localization.commonGotIt,
                     style: .secondary,

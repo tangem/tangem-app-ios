@@ -231,6 +231,7 @@ private extension ActionButtonsViewModel {
         expressAvailabilityProvider
             .expressAvailabilityUpdateState
             .combineLatest(walletModelsActionsUpdatePublisher)
+            .debounce(for: .seconds(Constants.swapAvailabilityDebounceInterval), scheduler: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, input in
                 // `walletModelsActionsUpdatePublisher` acts just as a trigger to re-evaluate swap button state
@@ -286,25 +287,24 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleUpdatedSwapState() {
-        switch swapAvailableWalletModelsCount() {
-        case 0:
-            swapActionButtonViewModel.updateState(to: .disabled)
-        case 1:
-            swapActionButtonViewModel.updateState(
-                to: .restricted(
-                    reason: Localization.actionButtonsSwapNotEnoughTokensAlertMessage
-                )
-            )
-        default:
-            swapActionButtonViewModel.updateState(to: .idle)
-        }
+        swapActionButtonViewModel.updateState(
+            to: swapAvailableWalletModelsCount() == .zero ? .disabled : .idle
+        )
     }
 
-    func swapAvailableWalletModelsCount() -> Int {
-        AccountWalletModelsAggregator
-            .walletModels(from: userWalletModel.accountModelsManager)
-            .filter { swapAvailabilityChecker.isSwapAvailable(walletModel: $0) }
-            .count
+    @MainActor
+    func swapAvailableWalletModelsCount() -> SwapAvailableWalletModelsCount {
+        var count = 0
+        for walletModel in AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager) {
+            if swapAvailabilityChecker.isSwapAvailable(walletModel: walletModel) {
+                count += 1
+                if count > 1 {
+                    return .multiple // Early exit once the second swappable model is found
+                }
+            }
+        }
+
+        return count == 1 ? .one : .zero
     }
 }
 
@@ -373,5 +373,26 @@ private extension ActionButtonsViewModel {
 extension ActionButtonsViewModel: CustomStringConvertible {
     var description: String {
         objectDescription(self)
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension ActionButtonsViewModel {
+    enum SwapAvailableWalletModelsCount {
+        case zero
+        case one
+        case multiple
+    }
+}
+
+// MARK: - Constants
+
+private extension ActionButtonsViewModel {
+    enum Constants {
+        /// `expressAvailabilityProvider.expressAvailabilityUpdateState` and `walletModelsActionsUpdatePublisher`
+        /// may emit a lot of updates in quick succession, but we don't need to update this VM that often.
+        /// Debouncing the updates to avoid unnecessary work and improve performance.
+        static let swapAvailabilityDebounceInterval: TimeInterval = 0.1
     }
 }
