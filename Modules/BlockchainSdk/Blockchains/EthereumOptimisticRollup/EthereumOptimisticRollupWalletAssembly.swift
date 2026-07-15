@@ -18,8 +18,7 @@ struct EthereumOptimisticRollupWalletAssembly: WalletManagerAssembly {
 
         let yieldSupplyServiceFactory = YieldSupplyServiceFactory(
             wallet: wallet,
-            dataStorage: input.blockchainSdkDependencies.dataStorage,
-            isYieldModuleUpdateEnabled: input.blockchainSdkDependencies.isYieldModuleUpdateEnabled
+            dataStorage: input.blockchainSdkDependencies.dataStorage
         )
 
         let apiList = APIList(dictionaryLiteral: (wallet.blockchain.networkId, input.networkInput.apiInfo))
@@ -58,6 +57,7 @@ struct EthereumOptimisticRollupWalletAssembly: WalletManagerAssembly {
             networkService: networkService,
             yieldSupplyService: yieldSupplyServiceFactory.makeProvider(networkService: networkService),
             pendingTransactionsManager: pendingTransactionsManager,
+            isGaslessYieldEnabled: input.blockchainSdkDependencies.isGaslessYieldEnabled,
             l1SmartContractAddress: l1SmartContractAddress,
             l1FeeMultiplier: l1FeeMultiplier,
         )
