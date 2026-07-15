@@ -108,6 +108,10 @@ extension MarketsTokenDetailsCoordinator {
 }
 
 extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
+    func openAppSettings() {
+        UIApplication.openSystemSettings()
+    }
+
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
         let inputData = MarketsAddTokenFlowConfigurationFactory.InputData(
             coinId: model.id,
@@ -728,7 +732,7 @@ extension MarketsTokenDetailsCoordinator {
 
             Task {
                 try await Task.sleep(for: .seconds(1))
-                await walletModel.update(silent: true, features: .balances)
+                await walletModel.update(silent: true, options: .balances)
             }
         }
     }

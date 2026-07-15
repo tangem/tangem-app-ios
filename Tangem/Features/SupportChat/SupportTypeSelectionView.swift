@@ -56,8 +56,6 @@ private extension SupportTypeSelectionView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     SupportTypeSelectionView(model: SupportTypeSelectionModel(emailAction: {}, chatAction: {}))
 }
-#endif // DEBUG

@@ -1,5 +1,5 @@
 //
-//  BlockchainExplorerProvider.swift
+//  ExternalLinkProvider.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

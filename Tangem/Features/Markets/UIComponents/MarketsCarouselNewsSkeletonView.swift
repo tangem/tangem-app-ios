@@ -27,10 +27,8 @@ struct MarketsCarouselNewsSkeletonView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     MarketsCarouselNewsSkeletonView()
         .padding(.horizontal, .unit(.x4))
         .background(Color.Tangem.Surface.level2)
 }
-#endif // DEBUG

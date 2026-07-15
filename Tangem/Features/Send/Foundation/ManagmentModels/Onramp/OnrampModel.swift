@@ -47,6 +47,7 @@ class OnrampModel {
     private let onrampRepository: OnrampRepository
     private let analyticsLogger: OnrampManagementModelAnalyticsLogger
     private let redirectSettingsBuilder: OnrampRedirectSettingsBuilder
+    private let transactionHistoryEnricherFactory: TransactionHistoryExpressDataEnriching.Factory
 
     private let autoupdatingTimer: AutoupdatingTimer
     private var autoupdatingTimerSubscription: AnyCancellable?
@@ -69,6 +70,7 @@ class OnrampModel {
         analyticsLogger: OnrampManagementModelAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         redirectSettingsBuilder: OnrampRedirectSettingsBuilder,
+        transactionHistoryEnricherFactory: @escaping TransactionHistoryExpressDataEnriching.Factory,
         predefinedValues: PredefinedValues,
         isHistoryFallbackEnabled: Bool = FeatureProvider.isAvailable(.onrampApplePayHistoryFallback)
     ) {
@@ -81,6 +83,7 @@ class OnrampModel {
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
         self.redirectSettingsBuilder = redirectSettingsBuilder
+        self.transactionHistoryEnricherFactory = transactionHistoryEnricherFactory
         self.isHistoryFallbackEnabled = isHistoryFallbackEnabled
 
         _amount = .init(predefinedValues.amount)
@@ -423,12 +426,14 @@ private extension OnrampModel {
             date: Date(),
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,
+            toAmount: data.toAmount,
+            countryCode: data.countryCode,
             externalTxId: data.externalTxId,
             externalTxUrl: data.externalTxURL?.absoluteString
         )
 
-        onrampPendingTransactionsRepository
-            .onrampTransactionDidSend(txData, userWalletId: userWalletId)
+        addTransactionToPendingRepository(txData)
+        persistSentTransaction(txData)
 
         afterNativePaymentRecorded(txId: data.txId)
     }
@@ -462,6 +467,21 @@ private extension OnrampModel {
         _transactionTime.send(Date())
         _expressTransactionId.send(txId)
         pendingApplePayCompletion = .finishStep
+    }
+
+    func addTransactionToPendingRepository(_ txData: SentOnrampTransactionData) {
+        onrampPendingTransactionsRepository.onrampTransactionDidSend(txData, userWalletId: userWalletId)
+    }
+
+    func persistSentTransaction(_ txData: SentOnrampTransactionData) {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            return
+        }
+
+        // Fire-and-forget since we can't handle enriching errors anyway
+        runTask { [transactionHistoryEnricherFactory] in
+            await transactionHistoryEnricherFactory()?.enrich(with: txData)
+        }
     }
 
     func log(_ message: String) {
@@ -560,12 +580,14 @@ extension OnrampModel: OnrampRedirectingOutput {
             date: Date(),
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,
+            toAmount: data.toAmount,
+            countryCode: data.countryCode,
             externalTxId: data.externalTxId,
             externalTxUrl: data.externalTxURL?.absoluteString
         )
 
-        onrampPendingTransactionsRepository
-            .onrampTransactionDidSend(txData, userWalletId: userWalletId)
+        addTransactionToPendingRepository(txData)
+        persistSentTransaction(txData)
 
         stopTimer()
         DispatchQueue.main.async {

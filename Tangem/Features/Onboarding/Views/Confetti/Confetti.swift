@@ -54,35 +54,26 @@ struct ConfettiView: UIViewRepresentable {
     }
 }
 
-struct ConfettiViewPreview: View {
-    @State var shouldFireConfetti: Bool = false
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var shouldFireConfetti = false
 
-    var body: some View {
-        ZStack {
-            ConfettiView(
-                shouldFireConfetti: $shouldFireConfetti,
-                position: .aboveTop,
-                confettiLifetime: 4,
-                generationDuration: 0.3
-            )
-            VStack {
-                Spacer()
-                Button(action: {
-                    shouldFireConfetti = true
-                }, label: {
-                    Text("FIRE!!!!")
-                        .padding()
-                })
-                .padding(.bottom, 40)
-            }
-        }
-    }
-}
-
-struct ConfettiView_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            ConfettiViewPreview()
+    ZStack {
+        ConfettiView(
+            shouldFireConfetti: $shouldFireConfetti,
+            position: .aboveTop,
+            confettiLifetime: 4,
+            generationDuration: 0.3
+        )
+        VStack {
+            Spacer()
+            Button(action: {
+                shouldFireConfetti = true
+            }, label: {
+                Text("FIRE!!!!")
+                    .padding()
+            })
+            .padding(.bottom, 40)
         }
     }
 }

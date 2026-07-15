@@ -20,6 +20,7 @@ protocol StakingNotificationManager: NotificationManager {
     func setup(provider: UnstakingModelStateProvider, input: StakingNotificationManagerInput)
     func setup(provider: RestakingModelStateProvider, input: StakingNotificationManagerInput)
     func setup(provider: StakingSingleActionModelStateProvider, input: StakingNotificationManagerInput)
+    func setup(validationStatePublisher: AnyPublisher<StakingValidationState, Never>, tokenName: String)
 }
 
 class CommonStakingNotificationManager {
@@ -30,6 +31,7 @@ class CommonStakingNotificationManager {
 
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private var stateSubscription: AnyCancellable?
+    private var validationSubscription: AnyCancellable?
 
     private lazy var daysFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
@@ -357,6 +359,30 @@ private extension CommonStakingNotificationManager {
             }
         }
     }
+
+    func hideValidationNotifications() {
+        notificationInputsSubject.value.removeAll { input in
+            switch input.settings.event {
+            case StakingNotificationEvent.validationWarning,
+                 StakingNotificationEvent.validationBlocked:
+                true
+            default: false
+            }
+        }
+    }
+
+    func update(validationState: StakingValidationState, tokenName: String) {
+        hideValidationNotifications()
+
+        switch validationState {
+        case .idle, .validating, .validated:
+            break
+        case .warning:
+            show(notification: .validationWarning(tokenName: tokenName))
+        case .blocked:
+            show(notification: .validationBlocked(tokenName: tokenName))
+        }
+    }
 }
 
 // MARK: - NotificationManager
@@ -371,6 +397,16 @@ extension CommonStakingNotificationManager: StakingNotificationManager {
         .sink { manager, state in
             manager.update(state: state.0, yield: state.1)
         }
+    }
+
+    func setup(validationStatePublisher: AnyPublisher<StakingValidationState, Never>, tokenName: String) {
+        validationSubscription = validationStatePublisher
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { manager, validationState in
+                manager.update(validationState: validationState, tokenName: tokenName)
+            }
     }
 
     func setup(provider: UnstakingModelStateProvider, input: StakingNotificationManagerInput) {

@@ -24,7 +24,7 @@ struct SubtitleOwnerResolver {
             return .unresolved(
                 short: AddressFormatter(address: address).truncated(),
                 fullAddress: address,
-                blockiesImage: AddressIconViewModel(address: address).image
+                blockiesImage: AddressIconProvider.makeBlockiesImage(address: address)
             )
         }
 
