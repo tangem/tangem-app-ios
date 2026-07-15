@@ -32,6 +32,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemSnackbarDemo()
     func openTangemShimmerDemo()
     func openGlowRingDemo()
+    func openTangemTopNavigationDemo()
     func openTangemFadeDemo()
 }
 
@@ -63,6 +64,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemSnackbarDemoViewModel: TangemSnackbarDemoViewModel?
     @Published var tangemShimmerDemoViewModel: TangemShimmerDemoViewModel?
     @Published var glowRingDemoViewModel: GlowRingDemoViewModel?
+    @Published var tangemTopNavigationDemoViewModel: TangemTopNavigationDemoViewModel?
     @Published var tangemFadeDemoViewModel: TangemFadeDemoViewModel?
 
     required init(
@@ -168,7 +170,11 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
     }
 
     func openGlowRingDemo() {
-        glowRingDemoViewModel = .init()
+        glowRingDemoViewModel = GlowRingDemoViewModel()
+    }
+
+    func openTangemTopNavigationDemo() {
+        tangemTopNavigationDemoViewModel = TangemTopNavigationDemoViewModel()
     }
 
     func openTangemFadeDemo() {

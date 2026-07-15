@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import BlurSwiftUI
 
 public extension View {
     /// Applies a custom blur overlay that mimics the translucent navigation bar appearance introduced in iOS 26.
@@ -32,9 +31,7 @@ struct BackportTranslucentNavigationBar: ViewModifier {
             }
             .toolbarBackground(.hidden, for: .navigationBar)
             .overlay(alignment: .top) {
-                BlurSwiftUI.VariableBlur(direction: .down)
-                    .dimmingAlpha(.constant(alpha: 0.5))
-                    .dimmingOvershoot(nil)
+                TopFadeWithBlur()
                     .frame(height: safeAreaInsetTop)
                     .ignoresSafeArea(edges: .top)
 
