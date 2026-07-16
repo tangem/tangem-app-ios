@@ -18,11 +18,7 @@ struct MainBottomSheetFooterView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            redesignBody
-        } else {
-            legacyBody
-        }
+        redesignBody
     }
 
     var redesignBody: some View {
@@ -42,35 +38,6 @@ struct MainBottomSheetFooterView: View {
                 .background(alignment: .top) {
                     MainBottomSheetFooterShadowView(colorScheme: colorScheme, shadowColor: .black)
                 }
-        }
-    }
-
-    var legacyBody: some View {
-        VStack(spacing: 0.0) {
-            FixedSpacer.vertical(14.0)
-
-            // `MainBottomSheetHeaderInputView` is used here as a dummy view, used for layout calculation (i.e. footer height)
-            MainBottomSheetHeaderInputView(
-                searchText: .constant(""),
-                isTextFieldFocused: .constant(false),
-                allowsHitTestingForTextField: false,
-                clearButtonAction: nil,
-                cancelButtonAction: nil,
-                searchBarAccessibilityIdentifier: nil,
-                searchBarClearButtonAccessibilityIdentifier: nil
-            )
-            .padding(.bottom, legacyBottomInset)
-            .background(backgroundColor) // Fills a small gap at the bottom on notchless devices
-            .overlay(alignment: .top) {
-                snapshotOverlay
-            }
-            .cornerRadius(cornerRadius, corners: .topEdge)
-            .overlay(alignment: .top) {
-                GrabberView()
-            }
-            .background(alignment: .top) {
-                MainBottomSheetFooterShadowView(colorScheme: colorScheme, shadowColor: .black)
-            }
         }
     }
 
@@ -94,11 +61,7 @@ struct MainBottomSheetFooterView: View {
     }
 
     private var backgroundColor: Color {
-        if FeatureProvider.isAvailable(.redesign) {
-            Color.Tangem.Surface.level3
-        } else {
-            Colors.Background.primary
-        }
+        Color.Tangem.Surface.level3
     }
 
     private var edgeInsets: EdgeInsets {
@@ -109,17 +72,6 @@ struct MainBottomSheetFooterView: View {
             leading: inset,
             bottom: bottomInset,
             trailing: inset
-        )
-    }
-
-    private var legacyBottomInset: CGFloat {
-        return max(
-            // Devices with a notch
-            UIApplication.safeAreaInsets.bottom - MainBottomSheetHeaderInputView.Constants.bottomInset,
-            // Notchless devices
-            MainBottomSheetHeaderInputView.Constants.topInset - MainBottomSheetHeaderInputView.Constants.bottomInset,
-            // Fallback
-            .zero
         )
     }
 

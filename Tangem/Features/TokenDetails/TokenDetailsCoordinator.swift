@@ -41,8 +41,6 @@ final class TokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
 
-    let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
-
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -436,7 +434,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             }
         )
 
-        let presentationStyle: MarketsTokenDetailsPresentationStyle = isRedesign ? .fullScreenCover : .navigationStack
+        let presentationStyle: MarketsTokenDetailsPresentationStyle = .fullScreenCover
 
         coordinator.start(with: .init(info: tokenModel, style: presentationStyle))
         marketsTokenDetailsCoordinator = coordinator
