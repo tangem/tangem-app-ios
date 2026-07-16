@@ -136,7 +136,7 @@ class AmountInputFieldModel: ObservableObject {
 
 private extension AmountInputFieldModel {
     func bind() {
-        cryptoTextFieldViewModel.valuePublisher
+        cryptoTextFieldViewModel.valuePublisher()
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { model, value in
@@ -145,7 +145,7 @@ private extension AmountInputFieldModel {
             }
             .store(in: &bag)
 
-        fiatTextFieldViewModel.valuePublisher
+        fiatTextFieldViewModel.valuePublisher()
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { model, value in

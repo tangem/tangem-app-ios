@@ -36,6 +36,7 @@ struct TransactionNotificationsRowToggleView: View {
                 }
             }
         }
+        .onAppear { viewModel.onAppear() }
     }
 
     // MARK: - Private UI

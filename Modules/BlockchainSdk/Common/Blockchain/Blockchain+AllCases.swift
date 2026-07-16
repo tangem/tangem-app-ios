@@ -84,6 +84,7 @@ public extension Blockchain {
         case .filecoin: break
         case .sei: break
         case .seiEvm: break
+        case .gonka: break
         case .energyWebEVM: break
         case .energyWebX: break
         case .core: break
@@ -186,6 +187,7 @@ public extension Blockchain {
             .filecoin,
             .sei(testnet: false),
             .seiEvm(testnet: false),
+            .gonka(testnet: false),
             .energyWebEVM(testnet: false),
             .energyWebX(curve: .ed25519_slip0010),
             .core(testnet: false),

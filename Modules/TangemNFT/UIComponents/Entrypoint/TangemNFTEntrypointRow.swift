@@ -14,17 +14,9 @@ import TangemUI
 public struct TangemNFTEntrypointRow: View {
     @ObservedObject var viewModel: NFTEntrypointViewModel
 
-    // MARK: - Scaled image sizes
-
-    @ScaledSize private var imageContainerSize = CGSize(bothDimensions: 36)
-    @ScaledSize private var twoCollectionsImageSize = CGSize(bothDimensions: 24)
-    @ScaledSize private var threeCollectionsFirstImageSize = CGSize(bothDimensions: 16)
-    @ScaledSize private var threeCollectionsSecondImageSize = CGSize(bothDimensions: 14)
-    @ScaledSize private var threeCollectionsThirdImageSize = CGSize(bothDimensions: 20)
-    @ScaledSize private var fourCollectionsImageSize = CGSize(bothDimensions: 17)
-    @ScaledSize private var dotsImageSize = CGSize(bothDimensions: 9)
-
     // MARK: - Scaled spacings and offsets
+
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     @ScaledMetric private var pictureYOffset: CGFloat = 3
     @ScaledMetric private var firstTwoImagesVSpacing: CGFloat = 4
@@ -100,15 +92,15 @@ public struct TangemNFTEntrypointRow: View {
 
         case .threeCollections(let firstMedia, let secondMedia, let thirdMedia):
             VStack(spacing: firstTwoImagesVSpacing) {
-                makeImage(media: firstMedia, size: threeCollectionsFirstImageSize)
-                makeImage(media: secondMedia, size: threeCollectionsSecondImageSize)
+                makeImage(media: firstMedia, size: CGSize(bothDimensions: 16) * scaleFactor)
+                makeImage(media: secondMedia, size: CGSize(bothDimensions: 14) * scaleFactor)
                     .offset(x: secondImageXOffset)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .overlay(alignment: .trailing) {
                 makeImage(
                     media: thirdMedia,
-                    size: threeCollectionsThirdImageSize,
+                    size: CGSize(bothDimensions: 20) * scaleFactor,
                     shouldStroke: true
                 )
                 .offset(
@@ -198,7 +190,7 @@ public struct TangemNFTEntrypointRow: View {
                 Assets.horizontalDots.image
                     .resizable()
                     .foregroundStyle(Color.Tangem.Text.Neutral.secondary)
-                    .frame(size: dotsImageSize)
+                    .frame(size: CGSize(bothDimensions: 9) * scaleFactor)
             }
     }
 
@@ -206,5 +198,19 @@ public struct TangemNFTEntrypointRow: View {
         RoundedRectangle(cornerRadius: imageCornerRadius)
             .fill(Color.Tangem.Surface.level2)
             .frame(size: size)
+    }
+
+    // MARK: - Scaled image sizes
+
+    private var imageContainerSize: CGSize {
+        CGSize(bothDimensions: 36) * scaleFactor
+    }
+
+    private var twoCollectionsImageSize: CGSize {
+        CGSize(bothDimensions: 24) * scaleFactor
+    }
+
+    private var fourCollectionsImageSize: CGSize {
+        CGSize(bothDimensions: 17) * scaleFactor
     }
 }

@@ -41,6 +41,30 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         }
     }
 
+    /// `apiBaseUrl` carrying the `/api` gateway segment documented in the Notification Preferences
+    /// contract v1.3 (`/api/v1/...`). Kept separate from `apiBaseUrl` because only the
+    /// notification-preferences endpoint uses it; the rest of the v1 API does not.
+    public var apiBaseUrlWithGatewaySegment: URL {
+        insertingApiSegment(into: apiBaseUrl)
+    }
+
+    /// `apiBaseUrlv2` carrying the `/api` gateway segment (`/api/v2/...`). Only the v2 `/tokens`
+    /// endpoint from the Notification Preferences contract v1.3 uses it.
+    public var apiBaseUrlv2WithGatewaySegment: URL {
+        insertingApiSegment(into: apiBaseUrlv2)
+    }
+
+    /// Prepends the `/api` gateway segment to a base URL's path (`https://host/v1` ->
+    /// `https://host/api/v1`). Documented in Notification Preferences contract v1.3.
+    private func insertingApiSegment(into url: URL) -> URL {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            return url
+        }
+
+        components.path = "/api" + components.path
+        return components.url ?? url
+    }
+
     public var iconBaseUrl: URL {
         switch self {
         case .prod:

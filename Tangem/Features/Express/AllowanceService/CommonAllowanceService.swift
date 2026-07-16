@@ -48,4 +48,8 @@ extension CommonAllowanceService: AllowanceService {
     func markApproveTransactionSent(spender: String) {
         spendersAwaitingApprove.insert(spender)
     }
+
+    func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
+        try allowanceChecker.makeApproveData(spender: spender, amount: amount, policy: policy)
+    }
 }

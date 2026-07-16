@@ -37,6 +37,7 @@ extension DeeplinkNavigationAction {
         var order: String?
         var interval: String?
         var earnType: String?
+        var surveyToken: String?
 
         static let empty = Params()
 

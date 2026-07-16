@@ -20,6 +20,14 @@ struct TokenDetailsActionRowView: View {
     @ScaledMetric(wrappedValue: .unit(.x4)) private var horizontalPadding: CGFloat
     @ScaledMetric(wrappedValue: .unit(.x3)) private var verticalPadding: CGFloat
 
+    private var subtitleColor: Color {
+        item.isAvailable ? .Tangem.Text.Neutral.secondary : .Tangem.Text.Status.disabled
+    }
+
+    private var chevronColor: Color {
+        item.isAvailable ? .Tangem.Graphic.Neutral.secondary : .Tangem.Graphic.Neutral.quaternary
+    }
+
     var body: some View {
         Button(action: item.action) {
             TangemTwoLineRowLayout(
@@ -36,6 +44,7 @@ struct TokenDetailsActionRowView: View {
             .cornerRadiusContinuous(.unit(.x5))
         }
         .buttonStyle(.plain)
+        .disabled(!item.isAvailable)
         .accessibilityIdentifier(item.accessibilityIdentifier)
     }
 
@@ -52,11 +61,15 @@ struct TokenDetailsActionRowView: View {
                 .frame(width: iconSize, height: iconSize)
         }
         .frame(width: iconContainerSize, height: iconContainerSize)
+        .actionControlDimmed(isEnabled: item.isAvailable)
     }
 
     private var titleView: some View {
         Text(item.title)
-            .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+            .style(
+                Font.Tangem.Body16.medium,
+                color: ActionControlAppearance.contentColor(isEnabled: item.isAvailable)
+            )
             .lineLimit(1)
     }
 
@@ -64,7 +77,7 @@ struct TokenDetailsActionRowView: View {
     private var subtitleView: some View {
         if let subtitle = item.subtitle {
             Text(subtitle)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.semibold, color: subtitleColor)
                 .lineLimit(1)
         } else {
             EmptyView()
@@ -76,7 +89,7 @@ struct TokenDetailsActionRowView: View {
             .renderingMode(.template)
             .resizable()
             .scaledToFit()
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
+            .foregroundStyle(chevronColor)
             .frame(width: chevronSize, height: chevronSize)
     }
 }

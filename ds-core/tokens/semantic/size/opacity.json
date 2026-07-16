@@ -3,7 +3,8 @@
     "0": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`0`"
+          "Android": "0f",
+          "iOS": "0"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -15,7 +16,8 @@
     "5": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`05`"
+          "Android": "0.05f",
+          "iOS": "0.05"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -27,7 +29,8 @@
     "10": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`10`"
+          "Android": "0.1f",
+          "iOS": "0.1"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -39,7 +42,8 @@
     "15": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`15`"
+          "Android": "0.15f",
+          "iOS": "0.15"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -51,7 +55,8 @@
     "20": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`20`"
+          "Android": "0.2f",
+          "iOS": "0.2"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -63,7 +68,8 @@
     "25": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`25`"
+          "Android": "0.25f",
+          "iOS": "0.25"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -75,7 +81,8 @@
     "30": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`30`"
+          "Android": "0.3f",
+          "iOS": "0.3"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -87,7 +94,8 @@
     "40": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`40`"
+          "Android": "0.4f",
+          "iOS": "0.4"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -99,7 +107,8 @@
     "50": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`50`"
+          "Android": "0.5f",
+          "iOS": "0.5"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -111,7 +120,8 @@
     "60": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`60`"
+          "Android": "0.6f",
+          "iOS": "0.6"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -123,7 +133,8 @@
     "70": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`70`"
+          "Android": "0.7f",
+          "iOS": "0.7"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -135,7 +146,8 @@
     "80": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`80`"
+          "Android": "0.8f",
+          "iOS": "0.8"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -147,7 +159,8 @@
     "90": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`90`"
+          "Android": "0.9f",
+          "iOS": "0.9"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -159,7 +172,8 @@
     "95": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`95`"
+          "Android": "0.95f",
+          "iOS": "0.95"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -171,7 +185,8 @@
     "100": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "Opacity.`100`"
+          "Android": "1f",
+          "iOS": "1"
         },
         "com.figma.scopes": [
           "OPACITY"
@@ -183,8 +198,8 @@
     "disabled": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.opacity.disabled",
-          "iOS": "DesignSystem.Tokens.Opacity.disabled"
+          "Android": "0.4f",
+          "iOS": "0.4"
         }
       },
       "$type": "opacity",

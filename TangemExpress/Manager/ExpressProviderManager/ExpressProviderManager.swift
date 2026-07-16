@@ -8,11 +8,12 @@
 
 import Foundation
 
-public protocol ExpressProviderManager {
-    var pair: ExpressManagerSwappingPair { get }
-    var feeProvider: ExpressFeeProvider { get }
-
+public protocol ExpressProviderManager: AnyObject {
     func getState() -> ExpressProviderManagerState
+
+    /// Resets the manager state to `.idle`. Used by `ExpressAvailableProvider` when there is
+    /// nothing to quote (no amount, or the requested `rateType` is not supported).
+    func reset()
 
     func update(request: ExpressManagerSwappingPairRequest) async
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData

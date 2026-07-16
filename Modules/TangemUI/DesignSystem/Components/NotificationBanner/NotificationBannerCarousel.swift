@@ -47,7 +47,7 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
             TangemCarousel(wrappedItems) { wrappedItem in
                 bannerView(wrappedItem.item)
                     .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { height in
-                        itemHeights[wrappedItem.index] = height
+                        itemHeights[wrappedItem.index] = height.roundedToDeviceScale()
                     }
             }
             .isEndless(true)
@@ -58,10 +58,14 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
                 currentIndexHasChanged?(index)
             }
             .onTranslationChanged { translation in
-                dragTranslation = translation
+                if translation == 0 {
+                    dragTranslation = 0
+                } else if height(for: translation) != height(for: dragTranslation) {
+                    dragTranslation = translation
+                }
             }
             .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { width in
-                containerWidth = width
+                containerWidth = width.roundedToDeviceScale()
             }
             .frame(height: interpolatedHeight, alignment: .top)
             .if(hasClipShape) { $0.clipShape(RoundedRectangle(cornerRadius: SizeUnit.x6.value)) }
@@ -89,13 +93,17 @@ public struct NotificationBannerCarousel<Item, BannerView: View>: View {
 
 private extension NotificationBannerCarousel {
     var interpolatedHeight: CGFloat? {
+        height(for: dragTranslation)
+    }
+
+    func height(for translation: CGFloat) -> CGFloat? {
         let currentHeight = itemHeights[currentIndex]
 
-        guard dragTranslation != 0, containerWidth > 0 else {
+        guard translation != 0, containerWidth > 0 else {
             return currentHeight
         }
 
-        let isForward = dragTranslation < 0
+        let isForward = translation < 0
         let adjacentIndex: Int
         if isForward {
             adjacentIndex = (currentIndex + 1) % items.count
@@ -109,7 +117,7 @@ private extension NotificationBannerCarousel {
             return currentHeight ?? adjacentHeight
         }
 
-        let progress = min(abs(dragTranslation) / containerWidth, 1)
+        let progress = min(abs(translation) / containerWidth, 1)
         return (currentHeight + (adjacentHeight - currentHeight) * progress).rounded()
     }
 }

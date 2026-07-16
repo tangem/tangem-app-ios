@@ -58,6 +58,11 @@ extension ActionButtonsSellViewModel: TokenSelectorViewModelOutput {
 
         ActionButtonsAnalyticsService.trackTokenClicked(.sell, tokenSymbol: walletModel.tokenItem.currencySymbol)
 
+        if FeatureProvider.isAvailable(.redesign) {
+            coordinator?.openTransfer(walletModel: walletModel, userWalletInfo: item.userWalletInfo)
+            return
+        }
+
         guard let url = makeSellUrl(walletModel: walletModel) else {
             return
         }
