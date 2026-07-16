@@ -302,6 +302,10 @@ final class FakeTangemApiService: TangemApiService {
     func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response {
         throw "Not implemented"
     }
+
+    func loadCoinIndicators(requestModel: CoinIndicatorsDTO.Request) async throws -> CoinIndicatorsDTO.Response {
+        throw "Not implemented"
+    }
 }
 
 private struct MockEarnProvider {
