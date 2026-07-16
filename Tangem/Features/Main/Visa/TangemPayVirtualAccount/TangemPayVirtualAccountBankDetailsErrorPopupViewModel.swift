@@ -20,14 +20,12 @@ final class TangemPayVirtualAccountBankDetailsErrorPopupViewModel: TangemPayPopu
         .warning
     }
 
-    // [REDACTED_TODO_COMMENT]
     var title: AttributedString {
-        .init("Couldn't load banking details")
+        .init(Localization.tangempayVaBankingDetailsErrorTitle)
     }
 
-    // [REDACTED_TODO_COMMENT]
     var description: AttributedString {
-        .init("Please try again or contact support if the issue persists")
+        .init(Localization.tangempayVaBankingDetailsErrorDescription)
     }
 
     var primaryButton: MainButton.Settings {

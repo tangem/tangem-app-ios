@@ -39,8 +39,7 @@ final class TangemPayVirtualAccountBankDetailsViewModel: ObservableObject, Float
         UIPasteboard.general.string = value
 
         Toast(
-            // [REDACTED_TODO_COMMENT]
-            view: TangemSnackbar(title: "Copied")
+            view: TangemSnackbar(title: Localization.commonValueCopied)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
                 .iconColor(Color.Tangem.Graphic.Status.accent)
         )
