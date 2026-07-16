@@ -65,36 +65,9 @@ struct CarouselNewsView: View {
         Button(action: {
             onAllNewsTap?()
         }) {
-            if FeatureProvider.isAvailable(.redesign) {
-                redesignedAllNewsCardContent
-            } else {
-                legacyAllNewsCardContent
-            }
+            redesignedAllNewsCardContent
         }
         .buttonStyle(.plain)
-    }
-
-    private var legacyAllNewsCardContent: some View {
-        VStack(spacing: Layout.AllNewsCard.verticalSpacing) {
-            iconView
-
-            FixedSpacer(height: Layout.AllNewsCard.spacingAfterIcon)
-
-            Text(Localization.newsAllNews)
-                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-
-            FixedSpacer(height: Layout.AllNewsCard.spacingAfterTitle)
-
-            Text(Localization.newsStayInTheLoop)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-        }
-        .frame(width: Layout.MainCard.width, height: Layout.MainCard.height)
-        .defaultRoundedBackground(
-            with: Colors.Background.action,
-            verticalPadding: Layout.MainCard.padding,
-            horizontalPadding: Layout.MainCard.padding,
-            cornerRadius: Layout.MainCard.cornerRadius
-        )
     }
 
     private var redesignedAllNewsCardContent: some View {
@@ -136,13 +109,6 @@ private extension CarouselNewsView {
         static let maxCardsCount: Int = 10
         static let cardSpacing: CGFloat = 12
         static let defaultHorizontalInset: CGFloat = 16
-
-        enum MainCard {
-            static let width: CGFloat = 228
-            static let height: CGFloat = 136
-            static let padding: CGFloat = 14
-            static let cornerRadius: CGFloat = 14
-        }
 
         enum RedesignAllNewsCard {
             static let spacingAfterIcon: CGFloat = 10
