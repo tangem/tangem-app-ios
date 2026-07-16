@@ -18,6 +18,7 @@ struct DetailsCoordinatorView: CoordinatorView {
             if let model = coordinator.detailsViewModel {
                 DetailsView(viewModel: model)
                     .navigationLinks(links)
+                    .supportChatPresentation(coordinator.supportChatPresenter)
             }
 
             sheets
@@ -35,8 +36,14 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.appSettingsCoordinator) {
                 AppSettingsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.addressBooksCoordinator) {
+                AddressBooksCoordinatorView(coordinator: $0)
+            }
             .navigation(item: $coordinator.tosViewModel) {
                 DetailsTOSView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.addWalletSelectorCoordinator) {
+                AddWalletSelectorCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.environmentSetupCoordinator) {
                 EnvironmentSetupCoordinatorView(coordinator: $0)
@@ -54,10 +61,6 @@ struct DetailsCoordinatorView: CoordinatorView {
                     .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
-            }
-            .fullScreenCover(item: $coordinator.supportChatViewModel) {
-                SupportChatView(viewModel: $0)
-                    .edgesIgnoringSafeArea(.vertical)
             }
             .fullScreenCover(item: $coordinator.tangemPayOnboardingCoordinator) {
                 TangemPayOnboardingCoordinatorView(coordinator: $0)

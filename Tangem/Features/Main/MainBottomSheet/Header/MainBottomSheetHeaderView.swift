@@ -10,13 +10,24 @@ import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MainBottomSheetHeaderView: View {
     @ObservedObject var viewModel: MainBottomSheetHeaderViewModel
 
     @FocusState private var isFocused: Bool
 
-    @ScaledMetric private var fieldPadding: CGFloat = .unit(.x4)
+    private var searchFieldInsets: EdgeInsets = Constants.searchFieldInsets
+
+    private let backgroundColor: Color
+
+    init(
+        viewModel: MainBottomSheetHeaderViewModel,
+        backgroundColor: Color = .Tangem.Surface.level2
+    ) {
+        self.viewModel = viewModel
+        self.backgroundColor = backgroundColor
+    }
 
     var body: some View {
         if FeatureProvider.isAvailable(.redesign) {
@@ -39,8 +50,9 @@ struct MainBottomSheetHeaderView: View {
         .containerAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketFieldContainer)
         .textFieldAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketField)
         .clearButtonAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketClearButton)
-        .padding(fieldPadding)
-        .background(Color.Tangem.Surface.level2)
+        .frame(height: Constants.searchFieldHeight)
+        .padding(searchFieldInsets)
+        .background(backgroundColor)
         .focused($isFocused)
         .onReceive(viewModel.$inputShouldBecomeFocused) { isFocused = $0 }
     }
@@ -53,5 +65,24 @@ struct MainBottomSheetHeaderView: View {
             clearButtonAction: viewModel.clearSearchBarAction,
             cancelButtonAction: viewModel.cancelSearchBarAction
         )
+    }
+}
+
+// MARK: - Constants
+
+extension MainBottomSheetHeaderView {
+    enum Constants {
+        /// Not a scaled property because `RootViewControllerFactory` uses this control internally
+        /// and its `Constants` values cannot be made scaled as it can't be added to the view hierarchy.
+        static let searchFieldInsets: EdgeInsets = .init(inset: .unit(.x4))
+        static let searchFieldHeight: CGFloat = .unit(.x11)
+    }
+}
+
+// MARK: - Setupable
+
+extension MainBottomSheetHeaderView: Setupable {
+    func searchFieldInsets(_ insets: EdgeInsets) -> Self {
+        map { $0.searchFieldInsets = insets }
     }
 }

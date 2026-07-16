@@ -9,7 +9,7 @@
 import SwiftUI
 
 // The `DesignSystem` namespace tree itself is generated from the DS-Core
-// `codeSyntax.iOS` paths into `Generated/DesignSystem/Skeleton+Generated.swift`.
+// `codeSyntax.iOS` paths into `Generated/DesignSystem/Namespaces+Generated.swift`.
 // This file holds only the hand-written runtime: color helpers, token value
 // types, and `View` modifiers consumed by the generated extensions.
 

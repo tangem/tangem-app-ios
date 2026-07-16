@@ -207,6 +207,7 @@ extension TransferSellFlowFactory: SendFinishStepBuildable {
     var finishDependencies: SendFinishStepBuilder.Dependencies {
         SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
+            headerTitleProvider: SellFinishHeaderTitleProvider()
         )
     }
 }

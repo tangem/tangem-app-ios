@@ -124,6 +124,8 @@ struct DefaultIncomingLinkParserTests {
             urlString = "https://tangem.com/news/markets/190801-polygon"
         case .earn:
             urlString = "tangem://\(rawValue)"
+        case .survey:
+            urlString = "tangem://\(rawValue)?token=ntt-abc123"
         default:
             urlString = "tangem://\(rawValue)?type=income_transaction"
         }
@@ -319,6 +321,27 @@ struct DefaultIncomingLinkParserTests {
         let result = parser.parse(url)
 
         #expect(result == nil, "Expected \(url) to be rejected due to missing networkId")
+    }
+
+    @Test("Parses tangem://survey with required token")
+    func parsesSurveyWithToken() throws {
+        let url = try #require(URL(string: "tangem://survey?token=ntt-abc123"))
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .survey)
+        #expect(action.params.surveyToken == "ntt-abc123")
+    }
+
+    @Test("Rejects tangem://survey with missing token")
+    func rejectsSurveyWithoutToken() throws {
+        let url = try #require(URL(string: "tangem://survey"))
+        let result = parser.parse(url)
+        #expect(result == nil)
     }
 
     @Test("Rejects tangem://token_chart with missing tokenId")

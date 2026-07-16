@@ -28,8 +28,17 @@ public struct TokenIcon: View {
     private let customTokenIndicatorBorderWidth: CGFloat = 2
     private let customTokenIconSizeRatio = 0.54
 
+    @Environment(\.isRedesign) private var isRedesign
+    @ScaledMetric private var redesignedNetworkIconSide = CGFloat.unit(.x8)
+
     private var customTokenIndicatorBorderSize: CGSize {
         customTokenIndicatorSize + CGSize(width: 2 * customTokenIndicatorBorderWidth, height: 2 * customTokenIndicatorBorderWidth)
+    }
+
+    private var networkIconSize: CGSize {
+        isRedesign
+            ? CGSize(bothDimensions: redesignedNetworkIconSide)
+            : CGSize(bothDimensions: 14.0)
     }
 
     public var body: some View {
@@ -43,7 +52,12 @@ public struct TokenIcon: View {
     private var tokenIcon: some View {
         IconView(url: imageURL, size: size, forceKingfisher: forceKingfisher)
             .ifLet(blockchainIconAsset) { view, imageAsset in
-                view.networkIconOverlay(imageAsset: imageAsset, borderColor: networkBorderColor)
+                view.networkIconOverlay(
+                    imageAsset: imageAsset,
+                    iconSize: networkIconSize,
+                    borderColor: networkBorderColor,
+                    isShimmerEnabled: false
+                )
             }
             .overlay(customTokenIndicator, alignment: .bottomTrailing)
     }
@@ -89,7 +103,12 @@ public struct TokenIcon: View {
             )
             .frame(size: size)
             .ifLet(blockchainIconAsset) { view, imageAsset in
-                view.networkIconOverlay(imageAsset: imageAsset, borderColor: networkBorderColor)
+                view.networkIconOverlay(
+                    imageAsset: imageAsset,
+                    iconSize: networkIconSize,
+                    borderColor: networkBorderColor,
+                    isShimmerEnabled: false
+                )
             }
             .overlay(customTokenIndicator, alignment: .bottomTrailing)
     }

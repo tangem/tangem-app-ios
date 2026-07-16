@@ -30,23 +30,25 @@ final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
     }
 
     var icon: Image {
-        Assets.Visa.promo.image
+        isRedesigned
+            ? DesignSystem.Icons.Clock.regular32.image
+            : Assets.Visa.promo.image
     }
 
     var primaryButton: MainButton.Settings {
-        .init(
-            title: Localization.tangempayKycInProgressNotificationButton,
-            style: .primary,
-            action: viewStatus
-        )
+        isRedesigned
+            ? .init(title: Localization.tangempayCancelKyc, style: .primary, action: showAlert)
+            : .init(title: Localization.tangempayKycInProgressNotificationButton, style: .primary, action: viewStatus)
     }
 
     var secondaryButton: MainButton.Settings? {
-        .init(
-            title: Localization.tangempayCancelKyc,
-            style: .secondary,
-            action: showAlert
-        )
+        isRedesigned
+            ? .init(title: Localization.tangempayKycInProgressNotificationButton, style: .secondary, action: viewStatus)
+            : .init(title: Localization.tangempayCancelKyc, style: .secondary, action: showAlert)
+    }
+
+    private var isRedesigned: Bool {
+        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
     }
 
     init(

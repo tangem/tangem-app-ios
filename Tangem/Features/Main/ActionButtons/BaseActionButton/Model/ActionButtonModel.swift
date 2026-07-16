@@ -17,26 +17,25 @@ enum ActionButtonModel: Hashable {
     case sell
 
     var title: String {
-        let isAddFundsStage1Enabled = FeatureProvider.isAvailable(.addFundsStage1)
         switch self {
         case .buy:
-            return isAddFundsStage1Enabled ? Localization.commonAddFunds : Localization.commonBuy
+            return Localization.actionbuttonAddfundsTitle
         case .swap:
             return Localization.commonSwap
         case .sell:
-            return Localization.commonSell
+            return Localization.actionbuttonTransferTitle
         }
     }
 
     var icon: ImageType {
-        let isAddFundsStage1Enabled = FeatureProvider.isAvailable(.addFundsStage1)
+        let isRedesign = FeatureProvider.isAvailable(.redesign)
         switch self {
         case .buy:
-            return isAddFundsStage1Enabled ? Assets.arrowDownMini : Assets.plusMini
+            return isRedesign ? Assets.DesignSystem.arrowDown : Assets.arrowDownMini
         case .swap:
-            return isAddFundsStage1Enabled ? Assets.addfundsSwap : Assets.exchangeMini
+            return isRedesign ? Assets.DesignSystem.exchange : Assets.addfundsSwap
         case .sell:
-            return isAddFundsStage1Enabled ? Assets.arrowUpMini : Assets.dollarMini
+            return isRedesign ? Assets.DesignSystem.arrowUp : Assets.arrowUpMini
         }
     }
 

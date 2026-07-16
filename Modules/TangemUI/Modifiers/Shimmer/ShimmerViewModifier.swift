@@ -11,8 +11,13 @@ import SwiftUI
 // MARK: - Convenience extensions
 
 public extension View {
-    func shimmer() -> some View {
-        modifier(ShimmerViewModifier())
+    @ViewBuilder
+    func shimmer(isEnabled: Bool = true) -> some View {
+        if isEnabled {
+            modifier(ShimmerViewModifier())
+        } else {
+            self
+        }
     }
 }
 

@@ -27,7 +27,7 @@ struct SurveySparrowKeys: Decodable {
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        domain = try container.decodeIfPresent(String.self, forKey: .domain) ?? "eu-api.surveysparrow.com"
+        domain = try container.decodeIfPresent(String.self, forKey: .domain) ?? "tangem.surveysparrow.com"
         token = try container.decodeIfPresent(String.self, forKey: .apiKey) ?? ""
         swapRating = try? container.decodeIfPresent(SwapRating.self, forKey: .swapRating) ?? .default
     }
