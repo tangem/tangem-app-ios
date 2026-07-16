@@ -18,22 +18,12 @@ import TangemPay
 import TangemAccessibilityIdentifiers
 
 final class TangemPayCardManagementViewModel: ObservableObject {
-    /// Selected at construction: the legacy single-card flow uses `init(...cardDetailsRepository:...)`,
-    /// the multi-card flow uses `init(...initialEntry:...)`.
-    let multipleCardsEnabled: Bool
-
-    // Multi-card
     @Published private(set) var cardDetailsItems: [CardDetailsItem] = []
     @Published var selectedCardId: String?
 
-    /// Legacy single-card
-    let tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel?
-
-    // Shared
     @Published private(set) var cardRenameViewModel: TangemPayCardRenameViewModel?
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
-    @Published private(set) var cardSettingsRows: [DefaultRowViewModel] = []
     @Published private(set) var closeCardRow: DefaultRowViewModel?
     @Published private(set) var dailyLimitState: TangemPayDailyLimitState?
     @Published private(set) var isIssuing: Bool = false
@@ -49,7 +39,6 @@ final class TangemPayCardManagementViewModel: ObservableObject {
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
-    private let cardDetailsRepository: TangemPayCardDetailsRepository?
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
     private weak var coordinator: TangemPayCardManagementRoutable?
 
@@ -70,41 +59,11 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
-        cardDetailsRepository: TangemPayCardDetailsRepository,
-        coordinator: TangemPayCardManagementRoutable
-    ) {
-        multipleCardsEnabled = false
-        self.userWalletInfo = userWalletInfo
-        self.tangemPayAccount = tangemPayAccount
-        self.cardDetailsRepository = cardDetailsRepository
-        self.coordinator = coordinator
-
-        let detailsViewModel = TangemPayCardDetailsViewModel(
-            userWalletId: userWalletInfo.id,
-            repository: cardDetailsRepository,
-            cardNameDisplayMode: .interactive
-        )
-        tangemPayCardDetailsViewModel = detailsViewModel
-
-        detailsViewModel.onCardNameTapped = { [weak self] in
-            self?.openCardRenameLegacy()
-        }
-
-        dailyLimitState = .loading
-        bindLegacy()
-    }
-
-    init(
-        userWalletInfo: UserWalletInfo,
-        tangemPayAccount: TangemPayAccount,
         initialEntry: TangemPayCardEntry,
         coordinator: TangemPayCardManagementRoutable
     ) {
-        multipleCardsEnabled = true
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
-        cardDetailsRepository = nil
-        tangemPayCardDetailsViewModel = nil
         selectedCardId = initialEntry.id
         self.coordinator = coordinator
 
@@ -120,27 +79,15 @@ final class TangemPayCardManagementViewModel: ObservableObject {
 
     func openChangeDailyLimit() {
         guard case .loaded = dailyLimitState else { return }
-
-        if multipleCardsEnabled {
-            guard let card = currentCard else { return }
-            Analytics.log(.visaScreenDailyLimitChangeClicked, contextParams: .userWallet(userWalletInfo.id))
-            coordinator?.openChangeDailyLimit(card: card)
-        } else {
-            Analytics.log(.visaScreenDailyLimitChangeClicked, contextParams: .userWallet(userWalletInfo.id))
-            coordinator?.openChangeDailyLimit(tangemPayAccount: tangemPayAccount)
-        }
+        guard let card = currentCard else { return }
+        Analytics.log(.visaScreenDailyLimitChangeClicked, contextParams: .userWallet(userWalletInfo.id))
+        coordinator?.openChangeDailyLimit(card: card)
     }
 
     func openAddToApplePayGuide() {
         Analytics.log(.visaScreenAddToWalletClicked, contextParams: .userWallet(userWalletInfo.id))
-        let repository: TangemPayCardDetailsRepository
-        if multipleCardsEnabled {
-            guard let card = currentCard else { return }
-            repository = tangemPayAssembly.makeCardDetailsRepository(for: card)
-        } else {
-            guard let cardDetailsRepository else { return }
-            repository = cardDetailsRepository
-        }
+        guard let card = currentCard else { return }
+        let repository = tangemPayAssembly.makeCardDetailsRepository(for: card)
         addToApplePayGuideViewModel = TangemPayAddToAppPayGuideViewModel(
             tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel(
                 userWalletId: userWalletInfo.id,
@@ -195,207 +142,6 @@ private extension TangemPayCardManagementViewModel {
             }
             return nil
         }
-    }
-}
-
-// MARK: - Legacy single-card bindings
-
-private extension TangemPayCardManagementViewModel {
-    func bindLegacy() {
-        guard let tangemPayCardDetailsViewModel else { return }
-
-        tangemPayAccount.statusPublisher
-            .map { $0 == .blocked ? .frozen : .normal }
-            .receiveOnMain()
-            .assign(to: \.freezingState, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        $freezingState
-            .map(\.cardDetailsState)
-            .receiveOnMain()
-            .assign(to: \.state, on: tangemPayCardDetailsViewModel, ownership: .weak)
-            .store(in: &bag)
-
-        $freezingState
-            .receiveOnMain()
-            .sink { [weak self] state in
-                self?.updateCardSettingsRowsLegacy(freezingState: state)
-            }
-            .store(in: &bag)
-
-        Publishers.CombineLatest(
-            AppSettings.shared.$tangemPayShowAddToApplePayGuide,
-            tangemPayAccount.statusPublisher
-        )
-        .map { tangemPayShowAddToApplePayGuide, status in
-            PKPaymentAuthorizationViewController.canMakePayments()
-                && status == .active
-                && tangemPayShowAddToApplePayGuide
-        }
-        .receiveOnMain()
-        .assign(to: \.shouldDisplayAddToApplePayGuide, on: self, ownership: .weak)
-        .store(in: &bag)
-
-        tangemPayAccount.isReissuingCardPublisher
-            .receiveOnMain()
-            .assign(to: \.isReissuing, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        let initialDailyLimitState: TangemPayDailyLimitState? = .loading
-        tangemPayAccount.cardLimitPublisher
-            .map { [dailyLimitFormatter] amount -> TangemPayDailyLimitState? in
-                if let amount, let limit = dailyLimitFormatter.string(from: .init(value: amount)) {
-                    return .loaded(TangemPayDailyLimit(currentLimit: limit))
-                } else {
-                    return .error
-                }
-            }
-            .prepend(initialDailyLimitState)
-            .receiveOnMain()
-            .assign(to: \.dailyLimitState, on: self, ownership: .weak)
-            .store(in: &bag)
-    }
-
-    func updateCardSettingsRowsLegacy(freezingState: TangemPayFreezingState) {
-        let changePinRow = DefaultRowViewModel(
-            title: Localization.tangempayCardDetailsChangePin,
-            accessibilityIdentifier: TangemPayAccessibilityIdentifiers.changePinRow,
-            action: freezingState.isFreezingUnfreezingInProgress ? nil : { [weak self] in
-                self?.onPinLegacy()
-            }
-        )
-
-        let freezeTitle = freezingState.isFrozen
-            ? Localization.tangempayCardDetailsUnfreezeCard
-            : Localization.tangempayCardDetailsFreezeCard
-
-        let freezeRowIdentifier = freezingState.isFrozen
-            ? TangemPayAccessibilityIdentifiers.freezeCardRowStateFrozen
-            : TangemPayAccessibilityIdentifiers.freezeCardRowStateActive
-
-        let freezeRow = DefaultRowViewModel(
-            title: freezeTitle,
-            accessibilityIdentifier: freezeRowIdentifier,
-            action: freezingState.isFreezingUnfreezingInProgress ? nil : { [weak self] in
-                guard let self else { return }
-                if freezingState.isFrozen {
-                    unfreezeLegacy()
-                } else {
-                    showFreezePopupLegacy()
-                }
-            }
-        )
-
-        let replaceCardRow = DefaultRowViewModel(
-            title: Localization.tangempayCardDetailsReissueCard,
-            action: freezingState.isFreezingUnfreezingInProgress ? nil : { [weak self] in
-                self?.onReplaceCardLegacy()
-            }
-        )
-
-        cardSettingsRows = [changePinRow, freezeRow, replaceCardRow]
-    }
-
-    func onReplaceCardLegacy() {
-        Analytics.log(.visaReplaceCardClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openTangemPayReissueSheet(
-            userWalletId: userWalletInfo.id,
-            tangemPayAccount: tangemPayAccount,
-            onLoadingChange: { [weak self] in self?.isLoadingReissueFee = $0 },
-            onError: { [weak self] in self?.showReissueError() }
-        )
-    }
-
-    func setPinLegacy() {
-        coordinator?.openTangemPaySetPin(tangemPayAccount: tangemPayAccount)
-    }
-
-    func checkPinLegacy() {
-        coordinator?.openTangemPayCheckPin(tangemPayAccount: tangemPayAccount)
-    }
-
-    func freezeLegacy() {
-        freezingState = .freezingInProgress
-        tangemPayCardDetailsViewModel?.state = .loading(isFrozen: tangemPayCardDetailsViewModel?.state.isFrozen ?? false)
-
-        Task { @MainActor in
-            do {
-                try await tangemPayAccount.freeze()
-            } catch {
-                freezingState = .normal
-                showFreezeUnfreezeErrorToast(freeze: true)
-            }
-        }
-    }
-
-    func unfreezeLegacy() {
-        Analytics.log(.visaScreenUnfreezeCardClicked, contextParams: .userWallet(userWalletInfo.id))
-        freezingState = .unfreezingInProgress
-        tangemPayCardDetailsViewModel?.state = .loading(isFrozen: tangemPayCardDetailsViewModel?.state.isFrozen ?? false)
-
-        Task { @MainActor in
-            do {
-                try await tangemPayAccount.unfreeze()
-            } catch {
-                freezingState = .frozen
-                showFreezeUnfreezeErrorToast(freeze: false)
-            }
-        }
-    }
-
-    func onPinLegacy() {
-        Analytics.log(.visaScreenPinCodeClicked, contextParams: .userWallet(userWalletInfo.id))
-        guard tangemPayAccount.card?.isPinSet == true else {
-            setPinLegacy()
-            return
-        }
-
-        guard BiometricsUtil.isAvailable else {
-            if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
-                coordinator?.openTangemPayBiometryNotSetSheet()
-            }
-            return
-        }
-
-        runTask(in: self) { viewModel in
-            do {
-                _ = try await BiometricsUtil.requestAccess(
-                    localizedReason: Localization.biometryTouchIdReason
-                )
-                viewModel.checkPinLegacy()
-            } catch {
-                VisaLogger.error("Failed to receive biometry for PIN", error: error)
-                return
-            }
-        }
-    }
-
-    func showFreezePopupLegacy() {
-        Analytics.log(.visaScreenFreezeCardClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openTangemPayFreezeSheet(userWalletId: userWalletInfo.id) { [weak self] in
-            self?.freezeLegacy()
-        }
-    }
-
-    func showUnfreezePopupLegacy() {
-        coordinator?.openTangemPayUnfreezeSheet(userWalletId: userWalletInfo.id) { [weak self] in
-            self?.unfreezeLegacy()
-        }
-    }
-
-    func openCardRenameLegacy() {
-        guard let cardDetailsRepository else { return }
-        let renameViewModel = TangemPayCardRenameViewModel(
-            userWalletId: userWalletInfo.id,
-            repository: cardDetailsRepository,
-            onDismiss: { [weak self] in
-                self?.cardRenameViewModel = nil
-            }
-        )
-
-        renameViewModel.$alert.assign(to: &$alert)
-
-        cardRenameViewModel = renameViewModel
     }
 }
 
@@ -485,9 +231,8 @@ private extension TangemPayCardManagementViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { vm, output in
-                let (freezing, isClosing) = output
+                let (freezing, _) = output
                 vm.propagateFreezingStateToDetailsVM(freezing)
-                vm.updateCardSettingsRows(freezingState: freezing, isClosing: isClosing)
             }
             .store(in: &bag)
 
@@ -631,40 +376,6 @@ private extension TangemPayCardManagementViewModel {
         selectedMultiCardDetailsViewModel?.state = freezing.cardDetailsState
     }
 
-    func updateCardSettingsRows(freezingState: TangemPayFreezingState, isClosing: Bool) {
-        let isBusy = freezingState.isFreezingUnfreezingInProgress || isClosing
-        cardSettingsRows = [
-            row(
-                title: Localization.tangempayCardDetailsChangePin,
-                accessibilityIdentifier: TangemPayAccessibilityIdentifiers.changePinRow,
-                isBusy: isBusy,
-                action: { [weak self] in self?.onPin() }
-            ),
-            row(
-                title: freezingState.isFrozen
-                    ? Localization.tangempayCardDetailsUnfreezeCard
-                    : Localization.tangempayCardDetailsFreezeCard,
-                accessibilityIdentifier: freezingState.isFrozen
-                    ? TangemPayAccessibilityIdentifiers.freezeCardRowStateFrozen
-                    : TangemPayAccessibilityIdentifiers.freezeCardRowStateActive,
-                isBusy: isBusy,
-                action: { [weak self] in
-                    guard let self else { return }
-                    if freezingState.isFrozen {
-                        unfreeze()
-                    } else {
-                        showFreezePopup()
-                    }
-                }
-            ),
-            row(
-                title: Localization.tangempayCardDetailsReissueCard,
-                isBusy: isBusy,
-                action: { [weak self] in self?.onReplaceCard() }
-            ),
-        ]
-    }
-
     func updateCloseCardRow(isClosing: Bool, isOnlyCard: Bool) {
         let isBusy = isClosing || isOnlyCard
         let action: () -> Void = { [weak self] in
@@ -739,9 +450,7 @@ private extension TangemPayCardManagementViewModel {
         }
 
         guard BiometricsUtil.isAvailable else {
-            if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
-                coordinator?.openTangemPayBiometryNotSetSheet()
-            }
+            coordinator?.openTangemPayBiometryNotSetSheet()
             return
         }
 
@@ -855,42 +564,22 @@ extension TangemPayCardManagementViewModel {
     }
 
     func onFreezeButton() {
-        if multipleCardsEnabled {
-            if freezingState.isFrozen {
-                showUnfreezePopup()
-            } else {
-                showFreezePopup()
-            }
+        if freezingState.isFrozen {
+            showUnfreezePopup()
         } else {
-            if freezingState.isFrozen {
-                showUnfreezePopupLegacy()
-            } else {
-                showFreezePopupLegacy()
-            }
+            showFreezePopup()
         }
     }
 
     func onPinButton() {
-        if multipleCardsEnabled {
-            onPin()
-        } else {
-            onPinLegacy()
-        }
+        onPin()
     }
 
     func onReplaceButton() {
-        if multipleCardsEnabled {
-            onReplaceCard()
-        } else {
-            onReplaceCardLegacy()
-        }
+        onReplaceCard()
     }
 
     private var currentRedesignedDetailsViewModel: TangemPayCardDetailsViewModel? {
-        guard multipleCardsEnabled else {
-            return tangemPayCardDetailsViewModel
-        }
-
-        return selectedMultiCardDetailsViewModel
+        selectedMultiCardDetailsViewModel
     }
 }

@@ -14,6 +14,7 @@ protocol SingleTokenBaseRoutable: AnyObject {
     func openReceiveScreen(walletModel: any WalletModel)
     func openSellCrypto(at url: URL, action: @escaping (String) -> Void)
     func openSend(input: SendInput)
+    func openSwapAndSend(input: SendInput)
     func openSendToSell(input: SendInput, sellParameters: PredefinedSellParameters)
     func openSwap(parameters: PredefinedSwapParameters)
     func openStaking(options: StakingDetailsCoordinator.Options)

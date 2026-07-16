@@ -30,47 +30,56 @@ final class SetAccessCodeScreen: ScreenBase<SetAccessCodeScreenElement> {
         }
     }
 
+    /// Both steps share the field id; the title distinguishes them.
+    private var confirmStepTitle: XCUIElement {
+        app.staticTexts.matching(
+            NSPredicate(
+                format: "identifier == %@ AND label == %@",
+                OnboardingAccessibilityIdentifiers.title,
+                "Re-enter access code"
+            )
+        ).firstMatch
+    }
+
+    private var successFinishButton: XCUIElement {
+        app.buttons[OnboardingAccessibilityIdentifiers.seedImportSuccessFinishButton].firstMatch
+    }
+
     @discardableResult
     func setAccessCode(_ code: String) -> SeedImportSuccessScreen {
         XCTContext.runActivity(named: "Set access code") { _ in
-            enterCodeDigitByDigit(code)
-
-            let confirmTitle = app.staticTexts.matching(
-                NSPredicate(
-                    format: "identifier == %@ AND label == %@",
-                    OnboardingAccessibilityIdentifiers.title,
-                    "Re-enter access code"
-                )
-            ).firstMatch
-            waitAndAssertTrue(confirmTitle, "Access code confirmation step should be displayed")
-            enterCodeDigitByDigit(code)
-
+            let hiddenField = app.textFields[OnboardingAccessibilityIdentifiers.accessCodeInputField].firstMatch
+            // Create step auto-advances to confirm once the code is full.
+            enterCode(code, into: hiddenField) { [self] in confirmStepTitle.exists }
+            // Field id lingers as a hidden field, so wait for the success screen, not the field to vanish.
+            enterCode(code, into: hiddenField) { [self] in successFinishButton.exists }
             return SeedImportSuccessScreen(app)
         }
     }
 
-    /// The form intermittently drops focus and swallows keystrokes, so entry is driven by the filled-dots count.
-    private func enterCodeDigitByDigit(_ code: String) {
-        let hiddenField = app.textFields[OnboardingAccessibilityIdentifiers.accessCodeInputField].firstMatch
+    /// Steps auto-advance and swallow keystrokes, so entry stops on the step transition (doneWhen), not a digit count.
+    private func enterCode(_ code: String, into hiddenField: XCUIElement, doneWhen: @escaping () -> Bool) {
         waitAndAssertTrue(hiddenField, "Access code input field should exist")
-        XCTAssertTrue(waitForEnteredDigits { $0 == 0 }, "Access code field should start empty")
+        XCTAssertTrue(waitForEnteredDigits(timeout: .robustUIUpdate) { $0 == 0 }, "Access code field should start empty")
 
         let digits = Array(code)
         var attempts = 0
 
         while enteredDigitsCount() < digits.count {
+            if doneWhen() { return }
             XCTAssertLessThan(attempts, digits.count * 3, "Access code entry keeps losing typed digits")
             attempts += 1
 
             ensurePinFieldFocus(hiddenField)
             let nextIndex = enteredDigitsCount()
-            guard nextIndex < digits.count else { return }
+            guard nextIndex < digits.count else { break }
 
             hiddenField.typeText(String(digits[nextIndex]))
-            let expectedCount = nextIndex + 1
             // Soft wait on purpose: a swallowed digit is retyped on the next pass, the attempts cap fails the test.
-            waitForEnteredDigits { $0 >= expectedCount }
+            waitForEnteredDigits { $0 >= nextIndex + 1 }
         }
+
+        XCTAssertTrue(waitForCondition(doneWhen), "Access code step did not advance after the full code was entered")
     }
 
     private func enteredDigitsCount() -> Int {
@@ -78,12 +87,18 @@ final class SetAccessCodeScreen: ScreenBase<SetAccessCodeScreenElement> {
     }
 
     @discardableResult
-    private func waitForEnteredDigits(_ matches: @escaping (Int) -> Bool) -> Bool {
+    private func waitForEnteredDigits(timeout: TimeInterval = .shortUIUpdate, _ matches: @escaping (Int) -> Bool) -> Bool {
         let predicate = NSPredicate { [weak self] _, _ in
             guard let self else { return false }
             return matches(enteredDigitsCount())
         }
-        return XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: NSObject())], timeout: .shortUIUpdate) == .completed
+        return XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: NSObject())], timeout: timeout) == .completed
+    }
+
+    @discardableResult
+    private func waitForCondition(_ condition: @escaping () -> Bool, timeout: TimeInterval = .robustUIUpdate) -> Bool {
+        let predicate = NSPredicate { _, _ in condition() }
+        return XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: NSObject())], timeout: timeout) == .completed
     }
 
     /// The stack's AX frame is flaky, so refocusing taps by coordinate instead of hit point.

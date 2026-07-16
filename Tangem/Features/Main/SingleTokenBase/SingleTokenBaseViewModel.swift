@@ -28,7 +28,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published final var isFulfillingAssetRequirements = false
     @Published final var actionButtons: [FixedSizeButtonWithIconInfo] = []
 
-    @Published final var tokenNotificationInputs: [NotificationViewInput] = []
     @Published final var notifications = [NotificationBannerItem]()
 
     @Published final var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
@@ -101,8 +100,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private lazy var miniChartsProvider = MarketsListChartsHistoryProvider()
 
     private let miniChartPriceIntervalType = MarketsPriceIntervalType.day
-
-    final let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -387,12 +384,9 @@ extension SingleTokenBaseViewModel {
             // [REDACTED_TODO_COMMENT]
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
             .sink { [weak self] notificationViewInput in
-                guard self?.isRedesign == true else {
-                    self?.tokenNotificationInputs = notificationViewInput
-                    return
-                }
+                guard let self else { return }
 
-                self?.notifications = notificationsMapper.mapItems(notificationViewInput)
+                notifications = notificationsMapper.mapItems(notificationViewInput)
             }
             .store(in: &bag)
 
@@ -522,13 +516,10 @@ extension SingleTokenBaseViewModel {
         case .error(let error):
             transactionHistoryState = .error(error)
         case .loaded(let records):
-            // [REDACTED_INFO]: redesign collapses old txs into monthly groups and resolves rich
-            // account/wallet chips per row; legacy keeps day-only buckets and plain addresses.
-            let redesignEnabled = FeatureProvider.isAvailable(.redesign)
             let listItems = transactionHistoryMapper.mapTransactionListItem(
                 from: records,
-                groupingStyle: redesignEnabled ? .day(.long) : .day(.short),
-                subtitleOwnerResolver: redesignEnabled ? subtitleOwnerResolver : nil
+                groupingStyle: .day(.long),
+                subtitleOwnerResolver: subtitleOwnerResolver
             )
             transactionHistoryState = .loaded(listItems)
         }
@@ -558,6 +549,8 @@ extension SingleTokenBaseViewModel {
             return !tokenActionAvailabilityProvider.isReceiveAvailable
         case .exchange:
             return !tokenActionAvailabilityProvider.isSwapAvailable
+        case .swapAndSend:
+            return !tokenActionAvailabilityProvider.isSwapAvailable
         case .sell:
             return !tokenActionAvailabilityProvider.isSellAvailable
         case .copyAddress, .hide, .stake, .marketsDetails, .yield:
@@ -580,6 +573,7 @@ extension SingleTokenBaseViewModel {
         case .send: return openSendAction
         case .receive: return openReceiveAction
         case .exchange: return { [weak self] in self?.openExchangeAction() }
+        case .swapAndSend: return { [weak self] in self?.openSwapAndSendAction() }
         case .sell: return openSellAction
         case .copyAddress, .hide, .stake, .marketsDetails, .yield: return nil
         }
@@ -589,7 +583,7 @@ extension SingleTokenBaseViewModel {
         switch buttonType {
         case .receive:
             return weakify(self, forFunction: SingleTokenBaseViewModel.copyDefaultAddress)
-        case .buy, .send, .exchange, .sell, .copyAddress, .hide, .stake, .marketsDetails, .yield:
+        case .buy, .send, .exchange, .swapAndSend, .sell, .copyAddress, .hide, .stake, .marketsDetails, .yield:
             return nil
         }
     }
@@ -761,6 +755,15 @@ extension SingleTokenBaseViewModel {
         openSend()
     }
 
+    private func openSwapAndSendAction() {
+        if let swapUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.swapAvailability) {
+            alert = swapUnavailableAlert
+            return
+        }
+
+        tokenRouter.openSwapAndSend(walletModel: walletModel)
+    }
+
     private func openReceiveAction() {
         logReceiveTapped()
         openReceive()
@@ -798,6 +801,7 @@ extension SingleTokenBaseViewModel {
         case .send: openSendAction()
         case .receive: openReceiveAction()
         case .exchange: openExchangeAction()
+        case .swapAndSend: openSwapAndSendAction()
         case .sell: openSellAction()
         case .copyAddress, .hide, .stake, .marketsDetails, .yield: break
         }

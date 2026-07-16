@@ -15,11 +15,7 @@ struct AddFundsView: View {
     @ObservedObject var viewModel: AddFundsViewModel
 
     var body: some View {
-        if viewModel.isRedesign {
-            redesignBody
-        } else {
-            legacyBody
-        }
+        redesignBody
     }
 
     // MARK: - Redesign
@@ -90,7 +86,6 @@ struct AddFundsView: View {
         VStack(spacing: 16) {
             AddFundsStackNavigationBar(
                 title: viewModel.title,
-                accountBadge: viewModel.accountBadge,
                 onBack: viewModel.showsBackButton ? viewModel.userDidTapBack : nil,
                 onClose: viewModel.close
             )
@@ -142,93 +137,6 @@ struct AddFundsView: View {
         .setStyleType(.secondary)
         .setHorizontalLayout(.infinity)
         .setSize(.x12)
-    }
-
-    // MARK: - Legacy
-
-    private var legacyBody: some View {
-        VStack(spacing: 0) {
-            legacyHeader
-                .padding(.top, 64)
-
-            Spacer()
-
-            VStack(spacing: 8) {
-                legacyActionRow(
-                    icon: Assets.Glyphs.walletNew,
-                    title: Localization.commonBuy,
-                    subtitle: Localization.addfundsBuyRowDescription,
-                    action: { viewModel.userDidTap(.buy) }
-                )
-                .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
-
-                legacyActionRow(
-                    icon: Assets.exchangeMini,
-                    title: Localization.commonSwap,
-                    subtitle: Localization.addfundsSwapRowDescription,
-                    action: { viewModel.userDidTap(.swap) }
-                )
-                .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
-
-                legacyActionRow(
-                    icon: Assets.qrCode,
-                    title: Localization.commonReceive,
-                    subtitle: Localization.addfundsReceiveRowDescription,
-                    action: { viewModel.userDidTap(.receive) }
-                )
-                .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
-            }
-            .padding(.bottom, 24)
-
-            MainButton(settings: .init(
-                title: Localization.commonGoToToken,
-                style: .secondary,
-                size: .default,
-                action: viewModel.userDidTapGoToToken
-            ))
-        }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 16)
-        .padding(.top, 12)
-        .frame(maxHeight: .infinity, alignment: .top)
-        .background(Colors.Background.tertiary.ignoresSafeArea())
-        .navigationTitle(Localization.commonAddToken)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
-        }
-    }
-
-    private var legacyHeader: some View {
-        VStack(spacing: 20) {
-            TokenIcon(
-                tokenIconInfo: viewModel.tokenIconInfo,
-                size: .init(bothDimensions: 96)
-            )
-
-            VStack(spacing: 4) {
-                Text(viewModel.fiatBalanceText)
-                    .font(.system(size: 44, weight: .bold))
-                    .foregroundStyle(Colors.Text.primary1)
-
-                Text(viewModel.cryptoBalanceText)
-                    .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-            }
-        }
-    }
-
-    private func legacyActionRow(icon: ImageType, title: String, subtitle: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                GetTokenActionRowView(icon: icon, title: title, subtitle: subtitle)
-
-                Assets.chevron.image
-                    .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.informative)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 18)
-        }
     }
 }
 

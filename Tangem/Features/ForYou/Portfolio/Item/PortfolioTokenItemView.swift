@@ -15,6 +15,8 @@ struct PortfolioTokenItemView: View {
     let item: ForYouTokenListItem
     let onAssetTap: (String) -> Void
 
+    @Namespace private var namespace
+
     var body: some View {
         if item.isExpandable {
             expandableCard
@@ -25,11 +27,16 @@ struct PortfolioTokenItemView: View {
 }
 
 private extension PortfolioTokenItemView {
+    var effects: PortfolioTokenGeometryEffects {
+        PortfolioTokenGeometryEffects(namespace: namespace)
+    }
+
     var expandableCard: some View {
         ExpandableItemView(
             isExpanded: item.isExpanded,
             backgroundColor: DesignSystem.Color.bgSecondary,
             cornerRadius: 24,
+            backgroundGeometryEffect: effects.background,
             expandedViewTransition: .expandedContentTransition,
             collapsedView: collapsedView,
             expandedView: expandedView,
@@ -38,12 +45,8 @@ private extension PortfolioTokenItemView {
         )
     }
 
-    @ViewBuilder
     func expandedViewHeader() -> some View {
-        // An expandable item is always resolved content, so this is present; a loading asset is inert.
-        if let content = item.assetRow.content {
-            ExpandedHeaderView(assetRow: content)
-        }
+        ExpandedHeaderView(assetRow: item.assetRow, effects: effects)
     }
 
     func expandedView() -> some View {
@@ -51,17 +54,12 @@ private extension PortfolioTokenItemView {
     }
 
     func collapsedView() -> some View {
-        rowContent
+        RowView(data: item.assetRow, showsIndicator: true, effects: effects)
     }
 
     var staticCard: some View {
-        rowContent
+        RowView(data: item.assetRow, showsIndicator: true)
             .portfolioTokenCard()
-    }
-
-    var rowContent: some View {
-        // Aggregate row: no network badge, but the placeholder indicator dot (collapsed only)
-        RowView(row: item.assetRow, showsIndicator: true, isWithOverlays: false)
     }
 }
 

@@ -67,7 +67,7 @@ private extension MarketingBannerService {
             }
             .switchToLatest()
 
-        return Publishers.CombineLatest(campaigns, amount.prepend(nil).removeDuplicates())
+        let banners = Publishers.CombineLatest(campaigns, amount.prepend(nil).removeDuplicates())
             .asyncMap { [weak self] campaigns, amount -> MarketingBanners in
                 guard let self else {
                     return .empty
@@ -75,6 +75,11 @@ private extension MarketingBannerService {
 
                 let usdAmount = await usdValue(amount)
                 return selectBanners(from: campaigns, usdAmount: usdAmount)
+            }
+
+        return Publishers.CombineLatest(banners, HiddenMarketingCampaignsStorage.hiddenCampaignIdsPublisher)
+            .map { banners, hiddenCampaignIds in
+                banners.removing(hiddenCampaignIds: hiddenCampaignIds)
             }
             .eraseToAnyPublisher()
     }
@@ -120,7 +125,11 @@ private extension MarketingBannerService {
     ) -> MarketingBanners {
         MarketingBannerMapper.banners(from: campaigns.filter { satisfiesAmount($0, usd: usdAmount) })
     }
+}
 
+// MARK: - Amount filter
+
+extension MarketingBannerService {
     func satisfiesAmount(_ campaign: MarketingCampaignsDTO.Campaign, usd: Decimal?) -> Bool {
         if campaign.minAmount == nil, campaign.maxAmount == nil {
             return true

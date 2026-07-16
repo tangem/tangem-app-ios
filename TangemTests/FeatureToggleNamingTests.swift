@@ -28,7 +28,6 @@ struct FeatureToggleNamingTests {
     private static let legacyToggles: Set<Feature> = [
         .disableFirmwareVersionLimit,
         .visa,
-        .redesign,
         .exchangeOnlyWithinSingleAddress,
         .walletConnectBitcoin,
         .surveySparrow,
@@ -38,19 +37,11 @@ struct FeatureToggleNamingTests {
         .pushNotificationsSettings,
         .deeplinkPresentationWay,
         .transactionHistoryV2,
-        .tangemPayMultipleCards,
-        .transfers,
-        .memoValidationBeforeConfirm,
-        .tangemPaySpendRedesign,
         .supportChat,
         .supportChatSwap,
-        .onrampApplePayHistoryFallback,
         .mobileWalletMultiCreation,
-        .approveFlowV2,
-        .addAndOrganizeRedesign,
         .sendWithSwapAvailabilityCheck,
         .swapFiatCalculation,
-        .swapChooseBestDEX,
         .hideStoriesInMobileWallet,
     ]
 

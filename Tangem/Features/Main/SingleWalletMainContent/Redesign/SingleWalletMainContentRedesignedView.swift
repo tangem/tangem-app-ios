@@ -15,7 +15,7 @@ struct SingleWalletMainContentRedesignedView: View {
     @ObservedObject var viewModel: SingleWalletMainContentViewModel
 
     var body: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: .unit(.x3)) {
             if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
                 WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
             }
@@ -87,6 +87,7 @@ private extension SingleWalletMainContentRedesignedView {
             walletModel: walletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             promotionNotificationsManager: FakePromotionNotificationsManager(),
+            forceUpdateBannerNotificationManager: FakeUserWalletNotificationManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
             expressStatusPollingHelper: expressStatusPollingHelper,
             tokenNotificationManager: FakeUserWalletNotificationManager(),

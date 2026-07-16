@@ -9,5 +9,5 @@
 import Foundation
 
 final class ForYouViewModel: ObservableObject {
-    let portfolioReview = PortfolioReviewViewModel()
+    let portfolioReview: PortfolioReviewViewModel = .init()
 }

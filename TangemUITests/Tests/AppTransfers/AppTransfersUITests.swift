@@ -242,6 +242,7 @@ final class AppTransfersUITests: BaseTestCase {
             .typeSearchText(Constants.token)
             .selectMarketToken(Constants.token)
             .selectWallet(named: Constants.recipientWalletName)
+            .selectNetwork(named: Constants.token)
             .tapAddTokenButton()
             .waitForTokenAddedToast()
             .assertConfirmButtonLabelIsTransfer()

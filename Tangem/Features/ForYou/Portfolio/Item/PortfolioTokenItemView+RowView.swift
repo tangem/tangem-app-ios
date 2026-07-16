@@ -12,113 +12,136 @@ import TangemUI
 import TangemUIUtils
 
 extension PortfolioTokenItemView {
-    /// Renders a portfolio row: a full-row shimmer while loading, or resolved content once available.
     struct RowView: View {
-        let row: ForYouTokenRow
+        let data: ForYouTokenRowData
         var showsIndicator: Bool = false
-        var isWithOverlays: Bool = true
+        /// Set only for the collapsed aggregate row, so it morphs into the expanded header.
+        var effects: PortfolioTokenGeometryEffects?
+
+        @ScaledMetric private var iconSize: CGFloat = 40
 
         var body: some View {
-            switch row {
-            case .loading:
-                LoadingRow()
-            case .content(let data):
-                ContentRow(data: data, showsIndicator: showsIndicator, isWithOverlays: isWithOverlays)
-            }
+            TangemTwoLineRowLayout(
+                icon: { icon },
+                primaryLeading: { symbolWithBadge },
+                primaryTrailing: { fiatView },
+                secondaryLeading: { subtitleView },
+                secondaryTrailing: { trailingContent }
+            )
+            .compressionPolicy(.trailingPreserved)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
     }
 }
 
-// MARK: - Content
+// MARK: - Icon
 
-private extension PortfolioTokenItemView {
-    struct ContentRow: View {
-        let data: ForYouTokenRowData
-        var showsIndicator: Bool
-        var isWithOverlays: Bool
-
-        var body: some View {
-            HStack(spacing: PortfolioTokenRowLayout.horizontalSpacing) {
-                TokenRowIcon(
-                    iconInfo: data.tokenIconInfo,
-                    showsIndicator: showsIndicator,
-                    isWithOverlays: isWithOverlays
-                )
-                VStack(spacing: PortfolioTokenRowLayout.verticalSpacing) {
-                    topLine
-                    bottomLine
+extension PortfolioTokenItemView.RowView {
+    var icon: some View {
+        tokenIcon
+            .overlay(alignment: .bottomTrailing) {
+                if showsIndicator, data.tokenIconInfo != nil {
+                    indicatorDot
                 }
             }
-            .padding(PortfolioTokenRowLayout.contentPadding)
-            // Enables `.shimmer` on the stale (cache) value; a no-op for non-cache rows.
-            .environment(\.isShimmerActive, true)
+    }
+
+    @ViewBuilder
+    var tokenIcon: some View {
+        if let iconInfo = data.tokenIconInfo {
+            TokenIcon(
+                tokenIconInfo: iconInfo,
+                size: CGSize(width: iconSize, height: iconSize),
+                isWithOverlays: true
+            )
+        } else {
+            // "Other" bucket — the ds-core token placeholder glyph.
+            DesignSystem.Icons.tokenError.image
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
+                .matchedGeometryEffect(effects?.icon)
+                .frame(width: iconSize, height: iconSize)
         }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    var indicatorDot: some View {
+        Circle()
+            .fill(DesignSystem.Color.iconAccentRed)
+            .frame(width: 4, height: 4)
+            .padding(1)
+            .background(DesignSystem.Color.bgSecondary, in: Circle())
+            .offset(x: -3, y: -3)
     }
 }
 
-private extension PortfolioTokenItemView.ContentRow {
-    var topLine: some View {
+// MARK: - Primary line
+
+extension PortfolioTokenItemView.RowView {
+    var symbolWithBadge: some View {
         HStack(spacing: 4) {
             Text(data.symbol)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
+                .minimumScaleFactor(1)
+                .matchedGeometryEffect(effects?.symbol)
 
             if let sentiment = data.sentiment {
                 SentimentBadge(sentiment: sentiment)
             }
-
-            Spacer(minLength: 8)
-
-            fiatView
         }
     }
 
-    @ViewBuilder
     var fiatView: some View {
-        switch data.end {
-        case .values(let fiat, _, let source):
-            HStack(spacing: 4) {
-                if source == .onlyCache {
-                    syncErrorIcon
-                }
+        Text(fiatText)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            .lineLimit(1)
+    }
 
-                Text(fiat)
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                    .lineLimit(1)
-                    .shimmer(isEnabled: source == .cache)
-            }
+    var fiatText: String {
+        switch data.end {
+        case .values(let fiat, _):
+            return fiat
         case .unavailable:
-            Text(AppConstants.enDashSign)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                .lineLimit(1)
+            return AppConstants.enDashSign
         }
     }
+}
 
-    /// "Couldn't refresh, showing cached" glyph.
-    var syncErrorIcon: some View {
-        Assets.failedCloud.image
-            .renderingMode(.template)
-            .resizable()
-            .frame(width: 16, height: 16)
-            .foregroundStyle(DesignSystem.Color.iconTertiary)
-    }
+// MARK: - Secondary line
 
-    var bottomLine: some View {
-        HStack(spacing: 4) {
-            subtitleView
-            Spacer(minLength: 8)
-            trailingContent
+extension PortfolioTokenItemView.RowView {
+    @ViewBuilder
+    var subtitleView: some View {
+        switch data.subtitle {
+        case .text(let text):
+            Text(text)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .lineLimit(1)
+        case .dotted(let leading, let trailing):
+            HStack(spacing: 8) {
+                Text(leading)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
+
+                dotSeparator
+
+                Text(trailing)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
+            }
         }
     }
 
     @ViewBuilder
     var trailingContent: some View {
         switch data.end {
-        case .values(_, let percent, let source):
+        case .values(_, let percent):
             Text(percent)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
-                .shimmer(isEnabled: source == .cache)
         case .unavailable(let label):
             warningLabel(label)
         }
@@ -138,73 +161,9 @@ private extension PortfolioTokenItemView.ContentRow {
         }
     }
 
-    @ViewBuilder
-    var subtitleView: some View {
-        switch data.subtitle {
-        case .text(let text):
-            Text(text)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                .lineLimit(1)
-        case .dotted(let leading, let trailing):
-            HStack(spacing: 8) {
-                Text(leading)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    .lineLimit(1)
-
-                DotSeparator(size: 4)
-
-                Text(trailing)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    .lineLimit(1)
-            }
-            .shimmer(isEnabled: isCacheValue)
-        }
-    }
-
-    /// True while the row shows a stale (cache) value — the network amount flickers with the fiat and share.
-    var isCacheValue: Bool {
-        if case .values(_, _, .cache) = data.end {
-            return true
-        }
-
-        return false
-    }
-}
-
-// MARK: - Loading
-
-private extension PortfolioTokenItemView {
-    /// Full-row shimmer placeholder — mirrors the content row's geometry so nothing jumps on resolve.
-    struct LoadingRow: View {
-        @ScaledMetric private var iconSize: CGFloat = PortfolioTokenRowLayout.iconSize
-
-        var body: some View {
-            HStack(spacing: PortfolioTokenRowLayout.horizontalSpacing) {
-                TangemShimmer()
-                    .variant(.custom(width: iconSize, height: iconSize))
-                    .clipShape(Circle())
-                    .frame(width: iconSize, height: iconSize)
-
-                VStack(spacing: PortfolioTokenRowLayout.verticalSpacing) {
-                    line(leading: 96, trailing: 64, height: 14)
-                    line(leading: 60, trailing: 44, height: 12)
-                }
-            }
-            .padding(PortfolioTokenRowLayout.contentPadding)
-        }
-    }
-}
-
-private extension PortfolioTokenItemView.LoadingRow {
-    func line(leading: CGFloat, trailing: CGFloat, height: CGFloat) -> some View {
-        HStack(spacing: 4) {
-            shimmer(width: leading, height: height)
-            Spacer(minLength: 8)
-            shimmer(width: trailing, height: height)
-        }
-    }
-
-    func shimmer(width: CGFloat, height: CGFloat) -> some View {
-        TangemShimmer().variant(.custom(width: width, height: height))
+    var dotSeparator: some View {
+        Circle()
+            .fill(DesignSystem.Color.iconTertiary)
+            .frame(width: 4, height: 4)
     }
 }

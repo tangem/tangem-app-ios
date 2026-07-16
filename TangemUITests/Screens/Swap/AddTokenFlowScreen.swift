@@ -37,6 +37,18 @@ final class AddTokenFlowScreen: Screen {
         return self
     }
 
+    /// Chooses a network in the "Choose network" sheet; the sheet is absent for single-network tokens.
+    @discardableResult
+    func selectNetwork(named networkName: String) -> Self {
+        XCTContext.runActivity(named: "Choose network '\(networkName)'") { _ in
+            let networkCell = app.buttons[TokenAccessibilityIdentifiers.networkCell(for: networkName)].firstMatch
+            if networkCell.waitForExistence(timeout: .conditional) {
+                networkCell.waitAndTap()
+            }
+        }
+        return self
+    }
+
     /// Taps the "Add Token" button to trigger token addition
     @discardableResult
     func tapAddTokenButton() -> Self {
@@ -53,14 +65,6 @@ final class AddTokenFlowScreen: Screen {
         XCTContext.runActivity(named: "Wait for 'Token Added' toast on Add Funds screen") { _ in
             waitAndAssertTrue(tokenAddedToast, timeout: .conditional, "Wait for 'Token Added' toast is displayed")
             return AddFundsScreen(app)
-        }
-    }
-
-    @discardableResult
-    func waitForTokenAddedToastOnMarketsTokenDetails() -> MarketsTokenDetailsScreen {
-        XCTContext.runActivity(named: "Wait for 'Token Added' toast on Markets token details screen") { _ in
-            waitAndAssertTrue(tokenAddedToast, timeout: .conditional, "Wait for 'Token Added' toast is displayed")
-            return MarketsTokenDetailsScreen(app)
         }
     }
 

@@ -21,10 +21,17 @@ struct PortfolioReviewMapper {
     func map(walletModels: [any WalletModel]) -> PortfolioReviewViewModel.ViewState {
         let entries = walletModels.map(makeEntry)
         let (topHoldings, other) = PortfolioReviewAggregator.aggregate(entries)
+        let groups = topHoldings + other
+
+        // Still resolving → whole-screen skeleton (no models yet, or every asset's balance still loading).
+        // The simplified UI has no per-row loading state, so a partial load stays on the skeleton.
+        if walletModels.isEmpty || (!groups.isEmpty && groups.allSatisfy { $0.availability == .loading }) {
+            return .loading
+        }
 
         // Portfolio total = the sum of the shown holdings (top + other). Derived from the rows rather
         // than the separate total-balance provider, so shares resolve exactly when the balances do.
-        let totalFiat = (topHoldings + other).reduce(Decimal.zero) { $0 + $1.fiat }
+        let totalFiat = groups.reduce(Decimal.zero) { $0 + $1.fiat }
 
         var items = topHoldings.map { makeAssetItem(group: $0, total: totalFiat) }
 
@@ -33,10 +40,10 @@ struct PortfolioReviewMapper {
             items.append(makeOtherItem(assetCount: other.count, fiat: otherFiat, total: totalFiat))
         }
 
-        return PortfolioReviewViewModel.ViewState(
+        return .content(.init(
             tokenList: items,
             periodSegments: ForYouPeriodSegment.all // [REDACTED_TODO_COMMENT]
-        )
+        ))
     }
 }
 
@@ -55,7 +62,7 @@ private extension PortfolioReviewMapper {
             symbol: tokenItem.currencySymbol,
             tokenItem: tokenItem,
             isCustom: walletModel.isCustom,
-            // Keep the (possibly cached) value for any state that shows one — including cache / only-cache.
+            // Keep the (possibly cached) value for any state that shows one.
             crypto: availability.showsValue ? walletModel.availableBalanceProvider.balanceType.value : nil,
             fiat: availability.showsValue ? walletModel.fiatAvailableBalanceProvider.balanceType.value : nil,
             availability: availability
@@ -63,8 +70,8 @@ private extension PortfolioReviewMapper {
     }
 
     /// Maps the balance status onto the row availability. A cached value distinguishes "refreshing"
-    /// (`.loading(.some)` → cache) from "nothing yet" (`.loading(.none)` → loading), and "couldn't refresh
-    /// but have a value" (`.failure(.some)` → only-cache) from "unreachable" (`.failure(.none)`).
+    /// (`.loading(.some)`) from "nothing yet" (`.loading(.none)`), and "couldn't refresh but have a value"
+    /// (`.failure(.some)`) from "unreachable" (`.failure(.none)`).
     static func availability(for balance: TokenBalanceType) -> PortfolioReviewAggregator.Availability {
         switch balance {
         case .loading(.some):
@@ -79,15 +86,6 @@ private extension PortfolioReviewMapper {
             return .noAddress
         case .empty, .loaded:
             return .content
-        }
-    }
-
-    /// The row's value freshness for the states that show a value.
-    func valueSource(for availability: PortfolioReviewAggregator.Availability) -> ForYouTokenRowData.End.ValueSource {
-        switch availability {
-        case .cache: .cache
-        case .onlyCache: .onlyCache
-        default: .actual
         }
     }
 }
@@ -106,84 +104,38 @@ private extension PortfolioReviewMapper {
         )
     }
 
-    func assetRow(for group: PortfolioReviewAggregator.Group, total: Decimal) -> ForYouTokenRow {
-        switch group.availability {
-        case .loading:
-            return .loading(id: group.key)
-        case .content, .cache, .onlyCache:
-            return .content(assetContent(group, end: .values(
-                fiat: fiatString(group.fiat),
-                percent: percentString(group.fiat, total: total),
-                source: valueSource(for: group.availability)
-            )))
-        case .unreachable:
-            return .content(assetContent(group, end: .unavailable(label: Localization.commonUnreachable)))
-        case .noAddress:
-            return .content(assetContent(group, end: .unavailable(label: Localization.commonNoAddress)))
-        }
-    }
-
-    func assetContent(_ group: PortfolioReviewAggregator.Group, end: ForYouTokenRowData.End) -> ForYouTokenRowData {
+    func assetRow(for group: PortfolioReviewAggregator.Group, total: Decimal) -> ForYouTokenRowData {
         ForYouTokenRowData(
             id: group.key,
             symbol: group.symbol,
             tokenIconInfo: iconBuilder.build(from: group.tokenItem, isCustom: group.isCustom),
             sentiment: Self.placeholderSentiment, // [REDACTED_TODO_COMMENT]
             subtitle: .text(assetSubtitle(tokenItem: group.tokenItem, networkCount: group.networks.count)),
-            end: end
+            end: end(availability: group.availability, fiat: group.fiat, total: total)
         )
     }
 
-    func networkRow(for network: PortfolioReviewAggregator.NetworkGroup, total: Decimal) -> ForYouTokenRow {
-        let sample = network.sample
-
-        switch network.availability {
-        case .loading:
-            return .loading(id: network.id)
-        case .content, .cache, .onlyCache:
-            return .content(networkContent(
-                network,
-                subtitle: .dotted(sample.networkName, balanceFormatter.formatCryptoBalance(network.crypto, currencyCode: sample.symbol)),
-                end: .values(
-                    fiat: fiatString(network.fiat),
-                    percent: percentString(network.fiat, total: total),
-                    source: valueSource(for: network.availability)
-                )
-            ))
-        case .unreachable:
-            return .content(networkContent(network, subtitle: .text(sample.networkName), end: .unavailable(label: Localization.commonUnreachable)))
-        case .noAddress:
-            return .content(networkContent(network, subtitle: .dotted(sample.networkName, AppConstants.enDashSign), end: .unavailable(label: Localization.commonNoAddress)))
-        }
-    }
-
-    func networkContent(
-        _ network: PortfolioReviewAggregator.NetworkGroup,
-        subtitle: ForYouTokenRowData.Subtitle,
-        end: ForYouTokenRowData.End
-    ) -> ForYouTokenRowData {
+    func networkRow(for network: PortfolioReviewAggregator.NetworkGroup, total: Decimal) -> ForYouTokenRowData {
         ForYouTokenRowData(
             id: network.id,
             symbol: network.sample.symbol,
             tokenIconInfo: iconBuilder.build(from: network.sample.tokenItem, isCustom: network.sample.isCustom),
             sentiment: Self.placeholderSentiment,
-            subtitle: subtitle,
-            end: end
+            subtitle: networkSubtitle(network),
+            end: end(availability: network.availability, fiat: network.fiat, total: total)
         )
     }
 
     func makeOtherItem(assetCount: Int, fiat: Decimal, total: Decimal) -> ForYouTokenListItem {
         ForYouTokenListItem(
             id: Self.otherID,
-            assetRow: .content(
-                ForYouTokenRowData(
-                    id: Self.otherID,
-                    symbol: Localization.commonOther,
-                    tokenIconInfo: nil,
-                    sentiment: nil,
-                    subtitle: .text(assetCountString(assetCount)),
-                    end: .values(fiat: fiatString(fiat), percent: percentString(fiat, total: total), source: .actual)
-                )
+            assetRow: ForYouTokenRowData(
+                id: Self.otherID,
+                symbol: Localization.commonOther,
+                tokenIconInfo: nil,
+                sentiment: nil,
+                subtitle: .text(assetCountString(assetCount)),
+                end: .values(fiat: fiatString(fiat), percent: percentString(fiat, total: total))
             ),
             networkRows: [],
             isExpanded: false,
@@ -192,9 +144,38 @@ private extension PortfolioReviewMapper {
     }
 }
 
-// MARK: - Subtitles & formatting
+// MARK: - End & subtitles
 
 private extension PortfolioReviewMapper {
+    /// Trailing content for a row given its balance availability. The simplified UI has no per-row
+    /// loading/freshness state, so cache/only-cache render like a plain resolved value, and a still-loading
+    /// row shows a neutral dash until it resolves.
+    func end(availability: PortfolioReviewAggregator.Availability, fiat: Decimal, total: Decimal) -> ForYouTokenRowData.End {
+        switch availability {
+        case .content, .cache, .onlyCache:
+            return .values(fiat: fiatString(fiat), percent: percentString(fiat, total: total))
+        case .loading:
+            return .values(fiat: AppConstants.enDashSign, percent: "")
+        case .unreachable:
+            return .unavailable(label: Localization.commonUnreachable)
+        case .noAddress:
+            return .unavailable(label: Localization.commonNoAddress)
+        }
+    }
+
+    func networkSubtitle(_ network: PortfolioReviewAggregator.NetworkGroup) -> ForYouTokenRowData.Subtitle {
+        let name = network.sample.networkName
+
+        switch network.availability {
+        case .content, .cache, .onlyCache:
+            return .dotted(name, balanceFormatter.formatCryptoBalance(network.crypto, currencyCode: network.sample.symbol))
+        case .unreachable:
+            return .text(name)
+        case .loading, .noAddress:
+            return .dotted(name, AppConstants.enDashSign)
+        }
+    }
+
     func assetSubtitle(tokenItem: TokenItem, networkCount: Int) -> String {
         if networkCount > 1 {
             return Localization.commonNetworksCount(networkCount)

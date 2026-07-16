@@ -61,9 +61,12 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsBuyCoordinator: ActionButtonsBuyCoordinator? = nil
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
+    @Published var tangemPaySelectPlanCoordinator: TangemPaySelectPlanCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
+
+    private var campaignCoordinator: CampaignCoordinator?
 
     // MARK: - Child view models
 
@@ -101,21 +104,15 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     }
 
     func start(with options: Options) {
-        let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper? = FeatureProvider.isAvailable(.redesign)
-            ? nil
-            : WalletSwipeDiscoveryHelper()
-
         let factory = PushNotificationsHelpersFactory()
         let pushNotificationsAvailabilityProvider = factory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)
         let viewModel = MainViewModel(
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
-            swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self),
             pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
         )
 
-        swipeDiscoveryHelper?.delegate = viewModel
         mainViewModel = viewModel
 
         let userWalletModel = options.userWalletModel
@@ -195,7 +192,16 @@ extension MainCoordinator: MainRoutable {
     func openDeepLink(_ deepLink: DeepLinkDestination) {
         switch deepLink {
         case .externalLink(let url):
-            safariManager.openURL(url)
+            guard safariHandle?.isMatching(startingURL: url) == false else {
+                return
+            }
+
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.safariHandle = nil },
+                onSuccess: { [weak self] _ in self?.safariHandle = nil }
+            )
         case .tangemPayMain(let customerWalletId):
             openTangemPayMainFromDeeplink(customerWalletId: customerWalletId)
         case .yield(let walletModel, let userWalletModel):
@@ -219,6 +225,24 @@ extension MainCoordinator: MainRoutable {
              .earn:
             deeplinkDestination.send(deepLink)
         }
+    }
+
+    func openCampaignIfNeeded(campaignId: String) -> Bool {
+        guard campaignCoordinator == nil else {
+            return false
+        }
+
+        campaignCoordinator = CampaignFlowFactory().makeCampaignCoordinator(
+            campaignId: campaignId,
+            dismissAction: { [weak self] _ in
+                self?.campaignCoordinator = nil
+            },
+            popToRootAction: { [weak self] options in
+                self?.campaignCoordinator = nil
+                self?.popToRoot(with: options)
+            }
+        )
+        return true
     }
 
     func openDetails() {
@@ -485,6 +509,19 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         tangemPayMainCoordinator = coordinator
     }
 
+    func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector) {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = TangemPaySelectPlanCoordinator(
+            dismissAction: { [weak self] in
+                self?.tangemPaySelectPlanCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(tariffPlanSelector: tariffPlanSelector))
+        tangemPaySelectPlanCoordinator = coordinator
+    }
+
     private func openTangemPayMainFromDeeplink(customerWalletId: String) {
         guard !RTCUtil.isRootedDevice else {
             incomingActionManager.discardIncomingAction()
@@ -647,6 +684,28 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .send(sourceToken), source: .main)
+
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
+    func openSwapAndSend(input: SendInput) {
+        guard SendFeatureProvider.shared.isAvailable else {
+            return
+        }
+
+        let sourceToken = CommonSendSwapableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel,
+            operationType: .swapAndSend
+        ).makeSwapableToken()
+
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(
+            type: .send(sourceToken),
+            source: .main,
+            shouldStartFromTokenList: true
+        )
 
         coordinator.start(with: options)
         sendCoordinator = coordinator

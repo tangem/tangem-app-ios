@@ -21,45 +21,49 @@ struct ForYouView: View {
         ZStack(alignment: .top) {
             backgroundColor
                 .ignoresSafeArea()
+
             VStack(spacing: 0) {
                 navigationBar
-                    .background(marketsNavigationBarBackground)
+                    .background {
+                        MarketsNavigationBarBackgroundView(
+                            backdropViewColor: backgroundColor,
+                            overlayContentHidingProgress: 1,
+                            isNavigationBarBackgroundBackdropViewHidden: false,
+                            isListContentObscured: false
+                        )
+                    }
+
                 content
             }
         }
         .ignoresSafeArea(.container, edges: .top)
     }
-}
 
-private extension ForYouView {
-    // MARK: - View properties
-
-    var marketsNavigationBarBackground: some View {
-        MarketsNavigationBarBackgroundView(
-            backdropViewColor: backgroundColor,
-            overlayContentHidingProgress: 1,
-            isNavigationBarBackgroundBackdropViewHidden: false,
-            isListContentObscured: false
-        )
-    }
-
-    var backgroundColor: Color {
+    private var backgroundColor: Color {
         DesignSystem.Color.bgPrimary
     }
 
-    var content: some View {
+    // MARK: - Content
+
+    private var content: some View {
         ScrollView {
             PortfolioReviewView(viewModel: viewModel.portfolioReview)
                 .padding(16)
         }
     }
 
-    var navigationBar: some View {
+    // MARK: - Navigation bar
+
+    private var navigationBar: some View {
         ZStack {
             Text(Localization.forYouTitle)
                 .style(Fonts.Bold.body, color: Colors.Text.primary1)
+
             HStack {
-                NavigationBarButton.back(action: onBackButtonAction).redesigned()
+                // Liquid Glass back button on iOS 26 (system-label / circle fallbacks otherwise).
+                NavigationBarButton.back(action: onBackButtonAction)
+                    .redesigned()
+
                 Spacer()
             }
         }

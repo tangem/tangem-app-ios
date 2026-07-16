@@ -32,7 +32,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     private let tokenItem: TokenItem
     private let interactor: OnrampSummaryInteractor
     private let notificationManager: NotificationManager
-    private let marketingNotificationManager: OnrampMarketingBannerNotificationManager
+    private let marketingBannerManager: OnrampMarketingBannerManager
     private let linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
     private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
@@ -47,7 +47,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         tokenItem: TokenItem,
         interactor: OnrampSummaryInteractor,
         notificationManager: NotificationManager,
-        marketingNotificationManager: OnrampMarketingBannerNotificationManager,
+        marketingBannerManager: OnrampMarketingBannerManager,
         linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>,
         analyticsLogger: SendOnrampOffersAnalyticsLogger,
         buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
@@ -56,7 +56,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         self.tokenItem = tokenItem
         self.interactor = interactor
         self.notificationManager = notificationManager
-        self.marketingNotificationManager = marketingNotificationManager
+        self.marketingBannerManager = marketingBannerManager
         self.linkedBannersPublisher = linkedBannersPublisher
         self.analyticsLogger = analyticsLogger
         self.buyActionBuilder = buyActionBuilder
@@ -87,7 +87,7 @@ private extension OnrampSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$notificationInputs)
 
-        marketingNotificationManager.standaloneBannersPublisher
+        marketingBannerManager.standaloneBannersPublisher
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
 

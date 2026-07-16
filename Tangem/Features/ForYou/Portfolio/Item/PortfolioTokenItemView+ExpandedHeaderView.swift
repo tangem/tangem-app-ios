@@ -14,8 +14,10 @@ import TangemUIUtils
 extension PortfolioTokenItemView {
     struct ExpandedHeaderView: View {
         let assetRow: ForYouTokenRowData
+        let effects: PortfolioTokenGeometryEffects
 
         @ScaledMetric private var iconSize: CGFloat = 16
+        @ScaledMetric private var chevronSize: CGFloat = 20
 
         var body: some View {
             VStack(spacing: 0) {
@@ -31,11 +33,11 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
         HStack(spacing: 12) {
             icon
             HStack(spacing: 4) {
-                Text(assetRow.symbol).style(
-                    DesignSystem.Font.subheadingMediumToken,
-                    color: DesignSystem.Color.textPrimary
-                )
-                DotSeparator()
+                Text(assetRow.symbol)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                    .minimumScaleFactor(1)
+                    .matchedGeometryEffect(effects.symbol)
+                dotSeparator
                 summary
             }
             .lineLimit(1)
@@ -45,7 +47,7 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
             DesignSystem.Icons.ChevronCollapse.regular20.image
                 .renderingMode(.template)
                 .resizable()
-                .frame(width: 20, height: 20)
+                .frame(width: chevronSize, height: chevronSize)
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
         .padding(16)
@@ -54,29 +56,18 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
     @ViewBuilder
     var summary: some View {
         switch assetRow.end {
-        case .values(let fiat, let percent, _):
-            Text(fiat).style(
-                DesignSystem.Font.subheadingMediumToken,
-                color: DesignSystem.Color.textPrimary
-            )
-
-            if !percent.isEmpty {
-                DotSeparator()
-                Text(percent).style(
-                    DesignSystem.Font.subheadingMediumToken,
-                    color: DesignSystem.Color.textSecondary
-                )
-            }
+        case .values(let fiat, let percent):
+            Text(fiat)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+            dotSeparator
+            Text(percent)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
         case .unavailable(let label):
-            Text(AppConstants.enDashSign).style(
-                DesignSystem.Font.subheadingMediumToken,
-                color: DesignSystem.Color.textPrimary
-            )
-            DotSeparator()
-            Text(label).style(
-                DesignSystem.Font.subheadingMediumToken,
-                color: DesignSystem.Color.textStatusWarning
-            )
+            Text(AppConstants.enDashSign)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+            dotSeparator
+            Text(label)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textStatusWarning)
         }
     }
 
@@ -89,12 +80,23 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
                 isWithOverlays: false
             )
         } else {
-            EmptyTokenGlyph(size: iconSize)
+            DesignSystem.Icons.tokenError.image
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
+                .matchedGeometryEffect(effects.icon)
+                .frame(width: iconSize, height: iconSize)
         }
     }
 
     var divider: some View {
         Separator(color: DesignSystem.Color.borderSecondary)
             .padding(.horizontal, 16)
+    }
+
+    var dotSeparator: some View {
+        Circle()
+            .fill(DesignSystem.Color.iconTertiary)
+            .frame(width: 3, height: 3)
     }
 }

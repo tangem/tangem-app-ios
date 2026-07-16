@@ -78,6 +78,31 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let freezeSheetConfirmButton = "\(prefix)FreezeSheetConfirmButton"
     public static let unfreezeSheetConfirmButton = "\(prefix)UnfreezeSheetConfirmButton"
 
+    // MARK: - Daily limit
+
+    public static let dailyLimitChangeButton = "\(prefix)DailyLimitChangeButton"
+    public static let dailyLimitRowValue = "\(prefix)DailyLimitRowValue"
+    public static let dailyLimitAmountField = "\(prefix)DailyLimitAmountField"
+    public static let dailyLimitSetButton = "\(prefix)DailyLimitSetButton"
+    public static let dailyLimitSuccessTitle = "\(prefix)DailyLimitSuccessTitle"
+    public static let dailyLimitDoneButton = "\(prefix)DailyLimitDoneButton"
+
+    public static func dailyLimitPresetButton(_ value: String) -> String {
+        "\(prefix)DailyLimitPreset_\(value)"
+    }
+
+    // MARK: - Card reissue
+
+    public static let cardManagementMoreButton = "\(prefix)CardManagementMoreButton"
+    public static let reissueCardRow = "\(prefix)ReissueCardRow"
+    public static let reissueSheetConfirmButton = "\(prefix)ReissueSheetConfirmButton"
+
+    // MARK: - Transaction details
+
+    public static let transactionDetailsTitle = "\(prefix)TransactionDetailsTitle"
+    public static let transactionDetailsAmount = "\(prefix)TransactionDetailsAmount"
+    public static let transactionDetailsMainButton = "\(prefix)TransactionDetailsMainButton"
+
     // MARK: - PIN setup screen
 
     public static let pinScreenTitle = "\(prefix)PinScreenTitle"

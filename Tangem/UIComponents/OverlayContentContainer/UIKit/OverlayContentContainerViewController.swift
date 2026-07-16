@@ -290,9 +290,6 @@ final class OverlayContentContainerViewController: StatusBarManagingViewControll
             overlayViewController.view.widthAnchor.constraint(equalToConstant: screenBounds.width),
         ])
 
-        if !FeatureProvider.isAvailable(.redesign) {
-            overlayViewController.view.layer.cornerRadius(overlayCornerRadius, corners: .topEdge)
-        }
         overlayViewController.additionalSafeAreaInsets.bottom = contentExpandedVerticalOffset // Over-scroll compensation
         overlayViewController.didMove(toParent: self)
     }

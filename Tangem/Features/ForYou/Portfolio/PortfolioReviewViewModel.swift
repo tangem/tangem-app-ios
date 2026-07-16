@@ -24,7 +24,7 @@ final class PortfolioReviewViewModel: ObservableObject {
 
     // MARK: - Published
 
-    @Published private(set) var state: ViewState = .init(tokenList: [], periodSegments: ForYouPeriodSegment.all)
+    @Published private(set) var state: ViewState = .loading
     @Published var selectedPeriod: ForYouPeriodSegment = .initial
 
     // MARK: - Init
@@ -37,6 +37,11 @@ final class PortfolioReviewViewModel: ObservableObject {
     // MARK: - Methods
 
     func toggle(id: String) {
+        guard case .content(let content) = state,
+              content.tokenList.first(where: { $0.id == id })?.isExpandable == true else {
+            return
+        }
+
         expandedIds.formSymmetricDifference([id])
         state = state.expanding(expandedIds)
     }
@@ -77,8 +82,8 @@ private extension PortfolioReviewViewModel {
     /// Wallet models + total balance + app currency → mapped view state.
     func statePublisher(for selectedModel: UserWalletModel?) -> AnyPublisher<ViewState, Never> {
         guard let selectedModel else {
-            // No selected wallet → empty list (not an endless loading state).
-            return Just(ViewState(tokenList: [], periodSegments: ForYouPeriodSegment.all))
+            // No selected wallet → empty content (not an endless loading state).
+            return Just(.content(.init(tokenList: [], periodSegments: ForYouPeriodSegment.all)))
                 .eraseToAnyPublisher()
         }
 
@@ -97,7 +102,11 @@ private extension PortfolioReviewViewModel {
     }
 
     func apply(_ newState: ViewState) {
-        // Expansion is driven solely by user taps; re-apply it onto every fresh emission.
+        // Seed expansion from the first content; user taps drive it afterwards.
+        if expandedIds.isEmpty, case .content(let content) = newState {
+            expandedIds = Set(content.tokenList.filter(\.isExpanded).map(\.id))
+        }
+
         state = newState.expanding(expandedIds)
     }
 }
@@ -107,13 +116,24 @@ private extension PortfolioReviewViewModel {
 private extension PortfolioReviewViewModel.ViewState {
     /// Re-derives each item's `isExpanded` flag from the currently expanded asset ids.
     func expanding(_ expandedIds: Set<String>) -> Self {
-        Self(
-            tokenList: tokenList.map { item in
-                var item = item
-                item.isExpanded = expandedIds.contains(item.id)
-                return item
-            },
-            periodSegments: periodSegments
+        switch self {
+        case .loading:
+            return self
+        case .content(let content):
+            let tokenList = content.tokenList.map { $0.updating(isExpanded: expandedIds.contains($0.id)) }
+            return .content(Content(tokenList: tokenList, periodSegments: content.periodSegments))
+        }
+    }
+}
+
+private extension ForYouTokenListItem {
+    func updating(isExpanded: Bool) -> ForYouTokenListItem {
+        ForYouTokenListItem(
+            id: id,
+            assetRow: assetRow,
+            networkRows: networkRows,
+            isExpanded: isExpanded,
+            isExpandable: isExpandable
         )
     }
 }

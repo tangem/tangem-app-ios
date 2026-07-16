@@ -24,7 +24,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
-    @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
     @Published private(set) var quickTopUpBannerViewModel: QuickTopUpBannerViewModel?
     @Published var dotsMenuItems: [DotsMenuItem] = []
 
@@ -33,23 +32,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
-
-    // [REDACTED_INFO]: Remove when the redesign feature toggle is removed
-
-    private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
-        tokenItem: walletModel.tokenItem,
-        buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
-        balanceProvider: self,
-        balanceTypeSelectorProvider: self,
-        yieldModuleStatusProvider: self,
-        refreshStatusProvider: self,
-        showYieldBalanceInfoAction: { [weak self] in
-            self?.openYieldBalanceInfo()
-        },
-        reloadBalance: { @MainActor [weak self] in
-            await self?.onPullToRefresh()
-        }
-    )
 
     private(set) lazy var balanceViewModel = TokenDetailsBalanceViewModel(
         tokenItem: walletModel.tokenItem,
@@ -63,9 +45,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     let actionsViewModel: TokenDetailsActionsViewModel?
 
-    private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
-
-    @Published private(set) var activeStakingViewData: ActiveStakingViewData?
     @Published private(set) var stakingState: TokenDetailsStakingState?
     @Published private(set) var yieldState: TokenDetailsYieldState?
 
@@ -90,20 +69,12 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
-    private let marketingNotificationManager: MarketingBannerNotificationManager
+    private let marketingBannerManager: MarketingBannerManager
     private let notificationBannerMapper: MultiWalletNotificationBannerMapper
     private let deeplinkHandler: PromotionDeeplinkHandler
     private var bag = Set<AnyCancellable>()
 
     private lazy var yieldStateFactory = TokenDetailsYieldStateFactory(
-        walletModel: walletModel,
-        coordinator: coordinator,
-        factoryBuilder: { [weak self] manager in
-            self?.makeYieldModuleFlowFactory(manager: manager)
-        }
-    )
-
-    private lazy var yieldAvailabilityBuilder = TokenDetailsYieldAvailabilityFactory(
         walletModel: walletModel,
         coordinator: coordinator,
         factoryBuilder: { [weak self] manager in
@@ -123,7 +94,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         tokenRouter: SingleTokenRoutable,
         pendingTransactionDetails: PendingTransactionDetails?,
         deeplinkHandler: PromotionDeeplinkHandler,
-        marketingNotificationManager: MarketingBannerNotificationManager = MarketingBannerNotificationManager(),
+        marketingBannerManager: MarketingBannerManager = MarketingBannerManager(),
         notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper(),
         presentSource: TokenDetailsPresentSource
     ) {
@@ -132,13 +103,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
         self.deeplinkHandler = deeplinkHandler
-        self.marketingNotificationManager = marketingNotificationManager
+        self.marketingBannerManager = marketingBannerManager
         self.notificationBannerMapper = notificationBannerMapper
         self.presentSource = presentSource
 
-        actionsViewModel = FeatureProvider.isAvailable(.redesign)
-            ? TokenDetailsActionsViewModel(walletModel: walletModel, userWalletInfo: userWalletInfo)
-            : nil
+        actionsViewModel = TokenDetailsActionsViewModel(walletModel: walletModel, userWalletInfo: userWalletInfo)
 
         super.init(
             userWalletInfo: userWalletInfo,
@@ -228,7 +197,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .renewTangemPaySession,
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
-             .addFunds:
+             .addFunds,
+             .openAppStore:
             super.didTapNotification(with: id, action: action)
         }
     }
@@ -442,18 +412,15 @@ private extension TokenDetailsViewModel {
         Task { @MainActor [notificationManager, notificationBannerMapper, weak self] in
             let tokenNotificationInputs = await notificationManager.notificationInputs
 
-            guard self?.isRedesign == true else {
-                self?.tokenNotificationInputs = tokenNotificationInputs
-                return
-            }
+            guard let self else { return }
 
-            self?.notifications = notificationBannerMapper.mapItems(tokenNotificationInputs)
+            notifications = notificationBannerMapper.mapItems(tokenNotificationInputs)
         }
 
         setupQuickTopUpBanner()
         dotsMenuItems = makeDotsMenuItems()
         marketPriceViewModel = makeMarketPriceViewModel()
-        marketingNotificationManager.setup(
+        marketingBannerManager.setup(
             bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: walletModel.tokenItem, kind: .tokenDetails)
         )
 
@@ -461,9 +428,10 @@ private extension TokenDetailsViewModel {
     }
 
     private func setupQuickTopUpBanner() {
-        expressAvailabilityProvider.availabilityDidChangePublisher
+        walletModel.actionsUpdatePublisher
             .receiveOnMain()
             .map { [weak self] in self?.mapToQuickTopUpBannerViewModel() }
+            .removeDuplicates { $0 === $1 }
             .assign(to: &$quickTopUpBannerViewModel)
     }
 
@@ -521,7 +489,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
-        marketingNotificationManager.standaloneBannersPublisher
+        marketingBannerManager.standaloneBannersPublisher
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
 
@@ -608,11 +576,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func updateYield(info: YieldModuleManagerStateInfo) {
-        if isRedesign {
-            updateRedesignYield(info: info)
-        } else {
-            updateYieldAvailability(state: info)
-        }
+        updateRedesignYield(info: info)
     }
 
     private func updateRedesignYield(info: YieldModuleManagerStateInfo) {
@@ -620,11 +584,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func updateStaking(state: StakingManagerState) {
-        if isRedesign {
-            updateRedesignStaking(state: state)
-        } else {
-            updateLegacyStaking(state: state)
-        }
+        updateRedesignStaking(state: state)
     }
 
     private func updateRedesignStaking(state: StakingManagerState) {
@@ -718,52 +678,34 @@ private extension TokenDetailsViewModel {
     private func makeStakingRewardsState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState.RewardsState {
         switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
         case (.auto, _):
-            return .auto
+            let rewardInfo = makeRewardInfo(staked.yieldInfo)
+            return .auto(rewardInfo)
         case (.manual, .zero):
             return .empty(Localization.stakingDetailsNoRewardsToClaim)
         case (.manual, let rewards):
-            let rewardPercent = makeFormattedRewardPercent(yieldInfo: staked.yieldInfo)
-            let rewardType = switch staked.yieldInfo.rewardType {
-            case .apr: Localization.stakingDetailsApr
-            case .apy: Localization.stakingDetailsApy
-            }
-            let rewardPercentType = "\(rewardPercent) \(rewardType)"
+            let rewardInfo = makeRewardInfo(staked.yieldInfo)
 
             let fiat: Decimal? = walletModel.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(rewards, currencyId: currencyId)
             }
             let formattedFiat = balanceFormatter.formatFiatBalance(fiat)
 
-            let claimed = "\(rewardPercentType) \(AppConstants.dotSign) \(formattedFiat)"
+            let claimed = "\(rewardInfo) \(AppConstants.dotSign) \(formattedFiat)"
             return .claimed(claimed)
         }
     }
 
-    private func makeFormattedRewardPercent(yieldInfo: StakingYieldInfo) -> String {
-        PercentFormatter().format(yieldInfo.rewardRateValues.max, option: .staking)
+    private func makeRewardInfo(_ yieldInfo: StakingYieldInfo) -> String {
+        let percentInfo = makeFormattedRewardPercent(yieldInfo: yieldInfo)
+        let typeInfo = switch yieldInfo.rewardType {
+        case .apr: Localization.stakingDetailsApr
+        case .apy: Localization.stakingDetailsApy
+        }
+        return "\(percentInfo) \(typeInfo)"
     }
 
-    private func updateLegacyStaking(state: StakingManagerState) {
-        let isBeta = state.yieldInfo?.item.network == .ethereum
-
-        switch state {
-        case .loading:
-            // Do nothing
-            break
-        case .availableToStake, .notEnabled:
-            activeStakingViewData = nil
-        case .loadingError, .temporaryUnavailable, .unavailableInRegion:
-            activeStakingViewData = .init(isBeta: isBeta, balance: .loadingError, rewards: .none)
-        case .staked(let staked):
-            let rewards = mapToRewardsState(staked: staked)
-            let balance = mapToStakedBalance(staked: staked)
-
-            activeStakingViewData = ActiveStakingViewData(
-                isBeta: isBeta,
-                balance: .balance(balance) { [weak self] in self?.openStaking() },
-                rewards: rewards
-            )
-        }
+    private func makeFormattedRewardPercent(yieldInfo: StakingYieldInfo) -> String {
+        PercentFormatter().format(yieldInfo.rewardRateValues.max, option: .staking)
     }
 
     @MainActor
@@ -775,46 +717,6 @@ private extension TokenDetailsViewModel {
         case .loading, .failure:
             marketPriceViewModel?.miniChartPoints = LoadingResult.loading
         }
-    }
-
-    func mapToRewardsState(staked: StakingManagerState.Staked) -> ActiveStakingViewData.RewardsState? {
-        switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
-        case (.auto, let rewards) where staked.yieldInfo.item.network == .ethereum && rewards > 0:
-            let formatted = balanceFormatter.formatCryptoBalance(
-                rewards,
-                currencyCode: walletModel.tokenItem.currencySymbol
-            )
-            return .compoundedRewardsEarned(formatted)
-        case (.auto, _):
-            return nil
-        case (.manual, .zero):
-            return .noRewards
-        case (.manual, let rewards):
-            let stakedRewardsFiat: Decimal? = walletModel.tokenItem.currencyId.flatMap { currencyId in
-                balanceConverter.convertToFiat(rewards, currencyId: currencyId)
-            }
-            let formatted = balanceFormatter.formatFiatBalance(stakedRewardsFiat)
-            return .rewardsToClaim(formatted)
-        }
-    }
-
-    func mapToStakedBalance(staked: StakingManagerState.Staked) -> BalanceFormatted {
-        let stakedWithPendingBalance = staked.balances.stakes().sum()
-        let stakedWithPendingBalanceFormatted = balanceFormatter.formatCryptoBalance(stakedWithPendingBalance, currencyCode: walletModel.tokenItem.currencySymbol)
-
-        let stakedWithPendingFiatBalance = walletModel.tokenItem.currencyId.flatMap { currencyId in
-            balanceConverter.convertToFiat(stakedWithPendingBalance, currencyId: currencyId)
-        }
-        let stakedWithPendingFiatBalanceFormatted = balanceFormatter.formatFiatBalance(stakedWithPendingFiatBalance)
-
-        return .init(
-            crypto: stakedWithPendingBalanceFormatted,
-            fiat: stakedWithPendingFiatBalanceFormatted
-        )
-    }
-
-    private func updateYieldAvailability(state: YieldModuleManagerStateInfo) {
-        yieldModuleAvailability = yieldAvailabilityBuilder.make(state: state.state, marketInfo: state.marketInfo)
     }
 
     private func makeNavigationBarViewModel() -> TokenDetailsNavigationBarViewModel {
@@ -840,11 +742,9 @@ private extension TokenDetailsViewModel {
         let subtitle: String
 
         if walletModel.tokenItem.isToken {
-            let tokenName = walletModel.tokenItem.blockchain.tokenTypeName ?? Localization.commonToken
             let networkName = walletModel.tokenItem.blockchain.displayName
-            let preposition = Localization.commonIn
             let network = Localization.wcCommonNetwork.lowercased()
-            subtitle = "\(tokenName) \(preposition) \(networkName) \(network)"
+            subtitle = "\(networkName) \(network)"
         } else {
             subtitle = Localization.commonMainNetwork
         }
@@ -853,7 +753,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func makeMarketPriceViewModel() -> TokenDetailsMarketPriceViewModel? {
-        guard isRedesign, walletModel.tokenItem.id != nil else {
+        guard walletModel.tokenItem.id != nil else {
             return nil
         }
 
@@ -880,9 +780,9 @@ extension TokenDetailsViewModel: SingleTokenNotificationManagerInteractionDelega
     }
 }
 
-// MARK: - BalanceWithButtonsViewModelBalanceProvider
+// MARK: - Balance publishers (TokenDetailsBalanceDataProvider)
 
-extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
+extension TokenDetailsViewModel {
     var totalCryptoBalancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
         walletModel
             .totalTokenBalanceProvider
@@ -905,28 +805,6 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
         walletModel
             .fiatAvailableBalanceProvider
             .formattedBalanceTypePublisher
-    }
-}
-
-extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
-    var showBalanceSelectorPublisher: AnyPublisher<Bool, Never> {
-        func isZeroOrNil(_ cached: TokenBalanceType.Cached?) -> Bool {
-            cached?.balance == .zero || cached == nil
-        }
-
-        return walletModel.stakingBalanceProvider.balanceTypePublisher.map {
-            switch $0 {
-            case .empty:
-                return false
-            case .loaded(let amount) where amount == .zero:
-                return false
-            case .failure(let cached) where isZeroOrNil(cached),
-                 .loading(let cached) where isZeroOrNil(cached):
-                return false
-            case .failure, .loading, .loaded:
-                return true
-            }
-        }.eraseToAnyPublisher()
     }
 }
 
@@ -963,19 +841,6 @@ extension TokenDetailsViewModel {
             transactionDispatcher: dispatcher
         )
     }
-
-    func openYieldBalanceInfo() {
-        guard let manager = walletModel.yieldModuleManager, let factory = makeYieldModuleFlowFactory(manager: manager) else {
-            return
-        }
-
-        Analytics.log(
-            event: .earningEarnedFundsInfo,
-            params: [.token: walletModel.tokenItem.currencySymbol, .blockchain: walletModel.tokenItem.blockchain.displayName]
-        )
-
-        coordinator?.openYieldBalanceInfo(factory: factory)
-    }
 }
 
 extension TokenDetailsViewModel {
@@ -993,9 +858,9 @@ extension TokenDetailsViewModel {
     }
 }
 
-// MARK: - YieldModuleStatusProvider
+// MARK: - Yield module state (TokenDetailsBalanceDataProvider)
 
-extension TokenDetailsViewModel: YieldModuleStatusProvider {
+extension TokenDetailsViewModel {
     var yieldModuleState: AnyPublisher<YieldModuleManagerStateInfo, Never> {
         walletModel.yieldModuleManager?
             .statePublisher
@@ -1003,17 +868,6 @@ extension TokenDetailsViewModel: YieldModuleStatusProvider {
             .removeDuplicates()
             .eraseToAnyPublisher()
             ?? Just(YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)).eraseToAnyPublisher()
-    }
-}
-
-// MARK: - RefreshStatusProvider
-
-extension TokenDetailsViewModel: RefreshStatusProvider {
-    var isRefreshing: AnyPublisher<Bool, Never> {
-        refreshScrollViewStateObject
-            .statePublisher
-            .map { $0.isRefreshing }
-            .eraseToAnyPublisher()
     }
 }
 

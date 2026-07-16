@@ -23,10 +23,7 @@ struct TokenSelectorAccountView: View {
     }
 
     private var backgroundColor: Color {
-        if FeatureProvider.isAvailable(.redesign) {
-            return Color.Tangem.Surface.level3
-        }
-        return Colors.Background.action
+        return Color.Tangem.Surface.level3
     }
 
     @ViewBuilder

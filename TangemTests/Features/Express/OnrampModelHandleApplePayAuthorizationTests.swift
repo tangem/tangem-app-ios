@@ -278,8 +278,7 @@ final class OnrampModelHandleApplePayAuthorizationTests {
             autoupdatingTimer: AutoupdatingTimer(),
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
             transactionHistoryEnricherFactory: { nil },
-            predefinedValues: .init(amount: nil),
-            isHistoryFallbackEnabled: true
+            predefinedValues: .init(amount: nil)
         )
     }
 
@@ -596,6 +595,7 @@ private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
     func logOnrampButtonNAP(amount: Decimal, currencyCode: String) {}
     func logOnrampNAPScreenOpened() {}
     func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String) {}
+    func logOnrampNoticeBuyNotSupported() {}
 }
 
 // MARK: - Fixtures

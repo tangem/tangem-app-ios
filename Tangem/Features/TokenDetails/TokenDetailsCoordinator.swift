@@ -41,8 +41,6 @@ final class TokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
 
-    let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
-
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -355,6 +353,27 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
+    func openSwapAndSend(input: SendInput) {
+        guard SendFeatureProvider.shared.isAvailable else {
+            return
+        }
+
+        let sourceToken = CommonSendSwapableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel,
+            operationType: .swapAndSend
+        ).makeSwapableToken()
+
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(
+            type: .send(sourceToken),
+            source: .tokenDetails,
+            shouldStartFromTokenList: true
+        )
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
     func openSwap(parameters: PredefinedSwapParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .swap(parameters), source: .tokenDetails)
@@ -415,7 +434,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             }
         )
 
-        let presentationStyle: MarketsTokenDetailsPresentationStyle = isRedesign ? .fullScreenCover : .navigationStack
+        let presentationStyle: MarketsTokenDetailsPresentationStyle = .fullScreenCover
 
         coordinator.start(with: .init(info: tokenModel, style: presentationStyle))
         marketsTokenDetailsCoordinator = coordinator

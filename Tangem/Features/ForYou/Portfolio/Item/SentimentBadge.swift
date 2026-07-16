@@ -7,41 +7,35 @@
 //
 
 import SwiftUI
-import TangemAssets
-import TangemUIUtils
+import TangemUI
 
 /// Placeholder price-change badge; real sentiment data lands with the price-change pipeline.
 struct SentimentBadge: View {
     let sentiment: ForYouTokenRowData.Sentiment
 
     var body: some View {
-        Text(title)
-            .style(DesignSystem.Font.captionMediumToken, color: colors.foreground)
-            .padding(.horizontal, 4)
-            .frame(minHeight: 16)
-            .background(colors.background)
-            .clipShape(Capsule())
+        TangemBadgeV2(label: title, accessibilityLabel: nil)
+            .size(.x4)
+            .variant(.tinted)
+            .appearance(appearance)
     }
 }
 
 private extension SentimentBadge {
-    /// Placeholder, not localized - real label comes with price-change data from backend.
+    /// Placeholder, not localized — real label comes with price-change data from backend.
     var title: String {
         switch sentiment {
-        case .positive: return "Positive"
-        case .neutral: return "Neutral"
-        case .negative: return "Negative"
+        case .positive: "Positive"
+        case .neutral: "Neutral"
+        case .negative: "Negative"
         }
     }
 
-    var colors: (foreground: Color, background: Color) {
+    var appearance: TangemBadgeV2Appearance {
         switch sentiment {
-        case .negative:
-            return (DesignSystem.Color.textStatusError, DesignSystem.Color.bgStatusErrorSubtle)
-        case .neutral:
-            return (DesignSystem.Color.textStatusInfo, DesignSystem.Color.bgStatusInfoSubtle)
-        case .positive:
-            return (DesignSystem.Color.textStatusSuccess, DesignSystem.Color.bgStatusSuccessSubtle)
+        case .positive: .success
+        case .neutral: .info
+        case .negative: .error
         }
     }
 }
