@@ -87,33 +87,33 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return .unspecified
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
-        case .surveySparrow: return .unspecified
+        case .surveySparrow: return .version("6.1")
         case .gaslessYieldFee: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
-        case .yieldModuleUpdate: return .unspecified
+        case .yieldModuleUpdate: return .version("6.1")
         case .xrplTransactionHistory: return .unspecified
         case .pushNotificationsSettings: return .unspecified
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .forceUpdate: return .unspecified
-        case .tangemPayTiers: return .unspecified
-        case .supportChat: return .unspecified
-        case .supportChatSwap: return .unspecified
+        case .tangemPayTiers: return .version("6.1")
+        case .supportChat: return .version("6.1")
+        case .supportChatSwap: return .version("6.1")
         case .mobileWalletMultiCreation: return .unspecified
         case .stakingTransactionValidation: return .unspecified
-        case .sendWithSwapAvailabilityCheck: return .unspecified
-        case .swapFiatCalculation: return .unspecified
+        case .sendWithSwapAvailabilityCheck: return .version("6.1")
+        case .swapFiatCalculation: return .version("6.1")
         case .addressBook: return .version("6.1")
         case .hideStoriesInMobileWallet: return .version("6.1")
         case .marketingBanners: return .unspecified
         case .stakingRegionUnavailable: return .version("6.1")
         case .forYou: return .unspecified
-        case .highFeeWarning: return .unspecified
+        case .highFeeWarning: return .version("6.1")
         case .priceAlertsSubscription: return .unspecified
         case .tangemPayVirtualAccount: return .version("6.1")
-        case .onboardingPushNotificationDoubleAsk: return .unspecified
-        case .mainPushNotificationDoubleAsk: return .unspecified
-        case .promoCampaignsAttribution: return .version("6.1")
+        case .onboardingPushNotificationDoubleAsk: return .version("6.1")
+        case .mainPushNotificationDoubleAsk: return .version("6.1")
+        case .promoCampaignsAttribution: return .unspecified
         case .backendAuthentication: return .unspecified
         }
     }
