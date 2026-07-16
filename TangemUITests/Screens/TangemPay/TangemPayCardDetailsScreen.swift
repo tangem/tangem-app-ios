@@ -19,6 +19,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     private lazy var freezeRowFrozen = button(.freezeCardRowStateFrozen)
     private lazy var moreMenuButton = button(.cardManagementMoreButton)
     private lazy var replaceCardMenuItem = button(Self.replaceCardTitle)
+    private lazy var dailyLimitChangeButton = button(.dailyLimitChangeButton)
     private lazy var showDetailsButton = button(.cardDetailsShowButton)
     private lazy var hideDetailsButton = button(.cardDetailsHideButton)
     private lazy var cardNumberValue = staticText(.cardDetailsNumberValue)
@@ -80,6 +81,29 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     func tapBack() -> TangemPayMainScreen {
         XCTContext.runActivity(named: "Tap back to return to Tangem Pay payment account") { _ in
             tapBackButton(to: TangemPayMainScreen.self)
+        }
+    }
+
+    @discardableResult
+    func tapChangeDailyLimit() -> TangemPayDailyLimitScreen {
+        XCTContext.runActivity(named: "Tap Change on Daily limit row") { _ in
+            dailyLimitChangeButton.waitAndTap()
+            return TangemPayDailyLimitScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyDailyLimitValue(contains expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify Daily limit row shows value containing '\(expected)'") { _ in
+            let value = app.staticTexts
+                .matching(identifier: TangemPayAccessibilityIdentifiers.dailyLimitRowValue)
+                .matching(NSPredicate(format: "label CONTAINS %@", expected))
+                .firstMatch
+            XCTAssertTrue(
+                value.waitForExistence(timeout: .networkRequest),
+                "Daily limit row should show value containing '\(expected)'"
+            )
+            return self
         }
     }
 
@@ -236,6 +260,7 @@ enum TangemPayCardDetailsScreenElement: String, UIElement {
     case freezeCardRowStateFrozen
     case cardManagementMoreButton
     case reissueCardRow
+    case dailyLimitChangeButton
     case cardDetailsShowButton
     case cardDetailsHideButton
     case cardDetailsNumberValue
@@ -257,6 +282,8 @@ enum TangemPayCardDetailsScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.cardManagementMoreButton
         case .reissueCardRow:
             TangemPayAccessibilityIdentifiers.reissueCardRow
+        case .dailyLimitChangeButton:
+            TangemPayAccessibilityIdentifiers.dailyLimitChangeButton
         case .cardDetailsShowButton:
             TangemPayAccessibilityIdentifiers.cardDetailsShowButton
         case .cardDetailsHideButton:

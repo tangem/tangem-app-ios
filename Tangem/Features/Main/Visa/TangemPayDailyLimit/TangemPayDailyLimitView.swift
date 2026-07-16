@@ -11,6 +11,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct TangemPayDailyLimitView: View {
     @ObservedObject var viewModel: TangemPayDailyLimitViewModel
@@ -74,6 +75,7 @@ struct TangemPayDailyLimitView: View {
                     isDisabled: !viewModel.isSubmitEnabled,
                     action: viewModel.submit
                 )
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitSetButton)
 
                 presetsRow
             }
@@ -93,6 +95,7 @@ struct TangemPayDailyLimitView: View {
                     .prefixSuffixOptions(.prefix(text: AppConstants.usdSign, hasSpace: false))
                     .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
                     .alignment(.center)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitAmountField)
 
                 Text(viewModel.hintText)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
@@ -120,6 +123,7 @@ struct TangemPayDailyLimitView: View {
                         .background(Colors.Button.secondary)
                         .cornerRadiusContinuous(14)
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitPresetButton(preset.filter(\.isNumber)))
             }
         }
     }
@@ -141,6 +145,7 @@ struct TangemPayDailyLimitView: View {
                     Text(Localization.tangempayCardPageDailyLimitSuccessTitle)
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .multilineTextAlignment(.center)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitSuccessTitle)
 
                     Text(Localization.tangempayCardPageDailyLimitSuccessDescription)
                         .style(Fonts.Regular.callout, color: Colors.Text.secondary)
@@ -156,6 +161,7 @@ struct TangemPayDailyLimitView: View {
             )
             .padding(.bottom, 20)
             .padding(.horizontal, 16)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitDoneButton)
         }
     }
 }
@@ -217,6 +223,7 @@ private extension TangemPayDailyLimitView {
                 .horizontalLayout(.infinity)
                 .isLoading(viewModel.isLoading)
                 .disabled(!viewModel.isSubmitEnabled)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitSetButton)
                 .padding(.horizontal, 16)
             }
             .padding(.bottom, 8)
@@ -238,6 +245,7 @@ private extension TangemPayDailyLimitView {
                     placeholderColor: DesignSystem.Color.textTertiary
                 ))
                 .alignment(.center)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitAmountField)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 32)
@@ -258,6 +266,7 @@ private extension TangemPayDailyLimitView {
                         .background(DesignSystem.Color.bgTertiary)
                         .cornerRadiusContinuous(16)
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitPresetButton(preset.filter(\.isNumber)))
             }
         }
     }
@@ -268,7 +277,9 @@ private extension TangemPayDailyLimitView {
                 icon: DesignSystem.Icons.Success.regular20,
                 title: Localization.tangempayCardPageDailyLimitSuccessTitle,
                 subtitle: Localization.tangempayCardPageDailyLimitSuccessDescription,
-                buttonTitle: Localization.commonDone
+                buttonTitle: Localization.commonDone,
+                titleAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.dailyLimitSuccessTitle,
+                buttonAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.dailyLimitDoneButton
             ),
             action: viewModel.close
         )
