@@ -93,17 +93,17 @@ enum CoinIndicatorsDTO {
     }
 
     enum Timeframe: Decodable, Equatable {
-        case day1
-        case week1
-        case month1
+        case day
+        case week
+        case month
         case unknown(String)
 
         init(from decoder: Decoder) throws {
             let raw = try decoder.singleValueContainer().decode(String.self)
             switch raw {
-            case "24h": self = .day1
-            case "7d": self = .week1
-            case "1m": self = .month1
+            case "24h": self = .day
+            case "7d": self = .week
+            case "1m": self = .month
             default: self = .unknown(raw)
             }
         }
