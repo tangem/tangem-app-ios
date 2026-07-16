@@ -8,6 +8,7 @@
 
 import Foundation
 import GRDB
+import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
 final class AppDatabase {
@@ -20,12 +21,27 @@ final class AppDatabase {
         return try DatabaseQueue(path: databaseFilePath)
     }
 
-    let databaseHandle: DatabaseHandle
+    var databaseHandle: DatabaseHandle {
+        get throws {
+            return try protectedDatabaseHandle { handle in
+                if let existingHandle = handle {
+                    return existingHandle
+                }
+
+                let newHandle = try Self.makeDatabaseHandle(using: databaseHandleFactory)
+                handle = newHandle
+
+                return newHandle
+            }
+        }
+    }
+
+    private let protectedDatabaseHandle: OSAllocatedUnfairLock<DatabaseHandle?>
+    private let databaseHandleFactory: DatabaseHandleFactory
 
     private init(databaseHandleFactory: @escaping DatabaseHandleFactory) {
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
-        databaseHandle = try! Self.makeDatabaseHandle(using: databaseHandleFactory)
+        self.databaseHandleFactory = databaseHandleFactory
+        protectedDatabaseHandle = OSAllocatedUnfairLock(initialState: nil)
     }
 
     // MARK: - Factory methods
