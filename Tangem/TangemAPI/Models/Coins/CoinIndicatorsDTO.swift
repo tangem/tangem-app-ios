@@ -25,7 +25,7 @@ enum CoinIndicatorsDTO {
             }
 
             if let indicators, !indicators.isEmpty {
-                params["indicators"] = indicators.map(\.wireValue).joined(separator: ",")
+                params["indicators"] = indicators.map(\.rawValue).joined(separator: ",")
             }
 
             return params
@@ -61,26 +61,26 @@ enum CoinIndicatorsDTO {
 
         init(from decoder: Decoder) throws {
             let raw = try decoder.singleValueContainer().decode(String.self)
-            self = Self(wireValue: raw)
+            self = Self(rawValue: raw)
         }
 
-        init(wireValue: String) {
-            switch wireValue {
+        init(rawValue: String) {
+            switch rawValue {
             case "rsi": self = .rsi
             case "macd": self = .macd
             case "ma_cross": self = .maCross
             case "galaxy_score": self = .galaxyScore
             case "sentiment": self = .sentiment
-            default: self = .unknown(wireValue)
+            default: self = .unknown(rawValue)
             }
         }
 
         func encode(to encoder: Encoder) throws {
             var container = encoder.singleValueContainer()
-            try container.encode(wireValue)
+            try container.encode(rawValue)
         }
 
-        var wireValue: String {
+        var rawValue: String {
             switch self {
             case .rsi: "rsi"
             case .macd: "macd"
