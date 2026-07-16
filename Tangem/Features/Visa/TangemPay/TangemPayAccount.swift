@@ -587,7 +587,7 @@ private extension TangemPayAccount {
             seenCardIds.insert(cardId)
         }
 
-        return newCards.sorted { $0.cardId < $1.cardId }
+        return newCards
     }
 
     enum Constants {

@@ -656,14 +656,12 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
                 let balance = try await card.customerService.getBalance()
 
                 let feeText = Self.formatFee(amount: feeResponse.amount, currency: feeResponse.currency)
-                let balanceText = Self.formatFee(amount: balance.fiat.availableBalance, currency: feeResponse.currency)
                 let isInsufficientFunds = balance.fiat.availableBalance < feeResponse.amount
 
                 let viewModel = TangemPayReissueSheetViewModel(
                     userWalletId: userWalletId,
                     card: card,
                     feeText: feeText,
-                    balanceText: balanceText,
                     isInsufficientFunds: isInsufficientFunds,
                     coordinator: self,
                     onError: onError
