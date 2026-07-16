@@ -14,8 +14,18 @@ struct CryptoCurrencyRecord {
     let networkID: String
     let name: String
     let symbol: String
+    /// - Note: May have a value of `ExpressConstants.coinContractAddress` for native coins.
     let contractAddress: String
     let decimalCount: Int
+}
+
+// MARK: - Columns
+
+extension CryptoCurrencyRecord {
+    enum Columns {
+        static let networkID = Column(CodingKeys.networkID)
+        static let contractAddress = Column(CodingKeys.contractAddress)
+    }
 }
 
 // MARK: - Codable protocol conformance

@@ -18,9 +18,17 @@ struct ExpressProviderRecord {
     let termsOfUse: String?
     let privacyPolicy: String?
     let recommended: Bool?
-    /// Actually a decimal number.
+    /// - Note: Actually a decimal number.
     let slippage: String?
     let updatedAt: Date
+}
+
+// MARK: - Columns
+
+extension ExpressProviderRecord {
+    enum Columns {
+        static let id = Column(CodingKeys.id)
+    }
 }
 
 // MARK: - Identifiable protocol conformance
