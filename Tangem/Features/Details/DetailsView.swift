@@ -47,10 +47,8 @@ struct DetailsView: View {
     private var topSection: some View {
         GroupedSection(viewModel.topSectionTypes) { type in
             switch type {
-            case .walletConnect(let viewModel) where FeatureProvider.isAvailable(.redesign):
-                WalletConnectRedesignedRowView(viewModel: viewModel)
             case .walletConnect(let viewModel):
-                WalletConnectRowView(viewModel: viewModel)
+                WalletConnectRedesignedRowView(viewModel: viewModel)
             case .addressBook(let viewModel):
                 AddressBookRowView(viewModel: viewModel)
             }

@@ -36,14 +36,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                 YieldModulePromoCoordinatorView(coordinator: $0)
             }
             .modifyView { view in
-                if coordinator.isRedesign {
-                    view.fullScreenCover(item: $coordinator.marketsTokenDetailsCoordinator) { marketsTokenDetailsCoordinator in
-                        MarketsTokenDetailsCoordinatorView(coordinator: marketsTokenDetailsCoordinator)
-                    }
-                } else {
-                    view.navigation(item: $coordinator.marketsTokenDetailsCoordinator) { marketsTokenDetailsCoordinator in
-                        MarketsTokenDetailsCoordinatorView(coordinator: marketsTokenDetailsCoordinator)
-                    }
+                view.fullScreenCover(item: $coordinator.marketsTokenDetailsCoordinator) { marketsTokenDetailsCoordinator in
+                    MarketsTokenDetailsCoordinatorView(coordinator: marketsTokenDetailsCoordinator)
                 }
             }
     }

@@ -24,7 +24,6 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     @Published private(set) var cardRenameViewModel: TangemPayCardRenameViewModel?
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
-    @Published private(set) var cardSettingsRows: [DefaultRowViewModel] = []
     @Published private(set) var closeCardRow: DefaultRowViewModel?
     @Published private(set) var dailyLimitState: TangemPayDailyLimitState?
     @Published private(set) var isIssuing: Bool = false
@@ -232,9 +231,8 @@ private extension TangemPayCardManagementViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { vm, output in
-                let (freezing, isClosing) = output
+                let (freezing, _) = output
                 vm.propagateFreezingStateToDetailsVM(freezing)
-                vm.updateCardSettingsRows(freezingState: freezing, isClosing: isClosing)
             }
             .store(in: &bag)
 
@@ -378,41 +376,6 @@ private extension TangemPayCardManagementViewModel {
         selectedMultiCardDetailsViewModel?.state = freezing.cardDetailsState
     }
 
-    func updateCardSettingsRows(freezingState: TangemPayFreezingState, isClosing: Bool) {
-        let isBusy = freezingState.isFreezingUnfreezingInProgress || isClosing
-        cardSettingsRows = [
-            row(
-                title: Localization.tangempayCardDetailsChangePin,
-                accessibilityIdentifier: TangemPayAccessibilityIdentifiers.changePinRow,
-                isBusy: isBusy,
-                action: { [weak self] in self?.onPin() }
-            ),
-            row(
-                title: freezingState.isFrozen
-                    ? Localization.tangempayCardDetailsUnfreezeCard
-                    : Localization.tangempayCardDetailsFreezeCard,
-                accessibilityIdentifier: freezingState.isFrozen
-                    ? TangemPayAccessibilityIdentifiers.freezeCardRowStateFrozen
-                    : TangemPayAccessibilityIdentifiers.freezeCardRowStateActive,
-                isBusy: isBusy,
-                action: { [weak self] in
-                    guard let self else { return }
-                    if freezingState.isFrozen {
-                        unfreeze()
-                    } else {
-                        showFreezePopup()
-                    }
-                }
-            ),
-            row(
-                title: Localization.tangempayCardDetailsReissueCard,
-                accessibilityIdentifier: TangemPayAccessibilityIdentifiers.reissueCardRow,
-                isBusy: isBusy,
-                action: { [weak self] in self?.onReplaceCard() }
-            ),
-        ]
-    }
-
     func updateCloseCardRow(isClosing: Bool, isOnlyCard: Bool) {
         let isBusy = isClosing || isOnlyCard
         let action: () -> Void = { [weak self] in
@@ -487,9 +450,7 @@ private extension TangemPayCardManagementViewModel {
         }
 
         guard BiometricsUtil.isAvailable else {
-            if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
-                coordinator?.openTangemPayBiometryNotSetSheet()
-            }
+            coordinator?.openTangemPayBiometryNotSetSheet()
             return
         }
 
