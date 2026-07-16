@@ -614,6 +614,7 @@
 "force_update_button" = "Update";
 "force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
 "force_update_os_title" = "Update Your OS";
+"force_update_required_action" = "Update app";
 "force_update_warning_message" = "Please update the app to its latest version to ensure proper functionality.";
 "force_update_warning_title" = "Update required";
 "gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
@@ -746,9 +747,11 @@
 "manage_tokens_wallet_support_only_one_network_title" = "The wallet doesn't support more than one network";
 "market_chart_ai_total" = "AI Total:";
 "market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
+"market_chart_bubble_no_amount" = "No amount  on tokens";
 "market_chart_bubble_no_data" = "No data";
 "market_chart_bubble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_no_amount" = "You don’t have any tokens with amount";
 "market_chart_top_holding" = "Top holding %@";
 "markets_about_coin_header" = "About coin";
 "markets_add_to_my_portfolio_description" = "To buy, exchange, or receive this asset, add it to your portfolio";
@@ -1607,6 +1610,9 @@
 "tangempay_card_details_add_funds_subtitle" = "Top-up options";
 "tangempay_card_details_add_funds" = "Add funds";
 "tangempay_card_details_add_to_wallet_button_text" = "Add to Google Wallet";
+"tangempay_card_details_awaiting_deposit_cancel_button" = "Cancel %1$@, move to %2$@";
+"tangempay_card_details_awaiting_deposit_subtitle" = "To pay monthly fee for plan and start use card";
+"tangempay_card_details_awaiting_deposit_title" = "Top-up your account on %1$@";
 "tangempay_card_details_card_number" = "Card Number";
 "tangempay_card_details_change_pin_success_description" = "The card is fully ready for payments.";
 "tangempay_card_details_change_pin_success_title" = "PIN code created";
@@ -1643,6 +1649,8 @@
 "tangempay_card_details_reveal_text" = "Reveal";
 "tangempay_card_details_show_details" = "Details";
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
+"tangempay_card_details_system_downgrade_subtitle" = "If it will remain below zero your %1$@ cards will be closed on %2$@";
+"tangempay_card_details_system_downgrade_title" = "Top up your account shortly";
 "tangempay_card_details_title" = "Details";
 "tangempay_card_details_unable_to_rename_card_description" = "Please try again later";
 "tangempay_card_details_unfreeze_card" = "Unfreeze Card";
@@ -1674,9 +1682,14 @@
 "tangempay_come_back_if_forget_pin" = "Come back to the app if you forget it.";
 "tangempay_common_card" = "Card";
 "tangempay_common_error_loading" = "Error loading";
+"tangempay_current_plan_active_till_notification" = "Your %1$@ plan is active till %2$@, then we will move you to %3$@. %4$@ won't be charged.";
 "tangempay_current_plan_change" = "Change plan";
+"tangempay_current_plan_fee_charged_notification" = "%1$@ monthly fee will be charged on %2$@";
 "tangempay_current_plan_section_card" = "Card related";
 "tangempay_current_plan_section_plan" = "Plan related";
+"tangempay_current_plan_stay_button" = "Stay on %1$@";
+"tangempay_current_plan_stay_sheet_body" = "Your transition on %1$@ will be canceled";
+"tangempay_current_plan_stay_sheet_title" = "Do you want to stay on %1$@?";
 "tangempay_current_plan_title" = "Current plan";
 "tangempay_daily_limit_hint" = "Set a limit from %@ to %@";
 "tangempay_daily_limit_set_button" = "Set limits";
@@ -1791,7 +1804,16 @@
 "tangempay_select_plan_btn_select" = "Select";
 "tangempay_select_plan_btn_upgrade" = "Upgrade plan";
 "tangempay_select_plan_compare" = "Compare plans";
+"tangempay_select_plan_confirm_downgrade_title" = "Your %1$@ plan and %2$@ cards will be active till %3$@";
+"tangempay_select_plan_confirm_point_cancel_till" = "You can cancel this transition till %1$@";
+"tangempay_select_plan_confirm_point_cards_closed" = "Your %1$@ cards will be closed";
+"tangempay_select_plan_confirm_point_monthly_fee" = "%1$@ monthly fee will be taken from your account";
+"tangempay_select_plan_confirm_point_move_on_date" = "On %1$@ we will move you to %2$@ plan";
+"tangempay_select_plan_confirm_point_no_fee" = "No fee applied";
+"tangempay_select_plan_confirm_point_virtual_card" = "You will get your virtual %1$@ in minutes";
+"tangempay_select_plan_confirm_switch_title" = "You are switching to %1$@";
 "tangempay_select_plan_confirm_title" = "Confirm selection";
+"tangempay_select_plan_confirm_upgrade_title" = "We will issue %1$@ for you";
 "tangempay_select_plan_title" = "Select plan";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";

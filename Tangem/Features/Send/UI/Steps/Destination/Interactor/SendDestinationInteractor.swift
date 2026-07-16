@@ -23,7 +23,7 @@ protocol SendDestinationInteractor {
     var canEmbedAdditionalField: AnyPublisher<Bool, Never> { get }
     var destinationValid: AnyPublisher<Bool, Never> { get }
     var allFieldsIsValid: AnyPublisher<Bool, Never> { get }
-    var destinationError: AnyPublisher<String?, Never> { get }
+    var destinationError: AnyPublisher<SendAddressServiceError?, Never> { get }
     var destinationAdditionalFieldError: AnyPublisher<String?, Never> { get }
 
     func shouldResolve(address: String) -> Bool
@@ -48,7 +48,7 @@ class CommonSendDestinationInteractor {
     private let _canEmbedAdditionalField: CurrentValueSubject<Bool, Never> = .init(true)
 
     private let _destinationValid: CurrentValueSubject<Bool, Never> = .init(false)
-    private let _destinationError: CurrentValueSubject<Error?, Never> = .init(nil)
+    private let _destinationError: CurrentValueSubject<SendAddressServiceError?, Never> = .init(nil)
 
     private let _additionalFieldValid: CurrentValueSubject<Bool, Never> = .init(true)
     private let _destinationAdditionalFieldError: CurrentValueSubject<Error?, Never> = .init(nil)
@@ -105,7 +105,7 @@ class CommonSendDestinationInteractor {
             .assign(to: \._addressBookContacts.value, on: self, ownership: .weak)
     }
 
-    private func update(destination result: Result<SendDestination?, Error>, source: Analytics.DestinationAddressSource) {
+    private func update(destination result: Result<SendDestination?, SendAddressServiceError>, source: Analytics.DestinationAddressSource) {
         switch result {
         case .success(.some(let address)) where address.value.typedAddress.isEmpty:
             fallthrough
@@ -269,8 +269,8 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
             .eraseToAnyPublisher()
     }
 
-    var destinationError: AnyPublisher<String?, Never> {
-        _destinationError.map { $0?.localizedDescription }.eraseToAnyPublisher()
+    var destinationError: AnyPublisher<SendAddressServiceError?, Never> {
+        _destinationError.eraseToAnyPublisher()
     }
 
     var destinationAdditionalFieldError: AnyPublisher<String?, Never> {
@@ -325,7 +325,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
         }
     }
 
-    func validate(destination address: String) -> Error? {
+    func validate(destination address: String) -> SendAddressServiceError? {
         do {
             try dependenciesBuilder.validator.validate(destination: address)
             return nil

@@ -71,12 +71,20 @@ final class TangemPayAccount {
             .eraseToAnyPublisher()
     }
 
+    var awaitingDepositMonthlyFeePublisher: AnyPublisher<String?, Never> {
+        awaitingDepositMonthlyFeeSubject.eraseToAnyPublisher()
+    }
+
     var cardIssueFailureSignal: AnyPublisher<Void, Never> {
         cardIssueFailureSubject.eraseToAnyPublisher()
     }
 
     var cardIssueCompletedSignal: AnyPublisher<Void, Never> {
         cardIssueCompletedSubject.eraseToAnyPublisher()
+    }
+
+    var firstCardIssueFailedSignalPublisher: AnyPublisher<Void, Never> {
+        firstCardIssueFailedSubject.eraseToAnyPublisher()
     }
 
     var cards: [TangemPayCard] {
@@ -171,6 +179,7 @@ final class TangemPayAccount {
     private let offersSubject = CurrentValueSubject<[TangemPayCustomerOffer], Never>([])
     private let activeIssueOrdersSubject = CurrentValueSubject<[TangemPayOrderResponse], Never>([])
     private let activeIssueOrderEventsSubject = PassthroughSubject<ActiveIssueOrderEvent, Never>()
+    private let awaitingDepositMonthlyFeeSubject = CurrentValueSubject<String?, Never>(nil)
 
     private let loadOffersProcessor = SingleTaskProcessor<Void, Never>()
     private let resumeIssuePollingProcessor = SingleTaskProcessor<Void, Never>()
@@ -178,6 +187,7 @@ final class TangemPayAccount {
     private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
     private let cardIssueFailureSubject = PassthroughSubject<Void, Never>()
     private let cardIssueCompletedSubject = PassthroughSubject<Void, Never>()
+    private let firstCardIssueFailedSubject = PassthroughSubject<Void, Never>()
 
     private var placedVirtualAccountOrderId: String?
 
@@ -339,20 +349,21 @@ extension TangemPayAccount {
         }
     }
 
-    func resumeAdditionalCardIssuePolling() async {
+    func resumeActiveIssueOrderPolling() async {
         await resumeIssuePollingProcessor.execute { @MainActor [weak self] in
             guard let self else { return }
 
             let localOrdersBeforeFetch = activeIssueOrdersSubject.value
+            let trackableTypes = TangemPayOrderType.cardIssueFamily + TangemPayOrderType.tariffPlanTransitionFamily
 
             let bffActiveOrders: [TangemPayOrderResponse]
             do {
                 bffActiveOrders = try await customerService.findOrders(
-                    types: TangemPayOrderType.cardIssueFamily,
+                    types: trackableTypes,
                     statuses: [.new, .processing]
                 )
             } catch {
-                VisaLogger.error("Failed to restore in-flight card-issue polling", error: error)
+                VisaLogger.error("Failed to restore in-flight issue-order polling", error: error)
                 return
             }
 
@@ -366,6 +377,10 @@ extension TangemPayAccount {
             guard let order = bffActiveOrders.mostRecentByUpdatedAt else { return }
             activeIssueOrderEventsSubject.send(.upsert(order))
             startAdditionalCardIssueTracking(orderId: order.id)
+
+            if order.isAwaitingDeposit, let targetPlanId = order.targetTariffPlanId {
+                loadAwaitingDepositMonthlyFee(targetPlanId: targetPlanId)
+            }
         }
     }
 
@@ -409,6 +424,21 @@ extension TangemPayAccount {
 }
 
 private extension TangemPayAccount {
+    func loadAwaitingDepositMonthlyFee(targetPlanId: String) {
+        runTask { [weak self] in
+            guard let self,
+                  let transitions = try? await customerService.getTariffPlanTransitions(),
+                  let plan = transitions.first(where: { $0.tariffPlan.id == targetPlanId })?.tariffPlan,
+                  let recurringFee = plan.fees.first(where: { $0.type == .recurring }) else {
+                return
+            }
+
+            awaitingDepositMonthlyFeeSubject.send(
+                BalanceFormatter().formatFiatBalance(recurringFee.amount, currencyCode: recurringFee.currency)
+            )
+        }
+    }
+
     func loadCustomerInfoNew() async {
         do throws(TangemPayAPIServiceError) {
             let customerInfo = try await customerService.loadCustomerInfo()
@@ -471,6 +501,9 @@ private extension TangemPayAccount {
                         customerInfo.productInstances.compactMap { $0.cardId != nil ? $0.id : nil }
                     )
                     return current.filter { order in
+                        if let targetPlanId = order.targetTariffPlanId, targetPlanId == customerInfo.customerTariffPlan?.tariffPlan.id {
+                            return false
+                        }
                         guard let pid = order.data?.productInstanceId else { return true }
                         return !issuedProductInstanceIds.contains(pid)
                     }
@@ -497,20 +530,25 @@ private extension TangemPayAccount {
                 }
             },
             onCanceled: { [weak self] in
-                guard let self else { return }
-                activeIssueOrderEventsSubject.send(.remove(id: orderId))
-                cardIssueFailureSubject.send(())
+                self?.handleIssueOrderFailure(orderId: orderId)
             },
             onFailed: { [weak self] error in
-                VisaLogger.error("Failed to poll additional-card-issue order status", error: error)
-                guard let self else { return }
-                activeIssueOrderEventsSubject.send(.remove(id: orderId))
-                cardIssueFailureSubject.send(())
+                VisaLogger.error("Failed to poll card-issue order status", error: error)
+                self?.handleIssueOrderFailure(orderId: orderId)
             },
             onProgress: { [weak self] order in
                 self?.activeIssueOrderEventsSubject.send(.update(order))
             }
         )
+    }
+
+    private func handleIssueOrderFailure(orderId: String) {
+        activeIssueOrderEventsSubject.send(.remove(id: orderId))
+        if activeCards.isEmpty {
+            firstCardIssueFailedSubject.send(())
+        } else {
+            cardIssueFailureSubject.send(())
+        }
     }
 
     func rebuildingCards(from customerInfo: VisaCustomerInfoResponse, existing: [TangemPayCard]) -> [TangemPayCard] {
@@ -549,7 +587,7 @@ private extension TangemPayAccount {
             seenCardIds.insert(cardId)
         }
 
-        return newCards.sorted { $0.cardId < $1.cardId }
+        return newCards
     }
 
     enum Constants {

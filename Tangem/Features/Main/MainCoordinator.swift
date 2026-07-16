@@ -104,21 +104,15 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     }
 
     func start(with options: Options) {
-        let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper? = FeatureProvider.isAvailable(.redesign)
-            ? nil
-            : WalletSwipeDiscoveryHelper()
-
         let factory = PushNotificationsHelpersFactory()
         let pushNotificationsAvailabilityProvider = factory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)
         let viewModel = MainViewModel(
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
-            swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self),
             pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
         )
 
-        swipeDiscoveryHelper?.delegate = viewModel
         mainViewModel = viewModel
 
         let userWalletModel = options.userWalletModel
@@ -198,7 +192,16 @@ extension MainCoordinator: MainRoutable {
     func openDeepLink(_ deepLink: DeepLinkDestination) {
         switch deepLink {
         case .externalLink(let url):
-            safariManager.openURL(url)
+            guard safariHandle?.isMatching(startingURL: url) == false else {
+                return
+            }
+
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.safariHandle = nil },
+                onSuccess: { [weak self] _ in self?.safariHandle = nil }
+            )
         case .tangemPayMain(let customerWalletId):
             openTangemPayMainFromDeeplink(customerWalletId: customerWalletId)
         case .yield(let walletModel, let userWalletModel):
@@ -229,7 +232,8 @@ extension MainCoordinator: MainRoutable {
             return false
         }
 
-        let coordinator = CampaignCoordinator(
+        campaignCoordinator = CampaignFlowFactory().makeCampaignCoordinator(
+            campaignId: campaignId,
             dismissAction: { [weak self] _ in
                 self?.campaignCoordinator = nil
             },
@@ -238,8 +242,6 @@ extension MainCoordinator: MainRoutable {
                 self?.popToRoot(with: options)
             }
         )
-        coordinator.start(with: .init(campaignId: campaignId))
-        campaignCoordinator = coordinator
         return true
     }
 

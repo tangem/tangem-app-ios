@@ -151,6 +151,10 @@ extension NotificationView {
         var color: Color?
         /// Redesigned banner only: overrides the horizontal icon side (`false` = trailing). Legacy `NotificationView` ignores it.
         var isLeading: Bool?
+        /// Redesigned banner only: overrides the icon's vertical alignment against the text. Legacy `NotificationView` ignores it.
+        var alignment: NotificationBanner.Icon.Alignment?
+        /// Redesigned banner only: size the icon from `size` (mapped to the nearest `SizeUnit` step) instead of applying the redesign upsize floor. Legacy `NotificationView` ignores it.
+        var usesExactSize: Bool = false
         var size: CGSize = .init(bothDimensions: 20)
         var yieldModuleIconSize: CGSize = .init(bothDimensions: 12)
     }

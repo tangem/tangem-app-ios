@@ -552,6 +552,7 @@
 "express_floating_rate" = "変動レート";
 "express_legal_one_placeholder" = "スワップ機能を使用すると、プロバイダーの%@に同意したことになります。";
 "express_legal_two_placeholders" = "スワップ機能を使用すると、プロバイダーの%1$@および%2$@に同意したことになります。";
+"express_more_providers_once_wallet_funded" = "More providers will be available once wallet is funded";
 "express_more_providers_soon" = "さらに多くのプロバイダーが利用可能になる予定です";
 "express_provider_best_dex_rate" = "最良のDEXレート";
 "express_provider_best_rate" = "ベストレート";
@@ -613,6 +614,7 @@
 "force_update_button" = "アップデート";
 "force_update_os_description" = "使用中のOSが古くなっています。アプリを引き続き使用するには、OSを更新してください。";
 "force_update_os_title" = "OSの更新が必要です";
+"force_update_required_action" = "Update app";
 "force_update_warning_message" = "正常に動作するよう、アプリを最新バージョンに更新してください。";
 "force_update_warning_title" = "アップデートが必要です";
 "gasless_not_enough_funds_to_cover_token_fee" = "残高不足";
@@ -745,9 +747,11 @@
 "manage_tokens_wallet_support_only_one_network_title" = "ウォレットは複数のネットワークをサポートしていません。";
 "market_chart_ai_total" = "AI Total:";
 "market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
+"market_chart_bubble_no_amount" = "No amount  on tokens";
 "market_chart_bubble_no_data" = "No data";
 "market_chart_bubble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_no_amount" = "You don’t have any tokens with amount";
 "market_chart_top_holding" = "Top holding %@";
 "markets_about_coin_header" = "コインについて";
 "markets_add_to_my_portfolio_description" = "このアセットを購入・交換・受け取るには、ポートフォリオに追加してください。";
@@ -1606,6 +1610,9 @@
 "tangempay_card_details_add_funds_subtitle" = "入金オプション";
 "tangempay_card_details_add_funds" = "資金を追加";
 "tangempay_card_details_add_to_wallet_button_text" = "Googleウォレットに追加";
+"tangempay_card_details_awaiting_deposit_cancel_button" = "Cancel %1$@, move to %2$@";
+"tangempay_card_details_awaiting_deposit_subtitle" = "To pay monthly fee for plan and start use card";
+"tangempay_card_details_awaiting_deposit_title" = "Top-up your account on %1$@";
 "tangempay_card_details_card_number" = "カード番号";
 "tangempay_card_details_change_pin_success_description" = "カードは支払いの準備が整いました。";
 "tangempay_card_details_change_pin_success_title" = "PINコードを作成しました";
@@ -1642,6 +1649,8 @@
 "tangempay_card_details_reveal_text" = "表示";
 "tangempay_card_details_show_details" = "詳細";
 "tangempay_card_details_swap_description" = "ポートフォリオ内のあらゆる資産をカードと交換";
+"tangempay_card_details_system_downgrade_subtitle" = "If it will remain below zero your %1$@ cards will be closed on %2$@";
+"tangempay_card_details_system_downgrade_title" = "Top up your account shortly";
 "tangempay_card_details_title" = "詳細";
 "tangempay_card_details_unable_to_rename_card_description" = "しばらくしてからもう一度お試しください";
 "tangempay_card_details_unfreeze_card" = "カードの一時停止を解除";
@@ -1673,9 +1682,14 @@
 "tangempay_come_back_if_forget_pin" = "忘れた場合はアプリに戻って確認できます。";
 "tangempay_common_card" = "Card";
 "tangempay_common_error_loading" = "Error loading";
+"tangempay_current_plan_active_till_notification" = "Your %1$@ plan is active till %2$@, then we will move you to %3$@. %4$@ won't be charged.";
 "tangempay_current_plan_change" = "Change plan";
+"tangempay_current_plan_fee_charged_notification" = "%1$@ monthly fee will be charged on %2$@";
 "tangempay_current_plan_section_card" = "Card related";
 "tangempay_current_plan_section_plan" = "Plan related";
+"tangempay_current_plan_stay_button" = "Stay on %1$@";
+"tangempay_current_plan_stay_sheet_body" = "Your transition on %1$@ will be canceled";
+"tangempay_current_plan_stay_sheet_title" = "Do you want to stay on %1$@?";
 "tangempay_current_plan_title" = "Current plan";
 "tangempay_daily_limit_hint" = "%@ 〜 %@の範囲で上限を設定";
 "tangempay_daily_limit_set_button" = "上限を設定";
@@ -1790,7 +1804,16 @@
 "tangempay_select_plan_btn_select" = "Select";
 "tangempay_select_plan_btn_upgrade" = "Upgrade plan";
 "tangempay_select_plan_compare" = "Compare plans";
+"tangempay_select_plan_confirm_downgrade_title" = "Your %1$@ plan and %2$@ cards will be active till %3$@";
+"tangempay_select_plan_confirm_point_cancel_till" = "You can cancel this transition till %1$@";
+"tangempay_select_plan_confirm_point_cards_closed" = "Your %1$@ cards will be closed";
+"tangempay_select_plan_confirm_point_monthly_fee" = "%1$@ monthly fee will be taken from your account";
+"tangempay_select_plan_confirm_point_move_on_date" = "On %1$@ we will move you to %2$@ plan";
+"tangempay_select_plan_confirm_point_no_fee" = "No fee applied";
+"tangempay_select_plan_confirm_point_virtual_card" = "You will get your virtual %1$@ in minutes";
+"tangempay_select_plan_confirm_switch_title" = "You are switching to %1$@";
 "tangempay_select_plan_confirm_title" = "Confirm selection";
+"tangempay_select_plan_confirm_upgrade_title" = "We will issue %1$@ for you";
 "tangempay_select_plan_title" = "Select plan";
 "tangempay_service_unavailable_description" = "技術的な問題を修正しています。後でもう一度お試しください。";
 "tangempay_service_unavailable_title" = "サービスは一時的に利用できません";

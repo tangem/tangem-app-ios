@@ -17,6 +17,7 @@ struct NotificationBannerItem: NotificationBannerContainerItem, Equatable {
     let id: NotificationViewId
     let bannerType: NotificationBanner.BannerType
     let priority: NotificationBanner.Priority
+    let stackableOverride: Bool?
     let accessibilityIdentifier: String?
 }
 
@@ -38,8 +39,17 @@ private extension MultiWalletNotificationBannerMapper {
             id: input.id,
             bannerType: makeBannerType(from: input),
             priority: mapPriority(from: input),
+            stackableOverride: stackableOverride(from: input),
             accessibilityIdentifier: input.settings.event.accessibilityIdentifier
         )
+    }
+
+    func stackableOverride(from input: NotificationViewInput) -> Bool? {
+        if (input.settings.event as? GeneralNotificationEvent) == .addFunds {
+            return false
+        }
+
+        return nil
     }
 
     func mapPriority(from input: NotificationViewInput) -> NotificationBanner.Priority {
@@ -167,8 +177,10 @@ private extension MultiWalletNotificationBannerMapper {
             return .text(textOnly)
         }
 
-        // Status pills center the trailing icon against the text (per design); other kinds keep top alignment.
+        // Redesign overrides can pin alignment explicitly; otherwise status pills center the trailing icon
+        // against the text (per design) while other kinds keep top alignment.
         let iconAlignment: NotificationBanner.Icon.Alignment = {
+            if let explicit = messageIcon.alignment { return explicit }
             if case .status = bannerKind { return .center }
             return .top
         }()
@@ -179,7 +191,8 @@ private extension MultiWalletNotificationBannerMapper {
                 imageType: imageType,
                 messageIcon: messageIcon,
                 bannerKind: bannerKind,
-                alignment: iconAlignment
+                alignment: iconAlignment,
+                usesExplicitSize: messageIcon.usesExactSize
             )
             return .textWithIcon(.init(text: textOnly, icon: icon))
         case .loadableIcon(let url):
@@ -211,14 +224,17 @@ private extension MultiWalletNotificationBannerMapper {
         imageType: ImageType,
         messageIcon: NotificationView.MessageIcon,
         bannerKind: NotificationBannerKind,
-        alignment: NotificationBanner.Icon.Alignment
+        alignment: NotificationBanner.Icon.Alignment,
+        usesExplicitSize: Bool
     ) -> NotificationBanner.Icon {
         guard Self.legacyWarningGlyphs.contains(imageType) else {
+            let width = usesExplicitSize ? messageIcon.size.width : redesignIconSide(messageIcon.size.width)
+            let height = usesExplicitSize ? messageIcon.size.height : redesignIconSide(messageIcon.size.height)
             return NotificationBanner.Icon(
                 imageType: imageType,
                 alignment: alignment,
-                width: mapSizeUnit(from: redesignIconSide(messageIcon.size.width)),
-                height: mapSizeUnit(from: redesignIconSide(messageIcon.size.height)),
+                width: mapSizeUnit(from: width),
+                height: mapSizeUnit(from: height),
                 renderingMode: messageIcon.renderingMode,
                 color: messageIcon.color,
                 isLeading: messageIcon.isLeading

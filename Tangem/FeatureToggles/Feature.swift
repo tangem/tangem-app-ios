@@ -11,7 +11,6 @@ import Foundation
 enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
     case visa // [REDACTED_TODO_COMMENT]
-    case redesign
     case exchangeOnlyWithinSingleAddress
     case walletConnectBitcoin
     case surveySparrow
@@ -22,7 +21,7 @@ enum Feature: String, Hashable, CaseIterable {
     case pushNotificationsSettings
     case deeplinkPresentationWay
     case transactionHistoryV2
-    case tangemPaySpendRedesign
+    case forceUpdate
     case tangemPayTiers
     case supportChat
     case supportChatSwap
@@ -50,7 +49,6 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .visa: return "Visa"
-        case .redesign: return "Redesign"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .surveySparrow: return "SurveySparrow service integration"
@@ -61,7 +59,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
-        case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
+        case .forceUpdate: return "[REDACTED_INFO]_force_update"
         case .tangemPayTiers: return "TWI-1066_tangem_pay_tiers_1"
         case .supportChat: return "13815_Support_Chat_(Usedesk)"
         case .supportChatSwap: return "13815_Support_Chat_in_Swap_(Usedesk)"
@@ -89,7 +87,6 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
-        case .redesign: return .version("6.0")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
         case .surveySparrow: return .unspecified
@@ -100,7 +97,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushNotificationsSettings: return .unspecified
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
-        case .tangemPaySpendRedesign: return .version("6.0")
+        case .forceUpdate: return .unspecified
         case .tangemPayTiers: return .unspecified
         case .supportChat: return .unspecified
         case .supportChatSwap: return .unspecified
