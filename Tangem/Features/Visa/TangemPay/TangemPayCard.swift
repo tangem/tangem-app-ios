@@ -51,6 +51,10 @@ final class TangemPayCard: Identifiable {
         productInstance.status == .new || productInstance.status == .activating
     }
 
+    var isFrozen: Bool {
+        productInstance.status == .blocked
+    }
+
     var inflightLifecycleOperationPublisher: AnyPublisher<LifecycleOperation?, Never> {
         inflightLifecycleOperationSubject.eraseToAnyPublisher()
     }
