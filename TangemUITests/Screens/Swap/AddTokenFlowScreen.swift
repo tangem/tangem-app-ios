@@ -37,6 +37,18 @@ final class AddTokenFlowScreen: Screen {
         return self
     }
 
+    /// Chooses a network in the "Choose network" sheet; the sheet is absent for single-network tokens.
+    @discardableResult
+    func selectNetwork(named networkName: String) -> Self {
+        XCTContext.runActivity(named: "Choose network '\(networkName)'") { _ in
+            let networkCell = app.buttons[TokenAccessibilityIdentifiers.networkCell(for: networkName)].firstMatch
+            if networkCell.waitForExistence(timeout: .conditional) {
+                networkCell.waitAndTap()
+            }
+        }
+        return self
+    }
+
     /// Taps the "Add Token" button to trigger token addition
     @discardableResult
     func tapAddTokenButton() -> Self {
