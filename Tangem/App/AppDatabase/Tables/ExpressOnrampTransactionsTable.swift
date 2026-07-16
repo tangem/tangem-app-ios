@@ -39,7 +39,11 @@ private extension ExpressOnrampTransactionsTable {
                 table.column("fromCurrency", .text).notNull()
                 table.column("fromAmount", .text).notNull()
                 table.column("fromDecimals", .integer)
-                table.column(Columns.toContract, .text).notNull()
+                // 1. Can't be optional since it's part of the primary key (and NULLs are distinct in SQLite).
+                // `ExpressConstants.coinContractAddress` is used for coins that don't have a contract address.
+                // 2. Collation is used to make the contract address case-insensitive.
+                // This matches the current `BlockchainSdk.Token` equality implementation.
+                table.column(Columns.toContract, .text).notNull().collate(.nocase)
                 table.column(Columns.toNetwork, .text).notNull()
                 table.column("toAmount", .text).notNull()
                 table.column("toDecimals", .integer).notNull()
