@@ -128,16 +128,15 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
     }
 
     func logAddressBookWidgetShown() {
-        let walletId = sendSourceTokenInput?.sourceToken.value?.userWalletInfo.id.stringValue
-        addressBookAnalyticsLogger.logSendFlowWidgetShown(walletId: walletId ?? "")
+        addressBookAnalyticsLogger.logSendFlowWidgetShown()
     }
 
     func logAddressBookContactSelected(_ contact: AddressBookContact) {
-        addressBookAnalyticsLogger.logContactSelected(walletId: contact.walletId.stringValue, contactId: contact.id.stringValue)
+        addressBookAnalyticsLogger.logContactSelected(contactId: contact.id.stringValue)
     }
 
     func logAddressBookAddressSubstituted(_ contact: AddressBookContact) {
-        addressBookAnalyticsLogger.logAddressSubstitutedInSend(walletId: contact.walletId.stringValue, contactId: contact.id.stringValue)
+        addressBookAnalyticsLogger.logAddressSubstitutedInSend(contactId: contact.id.stringValue)
     }
 
     func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource) {

@@ -42,7 +42,7 @@ class SendAddContactFinishViewModel: ObservableObject {
     }
 
     func userDidTapAddContact() {
-        analyticsLogger.logAddContactTapped(walletId: sourceToken.userWalletInfo.id.stringValue, source: .sendSuccess)
+        analyticsLogger.logAddContactTapped(source: .sendSuccess)
 
         guard
             let destination = destinationInput?.destination,
