@@ -110,11 +110,13 @@ extension TangemPayAddFundsSheetOptionView {
     enum Option: Identifiable {
         case receive
         case swap
+        case bankTransfer
 
         var title: String {
             switch self {
             case .receive: Localization.tangempayTopupReceiveTitle
             case .swap: Localization.tangempayTopupSwapTitle
+            case .bankTransfer: Localization.tangempayTopupBankTransferTitle
             }
         }
 
@@ -122,6 +124,7 @@ extension TangemPayAddFundsSheetOptionView {
             switch self {
             case .receive: Localization.tangempayTopupReceiveBody
             case .swap: Localization.tangempayTopupSwapBody
+            case .bankTransfer: Localization.tangempayTopupBankTransferBody
             }
         }
 
@@ -129,6 +132,7 @@ extension TangemPayAddFundsSheetOptionView {
             switch self {
             case .receive: Assets.arrowDownMini
             case .swap: Assets.exchangeMini
+            case .bankTransfer: Assets.dollarMini
             }
         }
 
@@ -136,6 +140,7 @@ extension TangemPayAddFundsSheetOptionView {
             switch self {
             case .receive: Assets.Visa.grid
             case .swap: DesignSystem.Icons.LogoTangem.regular20
+            case .bankTransfer: Assets.dollarMini
             }
         }
 
@@ -143,6 +148,7 @@ extension TangemPayAddFundsSheetOptionView {
             switch self {
             case .receive: TangemPayAccessibilityIdentifiers.addFundsSheetReceiveOption
             case .swap: TangemPayAccessibilityIdentifiers.addFundsSheetSwapOption
+            case .bankTransfer: TangemPayAccessibilityIdentifiers.addFundsSheetBankTransferOption
             }
         }
     }
