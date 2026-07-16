@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemMacro
 
 struct UserWalletCardsBackupStatus {
     let isImported: Bool
@@ -28,9 +29,32 @@ struct UserWalletCardBackupStatus {
 // MARK: - Role
 
 extension UserWalletCardBackupStatus {
+    @RawCaseName
     enum Role: Equatable {
         case primary
         case backup(index: Int)
+
+        /// Wire form: the case name, with the index appended for `backup` (e.g. `backup1`).
+        var wireValue: String {
+            switch self {
+            case .primary: return rawCaseValue
+            case .backup(let index): return "\(rawCaseValue)\(index)"
+            }
+        }
+
+        static func from(wireValue: String) -> Role? {
+            switch wireValue {
+            case Role.primary.rawCaseValue:
+                return .primary
+            case let value:
+                let backupPrefix = Role.backup(index: 0).rawCaseValue
+                if value.hasPrefix(backupPrefix), let index = Int(wireValue.dropFirst(backupPrefix.count)) {
+                    return .backup(index: index)
+                }
+
+                return nil
+            }
+        }
     }
 
     enum BackupStatus: String {

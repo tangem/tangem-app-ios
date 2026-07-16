@@ -45,7 +45,7 @@ private extension CommonUserWalletCardsBackupStatusReportService {
         WalletCardsDTO.Card(
             cardId: card.cardId,
             cardPublicKey: card.cardPublicKey.hexString,
-            role: mapToWire(card.role),
+            role: card.role?.wireValue,
             backupStatus: card.backupStatus?.rawValue,
             curves: card.curves.map(\.rawValue),
             errorCode: card.errorCode?.description,
@@ -57,36 +57,11 @@ private extension CommonUserWalletCardsBackupStatusReportService {
         UserWalletCardBackupStatus(
             cardId: card.cardId,
             cardPublicKey: Data(hexString: card.cardPublicKey),
-            role: mapToDomain(role: card.role),
+            role: card.role.flatMap(UserWalletCardBackupStatus.Role.from(wireValue:)),
             backupStatus: card.backupStatus.flatMap(UserWalletCardBackupStatus.BackupStatus.init(rawValue:)),
             curves: card.curves.compactMap(EllipticCurve.init(rawValue:)),
             errorCode: card.errorCode.flatMap { Int($0) },
             errorMessage: card.errorMessage
         )
-    }
-
-    // MARK: - Role
-
-    func mapToWire(_ role: UserWalletCardBackupStatus.Role?) -> String? {
-        switch role {
-        case .primary: return "primary"
-        case .backup(let index): return "backup\(index)"
-        case nil: return nil
-        }
-    }
-
-    func mapToDomain(role: String?) -> UserWalletCardBackupStatus.Role? {
-        guard let role else { return nil }
-
-        if role == "primary" {
-            return .primary
-        }
-
-        let prefix = "backup"
-        guard role.hasPrefix(prefix), let index = Int(role.dropFirst(prefix.count)) else {
-            return nil
-        }
-
-        return .backup(index: index)
     }
 }
