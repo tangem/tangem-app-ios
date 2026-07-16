@@ -45,7 +45,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     private let interactor: SwapSummaryInteractor
     private let notificationManager: NotificationManager
-    private let marketingNotificationManager: SwapMarketingBannerNotificationManager
+    private let marketingBannerManager: SwapMarketingBannerManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
     private let formVariantResolver: SwapFormVariantResolver
 
@@ -54,7 +54,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     init(
         interactor: SwapSummaryInteractor,
         notificationManager: NotificationManager,
-        marketingNotificationManager: SwapMarketingBannerNotificationManager,
+        marketingBannerManager: SwapMarketingBannerManager,
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
@@ -64,7 +64,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
-        self.marketingNotificationManager = marketingNotificationManager
+        self.marketingBannerManager = marketingBannerManager
         self.analyticsLogger = analyticsLogger
         self.swapAmountViewModel = swapAmountViewModel
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
@@ -205,7 +205,7 @@ private extension SwapSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$notificationInputs)
 
-        marketingNotificationManager.standaloneBannersPublisher
+        marketingBannerManager.standaloneBannersPublisher
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
     }

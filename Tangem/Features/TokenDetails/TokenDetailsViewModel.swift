@@ -90,7 +90,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
-    private let marketingNotificationManager: MarketingBannerNotificationManager
+    private let marketingBannerManager: MarketingBannerManager
     private let notificationBannerMapper: MultiWalletNotificationBannerMapper
     private let deeplinkHandler: PromotionDeeplinkHandler
     private var bag = Set<AnyCancellable>()
@@ -123,7 +123,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         tokenRouter: SingleTokenRoutable,
         pendingTransactionDetails: PendingTransactionDetails?,
         deeplinkHandler: PromotionDeeplinkHandler,
-        marketingNotificationManager: MarketingBannerNotificationManager = MarketingBannerNotificationManager(),
+        marketingBannerManager: MarketingBannerManager = MarketingBannerManager(),
         notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper(),
         presentSource: TokenDetailsPresentSource
     ) {
@@ -132,7 +132,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
         self.deeplinkHandler = deeplinkHandler
-        self.marketingNotificationManager = marketingNotificationManager
+        self.marketingBannerManager = marketingBannerManager
         self.notificationBannerMapper = notificationBannerMapper
         self.presentSource = presentSource
 
@@ -454,7 +454,7 @@ private extension TokenDetailsViewModel {
         setupQuickTopUpBanner()
         dotsMenuItems = makeDotsMenuItems()
         marketPriceViewModel = makeMarketPriceViewModel()
-        marketingNotificationManager.setup(
+        marketingBannerManager.setup(
             bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: walletModel.tokenItem, kind: .tokenDetails)
         )
 
@@ -523,7 +523,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
-        marketingNotificationManager.standaloneBannersPublisher
+        marketingBannerManager.standaloneBannersPublisher
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
 

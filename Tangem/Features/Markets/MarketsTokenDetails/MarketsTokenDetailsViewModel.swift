@@ -160,7 +160,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     private let initialDate = Date()
 
     private let tokenInfo: MarketsTokenModel
-    private let marketingNotificationManager = MarketingBannerNotificationManager()
+    private let marketingBannerManager = MarketingBannerManager()
     private let dataProvider: MarketsTokenDetailsDataProvider
     private let marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper
 
@@ -461,11 +461,11 @@ private extension MarketsTokenDetailsViewModel {
 
 private extension MarketsTokenDetailsViewModel {
     func bind() {
-        marketingNotificationManager.setup(
+        marketingBannerManager.setup(
             bannersPublisher: marketingCampaignsRepository.bannersPublisher(forMarketsTokenId: tokenInfo.id)
         )
 
-        marketingNotificationManager.standaloneBannersPublisher
+        marketingBannerManager.standaloneBannersPublisher
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
 
