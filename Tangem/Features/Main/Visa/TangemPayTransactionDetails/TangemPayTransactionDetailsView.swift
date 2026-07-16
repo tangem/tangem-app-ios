@@ -17,7 +17,7 @@ struct TangemPayTransactionDetailsView: View {
     @ObservedObject var viewModel: TangemPayTransactionDetailsViewModel
 
     var body: some View {
-        if FeatureProvider.isAvailable(.tangemPaySpendRedesign), let displayModel = viewModel.displayModel {
+        if let displayModel = viewModel.displayModel {
             redesignedBody(displayModel)
         } else {
             legacyBody
