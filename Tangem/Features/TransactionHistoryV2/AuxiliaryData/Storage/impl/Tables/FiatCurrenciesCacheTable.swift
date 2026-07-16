@@ -26,7 +26,7 @@ private extension FiatCurrenciesCacheTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                table: "fiatCurrenciesCache"
+                table: Constants.tableName
             ) { table in
                 table.primaryKey("code", .text).notNull()
                 table.column("name", .text).notNull()
@@ -34,5 +34,14 @@ private extension FiatCurrenciesCacheTable {
                 table.column("precision", .integer).notNull()
             }
         }
+    }
+}
+
+// MARK: - Constants
+
+extension FiatCurrenciesCacheTable {
+    /// - Note: only names used twice or more are extracted to constants.
+    enum Constants {
+        static let tableName = "fiatCurrenciesCache"
     }
 }
