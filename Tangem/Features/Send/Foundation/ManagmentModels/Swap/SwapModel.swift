@@ -591,12 +591,9 @@ extension SwapModel {
         let amount = makeAmount(value: dexPreview.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: dexPreview.quote)
 
-        let isBitcoinDexSwap: Bool = {
-            guard case .bitcoin = source.tokenItem.blockchain else { return false }
-            return true
-        }()
+        let isPsbtDexSwap = source.tokenItem.blockchain.isPsbtDexSwapSupported
 
-        let restriction = try isBitcoinDexSwap
+        let restriction = try isPsbtDexSwap
             ? validate(amount: amount)
             : validate(amount: amount, fee: fee, quote: quote)
 

@@ -9,10 +9,13 @@ import Foundation
 import BitcoinDevKit
 import TangemSdk
 
-/// PSBT signing helper for BTC-style transactions (p2pkh + segwit-v0 p2wpkh, SIGHASH_ALL only).
+/// PSBT signing helper for BTC-style transactions (p2pkh + segwit-v0 p2wpkh).
+/// Supports BTC-style SIGHASH_ALL (0x01) and Bitcoin Cash SIGHASH_ALL|FORKID (0x41, p2pkh only).
 ///
 /// - Important: BitcoinDevKit Swift bindings do not currently expose mutable PSBT maps.
 ///   We therefore insert `partial_sigs` via `PsbtKeyValueMap`, then finalize the PSBT via `BitcoinDevKit.Psbt.finalize()`.
+///   FORKID inputs are finalized manually instead: BDK (rust-bitcoin) rejects a `partial_sigs`
+///   entry with the non-standard 0x41 sighash byte at PSBT parse time.
 public enum BitcoinPsbtSigningBuilder {
     /// The PSBT inputs whose spending UTXO is locked by one of the wallet's `ownerScriptPubKeys`, paired with that script.
     public static func ownedInputs(psbtBase64: String, ownerScriptPubKeys: Set<Data>) throws -> [(index: Int, scriptPubKey: Data)] {
@@ -83,6 +86,16 @@ public enum BitcoinPsbtSigningBuilder {
     /// Build hashes that must be signed for the given PSBT inputs (sorted by index).
     /// - Note: Returned hashes are double-SHA256 for BTC SIGHASH_ALL.
     public static func hashesToSign(psbtBase64: String, signInputs: [SignInput]) throws -> [Data] {
+        try hashesToSign(psbtBase64: psbtBase64, signInputs: signInputs, signHashType: .bitcoinAll)
+    }
+
+    /// Build hashes that must be signed for the given PSBT inputs (sorted by index).
+    /// - Note: Returned hashes are double-SHA256 for the given `signHashType`.
+    static func hashesToSign(
+        psbtBase64: String,
+        signInputs: [SignInput],
+        signHashType: UTXONetworkParamsSignHashType
+    ) throws -> [Data] {
         guard Data(base64Encoded: psbtBase64) != nil else {
             throw BlockchainSdk.BitcoinError.invalidBase64
         }
@@ -104,7 +117,8 @@ public enum BitcoinPsbtSigningBuilder {
                     txInputs: txInputs,
                     txOutputs: txOutputs,
                     psbtInputs: psbtInputs,
-                    inputIndex: index
+                    inputIndex: index,
+                    signHashType: signHashType
                 )
             )
         }
@@ -119,6 +133,24 @@ public enum BitcoinPsbtSigningBuilder {
         signInputs: [SignInput],
         signatures: [SignatureInfo],
         publicKeys: [Data]
+    ) throws -> String {
+        try applySignaturesAndFinalize(
+            psbtBase64: psbtBase64,
+            signInputs: signInputs,
+            signatures: signatures,
+            publicKeys: publicKeys,
+            signHashType: .bitcoinAll
+        )
+    }
+
+    /// Apply signatures, finalize inputs and return a base64 PSBT.
+    /// - Important: `signatures` and `publicKeys` must align with `signInputs` sorted by index (the `hashesToSign` order).
+    static func applySignaturesAndFinalize(
+        psbtBase64: String,
+        signInputs: [SignInput],
+        signatures: [SignatureInfo],
+        publicKeys: [Data],
+        signHashType: UTXONetworkParamsSignHashType
     ) throws -> String {
         guard let psbtData = Data(base64Encoded: psbtBase64) else {
             throw BlockchainSdk.BitcoinError.invalidBase64
@@ -146,31 +178,46 @@ public enum BitcoinPsbtSigningBuilder {
                 throw BlockchainSdk.BitcoinError.inputIndexOutOfRange(inputIndex)
             }
 
-            // PSBT partial sigs expect DER signature + 1-byte sighash type.
+            // PSBT partial sigs / scriptSig expect DER signature + 1-byte sighash type.
             let der = try signatures[i].der()
-            let sigWithHashType = der + Data([0x01]) // SIGHASH_ALL
+            let sigWithHashType = der + Data([signHashType.value])
 
             do {
-                try psbtMaps.setPartialSignature(
-                    inputIndex: inputIndex,
-                    publicKey: publicKeys[i],
-                    signatureWithSighash: sigWithHashType
-                )
+                switch signHashType {
+                case .bitcoinAll:
+                    try psbtMaps.setPartialSignature(
+                        inputIndex: inputIndex,
+                        publicKey: publicKeys[i],
+                        signatureWithSighash: sigWithHashType
+                    )
+                case .bitcoinCashAll:
+                    let finalScriptSig = OpCode.push(sigWithHashType) + OpCode.push(publicKeys[i])
+                    try psbtMaps.finalizeInput(inputIndex: inputIndex, finalScriptSig: finalScriptSig)
+                }
             } catch let error as BlockchainSdk.BitcoinError {
                 throw BlockchainSdk.BitcoinError.invalidPsbt(error.localizedDescription)
             }
         }
 
-        // Let BitcoinDevKit finalize (fills finalScriptSig/finalScriptWitness when possible).
-        let signedBase64 = psbtMaps.serialize().base64EncodedString()
-        let bdkSigned = try Psbt(psbtBase64: signedBase64)
-        let finalized = bdkSigned.finalize()
+        switch signHashType {
+        case .bitcoinAll:
+            // Let BitcoinDevKit finalize (fills finalScriptSig/finalScriptWitness when possible).
+            let signedBase64 = psbtMaps.serialize().base64EncodedString()
+            let bdkSigned = try Psbt(psbtBase64: signedBase64)
+            let finalized = bdkSigned.finalize()
 
-        guard finalized.couldFinalize else {
-            throw BlockchainSdk.BitcoinError.invalidPsbt("Could not finalize PSBT")
+            guard finalized.couldFinalize else {
+                throw BlockchainSdk.BitcoinError.invalidPsbt("Could not finalize PSBT")
+            }
+
+            return finalized.psbt.serialize()
+        case .bitcoinCashAll:
+            guard (0 ..< inputCount).allSatisfy({ psbtMaps.isInputFinalized(inputIndex: $0) }) else {
+                throw BlockchainSdk.BitcoinError.invalidPsbt("Could not finalize PSBT")
+            }
+
+            return psbtMaps.serialize().base64EncodedString()
         }
-
-        return finalized.psbt.serialize()
     }
 
     /// Single-key convenience: stamps the same `publicKey` on every signed input.
@@ -197,7 +244,8 @@ private extension BitcoinPsbtSigningBuilder {
         txInputs: [BitcoinDevKit.TxIn],
         txOutputs: [BitcoinDevKit.TxOut],
         psbtInputs: [BitcoinDevKit.Input],
-        inputIndex: Int
+        inputIndex: Int,
+        signHashType: UTXONetworkParamsSignHashType
     ) throws -> Data {
         guard txInputs.indices.contains(inputIndex) else {
             throw BlockchainSdk.BitcoinError.inputIndexOutOfRange(inputIndex)
@@ -230,8 +278,8 @@ private extension BitcoinPsbtSigningBuilder {
         let version = UInt32(bitPattern: tx.version())
         let lockTime = tx.lockTime()
 
-        switch scriptType {
-        case .p2pkh:
+        switch (scriptType, signHashType) {
+        case (.p2pkh, .bitcoinAll):
             return try BitcoinSighashBuilder.legacySighashAll(
                 version: version,
                 lockTime: lockTime,
@@ -240,7 +288,18 @@ private extension BitcoinPsbtSigningBuilder {
                 inputIndex: inputIndex,
                 scriptCode: scriptPubKey
             )
-        case .p2wpkh:
+        case (.p2pkh, .bitcoinCashAll):
+            return try BitcoinSighashBuilder.segwitV0Sighash(
+                version: version,
+                lockTime: lockTime,
+                inputs: sighashInputs,
+                outputs: sighashOutputs,
+                inputIndex: inputIndex,
+                scriptCode: scriptPubKey,
+                value: utxo.value.toSat(),
+                sighashType: UInt32(signHashType.value)
+            )
+        case (.p2wpkh, .bitcoinAll):
             let pubKeyHash = scriptPubKey.subdata(in: 2 ..< 22)
             return try BitcoinSighashBuilder.segwitV0SighashAll(
                 version: version,
@@ -251,7 +310,9 @@ private extension BitcoinPsbtSigningBuilder {
                 scriptCode: OpCodeUtils.p2pkh(data: pubKeyHash),
                 value: utxo.value.toSat()
             )
-        case .unsupported(let reason):
+        case (.p2wpkh, .bitcoinCashAll):
+            throw BlockchainSdk.BitcoinError.unsupported("SegWit inputs are not supported for FORKID sighash")
+        case (.unsupported(let reason), _):
             throw BlockchainSdk.BitcoinError.unsupported(reason)
         }
     }

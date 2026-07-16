@@ -33,7 +33,11 @@ extension BitcoinWalletManager: BitcoinPsbtSwapSender {
         }
 
         let signInputs = ownedInputs.map { BitcoinPsbtSigningBuilder.SignInput(index: $0.index) }
-        let hashes = try BitcoinPsbtSigningBuilder.hashesToSign(psbtBase64: psbtBase64, signInputs: signInputs)
+        let hashes = try BitcoinPsbtSigningBuilder.hashesToSign(
+            psbtBase64: psbtBase64,
+            signInputs: signInputs,
+            signHashType: txBuilder.signHashType
+        )
 
         let signData = try zip(ownedInputs, hashes).map { input, hash -> SignData in
             guard let key = owners[input.scriptPubKey] else {
@@ -51,7 +55,8 @@ extension BitcoinWalletManager: BitcoinPsbtSwapSender {
             psbtBase64: psbtBase64,
             signInputs: signInputs,
             signatures: signatures,
-            publicKeys: signData.map(\.publicKey)
+            publicKeys: signData.map(\.publicKey),
+            signHashType: txBuilder.signHashType
         )
 
         let rawTransactionHex = try BitcoinPsbtSigningBuilder.extractRawTransactionHex(finalizedPsbtBase64: signedPsbt)
