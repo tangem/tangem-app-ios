@@ -277,12 +277,7 @@ private extension SwapModel {
                 try Task.checkCancellation()
 
                 guard let state = input.balanceRestrictionHandler.dexOnlyAdjustedState(state) else {
-                    // Mirrors the legacy early exit: no providers UI, and the complementary
-                    // amount is cleared so a previously displayed quote doesn't linger.
-                    // The fallback state is captured first — the clear may nil the amount it reads.
-                    let fallbackState = input.legacyBalanceRestrictionProvidersState()
-                    await input.clearComplementaryAmount()
-                    return input.update(providersState: fallbackState)
+                    return await input.fallbackToLegacyBalanceRestriction()
                 }
 
                 let providersState = try await input.mapToLoadedProvidersState(state: state)
@@ -326,6 +321,17 @@ private extension SwapModel {
         }
 
         return .loaded(.swap(selected: .none, providers: .empty), state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
+    }
+
+    /// [REDACTED_INFO]: the unfunded wallet has no usable DEX for this pair — reproduce the legacy
+    /// early exit: the insufficient-funds error with no providers UI, and no complementary
+    /// amount left over from a previously displayed quote.
+    private func fallbackToLegacyBalanceRestriction() async {
+        // Captured before the clear: for a receive-driven amount the clear
+        // nils the source amount this state is built from
+        let fallbackState = legacyBalanceRestrictionProvidersState()
+        await clearComplementaryAmount()
+        update(providersState: fallbackState)
     }
 
     /// Drops the amount derived from a quote that is no longer displayed
