@@ -13,6 +13,7 @@ import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 final class TransferViewModel: ObservableObject {
     let title = Localization.actionbuttonTransferTitle
@@ -57,8 +58,8 @@ final class TransferViewModel: ObservableObject {
 
         switch option {
         case .sell:
-            guard isSellAvailable() else {
-                showSellUnavailabilityAlert()
+            guard availabilityProvider.isSellAvailable else {
+                showUnavailabilityAlert(for: option)
                 return
             }
             Task { @MainActor in coordinator?.transferRequestSell(walletModel: walletModel, userWalletInfo: userWalletInfo) }
@@ -67,18 +68,19 @@ final class TransferViewModel: ObservableObject {
         case .swapAndSend:
             Task { @MainActor in coordinator?.transferRequestSwapAndSend(walletModel: walletModel, userWalletInfo: userWalletInfo) }
         case .send:
+            guard availabilityProvider.isSendAvailable else {
+                showUnavailabilityAlert(for: option)
+                return
+            }
             Task { @MainActor in coordinator?.transferRequestSend(walletModel: walletModel, userWalletInfo: userWalletInfo) }
         }
     }
 
     func isEnabled(_ option: TransferOption) -> Bool {
         switch option {
-        // Sell/swap/swap-and-send follow the wallet features (`.exchange`/`.swapping`), so wallets that hide
-        // them (e.g. Start2Coin) show the row disabled. Send stays gated by real send availability
-        // (blocked on zero balance and other sending restrictions).
         case .sell: userWalletInfo.config.isFeatureVisible(.exchange)
         case .swap, .swapAndSend: userWalletInfo.config.isFeatureVisible(.swapping)
-        case .send: availabilityProvider.isSendAvailable
+        case .send: true
         }
     }
 
@@ -164,14 +166,17 @@ private extension TransferViewModel {
         )
     }
 
-    func isSellAvailable() -> Bool {
-        availabilityProvider.isSellAvailable
-    }
-
     @MainActor
-    func showSellUnavailabilityAlert() {
-        let status = availabilityProvider.sellAvailability
-        if let alert = TokenActionAvailabilityAlertBuilder().alert(for: status) {
+    func showUnavailabilityAlert(for option: TransferOption) {
+        let builder = TokenActionAvailabilityAlertBuilder()
+
+        let alert: AlertBinder? = switch option {
+        case .send: builder.alert(for: availabilityProvider.sendAvailability)
+        case .sell: builder.alert(for: availabilityProvider.sellAvailability)
+        case .swap, .swapAndSend: nil
+        }
+
+        if let alert {
             alertPresenter.present(alert: alert)
         }
     }
