@@ -16,8 +16,6 @@ enum ExpressExchangeTransactionsTable: AppDatabaseTable {
         switch version {
         case .v1:
             try V1.register(in: database)
-        case .v2:
-            break
         }
     }
 }
