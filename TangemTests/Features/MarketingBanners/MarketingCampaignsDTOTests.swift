@@ -166,6 +166,31 @@ struct MarketingCampaignsDTOTests {
         #expect(raw == "brand_new_type")
     }
 
+    @Test("Campaign dates decode with the production date strategy")
+    func decodesCampaignDates() throws {
+        let json = """
+        {
+          "campaigns": [
+            {
+              "id": 16,
+              "type": "onramp",
+              "priority": 1,
+              "startAt": "2026-08-01T12:00:00.000Z",
+              "endAt": "2026-09-01T12:00:00.500Z",
+              "banner": { "uiType": "standalone", "text": "X", "dismissible": true }
+            }
+          ]
+        }
+        """
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
+        let campaign = try #require(decoder.decode(MarketingCampaignsDTO.Response.self, from: Data(json.utf8)).campaigns.first)
+
+        #expect(campaign.startAt == Date(timeIntervalSince1970: 1_785_585_600))
+        #expect(campaign.endAt == Date(timeIntervalSince1970: 1_788_264_000.5))
+    }
+
     @Test(
         "Campaign survives the encode-decode roundtrip used by the disk cache",
         arguments: ["standalone", "linked_to_provider", "brand_new_type"]
@@ -179,6 +204,8 @@ struct MarketingCampaignsDTOTests {
 
         let campaign = Fixtures.makeCampaign(
             id: 5,
+            startAt: Date(timeIntervalSince1970: 1_785_585_600),
+            endAt: Date(timeIntervalSince1970: 1_788_264_000.5),
             minAmount: Decimal(string: "10.5")!,
             maxAmount: Decimal(string: "1000")!,
             providerIds: ["mercuryo"],
@@ -192,6 +219,8 @@ struct MarketingCampaignsDTOTests {
         let decoded = try JSONDecoder().decode(MarketingCampaignsDTO.Campaign.self, from: data)
 
         #expect(decoded.id == campaign.id)
+        #expect(decoded.startAt == campaign.startAt)
+        #expect(decoded.endAt == campaign.endAt)
         #expect(decoded.minAmount == campaign.minAmount)
         #expect(decoded.maxAmount == campaign.maxAmount)
         #expect(decoded.providerIds == campaign.providerIds)

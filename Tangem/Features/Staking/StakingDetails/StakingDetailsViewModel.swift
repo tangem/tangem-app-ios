@@ -56,7 +56,7 @@ final class StakingDetailsViewModel: ObservableObject {
     private weak var coordinator: StakingDetailsRoutable?
 
     private let deeplinkHandler: PromotionDeeplinkHandler
-    private let marketingNotificationManager = MarketingBannerNotificationManager()
+    private let marketingBannerManager = MarketingBannerManager()
 
     private lazy var balanceFormatter = BalanceFormatter()
     private lazy var percentFormatter = PercentFormatter()
@@ -155,11 +155,11 @@ private extension StakingDetailsViewModel {
     }
 
     func setupMarketingBanners() {
-        marketingNotificationManager.setup(
+        marketingBannerManager.setup(
             bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: tokenItem, kind: .staking)
         )
 
-        marketingNotificationManager.standaloneBannersPublisher
+        marketingBannerManager.standaloneBannersPublisher
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
     }

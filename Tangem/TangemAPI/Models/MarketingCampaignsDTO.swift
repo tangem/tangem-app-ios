@@ -41,6 +41,8 @@ enum MarketingCampaignsDTO {
         let id: Int
         let type: String
         let priority: Int
+        let startAt: Date?
+        let endAt: Date?
         let minAmount: Decimal?
         let maxAmount: Decimal?
         let providerIds: [String]?
