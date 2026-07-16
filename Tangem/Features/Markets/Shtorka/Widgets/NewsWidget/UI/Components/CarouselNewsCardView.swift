@@ -60,51 +60,15 @@ struct CarouselNewsCardView: View {
         Button(action: {
             item.onTap(item.id)
         }) {
-            if FeatureProvider.isAvailable(.redesign) {
-                contentView(for: item)
-                    .redesignNewsCarouselCardBackground()
-                    .opacity(opacity())
-            } else {
-                legacyContentView(for: item)
-                    .frame(width: Layout.MainCard.width, height: Layout.MainCard.height)
-                    .defaultRoundedBackground(
-                        with: Colors.Background.action,
-                        verticalPadding: Layout.MainCard.padding,
-                        horizontalPadding: Layout.MainCard.padding,
-                        cornerRadius: Layout.MainCard.cornerRadius
-                    )
-                    .opacity(opacity())
-            }
+            contentView(for: item)
+                .redesignNewsCarouselCardBackground()
+                .opacity(opacity())
         }
         .buttonStyle(.plain)
         .allowsHitTesting(!isLoading)
     }
 
     // MARK: - Content View
-
-    private func legacyContentView(for item: CarouselNewsItem) -> some View {
-        VStack(spacing: Layout.MainCard.verticalSpacing) {
-            HStack {
-                NewsRatingView(rating: item.rating, timeAgo: item.timeAgo)
-                    .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
-
-                Spacer()
-            }
-
-            FixedSpacer(height: Layout.Spacing.afterRating)
-
-            Text(item.title)
-                .multilineTextAlignment(.leading)
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                .infinityFrame(axis: .horizontal, alignment: .leading)
-                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
-
-            Spacer(minLength: .zero)
-
-            InfoChipsRowView(chips: item.tags)
-                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
-        }
-    }
 
     private func contentView(for item: CarouselNewsItem) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
