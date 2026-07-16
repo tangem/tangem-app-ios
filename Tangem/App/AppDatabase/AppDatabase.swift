@@ -46,6 +46,19 @@ final class AppDatabase {
         protectedDatabaseHandle = OSAllocatedUnfairLock(initialState: nil)
     }
 
+    // MARK: - Helpers
+
+    /// Call early to prepare & warm up the database and avoid heavy IO work on the first database access.
+    func prepare() {
+        DispatchQueue.global(qos: .utility).async {
+            do {
+                _ = try self.databaseHandle
+            } catch {
+                AppLogger.error("Failed to prepare & warm up database", error: error)
+            }
+        }
+    }
+
     // MARK: - File system helpers
 
     /// The database directory is deliberately *included* in backups: this storage is planned
