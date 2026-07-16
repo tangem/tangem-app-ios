@@ -53,7 +53,6 @@ protocol TangemApiService: AnyObject {
 
     func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response
 
-    /// Technical (taapi) and social (LunarCrush) indicator readings per coin, for the "For You" page.
     func loadCoinIndicators(requestModel: CoinIndicatorsDTO.Request) async throws -> CoinIndicatorsDTO.Response
 
     // MARK: - News
