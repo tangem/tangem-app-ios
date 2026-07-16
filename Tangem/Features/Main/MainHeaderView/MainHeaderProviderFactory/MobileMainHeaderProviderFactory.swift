@@ -10,10 +10,10 @@ import Foundation
 
 struct MobileMainHeaderProviderFactory: MainHeaderProviderFactory {
     func makeHeaderBalanceProvider(for model: UserWalletModel) -> MainHeaderBalanceProvider {
-        return CommonMainHeaderBalanceProvider(
+        CommonMainHeaderBalanceProvider(
             totalBalanceProvider: model,
             userWalletStateInfoProvider: model,
-            mainBalanceFormatter: CommonMainHeaderBalanceFormatter()
+            mainBalanceFormatter: MainHeaderBalanceFormatter()
         )
     }
 

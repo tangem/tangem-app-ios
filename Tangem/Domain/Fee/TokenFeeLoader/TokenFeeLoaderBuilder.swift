@@ -40,6 +40,10 @@ struct TokenFeeLoaderBuilder {
             )
         }
 
+        if case .bitcoin = tokenItem.blockchain {
+            return CommonBitcoinTokenFeeLoader(tokenItem: tokenItem, tokenFeeLoader: tokenFeeLoader)
+        }
+
         return tokenFeeLoader
     }
 
@@ -49,18 +53,10 @@ struct TokenFeeLoaderBuilder {
             return nil
         }
 
-        if FeatureProvider.isAvailable(.gaslessDexAndApprove) {
-            return CommonGaslessTokenFeeLoader(
-                tokenItem: tokenItem,
-                feeToken: feeToken,
-                gaslessTransactionFeeProvider: gaslessTransactionFeeProvider
-            )
-        } else {
-            return LegacyGaslessTokenFeeLoader(
-                tokenItem: tokenItem,
-                feeToken: feeToken,
-                gaslessTransactionFeeProvider: gaslessTransactionFeeProvider
-            )
-        }
+        return CommonGaslessTokenFeeLoader(
+            tokenItem: tokenItem,
+            feeToken: feeToken,
+            gaslessTransactionFeeProvider: gaslessTransactionFeeProvider
+        )
     }
 }

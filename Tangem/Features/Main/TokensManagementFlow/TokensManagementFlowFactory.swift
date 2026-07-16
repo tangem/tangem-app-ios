@@ -52,7 +52,12 @@ final class TokensManagementFlowFactory {
                 context: context
             )
         )
-        return ManageTokensViewModel(adapter: adapter, context: context, coordinator: coordinator)
+        return ManageTokensViewModel(
+            adapter: adapter,
+            context: context,
+            coordinator: coordinator,
+            presentsAlertsViaOverlay: true
+        )
     }
 
     func makeAddCustomTokenViewModel(

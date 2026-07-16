@@ -67,8 +67,10 @@ struct BottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier 
         controller.overrideUserInterfaceStyle = UIApplication.topViewController?.overrideUserInterfaceStyle ?? .unspecified
         controller.view.backgroundColor = .clear
 
-        stateObject.viewDidHidden = {
-            hideController()
+        // Capturing `self` here would form a cycle (stateObject → viewDidHidden → modifier copy → stateObject),
+        // so the closure captures only the state/binding boxes and the state object weakly
+        stateObject.viewDidHidden = { [_controller, _item, weak stateObject] in
+            Self.hideController(controller: _controller, item: _item, stateObject: stateObject)
         }
 
         // Save the controller for dismiss it when it will be needed
@@ -84,6 +86,14 @@ struct BottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier 
     }
 
     private func hideController() {
+        Self.hideController(controller: _controller, item: _item, stateObject: stateObject)
+    }
+
+    private static func hideController(
+        controller: State<UIHostingController<Sheet>?>,
+        item: Binding<Item?>,
+        stateObject: Sheet.StateObject?
+    ) {
         // If we have a first responder
         // Will be better to dismiss the UIViewController with animation
         // Because it provides a good animation for opening the keyboard
@@ -92,11 +102,11 @@ struct BottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier 
 
         let hasFirstResponder = UIResponder.current != nil
 
-        controller?.dismiss(animated: hasFirstResponder) {
+        controller.wrappedValue?.dismiss(animated: hasFirstResponder) {
             // We should deinit controller to avoid unnecessary call update(item:) method
-            controller = nil
-            item = nil
-            stateObject.viewDidHidden = {}
+            controller.wrappedValue = nil
+            item.wrappedValue = nil
+            stateObject?.viewDidHidden = {}
         }
     }
 }

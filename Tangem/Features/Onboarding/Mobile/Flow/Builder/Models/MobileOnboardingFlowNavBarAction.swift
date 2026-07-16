@@ -23,12 +23,8 @@ enum MobileOnboardingFlowNavBarAction {
     func view() -> some View {
         switch self {
         case .back(let handler):
-            BackButton(
-                height: OnboardingLayoutConstants.navbarSize.height,
-                isVisible: true,
-                isEnabled: true,
-                action: handler
-            )
+            NavigationBarButton.back(action: handler)
+                .redesigned()
         case .close(let handler):
             CloseTextButton(action: handler)
                 .padding(.leading, 16)
