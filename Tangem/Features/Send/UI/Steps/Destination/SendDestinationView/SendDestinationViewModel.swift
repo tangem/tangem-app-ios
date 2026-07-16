@@ -159,7 +159,11 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
         Publishers
             .CombineLatest(interactor.destinationError, hasContactMatchesSubject)
-            .map { error, hasContactMatches -> String? in hasContactMatches ? nil : error }
+            .map { error, hasContactMatches -> String? in
+                guard let error else { return nil }
+                if hasContactMatches, case .invalidAddress = error { return nil }
+                return error.localizedDescription
+            }
             .map { error -> AnyPublisher<String?, Never> in
                 guard let error else {
                     return .just(output: nil)
