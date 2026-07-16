@@ -20,7 +20,7 @@ struct OnrampRedirectSettingsBuilderTests {
 
         let settings = builder.make(provider: provider, theme: .light)
 
-        #expect(settings.redirectURL == "\(IncomingActionConstants.onrampRedirectURL)/moonpay")
+        #expect(settings.redirectURL.absoluteString == "\(IncomingActionConstants.onrampRedirectURL)/moonpay")
     }
 
     @Test("Light theme is forwarded as-is")

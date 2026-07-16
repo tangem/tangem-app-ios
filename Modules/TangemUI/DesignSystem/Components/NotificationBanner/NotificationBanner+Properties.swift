@@ -11,39 +11,38 @@ import TangemAssets
 
 public extension NotificationBanner {
     enum BannerType: Equatable, Sendable {
-        case status(Content)
-        case critical(Content, BannerAction)
-        case warning(Content, BannerAction)
-        case promo(Content, BannerAction, CloseAction, Effect)
-        case survey(TextOnly, BannerAction, CloseAction)
-        case informational(TextOnly, BannerAction, CloseAction, BannerTextAlignment = .center)
+        case status(Content, BannerAction = .buttons(.none), CloseAction? = nil)
+        case critical(Content, BannerAction, CloseAction? = nil)
+        case warning(Content, BannerAction, CloseAction? = nil)
+        case promo(Content, BannerAction, CloseAction?, Effect, BannerTextAlignment = .center)
+        case survey(TextOnly, BannerAction, CloseAction?)
+        case informational(TextOnly, BannerAction, CloseAction?, BannerTextAlignment = .center)
 
         var content: Content {
             switch self {
-            case .status(let c), .critical(let c, _), .warning(let c, _), .promo(let c, _, _, _): c
+            case .status(let c, _, _), .critical(let c, _, _), .warning(let c, _, _), .promo(let c, _, _, _, _): c
             case .survey(let text, _, _), .informational(let text, _, _, _): .text(text)
             }
         }
 
         var bannerAction: BannerAction {
             switch self {
-            case .status: .buttons(.none)
-            case .critical(_, let a), .warning(_, let a),
-                 .promo(_, let a, _, _), .survey(_, let a, _), .informational(_, let a, _, _): a
+            case .status(_, let a, _), .critical(_, let a, _), .warning(_, let a, _),
+                 .promo(_, let a, _, _, _), .survey(_, let a, _), .informational(_, let a, _, _): a
             }
         }
 
         var closeAction: CloseAction? {
             switch self {
-            case .status, .critical, .warning: nil
-            case .promo(_, _, let a, _), .survey(_, _, let a), .informational(_, _, let a, _): a
+            case .status(_, _, let a), .critical(_, _, let a), .warning(_, _, let a),
+                 .promo(_, _, let a, _, _), .survey(_, _, let a), .informational(_, _, let a, _): a
             }
         }
 
         var textAlignment: BannerTextAlignment {
             switch self {
-            case .status, .critical, .warning, .promo, .survey: .center
-            case .informational(_, _, _, let alignment): alignment
+            case .status, .critical, .warning, .survey: .center
+            case .promo(_, _, _, _, let alignment), .informational(_, _, _, let alignment): alignment
             }
         }
 
@@ -51,12 +50,21 @@ public extension NotificationBanner {
             switch self {
             case .status, .survey, .informational: .none
             case .critical, .warning: .bannerWarning
-            case .promo(_, _, _, let effect): effect
+            case .promo(_, _, _, let effect, _): effect
+            }
+        }
+
+        var borderColor: Color {
+            switch self {
+            case .status, .survey, .informational:
+                return .Tangem.Border.Neutral.banner.opacity(0.15)
+            case .critical, .warning, .promo:
+                return .clear
             }
         }
 
         var isClosable: Bool {
-            isStackable
+            closeAction != nil
         }
 
         var isStackable: Bool {
@@ -72,11 +80,13 @@ public extension NotificationBanner {
     enum Content: Equatable, Sendable {
         case text(TextOnly)
         case textWithIcon(TextWithIcon)
+        case textWithLoadableIcon(TextWithLoadableIcon)
 
         public var text: TextOnly {
             switch self {
             case .text(let textOnly): textOnly
             case .textWithIcon(let data): data.text
+            case .textWithLoadableIcon(let data): data.text
             }
         }
 
@@ -87,6 +97,11 @@ public extension NotificationBanner {
                 return CGSize(
                     width: textWithIcon.icon.width.value,
                     height: textWithIcon.icon.height.value
+                )
+            case .textWithLoadableIcon(let data):
+                return CGSize(
+                    width: data.icon.width.value,
+                    height: data.icon.height.value
                 )
             }
         }
@@ -122,6 +137,9 @@ public extension NotificationBanner {
         public let imageType: ImageType
         public let alignment: Alignment
         public let renderingMode: Image.TemplateRenderingMode?
+        public let color: Color?
+        /// Overrides the horizontal icon side; `nil` keeps the `BannerType` default (leading for promo, trailing otherwise).
+        public let isLeading: Bool?
         public let width: SizeUnit
         public let height: SizeUnit
 
@@ -130,10 +148,43 @@ public extension NotificationBanner {
             alignment: Alignment = .top,
             width: SizeUnit = .x7,
             height: SizeUnit = .x7,
-            renderingMode: Image.TemplateRenderingMode? = nil
+            renderingMode: Image.TemplateRenderingMode? = nil,
+            color: Color? = nil,
+            isLeading: Bool? = nil
         ) {
             self.imageType = imageType
             self.renderingMode = renderingMode
+            self.color = color
+            self.isLeading = isLeading
+            self.alignment = alignment
+            self.width = width
+            self.height = height
+        }
+    }
+
+    struct TextWithLoadableIcon: Equatable, Sendable {
+        public let text: TextOnly
+        public let icon: LoadableIcon
+
+        public init(text: TextOnly, icon: LoadableIcon) {
+            self.text = text
+            self.icon = icon
+        }
+    }
+
+    struct LoadableIcon: Equatable, Sendable {
+        public let url: URL
+        public let alignment: Alignment
+        public let width: SizeUnit
+        public let height: SizeUnit
+
+        public init(
+            url: URL,
+            alignment: Alignment = .topLeading,
+            width: SizeUnit = .x6,
+            height: SizeUnit = .x6
+        ) {
+            self.url = url
             self.alignment = alignment
             self.width = width
             self.height = height
@@ -196,8 +247,9 @@ public extension NotificationBanner {
 
 public extension NotificationBanner {
     enum Priority: Int, Comparable, Equatable, Sendable {
-        case low = 0
-        case high = 1
+        case low = 1
+        case mid = 2
+        case high = 3
 
         public static func < (lhs: Priority, rhs: Priority) -> Bool {
             lhs.rawValue < rhs.rawValue

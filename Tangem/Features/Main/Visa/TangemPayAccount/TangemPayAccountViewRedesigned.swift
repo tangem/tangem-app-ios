@@ -31,14 +31,14 @@ private struct TangemPayAccountTile: View {
     @ScaledMetric private var iconSize: CGFloat = 40
     @ScaledMetric private var cachedIconSize: CGFloat = 16
     @ScaledMetric private var cachedIndicatorSpacing: CGFloat = 6
-    @ScaledSize private var loaderSize = CGSize(width: 40, height: 12)
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
         Button(action: onTap) {
             content
                 .padding(state.isSkeleton ? .zero : .unit(.x3))
                 .background(Color.Tangem.Surface.level3)
-                .cornerRadiusContinuous(.unit(.x5))
+                .cornerRadiusContinuous(.unit(.x6))
                 .opacity(state.isFullyVisible ? 1 : Constants.dimmedOpacity)
         }
         .buttonStyle(.defaultScaled)
@@ -51,7 +51,7 @@ private struct TangemPayAccountTile: View {
         case .skeleton:
             TangemTwoLineRowSkeletonView()
 
-        case .normal(_, let balance), .cardDeactivated(let balance), .replacingCard(let balance):
+        case .normal(_, let balance, _), .cardDeactivated(let balance), .replacingCard(let balance):
             balanceRow(subtitle: state.subtitle, balance: balance, showsCachedIndicator: false)
 
         case .failedToIssueCard:
@@ -138,13 +138,17 @@ private struct TangemPayAccountTile: View {
             }
 
             LoadableBalanceView(
-                state: TangemPayAccountTile.applyDecimalColoring(balance),
+                state: AttributedBalanceFormatter.decimalColored(
+                    balance,
+                    integerPart: AttributedBalanceFormatter.PartStyle(font: nil, color: TangemPayAccountTile.balanceIntegerColor),
+                    fractionalPart: AttributedBalanceFormatter.PartStyle(font: nil, color: TangemPayAccountTile.balanceDecimalColor)
+                ),
                 style: LoadableBalanceView.Style(
                     font: TangemPayAccountTile.balanceFont,
                     textColor: TangemPayAccountTile.balanceIntegerColor
                 ),
                 loader: LoadableBalanceView.LoaderStyle(
-                    size: loaderSize,
+                    size: CGSize(width: 40, height: 12) * scaleFactor,
                     cornerRadiusStyle: .capsule
                 )
             )
@@ -190,36 +194,7 @@ private extension TangemPayAccountTile {
         static let dimmedOpacity: Double = 0.6
     }
 
-    static let balanceFont: Font = TangemRowConstants.Style.Title.font
+    static let balanceFont = TangemRowConstants.Style.Title.font
     static let balanceIntegerColor: Color = .Tangem.Text.Neutral.primary
     static let balanceDecimalColor: Color = .Tangem.Text.Neutral.secondary
-
-    static func applyDecimalColoring(_ state: LoadableBalanceView.State) -> LoadableBalanceView.State {
-        switch state {
-        case .loaded(let text):
-            return .loaded(text: recolor(text))
-        case .loading(let cached):
-            return .loading(cached: cached.map(recolor))
-        case .failed(let cached, let icon):
-            return .failed(cached: recolor(cached), icon: icon)
-        }
-    }
-
-    private static func recolor(_ text: LoadableBalanceView.Text) -> LoadableBalanceView.Text {
-        switch text {
-        case .string(let raw):
-            return .attributed(format(raw))
-        case .attributed, .builder:
-            return text
-        }
-    }
-
-    private static func format(_ raw: String) -> AttributedString {
-        TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
-            raw,
-            font: balanceFont,
-            integerColor: balanceIntegerColor,
-            decimalColor: balanceDecimalColor
-        )
-    }
 }

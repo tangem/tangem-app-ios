@@ -122,3 +122,16 @@ struct MultiNetworkProviderError: UniversalError {
         networkError.errorCode
     }
 }
+
+// MARK: - Error+
+
+public extension Error {
+    /// The RPC host the underlying multi-provider request last failed on, formatted for analytics.
+    var lastRetryHostForAnalytics: String? {
+        guard let providerError = self as? MultiNetworkProviderError else {
+            return nil
+        }
+
+        return HostAnalyticsFormatterUtil().formattedHost(from: providerError.lastRetryHost)
+    }
+}

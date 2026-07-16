@@ -13,6 +13,8 @@ import BlockchainSdk
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemMacro
+import TangemAccessibilityIdentifiers
 import class TangemSdk.BiometricsUtil
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
@@ -27,7 +29,21 @@ final class DetailsViewModel: ObservableObject {
 
     // MARK: - View State
 
-    @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
+    var topSectionTypes: [TopSectionType] {
+        var types: [TopSectionType] = []
+        if let walletConnectRowViewModel {
+            types.append(.walletConnect(walletConnectRowViewModel))
+        }
+
+        if let addressBookRowViewModel {
+            types.append(.addressBook(addressBookRowViewModel))
+        }
+
+        return types
+    }
+
+    @Published private var walletConnectRowViewModel: WalletConnectRowViewModel?
+    @Published private var addressBookRowViewModel: AddressBookRowViewModel?
 
     @Published var getSectionViewModels: [DefaultRowViewModel] = []
     @Published var appSettingsViewModel: DefaultRowViewModel?
@@ -124,7 +140,7 @@ private extension DetailsViewModel {
         switch (hasVisaCards, hasTangemCards) {
         case (true, true):
             let contactTangemSupportButton = ConfirmationDialogViewModel.Button(title: Localization.commonContactTangemSupport) { [weak self] in
-                self?.openTangemSupport(models: tangemUserWalletModels)
+                self?.openSupportTypeSelection(userWalletModels: tangemUserWalletModels)
             }
 
             let contactVisaSupportButton = ConfirmationDialogViewModel.Button(title: Localization.commonContactVisaSupport) { [weak self] in
@@ -144,7 +160,7 @@ private extension DetailsViewModel {
             openVisaSupport(models: visaUserWalletModels)
 
         case (false, true), (false, false):
-            openTangemSupport(models: tangemUserWalletModels)
+            openSupportTypeSelection(userWalletModels: tangemUserWalletModels)
         }
     }
 
@@ -190,18 +206,33 @@ private extension DetailsViewModel {
         coordinator?.openShop()
     }
 
+    func openAddressBook() {
+        coordinator?.openAddressBook()
+    }
+
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType) {
         coordinator?.openGetTangemPay(availableSelection: availableSelection)
         Analytics.log(.visaOnboardingVisaPermanentButtonClicked)
     }
 
-    func openSupportChat() {
-        guard selectedUserWalletModel != nil else {
+    func openSupportTypeSelection(userWalletModels: [UserWalletModel]) {
+        guard FeatureProvider.isAvailable(.supportChat) else {
+            openTangemSupport(models: userWalletModels)
             return
         }
 
-        Analytics.log(.settingsButtonChat)
+        coordinator?.openSupportTypeSelection(
+            emailAction: { [weak self] in
+                self?.openTangemSupport(models: userWalletModels)
+            },
+            chatInput: makeSupportChatInput(source: .settings)
+        )
+    }
 
+    private func makeSupportChatInput(
+        source: Analytics.SupportChatSource,
+        initialMessage: SupportInitialMessage? = nil
+    ) -> SupportChatInputModel {
         let data = userWalletRepository.models.map {
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
@@ -209,13 +240,17 @@ private extension DetailsViewModel {
             )
         }
 
-        let dataCollector = DetailsFeedbackDataCollector(
-            data: data
-        )
+        let dataCollector = DetailsFeedbackDataCollector(data: data)
 
-        coordinator?.openSupportChat(input: .init(
-            logsComposer: .init(infoProvider: dataCollector)
-        ))
+        let userIdentifier = selectedUserWalletModel
+            .map { $0.userWalletId.stringValue.lowercased() }
+
+        return SupportChatInputModel(
+            logsComposer: LogsComposer(infoProvider: dataCollector),
+            userIdentifier: userIdentifier,
+            source: source,
+            initialMessage: initialMessage
+        )
     }
 
     func openTOS() {
@@ -244,6 +279,7 @@ private extension DetailsViewModel {
 private extension DetailsViewModel {
     func setupView() {
         setupWalletConnectRowViewModel()
+        setupAddressBookRowViewModel()
         setupUserWalletViewModels()
         setupGetSectionViewModels()
         setupAppSettingsViewModel()
@@ -322,6 +358,17 @@ private extension DetailsViewModel {
         )
     }
 
+    func setupAddressBookRowViewModel() {
+        guard FeatureProvider.isAvailable(.addressBook) else {
+            addressBookRowViewModel = nil
+            return
+        }
+
+        addressBookRowViewModel = AddressBookRowViewModel { [weak self] in
+            self?.openAddressBook()
+        }
+    }
+
     func setupUserWalletViewModels() {
         userWalletRows = userWalletRepository.models.map { userWallet in
             let viewModel = SettingsUserWalletRowViewModel(
@@ -364,6 +411,7 @@ private extension DetailsViewModel {
         var models = [
             DefaultRowViewModel(
                 title: Localization.detailsBuyWallet,
+                accessibilityIdentifier: DetailsAccessibilityIdentifiers.buyWalletButton,
                 action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
             ),
         ]
@@ -386,6 +434,7 @@ private extension DetailsViewModel {
     func setupAppSettingsViewModel() {
         appSettingsViewModel = DefaultRowViewModel(
             title: Localization.appSettingsTitle,
+            accessibilityIdentifier: DetailsAccessibilityIdentifiers.appSettings,
             action: weakify(self, forFunction: DetailsViewModel.openAppSettings)
         )
     }
@@ -394,10 +443,12 @@ private extension DetailsViewModel {
         supportSectionModels = [
             DefaultRowViewModel(
                 title: Localization.commonContactSupport,
+                accessibilityIdentifier: DetailsAccessibilityIdentifiers.contactSupport,
                 action: weakify(self, forFunction: DetailsViewModel.selectSupport)
             ),
             DefaultRowViewModel(
                 title: Localization.disclaimerTitle,
+                accessibilityIdentifier: DetailsAccessibilityIdentifiers.termsOfService,
                 action: weakify(self, forFunction: DetailsViewModel.openTOS)
             ),
         ]
@@ -416,13 +467,25 @@ private extension DetailsViewModel {
     }
 
     func addOrScanNewUserWallet() {
-        isScanning = true
-
         Analytics.log(
             .buttonAddWallet,
             params: [.source: .settings],
             contextParams: .empty
         )
+
+        if FeatureProvider.isAvailable(.mobileWalletMultiCreation) {
+            addNewUserWallet()
+        } else {
+            scanNewUserWallet()
+        }
+    }
+
+    func addNewUserWallet() {
+        coordinator?.openAddWallet()
+    }
+
+    func scanNewUserWallet() {
+        isScanning = true
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -705,6 +768,12 @@ private extension DetailsViewModel {
 }
 
 extension DetailsViewModel {
+    @RawCaseName
+    enum TopSectionType: Identifiable {
+        case walletConnect(WalletConnectRowViewModel)
+        case addressBook(AddressBookRowViewModel)
+    }
+
     struct UserWalletRowModel: Identifiable {
         var id: UserWalletId { userWalletId }
         let userWalletId: UserWalletId

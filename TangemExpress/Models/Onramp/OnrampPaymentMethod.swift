@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 public struct OnrampPaymentMethod: Hashable {
     public let id: String
     public let name: String

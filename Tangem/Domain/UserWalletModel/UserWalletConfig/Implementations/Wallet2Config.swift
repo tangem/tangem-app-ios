@@ -341,7 +341,7 @@ extension Wallet2Config: UserWalletConfig {
         case "AF990023", "AF990024", "AF990025", "AF990065", "AF990066", "AF990067":
             return cardsCount == 2 ? Assets.Cards.electraSeaDouble : Assets.Cards.electraSeaTriple
         // Hyper Blue summer collection
-        case "AF990026", "AF990027", "AF990028", "AF990050", "AF990051", "AF990052":
+        case "AF990026", "AF990027", "AF990028", "AF990050", "AF990051", "AF990052", "AF990081", "AF990082", "AF990083":
             return cardsCount == 2 ? Assets.Cards.hyperBlueDouble : Assets.Cards.hyperBlueTriple
         // Winter Sakura
         case "AF990053", "AF990054", "AF990055", "AF990074", "AF990075", "AF990076":
@@ -612,7 +612,7 @@ extension Wallet2Config: UserWalletConfig {
                 ? .twoCards(.init(card: CC.electraSea, secondCard: CC.electraSea2))
                 : .threeCards(.init(card: CC.electraSea, secondCard: CC.electraSea2, thirdCard: CC.electraSea3))
         // Hyper Blue
-        case "AF990026", "AF990027", "AF990028", "AF990050", "AF990051", "AF990052":
+        case "AF990026", "AF990027", "AF990028", "AF990050", "AF990051", "AF990052", "AF990081", "AF990082", "AF990083":
             return cardsCount == 2
                 ? .twoCards(.init(card: CC.hyperBlue, secondCard: CC.hyperBlue2))
                 : .threeCards(.init(card: CC.hyperBlue, secondCard: CC.hyperBlue2, thirdCard: CC.hyperBlue3))
@@ -881,7 +881,7 @@ private extension Wallet2Config {
     /// Return extra default blockchains for certain cards/promo campaigns
     func extraDefaultBlockchains(isTestnet: Bool, card: CardDTO) -> [Blockchain] {
         switch card.batchId {
-        case "BB000053" where FeatureProvider.isAvailable(.adiMainScreenDefault):
+        case "BB000053":
             return [.adi(testnet: isTestnet)]
         default:
             return []

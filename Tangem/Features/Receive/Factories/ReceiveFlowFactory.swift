@@ -13,7 +13,7 @@ struct ReceiveFlowFactory {
     private let flow: ReceiveFlow
     private let tokenItem: TokenItem
     private let addressTypesProvider: ReceiveAddressTypesProvider
-    private let coordinator: ReceiveFlowCoordinator?
+    private weak var coordinator: ReceiveFlowCoordinator?
 
     // MARK: - Init
 

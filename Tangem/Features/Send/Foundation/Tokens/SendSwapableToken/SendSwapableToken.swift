@@ -9,7 +9,9 @@
 import Foundation
 import TangemExpress
 
-protocol SendSwapableToken: SendSourceToken, ExpressSourceWallet {
+typealias SendWithSwapToken = SendSwapableToken
+
+protocol SendSwapableToken: SendTransferableToken, ExpressSourceWallet {
     var isExemptFee: Bool { get }
 
     var swapAvailabilityProvider: any SwapAvailabilityProvider { get }
@@ -17,7 +19,6 @@ protocol SendSwapableToken: SendSourceToken, ExpressSourceWallet {
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { get }
 
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { get }
-    var expressTransactionValidator: ExpressTransactionValidator { get }
 
     var sendYieldModuleHelper: SendYieldModuleHelper? { get }
 }
@@ -25,6 +26,10 @@ protocol SendSwapableToken: SendSourceToken, ExpressSourceWallet {
 // MARK: ExpressSourceWallet + SendSourceToken
 
 extension ExpressSourceWallet where Self: SendSwapableToken {
+    var walletInfo: ExpressWalletInfo {
+        ExpressWalletInfo(id: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode?.rawValue)
+    }
+
     var address: String? { defaultAddressString }
     var extraId: String? { .none }
     var currency: ExpressWalletCurrency { tokenItem.expressCurrency }

@@ -48,8 +48,8 @@ struct NewsArticleContentView<AdditionalContent: View>: View {
                 Text(article.content)
                     .style(
                         FeatureProvider.isAvailable(.redesign)
-                            ? .Tangem.Body16.medium
-                            : Fonts.Regular.body,
+                            ? Font.Tangem.Body16.medium
+                            : TangemFontStyle(font: Fonts.Regular.body),
                         color: Color.Tangem.Text.Neutral.primary
                     )
                     .padding(.top, 16)

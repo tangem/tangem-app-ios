@@ -106,12 +106,12 @@ struct CarouselNewsView: View {
             FixedSpacer(height: Layout.RedesignAllNewsCard.spacingAfterIcon)
 
             Text(Localization.newsAllNews)
-                .style(.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
 
             FixedSpacer(height: Layout.RedesignAllNewsCard.spacingAfterTitle)
 
             Text(Localization.newsStayInTheLoop)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
 
             Spacer(minLength: .zero)
         }

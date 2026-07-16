@@ -64,6 +64,14 @@ enum PredefinedSwapParameters {
     case deferredPairResolution(source: SendSwapableToken, resolver: MainSwapPairResolver)
 }
 
+/// Swap direction for a token-details entry point. `automatic` defers to the balance-based pair
+/// resolver; `from`/`to` force the current token as source/destination respectively.
+enum SwapDirection {
+    case automatic
+    case from
+    case to
+}
+
 struct PredefinedSellParameters {
     let amount: Decimal
     let destination: String

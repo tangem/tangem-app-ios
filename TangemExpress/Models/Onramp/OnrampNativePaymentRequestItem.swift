@@ -12,20 +12,6 @@ public struct OnrampNativePaymentRequestItem {
     public let paymentToken: String
     public let quoteId: String
     public let userData: UserData
-
-    public init(
-        quotesItem: OnrampQuotesRequestItem,
-        redirectSettings: OnrampRedirectSettings,
-        paymentToken: String,
-        quoteId: String,
-        userData: UserData
-    ) {
-        self.quotesItem = quotesItem
-        self.redirectSettings = redirectSettings
-        self.paymentToken = paymentToken
-        self.quoteId = quoteId
-        self.userData = userData
-    }
 }
 
 public extension OnrampNativePaymentRequestItem {

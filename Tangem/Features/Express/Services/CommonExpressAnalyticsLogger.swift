@@ -32,6 +32,20 @@ extension CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
         )
     }
 
+    func logGasEstimationOverrideError(_ error: any Error) {
+        var params: [Analytics.ParameterKey: String] = [
+            .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
+            .errorMessage: error.localizedDescription,
+        ]
+
+        if let rpcHost = error.lastRetryHostForAnalytics {
+            params[.rpcProvider] = rpcHost
+        }
+
+        Analytics.log(event: .swapGasEstimationOverrideError, params: params)
+    }
+
     func logAppError(_ error: any Error, provider: ExpressProvider) {
         Analytics.log(
             event: .onrampAppErrors,

@@ -23,7 +23,7 @@ enum MainQRDecimalParser {
             return nil
         }
 
-        return Decimal(string: normalized, locale: .posixEnUS)
+        return Decimal(stringValue: normalized)
     }
 
     private static func normalizeDecimalSeparators(in string: String, decimalSeparator: String) -> String {

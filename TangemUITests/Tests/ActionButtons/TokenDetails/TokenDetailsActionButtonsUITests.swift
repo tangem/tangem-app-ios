@@ -41,7 +41,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("Polygon")
-            .tapSwapButton()
+            .tapSwapButtonWhenUnavailable()
 
         waitAndDismissErrorAlert(actionName: "Swap")
     }
@@ -65,7 +65,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("POL (ex-MATIC)")
-            .tapSwapButton()
+            .tapSwapButtonWhenUnavailable()
 
         waitAndDismissErrorAlert(actionName: "Swap")
     }
@@ -100,7 +100,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken("Bitcoin")
-            .waitForActionButtons()
+            .waitForActionButtons(requireSendOrTransfer: false)
             .tapReceiveButton()
             .tapUnderstoodIfNeeded()
             .validateShowQRCodeButtonDisplayed()
@@ -115,18 +115,31 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             clearStorage: true
         )
 
-        let tokenScreen = CreateWalletSelectorScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("Bitcoin")
-            .waitForActionButtons()
+            .waitForActionButtons(requireSendOrTransfer: false)
+            .verifySendUnavailable()
+    }
 
-        tokenScreen
-            .tapSendButton()
-
-        waitAndDismissErrorAlert(
-            actionName: "Send",
-            expectedMessage: "You do not have funds to send"
+    func testTokenDetailsSend_AvailableForFundedToken_UnavailableForEmptyToken() {
+        setAllureId(591)
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true
         )
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .validate(cardType: .wallet2)
+            .tapToken("Bitcoin")
+            .waitForActionButtons(requireSendOrTransfer: false)
+            .verifySendUnavailable()
+            .goBackToMain()
+            .tapToken("Ethereum")
+            .waitForActionButtons()
+            .tapSendButton()
+            .waitForDisplay()
     }
 }

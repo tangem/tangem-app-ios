@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import TangemLocalization
 import AnyCodable
+import TangemLocalization
 
 // https://xrpl.org/docs/references/http-websocket-apis/public-api-methods/transaction-methods/submit/
 

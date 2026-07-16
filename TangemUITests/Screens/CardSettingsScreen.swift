@@ -14,6 +14,7 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
     private lazy var referralButton = button(.referralButton)
     private lazy var deviceSettingsButton = button(.deviceSettings)
     private lazy var addAccountButton = button(.addAccount)
+    private lazy var renameWalletRow = anyElement(.renameWalletRow)
 
     func openReferralProgram() -> ReferralScreen {
         XCTContext.runActivity(named: "Open referral program screen") { _ in
@@ -144,12 +145,37 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
             return self
         }
     }
+
+    @discardableResult
+    func tapRenameWallet() -> WalletRenameAlert {
+        XCTContext.runActivity(named: "Tap wallet rename row") { _ in
+            waitAndAssertTrue(renameWalletRow, "Rename wallet row should be visible")
+            renameWalletRow.waitAndTap()
+            return WalletRenameAlert(app)
+        }
+    }
+
+    @discardableResult
+    func verifyWalletNameDisplayed(_ name: String) -> Self {
+        XCTContext.runActivity(named: "Verify wallet name '\(name)' is displayed on Wallet Settings") { _ in
+            let nameLabel = renameWalletRow.staticTexts[name]
+            waitAndAssertTrue(nameLabel, "Wallet name '\(name)' should be visible inside rename row")
+            return self
+        }
+    }
+
+    private func anyElement(_ element: CardSettingsScreenElement) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(identifier: element.accessibilityIdentifier)
+            .firstMatch
+    }
 }
 
 enum CardSettingsScreenElement: String, UIElement {
     case referralButton
     case deviceSettings
     case addAccount
+    case renameWalletRow
 
     var accessibilityIdentifier: String {
         switch self {
@@ -159,6 +185,8 @@ enum CardSettingsScreenElement: String, UIElement {
             return CardSettingsAccessibilityIdentifiers.deviceSettingsButton
         case .addAccount:
             return AccountsAccessibilityIdentifiers.walletSettingsAddAccountButton
+        case .renameWalletRow:
+            return WalletSettingsAccessibilityIdentifiers.renameWalletRow
         }
     }
 }

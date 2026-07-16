@@ -17,7 +17,7 @@ struct MetricsMarketCapCard: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
 
     var body: some View {
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
                 MetricsValueText(viewModel.record(for: .marketCapitalization)?.recordData)
 
@@ -25,10 +25,14 @@ struct MetricsMarketCapCard: View {
 
                 MetricsInfoLabel(
                     title: Localization.marketsTokenDetailsMarketCapitalization,
-                    action: { viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketCapitalization) }
+                    action: action
                 )
             }
         }
+    }
+
+    private func action() {
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketCapitalization)
     }
 }
 
@@ -51,7 +55,7 @@ struct MetricsTradingVolumeCard: View {
     }
 
     var body: some View {
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
                 titleRow
 
@@ -68,7 +72,7 @@ struct MetricsTradingVolumeCard: View {
 
             Text(Localization.marketsTokenDetailsTradingInterval)
                 .style(
-                    .Tangem.Caption11.medium,
+                    Font.Tangem.Caption11.medium,
                     color: MetricsValueText.color(
                         hasData: viewModel.record(for: .tradingVolume) != nil
                     )
@@ -90,12 +94,13 @@ struct MetricsTradingVolumeCard: View {
 
             MetricsInfoLabel(
                 title: Localization.marketsTokenDetailsTradingVolume,
-                color: color,
-                action: {
-                    viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.tradingVolume)
-                }
+                action: action
             )
         }
+    }
+
+    private func action() {
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.tradingVolume)
     }
 }
 
@@ -105,31 +110,47 @@ struct MetricsFDVCard: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
 
     var body: some View {
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
-                MetricsValueText(viewModel.record(for: .fullyDilutedValuation)?.recordData)
+                VStack(alignment: .leading, spacing: .unit(.x1)) {
+                    titleRow
+
+                    if let recordSubdata = viewModel.record(for: .fullyDilutedValuation)?.recordSubdata {
+                        Text(Localization.marketsTokenDetailsValuationValueInTotal(recordSubdata))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                            .style(Font.Tangem.Caption12.medium, color: .Tangem.Text.Neutral.primary)
+                    }
+                }
 
                 Spacer()
 
-                VStack(alignment: .leading, spacing: .unit(.x1)) {
-                    if let fdvRecord = viewModel.record(for: .fullyDilutedValuation) {
-                        Text(Localization.marketsTokenDetailsValuationValueInTotal(fdvRecord.recordData))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.6)
-                            // `.Tangem.Caption12.semibold` resolves to `.caption.weight(.medium)` in the
-                            // DS — keeping the alias for parity, the visual is already medium-weight.
-                            .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
-                    }
-
-                    MetricsInfoLabel(
-                        title: Localization.marketsTokenDetailsFullyDilutedValuation,
-                        action: {
-                            viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.fullyDilutedValuation)
-                        }
-                    )
-                }
+                MetricsInfoLabel(
+                    title: Localization.marketsTokenDetailsFullyDilutedValuation,
+                    action: action
+                )
             }
         }
+    }
+
+    private var titleRow: some View {
+        HStack(alignment: .top, spacing: .zero) {
+            MetricsValueText(viewModel.record(for: .fullyDilutedValuation)?.recordData)
+
+            Text(Localization.marketsTokenDetailsTradingInterval)
+                .style(
+                    Font.Tangem.Caption11.medium,
+                    color: MetricsValueText.color(
+                        hasData: viewModel.record(for: .fullyDilutedValuation) != nil
+                    )
+                )
+                .padding(.leading, .unit(.x1))
+                .padding(.top, .unit(.x1))
+        }
+    }
+
+    private func action() {
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.fullyDilutedValuation)
     }
 }
 
@@ -167,14 +188,14 @@ struct MetricsCirculatingSupplyCard: View {
     private var circulatingColumn: some View {
         VStack(alignment: .leading, spacing: .unit(.x3)) {
             Text(Localization.marketsTokenDetailsCirculatingSupply)
-                .style(.Tangem.Caption13.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
 
             HStack(alignment: .firstTextBaseline, spacing: .unit(.x1)) {
                 MetricsValueText(redesign.formattedCirculatingSupply)
 
                 Text(redesign.cryptoCurrencyCode)
                     .lineLimit(1)
-                    .style(.Tangem.Heading22.regular, color: .Tangem.Text.Neutral.secondary)
+                    .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.secondary)
             }
         }
     }
@@ -182,7 +203,7 @@ struct MetricsCirculatingSupplyCard: View {
     private var maxSupplyColumn: some View {
         VStack(alignment: .trailing, spacing: .unit(.x3)) {
             Text(Localization.marketsTokenDetailsMaxSupply)
-                .style(.Tangem.Caption13.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
 
             MetricsValueText(redesign.formattedMaxSupply)
         }
@@ -213,7 +234,7 @@ struct MetricsValueText: View {
         Text(value ?? Localization.tokenMarketMetricsNoData)
             .lineLimit(1)
             .minimumScaleFactor(0.6)
-            .style(.Tangem.Heading22.regular, color: Self.color(hasData: value != nil))
+            .style(Font.Tangem.Heading20.semibold, color: Self.color(hasData: value != nil))
     }
 
     static func color(hasData: Bool) -> Color {
@@ -237,7 +258,7 @@ struct MetricsInfoLabel: View {
 
                 Text(title)
                     .lineLimit(1)
-                    .style(.Tangem.Caption12.semibold, color: color)
+                    .style(Font.Tangem.Caption12.semibold, color: color)
             }
         }
         .buttonStyle(.plain)

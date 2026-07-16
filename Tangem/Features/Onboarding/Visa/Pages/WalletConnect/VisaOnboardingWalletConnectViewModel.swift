@@ -13,7 +13,7 @@ import TangemVisa
 import TangemFoundation
 
 class VisaOnboardingWalletConnectViewModel: ObservableObject {
-    private var delegate: VisaOnboardingInProgressDelegate?
+    private weak var delegate: VisaOnboardingInProgressDelegate?
 
     private let statusUpdateTimeIntervalSec: TimeInterval = 10
 

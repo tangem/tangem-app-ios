@@ -118,6 +118,8 @@ extension TransactionDispatcherResult.Error: UniversalError {
             100004005
         case .userCancelled:
             100004006
+        case .feeNotFound:
+            100004007
         }
     }
 }

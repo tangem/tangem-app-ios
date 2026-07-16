@@ -29,11 +29,12 @@ final class CommonCryptoAccountsRepository {
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
     private lazy var storageDidUpdatePublisher: StorageDidUpdatePublisher = storageDidUpdateSubject
         .prepend(()) // An initial value to trigger loading from storage
-        .receiveOnMain()
+        .receive(on: DispatchQueue.global(qos: .userInitiated))
         .withWeakCaptureOf(self)
         .filter { !$0.0.storageController.isMigrationNeeded() } // Wait for migration to complete before emitting any values
         .map { $0.0.persistentStorage.getList() }
         .removeDuplicates()
+        .receiveOnMain()
         .share(replay: 1)
         .eraseToAnyPublisher()
 
@@ -601,7 +602,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
             case .remove(let tokenItem):
                 let updatedTokens = cryptoAccount
                     .tokens
-                    .filter { $0 != tokenItem.toStoredToken() }
+                    .filter { !$0.isEqual(to: tokenItem) }
                 updatedAccount = cryptoAccount.withTokens(updatedTokens)
             case .update(let request):
                 updatedAccount = cryptoAccount
@@ -609,7 +610,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
                     .withTokens(request.tokens)
             case .updateBlockchainNetwork(let blockchainNetwork, let tokenItem):
                 let updatedTokens = cryptoAccount.tokens.map { storedToken in
-                    guard storedToken == tokenItem.toStoredToken() else {
+                    guard storedToken.isEqual(to: tokenItem) else {
                         return storedToken
                     }
 

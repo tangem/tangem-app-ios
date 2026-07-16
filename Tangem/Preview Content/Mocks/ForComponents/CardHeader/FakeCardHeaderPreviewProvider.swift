@@ -96,9 +96,9 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                     balanceProvider: CommonMainHeaderBalanceProvider(
                         totalBalanceProvider: $0,
                         userWalletStateInfoProvider: $0.walletModel,
-                        mainBalanceFormatter: CommonMainHeaderBalanceFormatter()
+                        mainBalanceFormatter: MainHeaderBalanceFormatter()
                     ),
-                    walletTokenSyncProgressProvider: FakeWalletTokenAutoSyncProgressProvider(),
+                    walletAssetsDiscoveryProgressProvider: FakeWalletAssetsDiscoveryProgressProvider(),
                     updatePublisher: $0.updatePublisher
                 )
             }

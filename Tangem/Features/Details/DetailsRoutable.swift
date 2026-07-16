@@ -14,16 +14,18 @@ protocol DetailsRoutable: AnyObject {
     func openWalletSettings(options: UserWalletSettingsCoordinator.InputOptions)
 
     func openOnboardingModal(with input: OnboardingInput)
+    func openAddWallet()
 
     func openAppSettings()
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
-    func openSupportChat(input: SupportChatInputModel)
+    func openSupportTypeSelection(emailAction: @escaping () -> Void, chatInput: SupportChatInputModel)
     func openTOS()
     func openScanCardManual()
     func openShop()
     func openSocialNetwork(url: URL)
 
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType)
+    func openAddressBook()
     func openEnvironmentSetup()
     func openLogs()
     func dismiss()

@@ -28,6 +28,12 @@ actor WebSocketConnection {
         self.timeout = timeout
     }
 
+    deinit {
+        pingTask?.cancel()
+        timeoutTask?.cancel()
+        _sessionWebSocketTask?.cancel()
+    }
+
     func send(_ message: URLSessionWebSocketTask.Message) async throws {
         let webSocketTask = try await setupWebSocketTask()
         BSDKLogger.info(self, "Send: \(message)")
@@ -59,23 +65,21 @@ actor WebSocketConnection {
 private extension WebSocketConnection {
     func startPingTask() {
         pingTask?.cancel()
-        pingTask = Task { [weak self] in
-            guard let self else { return }
+        // Sleep without holding `self` — a strong capture would keep the actor alive
+        // between re-arms, so it could never deallocate while the loop is running
+        pingTask = Task { [weak self, interval = ping.interval] in
+            try await Task.sleep(nanoseconds: UInt64(interval) * NSEC_PER_SEC)
 
-            try await Task.sleep(nanoseconds: UInt64(ping.interval) * NSEC_PER_SEC)
-
-            try await ping()
+            try await self?.ping()
         }
     }
 
     func startTimeoutTask() {
         timeoutTask?.cancel()
-        timeoutTask = Task { [weak self] in
-            guard let self else { return }
-
+        timeoutTask = Task { [weak self, timeout] in
             try await Task.sleep(nanoseconds: UInt64(timeout) * NSEC_PER_SEC)
 
-            await disconnect()
+            await self?.disconnect()
         }
     }
 

@@ -37,15 +37,9 @@ final class CommonExperimentService {
     private var _client: ExperimentClient?
     private var bag: Set<AnyCancellable> = []
 
-    private var isExperimentEnabled: Bool {
-        FeatureProvider.isAvailable(.experimentService)
-    }
-
     // MARK: - Public Implementation
 
     func configure() {
-        guard !AppEnvironment.current.isDebug, isExperimentEnabled else { return }
-
         let config = ExperimentConfigBuilder()
             .automaticExposureTracking(true)
             .fetchOnStart(false)
@@ -58,18 +52,19 @@ final class CommonExperimentService {
     // MARK: - Private Implementation
 
     private func bind() {
-        guard isExperimentEnabled else { return }
-
         userWalletRepository
             .eventProvider
-            .withWeakCaptureOf(self)
-            .sink { manager, event in
-                switch event {
-                case .selected(let userWalletId):
-                    manager.setContext(for: userWalletId)
-                default:
-                    break
+            .compactMap { event -> UserWalletId? in
+                guard case .selected(let userWalletId) = event else {
+                    return nil
                 }
+
+                return userWalletId
+            }
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { manager, userWalletId in
+                manager.setContext(for: userWalletId)
             }
             .store(in: &bag)
     }

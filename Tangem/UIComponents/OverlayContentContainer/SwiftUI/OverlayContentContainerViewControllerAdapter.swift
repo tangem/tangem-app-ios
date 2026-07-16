@@ -33,7 +33,7 @@ extension OverlayContentContainerViewControllerAdapter: OverlayContentContainer 
 
         if FeatureProvider.isAvailable(.redesign) {
             let hostingController = UIHostingController(
-                rootView: VStack(spacing: 0) {
+                rootView: VStack(spacing: .unit(.half)) {
                     GrabberView(style: .redesigned)
                     overlayView
                         .mask {

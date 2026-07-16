@@ -75,6 +75,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory
 
     func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory
+
+    func makeActionButtonsRole() -> ActionButtonsWalletRole
 }
 
 extension UserWalletConfig {
@@ -127,6 +129,10 @@ extension UserWalletConfig {
             ? !hasFeature(.mnemonicBackup)
             : !hasFeature(.backup)
     }
+
+    func makeActionButtonsRole() -> ActionButtonsWalletRole {
+        return ActionButtonsWalletRole(providesHotCryptoTokens: true, forcesActionButtonsRow: false, preselectsUserWalletInBuy: false)
+    }
 }
 
 struct TOU {
@@ -144,7 +150,7 @@ extension UserWalletConfig where Self: CardContainer {
     }
 
     var tangemSigner: TangemSigner {
-        CardSigner(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
+        CardSigner(filter: cardSessionFilter, sdkFactory: self, twinKey: nil)
     }
 
     var isWalletsCreated: Bool {

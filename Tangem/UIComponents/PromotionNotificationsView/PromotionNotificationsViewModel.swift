@@ -12,11 +12,16 @@ import Combine
 final class PromotionNotificationsViewModel: ObservableObject {
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
+    var bannerItems: [NotificationBannerItem] {
+        bannerMapper.mapItems(notificationInputs)
+    }
+
     private let promotionNotificationsManager: PromotionNotificationsManager
     private var currentIndex: Int = 0
     private var isViewVisible = false
     private var carouselScrolledTracked = false
     private var trackedNotificationIds: Set<NotificationViewId> = []
+    private let bannerMapper = MultiWalletNotificationBannerMapper()
     private var bag = Set<AnyCancellable>()
 
     init(promotionNotificationsManager: PromotionNotificationsManager) {

@@ -11,7 +11,7 @@ import TangemAssets
 import TangemFoundation
 import TangemAccessibilityIdentifiers
 
-class CustomRefreshControlStateObject: ObservableObject {
+final class CustomRefreshControlStateObject: ObservableObject {
     typealias State = RefreshScrollViewStateObject.RefreshState
 
     @Published private(set) var progress: CGFloat = 0

@@ -12,4 +12,5 @@ public typealias ExpressAllowanceProvider = AllowanceProvider
 
 public protocol AllowanceProvider {
     func allowanceState(request: ExpressManagerSwappingPairRequest, contractAddress: String, spender: String) async throws -> AllowanceState
+    func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData
 }

@@ -23,15 +23,21 @@ public struct HorizontalChipsView: View {
     private let chips: [Chip]
     @Binding private var selectedId: Chip.ID?
     private let horizontalInset: CGFloat
+    private let verticalInset: CGFloat
+    private let chipHorizontalPadding: CGFloat
 
     public init(
         chips: [Chip],
         selectedId: Binding<Chip.ID?>,
-        horizontalInset: CGFloat = 0
+        horizontalInset: CGFloat = 0,
+        verticalInset: CGFloat = 0,
+        chipHorizontalPadding: CGFloat = 16
     ) {
         self.chips = chips
         _selectedId = selectedId
+        self.verticalInset = verticalInset
         self.horizontalInset = horizontalInset
+        self.chipHorizontalPadding = chipHorizontalPadding
     }
 
     public var body: some View {
@@ -40,7 +46,8 @@ public struct HorizontalChipsView: View {
                 ForEach(chips) { chip in
                     ChipView(
                         title: chip.title,
-                        isSelected: selectedId == chip.id
+                        isSelected: selectedId == chip.id,
+                        horizontalPadding: chipHorizontalPadding
                     ) {
                         if selectedId != chip.id {
                             selectedId = chip.id
@@ -51,6 +58,7 @@ public struct HorizontalChipsView: View {
             .padding(.horizontal, horizontalInset)
         }
         .frame(height: Constants.chipHeight)
+        .padding(.vertical, verticalInset)
         .onAppear(perform: ensureDefaultSelectionIfNeeded)
         .onChange(of: chips) { _ in
             ensureDefaultSelectionIfNeeded()
@@ -69,13 +77,13 @@ extension HorizontalChipsView {
         static let chipHeight: CGFloat = 36
         static let chipCornerRadius: CGFloat = 24
         static let horizontalContentSpacing: CGFloat = 8
-        static let horizontalChipPadding: CGFloat = 16
         static let verticalChipPadding: CGFloat = 8
     }
 
     struct ChipView: View {
         let title: String
         let isSelected: Bool
+        let horizontalPadding: CGFloat
         let action: () -> Void
 
         var body: some View {
@@ -83,7 +91,7 @@ extension HorizontalChipsView {
                 Text(title)
                     .style(Fonts.Bold.subheadline, color: foregroundColor)
                     .lineLimit(1)
-                    .padding(.horizontal, Constants.horizontalChipPadding)
+                    .padding(.horizontal, horizontalPadding)
                     .padding(.vertical, Constants.verticalChipPadding)
                     .frame(height: Constants.chipHeight)
                     .background(

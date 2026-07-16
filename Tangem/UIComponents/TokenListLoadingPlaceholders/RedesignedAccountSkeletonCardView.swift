@@ -9,11 +9,13 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct RedesignedAccountSkeletonCardView: View {
+    @ScaledMetric private var scaleFactor: CGFloat = 1
     @ScaledMetric private var iconDimension: CGFloat = 36
-    @ScaledSize private var topLineSize = CGSize(width: 80, height: 16)
-    @ScaledSize private var bottomLineSize = CGSize(width: 42, height: 12)
+
+    private var isShimmerActive: Bool = true
 
     var body: some View {
         HStack(spacing: 0) {
@@ -28,8 +30,9 @@ struct RedesignedAccountSkeletonCardView: View {
             makeSkeletonsStack(alignment: .trailing)
         }
         .padding(.unit(.x3))
-        .background(Color.Tangem.Surface.level2)
+        .background(Color.Tangem.Surface.level3)
         .cornerRadiusContinuous(.unit(.x5))
+        .environment(\.isSkeletonShimmerActive, isShimmerActive)
     }
 
     private var iconPlaceholder: some View {
@@ -41,13 +44,21 @@ struct RedesignedAccountSkeletonCardView: View {
     private func makeSkeletonsStack(alignment: HorizontalAlignment) -> some View {
         VStack(alignment: alignment, spacing: .unit(.x1_5)) {
             SkeletonView()
-                .frame(size: topLineSize)
+                .frame(size: CGSize(width: 80, height: 16) * scaleFactor)
                 .clipShape(Capsule(style: .continuous))
 
             SkeletonView()
-                .frame(size: bottomLineSize)
+                .frame(size: CGSize(width: 42, height: 12) * scaleFactor)
                 .clipShape(Capsule(style: .continuous))
         }
+    }
+}
+
+// MARK: - Setupable
+
+extension RedesignedAccountSkeletonCardView: Setupable {
+    func setShimmerActive(_ isShimmerActive: Bool) -> Self {
+        map { $0.isShimmerActive = isShimmerActive }
     }
 }
 

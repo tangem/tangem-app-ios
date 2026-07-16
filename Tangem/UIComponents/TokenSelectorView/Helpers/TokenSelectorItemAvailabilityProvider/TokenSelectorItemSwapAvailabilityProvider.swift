@@ -11,8 +11,8 @@ import TangemExpress
 import TangemFoundation
 
 final class TokenSelectorItemSwapAvailabilityProvider {
-    @Injected(\.expressPairsRepository)
-    private var expressPairsRepository: ExpressPairsRepository
+    @Injected(\.swapRepository)
+    private var swapRepository: SwapRepository
 
     private var availableCurrencies: CurrentValueSubject<[ExpressCurrency]?, Never> = .init(nil)
     private var directionSubscription: AnyCancellable?
@@ -22,21 +22,14 @@ final class TokenSelectorItemSwapAvailabilityProvider {
             .withWeakCaptureOf(self)
             .asyncMap { provider, direction in
                 switch direction {
-                case .none:
-                    return .none
                 case .fromSource(.some(let source)):
-                    return await provider
-                        .expressPairsRepository
-                        .getPairs(from: source.expressCurrency)
-                        .map(\.destination)
-                case .fromSource(.none):
+                    return await provider.swapRepository.getPairs(from: source.tokenItem.expressCurrency).map(\.destination)
+
+                case .toDestination(.some(let destination)):
+                    return await provider.swapRepository.getPairs(to: destination.tokenItem.expressCurrency).map(\.source)
+
+                case .none, .fromSource, .toDestination:
                     return .none
-                case .toDestination(let destination):
-                    guard let destination else { return .none }
-                    return await provider
-                        .expressPairsRepository
-                        .getPairs(to: destination.expressCurrency)
-                        .map(\.source)
                 }
             }
             .assign(to: \.availableCurrencies.value, on: self, ownership: .weak)
@@ -73,7 +66,7 @@ private extension TokenSelectorItemSwapAvailabilityProvider {
         availableCurrencies: [ExpressCurrency]?
     ) -> TokenSelectorItem.AvailabilityType {
         let availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
 
@@ -94,7 +87,7 @@ private extension TokenSelectorItemSwapAvailabilityProvider {
 
 extension TokenSelectorItemSwapAvailabilityProvider {
     enum SwapDirection {
-        case fromSource(TokenItem?)
-        case toDestination(TokenItem?)
+        case fromSource(WalletTokenItem?)
+        case toDestination(WalletTokenItem?)
     }
 }

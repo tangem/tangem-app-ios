@@ -12,6 +12,10 @@ extension Analytics {
     enum ParameterValue: String {
         case welcome
         case walletOnboarding = "wallet_onboarding"
+        case control
+        case treatment
+        case zoneOnboarding = "onboarding"
+        case zoneMain = "main"
         case ok = "Ok"
         case error = "Error"
         case on = "On"
@@ -313,6 +317,12 @@ extension Analytics {
 
         case simple
         case detailed
+
+        // MARK: - Choose Provider Options
+
+        case all = "ALL"
+        case cex = "CEX"
+        case dex = "DEX"
 
         // MARK: - Common
 

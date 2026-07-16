@@ -15,9 +15,10 @@ public protocol SelectableSectionRow: View {
     var isSelected: Bool { get }
 }
 
-public struct SelectableSection<Model: Identifiable, Content: SelectableSectionRow>: View {
+public struct SelectableSection<Model: Identifiable, Content: SelectableSectionRow, Accessory: View>: View {
     private let models: [Model]
     private let content: (Model) -> Content
+    private let accessory: (Model) -> Accessory
     private var areSeparatorsEnabled: Bool = true
 
     private var separatorPadding = SeparatorPadding()
@@ -25,9 +26,20 @@ public struct SelectableSection<Model: Identifiable, Content: SelectableSectionR
     public init(
         _ models: [Model],
         @ViewBuilder content: @escaping (Model) -> Content
+    ) where Accessory == EmptyView {
+        self.models = models
+        self.content = content
+        accessory = { _ in EmptyView() }
+    }
+
+    public init(
+        _ models: [Model],
+        @ViewBuilder content: @escaping (Model) -> Content,
+        @ViewBuilder accessory: @escaping (Model) -> Accessory
     ) {
         self.models = models
         self.content = content
+        self.accessory = accessory
     }
 
     public var body: some View {
@@ -38,19 +50,23 @@ public struct SelectableSection<Model: Identifiable, Content: SelectableSectionR
                 let currentIsSelected = rowView.isSelected
                 let shouldShowSeparator = !nextIsSelected && !rowView.isSelected && models.last?.id != model.id
 
-                rowView
-                    .onChange(of: rowView.isSelected) { newValue in
-                        newValue ? FeedbackGenerator.selectionChanged() : ()
-                    }
-                    .overlay(alignment: .bottom) {
-                        if currentIsSelected {
-                            SelectionOverlay()
-                        } else if shouldShowSeparator, areSeparatorsEnabled {
-                            Separator(color: Colors.Stroke.primary)
-                                .padding(.leading, separatorPadding.leading)
-                                .padding(.trailing, separatorPadding.trailing)
+                HStack {
+                    rowView
+                        .onChange(of: rowView.isSelected) { newValue in
+                            newValue ? FeedbackGenerator.selectionChanged() : ()
                         }
-                    }
+                        .overlay(alignment: .bottom) {
+                            if currentIsSelected {
+                                SelectionOverlay()
+                            } else if shouldShowSeparator, areSeparatorsEnabled {
+                                Separator(color: Colors.Stroke.primary)
+                                    .padding(.leading, separatorPadding.leading)
+                                    .padding(.trailing, separatorPadding.trailing)
+                            }
+                        }
+
+                    accessory(model)
+                }
             }
         }
     }

@@ -18,26 +18,21 @@ class SolanaTransactionSigner: Signer {
     let transactionSigner: TransactionSigner
     let walletPublicKey: Wallet.PublicKey
 
-    var subscriptions: Set<AnyCancellable> = []
-
     init(transactionSigner: TransactionSigner, walletPublicKey: Wallet.PublicKey) {
         self.transactionSigner = transactionSigner
         self.walletPublicKey = walletPublicKey
     }
 
     func sign(message: Data, completion: @escaping (Result<Data, Error>) -> Void) {
-        transactionSigner.sign(hash: message, walletPublicKey: walletPublicKey)
-            .sink { result in
-                switch result {
-                case .failure(let error):
-                    completion(.failure(error))
-                case .finished:
-                    break
-                }
-            } receiveValue: { data in
+        // Backed by the async variant: no stored subscription to accumulate or leak
+        Task {
+            do {
+                let data = try await sign(message: message)
                 completion(.success(data))
+            } catch {
+                completion(.failure(error))
             }
-            .store(in: &subscriptions)
+        }
     }
 
     func sign(message: Data) async throws -> Data {

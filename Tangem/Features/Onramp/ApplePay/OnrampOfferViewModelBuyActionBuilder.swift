@@ -42,34 +42,49 @@ struct OnrampOfferViewModelBuyActionBuilder {
         onWillBuy: @escaping () -> Void,
         onWidgetBuy: @escaping () -> Void
     ) -> OnrampOfferViewModel.BuyAction {
-        guard FeatureProvider.isAvailable(.onrampNativePayment) else {
-            return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
-        }
+        let providerId = provider.provider.id
 
         // Native Apple Pay is restricted in some regions; fall back to the web widget there.
         guard geoEligibilityService.isApplePayAllowed else {
+            OnrampLogger.info("[NAP] unavailable for provider \(providerId): Apple Pay restricted (countryCode=\(countryCode))")
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
         // The provider has to declare Apple Pay as its payment method.
         guard provider.paymentMethod.type == .applePay else {
+            OnrampLogger.info("[NAP] unavailable for provider \(providerId): payment method is not Apple Pay (\(provider.paymentMethod.type))")
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
         // Backend must mark the quote as native-payment-eligible and return a usable `quoteId`.
-        guard let quote = provider.quote,
-              quote.nativePaymentAvailable,
-              quote.quoteId != nil else {
+        guard let quote = provider.quote else {
+            OnrampLogger.info("[NAP] unavailable for provider \(providerId): no loaded quote (state \(provider.state))")
+            return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
+        }
+
+        guard quote.nativePaymentAvailable else {
+            OnrampLogger.info("[NAP] unavailable for provider \(providerId): quote nativePaymentAvailable=false")
+            return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
+        }
+
+        guard quote.quoteId != nil else {
+            OnrampLogger.info("[NAP] unavailable for provider \(providerId): quote missing quoteId")
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
         // Need a concrete amount and currency code to build the Apple Pay summary item.
-        guard let amount = provider.amount,
-              let currencyCode = amountInput?.fiatCurrency?.identity.code else {
+        guard let amount = provider.amount else {
+            OnrampLogger.info("[NAP] unavailable for provider \(providerId): missing amount")
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
-        guard let merchantIdentifier = OnrampApplePayConstants.merchantIdentifier(forProviderId: provider.provider.id) else {
+        guard let currencyCode = amountInput?.fiatCurrency?.identity.code else {
+            OnrampLogger.info("[NAP] unavailable for provider \(providerId): missing fiat currency code")
+            return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
+        }
+
+        guard let merchantIdentifier = OnrampApplePayConstants.merchantIdentifier(forProviderId: providerId) else {
+            OnrampLogger.info("[NAP] unavailable for provider \(providerId): no merchant identifier configured")
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 

@@ -35,19 +35,19 @@ extension TransferTransactionDispatcher: TransactionDispatcher {
     }
 
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
-        guard case .transfer(let transferTransaction) = transaction else {
+        guard case .transfer(let bsdkTransaction) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
         let mapper = TransactionDispatcherResultMapper()
 
         do {
-            let result = try await send(transaction: transferTransaction)
+            let result = try await send(transaction: bsdkTransaction)
             walletModel.updateAfterSendingTransaction()
 
             if walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true {
                 walletModel.yieldModuleManager?.sendTransactionSendEvent(
-                    sourceAddress: transferTransaction.sourceAddress,
+                    sourceAddress: bsdkTransaction.sourceAddress,
                     transactionHash: result.hash
                 )
             }

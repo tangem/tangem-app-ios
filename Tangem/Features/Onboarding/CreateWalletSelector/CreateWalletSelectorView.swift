@@ -34,24 +34,12 @@ struct CreateWalletSelectorView: View {
 private extension CreateWalletSelectorView {
     var content: some View {
         VStack(spacing: 0) {
-            NavigationBar(
-                title: "",
-                leftButtons: {
-                    BackButton(
-                        height: viewModel.backButtonHeight,
-                        isVisible: true,
-                        isEnabled: true,
-                        action: viewModel.onBackTap
-                    )
-                }
-            )
-
             ScrollViewReader { proxy in
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 12) {
                         info.padding(.horizontal, 20)
                         tangemIcon
-                        // actions
+                        actions
                     }
                     .padding(.top, 12)
                     .id(scrollToId)
@@ -61,10 +49,9 @@ private extension CreateWalletSelectorView {
                     proxy.scrollTo(scrollToId, anchor: .bottom)
                 }
             }
-
-            // Temporary hide
-            primaryActions
-                .padding(.horizontal, 16)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                navigationBar
+            }
         }
     }
 }
@@ -72,6 +59,14 @@ private extension CreateWalletSelectorView {
 // MARK: - Subviews
 
 private extension CreateWalletSelectorView {
+    var navigationBar: some View {
+        NavigationBarButton.back(action: viewModel.onBackTap)
+            .padding(.leading, .unit(.x4))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .visible(viewModel.showsBackButton)
+            .redesigned()
+    }
+
     var info: some View {
         VStack(spacing: 0) {
             Text(viewModel.title)
