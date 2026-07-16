@@ -10,10 +10,12 @@ import Foundation
 import GRDB
 
 enum ExpressSyncMetadataTable: AppDatabaseTable {
+    static let tableName = "expressSyncMetadata"
+
     static func registerForVersion(_ version: AppDatabaseVersion, in database: Database) throws {
         switch version {
         case .v1:
-            try V1.registerForVersion(version, in: database)
+            try V1.register(in: database)
         case .v2:
             break
         }
@@ -23,17 +25,17 @@ enum ExpressSyncMetadataTable: AppDatabaseTable {
 // MARK: - Individual table versions (V1, V2, V3 and so on)
 
 private extension ExpressSyncMetadataTable {
-    enum V1: AppDatabaseTable {
-        static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
+    enum V1 {
+        static func register(in database: Database) throws {
             try database.create(
-                table: Constants.tableName
+                table: tableName
             ) { table in
                 table.primaryKey([
-                    Constants.ownerAddressColumnName,
-                    Constants.endpointTypeColumnName,
+                    Columns.ownerAddress,
+                    Columns.endpointType,
                 ])
-                table.column(Constants.ownerAddressColumnName, .text).notNull()
-                table.column(Constants.endpointTypeColumnName, .text).notNull()
+                table.column(Columns.ownerAddress, .text).notNull()
+                table.column(Columns.endpointType, .text).notNull()
                 table.column("archiveCursor", .text)
                 table.column("deltaCursor", .text)
                 table.column("isInitialSyncDone", .boolean).notNull().defaults(to: false)
@@ -43,13 +45,12 @@ private extension ExpressSyncMetadataTable {
     }
 }
 
-// MARK: - Constants
+// MARK: - Columns
 
-extension ExpressSyncMetadataTable {
-    /// - Note: only names used twice or more are extracted to constants.
-    enum Constants {
-        static let tableName = "expressSyncMetadata"
-        fileprivate static let ownerAddressColumnName = "ownerAddress"
-        fileprivate static let endpointTypeColumnName = "endpointType"
+private extension ExpressSyncMetadataTable {
+    /// - Note: Only columns used twice or more are extracted to this enum.
+    enum Columns {
+        static let ownerAddress = "ownerAddress"
+        static let endpointType = "endpointType"
     }
 }

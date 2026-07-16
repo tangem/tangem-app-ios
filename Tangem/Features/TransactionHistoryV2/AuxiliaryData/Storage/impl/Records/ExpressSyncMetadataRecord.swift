@@ -29,7 +29,7 @@ extension ExpressSyncMetadataRecord: FetchableRecord {}
 // MARK: - TableRecord protocol conformance
 
 extension ExpressSyncMetadataRecord: TableRecord {
-    static let databaseTableName = ExpressSyncMetadataTable.Constants.tableName
+    static let databaseTableName = ExpressSyncMetadataTable.tableName
 }
 
 // MARK: - PersistableRecord protocol conformance

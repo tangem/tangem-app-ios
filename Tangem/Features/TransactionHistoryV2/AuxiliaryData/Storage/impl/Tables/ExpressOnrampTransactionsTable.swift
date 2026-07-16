@@ -10,10 +10,12 @@ import Foundation
 import GRDB
 
 enum ExpressOnrampTransactionsTable: AppDatabaseTable {
+    static let tableName = "expressOnrampTransactions"
+
     static func registerForVersion(_ version: AppDatabaseVersion, in database: Database) throws {
         switch version {
         case .v1:
-            try V1.registerForVersion(version, in: database)
+            try V1.register(in: database)
         case .v2:
             break
         }
@@ -23,24 +25,24 @@ enum ExpressOnrampTransactionsTable: AppDatabaseTable {
 // MARK: - Individual table versions (V1, V2, V3 and so on)
 
 private extension ExpressOnrampTransactionsTable {
-    enum V1: AppDatabaseTable {
-        static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
+    enum V1 {
+        static func register(in database: Database) throws {
             try database.create(
-                table: Constants.tableName
+                table: tableName
             ) { table in
                 table.primaryKey("id", .text).notNull()
-                table.column(Constants.ownerAddressColumnName, .text).notNull()
+                table.column(Columns.ownerAddress, .text).notNull()
                 table.column("providerID", .text).notNull()
                 table.column("payOutAddress", .text)
                 table.column("status", .text).notNull()
                 table.column("externalTxID", .text)
                 table.column("externalTxURL", .text)
-                table.column(Constants.payOutHashColumnName, .text)
+                table.column(Columns.payOutHash, .text)
                 table.column("fromCurrency", .text).notNull()
                 table.column("fromAmount", .text).notNull()
                 table.column("fromDecimals", .integer)
-                table.column(Constants.toContractColumnName, .text).notNull()
-                table.column(Constants.toNetworkColumnName, .text).notNull()
+                table.column(Columns.toContract, .text).notNull()
+                table.column(Columns.toNetwork, .text).notNull()
                 table.column("toAmount", .text).notNull()
                 table.column("toDecimals", .integer).notNull()
                 table.column("toActualAmount", .text)
@@ -51,42 +53,41 @@ private extension ExpressOnrampTransactionsTable {
 
             try database.create(
                 index: "idxOnOwner",
-                on: Constants.tableName,
+                on: tableName,
                 columns: [
-                    Constants.ownerAddressColumnName,
+                    Columns.ownerAddress,
                 ]
             )
 
             try database.create(
                 index: "idxOnPayOut",
-                on: Constants.tableName,
+                on: tableName,
                 columns: [
-                    Constants.payOutHashColumnName,
+                    Columns.payOutHash,
                 ]
             )
 
             try database.create(
                 index: "idxOnTokenFilter",
-                on: Constants.tableName,
+                on: tableName,
                 columns: [
-                    Constants.toNetworkColumnName,
-                    Constants.toContractColumnName,
-                    Constants.ownerAddressColumnName,
+                    Columns.toNetwork,
+                    Columns.toContract,
+                    Columns.ownerAddress,
                 ]
             )
         }
     }
 }
 
-// MARK: - Constants
+// MARK: - Columns
 
-extension ExpressOnrampTransactionsTable {
-    /// - Note: only names used twice or more are extracted to constants.
-    enum Constants {
-        static let tableName = "expressOnrampTransactions"
-        fileprivate static let ownerAddressColumnName = "ownerAddress"
-        fileprivate static let payOutHashColumnName = "payOutHash"
-        fileprivate static let toNetworkColumnName = "toNetwork"
-        fileprivate static let toContractColumnName = "toContract"
+private extension ExpressOnrampTransactionsTable {
+    /// - Note: Only columns used twice or more are extracted to this enum.
+    enum Columns {
+        static let ownerAddress = "ownerAddress"
+        static let payOutHash = "payOutHash"
+        static let toNetwork = "toNetwork"
+        static let toContract = "toContract"
     }
 }

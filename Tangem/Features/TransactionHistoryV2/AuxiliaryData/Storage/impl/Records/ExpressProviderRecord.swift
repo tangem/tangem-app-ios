@@ -26,6 +26,7 @@ struct ExpressProviderRecord {
 // MARK: - Columns
 
 extension ExpressProviderRecord {
+    /// - Note: Only columns used twice or more are extracted to this enum.
     enum Columns {
         static let id = Column(CodingKeys.id)
     }
@@ -46,7 +47,7 @@ extension ExpressProviderRecord: FetchableRecord {}
 // MARK: - TableRecord protocol conformance
 
 extension ExpressProviderRecord: TableRecord {
-    static let databaseTableName = ExpressProvidersCacheTable.Constants.tableName
+    static let databaseTableName = ExpressProvidersCacheTable.tableName
 }
 
 // MARK: - PersistableRecord protocol conformance

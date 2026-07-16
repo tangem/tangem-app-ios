@@ -33,7 +33,7 @@ extension FiatCurrencyRecord: FetchableRecord {}
 // MARK: - TableRecord protocol conformance
 
 extension FiatCurrencyRecord: TableRecord {
-    static let databaseTableName = FiatCurrenciesCacheTable.Constants.tableName
+    static let databaseTableName = FiatCurrenciesCacheTable.tableName
 }
 
 // MARK: - PersistableRecord protocol conformance

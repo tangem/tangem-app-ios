@@ -50,7 +50,7 @@ extension ExpressOnrampTransactionRecord: FetchableRecord {}
 // MARK: - TableRecord protocol conformance
 
 extension ExpressOnrampTransactionRecord: TableRecord {
-    static let databaseTableName = ExpressOnrampTransactionsTable.Constants.tableName
+    static let databaseTableName = ExpressOnrampTransactionsTable.tableName
 }
 
 // MARK: - PersistableRecord protocol conformance

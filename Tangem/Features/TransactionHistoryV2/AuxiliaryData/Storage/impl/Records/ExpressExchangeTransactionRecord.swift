@@ -47,6 +47,7 @@ struct ExpressExchangeTransactionRecord {
 // MARK: - Columns
 
 extension ExpressExchangeTransactionRecord {
+    /// - Note: Only columns used twice or more are extracted to this enum.
     enum Columns {
         static let providerID = Column(CodingKeys.providerID)
         static let fromNetwork = Column(CodingKeys.fromNetwork)
@@ -71,7 +72,7 @@ extension ExpressExchangeTransactionRecord: FetchableRecord {}
 // MARK: - TableRecord protocol conformance
 
 extension ExpressExchangeTransactionRecord: TableRecord {
-    static let databaseTableName = ExpressExchangeTransactionsTable.Constants.tableName
+    static let databaseTableName = ExpressExchangeTransactionsTable.tableName
 
     static let provider = belongsTo(
         ExpressProviderRecord.self,

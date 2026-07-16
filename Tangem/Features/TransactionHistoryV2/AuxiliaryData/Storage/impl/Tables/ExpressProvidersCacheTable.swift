@@ -10,10 +10,12 @@ import Foundation
 import GRDB
 
 enum ExpressProvidersCacheTable: AppDatabaseTable {
+    static let tableName = "expressProvidersCache"
+
     static func registerForVersion(_ version: AppDatabaseVersion, in database: Database) throws {
         switch version {
         case .v1:
-            try V1.registerForVersion(version, in: database)
+            try V1.register(in: database)
         case .v2:
             break
         }
@@ -23,10 +25,10 @@ enum ExpressProvidersCacheTable: AppDatabaseTable {
 // MARK: - Individual table versions (V1, V2, V3 and so on)
 
 private extension ExpressProvidersCacheTable {
-    enum V1: AppDatabaseTable {
-        static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
+    enum V1 {
+        static func register(in database: Database) throws {
             try database.create(
-                table: Constants.tableName
+                table: tableName
             ) { table in
                 table.primaryKey("id", .text).notNull()
                 table.column("name", .text).notNull()
@@ -40,14 +42,5 @@ private extension ExpressProvidersCacheTable {
                 table.column("updatedAt", .datetime).notNull()
             }
         }
-    }
-}
-
-// MARK: - Constants
-
-extension ExpressProvidersCacheTable {
-    /// - Note: only names used twice or more are extracted to constants.
-    enum Constants {
-        static let tableName = "expressProvidersCache"
     }
 }

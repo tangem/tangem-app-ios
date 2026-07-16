@@ -22,6 +22,7 @@ struct CryptoCurrencyRecord {
 // MARK: - Columns
 
 extension CryptoCurrencyRecord {
+    /// - Note: Only columns used twice or more are extracted to this enum.
     enum Columns {
         static let networkID = Column(CodingKeys.networkID)
         static let contractAddress = Column(CodingKeys.contractAddress)
@@ -39,7 +40,7 @@ extension CryptoCurrencyRecord: FetchableRecord {}
 // MARK: - TableRecord protocol conformance
 
 extension CryptoCurrencyRecord: TableRecord {
-    static let databaseTableName = CryptoCurrenciesCacheTable.Constants.tableName
+    static let databaseTableName = CryptoCurrenciesCacheTable.tableName
 }
 
 // MARK: - PersistableRecord protocol conformance
