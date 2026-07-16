@@ -13,30 +13,46 @@ import TangemUIUtils
 import TangemLocalization
 
 struct ForYouView: View {
-    let onBackButtonAction: () -> Void
+    @ObservedObject var viewModel: ForYouViewModel
 
-    private var backgroundColor: Color {
-        FeatureProvider.isAvailable(.redesign) ? .Tangem.Surface.level2 : Colors.Background.primary
-    }
+    let onBackButtonAction: () -> Void
 
     var body: some View {
         ZStack(alignment: .top) {
             backgroundColor
                 .ignoresSafeArea()
 
-            navigationBar
-                .background {
-                    MarketsNavigationBarBackgroundView(
-                        backdropViewColor: backgroundColor,
-                        overlayContentHidingProgress: 1,
-                        isNavigationBarBackgroundBackdropViewHidden: false,
-                        isListContentObscured: false
-                    )
-                }
-                .infinityFrame(axis: .vertical, alignment: .top)
+            VStack(spacing: 0) {
+                navigationBar
+                    .background {
+                        MarketsNavigationBarBackgroundView(
+                            backdropViewColor: backgroundColor,
+                            overlayContentHidingProgress: 1,
+                            isNavigationBarBackgroundBackdropViewHidden: false,
+                            isListContentObscured: false
+                        )
+                    }
+
+                content
+            }
         }
         .ignoresSafeArea(.container, edges: .top)
     }
+
+    private var backgroundColor: Color {
+        DesignSystem.Color.bgPrimary
+    }
+
+    // MARK: - Content
+
+    private var content: some View {
+        ScrollView {
+            PortfolioReviewView(viewModel: viewModel.portfolioReview)
+                .padding(16)
+        }
+    }
+
+    // MARK: - Navigation bar
 
     private var navigationBar: some View {
         ZStack {
@@ -53,13 +69,5 @@ struct ForYouView: View {
         }
         .padding(.horizontal, 16)
         .frame(height: 64, alignment: .bottom)
-    }
-}
-
-// MARK: - Previews
-
-#Preview {
-    NavigationStack {
-        ForYouView(onBackButtonAction: {})
     }
 }
