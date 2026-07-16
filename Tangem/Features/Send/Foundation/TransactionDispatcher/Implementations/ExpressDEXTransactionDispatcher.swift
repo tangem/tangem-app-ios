@@ -66,6 +66,9 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
                 isToken: walletModel.tokenItem.isToken
             )
 
+        case .bitcoin:
+            return try await sendBitcoinPsbt(data: data)
+
         case let blockchain:
             throw DEXTransactionDispatcherError.dexNotSupported(blockchain: blockchain.displayName)
         }
@@ -99,6 +102,34 @@ private extension ExpressDEXTransactionDispatcher {
         }
 
         return unsignedData
+    }
+
+    func sendBitcoinPsbt(data: ExpressTransactionData) async throws -> TransactionDispatcherResult {
+        guard FeatureProvider.isAvailable(.bitcoinDexSwap) else {
+            throw DEXTransactionDispatcherError.dexNotSupported(blockchain: walletModel.tokenItem.blockchain.displayName)
+        }
+
+        guard let sender = walletModel.bitcoinPsbtSwapSender else {
+            throw TransactionDispatcherResult.Error.actionNotSupported
+        }
+
+        guard let psbtBase64 = data.txData else {
+            throw DEXTransactionDispatcherError.transactionDataForSwapOperationNotFound
+        }
+
+        let transactionSendResult = try await sender.send(
+            psbtBase64: psbtBase64,
+            destination: data.destinationAddress,
+            signer: transactionSigner
+        )
+
+        let mapper = TransactionDispatcherResultMapper()
+        return mapper.mapResult(
+            transactionSendResult,
+            blockchain: walletModel.tokenItem.blockchain,
+            signer: transactionSigner.latestSignerType,
+            isToken: walletModel.tokenItem.isToken
+        )
     }
 }
 

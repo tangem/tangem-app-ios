@@ -48,12 +48,12 @@ public protocol GaslessTransactionFeeProvider {
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee
 
-    /// Estimates the gasless fee for a transaction with pre-built calldata (approve, DEX swap, etc.).
     func getGaslessTransactionFee(
         feeToken: Token,
         destination: String,
         value: String?,
         data: Data?,
+        stateOverride: EthereumStateOverride?,
         otherNativeFee: Decimal?,
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal

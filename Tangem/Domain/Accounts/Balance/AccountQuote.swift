@@ -10,4 +10,5 @@ import Foundation
 
 struct AccountQuote: Hashable {
     let priceChange24h: Decimal?
+    let fiatChange24h: Decimal?
 }

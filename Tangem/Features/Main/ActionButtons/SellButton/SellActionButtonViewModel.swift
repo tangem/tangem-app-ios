@@ -58,17 +58,25 @@ final class SellActionButtonViewModel: ActionButtonViewModel {
         switch viewState {
         case .initial:
             handleInitialStateTap()
-        case .loading, .disabled, .unavailable:
+        case .loading, .disabled, .unavailable, .restricted:
             break
-        case .restricted(let reason):
-            alert = .init(title: "", message: reason)
         case .idle:
             let tokenSelectorViewModel = TokenSelectorViewModel.common(
                 walletsProvider: .standardAccountsOnly(),
-                availabilityProvider: .sell()
+                availabilityProvider: FeatureProvider.isAvailable(.redesign)
+                    ? .always() : .sell(),
+                preferredWalletId: userWalletModel.userWalletId
             )
             coordinator?.openSell(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
         }
+    }
+
+    private func makeTokenSelectorViewModel() -> TokenSelectorViewModel {
+        .common(
+            walletsProvider: .standardAccountsOnly(),
+            availabilityProvider: .sell(),
+            preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel)
+        )
     }
 
     @MainActor
@@ -94,7 +102,7 @@ private extension SellActionButtonViewModel {
 
     func handleFailedStateTap(reason: String) {
         updateState(to: .restricted(reason: reason))
-        tap()
+        showRestrictionReason()
     }
 
     private func handleInitialStateTap() {
@@ -163,7 +171,9 @@ private extension SellActionButtonViewModel {
 
         let tokenSelectorViewModel = TokenSelectorViewModel.common(
             walletsProvider: .standardAccountsOnly(),
-            availabilityProvider: .sell()
+            availabilityProvider: FeatureProvider.isAvailable(.redesign)
+                ? .always() : .sell(),
+            preferredWalletId: userWalletModel.userWalletId
         )
         coordinator?.openSell(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
         isOpeningRequired = false

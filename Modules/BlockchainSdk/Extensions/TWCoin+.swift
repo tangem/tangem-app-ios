@@ -89,6 +89,9 @@ extension CoinType {
             self = .sei
         case .zkLinkNova:
             self = .zkLinkNova
+        case .gonka:
+            // WalletCore doesn't support Gonka yet. But Gonka is similar to cosmos.
+            self = .cosmos
         case .ethereumPoW,
              .disChain,
              .rsk,

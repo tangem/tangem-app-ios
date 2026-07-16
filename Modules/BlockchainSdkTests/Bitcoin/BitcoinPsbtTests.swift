@@ -333,11 +333,333 @@ private enum PsbtTestBuilder {
 
         return data.base64EncodedString()
     }
+
+    static func makePsbtBase64(
+        unsignedTx: Data,
+        witnessUtxos: [Data],
+        outputCount: Int
+    ) -> String {
+        var data = Data([0x70, 0x73, 0x62, 0x74, 0xff])
+
+        data.append(VariantIntEncoder.encode(1))
+        data.append(0x00)
+        data.append(VariantIntEncoder.encode(UInt64(unsignedTx.count)))
+        data.append(unsignedTx)
+        data.append(0x00)
+
+        for witnessUtxo in witnessUtxos {
+            data.append(VariantIntEncoder.encode(1))
+            data.append(0x01)
+            data.append(VariantIntEncoder.encode(UInt64(witnessUtxo.count)))
+            data.append(witnessUtxo)
+            data.append(0x00)
+        }
+
+        for _ in 0 ..< outputCount {
+            data.append(0x00)
+        }
+
+        return data.base64EncodedString()
+    }
 }
 
 private extension FixedWidthInteger {
     var littleEndianData: Data {
         var value = littleEndian
         return withUnsafeBytes(of: &value) { Data($0) }
+    }
+}
+
+// MARK: - Multi-input PSBT swap helpers ([REDACTED_INFO])
+
+struct MultiInputPsbtFixture {
+    struct InputDescriptor {
+        let txid: Data
+        let vout: UInt32
+        let sequence: UInt32
+        let utxoValue: UInt64
+        let scriptPubKey: Data
+        let privateKey: WalletCore.PrivateKey
+        let publicKey: Data
+    }
+
+    struct OutputDescriptor {
+        let value: UInt64
+        let scriptPubKey: Data
+    }
+
+    let psbtBase64: String
+    let version: UInt32
+    let lockTime: UInt32
+    let inputs: [InputDescriptor]
+    let outputs: [OutputDescriptor]
+
+    var ownerScriptPubKeys: Set<Data> {
+        Set(inputs.map(\.scriptPubKey))
+    }
+}
+
+extension MultiInputPsbtFixture {
+    static let input0Value: UInt64 = 120_000
+    static let input1Value: UInt64 = 80_000
+    static let destinationValue: UInt64 = 150_000
+    static let changeValue: UInt64 = 40_000
+    static let expectedFee: UInt64 = 10_000
+    static let expectedSentAmount: UInt64 = 150_000
+
+    static let twoInputsTwoKeys: MultiInputPsbtFixture = {
+        let version: UInt32 = 2
+        let lockTime: UInt32 = 0
+
+        let input0 = makeInput(
+            privateKeyHex: "e120fc1ef9d193a851926ebd937c3985dc2c4e642fb3d0832317884d5f18f3b3",
+            txidByte: 0x11,
+            vout: 0,
+            utxoValue: input0Value
+        )
+        let input1 = makeInput(
+            privateKeyHex: "4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318",
+            txidByte: 0x33,
+            vout: 1,
+            utxoValue: input1Value
+        )
+        let inputs = [input0, input1]
+
+        let destinationScript = OpCodeUtils.p2wpkh(version: 0, data: Data(repeating: 0x22, count: 20))
+        let outputs = [
+            OutputDescriptor(value: destinationValue, scriptPubKey: destinationScript),
+            OutputDescriptor(value: changeValue, scriptPubKey: input0.scriptPubKey),
+        ]
+
+        let unsignedTx = PsbtTestBuilder.makeUnsignedTransaction(
+            version: version,
+            lockTime: lockTime,
+            inputs: inputs.map { PsbtTestBuilder.TxInput(txid: $0.txid, vout: $0.vout, sequence: $0.sequence) },
+            outputs: outputs.map { PsbtTestBuilder.TxOutput(value: $0.value, scriptPubKey: $0.scriptPubKey) }
+        )
+        let witnessUtxos = inputs.map { PsbtTestBuilder.makeTxOut(value: $0.utxoValue, scriptPubKey: $0.scriptPubKey) }
+        let psbtBase64 = PsbtTestBuilder.makePsbtBase64(
+            unsignedTx: unsignedTx,
+            witnessUtxos: witnessUtxos,
+            outputCount: outputs.count
+        )
+
+        return MultiInputPsbtFixture(
+            psbtBase64: psbtBase64,
+            version: version,
+            lockTime: lockTime,
+            inputs: inputs,
+            outputs: outputs
+        )
+    }()
+
+    private static func makeInput(privateKeyHex: String, txidByte: UInt8, vout: UInt32, utxoValue: UInt64) -> InputDescriptor {
+        let privateKey = WalletCore.PrivateKey(data: Data(hexString: privateKeyHex))!
+        let publicKey = privateKey.getPublicKeySecp256k1(compressed: true).data
+        let pubKeyHash = RIPEMD160.hash(publicKey.sha256())
+        let scriptPubKey = OpCodeUtils.p2wpkh(version: 0, data: pubKeyHash)
+
+        return InputDescriptor(
+            txid: Data(repeating: txidByte, count: 32),
+            vout: vout,
+            sequence: 0xFFFF_FFFF,
+            utxoValue: utxoValue,
+            scriptPubKey: scriptPubKey,
+            privateKey: privateKey,
+            publicKey: publicKey
+        )
+    }
+}
+
+@Suite("Bitcoin PSBT swap helpers")
+struct BitcoinPsbtSwapHelpersTests {
+    private var fixture: MultiInputPsbtFixture { .twoInputsTwoKeys }
+
+    // MARK: - ownedInputs
+
+    @Test
+    func ownedInputsReturnsEveryWalletOwnedInput() throws {
+        let owned = try BitcoinPsbtSigningBuilder.ownedInputs(
+            psbtBase64: fixture.psbtBase64,
+            ownerScriptPubKeys: fixture.ownerScriptPubKeys
+        )
+
+        let indices = owned.map { $0.index }
+        let scriptPubKeys = owned.map { $0.scriptPubKey }
+        #expect(indices == [0, 1])
+        #expect(scriptPubKeys == [fixture.inputs[0].scriptPubKey, fixture.inputs[1].scriptPubKey])
+    }
+
+    @Test
+    func ownedInputsSkipsInputsNotOwnedByWallet() throws {
+        let owned = try BitcoinPsbtSigningBuilder.ownedInputs(
+            psbtBase64: fixture.psbtBase64,
+            ownerScriptPubKeys: [fixture.inputs[0].scriptPubKey]
+        )
+
+        let indices = owned.map { $0.index }
+        #expect(indices == [0])
+        #expect(owned.first?.scriptPubKey == fixture.inputs[0].scriptPubKey)
+    }
+
+    @Test
+    func ownedInputsInvalidBase64Throws() {
+        #expect(throws: BlockchainSdk.BitcoinError.invalidBase64) {
+            _ = try BitcoinPsbtSigningBuilder.ownedInputs(psbtBase64: "not_base64", ownerScriptPubKeys: [])
+        }
+    }
+
+    // MARK: - fee
+
+    @Test
+    func feeEqualsTotalInputsMinusTotalOutputs() throws {
+        let fee = try BitcoinPsbtSigningBuilder.fee(psbtBase64: fixture.psbtBase64)
+        #expect(fee == MultiInputPsbtFixture.expectedFee)
+    }
+
+    @Test
+    func feeInvalidBase64Throws() {
+        #expect(throws: BlockchainSdk.BitcoinError.invalidBase64) {
+            _ = try BitcoinPsbtSigningBuilder.fee(psbtBase64: "not_base64")
+        }
+    }
+
+    // MARK: - sentAmount
+
+    @Test
+    func sentAmountCountsOnlyOutputsNotOwnedByWallet() throws {
+        let sentAmount = try BitcoinPsbtSigningBuilder.sentAmount(
+            psbtBase64: fixture.psbtBase64,
+            ownerScriptPubKeys: fixture.ownerScriptPubKeys
+        )
+        #expect(sentAmount == MultiInputPsbtFixture.expectedSentAmount)
+    }
+
+    @Test
+    func sentAmountInvalidBase64Throws() {
+        #expect(throws: BlockchainSdk.BitcoinError.invalidBase64) {
+            _ = try BitcoinPsbtSigningBuilder.sentAmount(psbtBase64: "not_base64", ownerScriptPubKeys: [])
+        }
+    }
+
+    // MARK: - applySignaturesAndFinalize (per-input keys)
+
+    @Test
+    func applySignaturesAndFinalizeAlignsPerInputSignaturesAndKeys() throws {
+        let signatures = try makeSignatures()
+        let signedPsbtBase64 = try BitcoinPsbtSigningBuilder.applySignaturesAndFinalize(
+            psbtBase64: fixture.psbtBase64,
+            signInputs: signInputs,
+            signatures: signatures,
+            publicKeys: fixture.inputs.map(\.publicKey)
+        )
+
+        let rawTransactionHex = try BitcoinPsbtSigningBuilder.extractRawTransactionHex(finalizedPsbtBase64: signedPsbtBase64)
+        let expectedTransactionHex = try makeExpectedTransactionHex(signatures: signatures)
+
+        #expect(rawTransactionHex == expectedTransactionHex)
+    }
+
+    @Test
+    func applySignaturesAndFinalizeFailsWhenKeysMisalignedWithInputs() throws {
+        let signatures = try makeSignatures()
+        let swappedKeys = [fixture.inputs[1].publicKey, fixture.inputs[0].publicKey]
+
+        do {
+            _ = try BitcoinPsbtSigningBuilder.applySignaturesAndFinalize(
+                psbtBase64: fixture.psbtBase64,
+                signInputs: signInputs,
+                signatures: signatures,
+                publicKeys: swappedKeys
+            )
+            Issue.record("Expected finalize to fail when public keys are misaligned with inputs")
+        } catch BlockchainSdk.BitcoinError.invalidPsbt {
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
+    @Test
+    func applySignaturesAndFinalizeThrowsWhenPublicKeysCountMismatched() throws {
+        let signatures = try makeSignatures()
+        #expect(throws: BlockchainSdk.BitcoinError.wrongSignaturesCount) {
+            _ = try BitcoinPsbtSigningBuilder.applySignaturesAndFinalize(
+                psbtBase64: fixture.psbtBase64,
+                signInputs: signInputs,
+                signatures: signatures,
+                publicKeys: [fixture.inputs[0].publicKey]
+            )
+        }
+    }
+
+    @Test
+    func applySignaturesAndFinalizeThrowsWhenInputIndexOutOfRange() throws {
+        let signatures = try makeSignatures()
+        #expect(throws: BlockchainSdk.BitcoinError.inputIndexOutOfRange(5)) {
+            _ = try BitcoinPsbtSigningBuilder.applySignaturesAndFinalize(
+                psbtBase64: fixture.psbtBase64,
+                signInputs: [.init(index: 5)],
+                signatures: [signatures[0]],
+                publicKeys: [fixture.inputs[0].publicKey]
+            )
+        }
+    }
+
+    // MARK: - extractRawTransactionHex
+
+    @Test
+    func extractRawTransactionHexInvalidBase64Throws() {
+        #expect(throws: BlockchainSdk.BitcoinError.invalidBase64) {
+            _ = try BitcoinPsbtSigningBuilder.extractRawTransactionHex(finalizedPsbtBase64: "not_base64")
+        }
+    }
+
+    // MARK: - Helpers
+
+    private var signInputs: [BitcoinPsbtSigningBuilder.SignInput] {
+        fixture.inputs.indices.map { .init(index: $0) }
+    }
+
+    private func makeSignatures() throws -> [SignatureInfo] {
+        let hashes = try BitcoinPsbtSigningBuilder.hashesToSign(psbtBase64: fixture.psbtBase64, signInputs: signInputs)
+
+        return try zip(fixture.inputs, hashes).map { input, hash in
+            let signature = try #require(input.privateKey.sign(digest: hash, curve: .secp256k1))
+            return SignatureInfo(signature: signature.prefix(64), publicKey: input.publicKey, hash: hash)
+        }
+    }
+
+    private func makeExpectedTransactionHex(signatures: [SignatureInfo]) throws -> String {
+        let inputs = fixture.inputs.map { input in
+            ScriptUnspentOutput(
+                output: UnspentOutput(
+                    blockId: 1,
+                    txId: input.txid.hex(),
+                    index: Int(input.vout),
+                    amount: input.utxoValue
+                ),
+                script: UTXOLockingScript(
+                    data: input.scriptPubKey,
+                    type: .p2wpkh,
+                    spendable: .publicKey(.init(publicKey: input.publicKey, derivationPath: nil))
+                )
+            )
+        }
+
+        let outputs: [PreImageTransaction.OutputType] = fixture.outputs.map { output in
+            .destination(
+                UTXOLockingScript(data: output.scriptPubKey, type: .p2wpkh, spendable: .none),
+                value: Int(output.value)
+            )
+        }
+
+        let preImage = PreImageTransaction(inputs: inputs, outputs: outputs, fee: 0, opReturn: nil)
+        let serializer = CommonUTXOTransactionSerializer(version: fixture.version, sequence: .final, signHashType: .bitcoinAll)
+
+        let expectedSignatures = try signatures.map { signature in
+            SignatureInfo(signature: try signature.der(), publicKey: signature.publicKey, hash: signature.hash)
+        }
+
+        return try serializer.compile(transaction: preImage, signatures: expectedSignatures).hex()
     }
 }

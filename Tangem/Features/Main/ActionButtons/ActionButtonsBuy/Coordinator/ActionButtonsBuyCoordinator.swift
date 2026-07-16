@@ -6,9 +6,11 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
 import Foundation
 import TangemUI
 import UIKit
+import BlockchainSdk
 
 final class ActionButtonsBuyCoordinator: CoordinatorObject {
     let dismissAction: Action<ActionButtonsBuyDismissPayload?>
@@ -23,11 +25,13 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
     @Published private(set) var viewState: RootViewState?
 
     @Published var addToPortfolioBottomSheetInfo: HotCryptoAddToPortfolioBottomSheetViewModel?
+    @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
 
     // MARK: - Private property
 
     private var safariHandle: SafariHandle?
     private var userWalletModels: [UserWalletModel] = []
+    private var tokenListViewModel: ActionButtonsBuyViewModel?
 
     required init(
         dismissAction: @escaping Action<ActionButtonsBuyDismissPayload?>,
@@ -39,14 +43,15 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         userWalletModels = options.userWalletModels
-        let tokenSelectorViewModel = makeTokenSelectorViewModel()
-        viewState = .newTokenList(
-            ActionButtonsBuyViewModel(
-                userWalletModels: options.userWalletModels,
-                tokenSelectorViewModel: tokenSelectorViewModel,
-                coordinator: self
-            )
+        let tokenSelectorViewModel = makeTokenSelectorViewModel(preferredWalletId: options.preferredWalletId)
+        let viewModel = ActionButtonsBuyViewModel(
+            userWalletModels: options.userWalletModels,
+            tokenSelectorViewModel: tokenSelectorViewModel,
+            pulseMarketWidgetViewModel: makePulseMarketWidgetViewModel(),
+            coordinator: self
         )
+        tokenListViewModel = viewModel
+        viewState = .newTokenList(viewModel)
     }
 
     func dismiss() {
@@ -79,16 +84,30 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
 
     func openAddFunds(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
         Task { @MainActor [weak self] in
-            guard let self else { return }
-            UIApplication.shared.endEditing()
+            guard let self,
+                  let userWalletModel = userWalletModels.first(where: { $0.userWalletId == userWalletInfo.id })
+            else {
+                return
+            }
 
+            UIApplication.shared.endEditing()
             let viewModel = AddFundsViewModel(
-                walletModel: walletModel,
-                userWalletInfo: userWalletInfo,
+                input: .init(
+                    mode: .stack,
+                    primaryAction: .hidden,
+                    walletModel: walletModel,
+                    userWalletModel: userWalletModel,
+                    onBack: { [weak self] in self?.showTokenList() }
+                ),
                 coordinator: self
             )
             viewState = .addFunds(viewModel)
         }
+    }
+
+    private func showTokenList() {
+        guard let tokenListViewModel else { return }
+        viewState = .newTokenList(tokenListViewModel)
     }
 
     func openAddToPortfolio(viewModel: HotCryptoAddToPortfolioBottomSheetViewModel) {
@@ -117,21 +136,22 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
     }
 }
 
-// MARK: - AddFundsCoordinator
+// MARK: - AddFundsRoutable
 
-extension ActionButtonsBuyCoordinator: AddFundsCoordinator {
-    func openBuy(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+extension ActionButtonsBuyCoordinator: AddFundsRoutable {
+    func addFundsRequestBuy(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         Task { @MainActor [weak self] in
-            let input = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
+            let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
             self?.openOnramp(input: input, parameters: .none)
         }
     }
 
-    func openSwap(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+    func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         let helper = SwapPredefinedParametersHelper()
         guard let parameters = helper.makeParameters(
-            origin: .tokenDetails(walletModel: walletModel),
-            userWalletInfo: userWalletInfo
+            walletModel: walletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
+            position: .automatic
         ) else { return }
 
         Task { @MainActor [weak self] in
@@ -145,37 +165,30 @@ extension ActionButtonsBuyCoordinator: AddFundsCoordinator {
         }
     }
 
-    func openReceive(walletModel: any WalletModel) {
-        let factory = AvailabilityReceiveFlowFactory(
-            flow: .crypto,
-            tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel
-        )
-        let receiveViewModel = factory.makeAvailabilityReceiveFlow()
-
+    func addFundsRequestReceive(viewModel: ReceiveMainViewModel) {
         Task { @MainActor [weak self] in
-            self?.floatingSheetPresenter.enqueue(sheet: receiveViewModel)
+            self?.floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
-    func openTokenDetails(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
-        guard let userWalletModel = userWalletModels.first(where: { $0.userWalletId == userWalletInfo.id }) else {
-            return
-        }
-
+    func addFundsRequestGoToToken(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         Task { @MainActor [weak self] in
             self?.dismiss(with: ActionButtonsBuyDismissPayload(walletModel: walletModel, userWalletModel: userWalletModel))
         }
     }
 
-    func closeAddFunds() {
+    func addFundsClose() {
         dismiss()
     }
 }
 
-// MARK: - HotCryptoAddTokenRoutable, AddTokenFlowRoutable
+// MARK: - HotCryptoAddTokenRoutable, AddTokenFlowRoutable, AddTokenFlowRedesignedRoutable
 
-extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRoutable {
+extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRoutable, AddTokenFlowRedesignedRoutable {
+    func addTokenFlowShowGetToken(for tokenItem: TokenItem, accountSelectorCell: AccountSelectorCellModel) {
+        close()
+    }
+
     func close() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
@@ -199,11 +212,119 @@ extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRo
     }
 }
 
+// MARK: - PulseMarketWidgetRoutable
+
+extension ActionButtonsBuyCoordinator: PulseMarketWidgetRoutable {
+    func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
+        guard
+            let userWalletIdString = tokenListViewModel?.tokenSelectorViewModel.selectedChipId,
+            let userWalletModel = userWalletModels.first(where: { $0.userWalletId.stringValue == userWalletIdString })
+        else {
+            openMarketsDetailsCoordinator(for: tokenInfo)
+            return
+        }
+
+        let isAdded = TokenAdditionChecker.areTokenItemsAddedInAllAccounts(userWalletModels: [userWalletModel]) {
+            account, supportedBlockchains in
+
+            MarketsTokenItemsProvider.calculateTokenItems(
+                coinId: tokenInfo.id,
+                coinName: tokenInfo.name,
+                coinSymbol: tokenInfo.symbol,
+                networks: tokenInfo.networks ?? [],
+                supportedBlockchains: supportedBlockchains,
+                cryptoAccount: account
+            )
+        }
+
+        guard
+            var networks = tokenInfo.networks,
+            !isAdded
+        else {
+            openMarketsDetailsCoordinator(for: tokenInfo)
+            return
+        }
+
+        if tokenInfo.id == Blockchain.ethereum(testnet: false).coinId {
+            let l2Items = SupportedBlockchains.l2Blockchains.map {
+                NetworkModel(networkId: $0.networkId, contractAddress: nil, decimalCount: nil)
+            }
+            networks.append(contentsOf: l2Items)
+        }
+
+        let inputData = MarketsAddTokenFlowConfigurationFactory.InputData(
+            coinId: tokenInfo.id,
+            coinName: tokenInfo.name,
+            coinSymbol: tokenInfo.symbol,
+            networks: networks
+        )
+
+        let configuration = MarketsAddTokenFlowConfigurationFactory.makeForPulseWidget(
+            inputData: inputData,
+            onConfirm: { [weak self] tokenItem, accountSelectorCell in
+                Task { @MainActor in
+                    guard let self else { return }
+
+                    let walletModel = accountSelectorCell.cryptoAccountModel
+                        .walletModelsManager.walletModels
+                        .first { $0.tokenItem == tokenItem }
+
+                    guard let walletModel else { return }
+
+                    self.close()
+                    self.openAddFunds(
+                        userWalletInfo: accountSelectorCell.userWalletModel.userWalletInfo,
+                        walletModel: walletModel
+                    )
+                }
+            }
+        )
+
+        guard let tokenItem = MarketsAddTokenFlowConfigurationFactory.makePreselectedTokenItem(
+            inputData: inputData,
+            userWalletModels: userWalletModels,
+            isTokenAdded: configuration.isTokenAdded
+        ) else {
+            openMarketsDetailsCoordinator(for: tokenInfo)
+            return
+        }
+
+        Task { @MainActor in
+            guard let viewModel = AddTokenFlowRedesignedViewModel(
+                tokenItem: tokenItem,
+                userWalletModels: userWalletModels,
+                preferredWalletId: userWalletModel.userWalletId,
+                configuration: configuration,
+                coordinator: self
+            ) else {
+                openMarketsDetailsCoordinator(for: tokenInfo)
+                return
+            }
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    private func openMarketsDetailsCoordinator(for tokenInfo: MarketsTokenModel) {
+        let coordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.marketsTokenDetailsCoordinator = nil
+            }
+        )
+        coordinator.start(with: .init(info: tokenInfo, style: .addFundsSheet))
+        marketsTokenDetailsCoordinator = coordinator
+    }
+
+    func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType) {
+        assertionFailure("See all is hidden in the Buy pulse widget, so this is never invoked.")
+    }
+}
+
 // MARK: - Options
 
 extension ActionButtonsBuyCoordinator {
     struct Options {
         let userWalletModels: [UserWalletModel]
+        let preferredWalletId: UserWalletId?
     }
 
     enum RootViewState: Equatable {
@@ -234,8 +355,33 @@ struct ActionButtonsBuyDismissPayload {
 // MARK: - Factory method
 
 private extension ActionButtonsBuyCoordinator {
-    func makeTokenSelectorViewModel() -> TokenSelectorViewModel {
-        .common(walletsProvider: .standardAccountsOnly(), availabilityProvider: .buy())
+    func makeTokenSelectorViewModel(preferredWalletId: UserWalletId?) -> TokenSelectorViewModel {
+        .common(
+            walletsProvider: .standardAccountsOnly(),
+            availabilityProvider: FeatureProvider.isAvailable(.redesign)
+                ? .always() : .buy(),
+            preferredWalletId: preferredWalletId
+        )
+    }
+
+    func makePulseMarketWidgetViewModel() -> PulseMarketWidgetViewModel? {
+        guard FeatureProvider.isAvailable(.redesign) else {
+            return nil
+        }
+
+        let widgetsUpdateHandler = CommonMarketsMainWidgetDataService()
+        for widgetType in [MarketsWidgetType.market, .news, .earn] {
+            widgetsUpdateHandler.performUpdateLoading(state: .loaded, for: widgetType)
+        }
+
+        return PulseMarketWidgetViewModel(
+            widgetType: .pulse,
+            widgetsUpdateHandler: widgetsUpdateHandler,
+            quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
+            analyticsService: CommonMarketsWidgetAnalyticsService(),
+            includesMarketCapFilter: true,
+            coordinator: self
+        )
     }
 }
 

@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import Testing
 import TangemTestKit
@@ -77,24 +78,12 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(spy: spy)
         var states: [RatingViewModel.State] = []
-
-        let subscriptionReady = AsyncStream<Void>.makeStream()
-        let task = Task {
-            var iterator = await sut.$state.values.makeAsyncIterator()
-            subscriptionReady.continuation.yield()
-            while let state = await iterator.next() {
-                states.append(state)
-                if state == .unrated { break }
-            }
-        }
-
-        // Wait for subscription to start
-        for await _ in subscriptionReady.stream {
-            break
-        }
+        let cancellable = sut.$state.sink { states.append($0) }
 
         await sut.load()
-        await task.value
+
+        await waitUntil { sut.state == .unrated }
+        cancellable.cancel()
 
         #expect(states.contains(.loading))
         #expect(states.contains(.unrated))
@@ -274,23 +263,12 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
         await sut.load()
 
         var states: [RatingViewModel.State] = []
-        let subscriptionReady = AsyncStream<Void>.makeStream()
-        let task = Task {
-            var iterator = await sut.$state.values.makeAsyncIterator()
-            subscriptionReady.continuation.yield()
-            while let state = await iterator.next() {
-                states.append(state)
-                if case .submitted = state { break }
-            }
-        }
-
-        // Wait for subscription to start
-        for await _ in subscriptionReady.stream {
-            break
-        }
+        let cancellable = sut.$state.sink { states.append($0) }
 
         try await sut.submitThrowing(rating: .five, feedback: nil)
-        await task.value
+
+        await waitUntil { if case .submitted = sut.state { true } else { false } }
+        cancellable.cancel()
 
         #expect(states.contains(.submitting))
         #expect(states.contains(where: { if case .submitted = $0 { true } else { false } }))
@@ -373,6 +351,22 @@ final class RatingViewModelTests: LeakTrackingTestSuite {
 }
 
 private extension RatingViewModelTests {
+    // MARK: - Async Test Helpers
+
+    func waitUntil(
+        timeout: Duration = .seconds(2),
+        _ condition: @escaping @MainActor () -> Bool
+    ) async {
+        let deadline = ContinuousClock.now + timeout
+        while !condition() {
+            if ContinuousClock.now >= deadline {
+                Issue.record("waitUntil timed out")
+                return
+            }
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+    }
+
     // MARK: - Helpers
 
     func makeSUT(
@@ -383,7 +377,7 @@ private extension RatingViewModelTests {
         txUrl: String? = "https://example.com/tx"
     ) -> RatingViewModel {
         let transaction = RatingModel.Transaction(
-            externalTxId: externalTxId,
+            transactionId: externalTxId,
             providerName: providerName,
             txUrl: txUrl
         )

@@ -7,11 +7,11 @@
 //
 
 public struct OnrampRedirectSettings: Hashable {
-    public let redirectURL: String
+    public let redirectURL: URL
     public let theme: Theme
     public let language: String
 
-    public init(redirectURL: String, theme: Theme, language: String) {
+    public init(redirectURL: URL, theme: Theme, language: String) {
         self.redirectURL = redirectURL
         self.theme = theme
         self.language = language

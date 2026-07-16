@@ -40,6 +40,7 @@ class SendDestinationSuggestedViewModel {
                 wallet: wallet
             ) { [weak self] in
                 self?.tapAction(SendDestinationSuggested(
+                    userWalletInfo: wallet.userWalletInfo,
                     address: wallet.address,
                     additionalField: nil,
                     type: .otherWallet,
@@ -55,6 +56,7 @@ class SendDestinationSuggestedViewModel {
                 record: record
             ) { [weak self] in
                 self?.tapAction(SendDestinationSuggested(
+                    userWalletInfo: nil,
                     address: record.address,
                     additionalField: record.additionalField,
                     type: .recentAddress,
@@ -86,6 +88,7 @@ extension SendDestinationSuggestedViewModel {
 // MARK: - SendDestinationSuggested (selection result model)
 
 struct SendDestinationSuggested {
+    let userWalletInfo: UserWalletInfo?
     let address: String
     let additionalField: String?
     let type: DestinationType
@@ -100,6 +103,7 @@ struct SendDestinationSuggested {
 // MARK: - SuggestedWallet (User's wallets)
 
 struct SendDestinationSuggestedWallet {
+    let userWalletInfo: UserWalletInfo
     let name: String
     let address: String
     let account: Account?

@@ -132,6 +132,7 @@ enum NFTChainConverter {
              .sui,
              .filecoin,
              .sei,
+             .gonka,
              .energyWebEVM,
              .energyWebX,
              .core,

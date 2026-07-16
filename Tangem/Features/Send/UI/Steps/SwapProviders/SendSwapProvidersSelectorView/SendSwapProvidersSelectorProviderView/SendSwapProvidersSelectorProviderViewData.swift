@@ -8,6 +8,7 @@
 
 import TangemExpress
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct SendSwapProvidersSelectorProviderViewData: Identifiable {
     let id: String
@@ -17,6 +18,7 @@ struct SendSwapProvidersSelectorProviderViewData: Identifiable {
     let isDisabled: Bool
     let badge: Badge?
     let subtitles: [Subtitle]
+    let showTrailingSettingsButton: Bool
 }
 
 extension SendSwapProvidersSelectorProviderViewData {
@@ -24,10 +26,11 @@ extension SendSwapProvidersSelectorProviderViewData {
 
     enum Badge: Hashable {
         case plain(String)
-        case accent(String)
+        case accent(String, accessibilityIdentifier: String)
 
         static let permissionNeeded = Badge.plain(Localization.expressProviderPermissionNeeded)
         static let fcaWarning = Badge.plain(Localization.expressProviderFcaWarningList)
-        static let bestRate = Badge.accent(Localization.expressProviderBestRate)
+        static let bestRate = Badge.accent(Localization.expressProviderBestRate, accessibilityIdentifier: SendAccessibilityIdentifiers.swapProviderBestRateBadge)
+        static let bestDexRate = Badge.accent(Localization.expressProviderBestDexRate, accessibilityIdentifier: SendAccessibilityIdentifiers.swapProviderBestDexRateBadge)
     }
 }

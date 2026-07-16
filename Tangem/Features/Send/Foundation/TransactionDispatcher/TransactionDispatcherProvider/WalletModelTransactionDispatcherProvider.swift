@@ -58,6 +58,25 @@ extension WalletModelTransactionDispatcherProvider: TransactionDispatcherProvide
         )
     }
 
+    func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher {
+        if walletModel.isDemo {
+            return DemoTransferTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        }
+
+        let gaslessTransactionBuilder = GaslessTransactionBuilder(walletModel: walletModel, signer: signer)
+        let gaslessTransactionSender = GaslessTransactionSender(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            gaslessTransactionBuilder: gaslessTransactionBuilder
+        )
+
+        return ExpressApproveAndDEXTransactionDispatcher(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            gaslessTransactionSender: gaslessTransactionSender
+        )
+    }
+
     func makeCEXTransactionDispatcher() -> TransactionDispatcher {
         if walletModel.isDemo {
             return DemoTransferTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)

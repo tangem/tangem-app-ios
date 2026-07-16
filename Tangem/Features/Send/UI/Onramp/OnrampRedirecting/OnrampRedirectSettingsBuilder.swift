@@ -15,7 +15,7 @@ struct OnrampRedirectSettingsBuilder {
         redirectURL.appendPathComponent(provider.provider.id)
 
         return OnrampRedirectSettings(
-            redirectURL: redirectURL.absoluteString,
+            redirectURL: redirectURL,
             theme: theme,
             language: Locale.appLanguageCode
         )

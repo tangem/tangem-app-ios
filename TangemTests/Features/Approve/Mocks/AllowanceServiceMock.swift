@@ -30,4 +30,8 @@ final class AllowanceServiceMock: AllowanceService {
     func markApproveTransactionSent(spender: String) async {
         markApproveTransactionSentCalls.append(spender)
     }
+
+    func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
+        ApproveTransactionData(txData: Data(), spender: spender, toContractAddress: "")
+    }
 }

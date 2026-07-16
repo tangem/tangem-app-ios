@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
 import TangemAccessibilityIdentifiers
 import XCTest
 
@@ -356,7 +357,7 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
             // Exclude loading states like dash or empty
             let predicate = NSPredicate { _, _ in
                 let text = priceChangeText.label
-                return !text.isEmpty && text != "–" && (text.contains("%") || text.hasPrefix("+") || text.hasPrefix("-"))
+                return !text.isEmpty && text != "–" && (text.contains("%") || text.hasPrefix(.plusSign) || text.hasPrefix("-"))
             }
 
             let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
@@ -425,8 +426,6 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
                     "Price change text should not be empty for token at index \(index)"
                 )
 
-                // Verify indicator sign: positive (+), negative (-), or neutral (0% or no sign)
-                let hasValidIndicator = text.hasPrefix("+") || text.hasPrefix("-") || text.contains("0%") || text == "–"
                 waitAndAssertTrue(
                     priceChangeText,
                     "Price change text '\(text)' for token at index \(index) should have valid indicator (starts with + or -, contains 0%, or is dash)"
@@ -435,7 +434,7 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
                 // Additional verification: if it starts with +, it's positive (blue indicator)
                 // if it starts with -, it's negative (red indicator)
                 // otherwise it's neutral (grey indicator)
-                if text.hasPrefix("+") {
+                if text.hasPrefix(.plusSign) {
                     // Positive change - blue indicator
                     waitAndAssertTrue(
                         priceChangeText,

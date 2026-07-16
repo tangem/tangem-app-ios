@@ -69,8 +69,6 @@ public struct TangemTwoLineRowLayout<
     @ScaledMetric private var linesSpacing: CGFloat = Constants.Spacings.multilineSpacing.value
     @ScaledMetric private var innerSpacing: CGFloat = Constants.Spacings.topLineInnerSpacing.value
 
-    @State private var contentWidth: CGFloat = 0
-
     private var compressionPolicy: TangemRowCompressionPolicy = .trailingPreserved
 
     public init(
@@ -108,10 +106,8 @@ public struct TangemTwoLineRowLayout<
     public var body: some View {
         HStack(spacing: iconSpacing) {
             icon
-
             contentView
         }
-        .readGeometry(\.size.width, bindTo: $contentWidth)
         .contentShape(.rect)
     }
 
@@ -134,10 +130,6 @@ public struct TangemTwoLineRowLayout<
                 primaryLeading
                     .alignmentGuide(.twoLineRowLeading) { $0[.leading] }
                     .layoutPriority(priorities.primaryLeading)
-                    .frame(
-                        minWidth: contentWidth * Constants.Layout.MinWidthRatio.primaryLeading,
-                        alignment: .leading
-                    )
 
                 Spacer(minLength: 0)
 
@@ -149,10 +141,6 @@ public struct TangemTwoLineRowLayout<
             HStack(spacing: innerSpacing) {
                 secondaryLeading
                     .layoutPriority(priorities.secondaryLeading)
-                    .frame(
-                        minWidth: contentWidth * Constants.Layout.MinWidthRatio.secondaryLeading,
-                        alignment: .leading
-                    )
 
                 Spacer(minLength: 0)
 
@@ -174,10 +162,6 @@ public struct TangemTwoLineRowLayout<
                 secondaryLeading
                     .layoutPriority(priorities.secondaryLeading)
             }
-            .frame(
-                minWidth: contentWidth * Constants.Layout.MinWidthRatio.primaryLeading,
-                alignment: .leading
-            )
 
             Spacer(minLength: 0)
 
