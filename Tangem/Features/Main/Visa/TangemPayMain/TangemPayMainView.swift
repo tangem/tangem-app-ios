@@ -311,8 +311,12 @@ struct TangemPayMainView: View {
                 redesignedAddToApplePayBanner
             }
 
-            if viewModel.hasIssuingEntry {
+            if viewModel.hasIssuingEntry, !viewModel.isAwaitingDeposit {
                 TangemPayIssuingCardBannerRedesigned()
+            }
+
+            if viewModel.isAwaitingDeposit {
+                awaitingDepositCancelBanner
             }
 
             ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
@@ -343,9 +347,13 @@ struct TangemPayMainView: View {
                 TangemPayBalanceView(state: viewModel.balance)
                     .opacity(viewModel.isStale ? 0.6 : 1)
 
-                Text(Localization.tokenDetailsBalanceTotal)
-                    .font(token: DesignSystem.Font.captionMediumToken)
-                    .foregroundStyle(DesignSystem.Color.textTertiary)
+                if viewModel.isAwaitingDeposit {
+                    inactiveBadge
+                } else {
+                    Text(Localization.tokenDetailsBalanceTotal)
+                        .font(token: DesignSystem.Font.captionMediumToken)
+                        .foregroundStyle(DesignSystem.Color.textTertiary)
+                }
             }
 
             redesignedCardsRow
@@ -362,6 +370,48 @@ struct TangemPayMainView: View {
         .padding(.top, 32)
     }
 
+    // [REDACTED_TODO_COMMENT]
+    private var awaitingDepositCancelBanner: some View {
+        let title = viewModel.awaitingDepositMonthlyFee
+            .map { "Top-up your account on \($0)" } ?? "Top-up your account"
+
+        return NotificationBanner(
+            bannerType: .warning(
+                .textWithIcon(
+                    .init(
+                        text: .init(
+                            title: AttributedString(title),
+                            subtitle: AttributedString("To pay monthly fee for plan and start use card")
+                        ),
+                        icon: .init(imageType: Assets.attention)
+                    )
+                ),
+                .buttons(.one(
+                    .init(
+                        content: .text(AttributedString("Cancel Plus, move to Basic")),
+                        styleType: .primary,
+                        cornerStyle: .rounded,
+                        action: { [viewModel] in
+                            Task { @MainActor in viewModel.cancelPlus() }
+                        }
+                    ),
+                    accessibilityIdentifier: nil
+                ))
+            ),
+            accessibilityIdentifier: nil
+        )
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private var inactiveBadge: some View {
+        TangemBadgeV2(label: "Inactive", accessibilityLabel: nil)
+            .size(.x6)
+            .variant(.tinted)
+            .appearance(.warning)
+            .slotStart(DesignSystem.Icons.Info.regular16)
+    }
+
+    @ViewBuilder
     private var redesignedCardsRow: some View {
         HStack(spacing: 8) {
             ForEach(viewModel.cardEntries) { entry in
@@ -386,7 +436,7 @@ struct TangemPayMainView: View {
                 TangemPaySmallCardViewRedesigned(
                     state: card.isReissuing || card.isClosing
                         ? .replacing
-                        : .issued(cardNumberEnd: card.cardNumberEnd)
+                        : .issued(cardNumberEnd: card.cardNumberEnd, isFrozen: card.isFrozen)
                 )
             }
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton(cardId: card.cardId))
@@ -396,7 +446,9 @@ struct TangemPayMainView: View {
             Button {
                 viewModel.openCardManagement(entry: entry)
             } label: {
-                TangemPaySmallCardViewRedesigned(state: .issuing)
+                TangemPaySmallCardViewRedesigned(
+                    state: entry.order?.isAwaitingDeposit == true ? .ghost : .issuing
+                )
             }
         }
     }
