@@ -22,7 +22,7 @@ protocol TangemPayIssueAdditionalCardCostPopupRoutable: AnyObject {
     func issueCostPopupDidCancel()
 }
 
-final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, FloatingSheetContentViewModel, TangemPayPopupViewModel {
+final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, FloatingSheetContentViewModel, TangemPayFeePopupViewModel {
     var icon: Image {
         DesignSystem.Icons.CardPlus.regular32.image
     }

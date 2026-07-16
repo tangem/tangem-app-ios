@@ -105,12 +105,6 @@ struct TangemPayCardDetailsViewRedesigned: View {
                         Group {
                             if isLoading {
                                 CircularActivityIndicator(color: .white, lineWidth: 1.5)
-                            } else if isFrozen {
-                                DesignSystem.Icons.Snowflake.regular16.image
-                                    .renderingMode(.template)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                             }
                         }
                         .frame(width: 16, height: 16)
