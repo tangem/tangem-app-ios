@@ -26,7 +26,7 @@ private extension ExpressSyncMetadataTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                table: "expressSyncMetadata"
+                table: Constants.tableName
             ) { table in
                 table.primaryKey([
                     Constants.ownerAddressColumnName,
@@ -45,10 +45,11 @@ private extension ExpressSyncMetadataTable {
 
 // MARK: - Constants
 
-private extension ExpressSyncMetadataTable {
+extension ExpressSyncMetadataTable {
     /// - Note: only names used twice or more are extracted to constants.
     enum Constants {
-        static let ownerAddressColumnName = "ownerAddress"
-        static let endpointTypeColumnName = "endpointType"
+        static let tableName = "expressSyncMetadata"
+        fileprivate static let ownerAddressColumnName = "ownerAddress"
+        fileprivate static let endpointTypeColumnName = "endpointType"
     }
 }
