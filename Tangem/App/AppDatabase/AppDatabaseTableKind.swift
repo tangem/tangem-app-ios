@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// An interface representing a kind of a database table, which can be registered in the database.
+/// A type representing a kind of the database table, which can be registered in the database.
 enum AppDatabaseTableKind: CaseIterable {
     case expressProvidersCache
     case fiatCurrenciesCache

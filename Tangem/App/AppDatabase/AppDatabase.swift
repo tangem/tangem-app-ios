@@ -10,7 +10,6 @@ import Foundation
 import GRDB
 import TangemFoundation
 
-// [REDACTED_TODO_COMMENT]
 final class AppDatabase {
     typealias DatabaseHandle = DatabaseReader & DatabaseWriter
     typealias DatabaseHandleFactory = (_ databaseFilePath: String) throws -> DatabaseHandle

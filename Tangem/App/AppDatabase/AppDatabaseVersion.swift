@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// An interface representing a version of a database table, which can be registered in the database.
+/// A type representing a version of the database table, which can be registered in the database.
 /// - Note: Not all tables should be registered with all versions, e.g. when there are no changes in the table structure
 /// between different versions.
 enum AppDatabaseVersion: CaseIterable {
