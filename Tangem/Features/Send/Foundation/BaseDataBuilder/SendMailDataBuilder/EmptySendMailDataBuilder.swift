@@ -16,25 +16,25 @@ import TangemStaking
 struct EmptySendMailDataBuilder: SendMailDataBuilder {
     // MARK: - Send transaction methods
 
-    func makeMailData(transaction: BSDKTransaction, error: SendTxError) throws -> MailData {
+    func makeSupportData(transaction: BSDKTransaction, error: SendTxError) throws -> SupportData {
         throw SendMailDataBuilderError.notSupported
     }
 
-    func makeMailData(approveTransaction: ApproveTransactionData, error: SendTxError) throws -> MailData {
+    func makeSupportData(approveTransaction: ApproveTransactionData, error: SendTxError) throws -> SupportData {
         throw SendMailDataBuilderError.notSupported
     }
 
-    func makeMailData(expressTransaction: ExpressTransactionData, error: SendTxError) throws -> MailData {
+    func makeSupportData(expressTransaction: ExpressTransactionData, error: SendTxError) throws -> SupportData {
         throw SendMailDataBuilderError.notSupported
     }
 
     // MARK: - Staking transaction methods
 
-    func makeMailData(stakingRequestError error: UniversalError) throws -> MailData {
+    func makeSupportData(stakingRequestError error: UniversalError) throws -> SupportData {
         throw SendMailDataBuilderError.notSupported
     }
 
-    func makeMailData(action: StakingTransactionAction, error: SendTxError) throws -> MailData {
+    func makeSupportData(action: StakingTransactionAction, error: SendTxError) throws -> SupportData {
         throw SendMailDataBuilderError.notSupported
     }
 }

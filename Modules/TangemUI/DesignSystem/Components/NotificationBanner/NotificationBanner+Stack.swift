@@ -75,6 +75,7 @@ public struct NotificationBannerStack<Item: Identifiable, Content: View>: View {
     private func cardView(for item: Item, position: Int, isTop: Bool) -> some View {
         content(item)
             .onGeometryChange(for: CGSize.self, of: { $0.size }) { size in
+                let size = size.roundedToDeviceScale()
                 if isTop { cardSize = size }
                 if size.height > maxCardHeight { maxCardHeight = size.height }
             }

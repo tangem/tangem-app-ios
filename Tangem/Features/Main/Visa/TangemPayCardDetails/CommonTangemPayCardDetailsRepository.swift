@@ -12,34 +12,74 @@ import TangemVisa
 import TangemPay
 
 final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
-    var lastFourDigits: String {
-        tangemPayAccount.card?.cardNumberEnd ?? ""
+    private enum Source {
+        case tangemPayAccount(TangemPayAccount)
+        case card(TangemPayCard)
     }
 
+    var lastFourDigits: String {
+        switch source {
+        case .tangemPayAccount(let tangemPayAccount):
+            tangemPayAccount.card?.cardNumberEnd ?? ""
+        case .card(let card):
+            card.cardNumberEnd
+        }
+    }
+
+    /// `lastFourDigitsPublisher` (added by [REDACTED_INFO] to refresh the UI after reissue) is
+    /// sourced from this card's own snapshot in the multi-card model — reissue swaps the
+    /// inner BFF snapshot on the same `TangemPayCard` instance, so we observe that.
     var lastFourDigitsPublisher: AnyPublisher<String, Never> {
-        tangemPayAccount.cardPublisher
-            .map { $0?.cardNumberEnd ?? "" }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
+        switch source {
+        case .tangemPayAccount(let tangemPayAccount):
+            tangemPayAccount.cardPublisher
+                .map { $0?.cardNumberEnd ?? "" }
+                .removeDuplicates()
+                .eraseToAnyPublisher()
+        case .card(let card):
+            card.snapshotPublisher
+                .map(\.card.cardNumberEnd)
+                .removeDuplicates()
+                .eraseToAnyPublisher()
+        }
     }
 
     var cardNamePublisher: AnyPublisher<String, Never> {
-        tangemPayAccount.cardDisplayNamePublisher
+        switch source {
+        case .tangemPayAccount(let tangemPayAccount):
+            tangemPayAccount.cardDisplayNamePublisher
+        case .card(let card):
+            card.displayNamePublisher
+        }
     }
 
     var isReissuingPublisher: AnyPublisher<Bool, Never> {
-        tangemPayAccount.isReissuingCardPublisher
+        switch source {
+        case .tangemPayAccount(let tangemPayAccount):
+            tangemPayAccount.isReissuingCardPublisher
+        case .card(let card):
+            card.isReissuingPublisher
+        }
     }
 
-    private let tangemPayAccount: TangemPayAccount
+    private let source: Source
 
     init(tangemPayAccount: TangemPayAccount) {
-        self.tangemPayAccount = tangemPayAccount
+        source = .tangemPayAccount(tangemPayAccount)
+    }
+
+    init(card: TangemPayCard) {
+        source = .card(card)
     }
 
     func updateCardDisplayName(_ name: String) async throws {
-        try await tangemPayAccount.customerService.updateCardDisplayName(name)
-        await tangemPayAccount.loadCustomerInfo()
+        switch source {
+        case .tangemPayAccount(let tangemPayAccount):
+            _ = try await tangemPayAccount.customerService.updateCardDisplayName(name)
+            await tangemPayAccount.loadCustomerInfo()
+        case .card(let card):
+            try await card.updateDisplayName(name)
+        }
     }
 
     func revealRequest() async throws -> TangemPayCardDetailsData {
@@ -53,7 +93,7 @@ final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository
                 publicKey: publicKey
             )
 
-        let cardDetails = try await tangemPayAccount.customerService.getCardDetails(sessionId: sessionId)
+        let cardDetails = try await fetchCardDetails(sessionId: sessionId)
 
         let decryptedPan = try RainCryptoUtilities.decryptSecret(
             base64Secret: cardDetails.pan.secret,
@@ -80,6 +120,15 @@ final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository
             isPinSet: cardDetails.isPinSet
         )
         return details
+    }
+
+    private func fetchCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
+        switch source {
+        case .tangemPayAccount(let tangemPayAccount):
+            try await tangemPayAccount.customerService.getCardDetails(sessionId: sessionId)
+        case .card(let card):
+            try await card.customerService.getCardDetails(cardId: card.cardId, sessionId: sessionId)
+        }
     }
 
     private func formatPan(_ pan: String) -> String {

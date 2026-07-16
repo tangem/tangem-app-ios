@@ -62,6 +62,17 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyTradeActionButtonsHidden() -> Self {
+        XCTContext.runActivity(named: "Verify Buy/Sell/Swap action buttons are hidden") { _ in
+            waitAndAssertTrue(detailsButton, "Main screen should be loaded")
+            XCTAssertFalse(buyActionButton.waitForExistence(timeout: .conditional), "Buy button should be hidden for S2C cards")
+            XCTAssertFalse(swapActionButton.exists, "Swap button should be hidden for S2C cards")
+            XCTAssertFalse(sellActionButton.exists, "Sell button should be hidden for S2C cards")
+            return self
+        }
+    }
+
+    @discardableResult
     func tapSendButton() -> SendScreen {
         XCTContext.runActivity(named: "Tap Send action button on main screen") { _ in
             waitAndAssertTrue(actionButtonsList, "Action buttons list should exist")
@@ -76,7 +87,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func verifyOrganizeTokensButtonVisible() -> Self {
         XCTContext.runActivity(named: "Verify organize tokens button IS visible") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
-            scrollToElement(organizeTokensButton, attempts: .standard)
+            scrollTokensListToVisible(organizeTokensButton)
             waitAndAssertTrue(organizeTokensButton, "Organize tokens button should be visible on main screen")
             return self
         }
@@ -99,8 +110,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func tapMainBuy() -> BuyTokenSelectorScreen {
         XCTContext.runActivity(named: "Tap Buy action on main screen") { _ in
-            waitAndAssertTrue(buyActionButton, "Buy title should exist on main screen")
-            buyActionButton.waitAndTap()
+            tapMainActionButton(MainAccessibilityIdentifiers.buyTitle)
             return BuyTokenSelectorScreen(app)
         }
     }
@@ -108,8 +118,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func tapMainSwap() -> SwapStoriesScreen {
         XCTContext.runActivity(named: "Tap Exchange action on main screen") { _ in
-            waitAndAssertTrue(swapActionButton, "Exchange title should exist on main screen")
-            swapActionButton.waitAndTap()
+            tapMainActionButton(MainAccessibilityIdentifiers.exchangeTitle)
             return SwapStoriesScreen(app)
         }
     }
@@ -117,9 +126,26 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func tapMainSell() -> SellTokenSelectorScreen {
         XCTContext.runActivity(named: "Tap Sell action on main screen") { _ in
-            waitAndAssertTrue(sellActionButton, "Sell title should exist on main screen")
-            sellActionButton.waitAndTap()
+            tapMainActionButton(MainAccessibilityIdentifiers.sellTitle)
             return SellTokenSelectorScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapMainBuyWhenUnavailable() -> Self {
+        XCTContext.runActivity(named: "Tap Buy action on main screen (unavailable state)") { _ in
+            waitAndAssertTrue(buyActionButton, "Buy title should exist on main screen")
+            buyActionButton.tap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapMainSwapWhenUnavailable() -> Self {
+        XCTContext.runActivity(named: "Tap Exchange action on main screen (unavailable state)") { _ in
+            waitAndAssertTrue(swapActionButton, "Exchange title should exist on main screen")
+            swapActionButton.tap()
+            return self
         }
     }
 
@@ -127,8 +153,16 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
             let token = tokenElement(named: label)
-            scrollTokensListToHittable(token)
-            token.waitAndTap()
+            XCTAssertTrue(scrollTokensListToVisible(token), "Token \(label) should be visible after scrolling")
+            token.waitForStableFrame()
+
+            // Scroll the row clear of the Markets sheet so the tap lands on it, not the sheet.
+            for _ in 0 ..< 5 where !token.isHittable {
+                scrollTokensList(byOffset: -200)
+                token.waitForStableFrame()
+            }
+
+            token.tapEvenIfNotHittable()
             return TokenScreen(app)
         }
     }
@@ -149,20 +183,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             // Ensure tokens list is loaded first
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
 
-            // Try to find the organize button and scroll to it if needed
-            if !organizeTokensButton.exists || !organizeTokensButton.isHittable {
-                // Scroll to find the organize button with better error handling
-                scrollToElement(organizeTokensButton, attempts: .standard)
-
-                // Wait for the button to become hittable after scrolling
-                XCTAssertTrue(
-                    organizeTokensButton.waitForState(state: .hittable, for: .robustUIUpdate),
-                    "Organize tokens button should become hittable after scrolling"
-                )
-            }
-
-            // Scroll the button above the markets sheet if needed
-            scrollOrganizeButtonAboveMarketsSheet()
+            // Scroll inside the tokens list — app-level swipes can grab the Markets sheet and cover the button.
+            XCTAssertTrue(
+                scrollTokensListToVisible(organizeTokensButton),
+                "Organize tokens button should be visible after scrolling tokens list"
+            )
 
             // Use the robust waitAndTap method instead of direct tap
             XCTAssertTrue(
@@ -231,8 +256,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func verifyAccountVisible(_ accountName: String) -> Self {
         XCTContext.runActivity(named: "Verify account '\(accountName)' visible on main screen") { _ in
-            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
-            waitAndAssertTrue(account, "Account '\(accountName)' should be visible on main screen")
+            waitAndAssertTrue(accountElement(named: accountName), "Account '\(accountName)' should be visible on main screen")
             return self
         }
     }
@@ -240,9 +264,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func expandAccount(_ accountName: String) -> Self {
         XCTContext.runActivity(named: "Expand account '\(accountName)'") { _ in
-            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
+            let account = accountElement(named: accountName)
             waitAndAssertTrue(account, "Account '\(accountName)' should exist on main screen")
-            account.tap()
+            account.tapEvenIfNotHittable()
             return self
         }
     }
@@ -277,7 +301,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Get tokens order from main screen") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
 
-            let tokenTitleQuery = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+            let visibleList = visibleTokensList()
+            let tokenTitleQuery = visibleList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
             let expectation = XCTNSPredicateExpectation(
                 predicate: NSPredicate(format: "count > 0"),
                 object: tokenTitleQuery
@@ -305,7 +330,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             let labels = sortedElements.map { $0.label }
 
             if labels.isEmpty {
-                let allTexts = tokensList.staticTexts.allElementsBoundByIndex.map {
+                let allTexts = visibleList.staticTexts.allElementsBoundByIndex.map {
                     "[\($0.identifier): '\($0.label)']"
                 }.joined(separator: ", ")
                 XCTFail("No token titles found. Available static texts: \(allTexts)")
@@ -485,7 +510,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
-            scrollTokensListToHittable(token)
+            scrollTokensListToVisible(token)
 
             // Wait for balance to load — context menu captures content at presentation time
             let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)].firstMatch
@@ -495,7 +520,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             let contextMenuIndicator = app.buttons["Buy"].firstMatch
             let maxAttempts = 3
             for attempt in 1 ... maxAttempts {
-                token.press(forDuration: 1.5)
+                token.pressEvenIfNotHittable(forDuration: 1.5)
                 if contextMenuIndicator.waitForExistence(timeout: .quick) {
                     break
                 }
@@ -504,7 +529,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 if attempt < maxAttempts {
                     app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
                     _ = token.waitForExistence(timeout: .quick)
-                    scrollTokensListToHittable(token)
+                    scrollTokensListToVisible(token)
                 }
             }
 
@@ -582,7 +607,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTokenCount(tokenName: String) -> Int {
         XCTContext.runActivity(named: "Get count of tokens with name: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
-            scrollTokensListToHittable(tokenElement(named: tokenName))
+            scrollTokensListToVisible(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -602,7 +627,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getAllTokenBalances(tokenName: String) -> [String] {
         XCTContext.runActivity(named: "Get all balances for token: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
-            scrollTokensListToHittable(tokenElement(named: tokenName))
+            scrollTokensListToVisible(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -639,7 +664,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTokenBalance(tokenName: String, tokenIndex: Int = 0) -> String {
         XCTContext.runActivity(named: "Get balance for token: \(tokenName) at index: \(tokenIndex)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
-            scrollTokensListToHittable(tokenElement(named: tokenName))
+            scrollTokensListToVisible(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -680,8 +705,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForTotalBalanceContainsCurrency(_ currencySymbol: String) -> Self {
         XCTContext.runActivity(named: "Validate total balance contains currency symbol: \(currencySymbol)") { _ in
             waitAndAssertTrue(totalBalance, "Total balance element should exist")
-            let balanceText = totalBalance.label
-            XCTAssertTrue(balanceText.contains(currencySymbol), "Total balance should contain '\(currencySymbol)' but was '\(balanceText)'")
+            // Balance shows a dash briefly after a currency change, so wait for the symbol.
+            let predicate = NSPredicate(format: "label CONTAINS %@", currencySymbol)
+            let result = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: totalBalance)], timeout: .robustUIUpdate)
+            XCTAssertEqual(result, .completed, "Total balance should contain '\(currencySymbol)' but was '\(totalBalance.label)'")
             return self
         }
     }
@@ -719,6 +746,27 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForSynchronizeAddressesButtonExists() -> Self {
         XCTContext.runActivity(named: "Wait for synchronize addresses button exists") { _ in
             waitAndAssertTrue(missingDerivationNotification, "Missing derivation notification should exist")
+            return self
+        }
+    }
+
+    /// Mobile wallets derive locally, so generating resolves the missing address without a card scan.
+    @discardableResult
+    func generateMissingAddressesIfNeeded() -> Self {
+        XCTContext.runActivity(named: "Generate missing addresses if the notification is shown") { _ in
+            guard missingDerivationNotification.waitForExistence(timeout: .conditional) else {
+                return self
+            }
+            let generateButton = missingDerivationNotification.buttons.firstMatch
+            if generateButton.exists {
+                generateButton.waitAndTap()
+            } else {
+                missingDerivationNotification.waitAndTap()
+            }
+            XCTAssertTrue(
+                missingDerivationNotification.waitForNonExistence(timeout: .networkRequest),
+                "Missing derivation notification should disappear after addresses are generated"
+            )
             return self
         }
     }
@@ -797,46 +845,35 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             .firstMatch
     }
 
+    /// Redesigned main account headers share `mainTokensList`; locate by the account-name label at app scope.
+    private func accountElement(named accountName: String) -> XCUIElement {
+        app.staticTextByLabel(label: accountName)
+    }
+
     /// Waits for main screen elements before coordinate-based wallet swipe.
     private func waitForMainScreenReadyForSwipe() {
         waitAndAssertTrue(tokensList, "Tokens list should exist before swiping wallet")
+        // The redesigned header collapses into the navbar when the list is scrolled, so scroll back up to restore it.
+        for _ in 0 ..< 5 where !totalBalance.exists && !totalBalanceShimmer.exists {
+            scrollTokensList(byOffset: 250)
+        }
         // Loading state exposes the header via `totalBalanceShimmer` instead of `totalBalance`.
         let headerExists = totalBalance.waitForExistence(timeout: .conditional)
             || totalBalanceShimmer.waitForExistence(timeout: .conditional)
         XCTAssertTrue(headerExists, "Main header should exist before swiping wallet")
     }
 
-    /// Scrolls the tokens list so that the organize button is above the markets sheet grabber
-    private func scrollOrganizeButtonAboveMarketsSheet() {
-        guard grabber.exists, organizeTokensButton.exists else { return }
-
-        let grabberFrame = grabber.frame
-        let buttonFrame = organizeTokensButton.frame
-
-        // If the button is below or overlapping with the grabber, scroll the list up
-        if buttonFrame.maxY > grabberFrame.minY {
-            // Calculate how much we need to scroll
-            let scrollDistance = buttonFrame.maxY - grabberFrame.minY + 50 // Add some padding
-
-            // Scroll the tokens list up
-            let startPoint = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
-            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -scrollDistance))
-            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
-
-            // Wait for scroll animation to settle
-            _ = organizeTokensButton.waitForState(state: .hittable)
-        }
-    }
-
     /// Scrolls inside `tokensList` (not the whole app) and pushes the row above the Markets sheet grabber when they overlap.
     @discardableResult
-    private func scrollTokensListToHittable(_ element: XCUIElement, attempts: Int = 5) -> Bool {
+    private func scrollTokensListToVisible(_ element: XCUIElement, attempts: Int = 5) -> Bool {
         waitAndAssertTrue(tokensList, "Tokens list should exist before scrolling")
 
         for _ in 0 ..< attempts {
-            if element.exists, element.isHittable {
-                if grabber.exists, element.frame.maxY > grabber.frame.minY {
-                    scrollTokensList(byOffset: -(element.frame.maxY - grabber.frame.minY + 50))
+            if hasVisibleFrame(element) {
+                let frame = element.frame
+                if grabber.exists, frame.maxY > grabber.frame.minY {
+                    let offset = min(frame.maxY - grabber.frame.minY + 50, app.frame.height)
+                    scrollTokensList(byOffset: -offset)
                     continue
                 }
                 return true
@@ -844,13 +881,52 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             scrollTokensList(byOffset: -250)
         }
 
-        return element.exists && element.isHittable
+        return hasVisibleFrame(element)
+    }
+
+    /// Avoids `.isHittable` because it aborts the test with "Activation point invalid" when a SwiftUI row is mid-animation.
+    private func hasVisibleFrame(_ element: XCUIElement) -> Bool {
+        guard element.exists else { return false }
+        let frame = element.frame
+        guard frame.width > 0, frame.height > 0, frame.isFinite else { return false }
+        return app.frame.intersects(frame)
     }
 
     private func scrollTokensList(byOffset dy: CGFloat) {
-        let start = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+        // firstMatch can be an off-screen paged list with an infinite frame; scroll the on-screen one, fall back to the app.
+        let list = visibleTokensList()
+        let anchor: XCUIElement = hasVisibleFrame(list) ? list : app
+        let start = anchor.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
         let end = start.withOffset(CGVector(dx: 0, dy: dy))
         start.press(forDuration: 0.1, thenDragTo: end)
+    }
+
+    /// Horizontal paging keeps neighbor wallet pages mounted, so read tokens from the on-screen page's list, not firstMatch.
+    private func visibleTokensList() -> XCUIElement {
+        let query = app.otherElements.matching(identifier: MainAccessibilityIdentifiers.tokensList)
+        let onScreen = query.allElementsBoundByIndex.first { element in
+            let frame = element.frame
+            return frame.isFinite && frame.width > 0 && app.frame.contains(CGPoint(x: frame.midX, y: frame.midY))
+        }
+        return onScreen ?? query.firstMatch
+    }
+
+    /// Redesign keeps every wallet page mounted (horizontal paging); with multiple wallets the same
+    /// action button exists per wallet, so tap the enabled one and force the tap.
+    private func tapMainActionButton(_ identifier: String) {
+        // The identifier is carried by the icon button; tapping the text label does not reach it in the
+        // multi-wallet carousel. Among the per-wallet buttons, prefer the visible page's enabled one
+        // (isHittable is unreliable inside the carousel, so use hasVisibleFrame), then any enabled one.
+        let buttonQuery = app.buttons.matching(identifier: identifier)
+        let predicate = NSPredicate { _, _ in buttonQuery.allElementsBoundByIndex.contains { $0.isEnabled } }
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: nil)], timeout: .robustUIUpdate),
+            .completed,
+            "Action button '\(identifier)' should become enabled on the visible page"
+        )
+        let enabledButtons = buttonQuery.allElementsBoundByIndex.filter { $0.isEnabled }
+        let element = enabledButtons.first { hasVisibleFrame($0) } ?? enabledButtons.first ?? buttonQuery.firstMatch
+        element.tapEvenIfNotHittable()
     }
 
     private func isGrouped() -> Bool {
@@ -906,6 +982,13 @@ enum MainScreenElement: String, UIElement {
         case .walletLockedNotification:
             MainAccessibilityIdentifiers.walletLockedNotification
         }
+    }
+}
+
+private extension CGRect {
+    /// Stale XCUIElement snapshots can report infinite frames on slow CI simulators.
+    var isFinite: Bool {
+        minX.isFinite && minY.isFinite && width.isFinite && height.isFinite
     }
 }
 

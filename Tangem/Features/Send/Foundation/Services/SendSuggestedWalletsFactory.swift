@@ -50,6 +50,7 @@ struct SendSuggestedWalletsFactory {
                 }
 
                 return SendDestinationSuggestedWallet(
+                    userWalletInfo: userWalletModel.userWalletInfo,
                     name: userWalletModel.name,
                     address: walletModel.defaultAddressString,
                     account: shouldShowAccounts ? account : .none,
@@ -64,6 +65,7 @@ struct SendSuggestedWalletsFactory {
                let depositAddress = tangemPayAccount.depositAddress {
                 results.append(
                     SendDestinationSuggestedWallet(
+                        userWalletInfo: userWalletModel.userWalletInfo,
                         name: userWalletModel.name,
                         address: depositAddress,
                         account: SendDestinationSuggestedWallet.Account(

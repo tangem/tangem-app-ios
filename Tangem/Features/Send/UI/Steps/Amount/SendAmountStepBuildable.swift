@@ -17,8 +17,15 @@ protocol SendAmountStepBuildable {
 }
 
 extension SendAmountStepBuildable {
-    func makeSendAmountStep() -> SendAmountStepBuilder.ReturnValue {
-        SendAmountStepBuilder.make(io: amountIO, types: amountTypes, dependencies: amountDependencies)
+    func makeSendAmountStep(
+        shouldStartFromTokenList: Bool = false
+    ) -> SendAmountStepBuilder.ReturnValue {
+        SendAmountStepBuilder.make(
+            io: amountIO,
+            types: amountTypes,
+            dependencies: amountDependencies,
+            shouldStartFromTokenList: shouldStartFromTokenList
+        )
     }
 }
 
@@ -56,28 +63,30 @@ enum SendAmountStepBuilder {
         let notificationService: (any SendAmountNotificationService)?
         let analyticsLogger: any SendAmountAnalyticsLogger
         let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
-        let currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>?
 
         init(
             sendAmountValidator: any SendAmountValidator,
             amountModifier: (any SendAmountModifier)?,
             notificationService: (any SendAmountNotificationService)?,
             analyticsLogger: any SendAmountAnalyticsLogger,
-            providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil,
-            currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>? = nil
+            providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
         ) {
             self.sendAmountValidator = sendAmountValidator
             self.amountModifier = amountModifier
             self.notificationService = notificationService
             self.analyticsLogger = analyticsLogger
             self.providerRateTypesPublisher = providerRateTypesPublisher
-            self.currentRateTypePublisher = currentRateTypePublisher
         }
     }
 
     typealias ReturnValue = (step: SendAmountStep, amountUpdater: SendAmountExternalUpdater, compact: SendAmountCompactViewModel, finish: SendAmountFinishViewModel)
 
-    static func make(io: IO, types: Types, dependencies: Dependencies) -> ReturnValue {
+    static func make(
+        io: IO,
+        types: Types,
+        dependencies: Dependencies,
+        shouldStartFromTokenList: Bool = false,
+    ) -> ReturnValue {
         let interactorSaver = CommonSendAmountInteractorSaver(
             sourceTokenAmountInput: io.sourceAmountIO.input,
             sourceTokenAmountOutput: io.sourceAmountIO.output,
@@ -103,8 +112,8 @@ enum SendAmountStepBuilder {
             flowActionType: types.flowActionType,
             interactor: interactor,
             analyticsLogger: dependencies.analyticsLogger,
-            providerRateTypesPublisher: dependencies.providerRateTypesPublisher,
-            currentRateTypePublisher: dependencies.currentRateTypePublisher
+            shouldStartFromTokensList: shouldStartFromTokenList,
+            providerRateTypesPublisher: dependencies.providerRateTypesPublisher
         )
 
         let step = SendAmountStep(
@@ -121,8 +130,7 @@ enum SendAmountStepBuilder {
             sourceTokenAmountInput: io.sourceAmountIO.input,
             receiveTokenInput: io.receiveIO?.input,
             receiveTokenAmountInput: io.receiveAmountIO?.input,
-            swapProvidersInput: io.swapProvidersInput,
-            isReceiveAmountApproximatePublisher: viewModel.isReceiveAmountApproximatePublisher
+            swapProvidersInput: io.swapProvidersInput
         )
 
         let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)
@@ -132,8 +140,7 @@ enum SendAmountStepBuilder {
             sourceTokenAmountInput: io.sourceAmountIO.input,
             receiveTokenInput: io.receiveIO?.input,
             receiveTokenAmountInput: io.receiveAmountIO?.input,
-            swapProvidersInput: io.swapProvidersInput,
-            isReceiveAmountApproximatePublisher: viewModel.isReceiveAmountApproximatePublisher
+            swapProvidersInput: io.swapProvidersInput
         )
 
         interactorSaver.updater = amountUpdater

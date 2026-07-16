@@ -17,21 +17,27 @@ public struct AccountFormHeaderView: View {
     @State private var originalTextFieldHeight: CGFloat = 0
     @FocusState.Binding private var isFocused: Bool
 
+    private let title: String
     private let maxCharacters: Int
     private let placeholderText: String
+    private let backgroundColor: Color
     private let accountIconViewData: AccountIconView.ViewData
 
     public init(
         accountName: Binding<String>,
+        title: String,
         maxCharacters: Int,
         placeholderText: String,
+        backgroundColor: Color = Colors.Background.action,
         accountIconViewData: AccountIconView.ViewData,
         isFocused: FocusState<Bool>.Binding
     ) {
         _accountName = accountName
         _isFocused = isFocused
+        self.title = title
         self.maxCharacters = maxCharacters
         self.placeholderText = placeholderText
+        self.backgroundColor = backgroundColor
         self.accountIconViewData = accountIconViewData
     }
 
@@ -40,12 +46,12 @@ public struct AccountFormHeaderView: View {
             colorWithPreview
                 .padding(.bottom, 34)
 
-            Text(Localization.accountFormName)
+            Text(title)
                 .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
 
             nameInput
         }
-        .roundedBackground(with: Colors.Background.action, verticalPadding: 20, horizontalPadding: 16)
+        .roundedBackground(with: backgroundColor, verticalPadding: 20, horizontalPadding: 16)
     }
 
     private var colorWithPreview: some View {
@@ -93,6 +99,7 @@ public struct AccountFormHeaderView: View {
         VStack {
             AccountFormHeaderView(
                 accountName: $accountName,
+                title: Localization.accountFormName,
                 maxCharacters: 20,
                 placeholderText: "New account",
                 accountIconViewData: .composite(
@@ -104,6 +111,7 @@ public struct AccountFormHeaderView: View {
 
             AccountFormHeaderView(
                 accountName: $accountName,
+                title: Localization.accountFormName,
                 maxCharacters: 20,
                 placeholderText: "New account",
                 accountIconViewData: .composite(

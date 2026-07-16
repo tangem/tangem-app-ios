@@ -9,11 +9,6 @@
 public struct OnrampPreference: Hashable {
     public let country: OnrampCountry?
     public let currency: OnrampFiatCurrency?
-
-    public init(country: OnrampCountry?, currency: OnrampFiatCurrency?) {
-        self.country = country
-        self.currency = currency
-    }
 }
 
 public extension OnrampPreference {

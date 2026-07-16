@@ -52,6 +52,7 @@ enum IncomingActionConstants {
         static let order = "order"
         static let interval = "interval"
         static let earnType = "earn_type"
+        static let surveyToken = "token"
     }
 
     enum DeeplinkDestination: String, CaseIterable {
@@ -74,6 +75,7 @@ enum IncomingActionConstants {
         /// Not resolvable from a `tangem://` host — produced only by `NewsIncomingLinkParser`.
         case newsArticle = "news-article"
         case earn
+        case survey
     }
 
     enum DeeplinkType: String {

@@ -16,20 +16,6 @@ public struct ExpressSwappableQuoteItem {
     public let rateType: ExpressProviderRateType
     public let providerInfo: ProviderInfo
 
-    public init(
-        source: ExpressWalletCurrency,
-        destination: ExpressWalletCurrency,
-        amountType: ExpressAmountType,
-        rateType: ExpressProviderRateType,
-        providerInfo: ProviderInfo
-    ) {
-        self.source = source
-        self.destination = destination
-        self.amountType = amountType
-        self.rateType = rateType
-        self.providerInfo = providerInfo
-    }
-
     public var amount: Decimal {
         amountType.amount
     }

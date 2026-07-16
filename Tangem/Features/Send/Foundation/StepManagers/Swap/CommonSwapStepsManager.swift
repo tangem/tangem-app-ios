@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemLocalization
 
 class CommonSwapStepsManager {
     private let summaryStep: SwapSummaryStep
@@ -15,6 +14,7 @@ class CommonSwapStepsManager {
     private let feeSelectorBuilder: SendFeeSelectorBuilder
     private let providersSelector: SendSwapProvidersSelectorViewModel
     private let tokenSelectorBuilder: SwapTokenSelectorViewModelBuilder
+    private let summaryTitleProvider: SendSummaryTitleProvider
     private var stack: [SendStep]
     private weak var router: SendRoutable?
     private weak var output: SendStepsManagerOutput?
@@ -25,6 +25,7 @@ class CommonSwapStepsManager {
         feeSelectorBuilder: SendFeeSelectorBuilder,
         providersSelector: SendSwapProvidersSelectorViewModel,
         tokenSelectorBuilder: SwapTokenSelectorViewModelBuilder,
+        summaryTitleProvider: SendSummaryTitleProvider,
         router: SendRoutable
     ) {
         self.summaryStep = summaryStep
@@ -32,6 +33,7 @@ class CommonSwapStepsManager {
         self.feeSelectorBuilder = feeSelectorBuilder
         self.providersSelector = providersSelector
         self.tokenSelectorBuilder = tokenSelectorBuilder
+        self.summaryTitleProvider = summaryTitleProvider
         self.router = router
 
         stack = [summaryStep]
@@ -59,12 +61,11 @@ extension CommonSwapStepsManager: SendStepsManager {
         switch currentStep().type {
         case .swap:
             let leading: SendStepNavigationLeadingViewType? = {
-                guard FeatureProvider.isAvailable(.swapSimpleMode) else { return nil }
                 let menu = summaryStep.makeFormVariantMenu()
                 return .dotsMenu(selectedId: menu.selectedId, items: menu.items)
             }()
             return .init(
-                title: Localization.commonSwap,
+                title: summaryTitleProvider.title,
                 leadingViewType: leading,
                 trailingViewType: .closeButton
             )
@@ -99,17 +100,17 @@ extension CommonSwapStepsManager: SendStepsManager {
 // MARK: - SwapSummaryStepRoutable
 
 extension CommonSwapStepsManager: SwapSummaryStepRoutable {
-    func summaryStepRequestEditSourceToken(tokenItem: TokenItem?) {
+    func summaryStepRequestEditSourceToken(receiveToken: WalletTokenItem?) {
         router?.openSwapTokenSelector(
             swapTokenSelectorViewModelBuilder: tokenSelectorBuilder,
-            direction: .toDestination(tokenItem)
+            direction: .toDestination(receiveToken)
         )
     }
 
-    func summaryStepRequestEditReceiveToken(tokenItem: TokenItem?) {
+    func summaryStepRequestEditReceiveToken(sourceToken: WalletTokenItem?) {
         router?.openSwapTokenSelector(
             swapTokenSelectorViewModelBuilder: tokenSelectorBuilder,
-            direction: .fromSource(tokenItem)
+            direction: .fromSource(sourceToken)
         )
     }
 

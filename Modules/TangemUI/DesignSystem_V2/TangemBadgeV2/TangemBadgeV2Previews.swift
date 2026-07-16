@@ -117,7 +117,7 @@ public struct TangemBadgeV2Showcase: View {
     /// frame on slot content so Dynamic Type stays consistent.
     private var customSlotContent: some View {
         Circle()
-            .fill(DesignSystem.Tokens.Theme.Icon.brand)
+            .fill(DesignSystem.Color.iconBrand)
             .aspectRatio(1, contentMode: .fit)
     }
 

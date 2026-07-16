@@ -10,18 +10,27 @@ import UIKit
 
 public enum FeedbackGenerator {
     public static func heavy() {
-        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+        heavyImpactGenerator.impactOccurred()
     }
 
     public static func success() {
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        notificationGenerator.notificationOccurred(.success)
     }
 
     public static func selectionChanged() {
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        lightImpactGenerator.impactOccurred()
     }
 
     public static func error() {
-        UINotificationFeedbackGenerator().notificationOccurred(.error)
+        notificationGenerator.notificationOccurred(.error)
     }
+
+    public static func selection() {
+        selectionGenerator.selectionChanged()
+    }
+
+    private static let heavyImpactGenerator = UIImpactFeedbackGenerator(style: .heavy)
+    private static let lightImpactGenerator = UIImpactFeedbackGenerator(style: .light)
+    private static let notificationGenerator = UINotificationFeedbackGenerator()
+    private static let selectionGenerator = UISelectionFeedbackGenerator()
 }
