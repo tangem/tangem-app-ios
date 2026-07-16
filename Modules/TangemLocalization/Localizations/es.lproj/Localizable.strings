@@ -552,6 +552,7 @@
 "express_floating_rate" = "Tasa flotante";
 "express_legal_one_placeholder" = "Al utilizar la función de intercambio, acepta los %@";
 "express_legal_two_placeholders" = "Al utilizar la función de intercambio, aceptas las condiciones de %1$@ y %2$@ del proveedor.";
+"express_more_providers_once_wallet_funded" = "More providers will be available once wallet is funded";
 "express_more_providers_soon" = "Pronto habrá más proveedores disponibles";
 "express_provider_best_dex_rate" = "Mejor tasa DEX";
 "express_provider_best_rate" = "Mejor tarifa";
@@ -613,6 +614,7 @@
 "force_update_button" = "Actualizar";
 "force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
 "force_update_os_title" = "Update Your OS";
+"force_update_required_action" = "Update app";
 "force_update_warning_message" = "Por favor, actualice la aplicación a la última versión para garantizar su correcto funcionamiento.";
 "force_update_warning_title" = "Es necesario actualizar";
 "gasless_not_enough_funds_to_cover_token_fee" = "Fondos insuficientes";
@@ -745,9 +747,11 @@
 "manage_tokens_wallet_support_only_one_network_title" = "La billetera no admite más de una red";
 "market_chart_ai_total" = "AI Total:";
 "market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
+"market_chart_bubble_no_amount" = "No amount  on tokens";
 "market_chart_bubble_no_data" = "No data";
 "market_chart_bubble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_no_amount" = "You don’t have any tokens with amount";
 "market_chart_top_holding" = "Top holding %@";
 "markets_about_coin_header" = "Sobre la moneda";
 "markets_add_to_my_portfolio_description" = "Para comprar, intercambiar o recibir este activo, agréguelo a su portafolio";
