@@ -26,7 +26,7 @@ private extension ExpressExchangeTransactionsTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                table: Constants.expressExchangeTransactionsTableName
+                table: Constants.tableName
             ) { table in
                 table.primaryKey("id", .text).notNull()
                 table.column(Constants.ownerAddressColumnName, .text).notNull()
@@ -58,7 +58,7 @@ private extension ExpressExchangeTransactionsTable {
 
             try database.create(
                 index: "idxExOwner",
-                on: Constants.expressExchangeTransactionsTableName,
+                on: Constants.tableName,
                 columns: [
                     Constants.ownerAddressColumnName,
                 ]
@@ -66,7 +66,7 @@ private extension ExpressExchangeTransactionsTable {
 
             try database.create(
                 index: "idxExPayIn",
-                on: Constants.expressExchangeTransactionsTableName,
+                on: Constants.tableName,
                 columns: [
                     Constants.payInHashColumnName,
                 ]
@@ -74,7 +74,7 @@ private extension ExpressExchangeTransactionsTable {
 
             try database.create(
                 index: "idxExPayOut",
-                on: Constants.expressExchangeTransactionsTableName,
+                on: Constants.tableName,
                 columns: [
                     Constants.payOutHashColumnName,
                 ]
@@ -82,7 +82,7 @@ private extension ExpressExchangeTransactionsTable {
 
             try database.create(
                 index: "idxExFromToken",
-                on: Constants.expressExchangeTransactionsTableName,
+                on: Constants.tableName,
                 columns: [
                     Constants.fromNetworkColumnName,
                     Constants.fromContractColumnName,
@@ -92,7 +92,7 @@ private extension ExpressExchangeTransactionsTable {
 
             try database.create(
                 index: "idxExToToken",
-                on: Constants.expressExchangeTransactionsTableName,
+                on: Constants.tableName,
                 columns: [
                     Constants.toNetworkColumnName,
                     Constants.toContractColumnName,
@@ -102,7 +102,7 @@ private extension ExpressExchangeTransactionsTable {
 
             try database.create(
                 index: "idxExRefundMatching",
-                on: Constants.expressExchangeTransactionsTableName,
+                on: Constants.tableName,
                 columns: [
                     Constants.statusColumnName,
                     Constants.refundNetworkColumnName,
@@ -117,21 +117,21 @@ private extension ExpressExchangeTransactionsTable {
 
 // MARK: - Constants
 
-private extension ExpressExchangeTransactionsTable {
+extension ExpressExchangeTransactionsTable {
     /// - Note: only names used twice or more are extracted to constants.
     enum Constants {
-        static let expressExchangeTransactionsTableName = "expressExchangeTransactions"
-        static let ownerAddressColumnName = "ownerAddress"
-        static let payOutHashColumnName = "payOutHash"
-        static let payInHashColumnName = "payInHash"
-        static let fromNetworkColumnName = "fromNetwork"
-        static let fromContractColumnName = "fromContract"
-        static let toNetworkColumnName = "toNetwork"
-        static let toContractColumnName = "toContract"
-        static let statusColumnName = "status"
-        static let refundNetworkColumnName = "refundNetwork"
-        static let refundContractAddressColumnName = "refundContractAddress"
-        static let refundAddressColumnName = "refundAddress"
-        static let createdAtColumnName = "createdAt"
+        static let tableName = "expressExchangeTransactions"
+        fileprivate static let ownerAddressColumnName = "ownerAddress"
+        fileprivate static let payOutHashColumnName = "payOutHash"
+        fileprivate static let payInHashColumnName = "payInHash"
+        fileprivate static let fromNetworkColumnName = "fromNetwork"
+        fileprivate static let fromContractColumnName = "fromContract"
+        fileprivate static let toNetworkColumnName = "toNetwork"
+        fileprivate static let toContractColumnName = "toContract"
+        fileprivate static let statusColumnName = "status"
+        fileprivate static let refundNetworkColumnName = "refundNetwork"
+        fileprivate static let refundContractAddressColumnName = "refundContractAddress"
+        fileprivate static let refundAddressColumnName = "refundAddress"
+        fileprivate static let createdAtColumnName = "createdAt"
     }
 }
