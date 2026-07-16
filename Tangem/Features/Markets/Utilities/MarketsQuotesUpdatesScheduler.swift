@@ -20,6 +20,7 @@ class MarketsQuotesUpdatesScheduler {
     private var task: AsyncTaskScheduler = .init()
     private var forceUpdateTask: AnyCancellable?
     private var quotesLastUpdateDate: Date?
+    private var isSuspended = false
 
     func scheduleQuotesUpdate(for tokenIDs: Set<String>) {
         lock {
@@ -46,6 +47,10 @@ class MarketsQuotesUpdatesScheduler {
     }
 
     func forceUpdate() {
+        if isSuspended {
+            return
+        }
+
         cancelUpdates()
         let date = Date()
         let lastUpdateDate = quotesLastUpdateDate ?? date
@@ -74,8 +79,18 @@ class MarketsQuotesUpdatesScheduler {
         quotesLastUpdateDate = date
     }
 
+    func suspend() {
+        isSuspended = true
+        cancelUpdates()
+    }
+
+    func resume() {
+        isSuspended = false
+        forceUpdate()
+    }
+
     private func setupUpdateTask() {
-        if task.isScheduled {
+        if isSuspended || task.isScheduled {
             return
         }
 

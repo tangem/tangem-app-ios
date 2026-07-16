@@ -10,16 +10,17 @@ import SwiftUI
 import TangemUI
 import TangemAccounts
 import TangemAssets
+import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct MarketsPortfolioTokenListView: View {
     typealias ViewModel = MarketsPortfolioTokenListViewModel
 
     @ObservedObject var viewModel: ViewModel
 
-    @State private var topBarHeight: CGFloat = 0
-    @State private var bottomPromoHeight: CGFloat = 0
-
-    @ScaledMetric private var contentPadding: CGFloat = .unit(.x4)
+    @ScaledMetric private var walletsHorizontalPadding: CGFloat = .unit(.x4)
+    @ScaledMetric private var topBarVerticalPadding: CGFloat = .unit(.x4)
+    @ScaledMetric private var topBarHorizontalPadding: CGFloat = .unit(.x3)
     @ScaledMetric private var walletsSpacing: CGFloat = .unit(.x6)
     @ScaledMetric private var walletSpacing: CGFloat = .unit(.x4)
     @ScaledMetric private var walletHeaderSpacing: CGFloat = .unit(.x1)
@@ -31,43 +32,21 @@ struct MarketsPortfolioTokenListView: View {
     @ScaledMetric private var accountHeaderLeadingPadding: CGFloat = .unit(.x1)
     @ScaledMetric private var tokenRowsSpacing: CGFloat = .unit(.x6)
     @ScaledMetric private var promoFadeHeight: CGFloat = 60
-    @ScaledSize private var thumbnailSize: CGSize = .init(bothDimensions: .unit(.x5))
+    @ScaledMetric private var thumbnailSide = CGFloat.unit(.x5)
+
+    private let backgroundColor: Color = .Tangem.Surface.level2
 
     var body: some View {
-        ZStack {
-            wallets
-
-            ZStack(alignment: .top) {
-                LinearGradient(
-                    colors: [
-                        Color.Tangem.Surface.level2,
-                        Color.Tangem.Surface.level2.opacity(0),
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 80)
-                .allowsHitTesting(false)
-
-                topBar
-                    .padding(.horizontal, contentPadding)
-                    .padding(.vertical, contentPadding / 2)
-                    .readGeometry(\.size.height, bindTo: $topBarHeight)
-                    .frame(maxHeight: .infinity, alignment: .top)
+        wallets
+            .safeAreaInset(edge: .top, spacing: 0) { topBar }
+            .safeAreaInset(edge: .bottom, spacing: 20) { bottomBar }
+            .background(backgroundColor)
+            .overlay(alignment: .bottom) { walletsBlur }
+            .floatingSheetConfiguration { configuration in
+                configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
+                configuration.backgroundInteractionBehavior = .consumeTouches
+                configuration.sheetBackgroundColor = backgroundColor
             }
-
-            if let promo = viewModel.addTokenPromo {
-                bottomPromoView(promo: promo)
-                    .readGeometry(\.size.height, bindTo: $bottomPromoHeight)
-                    .frame(maxHeight: .infinity, alignment: .bottom)
-            }
-        }
-        .background(Color.Tangem.Surface.level2)
-        .floatingSheetConfiguration { configuration in
-            configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-            configuration.backgroundInteractionBehavior = .consumeTouches
-            configuration.sheetBackgroundColor = Color.Tangem.Surface.level2
-        }
     }
 }
 
@@ -81,35 +60,70 @@ private extension Animation {
 
 private extension MarketsPortfolioTokenListView {
     var topBar: some View {
+        navigationBar
+            .padding(.horizontal, topBarHorizontalPadding)
+            .padding(.vertical, topBarVerticalPadding)
+            .background {
+                navigationBarBlur
+            }
+    }
+
+    var navigationBar: some View {
         ZStack {
             Text(viewModel.barTitle)
-                .style(.Tangem.Heading17.medium, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
 
             TangemButton(
                 content: .icon(Assets.DesignSystem.close),
                 action: viewModel.onCloseTap
             )
             .setStyleType(.secondary)
-            .setCornerStyle(.rounded)
             .setSize(.x10)
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 
-    func bottomPromoView(promo: ViewModel.AddTokenPromo) -> some View {
-        VStack(spacing: 0) {
-            LinearGradient(
-                colors: [Color.Tangem.Surface.level2.opacity(0), Color.Tangem.Surface.level2],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: promoFadeHeight)
-            .allowsHitTesting(false)
+    var navigationBarBlur: some View {
+        LinearGradient(
+            colors: [
+                backgroundColor,
+                backgroundColor.opacity(0),
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .allowsHitTesting(false)
+    }
 
-            AddToPortfolioPromoView(iconURL: promo.iconURL, action: promo.action)
-                .padding(.horizontal, contentPadding)
-                .padding(.bottom, contentPadding)
-                .background(Color.Tangem.Surface.level2)
+    @ViewBuilder
+    var bottomBar: some View {
+        if let promo = viewModel.addTokenPromo {
+            addTokenView(action: promo.action)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 20)
+                .background(backgroundColor)
+        }
+    }
+
+    func addTokenView(action: @escaping () -> Void) -> some View {
+        HStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(Localization.commonAddToken)
+                    .style(.Tangem.Body16.medium.font, color: .Tangem.Text.Neutral.primary)
+
+                Text(Localization.marketsTokenAddSubtitle)
+                    .style(.Tangem.Caption12.regular.font, color: .Tangem.Text.Neutral.secondary)
+            }
+
+            Spacer(minLength: 8)
+
+            TangemButton(
+                content: .text(AttributedString(Localization.marketsAddToken)),
+                action: action
+            )
+            .setSize(.x9)
+            .setStyleType(.secondary)
+            .accessibilityIdentifier(MainAccessibilityIdentifiers.addToPortfolioButton)
         }
     }
 }
@@ -120,15 +134,12 @@ private extension MarketsPortfolioTokenListView {
     var wallets: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: walletsSpacing) {
-                Color.clear.frame(height: topBarHeight)
-
                 ForEach(viewModel.sections, id: \.id) { section in
                     wallet(section: section)
                 }
-
-                Color.clear.frame(height: bottomPromoHeight)
             }
-            .padding(.horizontal, contentPadding)
+            .padding(.horizontal, walletsHorizontalPadding)
+            .background(backgroundColor)
         }
     }
 
@@ -146,12 +157,28 @@ private extension MarketsPortfolioTokenListView {
     func walletHeader(title: String, thumbnail: ThumbnailWalletViewType?) -> some View {
         HStack(spacing: walletHeaderSpacing) {
             Text(title)
-                .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.secondary)
 
             thumbnail.map {
                 MiniatureWalletView(type: $0)
-                    .frame(size: thumbnailSize)
+                    .frame(width: thumbnailSide, height: thumbnailSide)
             }
+        }
+    }
+
+    @ViewBuilder
+    var walletsBlur: some View {
+        if viewModel.addTokenPromo == nil {
+            LinearGradient(
+                colors: [
+                    backgroundColor.opacity(0),
+                    backgroundColor,
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: promoFadeHeight)
+            .allowsHitTesting(false)
         }
     }
 }
@@ -191,7 +218,7 @@ private extension MarketsPortfolioTokenListView {
             name: title
         )
         .iconSettings(.smallSized)
-        .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
+        .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
     }
 }
 
@@ -206,10 +233,15 @@ private extension MarketsPortfolioTokenListView {
         }
     }
 
+    @ViewBuilder
     func token(row: ViewModel.TokenRow) -> some View {
-        Button(action: row.onTap) {
+        if let onTap = row.onTap {
+            Button(action: onTap) {
+                MarketsPortfolioTokenListRowView(viewModel: row.model)
+            }
+            .buttonStyle(.plain)
+        } else {
             MarketsPortfolioTokenListRowView(viewModel: row.model)
         }
-        .buttonStyle(.plain)
     }
 }

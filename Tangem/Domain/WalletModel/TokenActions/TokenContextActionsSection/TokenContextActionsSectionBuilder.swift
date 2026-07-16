@@ -12,7 +12,7 @@ struct TokenContextActionsSectionBuilder {
     func buildContextActionsSections(
         tokenItem: TokenItem,
         walletModel: (any WalletModel)?,
-        userWalletConfig: UserWalletConfig,
+        userWalletInfo: UserWalletInfo,
         canNavigateToMarketsDetails: Bool,
         canHideToken: Bool
     ) -> [TokenContextActionsSection] {
@@ -36,7 +36,7 @@ struct TokenContextActionsSectionBuilder {
             sections.append(marketsSection)
         }
 
-        let tokenActionAvailabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletConfig, walletModel: walletModel)
+        let tokenActionAvailabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
 
         let baseSectionItems = tokenActionAvailabilityProvider.buildTokenContextActions()
 

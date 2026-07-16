@@ -74,7 +74,7 @@ extension CryptoAccountModelMock {
     private struct AccountRateProviderStub: AccountRateProvider {
         var accountRate: AccountRate {
             return .loaded(
-                quote: AccountQuote(priceChange24h: Decimal(stringValue: "1.23")!)
+                quote: AccountQuote(priceChange24h: Decimal(stringValue: "1.23")!, fiatChange24h: Decimal(stringValue: "12.34")!)
             )
         }
 

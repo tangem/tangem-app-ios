@@ -23,6 +23,7 @@ extension UserWalletInfoProvider where Self: UserWalletModel {
             name: name,
             id: userWalletId,
             config: config,
+            backupState: backupState,
             refcode: refcodeProvider?.getRefcode(),
             signer: signer,
             emailDataProvider: emailDataProvider

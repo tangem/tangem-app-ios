@@ -20,7 +20,7 @@ final class CommonTokenItemsRepository {
     init(key: String) {
         self.key = key
 
-        lockQueue.sync { migrate() }
+        lockQueue.async { [weak self] in self?.migrate() }
     }
 
     deinit {

@@ -11,6 +11,7 @@ import Combine
 import TangemLocalization
 import protocol TangemUI.FloatingSheetContentViewModel
 import enum TangemUI.ThumbnailWalletViewType
+import struct TangemFoundation.UserWalletId
 
 final class MarketsPortfolioTokenListViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -21,26 +22,30 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
     var addTokenPromo: AddTokenPromo?
 
     var hasWalletHeader: Bool {
-        sections.count > 1
+        sections.count > 1 || hasAccountHeader
     }
 
     var hasAccountHeader: Bool {
-        sections.contains { $0.accounts.count > 1 }
+        sections.contains(where: \.walletHasMultipleAccounts)
     }
 
     private let onSelect: (any WalletModel) -> Void
+    private let dismissesOnSelect: Bool
     private weak var coordinator: MarketsPortfolioTokenListRoutable?
 
     init(
         walletModels: [any WalletModel],
+        underivedTokens: [UnderivedToken] = [],
         addTokenPromo: AddTokenPromo? = nil,
+        dismissesOnSelect: Bool = true,
         onSelect: @escaping (any WalletModel) -> Void,
         coordinator: MarketsPortfolioTokenListRoutable
     ) {
         self.onSelect = onSelect
+        self.dismissesOnSelect = dismissesOnSelect
         self.coordinator = coordinator
         self.addTokenPromo = addTokenPromo
-        sections = makeWalletSections(walletModels: walletModels)
+        sections = makeWalletSections(walletModels: walletModels, underivedTokens: underivedTokens)
     }
 }
 
@@ -55,14 +60,17 @@ extension MarketsPortfolioTokenListViewModel {
 // MARK: - Private methods
 
 private extension MarketsPortfolioTokenListViewModel {
-    func makeWalletSections(walletModels: [any WalletModel]) -> [WalletSection] {
+    func makeWalletSections(walletModels: [any WalletModel], underivedTokens: [UnderivedToken]) -> [WalletSection] {
         var sections: [WalletSection] = []
 
         for walletModel in walletModels {
-            guard
-                let userWalletModel = userWalletRepository.models[walletModel.userWalletId],
-                let account = walletModel.account
-            else {
+            guard let userWalletModel = userWalletRepository.models[walletModel.userWalletId] else {
+                continue
+            }
+
+            // `WalletModel.account` is a weak reference, so fall back to resolving the owning account
+            // from the wallet's account models to avoid silently dropping rows.
+            guard let account = walletModel.account ?? resolveAccount(for: walletModel, in: userWalletModel) else {
                 continue
             }
 
@@ -85,7 +93,52 @@ private extension MarketsPortfolioTokenListViewModel {
             }
         }
 
+        // Tokens that exist in the portfolio but whose addresses aren't derived yet have no wallet model,
+        // so they never come through `walletModels`. Show them as non-tappable "No address" rows instead
+        // of silently disappearing (which left the sheet empty until a manual sync).
+        for underived in underivedTokens {
+            appendNoAddressRow(to: &sections, underived: underived)
+        }
+
         return sections
+    }
+
+    func appendNoAddressRow(to sections: inout [WalletSection], underived: UnderivedToken) {
+        let row = makeNoAddressTokenRow(tokenItem: underived.tokenItem)
+        let walletId = AnyHashable(underived.userWalletId)
+
+        guard let walletIdx = sections.firstIndex(where: { $0.id == walletId }) else {
+            sections.append(
+                WalletSection(
+                    id: walletId,
+                    title: underived.walletName,
+                    thumbnail: underived.walletThumbnail,
+                    walletHasMultipleAccounts: underived.walletHasMultipleAccounts,
+                    accounts: [
+                        AccountSection(
+                            id: underived.accountId,
+                            title: underived.accountName,
+                            icon: underived.accountIcon,
+                            tokenRows: [row]
+                        ),
+                    ]
+                )
+            )
+            return
+        }
+
+        if let accountIdx = sections[walletIdx].accounts.firstIndex(where: { $0.id == underived.accountId }) {
+            sections[walletIdx].accounts[accountIdx].tokenRows.append(row)
+        } else {
+            sections[walletIdx].accounts.append(
+                AccountSection(
+                    id: underived.accountId,
+                    title: underived.accountName,
+                    icon: underived.accountIcon,
+                    tokenRows: [row]
+                )
+            )
+        }
     }
 
     func update(
@@ -133,10 +186,17 @@ private extension MarketsPortfolioTokenListViewModel {
             id: walletModel.userWalletId,
             title: userWalletModel.name,
             thumbnail: userWalletModel.config.walletThumbnailType,
+            walletHasMultipleAccounts: userWalletModel.accountModelsManager.cryptoAccountModels.count > 1,
             accounts: [account]
         )
 
         sections.append(section)
+    }
+
+    func resolveAccount(for walletModel: any WalletModel, in userWalletModel: any UserWalletModel) -> (any CryptoAccountModel)? {
+        userWalletModel.accountModelsManager.cryptoAccountModels.first { account in
+            account.walletModelsManager.walletModels.contains { $0.id == walletModel.id }
+        }
     }
 
     func makeTokenRow(walletModel: any WalletModel) -> TokenRow {
@@ -159,11 +219,32 @@ private extension MarketsPortfolioTokenListViewModel {
         )
 
         let onTap: () -> Void = { [weak self] in
-            self?.close()
-            self?.onSelect(walletModel)
+            guard let self else { return }
+
+            if dismissesOnSelect {
+                close()
+            }
+
+            onSelect(walletModel)
         }
 
         return TokenRow(model: model, onTap: onTap)
+    }
+
+    func makeNoAddressTokenRow(tokenItem: TokenItem) -> TokenRow {
+        let tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: tokenItem.token?.isCustom ?? false)
+        let networkName = "\(tokenItem.networkName) \(Localization.wcCommonNetwork.lowercased())"
+
+        let model = MarketsPortfolioTokenListRowViewModel(
+            noAddressTokenInfo: .init(
+                name: tokenItem.name,
+                networkName: networkName,
+                currencyCode: tokenItem.currencySymbol,
+                iconInfo: tokenIconInfo
+            )
+        )
+
+        return TokenRow(model: model, onTap: nil)
     }
 }
 
@@ -184,6 +265,7 @@ extension MarketsPortfolioTokenListViewModel {
         let id: AnyHashable
         let title: String
         let thumbnail: ThumbnailWalletViewType?
+        let walletHasMultipleAccounts: Bool
         var accounts: [AccountSection]
     }
 
@@ -196,12 +278,25 @@ extension MarketsPortfolioTokenListViewModel {
 
     struct TokenRow {
         let model: MarketsPortfolioTokenListRowViewModel
-        let onTap: () -> Void
+        let onTap: (() -> Void)?
     }
 
     struct AddTokenPromo {
         let iconURL: URL
         let action: () -> Void
+    }
+
+    /// A portfolio token whose address isn't derived yet, so it has no wallet model.
+    /// Rendered as a non-tappable "No address" row.
+    struct UnderivedToken {
+        let userWalletId: UserWalletId
+        let walletName: String
+        let walletThumbnail: ThumbnailWalletViewType?
+        let walletHasMultipleAccounts: Bool
+        let accountId: AnyHashable
+        let accountName: String
+        let accountIcon: AccountModel.Icon
+        let tokenItem: TokenItem
     }
 }
 

@@ -65,9 +65,10 @@ extension UnstakingAmountValidator: SendAmountValidator {
     }
 }
 
-enum UnstakingValidationError: LocalizedError {
+enum UnstakingValidationError: LocalizedError, Equatable {
     case amountExceedsStakingBalance
     case amountRequirementError(minAmount: Decimal)
+    case remainingAmountBelowMinimum
 
     var errorDescription: String? {
         switch self {
@@ -75,6 +76,8 @@ enum UnstakingValidationError: LocalizedError {
             Localization.stakingUnstakeAmountValidationError
         case .amountRequirementError(let minAmount):
             Localization.stakingUnstakeAmountRequirementError(minAmount)
+        case .remainingAmountBelowMinimum:
+            Localization.stakingNotificationLowStakedBalanceText
         }
     }
 }

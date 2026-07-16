@@ -27,14 +27,15 @@ struct TokenDetailsView: View {
         // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: Constants.sectionSpacing) {
-                TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
+                if !viewModel.isRedesign {
+                    TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
+                }
 
                 if viewModel.isRedesign {
                     TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
+                        .padding(.vertical, max(0, .unit(.x10) - Constants.sectionSpacing))
 
-                    if let actionsViewModel = viewModel.actionsViewModel {
-                        TokenDetailsActionsView(viewModel: actionsViewModel)
-                    }
+                    redesignActionsSection
                 } else {
                     BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
                 }
@@ -43,7 +44,7 @@ struct TokenDetailsView: View {
 
                 marketPriceLegacy
 
-                yieldStatusView
+                yieldView
 
                 stakingView
 
@@ -56,7 +57,7 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
 
-                if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+                if !viewModel.isRedesign, let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
                     QuickTopUpBannerView(viewModel: quickTopUpVM)
                 }
 
@@ -109,28 +110,26 @@ struct TokenDetailsView: View {
         .ignoresSafeArea(.keyboard)
         .alert(item: $viewModel.alert) { $0.alert }
         .coordinateSpace(name: CoordinateSpaceName.scrollView)
-        .toolbar {
-            principalToolbarContent
-            trailingToolbarButton
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .modifyView { view in
-            if #unavailable(iOS 26.0), viewModel.isRedesign {
-                view.backportTranslucentNavigationBar()
-            } else {
-                view
-            }
-        }
+        .modifier(NavigationModifier(
+            presentSource: viewModel.presentSource,
+            backgroundColor: backgroundColor,
+            leadingContent: { leadingContent },
+            principalContent: { principalContent },
+            trailingContent: { trailingContent }
+        ))
     }
 
-    @ToolbarContentBuilder
-    private var principalToolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .principal) {
-            if viewModel.isRedesign {
-                redesignPrincipalToolbarContent
-            } else {
-                legacyPrincipalToolbarContent
-            }
+    private var leadingContent: some View {
+        NavigationBarButton.back(action: viewModel.onBack)
+            .redesigned()
+    }
+
+    @ViewBuilder
+    private var principalContent: some View {
+        if viewModel.isRedesign {
+            redesignPrincipalToolbarContent
+        } else {
+            legacyPrincipalToolbarContent
         }
     }
 
@@ -152,18 +151,16 @@ struct TokenDetailsView: View {
         .opacity(scrollOffsetHandler.state)
     }
 
-    private var trailingToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Group {
-                if viewModel.isRedesign {
-                    redesignTrailingToolbarButton
-                } else {
-                    legacyTrailingToolbarButton
-                }
+    private var trailingContent: some View {
+        Group {
+            if viewModel.isRedesign {
+                redesignTrailingToolbarButton
+            } else {
+                legacyTrailingToolbarButton
             }
-            .accessibilityAddTraits(.isButton)
-            .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
         }
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
     }
 
     @ViewBuilder
@@ -181,10 +178,51 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    private var stakingView: some View {
-        if viewModel.isRedesign {
+    private var redesignActionsSection: some View {
+        if let actionsViewModel = viewModel.actionsViewModel {
+            TokenDetailsRedesignActionsSection(actionsViewModel: actionsViewModel) {
+                redesignBanners
+            } quickTopUp: {
+                quickTopUpBanner
+            }
+        }
+    }
+
+    private var redesignBanners: some View {
+        VStack(spacing: .unit(.x2)) {
+            redesignNotificationBanners
+            redesignYieldView
             redesignStakingView
-        } else {
+        }
+    }
+
+    @ViewBuilder
+    private var quickTopUpBanner: some View {
+        if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+            QuickTopUpBannerView(viewModel: quickTopUpVM)
+        }
+    }
+
+    @ViewBuilder
+    private var yieldView: some View {
+        if !viewModel.isRedesign {
+            yieldStatusView
+        }
+    }
+
+    @ViewBuilder
+    private var redesignYieldView: some View {
+        switch viewModel.yieldState {
+        case .some(let state):
+            TokenDetailsYieldView(state: state)
+        case .none:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var stakingView: some View {
+        if !viewModel.isRedesign {
             legacyStakingView
         }
     }
@@ -211,31 +249,50 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var redesignTrailingToolbarButton: some View {
+        let menuItems = ForEach(viewModel.dotsMenuItems) { menuItem in
+            Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
+                .frame(width: .unit(.x11), height: .unit(.x11))
+                .accessibilityIdentifier(menuItem.type.accessibilityIdentifier)
+        }
+
         if !viewModel.dotsMenuItems.isEmpty {
-            Menu("", systemImage: "ellipsis") {
-                ForEach(viewModel.dotsMenuItems) { menuItem in
-                    Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
-                        .accessibilityIdentifier(menuItem.type.accessibilityIdentifier)
+            switch viewModel.presentSource {
+            case .navigation:
+                Menu("", systemImage: "ellipsis") {
+                    menuItems
                 }
+            case .markets:
+                Menu(
+                    content: {
+                        menuItems
+                    },
+                    label: {
+                        NavigationBarButton.details(action: {})
+                            .redesigned()
+                            .allowsHitTesting(false)
+                    }
+                )
             }
         }
     }
 
     @ViewBuilder
     private var notifications: some View {
-        if viewModel.isRedesign {
-            VStack(spacing: .unit(.x2)) {
-                ForEach(viewModel.notifications) { notification in
-                    NotificationBanner(
-                        bannerType: notification.bannerType,
-                        accessibilityIdentifier: notification.accessibilityIdentifier
-                    )
-                }
-            }
-        } else {
+        if !viewModel.isRedesign {
             ForEach(viewModel.tokenNotificationInputs) { input in
                 NotificationView(input: input)
                     .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
+            }
+        }
+    }
+
+    private var redesignNotificationBanners: some View {
+        VStack(spacing: .unit(.x2)) {
+            ForEach(viewModel.notifications) { notification in
+                NotificationBanner(
+                    bannerType: notification.bannerType,
+                    accessibilityIdentifier: notification.accessibilityIdentifier
+                )
             }
         }
     }
@@ -259,7 +316,10 @@ struct TokenDetailsView: View {
             TokenDetailsMarketPriceView(viewModel: viewModel)
                 .padding(.horizontal, .unit(.x4))
                 .padding(.vertical, .unit(.x2))
-                .ignoresSafeArea(.keyboard)
+                .background {
+                    LinearGradient.Tangem.Common.tokenDetailsMarketPrice
+                        .ignoresSafeArea()
+                }
         }
     }
 
@@ -302,6 +362,59 @@ private extension TokenDetailsView {
     }
 }
 
+// MARK: - Navigation modifier
+
+private extension TokenDetailsView {
+    struct NavigationModifier<LeadingContent, PrincipalContent, TrailingContent>: ViewModifier
+        where LeadingContent: View, PrincipalContent: View, TrailingContent: View {
+        let presentSource: TokenDetailsPresentSource
+        let backgroundColor: Color
+
+        @ViewBuilder var leadingContent: LeadingContent
+        @ViewBuilder var principalContent: PrincipalContent
+        @ViewBuilder var trailingContent: TrailingContent
+
+        func body(content: Content) -> some View {
+            Group {
+                switch presentSource {
+                case .navigation: makeCommonNavigation(content: content)
+                case .markets: makeMarketsNavigation(content: content)
+                }
+            }
+            .modifyView { view in
+                if #unavailable(iOS 26.0), FeatureProvider.isAvailable(.redesign) {
+                    view.backportTranslucentNavigationBar()
+                } else {
+                    view
+                }
+            }
+        }
+
+        private func makeCommonNavigation(content: Content) -> some View {
+            content
+                .toolbar {
+                    ToolbarItem(placement: .principal) { principalContent }
+                    ToolbarItem(placement: .topBarTrailing) { trailingContent }
+                }
+                .navigationBarTitleDisplayMode(.inline)
+        }
+
+        private func makeMarketsNavigation(content: Content) -> some View {
+            VStack(spacing: 0) {
+                NavigationHeader(
+                    leadingContent: { leadingContent },
+                    principalContent: { principalContent },
+                    trailingContent: { trailingContent }
+                )
+                .padding(.bottom, .unit(.x4))
+                .background(backgroundColor)
+
+                content
+            }
+        }
+    }
+}
+
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
     let cryptoAccountModel = userWalletModel
@@ -319,23 +432,26 @@ private extension TokenDetailsView {
         walletModelsManager: cryptoAccountModel.walletModelsManager,
         tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
     )
-    let apiProviderFactory = ExpressAPIProviderFactory()
-    let expressAPIProviderResolver = ExpressAPIProviderResolver(
-        providerFactory: { userWalletId, refcode in
-            apiProviderFactory.makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
-        }
-    )
+    let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
+        ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+    }
     let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
         tokenItem: walletModel.tokenItem,
         walletModelUpdater: walletModel,
-        expressAPIProviderResolver: expressAPIProviderResolver,
+        cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
+    let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
     let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
         tokenItem: walletModel.tokenItem,
-        expressAPIProvider: expressAPIProviderResolver.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
+        expressAPIProvider: onrampExpressAPIProvider,
+        unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
+            userWalletId: userWalletModel.userWalletId.stringValue,
+            tokenItem: walletModel.tokenItem,
+            expressAPIProvider: onrampExpressAPIProvider
+        )
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
         first: pendingExpressTxsManager,
@@ -356,7 +472,8 @@ private extension TokenDetailsView {
                 userWalletInfo: userWalletModel.userWalletInfo,
                 coordinator: coordinator
             ),
-            pendingTransactionDetails: nil
+            pendingTransactionDetails: nil,
+            presentSource: .navigation
         )
     )
 }
