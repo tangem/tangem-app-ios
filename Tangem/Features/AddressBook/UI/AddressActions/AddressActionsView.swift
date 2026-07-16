@@ -56,11 +56,11 @@ struct AddressActionsView: View {
 
     private var copyButton: some View {
         TangemButtonV2(
-            label: AttributedString(Localization.addressBookCopyAddress),
-            iconEnd: DesignSystem.Icons.Copy.regular20,
+            label: Localization.addressBookCopyAddress,
             accessibilityLabel: Localization.addressBookCopyAddress,
             action: viewModel.copy
         )
+        .iconEnd(DesignSystem.Icons.Copy.regular20)
         .styleType(.secondary)
         .size(.x9)
         .horizontalLayout(.intrinsic)

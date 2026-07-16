@@ -10,6 +10,7 @@ import SwiftUI
 import func TangemFoundation.clamp
 import struct TangemFoundation.UserWalletId
 import TangemUI
+import TangemAssets
 
 struct MainHorizontalPagingScrollView: View {
     let userWalletPageBuilders: [MainUserWalletPageBuilder]
