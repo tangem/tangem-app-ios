@@ -38,8 +38,12 @@ private extension PortfolioTokenItemView {
         )
     }
 
+    @ViewBuilder
     func expandedViewHeader() -> some View {
-        ExpandedHeaderView(assetRow: item.assetRow)
+        // An expandable item is always resolved content, so this is present; a loading asset is inert.
+        if let content = item.assetRow.content {
+            ExpandedHeaderView(assetRow: content)
+        }
     }
 
     func expandedView() -> some View {
@@ -56,7 +60,8 @@ private extension PortfolioTokenItemView {
     }
 
     var rowContent: some View {
-        RowView(data: item.assetRow, showsIndicator: true)
+        // Aggregate row: no network badge — the asset spans networks (shown in the subtitle / child rows).
+        RowView(row: item.assetRow, showsIndicator: true, isWithOverlays: false)
     }
 }
 

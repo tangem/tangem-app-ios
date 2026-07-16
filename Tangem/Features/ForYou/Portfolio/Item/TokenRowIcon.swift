@@ -13,8 +13,11 @@ import TangemUI
 struct TokenRowIcon: View {
     let iconInfo: TokenIconInfo?
     var showsIndicator: Bool = false
+    /// Whether the network badge / custom-token indicator are drawn. Off for the aggregate row, whose
+    /// icon is network-agnostic (the networks live in the subtitle and the per-network child rows).
+    var isWithOverlays: Bool = true
 
-    @ScaledMetric private var size: CGFloat = 40
+    @ScaledMetric private var size: CGFloat = PortfolioTokenRowLayout.iconSize
 
     var body: some View {
         content
@@ -33,7 +36,7 @@ private extension TokenRowIcon {
             TokenIcon(
                 tokenIconInfo: iconInfo,
                 size: CGSize(width: size, height: size),
-                isWithOverlays: true
+                isWithOverlays: isWithOverlays
             )
         } else {
             // "Other" bucket — the empty-currency glyph.

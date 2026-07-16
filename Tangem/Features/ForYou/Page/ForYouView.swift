@@ -21,49 +21,45 @@ struct ForYouView: View {
         ZStack(alignment: .top) {
             backgroundColor
                 .ignoresSafeArea()
-
             VStack(spacing: 0) {
                 navigationBar
-                    .background {
-                        MarketsNavigationBarBackgroundView(
-                            backdropViewColor: backgroundColor,
-                            overlayContentHidingProgress: 1,
-                            isNavigationBarBackgroundBackdropViewHidden: false,
-                            isListContentObscured: false
-                        )
-                    }
-
+                    .background(marketsNavigationBarBackground)
                 content
             }
         }
         .ignoresSafeArea(.container, edges: .top)
     }
+}
 
-    private var backgroundColor: Color {
+private extension ForYouView {
+    // MARK: - View properties
+
+    var marketsNavigationBarBackground: some View {
+        MarketsNavigationBarBackgroundView(
+            backdropViewColor: backgroundColor,
+            overlayContentHidingProgress: 1,
+            isNavigationBarBackgroundBackdropViewHidden: false,
+            isListContentObscured: false
+        )
+    }
+
+    var backgroundColor: Color {
         DesignSystem.Color.bgPrimary
     }
 
-    // MARK: - Content
-
-    private var content: some View {
+    var content: some View {
         ScrollView {
             PortfolioReviewView(viewModel: viewModel.portfolioReview)
                 .padding(16)
         }
     }
 
-    // MARK: - Navigation bar
-
-    private var navigationBar: some View {
+    var navigationBar: some View {
         ZStack {
             Text(Localization.forYouTitle)
                 .style(Fonts.Bold.body, color: Colors.Text.primary1)
-
             HStack {
-                // Liquid Glass back button on iOS 26 (system-label / circle fallbacks otherwise).
-                NavigationBarButton.back(action: onBackButtonAction)
-                    .redesigned()
-
+                NavigationBarButton.back(action: onBackButtonAction).redesigned()
                 Spacer()
             }
         }

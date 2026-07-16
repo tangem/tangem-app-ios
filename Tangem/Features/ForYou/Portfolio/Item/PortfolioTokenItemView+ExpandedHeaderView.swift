@@ -54,7 +54,7 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
     @ViewBuilder
     var summary: some View {
         switch assetRow.end {
-        case .values(let fiat, let percent):
+        case .values(let fiat, let percent, _):
             Text(fiat).style(
                 DesignSystem.Font.subheadingMediumToken,
                 color: DesignSystem.Color.textPrimary

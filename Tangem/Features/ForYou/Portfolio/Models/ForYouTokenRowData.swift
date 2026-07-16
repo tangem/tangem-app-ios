@@ -21,10 +21,20 @@ struct ForYouTokenRowData: Identifiable, Equatable {
 
     /// Trailing content of a row.
     enum End: Equatable {
-        /// Resolved balance: the fiat total and its share of the portfolio.
-        case values(fiat: String, percent: String)
+        /// Resolved balance: the fiat total, its share of the portfolio, and how fresh the value is.
+        case values(fiat: String, percent: String, source: ValueSource)
         /// Couldn't resolve — a warning label rendered in place of the share; fiat shows as a dash.
         case unavailable(label: String)
+
+        /// Freshness of a shown value, mirroring the wallet's balance source.
+        enum ValueSource: Equatable {
+            /// Fresh, up-to-date value.
+            case actual
+            /// Stale value while a refresh is in flight — rendered with a shimmer.
+            case cache
+            /// Couldn't refresh — the last known value is shown with a sync-error icon.
+            case onlyCache
+        }
     }
 
     /// Placeholder price-change sentiment; real data lands with the price-change pipeline.

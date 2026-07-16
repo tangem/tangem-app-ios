@@ -15,7 +15,7 @@ import TangemExpress
 import TangemFoundation
 
 final actor TransactionHistoryProvider {
-    @Injected(\.transactionHistoryAuxDataRepository) private nonisolated var auxDataRepository: TransactionHistoryAuxDataRepository
+    @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
 
     private let repository: TransactionHistoryRepository
     private let syncMetadataStorage: () async -> SyncMetadataStorage
@@ -104,7 +104,7 @@ final actor TransactionHistoryProvider {
 
     private nonisolated func subscribeToAuxDataUpdates() {
         let auxDataSubscription = runTask { [weak self] in
-            guard let stream = self?.auxDataRepository.didLoadAuxData else {
+            guard let stream = await self?.auxDataRepository.didLoadAuxData else {
                 return
             }
 

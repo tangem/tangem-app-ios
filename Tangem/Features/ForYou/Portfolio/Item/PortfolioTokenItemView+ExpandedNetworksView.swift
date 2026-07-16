@@ -10,12 +10,12 @@ import SwiftUI
 
 extension PortfolioTokenItemView {
     struct ExpandedNetworksView: View {
-        let networkRows: [ForYouTokenRowData]
+        let networkRows: [ForYouTokenRow]
 
         var body: some View {
             VStack(spacing: 0) {
                 ForEach(networkRows) { row in
-                    RowView(data: row)
+                    RowView(row: row)
                 }
             }
         }

@@ -11,8 +11,8 @@ import Foundation
 /// One asset row plus its per-network breakdown revealed on expand.
 struct ForYouTokenListItem: Identifiable, Equatable {
     let id: String
-    let assetRow: ForYouTokenRowData
-    let networkRows: [ForYouTokenRowData]
+    let assetRow: ForYouTokenRow
+    let networkRows: [ForYouTokenRow]
     let isExpanded: Bool
     let isExpandable: Bool
 }

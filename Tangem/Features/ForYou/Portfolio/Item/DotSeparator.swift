@@ -14,7 +14,7 @@ struct DotSeparator: View {
 
     var body: some View {
         Circle()
-            .fill(DesignSystem.Color.iconTertiary)
+            .fill(DesignSystem.Color.iconSecondary)
             .frame(width: size, height: size)
     }
 }
