@@ -13,6 +13,6 @@ struct ForYouTokenListItem: Identifiable, Equatable {
     let id: String
     let assetRow: ForYouTokenRow
     let networkRows: [ForYouTokenRow]
-    let isExpanded: Bool
+    var isExpanded: Bool
     let isExpandable: Bool
 }

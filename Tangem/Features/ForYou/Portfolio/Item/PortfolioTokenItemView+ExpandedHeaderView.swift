@@ -59,11 +59,14 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
                 DesignSystem.Font.subheadingMediumToken,
                 color: DesignSystem.Color.textPrimary
             )
-            DotSeparator()
-            Text(percent).style(
-                DesignSystem.Font.subheadingMediumToken,
-                color: DesignSystem.Color.textSecondary
-            )
+
+            if !percent.isEmpty {
+                DotSeparator()
+                Text(percent).style(
+                    DesignSystem.Font.subheadingMediumToken,
+                    color: DesignSystem.Color.textSecondary
+                )
+            }
         case .unavailable(let label):
             Text(AppConstants.enDashSign).style(
                 DesignSystem.Font.subheadingMediumToken,
@@ -86,11 +89,7 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
                 isWithOverlays: false
             )
         } else {
-            Assets.emptyTokenList.image
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(DesignSystem.Color.iconPrimary)
-                .frame(width: iconSize, height: iconSize)
+            EmptyTokenGlyph(size: iconSize)
         }
     }
 

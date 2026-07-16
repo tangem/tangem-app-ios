@@ -108,22 +108,12 @@ private extension PortfolioReviewViewModel.ViewState {
     /// Re-derives each item's `isExpanded` flag from the currently expanded asset ids.
     func expanding(_ expandedIds: Set<String>) -> Self {
         Self(
-            tokenList: tokenList.map { $0.updating(isExpanded: expandedIds.contains($0.id)) },
+            tokenList: tokenList.map { item in
+                var item = item
+                item.isExpanded = expandedIds.contains(item.id)
+                return item
+            },
             periodSegments: periodSegments
-        )
-    }
-}
-
-// MARK: - Private helpers
-
-private extension ForYouTokenListItem {
-    func updating(isExpanded: Bool) -> ForYouTokenListItem {
-        ForYouTokenListItem(
-            id: id,
-            assetRow: assetRow,
-            networkRows: networkRows,
-            isExpanded: isExpanded,
-            isExpandable: isExpandable
         )
     }
 }

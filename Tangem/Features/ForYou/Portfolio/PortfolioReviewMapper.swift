@@ -54,6 +54,7 @@ private extension PortfolioReviewMapper {
             networkName: tokenItem.networkName,
             symbol: tokenItem.currencySymbol,
             tokenItem: tokenItem,
+            isCustom: walletModel.isCustom,
             // Keep the (possibly cached) value for any state that shows one — including cache / only-cache.
             crypto: availability.showsValue ? walletModel.availableBalanceProvider.balanceType.value : nil,
             fiat: availability.showsValue ? walletModel.fiatAvailableBalanceProvider.balanceType.value : nil,
@@ -61,7 +62,7 @@ private extension PortfolioReviewMapper {
         )
     }
 
-    /// Maps the iOS balance status onto the row availability. A cached value distinguishes "refreshing"
+    /// Maps the balance status onto the row availability. A cached value distinguishes "refreshing"
     /// (`.loading(.some)` → cache) from "nothing yet" (`.loading(.none)` → loading), and "couldn't refresh
     /// but have a value" (`.failure(.some)` → only-cache) from "unreachable" (`.failure(.none)`).
     static func availability(for balance: TokenBalanceType) -> PortfolioReviewAggregator.Availability {
@@ -126,7 +127,7 @@ private extension PortfolioReviewMapper {
         ForYouTokenRowData(
             id: group.key,
             symbol: group.symbol,
-            tokenIconInfo: iconBuilder.build(from: group.tokenItem, isCustom: false),
+            tokenIconInfo: iconBuilder.build(from: group.tokenItem, isCustom: group.isCustom),
             sentiment: Self.placeholderSentiment, // [REDACTED_TODO_COMMENT]
             subtitle: .text(assetSubtitle(tokenItem: group.tokenItem, networkCount: group.networks.count)),
             end: end
@@ -164,7 +165,7 @@ private extension PortfolioReviewMapper {
         ForYouTokenRowData(
             id: network.id,
             symbol: network.sample.symbol,
-            tokenIconInfo: iconBuilder.build(from: network.sample.tokenItem, isCustom: false),
+            tokenIconInfo: iconBuilder.build(from: network.sample.tokenItem, isCustom: network.sample.isCustom),
             sentiment: Self.placeholderSentiment,
             subtitle: subtitle,
             end: end
@@ -198,8 +199,13 @@ private extension PortfolioReviewMapper {
         if networkCount > 1 {
             return Localization.commonNetworksCount(networkCount)
         }
-        // Token variant lacks a network standardType on iOS — fall back to the network name.
-        return tokenItem.isBlockchain ? Localization.commonMainNetwork : tokenItem.networkName
+
+        if tokenItem.isBlockchain {
+            return Localization.commonMainNetwork
+        }
+
+        // Single-network token: its standard (e.g. "ERC20"), falling back to the network name.
+        return tokenItem.contractName ?? tokenItem.networkName
     }
 
     func fiatString(_ value: Decimal) -> String {
@@ -208,7 +214,7 @@ private extension PortfolioReviewMapper {
 
     func percentString(_ value: Decimal, total: Decimal) -> String {
         guard total > 0, value > 0 else { return "" }
-        return percentFormatter.format(value / total, option: Self.percentOption)
+        return percentFormatter.format(value / total, option: .yield)
     }
 
     func assetCountString(_ count: Int) -> String {
@@ -222,11 +228,4 @@ private extension PortfolioReviewMapper {
 private extension PortfolioReviewMapper {
     static let otherID = "for_you_other_assets"
     static let placeholderSentiment: ForYouTokenRowData.Sentiment = .positive // [REDACTED_TODO_COMMENT]
-
-    /// Percent with a trailing "%" and 2 decimals (e.g. "8.49%").
-    static let percentOption = PercentFormatter.Option(
-        fractionDigits: .two,
-        prefix: .empty,
-        suffix: .yield
-    )
 }

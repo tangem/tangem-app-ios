@@ -157,7 +157,17 @@ private extension PortfolioTokenItemView.ContentRow {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             }
+            .shimmer(isEnabled: isCacheValue)
         }
+    }
+
+    /// True while the row shows a stale (cache) value — the network amount flickers with the fiat and share.
+    var isCacheValue: Bool {
+        if case .values(_, _, .cache) = data.end {
+            return true
+        }
+
+        return false
     }
 }
 

@@ -40,6 +40,7 @@ private extension PortfolioReviewAggregator {
                 key: sample.groupKey,
                 symbol: sample.symbol,
                 tokenItem: sample.tokenItem,
+                isCustom: sample.isCustom,
                 entries: bucket,
                 networks: orderedNetworks(bucket)
             )
@@ -70,6 +71,7 @@ extension PortfolioReviewAggregator {
         let networkName: String
         let symbol: String
         let tokenItem: TokenItem
+        let isCustom: Bool
         let crypto: Decimal?
         let fiat: Decimal?
         let availability: Availability
@@ -80,6 +82,7 @@ extension PortfolioReviewAggregator {
         let key: String
         let symbol: String
         let tokenItem: TokenItem
+        let isCustom: Bool
         let entries: [Entry]
         let networks: [NetworkGroup]
 

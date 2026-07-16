@@ -40,12 +40,7 @@ private extension TokenRowIcon {
                 isWithOverlays: isWithOverlays
             )
         } else {
-            // "Other" bucket — the empty-currency glyph.
-            Assets.emptyTokenList.image
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(DesignSystem.Color.iconPrimary)
-                .frame(width: size, height: size)
+            EmptyTokenGlyph(size: size)
         }
     }
 
