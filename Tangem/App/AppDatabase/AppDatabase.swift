@@ -11,7 +11,9 @@ import GRDB
 import TangemFoundation
 
 final class AppDatabase {
-    typealias DatabaseHandle = DatabaseReader & DatabaseWriter
+    /// - Note: Inherits `DatabaseReader` too.
+    typealias DatabaseHandle = DatabaseWriter
+
     typealias DatabaseHandleFactory = (_ databaseFilePath: String) throws -> DatabaseHandle
 
     static let shared = AppDatabase { databaseFilePath in
