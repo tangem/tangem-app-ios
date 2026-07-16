@@ -14,7 +14,6 @@ import Testing
 @testable import TangemExpress
 @testable import Tangem
 
-/// [REDACTED_INFO]: an unfunded hot wallet loads quotes but exposes only DEX providers.
 @Suite("SwapModel DEX-only providers mode", .timeLimit(.minutes(1)))
 struct SwapModelDexOnlyModeTests {
     @Test("Legacy restriction hides providers and never reaches the express manager")
@@ -76,8 +75,7 @@ struct SwapModelDexOnlyModeTests {
         let environment = makeEnvironment(restriction: .dexProvidersOnly)
         let dex = makeProvider(id: "dex", type: .dex, expectAmount: 90)
         let cex = makeProvider(id: "cex", type: .cex, expectAmount: 100)
-        // The engine prefers an eligible DEX on selection, so a CEX selection means no usable
-        // DEX — the model doesn't second-guess the selection and falls back to the legacy state
+        // The engine prefers an eligible DEX, so a CEX selection means the pair has no usable DEX
         await environment.expressManager.configure(state: .swap(selected: cex, providers: makeProviders(dex, cex)))
 
         let state = try await updateAmountAndWaitForLoadedState(environment: environment)
@@ -241,8 +239,7 @@ private extension SwapModelDexOnlyModeTests {
         amount: Decimal = 10
     ) async throws -> SwapModel.ProvidersState {
         let states = AsyncStream<SwapModel.ProvidersState> { continuation in
-            // `statePublisher` replays the current value on subscription —
-            // drop it so a stale `.loaded` from a previous update isn't returned
+            // `statePublisher` replays the current value — drop it so a stale `.loaded` isn't returned
             let cancellable = environment.swapModel.statePublisher.dropFirst().sink { state in
                 continuation.yield(state)
             }

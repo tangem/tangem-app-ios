@@ -11,9 +11,9 @@ import TangemFoundation
 
 enum SwapBalanceRestriction: Equatable {
     case none
-    /// Zero total balance, [REDACTED_INFO] toggle is off: hide any sign of providers (legacy behavior)
+    /// Zero total balance, toggle off: hide any sign of providers (legacy)
     case hideProviders
-    /// Zero total balance, [REDACTED_INFO] toggle is on: request quotes but show only DEX providers
+    /// Zero total balance, toggle on: quotes load but only DEX providers are shown
     case dexProvidersOnly
 }
 

@@ -323,12 +323,10 @@ private extension SwapModel {
         return .loaded(.swap(selected: .none, providers: .empty), state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
     }
 
-    /// [REDACTED_INFO]: the unfunded wallet has no usable DEX for this pair — reproduce the legacy
-    /// early exit: the insufficient-funds error with no providers UI, and no complementary
-    /// amount left over from a previously displayed quote.
+    /// No usable DEX on the unfunded wallet — the legacy early exit: the insufficient-funds
+    /// error without providers UI or a leftover quote-derived amount.
     private func fallbackToLegacyBalanceRestriction() async {
-        // Captured before the clear: for a receive-driven amount the clear
-        // nils the source amount this state is built from
+        // Captured first — the clear may nil the source amount this state reads
         let fallbackState = legacyBalanceRestrictionProvidersState()
         await clearComplementaryAmount()
         update(providersState: fallbackState)

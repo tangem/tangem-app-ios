@@ -9,9 +9,8 @@
 import Combine
 import TangemExpress
 
-/// Applies the total-balance restriction to the swap providers flow: decides whether providers
-/// are hidden entirely (legacy behavior) and drives the [REDACTED_INFO] DEX-only mode, where quotes
-/// are loaded for an unfunded hot wallet but only DEX providers are exposed to the UI.
+/// Applies the total-balance restriction to the swap flow: hides providers entirely (legacy)
+/// or narrows them to DEX-only for an unfunded hot wallet.
 final class SwapBalanceRestrictionHandler {
     private let checker: SwapBalanceRestrictionFeatureChecker
     private let _isDexOnlyProvidersMode = CurrentValueSubject<Bool, Never>(false)
@@ -24,7 +23,7 @@ final class SwapBalanceRestrictionHandler {
         _isDexOnlyProvidersMode.value
     }
 
-    /// Resolves the restriction for the token and refreshes the DEX-only mode.
+    /// Resolves the restriction and refreshes the DEX-only mode.
     /// `true` means the legacy behavior: no sign of providers in the UI.
     func shouldHideProviders(for token: SendSourceToken) async throws -> Bool {
         switch try await checker.swapTotalBalanceRestriction(for: token) {
@@ -37,18 +36,16 @@ final class SwapBalanceRestrictionHandler {
             return true
 
         case .dexProvidersOnly:
-            // Let the pipeline run so quotes are loaded; the state is
-            // narrowed to DEX providers in `dexOnlyAdjustedState`.
+            // Quotes still load; the state is narrowed in `dexOnlyAdjustedState`
             _isDexOnlyProvidersMode.send(true)
             return false
         }
     }
 
-    /// [REDACTED_INFO]: while the wallet is unfunded the state is narrowed to DEX providers, so every
-    /// downstream consumer sees a consistent DEX-only world. The engine prefers an eligible DEX
-    /// on selection, so a non-DEX selection means the pair has no usable DEX — `nil` falls back
-    /// to the legacy error-only behavior. Best flags are recomputed over the visible providers,
-    /// so the best DEX carries the regular "Best rate" badge instead of "Best DEX rate".
+    /// Narrows the state to DEX providers while the wallet is unfunded. The engine prefers an
+    /// eligible DEX, so a non-DEX selection means the pair has no usable DEX — `nil` requests
+    /// the legacy fallback. Best flags are recomputed so the best visible DEX gets the regular
+    /// "Best rate" badge.
     func dexOnlyAdjustedState(_ state: ExpressManagerState) -> ExpressManagerState? {
         guard _isDexOnlyProvidersMode.value else {
             return state
