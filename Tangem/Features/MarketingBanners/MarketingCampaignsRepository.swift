@@ -17,9 +17,14 @@ final class MarketingCampaignsRepository {
     private let loadState = OSAllocatedUnfairLock(initialState: LoadState())
     private let storage = CachesDirectoryStorage(file: .cachedMarketingCampaigns)
     private let language: String?
+    private let isFeatureAvailable: () -> Bool
 
-    init(language: String? = Locale.current.language.languageCode?.identifier) {
+    init(
+        language: String? = Locale.current.language.languageCode?.identifier,
+        isFeatureAvailable: @escaping () -> Bool = { FeatureProvider.isAvailable(.marketingBanners) }
+    ) {
         self.language = language
+        self.isFeatureAvailable = isFeatureAvailable
     }
 }
 
@@ -38,25 +43,25 @@ extension MarketingCampaignsRepository {
 
 extension MarketingCampaignsRepository {
     func bannersPublisher(for tokenItem: TokenItem, kind: Kind) -> AnyPublisher<MarketingBanners, Never> {
-        campaignsSubject
-            .map { campaignsByKind in
+        Publishers.CombineLatest(campaignsSubject, HiddenMarketingCampaignsStorage.hiddenCampaignIdsPublisher)
+            .map { campaignsByKind, hiddenCampaignIds in
                 let eligible = (campaignsByKind[kind] ?? []).filter { Self.appliesTo($0, tokenItem: tokenItem) }
-                return MarketingBannerMapper.banners(from: eligible)
+                return MarketingBannerMapper.banners(from: eligible).removing(hiddenCampaignIds: hiddenCampaignIds)
             }
             .eraseToAnyPublisher()
     }
 
     func bannersPublisher(forMarketsTokenId id: String) -> AnyPublisher<MarketingBanners, Never> {
-        campaignsSubject
-            .map { campaignsByKind in
+        Publishers.CombineLatest(campaignsSubject, HiddenMarketingCampaignsStorage.hiddenCampaignIdsPublisher)
+            .map { campaignsByKind, hiddenCampaignIds in
                 let eligible = (campaignsByKind[.marketsToken] ?? []).filter { Self.appliesTo($0, coingeckoId: id) }
-                return MarketingBannerMapper.banners(from: eligible)
+                return MarketingBannerMapper.banners(from: eligible).removing(hiddenCampaignIds: hiddenCampaignIds)
             }
             .eraseToAnyPublisher()
     }
 
     func loadCampaigns(for kind: Kind) {
-        guard FeatureProvider.isAvailable(.marketingBanners) else {
+        guard isFeatureAvailable() else {
             return
         }
 
@@ -115,7 +120,11 @@ private extension MarketingCampaignsRepository {
         var inFlight: Set<Kind> = []
         var loaded: Set<Kind> = []
     }
+}
 
+// MARK: - Token matching
+
+extension MarketingCampaignsRepository {
     static func appliesTo(_ campaign: MarketingCampaignsDTO.Campaign, tokenItem: TokenItem) -> Bool {
         guard let tokens = campaign.tokens, !tokens.isEmpty else {
             return false

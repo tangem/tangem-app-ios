@@ -31,12 +31,12 @@ final class TangemPayBuilder {
     private lazy var enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
         customerWalletId: customerWalletId,
         availabilityService: availabilityService,
-        customerService: customerService
+        customerService: customerService,
+        tiersEnabled: FeatureProvider.isAvailable(.tangemPayTiers)
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
-        customerService: customerService,
-        multipleCardsEnabled: FeatureProvider.isAvailable(.tangemPayMultipleCards)
+        customerService: customerService
     )
 
     private lazy var tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
@@ -90,6 +90,7 @@ final class TangemPayBuilder {
             customerService: customerService,
             enrollmentStateFetcher: enrollmentStateFetcher,
             orderStatusPollingService: orderStatusPollingService,
+            orderResolver: orderResolver,
             orderIdStorage: AppSettings.shared,
             paeraCustomerFlagRepository: AppSettings.shared,
             cachedStateStorage: AppSettings.shared,
@@ -102,13 +103,11 @@ final class TangemPayBuilder {
 extension TangemPayBuilder: TangemPayAccountBuilder {
     func makeTangemPayAccount(
         customerInfo: VisaCustomerInfoResponse,
-        productInstance: VisaCustomerInfoResponse.ProductInstance,
         account: (any TangemPayAccountModel)?
     ) -> TangemPayAccount {
         TangemPayAccount(
             userWalletId: userWalletId,
             customerInfo: customerInfo,
-            productInstance: productInstance,
             customerService: customerService,
             balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService,

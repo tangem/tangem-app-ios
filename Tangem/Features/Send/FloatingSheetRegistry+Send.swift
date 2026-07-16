@@ -20,13 +20,7 @@ extension FloatingSheetRegistry {
         }
 
         register(SendSwapProvidersSelectorViewModel.self) { viewModel in
-            Group {
-                if FeatureProvider.isAvailable(.approveFlowV2) {
-                    NewProviderSelectorView(viewModel: viewModel)
-                } else {
-                    SendSwapProvidersSelectorView(viewModel: viewModel)
-                }
-            }
+            NewProviderSelectorView(viewModel: viewModel)
         }
 
         register(HighPriceImpactWarningSheetViewModel.self) { viewModel in

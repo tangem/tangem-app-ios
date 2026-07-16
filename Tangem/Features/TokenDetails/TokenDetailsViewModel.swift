@@ -90,7 +90,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
-    private let marketingNotificationManager: MarketingBannerNotificationManager
+    private let marketingBannerManager: MarketingBannerManager
     private let notificationBannerMapper: MultiWalletNotificationBannerMapper
     private let deeplinkHandler: PromotionDeeplinkHandler
     private var bag = Set<AnyCancellable>()
@@ -123,7 +123,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         tokenRouter: SingleTokenRoutable,
         pendingTransactionDetails: PendingTransactionDetails?,
         deeplinkHandler: PromotionDeeplinkHandler,
-        marketingNotificationManager: MarketingBannerNotificationManager = MarketingBannerNotificationManager(),
+        marketingBannerManager: MarketingBannerManager = MarketingBannerManager(),
         notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper(),
         presentSource: TokenDetailsPresentSource
     ) {
@@ -132,7 +132,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
         self.deeplinkHandler = deeplinkHandler
-        self.marketingNotificationManager = marketingNotificationManager
+        self.marketingBannerManager = marketingBannerManager
         self.notificationBannerMapper = notificationBannerMapper
         self.presentSource = presentSource
 
@@ -228,7 +228,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .renewTangemPaySession,
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
-             .addFunds:
+             .addFunds,
+             .openAppStore:
             super.didTapNotification(with: id, action: action)
         }
     }
@@ -453,7 +454,7 @@ private extension TokenDetailsViewModel {
         setupQuickTopUpBanner()
         dotsMenuItems = makeDotsMenuItems()
         marketPriceViewModel = makeMarketPriceViewModel()
-        marketingNotificationManager.setup(
+        marketingBannerManager.setup(
             bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: walletModel.tokenItem, kind: .tokenDetails)
         )
 
@@ -461,9 +462,10 @@ private extension TokenDetailsViewModel {
     }
 
     private func setupQuickTopUpBanner() {
-        expressAvailabilityProvider.availabilityDidChangePublisher
+        walletModel.actionsUpdatePublisher
             .receiveOnMain()
             .map { [weak self] in self?.mapToQuickTopUpBannerViewModel() }
+            .removeDuplicates { $0 === $1 }
             .assign(to: &$quickTopUpBannerViewModel)
     }
 
@@ -521,7 +523,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
-        marketingNotificationManager.standaloneBannersPublisher
+        marketingBannerManager.standaloneBannersPublisher
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
 
@@ -718,25 +720,30 @@ private extension TokenDetailsViewModel {
     private func makeStakingRewardsState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState.RewardsState {
         switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
         case (.auto, _):
-            return .auto
+            let rewardInfo = makeRewardInfo(staked.yieldInfo)
+            return .auto(rewardInfo)
         case (.manual, .zero):
             return .empty(Localization.stakingDetailsNoRewardsToClaim)
         case (.manual, let rewards):
-            let rewardPercent = makeFormattedRewardPercent(yieldInfo: staked.yieldInfo)
-            let rewardType = switch staked.yieldInfo.rewardType {
-            case .apr: Localization.stakingDetailsApr
-            case .apy: Localization.stakingDetailsApy
-            }
-            let rewardPercentType = "\(rewardPercent) \(rewardType)"
+            let rewardInfo = makeRewardInfo(staked.yieldInfo)
 
             let fiat: Decimal? = walletModel.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(rewards, currencyId: currencyId)
             }
             let formattedFiat = balanceFormatter.formatFiatBalance(fiat)
 
-            let claimed = "\(rewardPercentType) \(AppConstants.dotSign) \(formattedFiat)"
+            let claimed = "\(rewardInfo) \(AppConstants.dotSign) \(formattedFiat)"
             return .claimed(claimed)
         }
+    }
+
+    private func makeRewardInfo(_ yieldInfo: StakingYieldInfo) -> String {
+        let percentInfo = makeFormattedRewardPercent(yieldInfo: yieldInfo)
+        let typeInfo = switch yieldInfo.rewardType {
+        case .apr: Localization.stakingDetailsApr
+        case .apy: Localization.stakingDetailsApy
+        }
+        return "\(percentInfo) \(typeInfo)"
     }
 
     private func makeFormattedRewardPercent(yieldInfo: StakingYieldInfo) -> String {
@@ -840,11 +847,9 @@ private extension TokenDetailsViewModel {
         let subtitle: String
 
         if walletModel.tokenItem.isToken {
-            let tokenName = walletModel.tokenItem.blockchain.tokenTypeName ?? Localization.commonToken
             let networkName = walletModel.tokenItem.blockchain.displayName
-            let preposition = Localization.commonIn
             let network = Localization.wcCommonNetwork.lowercased()
-            subtitle = "\(tokenName) \(preposition) \(networkName) \(network)"
+            subtitle = "\(networkName) \(network)"
         } else {
             subtitle = Localization.commonMainNetwork
         }
