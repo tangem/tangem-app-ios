@@ -107,13 +107,6 @@ extension CommonUserWalletModel {
     }
 }
 
-// [REDACTED_TODO_COMMENT]
-extension CommonUserWalletModel: TangemSdkFactory {
-    func makeTangemSdk() -> TangemSdk {
-        config.makeTangemSdk()
-    }
-}
-
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
@@ -307,12 +300,12 @@ extension CommonUserWalletModel: UserWalletModel {
         }
     }
 
-    func validate() -> Bool {
+    var backupState: UserWalletBackupState {
         switch walletInfo {
         case .cardWallet(let cardInfo):
-            return BackupValidator().validate(card: cardInfo.card)
+            return BackupValidator().validate(card: cardInfo.card) ? .valid : .incompleteBackup
         case .mobileWallet:
-            return true
+            return .valid
         }
     }
 }

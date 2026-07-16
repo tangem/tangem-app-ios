@@ -74,23 +74,18 @@ struct PendingExpressTransactionView: View {
 
     @ViewBuilder
     private var titleStack: some View {
-        if FeatureProvider.isAvailable(.swapPendingTxStateDate) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(info.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-                TimelineView(.periodic(from: .now, by: 60)) { context in
-                    let timeAgo = RelativeDateFormatter.shared.formatTimeAgo(
-                        from: info.referenceDate,
-                        relativeTo: context.date
-                    )
-                    Text("\(info.stateTitle) \(timeAgo)")
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                }
-            }
-        } else {
+        VStack(alignment: .leading, spacing: 2) {
             Text(info.title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+            TimelineView(.periodic(from: .now, by: 60)) { context in
+                let timeAgo = RelativeDateFormatter.shared.formatTimeAgo(
+                    from: info.referenceDate,
+                    relativeTo: context.date
+                )
+                Text("\(info.stateTitle) \(timeAgo)")
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            }
         }
     }
 
