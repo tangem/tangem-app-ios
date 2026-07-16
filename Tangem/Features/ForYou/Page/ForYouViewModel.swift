@@ -6,4 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-final class ForYouViewModel {}
+import Foundation
+
+final class ForYouViewModel: ObservableObject {
+    let portfolioReview: PortfolioReviewViewModel = .init()
+}
