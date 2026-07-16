@@ -16,6 +16,8 @@ final class AppDatabase {
     typealias DatabaseHandleFactory = (_ databaseFilePath: String) throws -> DatabaseHandle
 
     static let shared = AppDatabase { databaseFilePath in
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
         return try DatabaseQueue(path: databaseFilePath)
     }
 
@@ -117,6 +119,13 @@ final class AppDatabase {
 
     private static func makeDatabaseMigrator() -> DatabaseMigrator {
         var migrator = DatabaseMigrator()
+
+        #if DEBUG
+        // For app development only, see
+        // https://swiftpackageindex.com/groue/grdb.swift/master/documentation/grdb/databasemigrator/erasedatabaseonschemachange
+        // for details
+        migrator.eraseDatabaseOnSchemaChange = true
+        #endif // DEBUG
 
         for version in AppDatabaseVersion.allCases {
             migrator.registerMigration(version.id) { database in
