@@ -9,8 +9,16 @@
 import Foundation
 import TangemFoundation
 
+enum SwapBalanceRestriction: Equatable {
+    case none
+    /// Zero total balance, [REDACTED_INFO] toggle is off: hide any sign of providers (legacy behavior)
+    case hideProviders
+    /// Zero total balance, [REDACTED_INFO] toggle is on: request quotes but show only DEX providers
+    case dexProvidersOnly
+}
+
 protocol SwapBalanceRestrictionFeatureChecker {
-    func hasSwapTotalBalanceRestriction(for token: SendSourceToken) async throws -> Bool
+    func swapTotalBalanceRestriction(for token: SendSourceToken) async throws -> SwapBalanceRestriction
 }
 
 enum SwapBalanceRestrictionFeatureCheckerError: LocalizedError {
@@ -30,17 +38,17 @@ struct CommonSwapBalanceRestrictionFeatureChecker {
 // MARK: - SwapBalanceRestrictionFeatureChecker
 
 extension CommonSwapBalanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker {
-    func hasSwapTotalBalanceRestriction(for token: any SendSourceToken) async throws -> Bool {
+    func swapTotalBalanceRestriction(for token: any SendSourceToken) async throws -> SwapBalanceRestriction {
         guard let userWalletModel = userWalletRepository.models[token.userWalletInfo.id] else {
             throw SwapBalanceRestrictionFeatureCheckerError.userWalletNotFound
         }
 
         guard userWalletModel.config.hasFeature(.isBalanceRestrictionActive) else {
-            return false
+            return .none
         }
 
         if userWalletRepository.models.count > 1 {
-            return false
+            return .none
         }
 
         let totalBalance = try await {
@@ -53,8 +61,10 @@ extension CommonSwapBalanceRestrictionFeatureChecker: SwapBalanceRestrictionFeat
             return userWalletModel.totalBalance
         }()
 
-        let hasPositiveBalance = totalBalance.hasAnyPositiveBalance
+        guard !totalBalance.hasAnyPositiveBalance else {
+            return .none
+        }
 
-        return !hasPositiveBalance
+        return FeatureProvider.isAvailable(.hotWalletDexRatesUntilDeposit) ? .dexProvidersOnly : .hideProviders
     }
 }

@@ -24,6 +24,7 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     @Published var providerViewModels: [SendSwapProvidersSelectorProviderViewData] = []
     @Published var providerTypeFilterOptions: [ProviderTypeFilter] = []
     @Published var selectedProviderTypeFilter: ProviderTypeFilter = .all
+    @Published private(set) var moreProvidersFooterText: String = Localization.expressMoreProvidersSoon
 
     // MARK: - Approve state
 
@@ -150,17 +151,18 @@ private extension SendSwapProvidersSelectorViewModel {
     func bind(input: SendSwapProvidersInput) {
         let highPriceImpactPublisher = receiveTokenAmountInput?.highPriceImpactPublisher ?? Just(nil).eraseToAnyPublisher()
 
-        let showableProvidersPublisher = Publishers.CombineLatest3(
+        let showableProvidersPublisher = Publishers.CombineLatest4(
             input.selectedExpressProviderPublisher.map { $0?.value },
             input.expressProvidersPublisher,
-            input.currentRateTypePublisher
+            input.currentRateTypePublisher,
+            input.isDexOnlyProvidersModePublisher
         )
-        .map { selectedProvider, providers, currentRateType -> ShowableProvidersState in
+        .map { selectedProvider, providers, currentRateType, isDexOnlyMode -> ShowableProvidersState in
             let showable = providers
                 .showableProviders(selectedProviderId: selectedProvider?.provider.id)
                 .sortedByAttractivelyPreferringBestDEX()
 
-            return ShowableProvidersState(selectedProvider: selectedProvider, providers: showable)
+            return ShowableProvidersState(selectedProvider: selectedProvider, providers: showable, isDexOnlyMode: isDexOnlyMode)
         }
 
         showableProvidersPublisher
@@ -189,11 +191,19 @@ private extension SendSwapProvidersSelectorViewModel {
                 selectedProvider: state.selectedProvider,
                 showableProviders: state.providers,
                 providerTypeFilter: filter,
-                hasHighPriceImpactWarning: hasWarning
+                hasHighPriceImpactWarning: hasWarning,
+                isDexOnlyMode: state.isDexOnlyMode
             )
         }
         .receiveOnMain()
         .assign(to: &$providerViewModels)
+
+        input
+            .isDexOnlyProvidersModePublisher
+            .map { $0 ? Localization.expressMoreProvidersOnceWalletFunded : Localization.expressMoreProvidersSoon }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$moreProvidersFooterText)
 
         input
             .expressProvidersPublisher
@@ -212,13 +222,20 @@ private extension SendSwapProvidersSelectorViewModel {
         return [.all, .cex, .dex]
     }
 
-    private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, showableProviders: [ExpressAvailableProvider], providerTypeFilter: ProviderTypeFilter, hasHighPriceImpactWarning: Bool) -> [SendSwapProvidersSelectorProviderViewData] {
+    private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, showableProviders: [ExpressAvailableProvider], providerTypeFilter: ProviderTypeFilter, hasHighPriceImpactWarning: Bool, isDexOnlyMode: Bool) -> [SendSwapProvidersSelectorProviderViewData] {
         showableProviders
             .filter { providerTypeFilter.matches($0.provider.type) }
-            .map { mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: selectedProvider, availableProvider: $0, hasHighPriceImpactWarning: hasHighPriceImpactWarning) }
+            .map {
+                mapToSendSwapProvidersSelectorProviderViewData(
+                    selectedProvider: selectedProvider,
+                    availableProvider: $0,
+                    hasHighPriceImpactWarning: hasHighPriceImpactWarning,
+                    isDexOnlyMode: isDexOnlyMode
+                )
+            }
     }
 
-    func mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: ExpressAvailableProvider?, availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool) -> SendSwapProvidersSelectorProviderViewData {
+    func mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: ExpressAvailableProvider?, availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool, isDexOnlyMode: Bool) -> SendSwapProvidersSelectorProviderViewData {
         let destinationTokenItem = receiveTokenInput?.receiveToken.value?.tokenItem
         var subtitles: [ProviderRowViewModel.Subtitle] = []
 
@@ -238,7 +255,9 @@ private extension SendSwapProvidersSelectorViewModel {
         case .fcaWarning: .fcaWarning
         case .permissionNeeded: nil
         case .bestRate: .bestRate
-        case .bestDexRate: .bestDexRate
+        // The engine marks the overall best among all loaded providers; when CEX rows are
+        // hidden (unfunded hot wallet) the best visible DEX is simply the best rate
+        case .bestDexRate: isDexOnlyMode ? .bestRate : .bestDexRate
         }
 
         if let percentSubtitle = makePercentSubtitle(selectedProvider: selectedProvider, provider: availableProvider) {
@@ -364,4 +383,5 @@ extension SendSwapProvidersSelectorViewModel {
 private struct ShowableProvidersState {
     let selectedProvider: ExpressAvailableProvider?
     let providers: [ExpressAvailableProvider]
+    let isDexOnlyMode: Bool
 }

@@ -42,6 +42,7 @@ enum Feature: String, Hashable, CaseIterable {
     case onboardingPushNotificationDoubleAsk
     case mainPushNotificationDoubleAsk
     case backendAuthentication
+    case hotWalletDexRatesUntilDeposit
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -80,6 +81,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
         case .promoCampaignsAttribution: return "TWI-1637_promo_campaigns_attribution"
         case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
+        case .hotWalletDexRatesUntilDeposit: return "[REDACTED_INFO]_hot_wallet_dex_rates_until_deposit"
         }
     }
 
@@ -118,6 +120,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mainPushNotificationDoubleAsk: return .unspecified
         case .promoCampaignsAttribution: return .version("6.1")
         case .backendAuthentication: return .unspecified
+        case .hotWalletDexRatesUntilDeposit: return .unspecified
         }
     }
 }

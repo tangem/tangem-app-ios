@@ -31,6 +31,9 @@ final class SwapModel {
 
     private let _providersState = CurrentValueSubject<ProvidersState, Never>(.idle)
 
+    /// [REDACTED_INFO]: zero-total-balance hot wallet — quotes are loaded, but only DEX providers are exposed to the UI
+    private let _isDexOnlyProvidersMode = CurrentValueSubject<Bool, Never>(false)
+
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
@@ -273,8 +276,20 @@ private extension SwapModel {
                     input.update(providersState: .loading(type))
                 }
 
-                let state = try await block(input.expressManager)
+                var state = try await block(input.expressManager)
                 try Task.checkCancellation()
+
+                switch await input.adjustForDexOnlyModeIfNeeded(state: state) {
+                case .unchanged:
+                    break
+                case .reselected(let adjustedState):
+                    state = adjustedState
+                case .fallback(let fallbackState):
+                    // Mirrors the legacy early exit: no providers UI, and the complementary
+                    // amount is cleared so a previously displayed quote doesn't linger
+                    await input.clearComplementaryAmount()
+                    return input.update(providersState: fallbackState)
+                }
 
                 let providersState = try await input.mapToLoadedProvidersState(state: state)
                 try Task.checkCancellation()
@@ -303,19 +318,86 @@ private extension SwapModel {
             return nil
         }
 
-        let hasRestriction = try await balanceRestrictionFeatureChecker
-            .hasSwapTotalBalanceRestriction(for: sourceToken)
+        let restriction = try await balanceRestrictionFeatureChecker
+            .swapTotalBalanceRestriction(for: sourceToken)
 
-        guard hasRestriction else {
+        switch restriction {
+        case .none:
+            _isDexOnlyProvidersMode.send(false)
+            return nil
+
+        case .hideProviders:
+            _isDexOnlyProvidersMode.send(false)
+            // For this kind of restriction we don't show any sign of providers.
+            return legacyBalanceRestrictionProvidersState()
+
+        case .dexProvidersOnly:
+            // Let the pipeline run so quotes are loaded; DEX-only filtering
+            // is applied in `adjustForDexOnlyModeIfNeeded` and the providers exposure.
+            _isDexOnlyProvidersMode.send(true)
             return nil
         }
+    }
 
+    private var emptyBalanceRestrictionProvidersState: ProvidersState {
+        .loaded(.swap(selected: .none, providers: .empty), state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
+    }
+
+    private func legacyBalanceRestrictionProvidersState() -> ProvidersState {
         guard let sourceAmount = sourceAmount.value?.crypto, sourceAmount > 0 else {
             return .idle
         }
 
-        // For this kind of restriction we don't show any sign of providers.
-        return .loaded(.swap(selected: .none, providers: .empty), state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
+        return emptyBalanceRestrictionProvidersState
+    }
+
+    /// [REDACTED_INFO]: while the wallet is unfunded only DEX providers are shown. The engine already
+    /// prefers the best DEX on selection, so the state usually passes through unchanged. A non-DEX
+    /// selection is corrected when a quoted DEX exists; a pair without any usable DEX falls back
+    /// to the legacy "no providers" behavior.
+    private func adjustForDexOnlyModeIfNeeded(state: ExpressManagerState) async -> DexOnlyModeAdjustment {
+        guard _isDexOnlyProvidersMode.value else {
+            return .unchanged
+        }
+
+        switch state {
+        case .idle:
+            return .unchanged
+
+        case .transfer:
+            // A transfer of the same currency cannot be funded from a zero balance
+            return .fallback(legacyBalanceRestrictionProvidersState())
+
+        case .swap(let selected, let providers):
+            if let selected, selected.provider.type.isDEX {
+                return .unchanged
+            }
+
+            let candidates = providers.availableProviders(rate: selected?.rateType ?? .float)
+            let quotedDexProviders = candidates.filter { $0.provider.type.isDEX && $0.getState().quote != nil }
+
+            if let bestDex = quotedDexProviders.best() {
+                return .reselected(await expressManager.updateSelectedProvider(provider: bestDex))
+            }
+
+            guard await expressManager.getAmountType() != nil else {
+                return .unchanged
+            }
+
+            // A non-DEX selection with an active amount must not leak into the UI —
+            // pairs without a usable DEX keep today's error-only behavior
+            return .fallback(emptyBalanceRestrictionProvidersState)
+        }
+    }
+
+    /// Drops the amount derived from a quote that is no longer displayed
+    private func clearComplementaryAmount() async {
+        switch await expressManager.getAmountType() {
+        case .from, .none:
+            _receiveAmount.send(nil)
+        case .to:
+            _sourceAmount.send(nil)
+        }
     }
 
     /// A card-linked wallet must not receive funds, so a swap that would credit it is blocked up front
@@ -1285,15 +1367,28 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
 extension SwapModel: SendSwapProvidersInput {
     var expressProviders: [ExpressAvailableProvider] {
-        _providersState.value.providers
+        Self.filteredProviders(_providersState.value.providers, isDexOnly: _isDexOnlyProvidersMode.value)
     }
 
     var expressProvidersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
         _providersState
             // Do not clear data in `Publisher` when `.loading`
             .filter { !$0.isLoading }
-            .map(\.providers)
+            .combineLatest(_isDexOnlyProvidersMode.removeDuplicates())
+            .map { Self.filteredProviders($0.providers, isDexOnly: $1) }
             .eraseToAnyPublisher()
+    }
+
+    var isDexOnlyProvidersMode: Bool {
+        _isDexOnlyProvidersMode.value
+    }
+
+    var isDexOnlyProvidersModePublisher: AnyPublisher<Bool, Never> {
+        _isDexOnlyProvidersMode.removeDuplicates().eraseToAnyPublisher()
+    }
+
+    private static func filteredProviders(_ providers: [ExpressAvailableProvider], isDexOnly: Bool) -> [ExpressAvailableProvider] {
+        isDexOnly ? providers.filter(\.provider.type.isDEX) : providers
     }
 
     var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? {
@@ -1967,6 +2062,12 @@ extension SwapModel {
                 return .confirmation
             }
         }
+    }
+
+    enum DexOnlyModeAdjustment {
+        case unchanged
+        case reselected(ExpressManagerState)
+        case fallback(ProvidersState)
     }
 
     enum LoadedState {

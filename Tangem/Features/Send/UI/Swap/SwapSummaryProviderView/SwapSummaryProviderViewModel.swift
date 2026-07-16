@@ -64,10 +64,11 @@ private extension SwapSummaryProviderViewModel {
             receiveTokenInput.receiveTokenPublisher.compactMap { $0.value }
         ).map { (source: $0, receive: $1) }
 
-        let providersPublisher = Publishers.CombineLatest(
+        let providersPublisher = Publishers.CombineLatest3(
             swapProvidersInput.selectedExpressProviderPublisher,
-            swapProvidersInput.expressProvidersPublisher
-        ).map { (selected: $0, all: $1) }
+            swapProvidersInput.expressProvidersPublisher,
+            swapProvidersInput.isDexOnlyProvidersModePublisher
+        ).map { (selected: $0, all: $1, isDexOnlyMode: $2) }
 
         Publishers.CombineLatest3(tokensPublisher, providersPublisher, highPriceImpactPublisher)
             .withWeakCaptureOf(self)
@@ -79,12 +80,14 @@ private extension SwapSummaryProviderViewModel {
                     receiveToken: tokenValues.receive,
                     provider: providerValues.selected,
                     providers: providerValues.all,
-                    hasHighPriceImpactWarning: hasWarning
+                    hasHighPriceImpactWarning: hasWarning,
+                    isDexOnlyMode: providerValues.isDexOnlyMode
                 )
                 let compactData = viewModel.mapToCompactData(
                     provider: providerValues.selected,
                     providers: providerValues.all,
-                    hasHighPriceImpactWarning: hasWarning
+                    hasHighPriceImpactWarning: hasWarning,
+                    isDexOnlyMode: providerValues.isDexOnlyMode
                 )
                 return (providerState, compactData)
             }
@@ -101,7 +104,8 @@ private extension SwapSummaryProviderViewModel {
         receiveToken: SendReceiveToken,
         provider: LoadingResult<ExpressAvailableProvider, any Error>?,
         providers: [ExpressAvailableProvider],
-        hasHighPriceImpactWarning: Bool
+        hasHighPriceImpactWarning: Bool,
+        isDexOnlyMode: Bool
     ) -> ProviderState? {
         switch provider {
         case .none:
@@ -116,7 +120,8 @@ private extension SwapSummaryProviderViewModel {
                 receiveToken: receiveToken,
                 selectedProvider: provider,
                 providers: providers,
-                hasHighPriceImpactWarning: hasHighPriceImpactWarning
+                hasHighPriceImpactWarning: hasHighPriceImpactWarning,
+                isDexOnlyMode: isDexOnlyMode
             ) {
                 return .loaded(data: data)
             }
@@ -130,7 +135,8 @@ private extension SwapSummaryProviderViewModel {
         receiveToken: SendReceiveToken,
         selectedProvider: ExpressAvailableProvider,
         providers: [ExpressAvailableProvider],
-        hasHighPriceImpactWarning: Bool
+        hasHighPriceImpactWarning: Bool,
+        isDexOnlyMode: Bool
     ) -> ProviderRowViewModel? {
         // Has more than one `showableProviders` to selection
         let hasAnotherProviders = providers.showableProviders().count > 1
@@ -152,7 +158,9 @@ private extension SwapSummaryProviderViewModel {
         let badge: ProviderRowViewModel.Badge? = switch providerBadge {
         case .none: .none
         case .bestRate: .bestRate
-        case .bestDexRate: .bestDexRate
+        // The engine marks the overall best among all loaded providers; when CEX providers are
+        // hidden (unfunded hot wallet) the best visible DEX is simply the best rate
+        case .bestDexRate: isDexOnlyMode ? .bestRate : .bestDexRate
         case .fcaWarning: .fcaWarning
         case .permissionNeeded: .permissionNeeded
         }
@@ -174,7 +182,8 @@ private extension SwapSummaryProviderViewModel {
     func mapToCompactData(
         provider: LoadingResult<ExpressAvailableProvider, any Error>?,
         providers: [ExpressAvailableProvider],
-        hasHighPriceImpactWarning: Bool
+        hasHighPriceImpactWarning: Bool,
+        isDexOnlyMode: Bool
     ) -> SendSwapProviderCompactViewData {
         switch provider {
         case .none, .loading:
@@ -182,10 +191,15 @@ private extension SwapSummaryProviderViewModel {
         case .failure:
             return .init(provider: .failure(""))
         case .success(let selected):
-            let badge = expressProviderFormatter.mapToBadge(
+            var badge = expressProviderFormatter.mapToBadge(
                 availableProvider: selected,
                 hasHighPriceImpactWarning: hasHighPriceImpactWarning
             )
+            // The engine marks the overall best among all loaded providers; when CEX providers
+            // are hidden (unfunded hot wallet) the best visible DEX is simply the best rate
+            if isDexOnlyMode, case .bestDexRate = badge {
+                badge = .bestRate
+            }
             let canSelectAnother = providers.showableProviders().count > 1
             let data = SendSwapProviderCompactViewData.ProviderData(
                 provider: selected.provider,

@@ -552,6 +552,7 @@
 "express_floating_rate" = "Floating rate";
 "express_legal_one_placeholder" = "By using swap functionality, you agree with provider’s %@";
 "express_legal_two_placeholders" = "By using swap functionality, you agree with provider’s %1$@ and %2$@.";
+"express_more_providers_once_wallet_funded" = "More providers will be available once wallet is funded";
 "express_more_providers_soon" = "More providers will be available soon";
 "express_provider_best_dex_rate" = "Best DEX Rate";
 "express_provider_best_rate" = "Best rate";
