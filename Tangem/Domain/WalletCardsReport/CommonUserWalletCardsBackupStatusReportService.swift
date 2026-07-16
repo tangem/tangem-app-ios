@@ -11,11 +11,7 @@ import TangemSdk
 import TangemFoundation
 
 final class CommonUserWalletCardsBackupStatusReportService {
-    private let api: TangemApiService
-
-    init(api: TangemApiService = InjectedValues[\.tangemApiService]) {
-        self.api = api
-    }
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 }
 
 extension CommonUserWalletCardsBackupStatusReportService: UserWalletCardsBackupStatusReportService {
@@ -29,7 +25,7 @@ extension CommonUserWalletCardsBackupStatusReportService: UserWalletCardsBackupS
         // [REDACTED_INFO]
         runTask(in: self) { service in
             do {
-                try await service.api.saveWalletCards(userWalletId: userWalletId, cards: request)
+                try await service.tangemApiService.saveWalletCards(userWalletId: userWalletId, cards: request)
             } catch {
                 AppLogger.error("Failed to report wallet cards backup state", error: error)
             }
@@ -37,7 +33,7 @@ extension CommonUserWalletCardsBackupStatusReportService: UserWalletCardsBackupS
     }
 
     func fetchCards(userWalletId: String) async throws -> [UserWalletCardBackupStatus] {
-        let response = try await api.getWalletCards(userWalletId: userWalletId)
+        let response = try await tangemApiService.getWalletCards(userWalletId: userWalletId)
         return response.cards.map(mapToDomain)
     }
 }
