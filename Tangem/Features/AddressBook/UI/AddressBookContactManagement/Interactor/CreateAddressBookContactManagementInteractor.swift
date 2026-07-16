@@ -157,10 +157,10 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
             }
 
             let contactId = try await addressBookManager.createContact(name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
-            analyticsLogger.logContactSaved(walletId: analyticsWalletId, contactId: contactId.stringValue, mode: .create)
+            analyticsLogger.logContactSaved(contactId: contactId.stringValue, mode: .create)
             return contactId
         } catch {
-            analyticsLogger.logSaveFailure(walletId: analyticsWalletId, contactId: nil, error: error)
+            analyticsLogger.logSaveFailure(contactId: nil, error: error)
             throw error
         }
     }
@@ -168,25 +168,21 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     func delete() async throws {}
 
     func logContactScreenOpened() {
-        analyticsLogger.logContactScreenOpened(walletId: analyticsWalletId, contactId: nil)
+        analyticsLogger.logContactScreenOpened(contactId: nil)
     }
 
     func logWalletPickerOpened() {
-        analyticsLogger.logButtonSaveTo(walletId: analyticsWalletId)
+        analyticsLogger.logButtonSaveTo()
     }
 
     func logAddressRemoved() {
-        analyticsLogger.logAddressRemoved(walletId: analyticsWalletId, contactId: nil)
+        analyticsLogger.logAddressRemoved(contactId: nil)
     }
 }
 
 // MARK: - Private
 
 private extension CreateAddressBookContactManagementInteractor {
-    var analyticsWalletId: String {
-        walletSubject.value.wallet.id.stringValue
-    }
-
     var nameTakenPublisher: AnyPublisher<Bool, Never> {
         walletSubject
             .map { $0.addressBookManager.contactsPublisher }

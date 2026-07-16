@@ -178,39 +178,35 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
                 try await source.addressBookManager.deleteContact(id: contact.id)
             }
 
-            analyticsLogger.logContactSaved(walletId: analyticsWalletId, contactId: contact.id.stringValue, mode: .edit)
+            analyticsLogger.logContactSaved(contactId: contact.id.stringValue, mode: .edit)
             return contact.id
         } catch {
-            analyticsLogger.logSaveFailure(walletId: analyticsWalletId, contactId: contact.id.stringValue, error: error)
+            analyticsLogger.logSaveFailure(contactId: contact.id.stringValue, error: error)
             throw error
         }
     }
 
     func delete() async throws {
         try await initialAddressBookWallet.addressBookManager.deleteContact(id: contact.id)
-        analyticsLogger.logContactDeleted(walletId: contact.walletId.stringValue, contactId: contact.id.stringValue)
+        analyticsLogger.logContactDeleted(contactId: contact.id.stringValue)
     }
 
     func logContactScreenOpened() {
-        analyticsLogger.logContactScreenOpened(walletId: analyticsWalletId, contactId: contact.id.stringValue)
+        analyticsLogger.logContactScreenOpened(contactId: contact.id.stringValue)
     }
 
     func logWalletPickerOpened() {
-        analyticsLogger.logButtonSaveTo(walletId: analyticsWalletId)
+        analyticsLogger.logButtonSaveTo()
     }
 
     func logAddressRemoved() {
-        analyticsLogger.logAddressRemoved(walletId: analyticsWalletId, contactId: contact.id.stringValue)
+        analyticsLogger.logAddressRemoved(contactId: contact.id.stringValue)
     }
 }
 
 // MARK: - Wallet change (move between books)
 
 private extension EditAddressBookContactManagementInteractor {
-    var analyticsWalletId: String {
-        walletSubject.value.wallet.id.stringValue
-    }
-
     var nameTakenPublisher: AnyPublisher<Bool, Never> {
         walletSubject
             .map { $0.addressBookManager.contactsPublisher }

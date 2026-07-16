@@ -190,7 +190,6 @@ extension Analytics {
 
         // MARK: - Address Book
 
-        case addressBookWalletId = "Wallet Id"
         case contactId = "Contact Id"
         case contactsCount = "Contacts Count"
 
