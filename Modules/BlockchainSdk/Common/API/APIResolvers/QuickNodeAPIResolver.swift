@@ -35,8 +35,6 @@ struct QuickNodeAPIResolver {
             return keysConfig.quickNodePlasmaCredentials
         case .monad:
             return keysConfig.quickNodeMonadCredentials
-        case .robinhood:
-            return keysConfig.quickNodeRobinhoodCredentials
         default:
             return nil
         }
