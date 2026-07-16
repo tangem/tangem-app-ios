@@ -117,6 +117,10 @@ struct TangemApiTarget: TargetType {
         case .pushNotificationsEligible:
             return "/notification/push_notifications_eligible_networks"
 
+        // MARK: - Application versions
+        case .applicationVersions:
+            return "/application/versions"
+
         // MARK: Applications
         case .createUserWalletsApplication:
             return "/user-wallets/applications"
@@ -215,7 +219,8 @@ struct TangemApiTarget: TargetType {
              .newsList,
              .newsDetails,
              .newsCategories,
-             .trendingNews:
+             .trendingNews,
+             .applicationVersions:
             return .get
         case .saveUserWalletTokens,
              .saveUserWalletTokensV2,
@@ -249,7 +254,7 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(pageModel)
         case .quotes(let pageModel):
             return .requestParameters(pageModel)
-        case .currencies, .geo, .features, .getUserWalletTokens:
+        case .currencies, .geo, .features, .getUserWalletTokens, .applicationVersions:
             return .requestPlain
         case .saveUserWalletTokens(_, let list),
              .saveUserWalletTokensV2(_, let list):
@@ -450,6 +455,7 @@ struct TangemApiTarget: TargetType {
              .newsDetails,
              .newsCategories,
              .bindWalletsByCode,
+             .applicationVersions,
              .syncAddressBooks:
             return nil
         }
@@ -514,6 +520,9 @@ extension TangemApiTarget {
         /// Notifications
         case pushNotificationsEligible
 
+        /// Application versions
+        case applicationVersions
+
         // Applications
         case createUserWalletsApplication(_ requestModel: ApplicationDTO.Request)
         case updateUserWalletsApplication(uid: String, requestModel: ApplicationDTO.Update.Request)
@@ -556,7 +565,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .applicationVersions, .marketingCampaigns:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -625,7 +634,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .syncAddressBooks,
              .updateAddressBook,
              .activatePromoCode,
-             .coinsSettings:
+             .coinsSettings,
+             .applicationVersions:
             return true
         }
     }
