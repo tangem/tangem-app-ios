@@ -198,7 +198,16 @@ extension MainCoordinator: MainRoutable {
     func openDeepLink(_ deepLink: DeepLinkDestination) {
         switch deepLink {
         case .externalLink(let url):
-            safariManager.openURL(url)
+            guard safariHandle?.isMatching(startingURL: url) == false else {
+                return
+            }
+
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.safariHandle = nil },
+                onSuccess: { [weak self] _ in self?.safariHandle = nil }
+            )
         case .tangemPayMain(let customerWalletId):
             openTangemPayMainFromDeeplink(customerWalletId: customerWalletId)
         case .yield(let walletModel, let userWalletModel):
