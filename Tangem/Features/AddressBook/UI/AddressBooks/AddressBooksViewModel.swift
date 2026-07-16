@@ -90,6 +90,10 @@ final class AddressBooksViewModel: ObservableObject {
         let books = isAllScope ? addressBooksSubject.value : addressBooksSubject.value.filter { $0.wallet.id.stringValue == selectedChipId }
         loadAddressBooks(books)
     }
+
+    func openUpdateApp() {
+        AppStoreOpener.open()
+    }
 }
 
 // MARK: - Private
@@ -251,7 +255,10 @@ private extension AddressBooksViewModel {
             if scopeWallets.isEmpty {
                 return .empty
             }
-            return scopeWallets.allSatisfy(\.isFailed) ? .failure : .loading
+            if scopeWallets.allSatisfy(\.isFailed) {
+                return scopeWallets.allSatisfy(\.isUpdateRequired) ? .updateRequired : .failure
+            }
+            return .loading
         }
 
         let contacts = ready.flatMap(\.contacts)
@@ -325,6 +332,7 @@ extension AddressBooksViewModel {
     enum ContentState {
         case loading
         case failure
+        case updateRequired
         case empty
         case searching
         case results([AddressBookContactViewModel])
@@ -333,7 +341,7 @@ extension AddressBooksViewModel {
         var hasContacts: Bool {
             switch self {
             case .results, .noResults, .searching: true
-            case .loading, .failure, .empty: false
+            case .loading, .failure, .updateRequired, .empty: false
             }
         }
     }
@@ -381,6 +389,13 @@ private extension AddressBooksViewModel {
             case .failure(.networkError): contacts.isEmpty
             case .syncing, .synced, .failure(.decodingError): false
             }
+        }
+
+        var isUpdateRequired: Bool {
+            if case .failure(.updateRequired) = syncState {
+                return true
+            }
+            return false
         }
     }
 }
