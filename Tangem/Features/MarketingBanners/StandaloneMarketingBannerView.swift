@@ -15,17 +15,29 @@ struct StandaloneMarketingBannerView: View {
 
     var body: some View {
         TangemMessageBanner(title: viewModel.title)
-            .slotStart { iconView }
-            .slotEnd { closeButton }
+            .showGlowRing(false)
+            .slotStart { leadingIcon }
+            .slotEnd { trailingContent }
             .primaryButton(viewModel.action.map { action in
                 .init(title: Localization.commonLearnMore, action: action)
             })
     }
 
     @ViewBuilder
-    private var closeButton: some View {
-        if viewModel.isDismissible, let dismiss = viewModel.dismiss {
-            TangemMessageBannerCloseButton(accessibilityLabel: Localization.commonClose, action: dismiss)
+    private var leadingIcon: some View {
+        if viewModel.isDismissible {
+            iconView
+        }
+    }
+
+    @ViewBuilder
+    private var trailingContent: some View {
+        if viewModel.isDismissible {
+            if let dismiss = viewModel.dismiss {
+                TangemMessageBannerCloseButton(accessibilityLabel: Localization.commonClose, action: dismiss)
+            }
+        } else {
+            iconView
         }
     }
 

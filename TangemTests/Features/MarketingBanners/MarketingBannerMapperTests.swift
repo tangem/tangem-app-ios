@@ -16,21 +16,25 @@ struct MarketingBannerMapperTests {
 
     @Test("Campaigns are sorted by priority ascending")
     func sortsByPriorityAscending() {
-        let banners = MarketingBannerMapper.banners(from: [
-            Fixtures.makeCampaign(id: 1, priority: 30),
-            Fixtures.makeCampaign(id: 2, priority: 10),
-            Fixtures.makeCampaign(id: 3, priority: 20),
-        ])
+        let banners = MarketingBannerMapper.banners(
+            from: [
+                Fixtures.makeCampaign(id: 1, priority: 30),
+                Fixtures.makeCampaign(id: 2, priority: 10),
+                Fixtures.makeCampaign(id: 3, priority: 20),
+            ]
+        )
 
         #expect(banners.standalone.map(\.id) == [2, 3, 1])
     }
 
     @Test("Campaign without banner text is dropped")
     func dropsCampaignWithoutText() {
-        let banners = MarketingBannerMapper.banners(from: [
-            Fixtures.makeCampaign(id: 1, text: nil),
-            Fixtures.makeCampaign(id: 2, text: "Visible"),
-        ])
+        let banners = MarketingBannerMapper.banners(
+            from: [
+                Fixtures.makeCampaign(id: 1, text: nil),
+                Fixtures.makeCampaign(id: 2, text: "Visible"),
+            ]
+        )
 
         #expect(banners.standalone.map(\.id) == [2])
         #expect(banners.linked.isEmpty)
@@ -38,10 +42,12 @@ struct MarketingBannerMapperTests {
 
     @Test("Banners are partitioned into standalone and linked")
     func partitionsStandaloneAndLinked() {
-        let banners = MarketingBannerMapper.banners(from: [
-            Fixtures.makeCampaign(id: 1, providerIds: ["mercuryo"], uiType: .linkedToProvider),
-            Fixtures.makeCampaign(id: 2, uiType: .standalone),
-        ])
+        let banners = MarketingBannerMapper.banners(
+            from: [
+                Fixtures.makeCampaign(id: 1, providerIds: ["mercuryo"], uiType: .linkedToProvider),
+                Fixtures.makeCampaign(id: 2, uiType: .standalone),
+            ]
+        )
 
         #expect(banners.standalone.map(\.id) == [2])
         #expect(banners.linked.map(\.id) == [1])
@@ -49,12 +55,66 @@ struct MarketingBannerMapperTests {
 
     @Test("Unknown uiType is treated as standalone")
     func unknownUITypeFallsBackToStandalone() {
-        let banners = MarketingBannerMapper.banners(from: [
-            Fixtures.makeCampaign(id: 1, uiType: .unknown("brand_new_type")),
-        ])
+        let banners = MarketingBannerMapper.banners(
+            from: [
+                Fixtures.makeCampaign(id: 1, uiType: .unknown("brand_new_type")),
+            ]
+        )
 
         #expect(banners.standalone.map(\.id) == [1])
         #expect(banners.linked.isEmpty)
+    }
+
+    @Test("Campaigns outside their start/end window are filtered out")
+    func filtersCampaignsOutsideDateWindow() {
+        let now = Date(timeIntervalSince1970: 1_785_585_600)
+        let past = now.addingTimeInterval(-100)
+        let future = now.addingTimeInterval(100)
+
+        let banners = MarketingBannerMapper.banners(
+            from: [
+                Fixtures.makeCampaign(id: 1, startAt: future),
+                Fixtures.makeCampaign(id: 2, endAt: past),
+                Fixtures.makeCampaign(id: 3, startAt: past, endAt: future),
+                Fixtures.makeCampaign(id: 4),
+            ],
+            now: now
+        )
+
+        #expect(banners.standalone.map(\.id) == [3, 4])
+    }
+
+    @Test("Campaign is visible at the exact startAt and endAt moments and with a one-sided window")
+    func dateWindowBoundariesAreInclusive() {
+        let now = Date(timeIntervalSince1970: 1_785_585_600)
+
+        let banners = MarketingBannerMapper.banners(
+            from: [
+                Fixtures.makeCampaign(id: 1, startAt: now),
+                Fixtures.makeCampaign(id: 2, endAt: now),
+                Fixtures.makeCampaign(id: 3, startAt: now.addingTimeInterval(-100)),
+                Fixtures.makeCampaign(id: 4, endAt: now.addingTimeInterval(100)),
+            ],
+            now: now
+        )
+
+        #expect(banners.standalone.map(\.id) == [1, 2, 3, 4])
+    }
+
+    @Test("removing(hiddenCampaignIds:) drops hidden banners by id, others stay")
+    func removingDropsHiddenCampaigns() {
+        let banners = MarketingBannerMapper.banners(
+            from: [
+                Fixtures.makeCampaign(id: 1),
+                Fixtures.makeCampaign(id: 2),
+                Fixtures.makeCampaign(id: 3, providerIds: ["mercuryo"], uiType: .linkedToProvider),
+            ]
+        )
+
+        let visible = banners.removing(hiddenCampaignIds: [1, 3])
+
+        #expect(visible.standalone.map(\.id) == [2])
+        #expect(visible.linked.isEmpty)
     }
 
     @Test("Linked placement carries providerIds; nil becomes an empty list")
