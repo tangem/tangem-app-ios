@@ -552,6 +552,7 @@
 "express_floating_rate" = "Floating rate";
 "express_legal_one_placeholder" = "By using swap functionality, you agree with provider’s %@";
 "express_legal_two_placeholders" = "By using swap functionality, you agree with provider’s %1$@ and %2$@.";
+"express_more_providers_once_wallet_funded" = "More providers will be available once wallet is funded";
 "express_more_providers_soon" = "More providers will be available soon";
 "express_provider_best_dex_rate" = "Best DEX Rate";
 "express_provider_best_rate" = "Best rate";
@@ -613,6 +614,7 @@
 "force_update_button" = "Update";
 "force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
 "force_update_os_title" = "Update Your OS";
+"force_update_required_action" = "Update app";
 "force_update_warning_message" = "Please update the app to its latest version to ensure proper functionality.";
 "force_update_warning_title" = "Update required";
 "gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
@@ -745,9 +747,11 @@
 "manage_tokens_wallet_support_only_one_network_title" = "The wallet doesn't support more than one network";
 "market_chart_ai_total" = "AI Total:";
 "market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
+"market_chart_bubble_no_amount" = "No amount  on tokens";
 "market_chart_bubble_no_data" = "No data";
 "market_chart_bubble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_no_amount" = "You don’t have any tokens with amount";
 "market_chart_top_holding" = "Top holding %@";
 "markets_about_coin_header" = "About coin";
 "markets_add_to_my_portfolio_description" = "To buy, exchange, or receive this asset, add it to your portfolio";
@@ -1670,9 +1674,18 @@
 "tangempay_card_page_daily_limit_success_title" = "Daily limit is set";
 "tangempay_card_page_daily_limit_title" = "Daily limit";
 "tangempay_card_page_settings_title" = "Card settings";
+"tangempay_cashback_accruals_title" = "Accruals";
 "tangempay_cashback_deactivated_description" = "It was made due to your suspicious behavior. Contact support to learn more";
 "tangempay_cashback_deactivated_title" = "Cashback deactivated";
+"tangempay_cashback_deposit_banner" = "Cashback %1$@ for %2$@ will be deposited till %3$@";
 "tangempay_cashback_deposited_on" = "Will be deposited on %1$@";
+"tangempay_cashback_earned_title" = "%1$@ earned in %2$@";
+"tangempay_cashback_empty_subtitle" = "Collected amount will be shown here";
+"tangempay_cashback_empty_title" = "Start spending\nand earn cashback";
+"tangempay_cashback_rate_subtitle" = "With your %1$@ plan";
+"tangempay_cashback_rate_title_up_to" = "Cashback up to %1$@%%";
+"tangempay_cashback_rate_title" = "Cashback %1$@%%";
+"tangempay_cashback_title" = "Cashback";
 "tangempay_cashback_widget_title" = "%1$@ cashback in %2$@";
 "tangempay_change_pin_code" = "Change PIN-code";
 "tangempay_come_back_if_forget_pin" = "Come back to the app if you forget it.";
@@ -1839,8 +1852,11 @@
 "tangempay_touch_id_not_set_title" = "Touch ID not set";
 "tangempay_usdc_on_polygon_network" = "USDC on Polygon network";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Click the button below to restore access";
+"tangempay_va_account_details" = "Account details";
+"tangempay_va_available_to_deposit_day" = "Available to deposit per day:";
 "tangempay_va_banking_details_error_description" = "Please try again or contact support if the issue persists";
 "tangempay_va_banking_details_error_title" = "Couldn't load banking details";
+"tangempay_va_limit_resetting_everyday" = "Limit is resetting every day";
 "tangempay_visa_benefits" = "Visa Benefits";
 "tangempay_withdrawal_note_description" = "Funds from refunded purchases won’t be returned your on-chain Polygon balance or be available for withdrawal, but will stay on your card balance for purchases";
 "tangempay_withdrawal_note_title" = "Please note";
