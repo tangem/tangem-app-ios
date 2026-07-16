@@ -26,6 +26,7 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         }
     }
 
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
     @Published private var providersList: ProvidersList = []
     @Published private var selectedProviderItem: ProviderItem?
     @Published private var linkedBanners: [MarketingBanner] = []
@@ -33,6 +34,7 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     private let tokenItem: TokenItem
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
     private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
+    private let standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never>
     private let linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>
     private var shouldOnrampPaymentMethodScreenOpenedLogged: Bool = true
 
@@ -45,6 +47,7 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         tokenItem: TokenItem,
         analyticsLogger: SendOnrampOffersAnalyticsLogger,
         buyActionBuilder: OnrampOfferViewModelBuyActionBuilder,
+        standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never>,
         linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>,
         input: OnrampProvidersInput,
         output: OnrampSummaryOutput,
@@ -52,6 +55,7 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         self.tokenItem = tokenItem
         self.analyticsLogger = analyticsLogger
         self.buyActionBuilder = buyActionBuilder
+        self.standaloneBannersPublisher = standaloneBannersPublisher
         self.linkedBannersPublisher = linkedBannersPublisher
         self.input = input
         self.output = output
@@ -96,6 +100,10 @@ private extension OnrampOffersSelectorViewModel {
             }
             .receiveOnMain()
             .assign(to: &$providersList)
+
+        standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
 
         linkedBannersPublisher
             .assign(to: &$linkedBanners)
