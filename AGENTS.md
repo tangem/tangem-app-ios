@@ -50,10 +50,9 @@ git submodule update --init --recursive   # Fetch the private tangem-app-config 
 ```
 
 ### Building
-Open `TangemApp.xcodeproj` in Xcode. There are three main schemes:
+Open `TangemApp.xcodeproj` in Xcode. There are two main schemes:
 - **Tangem** - Production
-- **Tangem Beta** - Beta testing
-- **Tangem Alpha** - Internal testing
+- **Tangem Internal** - Internal testing
 
 Always prefer Xcode MCP for building and testing. If Xcode MCP is not available or not working - build the project using appropriate cli tools like `xcodebuild`. In this case, always fetch installed iOS simulators first (using appropriate cli tools like `simctl`) and select the one with the most recent iOS version to build and run the project
 
@@ -61,7 +60,7 @@ Always prefer Xcode MCP for building and testing. If Xcode MCP is not available 
 ```bash
 bundle exec fastlane test                                               # Unit tests (Production scheme)
 bundle exec fastlane test_modules                                       # SPM module tests
-bundle exec fastlane ui_test                                            # UI tests (Alpha scheme)
+bundle exec fastlane ui_test                                            # UI tests (Internal scheme)
 bundle exec fastlane ui_test only_testing:TangemUITests/TestClassName   # Single test class
 ```
 
@@ -173,11 +172,10 @@ Located in `Tangem/Domain/`:
 
 ## Build Configurations
 
-SPM modules support conditional compilation via environment variables:
-- `SWIFT_PACKAGE_BUILD_FOR_ALPHA` - Alpha build flags
-- `SWIFT_PACKAGE_BUILD_FOR_BETA` - Beta build flags
+SPM modules support conditional compilation via an environment variable:
+- `SWIFT_PACKAGE_BUILD_FOR_INTERNAL` - Internal build flags
 
-This enables `ALPHA`, `BETA`, and `ALPHA_OR_BETA` compile-time flags.
+This enables the `INTERNAL` compile-time flag.
 
 ## Fastlane Lanes
 
@@ -185,8 +183,7 @@ Key lanes defined in `fastlane/Fastfile`:
 - `test` - Run unit tests
 - `test_modules` - Run SPM module tests
 - `ui_test` - Run UI tests
-- `build_Alpha` - Build Alpha for Firebase
-- `build_Beta` - Build Beta for Firebase
+- `build_Internal` - Build Internal for TestFlight
 - `build_RC` - Build Release Candidate for TestFlight
 - `update_translations` - Fetch translations from Lokalise
 
