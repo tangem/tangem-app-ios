@@ -79,14 +79,13 @@ final class AppDatabase {
         let databaseFilePath = try makeDatabaseFilePath()
         let migrator = makeDatabaseMigrator()
         let databaseHandle = try databaseHandleFactory(databaseFilePath)
-        let databaseFilePaths = [
-            "", // Main database file
+        let databaseAuxFilePaths = [
             Constants.databaseWALSuffix,
             Constants.databaseSHMSuffix,
             Constants.databaseJournalSuffix,
         ].map { databaseFilePath + $0 }
 
-        applyFileAttributes(to: databaseFilePaths)
+        applyFileAttributes(to: databaseAuxFilePaths + [databaseFilePath])
 
         try migrator.migrate(databaseHandle)
 
