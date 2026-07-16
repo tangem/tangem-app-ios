@@ -14,8 +14,10 @@ struct SendSwapProviderCompactViewData {
     let provider: LoadingResult<ProviderData, String>
 
     var isTappable: Bool { provider.value?.canSelectAnother == true }
-    var isBest: Bool { provider.value?.badge == .bestRate }
-    var isFCAWarningList: Bool { provider.value?.badge == .fcaWarning }
+    var isBest: Bool { badge?.isBest == true }
+    var isFCAWarningList: Bool { badge == .fcaWarning }
+
+    private var badge: ExpressProviderFormatter.ProviderBadge? { provider.value?.badge }
 }
 
 extension SendSwapProviderCompactViewData {

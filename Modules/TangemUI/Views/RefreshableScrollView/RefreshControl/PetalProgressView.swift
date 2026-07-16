@@ -10,7 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemFoundation
 
-struct PetalProgressView: View {
+public struct PetalProgressView: View {
     let mode: Mode
 
     private let petals: Int = 8
@@ -27,7 +27,11 @@ struct PetalProgressView: View {
         }
     }
 
-    var body: some View {
+    public init(mode: Mode) {
+        self.mode = mode
+    }
+
+    public var body: some View {
         TimelineView(.animation) { timeline in
             let now = timeline.date.timeIntervalSinceReferenceDate
             let speed = 2.0 // rotate per second
@@ -64,7 +68,7 @@ struct PetalProgressView: View {
     }
 }
 
-extension PetalProgressView {
+public extension PetalProgressView {
     enum Mode {
         case spinning
         /// 0...1

@@ -16,7 +16,7 @@ struct StepsFlowBar: View {
     let configuration: StepsFlowConfiguration
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: .unit(.x3)) {
             navBar
 
             if configuration.hasProgressBar {

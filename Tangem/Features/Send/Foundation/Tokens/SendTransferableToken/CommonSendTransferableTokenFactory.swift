@@ -35,8 +35,8 @@ struct CommonSendTransferableTokenFactory {
         ).makeTokenFeeProvidersManager()
 
         return CommonSendTransferableToken(
-            transactionValidator: walletModel.transactionValidator,
-            transactionCreator: walletModel.transactionCreator,
+            transactionValidator: BSDKTransactionValidator(transactionValidator: walletModel.transactionValidator),
+            transactionCreator: BSDKTransactionCreator(transactionCreator: walletModel.transactionCreator),
             tokenFeeProvidersManager: tokenFeeProvidersManager,
             sourceToken: sourceToken,
             tokenItem: walletModel.tokenItem,

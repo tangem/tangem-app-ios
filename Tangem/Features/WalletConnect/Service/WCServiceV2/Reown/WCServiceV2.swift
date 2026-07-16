@@ -191,11 +191,7 @@ private extension WCServiceV2 {
                         wcService.cancelBalanceSubscriptions(for: $0)
                     }
 
-                case .selected(let userWalletId), .unlockedWallet(let userWalletId):
-                    wcService.subscribeToWalletModels(for: userWalletId)
-                    wcService.subscribeToBalancesChange()
-
-                case .inserted(let userWalletId):
+                case .unlockedWallet(let userWalletId), .inserted(let userWalletId):
                     wcService.subscribeToWalletModels(for: userWalletId)
                     wcService.subscribeToBalancesChange()
 
@@ -203,7 +199,7 @@ private extension WCServiceV2 {
                     wcService.subscribeToWalletModelsIfNeeded()
                     wcService.subscribeToBalancesChange()
 
-                case .locked, .reordered:
+                case .selected, .locked, .reordered:
                     break
                 }
             }

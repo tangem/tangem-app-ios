@@ -128,6 +128,7 @@ enum APIProvider: String {
     case nownodes
     case quicknode
     case getblock
+    case alchemy
     case blockchair
     case blockcypher
     case ton
@@ -148,6 +149,7 @@ enum APIProvider: String {
         case .nownodes: return .nowNodes
         case .quicknode: return .quickNode
         case .getblock: return .getBlock
+        case .alchemy: return .alchemy
         case .blockchair: return .blockchair
         case .blockcypher: return .blockcypher
         case .ton: return .ton

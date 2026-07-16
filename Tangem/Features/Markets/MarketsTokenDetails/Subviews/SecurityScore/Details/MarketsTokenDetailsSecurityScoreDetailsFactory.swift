@@ -11,7 +11,8 @@ import Foundation
 struct MarketsTokenDetailsSecurityScoreDetailsFactory {
     func makeViewModel(
         with providers: [MarketsTokenDetailsSecurityScore.Provider],
-        routable: MarketsTokenDetailsSecurityScoreDetailsRoutable?
+        routable: MarketsTokenDetailsSecurityScoreDetailsRoutable?,
+        closeAction: (() -> Void)? = nil
     ) -> MarketsTokenDetailsSecurityScoreDetailsViewModel {
         let iconBuilder = IconURLBuilder()
         let helper = MarketsTokenDetailsSecurityScoreRatingHelper()
@@ -34,7 +35,8 @@ struct MarketsTokenDetailsSecurityScoreDetailsFactory {
                     auditURL: provider.auditURL
                 )
             },
-            routable: routable
+            routable: routable,
+            closeAction: closeAction
         )
     }
 }

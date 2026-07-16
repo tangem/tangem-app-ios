@@ -47,29 +47,6 @@ struct TokenSelectorAccount {
 // MARK: - Account's items
 
 struct TokenSelectorItem: Hashable, Identifiable {
-    enum Kind {
-        case crypto(any WalletModel, any CryptoAccountModel)
-        case tangemPay(TangemPayAccount, String, any TangemPayAccountModel)
-
-        var walletModel: (any WalletModel)? {
-            switch self {
-            case .crypto(let walletModel, _):
-                walletModel
-            case .tangemPay:
-                nil
-            }
-        }
-
-        var account: any BaseAccountModel {
-            switch self {
-            case .crypto(_, let account):
-                account
-            case .tangemPay(_, _, let account):
-                account
-            }
-        }
-    }
-
     let userWalletInfo: UserWalletInfo
     let kind: Kind
 
@@ -100,7 +77,7 @@ struct TokenSelectorItem: Hashable, Identifiable {
         case .crypto(let walletModel, _):
             walletModel.fiatTotalTokenBalanceProvider
         case .tangemPay(let tangemPayAccount, _, _):
-            tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider
+            tangemPayAccount.balancesProvider.fiatTotalTokenBalanceProvider
         }
     }
 
@@ -109,6 +86,10 @@ struct TokenSelectorItem: Hashable, Identifiable {
         let matchingSymbol = tokenItem.currencySymbol.lowercased().contains(searchText.lowercased())
 
         return matchingName || matchingSymbol
+    }
+
+    func isMatching(item: WalletTokenItem) -> Bool {
+        userWalletInfo.id == item.userWalletId && tokenItem == item.tokenItem
     }
 
     func hash(into hasher: inout Hasher) {
@@ -128,6 +109,25 @@ extension TokenSelectorItem {
     enum AvailabilityType {
         case available
         case unavailable(reason: TokenSelectorItemViewModel.DisabledReason)
+    }
+
+    enum Kind {
+        case crypto(any WalletModel, any CryptoAccountModel)
+        case tangemPay(TangemPayAccount, String, any TangemPayAccountModel)
+
+        var walletModel: (any WalletModel)? {
+            switch self {
+            case .crypto(let walletModel, _): walletModel
+            case .tangemPay: nil
+            }
+        }
+
+        var account: any BaseAccountModel {
+            switch self {
+            case .crypto(_, let account): account
+            case .tangemPay(_, _, let account): account
+            }
+        }
     }
 }
 
@@ -150,8 +150,8 @@ extension TokenSelectorItem {
                 defaultAddressString: depositAddress,
                 availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
                 fiatAvailableBalanceProvider: tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider,
-                cexTransactionDispatcher: tangemPayAccount.expressCEXTransactionDispatcher,
-                transactionValidator: TangemPayExpressTransactionValidator(
+                transactionDispatcher: tangemPayAccount.transactionDispatcher,
+                transactionValidator: TangemPaySendTransactionValidator(
                     availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
                 ),
                 operationType: expressOperationType

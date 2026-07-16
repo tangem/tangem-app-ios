@@ -228,6 +228,7 @@ private extension TransferModel {
         case .informationRelevanceServiceError,
              .informationRelevanceServiceFeeWasIncreased,
              .transactionNotFound,
+             .feeNotFound,
              .demoAlert,
              .userCancelled,
              .loadTransactionInfo,
@@ -476,7 +477,7 @@ extension TransferModel: NotificationTapDelegate {
              .openFeedbackMail,
              .openAppStoreReview,
              .empty,
-             .support,
+             .backupErrorSupport,
              .openCurrency,
              .unlock,
              .addTokenTrustline,
@@ -492,7 +493,10 @@ extension TransferModel: NotificationTapDelegate {
              .renewTangemPaySession,
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
-             .addFunds:
+             .yieldBoostPromoLater,
+             .addFunds,
+             .openGetTangemPay,
+             .closeGetTangemPay:
             assertionFailure("Notification tap not handled")
         }
     }

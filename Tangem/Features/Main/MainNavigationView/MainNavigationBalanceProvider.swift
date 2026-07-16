@@ -7,20 +7,37 @@
 //
 
 import Foundation
+import SwiftUI
+import TangemAssets
 import Combine
 import TangemFoundation
 import TangemUI
 
-protocol MainNavigationBalanceProvider {
-    var balance: MainNavigationBalanceState { get }
-    var balancePublisher: AnyPublisher<MainNavigationBalanceState, Never> { get }
-}
-
-class CommonMainNavigationBalanceProvider {
+final class MainNavigationBalanceProvider {
     private let balanceFormatter = BalanceFormatter()
+
+    private let balanceFormattingOptions = TotalBalanceFormattingOptions(
+        integerPartFont: Font.Tangem.Body16.medium,
+        fractionalPartFont: Font.Tangem.Body16.medium,
+        integerPartColor: .Tangem.Text.Neutral.primary,
+        fractionalPartColor: .Tangem.Text.Neutral.secondary,
+        fractionalPartIncludesDecimalSeparator: true
+    )
 
     private let isUserWalletLocked: Bool
     private let totalBalanceProvider: TotalBalanceProvider
+
+    var balance: MainNavigationBalanceState {
+        mapToBalanceState(state: totalBalanceProvider.totalBalance)
+    }
+
+    var balancePublisher: AnyPublisher<MainNavigationBalanceState, Never> {
+        totalBalanceProvider
+            .totalBalancePublisher
+            .withWeakCaptureOf(self)
+            .map { $0.mapToBalanceState(state: $1) }
+            .eraseToAnyPublisher()
+    }
 
     init(
         isUserWalletLocked: Bool,
@@ -38,9 +55,11 @@ class CommonMainNavigationBalanceProvider {
         switch state {
         case .empty, .failed:
             return .empty
+
         case .loading(let cached):
             let formatted = cached.map { formatBalance(balance: $0) }
             return .loading(text: formatted.map { .attributed($0) })
+
         case .loaded(let balance):
             let formatted = formatBalance(balance: balance)
             return .loaded(text: .attributed(formatted))
@@ -51,23 +70,7 @@ class CommonMainNavigationBalanceProvider {
         let formattedBalance = balanceFormatter.formatFiatBalance(balance)
         return balanceFormatter.formatAttributedTotalBalance(
             fiatBalance: formattedBalance,
-            formattingOptions: .defaultOptions
+            formattingOptions: balanceFormattingOptions
         )
-    }
-}
-
-// MARK: - MainNavigationBalanceProvider
-
-extension CommonMainNavigationBalanceProvider: MainNavigationBalanceProvider {
-    var balance: MainNavigationBalanceState {
-        mapToBalanceState(state: totalBalanceProvider.totalBalance)
-    }
-
-    var balancePublisher: AnyPublisher<MainNavigationBalanceState, Never> {
-        totalBalanceProvider
-            .totalBalancePublisher
-            .withWeakCaptureOf(self)
-            .map { $0.mapToBalanceState(state: $1) }
-            .eraseToAnyPublisher()
     }
 }

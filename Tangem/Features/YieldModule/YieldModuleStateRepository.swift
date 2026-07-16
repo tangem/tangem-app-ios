@@ -53,7 +53,7 @@ extension CommonYieldModuleStateRepository: YieldModuleStateRepository {
             )
         }
 
-        updateUserWalletState { stateForUserWallet in
+        updateUserWalletState { [walletModelId] stateForUserWallet in
             stateForUserWallet.updateValue(stateToCache, forKey: walletModelId.id)
         }
     }
@@ -88,19 +88,20 @@ extension CommonYieldModuleStateRepository: YieldModuleStateRepository {
     }
 
     func clearState() {
-        updateUserWalletState { stateForUserWallet in
+        updateUserWalletState { [walletModelId] stateForUserWallet in
             stateForUserWallet.removeValue(forKey: walletModelId.id)
         }
     }
 
-    private func updateUserWalletState(_ updateBlock: (inout [String: CachedYieldModuleState]) -> Void) {
-        var currentState = getCurrentState()
-        var stateForUserWallet = currentState[userWalletId.stringValue, default: [:]]
+    private func updateUserWalletState(_ updateBlock: @escaping (inout [String: CachedYieldModuleState]) -> Void) {
+        let defaultState = [String: [String: CachedYieldModuleState]]()
+        storage.modify(defaultValue: defaultState) { [userWalletId] currentState in
+            var stateForUserWallet = currentState[userWalletId.stringValue, default: [:]]
 
-        updateBlock(&stateForUserWallet)
+            updateBlock(&stateForUserWallet)
 
-        currentState.updateValue(stateForUserWallet, forKey: userWalletId.stringValue)
-        try? storage.storeAndWait(value: currentState)
+            currentState.updateValue(stateForUserWallet, forKey: userWalletId.stringValue)
+        }
     }
 
     private func getCurrentState() -> [String: [String: CachedYieldModuleState]] {

@@ -132,8 +132,15 @@ extension ScreenBase {
         if clearButton.exists {
             clearButton.tap()
         }
-        element.typeText(text)
+        typeReliably(element: element, text: text)
         app.hideKeyboard()
+    }
+
+    /// Types per character so per-keystroke onChange handlers (e.g. length clamps) settle between inputs.
+    func typeReliably(element: XCUIElement, text: String) {
+        for character in text {
+            element.typeText(String(character))
+        }
     }
 
     func clearText(element: XCUIElement) {
@@ -184,22 +191,5 @@ extension ScreenBase {
     func isElementVisible(_ element: XCUIElement) -> Bool {
         scrollToElement(element, attempts: .lazy)
         return element.isHittable
-    }
-
-    /// Waits for element existence and then asserts it exists
-    /// - Parameters:
-    ///   - element: The element to wait for and assert
-    ///   - timeout: Timeout for waiting (defaults to robustUIUpdate)
-    ///   - message: Optional message for the assertion
-    func waitAndAssertTrue(
-        _ element: XCUIElement,
-        timeout: TimeInterval = .robustUIUpdate,
-        _ message: String? = nil
-    ) {
-        let elementExists = element.waitForExistence(timeout: timeout)
-        XCTAssertTrue(
-            elementExists,
-            message ?? "Element should exist after waiting for \(timeout) seconds"
-        )
     }
 }

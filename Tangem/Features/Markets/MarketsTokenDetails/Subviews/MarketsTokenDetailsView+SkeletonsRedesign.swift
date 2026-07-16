@@ -50,15 +50,17 @@ extension MarketsTokenDetailsView {
         // MARK: - Metrics
 
         private var metrics: some View {
-            VStack(spacing: .unit(.x2)) {
-                HStack(spacing: .unit(.x2)) {
-                    metricsCard
-                    metricsCard
-                }
+            VStack(spacing: .unit(.x3)) {
+                VStack(spacing: .unit(.x2)) {
+                    HStack(spacing: .unit(.x2)) {
+                        metricsCard
+                        metricsCard
+                    }
 
-                HStack(spacing: .unit(.x2)) {
-                    metricsCard
-                    metricsCard
+                    HStack(spacing: .unit(.x2)) {
+                        metricsCard
+                        metricsCard
+                    }
                 }
 
                 circulatingSupplyCard
@@ -196,28 +198,16 @@ extension MarketsTokenDetailsView {
         // MARK: - Links
 
         private var links: some View {
-            VStack(alignment: .leading, spacing: .zero) {
-                linksSeparator
+            VStack(alignment: .leading, spacing: .unit(.x4)) {
+                skeletonView(width: 64, height: 20)
+                    .padding(.top, .unit(.x6))
 
-                VStack(alignment: .leading, spacing: .unit(.x4)) {
-                    skeletonView(width: 64, height: 20)
-                        .padding(.top, .unit(.x6))
-
-                    HStack(spacing: .unit(.x2)) {
-                        skeletonView(width: 148, height: 36)
-                        skeletonView(width: 110, height: 36)
-                    }
+                HStack(spacing: .unit(.x2)) {
+                    skeletonView(width: 148, height: 36)
+                    skeletonView(width: 110, height: 36)
                 }
-                .padding(.bottom, .unit(.x2))
-
-                linksSeparator
-                    .padding(.top, .unit(.x2))
             }
-        }
-
-        private var linksSeparator: some View {
-            Separator(height: .minimal, color: .Tangem.Graphic.Neutral.quaternary, axis: .horizontal)
-                .padding(.horizontal, .unit(.x2))
+            .padding(.bottom, .unit(.x2))
         }
 
         // MARK: - Helpers

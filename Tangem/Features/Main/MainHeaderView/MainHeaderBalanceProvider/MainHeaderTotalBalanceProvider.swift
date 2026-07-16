@@ -16,7 +16,7 @@ protocol MainHeaderBalanceProvider {
     var balancePublisher: AnyPublisher<LoadableBalanceView.State, Never> { get }
 }
 
-class CommonMainHeaderBalanceProvider {
+final class CommonMainHeaderBalanceProvider {
     private let totalBalanceProvider: TotalBalanceProvider
     private let userWalletStateInfoProvider: MainHeaderUserWalletStateInfoProvider
     private let mainBalanceFormatter: MainHeaderBalanceFormatter
@@ -41,12 +41,15 @@ class CommonMainHeaderBalanceProvider {
         case .empty, .failed(.none, _):
             let formatted = mainBalanceFormatter.formatBalance(balance: .none)
             return .failed(cached: .attributed(formatted))
+
         case .loading(let cached):
             let formatted = cached.map { self.mainBalanceFormatter.formatBalance(balance: $0) }
             return .loading(cached: formatted.map { .attributed($0) })
+
         case .failed(.some(let cached), _):
             let formatted = mainBalanceFormatter.formatBalance(balance: cached)
             return .failed(cached: .attributed(formatted))
+
         case .loaded(let balance):
             let formatted = mainBalanceFormatter.formatBalance(balance: balance)
             return .loaded(text: .attributed(formatted))

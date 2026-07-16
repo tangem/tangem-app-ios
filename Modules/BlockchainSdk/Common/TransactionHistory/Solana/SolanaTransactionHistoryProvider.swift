@@ -18,6 +18,8 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
 
     private var paginationToken: String?
     private var hasReachedEnd = false
+    private var tokenAccountAddress: String?
+    private var tokenAccountAddressMint: String?
 
     init(
         configuration: SolanaTransactionHistoryTarget.Configuration,
@@ -40,6 +42,7 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
                 "configuration": configuration,
                 "paginationToken": paginationToken ?? "-",
                 "hasReachedEnd": hasReachedEnd,
+                "tokenAccountAddress": tokenAccountAddress ?? "-",
             ]
         )
     }
@@ -47,6 +50,8 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
     func reset() {
         paginationToken = nil
         hasReachedEnd = false
+        tokenAccountAddress = nil
+        tokenAccountAddressMint = nil
         mapper.reset()
     }
 
@@ -62,54 +67,78 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
             return .justWithError(output: .init(records: []))
         }
 
-        return fetchTransactions(
-            address: address,
-            limit: request.limit,
-            tokenAccountsFilter: tokenAccountsFilter(amountType: request.amountType)
-        )
-        .tryMap { [weak self] transactions -> TransactionHistory.Response in
-            guard let self else {
-                throw BlockchainSdkError.empty
+        return resolveQueryAddress(walletAddress: address, amountType: request.amountType)
+            .withWeakCaptureOf(self)
+            .flatMap { provider, queryAddress -> AnyPublisher<[SolanaTransactionHistoryDTO.TransactionDetails], Error> in
+                guard let queryAddress else {
+                    provider.hasReachedEnd = true
+                    provider.paginationToken = nil
+                    return .justWithError(output: [])
+                }
+
+                return provider.fetchTransactions(
+                    address: queryAddress,
+                    limit: request.limit
+                )
             }
+            .withWeakCaptureOf(self)
+            .tryMap { provider, transactions -> TransactionHistory.Response in
+                let records = try provider.mapper.mapToTransactionRecords(
+                    transactions,
+                    walletAddress: address,
+                    amountType: request.amountType
+                )
 
-            let records = try mapper.mapToTransactionRecords(
-                transactions,
-                walletAddress: address,
-                amountType: request.amountType
-            )
+                // Ignore Solana 0 amount txs filtering.
+                // As Solana has different balance changes calculations that doesn't include fee/gas.
+                // We need to show all of them.
 
-            // Ignore Solana 0 amount txs filtering.
-            // As Solana has different balance changes calculations that doesn't include fee/gas.
-            // We need to show all of them.
-
-            return .init(records: records)
-        }
-        .eraseToAnyPublisher()
+                return .init(records: records)
+            }
+            .eraseToAnyPublisher()
     }
 }
 
 private extension SolanaTransactionHistoryProvider {
-    func tokenAccountsFilter(amountType: Amount.AmountType) -> SolanaTransactionHistoryTarget.Request.TokenAccountsFilter {
-        switch amountType {
-        case .token:
-            return .balanceChanged
-        case .coin, .reserve, .feeResource:
-            return .default
+    func resolveQueryAddress(walletAddress: String, amountType: Amount.AmountType) -> AnyPublisher<String?, Error> {
+        guard case .token(let token) = amountType else {
+            return .justWithError(output: walletAddress)
         }
+
+        if tokenAccountAddressMint == token.contractAddress, let tokenAccountAddress {
+            return .justWithError(output: tokenAccountAddress)
+        }
+
+        let target = SolanaTransactionHistoryTarget(
+            configuration: configuration,
+            request: .getTokenAccountsByOwner(
+                owner: walletAddress,
+                mint: token.contractAddress
+            )
+        )
+
+        return networkProvider.requestPublisher(target)
+            .filterSuccessfulStatusAndRedirectCodes()
+            .map(JSONRPC.Response<SolanaTransactionHistoryDTO.TokenAccountsByOwner, JSONRPC.APIError>.self)
+            .tryMap { [weak self] response in
+                let tokenAccountAddress = try response.result.get().value.first?.pubkey
+                self?.tokenAccountAddress = tokenAccountAddress
+                self?.tokenAccountAddressMint = token.contractAddress
+                return tokenAccountAddress
+            }
+            .eraseToAnyPublisher()
     }
 
     func fetchTransactions(
         address: String,
-        limit: Int,
-        tokenAccountsFilter: SolanaTransactionHistoryTarget.Request.TokenAccountsFilter
+        limit: Int
     ) -> AnyPublisher<[SolanaTransactionHistoryDTO.TransactionDetails], Error> {
         let target = SolanaTransactionHistoryTarget(
             configuration: configuration,
             request: .getTransactionsForAddress(
                 address: address,
                 limit: limit,
-                paginationToken: paginationToken,
-                tokenAccountsFilter: tokenAccountsFilter
+                paginationToken: paginationToken
             )
         )
 

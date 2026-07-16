@@ -25,6 +25,19 @@ extension MultiWalletNotificationEvent: NotificationEvent {
         }
     }
 
+    var redesignedBannerContent: RedesignedBannerContent? {
+        switch self {
+        case .someTokenBalancesNotUpdated:
+            return RedesignedBannerContent(
+                title: .string(Localization.warningOutdatedDataTitle),
+                description: Localization.warningOutdatedDataMessage,
+                icon: NotificationView.MessageIcon(iconType: .image(Assets.DesignSystem.errorSync), renderingMode: .template)
+            )
+        case .someNetworksUnreachable:
+            return nil
+        }
+    }
+
     var title: NotificationView.Title? {
         switch self {
         case .someNetworksUnreachable:

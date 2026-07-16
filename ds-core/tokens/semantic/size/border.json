@@ -3,8 +3,8 @@
     "100": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderRadius.b100",
-          "iOS": "DesignSystem.Tokens.CornerRadius.100"
+          "Android": "8.dp",
+          "iOS": "8"
         },
         "com.figma.scopes": [
           "CORNER_RADIUS"
@@ -16,8 +16,8 @@
     "150": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderRadius.b150",
-          "iOS": "DesignSystem.Tokens.CornerRadius.150"
+          "Android": "12.dp",
+          "iOS": "12"
         },
         "com.figma.scopes": [
           "CORNER_RADIUS"
@@ -29,8 +29,8 @@
     "200": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderRadius.b200",
-          "iOS": "DesignSystem.Tokens.CornerRadius.200"
+          "Android": "16.dp",
+          "iOS": "16"
         }
       },
       "$type": "borderRadius",
@@ -39,8 +39,8 @@
     "250": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderRadius.b250",
-          "iOS": "DesignSystem.Tokens.CornerRadius.250"
+          "Android": "20.dp",
+          "iOS": "20"
         },
         "com.figma.scopes": [
           "CORNER_RADIUS"
@@ -52,8 +52,8 @@
     "300": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderRadius.b300",
-          "iOS": "DesignSystem.Tokens.CornerRadius.300"
+          "Android": "24.dp",
+          "iOS": "24"
         },
         "com.figma.scopes": [
           "CORNER_RADIUS"
@@ -65,8 +65,8 @@
     "400": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderRadius.b400",
-          "iOS": "DesignSystem.Tokens.CornerRadius.400"
+          "Android": "32.dp",
+          "iOS": "32"
         }
       },
       "$type": "borderRadius",
@@ -75,8 +75,8 @@
     "none": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderRadius.none",
-          "iOS": "DesignSystem.Tokens.CornerRadius.none"
+          "Android": "0.dp",
+          "iOS": "0"
         }
       },
       "$type": "borderRadius",
@@ -85,8 +85,8 @@
     "075": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderRadius.b075",
-          "iOS": "DesignSystem.Tokens.CornerRadius.075"
+          "Android": "6.dp",
+          "iOS": "6"
         },
         "com.figma.scopes": [
           "CORNER_RADIUS"
@@ -98,8 +98,8 @@
     "050": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderRadius.b050",
-          "iOS": "DesignSystem.Tokens.CornerRadius.050"
+          "Android": "4.dp",
+          "iOS": "4"
         },
         "com.figma.scopes": [
           "CORNER_RADIUS"
@@ -111,8 +111,8 @@
     "full": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderRadius.full",
-          "iOS": "DesignSystem.Tokens.CornerRadius.full"
+          "Android": "999.dp",
+          "iOS": "999"
         },
         "com.figma.scopes": [
           "CORNER_RADIUS"
@@ -126,8 +126,8 @@
     "none": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderWidth.none",
-          "iOS": "DesignSystem.Tokens.BorderWidth.none"
+          "Android": "0.dp",
+          "iOS": "0"
         }
       },
       "$type": "borderWidth",
@@ -136,8 +136,8 @@
     "xs": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderWidth.xs",
-          "iOS": "DesignSystem.Tokens.BorderWidth.xs"
+          "Android": "0.5.dp",
+          "iOS": "0.5"
         },
         "com.figma.scopes": [
           "STROKE_FLOAT"
@@ -149,8 +149,8 @@
     "sm": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderWidth.sm",
-          "iOS": "DesignSystem.Tokens.BorderWidth.sm"
+          "Android": "1.dp",
+          "iOS": "1"
         },
         "com.figma.scopes": [
           "STROKE_FLOAT"
@@ -162,8 +162,8 @@
     "md": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderWidth.md",
-          "iOS": "DesignSystem.Tokens.BorderWidth.md"
+          "Android": "2.dp",
+          "iOS": "2"
         },
         "com.figma.scopes": [
           "STROKE_FLOAT"
@@ -175,8 +175,8 @@
     "lg": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.borderWidth.lg",
-          "iOS": "DesignSystem.Tokens.BorderWidth.lg"
+          "Android": "4.dp",
+          "iOS": "4"
         },
         "com.figma.scopes": [
           "STROKE_FLOAT"

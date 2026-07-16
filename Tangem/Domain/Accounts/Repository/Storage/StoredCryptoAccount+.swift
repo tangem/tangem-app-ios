@@ -83,6 +83,25 @@ extension StoredCryptoAccount.Token {
             contractAddress: contractAddress
         )
     }
+
+    /// - Warning: Ignores derivation path from `tokenItem`; it is the caller's responsibility to guarantee that all
+    /// comparisons are performed within the same user tokens manager (i.e., all derivation paths are the same).
+    func isEqual(to tokenItem: TokenItem, in network: StoredBlockchainNetwork) -> Bool {
+        guard let knownNetwork = blockchainNetwork.knownValue else {
+            return false
+        }
+
+        // `BlockchainSettings` is not a part of `StoredCryptoAccount.Token`'s identity, so we ignore it in the comparison
+        return knownNetwork.blockchain == network.blockchain
+            && knownNetwork.derivationPath == network.derivationPath
+            && contractAddress == tokenItem.contractAddress
+    }
+
+    func isEqual(to tokenItem: TokenItem) -> Bool {
+        let storedBlockchainNetwork = StoredEntryConverter.convertToStoredBlockchainNetwork(tokenItem.blockchainNetwork)
+
+        return isEqual(to: tokenItem, in: storedBlockchainNetwork)
+    }
 }
 
 extension StoredCryptoAccount.Token.BlockchainNetworkContainer {

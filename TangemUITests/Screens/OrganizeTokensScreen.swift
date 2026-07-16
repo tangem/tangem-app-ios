@@ -16,7 +16,7 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
     private lazy var sortByBalanceButton = button(.sortByBalanceButton)
     private lazy var groupButton = button(.groupButton)
     private lazy var applyButton = button(.applyButton)
-    private lazy var closeButton = app.buttons[CommonUIAccessibilityIdentifiers.closeButton].firstMatch
+    private lazy var cancelButton = button(.cancelButton)
     private lazy var sortMenuTrigger = app.descendants(matching: .any)
         .matching(identifier: OrganizeTokensAccessibilityIdentifiers.sortMenuTrigger)
         .firstMatch
@@ -32,15 +32,8 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
 
     @discardableResult
     func cancelOrganizeTokens() -> MainScreen {
-        XCTContext.runActivity(named: "Cancel organize tokens (dismiss sheet)") { _ in
-            // Redesign exposes an explicit close button; legacy layout relies on swipe-down dismiss.
-            if closeButton.waitForExistence(timeout: .conditional) {
-                closeButton.waitAndTap()
-            } else {
-                let startPoint = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
-                let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: 400))
-                startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
-            }
+        XCTContext.runActivity(named: "Cancel organize tokens") { _ in
+            cancelButton.waitAndTap()
             return MainScreen(app)
         }
     }
@@ -282,6 +275,7 @@ enum OrganizeTokensScreenElement: String, UIElement {
     case sortByBalanceButton
     case groupButton
     case applyButton
+    case cancelButton
     case sortMenuTrigger
 
     var accessibilityIdentifier: String {
@@ -294,6 +288,8 @@ enum OrganizeTokensScreenElement: String, UIElement {
             return OrganizeTokensAccessibilityIdentifiers.groupButton
         case .applyButton:
             return OrganizeTokensAccessibilityIdentifiers.applyButton
+        case .cancelButton:
+            return OrganizeTokensAccessibilityIdentifiers.cancelButton
         case .sortMenuTrigger:
             return OrganizeTokensAccessibilityIdentifiers.sortMenuTrigger
         }

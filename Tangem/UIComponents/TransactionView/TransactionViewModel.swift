@@ -35,6 +35,13 @@ struct TransactionViewModel: Hashable, Identifiable {
         return timeFormatted ?? "-"
     }
 
+    var secondaryTrailingText: String? {
+        if case .tangemPay = transactionType {
+            return timeFormatted
+        }
+        return amount.currencyCode.nilIfEmpty
+    }
+
     var transactionDescriptionTruncationMode: Text.TruncationMode {
         switch transactionType {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
@@ -47,6 +54,13 @@ struct TransactionViewModel: Hashable, Identifiable {
     }
 
     func getTransactionDescription() -> String? {
+        let base = baseTransactionDescription()
+        guard let cardName else { return base }
+        guard let base else { return cardName }
+        return "\(base) \(AppConstants.dotSign) \(cardName)"
+    }
+
+    private func baseTransactionDescription() -> String? {
         switch transactionType {
         case .yieldEnter:
             return Localization.yieldModuleTransactionEnterSubtitle(amount.amount)
@@ -96,6 +110,7 @@ struct TransactionViewModel: Hashable, Identifiable {
     let isOutgoing: Bool
     let isFromYieldContract: Bool
     private let timeFormatted: String?
+    private let cardName: String?
 
     init(
         hash: String,
@@ -111,7 +126,8 @@ struct TransactionViewModel: Hashable, Identifiable {
         transactionType: TransactionViewModel.TransactionType,
         status: TransactionViewModel.Status,
         isFromYieldContract: Bool,
-        subtitleOwner: SubtitleOwner? = nil
+        subtitleOwner: SubtitleOwner? = nil,
+        cardName: String? = nil
     ) {
         id = ViewModelId(hash: hash, index: index, statusRawValue: status.rawValue)
         self.hash = hash
@@ -133,6 +149,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         self.transactionType = transactionType
         self.status = status
         self.subtitleOwner = subtitleOwner
+        self.cardName = cardName
 
         display = TransactionDisplayModel.make(
             transactionType: transactionType,
@@ -158,8 +175,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         isFromYieldContract: Bool
     ) -> String {
         switch transactionType {
-        case .yieldSend where isOutgoing,
-             .yieldSend where !isFromYieldContract: Localization.commonTransfer
+        case .yieldSend where transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract): Localization.commonTransfer
         case .transfer: Localization.commonTransfer
         case .swap: Localization.commonSwap
         case .approve: Localization.commonApproval
@@ -334,5 +350,12 @@ extension TransactionViewModel {
                 hasher.combine(fullAddress)
             }
         }
+    }
+}
+
+extension TransactionViewModel.TransactionType {
+    func isTransferLikeYieldSend(isOutgoing: Bool, isFromYieldContract: Bool) -> Bool {
+        guard case .yieldSend = self else { return false }
+        return isOutgoing || !isFromYieldContract
     }
 }

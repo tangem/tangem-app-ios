@@ -35,7 +35,7 @@ struct CarouselNewsCardSkeletonView: View {
         }
         .padding(.all, .unit(.x4))
         .background(Color.Tangem.Surface.level3)
-        .cornerRadiusContinuous(.unit(.x5))
+        .cornerRadiusContinuous(.unit(.x6))
     }
 
     // MARK: - Subviews

@@ -36,6 +36,14 @@ extension AppEnvironment {
         FeatureStorage.instance.tangemAPIType.apiBaseUrlv2
     }
 
+    var apiBaseUrlWithGatewaySegment: URL {
+        FeatureStorage.instance.tangemAPIType.apiBaseUrlWithGatewaySegment
+    }
+
+    var apiBaseUrlv2WithGatewaySegment: URL {
+        FeatureStorage.instance.tangemAPIType.apiBaseUrlv2WithGatewaySegment
+    }
+
     var iconBaseUrl: URL {
         FeatureStorage.instance.tangemAPIType.iconBaseUrl
     }

@@ -52,6 +52,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let userWalletDataStorage = UserWalletDataStorage()
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let accessCodeRepository = AccessCodeRepository()
+    private let supportChatTokenStorage = SupportChatTokenStorage()
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private var bag: Set<AnyCancellable> = .init()
@@ -76,6 +77,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
         let allUnlocked = self.models.allConforms { !$0.isUserWalletLocked }
         if allUnlocked {
+            let restoredSelectedId = selectedUserWalletId.flatMap { self.models[$0] }?.userWalletId
+            if let userWalletIdToSelect = restoredSelectedId ?? self.models.first?.userWalletId {
+                select(userWalletId: userWalletIdToSelect)
+            }
             unlockInternal()
         }
 
@@ -240,6 +245,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         sendEvent(.deleted(userWalletIds: [userWalletId], isRepositoryEmpty: models.isEmpty))
 
         if models.isEmpty {
+            supportChatTokenStorage.clear()
             lockInternal()
         } else {
             let newModel = models[nextSelectionIndex]
@@ -390,7 +396,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
         models[userWalletId] = unlockedModel
         await unlockUnprotectedMobileWalletsIfNeeded()
+
         sendEvent(.unlockedWallet(userWalletId: userWalletId))
+        select(userWalletId: userWalletId)
+
         return unlockedModel
     }
 

@@ -14,6 +14,7 @@ public final class SensitiveTextVisibilityState: ObservableObject {
     public static let shared = SensitiveTextVisibilityState()
 
     @Published public var isHidden: Bool = false
+    public let maskedBalanceString = "\u{2217}\u{2217}\u{2217}"
 
     public init() {}
 }

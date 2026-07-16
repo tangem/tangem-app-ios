@@ -10,19 +10,20 @@ import Foundation
 import Combine
 import TangemSdk
 import TangemLocalization
+import TangemFoundation
 import BlockchainSdk
 
 class CardSigner {
     private let initialMessage = Message(header: nil, body: Localization.initialMessageSignBody)
     private let filter: SessionFilter
     private let twinKey: TwinKey?
-    private let sdk: TangemSdk
+    private let sdk: ThreadSafeLazy<TangemSdk>
     private var _latestSignerType: TangemSignerType?
 
-    init(filter: SessionFilter, sdk: TangemSdk, twinKey: TwinKey?) {
+    init(filter: SessionFilter, sdkFactory: TangemSdkFactory, twinKey: TwinKey?) {
         self.filter = filter
         self.twinKey = twinKey
-        self.sdk = sdk
+        sdk = ThreadSafeLazy { sdkFactory.makeTangemSdk() }
     }
 
     private func updateLatestSignerType(card: Card) {
@@ -68,7 +69,7 @@ extension CardSigner: TangemSigner {
             pairKey: twinKey?.getPairKey(for: walletPublicKey.seedKey)
         )
 
-        return sdk.startSessionPublisher(with: signCommand, filter: filter, initialMessage: initialMessage)
+        return sdk.value.startSessionPublisher(with: signCommand, filter: filter, initialMessage: initialMessage)
             .handleEvents(
                 receiveOutput: { [weak self] response in
                     if let lastResponse = response.last {

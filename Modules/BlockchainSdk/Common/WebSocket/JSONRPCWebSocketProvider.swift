@@ -23,6 +23,10 @@ actor JSONRPCWebSocketProvider {
         connection = WebSocketConnection(url: url, ping: ping, timeout: timeoutInterval)
     }
 
+    deinit {
+        receiveTask?.cancel()
+    }
+
     func send<Parameter: Encodable, Result: Decodable>(
         method: String,
         parameter: Parameter,
@@ -71,16 +75,19 @@ actor JSONRPCWebSocketProvider {
 
 private extension JSONRPCWebSocketProvider {
     func setupReceiveTask() {
-        receiveTask = Task { [weak self] in
-            guard let self else { return }
-
+        // `self` must not be held across the unbounded `receive()` await — the stored task
+        // would retain the provider (and the whole socket stack) until the connection errors out
+        receiveTask = Task { [weak self, connection] in
             do {
                 let data = try await connection.receive()
-                await proceedReceive(data: data)
+
+                await self?.proceedReceive(data: data)
 
                 // Handle next message
-                await setupReceiveTask()
+                await self?.setupReceiveTask()
             } catch {
+                guard let self else { return }
+
                 BSDKLogger.error(self, "ReceiveTask catch error", error: error)
                 await cancel()
             }

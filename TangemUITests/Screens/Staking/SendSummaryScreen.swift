@@ -19,6 +19,7 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     private lazy var networkFeeBlock = otherElement(.networkFeeBlock)
     private lazy var networkFeeAmount = staticText(.networkFeeAmount)
     private lazy var amountBlock = button(.amountBlock)
+    private lazy var destinationBlock = button(.destinationBlock)
 
     /// Returns the active finish/send button regardless of type (regular Button or HoldToConfirmButton)
     private var activeFinishButton: XCUIElement {
@@ -129,6 +130,32 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
             amountBlock.waitAndTap()
         }
         return SendScreen(app)
+    }
+
+    @discardableResult
+    func tapDestinationField() -> SendScreen {
+        XCTContext.runActivity(named: "Tap on recipient block to edit") { _ in
+            waitAndAssertTrue(destinationBlock, "Destination block should exist")
+            destinationBlock.waitAndTap()
+        }
+        return SendScreen(app)
+    }
+
+    @discardableResult
+    func waitForDestinationAdditionalField(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Validate destination memo on Summary: \(expected)") { _ in
+            waitAndAssertTrue(destinationBlock, "Destination block should exist")
+
+            // Recipient block aggregates address and memo into its label, so match the memo value substring
+            let predicate = NSPredicate(format: "label CONTAINS %@", expected)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: destinationBlock)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Destination memo should contain '\(expected)' but was '\(destinationBlock.label)'"
+            )
+        }
+        return self
     }
 
     // MARK: - Swap Provider Methods
@@ -270,6 +297,7 @@ enum SendSummaryScreenElement: String, UIElement {
     case networkFeeBlock
     case networkFeeAmount
     case amountBlock
+    case destinationBlock
 
     var accessibilityIdentifier: String {
         switch self {
@@ -287,6 +315,8 @@ enum SendSummaryScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.networkFeeAmount
         case .amountBlock:
             return SendAccessibilityIdentifiers.fromWalletButton
+        case .destinationBlock:
+            return SendAccessibilityIdentifiers.summaryDestinationBlock
         }
     }
 }

@@ -13,7 +13,6 @@ public struct TransactionHistoryProviderFactory {
     private let keysConfig: BlockchainSdkKeysConfig
     private let apiList: APIList
     private let tangemProviderConfig: TangemProviderConfiguration
-    private let isSolanaTransactionHistoryEnabled: Bool
     private let isXrpTransactionHistoryEnabled: Bool
 
     // MARK: - Init
@@ -22,13 +21,11 @@ public struct TransactionHistoryProviderFactory {
         keysConfig: BlockchainSdkKeysConfig,
         tangemProviderConfig: TangemProviderConfiguration,
         apiList: APIList,
-        isSolanaTransactionHistoryEnabled: Bool,
         isXrpTransactionHistoryEnabled: Bool
     ) {
         self.keysConfig = keysConfig
         self.tangemProviderConfig = tangemProviderConfig
         self.apiList = apiList
-        self.isSolanaTransactionHistoryEnabled = isSolanaTransactionHistoryEnabled
         self.isXrpTransactionHistoryEnabled = isXrpTransactionHistoryEnabled
     }
 
@@ -144,7 +141,7 @@ public struct TransactionHistoryProviderFactory {
                 networkConfiguration: input.tangemProviderConfig,
                 mapper: KaspaTransactionHistoryMapper(blockchain: input.blockchain)
             )
-        case .solana where isSolanaTransactionHistoryEnabled:
+        case .solana:
             return SolanaTransactionHistoryProvider(
                 configuration: .alchemy(apiKey: keysConfig.alchemyApiKey),
                 networkConfiguration: input.tangemProviderConfig,
