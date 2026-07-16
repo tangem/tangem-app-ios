@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 public protocol OnrampStorage {
     func save(preference: OnrampUserPreference)
     func preference() -> OnrampUserPreference?

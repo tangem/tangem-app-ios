@@ -236,7 +236,7 @@ private extension RatingModelTests {
         await spy.setSubmitResult(submitResult)
 
         let transaction = RatingModel.Transaction(
-            externalTxId: externalTxId,
+            transactionId: externalTxId,
             providerName: providerName,
             txUrl: txUrl
         )

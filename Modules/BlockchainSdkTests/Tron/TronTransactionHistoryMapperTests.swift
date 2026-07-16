@@ -168,6 +168,48 @@ struct TronTransactionHistoryMapperTests {
         #expect(try coinTransactionType(chainExtraData: extraData) == .transfer)
     }
 
+    // MARK: - Staking amount: self→self destination zeroed so the app mapper keeps the gross amount
+
+    @Test
+    func freezeKeepsGrossSourceAndZeroesDestinationAmount() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let response = makeResponse(transactions: [
+            .init(
+                fromAddress: walletAddress,
+                toAddress: walletAddress,
+                contractType: nil,
+                chainExtraData: makeChainExtraData(contractType: "FreezeBalanceV2Contract")
+            ),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.count == 1)
+        #expect(records[0].type == .staking(type: .stake, target: nil))
+        #expect(records[0].source == .single(.init(address: walletAddress, amount: 1)))
+        #expect(records[0].destination == .single(.init(address: .user(walletAddress), amount: 0)))
+    }
+
+    @Test
+    func unfreezeKeepsGrossSourceAndZeroesDestinationAmount() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let response = makeResponse(transactions: [
+            .init(
+                fromAddress: walletAddress,
+                toAddress: walletAddress,
+                contractType: nil,
+                chainExtraData: makeChainExtraData(contractType: "UnfreezeBalanceV2Contract")
+            ),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.count == 1)
+        #expect(records[0].type == .staking(type: .unstake, target: nil))
+        #expect(records[0].source == .single(.init(address: walletAddress, amount: 1)))
+        #expect(records[0].destination == .single(.init(address: .user(walletAddress), amount: 0)))
+    }
+
     // MARK: - Helpers
 
     /// Maps a single coin transaction whose integer `contract_type` is absent (so the type is taken

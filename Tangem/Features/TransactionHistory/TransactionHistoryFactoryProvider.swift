@@ -20,7 +20,6 @@ final class TransactionHistoryFactoryProvider {
         keysConfig: keysManager.blockchainSdkKeysConfig,
         tangemProviderConfig: .ephemeralConfiguration,
         apiList: apiListProvider.apiList,
-        isSolanaTransactionHistoryEnabled: FeatureProvider.isAvailable(.solanaTxHistoryEnabled),
         isXrpTransactionHistoryEnabled: FeatureProvider.isAvailable(.xrplTransactionHistory)
     )
 }

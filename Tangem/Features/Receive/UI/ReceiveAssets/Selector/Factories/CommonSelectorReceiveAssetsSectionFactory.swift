@@ -14,7 +14,7 @@ struct CommonSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFa
     // MARK: - Private Properties
 
     private let tokenItem: TokenItem
-    private let coordinator: SelectorReceiveAssetItemRoutable?
+    private weak var coordinator: SelectorReceiveAssetItemRoutable?
 
     // MARK: - Init
 

@@ -190,13 +190,13 @@ extension OnrampFlowFactory: SendFinishStepBuildable {
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(
-            title: Localization.commonInProgress,
-            tokenItem: tokenItem
-        )
+        SendFinishStepBuilder.Types(tokenItem: tokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
-        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
+        SendFinishStepBuilder.Dependencies(
+            analyticsLogger: analyticsLogger,
+            headerTitleProvider: OnrampFinishHeaderTitleProvider()
+        )
     }
 }

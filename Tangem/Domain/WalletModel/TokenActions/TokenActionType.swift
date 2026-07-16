@@ -18,6 +18,7 @@ enum TokenActionType {
     case send
     case receive
     case exchange
+    case swapAndSend
     case stake
     case sell
     case copyAddress
@@ -31,6 +32,7 @@ enum TokenActionType {
         case .send: return Localization.commonSend
         case .receive: return Localization.commonReceive
         case .exchange: return Localization.swappingSwapAction
+        case .swapAndSend: return Localization.sendWithSwapConfirmTitle
         case .stake: return Localization.commonStake
         case .sell: return Localization.commonSell
         case .copyAddress: return Localization.commonCopyAddress
@@ -42,10 +44,11 @@ enum TokenActionType {
 
     var icon: ImageType {
         switch self {
-        case .buy: return Assets.plusMini
+        case .buy: return Assets.AddFunds.addfundsBuy
         case .send: return Assets.arrowUpMini
-        case .receive: return Assets.arrowDownMini
+        case .receive: return Assets.AddFunds.addfundsReceive
         case .exchange: return Assets.exchangeMini
+        case .swapAndSend: return Assets.exchangeMini
         case .stake: return Assets.stakingIcon
         case .sell: return Assets.dollarMini
         case .copyAddress: return Assets.Glyphs.copy
@@ -68,6 +71,7 @@ enum TokenActionType {
         case .send: return nil
         case .receive: return Localization.receiveTokenDescription
         case .exchange: return Localization.exchangeTokenDescription
+        case .swapAndSend: return nil
         case .stake: return Localization.stakeTokenDescription
         case .sell: return nil
         case .copyAddress: return nil
@@ -91,6 +95,8 @@ enum TokenActionType {
             return ActionButtonsAccessibilityIdentifiers.receiveButton
         case .exchange:
             return ActionButtonsAccessibilityIdentifiers.swapButton
+        case .swapAndSend:
+            return ActionButtonsAccessibilityIdentifiers.transferSwapAndSendRow
         case .sell:
             return ActionButtonsAccessibilityIdentifiers.sellButton
         case .copyAddress, .hide, .stake, .marketsDetails, .yield:

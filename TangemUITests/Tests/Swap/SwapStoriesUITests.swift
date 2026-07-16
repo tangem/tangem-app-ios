@@ -156,7 +156,9 @@ final class SwapStoriesUITests: BaseTestCase {
             .openMarketsSheetWithSwipe()
             .tapSeeAll()
             .openTokenDetails(ethereumTokenName)
-            .tapSwapButton()
+            .tapAddFunds()
+            .expandPortfolioToken(ethereumTokenName)
+            .tapSwap()
             .assertStoriesDisplayed()
 
         // Step 2: Navigate stories forward and backward, verify close button on each page
@@ -178,7 +180,9 @@ final class SwapStoriesUITests: BaseTestCase {
 
         // Step 4: Open swap again → stories should not show
         MarketsTokenDetailsScreen(app)
-            .tapSwapButton()
+            .tapAddFunds()
+            .expandPortfolioToken(ethereumTokenName)
+            .tapSwap()
             .assertStoriesNotDisplayed()
 
         SwapScreen(app)
@@ -252,7 +256,9 @@ final class SwapStoriesUITests: BaseTestCase {
             .openTokenDetails(ethereumTokenName)
 
         marketsTokenDetailsScreen
-            .tapSwapButton()
+            .tapAddFunds()
+            .expandPortfolioToken(ethereumTokenName)
+            .tapSwap()
             .assertStoriesNotDisplayed()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
@@ -270,7 +276,9 @@ final class SwapStoriesUITests: BaseTestCase {
             .openTokenDetails(ethereumTokenName)
 
         marketsTokenDetailsScreenAfterRestart
-            .tapSwapButton()
+            .tapAddFunds()
+            .expandPortfolioToken(ethereumTokenName)
+            .tapSwap()
             .assertStoriesDisplayed()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()

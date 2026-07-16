@@ -10,10 +10,12 @@ import SwiftUI
 import Combine
 import TangemAccounts
 import TangemFoundation
+import TangemUI
 
 final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
     let walletId: UserWalletId
     let walletName: String
+    let walletThumbnail: ThumbnailWalletViewType?
 
     let viewType: ViewType
 
@@ -24,10 +26,12 @@ final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
     init(
         walletId: UserWalletId,
         walletName: String,
+        walletThumbnail: ThumbnailWalletViewType?,
         viewType: ViewType
     ) {
         self.walletId = walletId
         self.walletName = walletName
+        self.walletThumbnail = walletThumbnail
         self.viewType = viewType
 
         contentVisibility = .empty

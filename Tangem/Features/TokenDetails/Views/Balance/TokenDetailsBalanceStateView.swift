@@ -12,6 +12,7 @@ import TangemUI
 struct TokenDetailsBalanceStateView: View {
     let state: TokenDetailsBalanceState
     let skeletonSize: CGSize
+    var minimumScaleFactor: CGFloat = 1
 
     var body: some View {
         switch state {
@@ -36,11 +37,30 @@ struct TokenDetailsBalanceStateView: View {
 private extension TokenDetailsBalanceStateView {
     func textView(_ text: TokenDetailsBalanceState.Text) -> some View {
         SensitiveText(text)
+            .lineLimit(1)
+            .minimumScaleFactor(minimumScaleFactor)
+            .modifier(CountsDownTransitionModifier(text: text))
     }
 
     func skeletonView(size: CGSize) -> some View {
         SkeletonView()
             .frame(size: size)
             .clipShape(.capsule)
+    }
+}
+
+// MARK: - CountsDownTransitionModifier
+
+private struct CountsDownTransitionModifier: ViewModifier {
+    let text: TokenDetailsBalanceState.Text
+
+    func body(content: Content) -> some View {
+        if #available(iOS 17, *) {
+            content
+                .contentTransition(.numericText(countsDown: false))
+                .animation(.default, value: text)
+        } else {
+            content
+        }
     }
 }

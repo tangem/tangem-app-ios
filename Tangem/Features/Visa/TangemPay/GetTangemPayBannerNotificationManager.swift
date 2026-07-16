@@ -39,10 +39,22 @@ final class GetTangemPayBannerNotificationManager {
     ) -> NotificationViewInput {
         let event = GetTangemPayBannerNotificationEvent()
 
-        return NotificationViewInput(
-            style: .tappable(hasChevron: false) { [tapAction] _ in
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self, tapAction] id, actionType in
+            switch actionType {
+            case .closeGetTangemPay:
+                self?.dismissNotification(with: id)
+            case .openGetTangemPay:
                 tapAction(availableSelection)
-            },
+            default:
+                break
+            }
+        }
+
+        return NotificationViewInput(
+            style: .withButtons([
+                .init(action: buttonAction, actionType: .closeGetTangemPay, isWithLoader: false),
+                .init(action: buttonAction, actionType: .openGetTangemPay, isWithLoader: false),
+            ]),
             severity: event.severity,
             settings: .init(
                 event: event,

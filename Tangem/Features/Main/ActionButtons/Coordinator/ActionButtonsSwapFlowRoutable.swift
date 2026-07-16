@@ -7,7 +7,5 @@
 //
 
 protocol ActionButtonsSwapFlowRoutable: AnyObject {
-    // [REDACTED_TODO_COMMENT]
-    func openSwap(userWalletModel: some UserWalletModel, tokenSelectorViewModel: TokenSelectorViewModel)
     func openSwap(predefinedParameters: PredefinedSwapParameters)
 }
