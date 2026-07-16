@@ -40,7 +40,7 @@ enum OnrampSummaryStepBuilder {
 
     struct Dependencies {
         let notificationManager: any NotificationManager
-        let marketingNotificationManager: OnrampMarketingBannerNotificationManager
+        let marketingBannerManager: OnrampMarketingBannerManager
         let linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>
         let analyticsLogger: any SendOnrampOffersAnalyticsLogger
         let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
@@ -69,7 +69,7 @@ enum OnrampSummaryStepBuilder {
             tokenItem: types.tokenItem,
             interactor: interactor,
             notificationManager: dependencies.notificationManager,
-            marketingNotificationManager: dependencies.marketingNotificationManager,
+            marketingBannerManager: dependencies.marketingBannerManager,
             linkedBannersPublisher: dependencies.linkedBannersPublisher,
             analyticsLogger: dependencies.analyticsLogger,
             buyActionBuilder: dependencies.buyActionBuilder

@@ -45,8 +45,8 @@ extension SwapFlowBaseDependenciesFactory {
         CommonSwapNotificationManager()
     }
 
-    func makeSwapMarketingBannerNotificationManager() -> SwapMarketingBannerNotificationManager {
-        SwapMarketingBannerNotificationManager()
+    func makeSwapMarketingBannerManager() -> SwapMarketingBannerManager {
+        SwapMarketingBannerManager()
     }
 
     func makeSwapAlertBuilder() -> SendAlertBuilder {

@@ -94,7 +94,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private let transactionFlowFactory: YieldModuleTransactionFlowFactory
     private let yieldManagerInteractor: YieldManagerInteractor
     private let notificationManager: YieldModuleNotificationManager
-    private let marketingNotificationManager = MarketingBannerNotificationManager()
+    private let marketingBannerManager = MarketingBannerManager()
     private let logger: YieldAnalyticsLogger
 
     // MARK: - Properties
@@ -172,11 +172,11 @@ final class YieldModuleActiveViewModel: ObservableObject {
     // MARK: - Private Implementation
 
     private func start() {
-        marketingNotificationManager.setup(
+        marketingBannerManager.setup(
             bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: walletModel.tokenItem, kind: .yield)
         )
 
-        marketingNotificationManager.standaloneBannersPublisher
+        marketingBannerManager.standaloneBannersPublisher
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
 
