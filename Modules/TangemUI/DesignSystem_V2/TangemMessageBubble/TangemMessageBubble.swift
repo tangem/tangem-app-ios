@@ -184,7 +184,7 @@ private extension TangemMessageBubble {
     enum Metrics {
         static let cornerRadius: CGFloat = 12
         static let iconSize: CGFloat = 16
-        static let textLineLimit: Int = 2
+        static let textLineLimit: Int = 3
         static let itemSpacing: CGFloat = 4
         static let paddingTop: CGFloat = 4
         static let paddingBottom: CGFloat = 4
