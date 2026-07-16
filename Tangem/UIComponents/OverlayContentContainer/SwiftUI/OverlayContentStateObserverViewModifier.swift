@@ -46,10 +46,7 @@ private struct OverlayContentStateObserverViewModifier: ViewModifier {
     private weak var overlayContentStateObserver: OverlayContentStateObserver?
     private let selector: Selector
 
-    @State private var token = UUID()
-
-    @available(iOS, deprecated: 17.0, message: "Not needed if `View.onChange(of:initial:_:)` is available (iOS 17+)")
-    @State private var isAppeared = false
+    @StateObject private var lifecycle = ObserverLifecycle()
 
     init(overlayContentStateObserver: OverlayContentStateObserver, selector: @escaping Selector) {
         self.overlayContentStateObserver = overlayContentStateObserver
@@ -57,35 +54,33 @@ private struct OverlayContentStateObserverViewModifier: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        if #available(iOS 17.0, *) {
-            content
-                .onChange(of: token, initial: true) { oldValue, newValue in
-                    updateObserver(oldToken: oldValue, newToken: newValue)
+        content
+            .onAppear {
+                guard !lifecycle.isRegistered, let overlayContentStateObserver else {
+                    return
                 }
-        } else {
-            content
-                .onChange(of: token) { [oldValue = token] newValue in
-                    updateObserver(oldToken: oldValue, newToken: newValue)
-                }
-                .onAppear {
-                    guard !isAppeared else {
-                        return
-                    }
 
-                    // Prevents warnings like "Modifying state during view update, this will cause undefined behavior."
-                    DispatchQueue.main.async {
-                        isAppeared = true
-                    }
-
-                    updateObserver(oldToken: token, newToken: token)
+                lifecycle.isRegistered = true
+                selector(overlayContentStateObserver, lifecycle.token)
+                lifecycle.onDeinit = { [weak overlayContentStateObserver, token = lifecycle.token] in
+                    overlayContentStateObserver?.removeObserver(forToken: token)
                 }
-        }
+            }
     }
+}
 
-    private func updateObserver(oldToken: UUID, newToken: UUID) {
-        overlayContentStateObserver?.removeObserver(forToken: oldToken)
-        if let overlayContentStateObserver {
-            selector(overlayContentStateObserver, newToken)
+// MARK: - Auxiliary types
+
+private final class ObserverLifecycle: ObservableObject {
+    let token = UUID()
+    var isRegistered = false
+    var onDeinit: (() -> Void)?
+
+    deinit {
+        // `deinit` of a `@StateObject` runs when the view's identity leaves the hierarchy for good,
+        // unlike `onDisappear`, which also fires when the view is temporarily covered
+        if let onDeinit {
+            DispatchQueue.main.async(execute: onDeinit)
         }
     }
 }

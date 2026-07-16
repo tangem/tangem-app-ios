@@ -66,6 +66,10 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
+        throw "Not implemented"
+    }
+
     func loadReferralProgramInfo(for userWalletId: String, expectedAwardsLimit: Int) async throws -> ReferralProgramInfo {
         throw "Not implemented"
     }
@@ -131,6 +135,17 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
+        throw "Not implemented"
+    }
+
+    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Body {
+        throw "Not implemented"
+    }
+
+    func updateNotificationPreferences(
+        userWalletId: String,
+        preferences: NotificationPreferencesDTO.Body
+    ) async throws {
         throw "Not implemented"
     }
 
