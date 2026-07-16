@@ -22,11 +22,7 @@ struct EarnBestOpportunitiesListView: View {
     let clearFilterAction: (() -> Void)?
 
     private var backgroundColor: Color {
-        isRedesignEnabled ? .Tangem.Surface.level3 : Colors.Background.action
-    }
-
-    private var isRedesignEnabled: Bool {
-        FeatureProvider.isAvailable(.redesign)
+        .Tangem.Surface.level3
     }
 
     var body: some View {
@@ -35,7 +31,7 @@ struct EarnBestOpportunitiesListView: View {
                 with: backgroundColor,
                 verticalPadding: Layout.innerContentPadding,
                 horizontalPadding: Layout.innerContentPadding,
-                cornerRadius: isRedesignEnabled ? .unit(.x6) : Self.defaultCornerRadius
+                cornerRadius: .unit(.x6)
             )
             .padding(.horizontal, Layout.horizontalPadding)
     }
@@ -54,13 +50,8 @@ struct EarnBestOpportunitiesListView: View {
         }
     }
 
-    @ViewBuilder
     private var loadingSkeletons: some View {
-        if isRedesignEnabled {
-            loadingSkeletonsRedesign
-        } else {
-            loadingSkeletonsLegacy
-        }
+        loadingSkeletonsRedesign
     }
 
     private var loadingSkeletonsRedesign: some View {
@@ -71,22 +62,10 @@ struct EarnBestOpportunitiesListView: View {
         }
     }
 
-    private var loadingSkeletonsLegacy: some View {
-        VStack(spacing: .zero) {
-            ForEach(0 ..< 5) { _ in
-                MarketsSkeletonItemView()
-            }
-        }
-    }
-
     private var opportunitiesList: some View {
         LazyVStack(spacing: Layout.itemSpacing) {
             ForEach(tokenViewModels) { viewModel in
-                if FeatureProvider.isAvailable(.redesign) {
-                    EarnTokenItemViewRedesign(viewModel: viewModel)
-                } else {
-                    EarnTokenItemView(viewModel: viewModel)
-                }
+                EarnTokenItemViewRedesign(viewModel: viewModel)
             }
 
             paginationFooter
@@ -134,20 +113,15 @@ struct EarnBestOpportunitiesListView: View {
 
     private var emptyViewWithClearFilter: some View {
         VStack(spacing: Layout.emptyViewSpacing) {
-            if isRedesignEnabled {
-                Text(Localization.earnNoResults)
-                    .style(Font.Tangem.Body14.regular, color: .Tangem.Text.Neutral.tertiary)
-            } else {
-                Text(Localization.earnNoResults)
-                    .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
-            }
+            Text(Localization.earnNoResults)
+                .style(Font.Tangem.Body14.regular, color: .Tangem.Text.Neutral.tertiary)
 
             if let clearFilterAction {
                 Button(action: clearFilterAction) {
                     Text(Localization.earnClearFilter)
                         .style(
-                            isRedesignEnabled ? Font.Tangem.Body16.semibold : TangemFontStyle(font: Fonts.Bold.caption1),
-                            color: isRedesignEnabled ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
+                            Font.Tangem.Body16.semibold,
+                            color: .Tangem.Text.Neutral.primary
                         )
                 }
                 .roundedBackground(
@@ -164,17 +138,10 @@ struct EarnBestOpportunitiesListView: View {
 
     private var errorView: some View {
         Group {
-            if isRedesignEnabled {
-                TangemUnableToLoadDataView(
-                    isButtonBusy: false,
-                    retryButtonAction: retryAction
-                )
-            } else {
-                UnableToLoadDataView(
-                    isButtonBusy: false,
-                    retryButtonAction: retryAction
-                )
-            }
+            TangemUnableToLoadDataView(
+                isButtonBusy: false,
+                retryButtonAction: retryAction
+            )
         }
         .infinityFrame(axis: .horizontal, alignment: .center)
         .frame(height: Layout.defaultMaxHeight)
