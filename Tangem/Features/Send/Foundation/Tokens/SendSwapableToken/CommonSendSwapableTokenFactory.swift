@@ -26,16 +26,27 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
         let sourceToken = sourceTokenFactory.makeSourceToken()
 
         let sendingRestrictionsProvider = WalletModelSendingRestrictionsProvider(walletModel: walletModel)
-        let receivingRestrictionsProvider = WalletModelReceivingRestrictionsProvider(walletModel: walletModel)
+        let receivingRestrictionsProvider = WalletModelReceivingRestrictionsProvider(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel
+        )
 
-        // with `.swap` supportingOptions
-        let tokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
+        let swapTokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
             supportingOptions: .swap
         )
 
-        let expressTransactionValidator = BSDKExpressTransactionValidator(
+        let transferTokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(
+            walletModel: walletModel,
+            supportingOptions: .all
+        ).makeTokenFeeProvidersManager()
+
+        let transactionValidator = BSDKTransactionValidator(
             transactionValidator: walletModel.transactionValidator
+        )
+
+        let transactionCreator = BSDKTransactionCreator(
+            transactionCreator: walletModel.transactionCreator
         )
 
         let balanceProvider = CommonExpressBalanceProvider(
@@ -50,9 +61,12 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             hardwareLimitationsUtil: HardwareLimitationsUtil(config: userWalletInfo.config)
         )
 
+        let isYieldModuleActive = walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true
+
         let supportedProvidersFilter: SupportedProvidersFilter = switch operationType {
         case .swapAndSend where FeatureProvider.isAvailable(.exchangeOnlyWithinSingleAddress): .byDifferentAddressExchangeSupport
         case .swapAndSend: .cex
+        case .swap where isYieldModuleActive && !FeatureProvider.isAvailable(.yieldModuleUpdate): .cex
         case .swap: .swap
         case .onramp: .onramp
         }
@@ -70,8 +84,10 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             swapAvailabilityProvider: swapAvailabilityProvider,
             sendingRestrictionsProvider: sendingRestrictionsProvider,
             receivingRestrictionsProvider: receivingRestrictionsProvider,
-            tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
-            expressTransactionValidator: expressTransactionValidator,
+            tokenFeeProvidersManagerProvider: swapTokenFeeProvidersManagerProvider,
+            tokenFeeProvidersManager: transferTokenFeeProvidersManager,
+            transactionValidator: transactionValidator,
+            transactionCreator: transactionCreator,
             sendYieldModuleHelper: sendYieldModuleHelper,
             balanceProvider: balanceProvider,
             analyticsLogger: analyticsLogger,

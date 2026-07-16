@@ -113,7 +113,7 @@ public struct GroupedSection<Model: Identifiable, Content: View, Footer: View, H
                 settings.backgroundColor
                     .matchedGeometryEffect(settings.backgroundGeometryEffect)
             )
-            .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
+            .cornerRadiusContinuous(settings.cornerRadius)
 
             footer()
                 .padding(.horizontal, settings.horizontalPadding)
@@ -173,6 +173,7 @@ public extension GroupedSection {
 
     struct Settings {
         public var horizontalPadding: CGFloat = GroupedSectionConstants.defaultHorizontalPadding
+        public var cornerRadius: CGFloat = GroupedSectionConstants.defaultCornerRadius
         public var separatorStyle: SeparatorStyle = .minimum
         public var interItemSpacing: CGFloat = 0
         public var innerContentPadding: CGFloat = 0
@@ -208,6 +209,10 @@ extension GroupedSection: Setupable {
 
     public func horizontalPadding(_ padding: CGFloat) -> Self {
         settings(\.horizontalPadding, padding)
+    }
+
+    public func cornerRadius(_ radius: CGFloat) -> Self {
+        settings(\.cornerRadius, radius)
     }
 
     public func separatorStyle(_ style: SeparatorStyle) -> Self {

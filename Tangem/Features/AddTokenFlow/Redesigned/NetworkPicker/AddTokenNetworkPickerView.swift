@@ -29,17 +29,6 @@ struct AddTokenNetworkPickerView: View {
             .padding(.horizontal, AddTokenRedesignedConstants.horizontalPadding)
             .padding(.top, AddTokenRedesignedConstants.topPadding)
         }
-        .safeAreaInset(edge: .bottom, spacing: AddTokenRedesignedConstants.itemSpacing) {
-            TangemButton(
-                content: .text(AttributedString(Localization.commonCancel)),
-                action: { viewModel.onCancel?() }
-            )
-            .setStyleType(.secondary)
-            .setSize(.x12)
-            .setCornerStyle(.rounded)
-            .setHorizontalLayout(.infinity)
-            .padding(AddTokenRedesignedConstants.horizontalPadding)
-        }
     }
 
     private var sectionHeader: some View {

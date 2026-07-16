@@ -10,8 +10,8 @@ import BlockchainSdk
 import TangemExpress
 
 struct CommonSendTransferableToken: SendTransferableToken {
-    let transactionValidator: any BlockchainSdk.TransactionValidator
-    let transactionCreator: any BlockchainSdk.TransactionCreator
+    let transactionValidator: any SendTransactionValidator
+    let transactionCreator: any SendTransactionCreator
     let tokenFeeProvidersManager: any TokenFeeProvidersManager
 
     let sourceToken: SendSourceToken

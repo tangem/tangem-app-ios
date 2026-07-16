@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemAccessibilityIdentifiers
@@ -18,7 +19,7 @@ protocol TangemPayFreezeSheetRoutable: AnyObject {
 
 final class TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel, TangemPayPopupViewModel {
     var icon: Image {
-        Image(systemName: "snowflake")
+        DesignSystem.Icons.Snowflake.regular24.image
     }
 
     var title: AttributedString {
@@ -31,7 +32,7 @@ final class TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel, Tangem
 
     var primaryButton: MainButton.Settings {
         MainButton.Settings(
-            title: Localization.tangemPayFreezeCardFreeze,
+            title: isRedesigned ? Localization.tangempayCardDetailsFreezeCard : Localization.tangemPayFreezeCardFreeze,
             style: .primary,
             size: .default,
             action: freeze
@@ -40,6 +41,23 @@ final class TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel, Tangem
 
     var primaryButtonAccessibilityIdentifier: String? {
         TangemPayAccessibilityIdentifiers.freezeSheetConfirmButton
+    }
+
+    var secondaryButton: MainButton.Settings? {
+        guard isRedesigned else {
+            return nil
+        }
+
+        return MainButton.Settings(
+            title: Localization.commonCancel,
+            style: .secondary,
+            size: .default,
+            action: dismiss
+        )
+    }
+
+    private var isRedesigned: Bool {
+        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
     }
 
     let userWalletId: UserWalletId

@@ -138,10 +138,12 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
             case .exchange:
                 analyticsLogger.logExchangeTapped()
+
                 let helper = SwapPredefinedParametersHelper()
                 guard let parameters = helper.makeParameters(
-                    origin: .markets(walletModel: walletModel),
-                    userWalletInfo: userWalletInfo
+                    walletModel: walletModel,
+                    userWalletInfo: userWalletInfo,
+                    position: .automatic
                 ) else {
                     break
                 }
@@ -150,7 +152,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
             case .receive:
                 analyticsLogger.logReceiveTapped()
-                coordinator.openReceive(walletModel: walletModel)
+                coordinator.openReceive(userWalletInfo: userWalletInfo, walletModel: walletModel)
 
             default:
                 break
@@ -228,6 +230,38 @@ private extension MarketsAddTokenFlowConfigurationFactory {
             return [(oneAndOnly.userWalletModel, oneAndOnly.cryptoAccountModel)]
         }
         return AddTokenEligibleAccountsResolver.resolveAll(in: userWalletModels)
+    }
+}
+
+// MARK: - Pulse widget flow
+
+extension MarketsAddTokenFlowConfigurationFactory {
+    /// Creates a configuration for the Pulse widget add-token flow that calls `onConfirm` after the
+    /// token is added, instead of showing the "Get token" screen.
+    static func makeForPulseWidget(
+        inputData: InputData,
+        onConfirm: @escaping (TokenItem, AccountSelectorCellModel) -> Void
+    ) -> AddTokenFlowConfiguration {
+        AddTokenFlowConfiguration(
+            getAvailableTokenItems: { accountSelectorCell in
+                makeTokenItems(
+                    inputData: inputData,
+                    supportedBlockchains: accountSelectorCell.userWalletModel.config.supportedBlockchains,
+                    cryptoAccount: accountSelectorCell.cryptoAccountModel
+                )
+            },
+            isTokenAdded: { tokenItem, account in
+                account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
+            },
+            postAddBehavior: .executeAction(onConfirm),
+            accountFilter: makeAccountFilter(inputData: inputData),
+            accountAvailabilityProvider: TokenAdditionChecker.makeAccountAvailabilityProvider(
+                coinId: inputData.coinId,
+                coinName: inputData.coinName,
+                coinSymbol: inputData.coinSymbol,
+                availableNetworks: inputData.networks
+            )
+        )
     }
 }
 
