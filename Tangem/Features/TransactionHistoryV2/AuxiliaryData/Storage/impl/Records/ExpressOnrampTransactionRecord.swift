@@ -19,15 +19,16 @@ struct ExpressOnrampTransactionRecord {
     let externalTxURL: String?
     let payOutHash: String?
     let fromCurrency: String
-    /// Actually a decimal number.
+    /// - Note: Actually a decimal number.
     let fromAmount: String
     let fromDecimals: Int?
-    let toContract: String?
     let toNetwork: String
-    /// Actually a decimal number.
+    /// - Note: May have a value of `ExpressConstants.coinContractAddress` for native coins.
+    let toContract: String
+    /// - Note: Actually a decimal number.
     let toAmount: String
     let toDecimals: Int
-    /// Actually a decimal number.
+    /// - Note: Actually a decimal number.
     let toActualAmount: String?
     let failReason: String?
     let createdAt: Date

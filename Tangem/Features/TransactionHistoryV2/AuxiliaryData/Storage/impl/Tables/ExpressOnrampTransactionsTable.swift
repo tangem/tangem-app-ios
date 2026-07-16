@@ -39,7 +39,7 @@ private extension ExpressOnrampTransactionsTable {
                 table.column("fromCurrency", .text).notNull()
                 table.column("fromAmount", .text).notNull()
                 table.column("fromDecimals", .integer)
-                table.column(Constants.toContractColumnName, .text)
+                table.column(Constants.toContractColumnName, .text).notNull()
                 table.column(Constants.toNetworkColumnName, .text).notNull()
                 table.column("toAmount", .text).notNull()
                 table.column("toDecimals", .integer).notNull()
