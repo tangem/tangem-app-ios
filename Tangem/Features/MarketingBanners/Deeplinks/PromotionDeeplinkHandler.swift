@@ -10,6 +10,7 @@ import Foundation
 
 final class PromotionDeeplinkHandler {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     private weak var coordinator: (any PromotionDeeplinkRoutable)?
     private let walletModel: any WalletModel
@@ -96,6 +97,14 @@ extension PromotionDeeplinkHandler: IncomingActionRoutingHandler {
     }
 
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        route(action)
+        let handled = route(action)
+
+        if handled {
+            Task { @MainActor in
+                floatingSheetPresenter.removeActiveSheet()
+            }
+        }
+
+        return handled
     }
 }
