@@ -209,6 +209,10 @@ class CommonWalletModel {
             return
         }
 
+        // Surface the cached quote while refreshing so the price and price-change shimmer in step with the
+        // balance (which already reloads through a loading state) instead of swapping silently ([REDACTED_INFO])
+        _rate.send(.loading(cached: rate.quote))
+
         let quotes = await quotesRepository.loadQuotes(currencyIds: [currencyId])
         updateQuote(quote: quotes[currencyId])
     }
@@ -613,6 +617,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var compiledTransactionSender: CompiledTransactionSender? {
         walletManager as? CompiledTransactionSender
+    }
+
+    var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? {
+        walletManager as? BitcoinPsbtSwapSender
     }
 
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {

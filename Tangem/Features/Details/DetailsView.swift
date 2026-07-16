@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct DetailsView: View {
     @ObservedObject private var viewModel: DetailsViewModel
@@ -21,7 +22,7 @@ struct DetailsView: View {
 
     var body: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 24)) {
-            walletConnectSection
+            topSection
 
             userWalletsSection
 
@@ -43,10 +44,18 @@ struct DetailsView: View {
         .onAppear(perform: viewModel.onAppear)
     }
 
-    private var walletConnectSection: some View {
-        GroupedSection(viewModel.walletConnectRowViewModel) {
-            WalletConnectRowView(viewModel: $0)
+    private var topSection: some View {
+        GroupedSection(viewModel.topSectionTypes) { type in
+            switch type {
+            case .walletConnect(let viewModel) where FeatureProvider.isAvailable(.redesign):
+                WalletConnectRedesignedRowView(viewModel: viewModel)
+            case .walletConnect(let viewModel):
+                WalletConnectRowView(viewModel: viewModel)
+            case .addressBook(let viewModel):
+                AddressBookRowView(viewModel: viewModel)
+            }
         }
+        .horizontalPadding(0)
     }
 
     private var userWalletsSection: some View {
@@ -58,6 +67,7 @@ struct DetailsView: View {
             staticModels: [viewModel.addOrScanNewUserWalletViewModel].compactMap { $0 },
             staticContent: { viewData in
                 AddListItemButton(viewData: viewData)
+                    .accessibilityIdentifier(DetailsAccessibilityIdentifiers.addNewWallet)
             },
             sectionHeader: {
                 DefaultHeaderView(Localization.commonWallets)
@@ -101,6 +111,7 @@ struct DetailsView: View {
                 Text(applicationInfoFooter)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .padding(.top, 8)
+                    .accessibilityIdentifier(DetailsAccessibilityIdentifiers.appVersion)
             }
         }
         .frame(maxWidth: .infinity)

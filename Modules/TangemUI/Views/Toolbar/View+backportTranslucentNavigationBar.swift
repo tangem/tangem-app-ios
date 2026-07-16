@@ -28,16 +28,15 @@ struct BackportTranslucentNavigationBar: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { safeAreaInsetTop in
-                let adjustFactor = 0.4
-                self.safeAreaInsetTop = safeAreaInsetTop * adjustFactor
+                self.safeAreaInsetTop = safeAreaInsetTop
             }
             .toolbarBackground(.hidden, for: .navigationBar)
             .overlay(alignment: .top) {
                 BlurSwiftUI.VariableBlur(direction: .down)
                     .dimmingAlpha(.constant(alpha: 0.5))
                     .dimmingOvershoot(nil)
-                    .ignoresSafeArea(edges: .top)
                     .frame(height: safeAreaInsetTop)
+                    .ignoresSafeArea(edges: .top)
 
                 Spacer()
             }

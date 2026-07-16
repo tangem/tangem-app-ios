@@ -15,6 +15,8 @@ class MarketsListDataFilterProvider {
     private var _intervalTypeValue: CurrentValueSubject<MarketsPriceIntervalType, Never>
     private var _orderTypeValue: CurrentValueSubject<MarketsListOrderType, Never>
 
+    private var bag = Set<AnyCancellable>()
+
     // MARK: - Initialization
 
     init(
@@ -23,6 +25,8 @@ class MarketsListDataFilterProvider {
     ) {
         _intervalTypeValue = .init(initialIntervalType ?? .day)
         _orderTypeValue = .init(initialOrderType ?? .rating)
+
+        bind()
     }
 
     // MARK: - Public Properties
@@ -51,15 +55,25 @@ class MarketsListDataFilterProvider {
 
     func didSelectMarketPriceInterval(_ interval: MarketsPriceIntervalType) {
         _intervalTypeValue.send(interval)
-        sendAnalytics()
     }
 
     func didSelectMarketOrder(_ option: MarketsListOrderType) {
         _orderTypeValue.send(option)
-        sendAnalytics()
     }
 
     // MARK: - Private Implementation
+
+    private func bind() {
+        Publishers.Merge(
+            _orderTypeValue.removeDuplicates().dropFirst().map { _ in () },
+            _intervalTypeValue.removeDuplicates().dropFirst().map { _ in () }
+        )
+        .withWeakCaptureOf(self)
+        .sink { provider, _ in
+            provider.sendAnalytics()
+        }
+        .store(in: &bag)
+    }
 
     private func sendAnalytics() {
         Analytics.log(

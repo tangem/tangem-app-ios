@@ -193,3 +193,11 @@ extension NoteConfig: UserWalletConfig {
 // MARK: - NoteCardOnboardingStepsBuilderFactory
 
 extension NoteConfig: NoteCardOnboardingStepsBuilderFactory {}
+
+// MARK: - Action buttons
+
+extension NoteConfig {
+    func makeActionButtonsRole() -> ActionButtonsWalletRole {
+        return ActionButtonsWalletRole(providesHotCryptoTokens: false, forcesActionButtonsRow: true, preselectsUserWalletInBuy: true)
+    }
+}

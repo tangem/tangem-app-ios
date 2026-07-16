@@ -15,11 +15,17 @@ import TangemFoundation
 /// Unfortunately, Mantle's current implementation does not conform to our existing fee calculation rules.
 /// [REDACTED_INFO]
 final class MantleWalletManager: EthereumWalletManager {
-    override func getFee(destination: String, value: String?, data: Data?) -> AnyPublisher<[Fee], any Error> {
+    override func getFee(
+        destination: String,
+        value: String?,
+        data: Data?,
+        stateOverride: EthereumStateOverride? = nil
+    ) -> AnyPublisher<[Fee], any Error> {
         super.getFee(
             destination: destination,
             value: prepareAdjustedValue(value: value),
-            data: data
+            data: data,
+            stateOverride: stateOverride
         )
         .withWeakCaptureOf(self)
         .tryMap { walletManager, fees in

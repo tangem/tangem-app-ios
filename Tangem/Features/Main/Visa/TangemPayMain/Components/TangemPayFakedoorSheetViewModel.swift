@@ -18,7 +18,9 @@ protocol TangemPayFakedoorSheetRoutable: AnyObject {
 
 final class TangemPayFakedoorSheetViewModel: FloatingSheetContentViewModel, TangemPayPopupViewModel {
     var icon: Image {
-        Assets.Visa.multipleCardsFakedoor.image
+        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
+            ? DesignSystem.Icons.CardPlus.regular32.image
+            : Assets.Visa.multipleCardsFakedoor.image
     }
 
     var title: AttributedString {

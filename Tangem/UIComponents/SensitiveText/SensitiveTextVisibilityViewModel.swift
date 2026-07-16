@@ -41,7 +41,7 @@ final class SensitiveTextVisibilityViewModel: ObservableObject {
     private let operationQueue = OperationQueue()
     private var previousIsFaceDown = false
     private var bag: Set<AnyCancellable> = []
-    private var toast: Toast<UndoToast>?
+    private var toast: (any DismissibleToast)?
 
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
@@ -90,17 +90,30 @@ private extension SensitiveTextVisibilityViewModel {
 
     func presentToast() {
         let type: BalanceHiddenToastType = isHidden ? .hidden : .shown
-        let toastView = UndoToast(settings: type) { [weak self] in
+        let undoHandler: () -> Void = { [weak self] in
             self?.toggleVisibility()
             self?.dismissToast()
         }
 
-        toast = Toast(view: toastView)
-        toast?.present(layout: .bottom(padding: 80), type: .temporary())
+        if FeatureProvider.isAvailable(.redesign) {
+            let snackbar = TangemSnackbar(
+                title: type.title,
+                action: TangemSnackbar.Action(title: Localization.toastUndo, handler: undoHandler)
+            )
+            .icon(type.image)
+            let presenter = Toast(view: snackbar)
+            presenter.present(layout: .top(padding: 8), type: .temporary())
+            toast = presenter
+        } else {
+            // [REDACTED_INFO]: remove legacy UndoToast branch once redesign ships
+            let presenter = Toast(view: UndoToast(settings: type, undoAction: undoHandler))
+            presenter.present(layout: .bottom(padding: 80), type: .temporary())
+            toast = presenter
+        }
     }
 
     func dismissToast() {
-        toast?.dismiss(animated: false)
+        toast?.dismiss(animated: false, completion: {})
         toast = nil
     }
 

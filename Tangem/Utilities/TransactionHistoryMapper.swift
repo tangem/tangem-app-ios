@@ -45,7 +45,7 @@ struct TransactionHistoryMapper {
     private static let longDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = .autoupdatingCurrent
-        formatter.setLocalizedDateFormatFromTemplate("MMMMdy")
+        formatter.dateStyle = .long
         formatter.doesRelativeDateFormatting = true
         return formatter
     }()
@@ -85,22 +85,26 @@ struct TransactionHistoryMapper {
         self.isToken = isToken
     }
 
-    // [REDACTED_INFO]: when the redesign toggle is removed, drop the `groupingStyle` parameter,
-    // delete the `.day` branch, and inline `.dayThenMonth` as the only behaviour.
+    // [REDACTED_INFO]: when the redesign toggle is removed, drop the `DayFormatStyle`.
     func mapTransactionListItem(
         from records: [TransactionRecord],
-        groupingStyle: GroupingStyle = .day,
+        groupingStyle: GroupingStyle = .day(.short),
         subtitleOwnerResolver: SubtitleOwnerResolver? = nil
     ) -> [TransactionListItem] {
         let mapRow = { mapTransactionViewModel($0, subtitleOwnerResolver: subtitleOwnerResolver) }
 
         switch groupingStyle {
-        case .day:
+        case .day(let format):
             let grouped = Dictionary(grouping: records, by: { Calendar.current.startOfDay(for: $0.date ?? Date()) })
+
+            let dateFormatter = switch format {
+            case .short: Self.dateFormatter
+            case .long: Self.longDateFormatter
+            }
 
             return grouped.sorted(by: { $0.key > $1.key }).map { key, value in
                 TransactionListItem(
-                    header: Self.dateFormatter.string(from: key),
+                    header: dateFormatter.string(from: key),
                     items: value.map(mapRow)
                 )
             }
@@ -129,10 +133,17 @@ struct TransactionHistoryMapper {
     }
 
     enum GroupingStyle {
-        /// All records grouped by day. Legacy transaction history behaviour.
-        case day
+        /// All records grouped by day.
+        /// - `.short`: legacy date format (e.g. "6/15/26")
+        /// - `.long`: redesign date format (e.g. "June 15, 2026")
+        case day(DayFormatStyle)
         /// Current-month records grouped by day; older records collapsed into month buckets.
         case dayThenMonth
+    }
+
+    enum DayFormatStyle {
+        case short
+        case long
     }
 
     private enum GroupingKey: Hashable {
@@ -155,7 +166,7 @@ struct TransactionHistoryMapper {
             timeFormatted = Self.timeFormatter.string(from: date)
         }
 
-        let amount = transferAmount(from: record)
+        let formattedAmount = transferAmount(from: record)
         let interaction = interactionAddress(from: record)
 
         return TransactionViewModel(
@@ -163,8 +174,8 @@ struct TransactionHistoryMapper {
             index: record.index,
             interactionAddress: interaction,
             timeFormatted: timeFormatted,
-            amount: amount.formatted,
-            value: amount.value,
+            amount: formattedAmount.legacy,
+            value: formattedAmount.redesigned,
             currencyCode: currencySymbol,
             isOutgoing: record.isOutgoing,
             transactionType: transactionType(from: record),
@@ -190,7 +201,7 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        let amountFormatted = transferAmount(from: record).formatted
+        let amountFormatted = transferAmount(from: record).legacy
         let date = record.date ?? Date()
         let dateFormatted = Self.dateTimeFormatter.string(from: date)
 
@@ -210,8 +221,8 @@ struct TransactionHistoryMapper {
 
 private extension TransactionHistoryMapper {
     struct FormattedAmount {
-        let formatted: String
-        let value: String
+        let legacy: String
+        let redesigned: String
     }
 
     func transferAmount(from record: TransactionRecord) -> FormattedAmount {
@@ -375,15 +386,17 @@ private extension TransactionHistoryMapper {
         }
     }
 
-    func formatted(amount: Decimal, isOutgoing: Bool) -> FormattedAmount {
-        let valueOnly = balanceFormatter.formatDecimal(amount)
-        let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
-        guard !amount.isZero, showSign else {
-            return FormattedAmount(formatted: formatted, value: valueOnly)
-        }
+    func formatted(amount: Decimal, isOutgoing: Bool, isFailed: Bool) -> FormattedAmount {
+        let magnitude = balanceFormatter.formatDecimal(amount)
+        let magnitudeWithCurrency = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
 
-        let prefix = isOutgoing ? AppConstants.minusSign : "+"
-        return FormattedAmount(formatted: prefix + formatted, value: prefix + valueOnly)
+        let sign = showSign && !amount.isZero ? (isOutgoing ? AppConstants.minusSign : AppConstants.plusSign) : ""
+        let redesignedSign = isFailed ? "" : sign
+
+        return FormattedAmount(
+            legacy: sign + magnitudeWithCurrency,
+            redesigned: redesignedSign + magnitude
+        )
     }
 }
 
@@ -418,17 +431,17 @@ private extension TransactionHistoryMapper {
         switch transactionType(from: record) {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             return FormattedAmount(
-                formatted: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
-                value: balanceFormatter.formatDecimal(amount)
+                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                redesigned: balanceFormatter.formatDecimal(amount)
             )
         // Kept as a separate case so the `where` guard clearly applies only to `.yieldSend`.
         case .yieldSend where record.isFromYieldContract:
             return FormattedAmount(
-                formatted: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
-                value: balanceFormatter.formatDecimal(amount)
+                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                redesigned: balanceFormatter.formatDecimal(amount)
             )
         default:
-            return formatted(amount: amount, isOutgoing: record.isOutgoing)
+            return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed)
         }
     }
 

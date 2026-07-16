@@ -20,6 +20,7 @@ final class TokenDetailsActionsViewModel: ObservableObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     private let walletModel: any WalletModel
+    private let userWalletConfig: UserWalletConfig
     private let availabilityProvider: TokenActionAvailabilityProvider
     private weak var actionsRoutable: (any TokenDetailsActionsRoutable)?
 
@@ -30,8 +31,9 @@ final class TokenDetailsActionsViewModel: ObservableObject {
         userWalletInfo: UserWalletInfo
     ) {
         self.walletModel = walletModel
+        userWalletConfig = userWalletInfo.config
         availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
     }
@@ -67,11 +69,13 @@ private extension TokenDetailsActionsViewModel {
             mode = buttons.isNotEmpty ? .buttonsRow(buttons: buttons) : .hidden
         } else {
             let items = incomingOptions().map { type in
-                makeRowItem(for: type, onTap: { [weak self] in
-                    Task { @MainActor in
-                        self?.actionsRoutable?.performTokenAction(type)
+                makeRowItem(
+                    for: type,
+                    isAvailable: isRowItemAvailable(for: type),
+                    onTap: { [weak self] in
+                        self?.perform(type, kind: .addFunds)
                     }
-                })
+                )
             }
             mode = items.isNotEmpty ? .inlineList(items: items) : .hidden
         }
@@ -92,15 +96,13 @@ private extension TokenDetailsActionsViewModel {
             buttons.append(swap)
         }
 
-        if let transfer = makeTransferButton() {
-            buttons.append(transfer)
-        }
+        buttons.append(makeTransferButton())
 
         return buttons
     }
 
     func makeAddFundsButton() -> TokenDetailsActionsButton? {
-        let options = groupOptions(from: incomingOptions())
+        let options = incomingOptions()
         guard options.isNotEmpty else { return nil }
 
         let longPressAction: (() -> Void)? = availabilityProvider.isReceiveAvailable
@@ -116,7 +118,9 @@ private extension TokenDetailsActionsViewModel {
             title: Localization.commonAddFunds,
             icon: Assets.arrowDownMini,
             accessibilityIdentifier: ActionButtonsAccessibilityIdentifiers.addFundsButton,
+            isAvailable: true,
             action: { [weak self] in
+                Analytics.log(.tokenButtonAddFunds)
                 self?.handleGroupTap(kind: .addFunds, options: options)
             },
             longPressAction: longPressAction
@@ -124,54 +128,78 @@ private extension TokenDetailsActionsViewModel {
     }
 
     func makeSwapButton() -> TokenDetailsActionsButton? {
-        guard availabilityProvider.isSwapAvailable else { return nil }
+        guard isSwapButtonVisible else { return nil }
 
         return TokenDetailsActionsButton(
             id: .swap,
             title: Localization.commonSwap,
-            icon: Assets.exchangeMini,
+            icon: Assets.DesignSystem.exchange,
             accessibilityIdentifier: TokenActionType.exchange.accessibilityIdentifier,
+            isAvailable: availabilityProvider.isSwapAvailable,
             action: { [weak self] in
-                Task { @MainActor in
-                    self?.actionsRoutable?.performTokenAction(.exchange)
-                }
-            }
+                self?.perform(.exchange, kind: .swap)
+            },
+            longPressAction: nil
         )
     }
 
-    func makeTransferButton() -> TokenDetailsActionsButton? {
-        let options = groupOptions(from: outgoingOptions())
-        guard options.isNotEmpty else { return nil }
-
+    func makeTransferButton() -> TokenDetailsActionsButton {
+        let options = outgoingOptions()
         return TokenDetailsActionsButton(
             id: .transfer,
             title: Localization.commonTransfer,
             icon: Assets.arrowUpMini,
             accessibilityIdentifier: ActionButtonsAccessibilityIdentifiers.transferButton,
+            isAvailable: true,
             action: { [weak self] in
+                Analytics.log(.tokenButtonTransfer)
                 self?.handleGroupTap(kind: .transfer, options: options)
-            }
+            },
+            longPressAction: nil
         )
     }
 
     func handleGroupTap(kind: TokenDetailsActionsKind, options: [TokenActionType]) {
         if let single = options.singleElement {
-            Task { @MainActor in
-                actionsRoutable?.performTokenAction(single)
-            }
+            perform(single, kind: kind)
         } else {
             presentSheet(kind: kind, options: options)
         }
     }
 
+    func perform(_ type: TokenActionType, kind: TokenDetailsActionsKind) {
+        Task { @MainActor in
+            if type == .exchange {
+                actionsRoutable?.performSwapAction(position: kind.swapPosition)
+            } else {
+                actionsRoutable?.performTokenAction(type)
+            }
+        }
+    }
+
     func presentSheet(kind: TokenDetailsActionsKind, options: [TokenActionType]) {
+        trackMethodScreenOpened(kind: kind)
+
+        weak var sheetViewModelRef: TokenDetailsActionsBottomSheetViewModel?
+
         let items = options.map { type in
-            makeRowItem(for: type, onTap: { [weak self] in
-                self?.dismissSheet()
-                Task { @MainActor in
-                    self?.actionsRoutable?.performTokenAction(type)
+            makeRowItem(
+                for: type,
+                isAvailable: isRowItemAvailable(for: type),
+                onTap: { [weak self] in
+                    guard let self else { return }
+                    switch type {
+                    case .receive:
+                        morphToReceive(in: sheetViewModelRef)
+                    case .buy, .send, .exchange, .swapAndSend, .stake, .sell, .copyAddress, .marketsDetails, .hide, .yield:
+                        if kind == .transfer, let event = Self.transferButtonEvent(for: type) {
+                            Analytics.log(event)
+                        }
+                        dismissSheet()
+                        perform(type, kind: kind)
+                    }
                 }
-            })
+            )
         }
         let sheetViewModel = TokenDetailsActionsBottomSheetViewModel(
             title: title(for: kind),
@@ -180,19 +208,52 @@ private extension TokenDetailsActionsViewModel {
                 self?.dismissSheet()
             }
         )
+        sheetViewModelRef = sheetViewModel
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: sheetViewModel)
         }
     }
 
-    func makeRowItem(for type: TokenActionType, onTap: @escaping () -> Void) -> TokenDetailsActionRowItem {
+    func morphToReceive(in sheetViewModel: TokenDetailsActionsBottomSheetViewModel?) {
+        Task { @MainActor in
+            guard let receiveViewModel = actionsRoutable?.makeReceiveViewModel() else {
+                // Receive is unavailable: the routable set its support alert, which presents behind
+                // the sheet, so dismiss the sheet to let it surface.
+                dismissSheet()
+                return
+            }
+
+            sheetViewModel?.showReceive(receiveViewModel)
+        }
+    }
+
+    func isRowItemAvailable(for actionType: TokenActionType) -> Bool {
+        switch actionType {
+        // Buy/swap are gated by the wallet features (`.exchange`/`.swapping`): wallets that hide them
+        // (e.g. Start2Coin) keep the row visible but disabled instead of tappable.
+        case .buy: userWalletConfig.isFeatureVisible(.exchange) && availabilityProvider.isBuyAvailable
+        case .send: availabilityProvider.isSendAvailable
+        case .exchange: userWalletConfig.isFeatureVisible(.swapping) && availabilityProvider.isSwapAvailable
+        case .swapAndSend: userWalletConfig.isFeatureVisible(.swapping) && availabilityProvider.isSwapAvailable
+        case .sell: userWalletConfig.isFeatureVisible(.exchange) && availabilityProvider.isSellAvailable
+        case .receive: availabilityProvider.isReceiveAvailable
+        default: false
+        }
+    }
+
+    func makeRowItem(
+        for type: TokenActionType,
+        isAvailable: Bool,
+        onTap: @escaping () -> Void
+    ) -> TokenDetailsActionRowItem {
         TokenDetailsActionRowItem(
             id: type,
             title: type.title,
             subtitle: subtitle(for: type),
             icon: type.icon,
             accessibilityIdentifier: type.accessibilityIdentifier,
+            isAvailable: isAvailable,
             action: onTap
         )
     }
@@ -207,25 +268,20 @@ private extension TokenDetailsActionsViewModel {
 // MARK: - Availability
 
 private extension TokenDetailsActionsViewModel {
+    var isSwapButtonVisible: Bool {
+        availabilityProvider.buildAvailableButtonsList().contains(.exchange)
+    }
+
     func incomingOptions() -> [TokenActionType] {
         var options: [TokenActionType] = []
         if availabilityProvider.isBuyAvailable { options.append(.buy) }
-        if availabilityProvider.isSwapAvailable { options.append(.exchange) }
+        if isSwapButtonVisible { options.append(.exchange) }
         if availabilityProvider.isReceiveAvailable { options.append(.receive) }
         return options
     }
 
     func outgoingOptions() -> [TokenActionType] {
-        var options: [TokenActionType] = []
-        if availabilityProvider.isSendAvailable { options.append(.send) }
-        if availabilityProvider.isSwapAvailable { options.append(.exchange) }
-        if availabilityProvider.isSellAvailable { options.append(.sell) }
-        return options
-    }
-
-    /// `.exchange` is reachable via the dedicated Swap button, so it never appears in Add Funds / Transfer groups.
-    func groupOptions(from options: [TokenActionType]) -> [TokenActionType] {
-        options.filter { $0 != .exchange }
+        [.send, .exchange, .swapAndSend, .sell]
     }
 }
 
@@ -263,10 +319,36 @@ private extension TokenDetailsActionsViewModel {
         switch type {
         case .buy: return Localization.quickActionBuyDescription
         case .exchange: return Localization.quickActionSwapDescription
+        case .swapAndSend: return Localization.quickActionSendAndSwapDescription
         case .receive: return Localization.quickActionReceiveDescription
         case .send: return Localization.quickActionSendDescription
         case .sell: return Localization.quickActionSellDescription
         case .copyAddress, .hide, .stake, .marketsDetails, .yield: return nil
+        }
+    }
+}
+
+// MARK: - Analytics
+
+private extension TokenDetailsActionsViewModel {
+    func trackMethodScreenOpened(kind: TokenDetailsActionsKind) {
+        switch kind {
+        case .addFunds:
+            Analytics.log(.addFundsMethodScreenOpened, params: [.source: .token])
+        case .transfer:
+            Analytics.log(.transferMethodScreenOpened, params: [.source: .token])
+        case .swap:
+            break
+        }
+    }
+
+    static func transferButtonEvent(for type: TokenActionType) -> Analytics.Event? {
+        switch type {
+        case .send: .transferButtonSend
+        case .exchange: .transferButtonSwap
+        case .swapAndSend: .transferButtonSwapAndSend
+        case .sell: .transferButtonSell
+        default: nil
         }
     }
 }

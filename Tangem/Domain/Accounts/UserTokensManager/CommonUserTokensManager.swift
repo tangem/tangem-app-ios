@@ -29,11 +29,13 @@ final class CommonUserTokensManager {
 
     private let syncState = OSAllocatedUnfairLock(initialState: SyncState())
 
-    private let onDisposeSubject = CurrentValueSubject<Bool, Never>(false)
-    private var isDisposedPublisher: some Publisher<Bool, Never> { onDisposeSubject.filter(\.self) }
+    /// Must not replay (keep it a `PassthroughSubject`): a replayed disposal value would synchronously
+    /// complete a post-`dispose()` subscription mid-subscription and trap CombineExt's `DemandBuffer` ([REDACTED_INFO]).
+    private let onDisposeSubject = PassthroughSubject<Void, Never>()
+    private var isDisposedPublisher: some Publisher<Void, Never> { onDisposeSubject }
 
-    /// Emits values from the underlying repository's `cryptoAccountPublisher` until this manager is disposed.
-    /// Once `isDisposedPublisher` emits, the reactive stream is effectively stopped.
+    /// Relays `cryptoAccountPublisher`, completing subscriptions that are active when `dispose()` fires
+    /// (subscriptions created after disposal are not retroactively completed — see `onDisposeSubject`).
     private var activeCryptoAccountPublisher: some Publisher<StoredCryptoAccount, Never> {
         userTokensRepository
             .cryptoAccountPublisher
@@ -316,7 +318,9 @@ extension CommonUserTokensManager: UserTokensManager {
         //
         // Some token items already have `derivationPath` property set and must be used as-is to avoid matching the wrong account.
         // For example, token items from `WalletModel` already have the correct derivation path.
-        let tokenItem = tokenItem.blockchainNetwork.derivationPath == nil
+        //
+        // Obviously, token enrichment only makes sense for derivation-sensitive checks, otherwise derivation is ignored.
+        let tokenItem = !derivationInsensitive && tokenItem.blockchainNetwork.derivationPath == nil
             ? withBlockchainNetwork(tokenItem)
             : tokenItem
 
@@ -583,13 +587,16 @@ extension CommonUserTokensManager: UserTokensReordering {
 
 extension CommonUserTokensManager: DisposableEntity {
     func dispose() {
-        let completions = syncState.withLock { state in
+        let (completions, wasAlreadyDisposed) = syncState.withLock { state -> ([() -> Void], Bool) in
+            let wasAlreadyDisposed = state.isDisposed
             state.isDisposed = true
             let pending = state.pendingCompletions
             state.pendingCompletions.removeAll()
-            return pending
+            return (pending, wasAlreadyDisposed)
         }
-        onDisposeSubject.send(true)
+        if !wasAlreadyDisposed {
+            onDisposeSubject.send(())
+        }
         completions.forEach { $0() }
     }
 }
