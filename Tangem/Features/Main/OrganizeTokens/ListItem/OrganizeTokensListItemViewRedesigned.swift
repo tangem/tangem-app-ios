@@ -34,7 +34,11 @@ struct OrganizeTokensListItemViewRedesigned: View {
             tokenIconInfo: viewModel.tokenIconInfo,
             name: viewModel.name,
             badge: nil,
-            content: .compact(subtitle: subtitleState, trailingIcon: trailingIcon),
+            content: .compact(
+                subtitle: subtitleState,
+                currencySymbol: viewModel.currencySymbol,
+                trailingIcon: trailingIcon
+            ),
             hasMonochromeIcon: viewModel.hasMonochromeIcon
         )
     }
