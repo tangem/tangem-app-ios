@@ -125,18 +125,11 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             coordinator: self
         )
 
-        if FeatureProvider.isAvailable(.redesign) {
-            openRedesignedAddTokenFlow(
-                inputData: inputData,
-                configuration: configuration,
-                walletDataProvider: walletDataProvider
-            )
-        } else {
-            openLegacyAddTokenFlow(
-                configuration: configuration,
-                walletDataProvider: walletDataProvider
-            )
-        }
+        openRedesignedAddTokenFlow(
+            inputData: inputData,
+            configuration: configuration,
+            walletDataProvider: walletDataProvider
+        )
     }
 
     private func openRedesignedAddTokenFlow(
@@ -165,20 +158,6 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
                 self.presentErrorToast(with: Localization.commonSomethingWentWrong)
                 return
             }
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
-    private func openLegacyAddTokenFlow(
-        configuration: AddTokenFlowConfiguration,
-        walletDataProvider: MarketsWalletDataProvider
-    ) {
-        Task { @MainActor in
-            let viewModel = AddTokenFlowViewModel(
-                userWalletModels: walletDataProvider.userWalletModels,
-                configuration: configuration,
-                coordinator: self
-            )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }

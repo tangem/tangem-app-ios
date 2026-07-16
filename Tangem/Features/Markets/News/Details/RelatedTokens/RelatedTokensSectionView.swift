@@ -18,11 +18,7 @@ struct RelatedTokensSectionView: View {
     @Environment(\.mainWindowSize) private var mainWindowSize
 
     var body: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            redesignContent
-        } else {
-            legacyContent
-        }
+        redesignContent
     }
 
     // MARK: - Redesign
@@ -78,59 +74,6 @@ struct RelatedTokensSectionView: View {
                             .fill(Color.Tangem.Surface.level3)
                     )
             }
-        }
-    }
-
-    // MARK: - Legacy
-
-    private var legacyContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            legacyHeaderView
-
-            legacyContentInner
-                .defaultRoundedBackground(
-                    with: Color.Tangem.Surface.level3,
-                    verticalPadding: .zero,
-                    horizontalPadding: .zero
-                )
-        }
-        .onAppear {
-            viewModel.loadIfNeeded()
-        }
-    }
-
-    private var legacyHeaderView: some View {
-        Text(Localization.newsRelatedTokens)
-            .style(Fonts.Bold.title3, color: Color.Tangem.Text.Neutral.primary)
-    }
-
-    @ViewBuilder
-    private var legacyContentInner: some View {
-        switch viewModel.loadingState {
-        case .idle, .loading:
-            legacyLoadingSkeletons
-        case .loaded:
-            VStack(spacing: .zero) {
-                ForEach(viewModel.tokenViewModels) {
-                    MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
-                }
-            }
-        case .error:
-            legacyErrorView
-        }
-    }
-
-    private var legacyErrorView: some View {
-        UnableToLoadDataView(
-            isButtonBusy: false,
-            retryButtonAction: { viewModel.retry() }
-        )
-        .padding(.vertical, 16)
-    }
-
-    private var legacyLoadingSkeletons: some View {
-        ForEach(0 ..< 2, id: \.self) { _ in
-            MarketsSkeletonItemView()
         }
     }
 }
