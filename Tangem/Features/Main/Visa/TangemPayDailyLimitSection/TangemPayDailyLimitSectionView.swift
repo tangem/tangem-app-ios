@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TangemPayDailyLimit: Equatable {
     let currentLimit: String
@@ -80,6 +81,7 @@ struct TangemPayDailyLimitSectionView: View {
                     Text(limit.currentLimit)
                         .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
                         .lineLimit(1)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitRowValue)
                 }
 
                 Spacer()
@@ -93,6 +95,7 @@ struct TangemPayDailyLimitSectionView: View {
                             .background(Colors.Button.secondary)
                             .cornerRadiusContinuous(14)
                     }
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitChangeButton)
                 }
             }
         }
