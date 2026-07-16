@@ -19,32 +19,6 @@ public struct ExpressManagerSwappingPairRequest {
         amountType.amount
     }
 
-    /// - Note: Stays nil for single-provider updates since quotes loading performance tracking
-    /// is only relevant for batched updates of multiple providers.
-    /// - Note: `private(set)` is used here only for keeping the synthesized initializer working.
-    private(set) var quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?
-}
-
-// MARK: - Convenience extensions
-
-extension ExpressManagerSwappingPairRequest {
-    func with(rateType: ExpressProviderRateType) -> ExpressManagerSwappingPairRequest {
-        ExpressManagerSwappingPairRequest(
-            amountType: amountType,
-            rateType: rateType,
-            approvePolicy: approvePolicy,
-            operationType: operationType,
-            quotesLoadingPerformanceTracker: quotesLoadingPerformanceTracker
-        )
-    }
-
-    func with(quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?) -> ExpressManagerSwappingPairRequest {
-        ExpressManagerSwappingPairRequest(
-            amountType: amountType,
-            rateType: rateType,
-            approvePolicy: approvePolicy,
-            operationType: operationType,
-            quotesLoadingPerformanceTracker: quotesLoadingPerformanceTracker
-        )
-    }
+    /// Set only for batched multi-provider quote loads; nil for single-provider updates.
+    let quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?
 }

@@ -39,8 +39,8 @@ private extension CreateWalletSelectorPromoView {
                 leftButtons: {
                     BackButton(
                         height: viewModel.backButtonHeight,
-                        isVisible: true,
-                        isEnabled: true,
+                        isVisible: viewModel.showsBackButton,
+                        isEnabled: viewModel.showsBackButton,
                         action: viewModel.onBackTap
                     )
                 }

@@ -11,9 +11,12 @@ import Foundation
 import TangemAccessibilityIdentifiers
 
 final class DetailsScreen: ScreenBase<DetailsScreenElement> {
-    private lazy var addNewWallet = button(.addNewWallet)
+    private lazy var addNewWallet = anyElement(.addNewWallet)
     private lazy var contactSupportButton = button(.contactSupport)
-    private lazy var appSettingsButtons = button(.appSettings)
+    private lazy var appSettingsButton = button(.appSettings)
+    private lazy var buyWalletButton = button(.buyWallet)
+    private lazy var termsOfServiceButton = button(.termsOfService)
+    private lazy var appVersionLabel = staticText(.appVersion)
 
     func openWalletSettings(for walletName: String) -> CardSettingsScreen {
         XCTContext.runActivity(named: "Open wallet settings for wallet: \(walletName)") { _ in
@@ -57,7 +60,7 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     @discardableResult
     func openAppSettings() -> AppSettingsScreen {
         XCTContext.runActivity(named: "Tap App Settings button") { _ in
-            appSettingsButtons.waitAndTap()
+            appSettingsButton.waitAndTap()
             return AppSettingsScreen(app)
         }
     }
@@ -79,24 +82,80 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
             return EnvironmentSetupScreen(app)
         }
     }
+
+    @discardableResult
+    func verifySections(walletConnect: Bool) -> Self {
+        XCTContext.runActivity(named: "Verify Details sections (walletConnect=\(walletConnect))") { _ in
+            let walletConnectRow = button(.walletConnectButton)
+            if walletConnect {
+                waitAndAssertTrue(walletConnectRow, "WalletConnect row should be visible for this card type")
+            } else {
+                XCTAssertFalse(
+                    walletConnectRow.waitForExistence(timeout: .conditional),
+                    "WalletConnect row should NOT be visible for this card type"
+                )
+            }
+
+            let walletPrefix = "walletSettingsButton_"
+            let anySavedWallet = app.buttons.matching(
+                NSPredicate(format: "identifier BEGINSWITH %@", walletPrefix)
+            ).firstMatch
+            waitAndAssertTrue(anySavedWallet, "At least one Saved wallet row should be visible")
+
+            waitAndAssertTrue(addNewWallet, "Add new wallet button should be visible")
+            waitAndAssertTrue(buyWalletButton, "Buy new wallet button should be visible")
+            waitAndAssertTrue(appSettingsButton, "App Settings button should be visible")
+            waitAndAssertTrue(contactSupportButton, "Contact Support button should be visible")
+            waitAndAssertTrue(termsOfServiceButton, "Terms of Service button should be visible")
+
+            scrollToElement(appVersionLabel, attempts: .lazy)
+            waitAndAssertTrue(appVersionLabel, "App version footer should be visible")
+
+            return self
+        }
+    }
+
+    @discardableResult
+    func openToSScreen() -> TermsOfServiceScreen {
+        XCTContext.runActivity(named: "Open 'ToS' screen") { _ in
+            waitAndAssertTrue(termsOfServiceButton, "'ToS' button should exist")
+            termsOfServiceButton.waitAndTap()
+            return TermsOfServiceScreen(app)
+        }
+    }
+
+    private func anyElement(_ element: DetailsScreenElement) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(identifier: element.accessibilityIdentifier)
+            .firstMatch
+    }
 }
 
 enum DetailsScreenElement: UIElement {
     case walletConnectButton
     case addNewWallet
+    case buyWallet
     case contactSupport
     case appSettings
+    case termsOfService
+    case appVersion
 
     var accessibilityIdentifier: String {
         switch self {
         case .walletConnectButton:
             return WalletConnectAccessibilityIdentifiers.detailsButton
         case .addNewWallet:
-            return "Add Wallet"
+            return DetailsAccessibilityIdentifiers.addNewWallet
+        case .buyWallet:
+            return DetailsAccessibilityIdentifiers.buyWalletButton
         case .contactSupport:
-            return "Contact support"
+            return DetailsAccessibilityIdentifiers.contactSupport
         case .appSettings:
-            return "App settings"
+            return DetailsAccessibilityIdentifiers.appSettings
+        case .termsOfService:
+            return DetailsAccessibilityIdentifiers.termsOfService
+        case .appVersion:
+            return DetailsAccessibilityIdentifiers.appVersion
         }
     }
 }

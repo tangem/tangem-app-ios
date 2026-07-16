@@ -28,7 +28,7 @@ struct TangemPayIssuingCardDetailsView: View {
 
                 Spacer()
 
-                Assets.Visa.logo.image
+                Assets.Visa.platinumLogo.image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(height: 38)

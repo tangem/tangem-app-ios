@@ -15,6 +15,9 @@ public extension StringProtocol {
     /// MINUS SIGN, Unicode U+2212.
     static var minusSign: Self { "−" }
 
+    /// PLUS SIGN, Unicode U+002B.
+    static var plusSign: Self { "+" }
+
     /// EN DASH, Unicode U+2013.
     static var enDashSign: Self { "–" }
 

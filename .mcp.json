@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "atlassian": {
-      "type": "sse",
-      "url": "https://mcp.atlassian.com/v1/sse"
+      "type": "http",
+      "url": "https://mcp.atlassian.com/v1/mcp"
     },
     "figma-remote-mcp": {
       "type": "http",
@@ -44,6 +44,10 @@
     "Amplitude": {
       "type": "http",
       "url": "https://mcp.amplitude.com/mcp"
+    },
+    "sosumi": {
+      "type": "http",
+      "url": "https://sosumi.ai/mcp"
     }
   }
 }

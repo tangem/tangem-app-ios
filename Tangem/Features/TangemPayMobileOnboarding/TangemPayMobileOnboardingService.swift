@@ -9,17 +9,11 @@
 import Foundation
 
 struct TangemPayMobileOnboardingService {
-    private var isFeatureAvailable: Bool {
-        FeatureProvider.isAvailable(.tangemPayMobileOnboarding)
-    }
-
     var isOnboardingNeeded: Bool {
-        guard isFeatureAvailable else { return false }
-        return AppSettings.shared.needsTangemPayMobileOnboarding
+        AppSettings.shared.needsTangemPayMobileOnboarding
     }
 
     func markOnboardingNeeded() {
-        guard isFeatureAvailable else { return }
         AppSettings.shared.needsTangemPayMobileOnboarding = true
     }
 

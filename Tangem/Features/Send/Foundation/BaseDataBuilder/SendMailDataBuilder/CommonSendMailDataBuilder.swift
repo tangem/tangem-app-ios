@@ -31,6 +31,9 @@ protocol SendBaseDataBuilderInput {
 struct CommonSendMailDataBuilder {
     private let baseDataInput: SendBaseDataBuilderInput
     private let sourceTokenInput: SendSourceTokenInput
+    // Swap-only inputs used to pre-fill the support chat; nil for non-swap flows.
+    private let receiveTokenInput: SendReceiveTokenInput?
+    private let providersInput: SendSwapProvidersInput?
 
     private var stakingDataInput: StakingBaseDataBuilderInput? {
         baseDataInput as? StakingBaseDataBuilderInput
@@ -38,10 +41,14 @@ struct CommonSendMailDataBuilder {
 
     init(
         baseDataInput: SendBaseDataBuilderInput,
-        sourceTokenInput: SendSourceTokenInput
+        sourceTokenInput: SendSourceTokenInput,
+        receiveTokenInput: SendReceiveTokenInput? = nil,
+        providersInput: SendSwapProvidersInput? = nil
     ) {
         self.baseDataInput = baseDataInput
         self.sourceTokenInput = sourceTokenInput
+        self.receiveTokenInput = receiveTokenInput
+        self.providersInput = providersInput
     }
 }
 
@@ -56,6 +63,28 @@ private extension CommonSendMailDataBuilder {
         let sourceToken = try sourceTokenInput.sourceToken.get()
         return sourceToken.userWalletInfo.emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
     }
+
+    func makeSwapChatDataCollector(expressTransaction: ExpressTransactionData) -> ChatDataCollector {
+        guard
+            let receiveTokenInput,
+            let providersInput,
+            let sourceToken = sourceTokenInput.sourceToken.value,
+            let receiveToken = try? receiveTokenInput.receiveToken.get(),
+            let provider = providersInput.selectedExpressProvider.flatMap({ try? $0.get() })
+        else {
+            return EmptyChatDataCollector()
+        }
+
+        return SwapChatDataCollector(
+            userIdentifier: sourceToken.userWalletInfo.id.stringValue.lowercased(),
+            fromAddress: expressTransaction.sourceAddress ?? sourceToken.defaultAddressString,
+            sentToken: sourceToken.tokenItem.currencySymbol,
+            toAddress: expressTransaction.destinationAddress,
+            receivedToken: receiveToken.tokenItem.currencySymbol,
+            provider: provider.provider.name,
+            providerType: provider.provider.type.rawValue.uppercased()
+        )
+    }
 }
 
 // MARK: - SendMailDataBuilder
@@ -63,17 +92,17 @@ private extension CommonSendMailDataBuilder {
 extension CommonSendMailDataBuilder: SendMailDataBuilder {
     // MARK: - Send transaction methods
 
-    func makeMailData(transaction: BSDKTransaction, error: SendTxError) throws -> MailData {
+    func makeSupportData(transaction: BSDKTransaction, error: SendTxError) throws -> SupportData {
         let emailDataCollector = try emailDataCollectorBuilder().makeMailData(
             transaction: transaction,
             isFeeIncluded: baseDataInput.isFeeIncluded,
             error: error
         )
 
-        return (dataCollector: emailDataCollector, recipient: try emailRecipient())
+        return (emailDataCollector: emailDataCollector, chatDataCollector: EmptyChatDataCollector(), recipient: try emailRecipient())
     }
 
-    func makeMailData(approveTransaction: ApproveTransactionData, error: SendTxError) throws -> MailData {
+    func makeSupportData(approveTransaction: ApproveTransactionData, error: SendTxError) throws -> SupportData {
         guard let fee = baseDataInput.bsdkFee else {
             throw SendMailDataBuilderError.notFound("Fee")
         }
@@ -90,10 +119,10 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             error: error
         )
 
-        return (dataCollector: emailDataCollector, recipient: try emailRecipient())
+        return (emailDataCollector: emailDataCollector, chatDataCollector: EmptyChatDataCollector(), recipient: try emailRecipient())
     }
 
-    func makeMailData(expressTransaction: ExpressTransactionData, error: SendTxError) throws -> MailData {
+    func makeSupportData(expressTransaction: ExpressTransactionData, error: SendTxError) throws -> SupportData {
         guard let amount = baseDataInput.bsdkAmount else {
             throw SendMailDataBuilderError.notFound("Amount")
         }
@@ -110,12 +139,13 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             error: error
         )
 
-        return (dataCollector: emailDataCollector, recipient: try emailRecipient())
+        let chatDataCollector = makeSwapChatDataCollector(expressTransaction: expressTransaction)
+        return (emailDataCollector: emailDataCollector, chatDataCollector: chatDataCollector, recipient: try emailRecipient())
     }
 
     // MARK: - Staking transaction methods
 
-    func makeMailData(stakingRequestError error: UniversalError) throws -> MailData {
+    func makeSupportData(stakingRequestError error: UniversalError) throws -> SupportData {
         guard let fee = baseDataInput.bsdkFee else {
             throw SendMailDataBuilderError.notFound("Fee")
         }
@@ -141,10 +171,10 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             error: error
         )
 
-        return (dataCollector: emailDataCollector, recipient: try emailRecipient())
+        return (emailDataCollector: emailDataCollector, chatDataCollector: EmptyChatDataCollector(), recipient: try emailRecipient())
     }
 
-    func makeMailData(action: StakingTransactionAction, error: SendTxError) throws -> MailData {
+    func makeSupportData(action: StakingTransactionAction, error: SendTxError) throws -> SupportData {
         guard let stakingDataInput = stakingDataInput else {
             throw SendMailDataBuilderError.notFound("Staking data input")
         }
@@ -161,6 +191,6 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
             error: error
         )
 
-        return (dataCollector: emailDataCollector, recipient: try emailRecipient())
+        return (emailDataCollector: emailDataCollector, chatDataCollector: EmptyChatDataCollector(), recipient: try emailRecipient())
     }
 }

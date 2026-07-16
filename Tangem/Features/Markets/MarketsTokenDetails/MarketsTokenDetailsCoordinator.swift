@@ -22,6 +22,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     @Published private(set) var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
 
@@ -43,6 +44,12 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var newsPagerViewModel: NewsPagerViewModel? = nil
     @Published var newsRelatedTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
+
+    /// AddFunds presented modally from a Markets token.
+    @Published var addFundsViewModel: AddFundsViewModel? = nil
+
+    /// Navigation to run once the modal AddFunds cover has finished dismissing (set via `dismissAddFunds`).
+    private var addFundsFollowUpAction: (@MainActor () -> Void)?
 
     private var safariHandle: SafariHandle?
 
@@ -76,7 +83,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     private func resolvePresentationStyleForInnerFlow() -> MarketsTokenDetailsPresentationStyle {
         switch presentationStyle {
-        case .marketsSheet:
+        case .marketsSheet, .addFundsSheet:
             return .marketsSheet
 
         // [REDACTED_USERNAME], if we're already in a fullScreenCover, navigationStack should be used for inner flows.
@@ -363,10 +370,99 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 }
 
+// MARK: - AddFundsRoutable
+
+extension MarketsTokenDetailsCoordinator: AddFundsRoutable {
+    func addFundsRequestBuy(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+        dismissAddFunds { [weak self] in
+            self?.openOnramp(input: input, parameters: .none)
+        }
+    }
+
+    func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        let helper = SwapPredefinedParametersHelper()
+        guard let parameters = helper.makeParameters(
+            walletModel: walletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
+            position: .automatic
+        ) else {
+            return
+        }
+
+        dismissAddFunds { [weak self] in
+            self?.openSwap(input: parameters, destination: walletModel.tokenItem)
+        }
+    }
+
+    func addFundsRequestReceive(viewModel: ReceiveMainViewModel) {
+        dismissAddFunds { [weak self] in
+            self?.floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func addFundsRequestGoToToken(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        dismissAddFunds { [weak self] in
+            self?.openPortfolioTokenDetails(walletModel: walletModel)
+        }
+    }
+
+    func addFundsClose() {
+        dismissAddFunds()
+    }
+
+    /// Dismisses the modal AddFunds screen, deferring `action` until the cover has fully dismissed.
+    /// Running the follow-up presentation (onramp/swap/token details) from the cover's `onDismiss`
+    /// avoids racing it against a full-screen cover that is still on screen.
+    private func dismissAddFunds(then action: (@MainActor () -> Void)? = nil) {
+        addFundsFollowUpAction = action
+        addFundsViewModel = nil
+    }
+
+    func addFundsDidDismiss() {
+        let action = addFundsFollowUpAction
+        addFundsFollowUpAction = nil
+
+        guard let action else { return }
+
+        Task { @MainActor in action() }
+    }
+}
+
 // MARK: - MarketsPortfolioContainerRoutable
 
 extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
-    func openReceive(walletModel: any WalletModel) {
+    func openAddFunds(input: SendInput) {
+        guard let userWalletModel = userWalletRepository.models.first(
+            where: { $0.userWalletId == input.userWalletInfo.id }
+        ) else {
+            return
+        }
+
+        Task { @MainActor in
+            Analytics.log(.addFundsMethodScreenOpened, params: [.source: .market])
+            addFundsViewModel = AddFundsViewModel(
+                input: .init(
+                    mode: .stack,
+                    primaryAction: .goToToken,
+                    walletModel: input.walletModel,
+                    userWalletModel: userWalletModel
+                ),
+                coordinator: self
+            )
+        }
+    }
+
+    func openReceive(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
+        if let unavailableAlert = TokenActionAvailabilityAlertBuilder().alert(
+            for: availabilityProvider.receiveAvailability,
+            blockchain: walletModel.tokenItem.blockchain
+        ) {
+            alertPresenter.present(alert: unavailableAlert)
+            return
+        }
+
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
@@ -401,7 +497,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             }
 
             tangemStoriesPresenter.present(
-                story: .initialSwapStoryBasedOnToggle,
+                story: .swap(.initialWithoutImages),
                 analyticsSource: .markets,
                 presentCompletion: openSwapBlock
             )
@@ -411,6 +507,14 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     }
 
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: input.userWalletInfo, walletModel: input.walletModel)
+        guard availabilityProvider.isTopUpAvailable else {
+            if let backupAlert = UserWalletBackupStatusHelper().alert(for: input.userWalletInfo) {
+                alertPresenter.present(alert: backupAlert)
+            }
+            return
+        }
+
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
@@ -429,12 +533,14 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     @MainActor
     func openMatchedTokenList(
         walletModels: [any WalletModel],
+        underivedTokens: [MarketsPortfolioTokenListViewModel.UnderivedToken],
         iconURL: URL,
         addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData,
         walletDataProvider: MarketsWalletDataProvider
     ) {
         let portfolioViewModel = MarketsPortfolioTokenListViewModel(
             walletModels: walletModels,
+            underivedTokens: underivedTokens,
             onSelect: { [weak self] walletModel in
                 self?.openPortfolioTokenDetails(walletModel: walletModel)
             },
@@ -481,6 +587,78 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
 
         flowViewModel.showAddToken(viewModel)
+    }
+
+    func openAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider) {
+        Task { @MainActor in
+            // When the token lives in a single place, there's nothing to pick — present AddFunds right away.
+            if walletModels.count == 1, let walletModel = walletModels.first {
+                presentAddFunds(walletModel: walletModel, walletDataProvider: walletDataProvider, primaryAction: .hidden)
+            } else {
+                presentAddFundsTokenList(walletModels: walletModels, walletDataProvider: walletDataProvider)
+            }
+        }
+    }
+
+    @MainActor
+    private func presentAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider) {
+        let portfolioViewModel = MarketsPortfolioTokenListViewModel(
+            walletModels: walletModels,
+            onSelect: { [weak self] walletModel in
+                Task { @MainActor in
+                    // Reached through the token/wallet picker, so the Get screen offers a back button
+                    // to return to the list instead of the "Go to token" action.
+                    self?.presentAddFunds(
+                        walletModel: walletModel,
+                        walletDataProvider: walletDataProvider,
+                        primaryAction: .hidden,
+                        onBack: { [weak self] in self?.addFundsClose() }
+                    )
+                }
+            },
+            coordinator: self
+        )
+
+        floatingSheetPresenter.enqueue(sheet: portfolioViewModel)
+    }
+
+    @MainActor
+    private func presentAddFunds(
+        walletModel: any WalletModel,
+        walletDataProvider: MarketsWalletDataProvider,
+        primaryAction: AddFundsViewModel.PrimaryAction,
+        onBack: (() -> Void)? = nil
+    ) {
+        guard let userWalletModel = walletDataProvider.userWalletModels[walletModel.userWalletId] else {
+            return
+        }
+
+        presentAddFunds(
+            walletModel: walletModel,
+            userWalletModel: userWalletModel,
+            primaryAction: primaryAction,
+            onBack: onBack
+        )
+    }
+
+    @MainActor
+    private func presentAddFunds(
+        walletModel: any WalletModel,
+        userWalletModel: any UserWalletModel,
+        primaryAction: AddFundsViewModel.PrimaryAction,
+        onBack: (() -> Void)? = nil
+    ) {
+        Analytics.log(.addFundsMethodScreenOpened, params: [.source: .market])
+        addFundsViewModel = AddFundsViewModel(
+            input: .init(
+                mode: .stack,
+                primaryAction: primaryAction,
+                walletModel: walletModel,
+                userWalletModel: userWalletModel,
+                onBack: onBack
+            ),
+            coordinator: self
+        )
     }
 
     private func openPortfolioTokenDetails(walletModel: any WalletModel) {
@@ -568,7 +746,52 @@ extension MarketsTokenDetailsCoordinator: FeeCurrencyNavigating {}
 
 // MARK: - AddTokenFlowRedesignedRoutable
 
-extension MarketsTokenDetailsCoordinator: AddTokenFlowRedesignedRoutable {}
+extension MarketsTokenDetailsCoordinator: AddTokenFlowRedesignedRoutable {
+    func addTokenFlowShowGetToken(for tokenItem: TokenItem, accountSelectorCell: AccountSelectorCellModel) {
+        let account = accountSelectorCell.cryptoAccountModel
+        let userWalletModel = accountSelectorCell.userWalletModel
+
+        // Dismiss the add-token floating sheet, then present the redesigned "Get {token}" (Add Funds) screen
+        // once the wallet model for the freshly added token has been created (it appears asynchronously).
+        floatingSheetPresenter.removeActiveSheet()
+
+        Task { @MainActor [weak self] in
+            guard
+                let self,
+                let walletModel = await Self.resolveAddedWalletModel(for: tokenItem, in: account)
+            else {
+                return
+            }
+
+            // Let the floating sheet finish dismissing before presenting the cover.
+            try? await Task.sleep(for: .seconds(0.3))
+
+            presentAddFunds(
+                walletModel: walletModel,
+                userWalletModel: userWalletModel,
+                primaryAction: .goToToken
+            )
+        }
+    }
+
+    @MainActor
+    private static func resolveAddedWalletModel(
+        for tokenItem: TokenItem,
+        in account: any CryptoAccountModel
+    ) async -> (any WalletModel)? {
+        let walletModelId = WalletModelId(tokenItem: tokenItem)
+
+        // The wallet model is created asynchronously after the token is added; poll briefly for it.
+        for _ in 0 ..< 30 {
+            if let walletModel = account.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) {
+                return walletModel
+            }
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+
+        return nil
+    }
+}
 
 // MARK: - NewsDetailsRoutable
 

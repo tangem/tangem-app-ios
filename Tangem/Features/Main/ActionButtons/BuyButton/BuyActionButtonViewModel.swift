@@ -62,10 +62,8 @@ final class BuyActionButtonViewModel: ActionButtonViewModel {
         switch viewState {
         case .initial:
             handleInitialStateTap()
-        case .loading, .disabled, .unavailable:
+        case .loading, .disabled, .unavailable, .restricted:
             break
-        case .restricted(let reason):
-            alert = .init(title: "", message: reason)
         case .idle:
             guard !isOpeningRequired else { return }
 
@@ -142,7 +140,7 @@ extension BuyActionButtonViewModel {
 extension BuyActionButtonViewModel {
     private func openBuy() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-        coordinator?.openBuy(userWalletModels: userWalletModels)
+        coordinator?.openBuy(userWalletModels: userWalletModels, preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel))
     }
 }
 
@@ -163,7 +161,7 @@ private extension BuyActionButtonViewModel {
 
     func handleFailedStateTap(reason: String) {
         updateState(to: .restricted(reason: reason))
-        tap()
+        showRestrictionReason()
     }
 }
 

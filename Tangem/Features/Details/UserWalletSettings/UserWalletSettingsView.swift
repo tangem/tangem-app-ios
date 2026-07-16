@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemAccounts
+import TangemAccessibilityIdentifiers
 
 struct UserWalletSettingsView: View {
     @ObservedObject private var viewModel: UserWalletSettingsViewModel
@@ -32,8 +33,6 @@ struct UserWalletSettingsView: View {
             commonSection
 
             nftSection
-
-            notificationSettingsSection
 
             pushNotifySection
 
@@ -80,6 +79,7 @@ struct UserWalletSettingsView: View {
                 onAction: viewModel.onTapNameField
             )
         }
+        .accessibilityIdentifier(WalletSettingsAccessibilityIdentifiers.renameWalletRow)
     }
 
     @ViewBuilder
@@ -142,12 +142,6 @@ struct UserWalletSettingsView: View {
     private var pushNotifySection: some View {
         if let pushNotificationsViewModel = viewModel.pushNotificationsViewModel {
             TransactionNotificationsRowToggleView(viewModel: pushNotificationsViewModel)
-        }
-    }
-
-    private var notificationSettingsSection: some View {
-        GroupedSection(viewModel.notificationSettingsViewModel) {
-            DefaultRowView(viewModel: $0)
         }
     }
 

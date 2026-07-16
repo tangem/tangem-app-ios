@@ -20,43 +20,48 @@ struct PendingOnrampTransactionFactory {
     private let unknownHashStatusesList: [PendingExpressTransactionStatus] = [.unknown]
     private let pausedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .paused]
 
+    static func pendingStatus(from onrampStatus: OnrampTransactionStatus) -> PendingExpressTransactionStatus {
+        switch onrampStatus {
+        case .created: return .created
+        case .waitingForPayment: return .awaitingDeposit
+        case .paymentProcessing: return .confirming
+        case .sending, .paid: return .buying
+        case .finished: return .finished
+        case .failed: return .failed
+        case .refunding: return .refunding
+        case .refunded: return .refunded
+        case .verifying: return .verificationRequired
+        case .expired: return .expired
+        case .paused: return .paused
+        case .unknown: return .unknown
+        }
+    }
+
     func buildPendingOnrampTransaction(
         currentOnrampTransaction: OnrampTransaction,
         for transactionRecord: OnrampPendingTransactionRecord
     ) -> PendingOnrampTransaction {
-        let currentStatus: PendingExpressTransactionStatus
+        let currentStatus: PendingExpressTransactionStatus = Self.pendingStatus(from: currentOnrampTransaction.status)
         var statusesList: [PendingExpressTransactionStatus] = defaultStatusesList
         var transactionRecord = transactionRecord
 
         switch currentOnrampTransaction.status {
-        case .created:
-            currentStatus = .created
-        case .waitingForPayment:
-            currentStatus = .awaitingDeposit
-        case .paymentProcessing:
-            currentStatus = .confirming
-        case .sending, .paid:
-            currentStatus = .buying
-        case .finished:
-            currentStatus = .finished
         case .failed:
-            currentStatus = .failed
             statusesList = failedStatusesList
         case .refunding:
-            currentStatus = .refunding
             statusesList = refundingStatusesList
         case .refunded:
-            currentStatus = .refunded
             statusesList = refundedStatusesList
         case .verifying:
-            currentStatus = .verificationRequired
             statusesList = verifyingStatusesList
         case .expired:
-            currentStatus = .expired
             statusesList = canceledStatusesList
         case .paused:
-            currentStatus = .paused
             statusesList = pausedStatusesList
+        case .unknown:
+            statusesList = unknownHashStatusesList
+        case .created, .waitingForPayment, .paymentProcessing, .sending, .paid, .finished:
+            break
         }
 
         transactionRecord.transactionStatus = currentStatus
@@ -64,11 +69,11 @@ struct PendingOnrampTransactionFactory {
             userWalletId: transactionRecord.destinationTokenTxInfo.userWalletId,
             tokenItem: transactionRecord.destinationTokenTxInfo.tokenItem,
             address: transactionRecord.destinationTokenTxInfo.address,
-            amountString: currentOnrampTransaction.toAmount.map(\.stringValue) ?? "",
+            amountString: currentOnrampTransaction.to.amount.map(\.stringValue) ?? "",
             isCustom: transactionRecord.destinationTokenTxInfo.isCustom
         )
-        transactionRecord.externalTxId = currentOnrampTransaction.externalTxId
-        transactionRecord.externalTxURL = currentOnrampTransaction.externalTxURL
+        transactionRecord.externalTxId = currentOnrampTransaction.externalTx?.id
+        transactionRecord.externalTxURL = currentOnrampTransaction.externalTx?.url?.absoluteString
 
         return PendingOnrampTransaction(
             transactionRecord: transactionRecord,

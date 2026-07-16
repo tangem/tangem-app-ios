@@ -567,6 +567,8 @@ extension BitcoinError: UniversalError {
             102026004
         case .wrongSignaturesCount:
             102026005
+        case .noSignableInputs:
+            102026006
         }
     }
 }

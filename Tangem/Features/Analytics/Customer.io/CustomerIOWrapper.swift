@@ -15,7 +15,7 @@ final class CustomerIOWrapper {
     @Injected(\.keysManager) private var keysManager: any KeysManager
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private var userWalletSelectedCancellable: AnyCancellable?
+    private var userWalletRepositoryEventCancellable: AnyCancellable?
     private var fcmTokenUpdatedCancellable: AnyCancellable?
 
     func configure() {
@@ -41,22 +41,26 @@ final class CustomerIOWrapper {
         CustomerIO.initialize(withConfig: sdkConfig)
         MessagingPush.initialize(withConfig: pushConfig)
 
-        subscribeToSelectedUserWalletEvent()
+        subscribeToUserWalletRepositoryEvents()
         subscribeToFcmTokenUpdatedEvent()
     }
 
-    private func subscribeToSelectedUserWalletEvent() {
-        userWalletSelectedCancellable = userWalletRepository
+    private func subscribeToUserWalletRepositoryEvents() {
+        userWalletRepositoryEventCancellable = userWalletRepository
             .eventProvider
             .removeDuplicates()
             .sink { event in
-                guard case .selected(let userWalletId) = event else {
-                    return
+                switch event {
+                case .selected(let userWalletId):
+                    let userId = userWalletId.hashedStringValue
+                    CustomerIO.shared.identify(userId: userId)
+                    AppLogger.info("Customer.io user identity updated with selected user wallet id.")
+                case .deleted(_, isRepositoryEmpty: true):
+                    CustomerIO.shared.clearIdentify()
+                    AppLogger.info("Customer.io identity cleared after the last user wallet was removed.")
+                default:
+                    break
                 }
-
-                let userId = userWalletId.hashedStringValue
-                CustomerIO.shared.identify(userId: userId)
-                AppLogger.info("Customer.io user identity updated with selected user wallet id.")
             }
     }
 

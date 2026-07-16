@@ -74,19 +74,55 @@ extension CommonGaslessTokenFeeLoader: EthereumTokenFeeLoader {
         return fee
     }
 
-    func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
+    func getFee(request: EthereumFeeRequestData) async throws -> [BSDKFee] {
         let params = try await resolveGaslessParameters()
+
         let fee = try await gaslessTransactionFeeProvider.getGaslessTransactionFee(
             feeToken: params.feeToken,
-            destination: destination,
-            value: amount.encodedForSend,
-            data: txData,
-            otherNativeFee: otherNativeFee,
+            destination: request.destination,
+            value: request.amount.encodedForSend,
+            data: request.txData,
+            stateOverride: nil,
+            otherNativeFee: request.otherNativeFee,
             feeRecipientAddress: params.feeRecipientAddress,
             nativeToFeeTokenRate: params.nativeToFeeTokenRate
         )
 
         return [fee]
+    }
+
+    func getApproveWithSwapFee(request: EthereumFeeRequestData, approveInput: ApproveWithSwapInput) async throws -> [BSDKFee] {
+        let params = try await resolveGaslessParameters()
+
+        let unlimitedAllowanceOverride = EthereumAccountOverride.unlimitedAllowance(
+            tokenAddress: approveInput.tokenContractAddress,
+            owner: approveInput.owner,
+            spender: approveInput.spender
+        )
+
+        async let swapFeeTask = gaslessTransactionFeeProvider.getGaslessTransactionFee(
+            feeToken: params.feeToken,
+            destination: request.destination,
+            value: request.amount.encodedForSend,
+            data: request.txData,
+            stateOverride: unlimitedAllowanceOverride,
+            otherNativeFee: request.otherNativeFee,
+            feeRecipientAddress: params.feeRecipientAddress,
+            nativeToFeeTokenRate: params.nativeToFeeTokenRate
+        )
+        async let approveFeeTask = gaslessTransactionFeeProvider.getGaslessTransactionFee(
+            feeToken: params.feeToken,
+            destination: approveInput.tokenContractAddress,
+            value: BSDKAmount(with: tokenItem.blockchain, type: .coin, value: 0).encodedForSend,
+            data: approveInput.txData,
+            stateOverride: nil,
+            otherNativeFee: nil,
+            feeRecipientAddress: params.feeRecipientAddress,
+            nativeToFeeTokenRate: params.nativeToFeeTokenRate
+        )
+
+        let (swapFee, approveFee) = try await (swapFeeTask, approveFeeTask)
+        return [try ApproveWithSwapFeeParameters.combinedFee(swapFee: swapFee, approveFee: approveFee)]
     }
 }
 

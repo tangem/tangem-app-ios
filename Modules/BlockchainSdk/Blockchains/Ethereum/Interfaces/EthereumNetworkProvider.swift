@@ -11,7 +11,13 @@ import Combine
 import BigInt
 
 public protocol EthereumNetworkProvider {
-    func getFee(destination: String, value: String?, data: Data?) -> AnyPublisher<[Fee], Error>
+    func getFee(
+        destination: String,
+        value: String?,
+        data: Data?,
+        stateOverride: EthereumStateOverride?
+    ) -> AnyPublisher<[Fee], Error>
+
     func getGasPrice() -> AnyPublisher<BigUInt, Error>
     func getGasLimit(to: String, from: String, value: String?, data: String?) -> AnyPublisher<BigUInt, Error>
     func getFeeHistory() -> AnyPublisher<EthereumFeeHistory, Error>
@@ -22,6 +28,15 @@ public protocol EthereumNetworkProvider {
     func getTxCount(_ address: String) -> AnyPublisher<Int, Error>
     func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error>
     func getSmartContractNonce(for address: String) -> AnyPublisher<Int, Error>
+}
+
+// MARK: - Default-arg call ergonomics
+
+public extension EthereumNetworkProvider {
+    /// Convenience overload — preserves existing call sites that don't care about state override.
+    func getFee(destination: String, value: String?, data: Data?) -> AnyPublisher<[Fee], Error> {
+        getFee(destination: destination, value: value, data: data, stateOverride: nil)
+    }
 }
 
 // MARK: - Public helpers

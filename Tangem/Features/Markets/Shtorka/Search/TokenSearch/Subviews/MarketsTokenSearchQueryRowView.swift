@@ -25,7 +25,7 @@ struct MarketsTokenSearchQueryRowView: View {
 
                 Text(query)
                     .lineLimit(1)
-                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
 
                 Spacer(minLength: .unit(.x2))
 
@@ -36,7 +36,7 @@ struct MarketsTokenSearchQueryRowView: View {
                     .frame(width: Constants.iconSize, height: Constants.iconSize)
                     .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
             }
-            .padding(.vertical, .unit(.x3))
+            .padding(.vertical, .unit(.x5))
         }
     }
 }

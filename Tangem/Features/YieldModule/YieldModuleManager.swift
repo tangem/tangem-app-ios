@@ -67,9 +67,21 @@ final class CommonYieldModuleManager {
     private let yieldModuleStateRepository: YieldModuleStateRepository
     private let yieldModuleMarketsRepository: YieldModuleMarketsRepository
 
+    private let stateCacheQueue = DispatchQueue(
+        label: "com.tangem.CommonYieldModuleManager.stateCacheQueue",
+        target: .global()
+    )
+
     private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
     private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
-    private var resolvedPromoStatus: YieldPromoStatus = .undefined
+    // Written from `checkPromoAvailability()`'s unstructured `Task` and read from `applyResolvedPromoStatus(to:)`,
+    // which (since the `bind()` pipeline was moved off the main actor, see [REDACTED_INFO]) can now run on a background
+    // queue too — both were never guaranteed to be on the same thread, so this needs explicit synchronization.
+    private let _resolvedPromoStatus = OSAllocatedUnfairLock<YieldPromoStatus>(initialState: .undefined)
+    private var resolvedPromoStatus: YieldPromoStatus {
+        get { _resolvedPromoStatus.withLock { $0 } }
+        set { _resolvedPromoStatus.withLock { $0 = newValue } }
+    }
 
     private var pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
 
@@ -259,7 +271,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         }
 
         let result = try await transactionDispatcher
-            .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
+            .send(transactions: transactions.map { .transfer($0) })
             .map(\.hash)
 
         if let yieldContractAddressToSave {
@@ -306,7 +318,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         )
 
         let result = try await transactionDispatcher
-            .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
+            .send(transactions: transactions.map { .transfer($0) })
             .map(\.hash)
 
         await setNextExpectedState(.notActive)
@@ -569,6 +581,9 @@ private extension CommonYieldModuleManager {
             yieldModuleNetworkManager.marketsPublisher.removeDuplicates(),
             _nextExpectedState.removeDuplicates(),
         )
+        // `mapResults` below reads/writes the on-disk state cache, which must not block the main thread/actor
+        // that `_walletModelData` is fed from.
+        .receive(on: stateCacheQueue)
         .withWeakCaptureOf(self)
         .map { result -> YieldModuleManagerStateInfo in
             let (moduleManager, (data, marketsInfo, nextExpectedState)) = result

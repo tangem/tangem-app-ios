@@ -99,7 +99,7 @@ final class WCCustomEvmFeeService {
             }
             .store(in: &bag)
 
-        customFeeTextField.valuePublisher
+        customFeeTextField.valuePublisher()
             .withWeakCaptureOf(self)
             .sink { service, value in
                 service.customFee.send(service.calculateFee(for: value))
@@ -107,10 +107,10 @@ final class WCCustomEvmFeeService {
             .store(in: &bag)
 
         Publishers.MergeMany(
-            gasLimitTextField.valuePublisher.removeDuplicates(),
-            gasPriceTextField.valuePublisher.removeDuplicates(),
-            maxFeePerGasTextField.valuePublisher.removeDuplicates(),
-            priorityFeeTextField.valuePublisher.removeDuplicates(),
+            gasLimitTextField.valuePublisher().removeDuplicates(),
+            gasPriceTextField.valuePublisher().removeDuplicates(),
+            maxFeePerGasTextField.valuePublisher().removeDuplicates(),
+            priorityFeeTextField.valuePublisher().removeDuplicates(),
         )
         .withWeakCaptureOf(self)
         .sink(receiveValue: { $0.0.customFee.send($0.0.recalculateFee()) })
@@ -298,7 +298,7 @@ extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
             suffix: feeTokenItem.currencySymbol,
             isEditable: true,
             textFieldViewModel: customFeeTextField,
-            amountAlternativePublisher: customFeeTextField.valuePublisher
+            amountAlternativePublisher: customFeeTextField.valuePublisher()
                 .map { [weak self] value in
                     self?.formatToFiat(value: value)
                 }

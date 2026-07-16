@@ -116,11 +116,3 @@ struct StoredCryptoAccountsMerger {
         return (updatedAccount, isDirty)
     }
 }
-
-// MARK: - Convenience extensions
-
-private extension StoredCryptoAccount.Token {
-    func isEqual(to tokenItem: TokenItem, in network: StoredBlockchainNetwork) -> Bool {
-        return blockchainNetwork.knownValue == network && contractAddress == tokenItem.contractAddress
-    }
-}

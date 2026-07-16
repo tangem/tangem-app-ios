@@ -35,11 +35,11 @@ struct MarketsTokenDetailsContentViewRedesign: View {
             if hasShortDescription {
                 description
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
             content
         }
-        .padding(.horizontal, Constants.contentHorizontalPadding)
     }
 
     private var content: some View {
@@ -47,6 +47,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
             switch viewModel.state {
             case .loading:
                 MarketsTokenDetailsView.ContentBlockSkeletonsRedesign()
+                    .padding(.horizontal, Constants.contentHorizontalPadding)
 
             case .loaded:
                 contentBlocks
@@ -57,6 +58,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                     retryButtonAction: viewModel.loadDetailedInfo
                 )
                 .padding(.top, .unit(.x17))
+                .padding(.horizontal, Constants.contentHorizontalPadding)
 
             case .failedToLoadAllData:
                 EmptyView()
@@ -68,26 +70,31 @@ struct MarketsTokenDetailsContentViewRedesign: View {
         VStack(spacing: Constants.coinVerticalPadding) {
             if let metricsViewModel = viewModel.metricsViewModel {
                 MarketsTokenDetailsMetricsViewRedesign(viewModel: metricsViewModel)
+                    .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
             if let insightsViewModel = viewModel.insightsViewModel {
                 MarketsTokenDetailsInsightsViewRedesign(viewModel: insightsViewModel)
+                    .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
             if let numberOfExchangesListedOn = viewModel.numberOfExchangesListedOn {
                 MarketsTokenDetailsListedOnExchangesViewRedesign(exchangesCount: numberOfExchangesListedOn) {
                     viewModel.openExchangesList()
                 }
+                .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
             if let securityScoreViewModel = viewModel.securityScoreViewModel {
                 MarketsTokenDetailsSecurityScoreViewRedesign(viewModel: securityScoreViewModel)
+                    .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
             newsView
 
             if viewModel.linksSections.isNotEmpty {
                 MarketsTokenDetailsLinksViewRedesign(sections: viewModel.linksSections)
+                    .padding(.horizontal, Constants.contentHorizontalPadding)
             }
         }
         .padding(.bottom, 46.0)
@@ -103,7 +110,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
             if let shortDescription {
                 if model.fullDescription == nil {
                     Text(shortDescription)
-                        .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.secondary)
+                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
                         .multilineTextAlignment(.leading)
                 } else {
                     Button(action: viewModel.openFullDescription) {
@@ -111,7 +118,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                             Text("\(shortDescription) ")
                                 + readMoreText
                         }
-                        .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.secondary)
+                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
                         .multilineTextAlignment(.leading)
                     }
                 }
@@ -129,6 +136,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                 items: viewModel.tokenNewsItems,
                 onFourthItemAppear: viewModel.logCarouselScrolledIfNeeded
             )
+            .padding(.top, Constants.newsExtraTopPadding)
         }
     }
 
@@ -144,6 +152,7 @@ private extension MarketsTokenDetailsContentViewRedesign {
     enum Constants {
         static let contentVerticalSpacing: CGFloat = 32
         static let contentHorizontalPadding: CGFloat = .unit(.x4)
-        static let coinVerticalPadding: CGFloat = 14
+        static let coinVerticalPadding: CGFloat = .unit(.x3)
+        static let newsExtraTopPadding: CGFloat = .unit(.x5)
     }
 }

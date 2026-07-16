@@ -31,19 +31,19 @@ struct RatingModel: Sendable {
 
     /// Returns existing rating if already rated, nil otherwise
     func checkExisting() async throws -> Int? {
-        try await ratingProvider.checkExisting(for: transaction.externalTxId)?.rating
+        try await ratingProvider.checkExisting(for: transaction.transactionId)?.rating
     }
 
     func submit(_ rating: Rating, feedback: String?) async throws -> SubmitResult {
         let normalizedFeedback = normalizeFeedback(feedback)
 
-        let existing = try await ratingProvider.checkExisting(for: transaction.externalTxId)
+        let existing = try await ratingProvider.checkExisting(for: transaction.transactionId)
         if let existing {
             return .alreadyRated(existing.rating)
         }
 
         let request = RatingRequest(
-            transactionId: transaction.externalTxId,
+            transactionId: transaction.transactionId,
             rating: rating.rawValue,
             feedback: normalizedFeedback,
             provider: transaction.providerName,

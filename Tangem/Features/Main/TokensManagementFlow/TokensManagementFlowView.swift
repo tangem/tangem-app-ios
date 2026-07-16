@@ -7,20 +7,28 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
 struct TokensManagementFlowView: View {
     @ObservedObject var viewModel: TokensManagementFlowCoordinator
 
+    private var isRedesignedAccountSelector: Bool {
+        viewModel.state.isChooseAccount && viewModel.isAddAndOrganizeRedesignEnabled
+    }
+
     var body: some View {
         TokensManagementFlowContainerView(
             state: viewModel.state.rawCaseValue,
             hidesHeader: viewModel.state.hidesContainerHeader,
+            topPadding: isRedesignedAccountSelector ? .zero : 16,
             bottomPadding: viewModel.state.isChooser ? 16 : .zero,
+            isRedesign: viewModel.isAddAndOrganizeRedesignEnabled,
             headerContent: { headerView },
             mainContent: { mainContentView }
         )
+        .environment(\.isAddAndOrganizeRedesignEnabled, viewModel.isAddAndOrganizeRedesignEnabled)
     }
 
     // MARK: - Sub Views
@@ -44,13 +52,33 @@ struct TokensManagementFlowView: View {
         NavigationBarButton.close(action: viewModel.close)
     }
 
+    private var cancelButton: some View {
+        TangemButton(
+            content: .text(AttributedString(Localization.commonCancel)),
+            action: viewModel.close
+        )
+        .setStyleType(.secondary)
+        .setSize(.x12)
+        .setHorizontalLayout(.infinity)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
+    }
+
     @ViewBuilder
     private var mainContentView: some View {
         switch viewModel.state {
         case .chooser:
             TokensManagementChooserView(viewModel: viewModel)
         case .chooseAccount(let accountSelector):
-            AccountSelectorView(viewModel: accountSelector, style: .addAndManage)
+            if viewModel.isAddAndOrganizeRedesignEnabled {
+                VStack(spacing: 0) {
+                    AccountSelectorView(viewModel: accountSelector, style: .addTokenRedesigned)
+
+                    cancelButton
+                }
+            } else {
+                AccountSelectorView(viewModel: accountSelector, style: .addAndManage)
+            }
         case .organize(let organizeViewModel):
             OrganizeTokensView(viewModel: organizeViewModel, onCloseTap: viewModel.close)
         case .manage(let manageTokensViewModel):
@@ -62,7 +90,7 @@ struct TokensManagementFlowView: View {
         case .derivationSelector(let derivationSelectorViewModel):
             AddCustomTokenDerivationPathSelectorView(viewModel: derivationSelectorViewModel)
         case .derivationPathWriter(let derivationPathWriterViewModel):
-            AddCustomTokenDerivationPathWriterView(viewModel: derivationPathWriterViewModel)
+            AddCustomTokenDerivationPathWriterView(viewModel: derivationPathWriterViewModel, style: .addTokenRedesigned)
         }
     }
 }

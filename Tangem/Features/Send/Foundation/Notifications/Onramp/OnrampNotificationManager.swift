@@ -13,6 +13,8 @@ import TangemExpress
 
 protocol OnrampNotificationManagerInput {
     var errorPublisher: AnyPublisher<Error?, Never> { get }
+    /// Emits the token when it isn't onrampable (`onrampState == .unavailable`), `nil` otherwise.
+    var unsupportedTokenPublisher: AnyPublisher<TokenItem?, Never> { get }
 }
 
 protocol OnrampNotificationManager: NotificationManager {}
@@ -34,14 +36,24 @@ class CommonOnrampNotificationManager {
 
 private extension CommonOnrampNotificationManager {
     func bind(input: some OnrampNotificationManagerInput) {
-        inputSubscription = input.errorPublisher
-            .withWeakCaptureOf(self)
-            .sink { manager, error in
-                manager.update(error: error)
-            }
+        inputSubscription = Publishers.CombineLatest(
+            input.errorPublisher.prepend(nil),
+            input.unsupportedTokenPublisher.prepend(nil)
+        )
+        .withWeakCaptureOf(self)
+        .sink { manager, args in
+            let (error, unsupportedToken) = args
+            manager.update(error: error, unsupportedToken: unsupportedToken)
+        }
     }
 
-    func update(error: Error?) {
+    func update(error: Error?, unsupportedToken: TokenItem?) {
+        // The unsupported-token notice has priority and suppresses currency/residency errors — mirrors Swap's `unsupportedPair`.
+        if let unsupportedToken {
+            show(event: .tokenNotSupported(tokenName: unsupportedToken.name))
+            return
+        }
+
         switch error {
         case .none:
             hideNotifications()

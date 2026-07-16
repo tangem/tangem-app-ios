@@ -9,26 +9,20 @@
 import Foundation
 
 struct SwapPredefinedParametersHelper {
-    enum Origin {
-        case tokenDetails(walletModel: any WalletModel)
-        case markets(walletModel: any WalletModel)
-    }
-
-    func makeParameters(origin: Origin, userWalletInfo: UserWalletInfo) -> PredefinedSwapParameters? {
-        switch origin {
-        case .tokenDetails(let walletModel):
-            if FeatureProvider.isAvailable(.swapPipelineV2) {
-                return resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
-            }
-
-            return makeFromParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
-
-        case .markets(let walletModel):
-            if FeatureProvider.isAvailable(.swapPipelineV2) {
-                return resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
-            }
-
-            return makeToParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
+    func makeParameters(
+        walletModel: any WalletModel,
+        userWalletInfo: UserWalletInfo,
+        position: SwapDirection
+    ) -> PredefinedSwapParameters? {
+        switch position {
+        case .automatic:
+            return resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
+        case .from:
+            let token = makeSwapableToken(walletModel: walletModel, userWalletInfo: userWalletInfo)
+            return .from(token, receive: nil)
+        case .to:
+            let token = makeSwapableToken(walletModel: walletModel, userWalletInfo: userWalletInfo)
+            return .to(token)
         }
     }
 }
@@ -36,24 +30,12 @@ struct SwapPredefinedParametersHelper {
 // MARK: - Private
 
 private extension SwapPredefinedParametersHelper {
-    func makeToParameters(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> PredefinedSwapParameters {
-        let receiveToken = CommonSendSwapableTokenFactory(
+    func makeSwapableToken(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> SendSwapableToken {
+        CommonSendSwapableTokenFactory(
             userWalletInfo: userWalletInfo,
             walletModel: walletModel,
             operationType: .swap
         ).makeSwapableToken()
-
-        return .to(receiveToken)
-    }
-
-    func makeFromParameters(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> PredefinedSwapParameters {
-        let sourceToken = CommonSendSwapableTokenFactory(
-            userWalletInfo: userWalletInfo,
-            walletModel: walletModel,
-            operationType: .swap
-        ).makeSwapableToken()
-
-        return .from(sourceToken)
     }
 
     func resolveParameters(
@@ -66,30 +48,16 @@ private extension SwapPredefinedParametersHelper {
         let resolved = resolver.resolve(walletModel: walletModel)
 
         if let sourceWalletModel = resolved.source {
-            let sourceToken = CommonSendSwapableTokenFactory(
-                userWalletInfo: userWalletInfo,
-                walletModel: sourceWalletModel,
-                operationType: .swap
-            ).makeSwapableToken()
-
+            let sourceToken = makeSwapableToken(walletModel: sourceWalletModel, userWalletInfo: userWalletInfo)
             let destinationToken = resolved.destination.map {
-                CommonSendSwapableTokenFactory(
-                    userWalletInfo: userWalletInfo,
-                    walletModel: $0,
-                    operationType: .swap
-                ).makeSwapableToken()
+                makeSwapableToken(walletModel: $0, userWalletInfo: userWalletInfo)
             }
 
             return .from(sourceToken, receive: destinationToken)
         }
 
         if let destinationWalletModel = resolved.destination {
-            let destinationToken = CommonSendSwapableTokenFactory(
-                userWalletInfo: userWalletInfo,
-                walletModel: destinationWalletModel,
-                operationType: .swap
-            ).makeSwapableToken()
-
+            let destinationToken = makeSwapableToken(walletModel: destinationWalletModel, userWalletInfo: userWalletInfo)
             return .to(destinationToken)
         }
 

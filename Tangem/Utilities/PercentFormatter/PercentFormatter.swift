@@ -117,7 +117,7 @@ extension PercentFormatter {
 
     struct Prefix: Hashable {
         static let empty = Prefix(positive: "", negative: "")
-        static let `default` = Prefix(positive: "+", negative: "-")
+        static let `default` = Prefix(positive: AppConstants.plusSign, negative: "-")
         static let onlyMinus = Prefix(positive: "", negative: "-")
 
         let positive: String

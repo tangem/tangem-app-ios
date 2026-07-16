@@ -14,6 +14,8 @@ public extension View {
     }
 }
 
-extension EnvironmentValues {
+// [REDACTED_TODO_COMMENT]
+
+public extension EnvironmentValues {
     @Entry var isRedesign = false
 }

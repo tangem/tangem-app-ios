@@ -17,6 +17,59 @@ struct TangemPayAddFundsSheetOptionView: View {
     let action: () -> Void
 
     var body: some View {
+        if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
+            redesignedBody
+        } else {
+            legacyBody
+        }
+    }
+}
+
+// MARK: - Redesigned
+
+private extension TangemPayAddFundsSheetOptionView {
+    var redesignedBody: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                redesignedIcon
+
+                redesignedTitleView
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 12)
+        }
+        .accessibilityIdentifier(option.accessibilityIdentifier)
+    }
+
+    var redesignedIcon: some View {
+        option.redesignedIcon.image
+            .renderingMode(.template)
+            .resizable()
+            .frame(width: 20, height: 20)
+            .foregroundStyle(DesignSystem.Color.iconBrand)
+            .frame(width: 40, height: 40)
+            .background(DesignSystem.Color.bgStatusInfoSubtle, in: Circle())
+    }
+
+    var redesignedTitleView: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(option.title)
+                .font(DesignSystem.Font.subheadingMediumToken)
+                .foregroundStyle(DesignSystem.Color.textPrimary)
+
+            Text(option.subtitle)
+                .font(DesignSystem.Font.captionMediumToken)
+                .foregroundStyle(DesignSystem.Color.textSecondary)
+        }
+        .multilineTextAlignment(.leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Legacy
+
+private extension TangemPayAddFundsSheetOptionView {
+    var legacyBody: some View {
         Button(action: action) {
             HStack(spacing: 12) {
                 icon
@@ -29,7 +82,7 @@ struct TangemPayAddFundsSheetOptionView: View {
         .accessibilityIdentifier(option.accessibilityIdentifier)
     }
 
-    private var icon: some View {
+    var icon: some View {
         Colors.Icon.accent.opacity(0.1)
             .frame(width: 36, height: 36)
             .overlay {
@@ -40,7 +93,7 @@ struct TangemPayAddFundsSheetOptionView: View {
             .clipShape(Circle())
     }
 
-    private var titleView: some View {
+    var titleView: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(option.title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
@@ -76,6 +129,13 @@ extension TangemPayAddFundsSheetOptionView {
             switch self {
             case .receive: Assets.arrowDownMini
             case .swap: Assets.exchangeMini
+            }
+        }
+
+        var redesignedIcon: ImageType {
+            switch self {
+            case .receive: Assets.Visa.grid
+            case .swap: DesignSystem.Icons.LogoTangem.regular20
             }
         }
 
