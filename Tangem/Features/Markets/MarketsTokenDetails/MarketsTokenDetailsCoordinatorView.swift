@@ -16,7 +16,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
 
     var body: some View {
         switch coordinator.presentationStyle {
-        case .marketsSheet, .navigationStack:
+        case .marketsSheet, .navigationStack, .addFundsSheet:
             content
 
         case .fullScreenCover:
@@ -60,6 +60,11 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
+            .sheet(
+                item: $coordinator.addFundsViewModel,
+                onDismiss: coordinator.addFundsDidDismiss,
+                content: { AddFundsView(viewModel: $0) }
+            )
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }

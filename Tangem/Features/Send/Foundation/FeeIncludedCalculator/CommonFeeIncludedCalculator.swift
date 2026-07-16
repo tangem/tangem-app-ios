@@ -9,9 +9,9 @@
 import BlockchainSdk
 
 struct CommonFeeIncludedCalculator: FeeIncludedCalculator {
-    private let validator: TransactionValidator
+    private let validator: SendTransactionValidator
 
-    init(validator: TransactionValidator) {
+    init(validator: SendTransactionValidator) {
         self.validator = validator
     }
 

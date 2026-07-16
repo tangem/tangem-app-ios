@@ -24,7 +24,7 @@ class CommonExpressAPIService {
     init(provider: TangemProvider<ExpressAPITarget>, expressAPIType: ExpressAPIType) {
         assert(
             provider.plugins.contains(where: { $0 is ExpressAuthorizationPlugin }),
-            "Should contains ExpressHeaderMoyaPlugin"
+            "Should contains ExpressAuthorizationPlugin"
         )
 
         self.provider = provider
@@ -65,8 +65,12 @@ extension CommonExpressAPIService: ExpressAPIService {
         try await _request(target: .exchangeSent(request: request))
     }
 
-    func exchangeHistory(request: ExpressDTO.HistoryRequest) async throws -> ExpressDTO.Swap.History.Response {
+    func exchangeHistory(request: ExpressDTO.Swap.History.Request) async throws -> ExpressDTO.Swap.History.Response {
         try await _request(target: .exchangeHistory(request: request))
+    }
+
+    func exchangeHistoryDelta(request: ExpressDTO.Swap.HistoryDelta.Request) async throws -> ExpressDTO.Swap.HistoryDelta.Response {
+        try await _request(target: .exchangeHistoryDelta(request: request))
     }
 
     // MARK: - Onramp
@@ -107,8 +111,12 @@ extension CommonExpressAPIService: ExpressAPIService {
         try await _request(target: .onrampStatus(request: request))
     }
 
-    func onrampHistory(request: ExpressDTO.HistoryRequest) async throws -> ExpressDTO.Onramp.History.Response {
+    func onrampHistory(request: ExpressDTO.Onramp.History.Request) async throws -> ExpressDTO.Onramp.History.Response {
         try await _request(target: .onrampHistory(request: request))
+    }
+
+    func onrampHistoryDelta(request: ExpressDTO.Onramp.HistoryDelta.Request) async throws -> ExpressDTO.Onramp.HistoryDelta.Response {
+        try await _request(target: .onrampHistoryDelta(request: request))
     }
 }
 

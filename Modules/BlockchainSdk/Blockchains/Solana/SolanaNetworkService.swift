@@ -17,7 +17,6 @@ import TangemSdk
 public final class SolanaNetworkService: MultiNetworkProvider {
     let providers: [RPCEndpoint]
     var currentProviderIndex: Int = 0
-    var isSolanaScaledUIEnabled: Bool = false
     var blockchainName: String {
         blockchain.displayName
     }
@@ -410,7 +409,7 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             let mint = info.mint
 
             let isToken2022 = $0.account.owner == PublicKey.token2022ProgramId.base58EncodedString
-            let shouldUseScaledUiAmount = isToken2022 && isSolanaScaledUIEnabled
+            let shouldUseScaledUiAmount = isToken2022
             let decimalCount = Int(info.tokenAmount.decimals)
             guard let amount = tokenBalance(
                 from: info.tokenAmount,

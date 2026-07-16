@@ -25,20 +25,6 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
         }
     }
 
-    func replaceActive(with sheet: some FloatingSheetContentViewModel) async {
-        let hadActive = activeSheet != nil
-        if hadActive {
-            activeSheet = nil
-            try? await Task.sleep(for: Constants.dismissAnimationDuration)
-        }
-
-        if isPaused {
-            sheetsQueue.insert(sheet, at: 0)
-        } else {
-            activeSheet = sheet
-        }
-    }
-
     func removeActiveSheet() {
         guard !isPaused else {
             if sheetsQueue.isNotEmpty {
@@ -79,12 +65,6 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
         if !sheetsQueue.isEmpty {
             activeSheet = sheetsQueue.removeFirst()
         }
-    }
-}
-
-private extension FloatingSheetViewModel {
-    enum Constants {
-        static let dismissAnimationDuration: Duration = .milliseconds(350)
     }
 }
 

@@ -15,10 +15,11 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     let sourceToken: SendWithSwapToken
     private let predefinedSendParameters: PredefinedSendParameters?
     private let coordinatorSource: SendCoordinator.Source
+    private let shouldStartFromTokenList: Bool
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var autoupdatingTimer = AutoupdatingTimer()
-    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send, coordinatorSource: coordinatorSource)
+    lazy var analyticsLogger: SendAnalyticsLogger = makeSendWithSwapAnalyticsLogger(sendType: .send, coordinatorSource: coordinatorSource)
 
     lazy var sendNotificationManager = makeSendNotificationManager()
     lazy var swapNotificationManager = makeSwapNotificationManager()
@@ -52,7 +53,13 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         autoupdatingTimer: autoupdatingTimer
     )
 
-    init(sourceToken: SendWithSwapToken, predefinedSendParameters: PredefinedSendParameters? = nil, coordinatorSource: SendCoordinator.Source = .main) {
+    init(
+        sourceToken: SendWithSwapToken,
+        predefinedSendParameters: PredefinedSendParameters? = nil,
+        shouldStartFromTokenList: Bool = false,
+        coordinatorSource: SendCoordinator.Source = .main
+    ) {
+        self.shouldStartFromTokenList = shouldStartFromTokenList
         self.sourceToken = sourceToken
         self.predefinedSendParameters = predefinedSendParameters
         self.coordinatorSource = coordinatorSource
@@ -118,11 +125,14 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
 // MARK: - SendGenericFlowFactory
 
 extension SendWithSwapFlowFactory: SendGenericFlowFactory {
-    func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
-        let amount = makeSendAmountStep()
+    func make(
+        router: any SendRoutable,
+        coordinatorStateProvider: SendCoordinatorStateProvider
+    ) -> SendViewModel {
+        let amount = makeSendAmountStep(shouldStartFromTokenList: shouldStartFromTokenList)
         let destination = makeSendDestinationStep(router: router)
         let fee = makeSendFeeStep(router: router)
-        let providers = makeSwapProviders()
+        let providers = makeSwapProviders(router: router)
 
         let summary = makeSendSummaryStep(
             sendDestinationCompactViewModel: destination.compact,
@@ -147,7 +157,6 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         transferModel.informationRelevanceService = CommonInformationRelevanceService(
             input: sendWithSwapModel, provider: sendWithSwapModel
         )
-
         swapModel.externalAmountUpdater = amount.amountUpdater
 
         // Steps setup
@@ -199,7 +208,9 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         summary.set(router: stepsManager)
 
         transferModel.router = viewModel
-        sendWithSwapModel.alertPresenter = viewModel
+
+        swapModel.router = viewModel
+        swapModel.alertPresenter = viewModel
 
         sendWithSwapModel.router = viewModel
         sendWithSwapModel.alertPresenter = viewModel
@@ -263,8 +274,7 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
             analyticsLogger: analyticsLogger,
-            providerRateTypesPublisher: sendWithSwapModel.providerRateTypesPublisher,
-            currentRateTypePublisher: sendWithSwapModel.currentRateTypePublisher
+            providerRateTypesPublisher: sendWithSwapModel.providerRateTypesPublisher
         )
     }
 }
@@ -314,7 +324,7 @@ extension SendWithSwapFlowFactory: SendFeeStepBuildable {
 
 extension SendWithSwapFlowFactory: SendSwapProvidersBuildable {
     var swapProvidersIO: SendSwapProvidersBuilder.IO {
-        SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
+        SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, approveInput: sendWithSwapModel, approveOutput: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {
@@ -372,6 +382,7 @@ extension SendWithSwapFlowFactory: SendFinishStepBuildable {
     var finishDependencies: SendFinishStepBuilder.Dependencies {
         SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
+            headerTitleProvider: SendWithSwapFinishHeaderTitleProvider()
         )
     }
 }

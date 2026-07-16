@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import TangemFoundation
 import TangemLocalization
 import TangemStaking
 import struct TangemUIUtils.AlertBinder
@@ -63,7 +64,7 @@ private extension MultipleRewardsViewModel {
                     return Just(data).eraseToAnyPublisher()
                 default:
                     // Do nothing
-                    return Empty().eraseToAnyPublisher()
+                    return .empty
                 }
             }
             .receive(on: DispatchQueue.main)

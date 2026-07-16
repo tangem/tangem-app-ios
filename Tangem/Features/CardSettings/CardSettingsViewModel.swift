@@ -127,6 +127,7 @@ private extension CardSettingsViewModel {
         securityModeSection = [DefaultRowViewModel(
             title: Localization.cardSettingsSecurityMode,
             detailsType: .text(securityModeTitle),
+            accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.securityModeRow,
             action: hasSingleSecurityMode ? nil : openSecurityMode
         )]
 

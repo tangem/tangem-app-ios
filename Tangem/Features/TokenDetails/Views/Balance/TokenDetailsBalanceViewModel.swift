@@ -7,6 +7,8 @@
 //
 
 import Combine
+import SwiftUI
+import TangemAssets
 import TangemUI
 import TangemLocalization
 
@@ -227,21 +229,21 @@ private extension TokenDetailsBalanceViewModel {
     }
 
     func attributedFiatBalance(_ balance: String) -> Text {
-        let attributedBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+        let attributedBalance = AttributedBalanceFormatter.format(
             balance,
-            font: .Tangem.Custom.titleRegular44,
+            font: Font.Tangem.Title44.semibold,
             integerColor: .Tangem.Text.Neutral.primary,
-            decimalColor: .Tangem.Text.Neutral.secondary
+            fractionalColor: .Tangem.Text.Neutral.secondary
         )
         return .attributed(attributedBalance)
     }
 
     func attributedCryptoBalance(_ balance: String) -> Text {
-        let attributedBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+        let attributedBalance = AttributedBalanceFormatter.format(
             balance,
-            font: .Tangem.Body16.medium,
+            font: Font.Tangem.Body16.medium,
             integerColor: .Tangem.Text.Neutral.secondary,
-            decimalColor: .Tangem.Text.Neutral.secondary
+            fractionalColor: .Tangem.Text.Neutral.secondary
         )
         return .attributed(attributedBalance)
     }

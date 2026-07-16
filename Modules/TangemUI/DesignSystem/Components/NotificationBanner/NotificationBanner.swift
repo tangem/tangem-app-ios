@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemUIUtils
 import TangemAssets
 import TangemAccessibilityIdentifiers
@@ -18,6 +19,8 @@ public struct NotificationBanner: View, Setupable {
     @ScaledMetric private var padding: CGFloat
     @ScaledMetric private var iconWidth: CGFloat
     @ScaledMetric private var iconHeight: CGFloat
+
+    private let cornerRadius: CGFloat = .unit(.x6)
 
     public init(bannerType: BannerType, accessibilityIdentifier: String?) {
         self.bannerType = bannerType
@@ -36,23 +39,32 @@ public struct NotificationBanner: View, Setupable {
         case .center:
             switch content {
             case .text: return true
-            case .textWithIcon: return false
+            case .textWithIcon, .textWithLoadableIcon: return false
             }
         }
     }
 
-    private var iconIsLeading: Bool {
+    private func iconIsLeading(for icon: Icon) -> Bool {
+        if let isLeading = icon.isLeading {
+            return isLeading
+        }
+
         switch bannerType {
         case .promo:
-            true
+            return true
         case .status, .critical, .warning, .survey, .informational:
-            false
+            return false
         }
     }
 
     public var body: some View {
         bannerContent
             .accessibilityIdentifier(accessibilityIdentifier)
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(bannerType.borderColor, lineWidth: .unit(.quarter))
+                    .allowsHitTesting(false)
+            }
             .overlay(alignment: .topTrailing) {
                 if bannerType.isClosable {
                     closeButton
@@ -84,13 +96,13 @@ public struct NotificationBanner: View, Setupable {
     private func bannerBody<Buttons: View>(
         @ViewBuilder buttons: () -> Buttons = { EmptyView() }
     ) -> some View {
-        VStack(alignment: isCentered ? .center : .leading, spacing: SizeUnit.x4.value) {
+        VStack(alignment: isCentered ? .center : .leading, spacing: SizeUnit.x5.value) {
             contentView
             buttons()
         }
         .padding(padding)
         .frame(maxWidth: .infinity, alignment: isCentered ? .center : .leading)
-        .glowBorder(effect: bannerType.effect)
+        .glowBorder(effect: bannerType.effect, cornerRadius: cornerRadius)
     }
 
     private var closeButton: some View {
@@ -119,11 +131,12 @@ public struct NotificationBanner: View, Setupable {
             textStack(title: textOnly.title, subtitle: textOnly.subtitle)
 
         case .textWithIcon(let data):
+            let isLeading = iconIsLeading(for: data.icon)
             HStack(
                 alignment: data.icon.alignment.verticalAlignment,
-                spacing: iconIsLeading ? SizeUnit.x1.value : SizeUnit.x2.value
+                spacing: isLeading ? SizeUnit.x1.value : SizeUnit.x2.value
             ) {
-                if iconIsLeading {
+                if isLeading {
                     iconImage(for: data.icon)
                     textStack(title: data.text.title, subtitle: data.text.subtitle)
                     Spacer(minLength: 0)
@@ -131,6 +144,22 @@ public struct NotificationBanner: View, Setupable {
                     textStack(title: data.text.title, subtitle: data.text.subtitle)
                     Spacer()
                     iconImage(for: data.icon)
+                }
+            }
+
+        case .textWithLoadableIcon(let data):
+            HStack(
+                alignment: data.icon.alignment.vertical,
+                spacing: SizeUnit.x2.value
+            ) {
+                if data.icon.alignment.horizontal == .leading {
+                    IconView(url: data.icon.url, size: content.iconSize)
+                    textStack(title: data.text.title, subtitle: data.text.subtitle)
+                    Spacer(minLength: 0)
+                } else {
+                    textStack(title: data.text.title, subtitle: data.text.subtitle)
+                    Spacer(minLength: 0)
+                    IconView(url: data.icon.url, size: content.iconSize)
                 }
             }
         }
@@ -142,6 +171,11 @@ public struct NotificationBanner: View, Setupable {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: iconWidth, height: iconHeight)
+            .foregroundColor(icon.color)
+    }
+
+    private var closeButtonClearance: CGFloat {
+        bannerType.isClosable ? SizeUnit.x6.value : 0
     }
 
     private func textStack(title: AttributedString, subtitle: AttributedString) -> some View {
@@ -149,24 +183,32 @@ public struct NotificationBanner: View, Setupable {
         let textAlignment: TextAlignment = isCentered ? .center : .leading
 
         return VStack(alignment: alignment, spacing: SizeUnit.x1.value) {
-            Text(title)
-                .style(
-                    Fonts.Bold.headline,
-                    color: Color.Tangem.Text.Neutral.primary
-                )
-                .multilineTextAlignment(textAlignment)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
+            if title.characters.isNotEmpty {
+                Text(title)
+                    .style(
+                        Font.Tangem.Body16.semibold,
+                        color: .Tangem.Text.Neutral.primary
+                    )
+                    .lineLimit(nil)
+                    .multilineTextAlignment(textAlignment)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
+            }
 
-            Text(subtitle)
-                .style(
-                    Fonts.Bold.subheadline,
-                    color: Color.Tangem.Text.Neutral.tertiary
-                )
-                .multilineTextAlignment(textAlignment)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
+            if subtitle.characters.isNotEmpty {
+                Text(subtitle)
+                    .style(
+                        Font.Tangem.Caption12.medium,
+                        color: .Tangem.Text.Neutral.secondary
+                    )
+                    .lineLimit(nil)
+                    .multilineTextAlignment(textAlignment)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
+            }
         }
         .padding(.horizontal, SizeUnit.x1.value)
-        .padding(.top, SizeUnit.x1.value)
+        .padding(isCentered ? .horizontal : .trailing, closeButtonClearance)
     }
 
     @ViewBuilder

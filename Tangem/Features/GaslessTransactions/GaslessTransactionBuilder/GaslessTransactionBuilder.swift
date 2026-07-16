@@ -195,6 +195,72 @@ struct GaslessTransactionBuilder {
     }
 }
 
+// MARK: - Approve & swap flow
+
+extension GaslessTransactionBuilder {
+    func buildGaslessTransactions(bsdkTransactions: [BSDKTransaction], feeRecipientAddress: String) async throws -> [GaslessTransaction] {
+        guard let chainId = walletModel.tokenItem.blockchain.chainId else {
+            throw GaslessTransactionBuilderError.missingChainId
+        }
+
+        guard let networkProvider = walletModel.ethereumNetworkProvider else {
+            throw GaslessTransactionBuilderError.missingNetworkProvider
+        }
+
+        let baseNonce = try await networkProvider.getSmartContractNonce(for: walletModel.defaultAddressString).async()
+        let eip7702Data = try await getEIP7702Data()
+
+        var transactionsData: [TransactionData] = []
+        var eip712Hashes: [Data] = []
+
+        for (index, bsdkTransaction) in bsdkTransactions.enumerated() {
+            let transaction = try await makeTransaction(from: bsdkTransaction)
+            let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee, feeRecipientAddress: feeRecipientAddress)
+            let nonce = (baseNonce + index).description
+
+            transactionsData.append(TransactionData(transaction: transaction, fee: feeData, nonce: nonce))
+            eip712Hashes.append(try await makeEIP712Hash(transaction: transaction, fee: feeData, nonce: nonce, chainId: chainId))
+        }
+
+        let signedHashes = try await signer
+            .sign(hashes: [eip7702Data.data] + eip712Hashes, walletPublicKey: walletModel.publicKey)
+            .async()
+
+        guard signedHashes.count == eip712Hashes.count + 1 else {
+            throw GaslessTransactionBuilderError.invalidSignaturesCount
+        }
+
+        let eip7702Unmarshalled = try UnmarshalUtil.unmarshalSignature(
+            signatureInfo: signedHashes[0],
+            publicKey: walletModel.publicKey.blockchainKey
+        )
+
+        let eip7702Auth = EIP7702Auth(
+            chainId: eip7702Data.chainId,
+            address: eip7702Data.address,
+            nonce: eip7702Data.nonce.description,
+            yParity: eip7702Unmarshalled.yParity,
+            r: eip7702Unmarshalled.r.hexString.addHexPrefix(),
+            s: eip7702Unmarshalled.s.hexString.addHexPrefix()
+        )
+
+        return try transactionsData.enumerated().map { index, transactionData in
+            let eip712Unmarshalled = try UnmarshalUtil.unmarshalSignature(
+                signatureInfo: signedHashes[index + 1],
+                publicKey: walletModel.publicKey.blockchainKey
+            )
+
+            return GaslessTransaction(
+                gaslessTransaction: transactionData,
+                signature: eip712Unmarshalled.extended.data.hexString.addHexPrefix(),
+                userAddress: walletModel.defaultAddressString,
+                chainId: chainId,
+                eip7702auth: eip7702Auth
+            )
+        }
+    }
+}
+
 extension GaslessTransactionBuilder {
     struct SignedData {
         let eip712Signature: String

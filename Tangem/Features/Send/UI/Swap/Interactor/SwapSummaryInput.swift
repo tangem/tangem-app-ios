@@ -20,8 +20,6 @@ protocol SwapSummaryInput: AnyObject {
 
 protocol SwapSummaryOutput: AnyObject {
     func userDidRequestSwapSourceAndReceiveToken()
-    // [REDACTED_TODO_COMMENT]
-    func userDidRequestMaxAmount()
     func userDidRequestSourceAmount(fraction: SwapAmountFraction)
     func userDidRequestSwap()
 }

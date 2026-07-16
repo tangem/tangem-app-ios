@@ -495,6 +495,10 @@ extension CommonAccountModelsManager: DisposableEntity {
         cryptoAccountsGlobalStateProvider.unregister(self, forIdentifier: userWalletId)
         tangemPayAccountGlobalStateProvider.unregister(forIdentifier: userWalletId)
 
+        // Clear the `share(replay: 1)` buffer before disposing, so a late subscriber never replays an array
+        // containing a just-disposed account and re-subscribes its `userTokensPublisher` ([REDACTED_INFO]).
+        onDisposeSubject.send([])
+
         for accountModel in accountModels {
             switch accountModel {
             case .standard(.single(let cryptoAccountModel)):
@@ -505,8 +509,6 @@ extension CommonAccountModelsManager: DisposableEntity {
                 break
             }
         }
-
-        onDisposeSubject.send([])
     }
 }
 

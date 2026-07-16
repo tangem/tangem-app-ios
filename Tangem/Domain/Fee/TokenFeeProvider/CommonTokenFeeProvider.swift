@@ -10,7 +10,6 @@ import Combine
 import Foundation
 import TangemFoundation
 import TangemMacro
-import enum BlockchainSdk.EthereumFeeParametersConstants
 
 let FeeLogger = AppLogger.tag("TokenFeeProvider")
 
@@ -20,6 +19,9 @@ final class CommonTokenFeeProvider {
     let customFeeProvider: (any CustomFeeProvider)?
     let feeTokenItemBalanceProvider: TokenBalanceProvider
     let supportingOptions: TokenFeeProviderSupportingOptions
+
+    private let balanceConverter = BalanceConverter()
+    private let balanceFormatter = BalanceFormatter()
 
     private var tokenFeeProviderInputData: TokenFeeProviderInputData?
 
@@ -53,7 +55,23 @@ final class CommonTokenFeeProvider {
 extension CommonTokenFeeProvider: TokenFeeProvider {
     var balanceFeeTokenState: TokenBalanceType { feeTokenItemBalanceProvider.balanceType }
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { feeTokenItemBalanceProvider.balanceTypePublisher }
-    var formattedFeeTokenBalance: FormattedTokenBalanceType { feeTokenItemBalanceProvider.formattedBalanceType }
+    var formattedFeeTokenBalance: FormattedTokenBalanceType {
+        let currencyId = feeTokenItem.currencyId
+        let currencySymbol = feeTokenItem.currencySymbol
+
+        let builder = FormattedTokenBalanceTypeBuilder(format: { [balanceConverter, balanceFormatter] cryptoValue in
+            if let cryptoValue,
+               let currencyId,
+               let fiatValue = balanceConverter.convertToFiat(cryptoValue, currencyId: currencyId) {
+                return balanceFormatter.formatFiatBalance(fiatValue)
+            }
+
+            return balanceFormatter.formatCryptoBalance(cryptoValue, currencyCode: currencySymbol)
+        })
+
+        return builder.mapToFormattedTokenBalanceType(type: feeTokenItemBalanceProvider.balanceType)
+    }
+
     var hasMultipleFeeOptions: Bool {
         if case .available(let fees) = state {
             return fees.count > 1
@@ -199,8 +217,24 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee)):
             return try await updateFees(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee)
 
+        case .approveWithSwap(let amount, let destination, let txData, let otherNativeFee, let approveInput):
+            return try await updateApproveWithSwapFees(
+                amount: amount,
+                destination: destination,
+                txData: txData,
+                otherNativeFee: otherNativeFee,
+                approveInput: approveInput
+            )
+
         case .dex(.solana(let data)):
             return try await updateFees(compiledTransaction: data)
+
+        case .dex(.bitcoinPsbt(let psbtBase64)):
+            guard FeatureProvider.isAvailable(.bitcoinDexSwap) else {
+                throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+            }
+
+            return try await updateFees(psbtBase64: psbtBase64)
 
         case .approve(let txData, let toContractAddress, let feeMultiplier):
             let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
@@ -262,6 +296,9 @@ private extension CommonTokenFeeProvider {
         case .dex(.solana) where tokenFeeLoader is SolanaTokenFeeLoader:
             // Is available. Do nothing
             break
+        case .dex(.bitcoinPsbt) where tokenFeeLoader is BitcoinTokenFeeLoader && FeatureProvider.isAvailable(.bitcoinDexSwap):
+            // Is available. Do nothing
+            break
         case .dex:
             // DEX but tokenFeeLoader is not (EthereumTokenFeeLoader or SolanaTokenFeeLoader)
             updateState(state: .unavailable(.notSupported))
@@ -272,6 +309,11 @@ private extension CommonTokenFeeProvider {
             break
         case .approve:
             // Approve but tokenFeeLoader is not EthereumTokenFeeLoader
+            updateState(state: .unavailable(.notSupported))
+        case .approveWithSwap where tokenFeeLoader is EthereumTokenFeeLoader:
+            // One-tap approve+swap is EVM-only (allowance + state override)
+            break
+        case .approveWithSwap:
             updateState(state: .unavailable(.notSupported))
         }
     }
@@ -327,6 +369,10 @@ private extension CommonTokenFeeProvider {
                 return .loading
             case .unavailable(.notSupported):
                 return .failure(TokenFeeProviderError.unsupportedByProvider)
+            case .unavailable(.noTokenBalance) where feeTokenItem.isBlockchain:
+                return .failure(TokenFeeProviderError.notEnoughBalanceForFee)
+            case .unavailable(.notEnoughFeeBalance), .unavailable(.noTokenBalance):
+                return .failure(TokenFeeProviderError.notEnoughGaslessFeeBalance)
             case .unavailable:
                 return .failure(TokenFeeProviderError.providerUnavailable)
             case .error(let error):
@@ -374,10 +420,16 @@ private extension CommonTokenFeeProvider {
 
     private func updateFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
         let fees = try await tokenFeeLoader.asEthereumTokenFeeLoader().getFee(
-            amount: amount,
-            destination: destination,
-            txData: txData,
-            otherNativeFee: otherNativeFee
+            request: EthereumFeeRequestData(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee)
+        )
+        try Task.checkCancellation()
+        return fees
+    }
+
+    private func updateApproveWithSwapFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?, approveInput: ApproveWithSwapInput) async throws -> [BSDKFee] {
+        let fees = try await tokenFeeLoader.asEthereumTokenFeeLoader().getApproveWithSwapFee(
+            request: EthereumFeeRequestData(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee),
+            approveInput: approveInput
         )
         try Task.checkCancellation()
         return fees
@@ -387,6 +439,14 @@ private extension CommonTokenFeeProvider {
 
     func updateFees(compiledTransaction data: Data) async throws -> [BSDKFee] {
         let fees = try await tokenFeeLoader.asSolanaTokenFeeLoader().getFee(compiledTransaction: data)
+        try Task.checkCancellation()
+        return fees
+    }
+
+    // MARK: - Bitcoin
+
+    func updateFees(psbtBase64: String) async throws -> [BSDKFee] {
+        let fees = try await tokenFeeLoader.asBitcoinTokenFeeLoader().getFee(psbtBase64: psbtBase64)
         try Task.checkCancellation()
         return fees
     }

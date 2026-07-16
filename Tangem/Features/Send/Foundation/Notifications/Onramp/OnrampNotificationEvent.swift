@@ -7,9 +7,11 @@
 //
 
 import TangemAssets
+import TangemLocalization
 
 enum OnrampNotificationEvent: Hashable {
     case refreshRequired(title: String, message: String)
+    case tokenNotSupported(tokenName: String)
 }
 
 extension OnrampNotificationEvent: NotificationEvent {
@@ -17,6 +19,8 @@ extension OnrampNotificationEvent: NotificationEvent {
         switch self {
         case .refreshRequired(let title, _):
             return .string(title)
+        case .tokenNotSupported(let tokenName):
+            return .string(Localization.onrampTokenIsNotSupportedBannerTitle(tokenName))
         }
     }
 
@@ -24,6 +28,8 @@ extension OnrampNotificationEvent: NotificationEvent {
         switch self {
         case .refreshRequired(_, let message):
             return message
+        case .tokenNotSupported:
+            return Localization.onrampTokenIsNotSupportedBannerSubtitle
         }
     }
 
@@ -31,12 +37,14 @@ extension OnrampNotificationEvent: NotificationEvent {
         switch self {
         case .refreshRequired:
             return .action
+        case .tokenNotSupported:
+            return .secondary
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .refreshRequired:
+        case .refreshRequired, .tokenNotSupported:
             return .init(iconType: .image(Assets.attention))
         }
     }
@@ -45,6 +53,8 @@ extension OnrampNotificationEvent: NotificationEvent {
         switch self {
         case .refreshRequired:
             return .critical
+        case .tokenNotSupported:
+            return .warning
         }
     }
 
@@ -52,6 +62,8 @@ extension OnrampNotificationEvent: NotificationEvent {
         switch self {
         case .refreshRequired:
             return .init(.refresh, withLoader: true)
+        case .tokenNotSupported:
+            return nil
         }
     }
 

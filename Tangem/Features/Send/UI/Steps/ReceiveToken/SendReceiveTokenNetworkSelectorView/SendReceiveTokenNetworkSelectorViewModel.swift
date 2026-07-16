@@ -16,8 +16,8 @@ protocol SendReceiveTokenNetworkSelectorViewRoutable: AnyObject {
 }
 
 class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
-    @Injected(\.expressPairsRepository)
-    private var expressPairsRepository: ExpressPairsRepository
+    @Injected(\.swapRepository)
+    private var swapRepository: SwapRepository
 
     @Published var notification: NotificationViewInput?
     @Published var state: LoadingResult<[SendReceiveTokenNetworkSelectorNetworkViewData], String> = .loading
@@ -117,7 +117,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
             throw CommonError.objectReleased
         }
 
-        try await expressPairsRepository.updatePairs(
+        try await swapRepository.updatePairs(
             from: sourceToken.tokenItem.expressCurrency,
             to: networks.map(\.expressCurrency),
             userWalletInfo: userWalletInfo
@@ -139,7 +139,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
             throw CommonError.objectReleased
         }
 
-        let pairs = await expressPairsRepository.getPairs(from: sourceToken.tokenItem.expressCurrency)
+        let pairs = await swapRepository.getPairs(from: sourceToken.tokenItem.expressCurrency)
         let availableNetworks = networks.filter { network in
             pairs.contains { $0.destination == network.expressCurrency.asCurrency }
         }

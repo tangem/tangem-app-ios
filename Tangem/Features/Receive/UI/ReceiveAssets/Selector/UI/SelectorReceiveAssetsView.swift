@@ -17,36 +17,37 @@ struct SelectorReceiveAssetsView: View {
     var body: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: Layout.Container.spacingContent)) {
             ForEach(viewModel.sections, id: \.id) { section in
-                switch section.id {
-                case .default:
-                    defaultSectionView(viewModels: section.items)
-                case .domain:
-                    domainSectionView(viewModels: section.items)
-                }
+                sectionView(viewModels: section.items)
             }
 
-            if let notificationInputs = viewModel.notificationInputs.nilIfEmpty {
-                VStack(spacing: Layout.Notification.verticalSpacing) {
-                    ForEach(notificationInputs) { input in
-                        NotificationView(input: input)
-                    }
-                }
-            }
+            notifications
         }
         .padding(.top, Layout.Container.paddingTop)
         .padding(.bottom, Layout.Container.paddingBottom)
         .onAppear(perform: viewModel.onViewAppear)
     }
 
-    private func defaultSectionView(viewModels: [SelectorReceiveAssetsContentItemViewModel]) -> some View {
+    private func sectionView(viewModels: [SelectorReceiveAssetsContentItemViewModel]) -> some View {
         ForEach(viewModels, id: \.id) {
             SelectorReceiveAssetsContentItemView(viewModel: $0)
         }
     }
 
-    private func domainSectionView(viewModels: [SelectorReceiveAssetsContentItemViewModel]) -> some View {
-        ForEach(viewModels, id: \.id) {
-            SelectorReceiveAssetsContentItemView(viewModel: $0)
+    @ViewBuilder
+    private var notifications: some View {
+        if let notificationInputs = viewModel.notificationInputs.nilIfEmpty {
+            VStack(spacing: Layout.Notification.verticalSpacing) {
+                if FeatureProvider.isAvailable(.redesign) {
+                    RedesignedReceiveNotificationsView(inputs: notificationInputs)
+                        // Tops the 12pt scroll gap up to the 14pt dots→banner spacing from Figma.
+                        .padding(.top, 2)
+                } else {
+                    // [REDACTED_INFO]: drop the legacy NotificationView once redesign ships.
+                    ForEach(notificationInputs) { input in
+                        NotificationView(input: input)
+                    }
+                }
+            }
         }
     }
 }

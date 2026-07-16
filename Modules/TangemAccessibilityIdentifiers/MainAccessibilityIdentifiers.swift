@@ -32,6 +32,7 @@ public enum MainAccessibilityIdentifiers {
     public static let searchThroughMarketFieldContainer = "mainSearchThroughMarketFieldContainer"
     public static let searchThroughMarketClearButton = "mainSearchThroughMarketClearButton"
     public static let addToPortfolioButton = "mainAddToPortfolioButton"
+    public static let tokenNotSupportedNotice = "mainTokenNotSupportedNotice"
 
     /// Token-specific identifiers
     public static func tokenBalance(for tokenName: String) -> String {

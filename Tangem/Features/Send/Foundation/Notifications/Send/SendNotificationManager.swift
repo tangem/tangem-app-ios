@@ -122,54 +122,25 @@ private extension CommonSendNotificationManager {
             updateNotification(error: error)
         case .some(BlockchainSdkError.accountNotActivated):
             show(notification: .accountNotActivated(assetName: tokenItem.name))
+        case .some(TokenFeeProviderError.notEnoughBalanceForFee),
+             .some(TokenFeeProviderError.notEnoughGaslessFeeBalance),
+             .some(ETHError.gasRequiredExceedsAllowance):
+            hideAllNotification { $0.isNetworkFeeUnreachable }
         case .some:
             show(notification: .networkFeeUnreachable)
         }
     }
 
     func updateCustomFee(selectedFee: TokenFee, feeValues: [TokenFee]) {
-        switch (selectedFee.option, selectedFee.value) {
-        case (.custom, .success(let customFee)):
-            updateCustomFeeTooLow(
-                customFee: customFee,
-                lowestFee: feeValues.first(where: { $0.option == .slow })?.value.value
-            )
-
-            updateCustomFeeTooHigh(
-                customFee: customFee,
-                highestFee: feeValues.first(where: { $0.option == .fast })?.value.value
-            )
-
-        default:
-            hideAllNotification { event in
-                switch event {
-                case .customFeeTooLow, .customFeeTooHigh:
-                    return true
-                default:
-                    return false
-                }
-            }
-        }
-    }
-
-    func updateCustomFeeTooLow(customFee: Fee, lowestFee: Fee?) {
-        if let lowestFee, customFee.amount.value < lowestFee.amount.value {
-            show(notification: .customFeeTooLow)
-        } else {
+        switch CustomFeeThresholdEvaluator.evaluate(selectedFee: selectedFee, feeValues: feeValues) {
+        case .tooHigh(let orderOfMagnitude):
+            show(notification: .customFeeTooHigh(orderOfMagnitude: orderOfMagnitude))
             hideAllNotification { $0.isCustomFeeTooLow }
-        }
-    }
-
-    func updateCustomFeeTooHigh(customFee: Fee, highestFee: Fee?) {
-        let magnitudeTrigger: Decimal = 5
-
-        if let highestFee, customFee.amount.value > highestFee.amount.value * magnitudeTrigger {
-            let highFeeOrder = customFee.amount.value / highestFee.amount.value
-            let highFeeOrderOfMagnitude = highFeeOrder.intValue(roundingMode: .plain)
-
-            show(notification: .customFeeTooHigh(orderOfMagnitude: highFeeOrderOfMagnitude))
-        } else {
+        case .tooLow:
+            show(notification: .customFeeTooLow)
             hideAllNotification { $0.isCustomFeeTooHigh }
+        case .none:
+            hideAllNotification { $0.isCustomFeeTooLow || $0.isCustomFeeTooHigh }
         }
     }
 
@@ -268,6 +239,13 @@ private extension CommonSendNotificationManager {
         case .some(SuiError.oneSuiCoinIsRequiredForTokenTransaction):
             let currencySymbol = tokenItem.blockchain.currencySymbol
             show(notification: .oneSuiCoinIsRequiredForTokenTransaction(currencySymbol: currencySymbol))
+        case .some(TokenFeeProviderError.notEnoughBalanceForFee),
+             .some(ETHError.gasRequiredExceedsAllowance):
+            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
+            show(notification: .validationErrorEvent(factory.mapToInsufficientBalanceForFeeEvent()))
+        case .some(TokenFeeProviderError.notEnoughGaslessFeeBalance):
+            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
+            show(notification: .validationErrorEvent(factory.mapToInsufficientGaslessFeeEvent()))
         case .some(let error):
             AppLogger.error("Transaction error will not show to user", error: error)
             hideAllValidationErrorEvent()

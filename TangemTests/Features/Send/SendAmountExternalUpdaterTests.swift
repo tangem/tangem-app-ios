@@ -89,11 +89,12 @@ private extension SendAmountExternalUpdaterTests {
         var sourceFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { .just(output: nil) }
         var receiveFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { .just(output: nil) }
         var isValidPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
-        var sourceTokenPublisher: AnyPublisher<LoadingResult<any SendSourceToken, any Error>, Never> { Empty().eraseToAnyPublisher() }
-        var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { Empty().eraseToAnyPublisher() }
-        var receivedTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> { Empty().eraseToAnyPublisher() }
-        var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { Empty().eraseToAnyPublisher() }
+        var sourceTokenPublisher: AnyPublisher<LoadingResult<any SendSourceToken, any Error>, Never> { .empty }
+        var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { .empty }
+        var receivedTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> { .empty }
+        var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { .empty }
         var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { .just(output: nil) }
+        var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> { .just(output: false) }
 
         func update(sourceType: SendAmountCalculationType) throws -> SendAmount? { nil }
         func updateToMaxAmount() throws -> SendAmount { SendAmount(type: .typical(crypto: 0, fiat: 0)) }

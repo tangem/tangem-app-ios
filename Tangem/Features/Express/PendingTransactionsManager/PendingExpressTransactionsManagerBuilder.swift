@@ -16,7 +16,12 @@ struct PendingExpressTransactionsManagerBuilder {
         CommonPendingOnrampTransactionsManager(
             userWalletId: userWalletId,
             tokenItem: tokenItem,
-            expressAPIProvider: expressAPIProvider
+            expressAPIProvider: expressAPIProvider,
+            unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
+                userWalletId: userWalletId,
+                tokenItem: tokenItem,
+                expressAPIProvider: expressAPIProvider
+            )
         )
     }
 }

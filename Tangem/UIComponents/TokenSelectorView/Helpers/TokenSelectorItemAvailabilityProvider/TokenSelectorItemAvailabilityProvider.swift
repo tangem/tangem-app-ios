@@ -31,10 +31,26 @@ extension TokenSelectorItemAvailabilityProvider where Self == TokenSelectorItemS
     static func swap() -> Self { .init() }
 }
 
+extension TokenSelectorItemAvailabilityProvider where Self == TokenSelectorItemAlwaysAvailabilityProvider {
+    static func always() -> Self { .init() }
+}
+
 // MARK: - Constant available
 
 struct AvailableTokenSelectorItemAvailabilityProvider: TokenSelectorItemAvailabilityProvider {
     func availabilityTypePublisher(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) -> AnyPublisher<TokenSelectorItem.AvailabilityType, Never> {
         .just(output: .available)
+    }
+}
+
+final class TokenSelectorItemAlwaysAvailabilityProvider {}
+
+extension TokenSelectorItemAlwaysAvailabilityProvider: TokenSelectorItemAvailabilityProvider {
+    func availabilityTypePublisher(
+        userWalletInfo: UserWalletInfo,
+        walletModel: any WalletModel
+    ) -> AnyPublisher<TokenSelectorItem.AvailabilityType, Never> {
+        Just(TokenSelectorItem.AvailabilityType.available)
+            .eraseToAnyPublisher()
     }
 }

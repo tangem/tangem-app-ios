@@ -17,6 +17,7 @@ public enum NetworkProviderType: Equatable, Hashable, Codable {
     case blink
     case quickNode
     case getBlock
+    case alchemy
     case blockchair
     case blockcypher
     case ton

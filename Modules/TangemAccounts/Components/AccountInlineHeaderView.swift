@@ -16,7 +16,7 @@ public struct AccountInlineHeaderView: View {
 
     private var iconSettings: AccountIconView.Settings = .extraSmallSized
     private var spacing: CGFloat = Constants.spacing
-    private var font: Font = Fonts.Bold.footnote
+    private var fontStyle = TangemFontStyle(font: Fonts.Bold.footnote)
     private var textColor: Color = Colors.Text.primary1
     private var expandsHorizontally: Bool = false
     private var iconGeometryEffect: GeometryEffectPropertiesModel?
@@ -42,7 +42,7 @@ public struct AccountInlineHeaderView: View {
             )
 
             Text(name)
-                .style(font, color: textColor)
+                .style(fontStyle, color: textColor)
                 .matchedGeometryEffect(nameGeometryEffect)
                 .minimumScaleFactor(minimumScaleFactor)
                 .lineLimit(1)
@@ -70,7 +70,11 @@ extension AccountInlineHeaderView: Setupable {
     }
 
     public func font(_ font: Font) -> Self {
-        map { $0.font = font }
+        self.font(TangemFontStyle(font: font))
+    }
+
+    public func font(_ fontStyle: TangemFontStyle) -> Self {
+        map { $0.fontStyle = fontStyle }
     }
 
     public func textColor(_ color: Color) -> Self {
@@ -78,8 +82,12 @@ extension AccountInlineHeaderView: Setupable {
     }
 
     public func nameStyle(_ font: Font, color: Color) -> Self {
+        nameStyle(TangemFontStyle(font: font), color: color)
+    }
+
+    public func nameStyle(_ fontStyle: TangemFontStyle, color: Color) -> Self {
         map {
-            $0.font = font
+            $0.fontStyle = fontStyle
             $0.textColor = color
         }
     }

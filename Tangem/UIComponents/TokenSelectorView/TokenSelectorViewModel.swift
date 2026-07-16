@@ -11,6 +11,7 @@ import Foundation
 import TangemAccounts
 import TangemFoundation
 import TangemMacro
+import TangemUI
 
 final class TokenSelectorViewModel: ObservableObject {
     @Published var searchText: String = ""
@@ -35,7 +36,7 @@ final class TokenSelectorViewModel: ObservableObject {
         collapsibleAccounts: Bool = false,
         tokenSelectorStateStorage: (any TokenSelectorStateStorage)? = nil,
         currentWalletId: UserWalletId? = nil,
-        initialSelectedItem: TokenItem? = nil,
+        initialSelectedItem: WalletTokenItem? = nil,
         initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
         preferredWalletId: UserWalletId? = nil
     ) {
@@ -121,17 +122,19 @@ final class TokenSelectorViewModel: ObservableObject {
             return
         }
 
-        walletChips = wallets.map { WalletChipData(id: $0.walletId.stringValue, name: $0.walletName) }
+        walletChips = wallets.map {
+            WalletChipData(id: $0.walletId.stringValue, name: $0.walletName, thumbnail: $0.walletThumbnail)
+        }
 
         let chipIds = walletChips.map(\.id)
 
         let selectedWalletId: String?
         if let preferredWalletId, chipIds.contains(preferredWalletId.stringValue) {
             selectedWalletId = preferredWalletId.stringValue
-        } else if let stored = tokenSelectorStateStorage?.selectedWalletId?.stringValue, chipIds.contains(stored) {
-            selectedWalletId = stored
         } else if let currentWalletId, chipIds.contains(currentWalletId.stringValue) {
             selectedWalletId = currentWalletId.stringValue
+        } else if let stored = tokenSelectorStateStorage?.selectedWalletId?.stringValue, chipIds.contains(stored) {
+            selectedWalletId = stored
         } else {
             selectedWalletId = walletChips.first?.id
         }
@@ -186,6 +189,7 @@ extension TokenSelectorViewModel {
     struct WalletChipData: Identifiable {
         let id: String
         let name: String
+        let thumbnail: ThumbnailWalletViewType?
     }
 
     struct InitiallyExpandedAccount {
@@ -200,7 +204,7 @@ extension TokenSelectorViewModel {
     static func common(
         walletsProvider: any TokenSelectorWalletsProvider = .common(),
         availabilityProvider: any TokenSelectorItemAvailabilityProvider,
-        initialSelectedItem: TokenItem? = nil,
+        initialSelectedItem: WalletTokenItem? = nil,
         initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
         preferredWalletId: UserWalletId? = nil
     ) -> TokenSelectorViewModel {
@@ -224,7 +228,7 @@ extension TokenSelectorViewModel {
 
     static func swap(
         walletsProvider: any TokenSelectorWalletsProvider = .common(),
-        initialSelectedItem: TokenItem? = nil,
+        initialSelectedItem: WalletTokenItem? = nil,
         initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
         preferredWalletId: UserWalletId? = nil
     ) -> TokenSelectorViewModel {

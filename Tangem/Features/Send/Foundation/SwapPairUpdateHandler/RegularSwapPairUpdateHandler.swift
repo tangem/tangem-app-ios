@@ -13,51 +13,55 @@ import TangemExpress
 /// No estimation on first selection. Always uses float (`.from`) direction.
 final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
     private let expressManager: ExpressManager
-    private let expressPairsRepository: ExpressPairsRepository
+    private let swapRepository: SwapRepository
+    private let analyticsLogger: SwapManagementModelAnalyticsLogger
 
-    init(expressManager: ExpressManager, expressPairsRepository: ExpressPairsRepository) {
+    init(
+        expressManager: ExpressManager,
+        swapRepository: SwapRepository,
+        analyticsLogger: SwapManagementModelAnalyticsLogger
+    ) {
         self.expressManager = expressManager
-        self.expressPairsRepository = expressPairsRepository
+        self.swapRepository = swapRepository
+        self.analyticsLogger = analyticsLogger
     }
 
-    func handlePairChange(
-        pair: ExpressManagerSwappingPair,
-        source: SendSwapableToken,
-        destination: SendReceiveToken,
-        sourceAmount: Decimal?,
-        isFullRefresh: Bool
-    ) async throws -> SwapPairUpdateResult {
-        if FeatureProvider.isAvailable(.swapPipelineV2) {
-            let cachedPairs = await expressPairsRepository.getPairs(from: source.currency)
+    func updatePairLoadingType(source: SendSwapableToken?, destination: SendReceiveToken?) async -> SwapModel.LoadingType? {
+        guard let source, let destination else {
+            return nil
+        }
+
+        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+
+        // No loading for pair with the transfer type
+        if pair.isTransfer {
+            return nil
+        }
+
+        // Always update only providers. Not reload rates
+        return .providers
+    }
+
+    func updatePair(source: SendSwapableToken, destination: SendReceiveToken) async throws -> ExpressManagerState {
+        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+
+        if pair.isTransfer {
+            analyticsLogger.logSwapTransferModeSwitched()
+        }
+
+        if !pair.isTransfer {
+            let cachedPairs = await swapRepository.getPairs(from: source.currency)
             let isPairCached = cachedPairs.contains { $0.destination == destination.currency.asCurrency }
 
             if !isPairCached {
-                try await expressPairsRepository.updatePairs(
-                    for: source.currency,
-                    userWalletInfo: source.userWalletInfo
-                )
+                try await swapRepository.updatePairs(for: source.currency, userWalletInfo: source.userWalletInfo)
             }
         }
 
-        let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+        // In regular swap we clear the cached amount type when the pair changes.
+        // Use try? to ignore errors from previous failed provider loading - new update(pair:) will retry
+        let _ = try? await expressManager.update(amountType: .none)
 
-        guard let sourceAmount else {
-            // No source amount — clear stale receive amount and return pair result
-            return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: .clearReceiveAmount)
-        }
-
-        let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: .from(sourceAmount))
-
-        let amountUpdate: SwapPairUpdateResult.AmountUpdate
-        if let quote = result.selected?.getState().quote {
-            amountUpdate = .setReceiveAmount(
-                crypto: quote.expectAmount,
-                currencyId: destination.tokenItem.currencyId
-            )
-        } else {
-            amountUpdate = .clearReceiveAmount
-        }
-
-        return SwapPairUpdateResult(expressResult: result, amountUpdate: amountUpdate)
+        return try await expressManager.update(pair: pair)
     }
 }

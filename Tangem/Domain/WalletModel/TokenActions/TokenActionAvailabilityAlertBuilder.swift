@@ -122,6 +122,8 @@ struct TokenActionAvailabilityAlertBuilder {
             return AlertBuilder.makeDemoAlert(disabledLocalizedReason)
         case .missingAssetRequirement:
             return .init(title: "", message: Localization.warningReceiveBlockedTokenTrustlineRequiredMessage)
+        case .incompleteBackup(let userWalletInfo):
+            return UserWalletBackupStatusHelper().alert(for: userWalletInfo)
         }
     }
 
@@ -186,6 +188,9 @@ struct TokenActionAvailabilityAlertBuilder {
             default:
                 return nil
             }
+
+        case .incompleteBackup(let userWalletInfo):
+            return UserWalletBackupStatusHelper().alert(for: userWalletInfo)
         }
     }
 }

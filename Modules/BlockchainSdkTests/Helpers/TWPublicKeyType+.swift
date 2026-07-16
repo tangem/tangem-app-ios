@@ -29,6 +29,7 @@ extension PublicKeyType {
              .koinos,
              .filecoin,
              .sei,
+             .gonka,
              .casper,
              .clore,
              .fact0rn,

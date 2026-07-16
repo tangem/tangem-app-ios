@@ -23,6 +23,10 @@ struct NewsItemView: View {
             : Color.Tangem.Text.Neutral.primary
     }
 
+    private var rating: String {
+        "\(viewModel.score) \(AppConstants.dotSign) \(viewModel.relativeTime)"
+    }
+
     var body: some View {
         Button(action: onTap) {
             if FeatureProvider.isAvailable(.redesign) {
@@ -47,21 +51,16 @@ struct NewsItemView: View {
 
     private var redesignRegularContent: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            NewsRatingViewRedesign(rating: viewModel.score, isHighlighted: false)
+            NewsRatingViewRedesign(rating: rating, isHighlighted: false)
 
             FixedSpacer(height: .unit(.x2))
 
             Text(viewModel.title)
-                .style(.Tangem.Body16.regular, color: textColor)
+                .style(Font.Tangem.Body16.regular, color: textColor)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
-            FixedSpacer(height: .unit(.x2))
-
-            Text(viewModel.relativeTime)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
-
-            FixedSpacer(height: .unit(.x2))
+            FixedSpacer(height: .unit(.x8))
 
             InfoChipsRowView(chips: viewModel.chips, alignment: .leading, style: .redesign)
         }
@@ -80,24 +79,19 @@ struct NewsItemView: View {
     private var redesignTrendingContent: some View {
         VStack(alignment: .leading, spacing: .zero) {
             HStack(spacing: .unit(.x2)) {
-                NewsRatingViewRedesign(rating: viewModel.score, isHighlighted: true)
+                NewsRatingViewRedesign(rating: rating, isHighlighted: true)
                 Text(Localization.feedTrendingNow)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
             }
 
             FixedSpacer(height: .unit(.x2))
 
             Text(viewModel.title)
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
-            FixedSpacer(height: .unit(.x2))
-
-            Text(viewModel.relativeTime)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
-
-            FixedSpacer(height: 18.0)
+            FixedSpacer(height: .unit(.x8))
 
             InfoChipsRowView(chips: viewModel.chips, alignment: .leading, style: .redesign)
         }

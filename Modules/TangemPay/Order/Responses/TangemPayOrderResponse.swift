@@ -26,6 +26,13 @@ public extension TangemPayOrderResponse {
         case processing = "PROCESSING"
         case completed = "COMPLETED"
         case canceled = "CANCELED"
+        case failed = "FAILED"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     struct Data: Decodable {

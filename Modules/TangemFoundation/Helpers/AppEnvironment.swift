@@ -16,7 +16,7 @@ public enum AppEnvironment: String {
 }
 
 public extension AppEnvironment {
-    static var current: AppEnvironment {
+    static let current: AppEnvironment = {
         guard let environmentName: String = InfoDictionaryUtils.environmentName.value() else {
             // There is no info.plist SPM modules, so when running unit tests in SPM modules ENVIRONMENT_NAME can't be fetched
             if !isUnitTestInSPMModules {
@@ -36,7 +36,7 @@ public extension AppEnvironment {
         }
 
         return environment
-    }
+    }()
 
     var isDebug: Bool {
         #if DEBUG

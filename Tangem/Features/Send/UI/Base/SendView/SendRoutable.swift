@@ -12,9 +12,10 @@ import TangemExpress
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
-protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, SwapRoutable, SendFeeSelectorRoutable, AnyObject {
+protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, SwapRoutable, SendFeeSelectorRoutable, SendSwapProvidersRoutable, AnyObject {
     func dismiss(reason: SendDismissReason)
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
+    func openSwapSupportSelection(with dataCollector: EmailDataCollector, recipient: String, chatDataCollector: ChatDataCollector)
     func openQRScanner(with codeBinding: Binding<String>, networkName: String)
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
     func openExplorer(url: URL)

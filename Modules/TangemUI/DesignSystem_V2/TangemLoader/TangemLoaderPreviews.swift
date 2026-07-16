@@ -63,18 +63,18 @@ public struct TangemLoaderShowcase: View {
 
         var value: Color {
             switch self {
-            case .primary: DesignSystem.Tokens.Theme.Icon.primary
-            case .secondary: DesignSystem.Tokens.Theme.Icon.secondary
-            case .tertiary: DesignSystem.Tokens.Theme.Icon.tertiary
-            case .brand: DesignSystem.Tokens.Theme.Icon.brand
-            case .inverse: DesignSystem.Tokens.Theme.Icon.inverse
+            case .primary: DesignSystem.Color.iconPrimary
+            case .secondary: DesignSystem.Color.iconSecondary
+            case .tertiary: DesignSystem.Color.iconTertiary
+            case .brand: DesignSystem.Color.iconBrand
+            case .inverse: DesignSystem.Color.iconInverse
             }
         }
 
         var background: Color {
             switch self {
-            case .inverse: DesignSystem.Tokens.Theme.Bg.inverse
-            default: DesignSystem.Tokens.Theme.Bg.primary
+            case .inverse: DesignSystem.Color.bgInverse
+            default: DesignSystem.Color.bgPrimary
             }
         }
     }

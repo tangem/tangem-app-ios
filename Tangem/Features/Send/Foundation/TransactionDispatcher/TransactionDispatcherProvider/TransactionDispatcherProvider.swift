@@ -13,6 +13,7 @@ protocol TransactionDispatcherProvider {
     func makeTransferTransactionDispatcher() -> TransactionDispatcher
     func makeApproveTransactionDispatcher() -> TransactionDispatcher
     func makeDEXTransactionDispatcher() -> TransactionDispatcher
+    func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher
     func makeCEXTransactionDispatcher() -> TransactionDispatcher
     func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher
     func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher

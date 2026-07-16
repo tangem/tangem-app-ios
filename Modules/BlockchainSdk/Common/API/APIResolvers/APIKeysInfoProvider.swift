@@ -68,7 +68,8 @@ struct APIKeysInfoProvider {
                 headerName: Constants.xApiKeyHeaderName,
                 headerValue: keysConfig.tatumApiKey
             )
-        case .public, .blink, .quickNode, .getBlock, .blockchair, .blockcypher, .infura, .adalite, .tangemRosetta, .solana, .kaspa, .dwellir, .mock, .none:
+        case .public, .blink, .quickNode, .getBlock, .blockchair, .blockcypher, .infura,
+             .adalite, .tangemRosetta, .solana, .kaspa, .dwellir, .mock, .alchemy, .none:
             return nil
         }
     }

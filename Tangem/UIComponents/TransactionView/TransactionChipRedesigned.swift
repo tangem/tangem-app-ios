@@ -29,8 +29,8 @@ struct TransactionChipRedesigned: View {
             titleView
 
             if viewModel.amount.value.isNotEmpty {
-                Text(amountWithCurrency)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                SensitiveText(builder: amountWithCurrency, sensitive: viewModel.amount.value)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
             }
 
@@ -50,14 +50,14 @@ struct TransactionChipRedesigned: View {
 
     private var titleView: some View {
         Text(display.title)
-            .style(.Tangem.Caption12.semibold, color: titleColor)
+            .style(Font.Tangem.Caption12.semibold, color: titleColor)
             .lineLimit(1)
     }
 
-    private var amountWithCurrency: String {
+    private func amountWithCurrency(_ value: String) -> String {
         viewModel.amount.currencyCode.isEmpty
-            ? viewModel.amount.value
-            : viewModel.amount.value + " " + viewModel.amount.currencyCode
+            ? value
+            : value + " " + viewModel.amount.currencyCode
     }
 
     @ViewBuilder

@@ -66,6 +66,7 @@ enum SendAddressServiceError {
     case emptyAddress
     case sameAsWalletAddress
     case invalidAddress
+    case additionalFieldRequired
 }
 
 extension SendAddressServiceError: LocalizedError {
@@ -77,6 +78,8 @@ extension SendAddressServiceError: LocalizedError {
             return Localization.sendErrorAddressSameAsWallet
         case .invalidAddress:
             return Localization.sendRecipientAddressError
+        case .additionalFieldRequired:
+            return Localization.sendValidationDestinationTagRequiredDescription
         }
     }
 }

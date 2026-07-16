@@ -8,6 +8,7 @@
 
 import TangemUI
 import TangemAccessibilityIdentifiers
+import TangemLocalization
 
 extension TokenItemViewModel {
     var tokenRowViewData: TangemTokenRowViewData {
@@ -44,7 +45,7 @@ private extension TokenItemViewModel {
         case .rewards(let info):
             .rewards(
                 TangemTokenRowViewData.RewardsInfo(
-                    value: info.rewardValue,
+                    value: rewardString(info: info),
                     isActive: info.isActive,
                     isUpdating: info.isUpdating
                 )
@@ -61,7 +62,7 @@ private extension TokenItemViewModel {
         }
 
         if isBalanceLoading {
-            return .loading(cached: cachedContent)
+            return .loading(cached: cachedContent, priceInfo: priceInfo)
         }
 
         return .loaded(loadedContent)
@@ -76,16 +77,14 @@ private extension TokenItemViewModel {
     var cachedContent: TangemTokenRowViewData.CachedContent? {
         let fiat = cachedString(from: balanceFiat)
         let crypto = cachedString(from: balanceCrypto)
-        let price = cachedPrice(from: tokenPrice)
 
-        if fiat == nil, crypto == nil, price == nil {
+        if fiat == nil, crypto == nil {
             return nil
         }
 
         return TangemTokenRowViewData.CachedContent(
             fiatBalance: fiat,
-            cryptoBalance: crypto,
-            price: price
+            cryptoBalance: crypto
         )
     }
 
@@ -97,6 +96,14 @@ private extension TokenItemViewModel {
             ),
             priceInfo: priceInfo
         )
+    }
+
+    func rewardString(info: RewardsInfo) -> String {
+        let rewardType = switch info.type {
+        case .apr: Localization.stakingDetailsApr
+        case .apy: Localization.stakingDetailsApy
+        }
+        return "\(rewardType) \(info.rewardValue)"
     }
 
     func makeBalanceValue(from state: LoadableBalanceView.State) -> TangemTokenRowViewData.BalanceValue {
@@ -121,22 +128,8 @@ private extension TokenItemViewModel {
         }
     }
 
-    func cachedPrice(from state: LoadableTextView.State) -> String? {
-        guard case .loaded(let text) = state else { return nil }
-        return text
-    }
-
-    var priceInfo: TangemTokenRowViewData.PriceInfo? {
-        guard case .loaded(let priceText) = tokenPrice else {
-            return nil
-        }
-
-        var change: TangemTokenRowViewData.PriceChange?
-        if case .loaded(let changeType, let text) = priceChangeState {
-            change = TangemTokenRowViewData.PriceChange(type: changeType, text: text)
-        }
-
-        return TangemTokenRowViewData.PriceInfo(price: priceText, change: change)
+    var priceInfo: TangemTokenRowViewData.PriceInfo {
+        TangemTokenRowViewData.PriceInfo(price: tokenPrice, change: priceChangeState)
     }
 }
 

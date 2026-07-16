@@ -18,6 +18,16 @@ struct YieldAPYBoostBannerNotificationEvent: NotificationEvent, Hashable {
     var id: NotificationViewId { "yieldApyBoostPromo".hashValue }
 
     var title: NotificationView.Title? {
+        if FeatureProvider.isAvailable(.redesign) {
+            var redesignTitle = AttributedString(
+                Localization.yieldApyBoostBannerTitle
+                    + " " + AppConstants.dotSign + " "
+                    + Localization.yieldApyBoostBannerTitleApyMultiplied
+            )
+            redesignTitle.setFontStyle(Font.Tangem.Body15.semibold)
+            return .attributed(redesignTitle)
+        }
+
         var title = AttributedString(Localization.yieldApyBoostBannerTitle + " ")
         title.foregroundColor = Colors.Text.primary1
         title.font = Fonts.Bold.footnote
@@ -36,12 +46,22 @@ struct YieldAPYBoostBannerNotificationEvent: NotificationEvent, Hashable {
     var description: String? { Localization.yieldApyBoostBannerSubtitle }
 
     var icon: NotificationView.MessageIcon {
-        .init(iconType: .image(Assets.YieldModule.yieldMode))
+        if FeatureProvider.isAvailable(.redesign) {
+            return .init(
+                iconType: .image(Assets.YieldModule.yieldMode),
+                renderingMode: .template,
+                size: .init(bothDimensions: 36)
+            )
+        }
+
+        return .init(iconType: .image(Assets.YieldModule.yieldMode))
     }
 
     var colorScheme: NotificationView.ColorScheme { .primary }
     var severity: NotificationView.Severity { .info }
     var isDismissable: Bool { true }
+
+    var bannerKind: NotificationBannerKind? { .promo(.magic) }
 
     var buttonAction: NotificationButtonAction? {
         .init(.openYieldBoostPromo(buttonTitle: Localization.yieldApyBoostBannerButtonTitle))

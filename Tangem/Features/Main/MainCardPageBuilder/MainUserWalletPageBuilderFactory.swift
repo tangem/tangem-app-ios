@@ -37,7 +37,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         NFTEntrypointRoutable &
         TokensManagementFlowRoutable
 
-    @Injected(\.walletTokenSyncProgressProvider) private var walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
+    @Injected(\.walletAssetsDiscoveryProgressProvider) private var walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
 
     weak var coordinator: MainContentRoutable?
 
@@ -60,7 +60,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let balanceProvider = providerFactory.makeHeaderBalanceProvider(for: model)
         let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
 
-        let navigationBalanceProvider = CommonMainNavigationBalanceProvider(
+        let navigationBalanceProvider = MainNavigationBalanceProvider(
             isUserWalletLocked: model.isUserWalletLocked,
             totalBalanceProvider: model
         )
@@ -73,7 +73,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             supplementInfoProvider: model,
             subtitleProvider: subtitleProvider,
             balanceProvider: balanceProvider,
-            walletTokenSyncProgressProvider: walletTokenSyncProgressProvider,
+            walletAssetsDiscoveryProgressProvider: walletAssetsDiscoveryProgressProvider,
             updatePublisher: model.updatePublisher
         )
 
@@ -229,7 +229,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         multiWalletContentDelegate: MultiWalletMainContentDelegate?,
         nftLifecycleHandler: NFTFeatureLifecycleHandling
     ) -> [MainUserWalletPageBuilder] {
-        return models.compactMap {
+        models.map {
             createPage(
                 for: $0,
                 lockedUserWalletDelegate: lockedUserWalletDelegate,
@@ -246,7 +246,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let subtitleProvider = VisaWalletMainHeaderSubtitleProvider(isUserWalletLocked: isUserWalletLocked, dataSource: visaUserWalletModel)
 
-        let navigationBalanceProvider = CommonMainNavigationBalanceProvider(
+        let navigationBalanceProvider = MainNavigationBalanceProvider(
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
             totalBalanceProvider: visaUserWalletModel
         )
@@ -259,7 +259,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             supplementInfoProvider: visaUserWalletModel,
             subtitleProvider: subtitleProvider,
             balanceProvider: visaUserWalletModel,
-            walletTokenSyncProgressProvider: walletTokenSyncProgressProvider,
+            walletAssetsDiscoveryProgressProvider: walletAssetsDiscoveryProgressProvider,
             updatePublisher: visaUserWalletModel.updatePublisher
         )
 

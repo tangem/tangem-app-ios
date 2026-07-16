@@ -166,6 +166,12 @@ public extension AccountIconView {
             letterFontStyle: Fonts.Bold.largeTitle
         )
 
+        public static let redesignDefaultSized: Self = .init(
+            padding: 8,
+            size: CGSize(bothDimensions: 24),
+            letterFontStyle: Fonts.Bold.title2
+        )
+
         public static let defaultSized: Self = .init(
             padding: 8,
             size: CGSize(bothDimensions: 20),

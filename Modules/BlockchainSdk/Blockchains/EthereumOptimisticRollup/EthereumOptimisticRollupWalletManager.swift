@@ -48,11 +48,16 @@ final class EthereumOptimisticRollupWalletManager: EthereumWalletManager {
     /// This L1 fee calculated the Optimism smart-contract oracle.
     /// This L1 fee have to used ONLY for showing to a user.
     /// When we're building transaction we have to used `gasLimit`, `gasPrice` or `baseFee` ONLY from `L2`
-    override func getFee(destination: String, value: String?, data: Data?) -> AnyPublisher<[Fee], Error> {
+    override func getFee(
+        destination: String,
+        value: String?,
+        data: Data?,
+        stateOverride: EthereumStateOverride? = nil
+    ) -> AnyPublisher<[Fee], Error> {
         do {
             let destination = try addressConverter.convertToETHAddress(destination)
 
-            return super.getFee(destination: destination, value: value, data: data)
+            return super.getFee(destination: destination, value: value, data: data, stateOverride: stateOverride)
                 .withWeakCaptureOf(self)
                 .flatMap { walletManager, layer2Fees -> AnyPublisher<([Fee], Decimal), Error> in
                     // We use EthereumFeeParameters without increase
