@@ -13,7 +13,7 @@ protocol ReceiveTokenWithdrawNoticeInteractor {
     func markWithdrawalAlertShown(for tokenItem: TokenItem)
 }
 
-class GeneralReceiveTokenWithdrawNoticeInteractor: ReceiveTokenWithdrawNoticeInteractor {
+final class GeneralReceiveTokenWithdrawNoticeInteractor: ReceiveTokenWithdrawNoticeInteractor {
     // MARK: - Services
 
     @AppStorageCompat(StorageKeys.shownWithdrawalAlerts)

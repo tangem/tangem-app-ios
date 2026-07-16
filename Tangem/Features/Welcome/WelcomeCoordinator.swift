@@ -20,6 +20,7 @@ final class WelcomeCoordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+    @Injected(\.mobileWalletPromoService) private var mobileWalletPromoService: MobileWalletPromoService
 
     private var mailPresenterLifecycleSubject = PassthroughSubject<Bool, Never>()
 
@@ -54,6 +55,10 @@ final class WelcomeCoordinator: CoordinatorObject {
     private var tangemPayMobileOnboardingObserver: AnyCancellable?
     private var needsToShowTangemPayMobileOnboarding = false
 
+    /// When the user carries a referral signal, the intro stories are skipped in favour of the
+    /// alternative wallet creation screen. We can't open it until any startup onboarding is dismissed.
+    private var shouldSkipStories = false
+
     required init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -64,11 +69,16 @@ final class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        let storiesModel = StoriesViewModel()
-        let welcomeViewModel = WelcomeViewModel(coordinator: self, storiesModel: storiesModel)
-        storiesModel.setDelegate(delegate: welcomeViewModel)
-        storiesModel.setLifecyclePublisher(publisher: lifecyclePublisher)
-        rootViewModel = welcomeViewModel
+        shouldSkipStories = FeatureProvider.isAvailable(.hideStoriesInMobileWallet)
+            && mobileWalletPromoService.shouldShowMobilePromoWalletSelector
+
+        if !shouldSkipStories {
+            let storiesModel = StoriesViewModel()
+            let welcomeViewModel = WelcomeViewModel(coordinator: self, storiesModel: storiesModel)
+            storiesModel.setDelegate(delegate: welcomeViewModel)
+            storiesModel.setLifecyclePublisher(publisher: lifecyclePublisher)
+            rootViewModel = welcomeViewModel
+        }
 
         if let onboarding = WelcomeOnboardingsHelper().getStartupOnboarding() {
             switch onboarding {
@@ -77,6 +87,8 @@ final class WelcomeCoordinator: CoordinatorObject {
             case .tangemPayMobile:
                 showTangemPayMobileOnboarding()
             }
+        } else if shouldSkipStories {
+            openCreateWallet(showsBackButton: false)
         }
 
         bindTangemPayMobileOnboarding()
@@ -110,6 +122,7 @@ final class WelcomeCoordinator: CoordinatorObject {
 
         let dismissAction: Action<WelcomeOnboardingCoordinator.OutputOptions> = { [weak self] _ in
             guard let self else { return }
+
             withAnimation(.easeIn) {
                 self.welcomeOnboardingCoordinator = nil
             }
@@ -117,6 +130,8 @@ final class WelcomeCoordinator: CoordinatorObject {
             if needsToShowTangemPayMobileOnboarding {
                 needsToShowTangemPayMobileOnboarding = false
                 showTangemPayMobileOnboarding()
+            } else if shouldSkipStories, createWalletSelectorCoordinator == nil {
+                openCreateWallet(showsBackButton: false)
             }
         }
 
@@ -137,6 +152,22 @@ final class WelcomeCoordinator: CoordinatorObject {
         let coordinator = TangemPayMobileOnboardingCoordinator(dismissAction: dismissAction)
         coordinator.start(with: ())
         tangemPayMobileOnboardingCoordinator = coordinator
+    }
+
+    private func openCreateWallet(showsBackButton: Bool) {
+        let dismissAction: Action<CreateWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main(let model):
+                self?.openMain(with: model)
+            case .dismiss:
+                self?.createWalletSelectorCoordinator = nil
+            }
+        }
+
+        let coordinator = CreateWalletSelectorCoordinator(dismissAction: dismissAction)
+        let inputOptions = CreateWalletSelectorCoordinator.InputOptions(showsBackButton: showsBackButton)
+        coordinator.start(with: inputOptions)
+        createWalletSelectorCoordinator = coordinator
     }
 }
 
@@ -159,19 +190,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
 
     func openCreateWallet() {
-        let dismissAction: Action<CreateWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
-            switch options {
-            case .main(let model):
-                self?.openMain(with: model)
-            case .dismiss:
-                self?.createWalletSelectorCoordinator = nil
-            }
-        }
-
-        let coordinator = CreateWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = CreateWalletSelectorCoordinator.InputOptions()
-        coordinator.start(with: inputOptions)
-        createWalletSelectorCoordinator = coordinator
+        openCreateWallet(showsBackButton: true)
     }
 
     func openMain(with userWalletModel: UserWalletModel) {

@@ -38,7 +38,7 @@ struct GetTangemPayBannerNotificationEvent: NotificationEvent, Hashable {
     }
 
     var isDismissable: Bool {
-        true
+        false
     }
 
     var buttonAction: NotificationButtonAction? {
@@ -46,7 +46,7 @@ struct GetTangemPayBannerNotificationEvent: NotificationEvent, Hashable {
     }
 
     var bannerKind: NotificationBannerKind? {
-        .promo(.card)
+        .status
     }
 
     var analyticsEvent: Analytics.Event? { .visaOnboardingPermanentBannerShowed }
