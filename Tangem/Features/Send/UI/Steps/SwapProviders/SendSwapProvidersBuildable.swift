@@ -13,11 +13,12 @@ protocol SendSwapProvidersBuildable {
 }
 
 extension SendSwapProvidersBuildable {
-    func makeSwapProviders() -> SendSwapProvidersBuilder.ReturnValue {
+    func makeSwapProviders(router: SendSwapProvidersRoutable) -> SendSwapProvidersBuilder.ReturnValue {
         SendSwapProvidersBuilder.make(
             io: swapProvidersIO,
             types: swapProvidersTypes,
-            dependencies: swapProvidersDependencies
+            dependencies: swapProvidersDependencies,
+            router: router
         )
     }
 }
@@ -26,6 +27,8 @@ enum SendSwapProvidersBuilder {
     struct IO {
         let input: SendSwapProvidersInput
         let output: SendSwapProvidersOutput
+        let approveInput: SwapApproveInput
+        let approveOutput: SwapApproveOutput
         let sourceTokenInput: SendSourceTokenInput
         let receiveTokenInput: SendReceiveTokenInput
         let receiveTokenAmountInput: SendReceiveTokenAmountInput?
@@ -43,10 +46,13 @@ enum SendSwapProvidersBuilder {
 
     typealias ReturnValue = (selector: SendSwapProvidersSelectorViewModel, compact: SwapSummaryProviderViewModel)
 
-    static func make(io: IO, types: Types, dependencies: Dependencies) -> ReturnValue {
+    static func make(io: IO, types: Types, dependencies: Dependencies, router: SendSwapProvidersRoutable) -> ReturnValue {
         let providersSelector = SendSwapProvidersSelectorViewModel(
             input: io.input,
             output: io.output,
+            router: router,
+            approveInput: io.approveInput,
+            approveOutput: io.approveOutput,
             receiveTokenInput: io.receiveTokenInput,
             receiveTokenAmountInput: io.receiveTokenAmountInput,
             tokenItem: types.tokenItem,

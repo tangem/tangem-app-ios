@@ -33,4 +33,7 @@ extension LogSanitizerPolicy {
             .broadHex,
         ]
     )
+
+    /// No-op policy used by non-production builds, where the full, unredacted log is desired for debugging.
+    static let disabled = LogSanitizerPolicy(preserveRules: [], redactRules: [])
 }

@@ -35,6 +35,10 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .noAccount:
             return .warning
+        case .staking, .manaLevel, .maticMigration, .cloreMigration, .existentialDepositWarning:
+            return .status
+        case .rentFee:
+            return .informational()
         default:
             return nil
         }

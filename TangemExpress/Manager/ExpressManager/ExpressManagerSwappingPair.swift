@@ -12,6 +12,8 @@ public struct ExpressManagerSwappingPair {
     public let source: any ExpressSourceWallet
     public let destination: any ExpressDestinationWallet
 
+    public var isTransfer: Bool { source.currency == destination.currency }
+
     public init(source: any ExpressSourceWallet, destination: any ExpressDestinationWallet) {
         self.source = source
         self.destination = destination

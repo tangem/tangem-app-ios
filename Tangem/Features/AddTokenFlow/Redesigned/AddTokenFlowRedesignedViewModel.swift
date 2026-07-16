@@ -36,11 +36,22 @@ final class AddTokenFlowRedesignedViewModel: ObservableObject, FloatingSheetCont
     init?(
         tokenItem: TokenItem,
         userWalletModels: [any UserWalletModel],
+        preferredWalletId: UserWalletId? = nil,
         configuration: AddTokenFlowConfiguration,
         coordinator: AddTokenFlowRedesignedRoutable?
     ) {
         let oneAndOnly = OneAndOnlyAccountFinder.find(in: userWalletModels)
-        let firstEligible = AddTokenEligibleAccountsResolver.resolveAll(in: userWalletModels).first.map {
+        let eligibleAccounts = AddTokenEligibleAccountsResolver.resolveAll(in: userWalletModels)
+
+        let eligibleAccount: AddTokenEligibleAccountsResolver.EligibleAccount? = if let preferredWalletId {
+            eligibleAccounts.first(where: { userWalletModel, cryptoAccountModel in
+                userWalletModel.userWalletId == preferredWalletId
+            })
+        } else {
+            eligibleAccounts.first
+        }
+
+        let firstEligible = eligibleAccount.map {
             AccountSelectorCellModel.wallet(
                 AccountSelectorWalletItem(userWallet: $0.userWallet, cryptoAccountModel: $0.cryptoAccount, isLocked: false)
             )
@@ -221,7 +232,7 @@ private extension AddTokenFlowRedesignedViewModel {
             case .executeAction(let action):
                 action(addedToken, accountSelectorCell)
             case .showGetToken:
-                coordinator?.close()
+                coordinator?.addTokenFlowShowGetToken(for: addedToken, accountSelectorCell: accountSelectorCell)
             }
 
         case .failure(let error):
@@ -308,6 +319,24 @@ extension AddTokenFlowRedesignedViewModel {
             case .confirm: return "confirm"
             case .networkPicker: return "networkPicker"
             case .accountPicker: return "accountPicker"
+            }
+        }
+
+        var canBeClosed: Bool {
+            switch self {
+            case .confirm, .accountPicker:
+                return true
+            case .networkPicker:
+                return false
+            }
+        }
+
+        var canGoBack: Bool {
+            switch self {
+            case .confirm, .accountPicker:
+                return false
+            case .networkPicker:
+                return true
             }
         }
 

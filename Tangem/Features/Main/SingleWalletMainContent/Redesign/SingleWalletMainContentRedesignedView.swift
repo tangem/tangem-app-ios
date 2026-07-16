@@ -15,7 +15,7 @@ struct SingleWalletMainContentRedesignedView: View {
     @ObservedObject var viewModel: SingleWalletMainContentViewModel
 
     var body: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: .unit(.x3)) {
             if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
                 WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
             }
@@ -61,7 +61,7 @@ struct SingleWalletMainContentRedesignedView: View {
 private extension SingleWalletMainContentRedesignedView {
     enum Constants {
         static let cornerRadius: CGFloat = .unit(.x5)
-        static let tokenListBackgroundColor = Color.Tangem.Surface.level2
+        static let tokenListBackgroundColor = Color.Tangem.Surface.level3
     }
 }
 

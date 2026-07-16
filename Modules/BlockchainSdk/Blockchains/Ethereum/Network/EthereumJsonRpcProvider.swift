@@ -55,8 +55,17 @@ final class EthereumJsonRpcProvider: HostProvider {
         requestPublisher(for: .send(transaction: transaction))
     }
 
-    func getGasLimit(to: String, from: String, value: String?, data: String?) -> AnyPublisher<String, Error> {
-        requestPublisher(for: .gasLimit(params: .init(to: to, from: from, value: value, data: data)))
+    func getGasLimit(
+        to: String,
+        from: String,
+        value: String?,
+        data: String?,
+        stateOverride: EthereumStateOverride? = nil
+    ) -> AnyPublisher<String, Error> {
+        return requestPublisher(for: .gasLimit(
+            params: .init(to: to, from: from, value: value, data: data),
+            stateOverride: stateOverride
+        ))
     }
 
     func getGasPrice() -> AnyPublisher<String, Error> {

@@ -96,6 +96,8 @@ extension Analytics {
         case buttonSell = "[Token] Button - Sell"
         case buttonExchange = "[Token] Button - Exchange"
         case buttonSend = "[Token] Button - Send"
+        case tokenButtonAddFunds = "[Token] Button - Add Funds"
+        case tokenButtonTransfer = "[Token] Button - Transfer"
         case buttonReceive = "[Token] Button - Receive"
         case buttonUnderstand = "[Token] Button - Understand"
         case tokenBought = "[Token] Token Bought"
@@ -300,6 +302,14 @@ extension Analytics {
         case walletConnectTransactionSolanaLargeStatus = "[Wallet Connect] Solana Large Transaction Status"
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
+
+        // MARK: - Support chat
+
+        case settingsButtonOpenChat = "[Settings] Button - Open Chat"
+        case supportChatScreenOpened = "[Support] Chat Screen Opened"
+        case supportChatScreenError = "[Support] Chat Screen Error"
+        case supportChatScreenClosed = "[Support] Chat Screen Closed"
+
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
         case settingsLongtapWalletsOrder = "[Settings] Longtap - Wallets Order"
 
@@ -329,14 +339,15 @@ extension Analytics {
         case swapButtonSwipe = "[Swap] Button - Swipe"
         case swapButtonPermissionLearnMore = "[Swap] Button - Permission Learn More"
         case swapSwapInProgressScreenOpened = "[Swap] Swap in Progress Screen Opened"
+        case swapGasEstimationOverrideError = "[Swap] Gas Estimation Override Error"
 
         case swapProviderClicked = "[Swap] Provider Clicked"
         case swapProviderChosen = "[Swap] Provider Chosen"
         case swapButtonStatus = "[Swap] Button - Status"
         case swapButtonExplore = "[Swap] Button - Explore"
-        case swapNoticeNoAvailableTokensToSwap = "[Swap] Notice - No Available Tokens To Swap"
         case swapNoticeExchangeRateHasExpired = "[Swap] Notice - Exchange Rate Has Expired"
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
+        case swapNoticeNotEnoughFunds = "[Swap] Notice - Not Enough Funds"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
         case swapNoticeHighPriceImpact = "[Swap] Notice - High Price Impact"
@@ -352,10 +363,15 @@ extension Analytics {
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
+        case swapFilterProvider = "[Swap] Filter provider"
         case swapFastAmountInput = "[Swap] Fast amount input"
 
         case swapTypeReselection = "[Swap] Swap type re-selection"
         case swapTypeSimpleDetailed = "[Swap] Swap type simple/detailed"
+
+        case swapTransferModeSwitched = "[Swap] Transfer Mode Switched"
+        case swapButtonTransfer = "[Swap] Button - Transfer"
+        case swapTransferInProgressScreenOpened = "[Swap] Transfer in Progress Screen Opened"
 
         // MARK: - Seed phrase
 
@@ -468,6 +484,12 @@ extension Analytics {
         case pushNotificationOpened = "[Push] Push Notification Opened"
         case pushNotificationScreenOpened = "[Push] Push Notification Screen Opened"
         case pushToggleClicked = "[Push] Push Toggle Clicked"
+        case notificationSettingsScreenOpened = "[Push] Notification Settings Screen Opened"
+        case pushNotificationSettingsToggleClicked = "[Push] Toggle Clicked"
+        case pushBannerOpenSettingsTapped = "[Push] Banner - Open Settings Tapped"
+        case warningScreenShown = "[Warning Screen] Shown"
+        case warningScreenEnableTapped = "[Warning Screen] Enable Tapped"
+        case warningScreenSkipTapped = "[Warning Screen] Skip Tapped"
 
         // MARK: - Staking
 
@@ -548,6 +570,7 @@ extension Analytics {
         case marketsChartButtonBuy = "[Markets / Chart] Button - Buy"
         case marketsChartButtonReceive = "[Markets / Chart] Button - Receive"
         case marketsChartButtonSwap = "[Markets / Chart] Button - Swap"
+        case marketsChartButtonAddFunds = "[Markets / Chart] Button - Add Funds"
         case marketsChartButtonStake = "[Markets / Chart] Button - Stake"
         case marketsChartButtonShare = "[Markets / Chart] Button - Share"
         case marketsChartButtonYieldMode = "[Markets/Charts] Button - Yield Mode"
@@ -612,6 +635,7 @@ extension Analytics {
         case onrampAppErrors = "[Onramp] App Errors"
         case onrampBuyingInProgressScreenOpened = "[Onramp] Buying In Progress Screen Opened"
         case onrampNoticeKYC = "[Onramp] Notice - KYC"
+        case onrampNoticeBuyNotSupported = "[Onramp] Notice - Buy Not Supported"
         case onrampOnrampStatusOpened = "[Onramp] Onramp Status Opened"
         case onrampButtonGoToProvider = "[Onramp] Button - Go To Provider"
         case onrampOnrampStatus = "[Onramp] Onramp Status"
@@ -629,6 +653,7 @@ extension Analytics {
 
         case actionButtonsBuyButton = "[Main Screen] Button - Buy"
         case mainScreenButtonAddFunds = "[Main Screen] Button - Add Funds"
+        case mainScreenButtonTransfer = "[Main Screen] Button - Transfer"
         case actionButtonsSellButton = "[Main Screen] Button - Sell"
         case actionButtonsSwapButton = "[Main Screen] Button - Swap"
         case actionButtonsSwapScreenOpened = "[Main Screen] Swap Screen Opened"
@@ -650,6 +675,14 @@ extension Analytics {
         case addFundsButtonSwap = "[Add Funds] Button - Swap"
         case addFundsButtonReceive = "[Add Funds] Button - Receive"
         case addFundsButtonGoToToken = "[Add Funds] Button - Go to Token"
+
+        // MARK: - Transfer
+
+        case transferMethodScreenOpened = "[Transfer] Method Screen Opened"
+        case transferButtonSell = "[Transfer] Button - Sell"
+        case transferButtonSwap = "[Transfer] Button - Swap"
+        case transferButtonSwapAndSend = "[Transfer] Button - Swap&Send"
+        case transferButtonSend = "[Transfer] Button - Send"
 
         // MARK: - Stories
 
@@ -695,6 +728,7 @@ extension Analytics {
         // Tangem Pay (Visa 2.0)
 
         case visaOnboardingVisaActivationScreenOpened = "[Visa Onboarding] Visa Activation Screen Opened"
+        case visaOnboardingVisaNewOnboardingPageOpened = "[Visa Onboarding] Visa New Onboarding Page Opened"
         case visaOnboardingButtonVisaViewTerms = "[Visa Onboarding] Button - Visa View Terms"
         case visaOnboardingButtonVisaGetCard = "[Visa Onboarding] Button - Visa Get Card"
         case visaOnboardingVisaKYCFlowOpened = "[Visa Onboarding] Visa KYC Flow Opened"
@@ -747,6 +781,8 @@ extension Analytics {
         case visaScreenDailyLimitChangeClicked = "[Visa Card Management] Visa Daily Limit Change Clicked"
         case visaScreenLimitManagementScreenOpened = "[Visa Card Management] Visa Limit Management Screen Opened"
         case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
+        case visaScreenExtraCardIssuancePopupDisplayed = "[Visa Card Management] Visa Extra Card Issuance Popup Displayed"
+        case visaScreenExtraCardIssuanceConfirmed = "[Visa Card Management] Visa Extra Card Issuance Confirmed"
 
         case visaCardIconClicked = "[Visa Card Management] Visa Card Icon Clicked"
         case visaAddExtraCardClicked = "[Visa Card Management] Visa Add Extra Card Clicked"
