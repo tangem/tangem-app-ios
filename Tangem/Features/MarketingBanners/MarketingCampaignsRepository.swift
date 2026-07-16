@@ -43,19 +43,19 @@ extension MarketingCampaignsRepository {
 
 extension MarketingCampaignsRepository {
     func bannersPublisher(for tokenItem: TokenItem, kind: Kind) -> AnyPublisher<MarketingBanners, Never> {
-        campaignsSubject
-            .map { campaignsByKind in
+        Publishers.CombineLatest(campaignsSubject, HiddenMarketingCampaignsStorage.hiddenCampaignIdsPublisher)
+            .map { campaignsByKind, hiddenCampaignIds in
                 let eligible = (campaignsByKind[kind] ?? []).filter { Self.appliesTo($0, tokenItem: tokenItem) }
-                return MarketingBannerMapper.banners(from: eligible)
+                return MarketingBannerMapper.banners(from: eligible).removing(hiddenCampaignIds: hiddenCampaignIds)
             }
             .eraseToAnyPublisher()
     }
 
     func bannersPublisher(forMarketsTokenId id: String) -> AnyPublisher<MarketingBanners, Never> {
-        campaignsSubject
-            .map { campaignsByKind in
+        Publishers.CombineLatest(campaignsSubject, HiddenMarketingCampaignsStorage.hiddenCampaignIdsPublisher)
+            .map { campaignsByKind, hiddenCampaignIds in
                 let eligible = (campaignsByKind[.marketsToken] ?? []).filter { Self.appliesTo($0, coingeckoId: id) }
-                return MarketingBannerMapper.banners(from: eligible)
+                return MarketingBannerMapper.banners(from: eligible).removing(hiddenCampaignIds: hiddenCampaignIds)
             }
             .eraseToAnyPublisher()
     }
