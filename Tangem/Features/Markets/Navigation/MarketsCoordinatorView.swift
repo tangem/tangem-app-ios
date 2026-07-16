@@ -83,8 +83,8 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.portfolioTokenDetailsCoordinator) {
                 TokenDetailsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.forYouViewModel) { _ in
-                ForYouView(onBackButtonAction: { coordinator.forYouViewModel = nil })
+            .navigation(item: $coordinator.forYouViewModel) { viewModel in
+                ForYouView(viewModel: viewModel, onBackButtonAction: { coordinator.forYouViewModel = nil })
             }
     }
 
