@@ -40,7 +40,7 @@ enum SwapSummaryStepBuilder {
 
     struct Dependencies {
         let notificationManager: any NotificationManager
-        let marketingNotificationManager: SwapMarketingBannerNotificationManager
+        let marketingBannerManager: SwapMarketingBannerManager
         let autoupdatingTimer: AutoupdatingTimer
         let analyticsLogger: any SendSummaryAnalyticsLogger
         let swapDescriptionBuilder: any SwapTransactionSummaryDescriptionBuilder
@@ -67,7 +67,7 @@ enum SwapSummaryStepBuilder {
         let viewModel = SwapSummaryViewModel(
             interactor: interactor,
             notificationManager: dependencies.notificationManager,
-            marketingNotificationManager: dependencies.marketingNotificationManager,
+            marketingBannerManager: dependencies.marketingBannerManager,
             analyticsLogger: dependencies.analyticsLogger,
             swapAmountViewModel: swapAmountViewModel,
             swapSummaryProviderViewModel: swapSummaryProviderViewModel,
