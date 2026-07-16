@@ -122,7 +122,7 @@ private extension TangemPayTransactionDetailsView {
                 redesignedIcon(model.icon)
 
                 VStack(spacing: 8) {
-                    Text(model.amount)
+                    SensitiveText(model.amount)
                         .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsAmount)
