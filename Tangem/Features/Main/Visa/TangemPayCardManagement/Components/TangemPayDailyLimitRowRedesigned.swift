@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayDailyLimitRowRedesigned: View {
     let state: TangemPayDailyLimitState
@@ -60,6 +61,7 @@ struct TangemPayDailyLimitRowRedesigned: View {
             .font(token: DesignSystem.Font.bodyMediumToken)
             .foregroundStyle(DesignSystem.Color.textPrimary)
             .lineLimit(1)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitRowValue)
     }
 
     @ViewBuilder
@@ -74,6 +76,7 @@ struct TangemPayDailyLimitRowRedesigned: View {
                 )
                 .size(.x10)
                 .styleType(.secondary)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitChangeButton)
             }
         case .loading:
             ProgressView()
