@@ -67,6 +67,10 @@ final class TransferViewModel: ObservableObject {
         case .swapAndSend:
             Task { @MainActor in coordinator?.transferRequestSwapAndSend(walletModel: walletModel, userWalletInfo: userWalletInfo) }
         case .send:
+            guard isSendAvailable() else {
+                showSendUnavailabilityAlert()
+                return
+            }
             Task { @MainActor in coordinator?.transferRequestSend(walletModel: walletModel, userWalletInfo: userWalletInfo) }
         }
     }
@@ -74,11 +78,12 @@ final class TransferViewModel: ObservableObject {
     func isEnabled(_ option: TransferOption) -> Bool {
         switch option {
         // Sell/swap/swap-and-send follow the wallet features (`.exchange`/`.swapping`), so wallets that hide
-        // them (e.g. Start2Coin) show the row disabled. Send stays gated by real send availability
-        // (blocked on zero balance and other sending restrictions).
+        // them (e.g. Start2Coin) show the row disabled. Send stays enabled regardless of send availability:
+        // restrictions (pending transaction, zero balance, etc.) are surfaced as an alert on tap instead
+        // of greying the row out with no explanation.
         case .sell: userWalletInfo.config.isFeatureVisible(.exchange)
         case .swap, .swapAndSend: userWalletInfo.config.isFeatureVisible(.swapping)
-        case .send: availabilityProvider.isSendAvailable
+        case .send: true
         }
     }
 
@@ -171,6 +176,18 @@ private extension TransferViewModel {
     @MainActor
     func showSellUnavailabilityAlert() {
         let status = availabilityProvider.sellAvailability
+        if let alert = TokenActionAvailabilityAlertBuilder().alert(for: status) {
+            alertPresenter.present(alert: alert)
+        }
+    }
+
+    func isSendAvailable() -> Bool {
+        availabilityProvider.isSendAvailable
+    }
+
+    @MainActor
+    func showSendUnavailabilityAlert() {
+        let status = availabilityProvider.sendAvailability
         if let alert = TokenActionAvailabilityAlertBuilder().alert(for: status) {
             alertPresenter.present(alert: alert)
         }
