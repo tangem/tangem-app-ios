@@ -17,6 +17,12 @@ public class AsyncTaskScheduler {
 
     public init() {}
 
+    deinit {
+        // Releasing a Task handle doesn't cancel it, so without this an owner that forgets
+        // to call cancel() leaves a repeating job running forever
+        task?.cancel()
+    }
+
     public func scheduleJob(interval: TimeInterval, repeats: Bool, action: @escaping () async throws -> Void) {
         task?.cancel()
         task = Task {

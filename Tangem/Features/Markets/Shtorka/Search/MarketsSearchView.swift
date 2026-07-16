@@ -55,6 +55,13 @@ struct MarketsSearchView: View {
 
     private var overlayHeight: CGFloat { viewModel.isSearching ? searchResultListOverlayTotalHeight : defaultListOverlayTotalHeight }
 
+    private var searchFieldInsets: EdgeInsets {
+        let inset: CGFloat = .unit(.x4)
+        return viewModel.isSearching
+            ? EdgeInsets(inset: inset)
+            : EdgeInsets(top: inset, leading: .unit(.x2), bottom: inset, trailing: inset)
+    }
+
     var body: some View {
         rootView
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] state in
@@ -89,15 +96,7 @@ struct MarketsSearchView: View {
             navigationBarBackground
 
             ZStack {
-                if viewModel.isSearching {
-                    MainBottomSheetHeaderView(viewModel: viewModel.headerViewModel)
-                        .readGeometry(\.size.height, bindTo: $headerHeight)
-                        .infinityFrame(axis: .vertical, alignment: .top)
-                        .transition(.opacity)
-                } else {
-                    navigationBar
-                        .transition(.opacity)
-                }
+                header
             }
             .animation(.easeInOut(duration: 0.1), value: viewModel.isSearching)
         }
@@ -129,6 +128,56 @@ struct MarketsSearchView: View {
         .frame(height: headerHeight + overlayHeight)
         .offset(y: listOverlayVerticalOffset)
         .infinityFrame(axis: .vertical, alignment: .top)
+    }
+
+    @ViewBuilder
+    private var header: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            redesignSearchHeader
+                .readGeometry(\.size.height, bindTo: $headerHeight)
+                .infinityFrame(axis: .vertical, alignment: .top)
+        } else {
+            legacyHeader
+        }
+    }
+
+    @ViewBuilder
+    private var legacyHeader: some View {
+        if viewModel.isSearching {
+            MainBottomSheetHeaderView(viewModel: viewModel.headerViewModel)
+                .readGeometry(\.size.height, bindTo: $headerHeight)
+                .infinityFrame(axis: .vertical, alignment: .top)
+                .transition(.opacity)
+        } else {
+            navigationBar
+                .transition(.opacity)
+        }
+    }
+
+    private var redesignSearchHeader: some View {
+        HStack(spacing: 0) {
+            if !viewModel.isSearchFieldFocused {
+                leadingHeaderButton
+                    .padding(.leading, Constants.defaultHorizontalInset)
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+            }
+
+            MainBottomSheetHeaderView(viewModel: viewModel.headerViewModel, backgroundColor: .clear)
+                .searchFieldInsets(searchFieldInsets)
+        }
+        .animation(.easeInOut(duration: 0.2), value: viewModel.isSearchFieldFocused)
+    }
+
+    @ViewBuilder
+    private var leadingHeaderButton: some View {
+        switch leadingButton {
+        case .back:
+            NavigationBarButton.back(action: onLeadingButtonAction)
+                .redesigned()
+        case .close:
+            NavigationBarButton.close(action: onLeadingButtonAction)
+                .redesigned()
+        }
     }
 
     private var navigationBar: some View {

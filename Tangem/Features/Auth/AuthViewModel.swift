@@ -390,7 +390,18 @@ private extension AuthViewModel {
 private extension AuthViewModel {
     func addWallet() {
         logAddWalletTapAnalytics()
-        scanCard()
+
+        if FeatureProvider.isAvailable(.mobileWalletMultiCreation) {
+            openAddWallet()
+        } else {
+            scanCard()
+        }
+    }
+
+    func openAddWallet() {
+        Task { @MainActor in
+            coordinator?.openAddWallet()
+        }
     }
 }
 

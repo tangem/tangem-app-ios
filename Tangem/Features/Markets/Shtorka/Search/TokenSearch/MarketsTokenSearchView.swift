@@ -28,17 +28,9 @@ struct MarketsTokenSearchView: View {
         frameHeight * 0.5 - headerHeight
     }
 
-    private var scrollDismissesKeyboardMode: ScrollDismissesKeyboardMode {
-        switch viewModel.state {
-        case .search: .immediately
-        case .recent: .never
-        case .idle: .interactively
-        }
-    }
-
     var body: some View {
         ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: .unit(.x4)) {
+            VStack(alignment: .leading, spacing: .unit(.x1)) {
                 Color.clear
                     .frame(height: headerHeight)
 
@@ -46,7 +38,7 @@ struct MarketsTokenSearchView: View {
             }
         }
         .scrollIndicators(.hidden)
-        .scrollDismissesKeyboard(.immediately)
+        .scrollDismissesKeyboard(.never)
         .readGeometry(\.frame.height) { frameHeight = $0 }
     }
 }
@@ -72,7 +64,7 @@ private extension MarketsTokenSearchView {
     ) -> some View {
         VStack(alignment: .leading, spacing: sectionHeaderContentSpacing) {
             Text(title)
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .padding(.leading, headerLeadingPadding)
 
             content()
@@ -92,15 +84,9 @@ private extension MarketsTokenSearchView {
         switch viewModel.recentState {
         case .item(let item):
             recentView(item)
-        case .empty:
-            recentEmptyView
-        case .idle:
-            idleView
+        case .empty, .idle:
+            EmptyView()
         }
-    }
-
-    var recentEmptyView: some View {
-        Color.Tangem.Surface.level2 // [REDACTED_TODO_COMMENT]
     }
 
     func recentView(_ item: ViewModel.RecentItem) -> some View {
@@ -127,7 +113,7 @@ private extension MarketsTokenSearchView {
 
     var searchEmptyView: some View {
         Text(viewModel.searchEmptyTitle)
-            .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.tertiary)
+            .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.tertiary)
             .frame(maxWidth: .infinity)
             .padding(.top, searchEmptyTopPadding)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSearchNoResultsLabel)

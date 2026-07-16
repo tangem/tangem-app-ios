@@ -152,6 +152,7 @@ private extension SwapSummaryProviderViewModel {
         let badge: ProviderRowViewModel.Badge? = switch providerBadge {
         case .none: .none
         case .bestRate: .bestRate
+        case .bestDexRate: .bestDexRate
         case .fcaWarning: .fcaWarning
         case .permissionNeeded: .permissionNeeded
         }

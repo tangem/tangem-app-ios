@@ -46,10 +46,24 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func enterFromAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in from field") { _ in
-            XCTAssertTrue(fromAmountTextField.waitForExistence(timeout: .robustUIUpdate), "From amount text field should exist")
-
-            fromAmountTextField.tap()
-            fromAmountTextField.typeText(amount)
+            let field = editableFromAmountField()
+            // The field formats the value with grouping separators, so compare on digits and the decimal separator only.
+            let expectedDigits = amount.filter { $0.isNumber || $0 == "." }
+            // [REDACTED_INFO]: the field resigns focus on swap-state re-renders, so clear, refocus and retype until it sticks.
+            for attempt in 0 ..< 8 {
+                if attempt > 0 || !field.hasFocus {
+                    field.tap()
+                }
+                let length = field.getValue().count
+                if length > 0 {
+                    field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length))
+                }
+                field.typeText(amount)
+                if field.waitForValue(timeout: .quick, where: { $0.filter { $0.isNumber || $0 == "." } == expectedDigits }) {
+                    return
+                }
+            }
+            XCTFail("Failed to enter amount '\(amount)'; last value: '\(field.getValue())'")
         }
         return self
     }
@@ -292,9 +306,9 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func waitForFromAmountValue(_ value: String) -> Self {
         XCTContext.runActivity(named: "Validate from amount text field has value '\(value)'") { _ in
-            waitAndAssertTrue(fromAmountTextField, "From amount text field should exist")
+            let field = editableFromAmountField()
             let predicate = NSPredicate(format: "value == %@", value)
-            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: fromAmountTextField)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: field)
             let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
             XCTAssertEqual(result, .completed, "From amount text field should have value '\(value)'")
         }
@@ -304,8 +318,15 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func clearFromAmount() -> Self {
         XCTContext.runActivity(named: "Clear from amount text field") { _ in
-            waitAndAssertTrue(fromAmountTextField, "From amount text field should exist")
-            deleteText(element: fromAmountTextField)
+            let field = editableFromAmountField()
+            // Tapping an already focused field can resolve to the pass-through twin and dismiss the keyboard.
+            if !field.hasFocus {
+                field.tap()
+            }
+            let length = field.getValue().count
+            if length > 0 {
+                field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length))
+            }
         }
         return self
     }
@@ -384,6 +405,21 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func waitForNotificationMessageContaining(_ substring: String) -> Self {
+        XCTContext.runActivity(named: "Wait for notification message containing '\(substring)'") { _ in
+            XCTAssertTrue(notificationMessage.waitForExistence(timeout: .robustUIUpdate), "Notification message should exist on swap screen")
+            let predicate = NSPredicate(format: "label CONTAINS %@", substring)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: notificationMessage)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Notification message should contain '\(substring)' but was '\(notificationMessage.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForNotificationIcon() -> Self {
         XCTContext.runActivity(named: "Wait for notification icon to be displayed") { _ in
             XCTAssertTrue(notificationIcon.waitForExistence(timeout: .robustUIUpdate), "Notification icon should exist on swap screen")
@@ -441,6 +477,156 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             waitAndAssertTrue(feeBlock, "Fee block should exist with fee amount")
         }
         return self
+    }
+
+    @discardableResult
+    func selectIdenticalReceiveToken(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Select identical receive token '\(tokenName)' to enter Transfer mode") { _ in
+            waitAndAssertTrue(receiveTokenSelector, "Receive token selector should exist")
+            receiveTokenSelector.waitAndTap()
+
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
+            if !tokenButton.waitForExistence(timeout: .quick) {
+                let accountCard = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Account")).firstMatch
+                waitAndAssertTrue(accountCard, "An account card should be visible in the receive token selector")
+                accountCard.waitAndTap()
+            }
+            waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in receive token selector")
+            tokenButton.waitAndTap()
+            return self
+        }
+    }
+
+    /// Selects an identical receive token located on a DIFFERENT wallet by first switching to its wallet chip.
+    @discardableResult
+    func selectIdenticalReceiveToken(_ tokenName: String, onWallet walletName: String) -> Self {
+        XCTContext.runActivity(named: "Select identical receive token '\(tokenName)' on wallet '\(walletName)'") { _ in
+            waitAndAssertTrue(receiveTokenSelector, "Receive token selector should exist")
+            receiveTokenSelector.waitAndTap()
+
+            // The source token is filtered out under its own wallet's chip; the identical token lives under the other wallet's chip.
+            let walletChip = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", walletName)).firstMatch
+            waitAndAssertTrue(walletChip, "Wallet chip '\(walletName)' should exist in the receive token selector")
+            walletChip.tapEvenIfNotHittable()
+
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
+            waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible under wallet '\(walletName)'")
+            tokenButton.tapEvenIfNotHittable()
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertConfirmButtonLabelIsTransfer() -> Self {
+        XCTContext.runActivity(named: "Assert action button label is 'Transfer'") { _ in
+            waitAndAssertTrue(confirmButton, "Confirm button should exist")
+            let expectedLabel = "Transfer"
+            let predicate = NSPredicate(format: "label == %@", expectedLabel)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: confirmButton)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Action button label should be '\(expectedLabel)' but was '\(confirmButton.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForProviderBlockNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert provider block is hidden in Transfer mode") { _ in
+            let providerBlock = app.descendants(matching: .any)[SendAccessibilityIdentifiers.swapProviderBlock]
+            XCTAssertTrue(providerBlock.waitForNonExistence(timeout: .robustUIUpdate), "Provider block should be hidden in Transfer mode")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertConfirmButtonLabelIsSwap() -> Self {
+        XCTContext.runActivity(named: "Assert action button label is 'Swap'") { _ in
+            waitAndAssertTrue(confirmButton, "Confirm button should exist")
+            let predicate = NSPredicate(format: "label == %@", "Swap")
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: confirmButton)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Action button label should be 'Swap' but was '\(confirmButton.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForMemoFieldNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert manual memo/destination tag field is absent in Transfer mode") { _ in
+            let memoField = app.descendants(matching: .any)[SendAccessibilityIdentifiers.additionalFieldTextField]
+            XCTAssertTrue(memoField.waitForNonExistence(timeout: .robustUIUpdate), "Manual memo/destination tag field should not exist in Transfer mode")
+        }
+        return self
+    }
+
+    @discardableResult
+    func confirmTransferAndOpenFinish() -> SendFinishScreen {
+        XCTContext.runActivity(named: "Confirm transfer and open finish screen") { _ in
+            confirmSwap()
+            return SendFinishScreen(app)
+        }
+    }
+
+    @discardableResult
+    func waitForSendErrorAlert() -> Self {
+        XCTContext.runActivity(named: "Assert transaction error alert is shown and finish screen is not opened") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Transaction failed alert should be displayed")
+            let finishHeader = app.staticTexts[SendAccessibilityIdentifiers.finishHeader]
+            XCTAssertFalse(finishHeader.waitForExistence(timeout: .conditional), "Finish screen should not be opened after a broadcast error")
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapMaxAmountFraction() -> Self {
+        XCTContext.runActivity(named: "Tap Max amount fraction chip") { _ in
+            let field = editableFromAmountField()
+            if !field.hasFocus {
+                field.tap()
+            }
+            let maxChip = app.buttons[SwapAccessibilityIdentifiers.amountFraction("max")].firstMatch
+            waitAndAssertTrue(maxChip, "Max amount fraction chip should exist")
+            // The chip lives in the keyboard accessory view and is often reported non-hittable, so tap by coordinate.
+            if maxChip.isHittable {
+                maxChip.tap()
+            } else {
+                maxChip.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            }
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForFromAmountIsNotZero() -> Self {
+        XCTContext.runActivity(named: "Validate from amount is greater than zero") { _ in
+            let field = editableFromAmountField()
+            let isNotZero = field.waitForValue(timeout: .robustUIUpdate) { value in
+                let digits = value.filter { $0.isNumber }
+                return !digits.isEmpty && digits.contains { $0 != "0" }
+            }
+            XCTAssertTrue(isNotZero, "From amount should be greater than zero, but was '\(field.getValue())'")
+        }
+        return self
+    }
+
+    private func editableFromAmountField() -> XCUIElement {
+        // The editable field is the hittable match; the overlaid measurement field disables hit testing.
+        let query = app.textFields.matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
+        let predicate = NSPredicate { _, _ in query.allElementsBoundByIndex.contains { $0.isHittable } }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+            .completed,
+            "Editable from amount field should become hittable"
+        )
+        return query.allElementsBoundByIndex.first { $0.isHittable } ?? query.firstMatch
     }
 }
 

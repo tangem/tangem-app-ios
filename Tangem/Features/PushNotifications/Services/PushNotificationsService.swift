@@ -12,6 +12,10 @@ typealias PushNotificationsService = PushNotificationsPermissionService & PushNo
 
 protocol PushNotificationsPermissionService {
     @MainActor var isAuthorized: Bool { get async }
+
+    /// Emits the current authorization status each time the app becomes active.
+    var isAuthorizedPublisher: AnyPublisher<Bool, Never> { get }
+
     func requestAuthorizationAndRegister() async
     func registerIfPossible() async
 }

@@ -59,11 +59,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
             }
-            .bottomSheet(
-                item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
-                backgroundColor: Colors.Background.tertiary
-            ) {
-                PendingExpressTxStatusBottomSheetView(viewModel: $0)
+            .sheet(item: $coordinator.pendingExpressTxStatusBottomSheetViewModel) { viewModel in
+                PendingExpressTxStatusBottomSheetView(viewModel: viewModel)
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)

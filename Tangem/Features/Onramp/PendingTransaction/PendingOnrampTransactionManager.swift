@@ -18,18 +18,14 @@ class CommonPendingOnrampTransactionsManager {
     private let userWalletId: String
     private let tokenItem: TokenItem
     private let expressAPIProvider: ExpressAPIProvider
+    private let unknownStatusRecoveryService: OnrampUnknownStatusRecoveryService
 
     private let pendingOnrampTransactionFactory = PendingOnrampTransactionFactory()
 
-    private lazy var pollingService: PollingService<PendingOnrampTransaction, PendingOnrampTransaction> = PollingService(
-        request: { [weak self] pendingTransaction in
-            await self?.request(pendingTransaction: pendingTransaction)
-        },
-        shouldStopPolling: { $0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) },
-        hasChanges: { $0.transactionRecord.transactionStatus != $1.transactionRecord.transactionStatus },
-        pollingInterval: Constants.statusUpdateTimeout,
-        maxConcurrentRequests: 3
-    )
+    /// Initialized in `init` rather than declared `lazy`: the lazy-var path raced when `pollingInitiatingTask` and
+    /// `pollingResultTask` touched it concurrently on first access, producing two `PollingService` actor instances
+    /// and split-brain polling state.
+    private var pollingService: PollingService<PendingOnrampTransaction, PendingOnrampTransaction>?
 
     private let pendingTransactionsSubject = CurrentValueSubject<[PendingOnrampTransaction], Never>([])
 
@@ -40,18 +36,32 @@ class CommonPendingOnrampTransactionsManager {
     init(
         userWalletId: String,
         tokenItem: TokenItem,
-        expressAPIProvider: ExpressAPIProvider
+        expressAPIProvider: ExpressAPIProvider,
+        unknownStatusRecoveryService: OnrampUnknownStatusRecoveryService
     ) {
         self.userWalletId = userWalletId
         self.tokenItem = tokenItem
         self.expressAPIProvider = expressAPIProvider
+        self.unknownStatusRecoveryService = unknownStatusRecoveryService
+
+        pollingService = PollingService(
+            request: { [weak self] pendingTransaction in
+                await self?.request(pendingTransaction: pendingTransaction)
+            },
+            shouldStopPolling: { $0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) },
+            hasChanges: { $0.transactionRecord.transactionStatus != $1.transactionRecord.transactionStatus },
+            pollingInterval: Constants.statusUpdateTimeout,
+            maxConcurrentRequests: 3
+        )
 
         bind()
     }
 
     deinit {
-        runTask(in: pollingService) {
-            await $0.cancelTask()
+        if let pollingService {
+            runTask(in: pollingService) {
+                await $0.cancelTask()
+            }
         }
 
         pollingInitiatingTask?.cancel()
@@ -113,7 +123,7 @@ class CommonPendingOnrampTransactionsManager {
                 await terminalTransactionsStorage.performIsolated { $0.transactions = terminalTransactions }
 
                 let shouldForceReload = previous?.count ?? 0 != current.count
-                await pollingService.startPolling(requests: nonTerminalTransactions, force: shouldForceReload)
+                await pollingService?.startPolling(requests: nonTerminalTransactions, force: shouldForceReload)
 
                 // If there are no transactions to poll, send terminal-only or empty
                 if nonTerminalTransactions.isEmpty {
@@ -139,18 +149,17 @@ class CommonPendingOnrampTransactionsManager {
                 onrampPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
             }
         }
+
+        if FeatureProvider.isAvailable(.onrampApplePayHistoryFallback) {
+            unknownStatusRecoveryService.start()
+        }
     }
 
     private func filterRelatedTokenTransactions(list: [OnrampPendingTransactionRecord]) -> [OnrampPendingTransactionRecord] {
-        list.filter { record in
-            guard !record.isHidden else {
+        return list.filter { record in
+            guard !record.isHidden, record.userWalletId == userWalletId else {
                 return false
             }
-
-            guard record.userWalletId == userWalletId else {
-                return false
-            }
-
             return record.destinationTokenTxInfo.tokenItem == tokenItem
         }
     }

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemLocalization
+import TangemFoundation
 
 protocol SendSummaryInteractor: AnyObject {
     var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
@@ -47,7 +48,7 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
     var transactionDescription: AnyPublisher<AttributedString?, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input
@@ -60,7 +61,7 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input.isNotificationButtonIsLoading
@@ -68,7 +69,7 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
         guard let swapModelStateProvider else {
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return swapModelStateProvider
@@ -81,7 +82,7 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input.isReadyToSendPublisher
