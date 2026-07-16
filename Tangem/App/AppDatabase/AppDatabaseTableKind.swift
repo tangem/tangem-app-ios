@@ -10,8 +10,8 @@ import Foundation
 
 /// A type representing a kind of the database table, which can be registered in the database.
 enum AppDatabaseTableKind: CaseIterable {
-    case expressProvidersCache
-    case fiatCurrenciesCache
+    case expressProvidersCacheTable
+    case fiatCurrenciesCacheTable
     case cryptoCurrenciesCacheTable
     case expressExchangeTransactionsTable
     case expressOnrampTransactionsTable
@@ -19,9 +19,9 @@ enum AppDatabaseTableKind: CaseIterable {
 
     var table: AppDatabaseTable.Type {
         switch self {
-        case .expressProvidersCache:
+        case .expressProvidersCacheTable:
             ExpressProvidersCacheTable.self
-        case .fiatCurrenciesCache:
+        case .fiatCurrenciesCacheTable:
             FiatCurrenciesCacheTable.self
         case .cryptoCurrenciesCacheTable:
             CryptoCurrenciesCacheTable.self
