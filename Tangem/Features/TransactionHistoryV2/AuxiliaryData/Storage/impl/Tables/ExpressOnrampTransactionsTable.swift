@@ -26,7 +26,7 @@ private extension ExpressOnrampTransactionsTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                table: Constants.expressOnrampTransactionsTableName
+                table: Constants.tableName
             ) { table in
                 table.primaryKey("id", .text).notNull()
                 table.column(Constants.ownerAddressColumnName, .text).notNull()
@@ -51,7 +51,7 @@ private extension ExpressOnrampTransactionsTable {
 
             try database.create(
                 index: "idxOnOwner",
-                on: Constants.expressOnrampTransactionsTableName,
+                on: Constants.tableName,
                 columns: [
                     Constants.ownerAddressColumnName,
                 ]
@@ -59,7 +59,7 @@ private extension ExpressOnrampTransactionsTable {
 
             try database.create(
                 index: "idxOnPayOut",
-                on: Constants.expressOnrampTransactionsTableName,
+                on: Constants.tableName,
                 columns: [
                     Constants.payOutHashColumnName,
                 ]
@@ -67,7 +67,7 @@ private extension ExpressOnrampTransactionsTable {
 
             try database.create(
                 index: "idxOnTokenFilter",
-                on: Constants.expressOnrampTransactionsTableName,
+                on: Constants.tableName,
                 columns: [
                     Constants.toNetworkColumnName,
                     Constants.toContractColumnName,
@@ -80,13 +80,13 @@ private extension ExpressOnrampTransactionsTable {
 
 // MARK: - Constants
 
-private extension ExpressOnrampTransactionsTable {
+extension ExpressOnrampTransactionsTable {
     /// - Note: only names used twice or more are extracted to constants.
     enum Constants {
-        static let expressOnrampTransactionsTableName = "expressOnrampTransactions"
-        static let ownerAddressColumnName = "ownerAddress"
-        static let payOutHashColumnName = "payOutHash"
-        static let toNetworkColumnName = "toNetwork"
-        static let toContractColumnName = "toContract"
+        static let tableName = "expressOnrampTransactions"
+        fileprivate static let ownerAddressColumnName = "ownerAddress"
+        fileprivate static let payOutHashColumnName = "payOutHash"
+        fileprivate static let toNetworkColumnName = "toNetwork"
+        fileprivate static let toContractColumnName = "toContract"
     }
 }
