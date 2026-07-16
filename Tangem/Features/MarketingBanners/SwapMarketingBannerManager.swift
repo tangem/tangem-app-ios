@@ -1,5 +1,5 @@
 //
-//  SwapMarketingBannerNotificationManager.swift
+//  SwapMarketingBannerManager.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,11 +10,10 @@ import Foundation
 import Combine
 import TangemFoundation
 
-final class SwapMarketingBannerNotificationManager {
+final class SwapMarketingBannerManager {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
 
     private let service = MarketingBannerService()
-    private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private let standaloneBannersSubject = CurrentValueSubject<[StandaloneMarketingBannerViewModel], Never>([])
     private let linkedBannersSubject = CurrentValueSubject<[MarketingBanner], Never>([])
     private var subscription: AnyCancellable?
@@ -22,7 +21,7 @@ final class SwapMarketingBannerNotificationManager {
 
 // MARK: - Setup
 
-extension SwapMarketingBannerNotificationManager {
+extension SwapMarketingBannerManager {
     func setup(
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
@@ -67,7 +66,6 @@ extension SwapMarketingBannerNotificationManager {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { manager, banners in
-                manager.notificationInputsSubject.send(banners.standalone.map { manager.makeInput(for: $0) })
                 manager.standaloneBannersSubject.send(banners.standalone.map { manager.makeStandaloneViewModel(for: $0) })
                 manager.linkedBannersSubject.send(banners.linked)
             }
@@ -76,16 +74,7 @@ extension SwapMarketingBannerNotificationManager {
 
 // MARK: - Private
 
-private extension SwapMarketingBannerNotificationManager {
-    func makeInput(for banner: MarketingBanner) -> NotificationViewInput {
-        MarketingBannerNotificationInputFactory.makeInput(
-            for: banner,
-            incomingActionHandler: incomingActionHandler
-        ) { [weak self] id in
-            self?.dismissNotification(with: id)
-        }
-    }
-
+private extension SwapMarketingBannerManager {
     func makeStandaloneViewModel(for banner: MarketingBanner) -> StandaloneMarketingBannerViewModel {
         let action: (() -> Void)? = switch banner.action {
         case .deeplink(let url):
@@ -100,36 +89,14 @@ private extension SwapMarketingBannerNotificationManager {
             iconURL: banner.iconURL,
             isDismissible: banner.isDismissible,
             action: action,
-            dismiss: banner.isDismissible ? { [weak self] in self?.dismissStandaloneBanner(id: banner.id) } : nil
+            dismiss: banner.isDismissible ? { HiddenMarketingCampaignsStorage.hide(campaignId: banner.id) } : nil
         )
-    }
-
-    func dismissStandaloneBanner(id: Int) {
-        standaloneBannersSubject.value.removeAll { $0.id == id }
-    }
-}
-
-// MARK: - NotificationManager
-
-extension SwapMarketingBannerNotificationManager: NotificationManager {
-    var notificationInputs: [NotificationViewInput] {
-        notificationInputsSubject.value
-    }
-
-    var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
-        notificationInputsSubject.eraseToAnyPublisher()
-    }
-
-    func setupManager(with delegate: NotificationTapDelegate?) {}
-
-    func dismissNotification(with id: NotificationViewId) {
-        notificationInputsSubject.value.removeAll { $0.id == id }
     }
 }
 
 // MARK: - Standalone banners
 
-extension SwapMarketingBannerNotificationManager {
+extension SwapMarketingBannerManager {
     var standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never> {
         standaloneBannersSubject.eraseToAnyPublisher()
     }
@@ -137,7 +104,7 @@ extension SwapMarketingBannerNotificationManager {
 
 // MARK: - LinkedMarketingBannerProviding
 
-extension SwapMarketingBannerNotificationManager: LinkedMarketingBannerProviding {
+extension SwapMarketingBannerManager: LinkedMarketingBannerProviding {
     // [REDACTED_TODO_COMMENT]
     var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
         linkedBannersSubject.eraseToAnyPublisher()
