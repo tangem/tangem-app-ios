@@ -23,6 +23,7 @@ enum Feature: String, Hashable, CaseIterable {
     case deeplinkPresentationWay
     case transactionHistoryV2
     case tangemPaySpendRedesign
+    case forceUpdate
     case tangemPayTiers
     case supportChat
     case supportChatSwap
@@ -62,6 +63,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
+        case .forceUpdate: return "[REDACTED_INFO]_force_update"
         case .tangemPayTiers: return "TWI-1066_tangem_pay_tiers_1"
         case .supportChat: return "13815_Support_Chat_(Usedesk)"
         case .supportChatSwap: return "13815_Support_Chat_in_Swap_(Usedesk)"
@@ -100,6 +102,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushNotificationsSettings: return .unspecified
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
+        case .forceUpdate: return .unspecified
         case .tangemPaySpendRedesign: return .version("6.0")
         case .tangemPayTiers: return .unspecified
         case .supportChat: return .unspecified
