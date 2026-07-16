@@ -26,7 +26,7 @@ private extension ExpressProvidersCacheTable {
     enum V1: AppDatabaseTable {
         static func registerForVersion(_: AppDatabaseVersion, in database: Database) throws {
             try database.create(
-                table: "expressProvidersCache"
+                table: Constants.tableName
             ) { table in
                 table.primaryKey("id", .text).notNull()
                 table.column("name", .text).notNull()
@@ -40,5 +40,14 @@ private extension ExpressProvidersCacheTable {
                 table.column("updatedAt", .datetime).notNull()
             }
         }
+    }
+}
+
+// MARK: - Constants
+
+extension ExpressProvidersCacheTable {
+    /// - Note: only names used twice or more are extracted to constants.
+    enum Constants {
+        static let tableName = "expressProvidersCache"
     }
 }
