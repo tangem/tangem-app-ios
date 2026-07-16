@@ -86,16 +86,12 @@ struct ExpandedAccountItemHeaderView: View {
 
             Spacer()
 
-            if FeatureProvider.isAvailable(.redesign) {
-                Assets.DesignSystem.collapse.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
-                    .frame(size: .init(bothDimensions: .unit(.x4)))
-            } else {
-                Assets.Accounts.minimize.image
-            }
+            Assets.DesignSystem.collapse.image
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+                .frame(size: .init(bothDimensions: .unit(.x4)))
         }
         .padding(.horizontal, horizontalPadding)
         .padding(.top, 14.0)
@@ -145,15 +141,12 @@ struct ExpandedAccountItemHeaderView: View {
             .frame(size: .zero)
     }
 
-    // [REDACTED_INFO]: drop gating, keep the redesign values.
     private var nameFont: TangemFontStyle {
-        FeatureProvider.isAvailable(.redesign)
-            ? Font.Tangem.Body16.medium
-            : TangemFontStyle(font: Fonts.Bold.subheadline)
+        Font.Tangem.Body16.medium
     }
 
     private var horizontalPadding: CGFloat {
-        FeatureProvider.isAvailable(.redesign) ? .unit(.x3) : 14
+        .unit(.x3)
     }
 }
 

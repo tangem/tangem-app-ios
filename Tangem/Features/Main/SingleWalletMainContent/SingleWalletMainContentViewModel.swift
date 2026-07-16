@@ -95,14 +95,12 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             tokenRouter: tokenRouter
         )
 
-        if FeatureProvider.isAvailable(.redesign) {
-            setupRedesign(
-                walletModel: walletModel,
-                userWalletModel: userWalletModel,
-                coordinator: coordinator,
-                accountModel: accountModel
-            )
-        }
+        setupRedesign(
+            walletModel: walletModel,
+            userWalletModel: userWalletModel,
+            coordinator: coordinator,
+            accountModel: accountModel
+        )
 
         bind()
     }
