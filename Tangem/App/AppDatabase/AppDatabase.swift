@@ -16,12 +16,6 @@ final class AppDatabase {
 
     typealias DatabaseHandleFactory = (_ databaseFilePath: String) throws -> DatabaseHandle
 
-    static let shared = AppDatabase { databaseFilePath in
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
-        return try DatabaseQueue(path: databaseFilePath)
-    }
-
     var databaseHandle: DatabaseHandle {
         get throws {
             return try protectedDatabaseHandle { handle in
@@ -40,7 +34,7 @@ final class AppDatabase {
     private let protectedDatabaseHandle: OSAllocatedUnfairLock<DatabaseHandle?>
     private let databaseHandleFactory: DatabaseHandleFactory
 
-    @available(iOS, deprecated: 100000.0, message: "For unit tests only, use `AppDatabase.shared` instead")
+    @available(iOS, deprecated: 100000.0, message: "For unit tests and DI only, use `@Injected(\\.appDatabase)` instead")
     init(databaseHandleFactory: @escaping DatabaseHandleFactory) {
         self.databaseHandleFactory = databaseHandleFactory
         protectedDatabaseHandle = OSAllocatedUnfairLock(initialState: nil)
