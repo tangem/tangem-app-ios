@@ -37,7 +37,8 @@ final class BuyUITests: BaseTestCase {
             .tapTrendingToken(token)
             .tapAddToPortfolio()
             .tapAddTokenButton()
-            .waitForTokenAddedToastOnMarketsTokenDetails()
+            .waitForTokenAddedToastOnAddFundsScreen()
+            .closeToMarketsTokenDetails()
             .tapBackButton()
             .waitTokenInWalletSection(token)
     }
