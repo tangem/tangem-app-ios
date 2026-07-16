@@ -17,12 +17,12 @@ struct OrganizeTokensListItemPreviewProvider {
                 items: [
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .bitcoin(testnet: false),
                             isCustom: true
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -41,12 +41,12 @@ struct OrganizeTokensListItemPreviewProvider {
                 items: [
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .bitcoin(testnet: false),
                             isCustom: true
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -65,12 +65,12 @@ struct OrganizeTokensListItemPreviewProvider {
                 items: [
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .bitcoin(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -79,7 +79,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .token(
                                 value: .init(
@@ -92,6 +91,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: false,
                         isTestnet: false,
@@ -100,7 +100,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconAsset: nil,
@@ -108,6 +107,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: true,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: true,
@@ -116,12 +116,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .token(value: .tetherMock),
                             in: .ethereumClassic(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -140,12 +140,12 @@ struct OrganizeTokensListItemPreviewProvider {
                 items: [
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .bitcoin(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -154,12 +154,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .arbitrum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -168,12 +168,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .litecoin,
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -182,12 +182,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .stellar(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -196,12 +196,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -210,12 +210,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .ethereumPoW(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -224,12 +224,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .ethereumClassic(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -238,12 +238,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .bitcoinCash,
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -252,12 +252,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .binance(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -266,12 +266,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .cardano(extended: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -280,12 +280,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .bsc(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -294,12 +294,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .dogecoin,
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -308,12 +308,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .polygon(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -322,12 +322,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .avalanche(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -336,12 +336,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .solana(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: false,
                         isTestnet: false,
@@ -350,12 +350,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .fantom(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: false,
                         isTestnet: false,
@@ -364,12 +364,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .polkadot(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -378,12 +378,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .azero(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -392,12 +392,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .tron(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -406,12 +406,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: true,
@@ -420,12 +420,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .optimism(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: true,
@@ -434,12 +434,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .ton(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -448,12 +448,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .kava(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -462,12 +462,12 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .cosmos(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -486,12 +486,12 @@ struct OrganizeTokensListItemPreviewProvider {
                 items: [
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .bitcoin(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -500,7 +500,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .token(
                                 value: .init(
@@ -513,6 +512,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -521,7 +521,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconAsset: nil,
@@ -529,6 +528,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: false,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: false,
@@ -543,12 +543,12 @@ struct OrganizeTokensListItemPreviewProvider {
                 items: [
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -557,7 +557,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .token(
                                 value: .init(
@@ -570,6 +569,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -578,7 +578,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconAsset: nil,
@@ -586,6 +585,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: true,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: false,
@@ -600,12 +600,12 @@ struct OrganizeTokensListItemPreviewProvider {
                 items: [
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -614,7 +614,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .token(
                                 value: .init(
@@ -627,6 +626,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -635,7 +635,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconAsset: nil,
@@ -643,6 +642,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: false,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: false,
@@ -657,12 +657,12 @@ struct OrganizeTokensListItemPreviewProvider {
                 items: [
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -671,7 +671,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .token(
                                 value: .init(
@@ -684,6 +683,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -692,7 +692,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconAsset: nil,
@@ -700,6 +699,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: true,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: false,
@@ -714,12 +714,12 @@ struct OrganizeTokensListItemPreviewProvider {
                 items: [
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .coin,
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -728,7 +728,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: TokenIconInfoBuilder().build(
                             for: .token(
                                 value: .init(
@@ -741,6 +740,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -749,7 +749,6 @@ struct OrganizeTokensListItemPreviewProvider {
                     ),
                     .init(
                         id: .random(),
-                        currencySymbol: "TOKEN",
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
                             blockchainIconAsset: nil,
@@ -757,6 +756,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: false,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: false,
