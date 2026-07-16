@@ -33,18 +33,37 @@ final class AddFundsScreen: ScreenBase<AddFundsScreenElement> {
     @discardableResult
     func tapCloseButton() -> MainScreen {
         XCTContext.runActivity(named: "Tap Close button") { _ in
-            // Multiple close buttons may exist in the sheet stack; tap the topmost hittable one
-            let closeButtons = app.buttons.matching(identifier: CommonUIAccessibilityIdentifiers.closeButton)
-            for i in 0 ..< closeButtons.count {
-                let button = closeButtons.element(boundBy: i)
-                if button.isHittable {
-                    button.tap()
-                    return
-                }
-            }
-            XCTFail("No hittable Close button found on Add Funds screen")
+            tapTopmostHittableCloseButton(context: "Add Funds screen")
         }
         return MainScreen(app)
+    }
+
+    @discardableResult
+    func closeToMarketsTokenDetails() -> MarketsTokenDetailsScreen {
+        XCTContext.runActivity(named: "Close 'Get token' screen") { _ in
+            tapTopmostHittableCloseButton(context: "'Get token' screen")
+        }
+        return MarketsTokenDetailsScreen(app)
+    }
+
+    /// Several `CommonUIAccessibilityIdentifiers.closeButton` elements can coexist in the sheet stack; tap the topmost hittable one.
+    private func tapTopmostHittableCloseButton(context: String) {
+        let closeButtons = app.buttons.matching(identifier: CommonUIAccessibilityIdentifiers.closeButton)
+        let anyHittable = NSPredicate { _, _ in
+            (0 ..< closeButtons.count).contains { closeButtons.element(boundBy: $0).isHittable }
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: anyHittable, object: nil)
+        guard XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate) == .completed else {
+            XCTFail("No hittable Close button found on \(context)")
+            return
+        }
+
+        for i in 0 ..< closeButtons.count where closeButtons.element(boundBy: i).isHittable {
+            closeButtons.element(boundBy: i).tap()
+            return
+        }
+
+        XCTFail("Close button on \(context) became non-hittable before it could be tapped")
     }
 }
 
