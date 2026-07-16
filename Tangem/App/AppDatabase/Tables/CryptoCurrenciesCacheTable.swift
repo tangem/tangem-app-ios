@@ -32,7 +32,7 @@ private extension CryptoCurrenciesCacheTable {
                     Columns.networkID,
                     Columns.contractAddress,
                 ])
-                // `id` MUST NOT not be the primary key because a `BlockchainSdk.Token` may have no `id` field at all (e.g., custom tokens).
+                // `id` can't be the primary key because a `BlockchainSdk.Token` may have no `id` field at all (e.g., custom tokens).
                 table.column(Columns.id, .text)
                 // Matches the `TokenItem.networkId` field.
                 table.column(Columns.networkID, .text).notNull()
