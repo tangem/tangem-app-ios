@@ -35,6 +35,9 @@ while true; do
     echo "xcodebuild: count=$XC_COUNT total_rss=${XC_RSS_MB}MB"
     echo "--- Top 5 processes by RSS ---"
     ps -axo rss=,pid=,comm= | sort -rn | head -5 | awk '{printf "%6d MB  %s %s\n", $1/1024, $2, $3}'
+    # A CPU-hog with low RSS (e.g. a hung WirelessRadioMan) is invisible to the RSS top above
+    echo "--- Top 5 processes by CPU ---"
+    ps -axo pcpu=,pid=,comm= | sort -rn | head -5 | awk '{printf "%5s%%  %s %s\n", $1, $2, $3}'
     docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' 2>/dev/null | grep wiremock || true
   } >> "$LOG" 2>&1
   sleep "$INTERVAL"
