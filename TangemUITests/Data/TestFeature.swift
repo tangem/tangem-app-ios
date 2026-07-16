@@ -12,6 +12,5 @@ import Foundation
 /// currently need to flip via launch arguments. Extend as new toggles are exercised
 /// in tests; the app side accepts any `Feature` rawValue via `-uitest-feature-<rawValue>-on/off`.
 enum TestFeature: String, CaseIterable {
-    case redesign
     case yieldModuleUpdate
 }
