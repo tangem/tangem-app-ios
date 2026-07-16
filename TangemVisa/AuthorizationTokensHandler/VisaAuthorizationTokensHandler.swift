@@ -136,6 +136,11 @@ final class CommonVisaAuthorizationTokensHandler {
         }
     }
 
+    deinit {
+        refresherTask?.cancel()
+        scheduler.cancel()
+    }
+
     private func setupRefresherTask() {
         refresherTask?.cancel()
         scheduler.cancel()
@@ -146,7 +151,15 @@ final class CommonVisaAuthorizationTokensHandler {
                     return
                 }
 
-                try await self?.setupAccessTokenRefresher(for: tokens)
+                // The delay below can last for hours, so `self` must not be held across it —
+                // an optional-chained call would keep the handler alive until the token is about to expire
+                if let refreshDelay = try self?.accessTokenRefreshDelay(for: tokens), refreshDelay > 0 {
+                    VisaLogger.info("No need to refresh access token, awaits \(refreshDelay) seconds and then continue setup process")
+                    // Wait until token will need to refresh and update it one time
+                    try await Task.sleep(for: .seconds(refreshDelay))
+                }
+
+                try await self?.refreshAccessTokenAndScheduleRecurringRefresh(for: tokens)
             } catch {
                 if error is CancellationError {
                     VisaLogger.info("Refresher task was cancelled")
@@ -157,7 +170,8 @@ final class CommonVisaAuthorizationTokensHandler {
         }.eraseToAnyCancellable()
     }
 
-    private func setupAccessTokenRefresher(for tokens: InternalAuthorizationTokens) async throws {
+    /// Returns the delay before the access token should be refreshed, or zero if it must be refreshed right away.
+    private func accessTokenRefreshDelay(for tokens: InternalAuthorizationTokens) throws -> TimeInterval {
         VisaLogger.info("Attempting to setup token refresher")
 
         let jwtTokens = tokens.jwtTokens
@@ -165,7 +179,7 @@ final class CommonVisaAuthorizationTokensHandler {
         guard
             let accessToken = jwtTokens.accessToken,
             let expirationDate = accessToken.expiresAt,
-            let issuedAtDate = accessToken.issuedAt
+            accessToken.issuedAt != nil
         else {
             throw VisaAuthorizationTokensHandlerError.missingMandatoryInfoInAccessToken
         }
@@ -178,20 +192,27 @@ final class CommonVisaAuthorizationTokensHandler {
         if shouldRefreshToken {
             VisaLogger.info("Access token needs to be refreshed.")
             // Token already expired or will expire very soon. Refreshing
-            try await refreshAccessToken(internalTokens: tokens)
-        } else {
-            let maxDateBeforeUpdate = Calendar.current.date(
-                byAdding: .second,
-                value: -Int(minSecondsBeforeExpiration),
-                to: expirationDate
-            ) ?? now
-            let refreshDelay = maxDateBeforeUpdate.timeIntervalSince(now)
-
-            VisaLogger.info("No need to refresh access token, awaits \(refreshDelay) seconds and then confinue setup process")
-            // Wait until token will need to refresh and update it one time
-            try await Task.sleep(for: .seconds(refreshDelay))
-            try await refreshAccessToken(internalTokens: tokens)
+            return .zero
         }
+
+        let maxDateBeforeUpdate = Calendar.current.date(
+            byAdding: .second,
+            value: -Int(minSecondsBeforeExpiration),
+            to: expirationDate
+        ) ?? now
+        return maxDateBeforeUpdate.timeIntervalSince(now)
+    }
+
+    private func refreshAccessTokenAndScheduleRecurringRefresh(for tokens: InternalAuthorizationTokens) async throws {
+        guard
+            let accessToken = tokens.jwtTokens.accessToken,
+            let expirationDate = accessToken.expiresAt,
+            let issuedAtDate = accessToken.issuedAt
+        else {
+            throw VisaAuthorizationTokensHandlerError.missingMandatoryInfoInAccessToken
+        }
+
+        try await refreshAccessToken(internalTokens: tokens)
 
         try Task.checkCancellation()
         // Setup recurring token update with fixed interval

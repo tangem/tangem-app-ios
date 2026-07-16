@@ -111,13 +111,6 @@ struct MainCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-            .sheet(item: $coordinator.organizeTokensViewModel) { viewModel in
-                NavigationBarHidingView(shouldWrapInNavigationStack: true) {
-                    OrganizeTokensView(viewModel: viewModel)
-                        .navigationTitle(Localization.organizeTokensTitle)
-                        .navigationBarTitleDisplayMode(.inline)
-                }
-            }
             .sheet(item: $coordinator.visaTransactionDetailsViewModel) {
                 VisaTransactionDetailsView(viewModel: $0)
             }
@@ -126,9 +119,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.actionButtonsSellCoordinator) {
                 ActionButtonsSellCoordinatorView(coordinator: $0)
-            }
-            .sheet(item: $coordinator.actionButtonsSwapCoordinator) {
-                ActionButtonsSwapCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
@@ -157,19 +147,13 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
                 TangemPayTransactionDetailsView(viewModel: $0)
             }
+            .floatingSheetContent(for: PushNotificationsMainViewModel.self) {
+                PushNotificationsMainView(viewModel: $0)
+            }
 
         NavHolder()
-            .bottomSheet(
-                item: $coordinator.pushNotificationsViewModel,
-                backgroundColor: Colors.Background.primary
-            ) {
-                PushNotificationsBottomSheetView(viewModel: $0)
-            }
-            .bottomSheet(
-                item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
-                backgroundColor: Colors.Background.tertiary
-            ) {
-                PendingExpressTxStatusBottomSheetView(viewModel: $0)
+            .sheet(item: $coordinator.pendingExpressTxStatusBottomSheetViewModel) { viewModel in
+                PendingExpressTxStatusBottomSheetView(viewModel: viewModel)
             }
 
         NavHolder()

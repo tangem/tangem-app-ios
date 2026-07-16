@@ -202,48 +202,48 @@ public enum TangemBadgeV2Size: Sendable, Hashable, CaseIterable {
 
     var baseMinHeight: CGFloat {
         switch self {
-        case .x9: DesignSystem.Tokens.Size.s450
-        case .x6: DesignSystem.Tokens.Size.s300
-        case .x4: DesignSystem.Tokens.Size.s200
+        case .x9: 36
+        case .x6: 24
+        case .x4: 16
         }
     }
 
     var baseIconSize: CGFloat {
         switch self {
-        case .x9: DesignSystem.Tokens.Size.s250
-        case .x6: DesignSystem.Tokens.Size.s200
-        case .x4: DesignSystem.Tokens.Size.s150
+        case .x9: 20
+        case .x6: 16
+        case .x4: 12
         }
     }
 
     var baseOuterHorizontalPadding: CGFloat {
         switch self {
-        case .x9: DesignSystem.Tokens.Spacing.s100
-        case .x6: DesignSystem.Tokens.Spacing.s050
-        case .x4: DesignSystem.Tokens.Spacing.s025
+        case .x9: 8
+        case .x6: 4
+        case .x4: 2
         }
     }
 
     var baseOuterVerticalPadding: CGFloat {
         switch self {
-        case .x9: DesignSystem.Tokens.Spacing.s100
-        case .x6: DesignSystem.Tokens.Spacing.s050
-        case .x4: DesignSystem.Tokens.Spacing.none
+        case .x9: 8
+        case .x6: 4
+        case .x4: 0
         }
     }
 
     var baseLabelHorizontalPadding: CGFloat {
         switch self {
-        case .x9: DesignSystem.Tokens.Spacing.s050
-        case .x6: DesignSystem.Tokens.Spacing.s050
-        case .x4: DesignSystem.Tokens.Spacing.s025
+        case .x9: 4
+        case .x6: 4
+        case .x4: 2
         }
     }
 
     var font: TangemTypographyToken {
         switch self {
-        case .x9: DesignSystem.Tokens.Font.Subheading.medium
-        case .x6, .x4: DesignSystem.Tokens.Font.Caption.medium
+        case .x9: DesignSystem.Font.subheadingMediumToken
+        case .x6, .x4: DesignSystem.Font.captionMediumToken
         }
     }
 }
@@ -304,16 +304,16 @@ private extension TangemBadgeV2 {
     var textColor: Color {
         switch state {
         case .subtle: appearance.palette.subtleContent
-        case .loudNeutral: DesignSystem.Tokens.Theme.Text.primary
-        case .saturated: DesignSystem.Tokens.Theme.Text.StaticDark.primary
+        case .loudNeutral: DesignSystem.Color.textPrimary
+        case .saturated: DesignSystem.Color.textStaticDarkPrimary
         }
     }
 
     var iconColor: Color {
         switch state {
         case .subtle: appearance.palette.subtleIcon
-        case .loudNeutral: DesignSystem.Tokens.Theme.Icon.primary
-        case .saturated: DesignSystem.Tokens.Theme.Icon.staticDark
+        case .loudNeutral: DesignSystem.Color.iconPrimary
+        case .saturated: DesignSystem.Color.iconStaticDark
         }
     }
 }
@@ -333,43 +333,43 @@ private extension TangemBadgeV2Appearance {
         switch self {
         case .neutral:
             AppearancePalette(
-                solidBackground: DesignSystem.Tokens.Theme.Bg.Opaque.primary,
-                subtleBackground: DesignSystem.Tokens.Theme.Bg.Opaque.primary,
-                outlineBorder: DesignSystem.Tokens.Theme.Border.primary,
-                subtleContent: DesignSystem.Tokens.Theme.Text.secondary,
-                subtleIcon: DesignSystem.Tokens.Theme.Icon.secondary
+                solidBackground: DesignSystem.Color.bgOpaquePrimary,
+                subtleBackground: DesignSystem.Color.bgOpaquePrimary,
+                outlineBorder: DesignSystem.Color.borderPrimary,
+                subtleContent: DesignSystem.Color.textSecondary,
+                subtleIcon: DesignSystem.Color.iconSecondary
             )
         case .info:
             AppearancePalette(
-                solidBackground: DesignSystem.Tokens.Theme.Bg.Status.info,
-                subtleBackground: DesignSystem.Tokens.Theme.Bg.Status.infoSubtle,
-                outlineBorder: DesignSystem.Tokens.Theme.Border.Status.infoSubtle,
-                subtleContent: DesignSystem.Tokens.Theme.Text.Status.info,
-                subtleIcon: DesignSystem.Tokens.Theme.Icon.Status.info
+                solidBackground: DesignSystem.Color.bgStatusInfo,
+                subtleBackground: DesignSystem.Color.bgStatusInfoSubtle,
+                outlineBorder: DesignSystem.Color.borderStatusInfoSubtle,
+                subtleContent: DesignSystem.Color.textStatusInfo,
+                subtleIcon: DesignSystem.Color.iconStatusInfo
             )
         case .error:
             AppearancePalette(
-                solidBackground: DesignSystem.Tokens.Theme.Bg.Status.error,
-                subtleBackground: DesignSystem.Tokens.Theme.Bg.Status.errorSubtle,
-                outlineBorder: DesignSystem.Tokens.Theme.Border.Status.errorSubtle,
-                subtleContent: DesignSystem.Tokens.Theme.Text.Status.error,
-                subtleIcon: DesignSystem.Tokens.Theme.Icon.Status.error
+                solidBackground: DesignSystem.Color.bgStatusError,
+                subtleBackground: DesignSystem.Color.bgStatusErrorSubtle,
+                outlineBorder: DesignSystem.Color.borderStatusErrorSubtle,
+                subtleContent: DesignSystem.Color.textStatusError,
+                subtleIcon: DesignSystem.Color.iconStatusError
             )
         case .warning:
             AppearancePalette(
-                solidBackground: DesignSystem.Tokens.Theme.Bg.Status.warning,
-                subtleBackground: DesignSystem.Tokens.Theme.Bg.Status.warningSubtle,
-                outlineBorder: DesignSystem.Tokens.Theme.Border.Status.warningSubtle,
-                subtleContent: DesignSystem.Tokens.Theme.Text.Status.warning,
-                subtleIcon: DesignSystem.Tokens.Theme.Icon.Status.warning
+                solidBackground: DesignSystem.Color.bgStatusWarning,
+                subtleBackground: DesignSystem.Color.bgStatusWarningSubtle,
+                outlineBorder: DesignSystem.Color.borderStatusWarningSubtle,
+                subtleContent: DesignSystem.Color.textStatusWarning,
+                subtleIcon: DesignSystem.Color.iconStatusWarning
             )
         case .success:
             AppearancePalette(
-                solidBackground: DesignSystem.Tokens.Theme.Bg.Status.success,
-                subtleBackground: DesignSystem.Tokens.Theme.Bg.Status.successSubtle,
-                outlineBorder: DesignSystem.Tokens.Theme.Border.Status.successSubtle,
-                subtleContent: DesignSystem.Tokens.Theme.Text.Status.success,
-                subtleIcon: DesignSystem.Tokens.Theme.Icon.Status.success
+                solidBackground: DesignSystem.Color.bgStatusSuccess,
+                subtleBackground: DesignSystem.Color.bgStatusSuccessSubtle,
+                outlineBorder: DesignSystem.Color.borderStatusSuccessSubtle,
+                subtleContent: DesignSystem.Color.textStatusSuccess,
+                subtleIcon: DesignSystem.Color.iconStatusSuccess
             )
         }
     }

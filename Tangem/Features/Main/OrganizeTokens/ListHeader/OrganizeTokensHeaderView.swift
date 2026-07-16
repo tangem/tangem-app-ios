@@ -21,9 +21,7 @@ struct OrganizeTokensHeaderView: View {
                 isToggled: viewModel.isSortByBalanceEnabled,
                 action: viewModel.toggleSortState
             )
-            .if(FeatureProvider.isAvailable(.manageTokensImprovements)) {
-                $0.overrideBackgroundColor(Colors.Background.action)
-            }
+            .overrideBackgroundColor(Colors.Background.action)
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.sortByBalanceButton)
 
             FlexySizeButtonWithLeadingIcon(
@@ -31,9 +29,7 @@ struct OrganizeTokensHeaderView: View {
                 icon: Assets.OrganizeTokens.makeGroupIcon.image,
                 action: viewModel.toggleGroupState
             )
-            .if(FeatureProvider.isAvailable(.manageTokensImprovements)) {
-                $0.overrideBackgroundColor(Colors.Background.action)
-            }
+            .overrideBackgroundColor(Colors.Background.action)
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.groupButton)
         }
     }

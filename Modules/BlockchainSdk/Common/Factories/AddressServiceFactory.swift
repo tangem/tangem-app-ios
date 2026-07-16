@@ -125,6 +125,8 @@ public struct AddressServiceFactory {
              .sei,
              .ton:
             return WalletCoreAddressService(blockchain: blockchain)
+        case .gonka:
+            return GonkaAddressService()
         case .aptos:
             return AptosCoreAddressService()
         case .ducatus:

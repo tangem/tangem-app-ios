@@ -11,6 +11,8 @@ import TangemAssets
 import TangemUI
 
 struct MobileOnboardingView: View {
+    @State private var isModallyPresented: Bool = false
+
     @ObservedObject var viewModel: MobileOnboardingViewModel
 
     private var configuration: StepsFlowConfiguration {
@@ -22,14 +24,20 @@ struct MobileOnboardingView: View {
         )
     }
 
+    private var stepsFlowTopPadding: CGFloat {
+        isModallyPresented ? .unit(.x4) : 0
+    }
+
     var body: some View {
         ZStack {
             StepsFlowView(builder: viewModel.flowBuilder, configuration: configuration)
+                .padding(.top, stepsFlowTopPadding)
                 .id(viewModel.flowId)
 
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
         }
+        .onModalDetection { isModallyPresented = $0 }
         .background(Color.clear.alert(item: $viewModel.alert) { $0.alert })
     }
 }

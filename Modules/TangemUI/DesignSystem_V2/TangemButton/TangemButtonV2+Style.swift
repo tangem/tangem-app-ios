@@ -80,27 +80,27 @@ extension TangemButtonV2 {
                 .overlay { pressOverlay(isPressed: configuration.isPressed) }
                 .overlay { loadingOverlay }
                 .contentShape(Capsule())
-                .tangemShadow(DesignSystem.Tokens.Shadow.button)
+                .tangemShadow(DesignSystem.Shadow.button)
         }
 
         private var materialBlurStack: some View {
             ZStack {
                 Capsule()
-                    .fill(DesignSystem.Tokens.Color.Material.SoftLight.blur)
+                    .fill(DesignSystem.Color.materialSoftLightBlur)
                     .blendMode(.softLight)
 
                 Capsule()
-                    .fill(DesignSystem.Tokens.Color.Material.Lighten.blur)
+                    .fill(DesignSystem.Color.materialLightenBlur)
                     .blendMode(.lighten)
 
                 Capsule()
                     .fill(.regularMaterial)
 
                 Capsule()
-                    .fill(DesignSystem.Tokens.Color.Material.Tint.blur)
+                    .fill(DesignSystem.Color.materialTintBlur)
 
                 Capsule()
-                    .fill(DesignSystem.Tokens.Color.Material.Fill.blur)
+                    .fill(DesignSystem.Color.materialFillBlur)
             }
         }
 
@@ -109,14 +109,14 @@ extension TangemButtonV2 {
                 .stroke(
                     LinearGradient(
                         colors: [
-                            DesignSystem.Tokens.Color.Material.Border.start,
-                            DesignSystem.Tokens.Color.Material.Border.mid,
-                            DesignSystem.Tokens.Color.Material.Border.end,
+                            DesignSystem.Color.materialBorderStart,
+                            DesignSystem.Color.materialBorderMid,
+                            DesignSystem.Color.materialBorderEnd,
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
-                    lineWidth: DesignSystem.Tokens.BorderWidth.xs
+                    lineWidth: 0.5
                 )
         }
 
@@ -179,11 +179,11 @@ extension TangemButtonV2 {
         // MARK: - Color/effect resolution
 
         private var resolvedBackgroundColor: Color {
-            isEnabled ? styleType.backgroundColor : DesignSystem.Tokens.Theme.Bg.disabled
+            isEnabled ? styleType.backgroundColor : DesignSystem.Color.bgDisabled
         }
 
         private var resolvedForegroundColor: Color {
-            isEnabled ? styleType.foregroundColor : DesignSystem.Tokens.Theme.Text.tertiary
+            isEnabled ? styleType.foregroundColor : DesignSystem.Color.textTertiary
         }
 
         @available(iOS 26.0, *)

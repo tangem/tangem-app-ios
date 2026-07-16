@@ -31,7 +31,6 @@ class SendAmountCompactViewModel: ObservableObject, Identifiable {
     weak var router: SendAmountCompactRoutable?
 
     private let expressProviderFormatter: ExpressProviderFormatter = .init()
-    private let isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never>?
 
     init(
         initialSourceToken: SendSourceToken,
@@ -40,12 +39,14 @@ class SendAmountCompactViewModel: ObservableObject, Identifiable {
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
-        swapProvidersInput: SendSwapProvidersInput? = nil,
-        isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never>? = nil
+        swapProvidersInput: SendSwapProvidersInput? = nil
     ) {
-        self.isReceiveAmountApproximatePublisher = isReceiveAmountApproximatePublisher
         sendAmountCompactViewModel = .init(sourceToken: initialSourceToken, actionType: actionType)
-        sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher, isApproximateAmount: false)
+
+        sendAmountCompactViewModel.bind(
+            amountPublisher: sourceTokenAmountInput.sourceAmountPublisher
+        )
+
         sendAmountCompactViewModel.bind(
             balanceTypePublisher: initialSourceToken.availableBalanceProvider.formattedBalanceTypePublisher
         )
@@ -96,7 +97,7 @@ private extension SendAmountCompactViewModel {
 
         Publishers.CombineLatest4(
             receiveTokenInput.receiveTokenPublisher,
-            swapProvidersInput.selectedExpressProviderPublisher.map { $0?.value },
+            swapProvidersInput.selectedExpressProviderPublisher,
             swapProvidersInput.expressProvidersPublisher,
             receiveTokenAmountInput.highPriceImpactPublisher
         )
@@ -122,11 +123,9 @@ private extension SendAmountCompactViewModel {
             return nil
         case .some(let receiveToken):
             let viewModel = SendAmountCompactTokenViewModel(receiveToken: receiveToken)
-            viewModel.bind(
-                amountPublisher: receiveTokenAmountInput.receiveAmountPublisher,
-                isApproximateAmount: true,
-                isApproximateAmountPublisher: isReceiveAmountApproximatePublisher
-            )
+
+            viewModel.bind(amountPublisher: receiveTokenAmountInput.receiveAmountPublisher)
+            viewModel.bind(isApproximateAmountPublisher: receiveTokenAmountInput.isReceiveAmountApproximatePublisher)
             viewModel.bind(highPriceImpactPublisher: receiveTokenAmountInput.highPriceImpactPublisher)
 
             return viewModel
@@ -135,16 +134,18 @@ private extension SendAmountCompactViewModel {
 
     private func mapToSendSwapProviderCompactViewData(
         receiveToken: SendReceiveToken?,
-        availableProvider: ExpressAvailableProvider?,
+        availableProvider: LoadingResult<ExpressAvailableProvider, Error>?,
         providers: [ExpressAvailableProvider],
         hasHighPriceImpactWarning: Bool
     ) -> SendSwapProviderCompactViewData? {
         switch (receiveToken, availableProvider) {
         case (.none, _):
             return nil
-        case (.some, .none):
+        case (.some, .failure), (.some, .none):
+            return .init(provider: .failure(""))
+        case (.some, .loading):
             return .init(provider: .loading)
-        case (.some, .some(let selectedProvider)):
+        case (.some, .success(let selectedProvider)):
             let canSelectAnother = providers.count > 1
 
             let badge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider, hasHighPriceImpactWarning: hasHighPriceImpactWarning)

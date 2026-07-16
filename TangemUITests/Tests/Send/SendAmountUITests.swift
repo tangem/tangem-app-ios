@@ -26,7 +26,7 @@ final class SendAmountUITests: BaseTestCase {
             .waitForNextButtonEnabled()
             .clearAmount()
             .enterAmount(Constants.AmountValidation.exceedingAmount)
-            .waitForAmountValue(Constants.AmountValidation.exceedingAmount)
+            .waitForAmountValue(Constants.AmountValidation.exceedingAmountFormatted)
             .waitForTotalExceedsBalanceBanner()
             .waitForNextButtonDisabled()
             .clearAmount()
@@ -65,7 +65,8 @@ private extension SendAmountUITests {
 
         enum AmountValidation {
             static let validAmount = "0.001"
-            static let exceedingAmount = "999,999"
+            static let exceedingAmount = "999999"
+            static let exceedingAmountFormatted = "999,999"
         }
 
         enum CurrencySwitching {

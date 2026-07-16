@@ -43,3 +43,15 @@ extension SurveySparrowTarget {
         case submit(request: SurveySparrowDTO.Submit.Request)
     }
 }
+
+// MARK: - TargetTypeLogConvertible protocol conformance
+
+extension SurveySparrowTarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        path
+    }
+
+    var shouldLogResponseBody: Bool {
+        false
+    }
+}

@@ -140,6 +140,21 @@ class BaseTestCase: XCTestCase {
         }
     }
 
+    // MARK: - Hot Wallet
+
+    @discardableResult
+    func importHotWallet() -> MainScreen {
+        CreateWalletSelectorScreen(app)
+            .skipStories()
+            .startWithMobileWallet()
+            .tapImportButton()
+            .enterSeedPhrase(TestSeedPhrases.hotWallet)
+            .tapImportButton()
+            .tapContinue()
+            .skipAccessCode()
+            .tapFinish()
+    }
+
     // MARK: - Alert Handling
 
     func waitAndDismissErrorAlert(
