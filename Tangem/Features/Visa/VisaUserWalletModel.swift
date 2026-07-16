@@ -458,9 +458,7 @@ extension VisaUserWalletModel: MainHeaderBalanceProvider {
             if let balances, let tokenItem {
                 let balanceFormatter = BalanceFormatter()
                 let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
-                let formattingOptions: TotalBalanceFormattingOptions = FeatureProvider.isAvailable(.redesign)
-                    ? .defaultOptionsRedesign
-                    : .defaultOptions
+                let formattingOptions: TotalBalanceFormattingOptions = .defaultOptionsRedesign
 
                 let formattedForMain = balanceFormatter.formatAttributedTotalBalance(
                     fiatBalance: formattedBalance,
