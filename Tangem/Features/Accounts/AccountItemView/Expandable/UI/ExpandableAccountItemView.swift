@@ -57,11 +57,7 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
             },
             expandedView: {
                 if viewModel.isEmptyContent {
-                    if FeatureProvider.isAvailable(.redesign) {
-                        EmptyContentAccountItemRedesignedView(onManageTokensTap: viewModel.onManageTokensTap)
-                    } else {
-                        EmptyContentAccountItemView(onManageTokensTap: viewModel.onManageTokensTap)
-                    }
+                    EmptyContentAccountItemRedesignedView(onManageTokensTap: viewModel.onManageTokensTap)
                 } else {
                     expandedView
                 }
