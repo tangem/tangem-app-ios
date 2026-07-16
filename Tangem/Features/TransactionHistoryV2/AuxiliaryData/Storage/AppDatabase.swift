@@ -16,8 +16,6 @@ final class AppDatabase {
     typealias DatabaseHandleFactory = (_ databaseFilePath: String) throws -> DatabaseHandle
 
     static let shared = AppDatabase { databaseFilePath in
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
         return try DatabaseQueue(path: databaseFilePath)
     }
 
@@ -44,12 +42,50 @@ final class AppDatabase {
         protectedDatabaseHandle = OSAllocatedUnfairLock(initialState: nil)
     }
 
+    // MARK: - File system helpers
+
+    /// The database directory is deliberately *included* in backups: this storage is planned
+    /// to hold user data in the future, not just throw-away caches.
+    private static func applyURLResourceValues(to url: inout URL) {
+        do {
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = false
+            try url.setResourceValues(values)
+        } catch {
+            AppLogger.error("Failed to apply URL resource values for app DB at URL \(url)", error: error)
+        }
+    }
+
+    /// The database files are deliberately protected as *complete unless open*: the database can only
+    /// be opened while the device is unlocked, but once open it stays readable and writable after
+    /// the device locks, so in-flight background work can finish.
+    private static func applyFileAttributes(to filePaths: [String]) {
+        let fileManager = FileManager.default
+        let fileProtectionType: FileProtectionType = .completeUnlessOpen
+
+        for path in filePaths where fileManager.fileExists(atPath: path) {
+            do {
+                try fileManager.setAttributes([.protectionKey: fileProtectionType], ofItemAtPath: path)
+            } catch {
+                AppLogger.error("Failed to set file protection attributes for app DB at path \(path)", error: error)
+            }
+        }
+    }
+
     // MARK: - Factory methods
 
     private static func makeDatabaseHandle(using databaseHandleFactory: DatabaseHandleFactory) throws -> DatabaseHandle {
-        let databasePath = try makeDatabaseFilePath()
+        let databaseFilePath = try makeDatabaseFilePath()
         let migrator = makeDatabaseMigrator()
-        let databaseHandle = try databaseHandleFactory(databasePath)
+        let databaseHandle = try databaseHandleFactory(databaseFilePath)
+        let databaseFilePaths = [
+            "", // Main database file
+            Constants.databaseWALSuffix,
+            Constants.databaseSHMSuffix,
+            Constants.databaseJournalSuffix,
+        ].map { databaseFilePath + $0 }
+
+        applyFileAttributes(to: databaseFilePaths)
 
         try migrator.migrate(databaseHandle)
 
@@ -66,16 +102,17 @@ final class AppDatabase {
             create: true
         )
 
-        let databaseDirectoryURL = applicationSupportDirectoryURL.appendingPathComponent(
+        var databaseDirectoryURL = applicationSupportDirectoryURL.appendingPathComponent(
             Constants.databaseDirectoryName,
             isDirectory: true
         )
 
         try fileManager.createDirectory(at: databaseDirectoryURL, withIntermediateDirectories: true)
+        applyURLResourceValues(to: &databaseDirectoryURL)
 
-        let databaseURL = databaseDirectoryURL.appending(path: Constants.databaseFileName, directoryHint: .notDirectory)
-
-        return databaseURL.path
+        return databaseDirectoryURL
+            .appending(path: Constants.databaseFileName, directoryHint: .notDirectory)
+            .path
     }
 
     private static func makeDatabaseMigrator() -> DatabaseMigrator {
@@ -99,5 +136,8 @@ private extension AppDatabase {
     enum Constants {
         static let databaseDirectoryName = "AppDatabase"
         static let databaseFileName = "db.sqlite"
+        static let databaseWALSuffix = "-wal"
+        static let databaseSHMSuffix = "-shm"
+        static let databaseJournalSuffix = "-journal"
     }
 }
