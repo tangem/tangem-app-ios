@@ -16,7 +16,6 @@ protocol SendSwapProvidersInput: AnyObject {
 
     /// [REDACTED_INFO]: true while the unfunded hot wallet limits the visible providers to DEX only
     var isDexOnlyProvidersMode: Bool { get }
-    var isDexOnlyProvidersModePublisher: AnyPublisher<Bool, Never> { get }
 
     var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? { get }
     var selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never> { get }

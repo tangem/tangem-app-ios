@@ -71,23 +71,45 @@ struct SwapModelDexOnlyModeTests {
         #expect(environment.swapModel.expressProviders.map(\.provider.id) == ["dex-bridge"])
     }
 
-    @Test("DEX-only mode reselects the best quoted DEX when the engine selected a CEX")
-    func dexOnlyModeReselectsBestDexWhenCexSelected() async throws {
+    @Test("DEX-only mode falls back to the legacy empty state when the engine selected a CEX")
+    func dexOnlyModeFallsBackWhenEngineSelectedCex() async throws {
         let environment = makeEnvironment(restriction: .dexProvidersOnly)
         let dex = makeProvider(id: "dex", type: .dex, expectAmount: 90)
         let cex = makeProvider(id: "cex", type: .cex, expectAmount: 100)
+        // The engine prefers an eligible DEX on selection, so a CEX selection means no usable
+        // DEX — the model doesn't second-guess the selection and falls back to the legacy state
         await environment.expressManager.configure(state: .swap(selected: cex, providers: makeProviders(dex, cex)))
 
         let state = try await updateAmountAndWaitForLoadedState(environment: environment)
 
-        guard case .loaded(.swap(.some(let selected), _), .restriction(.notEnoughBalanceForSwapping, quote: .some)) = state else {
-            Issue.record("Expected a restriction state with a quote, got \(state)")
+        guard case .loaded(.swap(.none, let providers), .restriction(.notEnoughBalanceForSwapping, quote: .none)) = state else {
+            Issue.record("Expected the legacy empty restriction state, got \(state)")
             return
         }
 
-        #expect(selected === dex)
-        await #expect(environment.expressManager.updateSelectedProviderCalls.map(\.provider.id) == ["dex"])
-        #expect(environment.swapModel.expressProviders.map(\.provider.id) == ["dex"])
+        #expect(providers.isEmpty)
+        #expect(environment.swapModel.expressProviders.isEmpty)
+    }
+
+    @Test("Best flags are recomputed over the visible DEX providers")
+    func dexOnlyModeRecomputesBestFlags() async throws {
+        let environment = makeEnvironment(restriction: .dexProvidersOnly)
+        let bestDex = makeProvider(id: "dex-90", type: .dex, expectAmount: 90)
+        let worseDex = makeProvider(id: "dex-85", type: .dex, expectAmount: 85)
+        let cex = makeProvider(id: "cex", type: .cex, expectAmount: 100)
+
+        // The engine computes the flags over all providers: the hidden CEX is the overall best
+        cex.update(isBest: true)
+        bestDex.update(isBestDEX: true)
+
+        await environment.expressManager.configure(state: .swap(selected: bestDex, providers: makeProviders(bestDex, worseDex, cex)))
+
+        _ = try await updateAmountAndWaitForLoadedState(environment: environment)
+
+        #expect(environment.swapModel.expressProviders.map(\.provider.id) == ["dex-90", "dex-85"])
+        #expect(bestDex.isBest)
+        #expect(!bestDex.isBestDEX)
+        #expect(!worseDex.isBest)
     }
 
     @Test("DEX-only mode falls back to the legacy empty state when the pair has no quoted DEX")
@@ -297,7 +319,6 @@ private final class BalanceRestrictionCheckerStub: SwapBalanceRestrictionFeature
 private actor ConfigurableExpressManagerStub: ExpressManager {
     private var state: ExpressManagerState = .idle
     private(set) var updateAmountCallsCount = 0
-    private(set) var updateSelectedProviderCalls: [ExpressAvailableProvider] = []
     private var amountType: ExpressAmountType?
 
     func configure(state: ExpressManagerState) {
@@ -317,15 +338,7 @@ private actor ConfigurableExpressManagerStub: ExpressManager {
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState { state }
 
-    func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState {
-        updateSelectedProviderCalls.append(provider)
-
-        if case .swap(_, let providers) = state {
-            state = .swap(selected: provider, providers: providers)
-        }
-
-        return state
-    }
+    func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState { state }
 
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState { state }
 

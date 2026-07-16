@@ -65,6 +65,10 @@ public enum ExpressManagerState {
             case .fixed: fixed
             }
         }
+
+        public func filter(_ isIncluded: (ExpressAvailableProvider) -> Bool) -> Providers {
+            Providers(float: float.filter(isIncluded), fixed: fixed.filter(isIncluded))
+        }
     }
 }
 
