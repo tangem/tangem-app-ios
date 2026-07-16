@@ -60,7 +60,7 @@ private extension PortfolioTokenItemView {
     }
 
     var rowContent: some View {
-        // Aggregate row: no network badge — the asset spans networks (shown in the subtitle / child rows).
+        // Aggregate row: no network badge, but the placeholder indicator dot (collapsed only)
         RowView(row: item.assetRow, showsIndicator: true, isWithOverlays: false)
     }
 }

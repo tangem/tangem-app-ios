@@ -12,6 +12,7 @@ import TangemUI
 
 struct TokenRowIcon: View {
     let iconInfo: TokenIconInfo?
+    /// Draws the small corner indicator dot — on the collapsed aggregate row only
     var showsIndicator: Bool = false
     /// Whether the network badge / custom-token indicator are drawn. Off for the aggregate row, whose
     /// icon is network-agnostic (the networks live in the subtitle and the per-network child rows).

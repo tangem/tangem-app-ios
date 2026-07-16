@@ -129,7 +129,7 @@ private extension Array where Element == PortfolioReviewAggregator.Entry {
 
     /// Collapses per-entry availability by priority. All-loading → loading. Otherwise, among the resolved
     /// entries: no-address and unreachable (no value at all) win first; then, among value-bearing entries,
-    /// the worst freshness dominates (onlyCache > cache > actual), mirroring the wallet's worst-source rule.
+    /// the worst freshness dominates (onlyCache > cache > actual).
     var availability: PortfolioReviewAggregator.Availability {
         if allSatisfy({ $0.availability == .loading }) {
             return .loading

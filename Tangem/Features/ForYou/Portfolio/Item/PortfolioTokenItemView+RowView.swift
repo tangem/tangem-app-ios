@@ -94,7 +94,7 @@ private extension PortfolioTokenItemView.ContentRow {
         }
     }
 
-    /// "Couldn't refresh, showing cached" glyph — same asset the main token list uses for this state.
+    /// "Couldn't refresh, showing cached" glyph.
     var syncErrorIcon: some View {
         Assets.failedCloud.image
             .renderingMode(.template)

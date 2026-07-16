@@ -26,7 +26,7 @@ struct ForYouTokenRowData: Identifiable, Equatable {
         /// Couldn't resolve — a warning label rendered in place of the share; fiat shows as a dash.
         case unavailable(label: String)
 
-        /// Freshness of a shown value, mirroring the wallet's balance source.
+        /// Freshness of a shown value.
         enum ValueSource: Equatable {
             /// Fresh, up-to-date value.
             case actual
