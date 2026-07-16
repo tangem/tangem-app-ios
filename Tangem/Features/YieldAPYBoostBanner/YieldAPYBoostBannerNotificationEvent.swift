@@ -18,43 +18,23 @@ struct YieldAPYBoostBannerNotificationEvent: NotificationEvent, Hashable {
     var id: NotificationViewId { "yieldApyBoostPromo".hashValue }
 
     var title: NotificationView.Title? {
-        if FeatureProvider.isAvailable(.redesign) {
-            var redesignTitle = AttributedString(
-                Localization.yieldApyBoostBannerTitle
-                    + " " + AppConstants.dotSign + " "
-                    + Localization.yieldApyBoostBannerTitleApyMultiplied
-            )
-            redesignTitle.setFontStyle(Font.Tangem.Body15.semibold)
-            return .attributed(redesignTitle)
-        }
-
-        var title = AttributedString(Localization.yieldApyBoostBannerTitle + " ")
-        title.foregroundColor = Colors.Text.primary1
-        title.font = Fonts.Bold.footnote
-
-        var dot = AttributedString(AppConstants.dotSign + " ")
-        dot.foregroundColor = Colors.Text.tertiary
-        dot.font = Fonts.Regular.footnote
-
-        var apy = AttributedString(Localization.yieldApyBoostBannerTitleApyMultiplied)
-        apy.foregroundColor = Colors.Text.accent
-        apy.font = Fonts.Bold.footnote
-
-        return .attributed(title + dot + apy)
+        var redesignTitle = AttributedString(
+            Localization.yieldApyBoostBannerTitle
+                + " " + AppConstants.dotSign + " "
+                + Localization.yieldApyBoostBannerTitleApyMultiplied
+        )
+        redesignTitle.setFontStyle(Font.Tangem.Body15.semibold)
+        return .attributed(redesignTitle)
     }
 
     var description: String? { Localization.yieldApyBoostBannerSubtitle }
 
     var icon: NotificationView.MessageIcon {
-        if FeatureProvider.isAvailable(.redesign) {
-            return .init(
-                iconType: .image(Assets.YieldModule.yieldMode),
-                renderingMode: .template,
-                size: .init(bothDimensions: 36)
-            )
-        }
-
-        return .init(iconType: .image(Assets.YieldModule.yieldMode))
+        return .init(
+            iconType: .image(Assets.YieldModule.yieldMode),
+            renderingMode: .template,
+            size: .init(bothDimensions: 36)
+        )
     }
 
     var colorScheme: NotificationView.ColorScheme { .primary }
