@@ -16,6 +16,9 @@ import TangemAccessibilityIdentifiers
 struct OrganizeTokensSortMenuView: View {
     @ObservedObject var viewModel: OrganizeTokensHeaderViewModel
 
+    /// Draw the glass ourselves in a custom header; the system toolbar already glasses its items on iOS 26.
+    let appliesGlassBackground: Bool
+
     var body: some View {
         TangemDropDown(
             items: dropDownItems,
@@ -49,16 +52,18 @@ struct OrganizeTokensSortMenuView: View {
             .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
             .frame(width: .unit(.x6), height: .unit(.x6))
             .accessibilityLabel("\(Localization.organizeTokensMenuSortByBalance), \(Localization.organizeTokensMenuGroupByNetworks)")
+            .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.sortMenuTrigger)
 
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, *), appliesGlassBackground {
             icon
+                .padding(.unit(.x3))
                 .glassEffect(.regular.interactive(), in: .circle)
-                .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.sortMenuTrigger)
+        } else if #available(iOS 26.0, *) {
+            icon
         } else {
             icon
                 .padding(.unit(.x3))
                 .contentShape(.rect)
-                .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.sortMenuTrigger)
         }
     }
 }
@@ -76,7 +81,8 @@ struct OrganizeTokensSortMenuView: View {
         optionsEditing: optionsManager,
         analyticsLogger: TokensManagementAnalyticsLogger()
     )
-    return OrganizeTokensSortMenuView(viewModel: viewModel)
+
+    OrganizeTokensSortMenuView(viewModel: viewModel, appliesGlassBackground: false)
         .padding()
 }
 #endif // DEBUG

@@ -27,7 +27,8 @@ final class SurveySparrowRatingProvider: RatingProvider {
     init(keys: SurveySparrowKeys) {
         self.keys = keys
         provider = TangemProvider<SurveySparrowTarget>(
-            plugins: [Plugin(token: keys.token)]
+            configuration: TangemProviderConfiguration(logOptions: .verbose),
+            additionalPlugins: [Plugin(token: keys.token)]
         )
     }
 

@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 public struct OnrampIdentity: Hashable {
     public let name: String
     public let code: String

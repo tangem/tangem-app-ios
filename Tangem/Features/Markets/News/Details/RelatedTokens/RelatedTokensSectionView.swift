@@ -38,7 +38,7 @@ struct RelatedTokensSectionView: View {
 
     private var redesignHeader: some View {
         Text(Localization.newsRelatedTokens)
-            .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
     }
 
     @ViewBuilder

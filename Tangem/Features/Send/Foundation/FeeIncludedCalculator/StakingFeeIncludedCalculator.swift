@@ -10,9 +10,9 @@ import BlockchainSdk
 
 struct StakingFeeIncludedCalculator: FeeIncludedCalculator {
     private let tokenItem: TokenItem
-    private let validator: TransactionValidator
+    private let validator: SendTransactionValidator
 
-    init(tokenItem: TokenItem, validator: TransactionValidator) {
+    init(tokenItem: TokenItem, validator: SendTransactionValidator) {
         self.tokenItem = tokenItem
         self.validator = validator
     }

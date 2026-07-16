@@ -14,27 +14,29 @@ class CardWalletUnlocker: UserWalletModelUnlocker {
     var analyticsSignInType: Analytics.SignInType { .card }
 
     private let userWalletId: UserWalletId
-    private let scanner: UserWalletCardScanner
+    private let scanner: ThreadSafeLazy<UserWalletCardScanner>
 
     init(userWalletId: UserWalletId, config: UserWalletConfig) {
         self.userWalletId = userWalletId
 
-        let scanParameters = CardScannerParameters(
-            shouldAskForAccessCodes: false,
-            shouldCheckAccessCode: false,
-            sessionFilter: nil
-        )
+        scanner = ThreadSafeLazy {
+            let scanParameters = CardScannerParameters(
+                shouldAskForAccessCodes: false,
+                shouldCheckAccessCode: false,
+                sessionFilter: nil
+            )
 
-        let cardScanner = CardScannerFactory().makeScanner(
-            with: config.makeTangemSdk(),
-            parameters: scanParameters
-        )
+            let cardScanner = CardScannerFactory().makeScanner(
+                with: config.makeTangemSdk(),
+                parameters: scanParameters
+            )
 
-        scanner = UserWalletCardScanner(scanner: cardScanner)
+            return UserWalletCardScanner(scanner: cardScanner)
+        }
     }
 
     func unlock() async -> UserWalletModelUnlockerResult {
-        let scanResult = await scanner.scanCard()
+        let scanResult = await scanner.value.scanCard()
         switch scanResult {
         case .error(let error):
             return .error(error)
