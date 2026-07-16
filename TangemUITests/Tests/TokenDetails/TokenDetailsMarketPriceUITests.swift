@@ -17,7 +17,6 @@ final class TokenDetailsMarketPriceUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             clearStorage: true,
-            features: [.redesign: true],
             scenarios: [
                 ScenarioConfig(name: "user_tokens_api", initialState: token),
                 ScenarioConfig(name: "quotes_api", initialState: token),

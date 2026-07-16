@@ -16,9 +16,6 @@ struct TransactionViewIconViewData: Hashable {
     let isOutgoing: Bool
 
     var icon: Image {
-        if status == .failed, !FeatureProvider.isAvailable(.redesign) {
-            return Assets.crossBig.image
-        }
         switch type {
         case .approve, .yieldDeploy:
             return Assets.approve.image

@@ -31,11 +31,7 @@ struct MarketsMainView: View {
     @State private var defaultBackgroundRedesignColor: Color = BackgroundColor.collapsed
 
     private var defaultBackgroundColor: Color {
-        if viewModel.isRedesign {
-            defaultBackgroundRedesignColor
-        } else {
-            Colors.Background.tertiary
-        }
+        defaultBackgroundRedesignColor
     }
 
     private var overlayHeight: CGFloat { showSearchResult ? searchResultListOverlayTotalHeight : defaultListOverlayTotalHeight }
@@ -54,7 +50,7 @@ struct MarketsMainView: View {
                     UIResponder.current?.resignFirstResponder()
                 }
 
-                if viewModel?.isRedesign == true {
+                if viewModel != nil {
                     defaultBackgroundRedesignColor = Color.interpolate(
                         from: BackgroundColor.collapsed,
                         to: BackgroundColor.expanded,
@@ -72,7 +68,7 @@ struct MarketsMainView: View {
             Group {
                 if showSearchResult {
                     searchResultView
-                        .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
+                        .padding(.horizontal, SizeUnit.x4.value)
                         .transition(.opacity)
                 } else {
                     widgetsListView
@@ -116,11 +112,7 @@ struct MarketsMainView: View {
 
     @ViewBuilder
     private var navigationBarBackgroundOverlay: some View {
-        if viewModel.isRedesign {
-            navigationBarBackgroundOverlayRedesign
-        } else {
-            navigationBarBackgroundOverlayLegacy
-        }
+        navigationBarBackgroundOverlayRedesign
     }
 
     @ViewBuilder
@@ -130,26 +122,8 @@ struct MarketsMainView: View {
         }
     }
 
-    @ViewBuilder
-    private var navigationBarBackgroundOverlayLegacy: some View {
-        if showSearchResult {
-            MarketsSearchResultListOverlayView(
-                titleOpacity: $listOverlayTitleOpacity,
-                totalHeight: $searchResultListOverlayTotalHeight
-            )
-        } else {
-            defaultListOverlay
-        }
-    }
-
-    @ViewBuilder
     private var searchResultView: some View {
-        if viewModel.isRedesign {
-            searchResultViewRedesign
-        } else {
-            searchResultViewLegacy
-                .scrollDismissesKeyboard(.immediately)
-        }
+        searchResultViewRedesign
     }
 
     private var searchResultViewRedesign: some View {
@@ -159,34 +133,10 @@ struct MarketsMainView: View {
         )
     }
 
-    @ViewBuilder
-    private var searchResultViewLegacy: some View {
-        switch viewModel.tokenListViewModel.tokenListLoadingState {
-        case .noResults:
-            noResultsStateView
-        case .error:
-            errorStateView(with: viewModel.tokenListViewModel.onTryLoadList)
-        case .loading, .allDataLoaded, .idle:
-            MarketsMainSearchView(
-                headerHeight: headerHeight,
-                scrollTopAnchorId: Identifiers.scrollTopAnchorID,
-                scrollViewFrameCoordinateSpaceName: CoordinateSpaceName.scrollViewFrame,
-                searchResultListOverlayTotalHeight: searchResultListOverlayTotalHeight,
-                mainWindowSize: mainWindowSize,
-                updateListOverlayAppearance: updateListOverlayAppearance(contentOffset:),
-                viewModel: viewModel.tokenListViewModel
-            )
-        }
-    }
-
     private var defaultListOverlay: some View {
         VStack(alignment: .leading, spacing: .zero) {
             HStack(alignment: .center, spacing: .zero) {
-                if viewModel.isRedesign {
-                    redesignTitleView
-                } else {
-                    legacyTitleView
-                }
+                redesignTitleView
 
                 Spacer()
             }
@@ -197,25 +147,6 @@ struct MarketsMainView: View {
         .padding(.horizontal, Layout.defaultHorizontalInset)
         .padding(.horizontal, Layout.Header.defaultHorizontalInset)
         .readGeometry(\.size.height, bindTo: $defaultListOverlayTotalHeight)
-    }
-
-    private func titleView(titleFont: Font, titleColor: Color, dateFont: Font, dateColor: Color) -> some View {
-        VStack(alignment: .leading, spacing: .zero) {
-            Text(viewModel.headerTitle)
-                .style(titleFont, color: titleColor)
-                .opacity(listOverlayTitleOpacity)
-
-            Text(viewModel.headerDate)
-                .style(dateFont, color: dateColor)
-                .opacity(listOverlayTitleOpacity)
-        }
-    }
-
-    private var legacyTitleView: some View {
-        titleView(
-            titleFont: Fonts.Bold.title1, titleColor: Colors.Text.primary1,
-            dateFont: Fonts.Bold.title1, dateColor: Colors.Text.tertiary
-        )
     }
 
     private var redesignTitleView: some View {
@@ -298,7 +229,7 @@ struct MarketsMainView: View {
                                     makeContentView(with: item.content)
                                 }
                             }
-                            .padding(.horizontal, viewModel.isRedesign ? SizeUnit.x4.value : 0)
+                            .padding(.horizontal, SizeUnit.x4.value)
                         }
                     }
                     .padding(.top, Layout.Widgets.topPadding)
@@ -316,41 +247,13 @@ struct MarketsMainView: View {
         }
     }
 
-    private var noResultsStateView: some View {
-        MarketsNoResultsStateView()
-    }
-
-    @ViewBuilder
     private func errorStateView(with tryLoadAgain: @escaping () -> Void) -> some View {
-        if viewModel.isRedesign {
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: tryLoadAgain)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-            MarketsListErrorView(tryLoadAgain: tryLoadAgain)
-        }
+        TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: tryLoadAgain)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    @ViewBuilder
     private func makeContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
-        if viewModel.isRedesign {
-            makeRedesignContentView(with: item)
-        } else {
-            makeLegacyContentView(with: item)
-        }
-    }
-
-    @ViewBuilder
-    private func makeLegacyContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
-        switch item {
-        case .top(let viewModel):
-            TopMarketWidgetView(viewModel: viewModel)
-        case .pulse(let viewModel):
-            PulseMarketWidgetView(viewModel: viewModel)
-        case .news(let viewModel):
-            NewsWidgetView(viewModel: viewModel)
-        case .earn(let viewModel):
-            EarnWidgetView(viewModel: viewModel)
-        }
+        makeRedesignContentView(with: item)
     }
 
     @ViewBuilder

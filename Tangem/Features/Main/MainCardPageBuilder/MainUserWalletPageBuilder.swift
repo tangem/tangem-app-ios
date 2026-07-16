@@ -148,45 +148,25 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     @ViewBuilder
     private func makeSingleWalletContent(id: UserWalletId, bodyModel: SingleWalletMainContentViewModel?) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            if let bodyModel {
-                SingleWalletMainContentRedesignedView(viewModel: bodyModel)
-                    .id(id)
-            } else {
-                LoadingSingleWalletMainContentRedesignedView()
-                    .id(id)
-            }
+        if let bodyModel {
+            SingleWalletMainContentRedesignedView(viewModel: bodyModel)
+                .id(id)
         } else {
-            if let bodyModel {
-                SingleWalletMainContentView(viewModel: bodyModel)
-                    .id(id)
-            } else {
-                LoadingSingleWalletMainContentView()
-                    .id(id)
-            }
+            LoadingSingleWalletMainContentRedesignedView()
+                .id(id)
         }
     }
 
     @ViewBuilder
     private func makeMultiWalletContent(id: UserWalletId, bodyModel: MultiWalletMainContentViewModel) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            MultiWalletMainContentRedesignedView(viewModel: bodyModel)
-                .id(id)
-        } else {
-            MultiWalletMainContentView(viewModel: bodyModel)
-                .id(id)
-        }
+        MultiWalletMainContentRedesignedView(viewModel: bodyModel)
+            .id(id)
     }
 
     @ViewBuilder
     private func makeLockedWalletContent(id: UserWalletId, bodyModel: LockedWalletMainContentViewModel) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            LockedWalletMainContentRedesignedView(viewModel: bodyModel)
-                .id(id)
-        } else {
-            LockedWalletMainContentView(viewModel: bodyModel)
-                .id(id)
-        }
+        LockedWalletMainContentRedesignedView(viewModel: bodyModel)
+            .id(id)
     }
 
     var missingBodyModel: Bool {

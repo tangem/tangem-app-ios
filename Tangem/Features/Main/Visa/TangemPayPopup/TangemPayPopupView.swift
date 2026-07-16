@@ -24,11 +24,7 @@ struct TangemPayPopupView<ViewModel: TangemPayPopupViewModel, AdditionalContent:
     }
 
     var body: some View {
-        if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
-            redesignedBody
-        } else {
-            legacyBody
-        }
+        redesignedBody
     }
 }
 
@@ -141,64 +137,6 @@ private extension TangemPayPopupIconStyle {
         case .info: DesignSystem.Color.iconStatusInfo
         case .warning: DesignSystem.Color.iconStatusWarning
         case .error: DesignSystem.Color.iconStatusError
-        }
-    }
-}
-
-private extension TangemPayPopupView {
-    var legacyBody: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 24) {
-                viewModel.icon
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(size: .init(bothDimensions: 56))
-                    .padding(.top, 64)
-
-                VStack(spacing: 12) {
-                    Text(viewModel.title)
-                        .style(
-                            Fonts.Bold.title3,
-                            color: Colors.Text.primary1
-                        )
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Text(viewModel.description)
-                        .environment(\.openURL, OpenURLAction(handler: { link in
-                            viewModel.onHyperLinkTap(link)
-                            return .handled
-                        }))
-                        .style(
-                            Fonts.Regular.subheadline,
-                            color: Colors.Text.secondary
-                        )
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 16)
-
-                additionalContent
-
-                VStack(spacing: 8) {
-                    MainButton(settings: viewModel.primaryButton)
-                        .accessibilityIdentifier(viewModel.primaryButtonAccessibilityIdentifier)
-
-                    if let secondarySettings = viewModel.secondaryButton {
-                        MainButton(settings: secondarySettings)
-                    }
-                }
-            }
-            .overlay(alignment: .topTrailing) {
-                NavigationBarButton
-                    .close(action: viewModel.dismiss)
-                    .padding(.top, 8)
-            }
-            .floatingSheetConfiguration { config in
-                config.backgroundInteractionBehavior = .tapToDismiss
-            }
-            .padding(.bottom, 12)
-            .padding(.horizontal, 16)
-            .frame(maxWidth: .infinity)
         }
     }
 }
