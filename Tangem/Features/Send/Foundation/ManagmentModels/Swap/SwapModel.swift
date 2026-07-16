@@ -377,14 +377,10 @@ extension SwapModel {
         case .idle:
             return .idle
 
-        case .transfer where FeatureProvider.isAvailable(.transfers):
+        case .transfer:
             let loadedState = try await mapToReadyToTransferState()
             try Task.checkCancellation()
             return .loaded(state, state: loadedState)
-
-        case .transfer:
-            // Toggle is off. Use just no providers state
-            return .loaded(.swap(selected: .none, providers: .empty), state: .idle)
 
         case .swap(.some(let selected), _):
             let loaded = try await mapToLoadedState(selected: selected)
@@ -597,7 +593,7 @@ extension SwapModel {
 
         let isBitcoinDexSwap: Bool = {
             guard case .bitcoin = source.tokenItem.blockchain else { return false }
-            return FeatureProvider.isAvailable(.bitcoinDexSwap)
+            return true
         }()
 
         let restriction = try isBitcoinDexSwap
@@ -1837,8 +1833,9 @@ extension SwapModel: NotificationTapDelegate {
              .renewTangemPaySession,
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
-             .yieldBoostPromoLater,
              .addFunds,
+             .openAppStore,
+             .yieldBoostPromoLater,
              .openGetTangemPay,
              .closeGetTangemPay:
             assertionFailure("Notification tap not handled")

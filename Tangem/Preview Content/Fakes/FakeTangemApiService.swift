@@ -20,6 +20,12 @@ final class FakeTangemApiService: TangemApiService {
     var loadNewsCategoriesHandler: (() async throws -> NewsDTO.Categories.Response)?
     var loadTrendingNewsHandler: ((Int?, String?) async throws -> TrendingNewsResponse)?
 
+    // MARK: - Campaigns Handlers (Tests/Previews)
+
+    var loadMarketingCampaignsHandler: ((MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response)?
+    var loadPromotionCampaignsHandler: ((String) async throws -> [BannerPromotion.Response.Promotion])?
+    var loadYieldBoostPromotionStatusHandler: ((String) async throws -> YieldBoostPromotionDTO.Response)?
+
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
     }
@@ -87,10 +93,18 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion] {
+        if let handler = loadPromotionCampaignsHandler {
+            return try await handler(userWalletId)
+        }
+
         throw "Not implemented"
     }
 
     func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response {
+        if let handler = loadYieldBoostPromotionStatusHandler {
+            return try await handler(userWalletId)
+        }
+
         throw "Not implemented"
     }
 
@@ -99,6 +113,10 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response {
+        if let handler = loadMarketingCampaignsHandler {
+            return try await handler(request)
+        }
+
         throw "Not implemented"
     }
 
@@ -111,6 +129,10 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadFeatures() async throws -> [String: Bool] {
+        throw "Not implemented"
+    }
+
+    func loadApplicationVersions() async throws -> ApplicationVersionsDTO {
         throw "Not implemented"
     }
 

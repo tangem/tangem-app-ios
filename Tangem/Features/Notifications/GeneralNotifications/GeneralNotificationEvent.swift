@@ -35,6 +35,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case addFunds
     case pushNotificationsPermissionRequest
     case initialWalletTokenSyncCompleted
+    case forceUpdateAvailable
 }
 
 /// For Notifications
@@ -51,7 +52,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .backupErrors, .missingBackup, .lowSignatures, .mobileFinishActivation, .numberOfSignedHashesIncorrect:
             return .critical
 
-        case .missingDerivation, .walletLocked:
+        case .missingDerivation, .walletLocked, .forceUpdateAvailable:
             return .warning
 
         case .rateApp:
@@ -123,6 +124,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.userPushNotificationBannerTitle)
         case .initialWalletTokenSyncCompleted:
             return .string(Localization.initialWalletSyncBannerTitle)
+        case .forceUpdateAvailable:
+            return .string(Localization.forceUpdateBannerTitle)
         case .addFunds:
             return .string(Localization.mainAddFundsPromoTitle)
         }
@@ -179,6 +182,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.userPushNotificationBannerSubtitle
         case .initialWalletTokenSyncCompleted:
             return Localization.initialWalletSyncBannerDescription
+        case .forceUpdateAvailable:
+            return Localization.forceUpdateBannerMessage
         case .addFunds:
             return Localization.mainAddFundsPromoDescription
         }
@@ -194,7 +199,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .mobileFinishActivation,
              .mobileUpgrade,
              .pushNotificationsPermissionRequest,
-             .initialWalletTokenSyncCompleted:
+             .initialWalletTokenSyncCompleted,
+             .forceUpdateAvailable:
             return .primary
         default:
             return .secondary
@@ -238,11 +244,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             let imageType = hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
             return .init(iconType: .image(imageType), size: CGSize(width: 16, height: 18))
         case .mobileUpgrade:
-            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), size: CGSize(width: 54, height: 54))
+            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), isLeading: false, size: CGSize(width: 54, height: 54))
         case .pushNotificationsPermissionRequest:
             return .init(iconType: .image(Assets.pushNotifyBannerIcon), size: CGSize(width: 54, height: 54))
         case .initialWalletTokenSyncCompleted:
             return .init(iconType: .image(Assets.blueCircleWarning))
+        case .forceUpdateAvailable:
+            return .init(iconType: .image(Assets.warningIcon))
         case .addFunds:
             return .init(
                 iconType: .image(Assets.coinsSwap),
@@ -251,6 +259,25 @@ extension GeneralNotificationEvent: NotificationEvent {
                 isLeading: false,
                 size: CGSize(width: 24, height: 24)
             )
+        }
+    }
+
+    var redesignedBannerContent: RedesignedBannerContent? {
+        switch self {
+        case .missingDerivation:
+            return RedesignedBannerContent(icon: nil)
+        case .mobileFinishActivation:
+            return RedesignedBannerContent(
+                title: .string(Localization.hwActivationNeedTitle),
+                icon: NotificationView.MessageIcon(
+                    iconType: .image(Assets.DesignSystem.flashShield),
+                    renderingMode: .template,
+                    color: .Tangem.Graphic.Neutral.primary,
+                    isLeading: false
+                )
+            )
+        default:
+            return nil
         }
     }
 
@@ -279,7 +306,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .systemDeprecationPermanent,
              .missingBackup,
              .supportedOnlySingleCurrencyWallet,
-             .mobileFinishActivation:
+             .mobileFinishActivation,
+             .forceUpdateAvailable:
             return .warning
         }
     }
@@ -302,6 +330,7 @@ extension GeneralNotificationEvent: NotificationEvent {
              .backupErrors,
              .mobileUpgrade,
              .mobileFinishActivation,
+             .forceUpdateAvailable,
              .addFunds:
             return false
         case .numberOfSignedHashesIncorrect,
@@ -388,6 +417,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .openManageTokensAfterWalletSuccessImport, isWithLoader: false),
             ])
+        case .forceUpdateAvailable:
+            guard let buttonAction else {
+                break
+            }
+            return .withButtons([
+                .init(action: buttonAction, actionType: .openAppStore, isWithLoader: false),
+            ])
         case .addFunds:
             guard let buttonAction else {
                 break
@@ -427,6 +463,7 @@ extension GeneralNotificationEvent {
         case .mobileUpgrade: return .mainNoticeUpgradeToColdWallet
         case .pushNotificationsPermissionRequest: return .promoPushBanner
         case .initialWalletTokenSyncCompleted: return nil
+        case .forceUpdateAvailable: return nil
         case .addFunds: return .addFundsBannerAppear
         }
     }

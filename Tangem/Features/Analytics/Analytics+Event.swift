@@ -456,6 +456,10 @@ extension Analytics {
         case promotionButtonJoinNow = "[Promotion] Button - Join Now"
         case promotionButtonClose = "[Promotion] Button - Close"
 
+        case promotionScreenOpened = "[Promotion] Promotion Screen Opened"
+        case promotionEnrollButtonClicked = "[Promotion] Enroll Button Clicked"
+        case promotionAlreadyEnrolledScreenOpened = "[Promotion] Already Enrolled Screen Opened"
+
         // MARK: - Promotion Banner
 
         case promotionBannerBannerShown = "[Promo Banner] Banner Shown"
@@ -638,6 +642,7 @@ extension Analytics {
         case onrampAppErrors = "[Onramp] App Errors"
         case onrampBuyingInProgressScreenOpened = "[Onramp] Buying In Progress Screen Opened"
         case onrampNoticeKYC = "[Onramp] Notice - KYC"
+        case onrampNoticeBuyNotSupported = "[Onramp] Notice - Buy Not Supported"
         case onrampOnrampStatusOpened = "[Onramp] Onramp Status Opened"
         case onrampButtonGoToProvider = "[Onramp] Button - Go To Provider"
         case onrampOnrampStatus = "[Onramp] Onramp Status"
@@ -788,8 +793,6 @@ extension Analytics {
 
         case visaCardIconClicked = "[Visa Card Management] Visa Card Icon Clicked"
         case visaAddExtraCardClicked = "[Visa Card Management] Visa Add Extra Card Clicked"
-        case visaFakedoorPopupDisplayed = "[Visa Card Management] Visa Fakedoor Popup Displayed"
-        case visaFakedoorGotitClicked = "[Visa Card Management] Visa Fakedoor Gotit Clicked"
         case visaExtraCardIssuancePopupDisplayed = "[Visa Screen] Visa Extra Card Issuance Popup Displayed"
         case visaExtraCardIssuanceConfirmed = "[Visa Screen] Visa Extra Card Issuance Confirmed"
 

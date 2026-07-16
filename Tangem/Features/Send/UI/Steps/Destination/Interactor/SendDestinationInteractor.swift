@@ -37,12 +37,12 @@ protocol SendDestinationInteractor {
 
 class CommonSendDestinationInteractor {
     private let initialSourceToken: SendSourceToken
+    private var initialSourceTokenItem: TokenItem { initialSourceToken.tokenItem }
     private weak var input: SendDestinationInput?
     private weak var receiveTokenInput: SendReceiveTokenInput?
 
     private var saver: SendDestinationInteractorSaver
     private var dependenciesBuilder: SendDestinationInteractorDependenciesProvider
-    private let validateMemoBeforeConfirm: Bool
 
     private let _isValidatingDestination: CurrentValueSubject<Bool, Never> = .init(false)
     private let _canEmbedAdditionalField: CurrentValueSubject<Bool, Never> = .init(true)
@@ -66,15 +66,13 @@ class CommonSendDestinationInteractor {
         input: SendDestinationInput,
         receiveTokenInput: SendReceiveTokenInput?,
         saver: SendDestinationInteractorSaver,
-        dependenciesBuilder: SendDestinationInteractorDependenciesProvider,
-        validateMemoBeforeConfirm: Bool = FeatureProvider.isAvailable(.memoValidationBeforeConfirm)
+        dependenciesBuilder: SendDestinationInteractorDependenciesProvider
     ) {
         self.initialSourceToken = initialSourceToken
         self.input = input
         self.receiveTokenInput = receiveTokenInput
         self.saver = saver
         self.dependenciesBuilder = dependenciesBuilder
-        self.validateMemoBeforeConfirm = validateMemoBeforeConfirm
 
         bind()
     }
@@ -156,8 +154,6 @@ class CommonSendDestinationInteractor {
 
 private extension CommonSendDestinationInteractor {
     func bindMemoRevalidation() {
-        guard validateMemoBeforeConfirm else { return }
-
         // Re-validate additional field when destination changes (memoRequired flag may change)
         input?.destinationPublisher
             .receiveOnMain()
@@ -176,15 +172,6 @@ private extension CommonSendDestinationInteractor {
             return true
         case .plain, .resolved:
             return false
-        }
-    }
-
-    func applyMemoValidationIfEnabled() {
-        if validateMemoBeforeConfirm {
-            applyMemoRequirementValidation()
-        } else {
-            _destinationAdditionalFieldError.send(nil)
-            _additionalFieldValid.send(true)
         }
     }
 
@@ -229,13 +216,13 @@ private extension CommonSendDestinationInteractor {
 extension CommonSendDestinationInteractor: SendDestinationInteractor {
     var tokenItemPublisher: AnyPublisher<TokenItem, Never> {
         guard let receiveTokenInput else {
-            return Empty().eraseToAnyPublisher()
+            return .just(output: initialSourceTokenItem)
         }
 
         return receiveTokenInput
             .receiveTokenPublisher
             .withWeakCaptureOf(self)
-            .map { $1.value?.tokenItem ?? $0.initialSourceToken.tokenItem }
+            .map { $1.value?.tokenItem ?? $0.initialSourceTokenItem }
             .eraseToAnyPublisher()
     }
 
@@ -257,7 +244,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
 
     var destinationResolvedAddress: AnyPublisher<String?, Never> {
         guard let input else {
-            return Empty().eraseToAnyPublisher()
+            return .empty
         }
 
         return input.destinationPublisher.map { $0?.value.showableResolved }.eraseToAnyPublisher()
@@ -356,7 +343,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
 
         guard !value.isEmpty else {
             saver.update(additionalField: .empty(type: type))
-            applyMemoValidationIfEnabled()
+            applyMemoRequirementValidation()
             return
         }
 
