@@ -33,7 +33,7 @@ extension UserWalletCardBackupStatus {
         case backup(index: Int)
     }
 
-    enum BackupStatus: String, Codable {
+    enum BackupStatus: String {
         case noBackup
         case cardLinked
         case active

@@ -10,7 +10,7 @@ import Foundation
 
 protocol UserWalletCardsBackupStatusReportService {
     /// Reports the given cards and seed usage for a wallet's backup state to the back-end.
-    /// Fire-and-forget: the request runs on a detached task and failures are logged, not propagated.
+    /// Fire-and-forget: the request runs on a background task and failures are logged, not propagated.
     func report(status: UserWalletCardsBackupStatus, userWalletId: String)
 
     /// Fetches the stored cards and backup state for a wallet from the back-end.
