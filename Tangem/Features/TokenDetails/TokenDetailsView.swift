@@ -27,26 +27,10 @@ struct TokenDetailsView: View {
         // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: Constants.sectionSpacing) {
-                if !viewModel.isRedesign {
-                    TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
-                }
+                TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
+                    .padding(.vertical, max(0, .unit(.x10) - Constants.sectionSpacing))
 
-                if viewModel.isRedesign {
-                    TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
-                        .padding(.vertical, max(0, .unit(.x10) - Constants.sectionSpacing))
-
-                    redesignActionsSection
-                } else {
-                    BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
-                }
-
-                notifications
-
-                marketPriceLegacy
-
-                yieldView
-
-                stakingView
+                redesignActionsSection
 
                 marketingBanner
 
@@ -59,34 +43,16 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
 
-                if !viewModel.isRedesign, let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
-                    QuickTopUpBannerView(viewModel: quickTopUpVM)
-                }
-
-                if FeatureProvider.isAvailable(.redesign) {
-                    TransactionsListViewRedesigned(
-                        state: viewModel.transactionHistoryState,
-                        exploreAction: viewModel.openExplorer,
-                        exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
-                        exploreTransactionAction: viewModel.openTransactionExplorer,
-                        reloadButtonAction: viewModel.onButtonReloadHistory,
-                        isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                        fetchMore: viewModel.fetchMoreHistory()
-                    )
-                    .padding(.bottom, 40)
-                } else {
-                    // [REDACTED_INFO]: remove legacy transactions list after redesign rollout.
-                    TransactionsListView(
-                        state: viewModel.transactionHistoryState,
-                        exploreAction: viewModel.openExplorer,
-                        exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
-                        exploreTransactionAction: viewModel.openTransactionExplorer,
-                        reloadButtonAction: viewModel.onButtonReloadHistory,
-                        isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                        fetchMore: viewModel.fetchMoreHistory()
-                    )
-                    .padding(.bottom, 40)
-                }
+                TransactionsListViewRedesigned(
+                    state: viewModel.transactionHistoryState,
+                    exploreAction: viewModel.openExplorer,
+                    exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
+                    exploreTransactionAction: viewModel.openTransactionExplorer,
+                    reloadButtonAction: viewModel.onButtonReloadHistory,
+                    isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
+                    fetchMore: viewModel.fetchMoreHistory()
+                )
+                .padding(.bottom, 40)
             }
             .padding(.top, Constants.headerTopPadding)
             .readContentOffset(
@@ -131,55 +97,19 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var principalContent: some View {
-        if viewModel.isRedesign {
-            redesignPrincipalToolbarContent
-        } else {
-            legacyPrincipalToolbarContent
-        }
+        redesignPrincipalToolbarContent
     }
 
     private var redesignPrincipalToolbarContent: some View {
         TokenDetailsNavigationBar(viewModel: viewModel.navigationBarViewModel)
     }
 
-    private var legacyPrincipalToolbarContent: some View {
-        TokenIcon(
-            tokenIconInfo: .init(
-                name: "",
-                blockchainIconAsset: nil,
-                imageURL: viewModel.iconUrl,
-                isCustom: false,
-                customTokenColor: viewModel.customTokenColor
-            ),
-            size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
-        )
-        .opacity(scrollOffsetHandler.state)
-    }
-
     private var trailingContent: some View {
         Group {
-            if viewModel.isRedesign {
-                redesignTrailingToolbarButton
-            } else {
-                legacyTrailingToolbarButton
-            }
+            redesignTrailingToolbarButton
         }
         .accessibilityAddTraits(.isButton)
         .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
-    }
-
-    @ViewBuilder
-    private var legacyTrailingToolbarButton: some View {
-        if !viewModel.dotsMenuItems.isEmpty {
-            Menu {
-                ForEach(indexed: viewModel.dotsMenuItems.indexed()) { _, item in
-                    Button(item.type.title, role: item.type.role, action: item.action)
-                        .accessibilityIdentifier(item.type.accessibilityIdentifier)
-                }
-            } label: {
-                NavbarDotsImage()
-            }
-        }
     }
 
     @ViewBuilder
@@ -209,13 +139,6 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    private var yieldView: some View {
-        if !viewModel.isRedesign {
-            yieldStatusView
-        }
-    }
-
-    @ViewBuilder
     private var redesignYieldView: some View {
         switch viewModel.yieldState {
         case .some(let state):
@@ -226,29 +149,12 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    private var stakingView: some View {
-        if !viewModel.isRedesign {
-            legacyStakingView
-        }
-    }
-
-    @ViewBuilder
     private var redesignStakingView: some View {
         switch viewModel.stakingState {
         case .some(let state):
             TokenDetailsStakingView(state: state)
         case .none:
             EmptyView()
-        }
-    }
-
-    @ViewBuilder
-    private var legacyStakingView: some View {
-        if let activeStakingViewData = viewModel.activeStakingViewData {
-            ActiveStakingView(data: activeStakingViewData)
-                .padding(14)
-                .background(Colors.Background.primary)
-                .cornerRadiusContinuous(14)
         }
     }
 
@@ -281,16 +187,6 @@ struct TokenDetailsView: View {
         }
     }
 
-    @ViewBuilder
-    private var notifications: some View {
-        if !viewModel.isRedesign {
-            ForEach(viewModel.tokenNotificationInputs) { input in
-                NotificationView(input: input)
-                    .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
-            }
-        }
-    }
-
     private var redesignNotificationBanners: some View {
         VStack(spacing: .unit(.x2)) {
             ForEach(viewModel.notifications) { notification in
@@ -310,19 +206,6 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    private var marketPriceLegacy: some View {
-        if !viewModel.isRedesign, viewModel.isMarketsDetailsAvailable {
-            MarketPriceView(
-                currencySymbol: viewModel.currencySymbol,
-                price: viewModel.rateFormatted,
-                priceChangeState: viewModel.priceChangeState,
-                miniChartData: viewModel.miniChartData,
-                tapAction: viewModel.openMarketsTokenDetails
-            )
-        }
-    }
-
-    @ViewBuilder
     private var marketPriceRedesign: some View {
         if let viewModel = viewModel.marketPriceViewModel {
             TokenDetailsMarketPriceView(viewModel: viewModel)
@@ -335,24 +218,8 @@ struct TokenDetailsView: View {
         }
     }
 
-    @ViewBuilder
-    private var yieldStatusView: some View {
-        switch viewModel.yieldModuleAvailability {
-        case .checking, .notApplicable:
-            EmptyView()
-
-        case .eligible(let vm):
-            YieldAvailableNotificationView(viewModel: vm)
-
-        case .enter(let vm), .exit(let vm), .active(let vm):
-            YieldStatusView(viewModel: vm)
-        }
-    }
-
     private var backgroundColor: Color {
-        viewModel.isRedesign
-            ? Color.Tangem.Surface.level2
-            : Colors.Background.secondary
+        Color.Tangem.Surface.level2
     }
 }
 
@@ -394,7 +261,7 @@ private extension TokenDetailsView {
                 }
             }
             .modifyView { view in
-                if #unavailable(iOS 26.0), FeatureProvider.isAvailable(.redesign) {
+                if #unavailable(iOS 26.0) {
                     view.backportTranslucentNavigationBar()
                 } else {
                     view

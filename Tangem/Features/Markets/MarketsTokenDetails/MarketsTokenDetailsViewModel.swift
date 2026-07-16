@@ -97,7 +97,6 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     var descriptionCanBeShowed: Bool { !geoEligibilityService.isUK }
 
     let presentationStyle: MarketsTokenDetailsPresentationStyle
-    let isRedesignEnabled = FeatureProvider.isAvailable(.redesign)
 
     private var priceInfo: MarketsTokenDetailsPriceInfoHelper.PriceInfo? {
         guard let currentPrice = priceFromQuoteRepository else {
@@ -263,24 +262,16 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
         let title = Localization.marketsTokenDetailsAboutTokenTitle(tokenInfo.name)
 
-        if isRedesignEnabled {
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                coordinator?.openFullDescriptionDialogue(
-                    title: title,
-                    description: fullDescription,
-                    onGenerateAITapAction: { [weak self] in
-                        guard let self else { return }
-                        let dataCollector = TokenErrorDescriptionDataCollector(tokenId: tokenInfo.id, tokenName: tokenInfo.name)
-                        coordinator?.openMail(with: dataCollector, emailType: .appFeedback(subject: Localization.feedbackTokenDescriptionError))
-                    }
-                )
-            }
-        } else {
-            fullDescriptionBottomSheetInfo = .init(
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            coordinator?.openFullDescriptionDialogue(
                 title: title,
                 description: fullDescription,
-                showCloseButton: true
+                onGenerateAITapAction: { [weak self] in
+                    guard let self else { return }
+                    let dataCollector = TokenErrorDescriptionDataCollector(tokenId: tokenInfo.id, tokenName: tokenInfo.name)
+                    coordinator?.openMail(with: dataCollector, emailType: .appFeedback(subject: Localization.feedbackTokenDescriptionError))
+                }
             )
         }
     }
@@ -722,15 +713,8 @@ extension MarketsTokenDetailsViewModel: CustomStringConvertible {
 
 extension MarketsTokenDetailsViewModel: MarketsTokenDetailsBottomSheetRouter {
     func openInfoBottomSheet(title: String, message: String) {
-        if isRedesignEnabled {
-            Task { @MainActor in
-                coordinator?.openInfoDialogue(title: title, message: message)
-            }
-        } else {
-            descriptionBottomSheetInfo = .init(
-                title: title,
-                description: message
-            )
+        Task { @MainActor in
+            coordinator?.openInfoDialogue(title: title, message: message)
         }
     }
 }

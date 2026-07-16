@@ -12,7 +12,7 @@ final class TokenDetailsReceiveQRCodeUITests: BaseTestCase {
     func testReceiveQRCodeEncodesDisplayedAddress_Bitcoin() {
         setAllureId(4947)
 
-        launchApp(tangemApiType: .mock, clearStorage: true, features: [.redesign: true])
+        launchApp(tangemApiType: .mock, clearStorage: true)
 
         openReceive(token: "Bitcoin")
             .assertBothAddressTypesEncodeDisplayedAddressAndDiffer()
@@ -24,7 +24,6 @@ final class TokenDetailsReceiveQRCodeUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             clearStorage: true,
-            features: [.redesign: true],
             scenarios: [ScenarioConfig(name: "user_tokens_api", initialState: "Litecoin")]
         )
 
@@ -38,7 +37,6 @@ final class TokenDetailsReceiveQRCodeUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             clearStorage: true,
-            features: [.redesign: true],
             scenarios: [ScenarioConfig(name: "user_tokens_api", initialState: "XDC")]
         )
 
@@ -52,7 +50,6 @@ final class TokenDetailsReceiveQRCodeUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             clearStorage: true,
-            features: [.redesign: true],
             scenarios: [ScenarioConfig(name: "user_tokens_api", initialState: "Decimal")]
         )
 
@@ -66,7 +63,6 @@ final class TokenDetailsReceiveQRCodeUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             clearStorage: true,
-            features: [.redesign: true],
             scenarios: [
                 ScenarioConfig(name: "user_tokens_api", initialState: "Cosmos"),
                 ScenarioConfig(name: "networks_providers", initialState: "AppTransfersNetworks"),
@@ -84,7 +80,6 @@ final class TokenDetailsReceiveQRCodeUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             clearStorage: true,
-            features: [.redesign: true],
             scenarios: [
                 ScenarioConfig(name: "user_tokens_api", initialState: "Kaspa"),
                 ScenarioConfig(name: "networks_providers", initialState: "AppTransfersNetworks"),
@@ -103,7 +98,6 @@ final class TokenDetailsReceiveQRCodeUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             clearStorage: true,
-            features: [.redesign: true],
             scenarios: [
                 ScenarioConfig(name: "user_tokens_api", initialState: "Hedera"),
                 ScenarioConfig(name: "networks_providers", initialState: "AppTransfersNetworks"),
@@ -118,7 +112,7 @@ final class TokenDetailsReceiveQRCodeUITests: BaseTestCase {
     func testReceiveQRCodeEncodesDisplayedAddress_Ethereum() {
         setAllureId(10217)
 
-        launchApp(tangemApiType: .mock, clearStorage: true, features: [.redesign: true])
+        launchApp(tangemApiType: .mock, clearStorage: true)
 
         openReceive(token: "Ethereum")
             .tapShowQRCode(.segwit)

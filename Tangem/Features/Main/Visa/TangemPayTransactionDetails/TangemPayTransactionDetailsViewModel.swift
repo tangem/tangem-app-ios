@@ -83,9 +83,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         additionalInfo = displayData.additionalInfo
         mainButtonAction = displayData.mainButtonAction
 
-        displayModel = FeatureProvider.isAvailable(.tangemPaySpendRedesign)
-            ? Self.makeDisplayModel(origin: origin, cardName: cardName, cardNumberEnd: cardNumberEnd)
-            : nil
+        displayModel = Self.makeDisplayModel(origin: origin, cardName: cardName, cardNumberEnd: cardNumberEnd)
     }
 
     convenience init(

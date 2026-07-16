@@ -28,18 +28,15 @@ struct CollapsedAccountItemHeaderView: View {
     @ScaledMetric private var geometryEffectAnchorOffset: CGFloat = 20
 
     private var balanceLoaderStyle: LoadableBalanceView.LoaderStyle {
-        FeatureProvider.isAvailable(.redesign)
-            ? .init(size: .init(width: .unit(.x18), height: .unit(.x4)), cornerRadiusStyle: .capsule)
-            : .init(size: .init(width: .unit(.x10), height: .unit(.x3)))
+        .init(size: .init(width: .unit(.x18), height: .unit(.x4)), cornerRadiusStyle: .capsule)
     }
 
-    // [REDACTED_INFO]: drop gating, keep the redesign values (line spacing 4, padding 12).
     private var lineSpacing: CGFloat {
-        FeatureProvider.isAvailable(.redesign) ? .unit(.x1) : 2
+        .unit(.x1)
     }
 
     private var contentPadding: CGFloat {
-        FeatureProvider.isAvailable(.redesign) ? .unit(.x3) : 14
+        .unit(.x3)
     }
 
     var body: some View {

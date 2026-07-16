@@ -54,11 +54,7 @@ struct NewsPagingView<Content: View>: View {
             }
 
             if pageCount > 1 {
-                if FeatureProvider.isAvailable(.redesign) {
-                    PageIndicatorViewRedesign(totalPages: pageCount, currentIndex: currentIndex)
-                } else {
-                    PageIndicatorView(totalPages: pageCount, currentIndex: currentIndex)
-                }
+                PageIndicatorViewRedesign(totalPages: pageCount, currentIndex: currentIndex)
             }
         }
     }
