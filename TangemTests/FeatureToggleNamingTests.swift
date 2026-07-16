@@ -28,7 +28,6 @@ struct FeatureToggleNamingTests {
     private static let legacyToggles: Set<Feature> = [
         .disableFirmwareVersionLimit,
         .visa,
-        .redesign,
         .exchangeOnlyWithinSingleAddress,
         .walletConnectBitcoin,
         .surveySparrow,
@@ -38,7 +37,6 @@ struct FeatureToggleNamingTests {
         .pushNotificationsSettings,
         .deeplinkPresentationWay,
         .transactionHistoryV2,
-        .tangemPaySpendRedesign,
         .supportChat,
         .supportChatSwap,
         .mobileWalletMultiCreation,
