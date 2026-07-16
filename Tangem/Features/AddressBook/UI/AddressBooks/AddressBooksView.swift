@@ -66,6 +66,9 @@ struct AddressBooksView: View {
                 AddressBooksLoadingView()
             }
 
+        case .updateRequired:
+            AddressBooksUpdateRequiredView(onUpdateTap: viewModel.openUpdateApp)
+
         default:
             searchableContent
         }
@@ -92,7 +95,7 @@ struct AddressBooksView: View {
         case .loading, .searching, .results:
             listContent
 
-        case .empty:
+        case .empty, .updateRequired:
             EmptyView()
         }
     }
