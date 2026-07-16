@@ -31,7 +31,7 @@ struct BlockchainCodingKeyTests {
 
         #expect(mainnet.chainId == 4663)
         #expect(testnet.chainId == 46630)
-        #expect(mainnet.networkId == "robihood")
+        #expect(mainnet.networkId == "robinhood")
         #expect(mainnet.coinId == "robinhood-ethereum")
         #expect(mainnet.currencySymbol == "ETH")
         #expect(mainnet.supportsEIP1559)

@@ -1676,7 +1676,7 @@ private extension Blockchain {
             return "monad"
         case .robinhood:
             switch type {
-            case .network: return "robihood"
+            case .network: return "robinhood"
             case .coin: return "robinhood-ethereum"
             }
         case .arbitrumNova:
