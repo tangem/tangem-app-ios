@@ -25,7 +25,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     lazy var dependencies = makeOnrampDependencies(preferredValues: parameters.preferredValues)
     lazy var analyticsLogger = makeOnrampSendAnalyticsLogger(source: coordinatorSource)
     lazy var notificationManager = makeOnrampNotificationManager(input: onrampModel, delegate: onrampModel)
-    lazy var marketingNotificationManager = makeOnrampMarketingBannerNotificationManager()
+    lazy var marketingBannerManager = makeOnrampMarketingBannerManager()
 
     lazy var onrampModel = makeOnrampModel(
         onrampManager: dependencies.manager,
@@ -77,7 +77,8 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             tokenItem: tokenItem,
             analyticsLogger: analyticsLogger,
             buyActionBuilder: buyActionBuilder,
-            linkedBannersPublisher: marketingNotificationManager.linkedBannersPublisher,
+            standaloneBannersPublisher: marketingBannerManager.standaloneBannersPublisher,
+            linkedBannersPublisher: marketingBannerManager.linkedBannersPublisher,
             input: onrampModel,
             output: onrampModel
         )
@@ -102,7 +103,7 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
 
         notificationManager.setupManager(with: onrampModel)
 
-        marketingNotificationManager.setup(
+        marketingBannerManager.setup(
             tokenItem: tokenItem,
             amountInput: onrampModel,
             providersInput: onrampModel
@@ -190,8 +191,8 @@ extension OnrampFlowFactory: OnrampSummaryStepBuildable {
     var onrampDependencies: OnrampSummaryStepBuilder.Dependencies {
         OnrampSummaryStepBuilder.Dependencies(
             notificationManager: notificationManager,
-            marketingNotificationManager: marketingNotificationManager,
-            linkedBannersPublisher: marketingNotificationManager.linkedBannersPublisher,
+            marketingBannerManager: marketingBannerManager,
+            linkedBannersPublisher: marketingBannerManager.linkedBannersPublisher,
             analyticsLogger: analyticsLogger,
             buyActionBuilder: buyActionBuilder
         )

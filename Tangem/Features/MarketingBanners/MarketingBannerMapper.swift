@@ -9,8 +9,12 @@
 import Foundation
 
 enum MarketingBannerMapper {
-    static func banners(from campaigns: [MarketingCampaignsDTO.Campaign]) -> MarketingBanners {
+    static func banners(
+        from campaigns: [MarketingCampaignsDTO.Campaign],
+        now: Date = .now
+    ) -> MarketingBanners {
         let banners = campaigns
+            .filter { isActive($0, now: now) }
             .sorted { $0.priority < $1.priority }
             .compactMap { makeBanner(from: $0) }
 
@@ -18,6 +22,18 @@ enum MarketingBannerMapper {
             standalone: banners.filter { $0.isStandalone },
             linked: banners.filter { !$0.isStandalone }
         )
+    }
+
+    private static func isActive(_ campaign: MarketingCampaignsDTO.Campaign, now: Date) -> Bool {
+        if let startAt = campaign.startAt, now < startAt {
+            return false
+        }
+
+        if let endAt = campaign.endAt, now > endAt {
+            return false
+        }
+
+        return true
     }
 
     static func makeBanner(from campaign: MarketingCampaignsDTO.Campaign) -> MarketingBanner? {
