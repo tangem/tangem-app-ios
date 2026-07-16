@@ -110,7 +110,7 @@ private extension TangemPayAccount {
         if cards.count > 1 {
             return .multiple(count: cards.count)
         }
-        if let cardNumberEnd = card?.cardNumberEnd {
+        if let cardNumberEnd = cards.first?.cardNumberEnd {
             return .single(cardNumberEnd: cardNumberEnd)
         }
         return nil

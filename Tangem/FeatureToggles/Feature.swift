@@ -22,31 +22,23 @@ enum Feature: String, Hashable, CaseIterable {
     case pushNotificationsSettings
     case deeplinkPresentationWay
     case transactionHistoryV2
-    case tangemPayMultipleCards
-    case transfers
-    case memoValidationBeforeConfirm
     case tangemPaySpendRedesign
+    case forceUpdate
     case tangemPayTiers
     case supportChat
     case supportChatSwap
-    case onrampApplePayHistoryFallback
     case mobileWalletMultiCreation
-    case approveFlowV2
-    case addAndOrganizeRedesign
     case stakingTransactionValidation
     case sendWithSwapAvailabilityCheck
     case swapFiatCalculation
     case addressBook
-    case swapChooseBestDEX
     case hideStoriesInMobileWallet
     case marketingBanners
-    case bitcoinDexSwap
     case stakingRegionUnavailable
     case forYou
     case tangemPayVirtualAccount
     case highFeeWarning
     case priceAlertsSubscription
-    case solanaUnstakeValidation
     case promoCampaignsAttribution
     case onboardingPushNotificationDoubleAsk
     case mainPushNotificationDoubleAsk
@@ -69,30 +61,22 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
-        case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
-        case .transfers: return "14042_Transfers"
-        case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
+        case .forceUpdate: return "[REDACTED_INFO]_force_update"
         case .tangemPayTiers: return "TWI-1066_tangem_pay_tiers_1"
         case .supportChat: return "13815_Support_Chat_(Usedesk)"
         case .supportChatSwap: return "13815_Support_Chat_in_Swap_(Usedesk)"
-        case .onrampApplePayHistoryFallback: return "14115_Onramp_Apple_Pay_History_Fallback"
         case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
-        case .approveFlowV2: return "13786_Update_Swap_Phase_2_Permissions"
-        case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
         case .stakingTransactionValidation: return "TWI-1602_move_away_from_blind_signing_in_staking"
         case .sendWithSwapAvailabilityCheck: return "14316_Send_With_Swap_Availability_Check"
         case .swapFiatCalculation: return "14315_Swap_Fiat_Calculation"
-        case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
         case .addressBook: return "TWI-83_address_book"
-        case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_dex_lifi_swapkit"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         case .marketingBanners: return "TWI-1522_special_offer_promo_placement_for_onramp_and_swaps"
         case .stakingRegionUnavailable: return "[REDACTED_INFO]_p2p_staking_region_unavailable"
         case .forYou: return "TWI-1469_for_you_product_shelves_add_indicators"
         case .highFeeWarning: return "TWI-1367_high_fee_warning"
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
-        case .solanaUnstakeValidation: return "[REDACTED_INFO]_solana_unstake_validation"
         case .tangemPayVirtualAccount: return "TWI-1638_tangempay_virtual_account"
         case .onboardingPushNotificationDoubleAsk: return "TWI-1403_onboarding_push_notification_double_ask"
         case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
@@ -116,31 +100,23 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushNotificationsSettings: return .unspecified
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
-        case .tangemPayMultipleCards: return .version("6.0")
-        case .transfers: return .version("6.0")
-        case .memoValidationBeforeConfirm: return .version("6.0")
+        case .forceUpdate: return .unspecified
         case .tangemPaySpendRedesign: return .version("6.0")
         case .tangemPayTiers: return .unspecified
         case .supportChat: return .unspecified
         case .supportChatSwap: return .unspecified
-        case .onrampApplePayHistoryFallback: return .version("6.0")
         case .mobileWalletMultiCreation: return .unspecified
-        case .approveFlowV2: return .version("6.0")
-        case .addAndOrganizeRedesign: return .version("6.0")
         case .stakingTransactionValidation: return .unspecified
         case .sendWithSwapAvailabilityCheck: return .unspecified
-        case .swapChooseBestDEX: return .version("6.0")
         case .swapFiatCalculation: return .unspecified
         case .addressBook: return .version("6.1")
-        case .bitcoinDexSwap: return .version("6.0")
-        case .hideStoriesInMobileWallet: return .version("6.0")
+        case .hideStoriesInMobileWallet: return .version("6.1")
         case .marketingBanners: return .unspecified
         case .stakingRegionUnavailable: return .version("6.1")
         case .forYou: return .unspecified
         case .highFeeWarning: return .unspecified
         case .priceAlertsSubscription: return .unspecified
         case .tangemPayVirtualAccount: return .version("6.1")
-        case .solanaUnstakeValidation: return .version("6.0")
         case .onboardingPushNotificationDoubleAsk: return .unspecified
         case .mainPushNotificationDoubleAsk: return .unspecified
         case .promoCampaignsAttribution: return .version("6.1")

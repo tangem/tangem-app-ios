@@ -57,16 +57,20 @@ enum PromotionCampaignsFixtures {
     }
 
     static func makeToken(
+        tokenId: String = "usd-coin",
         tokenAddress: String = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         tokenSymbol: String = "USDC",
         tokenName: String = "USD Coin",
-        networkId: String = "ethereum"
+        networkId: String = "ethereum",
+        decimals: Int = 6
     ) -> BannerPromotion.Response.Token {
         BannerPromotion.Response.Token(
+            tokenId: tokenId,
             tokenAddress: tokenAddress,
             tokenSymbol: tokenSymbol,
             tokenName: tokenName,
-            networkId: networkId
+            networkId: networkId,
+            decimals: decimals
         )
     }
 
