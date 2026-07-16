@@ -40,7 +40,8 @@ final class AppDatabase {
     private let protectedDatabaseHandle: OSAllocatedUnfairLock<DatabaseHandle?>
     private let databaseHandleFactory: DatabaseHandleFactory
 
-    private init(databaseHandleFactory: @escaping DatabaseHandleFactory) {
+    @available(iOS, deprecated: 100000.0, message: "For unit tests only, use `AppDatabase.shared` instead")
+    init(databaseHandleFactory: @escaping DatabaseHandleFactory) {
         self.databaseHandleFactory = databaseHandleFactory
         protectedDatabaseHandle = OSAllocatedUnfairLock(initialState: nil)
     }
