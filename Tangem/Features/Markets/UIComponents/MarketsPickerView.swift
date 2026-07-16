@@ -36,23 +36,12 @@ struct MarketsPickerView: View {
     }
 
     var body: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            MarketsPickerViewRedesign(
-                selection: $marketPriceIntervalType,
-                data: options,
-                titleFactory: titleFactory,
-                style: shouldStretchToFill ? .flexible : .fixed
-            )
-        } else {
-            MarketsPickerViewLegacy(
-                selectedOption: $marketPriceIntervalType,
-                options: options,
-                shouldStretchToFill: shouldStretchToFill,
-                style: style,
-                titleFactory: titleFactory,
-                accessibilityIdentifierFactory: accessibilityIdentifierFactory
-            )
-        }
+        MarketsPickerViewRedesign(
+            selection: $marketPriceIntervalType,
+            data: options,
+            titleFactory: titleFactory,
+            style: shouldStretchToFill ? .flexible : .fixed
+        )
     }
 }
 
@@ -108,29 +97,6 @@ private struct MarketsPickerViewRedesign: View {
         func hash(into hasher: inout Hasher) {
             hasher.combine(intervalType)
         }
-    }
-}
-
-private struct MarketsPickerViewLegacy: View {
-    typealias Option = MarketsPriceIntervalType
-
-    @Binding var selectedOption: Option
-
-    let options: [Option]
-    let shouldStretchToFill: Bool
-    let style: SegmentedPicker<Option>.Style
-    let titleFactory: (Option) -> String
-    let accessibilityIdentifierFactory: ((Option) -> String)?
-
-    var body: some View {
-        SegmentedPicker(
-            selectedOption: $selectedOption,
-            options: options,
-            shouldStretchToFill: shouldStretchToFill,
-            style: style,
-            titleFactory: titleFactory,
-            segmentAccessibilityIdentifier: accessibilityIdentifierFactory
-        )
     }
 }
 

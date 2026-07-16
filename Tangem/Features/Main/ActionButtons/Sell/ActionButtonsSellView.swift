@@ -16,14 +16,11 @@ struct ActionButtonsSellView: View {
     @ObservedObject var viewModel: ActionButtonsSellViewModel
 
     private var navigationTitle: String {
-        if FeatureProvider.isAvailable(.redesign) {
-            return Localization.swappingTokenListTitle
-        }
-        return Localization.commonSell
+        return Localization.swappingTokenListTitle
     }
 
     private var backgroundColor: Color {
-        FeatureProvider.isAvailable(.redesign) ? .Tangem.Surface.level2 : Colors.Background.tertiary
+        .Tangem.Surface.level2
     }
 
     var body: some View {
