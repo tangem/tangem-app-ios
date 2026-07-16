@@ -22,7 +22,7 @@ struct TangemApiTarget: TargetType {
             fullURL
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
-        case .promotion, .yieldBoostPromotionStatus:
+        case .promotion, .yieldBoostPromotionStatus, .promotionRegistration:
             AppEnvironment.current.apiBaseUrlv2
         case .saveUserWalletTokensV2:
             // Contract v1.3 documents the full path as `/api/v2/wallets/{walletId}/tokens`.
@@ -72,6 +72,8 @@ struct TangemApiTarget: TargetType {
             return "/promotion"
         case .yieldBoostPromotionStatus:
             return "/promotion/yield-apr-boost/status"
+        case .promotionRegistration:
+            return "/promotion/registrations"
         case .loadPromotions:
             return "/banner/displays"
         case .hidePromotion(let request):
@@ -112,6 +114,10 @@ struct TangemApiTarget: TargetType {
             return "/hot_crypto"
         case .pushNotificationsEligible:
             return "/notification/push_notifications_eligible_networks"
+
+        // MARK: - Application versions
+        case .applicationVersions:
+            return "/application/versions"
 
         // MARK: Applications
         case .createUserWalletsApplication:
@@ -210,7 +216,8 @@ struct TangemApiTarget: TargetType {
              .newsList,
              .newsDetails,
              .newsCategories,
-             .trendingNews:
+             .trendingNews,
+             .applicationVersions:
             return .get
         case .saveUserWalletTokens,
              .saveUserWalletTokensV2,
@@ -226,7 +233,8 @@ struct TangemApiTarget: TargetType {
              .createWallet,
              .bindWalletsByCode,
              .syncAddressBooks,
-             .subscribeToPriceAlerts:
+             .subscribeToPriceAlerts,
+             .promotionRegistration:
             return .post
         case .unsubscribeFromPriceAlerts:
             return .delete
@@ -243,7 +251,7 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(pageModel)
         case .quotes(let pageModel):
             return .requestParameters(pageModel)
-        case .currencies, .geo, .features, .getUserWalletTokens:
+        case .currencies, .geo, .features, .getUserWalletTokens, .applicationVersions:
             return .requestPlain
         case .saveUserWalletTokens(_, let list),
              .saveUserWalletTokensV2(_, let list):
@@ -261,6 +269,8 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(request)
         case .yieldBoostPromotionStatus(let request):
             return .requestParameters(request)
+        case .promotionRegistration(let request):
+            return .requestJSONEncodable(request)
         case .loadPromotions(let request):
             return .requestParameters(request)
         case .hidePromotion(let request):
@@ -403,6 +413,7 @@ struct TangemApiTarget: TargetType {
              .createAccount,
              .promotion,
              .yieldBoostPromotionStatus,
+             .promotionRegistration,
              .loadPromotions,
              .hidePromotion,
              .marketingCampaigns,
@@ -438,6 +449,7 @@ struct TangemApiTarget: TargetType {
              .newsDetails,
              .newsCategories,
              .bindWalletsByCode,
+             .applicationVersions,
              .syncAddressBooks:
             return nil
         }
@@ -464,6 +476,7 @@ extension TangemApiTarget {
 
         case promotion(request: BannerPromotion.Request)
         case yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request)
+        case promotionRegistration(request: PromotionRegistrationDTO.Request)
 
         // Promotions
         case loadPromotions(request: PromotionsDTO.Load.Request)
@@ -499,6 +512,9 @@ extension TangemApiTarget {
 
         /// Notifications
         case pushNotificationsEligible
+
+        /// Application versions
+        case applicationVersions
 
         // Applications
         case createUserWalletsApplication(_ requestModel: ApplicationDTO.Request)
@@ -542,7 +558,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .applicationVersions, .marketingCampaigns:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -599,6 +615,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .promotionRegistration,
              .loadPromotions,
              .hidePromotion,
              .marketingCampaigns,
@@ -609,7 +626,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .syncAddressBooks,
              .updateAddressBook,
              .activatePromoCode,
-             .coinsSettings:
+             .coinsSettings,
+             .applicationVersions:
             return true
         }
     }

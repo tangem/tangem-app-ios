@@ -280,6 +280,21 @@ extension CommonTangemApiService: TangemApiService {
         )
     }
 
+    func registerForPromotionCampaign(request: PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response {
+        let target = TangemApiTarget(type: .promotionRegistration(request: request))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+
+            switch response.statusCode {
+            case 201, 409:
+                return try response.map(PromotionRegistrationDTO.Response.self, using: decoder)
+            default:
+                return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false, decoder: decoder)
+            }
+        }
+    }
+
     // MARK: - Marketing
 
     func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response {
@@ -288,6 +303,12 @@ extension CommonTangemApiService: TangemApiService {
 
     func loadAPIList() async throws -> APIListDTO {
         try await request(for: .apiList)
+    }
+
+    // MARK: - Application versions
+
+    func loadApplicationVersions() async throws -> ApplicationVersionsDTO {
+        try await request(for: .applicationVersions)
     }
 
     func loadFeatures() async throws -> [String: Bool] {

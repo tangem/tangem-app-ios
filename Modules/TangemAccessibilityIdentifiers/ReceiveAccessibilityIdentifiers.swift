@@ -11,4 +11,6 @@ import Foundation
 public enum ReceiveAccessibilityIdentifiers {
     public static let segwitAddress = "receiveSegwitAddress"
     public static let legacyAddress = "receiveLegacyAddress"
+    public static let segwitShowQRCodeButton = "receiveSegwitShowQRCodeButton"
+    public static let legacyShowQRCodeButton = "receiveLegacyShowQRCodeButton"
 }

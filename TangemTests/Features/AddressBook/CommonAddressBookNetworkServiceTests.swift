@@ -235,6 +235,7 @@ private final class MockTangemApiService: TangemApiService {
     func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response { fatalError("unused") }
     func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response { fatalError("unused") }
     func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response { fatalError("unused") }
+    func loadApplicationVersions() async throws -> ApplicationVersionsDTO { fatalError("unused") }
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response { fatalError("unused") }
     func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response { fatalError("unused") }
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response { fatalError("unused") }
@@ -252,6 +253,7 @@ private final class MockTangemApiService: TangemApiService {
     func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response { fatalError("unused") }
     func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion] { fatalError("unused") }
     func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response { fatalError("unused") }
+    func registerForPromotionCampaign(request: PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response { fatalError("unused") }
     func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response { fatalError("unused") }
     func loadFeatures() async throws -> [String: Bool] { fatalError("unused") }
     func loadAPIList() async throws -> APIListDTO { fatalError("unused") }

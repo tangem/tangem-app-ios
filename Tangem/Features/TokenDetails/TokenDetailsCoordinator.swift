@@ -82,7 +82,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             publicKey: options.walletModel.publicKey
         )
 
-        let deeplinkHandler = TokenDetailsDeeplinkHandler(
+        let deeplinkHandler = PromotionDeeplinkHandler(
             coordinator: self,
             walletModel: options.walletModel,
             userWalletInfo: options.userWalletInfo
@@ -355,6 +355,27 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
+    func openSwapAndSend(input: SendInput) {
+        guard SendFeatureProvider.shared.isAvailable else {
+            return
+        }
+
+        let sourceToken = CommonSendSwapableTokenFactory(
+            userWalletInfo: input.userWalletInfo,
+            walletModel: input.walletModel,
+            operationType: .swapAndSend
+        ).makeSwapableToken()
+
+        let coordinator = makeSendCoordinator()
+        let options = SendCoordinator.Options(
+            type: .send(sourceToken),
+            source: .tokenDetails,
+            shouldStartFromTokenList: true
+        )
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
+    }
+
     func openSwap(parameters: PredefinedSwapParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .swap(parameters), source: .tokenDetails)
@@ -455,3 +476,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 // MARK: - SendFeeCurrencyNavigating
 
 extension TokenDetailsCoordinator: SendFeeCurrencyNavigating {}
+
+// MARK: - PromotionDeeplinkRoutable
+
+extension TokenDetailsCoordinator: PromotionDeeplinkRoutable {}

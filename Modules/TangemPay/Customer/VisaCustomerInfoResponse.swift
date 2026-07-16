@@ -90,7 +90,7 @@ public extension VisaCustomerInfoResponse {
         public let status: ProductStatus
         public let updatedAt: Date
         public let paymentAccountId: String
-        public let displayName: String
+        public let displayName: String?
         public let adminCardLimit: CardLimit
         public let actualCardLimit: CardLimit?
         public let productSpecificationDataType: ProductSpecificationDataType
@@ -278,15 +278,48 @@ public extension VisaCustomerInfoResponse {
         public let images: [Image]
         public let fees: [Fee]
 
+        enum CodingKeys: String, CodingKey {
+            case id
+            case type
+            case name
+            case descriptionItems
+            case images
+            case fees
+        }
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
+            type = try container.decodeIfPresent(String.self, forKey: .type) ?? ""
+            name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+            descriptionItems = try container.decodeIfPresent([DescriptionItem].self, forKey: .descriptionItems) ?? []
+            images = try container.decodeIfPresent([Image].self, forKey: .images) ?? []
+            fees = try container.decodeIfPresent([Fee].self, forKey: .fees) ?? []
+        }
+
         public struct DescriptionItem: Codable {
             public let type: ItemType
             public let order: Int
             public let title: String
-            public let body: String
+            public let body: String?
+
+            public init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                type = try container.decode(ItemType.self, forKey: .type)
+                order = try container.decode(Int.self, forKey: .order)
+                title = try container.decode(String.self, forKey: .title)
+                body = try container.decodeIfPresent(String.self, forKey: .body) ?? ""
+            }
 
             public enum ItemType: String, Codable {
                 case cardRelated = "CARD_RELATED"
                 case planRelated = "PLAN_RELATED"
+                case onboardingRelated = "ONBOARDING_RELATED"
+
+                public init(from decoder: Decoder) throws {
+                    let raw = try decoder.singleValueContainer().decode(String.self)
+                    self = Self(rawValue: raw) ?? .cardRelated
+                }
             }
         }
 
@@ -296,6 +329,14 @@ public extension VisaCustomerInfoResponse {
 
             public enum ImageType: String, Codable {
                 case main = "MAIN"
+                case thumbnail = "THUMBNAIL"
+                case banner = "BANNER"
+                case undefined = "UNDEFINED"
+
+                public init(from decoder: Decoder) throws {
+                    let raw = try decoder.singleValueContainer().decode(String.self)
+                    self = Self(rawValue: raw) ?? .undefined
+                }
             }
         }
 

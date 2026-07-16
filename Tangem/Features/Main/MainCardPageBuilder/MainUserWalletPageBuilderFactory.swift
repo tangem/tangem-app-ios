@@ -39,6 +39,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
     @Injected(\.walletAssetsDiscoveryProgressProvider) private var walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
     @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
+    @Injected(\.promotionCampaignsRepository) private var promotionCampaignsRepository: PromotionCampaignsRepository
 
     weak var coordinator: MainContentRoutable?
 
@@ -106,6 +107,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         marketingCampaignsRepository.loadCampaigns(for: .tokenDetails)
         marketingCampaignsRepository.loadCampaigns(for: .marketsToken)
 
+        promotionCampaignsRepository.prewarm(userWalletId: model.userWalletId.stringValue)
+
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: model.userWalletInfo,
             coordinator: coordinator
@@ -132,6 +135,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
 
             let yieldApyBoostBannerNotificationManager = YieldAPYBoostBannerService(userWalletId: model.userWalletId)
+            let forceUpdateBannerNotificationManager = ForceUpdateBannerNotificationManager()
 
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
                 userWalletModel: model,
@@ -150,6 +154,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 tangemPayNotificationManager: tangemPayNotificationManager,
                 getTangemPayBannerNotificationManager: getTangemPayBannerNotificationManager,
                 yieldApyBoostBannerNotificationManager: yieldApyBoostBannerNotificationManager,
+                forceUpdateBannerNotificationManager: forceUpdateBannerNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
                 tokenRouter: tokenRouter,
@@ -214,6 +219,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             walletModel: dependencies.walletModel,
             userWalletNotificationManager: userWalletNotificationManager,
             promotionNotificationsManager: promotionNotificationsManager,
+            forceUpdateBannerNotificationManager: ForceUpdateBannerNotificationManager(),
             pendingExpressTransactionsManager: expressStatusTracking.manager,
             expressStatusPollingHelper: expressStatusTracking.pollingHelper,
             tokenNotificationManager: singleWalletNotificationManager,
