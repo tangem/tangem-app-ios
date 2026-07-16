@@ -65,6 +65,8 @@ final class StakingModelCancellationTests: LeakTrackingTestSuite {
         let model = makeUnstakingModel(stakingManager: stakingManager, preflightValidator: nil)
         let recordedStates = recordStates(of: model.statePublisher)
 
+        model.updateFees()
+
         var estimationStartedIterator = estimationStarted.makeAsyncIterator()
         await estimationStartedIterator.next()
 
@@ -85,6 +87,8 @@ final class StakingModelCancellationTests: LeakTrackingTestSuite {
         let (preflightStarted, preflightValidator) = makeHangingFirstCallPreflightValidator()
         let model = makeUnstakingModel(stakingManager: stakingManager, preflightValidator: preflightValidator)
         let recordedStates = recordStates(of: model.statePublisher)
+
+        model.updateFees()
 
         var preflightStartedIterator = preflightStarted.makeAsyncIterator()
         await preflightStartedIterator.next()

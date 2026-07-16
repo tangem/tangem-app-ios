@@ -82,28 +82,10 @@ private extension SolanaRentExemptionValidatorTests {
 
         let sut = SolanaRentExemptionValidator(
             tokenItem: tokenItem,
-            transactionValidator: TransactionValidatorMock(validateError: validationError),
+            transactionValidator: SendTransactionValidatorStub(validateError: validationError),
             tokenFeeProvidersManager: feeProvidersManager
         )
 
         return trackForMemoryLeaks(sut)
     }
-}
-
-private final class TransactionValidatorMock: SendTransactionValidator {
-    private let validateError: Error?
-
-    init(validateError: Error?) {
-        self.validateError = validateError
-    }
-
-    func validate(amount: BSDKAmount) throws {}
-
-    func validate(amount: BSDKAmount, fee: BSDKFee) throws {
-        if let validateError {
-            throw validateError
-        }
-    }
-
-    func validate(amount: BSDKAmount, fee: BSDKFee, destination: DestinationType) async throws {}
 }

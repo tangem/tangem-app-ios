@@ -34,7 +34,9 @@ extension SolanaRentExemptionValidator: StakingPreflightValidator {
         do {
             estimatedFee = try await tokenFeeProvidersManager.estimatedFee(amount: .zero)
         } catch {
-            StakingLogger.error(error: error)
+            if !Task.isCancelled {
+                StakingLogger.error(error: error)
+            }
             return nil
         }
 
