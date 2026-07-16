@@ -53,12 +53,10 @@ struct AddressBooksUpdateRequiredView: View {
             .clipShape(Circle())
     }
 
-    // Temporary: reuse the existing force_update_button ("Update") until force_update_required_action
-    // ("Update app") ships via the Lokalise sync; then swap both references to Localization.forceUpdateRequiredAction.
     private var updateButton: some View {
         TangemButtonV2(
-            label: AttributedString(Localization.forceUpdateButton),
-            accessibilityLabel: Localization.forceUpdateButton,
+            label: AttributedString(Localization.forceUpdateRequiredAction),
+            accessibilityLabel: Localization.forceUpdateRequiredAction,
             action: onUpdateTap
         )
         .styleType(.default)
