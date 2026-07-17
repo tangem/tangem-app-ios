@@ -64,7 +64,8 @@ private extension PortfolioReviewMapper {
         }
     }
 
-    /// Whole-screen skeleton while nothing's resolved yet — the simplified UI has no per-row loading.
+    /// Whole-screen skeleton only while everything is still unresolved; once anything resolves,
+    /// still-loading rows fall back to per-row skeletons.
     func isStillResolving(walletModels: [any WalletModel], groups: [PortfolioReviewAggregator.Group]) -> Bool {
         walletModels.isEmpty || (!groups.isEmpty && groups.allSatisfy { $0.availability == .loading })
     }

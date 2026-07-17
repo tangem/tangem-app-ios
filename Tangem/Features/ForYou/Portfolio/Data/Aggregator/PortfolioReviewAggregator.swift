@@ -50,12 +50,12 @@ private extension Array where Element == PortfolioReviewAggregator.TokenHolding 
             .compactMap { sample -> PortfolioReviewAggregator.NetworkGroup? in
                 guard let bucket = buckets[sample.networkKey] else { return nil }
                 return PortfolioReviewAggregator.NetworkGroup(
-                    id: sample.id,
+                    id: sample.networkKey,
                     sample: sample,
                     holdings: bucket
                 )
             }
-            .sorted { $0.amountInFiat > $1.amountInFiat }
+            .stableSorted { $0.amountInFiat > $1.amountInFiat }
     }
 }
 
@@ -63,10 +63,25 @@ private extension Array where Element == PortfolioReviewAggregator.TokenHolding 
 
 private extension Array where Element == PortfolioReviewAggregator.Group {
     func rankedByFiat() -> [Element] {
-        sorted { $0.amountInFiat > $1.amountInFiat }
+        stableSorted { $0.amountInFiat > $1.amountInFiat }
     }
 
     func splitTop(max: Int) -> (topHoldings: [Element], other: [Element]) {
         (Array(prefix(max)), Array(dropFirst(max)))
+    }
+}
+
+// MARK: - Stable sort
+
+private extension Array {
+    /// Like `sorted(by:)` but stable: elements the predicate treats as equal keep their original (first-seen) order.
+    func stableSorted(by areInIncreasingOrder: (Element, Element) -> Bool) -> [Element] {
+        enumerated()
+            .sorted { lhs, rhs in
+                if areInIncreasingOrder(lhs.element, rhs.element) { return true }
+                if areInIncreasingOrder(rhs.element, lhs.element) { return false }
+                return lhs.offset < rhs.offset
+            }
+            .map(\.element)
     }
 }
