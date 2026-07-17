@@ -66,8 +66,8 @@ final class SwapBalanceRestrictionHandler {
 
             let dexProviders = providers.filter(\.provider.type.isDEX)
 
-            if let selected {
-                dexProviders.availableProviders(rate: selected.rateType).updateIsBestFlagPreferringDEX()
+            for rateType in [ExpressProviderRateType.float, .fixed] {
+                dexProviders.availableProviders(rate: rateType).updateIsBestFlagPreferringDEX()
             }
 
             return .swap(selected: selected, providers: dexProviders)
