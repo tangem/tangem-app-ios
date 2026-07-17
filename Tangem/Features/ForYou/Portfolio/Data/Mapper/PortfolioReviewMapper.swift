@@ -10,17 +10,15 @@ import Foundation
 import TangemUI
 import TangemLocalization
 
-/// Maps the selected wallet's models into the Portfolio Review view state: flattens each model into an
-/// aggregator `Entry`, delegates grouping/ranking to `PortfolioReviewAggregator`, then builds the rows
-/// and formats the display strings.
+/// Flattens the wallet's models into aggregator holdings, then builds the view-state rows.
 struct PortfolioReviewMapper {
     private let balanceFormatter = BalanceFormatter()
     private let iconBuilder = TokenIconInfoBuilder()
     private let percentFormatter = PercentFormatter()
 
     func map(walletModels: [any WalletModel]) -> PortfolioReviewViewModel.ViewState {
-        let entries = walletModels.map(makeEntry)
-        let (topHoldings, other) = PortfolioReviewAggregator.aggregate(entries)
+        let holdings = walletModels.map(makeHolding)
+        let (topHoldings, other) = PortfolioReviewAggregator.aggregate(holdings)
         let groups = topHoldings + other
 
         // Still resolving → whole-screen skeleton (no models yet, or every asset's balance still loading).
@@ -31,12 +29,12 @@ struct PortfolioReviewMapper {
 
         // Portfolio total = the sum of the shown holdings (top + other). Derived from the rows rather
         // than the separate total-balance provider, so shares resolve exactly when the balances do.
-        let totalFiat = groups.reduce(Decimal.zero) { $0 + $1.fiat }
+        let totalFiat = groups.reduce(Decimal.zero) { $0 + $1.amountInFiat }
 
         var items = topHoldings.map { makeAssetItem(group: $0, total: totalFiat) }
 
         if !other.isEmpty {
-            let otherFiat = other.reduce(Decimal.zero) { $0 + $1.fiat }
+            let otherFiat = other.reduce(Decimal.zero) { $0 + $1.amountInFiat }
             items.append(makeOtherItem(assetCount: other.count, fiat: otherFiat, total: totalFiat))
         }
 
@@ -47,14 +45,14 @@ struct PortfolioReviewMapper {
     }
 }
 
-// MARK: - Entry extraction
+// MARK: - Holding extraction
 
 private extension PortfolioReviewMapper {
-    func makeEntry(_ walletModel: any WalletModel) -> PortfolioReviewAggregator.Entry {
+    func makeHolding(_ walletModel: any WalletModel) -> PortfolioReviewAggregator.TokenHolding {
         let tokenItem = walletModel.tokenItem
         let availability = Self.availability(for: walletModel.fiatAvailableBalanceProvider.balanceType)
 
-        return PortfolioReviewAggregator.Entry(
+        return PortfolioReviewAggregator.TokenHolding(
             id: walletModel.id.id,
             groupKey: tokenItem.currencyId ?? walletModel.id.id,
             networkKey: tokenItem.networkId,
@@ -63,15 +61,13 @@ private extension PortfolioReviewMapper {
             tokenItem: tokenItem,
             isCustom: walletModel.isCustom,
             // Keep the (possibly cached) value for any state that shows one.
-            crypto: availability.showsValue ? walletModel.availableBalanceProvider.balanceType.value : nil,
-            fiat: availability.showsValue ? walletModel.fiatAvailableBalanceProvider.balanceType.value : nil,
+            amountInCrypto: availability.showsValue ? walletModel.availableBalanceProvider.balanceType.value : nil,
+            amountInFiat: availability.showsValue ? walletModel.fiatAvailableBalanceProvider.balanceType.value : nil,
             availability: availability
         )
     }
 
-    /// Maps the balance status onto the row availability. A cached value distinguishes "refreshing"
-    /// (`.loading(.some)`) from "nothing yet" (`.loading(.none)`), and "couldn't refresh but have a value"
-    /// (`.failure(.some)`) from "unreachable" (`.failure(.none)`).
+    /// Balance status → row availability: `.some`/`.none` cached value splits refreshing from nothing-yet, and could-not-refresh from unreachable.
     static func availability(for balance: TokenBalanceType) -> PortfolioReviewAggregator.Availability {
         switch balance {
         case .loading(.some):
@@ -111,7 +107,7 @@ private extension PortfolioReviewMapper {
             tokenIconInfo: iconBuilder.build(from: group.tokenItem, isCustom: group.isCustom),
             sentiment: Self.placeholderSentiment, // [REDACTED_TODO_COMMENT]
             subtitle: .text(assetSubtitle(tokenItem: group.tokenItem, networkCount: group.networks.count)),
-            end: end(availability: group.availability, fiat: group.fiat, total: total)
+            end: end(availability: group.availability, fiat: group.amountInFiat, total: total)
         )
     }
 
@@ -122,7 +118,7 @@ private extension PortfolioReviewMapper {
             tokenIconInfo: iconBuilder.build(from: network.sample.tokenItem, isCustom: network.sample.isCustom),
             sentiment: Self.placeholderSentiment,
             subtitle: networkSubtitle(network),
-            end: end(availability: network.availability, fiat: network.fiat, total: total)
+            end: end(availability: network.availability, fiat: network.amountInFiat, total: total)
         )
     }
 
@@ -147,9 +143,7 @@ private extension PortfolioReviewMapper {
 // MARK: - End & subtitles
 
 private extension PortfolioReviewMapper {
-    /// Trailing content for a row given its balance availability. The simplified UI has no per-row
-    /// loading/freshness state, so cache/only-cache render like a plain resolved value, and a still-loading
-    /// row shows a neutral dash until it resolves.
+    /// Trailing content per availability: cache/only-cache render as a plain value; loading shows a dash.
     func end(availability: PortfolioReviewAggregator.Availability, fiat: Decimal, total: Decimal) -> ForYouTokenRowData.End {
         switch availability {
         case .content, .cache, .onlyCache:
@@ -168,7 +162,7 @@ private extension PortfolioReviewMapper {
 
         switch network.availability {
         case .content, .cache, .onlyCache:
-            return .dotted(name, balanceFormatter.formatCryptoBalance(network.crypto, currencyCode: network.sample.symbol))
+            return .dotted(name, balanceFormatter.formatCryptoBalance(network.amountInCrypto, currencyCode: network.sample.symbol))
         case .unreachable:
             return .text(name)
         case .loading, .noAddress:

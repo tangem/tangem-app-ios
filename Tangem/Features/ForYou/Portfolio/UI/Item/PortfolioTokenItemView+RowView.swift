@@ -53,7 +53,9 @@ extension PortfolioTokenItemView.RowView {
             TokenIcon(
                 tokenIconInfo: iconInfo,
                 size: CGSize(width: iconSize, height: iconSize),
-                isWithOverlays: true
+                // Network badge only on the per-network rows; the collapsed aggregate spans networks.
+                isWithOverlays: !showsIndicator,
+                iconGeometryEffect: effects?.icon
             )
         } else {
             // "Other" bucket — the ds-core token placeholder glyph.
@@ -63,6 +65,8 @@ extension PortfolioTokenItemView.RowView {
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
                 .matchedGeometryEffect(effects?.icon)
                 .frame(width: iconSize, height: iconSize)
+                // ds-core glyph carries built-in padding → renders smaller than a full-bleed token logo; scale up. Tunable.
+                .scaleEffect(1.3)
         }
     }
 

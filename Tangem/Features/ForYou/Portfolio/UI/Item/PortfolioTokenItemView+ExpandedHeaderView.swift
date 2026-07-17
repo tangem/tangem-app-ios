@@ -77,7 +77,8 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
             TokenIcon(
                 tokenIconInfo: tokenIconInfo,
                 size: CGSize(width: iconSize, height: iconSize),
-                isWithOverlays: false
+                isWithOverlays: false,
+                iconGeometryEffect: effects.icon
             )
         } else {
             DesignSystem.Icons.tokenError.image
@@ -86,6 +87,8 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
                 .matchedGeometryEffect(effects.icon)
                 .frame(width: iconSize, height: iconSize)
+                // ds-core glyph carries built-in padding → scale up to match token logos. Tunable.
+                .scaleEffect(1.3)
         }
     }
 
