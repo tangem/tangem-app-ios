@@ -36,6 +36,7 @@ Every change starts with a Jira ticket whose key flows through the rest of the w
 - **Self-review before opening the PR.** Once the branch builds and tests pass, do an independent review of the diff as if it were someone else's code: either read `git diff <base>..HEAD` end-to-end with fresh eyes, or delegate to a sub-agent (e.g. Claude Code's `Agent` tool with a skeptical-reviewer prompt; equivalent in other agent harnesses). Apply any meaningful feedback as additional commits before opening the PR — the goal is to spend the human reviewer's attention on judgment calls, not on things you would have caught yourself.
 - **PR title:** identical to the commit subject. The PR body MUST include `[IOS-NNNNN](https://tangem.atlassian.net/browse/IOS-NNNNN)` on its own line so the Atlassian/GitHub integration links the PR back to the ticket. Opening the PR generally moves the issue to `Review` automatically.
 - **PR description style.** Convey the essence — the problem and the approach — in a few plain sentences. Don't walk through the changes file by file or restate the diff; it speaks for itself. Don't tell reviewers what to look at, flag the "riskiest" part, or ask for a second opinion — they decide where to focus. Cut filler and hedging. Write idiomatically in the language of the team conversation — no runglish or word-for-word calques. Keep verification steps only when genuinely useful. PR descriptions live on GitHub (not in the repo).
+- **Don't drag unrelated tickets into the merge.** A Jira↔GitHub automation transitions *every* `IOS-NNNNN` key it finds in the PR title, branch, commit messages, or body to `Ready for Testing` when the PR merges. So write as a real key only the ticket(s) this PR should actually move — normally just its own (the `[IOS-NNNNN](…)` link line above). When you must reference another ticket for context or as a follow-up, de-key it so the matcher (`IOS-` + digits) can't see it: replace the ASCII hyphen with a non-breaking hyphen `‑` (U+2011) — e.g. `IOS‑13154`, which renders identically on GitHub — or refer to it descriptively. Same rule for commit subjects and bodies, not just the description; if a stray key slips into a commit message, that ticket rides the merge too.
 - All commits require a valid GPG signature (see Miscellaneous).
 
 ## Build & Development Commands
@@ -49,10 +50,9 @@ git submodule update --init --recursive   # Fetch the private tangem-app-config 
 ```
 
 ### Building
-Open `TangemApp.xcodeproj` in Xcode. There are three main schemes:
+Open `TangemApp.xcodeproj` in Xcode. There are two main schemes:
 - **Tangem** - Production
-- **Tangem Beta** - Beta testing
-- **Tangem Alpha** - Internal testing
+- **Tangem Internal** - Internal testing
 
 Always prefer Xcode MCP for building and testing. If Xcode MCP is not available or not working - build the project using appropriate cli tools like `xcodebuild`. In this case, always fetch installed iOS simulators first (using appropriate cli tools like `simctl`) and select the one with the most recent iOS version to build and run the project
 
@@ -60,7 +60,7 @@ Always prefer Xcode MCP for building and testing. If Xcode MCP is not available 
 ```bash
 bundle exec fastlane test                                               # Unit tests (Production scheme)
 bundle exec fastlane test_modules                                       # SPM module tests
-bundle exec fastlane ui_test                                            # UI tests (Alpha scheme)
+bundle exec fastlane ui_test                                            # UI tests (Internal scheme)
 bundle exec fastlane ui_test only_testing:TangemUITests/TestClassName   # Single test class
 ```
 
@@ -172,11 +172,10 @@ Located in `Tangem/Domain/`:
 
 ## Build Configurations
 
-SPM modules support conditional compilation via environment variables:
-- `SWIFT_PACKAGE_BUILD_FOR_ALPHA` - Alpha build flags
-- `SWIFT_PACKAGE_BUILD_FOR_BETA` - Beta build flags
+SPM modules support conditional compilation via an environment variable:
+- `SWIFT_PACKAGE_BUILD_FOR_INTERNAL` - Internal build flags
 
-This enables `ALPHA`, `BETA`, and `ALPHA_OR_BETA` compile-time flags.
+This enables the `INTERNAL` compile-time flag.
 
 ## Fastlane Lanes
 
@@ -184,8 +183,7 @@ Key lanes defined in `fastlane/Fastfile`:
 - `test` - Run unit tests
 - `test_modules` - Run SPM module tests
 - `ui_test` - Run UI tests
-- `build_Alpha` - Build Alpha for Firebase
-- `build_Beta` - Build Beta for Firebase
+- `build_Internal` - Build Internal for TestFlight
 - `build_RC` - Build Release Candidate for TestFlight
 - `update_translations` - Fetch translations from Lokalise
 

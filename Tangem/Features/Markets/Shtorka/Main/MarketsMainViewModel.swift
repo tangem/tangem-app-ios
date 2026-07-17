@@ -41,10 +41,6 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         return dateString.capitalized(with: headerDateFormatter.locale)
     }
 
-    var isRedesign: Bool {
-        FeatureProvider.isAvailable(.redesign)
-    }
-
     override var overlayContentHidingProgress: CGFloat {
         // Prevents unwanted content hiding (see [REDACTED_INFO]
         isViewVisible ? super.overlayContentHidingProgress : 1.0
@@ -66,7 +62,6 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     private var bag = Set<AnyCancellable>()
 
-    private var currentSearchValue: String = ""
     private var isViewVisible: Bool = false
     private var isBottomSheetExpanded: Bool = false
 
@@ -114,11 +109,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
         headerViewModel.delegate = self
 
-        if isRedesign {
-            bindToTokenSearch()
-        } else {
-            searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
-        }
+        bindToTokenSearch()
 
         bindToSearchFocus()
 
@@ -180,48 +171,6 @@ private extension MarketsMainViewModel {
         tokenSearchViewModel.$state
             .map { $0 != .idle }
             .assign(to: &$isSearching)
-    }
-
-    func searchTextBind(publisher: some Publisher<SearchInput, Never>) {
-        publisher
-            .dropFirst()
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
-            // Ensure that clear input event will be delivered immediately
-            .merge(with: publisher.filter { $0 == .clearInput })
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, searchInput in
-                viewModel.isSearching = true
-
-                switch searchInput {
-                case .textInput(let value):
-                    if viewModel.currentSearchValue.compare(value) != .orderedSame {
-                        viewModel.tokenListViewModel.onResetShowItemsBelowCapFlag()
-                    }
-
-                    viewModel.currentSearchValue = value
-                    let currentFilter = viewModel.dataProvider.lastFilterValue ?? viewModel.filterProvider.currentFilterValue
-
-                    // Always use rating sorting for search
-                    let searchFilter = MarketsListDataProvider.Filter(
-                        interval: currentFilter.interval,
-                        order: value.isEmpty ? currentFilter.order : .rating
-                    )
-
-                    viewModel.tokenListViewModel.onFetch(with: value, by: searchFilter)
-                case .clearInput, .cancelInput:
-                    viewModel.isSearching = false
-
-                    if viewModel.currentSearchValue.isEmpty {
-                        return
-                    }
-
-                    viewModel.tokenListViewModel.onResetShowItemsBelowCapFlag()
-                    viewModel.currentSearchValue = ""
-                    viewModel.tokenListViewModel.onFetch(with: "", by: viewModel.filterProvider.currentFilterValue)
-                }
-            }
-            .store(in: &bag)
     }
 
     func bindToSearchFocus() {

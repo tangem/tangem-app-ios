@@ -28,20 +28,6 @@ struct MarketsTokenDetailsView: View {
         labelOffset: Constants.scrollViewContentTopInset + Constants.scrollViewVerticalPadding
     )
 
-    private var isDarkColorScheme: Bool { colorScheme == .dark }
-
-    /// `UIColor` is used since `Color(uiColor:)` constructor loses Xcode color asset dark/light appearance setting.
-    @available(iOS, deprecated: 18.0, message: "Replace 'UIColor' with 'Color' since 'Color.mix(with:by:in:)' is available")
-    private var defaultBackgroundColor: UIColor {
-        isDarkColorScheme ? UIColor.backgroundPrimary.forcedDark : UIColor.backgroundSecondary.forcedLight
-    }
-
-    /// `UIColor` is used since `Color(uiColor:)` constructor loses Xcode color asset dark/light appearance setting.
-    @available(iOS, deprecated: 18.0, message: "Replace 'UIColor' with 'Color' since 'Color.mix(with:by:in:)' is available")
-    private var overlayContentHidingBackgroundColor: UIColor {
-        isDarkColorScheme ? defaultBackgroundColor.forcedDark : UIColor.backgroundPlain.forcedLight
-    }
-
     var body: some View {
         rootViewWithTitle
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] state in
@@ -92,13 +78,8 @@ struct MarketsTokenDetailsView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    @ViewBuilder
     private var navigationBar: some View {
-        if viewModel.isRedesignEnabled {
-            redesignedNavigationBar
-        } else {
-            legacyNavigationBar
-        }
+        redesignedNavigationBar
     }
 
     // MARK: - Redesigned navigation
@@ -162,39 +143,8 @@ struct MarketsTokenDetailsView: View {
 
     @ToolbarContentBuilder
     private var trailingToolbarContent: some ToolbarContent {
-        if viewModel.isRedesignEnabled {
-            NavigationToolbarButton.share(placement: .topBarTrailing, action: viewModel.shareTokenDetails)
-                .redesigned()
-        } else {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: viewModel.shareTokenDetails) {
-                    Assets.Glyphs.moreVertical.image
-                }
-            }
-        }
-    }
-
-    private var legacyNavigationBar: some View {
-        MarketsNavigationBar(
-            titleView: { navigationBarTitle },
-            onBackButtonAction: viewModel.onBackButtonTap,
-            rightButtons: {
-                Button(action: viewModel.shareTokenDetails) {
-                    Assets.Glyphs.moreVertical.image
-                        .padding(.trailing, 16)
-                }
-            }
-        )
-        .background(
-            MarketsNavigationBarBackgroundView(
-                backdropViewColor: backgroundColor,
-                overlayContentHidingProgress: viewModel.overlayContentHidingProgress,
-                isNavigationBarBackgroundBackdropViewHidden: viewModel.isNavigationBarBackgroundBackdropViewHidden,
-                isListContentObscured: isListContentObscured
-            )
-        )
-        .readGeometry(\.size.height, bindTo: $headerHeight)
-        .infinityFrame(axis: .vertical, alignment: .top)
+        NavigationToolbarButton.share(placement: .topBarTrailing, action: viewModel.shareTokenDetails)
+            .redesigned()
     }
 
     private var navigationBarTitle: some View {
@@ -253,40 +203,16 @@ struct MarketsTokenDetailsView: View {
         .opacity(viewModel.overlayContentHidingProgress)
         .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
         .bindAlert($viewModel.alert)
-        .if(!viewModel.isRedesignEnabled) { view in
-            view
-                .descriptionBottomSheet(
-                    info: $viewModel.descriptionBottomSheetInfo,
-                    backgroundColor: Colors.Background.action
-                )
-                .tokenDescriptionBottomSheet(
-                    info: $viewModel.fullDescriptionBottomSheetInfo,
-                    backgroundColor: Colors.Background.action,
-                    onGeneratedAITapAction: viewModel.onGenerateAITapAction
-                )
-        }
         .sheet(item: $viewModel.securityScoreDetailsViewModel) { detailsViewModel in
-            if viewModel.isRedesignEnabled {
-                MarketsTokenDetailsSecurityScoreDetailsRedesignedView(viewModel: detailsViewModel)
-            } else {
-                // [REDACTED_INFO]: legacy security score sheet
-                MarketsTokenDetailsSecurityScoreDetailsView(viewModel: detailsViewModel)
-                    .adaptivePresentationDetents()
-                    .background(Colors.Background.tertiary.ignoresSafeArea())
-            }
+            MarketsTokenDetailsSecurityScoreDetailsRedesignedView(viewModel: detailsViewModel)
         }
         .animation(.default, value: viewModel.state)
         .animation(.default, value: viewModel.isLoading)
         .animation(.default, value: viewModel.allDataLoadFailed)
     }
 
-    @ViewBuilder
     private var header: some View {
-        if viewModel.isRedesignEnabled {
-            headerRedesign
-        } else {
-            headerLegacy
-        }
+        headerRedesign
     }
 
     private var headerRedesign: some View {
@@ -299,47 +225,6 @@ struct MarketsTokenDetailsView: View {
             priceChangeAnimation: viewModel.$priceChangeAnimation,
             iconURL: viewModel.iconURL
         )
-    }
-
-    private var headerLegacy: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 6) {
-                if let price = viewModel.price {
-                    // This `Text` view acts as an invisible container, maintaining constant height
-                    // to prevent UI from jumping when the font of the price label is scaled down
-                    Text(Constants.priceLabelSizeMeasureText)
-                        .opacity(0.0)
-                        .infinityFrame(axis: .horizontal)
-                        .overlay(alignment: .leadingFirstTextBaseline) {
-                            Text(price)
-                                .blinkForegroundColor(
-                                    publisher: viewModel.$priceChangeAnimation,
-                                    positiveColor: Colors.Text.accent,
-                                    negativeColor: Colors.Text.warning,
-                                    originalColor: Colors.Text.primary1
-                                )
-                                .minimumScaleFactor(0.5)
-                        }
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                        .style(Fonts.Bold.largeTitle, color: Colors.Text.primary1)
-                }
-
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text(viewModel.priceDate)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-
-                    if let priceChangeState = viewModel.priceChangeState {
-                        PriceChangeView(state: priceChangeState, showSkeletonWhenLoading: true)
-                    }
-                }
-                .id(UUID())
-            }
-
-            Spacer(minLength: 8)
-
-            IconView(url: viewModel.iconURL, size: .init(bothDimensions: 48), forceKingfisher: true)
-        }
     }
 
     private var picker: some View {
@@ -356,54 +241,30 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var chart: some View {
         if let viewModel = viewModel.historyChartViewModel {
-            if FeatureProvider.isAvailable(.redesign) {
-                MarketsHistoryChartViewRedesign(viewModel: viewModel)
-            } else {
-                MarketsHistoryChartView(viewModel: viewModel)
-            }
+            MarketsHistoryChartViewRedesign(viewModel: viewModel)
         }
     }
 
     @ViewBuilder
     private var chartLoadFailedOverlay: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            TangemUnableToLoadDataView(
-                isButtonBusy: viewModel.isLoading,
-                retryButtonAction: viewModel.loadDetailedInfo
-            )
-        } else {
-            UnableToLoadDataView(
-                isButtonBusy: viewModel.isLoading,
-                retryButtonAction: viewModel.loadDetailedInfo
-            )
-        }
+        TangemUnableToLoadDataView(
+            isButtonBusy: viewModel.isLoading,
+            retryButtonAction: viewModel.loadDetailedInfo
+        )
     }
 
     @ViewBuilder
     private var content: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            MarketsTokenDetailsContentViewRedesign(viewModel: viewModel)
-        } else {
-            MarketsTokenDetailsContentView(viewModel: viewModel)
-        }
+        MarketsTokenDetailsContentViewRedesign(viewModel: viewModel)
     }
 
     private var backgroundColor: Color {
-        if FeatureProvider.isAvailable(.redesign) {
-            return Color.Tangem.Surface.level2
-        }
-
-        let uiColor = overlayContentHidingBackgroundColor.mix(
-            with: defaultBackgroundColor,
-            by: viewModel.overlayContentHidingProgress
-        )
-
-        return Color(uiColor: uiColor)
+        return Color.Tangem.Surface.level2
     }
 
     @ViewBuilder
     private var portfolioBlock: some View {
-        if viewModel.isRedesignEnabled, viewModel.portfolioBlockState.isVisible {
+        if viewModel.portfolioBlockState.isVisible {
             MarketsPortfolioBlockView(
                 state: viewModel.portfolioBlockState,
                 iconURL: viewModel.iconURL,
@@ -430,7 +291,6 @@ private extension MarketsTokenDetailsView {
         static let chartHeight = 200.0
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
-        static let priceLabelSizeMeasureText = "1234.0"
         static let shadowTopExtension = 60.0
     }
 

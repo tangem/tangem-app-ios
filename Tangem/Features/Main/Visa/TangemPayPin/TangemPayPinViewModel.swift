@@ -29,7 +29,6 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     @Published private(set) var state: State = .enterPin
     @Published var pin: String = ""
     @Published private(set) var isLoading: Bool = false
-    @Published private(set) var isPinCodeValid: Bool = false
     @Published private(set) var errorMessage: String? = nil
 
     var pinCodeLength: Int {
@@ -50,7 +49,6 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     private weak var coordinator: TangemPayPinRoutable?
 
     private let pinValidator = VisaPinValidator()
-    private let isRedesigned = FeatureProvider.isAvailable(.tangemPaySpendRedesign)
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -63,7 +61,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         self.tangemPayAccount = tangemPayAccount
         self.userWalletId = userWalletId
         self.coordinator = coordinator
-        isRedesigned ? bindRedesigned() : bind()
+        bindRedesigned()
     }
 
     func onAppear() {
@@ -134,22 +132,6 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func bind() {
-        $pin
-            .withWeakCaptureOf(self)
-            .sink { viewModel, pin in
-                do throws(VisaPinValidator.PinValidationError) {
-                    try viewModel.pinValidator.validatePinCode(pin)
-                    viewModel.isPinCodeValid = true
-                    viewModel.errorMessage = nil
-                } catch {
-                    viewModel.errorMessage = error.errorMessage
-                    viewModel.isPinCodeValid = false
-                }
-            }
-            .store(in: &bag)
-    }
-
     private func bindRedesigned() {
         $pin
             .withWeakCaptureOf(self)
@@ -177,8 +159,6 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     }
 
     private func clearEnteredPin() {
-        guard isRedesigned else { return }
-
         DispatchQueue.main.async { [weak self] in
             self?.pin = ""
         }
