@@ -31,6 +31,7 @@ extension PortfolioTokenItemView {
             .compressionPolicy(.trailingPreserved)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
+            .environment(\.isShimmerActive, data.freshness == .refreshing)
         }
     }
 }
@@ -102,11 +103,12 @@ extension PortfolioTokenItemView.RowView {
         Text(fiatText)
             .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
+            .shimmer()
     }
 
     var fiatText: String {
         switch data.end {
-        case .values(let fiat, _):
+        case .values(let fiat, _, _):
             return fiat
         case .unavailable:
             return AppConstants.enDashSign
@@ -136,16 +138,18 @@ extension PortfolioTokenItemView.RowView {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             }
+            .shimmer()
         }
     }
 
     @ViewBuilder
     var trailingContent: some View {
         switch data.end {
-        case .values(_, let percent):
+        case .values(_, let percent, _):
             Text(percent)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
+                .shimmer()
         case .unavailable(let label):
             warningLabel(label)
         }

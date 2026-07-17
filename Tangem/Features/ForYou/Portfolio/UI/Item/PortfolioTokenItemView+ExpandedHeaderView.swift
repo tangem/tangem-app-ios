@@ -24,6 +24,7 @@ extension PortfolioTokenItemView {
                 header
                 divider
             }
+            .environment(\.isShimmerActive, assetRow.freshness == .refreshing)
         }
     }
 }
@@ -44,24 +45,35 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
 
             Spacer(minLength: 8)
 
-            DesignSystem.Icons.ChevronCollapse.regular20.image
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: chevronSize, height: chevronSize)
-                .foregroundStyle(DesignSystem.Color.iconPrimary)
+            trailingIcon
         }
         .padding(16)
+    }
+
+    /// Collapse chevron — swapped for a same-styled error icon when the balance is from cache.
+    var trailingIcon: some View {
+        let icon = assetRow.freshness == .outdated
+            ? DesignSystem.Icons.Error.regular20
+            : DesignSystem.Icons.ChevronCollapse.regular20
+
+        return icon.image
+            .renderingMode(.template)
+            .resizable()
+            .frame(width: chevronSize, height: chevronSize)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
     }
 
     @ViewBuilder
     var summary: some View {
         switch assetRow.end {
-        case .values(let fiat, let percent):
+        case .values(let fiat, let percent, _):
             Text(fiat)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                .shimmer()
             dotSeparator
             Text(percent)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                .shimmer()
         case .unavailable(let label):
             Text(AppConstants.enDashSign)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)

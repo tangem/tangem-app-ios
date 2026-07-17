@@ -49,7 +49,11 @@ private extension Array where Element == PortfolioReviewAggregator.TokenHolding 
         return unique(by: \.networkKey)
             .compactMap { sample -> PortfolioReviewAggregator.NetworkGroup? in
                 guard let bucket = buckets[sample.networkKey] else { return nil }
-                return PortfolioReviewAggregator.NetworkGroup(id: sample.id, sample: sample, holdings: bucket)
+                return PortfolioReviewAggregator.NetworkGroup(
+                    id: sample.id,
+                    sample: sample,
+                    holdings: bucket
+                )
             }
             .sorted { $0.amountInFiat > $1.amountInFiat }
     }
