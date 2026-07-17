@@ -77,10 +77,9 @@ private extension TotalTokenBalanceProvider {
             let cached = combineBalances(available: available.balance, staked: staking.balance)
             return .loading(.init(balance: cached, date: available.date))
 
-        // Available is loading and staking is failure -> loading with cache + loaded
-        case (.loading(.some(let available)), .failure(.some(let staking))):
-            let cached = combineBalances(available: available.balance, staked: staking.balance)
-            return .loading(.init(balance: cached, date: available.date))
+        // Staking provider is down -> don't block the total on its (possibly stale) cache, show available only
+        case (.loading(.some(let available)), .failure):
+            return .loading(.init(balance: available.balance, date: available.date))
 
         // Available is loading and staking is loaded -> loading with cache + loaded
         case (.loading(.some(let available)), .loaded(let staking)):
@@ -114,9 +113,9 @@ private extension TotalTokenBalanceProvider {
             let cached = combineBalances(available: available.balance, staked: staking)
             return .failure(.init(balance: cached, date: available.date))
 
-        case (.loaded(let available), .failure(.some(let staking))):
-            let cached = combineBalances(available: available, staked: staking.balance)
-            return .failure(.init(balance: cached, date: staking.date))
+        // Staking provider is down -> don't block the total on its (possibly stale) cache, show available only
+        case (.loaded(let available), .failure):
+            return .loaded(available)
 
         // There is one of them is failure without cached -> show error
         case (.failure(.none), _), (_, .failure(.none)):
