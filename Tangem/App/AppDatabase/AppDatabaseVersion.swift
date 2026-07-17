@@ -8,9 +8,9 @@
 
 import Foundation
 
-/// A type representing a version of the database table, which can be registered in the database.
-/// - Note: Not all tables should be registered with all versions, e.g. when there are no changes in the table structure
-/// between different versions.
+/// A type representing a version of the database schema.
+/// - Note: Not all tables should be registered with all schema versions, e.g. when there are no changes in the table structure
+/// between different versions or a table is introduced in a later version of the schema.
 enum AppDatabaseVersion: CaseIterable {
     case v1
 }
