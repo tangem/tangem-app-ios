@@ -14,6 +14,7 @@ struct FiatCurrencyRecord {
     let name: String
     let imageURL: String?
     let precision: Int
+    let updatedAt: Date
 }
 
 // MARK: - Columns

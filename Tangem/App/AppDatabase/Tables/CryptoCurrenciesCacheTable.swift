@@ -44,6 +44,7 @@ private extension CryptoCurrenciesCacheTable {
                 // This matches the current `BlockchainSdk.Token` equality implementation.
                 table.column(Columns.contractAddress, .text).notNull().collate(.nocase)
                 table.column("decimalCount", .integer).notNull()
+                table.column("updatedAt", .datetime).notNull()
             }
 
             try database.create(

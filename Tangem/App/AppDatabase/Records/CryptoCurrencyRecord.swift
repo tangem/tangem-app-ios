@@ -17,6 +17,7 @@ struct CryptoCurrencyRecord {
     /// - Note: May have a value of `ExpressConstants.coinContractAddress` for native coins.
     let contractAddress: String
     let decimalCount: Int
+    let updatedAt: Date
 }
 
 // MARK: - Columns

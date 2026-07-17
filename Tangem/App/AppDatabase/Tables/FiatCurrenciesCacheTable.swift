@@ -32,6 +32,7 @@ private extension FiatCurrenciesCacheTable {
                 table.column("name", .text).notNull()
                 table.column("imageURL", .text)
                 table.column("precision", .integer).notNull()
+                table.column("updatedAt", .datetime).notNull()
             }
         }
     }
