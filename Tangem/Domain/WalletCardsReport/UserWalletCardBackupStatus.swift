@@ -48,7 +48,9 @@ extension UserWalletCardBackupStatus {
                 return .primary
             case let value:
                 let backupPrefix = Role.backup(index: 0).rawCaseValue
-                if value.hasPrefix(backupPrefix), let index = Int(wireValue.dropFirst(backupPrefix.count)) {
+                if value.hasPrefix(backupPrefix),
+                   let index = Int(wireValue.dropFirst(backupPrefix.count)),
+                   index > 0 {
                     return .backup(index: index)
                 }
 
