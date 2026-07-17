@@ -73,8 +73,8 @@ final class AppDatabase {
 
         do {
             let fileManager = FileManager.default
-
-            try fileManager.setAttributes([.protectionKey: FileProtectionType.completeUnlessOpen], ofItemAtPath: url.path)
+            let path = url.path(percentEncoded: false)
+            try fileManager.setAttributes([.protectionKey: FileProtectionType.completeUnlessOpen], ofItemAtPath: path)
         } catch {
             AppLogger.error("Failed to apply file protection attributes for app DB root folder at URL \(url)", error: error)
         }
@@ -101,9 +101,9 @@ final class AppDatabase {
             create: true
         )
 
-        var databaseDirectoryURL = applicationSupportDirectoryURL.appendingPathComponent(
-            Constants.databaseDirectoryName,
-            isDirectory: true
+        var databaseDirectoryURL = applicationSupportDirectoryURL.appending(
+            path: Constants.databaseDirectoryName,
+            directoryHint: .isDirectory
         )
 
         try fileManager.createDirectory(at: databaseDirectoryURL, withIntermediateDirectories: true)
@@ -111,7 +111,7 @@ final class AppDatabase {
 
         return databaseDirectoryURL
             .appending(path: Constants.databaseFileName, directoryHint: .notDirectory)
-            .path
+            .path(percentEncoded: false)
     }
 
     private static func makeDatabaseMigrator() -> DatabaseMigrator {
