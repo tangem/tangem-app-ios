@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 
 struct TangemPayFeePopupView<ViewModel: TangemPayFeePopupViewModel>: View {
     @ObservedObject var viewModel: ViewModel
@@ -24,6 +25,7 @@ struct TangemPayFeePopupView<ViewModel: TangemPayFeePopupViewModel>: View {
                         title: viewModel.insufficientFundsBannerTitle,
                         message: viewModel.insufficientFundsBannerMessage,
                         buttonTitle: viewModel.addFundsButtonTitle,
+                        buttonAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.reissueSheetAddFundsButton,
                         buttonAction: viewModel.openAddFunds
                     )
                     .padding(.horizontal, 16)
