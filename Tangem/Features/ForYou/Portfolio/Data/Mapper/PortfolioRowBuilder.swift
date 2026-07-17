@@ -110,7 +110,7 @@ private extension PortfolioRowBuilder {
         }
     }
 
-    /// A refreshing value shimmers; a value stuck on cache (couldn't refresh) shows a cloud-exclamation icon.
+    /// A refreshing value shimmers; a value stuck on cache (couldn't refresh) is marked outdated.
     func freshness(for availability: PortfolioReviewAggregator.Availability) -> ForYouTokenRowData.Freshness {
         switch availability {
         case .cache: .refreshing

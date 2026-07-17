@@ -103,11 +103,6 @@ private extension PortfolioReviewViewModel {
     }
 
     func apply(_ newState: ViewState) {
-        // Seed expansion from the first content; user taps drive it afterwards.
-        if expandedIds.isEmpty, case .content(let content) = newState {
-            expandedIds = Set(content.tokenList.filter(\.isExpanded).map(\.id))
-        }
-
         withAnimation(.easeInOut(duration: 0.3)) {
             state = newState.expanding(expandedIds)
         }
