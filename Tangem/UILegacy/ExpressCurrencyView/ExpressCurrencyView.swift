@@ -241,8 +241,11 @@ struct ChooseTokenPillView: View {
             .padding(.vertical, 8)
             .padding(.leading, 16)
             .padding(.trailing, 12)
-            .background(Colors.Button.secondary)
-            .overlay(emphasisOverlay)
+            .background {
+                Colors.Button.secondary
+
+                emphasisOverlay
+            }
             .cornerRadiusContinuous(24)
             .fixedSize(horizontal: true, vertical: false)
         }
