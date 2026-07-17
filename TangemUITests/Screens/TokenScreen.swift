@@ -82,12 +82,11 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         return SwapStoriesScreen(app)
     }
 
-    /// Express-unreachable keeps the Swap button rendered but `.disabled` — `waitAndTap`'s `isEnabled` wait would time out.
+    /// Swap stays enabled when unavailable; tapping surfaces the reason alert instead of a dead disabled button.
     @discardableResult
-    func tapSwapButtonWhenUnavailable() -> Self {
-        XCTContext.runActivity(named: "Tap Swap action button (disabled state)") { _ in
+    func tapUnavailableSwapButton() -> Self {
+        XCTContext.runActivity(named: "Tap unavailable Swap action button to surface reason alert") { _ in
             waitAndAssertTrue(swapButton, "Swap button should exist")
-            XCTAssertFalse(swapButton.isEnabled, "Swap button should be disabled when Express is unavailable")
             swapButton.tap()
             return self
         }
