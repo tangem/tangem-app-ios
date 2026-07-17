@@ -44,23 +44,10 @@ extension GaslessTransactionsDTO.Response {
     }
 
     struct TronFeeToken: Decodable {
-        static let chainId = 728_126_428
-
         let address: String
         let symbol: String
         let decimals: Int
         let chain: String
-
-        func mapToFeeToken() -> FeeToken {
-            FeeToken(
-                tokenAddress: address,
-                tokenSymbol: symbol,
-                tokenName: symbol,
-                decimals: decimals,
-                chainId: Self.chainId,
-                chain: chain
-            )
-        }
     }
 
     struct TronEstimate: Decodable {

@@ -76,17 +76,29 @@ private extension CommonTokenFeeProvidersManagerProvider {
     }
 
     func makeGaslessTokenFeeProviders() -> [any TokenFeeProvider] {
-        let availableTokens = gaslessTransactionsNetworkManager.availableFeeTokens
-            .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
+        let availableTokenAddresses: Set<String?> = {
+            if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
+                guard FeatureProvider.isAvailable(.tronGasless) else {
+                    return []
+                }
 
-        guard !availableTokens.isEmpty else {
+                return Set(gaslessTransactionsNetworkManager.availableTronFeeTokens.map(\.address))
+            }
+
+            return Set(
+                gaslessTransactionsNetworkManager.availableFeeTokens
+                    .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
+                    .map(\.tokenAddress)
+            )
+        }()
+
+        guard !availableTokenAddresses.isEmpty else {
             return []
         }
 
         let currentAccountWalletModels = walletModel.account?.walletModelsManager.walletModels ?? []
 
         let sourceTokenChainId = walletModel.tokenItem.blockchain.chainId
-        let availableTokenAddresses: Set<String?> = Set(availableTokens.map { $0.tokenAddress })
 
         // Wallet models eligible for gasless fees: same chain as the source token, token address is supported,
         // and active Yield Mode is included only for the dedicated gasless-yield flow.
@@ -95,9 +107,6 @@ private extension CommonTokenFeeProvidersManagerProvider {
             guard model.tokenItem.blockchain.chainId == sourceTokenChainId else { return nil }
             if model.yieldModuleManager?.state?.state.isEffectivelyActive == true {
                 guard FeatureProvider.isAvailable(.gaslessYieldFee) else { return nil }
-            }
-            if case .tron(testnet: false) = model.tokenItem.blockchain {
-                guard FeatureProvider.isAvailable(.tronGasless) else { return nil }
             }
             return model
         }

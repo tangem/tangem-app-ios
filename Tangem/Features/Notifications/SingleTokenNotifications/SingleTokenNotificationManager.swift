@@ -424,9 +424,8 @@ final class SingleTokenNotificationManager {
             return false
         }
 
-        return gaslessTransactionsNetworkManager.availableFeeTokens.contains {
-            $0.chainId == GaslessTransactionsDTO.Response.TronFeeToken.chainId
-                && $0.tokenAddress == contractAddress
+        return gaslessTransactionsNetworkManager.availableTronFeeTokens.contains {
+            $0.address == contractAddress
         }
     }
 

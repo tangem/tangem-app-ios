@@ -13,6 +13,7 @@ import TangemNetworkUtils
 
 protocol GaslessTransactionsNetworkManager {
     typealias FeeToken = GaslessTransactionsDTO.Response.FeeToken
+    typealias TronFeeToken = GaslessTransactionsDTO.Response.TronFeeToken
     typealias GaslessTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
     typealias GaslessBatchTransaction = GaslessTransactionsDTO.Request.GaslessBatchTransaction
     typealias TronEstimateRequest = GaslessTransactionsDTO.Request.TronEstimate
@@ -22,6 +23,8 @@ protocol GaslessTransactionsNetworkManager {
 
     var availableFeeTokens: [FeeToken] { get }
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { get }
+    var availableTronFeeTokens: [TronFeeToken] { get }
+    var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> { get }
 
     var currentHost: String { get }
 
@@ -42,7 +45,9 @@ protocol GaslessTransactionsNetworkManager {
 final class CommonGaslessTransactionsNetworkManager {
     private let apiService: GaslessTransactionsAPIService
     private let availableFeeTokensSubject = CurrentValueSubject<[FeeToken], Never>([])
+    private let availableTronFeeTokensSubject = CurrentValueSubject<[TronFeeToken], Never>([])
     private var fetchFeeTokensTask: Task<Void, Never>?
+    private var fetchTronFeeTokensTask: Task<Void, Never>?
     private var feeRecipientTask: Task<String?, Never>?
     private var _feeRecipientAddress: String?
 
@@ -98,37 +103,22 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         availableFeeTokensSubject.eraseToAnyPublisher()
     }
 
+    var availableTronFeeTokens: [TronFeeToken] {
+        availableTronFeeTokensSubject.value
+    }
+
+    var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> {
+        availableTronFeeTokensSubject.eraseToAnyPublisher()
+    }
+
     func initialize() {
         updateAvailableTokens()
         preloadFeeRecipientAddress()
     }
 
     func updateAvailableTokens() {
-        if fetchFeeTokensTask != nil {
-            fetchFeeTokensTask?.cancel()
-        }
-
-        let fetchFeeTokensTask = Task {
-            defer { self.fetchFeeTokensTask = nil }
-
-            do {
-                var availableTokens = try await apiService.getAvailableTokens()
-
-                if FeatureProvider.isAvailable(.tronGasless) {
-                    let availableTronTokens = try await apiService.getAvailableTronTokens()
-                    availableTokens.append(contentsOf: availableTronTokens.map { $0.mapToFeeToken() })
-                }
-
-                try Task.checkCancellation()
-                availableFeeTokensSubject.send(availableTokens)
-            } catch is CancellationError {
-                AppLogger.debug("Fetching gasless fee tokens was cancelled")
-            } catch {
-                AppLogger.error("Failed to fetch available gasless fee tokens", error: error)
-            }
-        }
-
-        self.fetchFeeTokensTask = fetchFeeTokensTask
+        updateAvailableFeeTokens()
+        updateAvailableTronFeeTokens()
     }
 
     func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String {
@@ -151,6 +141,55 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         Task { [weak self] in
             self?._feeRecipientAddress = try await self?.apiService.getFeeRecipientAddress()
         }
+    }
+}
+
+// MARK: - Private
+
+private extension CommonGaslessTransactionsNetworkManager {
+    func updateAvailableFeeTokens() {
+        fetchFeeTokensTask?.cancel()
+
+        let fetchFeeTokensTask = Task {
+            defer { self.fetchFeeTokensTask = nil }
+
+            do {
+                let availableTokens = try await apiService.getAvailableTokens()
+                try Task.checkCancellation()
+                availableFeeTokensSubject.send(availableTokens)
+            } catch is CancellationError {
+                AppLogger.debug("Fetching gasless fee tokens was cancelled")
+            } catch {
+                AppLogger.error("Failed to fetch available gasless fee tokens", error: error)
+            }
+        }
+
+        self.fetchFeeTokensTask = fetchFeeTokensTask
+    }
+
+    func updateAvailableTronFeeTokens() {
+        fetchTronFeeTokensTask?.cancel()
+
+        guard FeatureProvider.isAvailable(.tronGasless) else {
+            availableTronFeeTokensSubject.send([])
+            return
+        }
+
+        let fetchTronFeeTokensTask = Task {
+            defer { self.fetchTronFeeTokensTask = nil }
+
+            do {
+                let availableTokens = try await apiService.getAvailableTronTokens()
+                try Task.checkCancellation()
+                availableTronFeeTokensSubject.send(availableTokens)
+            } catch is CancellationError {
+                AppLogger.debug("Fetching Tron gasless fee tokens was cancelled")
+            } catch {
+                AppLogger.error("Failed to fetch available Tron gasless fee tokens", error: error)
+            }
+        }
+
+        self.fetchTronFeeTokensTask = fetchTronFeeTokensTask
     }
 }
 
