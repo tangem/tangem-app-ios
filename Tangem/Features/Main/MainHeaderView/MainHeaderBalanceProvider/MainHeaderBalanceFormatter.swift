@@ -13,9 +13,7 @@ struct MainHeaderBalanceFormatter {
 
     func formatBalance(balance: Decimal?, currencyCode: String = AppSettings.shared.selectedCurrencyCode) -> AttributedString {
         let formattedBalance = balanceFormatter.formatFiatBalance(balance)
-        let formattingOptions: TotalBalanceFormattingOptions = FeatureProvider.isAvailable(.redesign)
-            ? .defaultOptionsRedesign
-            : .defaultOptions
+        let formattingOptions: TotalBalanceFormattingOptions = .defaultOptionsRedesign
 
         return balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance, formattingOptions: formattingOptions)
     }

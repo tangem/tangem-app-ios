@@ -17,7 +17,7 @@ struct TangemPayTransactionDetailsView: View {
     @ObservedObject var viewModel: TangemPayTransactionDetailsViewModel
 
     var body: some View {
-        if FeatureProvider.isAvailable(.tangemPaySpendRedesign), let displayModel = viewModel.displayModel {
+        if let displayModel = viewModel.displayModel {
             redesignedBody(displayModel)
         } else {
             legacyBody
@@ -122,7 +122,7 @@ private extension TangemPayTransactionDetailsView {
                 redesignedIcon(model.icon)
 
                 VStack(spacing: 8) {
-                    Text(model.amount)
+                    SensitiveText(model.amount)
                         .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsAmount)

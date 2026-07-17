@@ -100,7 +100,7 @@ struct NewsListView: View {
             settings: .init(backgroundColor: Color.Tangem.Surface.level2),
             leftButtons: { navigationBarLeadingButton }
         )
-        .environment(\.isRedesign, FeatureProvider.isAvailable(.redesign))
+        .environment(\.isRedesign, true)
     }
 
     @ViewBuilder
@@ -149,11 +149,7 @@ struct NewsListView: View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 12) {
                 ForEach(0 ..< 10, id: \.self) { _ in
-                    if FeatureProvider.isAvailable(.redesign) {
-                        RedesignNewsSkeletonItemView()
-                    } else {
-                        NewsSkeletonItemView()
-                    }
+                    RedesignNewsSkeletonItemView()
                 }
             }
             .padding(.horizontal, 16)
@@ -171,58 +167,12 @@ struct NewsListView: View {
 
     @ViewBuilder
     private var errorView: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            TangemUnableToLoadDataView(
-                isButtonBusy: false,
-                retryButtonAction: { viewModel.handleViewAction(.retry) }
-            )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.horizontal, 16)
-        } else {
-            UnableToLoadDataView(
-                isButtonBusy: false,
-                retryButtonAction: { viewModel.handleViewAction(.retry) }
-            )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.horizontal, 16)
-        }
-    }
-}
-
-// MARK: - NewsSkeletonItemView
-
-private struct NewsSkeletonItemView: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Score + Category skeleton
-            HStack(spacing: 4) {
-                SkeletonView()
-                    .frame(width: 50, height: 14)
-                    .cornerRadius(4)
-
-                SkeletonView()
-                    .frame(width: 60, height: 14)
-                    .cornerRadius(4)
-            }
-
-            // Title skeleton (2 lines)
-            SkeletonView()
-                .frame(height: 18)
-                .cornerRadius(4)
-
-            SkeletonView()
-                .frame(width: 200, height: 18)
-                .cornerRadius(4)
-
-            // Time skeleton
-            SkeletonView()
-                .frame(width: 60, height: 14)
-                .cornerRadius(4)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(Color.Tangem.Surface.level3)
-        .cornerRadius(14)
+        TangemUnableToLoadDataView(
+            isButtonBusy: false,
+            retryButtonAction: { viewModel.handleViewAction(.retry) }
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 16)
     }
 }
 

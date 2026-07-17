@@ -23,12 +23,10 @@ struct TokenSelectorExpandableAccountSectionView: View {
     var body: some View {
         let effects = AccountGeometryEffects(namespace: namespace)
 
-        let isRedesign = FeatureProvider.isAvailable(.redesign)
-
         return ExpandableItemView(
             isExpanded: expandableViewModel.isExpanded,
-            backgroundColor: isRedesign ? Color.Tangem.Surface.level3 : Colors.Background.action,
-            cornerRadius: isRedesign ? .unit(.x6) : Constants.cornerRadius,
+            backgroundColor: Color.Tangem.Surface.level3,
+            cornerRadius: .unit(.x6),
             backgroundGeometryEffect: effects.background,
             expandedViewTransition: Constants.expandedContentTransition,
             collapsedView: {
@@ -84,8 +82,6 @@ struct TokenSelectorExpandableAccountSectionView: View {
 
 private extension TokenSelectorExpandableAccountSectionView {
     enum Constants {
-        static let cornerRadius: CGFloat = GroupedSectionConstants.defaultCornerRadius
-
         static var expandedContentTransition: AnyTransition {
             .asymmetric(
                 insertion: .offset(y: 20).combined(with: .opacity),
