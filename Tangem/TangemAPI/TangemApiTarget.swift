@@ -132,6 +132,8 @@ struct TangemApiTarget: TargetType {
             return "/user-wallets/wallets/by-app/\(applicationUid)"
         case .getUserWallet(let userWalletId), .updateWallet(let userWalletId, _):
             return "/user-wallets/wallets/\(userWalletId)"
+        case .getWalletCards(let userWalletId), .saveWalletCards(let userWalletId, _):
+            return "/user-wallets/wallets/\(userWalletId)/cards"
         case .getNotificationPreferences(let userWalletId),
              .updateNotificationPreferences(let userWalletId, _):
             // Contract v1.3: `/api/v1/notification-preferences/{walletId}`. The `/api/v1` part comes
@@ -211,6 +213,7 @@ struct TangemApiTarget: TargetType {
              .getArchivedUserAccounts,
              .getUserWallets,
              .getUserWallet,
+             .getWalletCards,
              .getNotificationPreferences,
              .getPriceAlertsSubscriptions,
              .newsList,
@@ -231,6 +234,7 @@ struct TangemApiTarget: TargetType {
              .createUserWalletsApplication,
              .activatePromoCode,
              .createWallet,
+             .saveWalletCards,
              .bindWalletsByCode,
              .syncAddressBooks,
              .subscribeToPriceAlerts,
@@ -324,8 +328,10 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(requestModel)
         case .updateUserWalletsApplication(_, let requestModel):
             return .requestJSONEncodable(requestModel)
-        case .getUserWallet, .getUserWallets, .getNotificationPreferences:
+        case .getUserWallet, .getUserWallets, .getNotificationPreferences, .getWalletCards:
             return .requestPlain
+        case .saveWalletCards(_, let cards):
+            return .requestJSONEncodable(cards)
         case .updateNotificationPreferences(_, let body):
             return .requestJSONEncodable(body)
         case .subscribeToPriceAlerts(let request),
@@ -436,6 +442,8 @@ struct TangemApiTarget: TargetType {
              .getUserWallet,
              .updateWallet,
              .connectUserWallets,
+             .getWalletCards,
+             .saveWalletCards,
              .getUserAccounts,
              .getArchivedUserAccounts,
              .createWallet,
@@ -527,6 +535,10 @@ extension TangemApiTarget {
         case updateWallet(userWalletId: String, context: Encodable)
         case createWallet(context: Encodable)
 
+        // Wallet Backup Status
+        case getWalletCards(userWalletId: String)
+        case saveWalletCards(userWalletId: String, cards: WalletCardsDTO.Request)
+
         // Notification Preferences
         case getNotificationPreferences(userWalletId: String)
         case updateNotificationPreferences(userWalletId: String, body: NotificationPreferencesDTO.Body)
@@ -594,6 +606,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .updateWallet,
              .connectUserWallets,
              .createWallet,
+             .getWalletCards,
+             .saveWalletCards,
              .getNotificationPreferences,
              .updateNotificationPreferences,
              .subscribeToPriceAlerts,
