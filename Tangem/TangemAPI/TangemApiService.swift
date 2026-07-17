@@ -170,6 +170,14 @@ protocol TangemApiService: AnyObject {
     /// - Returns: New revision for optimistic locking.
     func createWallet(with context: some Encodable) async throws -> String?
 
+    // MARK: - Wallet Backup Status
+
+    /// Reports the known cards and their backup state for a wallet.
+    func saveWalletCards(userWalletId: String, cards: WalletCardsDTO.Request) async throws
+
+    /// Retrieves the stored cards and backup state for a wallet.
+    func getWalletCards(userWalletId: String) async throws -> WalletCardsDTO.Response
+
     // MARK: - Accounts
 
     /// - Returns: New revision for optimistic locking and the list of active accounts.
