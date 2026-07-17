@@ -54,6 +54,8 @@ extension ExpressExchangeTransactionRecord {
         static let fromContract = Column(CodingKeys.fromContract)
         static let toNetwork = Column(CodingKeys.toNetwork)
         static let toContract = Column(CodingKeys.toContract)
+        static let refundNetwork = Column(CodingKeys.refundNetwork)
+        static let refundContractAddress = Column(CodingKeys.refundContractAddress)
     }
 }
 
@@ -80,6 +82,7 @@ extension ExpressExchangeTransactionRecord: TableRecord {
         using: ForeignKey([
             Columns.providerID,
         ], to: [
+            // Can be dropped since `id` is a primary key of `ExpressProviderRecord`, but kept here for clarity
             ExpressProviderRecord.Columns.id,
         ])
     )
@@ -102,6 +105,18 @@ extension ExpressExchangeTransactionRecord: TableRecord {
         using: ForeignKey([
             Columns.toNetwork,
             Columns.toContract,
+        ], to: [
+            CryptoCurrencyRecord.Columns.networkID,
+            CryptoCurrencyRecord.Columns.contractAddress,
+        ])
+    )
+
+    static let refundCryptoCurrency = belongsTo(
+        CryptoCurrencyRecord.self,
+        key: "refundCryptoCurrency",
+        using: ForeignKey([
+            Columns.refundNetwork,
+            Columns.refundContractAddress,
         ], to: [
             CryptoCurrencyRecord.Columns.networkID,
             CryptoCurrencyRecord.Columns.contractAddress,

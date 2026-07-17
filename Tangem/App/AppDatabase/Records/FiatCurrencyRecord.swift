@@ -16,6 +16,15 @@ struct FiatCurrencyRecord {
     let precision: Int
 }
 
+// MARK: - Columns
+
+extension FiatCurrencyRecord {
+    /// - Note: Only columns used twice or more are extracted to this enum.
+    enum Columns {
+        static let code = Column(CodingKeys.code)
+    }
+}
+
 // MARK: - Identifiable protocol conformance
 
 extension FiatCurrencyRecord: Identifiable {

@@ -35,6 +35,18 @@ struct ExpressOnrampTransactionRecord {
     let updatedAt: Date
 }
 
+// MARK: - Columns
+
+extension ExpressOnrampTransactionRecord {
+    /// - Note: Only columns used twice or more are extracted to this enum.
+    enum Columns {
+        static let providerID = Column(CodingKeys.providerID)
+        static let fromCurrency = Column(CodingKeys.fromCurrency)
+        static let toNetwork = Column(CodingKeys.toNetwork)
+        static let toContract = Column(CodingKeys.toContract)
+    }
+}
+
 // MARK: - Identifiable protocol conformance
 
 extension ExpressOnrampTransactionRecord: Identifiable {}
@@ -51,6 +63,40 @@ extension ExpressOnrampTransactionRecord: FetchableRecord {}
 
 extension ExpressOnrampTransactionRecord: TableRecord {
     static let databaseTableName = ExpressOnrampTransactionsTable.tableName
+
+    static let provider = belongsTo(
+        ExpressProviderRecord.self,
+        key: "provider",
+        using: ForeignKey([
+            Columns.providerID,
+        ], to: [
+            // Can be dropped since `id` is a primary key of `ExpressProviderRecord`, but kept here for clarity
+            ExpressProviderRecord.Columns.id,
+        ]),
+    )
+
+    static let fiatCurrency = belongsTo(
+        FiatCurrencyRecord.self,
+        key: "fiatCurrency",
+        using: ForeignKey([
+            Columns.fromCurrency,
+        ], to: [
+            // Can be dropped since `code` is a primary key of `FiatCurrencyRecord`, but kept here for clarity
+            FiatCurrencyRecord.Columns.code,
+        ])
+    )
+
+    static let cryptoCurrency = belongsTo(
+        CryptoCurrencyRecord.self,
+        key: "cryptoCurrency",
+        using: ForeignKey([
+            Columns.toNetwork,
+            Columns.toContract,
+        ], to: [
+            CryptoCurrencyRecord.Columns.networkID,
+            CryptoCurrencyRecord.Columns.contractAddress,
+        ])
+    )
 }
 
 // MARK: - PersistableRecord protocol conformance
