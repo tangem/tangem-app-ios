@@ -71,10 +71,10 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     }
 
     @discardableResult
-    func contactSupport() -> MailFallbackScreen {
+    func contactSupport() -> SupportTypeSelectionSheet {
         XCTContext.runActivity(named: "Tap contact support button") { _ in
             contactSupportButton.waitAndTap()
-            return MailFallbackScreen(app)
+            return SupportTypeSelectionSheet(app)
         }
     }
 
