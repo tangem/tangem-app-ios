@@ -13,6 +13,7 @@ struct TangemPayInsufficientFundsBanner: View {
     let title: String
     let message: String
     let buttonTitle: String
+    let buttonAccessibilityIdentifier: String
     let buttonAction: () -> Void
 
     var body: some View {
@@ -41,6 +42,7 @@ struct TangemPayInsufficientFundsBanner: View {
             .size(.x8)
             .styleType(.secondary)
             .horizontalLayout(.infinity)
+            .accessibilityIdentifier(buttonAccessibilityIdentifier)
         }
         .padding(16)
         .background(
