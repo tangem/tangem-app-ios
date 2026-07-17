@@ -462,6 +462,24 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
+    // MARK: - Wallet Backup Status
+
+    func saveWalletCards(userWalletId: String, cards: WalletCardsDTO.Request) async throws {
+        let target = TangemApiTarget(type: .saveWalletCards(userWalletId: userWalletId, cards: cards))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            // The POST has no documented response body, so only the status/errors are validated (see saveTokens).
+            _ = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+        }
+    }
+
+    func getWalletCards(userWalletId: String) async throws -> WalletCardsDTO.Response {
+        // The user-wallets backend is snake_case (like createWallet/accounts) and the shared decoder also
+        // tolerates the camelCase shown in the spec. Exact wire casing still needs backend confirmation.
+        try await request(for: .getWalletCards(userWalletId: userWalletId), decoder: decoder)
+    }
+
     // MARK: - Accounts
 
     func getUserAccounts(
