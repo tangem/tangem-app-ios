@@ -51,7 +51,8 @@ private extension PortfolioRowBuilder {
             tokenIconInfo: iconBuilder.build(from: group.tokenItem, isCustom: group.isCustom),
             sentiment: Self.placeholderSentiment, // [REDACTED_TODO_COMMENT]
             subtitle: .text(assetSubtitle(tokenItem: group.tokenItem, networkCount: group.networks.count)),
-            end: end(availability: group.availability, fiat: group.amountInFiat, total: total)
+            end: end(availability: group.availability, fiat: group.amountInFiat, total: total),
+            isLoading: group.availability == .loading
         )
     }
 
@@ -62,7 +63,8 @@ private extension PortfolioRowBuilder {
             tokenIconInfo: iconBuilder.build(from: network.sample.tokenItem, isCustom: network.sample.isCustom),
             sentiment: Self.placeholderSentiment,
             subtitle: networkSubtitle(network),
-            end: end(availability: network.availability, fiat: network.amountInFiat, total: total)
+            end: end(availability: network.availability, fiat: network.amountInFiat, total: total),
+            isLoading: network.availability == .loading
         )
     }
 
@@ -77,7 +79,8 @@ private extension PortfolioRowBuilder {
                 tokenIconInfo: nil,
                 sentiment: nil,
                 subtitle: .text(assetCountString(other.count)),
-                end: .values(fiat: fiatString(fiat), percent: percentString(fiat, total: total), freshness: .fresh)
+                end: .values(fiat: fiatString(fiat), percent: percentString(fiat, total: total), freshness: .fresh),
+                isLoading: false
             ),
             networkRows: [],
             isExpanded: false,

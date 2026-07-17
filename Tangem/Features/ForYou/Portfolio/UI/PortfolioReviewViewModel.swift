@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 import TangemFoundation
 import Combine
 
@@ -107,7 +108,9 @@ private extension PortfolioReviewViewModel {
             expandedIds = Set(content.tokenList.filter(\.isExpanded).map(\.id))
         }
 
-        state = newState.expanding(expandedIds)
+        withAnimation(.easeInOut(duration: 0.3)) {
+            state = newState.expanding(expandedIds)
+        }
     }
 }
 

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 extension PortfolioTokenItemView {
     struct ExpandedNetworksView: View {
@@ -14,9 +15,18 @@ extension PortfolioTokenItemView {
 
         var body: some View {
             VStack(spacing: 0) {
-                ForEach(networkRows) { row in
-                    RowView(data: row)
-                }
+                ForEach(networkRows, content: rowContent)
+            }
+        }
+
+        @ViewBuilder
+        private func rowContent(_ row: ForYouTokenRowData) -> some View {
+            if row.isLoading {
+                TangemTwoLineRowSkeletonView()
+                    .transition(.opacity)
+            } else {
+                RowView(data: row)
+                    .transition(.opacity)
             }
         }
     }

@@ -15,4 +15,8 @@ struct ForYouTokenListItem: Identifiable, Equatable {
     let networkRows: [ForYouTokenRowData]
     let isExpanded: Bool
     let isExpandable: Bool
+
+    var isAssetLoading: Bool {
+        assetRow.isLoading
+    }
 }

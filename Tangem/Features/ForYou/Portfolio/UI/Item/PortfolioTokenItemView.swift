@@ -18,10 +18,16 @@ struct PortfolioTokenItemView: View {
     @Namespace private var namespace
 
     var body: some View {
-        if item.isExpandable {
+        if item.isAssetLoading {
+            TangemTwoLineRowSkeletonView()
+                .portfolioTokenCard()
+                .transition(.opacity)
+        } else if item.isExpandable {
             expandableCard
+                .transition(.opacity)
         } else {
             staticCard
+                .transition(.opacity)
         }
     }
 }

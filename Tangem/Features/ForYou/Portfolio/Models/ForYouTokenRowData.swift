@@ -18,6 +18,8 @@ struct ForYouTokenRowData: Identifiable, Equatable {
     let sentiment: Sentiment?
     let subtitle: Subtitle
     let end: End
+    /// The row's balance is still loading — render it as a skeleton instead of content.
+    let isLoading: Bool
 
     /// How current this row's value is (`.fresh` when there's no resolved value to show).
     var freshness: Freshness {
