@@ -42,7 +42,7 @@ class SendAddContactFinishViewModel: ObservableObject {
     }
 
     func userDidTapAddContact() {
-        analyticsLogger.logAddContactTapped(source: .sendSuccess)
+        analyticsLogger.logAddContactTapped(source: .sendFlow)
 
         guard
             let destination = destinationInput?.destination,

@@ -41,13 +41,11 @@ enum AddressBookAnalyticsMode {
 enum AddressBookAnalyticsSource {
     case settings
     case sendFlow
-    case sendSuccess
 
     var parameterValue: Analytics.ParameterValue {
         switch self {
         case .settings: .settings
         case .sendFlow: .addressBookSourceSendFlow
-        case .sendSuccess: .addressBookSourceSendSuccess
         }
     }
 }
