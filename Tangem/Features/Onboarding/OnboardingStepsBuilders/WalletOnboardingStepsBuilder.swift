@@ -17,7 +17,7 @@ struct WalletOnboardingStepsBuilder {
     private let canBackup: Bool
     private let hasBackup: Bool
     private let canSkipBackup: Bool
-    private let backupService: BackupService
+    private let backupService: UserWalletBackupService
     private let commonStepsBuilder = CommonOnboardingStepsBuilder()
 
     private var otherSteps: [WalletOnboardingStep] {
@@ -53,7 +53,7 @@ struct WalletOnboardingStepsBuilder {
             steps.append(.scanPrimaryCard)
         }
 
-        if backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
+        if backupService.addedBackupCardsCount < UserWalletBackupService.maxBackupCardsCount {
             steps.append(.selectBackupCards)
         }
 
@@ -72,7 +72,7 @@ struct WalletOnboardingStepsBuilder {
         canBackup: Bool,
         hasBackup: Bool,
         canSkipBackup: Bool,
-        backupService: BackupService
+        backupService: UserWalletBackupService
     ) {
         self.cardId = cardId
         self.hasWallets = hasWallets

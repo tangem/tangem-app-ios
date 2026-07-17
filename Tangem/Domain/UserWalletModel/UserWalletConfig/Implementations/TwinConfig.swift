@@ -200,7 +200,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     func makeOnboardingStepsBuilder(
-        backupService: BackupService
+        backupService: UserWalletBackupService
     ) -> OnboardingStepsBuilder {
         return TwinOnboardingStepsBuilder(
             cardId: card.cardId,

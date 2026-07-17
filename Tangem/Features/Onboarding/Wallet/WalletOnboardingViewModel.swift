@@ -305,7 +305,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     private lazy var mobileSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
-    private let backupService: BackupService
+    private let backupService: UserWalletBackupService
     private var cardInitializer: CardInitializer?
     private var resetCardSetUtil: ResetToFactoryUtil?
     private let backupValidator = BackupValidator()
@@ -672,9 +672,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             case .success(let cardInfo):
                 initializeUserWallet(from: cardInfo, walletCreationType: walletCreationType)
 
-                if let primaryCard = cardInfo.primaryCard {
-                    backupService.setPrimaryCard(primaryCard)
-                }
+                backupService.setPrimaryCard(cardInfo: cardInfo)
 
                 processPrimaryCardScan()
             case .failure(let error):
@@ -1166,7 +1164,7 @@ extension NotificationCenter {
     }
 }
 
-private extension BackupService {
+private extension UserWalletBackupService {
     var allCardIds: Set<String> {
         let ids = [primaryCard?.cardId].compactMap { $0 } + backupCards.map { $0.cardId }
         return Set(ids)

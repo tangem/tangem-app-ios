@@ -13,11 +13,11 @@ import TangemFoundation
 class OnboardingInputFactory {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
-    private let sdkFactory: TangemSdkFactory & BackupServiceFactory
+    private let sdkFactory: TangemSdkFactory & UserWalletBackupServiceFactory
     private let onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
 
     init(
-        sdkFactory: TangemSdkFactory & BackupServiceFactory,
+        sdkFactory: TangemSdkFactory & UserWalletBackupServiceFactory,
         onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
     ) {
         self.sdkFactory = sdkFactory
@@ -25,11 +25,9 @@ class OnboardingInputFactory {
     }
 
     func makeOnboardingInput(cardInfo: CardInfo) -> OnboardingInput? {
-        let backupService = sdkFactory.makeBackupService()
+        let backupService = sdkFactory.makeUserWalletBackupService()
 
-        if let primaryCard = cardInfo.primaryCard {
-            backupService.setPrimaryCard(primaryCard)
-        }
+        backupService.setPrimaryCard(cardInfo: cardInfo)
 
         let factory = PushNotificationsHelpersFactory()
         let permissionManager = factory.makePermissionManagerForWalletOnboarding(using: pushNotificationsInteractor)
@@ -58,11 +56,9 @@ class OnboardingInputFactory {
     }
 
     func makeBackupInput(cardInfo: CardInfo, userWalletModel: UserWalletModel) -> OnboardingInput? {
-        let backupService = sdkFactory.makeBackupService()
+        let backupService = sdkFactory.makeUserWalletBackupService()
 
-        if let primaryCard = cardInfo.primaryCard {
-            backupService.setPrimaryCard(primaryCard)
-        }
+        backupService.setPrimaryCard(cardInfo: cardInfo)
 
         let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(
             backupService: backupService
@@ -108,7 +104,7 @@ class TwinInputFactory {
     private let cardInput: OnboardingInput.CardInput
     private let userWalletToDelete: UserWalletId? // We have to delete the userwallet during retwin
     private let twinData: TwinData
-    private let sdkFactory: TangemSdkFactory & BackupServiceFactory
+    private let sdkFactory: TangemSdkFactory & UserWalletBackupServiceFactory
     private let firstCardId: String
 
     init(
@@ -116,7 +112,7 @@ class TwinInputFactory {
         cardInput: OnboardingInput.CardInput,
         userWalletToDelete: UserWalletId?,
         twinData: TwinData,
-        sdkFactory: TangemSdkFactory & BackupServiceFactory
+        sdkFactory: TangemSdkFactory & UserWalletBackupServiceFactory
     ) {
         self.firstCardId = firstCardId
         self.cardInput = cardInput
@@ -127,7 +123,7 @@ class TwinInputFactory {
 
     func makeTwinInput() -> OnboardingInput {
         return .init(
-            backupService: sdkFactory.makeBackupService(),
+            backupService: sdkFactory.makeUserWalletBackupService(),
             primaryCardId: firstCardId,
             cardInitializer: nil,
             pushNotificationsPermissionManager: nil,
@@ -143,9 +139,9 @@ class TwinInputFactory {
 class ResumeBackupInputFactory {
     private let cardId: String
     private let tangemSdkFactory: TangemSdkFactory
-    private let backupServiceFactory: BackupServiceFactory
+    private let backupServiceFactory: UserWalletBackupServiceFactory
 
-    init(cardId: String, tangemSdkFactory: TangemSdkFactory, backupServiceFactory: BackupServiceFactory) {
+    init(cardId: String, tangemSdkFactory: TangemSdkFactory, backupServiceFactory: UserWalletBackupServiceFactory) {
         self.cardId = cardId
         self.tangemSdkFactory = tangemSdkFactory
         self.backupServiceFactory = backupServiceFactory
@@ -153,7 +149,7 @@ class ResumeBackupInputFactory {
 
     func makeBackupInput() -> OnboardingInput {
         return .init(
-            backupService: backupServiceFactory.makeBackupService(),
+            backupService: backupServiceFactory.makeUserWalletBackupService(),
             primaryCardId: cardId,
             cardInitializer: nil,
             pushNotificationsPermissionManager: nil,

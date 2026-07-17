@@ -169,7 +169,7 @@ extension VisaConfig: UserWalletConfig {
 
 extension VisaConfig: VisaCardOnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(
-        backupService: BackupService
+        backupService: UserWalletBackupService
     ) -> OnboardingStepsBuilder {
         return VisaOnboardingStepsBuilder(
             cardId: card.cardId,

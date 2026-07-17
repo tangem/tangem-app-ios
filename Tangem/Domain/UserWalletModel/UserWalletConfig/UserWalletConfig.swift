@@ -14,7 +14,7 @@ import BlockchainSdk
 import TangemFoundation
 import TangemUI
 
-protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, TangemSdkFactory, WalletCreationContextBuilderProvider {
+protocol UserWalletConfig: OnboardingStepsBuilderFactory, UserWalletBackupServiceFactory, TangemSdkFactory, WalletCreationContextBuilderProvider {
     var emailConfig: EmailConfig? { get }
 
     var cardsCount: Int { get }
@@ -174,9 +174,9 @@ extension UserWalletConfig where Self: CardContainer {
         return factory.makeTangemSdk()
     }
 
-    func makeBackupService() -> BackupService {
-        let factory = GenericBackupServiceFactory(isAccessCodeSet: card.isAccessCodeSet)
-        return factory.makeBackupService()
+    func makeUserWalletBackupService() -> UserWalletBackupService {
+        let factory = GenericUserWalletBackupServiceFactory(isAccessCodeSet: card.isAccessCodeSet)
+        return factory.makeUserWalletBackupService()
     }
 
     func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory {

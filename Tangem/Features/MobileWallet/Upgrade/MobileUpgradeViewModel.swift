@@ -106,12 +106,10 @@ extension MobileUpgradeViewModel {
 
     func makeOnboardingInput(cardInfo: CardInfo) -> OnboardingInput? {
         // Card for mobile backup must not have an access code set.
-        let backupFactory = GenericBackupServiceFactory(isAccessCodeSet: false)
-        let backupService = backupFactory.makeBackupService()
+        let backupFactory = GenericUserWalletBackupServiceFactory(isAccessCodeSet: false)
+        let backupService = backupFactory.makeUserWalletBackupService()
 
-        if let primaryCard = cardInfo.primaryCard {
-            backupService.setPrimaryCard(primaryCard)
-        }
+        backupService.setPrimaryCard(cardInfo: cardInfo)
 
         let stepsBuilder = userWalletModel.config.makeOnboardingStepsBuilder(
             backupService: backupService

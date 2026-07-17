@@ -7,14 +7,13 @@
 //
 
 import Foundation
-import class TangemSdk.BackupService
 
 struct MobileOnboardingStepsBuilder: OnboardingStepsBuilder {
-    private let backupService: BackupService
+    private let backupService: UserWalletBackupService
 
     private let commonStepsBuilder = CommonOnboardingStepsBuilder()
 
-    init(backupService: BackupService) {
+    init(backupService: UserWalletBackupService) {
         self.backupService = backupService
     }
 
@@ -27,7 +26,7 @@ struct MobileOnboardingStepsBuilder: OnboardingStepsBuilder {
 
         steps.append(.mobileUpgradeIntro)
 
-        if backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
+        if backupService.addedBackupCardsCount < UserWalletBackupService.maxBackupCardsCount {
             steps.append(.selectBackupCards)
         }
 

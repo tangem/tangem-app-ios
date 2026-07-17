@@ -161,7 +161,7 @@ extension Start2CoinConfig: UserWalletConfig {
     }
 
     func makeOnboardingStepsBuilder(
-        backupService: BackupService
+        backupService: UserWalletBackupService
     ) -> OnboardingStepsBuilder {
         return Start2CoinOnboardingStepsBuilder(
             hasWallets: !card.wallets.isEmpty

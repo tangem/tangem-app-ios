@@ -189,7 +189,7 @@ struct TwinsOnboardingView: View {
     TwinsOnboardingView(
         viewModel: TwinsOnboardingViewModel(
             input: OnboardingInput(
-                backupService: .init(sdk: .init(), networkService: .init(session: .shared, additionalHeaders: [:])),
+                backupService: UserWalletBackupService(backupService: .init(sdk: .init(), networkService: .init(session: .shared, additionalHeaders: [:]))),
                 primaryCardId: "",
                 cardInitializer: nil,
                 pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),

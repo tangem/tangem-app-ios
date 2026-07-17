@@ -169,7 +169,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
         }
     }
 
-    func makeBackupService() -> BackupService {
+    func makeUserWalletBackupService() -> UserWalletBackupService {
         fatalError("Implementation not required")
     }
 
@@ -185,7 +185,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
         MobileMainHeaderProviderFactory()
     }
 
-    func makeOnboardingStepsBuilder(backupService: BackupService) -> any OnboardingStepsBuilder {
+    func makeOnboardingStepsBuilder(backupService: UserWalletBackupService) -> any OnboardingStepsBuilder {
         MobileOnboardingStepsBuilder(backupService: backupService)
     }
 }

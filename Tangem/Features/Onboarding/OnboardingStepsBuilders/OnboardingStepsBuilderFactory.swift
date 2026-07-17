@@ -11,7 +11,7 @@ import TangemSdk
 
 protocol OnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(
-        backupService: BackupService
+        backupService: UserWalletBackupService
     ) -> OnboardingStepsBuilder
 }
 
@@ -21,7 +21,7 @@ protocol WalletOnboardingStepsBuilderFactory: OnboardingStepsBuilderFactory, Car
 
 extension UserWalletConfig where Self: WalletOnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(
-        backupService: BackupService
+        backupService: UserWalletBackupService
     ) -> OnboardingStepsBuilder {
         return WalletOnboardingStepsBuilder(
             cardId: card.cardId,
@@ -42,7 +42,7 @@ protocol SingleCardOnboardingStepsBuilderFactory: OnboardingStepsBuilderFactory,
 
 extension UserWalletConfig where Self: SingleCardOnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(
-        backupService: BackupService
+        backupService: UserWalletBackupService
     ) -> OnboardingStepsBuilder {
         return SingleCardOnboardingStepsBuilder(
             cardId: card.cardId,
@@ -58,7 +58,7 @@ protocol NoteCardOnboardingStepsBuilderFactory: OnboardingStepsBuilderFactory, C
 
 extension UserWalletConfig where Self: NoteCardOnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(
-        backupService: BackupService
+        backupService: UserWalletBackupService
     ) -> OnboardingStepsBuilder {
         return NoteOnboardingStepsBuilder(
             cardId: card.cardId,

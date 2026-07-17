@@ -174,7 +174,7 @@ struct SingleCardOnboardingView: View {
     SingleCardOnboardingView(
         viewModel: .init(
             input: OnboardingInput(
-                backupService: .init(sdk: .init(), networkService: .init(session: .shared, additionalHeaders: [:])),
+                backupService: UserWalletBackupService(backupService: .init(sdk: .init(), networkService: .init(session: .shared, additionalHeaders: [:]))),
                 primaryCardId: "",
                 cardInitializer: nil,
                 pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),

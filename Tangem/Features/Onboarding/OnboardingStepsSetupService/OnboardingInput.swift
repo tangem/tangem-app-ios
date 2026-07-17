@@ -12,7 +12,7 @@ import TangemFoundation
 import TangemMobileWalletSdk
 
 struct OnboardingInput { // [REDACTED_TODO_COMMENT]
-    let backupService: BackupService
+    let backupService: UserWalletBackupService
     let primaryCardId: String
     let cardInitializer: CardInitializer?
     let pushNotificationsPermissionManager: PushNotificationsPermissionManager?
