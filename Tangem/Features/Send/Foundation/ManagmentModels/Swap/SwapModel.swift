@@ -262,7 +262,9 @@ private extension SwapModel {
 
         if let currentPair = await expressManager.getCurrentPair(),
            currentPair.source.currency == source.currency,
-           currentPair.destination.currency == destination.currency {
+           currentPair.source.address == source.address,
+           currentPair.destination.currency == destination.currency,
+           currentPair.destination.address == destination.address {
             return
         }
 
