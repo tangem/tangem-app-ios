@@ -41,7 +41,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("Polygon")
-            .tapSwapButtonWhenUnavailable()
+            .tapUnavailableSwapButton()
 
         waitAndDismissErrorAlert(actionName: "Swap")
     }
@@ -65,7 +65,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("POL (ex-MATIC)")
-            .tapSwapButtonWhenUnavailable()
+            .tapUnavailableSwapButton()
 
         waitAndDismissErrorAlert(actionName: "Swap")
     }
