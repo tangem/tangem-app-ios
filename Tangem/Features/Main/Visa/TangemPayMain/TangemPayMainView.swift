@@ -255,13 +255,22 @@ struct TangemPayMainView: View {
             Menu {
                 if FeatureProvider.isAvailable(.tangemPayTiers) {
                     Button(action: viewModel.openCurrentPlan) {
-                        Label {
-                            Text(Localization.tangempayCurrentPlanTitle)
-                        } icon: {
-                            DesignSystem.Icons.ArrowRefresh.regular20.image
-                                .renderingMode(.template)
+                        Text(Localization.tangempayCurrentPlanTitle)
+
+                        switch viewModel.currentPlanState {
+                        case .plan(let name):
+                            Text(name)
+                        case .changing:
+                            // [REDACTED_TODO_COMMENT]
+                            Text("changing your plan")
+                        case .unknown:
+                            EmptyView()
                         }
+
+                        DesignSystem.Icons.Info.regular20.image
+                            .renderingMode(.template)
                     }
+                    .disabled(viewModel.currentPlanState == .changing)
 
                     Divider()
                 }
