@@ -42,10 +42,22 @@ struct AddressBlockchainResolverTests {
         #expect(result.contains(near))
     }
 
-    @Test("NEAR named account is not resolved to NEAR")
-    func nearNamedAccountIsNotResolvedToNEAR() {
+    @Test("NEAR named account is not resolved to any network")
+    func nearNamedAccountIsNotResolvedToAnyNetwork() {
         let result = resolver.resolve(address: "example.near", blockchains: blockchains)
-        #expect(!result.contains(near))
+        #expect(result.isEmpty)
+    }
+
+    @Test("ENS name is not resolved to any network")
+    func ensNameIsNotResolvedToAnyNetwork() {
+        let result = resolver.resolve(address: "louded.eth", blockchains: blockchains)
+        #expect(result.isEmpty)
+    }
+
+    @Test("Hex-prefixed domain name is not resolved to any network")
+    func hexPrefixedDomainNameIsNotResolvedToAnyNetwork() {
+        let result = resolver.resolve(address: "0x.eth", blockchains: blockchains)
+        #expect(result.isEmpty)
     }
 
     @Test("Plain hex address resolves to EVM networks")

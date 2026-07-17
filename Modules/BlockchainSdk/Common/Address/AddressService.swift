@@ -14,6 +14,8 @@ public protocol AddressValidator {
     func validate(_ address: String) -> Bool
     func validateCustomTokenAddress(_ address: String) -> Bool
     func resolveAddress(_ address: String) -> String
+    /// Unlike `validate(_:)`, rejects domain names that require `AddressResolver` resolution (e.g. ENS).
+    func validatePlainAddress(_ address: String) -> Bool
 }
 
 public extension AddressValidator {
@@ -23,6 +25,10 @@ public extension AddressValidator {
 
     func resolveAddress(_ address: String) -> String {
         return address
+    }
+
+    func validatePlainAddress(_ address: String) -> Bool {
+        validate(address)
     }
 }
 
