@@ -10,7 +10,6 @@ import BlockchainSdk
 import Combine
 import Foundation
 import TangemFoundation
-import TangemTestKit
 @testable import TangemExpress
 @testable import Tangem
 

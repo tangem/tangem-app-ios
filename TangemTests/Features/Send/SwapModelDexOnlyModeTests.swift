@@ -301,11 +301,16 @@ private extension SwapModelDexOnlyModeTests {
 
 // MARK: - Stubs
 
-private final class BalanceRestrictionCheckerStub: SwapBalanceRestrictionFeatureChecker, @unchecked Sendable {
-    var result: SwapBalanceRestriction
+private final class BalanceRestrictionCheckerStub: SwapBalanceRestrictionFeatureChecker, Sendable {
+    private let state: OSAllocatedUnfairLock<SwapBalanceRestriction>
+
+    var result: SwapBalanceRestriction {
+        get { state.withLock { $0 } }
+        set { state.withLock { $0 = newValue } }
+    }
 
     init(result: SwapBalanceRestriction) {
-        self.result = result
+        state = OSAllocatedUnfairLock(initialState: result)
     }
 
     func swapTotalBalanceRestriction(for token: SendSourceToken) async throws -> SwapBalanceRestriction {
