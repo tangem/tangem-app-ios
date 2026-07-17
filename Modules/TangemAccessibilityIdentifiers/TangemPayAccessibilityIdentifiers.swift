@@ -96,6 +96,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let cardManagementMoreButton = "\(prefix)CardManagementMoreButton"
     public static let reissueCardRow = "\(prefix)ReissueCardRow"
     public static let reissueSheetConfirmButton = "\(prefix)ReissueSheetConfirmButton"
+    public static let reissueSheetAddFundsButton = "\(prefix)ReissueSheetAddFundsButton"
 
     // MARK: - Transaction details
 

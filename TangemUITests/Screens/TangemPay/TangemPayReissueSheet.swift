@@ -25,6 +25,10 @@ final class TangemPayReissueSheet: Screen {
         app.buttons[TangemPayAccessibilityIdentifiers.reissueSheetConfirmButton].firstMatch
     }
 
+    private var addFundsButton: XCUIElement {
+        app.buttons[TangemPayAccessibilityIdentifiers.reissueSheetAddFundsButton].firstMatch
+    }
+
     @discardableResult
     func waitForSheet() -> Self {
         XCTContext.runActivity(named: "Wait for card reissue bottom sheet") { _ in
@@ -67,7 +71,7 @@ final class TangemPayReissueSheet: Screen {
     @discardableResult
     func tapAddFunds() -> TangemPayAddFundsSheet {
         XCTContext.runActivity(named: "Tap Add funds on 'Unable to cover fee' reissue sheet") { _ in
-            confirmButton.waitAndTap()
+            addFundsButton.waitAndTap()
             return TangemPayAddFundsSheet(app)
         }
     }
