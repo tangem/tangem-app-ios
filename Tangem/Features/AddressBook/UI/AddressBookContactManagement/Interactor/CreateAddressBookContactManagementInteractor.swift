@@ -178,6 +178,10 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     func logAddressRemoved() {
         analyticsLogger.logAddressRemoved(contactId: nil)
     }
+
+    func logDuplicateNameErrorShown() {
+        analyticsLogger.logDuplicateNameErrorShown(contactId: nil)
+    }
 }
 
 // MARK: - Private

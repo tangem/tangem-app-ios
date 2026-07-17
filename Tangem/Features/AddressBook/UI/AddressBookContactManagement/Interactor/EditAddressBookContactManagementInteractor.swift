@@ -202,6 +202,10 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     func logAddressRemoved() {
         analyticsLogger.logAddressRemoved(contactId: contact.id.stringValue)
     }
+
+    func logDuplicateNameErrorShown() {
+        analyticsLogger.logDuplicateNameErrorShown(contactId: contact.id.stringValue)
+    }
 }
 
 // MARK: - Wallet change (move between books)

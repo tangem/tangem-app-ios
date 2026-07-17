@@ -43,6 +43,7 @@ protocol AddressBookContactManagementInteractor {
     func logContactScreenOpened()
     func logWalletPickerOpened()
     func logAddressRemoved()
+    func logDuplicateNameErrorShown()
 
     @discardableResult
     func save() async throws -> AddressBookContactID

@@ -65,8 +65,8 @@ enum AddressBookSelectAllAction {
 // MARK: - Save failure classification
 
 extension AddressBookAnalyticsLogger {
-    /// A user-cancelled card scan is not a failure the user sees, and a duplicate-address save is surfaced as an
-    /// inline alert rather than its own event — everything else maps to the generic save-error event.
+    /// A user-cancelled card scan is not a failure the user sees, and duplicate name/address saves surface as
+    /// inline errors logged where they're shown — everything else maps to the generic save-error event.
     func logSaveFailure(contactId: String?, error: Error) {
         guard !error.isCancellationError else {
             return
@@ -74,10 +74,7 @@ extension AddressBookAnalyticsLogger {
 
         if let validationError = error as? AddressBookValidationError {
             switch validationError {
-            case .addressAlreadySaved:
-                return
-            case .nameNotUnique:
-                logDuplicateNameErrorShown(contactId: contactId)
+            case .addressAlreadySaved, .nameNotUnique:
                 return
             default:
                 break
