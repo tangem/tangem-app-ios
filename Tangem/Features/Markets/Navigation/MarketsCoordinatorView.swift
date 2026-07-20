@@ -85,6 +85,7 @@ struct MarketsCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.forYouViewModel) { viewModel in
                 ForYouView(viewModel: viewModel, onBackButtonAction: { coordinator.forYouViewModel = nil })
+                    .navigationLinks(forYouEarnLink)
             }
     }
 
@@ -93,6 +94,13 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.newsPagerTokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
                     .ignoresSafeArea(.container, edges: .top)
+            }
+    }
+
+    private var forYouEarnLink: some View {
+        NavHolder()
+            .navigation(item: $coordinator.forYouEarnListCoordinator) {
+                EarnDetailCoordinatorView(coordinator: $0)
             }
     }
 
