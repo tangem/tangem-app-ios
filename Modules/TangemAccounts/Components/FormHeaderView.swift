@@ -81,7 +81,7 @@ public struct FormHeaderView: View {
         TextField(placeholderText, text: $accountName)
             .tint(Colors.Text.primary1)
             .multilineTextAlignment(.center)
-            .minimumScaleFactor(0.5)
+            .minimumScaleFactor(style.nameMinimumScaleFactor)
             .focused($isFocused)
             .background(
                 GeometryReader { proxy in
@@ -115,9 +115,10 @@ public extension FormHeaderView {
         let titleBottomPadding: CGFloat
         let isAvatarCircular: Bool
         let enforcesMaxLength: Bool
+        let nameMinimumScaleFactor: CGFloat
 
-        public static let accounts = Style(cornerRadius: 14, contentVerticalPadding: 20, avatarBottomPadding: 34, titleColor: Colors.Text.tertiary, titleBottomPadding: 0, isAvatarCircular: false, enforcesMaxLength: true)
-        public static let addressBook = Style(cornerRadius: 24, contentVerticalPadding: 36, avatarBottomPadding: 28, titleColor: Colors.Text.secondary, titleBottomPadding: 4, isAvatarCircular: true, enforcesMaxLength: false)
+        public static let accounts = Style(cornerRadius: 14, contentVerticalPadding: 20, avatarBottomPadding: 34, titleColor: Colors.Text.tertiary, titleBottomPadding: 0, isAvatarCircular: false, enforcesMaxLength: true, nameMinimumScaleFactor: 0.5)
+        public static let addressBook = Style(cornerRadius: 24, contentVerticalPadding: 36, avatarBottomPadding: 28, titleColor: Colors.Text.secondary, titleBottomPadding: 4, isAvatarCircular: true, enforcesMaxLength: false, nameMinimumScaleFactor: 1)
     }
 }
 
