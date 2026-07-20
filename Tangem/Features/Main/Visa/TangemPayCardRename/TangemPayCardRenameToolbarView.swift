@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemUI
 
@@ -18,6 +19,7 @@ struct TangemPayCardRenameToolbarView: View {
             title: Localization.commonDone,
             isLoading: renameViewModel.isLoading,
             isDisabled: renameViewModel.isSaveDisabled,
+            accessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardRenameDoneButton,
             action: renameViewModel.save
         )
         .padding(.horizontal, 16)
