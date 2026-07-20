@@ -221,6 +221,7 @@
 "common_add_tokens" = "添加代币";
 "common_added" = "已添加";
 "common_address" = "地址";
+"common_all_accounts" = "All accounts";
 "common_all" = "全部";
 "common_allow" = "允许";
 "common_amount" = "金额";
@@ -265,6 +266,7 @@
 "common_copy" = "复制";
 "common_create" = "创建";
 "common_custom" = "定制";
+"common_day" = "day";
 "common_delete" = "删除";
 "common_disable" = "禁用";
 "common_disabled" = "已禁用";
@@ -323,15 +325,18 @@
 "common_month_in[8]" = "September";
 "common_month_in[9]" = "October";
 "common_more" = "更多的";
+"common_negative" = "Negative";
 "common_network_fee_title" = "网络费用";
 "common_network_fee_warning_content" = "汇款金额将减少 %1$@ （%2$@）以支付所选费用等级";
 "common_network" = "网络";
+"common_neutral" = "Neutral";
 "common_news" = "新闻";
 "common_next" = "下一个";
 "common_nft" = "NFT";
 "common_no_address" = "无地址";
 "common_no_results" = "无结果";
 "common_no" = "不";
+"common_none" = "None";
 "common_not_added" = "未添加";
 "common_not_available" = "不可用";
 "common_not_now" = "现在不要";
@@ -345,6 +350,7 @@
 "common_other" = "Other";
 "common_passphrase" = "密码短语";
 "common_paste" = "粘贴";
+"common_positive" = "Positive";
 "common_privacy_policy" = "隐私政策";
 "common_rate" = "Rate";
 "common_read_more" = "阅读更多";
