@@ -390,6 +390,43 @@ extension SendSummaryScreen {
     }
 }
 
+// MARK: - Staking (unstake / withdraw / claim confirm)
+
+extension SendSummaryScreen {
+    /// Staking action confirm (unstake / withdraw / claim): fixed amount, fee loads async, no validator picker.
+    @discardableResult
+    func waitForStakingConfirm() -> Self {
+        XCTContext.runActivity(named: "Wait for staking confirm screen") { _ in
+            waitAndAssertTrue(title, "Title should exist")
+            let buttonFound = finishButton.waitForExistence(timeout: .quick) || holdFinishButton.waitForExistence(timeout: .robustUIUpdate)
+            XCTAssertTrue(buttonFound, "Confirm button should exist")
+            waitAndAssertTrue(networkFeeBlock, "Network fee block should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertUnstakeNotificationDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert 'Unstake' notification is displayed") { _ in
+            let notification = app.descendants(matching: .any)[StakingAccessibilityIdentifiers.unstakeNotification].firstMatch
+            waitAndAssertTrue(notification, "'Unstake' notification should be displayed on the confirm screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertRentFeeWarningAndConfirmDisabled() -> Self {
+        XCTContext.runActivity(named: "Assert rent-fee 'Invalid amount' warning is shown and confirm is blocked") { _ in
+            let rentBanner = app.descendants(matching: .any)[SendAccessibilityIdentifiers.remainingAmountIsLessThanRentExemptionBanner].firstMatch
+            XCTAssertTrue(rentBanner.waitForExistence(timeout: .robustUIUpdate), "Rent-fee 'Invalid amount' warning should be displayed on the confirm screen")
+
+            waitAndAssertTrue(activeFinishButton, "Confirm button should exist")
+            XCTAssertFalse(activeFinishButton.isEnabled, "Confirm button should be blocked while the rent-fee warning is shown")
+            return self
+        }
+    }
+}
+
 enum SendSummaryScreenElement: String, UIElement {
     case title
     case finishButton

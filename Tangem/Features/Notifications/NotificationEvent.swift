@@ -78,20 +78,7 @@ extension NotificationEvent {
             case .feeWillBeSubtractFromSendingAmount:
                 return SendAccessibilityIdentifiers.feeWillBeSubtractFromSendingAmountBanner
             case .validationErrorEvent(let event):
-                switch event {
-                case .dustRestriction:
-                    return SendAccessibilityIdentifiers.invalidAmountBanner
-                case .remainingAmountIsLessThanRentExemption:
-                    return SendAccessibilityIdentifiers.remainingAmountIsLessThanRentExemptionBanner
-                case .insufficientAmountToReserveAtDestination:
-                    return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
-                case .amountExceedMaximumUTXO:
-                    return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
-                case .insufficientBalanceForFee:
-                    return SendAccessibilityIdentifiers.insufficientBalanceForFeeBanner
-                default:
-                    return nil
-                }
+                return accessibilityIdentifier(for: event)
             case .withdrawalNotificationEvent(let withdrawalEvent):
                 switch withdrawalEvent {
                 case .reduceAmountBecauseFeeIsTooHigh:
@@ -122,10 +109,40 @@ extension NotificationEvent {
             default:
                 return nil
             }
+        } else if let stakingEvent = self as? StakingNotificationEvent {
+            switch stakingEvent {
+            case .unstake:
+                return StakingAccessibilityIdentifiers.unstakeNotification
+            case .withdraw:
+                return StakingAccessibilityIdentifiers.withdrawNotification
+            case .claimRewards:
+                return StakingAccessibilityIdentifiers.claimRewardsNotification
+            case .validationErrorEvent(let event):
+                return accessibilityIdentifier(for: event)
+            default:
+                return nil
+            }
         } else if self is GetTangemPayBannerNotificationEvent {
             return TangemPayAccessibilityIdentifiers.getTangemPayBanner
         }
         return nil
+    }
+
+    private func accessibilityIdentifier(for validationEvent: ValidationErrorEvent) -> String? {
+        switch validationEvent {
+        case .dustRestriction:
+            return SendAccessibilityIdentifiers.invalidAmountBanner
+        case .remainingAmountIsLessThanRentExemption:
+            return SendAccessibilityIdentifiers.remainingAmountIsLessThanRentExemptionBanner
+        case .insufficientAmountToReserveAtDestination:
+            return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
+        case .amountExceedMaximumUTXO:
+            return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
+        case .insufficientBalanceForFee:
+            return SendAccessibilityIdentifiers.insufficientBalanceForFeeBanner
+        default:
+            return nil
+        }
     }
 
     var bannerKind: NotificationBannerKind? { nil }
