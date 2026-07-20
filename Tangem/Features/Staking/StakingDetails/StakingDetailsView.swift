@@ -49,6 +49,7 @@ struct StakingDetailsView: View {
                     DefaultHeaderView(Localization.stakingYourStakes)
                         .padding(.top, 12)
                         .padding(.bottom, 8)
+                        .accessibilityIdentifier(StakingAccessibilityIdentifiers.yourStakesHeader)
                 }
                 .separatorStyle(.none)
                 .interItemSpacing(0)
