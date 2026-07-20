@@ -23,12 +23,16 @@ public struct IconView<Placeholder: View>: View {
 
     private let placeholder: Placeholder
 
+    /// Applied to the resizable image before its size frame, so the icon can morph size via `matchedGeometryEffect`.
+    private let geometryEffect: GeometryEffectPropertiesModel?
+
     public init(
         url: URL?,
         size: Size,
         cornerRadius: CGFloat = IconViewDefaults.cornerRadius,
         lowContrastBackgroundColor: UIColor = IconViewDefaults.lowContrastBackgroundColor,
         forceKingfisher: Bool = false,
+        geometryEffect: GeometryEffectPropertiesModel? = nil,
         @ViewBuilder placeholder: () -> Placeholder
     ) {
         self.url = url
@@ -36,6 +40,7 @@ public struct IconView<Placeholder: View>: View {
         self.cornerRadius = cornerRadius
         self.lowContrastBackgroundColor = lowContrastBackgroundColor
         self.forceKingfisher = forceKingfisher
+        self.geometryEffect = geometryEffect
         self.placeholder = placeholder()
     }
 
@@ -45,6 +50,7 @@ public struct IconView<Placeholder: View>: View {
         cornerRadius: CGFloat = IconViewDefaults.cornerRadius,
         lowContrastBackgroundColor: UIColor = IconViewDefaults.lowContrastBackgroundColor,
         forceKingfisher: Bool = false,
+        geometryEffect: GeometryEffectPropertiesModel? = nil,
         @ViewBuilder placeholder: () -> Placeholder
     ) {
         self.init(
@@ -53,6 +59,7 @@ public struct IconView<Placeholder: View>: View {
             cornerRadius: cornerRadius,
             lowContrastBackgroundColor: lowContrastBackgroundColor,
             forceKingfisher: forceKingfisher,
+            geometryEffect: geometryEffect,
             placeholder: placeholder
         )
     }
@@ -91,6 +98,7 @@ public struct IconView<Placeholder: View>: View {
             case .success(let image):
                 image
                     .resizable()
+                    .matchedGeometryEffect(geometryEffect)
                     .scaledToFit()
                     .frame(width: size.width, height: size.height)
                     .cornerRadiusContinuous(cornerRadius)
@@ -117,6 +125,7 @@ public struct IconView<Placeholder: View>: View {
             .fade(duration: 0.3)
             .cacheOriginalImage()
             .resizable()
+            .matchedGeometryEffect(geometryEffect)
             .frame(width: size.width, height: size.height)
             .scaledToFit()
             .cornerRadiusContinuous(cornerRadius)
@@ -137,14 +146,16 @@ public extension IconView where Placeholder == CircleImageTextView {
         size: CGSize,
         cornerRadius: CGFloat = IconViewDefaults.cornerRadius,
         lowContrastBackgroundColor: UIColor = IconViewDefaults.lowContrastBackgroundColor,
-        forceKingfisher: Bool = false
+        forceKingfisher: Bool = false,
+        geometryEffect: GeometryEffectPropertiesModel? = nil
     ) {
         self.init(
             url: url,
             size: size,
             cornerRadius: cornerRadius,
             lowContrastBackgroundColor: lowContrastBackgroundColor,
-            forceKingfisher: forceKingfisher
+            forceKingfisher: forceKingfisher,
+            geometryEffect: geometryEffect
         ) {
             CircleImageTextView(name: "", color: Colors.Button.secondary, size: size)
         }
