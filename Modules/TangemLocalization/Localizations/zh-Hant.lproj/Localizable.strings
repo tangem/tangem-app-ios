@@ -221,6 +221,7 @@
 "common_add_tokens" = "Add tokens";
 "common_added" = "Added";
 "common_address" = "Address";
+"common_all_accounts" = "All accounts";
 "common_all" = "All";
 "common_allow" = "Allow";
 "common_amount" = "數量";
@@ -265,6 +266,7 @@
 "common_copy" = "複製";
 "common_create" = "創造";
 "common_custom" = "Custom";
+"common_day" = "day";
 "common_delete" = "刪除";
 "common_disable" = "Disable";
 "common_disabled" = "禁用";
@@ -323,15 +325,18 @@
 "common_month_in[8]" = "September";
 "common_month_in[9]" = "October";
 "common_more" = "More";
+"common_negative" = "Negative";
 "common_network_fee_title" = "網路費";
 "common_network_fee_warning_content" = "Amount sent will be reduced by %1$@ (%2$@) to cover the selected fee level";
 "common_network" = "Network";
+"common_neutral" = "Neutral";
 "common_news" = "News";
 "common_next" = "Next";
 "common_nft" = "NFT";
 "common_no_address" = "No address";
 "common_no_results" = "No results";
 "common_no" = "否";
+"common_none" = "None";
 "common_not_added" = "Not Added";
 "common_not_available" = "Not available";
 "common_not_now" = "Not now";
@@ -345,6 +350,7 @@
 "common_other" = "Other";
 "common_passphrase" = "Passphrase";
 "common_paste" = "Paste";
+"common_positive" = "Positive";
 "common_privacy_policy" = "Privacy Policy";
 "common_rate" = "Rate";
 "common_read_more" = "Read more";
