@@ -235,6 +235,7 @@ private final class MockTangemApiService: TangemApiService {
     func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response { fatalError("unused") }
     func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response { fatalError("unused") }
     func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response { fatalError("unused") }
+    func loadCoinIndicators(requestModel: CoinIndicatorsDTO.Request) async throws -> CoinIndicatorsDTO.Response { fatalError("unused") }
     func loadApplicationVersions() async throws -> ApplicationVersionsDTO { fatalError("unused") }
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response { fatalError("unused") }
     func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response { fatalError("unused") }
