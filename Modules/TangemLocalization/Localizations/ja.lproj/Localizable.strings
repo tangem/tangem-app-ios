@@ -221,6 +221,7 @@
 "common_add_tokens" = "トークンの追加";
 "common_added" = "追加済み";
 "common_address" = "アドレス";
+"common_all_accounts" = "All accounts";
 "common_all" = "すべて";
 "common_allow" = "許可する";
 "common_amount" = "金額";
@@ -265,6 +266,7 @@
 "common_copy" = "コピー";
 "common_create" = "作成";
 "common_custom" = "設定";
+"common_day" = "day";
 "common_delete" = "削除";
 "common_disable" = "無効にする";
 "common_disabled" = "無効";
@@ -323,15 +325,18 @@
 "common_month_in[8]" = "September";
 "common_month_in[9]" = "October";
 "common_more" = "さらに";
+"common_negative" = "Negative";
 "common_network_fee_title" = "ネットワーク手数料";
 "common_network_fee_warning_content" = "送金額は、選択された手数料レベルをカバーするため、%1$@ (%2$@) 減額されます。";
 "common_network" = "ネットワーク";
+"common_neutral" = "Neutral";
 "common_news" = "ニュース";
 "common_next" = "次";
 "common_nft" = "NFT";
 "common_no_address" = "アドレスがありません";
 "common_no_results" = "該当する結果はありません";
 "common_no" = "いいえ";
+"common_none" = "None";
 "common_not_added" = "未追加";
 "common_not_available" = "利用できません";
 "common_not_now" = "今はしない";
@@ -345,6 +350,7 @@
 "common_other" = "Other";
 "common_passphrase" = "パスフレーズ";
 "common_paste" = "ペースト";
+"common_positive" = "Positive";
 "common_privacy_policy" = "プライバシーポリシー";
 "common_rate" = "Rate";
 "common_read_more" = "続きを読む";
