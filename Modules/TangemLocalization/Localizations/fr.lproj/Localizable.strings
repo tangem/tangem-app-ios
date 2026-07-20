@@ -221,6 +221,7 @@
 "common_add_tokens" = "Ajouter des jetons";
 "common_added" = "Ajouté";
 "common_address" = "Adresse";
+"common_all_accounts" = "All accounts";
 "common_all" = "Tous";
 "common_allow" = "Permettre";
 "common_amount" = "Montant";
@@ -265,6 +266,7 @@
 "common_copy" = "Copier";
 "common_create" = "Créer";
 "common_custom" = "Personnalisé";
+"common_day" = "day";
 "common_delete" = "Supprimer";
 "common_disable" = "Désactiver";
 "common_disabled" = "Désactivé";
@@ -323,15 +325,18 @@
 "common_month_in[8]" = "September";
 "common_month_in[9]" = "October";
 "common_more" = "More";
+"common_negative" = "Negative";
 "common_network_fee_title" = "Commissions du réseau";
 "common_network_fee_warning_content" = "Le montant envoyé sera réduit de %1$@(%2$@) pour couvrir le niveau de frais sélectionné";
 "common_network" = "Réseau";
+"common_neutral" = "Neutral";
 "common_news" = "Actualités";
 "common_next" = "Suivant";
 "common_nft" = "NFT";
 "common_no_address" = "Aucune adresse";
 "common_no_results" = "No results";
 "common_no" = "Non";
+"common_none" = "None";
 "common_not_added" = "Non ajouté";
 "common_not_available" = "Indisponible";
 "common_not_now" = "Pas maintenant";
@@ -345,6 +350,7 @@
 "common_other" = "Other";
 "common_passphrase" = "Passphrase";
 "common_paste" = "Coller";
+"common_positive" = "Positive";
 "common_privacy_policy" = "Politique de confidentialité";
 "common_rate" = "Rate";
 "common_read_more" = "En savoir plus";

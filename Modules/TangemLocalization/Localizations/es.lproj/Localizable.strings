@@ -221,6 +221,7 @@
 "common_add_tokens" = "Añada tokens";
 "common_added" = "Agregado";
 "common_address" = "Dirección";
+"common_all_accounts" = "All accounts";
 "common_all" = "Todos";
 "common_allow" = "Autorizar";
 "common_amount" = "Cantidad";
@@ -265,6 +266,7 @@
 "common_copy" = "Copiar";
 "common_create" = "Crear";
 "common_custom" = "Personalizado";
+"common_day" = "day";
 "common_delete" = "Suprimir";
 "common_disable" = "Desactivar";
 "common_disabled" = "Desactivado";
@@ -323,15 +325,18 @@
 "common_month_in[8]" = "September";
 "common_month_in[9]" = "October";
 "common_more" = "Más";
+"common_negative" = "Negative";
 "common_network_fee_title" = "Tarifa de la red";
 "common_network_fee_warning_content" = "La cantidad enviada se reducirá en %1$@ (%2$@) para cubrir el nivel de tarifa seleccionado";
 "common_network" = "Red";
+"common_neutral" = "Neutral";
 "common_news" = "Noticias";
 "common_next" = "Siguiente";
 "common_nft" = "NFT";
 "common_no_address" = "Ninguna dirección";
 "common_no_results" = "Sin resultados";
 "common_no" = "No";
+"common_none" = "None";
 "common_not_added" = "No agregadas";
 "common_not_available" = "No disponible";
 "common_not_now" = "Ahora no";
@@ -345,6 +350,7 @@
 "common_other" = "Other";
 "common_passphrase" = "Frase de contraseña";
 "common_paste" = "Pegar";
+"common_positive" = "Positive";
 "common_privacy_policy" = "Política de privacidad";
 "common_rate" = "Rate";
 "common_read_more" = "Leer más";
