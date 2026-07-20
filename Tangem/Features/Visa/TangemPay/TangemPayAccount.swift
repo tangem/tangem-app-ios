@@ -119,6 +119,12 @@ final class TangemPayAccount {
         customerInfoSubject.value.customerTariffPlan
     }
 
+    var customerTariffPlanPublisher: AnyPublisher<VisaCustomerInfoResponse.CustomerTariffPlan?, Never> {
+        customerInfoSubject
+            .map(\.customerTariffPlan)
+            .eraseToAnyPublisher()
+    }
+
     private var currentCustomerInfo: VisaCustomerInfoResponse {
         customerInfoSubject.value
     }
