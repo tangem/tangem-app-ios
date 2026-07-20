@@ -14,7 +14,8 @@ import TangemUIUtils
 extension PortfolioTokenItemView {
     struct RowView: View {
         let data: ForYouTokenRowData
-        var showsIndicator: Bool = false
+        /// The collapsed aggregate row (spans networks): shows the indicator dot and hides the per-network badge.
+        var isAggregateRow: Bool = false
         /// Set only for the collapsed aggregate row, so it morphs into the expanded header.
         var effects: PortfolioTokenGeometryEffects?
 
@@ -31,6 +32,7 @@ extension PortfolioTokenItemView {
             .compressionPolicy(.trailingPreserved)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
+            .environment(\.isShimmerActive, data.freshness == .refreshing)
         }
     }
 }
@@ -41,7 +43,7 @@ extension PortfolioTokenItemView.RowView {
     var icon: some View {
         tokenIcon
             .overlay(alignment: .bottomTrailing) {
-                if showsIndicator, data.tokenIconInfo != nil {
+                if isAggregateRow, data.tokenIconInfo != nil {
                     indicatorDot
                 }
             }
@@ -53,7 +55,8 @@ extension PortfolioTokenItemView.RowView {
             TokenIcon(
                 tokenIconInfo: iconInfo,
                 size: CGSize(width: iconSize, height: iconSize),
-                isWithOverlays: true
+                isWithOverlays: !isAggregateRow,
+                iconGeometryEffect: effects?.icon
             )
         } else {
             // "Other" bucket — the ds-core token placeholder glyph.
@@ -98,11 +101,12 @@ extension PortfolioTokenItemView.RowView {
         Text(fiatText)
             .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
+            .shimmer()
     }
 
     var fiatText: String {
         switch data.end {
-        case .values(let fiat, _):
+        case .values(let fiat, _, _):
             return fiat
         case .unavailable:
             return AppConstants.enDashSign
@@ -132,16 +136,18 @@ extension PortfolioTokenItemView.RowView {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             }
+            .shimmer()
         }
     }
 
     @ViewBuilder
     var trailingContent: some View {
         switch data.end {
-        case .values(_, let percent):
+        case .values(_, let percent, _):
             Text(percent)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
+                .shimmer()
         case .unavailable(let label):
             warningLabel(label)
         }
