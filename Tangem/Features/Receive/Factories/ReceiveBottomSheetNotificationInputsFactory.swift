@@ -143,6 +143,7 @@ struct ReceiveBottomSheetNotificationInputsFactory {
              (_, .scroll),
              (_, .linea),
              (_, .monad),
+             (_, .robinhood),
              (_, .arbitrumNova),
              (_, .plasma),
              (_, .adi),
