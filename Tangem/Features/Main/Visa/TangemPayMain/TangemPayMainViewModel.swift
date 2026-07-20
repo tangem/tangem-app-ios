@@ -53,6 +53,8 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var awaitingDepositMonthlyFee: String?
 
+    @Published private(set) var currentPlanState: CurrentPlanState
+
     let cardDeactivatedNotificationInput: NotificationViewInput?
     @Published var alert: AlertBinder?
 
@@ -124,6 +126,7 @@ final class TangemPayMainViewModel: ObservableObject {
             : nil
 
         balance = tangemPayAccount.mainHeaderBalanceProvider.balance
+        currentPlanState = tangemPayAccount.customerTariffPlan?.currentPlanState ?? .unknown
 
         transactionHistoryService = TangemPayTransactionHistoryService(
             apiService: tangemPayAccount.customerService,
@@ -389,6 +392,28 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 }
 
+// MARK: - CurrentPlanState
+
+extension TangemPayMainViewModel {
+    enum CurrentPlanState: Equatable {
+        case plan(name: String)
+        case changing
+        case unknown
+    }
+}
+
+private extension VisaCustomerInfoResponse.CustomerTariffPlan {
+    var currentPlanState: TangemPayMainViewModel.CurrentPlanState {
+        if status == .transitioning {
+            return .changing
+        }
+        if let name = tariffPlan.name.nilIfEmpty {
+            return .plan(name: name)
+        }
+        return .unknown
+    }
+}
+
 // MARK: - Private
 
 private extension TangemPayMainViewModel {
@@ -421,6 +446,12 @@ private extension TangemPayMainViewModel {
             }
             .receiveOnMain()
             .assign(to: &$isWithdrawButtonDisabled)
+
+        tangemPayAccount.customerTariffPlanPublisher
+            .map { $0?.currentPlanState ?? .unknown }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$currentPlanState)
 
         bindInlineNotifications()
 
