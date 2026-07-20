@@ -163,6 +163,10 @@ private extension CommonStakingNotificationManager {
             let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
             let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
 
+            if case .remainingAmountIsLessThanRentExemption = validationError {
+                hideActionInfoNotifications()
+            }
+
             if case .insufficientBalanceForFee = validationErrorEvent {
                 analyticsLogger.logNoticeNotEnoughFee()
             }
@@ -344,6 +348,23 @@ private extension CommonStakingNotificationManager {
         notificationInputsSubject.value.removeAll { input in
             switch input.settings.event {
             case StakingNotificationEvent.tonAccountInitialization: true
+            default: false
+            }
+        }
+    }
+
+    func hideActionInfoNotifications() {
+        notificationInputsSubject.value.removeAll { input in
+            switch input.settings.event {
+            case StakingNotificationEvent.unstake,
+                 StakingNotificationEvent.withdraw,
+                 StakingNotificationEvent.claimRewards,
+                 StakingNotificationEvent.restakeRewards,
+                 StakingNotificationEvent.unlock,
+                 StakingNotificationEvent.lowStakedBalance,
+                 StakingNotificationEvent.tonUnstaking,
+                 StakingNotificationEvent.tonExtraReserveInfo:
+                true
             default: false
             }
         }
