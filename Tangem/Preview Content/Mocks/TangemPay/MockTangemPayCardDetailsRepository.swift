@@ -29,14 +29,16 @@ final class MockTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
     }
 
     var cardNamePublisher: AnyPublisher<String, Never> {
-        Just("My Card").eraseToAnyPublisher()
+        card.displayNamePublisher
     }
 
     var isReissuingPublisher: AnyPublisher<Bool, Never> {
         card.isReissuingPublisher
     }
 
-    func updateCardDisplayName(_ name: String) async throws {}
+    func updateCardDisplayName(_ name: String) async throws {
+        try await card.updateDisplayName(name)
+    }
 
     func revealRequest() async throws -> TangemPayCardDetailsData {
         TangemPayCardDetailsData(
