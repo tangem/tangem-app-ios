@@ -63,6 +63,12 @@ struct TransactionViewAmountViewData: Hashable {
         }
     }
 
+    /// Numeric value for the redesigned chip, honoring the same visibility rule as `formattedAmount`:
+    /// hidden for transaction types where `formattedAmount` is `nil`, shown otherwise.
+    var displayValue: String? {
+        formattedAmount == nil ? nil : value
+    }
+
     var amountColor: Color {
         switch (status, type) {
         case (.failed, _):
