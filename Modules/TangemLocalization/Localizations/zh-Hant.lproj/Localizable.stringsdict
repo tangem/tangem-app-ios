@@ -464,7 +464,7 @@
         <key>one</key>
         <string>Sync addresses to get an address for %li network</string>
         <key>other</key>
-        <string>Sync addresses to get an addresses for %li networks</string>
+        <string>Sync addresses to get addresses for %li networks</string>
       </dict>
     </dict>
   </dict>
