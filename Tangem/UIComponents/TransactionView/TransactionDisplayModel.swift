@@ -110,6 +110,8 @@ extension TransactionDisplayModel {
             return statusTitle(status: status, progress: Localization.commonApproving, done: Localization.commonApproved)
         case .stake:
             return statusTitle(status: status, progress: Localization.commonStaking, done: Localization.commonStaked)
+        case .unstake:
+            return statusTitle(status: status, progress: Localization.stakingUnstaking, done: Localization.stakingUnstaked)
         default:
             return legacyName
         }
