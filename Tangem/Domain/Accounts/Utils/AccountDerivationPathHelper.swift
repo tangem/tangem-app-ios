@@ -175,6 +175,7 @@ struct AccountDerivationPathHelper {
              .scroll,
              .linea,
              .monad,
+             .robinhood,
              .arbitrumNova,
              .plasma,
              .adi,
