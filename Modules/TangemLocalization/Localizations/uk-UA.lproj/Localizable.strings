@@ -221,6 +221,7 @@
 "common_add_tokens" = "Додайте токени";
 "common_added" = "Додано";
 "common_address" = "Адреса";
+"common_all_accounts" = "All accounts";
 "common_all" = "Усе";
 "common_allow" = "Дозволити";
 "common_amount" = "Сума";
@@ -265,6 +266,7 @@
 "common_copy" = "Копіювати";
 "common_create" = "Створити";
 "common_custom" = "Власна";
+"common_day" = "day";
 "common_delete" = "Видалити";
 "common_disable" = "Вимкнути";
 "common_disabled" = "Вимкнуто";
@@ -323,15 +325,18 @@
 "common_month_in[8]" = "September";
 "common_month_in[9]" = "October";
 "common_more" = "Більше";
+"common_negative" = "Negative";
 "common_network_fee_title" = "Комісія мережі";
 "common_network_fee_warning_content" = "Сума відправлення буде зменшена на %1$@ (%2$@) для покриття обраного рівня комісії";
 "common_network" = "Мережа";
+"common_neutral" = "Neutral";
 "common_news" = "Новини";
 "common_next" = "Далі";
 "common_nft" = "NFT";
 "common_no_address" = "Немає адреси";
 "common_no_results" = "Немає результатів";
 "common_no" = "Ні";
+"common_none" = "None";
 "common_not_added" = "Не додано";
 "common_not_available" = "Недоступно";
 "common_not_now" = "Не зараз";
@@ -345,6 +350,7 @@
 "common_other" = "Other";
 "common_passphrase" = "Парольна фраза";
 "common_paste" = "Вставити";
+"common_positive" = "Positive";
 "common_privacy_policy" = "Політикою конфіденційності";
 "common_rate" = "Rate";
 "common_read_more" = "Детальніше";
