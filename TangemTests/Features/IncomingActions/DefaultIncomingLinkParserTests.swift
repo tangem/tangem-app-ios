@@ -141,6 +141,13 @@ struct DefaultIncomingLinkParserTests {
         #expect(result != nil, "Expected host '\(host)' to be parsed successfully")
     }
 
+    @Test("Parses campaigns deeplink without campaignId")
+    func parsesCampaignsDeeplinkWithoutCampaignId() throws {
+        let url = try #require(URL(string: "tangem://campaigns"))
+        let result = parser.parse(url)
+        #expect(result != nil, "Expected campaigns deeplink without campaignId to be parsed")
+    }
+
     @Test("Rejects tangem://news-article since it is not a deeplink host")
     func rejectsNewsArticleAsDeeplinkHost() throws {
         let url = try #require(URL(string: "tangem://news-article?id=190801"))
