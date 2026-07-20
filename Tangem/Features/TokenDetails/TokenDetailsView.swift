@@ -109,6 +109,7 @@ struct TokenDetailsView: View {
             redesignTrailingToolbarButton
         }
         .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(Localization.commonMore)
         .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
     }
 
@@ -167,23 +168,16 @@ struct TokenDetailsView: View {
         }
 
         if !viewModel.dotsMenuItems.isEmpty {
-            switch viewModel.presentSource {
-            case .navigation:
-                Menu("", systemImage: "ellipsis") {
+            Menu(
+                content: {
                     menuItems
+                },
+                label: {
+                    NavigationBarButton.details(action: {})
+                        .redesigned()
+                        .allowsHitTesting(false)
                 }
-            case .markets:
-                Menu(
-                    content: {
-                        menuItems
-                    },
-                    label: {
-                        NavigationBarButton.details(action: {})
-                            .redesigned()
-                            .allowsHitTesting(false)
-                    }
-                )
-            }
+            )
         }
     }
 
@@ -273,9 +267,27 @@ private extension TokenDetailsView {
             content
                 .toolbar {
                     ToolbarItem(placement: .principal) { principalContent }
-                    ToolbarItem(placement: .topBarTrailing) { trailingContent }
+                    trailingToolbarItem
                 }
                 .navigationBarTitleDisplayMode(.inline)
+        }
+
+        /// [REDACTED_INFO]: works around an iOS 26 bug. If you open the ⋯ menu and go back to Main very quickly,
+        /// the menu button's glass gets pulled into the back animation and leaves a stray rectangle over
+        /// Main's toolbar buttons. There is no way to close a SwiftUI Menu from code to avoid this, so we turn
+        /// off the system glass on this item and give the ⋯ its own glass through the custom
+        /// `NavigationBarButton` label in `redesignTrailingToolbarButton` instead.
+        ///
+        /// Turning off the system glass is not something we want to do normally — it drops the nice built-in
+        /// animation. Only do it when a system bug leaves no other option, like here.
+        @ToolbarContentBuilder
+        private var trailingToolbarItem: some ToolbarContent {
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .topBarTrailing) { trailingContent }
+                    .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .topBarTrailing) { trailingContent }
+            }
         }
 
         private func makeMarketsNavigation(content: Content) -> some View {
