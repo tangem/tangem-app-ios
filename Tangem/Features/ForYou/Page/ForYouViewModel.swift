@@ -9,5 +9,11 @@
 import Foundation
 
 final class ForYouViewModel: ObservableObject {
-    let portfolioReview: PortfolioReviewViewModel = .init()
+    let portfolioReview: PortfolioReviewViewModel
+    let earnOpportunities: EarnOpportunitiesViewModel
+
+    init(onExploreAllEarn: @MainActor @escaping () -> Void = {}) {
+        portfolioReview = .init()
+        earnOpportunities = .init(onExploreAllTokens: onExploreAllEarn)
+    }
 }
