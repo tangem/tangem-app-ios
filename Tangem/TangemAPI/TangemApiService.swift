@@ -53,6 +53,8 @@ protocol TangemApiService: AnyObject {
 
     func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response
 
+    func loadCoinIndicators(requestModel: CoinIndicatorsDTO.Request) async throws -> CoinIndicatorsDTO.Response
+
     // MARK: - News
 
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response
