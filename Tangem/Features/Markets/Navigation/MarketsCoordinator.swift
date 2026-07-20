@@ -41,6 +41,7 @@ final class MarketsCoordinator: CoordinatorObject {
 
     @Published var marketsListOrderBottomSheetViewModel: MarketsListOrderBottomSheetViewModel?
     @Published var forYouViewModel: ForYouViewModel?
+    @Published var forYouEarnListCoordinator: EarnCoordinator?
 
     // MARK: - Private Properties
 
@@ -100,7 +101,11 @@ extension MarketsCoordinator: MarketsRoutable {
 
 extension MarketsCoordinator: MarketsMainRoutable {
     func openForYou() {
-        forYouViewModel = ForYouViewModel()
+        forYouViewModel = ForYouViewModel(
+            onExploreAllEarn: { [weak self] in
+                self?.openForYouSeeAllEarn()
+            }
+        )
     }
 
     func openSeeAllTopMarketWidget() {
@@ -190,6 +195,29 @@ extension MarketsCoordinator: MarketsMainRoutable {
         ))
 
         earnListCoordinator = coordinator
+    }
+
+    /// Opens the earn list nested inside the For You flow (own coordinator slot) so it pushes on top of For You
+    /// and back returns to the For You screen — mirroring how NewsPager pushes token details.
+    @MainActor
+    func openForYouSeeAllEarn() {
+        let coordinator = EarnCoordinator(
+            dismissAction: { [weak self] in
+                self?.forYouEarnListCoordinator = nil
+            },
+            routeOnEarnTokenResolvedAction: { [weak self] resolution, source in
+                self?.routeOnTokenResolved(resolution, source: source)
+            }
+        )
+
+        // For You seeds no tokens yet → nil makes the earn list fetch its own suggestions (matching
+        // EarnDeeplinkCoordinator); a concrete list comes with the real pipeline ([REDACTED_INFO]).
+        coordinator.start(with: .init(
+            mostlyUsedTokens: nil,
+            presentSource: .navigation
+        ))
+
+        forYouEarnListCoordinator = coordinator
     }
 
     // MARK: - Private Implementation
