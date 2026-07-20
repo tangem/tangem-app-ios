@@ -18,10 +18,16 @@ struct PortfolioTokenItemView: View {
     @Namespace private var namespace
 
     var body: some View {
-        if item.isExpandable {
+        if item.isAssetLoading {
+            TangemTwoLineRowSkeletonView()
+                .portfolioTokenCard()
+                .transition(.opacity)
+        } else if item.isExpandable {
             expandableCard
+                .transition(.opacity)
         } else {
             staticCard
+                .transition(.opacity)
         }
     }
 }
@@ -54,11 +60,11 @@ private extension PortfolioTokenItemView {
     }
 
     func collapsedView() -> some View {
-        RowView(data: item.assetRow, showsIndicator: true, effects: effects)
+        RowView(data: item.assetRow, isAggregateRow: true, effects: effects)
     }
 
     var staticCard: some View {
-        RowView(data: item.assetRow, showsIndicator: true)
+        RowView(data: item.assetRow, isAggregateRow: true)
             .portfolioTokenCard()
     }
 }
