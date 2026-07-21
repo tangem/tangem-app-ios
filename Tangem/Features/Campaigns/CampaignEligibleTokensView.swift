@@ -18,7 +18,7 @@ struct CampaignEligibleTokensView: View {
     var body: some View {
         if !rows.isEmpty {
             VStack(alignment: .leading, spacing: 0) {
-                Text(Localization.promoCampaignEligibleTokens)
+                Text(Localization.marketsPortfolioEligibleBlockTitle)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
@@ -32,8 +32,8 @@ struct CampaignEligibleTokensView: View {
                         }
                     }
                 }
-                .background(Colors.Background.action)
-                .cornerRadiusContinuous(14)
+                .background(Color.Tangem.Surface.level3)
+                .cornerRadiusContinuous(18)
             }
         }
     }
