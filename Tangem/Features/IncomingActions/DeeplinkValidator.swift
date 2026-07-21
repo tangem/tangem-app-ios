@@ -43,8 +43,11 @@ struct CommonDeepLinkValidator {
         params.surveyToken?.nilIfEmpty != nil
     }
 
+    /// `tangem://campaigns` never requires parameters: a missing campaign id falls back
+    /// to the campaign-not-active sheet at the routing layer, an unknown one — after the
+    /// campaign load. The validator only rejects malformed characters.
     private func hasEnoughCampaignsParams(params: DeeplinkNavigationAction.Params) -> Bool {
-        areParamsValid(params, keys: \.campaignId)
+        paramsHaveOnlyValidCharacters([params.campaignId].compactMap { $0 })
     }
 
     /// Universal news-article link: `https://tangem.com/news/{category}/{id}-{slug}`.
