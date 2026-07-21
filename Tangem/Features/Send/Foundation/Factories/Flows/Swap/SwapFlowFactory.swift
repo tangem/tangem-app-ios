@@ -33,6 +33,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         swapTokenPairResolver: swapTokenPairResolver
     )
     lazy var notificationManager = makeSwapNotificationManager()
+    lazy var marketingBannerManager = makeSwapMarketingBannerManager()
     lazy var autoupdatingTimer = AutoupdatingTimer()
 
     init(
@@ -95,6 +96,12 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
             swapModelStateProvider: swapModel
+        )
+
+        marketingBannerManager.setup(
+            sourceTokenInput: swapModel,
+            sourceTokenAmountInput: swapModel,
+            receiveTokenInput: swapModel
         )
 
         // Logger setup
@@ -207,6 +214,7 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
     var summaryDependencies: SwapSummaryStepBuilder.Dependencies {
         SwapSummaryStepBuilder.Dependencies(
             notificationManager: notificationManager,
+            marketingBannerManager: marketingBannerManager,
             autoupdatingTimer: autoupdatingTimer,
             analyticsLogger: analyticsLogger,
             swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder()
