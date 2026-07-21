@@ -219,6 +219,7 @@ public extension VisaCustomerInfoResponse {
         public let cardType: CardType
         public let cardStatus: CardStatus
         public let isPinSet: Bool
+        public let images: [TariffPlan.Image]?
 
         public init(
             id: String,
@@ -229,7 +230,8 @@ public extension VisaCustomerInfoResponse {
             embossName: String,
             cardType: CardType,
             cardStatus: CardStatus,
-            isPinSet: Bool
+            isPinSet: Bool,
+            images: [TariffPlan.Image]? = nil
         ) {
             self.id = id
             self.cardNumberEnd = cardNumberEnd
@@ -240,6 +242,7 @@ public extension VisaCustomerInfoResponse {
             self.cardType = cardType
             self.cardStatus = cardStatus
             self.isPinSet = isPinSet
+            self.images = images
         }
     }
 
