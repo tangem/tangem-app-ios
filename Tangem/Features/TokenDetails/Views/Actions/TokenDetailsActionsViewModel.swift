@@ -135,7 +135,7 @@ private extension TokenDetailsActionsViewModel {
             title: Localization.commonSwap,
             icon: Assets.DesignSystem.exchange,
             accessibilityIdentifier: TokenActionType.exchange.accessibilityIdentifier,
-            isAvailable: availabilityProvider.isSwapAvailable,
+            isAvailable: true,
             action: { [weak self] in
                 self?.perform(.exchange, kind: .swap)
             },
@@ -233,10 +233,10 @@ private extension TokenDetailsActionsViewModel {
         // Buy/swap are gated by the wallet features (`.exchange`/`.swapping`): wallets that hide them
         // (e.g. Start2Coin) keep the row visible but disabled instead of tappable.
         case .buy: userWalletConfig.isFeatureVisible(.exchange) && availabilityProvider.isBuyAvailable
-        case .send: availabilityProvider.isSendAvailable
-        case .exchange: userWalletConfig.isFeatureVisible(.swapping) && availabilityProvider.isSwapAvailable
-        case .swapAndSend: userWalletConfig.isFeatureVisible(.swapping) && availabilityProvider.isSwapAvailable
-        case .sell: userWalletConfig.isFeatureVisible(.exchange) && availabilityProvider.isSellAvailable
+        case .send: true
+        case .exchange: userWalletConfig.isFeatureVisible(.swapping)
+        case .swapAndSend: userWalletConfig.isFeatureVisible(.swapping)
+        case .sell: userWalletConfig.isFeatureVisible(.exchange)
         case .receive: availabilityProvider.isReceiveAvailable
         default: false
         }

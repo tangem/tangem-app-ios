@@ -11,21 +11,28 @@ import SwiftUI
 protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemButtonDemo()
     func openTangemButtonV2Demo()
+    func openTangemCheckboxV2Demo()
+    func openTangemCheckmarkV2Demo()
     func openTangemBadgeDemo()
     func openTangemBadgeV2Demo()
+    func openTangemMessageBannerDemo()
     func openTangemRowDemo()
     func openTangemCalloutDemo()
     func openTangemTabsDemo()
     func openTangemMainActionButtonDemo()
     func openTangemSegmentedPickerDemo()
     func openTangemSearchFieldDemo()
+    func openTangemSearchDemo()
     func openNotificationBannerDemo()
     func openTypographyDemo()
+    func openTypographyV2Demo()
     func openTangemDropDownDemo()
     func openTangemLoaderDemo()
     func openTangemTokenRowDemo()
     func openTangemSnackbarDemo()
     func openTangemShimmerDemo()
+    func openGlowRingDemo()
+    func openTangemFadeDemo()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -35,8 +42,11 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var rootViewModel: DesignSystemDemoViewModel?
     @Published var tangemButtonDemoViewModel: TangemButtonDemoViewModel?
     @Published var tangemButtonV2DemoViewModel: TangemButtonV2DemoViewModel?
+    @Published var tangemCheckboxV2DemoViewModel: TangemCheckboxV2DemoViewModel?
+    @Published var tangemCheckmarkV2DemoViewModel: TangemCheckmarkV2DemoViewModel?
     @Published var tangemBadgeDemoViewModel: TangemBadgeDemoViewModel?
     @Published var tangemBadgeV2DemoViewModel: TangemBadgeV2DemoViewModel?
+    @Published var tangemMessageBannerDemoViewModel: TangemMessageBannerDemoViewModel?
     @Published var tangemRowDemoViewModel: TangemRowDemoViewModel?
     @Published var tangemCalloutDemoViewModel: TangemCalloutDemoViewModel?
     @Published var tangemTabsDemoViewModel: TangemTabsDemoModel?
@@ -44,12 +54,16 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemSegmentedPickerDemoViewModel: TangemSegmentedPickerDemoModel?
     @Published var notificationBannerDemoViewModel: NotificationBannerDemoViewModel?
     @Published var typographyDemoViewModel: TypographyDemoViewModel?
+    @Published var typographyV2DemoViewModel: TypographyV2DemoViewModel?
     @Published var tangemSearchFieldDemoViewModel: TangemSearchFieldDemoViewModel?
+    @Published var tangemSearchDemoViewModel: TangemSearchDemoViewModel?
     @Published var tangemDropDownDemoViewModel: TangemDropDownDemoViewModel?
     @Published var tangemLoaderDemoViewModel: TangemLoaderDemoViewModel?
     @Published var tangemTokenRowDemoViewModel: TangemTokenRowDemoViewModel?
     @Published var tangemSnackbarDemoViewModel: TangemSnackbarDemoViewModel?
     @Published var tangemShimmerDemoViewModel: TangemShimmerDemoViewModel?
+    @Published var glowRingDemoViewModel: GlowRingDemoViewModel?
+    @Published var tangemFadeDemoViewModel: TangemFadeDemoViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -73,12 +87,24 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
         tangemButtonV2DemoViewModel = .init()
     }
 
+    func openTangemCheckboxV2Demo() {
+        tangemCheckboxV2DemoViewModel = .init()
+    }
+
+    func openTangemCheckmarkV2Demo() {
+        tangemCheckmarkV2DemoViewModel = .init()
+    }
+
     func openTangemBadgeDemo() {
         tangemBadgeDemoViewModel = .init()
     }
 
     func openTangemBadgeV2Demo() {
         tangemBadgeV2DemoViewModel = .init()
+    }
+
+    func openTangemMessageBannerDemo() {
+        tangemMessageBannerDemoViewModel = .init()
     }
 
     func openTangemRowDemo() {
@@ -101,6 +127,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
         typographyDemoViewModel = .init()
     }
 
+    func openTypographyV2Demo() {
+        typographyV2DemoViewModel = .init()
+    }
+
     func openTangemSegmentedPickerDemo() {
         tangemSegmentedPickerDemoViewModel = .init()
     }
@@ -111,6 +141,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemSearchFieldDemo() {
         tangemSearchFieldDemoViewModel = .init()
+    }
+
+    func openTangemSearchDemo() {
+        tangemSearchDemoViewModel = .init()
     }
 
     func openTangemDropDownDemo() {
@@ -131,6 +165,14 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemShimmerDemo() {
         tangemShimmerDemoViewModel = .init()
+    }
+
+    func openGlowRingDemo() {
+        glowRingDemoViewModel = .init()
+    }
+
+    func openTangemFadeDemo() {
+        tangemFadeDemoViewModel = .init()
     }
 }
 
