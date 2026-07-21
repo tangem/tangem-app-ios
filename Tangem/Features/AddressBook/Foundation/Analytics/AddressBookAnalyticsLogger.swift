@@ -7,23 +7,24 @@
 //
 
 import Foundation
+import TangemFoundation
 
 protocol AddressBookAnalyticsLogger {
-    func logContactListScreenOpened(walletId: String, source: AddressBookAnalyticsSource, contactsCount: Int)
-    func logAddContactTapped(walletId: String, source: AddressBookAnalyticsSource)
-    func logContactScreenOpened(walletId: String, contactId: String?)
-    func logButtonSaveTo(walletId: String)
-    func logContactSaved(walletId: String, contactId: String, mode: AddressBookAnalyticsMode)
-    func logSaveErrorShown(walletId: String, contactId: String?, error: Error)
-    func logAddressScreenOpened(walletId: String)
-    func logAddressInvalid(walletId: String, contactId: String?)
-    func logDuplicateNameErrorShown(walletId: String, contactId: String?)
-    func logAddressRemoved(walletId: String, contactId: String?)
-    func logContactDeleted(walletId: String, contactId: String?)
-    func logSendFlowWidgetShown(walletId: String)
-    func logContactSelected(walletId: String, contactId: String)
-    func logAddressSubstitutedInSend(walletId: String, contactId: String)
-    func logSelectAllNetworksTapped(walletId: String, action: AddressBookSelectAllAction)
+    func logContactListScreenOpened(userWalletId: UserWalletId?, source: AddressBookAnalyticsSource, contactsCount: Int)
+    func logAddContactTapped(userWalletId: UserWalletId?, source: AddressBookAnalyticsSource)
+    func logContactScreenOpened(userWalletId: UserWalletId?, contactId: String?)
+    func logButtonSaveTo()
+    func logContactSaved(userWalletId: UserWalletId?, contactId: String, mode: AddressBookAnalyticsMode)
+    func logSaveErrorShown(userWalletId: UserWalletId?, contactId: String?, error: Error)
+    func logAddressScreenOpened()
+    func logAddressInvalid(userWalletId: UserWalletId?, contactId: String?)
+    func logDuplicateNameErrorShown(userWalletId: UserWalletId?, contactId: String?)
+    func logAddressRemoved(userWalletId: UserWalletId?, contactId: String?)
+    func logContactDeleted(userWalletId: UserWalletId?, contactId: String?)
+    func logSendFlowWidgetShown(userWalletId: UserWalletId?)
+    func logContactSelected(userWalletId: UserWalletId?, contactId: String)
+    func logAddressSubstitutedInSend(userWalletId: UserWalletId?, contactId: String)
+    func logSelectAllNetworksTapped(userWalletId: UserWalletId?, action: AddressBookSelectAllAction)
 }
 
 enum AddressBookAnalyticsMode {
@@ -41,13 +42,11 @@ enum AddressBookAnalyticsMode {
 enum AddressBookAnalyticsSource {
     case settings
     case sendFlow
-    case sendSuccess
 
     var parameterValue: Analytics.ParameterValue {
         switch self {
         case .settings: .settings
         case .sendFlow: .addressBookSourceSendFlow
-        case .sendSuccess: .addressBookSourceSendSuccess
         }
     }
 }
@@ -67,25 +66,22 @@ enum AddressBookSelectAllAction {
 // MARK: - Save failure classification
 
 extension AddressBookAnalyticsLogger {
-    /// A user-cancelled card scan is not a failure the user sees, and a duplicate-address save is surfaced as an
-    /// inline alert rather than its own event — everything else maps to the generic save-error event.
-    func logSaveFailure(walletId: String, contactId: String?, error: Error) {
+    /// A user-cancelled card scan is not a failure the user sees, and duplicate name/address saves surface as
+    /// inline errors logged where they're shown — everything else maps to the generic save-error event.
+    func logSaveFailure(userWalletId: UserWalletId?, contactId: String?, error: Error) {
         guard !error.isCancellationError else {
             return
         }
 
         if let validationError = error as? AddressBookValidationError {
             switch validationError {
-            case .addressAlreadySaved:
-                return
-            case .nameNotUnique:
-                logDuplicateNameErrorShown(walletId: walletId, contactId: contactId)
+            case .addressAlreadySaved, .nameNotUnique:
                 return
             default:
                 break
             }
         }
 
-        logSaveErrorShown(walletId: walletId, contactId: contactId, error: error)
+        logSaveErrorShown(userWalletId: userWalletId, contactId: contactId, error: error)
     }
 }

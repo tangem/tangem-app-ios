@@ -111,7 +111,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapFiatCalculation: return .version("6.1")
         case .addressBook: return .version("6.1")
         case .hideStoriesInMobileWallet: return .version("6.1")
-        case .marketingBanners: return .unspecified
+        case .marketingBanners: return .version("6.0.2")
         case .stakingRegionUnavailable: return .version("6.1")
         case .forYou: return .unspecified
         case .highFeeWarning: return .version("6.1")
@@ -120,7 +120,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaRentExemptionPreflight: return .unspecified
         case .onboardingPushNotificationDoubleAsk: return .version("6.1")
         case .mainPushNotificationDoubleAsk: return .version("6.1")
-        case .promoCampaignsAttribution: return .unspecified
+        case .promoCampaignsAttribution: return .version("6.0.2")
         case .backendAuthentication: return .unspecified
         case .chooseTokenPulseAnimation: return .unspecified
         case .hotWalletDexRatesUntilDeposit: return .unspecified
