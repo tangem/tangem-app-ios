@@ -258,6 +258,14 @@ private extension AddressBookContactManagementViewModel {
             .receiveOnMain()
             .assign(to: &$nameError)
 
+        $nameError
+            .map { $0 == Localization.addressBookNameTakenError }
+            .removeDuplicates()
+            .filter { $0 }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in viewModel.interactor.logDuplicateNameErrorShown() }
+            .store(in: &bag)
+
         interactor.mainButtonIconPublisher
             .receiveOnMain()
             .assign(to: &$mainButtonIcon)
