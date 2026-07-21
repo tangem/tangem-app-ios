@@ -159,8 +159,9 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         currentPlanCoordinator = coordinator
     }
 
-    func openMaximumCardsIssuedSheet() {
+    func openMaximumCardsIssuedSheet(cardsCount: Int) {
         let viewModel = TangemPayMaximumCardsIssuedSheetViewModel(
+            cardsCount: cardsCount,
             onClose: { [weak self] in
                 Task { @MainActor in
                     self?.floatingSheetPresenter.removeActiveSheet()
