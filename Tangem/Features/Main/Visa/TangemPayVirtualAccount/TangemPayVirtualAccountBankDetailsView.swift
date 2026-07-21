@@ -39,8 +39,7 @@ struct TangemPayVirtualAccountBankDetailsView: View {
     }
 
     private var header: some View {
-        // [REDACTED_TODO_COMMENT]
-        BottomSheetHeaderView(title: "Account details", trailing: { closeButton })
+        BottomSheetHeaderView(title: Localization.tangempayVaAccountDetails, trailing: { closeButton })
             .titleFont(DesignSystem.Font.bodyMediumToken.font)
             .titleColor(DesignSystem.Color.textPrimary)
     }
@@ -99,13 +98,11 @@ struct TangemPayVirtualAccountBankDetailsView: View {
                 .foregroundStyle(DesignSystem.Color.iconStatusInfo)
 
             VStack(alignment: .leading, spacing: 2) {
-                // [REDACTED_TODO_COMMENT]
-                Text("Available to deposit per day: $10,000")
+                Text(verbatim: "\(Localization.tangempayVaAvailableToDepositDay) \(Constants.dailyDepositLimit)")
                     .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
 
-                // [REDACTED_TODO_COMMENT]
-                Text("Limit is resetting every day")
+                Text(Localization.tangempayVaLimitResettingEveryday)
                     .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textSecondary)
             }
@@ -123,8 +120,15 @@ struct TangemPayVirtualAccountBankDetailsView: View {
             accessibilityLabel: Localization.commonShare,
             action: viewModel.share
         )
+        .styleType(.default)
         .size(.x14)
         .horizontalLayout(.infinity)
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountBankDetailsShareButton)
+    }
+}
+
+private extension TangemPayVirtualAccountBankDetailsView {
+    enum Constants {
+        static let dailyDepositLimit = "$10,000"
     }
 }

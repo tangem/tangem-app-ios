@@ -61,8 +61,40 @@ struct TangemPayVirtualAccountInfoSheetView: View {
     }
 
     private var icon: some View {
-        Assets.Visa.fiatToUsdc.image
-            .frame(width: 160, height: 80)
+        HStack(spacing: -16) {
+            Circle()
+                .fill(DesignSystem.Color.bgOpaquePrimary)
+                .frame(width: 80, height: 80)
+                .overlay {
+                    Circle().strokeBorder(DesignSystem.Color.borderSecondary, lineWidth: 1)
+                }
+                .overlay {
+                    Assets.Visa.fiat.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 32, height: 32)
+                        .foregroundStyle(DesignSystem.Color.textPrimary)
+                }
+
+            Assets.Visa.usdc.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 80, height: 80)
+                .clipShape(Circle())
+                .overlay {
+                    Circle().strokeBorder(DesignSystem.Color.borderSecondary, lineWidth: 1)
+                }
+                .overlay(alignment: .topTrailing) {
+                    Assets.Visa.pol.image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 24, height: 24)
+                        .padding(2)
+                        .background(DesignSystem.Color.bgSecondary, in: Circle())
+                        .offset(x: 2, y: -2)
+                }
+        }
     }
 
     private var texts: some View {
@@ -90,12 +122,12 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                 Spacer(minLength: 0)
             }
 
-            feeRow(title: "ACH", value: "$1")
+            feeRow(title: Localization.tangempayBankTransferFeeAch, value: "$1")
 
             DesignSystem.Color.borderSecondary
                 .frame(height: 2)
 
-            feeRow(title: "FedWire", value: "$11")
+            feeRow(title: Localization.tangempayBankTransferFeeFedwire, value: "$11")
         }
     }
 
@@ -123,7 +155,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
 
             Text(Localization.tangempayBankTransferSwiftWarning)
                 .font(token: DesignSystem.Font.subheadingMediumToken)
-                .foregroundStyle(DesignSystem.Color.textSecondary)
+                .foregroundStyle(DesignSystem.Color.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 0)
@@ -152,6 +184,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                 })
                 .font(token: DesignSystem.Font.captionMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
+                .tint(DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, SizeUnit.x3.value)
         }
