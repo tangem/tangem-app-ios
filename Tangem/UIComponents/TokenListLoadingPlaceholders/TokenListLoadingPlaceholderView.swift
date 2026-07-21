@@ -27,17 +27,15 @@ struct TokenListLoadingPlaceholderView: View {
 
 // MARK: - Previews
 
-struct TokenListLoadingPlaceholderView_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Colors.Background
-                .secondary
-                .ignoresSafeArea()
+#Preview {
+    ZStack {
+        Colors.Background
+            .secondary
+            .ignoresSafeArea()
 
-            TokenListLoadingPlaceholderView()
-                .cornerRadiusContinuous(14.0)
-                .padding()
-                .infinityFrame(alignment: .top)
-        }
+        TokenListLoadingPlaceholderView()
+            .cornerRadiusContinuous(14.0)
+            .padding()
+            .infinityFrame(alignment: .top)
     }
 }

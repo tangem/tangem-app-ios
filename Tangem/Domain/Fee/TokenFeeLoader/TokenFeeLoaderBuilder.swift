@@ -47,7 +47,7 @@ struct TokenFeeLoaderBuilder {
         return tokenFeeLoader
     }
 
-    func makeGaslessTokenFeeLoader(feeToken: BSDKToken) -> TokenFeeLoader? {
+    func makeGaslessTokenFeeLoader(feeToken: BSDKToken, yieldFeeContext: GaslessYieldFeeContext?) -> TokenFeeLoader? {
         guard let gaslessTransactionFeeProvider = dependenciesProvider.ethereumGaslessTransactionFeeProvider else {
             assertionFailure("WalletModelDependenciesProvider does not have ethereumGaslessTransactionFeeProvider")
             return nil
@@ -56,7 +56,8 @@ struct TokenFeeLoaderBuilder {
         return CommonGaslessTokenFeeLoader(
             tokenItem: tokenItem,
             feeToken: feeToken,
-            gaslessTransactionFeeProvider: gaslessTransactionFeeProvider
+            gaslessTransactionFeeProvider: gaslessTransactionFeeProvider,
+            yieldFeeContext: yieldFeeContext
         )
     }
 }

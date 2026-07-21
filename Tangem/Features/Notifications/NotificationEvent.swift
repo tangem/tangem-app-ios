@@ -87,6 +87,8 @@ extension NotificationEvent {
                     return SendAccessibilityIdentifiers.insufficientAmountToReserveAtDestinationBanner
                 case .amountExceedMaximumUTXO:
                     return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
+                case .insufficientBalanceForFee:
+                    return SendAccessibilityIdentifiers.insufficientBalanceForFeeBanner
                 default:
                     return nil
                 }

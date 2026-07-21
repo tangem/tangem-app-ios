@@ -287,18 +287,9 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleUpdatedSwapState() {
-        switch swapAvailableWalletModelsCount() {
-        case .zero:
-            swapActionButtonViewModel.updateState(to: .disabled)
-        case .one:
-            swapActionButtonViewModel.updateState(
-                to: .restricted(
-                    reason: Localization.actionButtonsSwapNotEnoughTokensAlertMessage
-                )
-            )
-        case .multiple:
-            swapActionButtonViewModel.updateState(to: .idle)
-        }
+        swapActionButtonViewModel.updateState(
+            to: swapAvailableWalletModelsCount() == .zero ? .disabled : .idle
+        )
     }
 
     @MainActor

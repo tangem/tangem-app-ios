@@ -26,7 +26,7 @@ extension StoredCryptoAccount {
         )
     }
 
-    #if ALPHA || BETA || INTERNAL || DEBUG
+    #if INTERNAL || DEBUG
     // No-op
     #else
     // [REDACTED_TODO_COMMENT]
@@ -37,7 +37,7 @@ extension StoredCryptoAccount {
 
         return StoredCryptoAccount(config: config, tokenListAppearance: .default)
     }
-    #endif // ALPHA || BETA || INTERNAL || DEBUG
+    #endif // INTERNAL || DEBUG
 
     func withTokens(_ newTokens: [StoredCryptoAccount.Token]) -> Self {
         return StoredCryptoAccount(

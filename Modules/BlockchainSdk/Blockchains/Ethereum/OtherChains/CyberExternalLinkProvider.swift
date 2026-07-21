@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  CyberExternalLinkProvider.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
