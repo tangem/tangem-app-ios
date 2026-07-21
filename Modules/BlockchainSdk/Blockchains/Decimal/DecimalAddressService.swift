@@ -12,7 +12,7 @@ import TangemSdk
 struct DecimalAddressService {
     // MARK: - Private Properties
 
-    private let ethereumAddressService = AddressServiceFactory(blockchain: .ethereum(testnet: false)).makeAddressService()
+    private let evmAddressService = EVMAddressService()
     private let converter = DecimalAddressConverter()
 }
 
@@ -20,7 +20,7 @@ struct DecimalAddressService {
 
 extension DecimalAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
-        let ethAddress = try ethereumAddressService.makeAddress(for: publicKey, with: .default).value
+        let ethAddress = try evmAddressService.makeAddress(for: publicKey, with: .default).value
 
         switch addressType {
         case .default, .used(.default, _):
@@ -43,6 +43,6 @@ extension DecimalAddressService: AddressValidator {
             return false
         }
 
-        return ethereumAddressService.validate(dscAddress)
+        return evmAddressService.validate(dscAddress)
     }
 }
