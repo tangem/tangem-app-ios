@@ -210,12 +210,12 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
     }
 
     func logScreenOpened() {
-        analyticsLogger.logAddressScreenOpened(walletId: userWalletInfo.id.stringValue)
+        analyticsLogger.logAddressScreenOpened()
     }
 
     func logSelectAllTapped(didSelectAll: Bool) {
         analyticsLogger.logSelectAllNetworksTapped(
-            walletId: userWalletInfo.id.stringValue,
+            userWalletId: userWalletInfo.id,
             action: didSelectAll ? .selectAll : .clearAll
         )
     }
@@ -231,7 +231,7 @@ private extension CommonAddressBookAddAddressInteractor {
             .filter { $0 }
             .sink { [weak self] _ in
                 guard let self else { return }
-                analyticsLogger.logAddressInvalid(walletId: userWalletInfo.id.stringValue, contactId: contactId?.stringValue)
+                analyticsLogger.logAddressInvalid(userWalletId: userWalletInfo.id, contactId: contactId?.stringValue)
             }
             .store(in: &bag)
     }
