@@ -35,11 +35,14 @@ extension BannerPromotion {
             let link: String?
         }
 
+        /// `tokenId` and `decimals` are present only for cashback payout tokens; yield-boost tokens carry only the base fields.
         struct Token: Decodable {
+            let tokenId: String?
             let tokenAddress: String
             let tokenSymbol: String
             let tokenName: String
             let networkId: String
+            let decimals: Int?
         }
 
         /// Server filters out non-active campaigns, but the enum stays open for safety.
