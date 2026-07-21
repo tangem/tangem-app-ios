@@ -13,7 +13,7 @@ struct TangemPayMaximumCardsIssuedSheetView: View {
 
     var body: some View {
         TangemPayPopupView(
-            viewModel: TangemPayMaximumCardsIssuedPopupViewModel(onClose: viewModel.dismiss)
+            viewModel: TangemPayMaximumCardsIssuedPopupViewModel(cardsCount: viewModel.cardsCount, onClose: viewModel.dismiss)
         )
     }
 }
