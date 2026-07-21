@@ -1,5 +1,5 @@
 //
-//  ChiaProviderResponse.swift
+//  ChiaProviderResponses.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

@@ -13,6 +13,7 @@ import TangemLocalization
 import TangemAssets
 import let TangemVisa.VisaLogger
 import TangemPay
+import TangemAccessibilityIdentifiers
 
 final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
     @Injected(\.alertPresenter)
@@ -30,25 +31,19 @@ final class TangemPayKYCStatusPopupViewModel: TangemPayPopupViewModel {
     }
 
     var icon: Image {
-        isRedesigned
-            ? DesignSystem.Icons.Clock.regular32.image
-            : Assets.Visa.promo.image
+        DesignSystem.Icons.Clock.regular32.image
     }
 
     var primaryButton: MainButton.Settings {
-        isRedesigned
-            ? .init(title: Localization.tangempayCancelKyc, style: .primary, action: showAlert)
-            : .init(title: Localization.tangempayKycInProgressNotificationButton, style: .primary, action: viewStatus)
+        .init(title: Localization.tangempayCancelKyc, style: .primary, action: showAlert)
     }
 
     var secondaryButton: MainButton.Settings? {
-        isRedesigned
-            ? .init(title: Localization.tangempayKycInProgressNotificationButton, style: .secondary, action: viewStatus)
-            : .init(title: Localization.tangempayCancelKyc, style: .secondary, action: showAlert)
+        .init(title: Localization.tangempayKycInProgressNotificationButton, style: .secondary, action: viewStatus)
     }
 
-    private var isRedesigned: Bool {
-        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.kycStatusSheetPrimaryButton
     }
 
     init(

@@ -55,7 +55,9 @@ class CommonPromotionRepository {
 extension CommonPromotionRepository: PromotionRepository {
     func promotionsPublisher(userWalletId: UserWalletId, placeholder: PromotionPlacement) -> AnyPublisher<[Promotion], Never> {
         return promotionsSubject
-            .map { $0[userWalletId]?[placeholder] ?? [] }
+            .map { promotions in
+                promotions[userWalletId]?[placeholder] ?? []
+            }
             .eraseToAnyPublisher()
     }
 

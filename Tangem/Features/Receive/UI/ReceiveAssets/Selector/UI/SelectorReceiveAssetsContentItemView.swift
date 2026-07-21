@@ -31,28 +31,18 @@ struct SelectorReceiveAssetsContentItemView: View {
 
     private func drawDomainAssets(for viewModels: [SelectorReceiveAssetsDomainItemViewModel]) -> some View {
         ForEach(viewModels, id: \.id) { viewModel in
-            if FeatureProvider.isAvailable(.redesign) {
-                RedesignedSelectorReceiveAssetsDomainItemView(viewModel: viewModel)
-            } else {
-                // [REDACTED_INFO]: drop the legacy domain item once redesign ships.
-                SelectorReceiveAssetsDomainItemView(viewModel: viewModel)
-            }
+            RedesignedSelectorReceiveAssetsDomainItemView(viewModel: viewModel)
         }
     }
 
     private func drawAddressAssets(for viewModels: [SelectorReceiveAssetsAddressPageItemViewModel]) -> some View {
         TangemCarousel(viewModels, initialIndex: viewModel.pageAssetIndex) { vm in
-            if FeatureProvider.isAvailable(.redesign) {
-                RedesignedSelectorReceiveAssetsAddressPageItemView(viewModel: vm)
-            } else {
-                // [REDACTED_INFO]: drop the legacy address page item once redesign ships.
-                SelectorReceiveAssetsAddressPageItemView(viewModel: vm)
-            }
+            RedesignedSelectorReceiveAssetsAddressPageItemView(viewModel: vm)
         }
         .interItemSpacing(Layout.Container.horizontalSpacing)
         // Figma: 8 from card to the page-control frame, which adds 6 around the dots (→ 6 below them).
-        .paginationSpacing(FeatureProvider.isAvailable(.redesign) ? 8 : SizeUnit.x4.value)
-        .paginationVerticalPadding(FeatureProvider.isAvailable(.redesign) ? 6 : 0)
+        .paginationSpacing(8)
+        .paginationVerticalPadding(6)
         .paginationHasBackground(false)
         .currentIndexHasChanged { viewModel.updatePageIndex($0) }
         .clipped()
