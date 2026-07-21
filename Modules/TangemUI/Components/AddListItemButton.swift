@@ -112,7 +112,6 @@ public extension AddListItemButton {
     }
 }
 
-#if DEBUG
 #Preview {
     VStack {
         AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account", state: .enabled(action: {})))
@@ -121,4 +120,3 @@ public extension AddListItemButton {
         AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account (loading)", state: .loading))
     }
 }
-#endif

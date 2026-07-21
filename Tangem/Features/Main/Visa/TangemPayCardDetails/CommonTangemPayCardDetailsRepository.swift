@@ -12,74 +12,36 @@ import TangemVisa
 import TangemPay
 
 final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
-    private enum Source {
-        case tangemPayAccount(TangemPayAccount)
-        case card(TangemPayCard)
-    }
-
     var lastFourDigits: String {
-        switch source {
-        case .tangemPayAccount(let tangemPayAccount):
-            tangemPayAccount.card?.cardNumberEnd ?? ""
-        case .card(let card):
-            card.cardNumberEnd
-        }
+        card.cardNumberEnd
     }
 
     /// `lastFourDigitsPublisher` (added by [REDACTED_INFO] to refresh the UI after reissue) is
     /// sourced from this card's own snapshot in the multi-card model — reissue swaps the
     /// inner BFF snapshot on the same `TangemPayCard` instance, so we observe that.
     var lastFourDigitsPublisher: AnyPublisher<String, Never> {
-        switch source {
-        case .tangemPayAccount(let tangemPayAccount):
-            tangemPayAccount.cardPublisher
-                .map { $0?.cardNumberEnd ?? "" }
-                .removeDuplicates()
-                .eraseToAnyPublisher()
-        case .card(let card):
-            card.snapshotPublisher
-                .map(\.card.cardNumberEnd)
-                .removeDuplicates()
-                .eraseToAnyPublisher()
-        }
+        card.snapshotPublisher
+            .map(\.card.cardNumberEnd)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     var cardNamePublisher: AnyPublisher<String, Never> {
-        switch source {
-        case .tangemPayAccount(let tangemPayAccount):
-            tangemPayAccount.cardDisplayNamePublisher
-        case .card(let card):
-            card.displayNamePublisher
-        }
+        card.displayNamePublisher
     }
 
     var isReissuingPublisher: AnyPublisher<Bool, Never> {
-        switch source {
-        case .tangemPayAccount(let tangemPayAccount):
-            tangemPayAccount.isReissuingCardPublisher
-        case .card(let card):
-            card.isReissuingPublisher
-        }
+        card.isReissuingPublisher
     }
 
-    private let source: Source
-
-    init(tangemPayAccount: TangemPayAccount) {
-        source = .tangemPayAccount(tangemPayAccount)
-    }
+    private let card: TangemPayCard
 
     init(card: TangemPayCard) {
-        source = .card(card)
+        self.card = card
     }
 
     func updateCardDisplayName(_ name: String) async throws {
-        switch source {
-        case .tangemPayAccount(let tangemPayAccount):
-            _ = try await tangemPayAccount.customerService.updateCardDisplayName(name)
-            await tangemPayAccount.loadCustomerInfo()
-        case .card(let card):
-            try await card.updateDisplayName(name)
-        }
+        try await card.updateDisplayName(name)
     }
 
     func revealRequest() async throws -> TangemPayCardDetailsData {
@@ -123,12 +85,7 @@ final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository
     }
 
     private func fetchCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
-        switch source {
-        case .tangemPayAccount(let tangemPayAccount):
-            try await tangemPayAccount.customerService.getCardDetails(sessionId: sessionId)
-        case .card(let card):
-            try await card.customerService.getCardDetails(cardId: card.cardId, sessionId: sessionId)
-        }
+        try await card.customerService.getCardDetails(cardId: card.cardId, sessionId: sessionId)
     }
 
     private func formatPan(_ pan: String) -> String {

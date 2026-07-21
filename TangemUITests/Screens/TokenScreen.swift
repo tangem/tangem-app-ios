@@ -82,12 +82,11 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         return SwapStoriesScreen(app)
     }
 
-    /// Express-unreachable keeps the Swap button rendered but `.disabled` — `waitAndTap`'s `isEnabled` wait would time out.
+    /// Swap stays enabled when unavailable; tapping surfaces the reason alert instead of a dead disabled button.
     @discardableResult
-    func tapSwapButtonWhenUnavailable() -> Self {
-        XCTContext.runActivity(named: "Tap Swap action button (disabled state)") { _ in
+    func tapUnavailableSwapButton() -> Self {
+        XCTContext.runActivity(named: "Tap unavailable Swap action button to surface reason alert") { _ in
             waitAndAssertTrue(swapButton, "Swap button should exist")
-            XCTAssertFalse(swapButton.isEnabled, "Swap button should be disabled when Express is unavailable")
             swapButton.tap()
             return self
         }
@@ -105,6 +104,15 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             resolveActionButton(receiveButton, viaGroup: addFundsButton)
         }
         return NetworkSelectionWarningSheet(app)
+    }
+
+    @discardableResult
+    func tapTransferButton() -> Self {
+        XCTContext.runActivity(named: "Tap Transfer action button") { _ in
+            waitAndAssertTrue(transferButton, "Transfer button should be displayed")
+            transferButton.waitAndTap()
+            return self
+        }
     }
 
     func openStakeDetails() -> StakingDetailsScreen {
@@ -141,7 +149,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     @discardableResult
     func tapGoToFeeCurrencyButton() -> TokenScreen {
-        XCTContext.runActivity(named: "Tap go to fee currency button") { _ in
+        _ = XCTContext.runActivity(named: "Tap go to fee currency button") { _ in
             goToFeeCurrencyButton.waitAndTap()
         }
         return TokenScreen(app)
@@ -181,6 +189,10 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
     }
 
+    func marketPriceBlock() -> TokenDetailsMarketPriceScreen {
+        TokenDetailsMarketPriceScreen(app)
+    }
+
     // MARK: - Segmented Control Methods
 
     @discardableResult
@@ -202,6 +214,22 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         XCTContext.runActivity(named: "Get total balance") { _ in
             waitAndAssertTrue(totalBalance, "Total balance element should exist")
             return totalBalance.label
+        }
+    }
+
+    /// Swap direction is resolved from the token's fiat balance at the moment Swap is tapped; wait for a
+    /// non-zero balance so the token becomes the swap source and doesn't flip to the receive side.
+    @discardableResult
+    func waitForNonZeroTotalBalance() -> Self {
+        XCTContext.runActivity(named: "Wait for non-zero token balance") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance element should exist")
+            let loaded = NSPredicate(format: "label MATCHES %@", ".*[1-9].*")
+            let result = XCTWaiter().wait(
+                for: [XCTNSPredicateExpectation(predicate: loaded, object: totalBalance)],
+                timeout: .robustUIUpdate
+            )
+            XCTAssertEqual(result, .completed, "Token fiat balance should load to a non-zero value, was '\(totalBalance.label)'")
+            return self
         }
     }
 
@@ -279,6 +307,39 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifyInsufficientFeeCurrencyNotification(token: String, feeCurrencyName: String, feeCurrencySymbol: String) -> Self {
+        XCTContext.runActivity(named: "Validate 'insufficient \(feeCurrencyName) to cover fee' notification is displayed") { _ in
+            waitAndAssertTrue(
+                notEnoughFeeForTransactionBanner,
+                "'Not enough fee for transaction' notification banner should be displayed"
+            )
+
+            let expectedTitle = "Insufficient \(feeCurrencyName) to cover network fee"
+            let title = notEnoughFeeForTransactionBanner.staticTexts.element(
+                matching: NSPredicate(
+                    format: "identifier == %@ AND label CONTAINS[c] %@",
+                    CommonUIAccessibilityIdentifiers.notificationTitle,
+                    expectedTitle
+                )
+            ).firstMatch
+            waitAndAssertTrue(title, "Notification title should be: \(expectedTitle)")
+
+            let expectedMessage = "\(token) is an asset in the \(feeCurrencyName) network. To make a \(token) transaction, you must deposit some \(feeCurrencyName) (\(feeCurrencySymbol)) to cover the network fee."
+            let message = notEnoughFeeForTransactionBanner.staticTexts.element(
+                matching: NSPredicate(
+                    format: "identifier == %@ AND label CONTAINS[c] %@",
+                    CommonUIAccessibilityIdentifiers.notificationMessage,
+                    expectedMessage
+                )
+            ).firstMatch
+            waitAndAssertTrue(message, "Notification message should be: \(expectedMessage)")
+
+            waitAndAssertTrue(goToFeeCurrencyButton, "'Go to fee currency' button should be displayed")
+            return self
+        }
+    }
+
     // MARK: - Swap Button State Methods
 
     @discardableResult
@@ -313,6 +374,85 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
         if XCTWaiter().wait(for: [expectation], timeout: timeout) != .completed {
             XCTFail(message)
+        }
+    }
+}
+
+// MARK: - Transaction History
+
+extension TokenScreen {
+    @discardableResult
+    func waitForTransaction(key: String) -> Self {
+        XCTContext.runActivity(named: "Wait for transaction '\(key)' in history") { _ in
+            let item = app.staticTexts[TxHistoryAccessibilityIdentifiers.transactionItem(key: key)].firstMatch
+            scrollToElement(item)
+            waitAndAssertTrue(item, "Transaction '\(key)' should be displayed in history")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertTransactionAmount(key: String, contains amount: String) -> Self {
+        XCTContext.runActivity(named: "Assert transaction '\(key)' amount contains '\(amount)'") { _ in
+            let element = app.staticTexts[TxHistoryAccessibilityIdentifiers.transactionAmount(key: key)].firstMatch
+            waitAndAssertTrue(element, "Transaction amount for '\(key)' should exist")
+            XCTAssertTrue(
+                element.label.contains(amount),
+                "Transaction '\(key)' amount should contain '\(amount)' but was '\(element.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertTransactionCurrency(key: String, equals currency: String) -> Self {
+        XCTContext.runActivity(named: "Assert transaction '\(key)' currency equals '\(currency)'") { _ in
+            let element = app.staticTexts[TxHistoryAccessibilityIdentifiers.transactionCurrency(key: key)].firstMatch
+            waitAndAssertTrue(element, "Transaction currency for '\(key)' should exist")
+            XCTAssertEqual(
+                element.label,
+                currency,
+                "Transaction '\(key)' currency should equal '\(currency)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertTransactionConfirmed(key: String) -> Self {
+        XCTContext.runActivity(named: "Assert transaction '\(key)' is confirmed") { _ in
+            let status = app.descendants(matching: .any)[TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: key)].firstMatch
+            waitAndAssertTrue(status, "Transaction '\(key)' should have a confirmed status")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertTransactionInProgress(key: String) -> Self {
+        XCTContext.runActivity(named: "Assert transaction '\(key)' is in progress") { _ in
+            let status = app.descendants(matching: .any)[TxHistoryAccessibilityIdentifiers.transactionInProgressStatus(key: key)].firstMatch
+            waitAndAssertTrue(status, "Transaction '\(key)' should have an in-progress status")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertTransactionSubtitle(key: String, contains text: String) -> Self {
+        XCTContext.runActivity(named: "Assert transaction '\(key)' subtitle contains '\(text)'") { _ in
+            let subtitle = app.descendants(matching: .any)[TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: key)].firstMatch
+            waitAndAssertTrue(subtitle, "Transaction '\(key)' subtitle should be displayed")
+
+            let containsPredicate = NSPredicate(format: "label CONTAINS %@", text)
+            let matchesLabel = subtitle.label.contains(text)
+            let matchesDescendant = subtitle.staticTexts.containing(containsPredicate).firstMatch.exists
+            // The id may land on a container element; fall back to an app-wide static-text search (one tx on screen).
+            let matchesAppWide = app.staticTexts.containing(containsPredicate).firstMatch.exists
+
+            XCTAssertTrue(
+                matchesLabel || matchesDescendant || matchesAppWide,
+                "Transaction '\(key)' subtitle should contain '\(text)'; scoped label was '\(subtitle.label)'"
+            )
+            return self
         }
     }
 }

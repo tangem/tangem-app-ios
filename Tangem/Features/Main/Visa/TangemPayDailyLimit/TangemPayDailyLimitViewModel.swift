@@ -57,32 +57,11 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
 
     private let minLimit = 1
 
-    /// Exactly one of `card` / `tangemPayAccount` is set — `card` in the multi-card flow,
-    /// `tangemPayAccount` in the legacy single-card flow.
-    private let card: TangemPayCard?
-    private let tangemPayAccount: TangemPayAccount?
+    private let card: TangemPayCard
     private let userWalletId: UserWalletId
     private weak var coordinator: TangemPayDailyLimitRoutable?
 
     private var bag = Set<AnyCancellable>()
-
-    init(
-        tangemPayAccount: TangemPayAccount,
-        coordinator: TangemPayDailyLimitRoutable
-    ) {
-        card = nil
-        self.tangemPayAccount = tangemPayAccount
-        userWalletId = tangemPayAccount.userWalletId
-        maxLimit = tangemPayAccount.adminCardLimit
-        self.coordinator = coordinator
-
-        let currentLimit = tangemPayAccount.cardLimit ?? 0
-
-        amountFieldViewModel.update(value: Decimal(currentLimit))
-        isSubmitEnabled = currentLimit > 0 && currentLimit <= maxLimit
-
-        bind()
-    }
 
     init(
         card: TangemPayCard,
@@ -90,7 +69,6 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
         coordinator: TangemPayDailyLimitRoutable
     ) {
         self.card = card
-        tangemPayAccount = nil
         self.userWalletId = userWalletId
         maxLimit = card.adminCardLimit
         self.coordinator = coordinator
@@ -130,12 +108,7 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
 
         runTask(in: self) { viewModel in
             do {
-                if let card = viewModel.card {
-                    try await card.setLimit(intValue)
-                } else if let tangemPayAccount = viewModel.tangemPayAccount {
-                    _ = try await tangemPayAccount.customerService.setCardLimit(amount: intValue)
-                    await tangemPayAccount.loadCustomerInfo()
-                }
+                try await viewModel.card.setLimit(intValue)
 
                 await MainActor.run {
                     viewModel.isLoading = false

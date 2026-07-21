@@ -126,67 +126,15 @@ struct ManageTokensListItemView: View {
     }
 }
 
-struct ManageTokensListItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        ScrollView {
-            let iconBuilder = IconURLBuilder()
-            VStack(spacing: 0) {
-                StatefulPreviewWrapper(false) {
-                    ManageTokensListItemView(viewModel: ManageTokensListItemViewModel(
-                        coinId: "tether",
-                        imageURL: iconBuilder.tokenIconURL(id: "tether"),
-                        name: "Tether",
-                        symbol: "USDT",
-                        items: itemsList(count: 11, isSelected: $0)
-                    ), isReadOnly: false)
-                }
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var isTetherSelected = false
+    @Previewable @State var isBabananasSelected = false
+    @Previewable @State var isBusSelected = false
+    @Previewable @State var isLongNameSelected = false
+    @Previewable @State var isEthereumSelected = false
 
-                StatefulPreviewWrapper(false) {
-                    ManageTokensListItemView(viewModel: ManageTokensListItemViewModel(
-                        coinId: "binancecoin",
-                        imageURL: iconBuilder.tokenIconURL(id: "binancecoin"),
-                        name: "Babananas United",
-                        symbol: "BABASDT",
-                        items: itemsList(count: 15, isSelected: $0)
-                    ), isReadOnly: true)
-                }
-
-                StatefulPreviewWrapper(false) {
-                    ManageTokensListItemView(viewModel: ManageTokensListItemViewModel(
-                        coinId: "binancecoin",
-                        imageURL: iconBuilder.tokenIconURL(id: "binancecoin"),
-                        name: "Binance USD",
-                        symbol: "BUS",
-                        items: itemsList(count: 5, isSelected: $0)
-                    ), isReadOnly: false)
-                }
-
-                StatefulPreviewWrapper(false) {
-                    ManageTokensListItemView(viewModel: ManageTokensListItemViewModel(
-                        coinId: "avalanche-2",
-                        imageURL: iconBuilder.tokenIconURL(id: "avalanche-2"),
-                        name: "USDVVVSALN very-very-very-stupid-and-long-name",
-                        symbol: "BUS",
-                        items: itemsList(count: 3, isSelected: $0)
-                    ), isReadOnly: true)
-                }
-
-                StatefulPreviewWrapper(false) {
-                    ManageTokensListItemView(viewModel: ManageTokensListItemViewModel(
-                        coinId: "ethereum",
-                        imageURL: iconBuilder.tokenIconURL(id: "ethereum"),
-                        name: "Ethereum",
-                        symbol: "ETH",
-                        items: itemsList(count: 1, isSelected: $0)
-                    ), isReadOnly: false)
-                }
-
-                Spacer()
-            }
-        }
-    }
-
-    private static func itemsList(count: Int, isSelected: Binding<Bool>) -> [ManageTokensItemNetworkSelectorViewModel] {
+    func itemsList(count: Int, isSelected: Binding<Bool>) -> [ManageTokensItemNetworkSelectorViewModel] {
         var viewModels = [ManageTokensItemNetworkSelectorViewModel]()
         for i in 0 ..< count {
             viewModels.append(ManageTokensItemNetworkSelectorViewModel(
@@ -197,5 +145,52 @@ struct ManageTokensListItemView_Previews: PreviewProvider {
             ))
         }
         return viewModels
+    }
+
+    return ScrollView {
+        let iconBuilder = IconURLBuilder()
+        VStack(spacing: 0) {
+            ManageTokensListItemView(viewModel: ManageTokensListItemViewModel(
+                coinId: "tether",
+                imageURL: iconBuilder.tokenIconURL(id: "tether"),
+                name: "Tether",
+                symbol: "USDT",
+                items: itemsList(count: 11, isSelected: $isTetherSelected)
+            ), isReadOnly: false)
+
+            ManageTokensListItemView(viewModel: ManageTokensListItemViewModel(
+                coinId: "binancecoin",
+                imageURL: iconBuilder.tokenIconURL(id: "binancecoin"),
+                name: "Babananas United",
+                symbol: "BABASDT",
+                items: itemsList(count: 15, isSelected: $isBabananasSelected)
+            ), isReadOnly: true)
+
+            ManageTokensListItemView(viewModel: ManageTokensListItemViewModel(
+                coinId: "binancecoin",
+                imageURL: iconBuilder.tokenIconURL(id: "binancecoin"),
+                name: "Binance USD",
+                symbol: "BUS",
+                items: itemsList(count: 5, isSelected: $isBusSelected)
+            ), isReadOnly: false)
+
+            ManageTokensListItemView(viewModel: ManageTokensListItemViewModel(
+                coinId: "avalanche-2",
+                imageURL: iconBuilder.tokenIconURL(id: "avalanche-2"),
+                name: "USDVVVSALN very-very-very-stupid-and-long-name",
+                symbol: "BUS",
+                items: itemsList(count: 3, isSelected: $isLongNameSelected)
+            ), isReadOnly: true)
+
+            ManageTokensListItemView(viewModel: ManageTokensListItemViewModel(
+                coinId: "ethereum",
+                imageURL: iconBuilder.tokenIconURL(id: "ethereum"),
+                name: "Ethereum",
+                symbol: "ETH",
+                items: itemsList(count: 1, isSelected: $isEthereumSelected)
+            ), isReadOnly: false)
+
+            Spacer()
+        }
     }
 }

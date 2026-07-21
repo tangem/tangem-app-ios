@@ -22,7 +22,8 @@ extension TangemPayLocalState {
              .failedToIssueCard,
              .tangemPayAccount,
              .syncInProgress,
-             .cardDeactivated:
+             .cardDeactivated,
+             .planSelectNeeded:
             return nil
         }
     }

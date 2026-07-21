@@ -76,6 +76,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemPayMainCoordinator) {
                 TangemPayMainCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.tangemPaySelectPlanCoordinator) {
+                TangemPaySelectPlanCoordinatorView(coordinator: $0)
+            }
             .navigation(item: $coordinator.yieldModulePromoCoordinator) {
                 YieldModulePromoCoordinatorView(coordinator: $0)
             }
@@ -149,6 +152,9 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: PushNotificationsMainViewModel.self) {
                 PushNotificationsMainView(viewModel: $0)
+            }
+            .floatingSheetContent(for: CampaignViewModel.self) {
+                CampaignView(viewModel: $0)
             }
 
         NavHolder()

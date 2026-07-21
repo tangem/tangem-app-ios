@@ -104,16 +104,14 @@ private struct TriangleShape: Shape {
     }
 }
 
-struct ArrowView_Previews: PreviewProvider {
-    static var previews: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                ArrowView(position: .first, width: 40, height: 40)
-                ArrowView(position: .middle, width: 44, height: 40, arrowCenterXOffset: -2)
-                ArrowView(position: .last, width: 40, height: 40)
-            }
-
-            Spacer()
+#Preview {
+    HStack {
+        VStack(alignment: .leading) {
+            ArrowView(position: .first, width: 40, height: 40)
+            ArrowView(position: .middle, width: 44, height: 40, arrowCenterXOffset: -2)
+            ArrowView(position: .last, width: 40, height: 40)
         }
+
+        Spacer()
     }
 }
