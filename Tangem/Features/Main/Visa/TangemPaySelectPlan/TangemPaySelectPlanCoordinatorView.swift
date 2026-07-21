@@ -21,6 +21,9 @@ struct TangemPaySelectPlanCoordinatorView: CoordinatorView {
 
     private var links: some View {
         NavHolder()
+            .navigation(item: $coordinator.confirmPlanViewModel) {
+                TangemPayConfirmPlanView(viewModel: $0)
+            }
             .floatingSheetContent(for: TangemPayComparePlansSheetViewModel.self) {
                 TangemPayComparePlansSheetView(viewModel: $0)
             }

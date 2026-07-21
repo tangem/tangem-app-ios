@@ -45,4 +45,8 @@ extension EthereumAddressService: AddressValidator {
             return !(encodeData?.isEmpty ?? true)
         }
     }
+
+    func validatePlainAddress(_ address: String) -> Bool {
+        evmAddressService.validate(address)
+    }
 }
