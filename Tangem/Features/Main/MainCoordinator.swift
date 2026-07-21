@@ -227,7 +227,7 @@ extension MainCoordinator: MainRoutable {
         }
     }
 
-    func openCampaignIfNeeded(campaignId: String) -> Bool {
+    func openCampaignIfNeeded(campaignId: String?) -> Bool {
         guard campaignCoordinator == nil else {
             return false
         }
