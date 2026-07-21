@@ -29,6 +29,8 @@ struct QuickNodeAPIResolver {
             return keysConfig.quickNodeBscCredentials
         case .xrp:
             return keysConfig.quickNodeXrpCredentials
+        case .hedera:
+            return keysConfig.quickNodeHederaCredentials
         case .solana:
             return keysConfig.quickNodeSolanaCredentials
         case .plasma:
