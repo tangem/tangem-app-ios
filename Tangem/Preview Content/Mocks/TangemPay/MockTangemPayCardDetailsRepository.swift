@@ -7,6 +7,7 @@
 //
 
 import Combine
+import Foundation
 import TangemVisa
 import TangemPay
 
@@ -19,6 +20,10 @@ final class MockTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
 
     var lastFourDigits: String {
         card.cardNumberEnd
+    }
+
+    var cardImageURL: URL? {
+        card.mainImageURL
     }
 
     var lastFourDigitsPublisher: AnyPublisher<String, Never> {
