@@ -8,8 +8,8 @@
 
 import Foundation
 
-struct SummaryGaugeAsset: Identifiable {
-    let id: UUID
+struct SummaryGaugeAsset: Identifiable, Equatable {
+    let id: String
     let name: String
     let fiatValue: Decimal
 }

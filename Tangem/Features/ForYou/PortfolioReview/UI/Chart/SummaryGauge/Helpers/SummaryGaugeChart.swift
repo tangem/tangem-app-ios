@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 import TangemUI
 import TangemUIUtils
 
@@ -28,7 +29,8 @@ enum SummaryGaugeChart {
             GaugeSegment(
                 id: asset.id,
                 name: asset.name,
-                value: NSDecimalNumber(decimal: asset.fiatValue).doubleValue,
+                // Double is fine here — the value only drives the donut's proportional geometry, not a shown amount.
+                value: asset.fiatValue.doubleValue,
                 color: palette[index % palette.count]
             )
         }

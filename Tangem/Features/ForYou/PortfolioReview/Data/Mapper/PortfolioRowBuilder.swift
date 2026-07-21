@@ -61,7 +61,7 @@ private extension PortfolioRowBuilder {
         ForYouTokenRowData(
             id: network.id,
             tokenItem: network.sample.tokenItem,
-            symbol: network.sample.symbol,
+            symbol: network.sample.tokenItem.name,
             tokenIconInfo: iconBuilder.build(from: network.sample.tokenItem, isCustom: network.sample.isCustom),
             sentiment: Self.placeholderSentiment,
             subtitle: networkSubtitle(network),
