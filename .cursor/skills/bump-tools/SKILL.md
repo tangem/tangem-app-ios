@@ -31,7 +31,7 @@ The file ends with a **trailing newline** — preserve it when editing (unlike `
 
 Follow the conventions in AGENTS.md (cloudId, field IDs, ADF caveats are documented there).
 
-- **Summary:** `Bump tools version to <version>`
+- **Summary:** `Bump tools version to <version>` (the Jira summary is the only title that carries the version — branch name, commit subject, and PR title don't).
 - **Description** (ADF): a single bullet — PR to `develop` updating `.tools-version` from `<current>` to `<version>`.
 - **Story Points (`customfield_10025`):** `1`
 - **QA Notes (`customfield_11232`):** the team's standard one-line "technical task, no testing needed" note (ADF). The change has zero runtime/binary impact.
@@ -45,9 +45,11 @@ Branch off the confirmed target branch (`develop` by default):
 
 ```bash
 git fetch origin <target_branch>
-git checkout -b IOS-NNNNN_bump_tools_<version_snake_case> origin/<target_branch>
-git push -u origin IOS-NNNNN_bump_tools_<version_snake_case>
+git checkout -b IOS-NNNNN_bump_tools_version origin/<target_branch>
+git push -u origin IOS-NNNNN_bump_tools_version
 ```
+
+The branch name does not include the target version — just `IOS-NNNNN_bump_tools_version`.
 
 Push immediately so the branch tracks its own remote instead of `origin/<target_branch>`.
 
@@ -63,14 +65,14 @@ printf '%s\n' '<version>' > .tools-version
 
 Single commit, GPG-signed (repo requirement):
 
-- Subject: `IOS-NNNNN Bump tools version to <version>`
+- Subject: `IOS-NNNNN Bump tools version` — no version in the subject; mention the `<current>` → `<version>` bump in the body.
 - Body: one sentence on the why.
 
 Verify the signature with `git log --show-signature -1` before pushing.
 
 ### 6. Open the PR
 
-Open a PR to the confirmed target branch (`develop` by default). The body MUST contain the Jira link on its own line so the Atlassian/GitHub integration links it back to the ticket:
+Open a PR to the confirmed target branch (`develop` by default). The title mirrors the commit subject (`IOS-NNNNN Bump tools version`) and, like it, carries no version. The body MUST contain the Jira link on its own line so the Atlassian/GitHub integration links it back to the ticket:
 
 ```
 [IOS-NNNNN](https://tangem.atlassian.net/browse/IOS-NNNNN)

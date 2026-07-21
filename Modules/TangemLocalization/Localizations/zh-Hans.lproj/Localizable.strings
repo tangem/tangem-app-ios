@@ -552,6 +552,7 @@
 "express_floating_rate" = "浮动利率";
 "express_legal_one_placeholder" = "使用兑换功能即表示您同意提供商的条款 %@";
 "express_legal_two_placeholders" = "使用兑换功能即表示您同意提供商的条款 %1$@ 和 %2$@。";
+"express_more_providers_once_wallet_funded" = "More providers will be available once wallet is funded";
 "express_more_providers_soon" = "更多服务提供商即将推出";
 "express_provider_best_dex_rate" = "Best DEX Rate";
 "express_provider_best_rate" = "最佳汇率";
@@ -613,6 +614,7 @@
 "force_update_button" = "更新";
 "force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
 "force_update_os_title" = "Update Your OS";
+"force_update_required_action" = "Update app";
 "force_update_warning_message" = "请将应用更新至最新版本，以确保正常运行。";
 "force_update_warning_title" = "需要更新";
 "gasless_not_enough_funds_to_cover_token_fee" = "资金不足";
@@ -745,9 +747,11 @@
 "manage_tokens_wallet_support_only_one_network_title" = "该钱包不支持多个网络";
 "market_chart_ai_total" = "AI Total:";
 "market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
+"market_chart_bubble_no_amount" = "No amount  on tokens";
 "market_chart_bubble_no_data" = "No data";
 "market_chart_bubble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_no_amount" = "You don’t have any tokens with amount";
 "market_chart_top_holding" = "Top holding %@";
 "markets_about_coin_header" = "关于硬币";
 "markets_add_to_my_portfolio_description" = "要购买、交换或接收此资产，请将其添加到您的投资组合中。";
