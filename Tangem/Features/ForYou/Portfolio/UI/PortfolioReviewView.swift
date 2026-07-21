@@ -60,7 +60,11 @@ private extension PortfolioReviewView {
     func tokenList(_ items: [ForYouTokenListItem]) -> some View {
         LazyVStack(spacing: 8) {
             ForEach(items) { item in
-                PortfolioTokenItemView(item: item, onAssetTap: viewModel.toggle)
+                PortfolioTokenItemView(
+                    item: item,
+                    onAssetTap: viewModel.toggle,
+                    onTokenSelect: viewModel.selectToken
+                )
             }
         }
     }
