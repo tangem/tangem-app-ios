@@ -16,9 +16,10 @@ final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository
         card.cardNumberEnd
     }
 
-    /// `lastFourDigitsPublisher` (added by [REDACTED_INFO] to refresh the UI after reissue) is
-    /// sourced from this card's own snapshot in the multi-card model — reissue swaps the
-    /// inner BFF snapshot on the same `TangemPayCard` instance, so we observe that.
+    var cardImageURL: URL? {
+        card.mainImageURL
+    }
+
     var lastFourDigitsPublisher: AnyPublisher<String, Never> {
         card.snapshotPublisher
             .map(\.card.cardNumberEnd)
