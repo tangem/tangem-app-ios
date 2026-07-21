@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct GaugeSegment: Identifiable {
-    let id: UUID
+    let id: String
     let name: String
     let value: Double
     let color: Color
