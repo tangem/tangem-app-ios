@@ -7,18 +7,17 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
 @MainActor
 final class TangemPayVirtualAccountSuccessViewModel: ObservableObject, Identifiable {
     let id = UUID()
 
-    private let onClose: () -> Void
+    private weak var coordinator: TangemPayVirtualAccountSuccessRoutable?
 
-    init(onClose: @escaping () -> Void) {
-        self.onClose = onClose
+    init(coordinator: TangemPayVirtualAccountSuccessRoutable) {
+        self.coordinator = coordinator
     }
 
     func close() {
-        onClose()
+        coordinator?.closeVirtualAccountSuccess()
     }
 }

@@ -20,7 +20,7 @@ struct AddressBlockchainResolver {
 
             let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
-            if addressService.validate(address) {
+            if addressService.validatePlainAddress(address) {
                 matchingBlockchains.insert(blockchain)
             }
         }
