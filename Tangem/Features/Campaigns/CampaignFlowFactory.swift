@@ -10,7 +10,7 @@ import Foundation
 
 struct CampaignFlowFactory {
     func makeCampaignCoordinator(
-        campaignId: String,
+        campaignId: String?,
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) -> CampaignCoordinator {
@@ -21,7 +21,17 @@ struct CampaignFlowFactory {
         return coordinator
     }
 
-    private func makeCampaignViewModel(campaignId: String, coordinator: CampaignRoutable) -> CampaignViewModel {
+    private func makeCampaignViewModel(campaignId: String?, coordinator: CampaignRoutable) -> CampaignViewModel {
+        guard let campaignId else {
+            return CampaignViewModel(
+                campaignId: "",
+                coordinator: coordinator,
+                cashbackPromoService: CashbackPromoService(),
+                analyticsLogger: nil,
+                initialState: .campaignNotActive
+            )
+        }
+
         let analyticsLogger = CashbackCampaign(rawValue: campaignId).map { CampaignAnalyticsLogger(campaign: $0) }
 
         return CampaignViewModel(
