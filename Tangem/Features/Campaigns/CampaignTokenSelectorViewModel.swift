@@ -24,6 +24,7 @@ final class CampaignTokenSelectorViewModel: ObservableObject, Identifiable {
 
     init(
         eligibleTokens: [BannerPromotion.Response.Token],
+        initiallyExpandedAccount: TokenSelectorViewModel.InitiallyExpandedAccount?,
         onSelect: @escaping (TokenSelectorItem) -> Void,
         onClose: @escaping () -> Void
     ) {
@@ -36,7 +37,8 @@ final class CampaignTokenSelectorViewModel: ObservableObject, Identifiable {
                 base: .common(),
                 isEligible: EligibleTokenMatcher.make(from: eligibleTokens)
             ),
-            availabilityProvider: AvailableTokenSelectorItemAvailabilityProvider()
+            availabilityProvider: AvailableTokenSelectorItemAvailabilityProvider(),
+            initiallyExpandedAccount: initiallyExpandedAccount
         )
 
         tokenSelectorViewModel.setup(with: self)

@@ -17,6 +17,7 @@ final class MarketsCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.earnAnalyticsProvider) private var earnAnalyticsProvider: EarnAnalyticsProvider
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -41,6 +42,13 @@ final class MarketsCoordinator: CoordinatorObject {
 
     @Published var marketsListOrderBottomSheetViewModel: MarketsListOrderBottomSheetViewModel?
     @Published var forYouViewModel: ForYouViewModel?
+    @Published var forYouEarnListCoordinator: EarnCoordinator?
+    @Published var forYouTokenSummaryViewModel: TokenSummaryViewModel?
+    @Published var forYouSwapTokenSelectorViewModel: ForYouSwapTokenSelectorViewModel?
+
+    /// The token to swap from, captured when "Go to swap" is tapped and consumed once the summary
+    /// sheet has fully dismissed (avoids the sheet-over-sheet presentation race).
+    private var forYouPendingSwapTokenItem: TokenItem?
 
     // MARK: - Private Properties
 
@@ -100,7 +108,12 @@ extension MarketsCoordinator: MarketsRoutable {
 
 extension MarketsCoordinator: MarketsMainRoutable {
     func openForYou() {
-        forYouViewModel = ForYouViewModel()
+        forYouViewModel = ForYouViewModel(
+            coordinator: self,
+            onExploreAllEarn: { [weak self] in
+                self?.openForYouSeeAllEarn()
+            }
+        )
     }
 
     func openSeeAllTopMarketWidget() {
@@ -192,6 +205,29 @@ extension MarketsCoordinator: MarketsMainRoutable {
         earnListCoordinator = coordinator
     }
 
+    /// Opens the earn list nested inside the For You flow (own coordinator slot) so it pushes on top of For You
+    /// and back returns to the For You screen — mirroring how NewsPager pushes token details.
+    @MainActor
+    func openForYouSeeAllEarn() {
+        let coordinator = EarnCoordinator(
+            dismissAction: { [weak self] in
+                self?.forYouEarnListCoordinator = nil
+            },
+            routeOnEarnTokenResolvedAction: { [weak self] resolution, source in
+                self?.routeOnTokenResolved(resolution, source: source)
+            }
+        )
+
+        // For You seeds no tokens yet → nil makes the earn list fetch its own suggestions (matching
+        // EarnDeeplinkCoordinator); a concrete list comes with the real pipeline ([REDACTED_INFO]).
+        coordinator.start(with: .init(
+            mostlyUsedTokens: nil,
+            presentSource: .navigation
+        ))
+
+        forYouEarnListCoordinator = coordinator
+    }
+
     // MARK: - Private Implementation
 
     private func openSeeAllMarket(with widgetType: MarketsWidgetType, orderType: MarketsListOrderType? = nil) {
@@ -227,6 +263,51 @@ extension MarketsCoordinator: MarketsMainRoutable {
         }
 
         mainTokenDetailsCoordinator = coordinator
+    }
+}
+
+// MARK: - ForYouRoutable
+
+extension MarketsCoordinator: ForYouRoutable {
+    func openTokenSummary(tokenItem: TokenItem) {
+        // [REDACTED_TODO_COMMENT]
+        forYouTokenSummaryViewModel = .mock(
+            tokenItem: tokenItem,
+            onGoToSwap: { [weak self] in self?.goToForYouSwap(with: tokenItem) },
+            onClose: { [weak self] in self?.forYouTokenSummaryViewModel = nil }
+        )
+    }
+
+    /// Called from the summary sheet's `onDismiss`. Presenting the selector only after the summary
+    /// has fully dismissed avoids the sheet-over-sheet presentation race.
+    func onForYouTokenSummaryDismiss() {
+        guard let tokenItem = forYouPendingSwapTokenItem else {
+            return
+        }
+
+        forYouPendingSwapTokenItem = nil
+        presentForYouSwapTokenSelector(with: tokenItem)
+    }
+}
+
+private extension MarketsCoordinator {
+    func goToForYouSwap(with tokenItem: TokenItem) {
+        forYouPendingSwapTokenItem = tokenItem
+        forYouTokenSummaryViewModel = nil
+    }
+
+    func presentForYouSwapTokenSelector(with tokenItem: TokenItem) {
+        guard let walletId = userWalletRepository.selectedModel?.userWalletId else {
+            return
+        }
+
+        let sourceToken = WalletTokenItem(userWalletId: walletId, tokenItem: tokenItem)
+
+        forYouSwapTokenSelectorViewModel = ForYouSwapTokenSelectorViewModel(
+            direction: .fromSource(sourceToken),
+            preferredWalletId: sourceToken.userWalletId,
+            onClose: { [weak self] in self?.forYouSwapTokenSelectorViewModel = nil }
+        )
     }
 }
 
