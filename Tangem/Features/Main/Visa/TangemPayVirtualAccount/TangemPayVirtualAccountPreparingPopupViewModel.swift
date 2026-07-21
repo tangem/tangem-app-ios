@@ -33,17 +33,17 @@ final class TangemPayVirtualAccountPreparingPopupViewModel: TangemPayPopupViewMo
             title: Localization.commonGotIt,
             style: .primary,
             size: .default,
-            action: onClose
+            action: dismiss
         )
     }
 
-    private let onClose: () -> Void
+    private weak var coordinator: TangemPayVirtualAccountPreparingPopupRoutable?
 
-    init(onClose: @escaping () -> Void) {
-        self.onClose = onClose
+    init(coordinator: TangemPayVirtualAccountPreparingPopupRoutable) {
+        self.coordinator = coordinator
     }
 
     func dismiss() {
-        onClose()
+        coordinator?.closeVirtualAccountSheet()
     }
 }
