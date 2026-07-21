@@ -207,6 +207,15 @@ struct EthereumAddressTests {
             #expect(!addressService.validate(ensAddress), "ENS address \(ensAddress) should be invalid")
         }
     }
+
+    @Test(arguments: Constants.defaultBlockchainArgs)
+    func plainAddressValidationRejectsEnsNames(blockchain: BlockchainSdk.Blockchain) {
+        let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
+
+        #expect(addressService.validatePlainAddress("0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d"))
+        #expect(!addressService.validatePlainAddress("vitalik.eth"))
+        #expect(!addressService.validatePlainAddress("subdomain.main.eth"))
+    }
 }
 
 extension EthereumAddressTests {
