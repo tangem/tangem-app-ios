@@ -34,9 +34,11 @@ enum Feature: String, Hashable, CaseIterable {
     case addressBook
     case swapChooseBestDEX
     case hideStoriesInMobileWallet
+    case marketingBanners
     case bitcoinDexSwap
     case tangemPayVirtualAccount
     case solanaUnstakeValidation
+    case promoCampaignsAttribution
     case onboardingPushNotificationDoubleAsk
     case mainPushNotificationDoubleAsk
 
@@ -72,6 +74,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayVirtualAccount: return "TWI-1638_tangempay_virtual_account"
         case .onboardingPushNotificationDoubleAsk: return "1403_onboarding_push_notification_double_ask"
         case .mainPushNotificationDoubleAsk: return "1403_main_push_notification_double_ask"
+        case .marketingBanners: return "TWI-1522_special_offer_promo_placement_for_onramp_and_swaps"
+        case .promoCampaignsAttribution: return "TWI-1637_promo_campaigns_attribution"
         }
     }
 
@@ -107,6 +111,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaUnstakeValidation: return .version("6.0")
         case .onboardingPushNotificationDoubleAsk: return .unspecified
         case .mainPushNotificationDoubleAsk: return .unspecified
+        case .marketingBanners: return .version("6.0.2")
+        case .promoCampaignsAttribution: return .version("6.0.2")
         }
     }
 }
