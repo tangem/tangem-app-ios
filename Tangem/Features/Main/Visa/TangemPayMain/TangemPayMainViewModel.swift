@@ -106,6 +106,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -178,6 +179,16 @@ final class TangemPayMainViewModel: ObservableObject {
         return transactionHistoryService.fetchNextTransactionHistoryPage()
     }
 
+    private var isBankTransferAvailable: Bool {
+        guard FeatureProvider.isAvailable(.tangemPayVirtualAccount), tangemPayAccount.isKYCApproved else {
+            return false
+        }
+
+        // Eligibility only gates issuing a brand-new VA. An already-issued one stays reachable.
+        return tangemPayAccount.hasVirtualAccount
+            || tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
+    }
+
     func addFunds() {
         Analytics.log(.visaScreenButtonVisaAddFunds, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
 
@@ -193,7 +204,8 @@ final class TangemPayMainViewModel: ObservableObject {
                 input: .init(
                     userWalletInfo: userWalletInfo,
                     address: depositAddress,
-                    swapableToken: swapableToken
+                    swapableToken: swapableToken,
+                    isBankTransferAvailable: isBankTransferAvailable
                 )
             )
         }

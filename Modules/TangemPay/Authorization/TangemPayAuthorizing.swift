@@ -37,3 +37,22 @@ public struct TangemPayAuthorizationError: Error {
         self.derivationResult = derivationResult
     }
 }
+
+public extension TangemPayAuthorizationError {
+    /// The user cancelled the card scan / authorization, as opposed to a request failure.
+    var isUserCancelled: Bool {
+        (underlyingError as? TangemSdkError)?.isUserCancelled ?? (underlyingError is CancellationError)
+    }
+
+    /// The HTTP status code of a server-side response failure (e.g. a 5xx on the challenge/token
+    /// requests), or `nil` when the failure wasn't a server error.
+    var serverErrorStatusCode: Int? {
+        guard
+            let apiError = underlyingError as? TangemPayAPIServiceError,
+            case .serverError(let statusCode) = apiError
+        else {
+            return nil
+        }
+        return statusCode
+    }
+}
