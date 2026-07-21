@@ -17,24 +17,23 @@ struct GaugeTooltip: View {
     let percent: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
+                .lineLimit(1)
 
-            HStack(spacing: 4) {
+            HStack(spacing: 0) {
                 Text(value)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
+                    .lineLimit(1)
 
-                Circle()
-                    .fill(DesignSystem.Color.iconTertiary)
-                    .frame(width: 3, height: 3)
-
-                Text(percent)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                Text("  \(AppConstants.dotSign)  " + percent)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
+                    .lineLimit(1)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
         .tangemMaterialSurface(in: Capsule())
     }
 }
