@@ -161,7 +161,7 @@ private extension NewsListViewModelTests {
         readStatusProvider: NewsReadStatusProvider = InMemoryNewsReadStatusProvider(),
         operation: () async throws -> Void
     ) async throws {
-        try await NewsTestsDependencyIsolation.shared.run {
+        try await InjectedDependenciesIsolation.shared.run {
             let previousApiService = InjectedValues[\.tangemApiService]
             let previousReadStatusProvider = InjectedValues[\.newsReadStatusProvider]
 

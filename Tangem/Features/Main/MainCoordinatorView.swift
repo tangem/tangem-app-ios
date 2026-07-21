@@ -150,6 +150,9 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: PushNotificationsMainViewModel.self) {
                 PushNotificationsMainView(viewModel: $0)
             }
+            .floatingSheetContent(for: CampaignViewModel.self) {
+                CampaignView(viewModel: $0)
+            }
 
         NavHolder()
             .sheet(item: $coordinator.pendingExpressTxStatusBottomSheetViewModel) { viewModel in
