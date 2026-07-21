@@ -133,6 +133,7 @@ struct ManageTokensView: View {
             )
             .placeholder(text: Localization.commonSearch)
             .cornerStyle(.capsule)
+            .configure(disablesAutocorrection: true)
             .textFieldAccessibilityIdentifier(ManageTokensAccessibilityIdentifiers.searchField)
             .frame(height: Constants.redesignSearchFieldHeight)
         } else {

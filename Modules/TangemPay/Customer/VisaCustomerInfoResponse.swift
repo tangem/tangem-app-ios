@@ -261,7 +261,15 @@ public extension VisaCustomerInfoResponse {
         public enum Status: String, Codable {
             case active = "ACTIVE"
             case transitioning = "TRANSITIONING"
+            case downgradePending = "DOWNGRADE_PENDING"
+            case systemDowngradePending = "SYSTEM_DOWNGRADE_PENDING"
             case canceled = "CANCELED"
+            case undefined = "UNDEFINED"
+
+            public init(from decoder: Decoder) throws {
+                let raw = try decoder.singleValueContainer().decode(String.self)
+                self = Self(rawValue: raw) ?? .undefined
+            }
         }
 
         public enum Source: String, Codable {
@@ -274,6 +282,7 @@ public extension VisaCustomerInfoResponse {
         public let id: String
         public let type: String
         public let name: String
+        public let programName: String
         public let descriptionItems: [DescriptionItem]
         public let images: [Image]
         public let fees: [Fee]
@@ -282,6 +291,7 @@ public extension VisaCustomerInfoResponse {
             case id
             case type
             case name
+            case programName
             case descriptionItems
             case images
             case fees
@@ -292,6 +302,7 @@ public extension VisaCustomerInfoResponse {
             id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
             type = try container.decodeIfPresent(String.self, forKey: .type) ?? ""
             name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+            programName = try container.decodeIfPresent(String.self, forKey: .programName) ?? ""
             descriptionItems = try container.decodeIfPresent([DescriptionItem].self, forKey: .descriptionItems) ?? []
             images = try container.decodeIfPresent([Image].self, forKey: .images) ?? []
             fees = try container.decodeIfPresent([Fee].self, forKey: .fees) ?? []
