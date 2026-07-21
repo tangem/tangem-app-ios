@@ -89,7 +89,7 @@ extension TangemPayAddFundsSheetOptionView {
             switch self {
             case .receive: Assets.Visa.grid
             case .swap: DesignSystem.Icons.LogoTangem.regular20
-            case .bankTransfer: Assets.dollarMini
+            case .bankTransfer: Assets.Visa.fiat
             }
         }
 
