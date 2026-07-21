@@ -8,10 +8,15 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemFoundation
 import TangemLocalization
+import TangemPay
+import TangemVisa
 
 @MainActor
 final class TangemPayVirtualAccountBankDetailsErrorPopupViewModel: TangemPayPopupViewModel {
+    @Published private(set) var isLoading = false
+
     var icon: Image {
         DesignSystem.Icons.Error.regular28.image
     }
@@ -20,14 +25,12 @@ final class TangemPayVirtualAccountBankDetailsErrorPopupViewModel: TangemPayPopu
         .warning
     }
 
-    // [REDACTED_TODO_COMMENT]
     var title: AttributedString {
-        .init("Couldn't load banking details")
+        .init(Localization.tangempayVaBankingDetailsErrorTitle)
     }
 
-    // [REDACTED_TODO_COMMENT]
     var description: AttributedString {
-        .init("Please try again or contact support if the issue persists")
+        .init(Localization.tangempayVaBankingDetailsErrorDescription)
     }
 
     var primaryButton: MainButton.Settings {
@@ -35,7 +38,8 @@ final class TangemPayVirtualAccountBankDetailsErrorPopupViewModel: TangemPayPopu
             title: Localization.commonRetry,
             style: .primary,
             size: .default,
-            action: onRetry
+            isLoading: isLoading,
+            action: retry
         )
     }
 
@@ -44,25 +48,45 @@ final class TangemPayVirtualAccountBankDetailsErrorPopupViewModel: TangemPayPopu
             title: Localization.commonContactSupport,
             style: .secondary,
             size: .default,
-            action: onContactSupport
+            action: contactSupport
         )
     }
 
-    private let onRetry: () -> Void
-    private let onContactSupport: () -> Void
-    private let onClose: () -> Void
+    private let tangemPayAccount: TangemPayAccount
+    private let productInstanceId: String
+    private weak var coordinator: TangemPayVirtualAccountBankDetailsErrorPopupRoutable?
 
     init(
-        onRetry: @escaping () -> Void,
-        onContactSupport: @escaping () -> Void,
-        onClose: @escaping () -> Void
+        tangemPayAccount: TangemPayAccount,
+        productInstanceId: String,
+        coordinator: TangemPayVirtualAccountBankDetailsErrorPopupRoutable
     ) {
-        self.onRetry = onRetry
-        self.onContactSupport = onContactSupport
-        self.onClose = onClose
+        self.tangemPayAccount = tangemPayAccount
+        self.productInstanceId = productInstanceId
+        self.coordinator = coordinator
     }
 
     func dismiss() {
-        onClose()
+        coordinator?.closeVirtualAccountSheet()
+    }
+
+    private func contactSupport() {
+        coordinator?.virtualAccountBankDetailsErrorPopupDidRequestSupport()
+    }
+
+    private func retry() {
+        guard !isLoading else { return }
+        isLoading = true
+
+        runTask(in: self) { @MainActor viewModel in
+            defer { viewModel.isLoading = false }
+
+            do {
+                let credentials = try await viewModel.tangemPayAccount.loadBankCredentials(productInstanceId: viewModel.productInstanceId)
+                viewModel.coordinator?.virtualAccountDidLoadBankCredentials(credentials)
+            } catch {
+                VisaLogger.error("Failed to load virtual account bank credentials", error: error)
+            }
+        }
     }
 }
