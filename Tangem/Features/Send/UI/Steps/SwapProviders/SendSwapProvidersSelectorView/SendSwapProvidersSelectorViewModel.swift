@@ -25,6 +25,12 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     @Published var providerTypeFilterOptions: [ProviderTypeFilter] = []
     @Published var selectedProviderTypeFilter: ProviderTypeFilter = .all
 
+    var moreProvidersFooterText: String {
+        input?.isDexOnlyProvidersMode == true
+            ? Localization.expressMoreProvidersOnceWalletFunded
+            : Localization.expressMoreProvidersSoon
+    }
+
     // MARK: - Approve state
 
     /// Transient draft for the approve-policy menu's two-way binding. Not a second source of

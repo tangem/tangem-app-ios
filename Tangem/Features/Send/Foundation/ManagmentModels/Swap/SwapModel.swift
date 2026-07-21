@@ -54,7 +54,7 @@ final class SwapModel {
     private let analyticsLogger: any SendAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
     private let pairUpdateHandler: SwapPairUpdateHandler
-    private let balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker
+    private let balanceRestrictionHandler: SwapBalanceRestrictionHandler
     private let swapTokenPairResolver: MainSwapPairResolver?
 
     private let balanceConverter = BalanceConverter()
@@ -85,7 +85,7 @@ final class SwapModel {
         self.autoupdatingTimer = autoupdatingTimer
         self.pairUpdateHandler = pairUpdateHandler
         self.swapTokenPairResolver = swapTokenPairResolver
-        self.balanceRestrictionFeatureChecker = balanceRestrictionFeatureChecker
+        balanceRestrictionHandler = SwapBalanceRestrictionHandler(checker: balanceRestrictionFeatureChecker)
 
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
@@ -300,6 +300,10 @@ private extension SwapModel {
                 let state = try await block(input.expressManager)
                 try Task.checkCancellation()
 
+                guard let state = input.balanceRestrictionHandler.dexOnlyAdjustedState(state) else {
+                    return await input.fallbackToLegacyBalanceRestriction()
+                }
+
                 let providersState = try await input.mapToLoadedProvidersState(state: state)
                 try Task.checkCancellation()
 
@@ -327,19 +331,39 @@ private extension SwapModel {
             return nil
         }
 
-        let hasRestriction = try await balanceRestrictionFeatureChecker
-            .hasSwapTotalBalanceRestriction(for: sourceToken)
-
-        guard hasRestriction else {
+        guard try await balanceRestrictionHandler.shouldHideProviders(for: sourceToken) else {
             return nil
         }
 
+        // For this kind of restriction we don't show any sign of providers.
+        return legacyBalanceRestrictionProvidersState()
+    }
+
+    private func legacyBalanceRestrictionProvidersState() -> ProvidersState {
         guard let sourceAmount = sourceAmount.value?.crypto, sourceAmount > 0 else {
             return .idle
         }
 
-        // For this kind of restriction we don't show any sign of providers.
         return .loaded(.swap(selected: .none, providers: .empty), state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
+    }
+
+    /// No usable DEX on the unfunded wallet — the legacy early exit: the insufficient-funds
+    /// error without providers UI or a leftover quote-derived amount.
+    private func fallbackToLegacyBalanceRestriction() async {
+        // Captured first — the clear may nil the source amount this state reads
+        let fallbackState = legacyBalanceRestrictionProvidersState()
+        await clearComplementaryAmount()
+        update(providersState: fallbackState)
+    }
+
+    /// Drops the amount derived from a quote that is no longer displayed
+    private func clearComplementaryAmount() async {
+        switch await expressManager.getAmountType() {
+        case .from, .none:
+            _receiveAmount.send(nil)
+        case .to:
+            _sourceAmount.send(nil)
+        }
     }
 
     /// A card-linked wallet must not receive funds, so a swap that would credit it is blocked up front
@@ -1318,6 +1342,10 @@ extension SwapModel: SendSwapProvidersInput {
             .filter { !$0.isLoading }
             .map(\.providers)
             .eraseToAnyPublisher()
+    }
+
+    var isDexOnlyProvidersMode: Bool {
+        balanceRestrictionHandler.isDexOnlyProvidersMode
     }
 
     var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? {
