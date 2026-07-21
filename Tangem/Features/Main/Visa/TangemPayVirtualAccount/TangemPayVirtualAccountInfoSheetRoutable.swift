@@ -6,10 +6,13 @@
 //
 
 import Foundation
+import TangemPay
 
 @MainActor
 protocol TangemPayVirtualAccountInfoSheetRoutable: AnyObject {
     func virtualAccountInfoSheetDidCreateOrder()
-    func closeVirtualAccountInfoSheet()
+    func virtualAccountDidLoadBankCredentials(_ credentials: TangemPayBankCredentialsResponse)
+    func virtualAccountInfoSheetDidFailToLoadBankCredentials(productInstanceId: String)
+    func closeVirtualAccountSheet()
     func openVirtualAccountURL(_ url: URL)
 }
