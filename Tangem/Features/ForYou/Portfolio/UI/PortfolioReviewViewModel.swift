@@ -28,6 +28,8 @@ final class PortfolioReviewViewModel: ObservableObject {
     @Published private(set) var state: ViewState = .loading
     @Published var selectedPeriod: ForYouPeriodSegment = .initial
 
+    var onSelectToken: (@MainActor (TokenItem) -> Void)?
+
     // MARK: - Init
 
     init(mapper: PortfolioReviewMapper = PortfolioReviewMapper()) {
@@ -45,6 +47,34 @@ final class PortfolioReviewViewModel: ObservableObject {
 
         expandedIds.formSymmetricDifference([id])
         state = state.expanding(expandedIds)
+    }
+
+    @MainActor
+    func selectToken(id: String) {
+        // Aggregate/unmapped rows (e.g. "Other") carry no concrete token — tapping them is a no-op.
+        guard let tokenItem = tokenItem(for: id) else {
+            return
+        }
+
+        onSelectToken?(tokenItem)
+    }
+
+    private func tokenItem(for id: String) -> TokenItem? {
+        guard case .content(let content) = state else {
+            return nil
+        }
+
+        for item in content.tokenList {
+            if item.assetRow.id == id {
+                return item.assetRow.tokenItem
+            }
+
+            if let row = item.networkRows.first(where: { $0.id == id }) {
+                return row.tokenItem
+            }
+        }
+
+        return nil
     }
 }
 

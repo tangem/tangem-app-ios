@@ -86,6 +86,16 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.forYouViewModel) { viewModel in
                 ForYouView(viewModel: viewModel, onBackButtonAction: { coordinator.forYouViewModel = nil })
                     .navigationLinks(forYouEarnLink)
+                    .sheet(
+                        item: $coordinator.forYouTokenSummaryViewModel,
+                        onDismiss: coordinator.onForYouTokenSummaryDismiss
+                    ) { tokenSummaryViewModel in
+                        TokenSummaryView(viewModel: tokenSummaryViewModel)
+                            .presentationDetents([.large])
+                    }
+                    .sheet(item: $coordinator.forYouSwapTokenSelectorViewModel) { swapTokenSelectorViewModel in
+                        ForYouSwapTokenSelectorView(viewModel: swapTokenSelectorViewModel)
+                    }
             }
     }
 
