@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import SwiftUI
 import TangemFoundation
 import Combine
 
@@ -119,8 +118,10 @@ private extension PortfolioReviewViewModel {
     func statePublisher(for selectedModel: UserWalletModel?) -> AnyPublisher<ViewState, Never> {
         guard let selectedModel else {
             // No selected wallet → empty content (not an endless loading state).
-            return Just(.content(.init(tokenList: [], periodSegments: ForYouPeriodSegment.all)))
-                .eraseToAnyPublisher()
+            return Just(
+                .content(.init(tokenList: [], periodSegments: ForYouPeriodSegment.all, chart: .noData(.cantLoad)))
+            )
+            .eraseToAnyPublisher()
         }
 
         // `totalBalancePublisher` is here purely as a trigger: it re-fires as per-model balances resolve,
@@ -138,9 +139,7 @@ private extension PortfolioReviewViewModel {
     }
 
     func apply(_ newState: ViewState) {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            state = newState.expanding(expandedIds)
-        }
+        state = newState.expanding(expandedIds)
     }
 }
 
@@ -154,7 +153,7 @@ private extension PortfolioReviewViewModel.ViewState {
             return self
         case .content(let content):
             let tokenList = content.tokenList.map { $0.updating(isExpanded: expandedIds.contains($0.id)) }
-            return .content(Content(tokenList: tokenList, periodSegments: content.periodSegments))
+            return .content(Content(tokenList: tokenList, periodSegments: content.periodSegments, chart: content.chart))
         }
     }
 }
