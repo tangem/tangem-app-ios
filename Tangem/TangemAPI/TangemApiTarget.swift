@@ -108,6 +108,8 @@ struct TangemApiTarget: TargetType {
         // MARK: - Coins paths
         case .coinsSettings:
             return "/coins/settings"
+        case .coinIndicators:
+            return "/coins/indicators"
 
         // MARK: - Action Buttons
         case .hotCrypto:
@@ -132,6 +134,8 @@ struct TangemApiTarget: TargetType {
             return "/user-wallets/wallets/by-app/\(applicationUid)"
         case .getUserWallet(let userWalletId), .updateWallet(let userWalletId, _):
             return "/user-wallets/wallets/\(userWalletId)"
+        case .getWalletCards(let userWalletId), .saveWalletCards(let userWalletId, _):
+            return "/user-wallets/wallets/\(userWalletId)/cards"
         case .getNotificationPreferences(let userWalletId),
              .updateNotificationPreferences(let userWalletId, _):
             // Contract v1.3: `/api/v1/notification-preferences/{walletId}`. The `/api/v1` part comes
@@ -205,12 +209,14 @@ struct TangemApiTarget: TargetType {
              .earnYieldMarkets,
              .earnNetworks,
              .coinsSettings,
+             .coinIndicators,
              .story,
              .pushNotificationsEligible,
              .getUserAccounts,
              .getArchivedUserAccounts,
              .getUserWallets,
              .getUserWallet,
+             .getWalletCards,
              .getNotificationPreferences,
              .getPriceAlertsSubscriptions,
              .newsList,
@@ -231,6 +237,7 @@ struct TangemApiTarget: TargetType {
              .createUserWalletsApplication,
              .activatePromoCode,
              .createWallet,
+             .saveWalletCards,
              .bindWalletsByCode,
              .syncAddressBooks,
              .subscribeToPriceAlerts,
@@ -314,6 +321,8 @@ struct TangemApiTarget: TargetType {
         // MARK: - Coins tasks
         case .coinsSettings:
             return .requestPlain
+        case .coinIndicators(let requestModel):
+            return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
 
         // MARK: - News tasks
         case .hotCrypto(let requestModel):
@@ -324,8 +333,10 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(requestModel)
         case .updateUserWalletsApplication(_, let requestModel):
             return .requestJSONEncodable(requestModel)
-        case .getUserWallet, .getUserWallets, .getNotificationPreferences:
+        case .getUserWallet, .getUserWallets, .getNotificationPreferences, .getWalletCards:
             return .requestPlain
+        case .saveWalletCards(_, let cards):
+            return .requestJSONEncodable(cards)
         case .updateNotificationPreferences(_, let body):
             return .requestJSONEncodable(body)
         case .subscribeToPriceAlerts(let request),
@@ -428,6 +439,7 @@ struct TangemApiTarget: TargetType {
              .earnYieldMarkets,
              .earnNetworks,
              .coinsSettings,
+             .coinIndicators,
              .apiList,
              .pushNotificationsEligible,
              .createUserWalletsApplication,
@@ -436,6 +448,8 @@ struct TangemApiTarget: TargetType {
              .getUserWallet,
              .updateWallet,
              .connectUserWallets,
+             .getWalletCards,
+             .saveWalletCards,
              .getUserAccounts,
              .getArchivedUserAccounts,
              .createWallet,
@@ -502,6 +516,7 @@ extension TangemApiTarget {
         // MARK: - Coins Targets
 
         case coinsSettings
+        case coinIndicators(_ requestModel: CoinIndicatorsDTO.Request)
 
         // MARK: - Action Buttons
 
@@ -526,6 +541,10 @@ extension TangemApiTarget {
         case getUserWallet(userWalletId: String)
         case updateWallet(userWalletId: String, context: Encodable)
         case createWallet(context: Encodable)
+
+        // Wallet Backup Status
+        case getWalletCards(userWalletId: String)
+        case saveWalletCards(userWalletId: String, cards: WalletCardsDTO.Request)
 
         // Notification Preferences
         case getNotificationPreferences(userWalletId: String)
@@ -584,6 +603,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .tokenExchangesList,
              .earnYieldMarkets,
              .earnNetworks,
+             .coinIndicators,
              .story,
              .rawData,
              .hotCrypto,
@@ -594,6 +614,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .updateWallet,
              .connectUserWallets,
              .createWallet,
+             .getWalletCards,
+             .saveWalletCards,
              .getNotificationPreferences,
              .updateNotificationPreferences,
              .subscribeToPriceAlerts,
