@@ -1843,8 +1843,11 @@
 "tangempay_touch_id_not_set_title" = "Touch ID nicht konfiguriert";
 "tangempay_usdc_on_polygon_network" = "USDC im Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Klicken Sie auf die Schaltfläche unten, um den Zugriff wiederherzustellen";
+"tangempay_va_account_details" = "Account details";
+"tangempay_va_available_to_deposit_day" = "Available to deposit per day:";
 "tangempay_va_banking_details_error_description" = "Bitte versuche es später erneut. Sollte das Problem weiterhin bestehen, kontaktiere bitte unseren Support. Wir helfen Dir gerne bei der Lösung.";
 "tangempay_va_banking_details_error_title" = "Die Bankdaten konnten nicht geladen werden";
+"tangempay_va_limit_resetting_everyday" = "Limit is resetting every day";
 "tangempay_visa_benefits" = "Visavorteile";
 "tangempay_withdrawal_note_description" = "Gelder aus erstatteten Käufen werden nicht auf Ihr On-Chain-Guthaben zurückerstattet und stehen nicht für Abhebungen zur Verfügung, bleiben aber auf Ihrem Kartenguthaben für Einkäufe verfügbar";
 "tangempay_withdrawal_note_title" = "Bitte beachten Sie";

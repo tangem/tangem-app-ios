@@ -1843,8 +1843,11 @@
 "tangempay_touch_id_not_set_title" = "Touch ID não configurado";
 "tangempay_usdc_on_polygon_network" = "USDC na rede Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Clique no botão abaixo para restaurar o acesso.";
+"tangempay_va_account_details" = "Account details";
+"tangempay_va_available_to_deposit_day" = "Available to deposit per day:";
 "tangempay_va_banking_details_error_description" = "Por favor, tente novamente ou entre em contato com o suporte se o problema persistir.";
 "tangempay_va_banking_details_error_title" = "Não foi possível carregar os dados bancários.";
+"tangempay_va_limit_resetting_everyday" = "Limit is resetting every day";
 "tangempay_visa_benefits" = "Benefícios do visto";
 "tangempay_withdrawal_note_description" = "Os fundos de compras reembolsadas não serão devolvidos ao seu saldo na blockchain nem estarão disponíveis para saque, mas permanecerão no saldo do seu cartão para compras futuras";
 "tangempay_withdrawal_note_title" = "Observe";
