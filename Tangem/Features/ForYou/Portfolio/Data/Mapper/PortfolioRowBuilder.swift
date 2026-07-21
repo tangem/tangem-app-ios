@@ -47,6 +47,7 @@ private extension PortfolioRowBuilder {
     func assetRow(for group: PortfolioReviewAggregator.Group, total: Decimal) -> ForYouTokenRowData {
         ForYouTokenRowData(
             id: group.key,
+            tokenItem: group.tokenItem,
             symbol: group.symbol,
             tokenIconInfo: iconBuilder.build(from: group.tokenItem, isCustom: group.isCustom),
             sentiment: Self.placeholderSentiment, // [REDACTED_TODO_COMMENT]
@@ -59,6 +60,7 @@ private extension PortfolioRowBuilder {
     func networkRow(for network: PortfolioReviewAggregator.NetworkGroup, total: Decimal) -> ForYouTokenRowData {
         ForYouTokenRowData(
             id: network.id,
+            tokenItem: network.sample.tokenItem,
             symbol: network.sample.symbol,
             tokenIconInfo: iconBuilder.build(from: network.sample.tokenItem, isCustom: network.sample.isCustom),
             sentiment: Self.placeholderSentiment,
@@ -75,6 +77,7 @@ private extension PortfolioRowBuilder {
             id: Self.otherID,
             assetRow: ForYouTokenRowData(
                 id: Self.otherID,
+                tokenItem: nil,
                 symbol: Localization.commonOther,
                 tokenIconInfo: nil,
                 sentiment: nil,

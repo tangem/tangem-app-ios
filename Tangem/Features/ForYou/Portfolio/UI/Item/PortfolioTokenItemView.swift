@@ -14,6 +14,7 @@ import TangemUIUtils
 struct PortfolioTokenItemView: View {
     let item: ForYouTokenListItem
     let onAssetTap: (String) -> Void
+    let onTokenSelect: (String) -> Void
 
     @Namespace private var namespace
 
@@ -56,7 +57,7 @@ private extension PortfolioTokenItemView {
     }
 
     func expandedView() -> some View {
-        ExpandedNetworksView(networkRows: item.networkRows)
+        ExpandedNetworksView(networkRows: item.networkRows, onTokenSelect: onTokenSelect)
     }
 
     func collapsedView() -> some View {
@@ -66,6 +67,8 @@ private extension PortfolioTokenItemView {
     var staticCard: some View {
         RowView(data: item.assetRow, isAggregateRow: true)
             .portfolioTokenCard()
+            .contentShape(.rect)
+            .onTapGesture { onTokenSelect(item.id) }
     }
 }
 

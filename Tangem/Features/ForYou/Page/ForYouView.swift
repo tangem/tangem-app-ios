@@ -74,3 +74,11 @@ struct ForYouView: View {
         .frame(height: 64, alignment: .bottom)
     }
 }
+
+// MARK: - Previews
+
+#Preview {
+    NavigationStack {
+        ForYouView(viewModel: ForYouViewModel(), onBackButtonAction: {})
+    }
+}

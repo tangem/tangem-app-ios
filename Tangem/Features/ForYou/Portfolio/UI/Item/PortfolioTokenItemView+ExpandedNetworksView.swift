@@ -12,6 +12,7 @@ import TangemUI
 extension PortfolioTokenItemView {
     struct ExpandedNetworksView: View {
         let networkRows: [ForYouTokenRowData]
+        let onTokenSelect: (String) -> Void
 
         var body: some View {
             VStack(spacing: 0) {
@@ -25,8 +26,14 @@ extension PortfolioTokenItemView {
                 TangemTwoLineRowSkeletonView()
                     .transition(.opacity)
             } else {
-                RowView(data: row)
-                    .transition(.opacity)
+                Button {
+                    onTokenSelect(row.id)
+                } label: {
+                    RowView(data: row)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .transition(.opacity)
             }
         }
     }
