@@ -31,9 +31,25 @@ extension SendFeeCurrencyNavigating {
             switch dismissOptions {
             case .openFeeCurrency(let feeCurrency):
                 self?.proceedFeeCurrencyNavigatingDismissOption(option: feeCurrency)
+            case .openSwap(let option):
+                self?.proceedSwapNavigatingDismissOption(option: option)
             case .closeButtonTap, .none:
                 break
             }
+        }
+    }
+
+    func proceedSwapNavigatingDismissOption(option: SwapNavigatingDismissOption) {
+        guard let options = option.makeSwapFlowOptions(source: .main) else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.feeCurrencyNavigationDelay) { [weak self] in
+            guard let self else { return }
+
+            let coordinator = makeSendCoordinator()
+            coordinator.start(with: options)
+            sendCoordinator = coordinator
         }
     }
 

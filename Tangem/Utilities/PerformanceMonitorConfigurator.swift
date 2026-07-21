@@ -9,12 +9,12 @@
 import Foundation
 import UIKit
 
-#if ALPHA || BETA || INTERNAL || DEBUG
+#if INTERNAL || DEBUG
 import GDPerformanceView_Swift
-#endif // ALPHA || BETA || INTERNAL || DEBUG
+#endif // INTERNAL || DEBUG
 
 enum PerformanceMonitorConfigurator {
-    #if ALPHA || BETA || INTERNAL || DEBUG
+    #if INTERNAL || DEBUG
     private static var performanceMonitorStyle: PerformanceMonitor.Style {
         return .custom(
             backgroundColor: UIColor.systemBackground,
@@ -33,15 +33,15 @@ enum PerformanceMonitorConfigurator {
     private static var isEnabledUsingFeatureToggle: Bool {
         return FeatureStorage.instance.isPerformanceMonitorEnabled
     }
-    #endif // ALPHA || BETA || INTERNAL || DEBUG
+    #endif // INTERNAL || DEBUG
 
     static func configureIfAvailable() {
-        #if ALPHA || BETA || INTERNAL || DEBUG
+        #if INTERNAL || DEBUG
         guard isEnabledUsingLaunchArguments || isEnabledUsingFeatureToggle else { return }
 
         PerformanceMonitor.shared().performanceViewConfigurator.options = [.performance, .device, .system, .memory]
         PerformanceMonitor.shared().performanceViewConfigurator.style = performanceMonitorStyle
         PerformanceMonitor.shared().start()
-        #endif // ALPHA || BETA || INTERNAL || DEBUG
+        #endif // INTERNAL || DEBUG
     }
 }

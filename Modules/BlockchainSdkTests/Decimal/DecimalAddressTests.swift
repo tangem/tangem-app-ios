@@ -36,6 +36,8 @@ struct DecimalAddressTests {
     @Test(arguments: [
         "0xc63763572D45171e4C25cA0818b4",
         "d01ccmkx4edg5t3unp9egyp3dzwtht",
+        "vitalik.eth",
+        "0x.eth",
         "",
     ])
     func addressValidation_invalidAddresses(address: String) {
