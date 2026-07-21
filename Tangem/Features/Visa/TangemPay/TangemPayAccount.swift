@@ -12,8 +12,6 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayAccount {
-    static let maxCardsAllowed = 3
-
     var paymentTokenItem: TokenItem {
         TangemPayUtilities.usdcTokenItem
     }
