@@ -2,122 +2,189 @@
 //  TokenSummaryView.swift
 //  TangemApp
 //
-//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
+import BlockchainSdk
 import TangemAssets
-import TangemLocalization
+import TangemUI
 import TangemUIUtils
+import TangemLocalization
 
 struct TokenSummaryView: View {
-    /// Sentiment to render. `nil` means the token data couldn't be loaded.
-    let outlook: TokenSummaryOutlook?
-    let lastUpdated: Date?
-
-    private let trackHeight: CGFloat = 6
-    private let thumbSize: CGFloat = 10
+    @ObservedObject var viewModel: TokenSummaryViewModel
 
     var body: some View {
-        VStack(spacing: 40) {
-            header
-            track
+        VStack(spacing: 0) {
+            navigationBar
+
+            ScrollView {
+                VStack(spacing: 24) {
+                    periodPicker
+
+                    TokenSummaryGaugeView(
+                        outlook: viewModel.outlook,
+                        lastUpdated: viewModel.lastUpdated
+                    )
+
+                    aiSummary
+
+                    metricsSection
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+            }
+
+            goToSwapButton
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 32)
-        .padding(.bottom, 40)
-        .padding(.horizontal, 16)
+        .background {
+            DesignSystem.Color.bgSecondary.ignoresSafeArea()
+        }
+    }
+
+    private var navigationBar: some View {
+        HStack(spacing: 12) {
+            TokenIcon(tokenIconInfo: viewModel.tokenIconInfo, size: CGSize(bothDimensions: 40))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(viewModel.tokenName)
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+
+                Text(viewModel.networkName)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            }
+
+            Spacer()
+
+            TangemButtonV2(
+                icon: DesignSystem.Icons.Cross.regular20,
+                accessibilityLabel: Localization.commonClose,
+                action: viewModel.closeTapped
+            )
+            .size(.x11)
+            .styleType(.material(.glass))
+        }
+        .padding(16)
+    }
+
+    private var periodPicker: some View {
+        TangemSegmentedPicker(
+            data: TokenSummaryPeriod.allCases,
+            selection: $viewModel.selectedPeriod
+        )
+        .style(.flexible)
+        .showSeparators(false)
     }
 
     @ViewBuilder
-    private var header: some View {
-        if let outlook {
-            VStack(spacing: 4) {
-                Text(Localization.tokenSummaryTitle)
-                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
-
-                Text(outlook.title)
-                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-
-                if let lastUpdated {
-                    Text(Localization.tokenSummaryLastUpdateSubtitle(Self.dateFormatter.string(from: lastUpdated)))
-                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                        .padding(.top, 4)
-                }
-            }
-            .multilineTextAlignment(.center)
-        } else {
-            Text(Localization.tokenSummaryCanNotLoadToken)
-                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
-                .multilineTextAlignment(.center)
-        }
-    }
-
-    private var track: some View {
-        GeometryReader { proxy in
-            ZStack(alignment: .leading) {
+    private var aiSummary: some View {
+        if let aiSummaryText = viewModel.aiSummaryText {
+            HStack(alignment: .top, spacing: 12) {
                 Capsule()
-                    .fill(trackFill)
-                    .frame(height: trackHeight)
-                    .frame(maxHeight: .infinity, alignment: .center)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Color.iconAccentViolet,
+                                DesignSystem.Color.iconAccentBlue,
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(width: 2)
 
-                if let outlook {
-                    thumb
-                        .offset(x: outlook.position * (proxy.size.width - thumbSize))
-                        .frame(maxHeight: .infinity, alignment: .center)
-                }
+                Text(aiSummaryText)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var metricsSection: some View {
+        VStack(spacing: 0) {
+            ForEach(viewModel.metrics) { metric in
+                metricRow(metric)
             }
         }
-        .frame(height: thumbSize)
     }
 
-    private var thumb: some View {
-        Circle()
-            .fill(DesignSystem.Color.iconPrimary)
-            .frame(width: thumbSize, height: thumbSize)
-            .shadow(color: .black.opacity(0.25), radius: 4, y: 1)
-    }
+    private func metricRow(_ metric: TokenSummaryMetric) -> some View {
+        HStack(spacing: 8) {
+            HStack(spacing: 4) {
+                Text(metric.title)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
-    private var trackFill: AnyShapeStyle {
-        guard outlook != nil else {
-            return AnyShapeStyle(DesignSystem.Color.bgDisabled)
+                Button {
+                    viewModel.metricInfoTapped(metric)
+                } label: {
+                    DesignSystem.Icons.Info.regular16.image
+                        .renderingMode(.template)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
+                        .frame(width: 16, height: 16)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(metric.title)
+            }
+
+            Spacer()
+
+            HStack(spacing: 2) {
+                TangemBadgeV2(label: metric.value, accessibilityLabel: nil)
+                    .size(.x6)
+                    .variant(.tinted)
+                    .appearance(.neutral)
+
+                TangemBadgeV2(label: metric.sentiment.badgeTitle, accessibilityLabel: nil)
+                    .size(.x6)
+                    .variant(.tinted)
+                    .appearance(metric.sentiment.badgeAppearance)
+            }
         }
-
-        return AnyShapeStyle(
-            LinearGradient(
-                colors: [
-                    DesignSystem.Color.bgStatusError,
-                    DesignSystem.Color.bgStatusInfo,
-                    DesignSystem.Color.bgStatusSuccess,
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        )
+        .frame(height: 48)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(DesignSystem.Color.borderSecondary)
+                .frame(height: 1)
+        }
     }
 
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = .current
-        formatter.dateStyle = .short
-        formatter.timeStyle = .none
-        return formatter
-    }()
+    private var goToSwapButton: some View {
+        TangemButtonV2(
+            label: AttributedString(Localization.tokenSummaryGoToSwapButton),
+            accessibilityLabel: Localization.tokenSummaryGoToSwapButton,
+            action: viewModel.goToSwapTapped
+        )
+        .styleType(.default)
+        .size(.x12)
+        .horizontalLayout(.infinity)
+        .padding(16)
+    }
+}
+
+// MARK: - TokenSummaryOutlook + badge appearance
+
+private extension TokenSummaryOutlook {
+    var badgeTitle: String {
+        switch self {
+        case .positive: Localization.commonPositive
+        case .neutral: Localization.commonNeutral
+        case .negative: Localization.commonNegative
+        }
+    }
+
+    var badgeAppearance: TangemBadgeV2Appearance {
+        switch self {
+        case .positive: .success
+        case .neutral: .info
+        case .negative: .error
+        }
+    }
 }
 
 // MARK: - Previews
 
 #Preview {
-    let date = Calendar.current.date(from: DateComponents(year: 2026, month: 8, day: 20))
-
-    return VStack(spacing: 40) {
-        TokenSummaryView(outlook: .positive, lastUpdated: date)
-        TokenSummaryView(outlook: .negative, lastUpdated: date)
-        TokenSummaryView(outlook: .neutral, lastUpdated: date)
-        TokenSummaryView(outlook: nil, lastUpdated: nil)
-    }
-    .padding(24)
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Color.Tangem.Surface.level2)
+    TokenSummaryView(viewModel: .mock(tokenItem: .blockchain(BlockchainNetwork(.bitcoin(testnet: false), derivationPath: nil))))
 }
