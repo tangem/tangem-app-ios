@@ -1839,8 +1839,11 @@
 "tangempay_touch_id_not_set_title" = "Touch ID no está configurado";
 "tangempay_usdc_on_polygon_network" = "USDC en Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Haga clic en el botón de abajo para restaurar el acceso";
+"tangempay_va_account_details" = "Account details";
+"tangempay_va_available_to_deposit_day" = "Available to deposit per day:";
 "tangempay_va_banking_details_error_description" = "Please try again or contact support if the issue persists";
 "tangempay_va_banking_details_error_title" = "Couldn't load banking details";
+"tangempay_va_limit_resetting_everyday" = "Limit is resetting every day";
 "tangempay_visa_benefits" = "Visa Benefits";
 "tangempay_withdrawal_note_description" = "Los fondos de compras reembolsadas no se devolverán a tu saldo on-chain Polygon ni estarán disponibles para retiro, pero permanecerán en tu saldo de tarjeta para compras";
 "tangempay_withdrawal_note_title" = "Tenga en cuenta";
