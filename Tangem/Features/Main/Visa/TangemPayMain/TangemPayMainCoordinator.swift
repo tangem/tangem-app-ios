@@ -150,7 +150,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
         coordinator.start(with: .init(
             customerTariffPlan: customerTariffPlan,
-            customerService: tangemPayAccount.customerService,
+            tariffPlanSelector: tangemPayAccount,
             closeFlow: { [weak self] in
                 self?.currentPlanCoordinator = nil
                 self?.dismiss(with: nil)
