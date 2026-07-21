@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 import BlockchainSdk
 
 class CommonSendAnalyticsLogger {
@@ -128,16 +129,15 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
     }
 
     func logAddressBookWidgetShown() {
-        let walletId = sendSourceTokenInput?.sourceToken.value?.userWalletInfo.id.stringValue
-        addressBookAnalyticsLogger.logSendFlowWidgetShown(walletId: walletId ?? "")
+        addressBookAnalyticsLogger.logSendFlowWidgetShown(userWalletId: sendSourceTokenInput?.sourceToken.value?.userWalletInfo.id)
     }
 
     func logAddressBookContactSelected(_ contact: AddressBookContact) {
-        addressBookAnalyticsLogger.logContactSelected(walletId: contact.walletId.stringValue, contactId: contact.id.stringValue)
+        addressBookAnalyticsLogger.logContactSelected(userWalletId: contact.walletId, contactId: contact.id.stringValue)
     }
 
     func logAddressBookAddressSubstituted(_ contact: AddressBookContact) {
-        addressBookAnalyticsLogger.logAddressSubstitutedInSend(walletId: contact.walletId.stringValue, contactId: contact.id.stringValue)
+        addressBookAnalyticsLogger.logAddressSubstitutedInSend(userWalletId: contact.walletId, contactId: contact.id.stringValue)
     }
 
     func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource) {
