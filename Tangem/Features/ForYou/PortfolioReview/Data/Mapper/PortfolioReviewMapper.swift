@@ -24,8 +24,42 @@ struct PortfolioReviewMapper {
 
         return .content(.init(
             tokenList: rowBuilder.build(topHoldings: topHoldings, other: other),
-            periodSegments: ForYouPeriodSegment.all // [REDACTED_TODO_COMMENT]
+            periodSegments: ForYouPeriodSegment.all, // [REDACTED_TODO_COMMENT]
+            chart: chart(topHoldings: topHoldings, other: other)
         ))
+    }
+}
+
+// MARK: - Chart
+
+private extension PortfolioReviewMapper {
+    /// Feeds every group to the gauge (it takes the top-4 as segments and the full sum as the centre total).
+    func chart(
+        topHoldings: [PortfolioReviewAggregator.Group],
+        other: [PortfolioReviewAggregator.Group]
+    ) -> PortfolioReviewViewModel.ViewState.Chart {
+        let groups = topHoldings + other
+        guard !groups.isEmpty else {
+            return .noData(.cantLoad)
+        }
+
+        let total = groups.reduce(Decimal.zero) {
+            $0 + $1.amountInFiat
+        }
+
+        guard total > 0 else {
+            return .noData(.noAmount)
+        }
+
+        let topShare = topHoldings.reduce(Decimal.zero) {
+            $0 + $1.amountInFiat
+        } / total
+
+        return .loaded(
+            assets: groups.map { SummaryGaugeAsset(id: $0.key, name: $0.tokenItem.name, fiatValue: $0.amountInFiat) },
+            assetCount: topHoldings.count,
+            topHoldingPercent: PercentFormatter().format(topShare, option: .yield)
+        )
     }
 }
 
@@ -34,7 +68,8 @@ struct PortfolioReviewMapper {
 private extension PortfolioReviewMapper {
     func makeHolding(_ walletModel: any WalletModel) -> PortfolioReviewAggregator.TokenHolding {
         let tokenItem = walletModel.tokenItem
-        let availability = Self.availability(for: walletModel.fiatAvailableBalanceProvider.balanceType)
+        let fiatBalance = walletModel.fiatAvailableBalanceProvider.balanceType
+        let availability = Self.availability(for: fiatBalance)
 
         return PortfolioReviewAggregator.TokenHolding(
             id: walletModel.id.id,
@@ -46,9 +81,18 @@ private extension PortfolioReviewMapper {
             isCustom: walletModel.isCustom,
             // Crypto shows whenever known (incl. no-rate custom); fiat only when there's a value.
             amountInCrypto: availability.showsCrypto ? walletModel.availableBalanceProvider.balanceType.value : nil,
-            amountInFiat: availability.showsValue ? walletModel.fiatAvailableBalanceProvider.balanceType.value : nil,
+            amountInFiat: Self.fiatAmount(for: fiatBalance, availability: availability),
             availability: availability
         )
+    }
+
+    /// Row fiat. A `.noAccount` balance (e.g. an unfunded XRP wallet) is a confirmed-empty zero, so it's
+    /// dropped like any zero holding; other states carry their value or stay `nil` while unresolved.
+    static func fiatAmount(for balance: TokenBalanceType, availability: PortfolioReviewAggregator.Availability) -> Decimal? {
+        if case .empty(.noAccount) = balance {
+            return 0
+        }
+        return availability.showsValue ? balance.value : nil
     }
 
     /// Balance status → row availability: `.some`/`.none` cached value splits refreshing from nothing-yet, and could-not-refresh from unreachable.
