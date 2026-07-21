@@ -126,6 +126,8 @@ struct DefaultIncomingLinkParserTests {
             urlString = "tangem://\(rawValue)"
         case .survey:
             urlString = "tangem://\(rawValue)?token=ntt-abc123"
+        case .campaigns:
+            urlString = "tangem://\(rawValue)?campaignId=some-id"
         default:
             urlString = "tangem://\(rawValue)?type=income_transaction"
         }
@@ -307,20 +309,72 @@ struct DefaultIncomingLinkParserTests {
         #expect(action.params.networkId == "base")
     }
 
-    @Test("Rejects tangem://yield with missing tokenId")
-    func rejectsYieldWithoutTokenId() {
+    @Test("Parses tangem://yield with only networkId (falls back to Earn at routing)")
+    func parsesYieldWithoutTokenId() {
         let url = URL(string: "tangem://yield?network_id=base")!
         let result = parser.parse(url)
 
-        #expect(result == nil, "Expected \(url) to be rejected due to missing tokenId")
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .yield)
+        #expect(action.params.tokenId == nil)
+        #expect(action.params.networkId == "base")
     }
 
-    @Test("Rejects tangem://yield with missing networkId")
-    func rejectsYieldWithoutNetworkId() {
+    @Test("Parses tangem://yield with only tokenId (falls back to Earn at routing)")
+    func parsesYieldWithoutNetworkId() {
         let url = URL(string: "tangem://yield?token_id=usd-coin")!
         let result = parser.parse(url)
 
-        #expect(result == nil, "Expected \(url) to be rejected due to missing networkId")
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .yield)
+        #expect(action.params.tokenId == "usd-coin")
+        #expect(action.params.networkId == nil)
+    }
+
+    @Test("Parses empty tangem://yield (falls back to Earn at routing)")
+    func parsesEmptyYield() {
+        let url = URL(string: "tangem://yield")!
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .yield)
+        #expect(action.params.tokenId == nil)
+        #expect(action.params.networkId == nil)
+    }
+
+    @Test("Ignores unknown query params on a valid tangem://yield link")
+    func parsesYieldWithUnknownParams() {
+        let url = URL(string: "tangem://yield?token_id=usd-coin&network_id=base&foo=bar")!
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .yield)
+        #expect(action.params.tokenId == "usd-coin")
+        #expect(action.params.networkId == "base")
+    }
+
+    @Test("Rejects tangem://yield with malformed characters")
+    func rejectsYieldWithInvalidChars() {
+        let url = URL(string: "tangem://yield?token_id=usd-coin&network_id=ba$e")!
+        let result = parser.parse(url)
+
+        #expect(result == nil, "Expected \(url) to be rejected due to malformed network_id")
     }
 
     @Test("Parses tangem://survey with required token")
