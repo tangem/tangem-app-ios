@@ -9,117 +9,107 @@
 import Foundation
 import TangemSdk
 import TangemNetworkUtils
+import TangemFoundation
 
 struct CommonAddressBookAnalyticsLogger: AddressBookAnalyticsLogger {
-    func logContactListScreenOpened(walletId: String, source: AddressBookAnalyticsSource, contactsCount: Int) {
-        Analytics.log(event: .addressBookContactListScreenOpened, params: [
-            .addressBookWalletId: walletId,
+    func logContactListScreenOpened(userWalletId: UserWalletId?, source: AddressBookAnalyticsSource, contactsCount: Int) {
+        Analytics.log(event: .addressBookContactListScreenOpened, params: withWalletId(userWalletId, [
             .source: source.parameterValue.rawValue,
             .contactsCount: "\(contactsCount)",
-        ])
+        ]))
     }
 
-    func logAddContactTapped(walletId: String, source: AddressBookAnalyticsSource) {
-        Analytics.log(event: .addressBookAddContactTapped, params: [
-            .addressBookWalletId: walletId,
+    func logAddContactTapped(userWalletId: UserWalletId?, source: AddressBookAnalyticsSource) {
+        Analytics.log(event: .addressBookAddContactTapped, params: withWalletId(userWalletId, [
             .source: source.parameterValue.rawValue,
-        ])
+        ]))
     }
 
-    func logContactScreenOpened(walletId: String, contactId: String?) {
-        Analytics.log(event: .addressBookContactScreenOpened, params: [
-            .addressBookWalletId: walletId,
+    func logContactScreenOpened(userWalletId: UserWalletId?, contactId: String?) {
+        Analytics.log(event: .addressBookContactScreenOpened, params: withWalletId(userWalletId, [
             .contactId: contactId ?? "",
-        ])
+        ]))
     }
 
-    func logButtonSaveTo(walletId: String) {
-        Analytics.log(event: .addressBookButtonSaveTo, params: [
-            .addressBookWalletId: walletId,
-        ])
+    func logButtonSaveTo() {
+        Analytics.log(.addressBookButtonSaveTo)
     }
 
-    func logContactSaved(walletId: String, contactId: String, mode: AddressBookAnalyticsMode) {
-        Analytics.log(event: .addressBookContactSaved, params: [
-            .addressBookWalletId: walletId,
+    func logContactSaved(userWalletId: UserWalletId?, contactId: String, mode: AddressBookAnalyticsMode) {
+        Analytics.log(event: .addressBookContactSaved, params: withWalletId(userWalletId, [
             .contactId: contactId,
             .mode: mode.parameterValue.rawValue,
-        ])
+        ]))
     }
 
-    func logSaveErrorShown(walletId: String, contactId: String?, error: Error) {
-        Analytics.log(event: .addressBookSaveErrorShown, params: [
-            .addressBookWalletId: walletId,
+    func logSaveErrorShown(userWalletId: UserWalletId?, contactId: String?, error: Error) {
+        Analytics.log(event: .addressBookSaveErrorShown, params: withWalletId(userWalletId, [
             .contactId: contactId ?? "",
             .errorType: errorType(for: error).parameterValue.rawValue,
-        ])
+        ]))
     }
 
-    func logAddressScreenOpened(walletId: String) {
-        Analytics.log(event: .addressBookAddressScreenOpened, params: [
-            .addressBookWalletId: walletId,
-        ])
+    func logAddressScreenOpened() {
+        Analytics.log(.addressBookAddressScreenOpened)
     }
 
-    func logSelectAllNetworksTapped(walletId: String, action: AddressBookSelectAllAction) {
-        Analytics.log(event: .addressBookSelectAllNetworksTapped, params: [
-            .addressBookWalletId: walletId,
+    func logSelectAllNetworksTapped(userWalletId: UserWalletId?, action: AddressBookSelectAllAction) {
+        Analytics.log(event: .addressBookSelectAllNetworksTapped, params: withWalletId(userWalletId, [
             .action: action.parameterValue.rawValue,
-        ])
+        ]))
     }
 
-    func logAddressInvalid(walletId: String, contactId: String?) {
-        Analytics.log(event: .addressBookAddressInvalid, params: [
-            .addressBookWalletId: walletId,
+    func logAddressInvalid(userWalletId: UserWalletId?, contactId: String?) {
+        Analytics.log(event: .addressBookAddressInvalid, params: withWalletId(userWalletId, [
             .contactId: contactId ?? "",
-        ])
+        ]))
     }
 
-    func logDuplicateNameErrorShown(walletId: String, contactId: String?) {
-        Analytics.log(event: .addressBookDuplicateNameErrorShown, params: [
-            .addressBookWalletId: walletId,
+    func logDuplicateNameErrorShown(userWalletId: UserWalletId?, contactId: String?) {
+        Analytics.log(event: .addressBookDuplicateNameErrorShown, params: withWalletId(userWalletId, [
             .contactId: contactId ?? "",
-        ])
+        ]))
     }
 
-    func logAddressRemoved(walletId: String, contactId: String?) {
-        Analytics.log(event: .addressBookAddressRemoved, params: [
-            .addressBookWalletId: walletId,
+    func logAddressRemoved(userWalletId: UserWalletId?, contactId: String?) {
+        Analytics.log(event: .addressBookAddressRemoved, params: withWalletId(userWalletId, [
             .contactId: contactId ?? "",
-        ])
+        ]))
     }
 
-    func logContactDeleted(walletId: String, contactId: String?) {
-        Analytics.log(event: .addressBookContactDeleted, params: [
-            .addressBookWalletId: walletId,
+    func logContactDeleted(userWalletId: UserWalletId?, contactId: String?) {
+        Analytics.log(event: .addressBookContactDeleted, params: withWalletId(userWalletId, [
             .contactId: contactId ?? "",
-        ])
+        ]))
     }
 
-    func logSendFlowWidgetShown(walletId: String) {
-        Analytics.log(event: .addressBookSendFlowWidgetShown, params: [
-            .addressBookWalletId: walletId,
-        ])
+    func logSendFlowWidgetShown(userWalletId: UserWalletId?) {
+        Analytics.log(event: .addressBookSendFlowWidgetShown, params: withWalletId(userWalletId, [:]))
     }
 
-    func logContactSelected(walletId: String, contactId: String) {
-        Analytics.log(event: .addressBookContactSelected, params: [
-            .addressBookWalletId: walletId,
+    func logContactSelected(userWalletId: UserWalletId?, contactId: String) {
+        Analytics.log(event: .addressBookContactSelected, params: withWalletId(userWalletId, [
             .contactId: contactId,
-        ])
+        ]))
     }
 
-    func logAddressSubstitutedInSend(walletId: String, contactId: String) {
-        Analytics.log(event: .addressBookAddressSubstitutedInSend, params: [
-            .addressBookWalletId: walletId,
+    func logAddressSubstitutedInSend(userWalletId: UserWalletId?, contactId: String) {
+        Analytics.log(event: .addressBookAddressSubstitutedInSend, params: withWalletId(userWalletId, [
             .contactId: contactId,
-        ])
+        ]))
     }
 }
 
 // MARK: - Error type mapping
 
 private extension CommonAddressBookAnalyticsLogger {
+    func withWalletId(_ userWalletId: UserWalletId?, _ params: [Analytics.ParameterKey: String]) -> [Analytics.ParameterKey: String] {
+        guard let userWalletId else { return params }
+        var params = params
+        params[.addressBookWalletId] = userWalletId.hashedStringValue
+        return params
+    }
+
     enum SaveErrorType {
         case network
         case server
