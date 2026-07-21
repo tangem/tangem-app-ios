@@ -1499,7 +1499,7 @@
 "sui_not_enough_coin_for_fee_description" = "Se requiere una transacción entrante de al menos %1$@ para proceder";
 "sui_not_enough_coin_for_fee_title" = "Fondos insuficientes";
 "support_chat_screen_title" = "Chat de soporte";
-"support_chat_share_logs_button" = "Adjuntar registros de la aplicación";
+"support_chat_share_logs_button" = "Adjuntar logs de la app";
 "support_chat_swap_prefilled_message" = "Datos de la operación SWAP:\nDe: %1$@ %2$@\nPara: %3$@ %4$@\nPor %5$@ - %6$@";
 "support_selector_view_chat_button" = "Abrir chat";
 "support_selector_view_email_button" = "Abrir correo";
