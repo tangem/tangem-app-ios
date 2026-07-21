@@ -92,7 +92,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .usdtRevokeGaslessFee: return .unspecified
         case .yieldModuleUpdate: return .version("6.1")
         case .xrplTransactionHistory: return .unspecified
-        case .pushNotificationsSettings: return .unspecified
+        case .pushNotificationsSettings: return .version("6.1")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .forceUpdate: return .unspecified
