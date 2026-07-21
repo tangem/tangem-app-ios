@@ -14,14 +14,21 @@ import TangemUIUtils
 struct PortfolioTokenItemView: View {
     let item: ForYouTokenListItem
     let onAssetTap: (String) -> Void
+    let onTokenSelect: (String) -> Void
 
     @Namespace private var namespace
 
     var body: some View {
-        if item.isExpandable {
+        if item.isAssetLoading {
+            TangemTwoLineRowSkeletonView()
+                .portfolioTokenCard()
+                .transition(.opacity)
+        } else if item.isExpandable {
             expandableCard
+                .transition(.opacity)
         } else {
             staticCard
+                .transition(.opacity)
         }
     }
 }
@@ -50,16 +57,18 @@ private extension PortfolioTokenItemView {
     }
 
     func expandedView() -> some View {
-        ExpandedNetworksView(networkRows: item.networkRows)
+        ExpandedNetworksView(networkRows: item.networkRows, onTokenSelect: onTokenSelect)
     }
 
     func collapsedView() -> some View {
-        RowView(data: item.assetRow, showsIndicator: true, effects: effects)
+        RowView(data: item.assetRow, isAggregateRow: true, effects: effects)
     }
 
     var staticCard: some View {
-        RowView(data: item.assetRow, showsIndicator: true)
+        RowView(data: item.assetRow, isAggregateRow: true)
             .portfolioTokenCard()
+            .contentShape(.rect)
+            .onTapGesture { onTokenSelect(item.id) }
     }
 }
 

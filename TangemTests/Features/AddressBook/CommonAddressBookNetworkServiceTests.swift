@@ -235,6 +235,7 @@ private final class MockTangemApiService: TangemApiService {
     func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response { fatalError("unused") }
     func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response { fatalError("unused") }
     func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response { fatalError("unused") }
+    func loadCoinIndicators(requestModel: CoinIndicatorsDTO.Request) async throws -> CoinIndicatorsDTO.Response { fatalError("unused") }
     func loadApplicationVersions() async throws -> ApplicationVersionsDTO { fatalError("unused") }
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response { fatalError("unused") }
     func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response { fatalError("unused") }
@@ -267,6 +268,8 @@ private final class MockTangemApiService: TangemApiService {
     func getUserWallet(userWalletId: String) async throws -> UserWalletDTO.Response { fatalError("unused") }
     func updateWallet(by userWalletId: String, context: some Encodable) async throws { fatalError("unused") }
     func createWallet(with context: some Encodable) async throws -> String? { fatalError("unused") }
+    func saveWalletCards(userWalletId: String, cards: WalletCardsDTO.Request) async throws { fatalError("unused") }
+    func getWalletCards(userWalletId: String) async throws -> WalletCardsDTO.Response { fatalError("unused") }
     func getUserAccounts(userWalletId: String) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) { fatalError("unused") }
     func saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) { fatalError("unused") }
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts { fatalError("unused") }

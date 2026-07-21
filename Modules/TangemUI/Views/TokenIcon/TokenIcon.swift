@@ -17,6 +17,7 @@ public struct TokenIcon: View {
     private let size: CGSize
     private var isWithOverlays: Bool
     private var forceKingfisher: Bool
+    private let iconGeometryEffect: GeometryEffectPropertiesModel?
 
     private var imageURL: URL? { tokenIconInfo.imageURL }
     private var customTokenColor: Color? { tokenIconInfo.customTokenColor }
@@ -50,7 +51,7 @@ public struct TokenIcon: View {
     }
 
     private var tokenIcon: some View {
-        IconView(url: imageURL, size: size, forceKingfisher: forceKingfisher)
+        IconView(url: imageURL, size: size, forceKingfisher: forceKingfisher, geometryEffect: iconGeometryEffect)
             .ifLet(blockchainIconAsset) { view, imageAsset in
                 view.networkIconOverlay(
                     imageAsset: imageAsset,
@@ -82,12 +83,14 @@ public struct TokenIcon: View {
         tokenIconInfo: TokenIconInfo,
         size: CGSize,
         isWithOverlays: Bool = true,
-        forceKingfisher: Bool = true
+        forceKingfisher: Bool = true,
+        iconGeometryEffect: GeometryEffectPropertiesModel? = nil
     ) {
         self.tokenIconInfo = tokenIconInfo
         self.size = size
         self.isWithOverlays = isWithOverlays
         self.forceKingfisher = forceKingfisher
+        self.iconGeometryEffect = iconGeometryEffect
     }
 
     private func customTokenIcon(background: Color) -> some View {
