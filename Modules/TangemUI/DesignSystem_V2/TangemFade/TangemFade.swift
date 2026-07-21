@@ -35,12 +35,40 @@ public struct TangemFade: View {
     }
 
     public var body: some View {
-        Rectangle()
-            .fill(tintGradient)
+        content
             .background(blurLayer)
-            .frame(maxWidth: .infinity)
-            .frame(height: Metrics.height)
             .allowsHitTesting(false)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch (variant, position) {
+        case (.soft, .top):
+            gradient(colors: [softColor, .clear])
+        case (.soft, .bottom):
+            gradient(colors: [.clear, softColor])
+        case (.hard, .top):
+            VStack(spacing: 0) {
+                solidBlock
+                gradient(colors: [opaqueColor, .clear])
+            }
+        case (.hard, .bottom):
+            VStack(spacing: 0) {
+                gradient(colors: [.clear, opaqueColor])
+                solidBlock
+            }
+        }
+    }
+
+    private var solidBlock: some View {
+        Rectangle()
+            .fill(opaqueColor)
+            .frame(height: Metrics.solidHeight)
+    }
+
+    private func gradient(colors: [Color]) -> some View {
+        LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
+            .frame(maxHeight: .infinity)
     }
 
     @ViewBuilder
@@ -61,37 +89,12 @@ public struct TangemFade: View {
         }
     }
 
-    private var tintGradient: LinearGradient {
-        let opaque = backgroundColor.opacity(Metrics.hardAlpha)
-        let soft = backgroundColor.opacity(Metrics.softAlpha)
-        let transparent = Color.clear
+    private var opaqueColor: Color {
+        backgroundColor.opacity(Metrics.hardAlpha)
+    }
 
-        let stops: [Gradient.Stop] = switch (variant, position) {
-        case (.hard, .top):
-            [
-                .init(color: opaque, location: 0),
-                .init(color: opaque, location: Metrics.solidRatio),
-                .init(color: transparent, location: 1),
-            ]
-        case (.hard, .bottom):
-            [
-                .init(color: transparent, location: 0),
-                .init(color: opaque, location: 1 - Metrics.solidRatio),
-                .init(color: opaque, location: 1),
-            ]
-        case (.soft, .top):
-            [
-                .init(color: soft, location: 0),
-                .init(color: transparent, location: 1),
-            ]
-        case (.soft, .bottom):
-            [
-                .init(color: transparent, location: 0),
-                .init(color: soft, location: 1),
-            ]
-        }
-
-        return LinearGradient(gradient: Gradient(stops: stops), startPoint: .top, endPoint: .bottom)
+    private var softColor: Color {
+        backgroundColor.opacity(Metrics.softAlpha)
     }
 }
 
@@ -115,8 +118,7 @@ extension TangemFade: Setupable {
 
 private extension TangemFade {
     enum Metrics {
-        static let height: CGFloat = 96
-        static let solidRatio: CGFloat = 40.0 / height
+        static let solidHeight: CGFloat = 56
         static let hardAlpha: Double = 0.95
         static let softAlpha: Double = 0.6
         static let blurRadius: CGFloat = 10
