@@ -20,12 +20,11 @@ struct TangemPayComparePlansSheetViewModel: FloatingSheetContentViewModel {
     private let coordinator: TangemPayComparePlansRoutable
 
     init(
-        transitions: TangemPayTariffPlanTransitionsResponse,
+        tariffPlans: [VisaCustomerInfoResponse.TariffPlan],
         coordinator: TangemPayComparePlansRoutable
     ) {
         self.coordinator = coordinator
 
-        let tariffPlans = transitions.map(\.tariffPlan)
         let orderedAttributes = Self.makeOrderedAttributes(from: tariffPlans)
 
         attributes = orderedAttributes.map { Attribute(id: $0, tabTitle: $0) }
