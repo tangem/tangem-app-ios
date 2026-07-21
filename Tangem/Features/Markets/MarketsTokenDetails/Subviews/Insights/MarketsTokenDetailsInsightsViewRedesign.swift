@@ -137,7 +137,6 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     MarketsTokenDetailsInsightsViewRedesign(viewModel: MarketsTokenDetailsInsightsViewModel(
         tokenSymbol: "BTC",
@@ -170,4 +169,3 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
     )
     )
 }
-#endif

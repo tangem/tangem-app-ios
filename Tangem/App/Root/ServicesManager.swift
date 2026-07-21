@@ -42,7 +42,7 @@ final class CommonServicesManager {
     @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
-    @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
+    @Injected(\.eTagStorage) private var eTagStorage: ETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
     @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
     @Injected(\.tokenSelectorStateStorage) private var tokenSelectorStateStorage: TokenSelectorStateStorage
@@ -51,6 +51,7 @@ final class CommonServicesManager {
     @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
     @Injected(\.stakingTargetAmountLimitProvider) private var stakingTargetAmountLimitProvider: CommonStakingTargetAmountLimitProvider
     @Injected(\.silentPushHandlersStorage) private var silentPushHandlersStorage: SilentPushHandlersStorage
+    @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -210,6 +211,8 @@ extension CommonServicesManager: ServicesManager {
         referralService.retryBindingIfNeeded()
         mobileUpgradeBannerStorageManager.initialize()
         stakingTargetAmountLimitProvider.initialize()
+        // Refresh the cached app-versions DTO once per session. Applied on the next launch.
+        forceUpdateService.refreshCache()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating

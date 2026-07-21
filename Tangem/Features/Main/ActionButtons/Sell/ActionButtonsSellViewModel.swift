@@ -58,18 +58,7 @@ extension ActionButtonsSellViewModel: TokenSelectorViewModelOutput {
 
         ActionButtonsAnalyticsService.trackTokenClicked(.sell, tokenSymbol: walletModel.tokenItem.currencySymbol)
 
-        if FeatureProvider.isAvailable(.redesign) {
-            coordinator?.openTransfer(walletModel: walletModel, userWalletInfo: item.userWalletInfo)
-            return
-        }
-
-        guard let url = makeSellUrl(walletModel: walletModel) else {
-            return
-        }
-
-        coordinator?.openSellCrypto(at: url) { [weak self] response in
-            self?.makeSendToSellModel(from: response, and: walletModel)
-        }
+        coordinator?.openTransfer(walletModel: walletModel, userWalletInfo: item.userWalletInfo)
     }
 }
 
@@ -100,35 +89,5 @@ private extension ActionButtonsSellViewModel {
 
         let input = NotificationsFactory().buildNotificationInput(for: event)
         notificationInput = input
-    }
-
-    func makeSendToSellModel(from response: String, and walletModel: any WalletModel) -> ActionButtonsSendToSellModel? {
-        let sellUtility = SellCryptoUtility(
-            tokenItem: walletModel.tokenItem,
-            address: walletModel.defaultAddressString
-        )
-
-        guard let sellCryptoRequest = sellUtility.extractSellCryptoRequest(from: response) else {
-            return nil
-        }
-
-        let sellParameters = PredefinedSellParameters(
-            amount: sellCryptoRequest.amount,
-            destination: sellCryptoRequest.targetAddress,
-            tag: sellCryptoRequest.tag
-        )
-
-        return .init(sellParameters: sellParameters, walletModel: walletModel)
-    }
-
-    func makeSellUrl(walletModel: any WalletModel) -> URL? {
-        let sellUrl = sellService.getSellUrl(
-            currencySymbol: walletModel.tokenItem.currencySymbol,
-            amountType: walletModel.tokenItem.amountType,
-            blockchain: walletModel.tokenItem.blockchain,
-            walletAddress: walletModel.defaultAddressString
-        )
-
-        return sellUrl
     }
 }

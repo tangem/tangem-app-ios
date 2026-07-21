@@ -12,26 +12,8 @@ struct TangemPayMaximumCardsIssuedSheetView: View {
     let viewModel: TangemPayMaximumCardsIssuedSheetViewModel
 
     var body: some View {
-        if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
-            TangemPayPopupView(
-                viewModel: TangemPayMaximumCardsIssuedPopupViewModel(onClose: viewModel.dismiss)
-            )
-        } else {
-            legacyBody
-        }
-    }
-}
-
-private extension TangemPayMaximumCardsIssuedSheetView {
-    var legacyBody: some View {
-        BottomSheetErrorContentView(
-            title: viewModel.title,
-            subtitle: viewModel.description,
-            closeAction: viewModel.dismiss,
-            primaryButton: viewModel.primaryButton
+        TangemPayPopupView(
+            viewModel: TangemPayMaximumCardsIssuedPopupViewModel(onClose: viewModel.dismiss)
         )
-        .floatingSheetConfiguration { configuration in
-            configuration.backgroundInteractionBehavior = .tapToDismiss
-        }
     }
 }
