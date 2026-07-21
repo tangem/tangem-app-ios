@@ -16,6 +16,20 @@ struct OnrampOfferView: View {
     let viewModel: OnrampOfferViewModel
 
     var body: some View {
+        VStack(spacing: 0) {
+            cardContent
+                .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
+                .environment(\.colorScheme, resolvedColorScheme)
+                .opacity(viewModel.isAvailable ? 1 : 0.6)
+                .zIndex(1)
+
+            if let linkedBanner = viewModel.linkedBanner {
+                LinkedMarketingBannerView(viewModel: linkedBanner)
+            }
+        }
+    }
+
+    private var cardContent: some View {
         VStack(spacing: 12) {
             topView
 
@@ -30,16 +44,20 @@ struct OnrampOfferView: View {
                 legalNoticeView(legalNotice)
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
-        .environment(\.colorScheme, resolvedColorScheme)
-        .opacity(viewModel.isAvailable ? 1 : 0.6)
     }
 
-    /// Read synchronously to avoid an `@Environment(\.colorScheme)` subscription that leaks inside floating sheets.
     private var resolvedColorScheme: ColorScheme {
-        let current: ColorScheme = UITraitCollection.current.userInterfaceStyle == .dark ? .dark : .light
+        let current = Self.appColorScheme
         guard viewModel.isNativePayment else { return current }
         return current == .light ? .dark : .light
+    }
+
+    private static var appColorScheme: ColorScheme {
+        switch AppSettings.shared.appTheme {
+        case .light: return .light
+        case .dark: return .dark
+        case .system: return UITraitCollection.current.userInterfaceStyle == .dark ? .dark : .light
+        }
     }
 
     private var topView: some View {

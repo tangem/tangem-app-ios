@@ -51,6 +51,10 @@ final class TangemPayCard: Identifiable {
         productInstance.status == .new || productInstance.status == .activating
     }
 
+    var isFrozen: Bool {
+        productInstance.status == .blocked
+    }
+
     var inflightLifecycleOperationPublisher: AnyPublisher<LifecycleOperation?, Never> {
         inflightLifecycleOperationSubject.eraseToAnyPublisher()
     }
@@ -107,7 +111,7 @@ final class TangemPayCard: Identifiable {
         cardId = card.id
         paymentAccountId = productInstance.paymentAccountId
         self.customerService = customerService
-        orderStatusPollingService = TangemPayOrderStatusPollingService(customerService: customerService, multipleCardsEnabled: true)
+        orderStatusPollingService = TangemPayOrderStatusPollingService(customerService: customerService)
         snapshotSubject = .init(Snapshot(productInstance: productInstance, card: card))
     }
 
