@@ -195,6 +195,14 @@ extension TokenSelectorViewModel {
     struct InitiallyExpandedAccount {
         let walletId: UserWalletId
         let cryptoAccount: any CryptoAccountModel
+
+        static func onlyAccount(of userWalletModel: any UserWalletModel) -> Self? {
+            guard let cryptoAccount = userWalletModel.accountModelsManager.cryptoAccountModels.singleElement else {
+                return nil
+            }
+
+            return .init(walletId: userWalletModel.userWalletId, cryptoAccount: cryptoAccount)
+        }
     }
 }
 
