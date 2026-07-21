@@ -222,6 +222,9 @@ struct ExpressCurrencyView<Content: View>: View {
 struct ChooseTokenPillView: View {
     let action: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var pulseStart = Date().addingTimeInterval(Constants.startDelay)
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
@@ -238,10 +241,40 @@ struct ChooseTokenPillView: View {
             .padding(.vertical, 8)
             .padding(.leading, 16)
             .padding(.trailing, 12)
-            .background(Colors.Button.secondary)
+            .background {
+                Colors.Button.secondary
+
+                emphasisOverlay
+            }
             .cornerRadiusContinuous(24)
             .fixedSize(horizontal: true, vertical: false)
         }
+    }
+
+    @ViewBuilder
+    private var emphasisOverlay: some View {
+        if reduceMotion || !FeatureProvider.isAvailable(.chooseTokenPulseAnimation) {
+            EmptyView()
+        } else {
+            TimelineView(.animation) { context in
+                DesignSystem.Color.bgOpaqueSecondary
+                    .opacity(pulseOpacity(elapsed: context.date.timeIntervalSince(pulseStart)))
+            }
+        }
+    }
+
+    private func pulseOpacity(elapsed: TimeInterval) -> Double {
+        guard elapsed > 0 else { return 0 }
+
+        let progress = elapsed.truncatingRemainder(dividingBy: Constants.pulsePeriod) / Constants.pulsePeriod
+        return 1 - abs(progress * 2 - 1)
+    }
+}
+
+private extension ChooseTokenPillView {
+    enum Constants {
+        static let pulsePeriod: TimeInterval = 3.6
+        static let startDelay: TimeInterval = 0.5
     }
 }
 
