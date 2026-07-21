@@ -518,7 +518,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             },
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .init(tariffPlanSelector: tariffPlanSelector))
+        coordinator.start(with: .init(tariffPlanSelector: tariffPlanSelector, mode: .onboarding))
         tangemPaySelectPlanCoordinator = coordinator
     }
 

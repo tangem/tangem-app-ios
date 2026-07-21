@@ -14,15 +14,13 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-
     // MARK: - Root view model
 
     @Published private(set) var currentPlanViewModel: TangemPayCurrentPlanViewModel?
 
-    // MARK: - Child view models (push navigation)
+    // MARK: - Child coordinators (push navigation)
 
-    @Published var selectPlanViewModel: TangemPaySelectPlanViewModel?
+    @Published var selectPlanCoordinator: TangemPaySelectPlanCoordinator?
 
     private var options: Options?
 
@@ -48,7 +46,7 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
 extension TangemPayCurrentPlanCoordinator {
     struct Options {
         let customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan
-        let customerService: any CustomerInfoManagementService
+        let tariffPlanSelector: any TangemPayTariffPlanSelector
         let closeFlow: () -> Void
     }
 }
@@ -57,40 +55,21 @@ extension TangemPayCurrentPlanCoordinator {
 
 extension TangemPayCurrentPlanCoordinator: TangemPayCurrentPlanRoutable {
     func openSelectPlan() {
-        guard let customerService = options?.customerService else {
+        guard let options else {
             return
         }
 
-        selectPlanViewModel = TangemPaySelectPlanViewModel(
-            transitionsLoader: { try await customerService.getTariffPlanTransitions() },
-            descriptionContext: .planChange,
-            coordinator: self
+        let coordinator = TangemPaySelectPlanCoordinator(
+            dismissAction: { [weak self] in
+                self?.selectPlanCoordinator = nil
+                options.closeFlow()
+            },
+            popToRootAction: popToRootAction
         )
-    }
-}
-
-// MARK: - TangemPaySelectPlanRoutable
-
-extension TangemPayCurrentPlanCoordinator: TangemPaySelectPlanRoutable {
-    func closeSelectPlanFlow() {
-        selectPlanViewModel = nil
-        options?.closeFlow()
-    }
-
-    func openComparePlans(transitions: TangemPayTariffPlanTransitionsResponse) {
-        let viewModel = TangemPayComparePlansSheetViewModel(transitions: transitions, coordinator: self)
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-}
-
-// MARK: - TangemPayComparePlansRoutable
-
-extension TangemPayCurrentPlanCoordinator: TangemPayComparePlansRoutable {
-    func closeComparePlans() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        coordinator.start(with: .init(
+            tariffPlanSelector: options.tariffPlanSelector,
+            mode: .planChange(customerTariffPlan: options.customerTariffPlan)
+        ))
+        selectPlanCoordinator = coordinator
     }
 }
