@@ -15,6 +15,7 @@ public struct TangemFadeShowcase: View {
     @State private var variant: TangemFade.Variant = .soft
     @State private var position: TangemFade.Position = .bottom
     @State private var background: BackgroundOption = .primary
+    @State private var height: CGFloat = 96
     @State private var isBlurEnabled = false
     @State private var isDarkMode = false
 
@@ -35,12 +36,13 @@ public struct TangemFadeShowcase: View {
     private var previewArea: some View {
         RainbowBackdrop()
             .frame(maxWidth: .infinity)
-            .frame(height: 240)
+            .frame(height: 280)
             .overlay(alignment: position.alignment) {
                 TangemFade(position: position)
                     .variant(variant)
                     .blurred(isBlurEnabled)
                     .backgroundColor(background.color)
+                    .frame(height: height)
             }
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .padding(.horizontal, 16)
@@ -67,6 +69,15 @@ public struct TangemFadeShowcase: View {
                     Text("inverse").tag(BackgroundOption.inverse)
                 }
                 .pickerStyle(.segmented)
+
+                VStack(spacing: 4) {
+                    HStack {
+                        Text("Height")
+                        Spacer()
+                        Text("\(Int(height))")
+                    }
+                    Slider(value: $height, in: 56 ... 240, step: 1)
+                }
 
                 Toggle("Blur", isOn: $isBlurEnabled)
 
@@ -165,6 +176,7 @@ private struct FadeGalleryView: View {
                 .overlay(alignment: position == .top ? .top : .bottom) {
                     TangemFade(position: position)
                         .variant(variant)
+                        .frame(height: 96)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
