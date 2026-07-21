@@ -102,40 +102,39 @@ struct AddressQrBottomSheetContent: View {
     }
 }
 
-struct AddressQrBottomSheet_Previews: PreviewProvider {
-    static var previews: some View {
-        AddressQrBottomSheetPreviewView()
-            .previewGroup(devices: [.iPhoneX], withZoomed: false)
+@available(iOS 17.0, *)
+#Preview("Sheet") {
+    final class AddressQrBottomSheetPreviewTrigger: Identifiable {}
 
-        makeBottomSheetContent()
+    @Previewable @State var isBottomSheetPresented: AddressQrBottomSheetPreviewTrigger?
+
+    return ZStack {
+        Button(action: {
+            isBottomSheetPresented = (isBottomSheetPresented == nil) ? AddressQrBottomSheetPreviewTrigger() : nil
+        }, label: {
+            Text("Show bottom sheet")
+                .padding()
+        })
+        NavHolder()
+            .bottomSheet(item: $isBottomSheetPresented, backgroundColor: Colors.Background.tertiary) { _ in
+                AddressQrBottomSheetContent(
+                    viewModel: .init(
+                        shareAddress: "eth:0x01232483902f903678a098bce",
+                        address: "0x01232483902f903678a098bce",
+                        qrNotice: "BTC"
+                    )
+                )
+            }
     }
+    .previewGroup(devices: [.iPhoneX], withZoomed: false)
+}
 
-    fileprivate static func makeBottomSheetContent() -> some View {
-        return AddressQrBottomSheetContent(viewModel: .init(
+#Preview("Content") {
+    AddressQrBottomSheetContent(
+        viewModel: .init(
             shareAddress: "eth:0x01232483902f903678a098bce",
             address: "0x01232483902f903678a098bce",
             qrNotice: "BTC"
-        ))
-    }
-}
-
-private struct AddressQrBottomSheetPreviewView: View {
-    private final class Trigger: Identifiable {}
-
-    @State private var isBottomSheetPresented: Trigger?
-
-    var body: some View {
-        ZStack {
-            Button(action: {
-                isBottomSheetPresented = (isBottomSheetPresented == nil) ? Trigger() : nil
-            }, label: {
-                Text("Show bottom sheet")
-                    .padding()
-            })
-            NavHolder()
-                .bottomSheet(item: $isBottomSheetPresented, backgroundColor: Colors.Background.tertiary) { _ in
-                    AddressQrBottomSheet_Previews.makeBottomSheetContent()
-                }
-        }
-    }
+        )
+    )
 }

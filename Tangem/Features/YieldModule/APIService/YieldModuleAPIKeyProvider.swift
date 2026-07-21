@@ -12,8 +12,8 @@ import Alamofire
 struct YieldModuleAPIKeyProvider {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    func getApiKeyHeader() -> HTTPHeader? {
-        let apiKeyValue = getApiKey()
+    func getApiKeyHeader(for apiType: YieldModuleAPIType) -> HTTPHeader? {
+        let apiKeyValue = getApiKey(for: apiType)
 
         guard !apiKeyValue.isEmpty else {
             return nil
@@ -22,11 +22,11 @@ struct YieldModuleAPIKeyProvider {
         return HTTPHeader(name: TangemAPIHeaders.apiKey.rawValue, value: apiKeyValue)
     }
 
-    private func getApiKey() -> String {
-        switch FeatureStorage.instance.yieldModuleAPIType {
+    private func getApiKey(for apiType: YieldModuleAPIType) -> String {
+        switch apiType {
         case .prod:
             keysManager.yieldModuleApiKey
-        case .dev, .stage:
+        case .dev, .stage, .mock:
             keysManager.yieldModuleApiKeyDev
         }
     }
