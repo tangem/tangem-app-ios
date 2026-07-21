@@ -250,6 +250,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
                         .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                 }
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardNameEditButton)
         case .editing:
             TextField(
                 text: $viewModel.cardName,
@@ -262,6 +263,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
             .font(token: DesignSystem.Font.bodyMediumToken)
             .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
             .tint(DesignSystem.Color.textStaticDarkPrimary)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardNameTextField)
             .focused($isCardNameFocused)
             .disabled(viewModel.isCardNameEditingDisabled)
             .task {

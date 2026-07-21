@@ -415,6 +415,7 @@ private extension Blockchain {
         case .scroll: return nil
         case .linea: return "linea"
         case .monad: return "monad"
+        case .robinhood: return "robinhood"
         case .arbitrumNova: return nil
         case .plasma: return "plasma"
         case .adi: return nil
@@ -519,6 +520,7 @@ private extension Blockchain {
         case .scroll: return nil
         case .linea: return "linea"
         case .monad: return "mon_mon"
+        case .robinhood: return "eth_robinhood"
         case .arbitrumNova: return nil
         case .plasma: return "xpl_plasma"
         case .adi: return nil
