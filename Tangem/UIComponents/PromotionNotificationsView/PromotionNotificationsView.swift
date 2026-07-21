@@ -14,13 +14,7 @@ struct PromotionNotificationsView: View {
     @ObservedObject var viewModel: PromotionNotificationsViewModel
 
     var body: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            configured(NotificationBannerCarousel(items: viewModel.bannerItems))
-        } else {
-            configured(NotificationBannerCarousel(items: viewModel.notificationInputs) { input in
-                NotificationView(input: input)
-            })
-        }
+        configured(NotificationBannerCarousel(items: viewModel.bannerItems))
     }
 
     private func configured<Item, BannerView: View>(

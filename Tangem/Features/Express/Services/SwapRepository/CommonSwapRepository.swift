@@ -73,6 +73,10 @@ extension CommonSwapRepository: SwapRepository {
         pairs.filter { $0.source == wallet.asCurrency }
     }
 
+    func providers(userWalletInfo: UserWalletInfo) async throws -> [ExpressProvider] {
+        try await fetchProvidersIfNeeded(walletId: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
+    }
+
     // MARK: - ExpressRepository
 
     func updateProvidersIds(for pair: ExpressManagerSwappingPair) async throws {
@@ -102,20 +106,24 @@ extension CommonSwapRepository: SwapRepository {
     }
 
     func providers(for pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider] {
-        if !cachedExpressProviders.isEmpty {
-            return cachedExpressProviders
-        }
-
         let walletInfo = pair.source.walletInfo
         let refcode = walletInfo.refcode.flatMap { Refcode(rawValue: $0) }
-        let provider = cachingExpressAPIProviderFactory.provider(for: walletInfo.id, refcode: refcode)
-        let providers = try await provider.providers(branch: ExpressBranch.swap)
-        cachedExpressProviders = providers
-        return providers
+        return try await fetchProvidersIfNeeded(walletId: walletInfo.id, refcode: refcode)
     }
 }
 
 private extension CommonSwapRepository {
+    func fetchProvidersIfNeeded(walletId: String, refcode: Refcode?) async throws -> [ExpressProvider] {
+        if !cachedExpressProviders.isEmpty {
+            return cachedExpressProviders
+        }
+
+        let provider = cachingExpressAPIProviderFactory.provider(for: walletId, refcode: refcode)
+        let providers = try await provider.providers(branch: ExpressBranch.swap)
+        cachedExpressProviders = providers
+        return providers
+    }
+
     func getAvailableProviders(
         for pair: ExpressManagerSwappingPair,
         rateType: ExpressProviderRateType?

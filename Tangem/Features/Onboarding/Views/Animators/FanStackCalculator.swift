@@ -82,82 +82,74 @@ struct FanStackCalculator {
     }
 }
 
-class FanStackPreviewModel: ObservableObject {
-    @Published var firstSettings: AnimatedViewSettings = .zero
-    @Published var secondSettings: AnimatedViewSettings = .zero
-    @Published var thirdSettings: AnimatedViewSettings = .zero
-    @Published var fourthSettings: AnimatedViewSettings = .zero
+@available(iOS 17.0, *)
+#Preview {
+    final class FanStackPreviewModel: ObservableObject {
+        @Published var firstSettings: AnimatedViewSettings = .zero
+        @Published var secondSettings: AnimatedViewSettings = .zero
+        @Published var thirdSettings: AnimatedViewSettings = .zero
+        @Published var fourthSettings: AnimatedViewSettings = .zero
 
-    var calc = FanStackCalculator()
+        var calc = FanStackCalculator()
 
-    func setupContainer(with size: CGSize) {
-        calc.setup(
-            for: size,
-            with: .defaultSettings
-        )
-        firstSettings = .init(targetSettings: calc.settingsForCard(at: 0), intermediateSettings: nil)
-        secondSettings = .init(targetSettings: calc.settingsForCard(at: 1), intermediateSettings: nil)
-        thirdSettings = .init(targetSettings: calc.settingsForCard(at: 2), intermediateSettings: nil)
-        fourthSettings = .init(targetSettings: calc.settingsForCard(at: 3), intermediateSettings: nil)
-    }
-}
-
-struct FanStackView: View {
-    @ObservedObject var model: FanStackPreviewModel = .init()
-
-    private let image = Assets.Onboarding.walletCard.image
-
-    var body: some View {
-        VStack {
-            GeometryReader { geom in
-                ZStack {
-                    AnimatedView(settings: model.$firstSettings) {
-                        OnboardingCardView(
-                            placeholderCardType: .dark,
-                            cardImage: image,
-                            cardScanned: true
-                        )
-                    }
-
-                    AnimatedView(settings: model.$secondSettings) {
-                        OnboardingCardView(
-                            placeholderCardType: .dark,
-                            cardImage: image,
-                            cardScanned: true
-                        )
-                        .opacity(0.2)
-                    }
-
-                    AnimatedView(settings: model.$thirdSettings) {
-                        OnboardingCardView(
-                            placeholderCardType: .dark,
-                            cardImage: image,
-                            cardScanned: true
-                        )
-                        .opacity(0.2)
-                    }
-                    AnimatedView(settings: model.$fourthSettings) {
-                        OnboardingCardView(
-                            placeholderCardType: .dark,
-                            cardImage: image,
-                            cardScanned: true
-                        )
-                        .opacity(0.2)
-                    }
-                }
-                .position(x: geom.size.width / 2, y: geom.size.height / 2)
-            }
-            .readGeometry(\.size) { size in
-                model.setupContainer(with: size)
-            }
-            Spacer()
-                .frame(size: .init(width: 100, height: 297))
+        func setupContainer(with size: CGSize) {
+            calc.setup(
+                for: size,
+                with: .defaultSettings
+            )
+            firstSettings = .init(targetSettings: calc.settingsForCard(at: 0), intermediateSettings: nil)
+            secondSettings = .init(targetSettings: calc.settingsForCard(at: 1), intermediateSettings: nil)
+            thirdSettings = .init(targetSettings: calc.settingsForCard(at: 2), intermediateSettings: nil)
+            fourthSettings = .init(targetSettings: calc.settingsForCard(at: 3), intermediateSettings: nil)
         }
     }
-}
 
-struct FanStackView_Previews: PreviewProvider {
-    static var previews: some View {
-        FanStackView()
+    @Previewable @StateObject var model = FanStackPreviewModel()
+    @Previewable @State var image = Assets.Onboarding.walletCard.image
+
+    return VStack {
+        GeometryReader { geom in
+            ZStack {
+                AnimatedView(settings: model.$firstSettings) {
+                    OnboardingCardView(
+                        placeholderCardType: .dark,
+                        cardImage: image,
+                        cardScanned: true
+                    )
+                }
+
+                AnimatedView(settings: model.$secondSettings) {
+                    OnboardingCardView(
+                        placeholderCardType: .dark,
+                        cardImage: image,
+                        cardScanned: true
+                    )
+                    .opacity(0.2)
+                }
+
+                AnimatedView(settings: model.$thirdSettings) {
+                    OnboardingCardView(
+                        placeholderCardType: .dark,
+                        cardImage: image,
+                        cardScanned: true
+                    )
+                    .opacity(0.2)
+                }
+                AnimatedView(settings: model.$fourthSettings) {
+                    OnboardingCardView(
+                        placeholderCardType: .dark,
+                        cardImage: image,
+                        cardScanned: true
+                    )
+                    .opacity(0.2)
+                }
+            }
+            .position(x: geom.size.width / 2, y: geom.size.height / 2)
+        }
+        .readGeometry(\.size) { size in
+            model.setupContainer(with: size)
+        }
+        Spacer()
+            .frame(size: .init(width: 100, height: 297))
     }
 }

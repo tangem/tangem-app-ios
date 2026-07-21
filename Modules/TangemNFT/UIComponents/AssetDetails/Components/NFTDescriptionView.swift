@@ -76,7 +76,6 @@ private extension NFTDescriptionView {
     }
 }
 
-#if DEBUG
 #Preview {
     NFTDescriptionView(
         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac dictum ligula. Vestibulum placerat imperdiet feugiat. Fusce vestibulum sagittis convallis. Quisque in ante et ipsum auctor mattis eu in velit. Duis at consequat elit. Nam posuere turpis in dolor finibus, a fringilla tortor dictum. Duis at congue risus, ac rhoncus ligula. Vestibulum tincidunt malesuada maximus. Fusce rutrum porta mi ac lobortis.",
@@ -84,4 +83,3 @@ private extension NFTDescriptionView {
         readMoreAction: {}
     )
 }
-#endif
