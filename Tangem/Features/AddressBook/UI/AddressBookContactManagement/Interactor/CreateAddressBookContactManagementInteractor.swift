@@ -157,10 +157,10 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
             }
 
             let contactId = try await addressBookManager.createContact(name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
-            analyticsLogger.logContactSaved(walletId: analyticsWalletId, contactId: contactId.stringValue, mode: .create)
+            analyticsLogger.logContactSaved(userWalletId: analyticsUserWalletId, contactId: contactId.stringValue, mode: .create)
             return contactId
         } catch {
-            analyticsLogger.logSaveFailure(walletId: analyticsWalletId, contactId: nil, error: error)
+            analyticsLogger.logSaveFailure(userWalletId: analyticsUserWalletId, contactId: nil, error: error)
             throw error
         }
     }
@@ -168,23 +168,27 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     func delete() async throws {}
 
     func logContactScreenOpened() {
-        analyticsLogger.logContactScreenOpened(walletId: analyticsWalletId, contactId: nil)
+        analyticsLogger.logContactScreenOpened(userWalletId: analyticsUserWalletId, contactId: nil)
     }
 
     func logWalletPickerOpened() {
-        analyticsLogger.logButtonSaveTo(walletId: analyticsWalletId)
+        analyticsLogger.logButtonSaveTo()
     }
 
     func logAddressRemoved() {
-        analyticsLogger.logAddressRemoved(walletId: analyticsWalletId, contactId: nil)
+        analyticsLogger.logAddressRemoved(userWalletId: analyticsUserWalletId, contactId: nil)
+    }
+
+    func logDuplicateNameErrorShown() {
+        analyticsLogger.logDuplicateNameErrorShown(userWalletId: analyticsUserWalletId, contactId: nil)
     }
 }
 
 // MARK: - Private
 
 private extension CreateAddressBookContactManagementInteractor {
-    var analyticsWalletId: String {
-        walletSubject.value.wallet.id.stringValue
+    var analyticsUserWalletId: UserWalletId? {
+        walletSubject.value.wallet.id
     }
 
     var nameTakenPublisher: AnyPublisher<Bool, Never> {

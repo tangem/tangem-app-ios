@@ -22,6 +22,9 @@ final class TangemPayCard: Identifiable {
     var displayName: String { productInstance.displayName ?? "" }
     var cardNumberEnd: String { card.cardNumberEnd }
 
+    var mainImageURL: URL? { imageURL(ofType: .main) }
+    var thumbnailImageURL: URL? { imageURL(ofType: .thumbnail) }
+
     var snapshotPublisher: AnyPublisher<Snapshot, Never> {
         snapshotSubject.eraseToAnyPublisher()
     }
@@ -348,6 +351,10 @@ enum TangemPayCardError: Error {
 }
 
 private extension TangemPayCard {
+    func imageURL(ofType type: VisaCustomerInfoResponse.TariffPlan.Image.ImageType) -> URL? {
+        card.images?.first { $0.type == type }.flatMap { URL(string: $0.url) }
+    }
+
     enum Constants {
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
         static let reissueOrderPollInterval: TimeInterval = 5
