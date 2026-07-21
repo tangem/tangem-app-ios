@@ -228,11 +228,6 @@ final class TangemPayMainViewModel: ObservableObject {
     func tapAddCard() {
         Analytics.log(.visaAddExtraCardClicked, contextParams: .userWallet(userWalletInfo.id))
 
-        guard tangemPayAccount.cardEntries.count < TangemPayAccount.maxCardsAllowed else {
-            coordinator?.openMaximumCardsIssuedSheet()
-            return
-        }
-
         if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
             openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
             return
@@ -253,7 +248,7 @@ final class TangemPayMainViewModel: ObservableObject {
                 isAddCardLoading = false
 
                 guard let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee else {
-                    showCardIssueFailureAlert()
+                    coordinator?.openMaximumCardsIssuedSheet(cardsCount: tangemPayAccount.cards.count)
                     return
                 }
 
