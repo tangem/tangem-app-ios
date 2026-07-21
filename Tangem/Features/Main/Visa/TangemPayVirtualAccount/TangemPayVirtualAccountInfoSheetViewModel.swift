@@ -8,7 +8,9 @@
 import Foundation
 import TangemUI
 import TangemUIUtils
+import TangemFoundation
 import TangemLocalization
+import TangemVisa
 
 @MainActor
 final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, FloatingSheetContentViewModel {
@@ -22,12 +24,11 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
         var attributedString = AttributedString(Localization.tangempayBankTransferLegal(terms, privacy))
 
         if let range = attributedString.range(of: terms) {
-            attributedString[range].link = AppConstants.tosURL
+            attributedString[range].link = AppConstants.tangemPayVirtualAccountTermsURL
         }
 
         if let range = attributedString.range(of: privacy) {
-            // [REDACTED_TODO_COMMENT]
-            attributedString[range].link = AppConstants.tosURL
+            attributedString[range].link = AppConstants.tangemPayPrivacyPolicyURL
         }
 
         return attributedString
@@ -45,16 +46,38 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
         guard !isLoading else { return }
         isLoading = true
 
-        Task { [weak self] in
-            guard let self else { return }
+        switch tangemPayAccount.virtualAccountEntry {
+        case .active(let productInstanceId):
+            loadBankCredentials(productInstanceId: productInstanceId)
+        case .none, .preparing:
+            createVirtualAccountOrder()
+        }
+    }
+
+    private func loadBankCredentials(productInstanceId: String) {
+        runTask(in: self) { @MainActor viewModel in
+            defer { viewModel.isLoading = false }
+
             do {
-                try await tangemPayAccount.createVirtualAccount()
-                isLoading = false
-                coordinator?.virtualAccountInfoSheetDidCreateOrder()
+                let credentials = try await viewModel.tangemPayAccount.loadBankCredentials(productInstanceId: productInstanceId)
+                viewModel.coordinator?.virtualAccountDidLoadBankCredentials(credentials)
             } catch {
-                isLoading = false
+                VisaLogger.error("Failed to load virtual account bank credentials", error: error)
+                viewModel.coordinator?.virtualAccountInfoSheetDidFailToLoadBankCredentials(productInstanceId: productInstanceId)
+            }
+        }
+    }
+
+    private func createVirtualAccountOrder() {
+        runTask(in: self) { @MainActor viewModel in
+            do {
+                try await viewModel.tangemPayAccount.createVirtualAccount()
+                viewModel.isLoading = false
+                viewModel.coordinator?.virtualAccountInfoSheetDidCreateOrder()
+            } catch {
+                viewModel.isLoading = false
                 // [REDACTED_TODO_COMMENT]
-                alert = AlertBinder(
+                viewModel.alert = AlertBinder(
                     title: Localization.commonSomethingWentWrong,
                     message: Localization.commonTryAgainLater
                 )
@@ -63,7 +86,7 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
     }
 
     func close() {
-        coordinator?.closeVirtualAccountInfoSheet()
+        coordinator?.closeVirtualAccountSheet()
     }
 
     func openURL(_ url: URL) {

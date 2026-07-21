@@ -19,10 +19,10 @@ final class TangemPayVirtualAccountBankDetailsViewModel: ObservableObject, Float
 
     @Injected(\.overlayShareActivitiesPresenter) private var shareActivitiesPresenter: any ShareActivitiesPresenter
 
-    private let onClose: () -> Void
+    private weak var coordinator: TangemPayVirtualAccountBankDetailsRoutable?
 
-    init(credentials: TangemPayBankCredentialsResponse, onClose: @escaping () -> Void) {
-        self.onClose = onClose
+    init(credentials: TangemPayBankCredentialsResponse, coordinator: TangemPayVirtualAccountBankDetailsRoutable) {
+        self.coordinator = coordinator
 
         rows = [
             Row(key: "beneficiary_name", title: Localization.virtualAccountRequisitesBeneficiaryName, value: credentials.beneficiaryName),
@@ -39,8 +39,7 @@ final class TangemPayVirtualAccountBankDetailsViewModel: ObservableObject, Float
         UIPasteboard.general.string = value
 
         Toast(
-            // [REDACTED_TODO_COMMENT]
-            view: TangemSnackbar(title: "Copied")
+            view: TangemSnackbar(title: Localization.commonValueCopied)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
                 .iconColor(Color.Tangem.Graphic.Status.accent)
         )
@@ -53,7 +52,7 @@ final class TangemPayVirtualAccountBankDetailsViewModel: ObservableObject, Float
     }
 
     func close() {
-        onClose()
+        coordinator?.closeVirtualAccountSheet()
     }
 }
 
