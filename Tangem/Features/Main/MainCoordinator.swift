@@ -65,6 +65,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
 
+    private var campaignCoordinator: CampaignCoordinator?
+
     // MARK: - Child view models
 
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
@@ -219,6 +221,24 @@ extension MainCoordinator: MainRoutable {
              .earn:
             deeplinkDestination.send(deepLink)
         }
+    }
+
+    func openCampaignIfNeeded(campaignId: String?) -> Bool {
+        guard campaignCoordinator == nil else {
+            return false
+        }
+
+        campaignCoordinator = CampaignFlowFactory().makeCampaignCoordinator(
+            campaignId: campaignId,
+            dismissAction: { [weak self] _ in
+                self?.campaignCoordinator = nil
+            },
+            popToRootAction: { [weak self] options in
+                self?.campaignCoordinator = nil
+                self?.popToRoot(with: options)
+            }
+        )
+        return true
     }
 
     func openDetails() {
