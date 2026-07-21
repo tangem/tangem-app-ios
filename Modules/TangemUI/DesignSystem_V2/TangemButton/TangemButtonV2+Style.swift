@@ -47,7 +47,7 @@ extension TangemButtonV2 {
             case .material(let material):
                 materialVariantBody(configuration: configuration, material: material)
 
-            case .brand, .default, .secondary, .outline, .ghost, .inverse, .positive:
+            case .brand, .default, .secondary, .outline, .ghost, .positive:
                 fixedChromeBody(configuration: configuration)
             }
         }
@@ -56,7 +56,7 @@ extension TangemButtonV2 {
         private func materialVariantBody(configuration: Configuration, material: Material) -> some View {
             if #available(iOS 26.0, *), material == .glass {
                 paddedLabel(configuration: configuration)
-                    .glassEffect(makeGlass(), in: Capsule())
+                    .tangemMaterialSurface(in: Capsule(), interactive: isInteractive)
                     .overlay { loadingOverlay }
                     .contentShape(Capsule())
             } else {
@@ -75,56 +75,17 @@ extension TangemButtonV2 {
 
         private func materialBlurBody(configuration: Configuration) -> some View {
             paddedLabel(configuration: configuration)
-                .background { materialBlurStack }
-                .overlay { materialBorderStroke }
+                .tangemMaterialSurface(in: Capsule())
                 .overlay { pressOverlay(isPressed: configuration.isPressed) }
                 .overlay { loadingOverlay }
                 .contentShape(Capsule())
-                .tangemShadow(DesignSystem.Shadow.button)
-        }
-
-        private var materialBlurStack: some View {
-            ZStack {
-                Capsule()
-                    .fill(DesignSystem.Color.materialSoftLightBlur)
-                    .blendMode(.softLight)
-
-                Capsule()
-                    .fill(DesignSystem.Color.materialLightenBlur)
-                    .blendMode(.lighten)
-
-                Capsule()
-                    .fill(.regularMaterial)
-
-                Capsule()
-                    .fill(DesignSystem.Color.materialTintBlur)
-
-                Capsule()
-                    .fill(DesignSystem.Color.materialFillBlur)
-            }
-        }
-
-        private var materialBorderStroke: some View {
-            Capsule()
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            DesignSystem.Color.materialBorderStart,
-                            DesignSystem.Color.materialBorderMid,
-                            DesignSystem.Color.materialBorderEnd,
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 0.5
-                )
         }
 
         // MARK: - Subviews
 
         private func paddedLabel(configuration: Configuration) -> some View {
             configuration.label
-                .font(size.typographyToken)
+                .font(token: size.typographyToken)
                 .opacity(isLoading ? 0 : 1)
                 .padding(.horizontal, contentHorizontalPadding)
                 .padding(.vertical, verticalPadding)
@@ -184,11 +145,6 @@ extension TangemButtonV2 {
 
         private var resolvedForegroundColor: Color {
             isEnabled ? styleType.foregroundColor : DesignSystem.Color.textTertiary
-        }
-
-        @available(iOS 26.0, *)
-        private func makeGlass() -> Glass {
-            Glass.regular.interactive(isInteractive)
         }
     }
 }

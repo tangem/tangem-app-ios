@@ -42,6 +42,7 @@ extension TransferTransactionDispatcher: TransactionDispatcher {
         let mapper = TransactionDispatcherResultMapper()
 
         do {
+            let didUpgradeYieldModule = didUpgradeYieldModule(transaction: bsdkTransaction)
             let result = try await send(transaction: bsdkTransaction)
             walletModel.updateAfterSendingTransaction()
 
@@ -50,6 +51,14 @@ extension TransferTransactionDispatcher: TransactionDispatcher {
                     sourceAddress: bsdkTransaction.sourceAddress,
                     transactionHash: result.hash
                 )
+            }
+
+            if didUpgradeYieldModule {
+                do {
+                    try await refreshYieldModuleVersionAfterUpgrade()
+                } catch {
+                    AppLogger.error(error: error)
+                }
             }
 
             return result
@@ -72,5 +81,22 @@ extension TransferTransactionDispatcher: TransactionDispatcher {
             isToken: walletModel.tokenItem.isToken
         )
         return dispatcherResult
+    }
+
+    private func didUpgradeYieldModule(transaction: BSDKTransaction) -> Bool {
+        guard let parameters = transaction.fee.parameters as? EthereumGaslessTransactionFeeParameters else {
+            return false
+        }
+
+        return parameters.yieldWithdraw?.upgrade.isRequired == true
+    }
+
+    private func refreshYieldModuleVersionAfterUpgrade() async throws {
+        guard let yieldModuleManager = walletModel.yieldModuleManager,
+              let yieldContractAddress = yieldModuleManager.state?.state.activeInfo?.yieldContractAddress else {
+            return
+        }
+
+        try await yieldModuleManager.versionChecker?.refreshStoredVersion(userModuleAddress: yieldContractAddress)
     }
 }

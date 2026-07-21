@@ -29,8 +29,6 @@ struct OnboardingBottomFadeBackground: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     OnboardingBottomFadeBackground()
 }
-#endif // DEBUG

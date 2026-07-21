@@ -21,6 +21,7 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
     let provider: Provider
     let isAvailable: Bool
     let legalNotice: LegalNotice?
+    let linkedBanner: LinkedMarketingBannerViewModel?
 
     var isNativePayment: Bool { buyAction.isNativeApplePay }
 
@@ -33,7 +34,8 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
         provider: Provider,
         isAvailable: Bool,
         buyAction: BuyAction,
-        legalNotice: LegalNotice? = nil
+        legalNotice: LegalNotice? = nil,
+        linkedBanner: LinkedMarketingBannerViewModel? = nil
     ) {
         self.title = title
         self.amount = amount
@@ -41,6 +43,7 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
         self.isAvailable = isAvailable
         self.buyAction = buyAction
         self.legalNotice = legalNotice
+        self.linkedBanner = linkedBanner
     }
 }
 

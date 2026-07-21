@@ -95,21 +95,14 @@ private extension SensitiveTextVisibilityViewModel {
             self?.dismissToast()
         }
 
-        if FeatureProvider.isAvailable(.redesign) {
-            let snackbar = TangemSnackbar(
-                title: type.title,
-                action: TangemSnackbar.Action(title: Localization.toastUndo, handler: undoHandler)
-            )
-            .icon(type.image)
-            let presenter = Toast(view: snackbar)
-            presenter.present(layout: .top(padding: 8), type: .temporary())
-            toast = presenter
-        } else {
-            // [REDACTED_INFO]: remove legacy UndoToast branch once redesign ships
-            let presenter = Toast(view: UndoToast(settings: type, undoAction: undoHandler))
-            presenter.present(layout: .bottom(padding: 80), type: .temporary())
-            toast = presenter
-        }
+        let snackbar = TangemSnackbar(
+            title: type.title,
+            action: TangemSnackbar.Action(title: Localization.toastUndo, handler: undoHandler)
+        )
+        .icon(type.image)
+        let presenter = Toast(view: snackbar)
+        presenter.present(layout: .top(padding: 8), type: .temporary())
+        toast = presenter
     }
 
     func dismissToast() {
@@ -214,7 +207,7 @@ extension SensitiveTextVisibilityViewModel: InformationHiddenBalancesRoutable {
     }
 }
 
-enum BalanceHiddenToastType: UndoToastSettings {
+enum BalanceHiddenToastType {
     case hidden
     case shown
 

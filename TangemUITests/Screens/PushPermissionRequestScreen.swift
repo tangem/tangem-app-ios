@@ -15,7 +15,7 @@ final class PushPermissionRequestScreen: ScreenBase<PushPermissionRequestElement
     private lazy var laterButton = button(.laterButton)
 
     func postponePermissionRequest() {
-        XCTContext.runActivity(named: "Postpone permission request") { _ in
+        _ = XCTContext.runActivity(named: "Postpone permission request") { _ in
             laterButton.waitAndTap()
             return MainScreen(app)
         }

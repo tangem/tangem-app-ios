@@ -65,12 +65,10 @@ struct OnboardingProgressCircle: View {
     }
 }
 
-struct OnboardingProgressCircle_Previews: PreviewProvider {
-    static var previews: some View {
-        HStack {
-            OnboardingProgressCircle(index: 0, selectedIndex: 0)
-            OnboardingProgressCircle(index: 1, selectedIndex: 0)
-            OnboardingProgressCircle(index: 2, selectedIndex: 4)
-        }
+#Preview {
+    HStack {
+        OnboardingProgressCircle(index: 0, selectedIndex: 0)
+        OnboardingProgressCircle(index: 1, selectedIndex: 0)
+        OnboardingProgressCircle(index: 2, selectedIndex: 4)
     }
 }

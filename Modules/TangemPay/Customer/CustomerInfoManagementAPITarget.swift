@@ -55,6 +55,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/offers"
         case .getBankCredentials(let productInstanceId):
             "account/bank-credentials/\(productInstanceId)"
+        case .getTariffPlanTransitions:
+            "customer/tariff-plan/transitions"
+        case .requestTariffPlanPendingTransition:
+            "customer/tariff-plan/pending-transition"
         case .cancelKYC:
             "customer/pay-enabled"
         case .updateCardDisplayNameLegacy, .setCardLimitLegacy:
@@ -75,6 +79,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getOrder,
              .findOrders,
              .getCustomerOffers,
+             .getTariffPlanTransitions,
              .getBalance,
              .getTransactionHistory,
              .getPinLegacy,
@@ -92,7 +97,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .closeCard,
              .getWithdrawSignableData,
              .sendWithdrawTransaction,
-             .reissueCard:
+             .reissueCard,
+             .requestTariffPlanPendingTransition:
             .post
 
         case .cancelKYC,
@@ -113,6 +119,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getKYCAccessToken,
              .getOrder,
              .getCustomerOffers,
+             .getTariffPlanTransitions,
              .getBalance,
              .getPinLegacy,
              .getPin,
@@ -192,6 +199,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
             let requestData = TangemPayReissueCardRequest(cardId: cardId)
             return .requestJSONEncodable(requestData)
 
+        case .requestTariffPlanPendingTransition(let pendingTariffPlanId):
+            let requestData = TangemPayTariffPlanPendingTransitionRequest(pendingTariffPlanId: pendingTariffPlanId)
+            return .requestJSONEncodable(requestData)
+
         case .setCardLimitLegacy(let amount):
             let requestData = TangemPayUpdateCardLimitRequest(cardLimit: .init(amount: amount))
             return .requestCustomJSONEncodable(requestData, encoder: encoder)
@@ -255,6 +266,9 @@ extension CustomerInfoManagementAPITarget {
         case findOrders(orderTypes: [String], orderStatuses: [TangemPayOrderResponse.Status])
 
         case getCustomerOffers
+
+        case getTariffPlanTransitions
+        case requestTariffPlanPendingTransition(pendingTariffPlanId: String)
 
         case getFee(type: TangemPayFeeType)
         case reissueCard(cardId: String)
