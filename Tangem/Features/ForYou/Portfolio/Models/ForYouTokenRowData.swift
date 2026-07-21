@@ -12,6 +12,8 @@ import TangemUI
 /// Content of a single token row (asset aggregate, per-network child, or the "Other" bucket).
 struct ForYouTokenRowData: Identifiable, Equatable {
     let id: String
+    /// The concrete token this row resolves to, when it has one; `nil` for aggregate/unmapped rows.
+    let tokenItem: TokenItem?
     let symbol: String
     /// Carries a network glyph only for per-network child rows.
     let tokenIconInfo: TokenIconInfo?
