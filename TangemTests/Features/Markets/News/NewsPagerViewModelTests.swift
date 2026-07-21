@@ -298,7 +298,7 @@ private extension NewsPagerViewModelTests {
         deeplinkValidationService: NewsDeeplinkValidating = NewsDeeplinkValidationService(),
         operation: () async throws -> Void
     ) async throws {
-        try await NewsTestsDependencyIsolation.shared.run {
+        try await InjectedDependenciesIsolation.shared.run {
             let previousApiService = InjectedValues[\.tangemApiService]
             let previousReadStatusProvider = InjectedValues[\.newsReadStatusProvider]
             let previousLikeService = InjectedValues[\.newsLikeService]
