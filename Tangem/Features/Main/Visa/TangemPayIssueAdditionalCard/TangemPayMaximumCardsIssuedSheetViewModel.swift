@@ -13,19 +13,8 @@ import TangemLocalization
 struct TangemPayMaximumCardsIssuedSheetViewModel: FloatingSheetContentViewModel {
     var id: String { String(describing: Self.self) }
 
-    let title = Localization.tangempayMaximumCardsIssuedTitle
-    let description = Localization.tangempayMaximumCardsIssuedDescription
-
+    let cardsCount: Int
     let onClose: () -> Void
-
-    var primaryButton: MainButton.Settings {
-        MainButton.Settings(
-            title: Localization.commonGotIt,
-            style: .secondary,
-            size: .default,
-            action: onClose
-        )
-    }
 
     func dismiss() {
         onClose()
@@ -46,8 +35,9 @@ final class TangemPayMaximumCardsIssuedPopupViewModel: TangemPayPopupViewModel {
         .init(Localization.tangempayMaximumCardsIssuedTitle)
     }
 
+    // [REDACTED_TODO_COMMENT]
     var description: AttributedString {
-        .init(Localization.tangempayMaximumCardsIssuedDescription)
+        .init("You have \(cardsCount) cards. Delete one to add a new card.")
     }
 
     var primaryButton: MainButton.Settings {
@@ -59,9 +49,11 @@ final class TangemPayMaximumCardsIssuedPopupViewModel: TangemPayPopupViewModel {
         )
     }
 
+    private let cardsCount: Int
     private let onClose: () -> Void
 
-    init(onClose: @escaping () -> Void) {
+    init(cardsCount: Int, onClose: @escaping () -> Void) {
+        self.cardsCount = cardsCount
         self.onClose = onClose
     }
 
