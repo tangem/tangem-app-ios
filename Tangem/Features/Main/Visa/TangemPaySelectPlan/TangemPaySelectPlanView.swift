@@ -9,6 +9,7 @@
 import SwiftUI
 import Kingfisher
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -171,7 +172,7 @@ struct TangemPaySelectPlanView: View {
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .principal) {
-            Text(viewModel.navigationTitle)
+            Text(Localization.tangempaySelectPlanTitle)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
         }
 
@@ -181,8 +182,8 @@ struct TangemPaySelectPlanView: View {
     private var footer: some View {
         VStack(spacing: 8) {
             TangemButtonV2(
-                label: AttributedString(viewModel.comparePlansButtonTitle),
-                accessibilityLabel: viewModel.comparePlansButtonTitle,
+                label: AttributedString(Localization.tangempaySelectPlanCompare),
+                accessibilityLabel: Localization.tangempaySelectPlanCompare,
                 action: viewModel.comparePlans
             )
             .size(.x12)
@@ -191,8 +192,8 @@ struct TangemPaySelectPlanView: View {
             .disabled(viewModel.isPlacingOrder)
 
             TangemButtonV2(
-                label: AttributedString(viewModel.selectButtonTitle),
-                accessibilityLabel: viewModel.selectButtonTitle,
+                label: AttributedString(Localization.tangempaySelectPlanBtnSelect),
+                accessibilityLabel: Localization.tangempaySelectPlanBtnSelect,
                 action: viewModel.select
             )
             .size(.x12)
