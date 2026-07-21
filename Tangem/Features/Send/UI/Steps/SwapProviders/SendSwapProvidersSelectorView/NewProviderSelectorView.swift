@@ -141,7 +141,7 @@ struct NewProviderSelectorView: View {
             }
             .frame(minHeight: allModeSectionHeight, alignment: .top)
 
-            ExpressMoreProvidersSoonView()
+            ExpressMoreProvidersSoonView(text: viewModel.moreProvidersFooterText)
                 .padding(.top, 18)
                 .padding(.bottom, 16)
                 .padding(.horizontal, 16)
