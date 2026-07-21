@@ -19,7 +19,13 @@ struct CampaignTokenSelectorView: View {
             TokenSelectorView(
                 viewModel: viewModel.tokenSelectorViewModel,
                 emptyContentView: {
-                    TokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
+                    SearchOnlyEmptyContentView(tokenSelectorViewModel: viewModel.tokenSelectorViewModel)
+                },
+                headerContent: {
+                    Text(Localization.marketsSearchPortfolioHeader)
+                        .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 8)
                 },
                 additionalContent: {
                     CampaignEligibleTokensView(
@@ -30,7 +36,7 @@ struct CampaignTokenSelectorView: View {
             )
             .searchType(.native)
             .showsSeparators(false)
-            .background(Colors.Background.tertiary.ignoresSafeArea())
+            .background(Color.Tangem.Surface.level2.ignoresSafeArea())
             .navigationTitle(Localization.swappingTokenListTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -43,6 +49,18 @@ struct CampaignTokenSelectorView: View {
                 dismissSheetAction: viewModel.dismissAddToken
             )
             .allowsHitTesting(viewModel.addTokenFlowViewModel != nil)
+        }
+    }
+}
+
+// MARK: - SearchOnlyEmptyContentView
+
+private struct SearchOnlyEmptyContentView: View {
+    @ObservedObject var tokenSelectorViewModel: TokenSelectorViewModel
+
+    var body: some View {
+        if !tokenSelectorViewModel.searchText.isEmpty {
+            TokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
         }
     }
 }
