@@ -12,33 +12,28 @@ import TangemLocalization
 import TangemPay
 import struct TangemUIUtils.AlertBinder
 
-typealias TangemPaySelectPlanAction = (
-    _ targetTariffPlanId: String,
+typealias TangemPayProceedToConfirmAction = (
+    _ tariffPlan: VisaCustomerInfoResponse.TariffPlan,
     _ transitionType: TangemPayTariffPlanTransition.TransitionType
-) async throws -> Void
+) -> Void
 
 final class TangemPaySelectPlanViewModel: ObservableObject {
-    let navigationTitle = Localization.tangempaySelectPlanTitle
-    let comparePlansButtonTitle = Localization.tangempaySelectPlanCompare
-
     @Published private(set) var plans: [Plan] = []
     @Published private(set) var isLoading = true
     @Published var selectedPlanID: Plan.ID?
     @Published private(set) var isPlacingOrder = false
     @Published var alert: AlertBinder?
 
-    private let transitionsLoader: () async throws -> TangemPayTariffPlanTransitionsResponse
-    private let descriptionContext: DescriptionContext
-    private let onSelectPlan: TangemPaySelectPlanAction?
+    private let currentTariffPlan: VisaCustomerInfoResponse.TariffPlan?
+    private let tariffPlanSelector: any TangemPayTariffPlanSelector
+    private let mode: Mode
     private weak var coordinator: TangemPaySelectPlanRoutable?
 
     private var transitions: TangemPayTariffPlanTransitionsResponse = []
 
-    /// The change-plan entry point (Plan details) does not wire order placement yet, so the
-    /// button stays disabled there. Onboarding injects the handler and enables it.
-    /// [REDACTED_INFO]
+    /// Any non-current plan is selectable; the current plan can't be re-selected.
     var isSelectEnabled: Bool {
-        onSelectPlan != nil
+        selectedPlan?.isCurrent == false
     }
 
     var selectedPlan: Plan? {
@@ -49,23 +44,15 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
         plans.firstIndex { $0.id == selectedPlanID } ?? 0
     }
 
-    var selectButtonTitle: String {
-        switch selectedPlan?.transitionType {
-        case .upgrade: Localization.tangempaySelectPlanBtnUpgrade
-        case .downgrade: Localization.tangempaySelectPlanBtnDowngrade
-        case .activation, .none: Localization.tangempaySelectPlanBtnSelect
-        }
-    }
-
     init(
-        transitionsLoader: @escaping () async throws -> TangemPayTariffPlanTransitionsResponse,
-        descriptionContext: DescriptionContext,
-        onSelectPlan: TangemPaySelectPlanAction? = nil,
+        currentTariffPlan: VisaCustomerInfoResponse.TariffPlan? = nil,
+        tariffPlanSelector: any TangemPayTariffPlanSelector,
+        mode: Mode,
         coordinator: TangemPaySelectPlanRoutable?
     ) {
-        self.transitionsLoader = transitionsLoader
-        self.descriptionContext = descriptionContext
-        self.onSelectPlan = onSelectPlan
+        self.currentTariffPlan = currentTariffPlan
+        self.tariffPlanSelector = tariffPlanSelector
+        self.mode = mode
         self.coordinator = coordinator
     }
 
@@ -73,7 +60,7 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
     func loadTransitions() async {
         isLoading = true
         do {
-            let transitions = try await transitionsLoader()
+            let transitions = try await tariffPlanSelector.getTariffPlanTransitions()
             apply(transitions: transitions)
             isLoading = false
         } catch {
@@ -83,28 +70,45 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
     }
 
     func select() {
-        guard let onSelectPlan, let plan = selectedPlan, !isPlacingOrder else {
+        guard let plan = selectedPlan, !plan.isCurrent, !isPlacingOrder else {
             return
         }
 
-        isPlacingOrder = true
+        switch mode {
+        case .planChange(let onProceedToConfirm):
+            guard let transition = transitions.first(where: { $0.tariffPlan.id == plan.id }) else {
+                return
+            }
+            onProceedToConfirm(transition.tariffPlan, transition.type)
 
-        runTask(in: self) { @MainActor viewModel in
-            do {
-                try await onSelectPlan(plan.id, plan.transitionType)
-                viewModel.coordinator?.closeSelectPlanFlow()
-            } catch {
-                viewModel.isPlacingOrder = false
-                viewModel.alert = AlertBinder(
-                    title: Localization.commonError,
-                    message: Localization.commonUnknownError
-                )
+        case .onboarding:
+            guard let transitionType = plan.transitionType else {
+                return
+            }
+
+            isPlacingOrder = true
+
+            runTask(in: self) { @MainActor viewModel in
+                do {
+                    try await viewModel.tariffPlanSelector.selectTariffPlan(
+                        targetTariffPlanId: plan.id,
+                        transitionType: transitionType
+                    )
+                    viewModel.coordinator?.closeSelectPlanFlow()
+                } catch {
+                    viewModel.isPlacingOrder = false
+                    viewModel.alert = AlertBinder(
+                        title: Localization.commonError,
+                        message: Localization.commonUnknownError
+                    )
+                }
             }
         }
     }
 
     func comparePlans() {
-        coordinator?.openComparePlans(transitions: transitions)
+        let tariffPlans = [currentTariffPlan].compactMap { $0 } + transitions.map(\.tariffPlan)
+        coordinator?.openComparePlans(tariffPlans: tariffPlans)
     }
 
     func close() {
@@ -115,15 +119,32 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
 private extension TangemPaySelectPlanViewModel {
     func apply(transitions: TangemPayTariffPlanTransitionsResponse) {
         self.transitions = transitions
-        plans = transitions.map { transition in
+
+        let itemTypes = mode.itemTypes
+
+        let currentPlan = currentTariffPlan.map { plan in
+            Plan(
+                id: plan.id,
+                name: plan.name,
+                imageURL: plan.images.first { $0.type == .main }?.url,
+                transitionType: nil,
+                isCurrent: true,
+                points: Self.makePoints(from: plan.descriptionItems, itemTypes: itemTypes)
+            )
+        }
+
+        let transitionPlans = transitions.map { transition in
             Plan(
                 id: transition.tariffPlan.id,
                 name: transition.tariffPlan.name,
                 imageURL: transition.tariffPlan.images.first { $0.type == .main }?.url,
                 transitionType: transition.type,
-                points: Self.makePoints(from: transition.tariffPlan.descriptionItems, context: descriptionContext)
+                isCurrent: false,
+                points: Self.makePoints(from: transition.tariffPlan.descriptionItems, itemTypes: itemTypes)
             )
         }
+
+        plans = [currentPlan].compactMap { $0 } + transitionPlans
         selectedPlanID = plans.first?.id
     }
 
@@ -147,10 +168,10 @@ private extension TangemPaySelectPlanViewModel {
 private extension TangemPaySelectPlanViewModel {
     static func makePoints(
         from items: [VisaCustomerInfoResponse.TariffPlan.DescriptionItem],
-        context: DescriptionContext
+        itemTypes: Set<VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType>
     ) -> [Point] {
         items
-            .filter { context.itemTypes.contains($0.type) }
+            .filter { itemTypes.contains($0.type) }
             .sorted { ($0.type.sortIndex, $0.order) < ($1.type.sortIndex, $1.order) }
             .map { Point(title: $0.title, subtitle: $0.body) }
     }
@@ -169,9 +190,9 @@ private extension VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType {
 // MARK: - Types
 
 extension TangemPaySelectPlanViewModel {
-    enum DescriptionContext {
+    enum Mode {
         case onboarding
-        case planChange
+        case planChange(onProceedToConfirm: TangemPayProceedToConfirmAction)
 
         var itemTypes: Set<VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType> {
             switch self {
@@ -185,7 +206,8 @@ extension TangemPaySelectPlanViewModel {
         let id: String
         let name: String
         let imageURL: String?
-        let transitionType: TangemPayTariffPlanTransition.TransitionType
+        let transitionType: TangemPayTariffPlanTransition.TransitionType?
+        let isCurrent: Bool
         let points: [Point]
     }
 
@@ -200,5 +222,5 @@ extension TangemPaySelectPlanViewModel {
 
 protocol TangemPaySelectPlanRoutable: AnyObject {
     func closeSelectPlanFlow()
-    func openComparePlans(transitions: TangemPayTariffPlanTransitionsResponse)
+    func openComparePlans(tariffPlans: [VisaCustomerInfoResponse.TariffPlan])
 }
