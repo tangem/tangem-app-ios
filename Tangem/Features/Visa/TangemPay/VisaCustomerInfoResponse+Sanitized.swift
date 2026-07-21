@@ -37,7 +37,8 @@ private extension VisaCustomerInfoResponse.Card {
             embossName: "",
             cardType: cardType,
             cardStatus: cardStatus,
-            isPinSet: isPinSet
+            isPinSet: isPinSet,
+            images: images
         )
     }
 }
