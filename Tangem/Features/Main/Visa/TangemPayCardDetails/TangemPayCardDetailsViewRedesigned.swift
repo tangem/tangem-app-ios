@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemLocalization
 import TangemUIUtils
@@ -177,7 +178,11 @@ struct TangemPayCardDetailsViewRedesigned: View {
         }
         .padding(16)
         .background {
-            Assets.Visa.cardCredentials.image
+            KFImage(viewModel.cardImageURL)
+                .placeholder {
+                    Assets.Visa.cardCredentials.image
+                        .resizable()
+                }
                 .resizable()
         }
         .screenCaptureProtection()
@@ -225,7 +230,11 @@ struct TangemPayCardDetailsViewRedesigned: View {
     }
 
     private var cardArtBackground: some View {
-        Assets.Visa.cardPlatinum.image
+        KFImage(viewModel.cardImageURL)
+            .placeholder {
+                Assets.Visa.cardPlatinum.image
+                    .resizable()
+            }
             .resizable()
     }
 
