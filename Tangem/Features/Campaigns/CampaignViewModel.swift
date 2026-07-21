@@ -64,8 +64,7 @@ final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
     var statusSubtitle: String {
         switch viewState {
         case .campaignNotActive: Localization.promoCampaignNotActiveSubtitle
-        case .alreadyActivated: Localization.promoCampaignAlreadyActivatedSubtitle
-        case .enrollSuccess, .idle, .loading, .summary, .readyToEnroll: ""
+        case .alreadyActivated, .enrollSuccess, .idle, .loading, .summary, .readyToEnroll: ""
         }
     }
 
@@ -201,6 +200,7 @@ final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
 
         tokenSelectorViewModel = CampaignTokenSelectorViewModel(
             eligibleTokens: campaign.eligibleTokens,
+            initiallyExpandedAccount: userWalletRepository.selectedModel.flatMap { .onlyAccount(of: $0) },
             onSelect: { [weak self] item in
                 self?.handleSelectedToken(item)
             },
