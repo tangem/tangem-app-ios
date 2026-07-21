@@ -40,6 +40,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
     private let promotionNotificationsManager: PromotionNotificationsManager
+    private let forceUpdateBannerNotificationManager: NotificationManager
     private let rateAppController: RateAppInteractionController
     private let contextActionTokenRouter: SingleTokenRoutable
     private weak var addFundsRoutable: (any ActionButtonsBuyFlowRoutable)?
@@ -55,7 +56,9 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         walletModel: any WalletModel,
         userWalletNotificationManager: NotificationManager,
         promotionNotificationsManager: PromotionNotificationsManager,
+        forceUpdateBannerNotificationManager: NotificationManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
+        expressStatusPollingHelper: ExpressStatusPollingHelper,
         tokenNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         tokenRouter: SingleTokenRoutable,
@@ -66,6 +69,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
         self.promotionNotificationsManager = promotionNotificationsManager
+        self.forceUpdateBannerNotificationManager = forceUpdateBannerNotificationManager
         self.rateAppController = rateAppController
         contextActionTokenRouter = tokenRouter
         self.delegate = delegate
@@ -87,17 +91,16 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             walletModel: walletModel,
             notificationManager: tokenNotificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             tokenRouter: tokenRouter
         )
 
-        if FeatureProvider.isAvailable(.redesign) {
-            setupRedesign(
-                walletModel: walletModel,
-                userWalletModel: userWalletModel,
-                coordinator: coordinator,
-                accountModel: accountModel
-            )
-        }
+        setupRedesign(
+            walletModel: walletModel,
+            userWalletModel: userWalletModel,
+            coordinator: coordinator,
+            accountModel: accountModel
+        )
 
         bind()
     }
@@ -226,8 +229,12 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     }
 
     private func bind() {
-        userWalletNotificationManager
+        // Force-update banner is prepended so it always renders above the wallet notifications.
+        forceUpdateBannerNotificationManager
             .notificationPublisher
+            .removeDuplicates()
+            .combineLatest(userWalletNotificationManager.notificationPublisher.removeDuplicates())
+            .map { forceUpdateInputs, userWalletInputs in forceUpdateInputs + userWalletInputs }
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.notificationInputs, on: self, ownership: .weak)

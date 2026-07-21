@@ -12,7 +12,7 @@ final class TangemPayTopUpUITests: BaseTestCase {
     func testTopUpFromTangemPay_SwapsBitcoinToUSDC_AppendsDepositToHistory() {
         setAllureId(4973)
 
-        let mainScreen = launchAndImportHotWallet(scenarios: [
+        let mainScreen = launchAndImportHotWallet(expressApiType: .mock, scenarios: [
             ScenarioConfig(name: "bitcoin_utxo", initialState: "Balance"),
             ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled"),
             ScenarioConfig(name: "exchange_status_provider", initialState: "Finished"),
@@ -44,30 +44,5 @@ final class TangemPayTopUpUITests: BaseTestCase {
         TangemPayMainScreen(app)
             .verifyBalanceContains("$110.00")
             .verifyTransactionRowVisible(label: "Deposit")
-    }
-
-    private func launchAndImportHotWallet(scenarios: [ScenarioConfig] = []) -> MainScreen {
-        let eligibilityScenario = ScenarioConfig(
-            name: "tangem_pay_eligibility",
-            initialState: "PaeraCustomer"
-        )
-
-        launchApp(
-            tangemApiType: .mock,
-            expressApiType: .mock,
-            visaApiType: .mock,
-            clearStorage: true,
-            scenarios: [eligibilityScenario] + scenarios
-        )
-
-        return CreateWalletSelectorScreen(app)
-            .skipStories()
-            .startWithMobileWallet()
-            .tapImportButton()
-            .enterSeedPhrase(TestSeedPhrases.hotWallet)
-            .tapImportButton()
-            .tapContinue()
-            .skipAccessCode()
-            .tapFinish()
     }
 }
