@@ -237,28 +237,26 @@ extension TokenItemView {
 
 // MARK: - Previews
 
-struct TokenItemView_Previews: PreviewProvider {
-    static let infoProvider: FakeTokenItemInfoProvider = {
+#Preview {
+    let infoProvider: FakeTokenItemInfoProvider = {
         let walletManagers: [FakeWalletManager] = [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager]
         InjectedValues.setTokenQuotesRepository(FakeTokenQuotesRepository(walletManagers: walletManagers))
         return FakeTokenItemInfoProvider(walletManagers: walletManagers)
     }()
 
-    static var previews: some View {
-        VStack {
-            VStack(spacing: 0) {
-                TokenSectionView(title: "Ethereum network", topEdgeCornerRadius: nil)
+    VStack {
+        VStack(spacing: 0) {
+            TokenSectionView(title: "Ethereum network", topEdgeCornerRadius: nil)
 
-                ForEach(infoProvider.viewModels, id: \.id) { model in
-                    TokenItemView(viewModel: model, cornerRadius: 14, roundedCornersVerticalEdge: nil)
-                }
-
-                Spacer()
+            ForEach(infoProvider.viewModels, id: \.id) { model in
+                TokenItemView(viewModel: model, cornerRadius: 14, roundedCornersVerticalEdge: nil)
             }
-            .background(Colors.Background.primary)
-            .cornerRadiusContinuous(14)
-            .padding(16)
+
+            Spacer()
         }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.primary)
+        .cornerRadiusContinuous(14)
+        .padding(16)
     }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }

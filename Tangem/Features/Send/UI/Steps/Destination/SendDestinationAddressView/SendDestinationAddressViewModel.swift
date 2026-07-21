@@ -8,17 +8,22 @@
 
 import Combine
 import TangemFoundation
+import TangemLocalization
 
 protocol SendDestinationAddressViewRoutable: AnyObject {
     func didTapScanQRButton()
 }
 
 class SendDestinationAddressViewModel: ObservableObject, Identifiable {
+    let title: String
+
     @Published private(set) var textViewModel: SUITextViewModel
     @Published private(set) var address: Address
     @Published private(set) var error: String?
     @Published private(set) var isValidating: Bool = false
+    @Published private(set) var addressIconType: AddressIconProviderViewType?
 
+    private let iconStyle: IconStyle
     private var shouldIgnoreClearButton: Bool = false
 
     var text: BindingValue<String> {
@@ -31,13 +36,39 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
 
     weak var router: SendDestinationAddressViewRoutable?
 
-    init(textViewModel: SUITextViewModel, address: Address) {
+    init(textViewModel: SUITextViewModel, address: Address, title: String = Localization.sendRecipient, iconStyle: IconStyle = .automatic) {
         self.textViewModel = textViewModel
         self.address = address
+        self.title = title
+        self.iconStyle = iconStyle
+        addressIconType = Self.makeIcon(for: address.string, style: iconStyle)
+
+        bind()
+    }
+
+    private func bind() {
+        // `addressIconType` is seeded in `init`; react only to subsequent address changes.
+        addressPublisher()
+            .dropFirst()
+            .receiveOnMain()
+            .map { [iconStyle] in Self.makeIcon(for: $0.string, style: iconStyle) }
+            .assign(to: &$addressIconType)
     }
 
     func addressPublisher() -> AnyPublisher<Address, Never> {
         $address.eraseToAnyPublisher()
+    }
+
+    private static func makeIcon(for address: String, style: IconStyle) -> AddressIconProviderViewType? {
+        switch style {
+        case .automatic: AddressIconProvider.makeViewType(address: address)
+        case .blockies: .blockies(AddressIconProvider.makeBlockiesIconViewData(address: address))
+        }
+    }
+
+    enum IconStyle {
+        case automatic
+        case blockies
     }
 
     func update(error: String?) {

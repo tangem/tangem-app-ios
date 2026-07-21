@@ -9,9 +9,7 @@
 import Foundation
 
 public enum AppEnvironment: String {
-    case beta = "Beta"
     case production = "Production"
-    case alpha = "Alpha"
     case `internal` = "Internal"
 }
 
