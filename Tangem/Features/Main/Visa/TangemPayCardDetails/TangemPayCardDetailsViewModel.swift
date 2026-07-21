@@ -18,6 +18,8 @@ import TangemVisa
 final class TangemPayCardDetailsViewModel: ObservableObject {
     let cardNameDisplayMode: CardNameDisplayMode
 
+    var cardImageURL: URL? { repository.cardImageURL }
+
     @Published private(set) var lastFourDigits: String
     @Published private(set) var isReissuing: Bool = false
     @Published var state: TangemPayCardDetailsState

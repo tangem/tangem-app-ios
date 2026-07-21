@@ -213,7 +213,7 @@ struct TangemPayMainView: View {
                 TangemPaySmallCardViewRedesigned(
                     state: card.isReissuing || card.isClosing
                         ? .replacing
-                        : .issued(cardNumberEnd: card.cardNumberEnd, isFrozen: card.isFrozen)
+                        : .issued(cardNumberEnd: card.cardNumberEnd, isFrozen: card.isFrozen, thumbnailURL: card.thumbnailImageURL)
                 )
             }
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton(cardId: card.cardId))
