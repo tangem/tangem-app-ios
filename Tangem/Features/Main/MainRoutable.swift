@@ -23,5 +23,5 @@ protocol MainDeepLinkRoutable {
     func beginHandlingIncomingActions()
     func resignHandlingIncomingActions()
     func openDeepLink(_ deepLink: MainCoordinator.DeepLinkDestination)
-    func openCampaignIfNeeded(campaignId: String) -> Bool
+    func openCampaignIfNeeded(campaignId: String?) -> Bool
 }

@@ -114,9 +114,8 @@ extension MainCoordinator {
 
         private func routeCampaignsAction(params: DeeplinkNavigationAction.Params) -> Bool {
             guard FeatureProvider.isAvailable(.promoCampaignsAttribution),
-                  let campaignId = params.campaignId?.nilIfEmpty,
                   let coordinator,
-                  coordinator.openCampaignIfNeeded(campaignId: campaignId)
+                  coordinator.openCampaignIfNeeded(campaignId: params.campaignId?.nilIfEmpty)
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
