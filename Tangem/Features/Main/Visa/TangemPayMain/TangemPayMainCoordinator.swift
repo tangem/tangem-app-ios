@@ -401,12 +401,10 @@ private extension TangemPayMainCoordinator {
         guard let tangemPayAccount = options?.tangemPayAccount else { return }
 
         switch tangemPayAccount.virtualAccountEntry {
-        case .none:
+        case .none, .active:
             openVirtualAccountInfoSheet()
         case .preparing:
             openVirtualAccountPreparingPopup()
-        case .active(let productInstanceId):
-            loadVirtualAccountBankDetails(productInstanceId: productInstanceId)
         }
     }
 
@@ -424,63 +422,36 @@ private extension TangemPayMainCoordinator {
 
     func openVirtualAccountPreparingPopup() {
         Task { @MainActor in
-            let viewModel = TangemPayVirtualAccountPreparingPopupViewModel(
-                onClose: { [weak self] in
-                    Task { @MainActor in
-                        self?.floatingSheetPresenter.removeActiveSheet()
-                    }
-                }
-            )
+            let viewModel = TangemPayVirtualAccountPreparingPopupViewModel(coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
+}
 
-    func loadVirtualAccountBankDetails(productInstanceId: String) {
-        guard let tangemPayAccount = options?.tangemPayAccount else { return }
+// MARK: - TangemPayVirtualAccountBankDetailsErrorPopupRoutable
 
+extension TangemPayMainCoordinator: TangemPayVirtualAccountBankDetailsErrorPopupRoutable {
+    func virtualAccountBankDetailsErrorPopupDidRequestSupport() {
         Task { @MainActor in
-            do {
-                let credentials = try await tangemPayAccount.loadBankCredentials(productInstanceId: productInstanceId)
-                let viewModel = TangemPayVirtualAccountBankDetailsViewModel(
-                    credentials: credentials,
-                    onClose: { [weak self] in
-                        Task { @MainActor in
-                            self?.floatingSheetPresenter.removeActiveSheet()
-                        }
-                    }
-                )
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            } catch {
-                VisaLogger.error("Failed to load virtual account bank credentials", error: error)
-                openVirtualAccountBankDetailsErrorPopup(productInstanceId: productInstanceId)
-            }
+            floatingSheetPresenter.removeActiveSheet()
+            rootViewModel?.contactSupport()
         }
     }
+}
 
-    func openVirtualAccountBankDetailsErrorPopup(productInstanceId: String) {
-        Task { @MainActor in
-            let viewModel = TangemPayVirtualAccountBankDetailsErrorPopupViewModel(
-                onRetry: { [weak self] in
-                    Task { @MainActor in
-                        self?.floatingSheetPresenter.removeActiveSheet()
-                        try? await Task.sleep(for: .seconds(0.2))
-                        self?.loadVirtualAccountBankDetails(productInstanceId: productInstanceId)
-                    }
-                },
-                onContactSupport: { [weak self] in
-                    Task { @MainActor in
-                        self?.floatingSheetPresenter.removeActiveSheet()
-                        self?.rootViewModel?.contactSupport()
-                    }
-                },
-                onClose: { [weak self] in
-                    Task { @MainActor in
-                        self?.floatingSheetPresenter.removeActiveSheet()
-                    }
-                }
-            )
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
+// MARK: - TangemPayVirtualAccountBankDetailsRoutable
+
+extension TangemPayMainCoordinator: TangemPayVirtualAccountBankDetailsRoutable {}
+
+// MARK: - TangemPayVirtualAccountPreparingPopupRoutable
+
+extension TangemPayMainCoordinator: TangemPayVirtualAccountPreparingPopupRoutable {}
+
+// MARK: - TangemPayVirtualAccountSuccessRoutable
+
+extension TangemPayMainCoordinator: TangemPayVirtualAccountSuccessRoutable {
+    func closeVirtualAccountSuccess() {
+        virtualAccountSuccessViewModel = nil
     }
 }
 
@@ -491,15 +462,37 @@ extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
             try? await Task.sleep(for: .seconds(0.2))
-            virtualAccountSuccessViewModel = TangemPayVirtualAccountSuccessViewModel(
-                onClose: { [weak self] in
-                    self?.virtualAccountSuccessViewModel = nil
-                }
-            )
+            virtualAccountSuccessViewModel = TangemPayVirtualAccountSuccessViewModel(coordinator: self)
         }
     }
 
-    func closeVirtualAccountInfoSheet() {
+    func virtualAccountDidLoadBankCredentials(_ credentials: TangemPayBankCredentialsResponse) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+
+            let viewModel = TangemPayVirtualAccountBankDetailsViewModel(credentials: credentials, coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func virtualAccountInfoSheetDidFailToLoadBankCredentials(productInstanceId: String) {
+        guard let tangemPayAccount = options?.tangemPayAccount else { return }
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+
+            let viewModel = TangemPayVirtualAccountBankDetailsErrorPopupViewModel(
+                tangemPayAccount: tangemPayAccount,
+                productInstanceId: productInstanceId,
+                coordinator: self
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func closeVirtualAccountSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
