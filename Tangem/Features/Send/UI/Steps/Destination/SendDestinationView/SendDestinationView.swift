@@ -11,6 +11,7 @@ import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct SendDestinationView: View {
     @ObservedObject var viewModel: SendDestinationViewModel
@@ -43,6 +44,14 @@ struct SendDestinationView: View {
             }
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
+
+            if let addressBookViewModel = viewModel.addressBookViewModel {
+                if viewModel.shouldShowSuggestedDestination {
+                    SendDestinationAddressBookView(viewModel: addressBookViewModel)
+                        .transition(.opacity.animation(SendTransitions.animation))
+                        .onFirstAppear(perform: viewModel.onAddressBookWidgetShown)
+                }
+            }
 
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
                 if viewModel.shouldShowSuggestedDestination {
