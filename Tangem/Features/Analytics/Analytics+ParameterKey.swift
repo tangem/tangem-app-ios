@@ -106,6 +106,7 @@ extension Analytics {
         case fromSummary = "From Summary"
         case valid = "Valid"
         case screen = "Screen"
+        case campaign = "Campaign"
         case searched = "Searched"
 
         case sendBlockchain = "Send Blockchain"
@@ -186,5 +187,16 @@ extension Analytics {
         case variant
         case zone
         case walletId = "wallet_id"
+
+        // MARK: - Address Book
+
+        case addressBookWalletId = "Wallet Id"
+        case contactId = "Contact Id"
+        case contactsCount = "Contacts Count"
+
+        // MARK: - Staking validation
+
+        case blockaid = "Blockaid"
+        case mobileCheck = "Mobile_check"
     }
 }

@@ -102,16 +102,6 @@ extension ReceiveMainViewModel: ReceiveFlowCoordinator {
     func copyToClipboard(with address: String) {
         UIPasteboard.general.string = address
 
-        guard FeatureProvider.isAvailable(.redesign) else {
-            // [REDACTED_INFO]: drop the legacy SuccessToast branch once redesign ships.
-            Toast(
-                view: SuccessToast(text: Localization.walletNotificationAddressCopied)
-                    .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
-            )
-            .present(layout: .top(padding: 12), type: .temporary())
-            return
-        }
-
         Toast(
             view: TangemSnackbar(title: Localization.walletNotificationAddressCopied)
                 .icon(DesignSystem.Icons.Checkmark.regular20)

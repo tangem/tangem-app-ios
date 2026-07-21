@@ -18,6 +18,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     /// Tracks token IDs for which the news carousel scroll event has been logged in the current session.
     /// Using a static set ensures the event is only logged once per app session per token.
@@ -52,6 +53,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
     @Published var securityScoreDetailsViewModel: MarketsTokenDetailsSecurityScoreDetailsViewModel?
     @Published private(set) var numberOfExchangesListedOn: Int?
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
     @Published var fullDescriptionBottomSheetInfo: DescriptionBottomSheetInfo?
@@ -95,7 +97,6 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     var descriptionCanBeShowed: Bool { !geoEligibilityService.isUK }
 
     let presentationStyle: MarketsTokenDetailsPresentationStyle
-    let isRedesignEnabled = FeatureProvider.isAvailable(.redesign)
 
     private var priceInfo: MarketsTokenDetailsPriceInfoHelper.PriceInfo? {
         guard let currentPrice = priceFromQuoteRepository else {
@@ -158,8 +159,11 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     private let initialDate = Date()
 
     private let tokenInfo: MarketsTokenModel
+    private let marketingBannerManager = MarketingBannerManager()
     private let dataProvider: MarketsTokenDetailsDataProvider
     private let marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper
+
+    let priceAlertBellViewModel: PriceAlertBellViewModel?
     private let walletDataProvider = MarketsWalletDataProvider()
     private let marketsNewsProvider = MarketsRelatedTokenNewsProvider()
 
@@ -184,6 +188,9 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         tokenName = tokenInfo.name
         selectedPriceChangeIntervalType = .day
         tokenSymbol = tokenInfo.symbol
+        priceAlertBellViewModel = FeatureProvider.isAvailable(.priceAlertsSubscription)
+            ? PriceAlertBellViewModel(tokenId: tokenInfo.id, coordinator: coordinator)
+            : nil
 
         // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
         super.init(overlayContentProgressInitialValue: 1.0)
@@ -255,24 +262,16 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
         let title = Localization.marketsTokenDetailsAboutTokenTitle(tokenInfo.name)
 
-        if isRedesignEnabled {
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                coordinator?.openFullDescriptionDialogue(
-                    title: title,
-                    description: fullDescription,
-                    onGenerateAITapAction: { [weak self] in
-                        guard let self else { return }
-                        let dataCollector = TokenErrorDescriptionDataCollector(tokenId: tokenInfo.id, tokenName: tokenInfo.name)
-                        coordinator?.openMail(with: dataCollector, emailType: .appFeedback(subject: Localization.feedbackTokenDescriptionError))
-                    }
-                )
-            }
-        } else {
-            fullDescriptionBottomSheetInfo = .init(
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            coordinator?.openFullDescriptionDialogue(
                 title: title,
                 description: fullDescription,
-                showCloseButton: true
+                onGenerateAITapAction: { [weak self] in
+                    guard let self else { return }
+                    let dataCollector = TokenErrorDescriptionDataCollector(tokenId: tokenInfo.id, tokenName: tokenInfo.name)
+                    coordinator?.openMail(with: dataCollector, emailType: .appFeedback(subject: Localization.feedbackTokenDescriptionError))
+                }
             )
         }
     }
@@ -453,6 +452,14 @@ private extension MarketsTokenDetailsViewModel {
 
 private extension MarketsTokenDetailsViewModel {
     func bind() {
+        marketingBannerManager.setup(
+            bannersPublisher: marketingCampaignsRepository.bannersPublisher(forMarketsTokenId: tokenInfo.id)
+        )
+
+        marketingBannerManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
+
         currentPricePublisher
             .assign(to: \.priceFromQuoteRepository, on: self, ownership: .weak)
             .store(in: &bag)
@@ -706,15 +713,8 @@ extension MarketsTokenDetailsViewModel: CustomStringConvertible {
 
 extension MarketsTokenDetailsViewModel: MarketsTokenDetailsBottomSheetRouter {
     func openInfoBottomSheet(title: String, message: String) {
-        if isRedesignEnabled {
-            Task { @MainActor in
-                coordinator?.openInfoDialogue(title: title, message: message)
-            }
-        } else {
-            descriptionBottomSheetInfo = .init(
-                title: title,
-                description: message
-            )
+        Task { @MainActor in
+            coordinator?.openInfoDialogue(title: title, message: message)
         }
     }
 }
