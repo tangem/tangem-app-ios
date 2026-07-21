@@ -20,6 +20,12 @@ final class TangemPaySelectPlanCoordinator: CoordinatorObject {
 
     @Published private(set) var selectPlanViewModel: TangemPaySelectPlanViewModel?
 
+    // MARK: - Child view models (push navigation)
+
+    @Published var confirmPlanViewModel: TangemPayConfirmPlanViewModel?
+
+    private var options: Options?
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -29,13 +35,28 @@ final class TangemPaySelectPlanCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        let tariffPlanSelector = options.tariffPlanSelector
-        selectPlanViewModel = TangemPaySelectPlanViewModel(
-            transitionsLoader: { try await tariffPlanSelector.getTariffPlanTransitions() },
-            descriptionContext: .onboarding,
-            onSelectPlan: { try await tariffPlanSelector.selectTariffPlan(targetTariffPlanId: $0, transitionType: $1) },
-            coordinator: self
-        )
+        self.options = options
+
+        switch options.mode {
+        case .onboarding:
+            selectPlanViewModel = TangemPaySelectPlanViewModel(
+                tariffPlanSelector: options.tariffPlanSelector,
+                mode: .onboarding,
+                coordinator: self
+            )
+
+        case .planChange(let customerTariffPlan):
+            selectPlanViewModel = TangemPaySelectPlanViewModel(
+                currentTariffPlan: customerTariffPlan.tariffPlan,
+                tariffPlanSelector: options.tariffPlanSelector,
+                mode: .planChange(
+                    onProceedToConfirm: { [weak self] tariffPlan, transitionType in
+                        self?.openConfirmPlan(tariffPlan: tariffPlan, transitionType: transitionType)
+                    }
+                ),
+                coordinator: self
+            )
+        }
     }
 }
 
@@ -44,6 +65,34 @@ final class TangemPaySelectPlanCoordinator: CoordinatorObject {
 extension TangemPaySelectPlanCoordinator {
     struct Options {
         let tariffPlanSelector: any TangemPayTariffPlanSelector
+        let mode: Mode
+    }
+
+    enum Mode {
+        case onboarding
+        case planChange(customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan)
+    }
+}
+
+// MARK: - Confirmation
+
+private extension TangemPaySelectPlanCoordinator {
+    func openConfirmPlan(
+        tariffPlan: VisaCustomerInfoResponse.TariffPlan,
+        transitionType: TangemPayTariffPlanTransition.TransitionType
+    ) {
+        guard let options, case .planChange(let customerTariffPlan) = options.mode else {
+            return
+        }
+
+        confirmPlanViewModel = TangemPayConfirmPlanViewModel(
+            transitionType: transitionType,
+            targetPlan: tariffPlan,
+            currentPlan: customerTariffPlan.tariffPlan,
+            nextBillingAt: customerTariffPlan.nextBillingAt,
+            tariffPlanSelector: options.tariffPlanSelector,
+            coordinator: self
+        )
     }
 }
 
@@ -54,11 +103,24 @@ extension TangemPaySelectPlanCoordinator: TangemPaySelectPlanRoutable {
         dismiss()
     }
 
-    func openComparePlans(transitions: TangemPayTariffPlanTransitionsResponse) {
-        let viewModel = TangemPayComparePlansSheetViewModel(transitions: transitions, coordinator: self)
+    func openComparePlans(tariffPlans: [VisaCustomerInfoResponse.TariffPlan]) {
+        let viewModel = TangemPayComparePlansSheetViewModel(tariffPlans: tariffPlans, coordinator: self)
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+}
+
+// MARK: - TangemPayConfirmPlanRoutable
+
+extension TangemPaySelectPlanCoordinator: TangemPayConfirmPlanRoutable {
+    func closeConfirmPlan() {
+        confirmPlanViewModel = nil
+    }
+
+    func confirmPlanDidComplete() {
+        confirmPlanViewModel = nil
+        dismiss()
     }
 }
 

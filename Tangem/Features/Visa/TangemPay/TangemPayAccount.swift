@@ -429,6 +429,46 @@ extension TangemPayAccount {
     }
 }
 
+// MARK: - TangemPayTariffPlanSelector
+
+extension TangemPayAccount: TangemPayTariffPlanSelector {
+    func getTariffPlanTransitions() async throws -> TangemPayTariffPlanTransitionsResponse {
+        try await customerService.getTariffPlanTransitions()
+    }
+
+    func selectTariffPlan(
+        targetTariffPlanId: String,
+        transitionType: TangemPayTariffPlanTransition.TransitionType
+    ) async throws {
+        switch transitionType {
+        case .downgrade:
+            try await customerService.requestTariffPlanPendingTransition(pendingTariffPlanId: targetTariffPlanId)
+
+        case .upgrade, .activation:
+            let info = customerInfoSubject.value
+            guard let customerWalletAddress = info.paymentAccount?.customerWalletAddress else {
+                throw TangemPayAccountError.missingPaymentAccountAddress
+            }
+
+            let request = TangemPayPlaceOrderRequest(
+                targetTariffPlanId: targetTariffPlanId,
+                transitionType: transitionType.rawValue,
+                customerWalletAddress: customerWalletAddress
+            )
+            let idempotencyKey = TangemPayIdempotencyKey.make(
+                info.id,
+                TangemPayOrderType.tariffPlanTransition.rawValue,
+                targetTariffPlanId,
+                transitionType.rawValue
+            )
+
+            _ = try await customerService.placeOrder(request: request, idempotencyKey: idempotencyKey)
+        }
+
+        await loadCustomerInfo()
+    }
+}
+
 private extension TangemPayAccount {
     func loadAwaitingDepositMonthlyFee(targetPlanId: String) {
         runTask { [weak self] in
