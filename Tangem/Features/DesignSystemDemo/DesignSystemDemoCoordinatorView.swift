@@ -93,6 +93,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemFadeDemoViewModel) {
                 TangemFadeDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tokenIconV2DemoViewModel) {
+                TokenIconV2DemoView(viewModel: $0)
+            }
     }
 }
 
@@ -141,6 +144,10 @@ struct DesignSystemDemoView: View {
 
                     MainButton(title: "TangemFade") {
                         viewModel.openTangemFadeDemo()
+                    }
+
+                    MainButton(title: "TokenIconV2") {
+                        viewModel.openTokenIconV2Demo()
                     }
 
                     MainButton(title: "TangemSearch") {
