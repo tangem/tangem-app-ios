@@ -128,6 +128,10 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
         }
     }
 
+    func isEligible(for channel: TangemPayDistributionChannel) -> Bool {
+        AppSettings.shared.tangemPayEligibleDistributionChannels.contains(channel.rawValue)
+    }
+
     private func tangemPayEligibleWalletSelectionPublisher(
         for distributionChannel: TangemPayDistributionChannel
     ) -> AnyPublisher<TangemPayWalletSelectionType?, Never> {
