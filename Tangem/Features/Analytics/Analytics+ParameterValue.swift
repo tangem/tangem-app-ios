@@ -20,6 +20,8 @@ extension Analytics {
         case error = "Error"
         case on = "On"
         case off = "Off"
+        case cashback = "Cashback"
+        case reactivation = "Reactivation"
         case yes = "Yes"
         case no = "No"
         case `true` = "True"
