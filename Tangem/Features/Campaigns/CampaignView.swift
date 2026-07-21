@@ -16,6 +16,8 @@ import TangemAccounts
 struct CampaignView: View {
     @ObservedObject var viewModel: CampaignViewModel
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         FloatingSheetContainerView(
             state: viewModel.viewState,
@@ -134,22 +136,29 @@ struct CampaignView: View {
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
             if let rowViewModel = viewModel.selectedTokenRowViewModel {
-                VStack(alignment: .leading, spacing: 16) {
-                    if let accountViewData = viewModel.selectedAccountViewData {
-                        AccountInlineHeaderView(
-                            iconData: accountViewData.iconData,
-                            name: accountViewData.name
-                        )
-                    }
+                Button(action: viewModel.selectToken) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        if let accountViewData = viewModel.selectedAccountViewData {
+                            AccountInlineHeaderView(
+                                iconData: accountViewData.iconData,
+                                name: accountViewData.name
+                            )
+                        }
 
-                    CampaignTokenRowView(viewModel: rowViewModel, networkName: viewModel.selectedTokenNetworkName)
+                        CampaignTokenRowView(viewModel: rowViewModel, networkName: viewModel.selectedTokenNetworkName)
+                    }
+                    .padding(16)
+                    .background(selectedTokenBackgroundColor)
+                    .cornerRadiusContinuous(24)
                 }
-                .padding(16)
-                .background(DesignSystem.Color.bgPrimary)
-                .cornerRadiusContinuous(24)
+                .buttonStyle(.plain)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var selectedTokenBackgroundColor: Color {
+        colorScheme == .dark ? DesignSystem.Color.bgTertiary : DesignSystem.Color.bgSecondary
     }
 
     private var termsView: some View {
