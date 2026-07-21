@@ -56,13 +56,15 @@ struct TangemPaySelectPlanView: View {
                     .padding(.top, 8)
                     .padding(.bottom, 88)
 
-                TangemPayCardPageIndicatorRedesigned(
-                    count: viewModel.plans.count,
-                    selectedIndex: viewModel.selectedIndex
-                )
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, 24)
-                .padding(.top, 24)
+                if viewModel.plans.count > 1 {
+                    TangemPayCardPageIndicatorRedesigned(
+                        count: viewModel.plans.count,
+                        selectedIndex: viewModel.selectedIndex
+                    )
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading, 24)
+                    .padding(.top, 24)
+                }
 
                 VStack(alignment: .leading, spacing: 16) {
                     Text(viewModel.selectedPlan?.name ?? "")
