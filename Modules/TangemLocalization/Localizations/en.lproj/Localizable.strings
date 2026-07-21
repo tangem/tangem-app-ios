@@ -1843,8 +1843,11 @@
 "tangempay_touch_id_not_set_title" = "Touch ID not set";
 "tangempay_usdc_on_polygon_network" = "USDC on Polygon network";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Click the button below to restore access";
+"tangempay_va_account_details" = "Account details";
+"tangempay_va_available_to_deposit_day" = "Available to deposit per day:";
 "tangempay_va_banking_details_error_description" = "Please try again or contact support if the issue persists";
 "tangempay_va_banking_details_error_title" = "Couldn't load banking details";
+"tangempay_va_limit_resetting_everyday" = "Limit is resetting every day";
 "tangempay_visa_benefits" = "Visa Benefits";
 "tangempay_withdrawal_note_description" = "Funds from refunded purchases won’t be returned your on-chain Polygon balance or be available for withdrawal, but will stay on your card balance for purchases";
 "tangempay_withdrawal_note_title" = "Please note";
