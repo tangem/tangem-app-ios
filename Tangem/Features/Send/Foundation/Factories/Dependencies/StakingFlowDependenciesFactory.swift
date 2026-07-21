@@ -52,6 +52,19 @@ extension StakingFlowDependenciesFactory {
         StakingSendSummaryTitleProvider(actionType: actionType.sendFlowActionType, tokenItem: tokenItem, walletName: userWalletInfo.name)
     }
 
+    func makeStakingPreflightValidator() -> StakingPreflightValidator? {
+        switch tokenItem.blockchain {
+        case .solana where FeatureProvider.isAvailable(.solanaRentExemptionPreflight):
+            return SolanaRentExemptionValidator(
+                tokenItem: tokenItem,
+                transactionValidator: stakingableToken.transactionValidator,
+                tokenFeeProvidersManager: stakingableToken.tokenFeeProvidersManager
+            )
+        default:
+            return nil
+        }
+    }
+
     func makeValidationHandler(
         stakingManager: StakingManager,
         blockaidAPIKey: String,

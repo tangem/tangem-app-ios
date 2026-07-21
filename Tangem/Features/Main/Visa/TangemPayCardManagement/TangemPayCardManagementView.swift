@@ -209,6 +209,7 @@ struct TangemPayCardManagementView: View {
     private var redesignedToolbar: some ToolbarContent {
         if let renameVM = viewModel.cardRenameViewModel {
             NavigationToolbarButton.close(placement: .topBarTrailing, action: renameVM.close)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardRenameCloseButton)
         } else {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
