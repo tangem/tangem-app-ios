@@ -17,6 +17,19 @@ extension PortfolioReviewViewModel {
         struct Content: Equatable {
             let tokenList: [ForYouTokenListItem]
             let periodSegments: [ForYouPeriodSegment]
+            let chart: Chart
+        }
+
+        /// The donut summary card above the list.
+        enum Chart: Equatable {
+            case loaded(assets: [SummaryGaugeAsset], assetCount: Int, topHoldingPercent: String)
+            case noData(NoData)
+
+            /// Why the chart has nothing to draw — drives the card title and the donut center bubble.
+            enum NoData: Equatable {
+                case cantLoad
+                case noAmount
+            }
         }
     }
 }
