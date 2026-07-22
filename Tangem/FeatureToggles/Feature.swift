@@ -42,6 +42,7 @@ enum Feature: String, Hashable, CaseIterable {
     case onboardingPushNotificationDoubleAsk
     case mainPushNotificationDoubleAsk
     case backendAuthentication
+    case onrampPaymentMethodThemedImages
     case chooseTokenPulseAnimation
     case hotWalletDexRatesUntilDeposit
 
@@ -82,6 +83,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
         case .promoCampaignsAttribution: return "TWI-1637_promo_campaigns_attribution"
         case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
+        case .onrampPaymentMethodThemedImages: return "[REDACTED_INFO]_two_payment_method_pictures"
         case .chooseTokenPulseAnimation: return "[REDACTED_INFO]_choose_token_pulse_animation"
         case .hotWalletDexRatesUntilDeposit: return "[REDACTED_INFO]_hot_wallet_dex_rates_until_deposit"
         }
@@ -122,6 +124,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mainPushNotificationDoubleAsk: return .version("6.1")
         case .promoCampaignsAttribution: return .version("6.0.2")
         case .backendAuthentication: return .unspecified
+        case .onrampPaymentMethodThemedImages: return .unspecified
         case .chooseTokenPulseAnimation: return .unspecified
         case .hotWalletDexRatesUntilDeposit: return .unspecified
         }
