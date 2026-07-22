@@ -9,12 +9,14 @@
 import Foundation
 import Combine
 import UIKit
+import TangemFoundation
 
-class SendDestinationCompactViewModel: ObservableObject, Identifiable {
+final class SendDestinationCompactViewModel: ObservableObject, Identifiable {
     typealias AdditionalField = (SendDestinationAdditionalFieldType, String)
 
     let suiTextViewModel: SUITextViewModel
-    @Published var address: String = ""
+    @Published var address: String = .empty
+    @Published private(set) var addressIconViewModel = AddressIconViewModel(address: .empty)
     @Published var resolved: String?
     @Published var additionalField: String?
 
@@ -37,7 +39,12 @@ class SendDestinationCompactViewModel: ObservableObject, Identifiable {
     }
 
     private func updateView(address: SendDestination?, additionalField: SendDestinationAdditionalField) {
-        self.address = address?.value.typedAddress ?? ""
+        let newAddress = address?.value.typedAddress ?? .empty
+        if newAddress != self.address {
+            self.address = newAddress
+            addressIconViewModel = AddressIconViewModel(address: newAddress)
+        }
+
         resolved = address?.value.showableResolved
 
         switch additionalField {
