@@ -119,7 +119,7 @@ struct OnrampOfferView: View {
             OnrampAmountBadge(badge: viewModel.amount.badge)
 
             if let infoAction = viewModel.amount.infoAction {
-                Button(action: infoAction) {
+                SwiftUI.Button(action: infoAction) {
                     Assets.infoCircle16.image
                         .renderingMode(.template)
                         .foregroundStyle(Colors.Icon.informative)

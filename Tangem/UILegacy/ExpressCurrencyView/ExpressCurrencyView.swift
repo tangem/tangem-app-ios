@@ -87,7 +87,7 @@ struct ExpressCurrencyView<Content: View>: View {
             ChooseTokenPillView(action: didTapChangeCurrency)
                 .accessibilityIdentifier(SwapAccessibilityIdentifiers.tokenSelector)
         } else {
-            Button(action: { didTapChangeCurrency() }) {
+            SwiftUI.Button(action: { didTapChangeCurrency() }) {
                 ZStack(alignment: .trailing) {
                     iconContent
                         .padding(.all, 2)
@@ -114,7 +114,7 @@ struct ExpressCurrencyView<Content: View>: View {
             HStack(spacing: 4) {
                 if !viewModel.state.isFiatAmountHidden {
                     if viewModel.state.isSwitchCurrencyAvailable, let didTapSwitchCurrency {
-                        Button(action: didTapSwitchCurrency) {
+                        SwiftUI.Button(action: didTapSwitchCurrency) {
                             HStack(spacing: 4) {
                                 switchCurrencyIcon
 
@@ -169,7 +169,7 @@ struct ExpressCurrencyView<Content: View>: View {
     @ViewBuilder
     private var infoButton: some View {
         if let priceChangeState = viewModel.state.priceChangeState, let didTapNetworkFeeInfoButton {
-            Button(action: { didTapNetworkFeeInfoButton(priceChangeState) }) {
+            SwiftUI.Button(action: { didTapNetworkFeeInfoButton(priceChangeState) }) {
                 switch priceChangeState {
                 case .info:
                     infoButtonIcon
@@ -226,7 +226,7 @@ struct ChooseTokenPillView: View {
     @State private var pulseStart = Date().addingTimeInterval(Constants.startDelay)
 
     var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             HStack(spacing: 6) {
                 Text(Localization.commonChooseToken)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)

@@ -26,11 +26,11 @@ struct StakingTargetView: View {
     var body: some View {
         switch data.detailsType {
         case .checkmark:
-            Button(action: { selection?.isActive(compare: data.address).toggle() }) {
+            SwiftUI.Button(action: { selection?.isActive(compare: data.address).toggle() }) {
                 content
             }
         case .balance(_, .some(let action)):
-            Button(action: action) {
+            SwiftUI.Button(action: action) {
                 content
             }
         case .none, .balance:
