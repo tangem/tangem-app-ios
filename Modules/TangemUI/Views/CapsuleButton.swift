@@ -27,7 +27,7 @@ public struct CapsuleButton: View {
     }
 
     public var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             contentView
                 .padding(.horizontal, size.contentPaddings.horizontal)
                 .padding(.vertical, size.contentPaddings.vertical)

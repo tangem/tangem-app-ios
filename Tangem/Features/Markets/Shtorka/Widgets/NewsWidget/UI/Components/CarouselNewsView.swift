@@ -62,7 +62,7 @@ struct CarouselNewsView: View {
     // MARK: - Components
 
     private var allNewsCard: some View {
-        Button(action: {
+        SwiftUI.Button(action: {
             onAllNewsTap?()
         }) {
             redesignedAllNewsCardContent
