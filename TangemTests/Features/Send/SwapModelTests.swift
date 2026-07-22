@@ -399,6 +399,7 @@ private final class SwapableTokenStub: SendSwapableToken {
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }
     var tangemIconProvider: any TangemIconProvider { inner.tangemIconProvider }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { inner.confirmTransactionPolicy }
+    var isTangemPayAccount: Bool { inner.isTangemPayAccount }
 
     // MARK: - Swap members
 
