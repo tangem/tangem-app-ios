@@ -14,7 +14,7 @@ struct WalletSelectorItemView: View {
     @ObservedObject var viewModel: WalletSelectorItemViewModel
 
     var body: some View {
-        Button {
+        SwiftUI.Button {
             viewModel.onTapAction()
         } label: {
             contentButton

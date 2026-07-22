@@ -11,15 +11,28 @@ import TangemAssets
 import TangemUI
 
 struct OnrampPaymentMethodIconView: View {
-    let url: URL?
+    @Environment(\.colorScheme) private var colorScheme
+
+    let lightURL: URL?
+    let darkURL: URL?
+
+    private var usesThemedImages: Bool {
+        FeatureProvider.isAvailable(.onrampPaymentMethodThemedImages)
+    }
+
+    private var url: URL? {
+        guard usesThemedImages else { return lightURL }
+
+        return colorScheme == .dark ? (darkURL ?? lightURL) : (lightURL ?? darkURL)
+    }
 
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
                 .fill(Colors.Field.focused)
                 .frame(size: CGSize(width: 36, height: 36))
-                // Background should be aways white
-                .environment(\.colorScheme, .light)
+                // With themed images off, keep the legacy always-light (white) tile background.
+                .environment(\.colorScheme, usesThemedImages ? colorScheme : .light)
 
             IconView(
                 url: url,

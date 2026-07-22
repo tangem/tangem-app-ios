@@ -70,7 +70,7 @@ struct UserWalletSettingsView: View {
 
     @ViewBuilder
     private var walletRenameSubsection: some View {
-        Button(action: viewModel.onTapNameField) {
+        SwiftUI.Button(action: viewModel.onTapNameField) {
             InfoRowWithAction(
                 icon: { walletIcon },
                 title: Localization.settingsWalletNameTitle,
