@@ -16,10 +16,11 @@ final class ForYouViewModel: ObservableObject {
 
     init(
         coordinator: ForYouRoutable? = nil,
-        onExploreAllEarn: @MainActor @escaping () -> Void = {}
+        onExploreAllEarn: @MainActor @escaping () -> Void = {},
+        onAddFunds: @MainActor @escaping () -> Void = {}
     ) {
         self.coordinator = coordinator
-        portfolioReview = PortfolioReviewViewModel()
+        portfolioReview = .init(onAddFunds: onAddFunds)
         earnOpportunities = .init(onExploreAllTokens: onExploreAllEarn)
         portfolioReview.onSelectToken = { [weak self] tokenItem in
             self?.coordinator?.openTokenSummary(tokenItem: tokenItem)

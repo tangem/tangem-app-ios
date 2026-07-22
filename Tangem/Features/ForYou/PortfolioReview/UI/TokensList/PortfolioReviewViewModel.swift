@@ -18,6 +18,7 @@ final class PortfolioReviewViewModel: ObservableObject {
     // MARK: - Properties
 
     private let mapper: PortfolioReviewMapper
+    private let onAddFunds: @MainActor () -> Void
 
     private var expandedIds: Set<String> = []
     private var bag: Set<AnyCancellable> = []
@@ -26,13 +27,15 @@ final class PortfolioReviewViewModel: ObservableObject {
 
     @Published private(set) var state: ViewState = .loading
     @Published var selectedPeriod: ForYouPeriodSegment = .initial
+    @Published var selectedChartSegmentID: GaugeSegment.ID?
 
     var onSelectToken: (@MainActor (TokenItem) -> Void)?
 
     // MARK: - Init
 
-    init(mapper: PortfolioReviewMapper = PortfolioReviewMapper()) {
+    init(mapper: PortfolioReviewMapper = PortfolioReviewMapper(), onAddFunds: @MainActor @escaping () -> Void = {}) {
         self.mapper = mapper
+        self.onAddFunds = onAddFunds
         bind()
     }
 
@@ -75,6 +78,11 @@ final class PortfolioReviewViewModel: ObservableObject {
 
         return nil
     }
+
+    @MainActor
+    func addFundsTapped() {
+        onAddFunds()
+    }
 }
 
 // MARK: - Data flow
@@ -85,8 +93,10 @@ private extension PortfolioReviewViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { viewModel, _ in
-                // New wallet → drop the previous wallet's expansion (ids collide across wallets, e.g. shared currencyId).
+                // New wallet → drop the previous wallet's expansion and chart selection (ids collide across
+                // wallets, e.g. shared currencyId).
                 viewModel.expandedIds.removeAll()
+                viewModel.selectedChartSegmentID = nil
             })
             .map { viewModel, selectedModel in
                 viewModel.statePublisher(for: selectedModel)
@@ -119,21 +129,20 @@ private extension PortfolioReviewViewModel {
         guard let selectedModel else {
             // No selected wallet → empty content (not an endless loading state).
             return Just(
-                .content(.init(tokenList: [], periodSegments: ForYouPeriodSegment.all, chart: .noData(.cantLoad)))
+                .content(.init(tokenList: [], periodSegments: ForYouPeriodSegment.all, chart: .noData(.cantLoad), showsAddFunds: false))
             )
             .eraseToAnyPublisher()
         }
 
-        // `totalBalancePublisher` is here purely as a trigger: it re-fires as per-model balances resolve,
-        // which is what drives the loading → content transition (the wallet-models publisher itself does
-        // not re-emit on balance changes). The percent denominator is derived inside the mapper.
+        // `totalBalancePublisher` gates skeleton → content/empty and re-fires as balances resolve
+        // (the wallet-models publisher itself does not re-emit on balance changes).
         return Publishers.CombineLatest3(
             AccountWalletModelsAggregator.walletModelsPublisher(from: selectedModel.accountModelsManager),
             selectedModel.totalBalancePublisher,
             AppSettings.shared.$selectedCurrencyCode
         )
-        .map { [mapper] walletModels, _, _ in
-            mapper.map(walletModels: walletModels)
+        .map { [mapper] walletModels, totalBalance, _ in
+            mapper.map(walletModels: walletModels, totalBalance: totalBalance)
         }
         .eraseToAnyPublisher()
     }
@@ -153,7 +162,7 @@ private extension PortfolioReviewViewModel.ViewState {
             return self
         case .content(let content):
             let tokenList = content.tokenList.map { $0.updating(isExpanded: expandedIds.contains($0.id)) }
-            return .content(Content(tokenList: tokenList, periodSegments: content.periodSegments, chart: content.chart))
+            return .content(Content(tokenList: tokenList, periodSegments: content.periodSegments, chart: content.chart, showsAddFunds: content.showsAddFunds))
         }
     }
 }

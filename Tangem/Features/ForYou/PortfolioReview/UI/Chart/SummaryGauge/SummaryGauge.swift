@@ -59,7 +59,7 @@ struct SummaryGaugeView: View {
     private var centerContent: some View {
         if let noDataText {
             Text(noDataText)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .minimumScaleFactor(0.5)

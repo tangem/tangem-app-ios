@@ -58,6 +58,9 @@ struct MarketsCoordinatorView: CoordinatorView {
                 }
                 .tint(Colors.Text.primary1)
             }
+            .sheet(item: $coordinator.forYouAddFundsCoordinator) {
+                ActionButtonsBuyCoordinatorView(coordinator: $0)
+            }
     }
 
     private var links: some View {
