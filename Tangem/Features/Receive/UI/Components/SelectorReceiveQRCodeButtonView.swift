@@ -16,7 +16,7 @@ struct SelectorReceiveQRCodeButtonView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: .zero) {
-            Button {
+            SwiftUI.Button {
                 qrCodeAction()
             } label: {
                 HStack(alignment: .center, spacing: Layout.QRButtonView.contentSpacing) {
