@@ -24,7 +24,7 @@ struct EarnNetworkFilterNetworkRowViewRedesign: View {
     }
 
     var body: some View {
-        Button(action: input.onTap) {
+        SwiftUI.Button(action: input.onTap) {
             label
                 .padding(.vertical, verticalPadding)
         }

@@ -87,7 +87,7 @@ struct StakingDetailsView: View {
     }
 
     private var banner: some View {
-        Button(action: viewModel.userDidTapBanner) {
+        SwiftUI.Button(action: viewModel.userDidTapBanner) {
             ZStack(alignment: .leading) {
                 Assets.whatIsStakingBanner.image
                     .resizable()
