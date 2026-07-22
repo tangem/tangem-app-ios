@@ -44,7 +44,7 @@ struct AddressBooksView: View {
 
         case .addContact:
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: viewModel.openAddContact) {
+                SwiftUI.Button(action: viewModel.openAddContact) {
                     DesignSystem.Icons.SignPlus.regular20.image
                         .renderingMode(.template)
                         .foregroundColor(DesignSystem.Color.iconPrimary)
