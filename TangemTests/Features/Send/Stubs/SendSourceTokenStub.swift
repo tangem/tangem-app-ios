@@ -58,6 +58,7 @@ final class SendSourceTokenStub: SendSourceToken {
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
     var tangemIconProvider: any TangemIconProvider { TangemIconProviderStub() }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { ConfirmTransactionPolicyStub() }
+    var isTangemPayAccount: Bool { false }
 }
 
 // MARK: - TokenBalanceProvider
