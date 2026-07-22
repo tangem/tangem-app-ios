@@ -61,7 +61,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
         }
 
         if viewModel.shouldShowHeaderInfoButton {
-            Button(action: viewModel.showInsightsSheetInfo) { label }
+            SwiftUI.Button(action: viewModel.showInsightsSheetInfo) { label }
         } else {
             label
         }
@@ -98,7 +98,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
     }
 
     private func labelRow(for info: MarketsTokenDetailsInsightsView.RecordInfo) -> some View {
-        Button(action: { viewModel.showInfoBottomSheet(for: info.type) }) {
+        SwiftUI.Button(action: { viewModel.showInfoBottomSheet(for: info.type) }) {
             HStack(spacing: .unit(.x1)) {
                 infoIcon
 

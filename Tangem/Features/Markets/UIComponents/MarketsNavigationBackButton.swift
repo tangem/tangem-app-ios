@@ -32,7 +32,7 @@ struct MarketsNavigationBackButton: View {
     }
 
     private func redesignButton(icon: Image) -> some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             icon
                 .renderingMode(.template)
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)

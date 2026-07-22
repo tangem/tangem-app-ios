@@ -40,7 +40,7 @@ struct YieldModulePromoView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(Localization.yieldModulePromoScreenHowItWorksButtonTitle) {
+                SwiftUI.Button(Localization.yieldModulePromoScreenHowItWorksButtonTitle) {
                     viewModel.onHowItWorksTap()
                 }
                 .foregroundColor(Colors.Text.primary1)
@@ -66,7 +66,7 @@ struct YieldModulePromoView: View {
     }
 
     private var pillInfoButton: some View {
-        Button(action: { viewModel.onInterestRateInfoTap() }) {
+        SwiftUI.Button(action: { viewModel.onInterestRateInfoTap() }) {
             HStack(spacing: 4) {
                 Text(Localization.yieldModulePromoScreenVariableRateInfoV2)
                     .style(Fonts.Bold.caption1, color: Colors.Text.secondary)

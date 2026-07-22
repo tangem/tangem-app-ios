@@ -87,7 +87,7 @@ private struct MarketsPortfolioBlockContentView: View {
     }
 
     private var addFundsButton: some View {
-        Button(action: onAddFundsTap) {
+        SwiftUI.Button(action: onAddFundsTap) {
             HStack(spacing: 6) {
                 DesignSystem.Icons.ArrowDown.regular20.image
                     .renderingMode(.template)
@@ -108,7 +108,7 @@ private struct MarketsPortfolioBlockContentView: View {
     }
 
     private var expandButton: some View {
-        Button(action: onExpandTap) {
+        SwiftUI.Button(action: onExpandTap) {
             Assets.arrowExpand.image
                 .renderingMode(.template)
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
