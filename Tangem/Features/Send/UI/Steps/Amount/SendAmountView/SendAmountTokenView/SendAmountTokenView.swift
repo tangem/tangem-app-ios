@@ -19,15 +19,15 @@ struct SendAmountTokenView: View {
         HStack(spacing: 14) {
             switch (data.action, data.detailsType) {
             case (.some(let leadingAction), .select(individualAction: .some(let individualAction))):
-                Button(action: leadingAction) {
+                SwiftUI.Button(action: leadingAction) {
                     leadingView
 
                     Spacer()
                 }
 
-                Button(action: individualAction) { trailingView }
+                SwiftUI.Button(action: individualAction) { trailingView }
             case (.some(let leadingAction), _):
-                Button(action: leadingAction) {
+                SwiftUI.Button(action: leadingAction) {
                     leadingView
 
                     Spacer()
