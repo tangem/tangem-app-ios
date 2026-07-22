@@ -32,6 +32,7 @@ protocol AddressBookContactManagementInteractor {
     var mainButtonIconPublisher: AnyPublisher<MainButton.Icon?, Never> { get }
 
     var hasUnsavedChanges: Bool { get }
+    var hasUnsavedChangesPublisher: AnyPublisher<Bool, Never> { get }
 
     func update(name: String)
     func update(color: AccountModel.CompositeIcon.Color)
