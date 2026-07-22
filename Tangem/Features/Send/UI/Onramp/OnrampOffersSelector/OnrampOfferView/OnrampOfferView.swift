@@ -213,7 +213,7 @@ struct OnrampOfferView: View {
                 Text(Localization.onrampPayWith)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                IconView(url: viewModel.provider.paymentType.image, size: .height(16)) {
+                IconView(url: viewModel.provider.paymentType.themedImageURL(isDark: resolvedColorScheme == .dark), size: .height(16)) {
                     SkeletonView()
                         .frame(width: 30, height: 16)
                         .cornerRadiusContinuous(6)
