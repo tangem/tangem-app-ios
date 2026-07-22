@@ -29,7 +29,7 @@ struct AccountRowButtonView<Trailing: View>: View {
     }
 
     var body: some View {
-        Button(action: viewModel.onSelect) {
+        SwiftUI.Button(action: viewModel.onSelect) {
             AccountIconWithContentView(
                 iconData: viewModel.iconData,
                 name: viewModel.name,

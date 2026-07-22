@@ -46,7 +46,7 @@ struct RewardView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
         case .rewards(let claimable, let fiatFormatted, let cryptoFormatted, let action):
-            Button(action: action) {
+            SwiftUI.Button(action: action) {
                 HStack(spacing: 4) {
                     SensitiveText(fiatFormatted)
                         .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
