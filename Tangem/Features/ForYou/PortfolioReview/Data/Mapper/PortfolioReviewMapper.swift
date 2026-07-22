@@ -13,33 +13,43 @@ import TangemUI
 struct PortfolioReviewMapper {
     private let rowBuilder = PortfolioRowBuilder()
 
-    func map(walletModels: [any WalletModel], totalBalance: TotalBalanceState) -> PortfolioReviewViewModel.ViewState {
+    func map(
+        walletModels: [any WalletModel],
+        totalBalance: TotalBalanceState
+    ) -> (state: PortfolioReviewViewModel.ViewState, displayedTokenItems: Set<TokenItem>) {
         let holdings = walletModels.map(makeHolding)
         let (topHoldings, other) = PortfolioReviewAggregator.aggregate(holdings)
         let groups = topHoldings + other
 
         guard !isStillResolving(groups: groups, totalBalance: totalBalance) else {
-            return .loading
+            return (.loading, [])
         }
 
         // Resolved with nothing to rank (no tokens / all balances zero) → empty state: NoData chart + the held
         // tokens listed at $0 (unfiltered), never an endless skeleton.
         guard !groups.isEmpty else {
             let reason = emptyChartReason(for: totalBalance)
-            return .content(.init(
-                tokenList: rowBuilder.build(topHoldings: PortfolioReviewAggregator.aggregateEmpty(holdings), other: []),
-                periodSegments: ForYouPeriodSegment.all,
-                chart: .noData(reason),
-                showsAddFunds: reason == .noAmount
-            ))
+            let emptyGroups = PortfolioReviewAggregator.aggregateEmpty(holdings)
+            return (
+                .content(.init(
+                    tokenList: rowBuilder.build(topHoldings: emptyGroups, other: []),
+                    periodSegments: ForYouPeriodSegment.all,
+                    chart: .noData(reason),
+                    showsAddFunds: reason == .noAmount
+                )),
+                displayedTokenItems(in: emptyGroups)
+            )
         }
 
-        return .content(.init(
-            tokenList: rowBuilder.build(topHoldings: topHoldings, other: other),
-            periodSegments: ForYouPeriodSegment.all, // [REDACTED_TODO_COMMENT]
-            chart: chart(topHoldings: topHoldings, other: other, totalBalance: totalBalance),
-            showsAddFunds: false
-        ))
+        return (
+            .content(.init(
+                tokenList: rowBuilder.build(topHoldings: topHoldings, other: other),
+                periodSegments: ForYouPeriodSegment.all, // [REDACTED_TODO_COMMENT]
+                chart: chart(topHoldings: topHoldings, other: other, totalBalance: totalBalance),
+                showsAddFunds: false
+            )),
+            displayedTokenItems(in: groups)
+        )
     }
 }
 
@@ -85,6 +95,11 @@ private extension PortfolioReviewMapper {
 // MARK: - Holding extraction
 
 private extension PortfolioReviewMapper {
+    /// Includes the "Other" bucket, excludes zero-balance holdings — the set the outdated-data banner is scoped to.
+    func displayedTokenItems(in groups: [PortfolioReviewAggregator.Group]) -> Set<TokenItem> {
+        Set(groups.flatMap(\.holdings).map(\.tokenItem))
+    }
+
     func makeHolding(_ walletModel: any WalletModel) -> PortfolioReviewAggregator.TokenHolding {
         let tokenItem = walletModel.tokenItem
         let fiatBalance = walletModel.fiatAvailableBalanceProvider.balanceType
