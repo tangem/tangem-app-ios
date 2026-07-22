@@ -11,6 +11,8 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class StakingFlowFactory: StakingFlowDependenciesFactory {
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
+
     let stakingableToken: SendStakingableToken
     let manager: any StakingManager
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
@@ -160,8 +162,20 @@ extension StakingFlowFactory: SendAmountStepBuildable {
             ),
             amountModifier: StakingAmountModifier(tokenItem: tokenItem, actionType: actionType.sendFlowActionType),
             notificationService: .none,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            marketingBannerManager: makeMarketingBannerManager()
         )
+    }
+
+    func makeMarketingBannerManager() -> MarketingBannerManager {
+        marketingCampaignsRepository.loadCampaigns(for: .staking)
+
+        let marketingBannerManager = MarketingBannerManager()
+        marketingBannerManager.setup(
+            bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: tokenItem, kind: .staking)
+        )
+
+        return marketingBannerManager
     }
 }
 
