@@ -31,6 +31,9 @@ protocol SendSourceToken: SendReceiveToken {
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
     var tangemIconProvider: any TangemIconProvider { get }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { get }
+
+    /// Whether the source token belongs to a Tangem Pay (Visa Payment) account.
+    var isTangemPayAccount: Bool { get }
 }
 
 extension SendSourceToken {
