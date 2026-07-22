@@ -20,7 +20,6 @@ struct PortfolioReviewView: View {
             header
             content
         }
-        .animation(.easeInOut(duration: 0.3), value: viewModel.state == .loading)
     }
 }
 
@@ -47,7 +46,8 @@ private extension PortfolioReviewView {
     var content: some View {
         VStack(spacing: 8) {
             stateContent
-                .transition(.opacity)
+                // Animate the crossfade only, not the frame shifts from the banner above.
+                .transition(.opacity.animation(.easeInOut(duration: 0.3)))
         }
     }
 
