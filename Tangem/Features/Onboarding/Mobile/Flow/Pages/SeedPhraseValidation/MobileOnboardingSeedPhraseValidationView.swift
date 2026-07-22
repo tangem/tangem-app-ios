@@ -28,26 +28,18 @@ private extension MobileOnboardingSeedPhraseValidationView {
     @ViewBuilder
     var content: some View {
         switch viewModel.state {
-        case .item(let item):
-            state(item: item)
-        case .none:
+        case .initial:
             EmptyView()
+        case .item(let userValidationViewModel):
+            userValidationView(userValidationViewModel)
         }
     }
 
-    func state(item: ViewModel.StateItem) -> some View {
-        OnboardingSeedPhraseUserValidationView(viewModel: OnboardingSeedPhraseUserValidationViewModel(
-            mode: .mobile,
-            validationInput: .init(
-                secondWord: item.second,
-                seventhWord: item.seventh,
-                eleventhWord: item.eleventh,
-                createWalletAction: viewModel.onCreateWallet
-            )
-        ))
-        .onFirstAppear(perform: viewModel.onFirstAppear)
-        .onDisappear {
-            UIApplication.shared.endEditing()
-        }
+    func userValidationView(_ userValidationViewModel: OnboardingSeedPhraseUserValidationViewModel) -> some View {
+        OnboardingSeedPhraseUserValidationView(viewModel: userValidationViewModel)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
+            .onDisappear {
+                UIApplication.shared.endEditing()
+            }
     }
 }
