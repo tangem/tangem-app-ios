@@ -120,8 +120,6 @@ private extension TangemPaySelectPlanViewModel {
     func apply(transitions: TangemPayTariffPlanTransitionsResponse) {
         self.transitions = transitions
 
-        let itemTypes = mode.itemTypes
-
         let currentPlan = currentTariffPlan.map { plan in
             Plan(
                 id: plan.id,
@@ -129,7 +127,7 @@ private extension TangemPaySelectPlanViewModel {
                 imageURL: plan.images.first { $0.type == .main }?.url,
                 transitionType: nil,
                 isCurrent: true,
-                points: Self.makePoints(from: plan.descriptionItems, itemTypes: itemTypes)
+                points: Self.makePoints(from: plan.descriptionItems)
             )
         }
 
@@ -140,7 +138,7 @@ private extension TangemPaySelectPlanViewModel {
                 imageURL: transition.tariffPlan.images.first { $0.type == .main }?.url,
                 transitionType: transition.type,
                 isCurrent: false,
-                points: Self.makePoints(from: transition.tariffPlan.descriptionItems, itemTypes: itemTypes)
+                points: Self.makePoints(from: transition.tariffPlan.descriptionItems)
             )
         }
 
@@ -167,23 +165,12 @@ private extension TangemPaySelectPlanViewModel {
 
 private extension TangemPaySelectPlanViewModel {
     static func makePoints(
-        from items: [VisaCustomerInfoResponse.TariffPlan.DescriptionItem],
-        itemTypes: Set<VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType>
+        from items: [VisaCustomerInfoResponse.TariffPlan.DescriptionItem]
     ) -> [Point] {
         items
-            .filter { itemTypes.contains($0.type) }
-            .sorted { ($0.type.sortIndex, $0.order) < ($1.type.sortIndex, $1.order) }
+            .filter { $0.type == .onboardingRelated }
+            .sorted { $0.order < $1.order }
             .map { Point(title: $0.title, subtitle: $0.body) }
-    }
-}
-
-private extension VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType {
-    var sortIndex: Int {
-        switch self {
-        case .cardRelated: 0
-        case .planRelated: 1
-        case .onboardingRelated: 2
-        }
     }
 }
 
@@ -193,13 +180,6 @@ extension TangemPaySelectPlanViewModel {
     enum Mode {
         case onboarding
         case planChange(onProceedToConfirm: TangemPayProceedToConfirmAction)
-
-        var itemTypes: Set<VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType> {
-            switch self {
-            case .onboarding: [.onboardingRelated]
-            case .planChange: [.cardRelated, .planRelated]
-            }
-        }
     }
 
     struct Plan: Identifiable {
