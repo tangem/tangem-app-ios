@@ -42,6 +42,7 @@ final class MarketsCoordinator: CoordinatorObject {
 
     @Published var marketsListOrderBottomSheetViewModel: MarketsListOrderBottomSheetViewModel?
     @Published var forYouViewModel: ForYouViewModel?
+    @Published var forYouAddFundsCoordinator: ActionButtonsBuyCoordinator?
     @Published var forYouEarnListCoordinator: EarnCoordinator?
     @Published var forYouTokenSummaryViewModel: TokenSummaryViewModel?
     @Published var forYouSwapTokenSelectorViewModel: ForYouSwapTokenSelectorViewModel?
@@ -112,8 +113,31 @@ extension MarketsCoordinator: MarketsMainRoutable {
             coordinator: self,
             onExploreAllEarn: { [weak self] in
                 self?.openForYouSeeAllEarn()
+            },
+            onAddFunds: { [weak self] in
+                self?.openForYouAddFunds()
             }
         )
+    }
+
+    @MainActor
+    func openForYouAddFunds() {
+        let coordinator = ActionButtonsBuyCoordinator(
+            dismissAction: { [weak self] payload in
+                self?.forYouAddFundsCoordinator = nil
+                guard let payload, let account = payload.walletModel.account else { return }
+                self?.openTokenDetails(
+                    userWalletModel: payload.userWalletModel,
+                    accountModel: account,
+                    walletModel: payload.walletModel
+                )
+            }
+        )
+        coordinator.start(with: .init(
+            userWalletModels: userWalletRepository.models,
+            preferredWalletId: userWalletRepository.selectedModel?.userWalletId
+        ))
+        forYouAddFundsCoordinator = coordinator
     }
 
     func openSeeAllTopMarketWidget() {
