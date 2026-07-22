@@ -250,7 +250,7 @@ struct MetricsInfoLabel: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             HStack(spacing: .unit(.x1)) {
                 Assets.infoCircle16.image
                     .renderingMode(.template)

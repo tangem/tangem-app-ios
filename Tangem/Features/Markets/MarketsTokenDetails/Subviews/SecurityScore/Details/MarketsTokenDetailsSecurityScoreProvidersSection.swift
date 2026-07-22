@@ -50,7 +50,7 @@ struct MarketsTokenDetailsSecurityScoreProvidersSection: View {
     private func makeTrailingComponent(
         with provider: MarketsTokenDetailsSecurityScoreDetailsViewModel.SecurityScoreProviderData
     ) -> some View {
-        Button(
+        SwiftUI.Button(
             action: {
                 viewModel.onProviderLinkTap(with: provider.id)
             },
