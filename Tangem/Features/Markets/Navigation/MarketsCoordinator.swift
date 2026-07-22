@@ -294,8 +294,7 @@ extension MarketsCoordinator: MarketsMainRoutable {
 
 extension MarketsCoordinator: ForYouRoutable {
     func openTokenSummary(tokenItem: TokenItem) {
-        // [REDACTED_TODO_COMMENT]
-        forYouTokenSummaryViewModel = .mock(
+        forYouTokenSummaryViewModel = TokenSummaryViewModel(
             tokenItem: tokenItem,
             onGoToSwap: { [weak self] in self?.goToForYouSwap(with: tokenItem) },
             onClose: { [weak self] in self?.forYouTokenSummaryViewModel = nil }

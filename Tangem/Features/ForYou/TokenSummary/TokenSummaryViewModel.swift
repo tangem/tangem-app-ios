@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import TangemUI
 
 @MainActor
@@ -17,34 +18,64 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
     let tokenIconInfo: TokenIconInfo
 
     @Published var selectedPeriod: TokenSummaryPeriod = .day
+    @Published private(set) var isLoading = true
     @Published private(set) var outlook: TokenSummaryOutlook?
     @Published private(set) var lastUpdated: Date?
-    @Published private(set) var aiSummaryText: String?
-    @Published private(set) var metrics: [TokenSummaryMetric]
+    @Published private(set) var metrics: [TokenSummaryMetric] = []
+
+    /// The coin-indicators contract carries no AI summary yet, so the block stays hidden until it does.
+    let aiSummaryText: String? = nil
+
+    private let symbol: String
+    private let mapper: TokenSummaryMetricsMapper
+    private let indicatorsProvider: TokenSummaryIndicatorsProvider
+    private var readings: [TokenSummaryIndicator] = []
+    private var bag: Set<AnyCancellable> = []
 
     private let onGoToSwap: () -> Void
     private let onClose: () -> Void
 
-    init(
+    convenience init(
+        tokenItem: TokenItem,
+        mapper: TokenSummaryMetricsMapper = TokenSummaryMetricsMapper(),
+        indicatorsProvider: TokenSummaryIndicatorsProvider = CommonTokenSummaryIndicatorsProvider(),
+        onGoToSwap: @escaping () -> Void,
+        onClose: @escaping () -> Void
+    ) {
+        self.init(
+            tokenName: tokenItem.name,
+            networkName: tokenItem.networkName,
+            tokenIconInfo: TokenIconInfoBuilder().build(from: tokenItem, isCustom: false),
+            symbol: tokenItem.currencySymbol,
+            mapper: mapper,
+            indicatorsProvider: indicatorsProvider,
+            onGoToSwap: onGoToSwap,
+            onClose: onClose
+        )
+
+        loadIndicators()
+    }
+
+    private init(
         tokenName: String,
         networkName: String,
         tokenIconInfo: TokenIconInfo,
-        outlook: TokenSummaryOutlook?,
-        lastUpdated: Date?,
-        aiSummaryText: String?,
-        metrics: [TokenSummaryMetric],
+        symbol: String,
+        mapper: TokenSummaryMetricsMapper,
+        indicatorsProvider: TokenSummaryIndicatorsProvider,
         onGoToSwap: @escaping () -> Void,
         onClose: @escaping () -> Void
     ) {
         self.tokenName = tokenName
         self.networkName = networkName
         self.tokenIconInfo = tokenIconInfo
-        self.outlook = outlook
-        self.lastUpdated = lastUpdated
-        self.aiSummaryText = aiSummaryText
-        self.metrics = metrics
+        self.symbol = symbol
+        self.mapper = mapper
+        self.indicatorsProvider = indicatorsProvider
         self.onGoToSwap = onGoToSwap
         self.onClose = onClose
+
+        bind()
     }
 
     func goToSwapTapped() {
@@ -66,58 +97,75 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
 
         floatingSheetPresenter.enqueue(sheet: infoViewModel)
     }
+
+    private func bind() {
+        $selectedPeriod
+            .sink { [weak self] period in
+                self?.updateDerivedState(for: period)
+            }
+            .store(in: &bag)
+    }
+
+    private func loadIndicators() {
+        Task { [weak self] in
+            guard let self else { return }
+
+            do {
+                readings = try await indicatorsProvider.loadIndicators(symbol: symbol)
+            } catch {
+                readings = []
+            }
+
+            isLoading = false
+            updateDerivedState(for: selectedPeriod)
+        }
+    }
+
+    private func updateDerivedState(for period: TokenSummaryPeriod) {
+        let result = mapper.map(readings: readings, period: period)
+        metrics = result.metrics
+        outlook = result.outlook
+        lastUpdated = result.lastUpdated
+    }
 }
 
 // MARK: - Mock
 
 extension TokenSummaryViewModel {
-    // [REDACTED_TODO_COMMENT]
     static func mock(
         tokenItem: TokenItem,
         onGoToSwap: @escaping () -> Void = {},
         onClose: @escaping () -> Void = {}
     ) -> TokenSummaryViewModel {
-        TokenSummaryViewModel(
+        let viewModel = TokenSummaryViewModel(
             tokenName: tokenItem.name,
             networkName: tokenItem.networkName,
             tokenIconInfo: TokenIconInfoBuilder().build(from: tokenItem, isCustom: false),
-            outlook: .positive,
-            lastUpdated: Date(),
-            aiSummaryText: "AI Total: the momentum looks strong across most indicators, though a short-term pullback is possible after such a fast run-up.",
-            metrics: [
-                TokenSummaryMetric(
-                    title: "Galaxy Score",
-                    value: "72",
-                    sentiment: .positive,
-                    info: "An indicator that evaluates the current state of a cryptocurrency based on its market indicators and the dynamics of social sentiment, developed by LunarCrush."
-                ),
-                TokenSummaryMetric(
-                    title: "Sentiment",
-                    value: "2.01",
-                    sentiment: .positive,
-                    info: "A measure of the overall mood of the market toward the asset, aggregated from social media and news activity."
-                ),
-                TokenSummaryMetric(
-                    title: "RSI",
-                    value: "61",
-                    sentiment: .positive,
-                    info: "The Relative Strength Index measures the speed and magnitude of recent price changes to signal overbought or oversold conditions."
-                ),
-                TokenSummaryMetric(
-                    title: "MACD",
-                    value: "145.67",
-                    sentiment: .neutral,
-                    info: "Moving Average Convergence Divergence tracks the relationship between two moving averages to reveal shifts in momentum."
-                ),
-                TokenSummaryMetric(
-                    title: "MA Cross",
-                    value: "50",
-                    sentiment: .positive,
-                    info: "Highlights when short- and long-term moving averages cross, a classic signal of a potential trend reversal."
-                ),
-            ],
+            symbol: tokenItem.currencySymbol,
+            mapper: TokenSummaryMetricsMapper(),
+            indicatorsProvider: StubTokenSummaryIndicatorsProvider(),
             onGoToSwap: onGoToSwap,
             onClose: onClose
         )
+
+        viewModel.readings = mockReadings
+        viewModel.isLoading = false
+        viewModel.updateDerivedState(for: viewModel.selectedPeriod)
+
+        return viewModel
     }
+
+    private static var mockReadings: [TokenSummaryIndicator] {
+        [
+            .init(kind: .galaxyScore, timeframe: nil, value: 72, signal: .neutral, subLabel: nil, updatedAt: nil),
+            .init(kind: .sentiment, timeframe: nil, value: nil, signal: .unavailable, subLabel: nil, updatedAt: nil),
+            .init(kind: .rsi, timeframe: .day, value: 61, signal: .bearish, subLabel: nil, updatedAt: nil),
+            .init(kind: .macd, timeframe: .day, value: Decimal(string: "145.67"), signal: .bearish, subLabel: nil, updatedAt: nil),
+            .init(kind: .maCross, timeframe: nil, value: 50, signal: .bearish, subLabel: nil, updatedAt: nil),
+        ]
+    }
+}
+
+private struct StubTokenSummaryIndicatorsProvider: TokenSummaryIndicatorsProvider {
+    func loadIndicators(symbol: String) async throws -> [TokenSummaryIndicator] { [] }
 }
