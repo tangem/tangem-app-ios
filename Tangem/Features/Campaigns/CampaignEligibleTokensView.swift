@@ -70,7 +70,7 @@ private struct CampaignEligibleTokenRowView: View {
 
             Spacer(minLength: 16)
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(Localization.marketsAddToken),
                 accessibilityLabel: Localization.marketsAddToken,
                 action: addAction

@@ -33,7 +33,7 @@ struct MarketsPortfolioMultipleTokenView: View {
 
 private extension MarketsPortfolioMultipleTokenView {
     var content: some View {
-        Button(action: viewModel.onTap) {
+        SwiftUI.Button(action: viewModel.onTap) {
             HStack(spacing: horizontalSpacing) {
                 token
                 arrow

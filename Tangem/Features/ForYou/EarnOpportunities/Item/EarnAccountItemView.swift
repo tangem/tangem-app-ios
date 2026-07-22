@@ -61,7 +61,7 @@ private extension EarnAccountItemView {
     // MARK: - Collapsed
 
     var collapsedHeader: some View {
-        TangemRow(
+        Row(
             subtitle: item.account.tokensCountText,
             value: item.account.rewardText
         )
