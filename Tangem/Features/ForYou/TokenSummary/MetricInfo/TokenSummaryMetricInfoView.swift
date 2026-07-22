@@ -39,7 +39,7 @@ struct TokenSummaryMetricInfoView: View {
             HStack {
                 Spacer()
 
-                TangemButtonV2(
+                TangemUI.Button(
                     icon: DesignSystem.Icons.Cross.regular20,
                     accessibilityLabel: Localization.commonClose,
                     action: viewModel.onClose

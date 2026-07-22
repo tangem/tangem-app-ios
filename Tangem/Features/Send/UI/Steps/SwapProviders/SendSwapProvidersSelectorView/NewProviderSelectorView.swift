@@ -149,7 +149,7 @@ struct NewProviderSelectorView: View {
     }
 
     private func approveSettingsButton(name: String) -> some View {
-        Button(action: viewModel.openApprove) {
+        SwiftUI.Button(action: viewModel.openApprove) {
             Assets.sliders.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.informative)

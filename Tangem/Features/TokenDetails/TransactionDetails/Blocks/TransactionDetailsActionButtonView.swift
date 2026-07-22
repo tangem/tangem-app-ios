@@ -20,7 +20,7 @@ struct TransactionDetailsActionButtonView: View {
     let data: TransactionDetailsActionButtonViewData
 
     var body: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(data.title),
             iconEnd: data.icon,
             accessibilityLabel: data.title,

@@ -21,7 +21,7 @@ struct TrendingCardNewsViewRedesign: View {
             TrendingCardNewsSkeletonView()
                 .allowsHitTesting(false)
         } else if let item = itemState.value {
-            Button(action: { item.onTap(item.id) }) {
+            SwiftUI.Button(action: { item.onTap(item.id) }) {
                 contentView(for: item)
             }
             .buttonStyle(.plain)

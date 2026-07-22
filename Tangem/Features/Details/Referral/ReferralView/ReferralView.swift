@@ -301,7 +301,7 @@ struct ReferralView: View {
             }
 
             if viewModel.canExpandExpectedAwards {
-                Button {
+                SwiftUI.Button {
                     withAnimation(nil) {
                         viewModel.expectedAwardsExpanded.toggle()
                     }
@@ -349,7 +349,7 @@ struct ReferralView: View {
     }
 
     private var tosButton: some View {
-        Button(action: viewModel.openTOS) {
+        SwiftUI.Button(action: viewModel.openTOS) {
             Text(viewModel.tosButtonPrefix) +
                 Text(Localization.commonTermsAndConditions).foregroundColor(Colors.Text.accent) +
                 Text(" " + Localization.referralTosSuffix)

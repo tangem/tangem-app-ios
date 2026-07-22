@@ -21,7 +21,7 @@ struct StakingDetailsStakeView: View {
                 .accessibilityIdentifier(data.accessibilityIdentifier)
 
         case .some(let action):
-            Button(action: action) {
+            SwiftUI.Button(action: action) {
                 content
             }
             .accessibilityIdentifier(data.accessibilityIdentifier)

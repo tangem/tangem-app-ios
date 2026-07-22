@@ -20,7 +20,7 @@ struct TokenSelectorItemView: View {
     }
 
     var body: some View {
-        Button(action: viewModel.action) {
+        SwiftUI.Button(action: viewModel.action) {
             TwoLineRowWithIcon(
                 icon: {
                     TokenItemViewLeadingComponent(

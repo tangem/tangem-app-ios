@@ -57,7 +57,7 @@ struct TokenSummaryView: View {
 
             Spacer()
 
-            TangemButtonV2(
+            TangemUI.Button(
                 icon: DesignSystem.Icons.Cross.regular20,
                 accessibilityLabel: Localization.commonClose,
                 action: viewModel.closeTapped
@@ -116,7 +116,7 @@ struct TokenSummaryView: View {
                 Text(metric.title)
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
-                Button {
+                SwiftUI.Button {
                     viewModel.metricInfoTapped(metric)
                 } label: {
                     DesignSystem.Icons.Info.regular16.image
@@ -131,12 +131,12 @@ struct TokenSummaryView: View {
             Spacer()
 
             HStack(spacing: 2) {
-                TangemBadgeV2(label: metric.value, accessibilityLabel: nil)
+                Badge(label: metric.value, accessibilityLabel: nil)
                     .size(.x6)
                     .variant(.tinted)
                     .appearance(.neutral)
 
-                TangemBadgeV2(label: metric.sentiment.badgeTitle, accessibilityLabel: nil)
+                Badge(label: metric.sentiment.badgeTitle, accessibilityLabel: nil)
                     .size(.x6)
                     .variant(.tinted)
                     .appearance(metric.sentiment.badgeAppearance)
@@ -151,7 +151,7 @@ struct TokenSummaryView: View {
     }
 
     private var goToSwapButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(Localization.tokenSummaryGoToSwapButton),
             accessibilityLabel: Localization.tokenSummaryGoToSwapButton,
             action: viewModel.goToSwapTapped
@@ -174,7 +174,7 @@ private extension TokenSummaryOutlook {
         }
     }
 
-    var badgeAppearance: TangemBadgeV2Appearance {
+    var badgeAppearance: BadgeAppearance {
         switch self {
         case .positive: .success
         case .neutral: .info

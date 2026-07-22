@@ -64,7 +64,7 @@ public struct TangemMessageBubble: View, Setupable {
     }
 
     private var closeButton: some View {
-        Button(action: closeAction) {
+        SwiftUI.Button(action: closeAction) {
             DesignSystem.Icons.CrossCircle.filled16.image
                 .renderingMode(.template)
                 .resizable()

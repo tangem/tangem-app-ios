@@ -80,7 +80,7 @@ struct OnrampAmountView: View {
 
     @ViewBuilder
     private func tokenIconView(fiatItem: FiatItem) -> some View {
-        Button(action: viewModel.onChangeCurrencyTap) {
+        SwiftUI.Button(action: viewModel.onChangeCurrencyTap) {
             HStack(spacing: 4) {
                 IconView(
                     url: fiatItem.iconURL,
