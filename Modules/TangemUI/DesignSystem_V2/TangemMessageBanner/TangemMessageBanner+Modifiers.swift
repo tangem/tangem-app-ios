@@ -221,7 +221,7 @@ public struct TangemMessageBannerCloseButton: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: iconSize, height: iconSize)
-                .foregroundStyle(DesignSystem.Color.iconSecondary)
+                .foregroundStyle(DesignSystem.Color.iconTertiary)
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
