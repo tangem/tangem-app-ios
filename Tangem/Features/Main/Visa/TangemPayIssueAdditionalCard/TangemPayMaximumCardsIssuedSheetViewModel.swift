@@ -10,25 +10,34 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-struct TangemPayMaximumCardsIssuedSheetViewModel: FloatingSheetContentViewModel {
-    var id: String { String(describing: Self.self) }
+protocol TangemPayMaximumCardsIssuedSheetRoutable: AnyObject {
+    func closeMaximumCardsIssuedSheet()
+}
+
+@MainActor
+final class TangemPayMaximumCardsIssuedSheetViewModel: FloatingSheetContentViewModel {
+    nonisolated var id: String { String(describing: Self.self) }
 
     let title = Localization.tangempayMaximumCardsIssuedTitle
     let description = Localization.tangempayMaximumCardsIssuedDescription
 
-    let onClose: () -> Void
+    private weak var coordinator: TangemPayMaximumCardsIssuedSheetRoutable?
+
+    init(coordinator: TangemPayMaximumCardsIssuedSheetRoutable) {
+        self.coordinator = coordinator
+    }
 
     var primaryButton: MainButton.Settings {
         MainButton.Settings(
             title: Localization.commonGotIt,
             style: .secondary,
             size: .default,
-            action: onClose
+            action: dismiss
         )
     }
 
     func dismiss() {
-        onClose()
+        coordinator?.closeMaximumCardsIssuedSheet()
     }
 }
 
