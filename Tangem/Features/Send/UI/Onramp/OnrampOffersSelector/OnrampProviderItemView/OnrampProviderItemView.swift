@@ -43,9 +43,12 @@ struct OnrampProviderItemView: View {
 
     private var topView: some View {
         HStack(spacing: 12) {
-            OnrampPaymentMethodIconView(url: viewModel.paymentMethod.iconURL)
-                .opacity(viewModel.isAvailable ? 1 : 0.5)
-                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodIcon(id: viewModel.paymentMethod.id))
+            OnrampPaymentMethodIconView(
+                lightURL: viewModel.paymentMethod.lightIconURL,
+                darkURL: viewModel.paymentMethod.darkIconURL
+            )
+            .opacity(viewModel.isAvailable ? 1 : 0.5)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodIcon(id: viewModel.paymentMethod.id))
 
             titleView
 
