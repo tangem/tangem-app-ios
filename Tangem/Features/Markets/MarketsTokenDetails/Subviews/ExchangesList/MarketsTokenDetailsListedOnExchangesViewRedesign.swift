@@ -22,7 +22,7 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
 
     var body: some View {
         if isListedOnExchanges {
-            Button(action: buttonAction) {
+            SwiftUI.Button(action: buttonAction) {
                 rowContent
             }
             .buttonStyle(.plain)

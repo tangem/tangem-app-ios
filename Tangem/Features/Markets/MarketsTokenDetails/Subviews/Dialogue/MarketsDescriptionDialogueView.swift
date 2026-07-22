@@ -82,7 +82,7 @@ private extension MarketsDescriptionDialogueView {
     }
 
     var generatedWithAIBadge: some View {
-        Button {
+        SwiftUI.Button {
             viewModel.onGenerateAITapAction?()
         } label: {
             HStack(spacing: .unit(.x3)) {

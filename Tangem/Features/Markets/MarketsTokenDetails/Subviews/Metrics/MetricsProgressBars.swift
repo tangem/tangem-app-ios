@@ -17,7 +17,7 @@ struct MetricsCardContainer<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
-        Button(
+        SwiftUI.Button(
             action: action,
             label: label
         )

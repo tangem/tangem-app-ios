@@ -55,7 +55,7 @@ struct WalletConnectView: View {
         ToolbarItem(placement: .topBarTrailing) {
             if viewModel.state.contentState.isContent {
                 Menu {
-                    Button(
+                    SwiftUI.Button(
                         role: .destructive,
                         action: { viewModel.handle(viewEvent: .disconnectAllDAppsButtonTapped) },
                         label: {
@@ -226,7 +226,7 @@ struct WalletConnectView: View {
     }
 
     private func dAppRowView(_ dApp: WalletConnectViewState.ContentState.ConnectedDApp) -> some View {
-        Button(action: { viewModel.handle(viewEvent: .dAppTapped(dApp.domainModel)) }) {
+        SwiftUI.Button(action: { viewModel.handle(viewEvent: .dAppTapped(dApp.domainModel)) }) {
             HStack(spacing: 12) {
                 iconView(dApp)
 
@@ -343,7 +343,7 @@ private extension View {
 private extension WalletConnectViewState.ModalDialog.Alert {
     var actions: some View {
         ForEach(buttons, id: \.self) { button in
-            Button(button.title, role: button.role?.toSwiftUIButtonRole, action: button.action)
+            SwiftUI.Button(button.title, role: button.role?.toSwiftUIButtonRole, action: button.action)
         }
     }
 }

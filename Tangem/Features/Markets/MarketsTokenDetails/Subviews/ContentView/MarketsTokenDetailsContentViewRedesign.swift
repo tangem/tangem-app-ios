@@ -123,7 +123,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                         .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
                         .multilineTextAlignment(.leading)
                 } else {
-                    Button(action: viewModel.openFullDescription) {
+                    SwiftUI.Button(action: viewModel.openFullDescription) {
                         Group {
                             Text("\(shortDescription) ")
                                 + readMoreText

@@ -176,7 +176,7 @@ struct TangemPayOfferViewV2: View {
     }
 
     private var footer: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: .init(Localization.tangempayOnboardingGetCardButtonText),
             iconEnd: DesignSystem.Icons.LogoTangem.regular24,
             accessibilityLabel: nil
