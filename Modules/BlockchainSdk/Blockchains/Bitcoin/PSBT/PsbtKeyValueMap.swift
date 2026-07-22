@@ -32,8 +32,58 @@ struct PsbtKeyValueMap {
         outputMaps = try (0 ..< outputCount).map { _ in try reader.readKVMap() }
     }
 
+    /// The raw unsigned transaction from the global map (key `0x00`). Parses the global map only,
+    /// so it doesn't need the input/output counts — they come from this very transaction.
+    static func unsignedTransactionBytes(psbtData: Data) throws -> Data {
+        var reader = ByteReader(psbtData)
+        let magic = try reader.read(count: 5)
+        guard magic == Const.magicBytes else {
+            throw BitcoinError.invalidPsbt("Invalid PSBT magic")
+        }
+
+        let globalMap = try reader.readKVMap()
+        guard let unsignedTx = globalMap.first(where: { $0.key == Data([KeyType.globalUnsignedTx]) })?.value else {
+            throw BitcoinError.invalidPsbt("Missing unsigned transaction in global map")
+        }
+
+        return unsignedTx
+    }
+
+    mutating func setWitnessUtxo(inputIndex: Int, value: UInt64, scriptPubKey: Data) throws {
+        var txOut = value.littleEndianData
+        txOut.append(VariantIntEncoder.encode(UInt64(scriptPubKey.count)))
+        txOut.append(scriptPubKey)
+        try setInputKV(inputIndex: inputIndex, key: Data([KeyType.inputWitnessUtxo]), value: txOut)
+    }
+
     mutating func setPartialSignature(inputIndex: Int, publicKey: Data, signatureWithSighash: Data) throws {
         try setInputKV(inputIndex: inputIndex, key: Data([KeyType.inputPartialSig]) + publicKey, value: signatureWithSighash)
+    }
+
+    /// BIP174 input finalization: writes `final_scriptsig` and strips the signing-related fields,
+    /// keeping the UTXO fields and unknown keys.
+    mutating func finalizeInput(inputIndex: Int, finalScriptSig: Data) throws {
+        try setInputKV(inputIndex: inputIndex, key: Data([KeyType.inputFinalScriptSig]), value: finalScriptSig)
+        removeInputKeyTypes(
+            inputIndex: inputIndex,
+            keyTypes: [
+                KeyType.inputPartialSig,
+                KeyType.inputSighashType,
+                KeyType.inputRedeemScript,
+                KeyType.inputWitnessScript,
+                KeyType.inputBip32Derivation,
+            ]
+        )
+    }
+
+    func isInputFinalized(inputIndex: Int) -> Bool {
+        guard inputMaps.indices.contains(inputIndex) else {
+            return false
+        }
+
+        return inputMaps[inputIndex].contains {
+            $0.key.first == KeyType.inputFinalScriptSig || $0.key.first == KeyType.inputFinalScriptWitness
+        }
     }
 
     func serialize() -> Data {
@@ -69,10 +119,12 @@ struct PsbtKeyValueMap {
         inputMaps[inputIndex] = map
     }
 
-    private mutating func removeInputKVNoThrow(inputIndex: Int, key: Data) {
+    /// Matches by key-type (first key byte) only, so it also removes KVs whose keys carry
+    /// key-data (e.g. all `partial_sigs` entries at once, whatever public keys they carry).
+    private mutating func removeInputKeyTypes(inputIndex: Int, keyTypes: Set<UInt8>) {
         guard inputMaps.indices.contains(inputIndex) else { return }
         var map = inputMaps[inputIndex]
-        map.removeAll(where: { $0.key == key })
+        map.removeAll(where: { kv in kv.key.first.map(keyTypes.contains) ?? false })
         inputMaps[inputIndex] = map
     }
 
@@ -92,7 +144,14 @@ struct PsbtKeyValueMap {
 extension PsbtKeyValueMap {
     enum KeyType {
         static let globalUnsignedTx: UInt8 = 0x00
+        static let inputWitnessUtxo: UInt8 = 0x01
         static let inputPartialSig: UInt8 = 0x02
+        static let inputSighashType: UInt8 = 0x03
+        static let inputRedeemScript: UInt8 = 0x04
+        static let inputWitnessScript: UInt8 = 0x05
+        static let inputBip32Derivation: UInt8 = 0x06
+        static let inputFinalScriptSig: UInt8 = 0x07
+        static let inputFinalScriptWitness: UInt8 = 0x08
     }
 
     enum Const {
@@ -176,5 +235,12 @@ private struct ByteReader {
             items.append(.init(key: key, value: value))
         }
         return items
+    }
+}
+
+private extension FixedWidthInteger {
+    var littleEndianData: Data {
+        var v = littleEndian
+        return withUnsafeBytes(of: &v) { Data($0) }
     }
 }
