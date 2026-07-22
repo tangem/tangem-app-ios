@@ -80,7 +80,7 @@ struct AddCustomTokenView: View {
 
     private var mainContent: some View {
         VStack(spacing: 14) {
-            Button(action: viewModel.openNetworkSelector) {
+            SwiftUI.Button(action: viewModel.openNetworkSelector) {
                 ItemSelectorRow(title: Localization.customTokenNetworkInputTitle, selectedItem: viewModel.selectedBlockchainName)
             }
             .defaultRoundedBackground(with: cardBackgroundColor, cornerRadius: cardCornerRadius)
@@ -91,7 +91,7 @@ struct AddCustomTokenView: View {
             }
 
             if viewModel.showDerivationPaths {
-                Button(action: viewModel.openDerivationSelector) {
+                SwiftUI.Button(action: viewModel.openDerivationSelector) {
                     ItemSelectorRow(title: Localization.customTokenDerivationPath, selectedItem: viewModel.selectedDerivationOption?.name ?? "")
                 }
                 .defaultRoundedBackground(with: cardBackgroundColor, cornerRadius: cardCornerRadius)

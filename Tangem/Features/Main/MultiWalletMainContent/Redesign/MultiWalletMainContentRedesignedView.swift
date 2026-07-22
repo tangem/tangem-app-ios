@@ -210,7 +210,7 @@ private struct TokenItemContainerView: View {
                 }
 
             if let promoBubbleViewModel {
-                Button(action: promoBubbleViewModel.onTap) {
+                SwiftUI.Button(action: promoBubbleViewModel.onTap) {
                     TangemCallout(
                         text: promoBubbleViewModel.message,
                         arrowAlignment: .top,

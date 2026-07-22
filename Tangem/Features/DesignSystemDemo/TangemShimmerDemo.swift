@@ -15,7 +15,7 @@ struct TangemShimmerDemoView: View {
     @ObservedObject var viewModel: TangemShimmerDemoViewModel
 
     var body: some View {
-        TangemShimmerShowcase()
-            .navigationBarTitle(Text("TangemShimmer"))
+        ShimmerShowcase()
+            .navigationBarTitle(Text("Shimmer"))
     }
 }

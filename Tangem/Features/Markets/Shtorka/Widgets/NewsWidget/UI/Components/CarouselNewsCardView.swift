@@ -57,7 +57,7 @@ struct CarouselNewsCardView: View {
     let isLoading: Bool
 
     var body: some View {
-        Button(action: {
+        SwiftUI.Button(action: {
             item.onTap(item.id)
         }) {
             contentView(for: item)

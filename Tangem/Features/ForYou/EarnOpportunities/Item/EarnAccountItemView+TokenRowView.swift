@@ -18,7 +18,7 @@ extension EarnAccountItemView {
         @ScaledMetric private var iconSize: CGFloat = 40
 
         var body: some View {
-            TangemRow(
+            Row(
                 title: data.name,
                 subtitle: data.network,
                 value: data.rewardText,

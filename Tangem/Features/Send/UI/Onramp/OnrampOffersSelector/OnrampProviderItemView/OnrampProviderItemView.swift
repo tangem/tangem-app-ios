@@ -16,7 +16,7 @@ struct OnrampProviderItemView: View {
     let viewModel: OnrampProviderItemViewModel
 
     var body: some View {
-        Button(action: viewModel.action) {
+        SwiftUI.Button(action: viewModel.action) {
             content
                 .defaultRoundedBackground(
                     with: Colors.Background.action,
