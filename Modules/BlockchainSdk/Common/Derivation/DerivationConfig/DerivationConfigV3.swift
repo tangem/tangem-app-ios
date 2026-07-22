@@ -83,6 +83,7 @@ struct DerivationConfigV3: DerivationConfig {
              .scroll,
              .linea,
              .monad,
+             .robinhood,
              .arbitrumNova,
              .plasma,
              .adi,
