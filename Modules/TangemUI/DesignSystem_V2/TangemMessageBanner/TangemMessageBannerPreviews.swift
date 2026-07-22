@@ -149,7 +149,7 @@ public struct TangemMessageBannerShowcase: View {
     private var protectedByRow: some View {
         HStack(spacing: 6) {
             Text("Protected by Tangem Security")
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
 
             DesignSystem.Icons.ShieldCheckmark.regular20.image
                 .renderingMode(.template)
