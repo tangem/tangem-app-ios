@@ -10,7 +10,9 @@ import Foundation
 import class UIKit.UIImage
 import BlockiesSwift
 
-class AddressIconViewModel {
+/// - Warning: This model lazily creates a `UIImage` instance, which is relatively expensive.
+/// Avoid creating this VM inline; keep it in a stored property and reuse it when possible.
+final class AddressIconViewModel {
     let size: CGFloat
 
     lazy var image: UIImage? = {
