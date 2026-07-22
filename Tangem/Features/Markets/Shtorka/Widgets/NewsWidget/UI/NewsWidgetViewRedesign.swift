@@ -89,7 +89,7 @@ struct NewsWidgetViewRedesign: View {
     }
 
     private var seeAllButton: some View {
-        Button(action: viewModel.handleAllNewsTap) {
+        SwiftUI.Button(action: viewModel.handleAllNewsTap) {
             HStack(spacing: .zero) {
                 Text(Localization.commonSeeAll)
                     .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
