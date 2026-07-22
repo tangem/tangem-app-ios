@@ -33,7 +33,7 @@ struct FeeSelectorFeesRowView: SelectableSectionRow {
     }
 
     private var mainContent: some View {
-        Button(action: { isSelected = true }) {
+        SwiftUI.Button(action: { isSelected = true }) {
             HStack(alignment: .center, spacing: 12) {
                 icon
 

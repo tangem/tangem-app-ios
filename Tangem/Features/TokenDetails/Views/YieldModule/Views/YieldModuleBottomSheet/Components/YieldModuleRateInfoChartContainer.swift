@@ -48,7 +48,7 @@ struct YieldModuleRateInfoChartContainer: View {
                 Text(Localization.yieldModuleChartLoadingError)
                     .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
 
-                Button(action: { Task { await action() } }) {
+                SwiftUI.Button(action: { Task { await action() } }) {
                     Text(Localization.alertButtonTryAgain)
                         .style(Fonts.Regular.caption2, color: Colors.Text.primary1)
                         .padding(.horizontal, 16)

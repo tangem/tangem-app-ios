@@ -81,7 +81,7 @@ public struct KeyValuePanelView: View {
     }
 
     private func makeHeaderButton(from actionConfig: KeyValuePanelViewData.Header.ActionConfig) -> some View {
-        Button(action: actionConfig.action) {
+        SwiftUI.Button(action: actionConfig.action) {
             HStack(spacing: 4) {
                 if let imageType = actionConfig.image {
                     imageType.image

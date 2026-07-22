@@ -15,7 +15,7 @@ struct MarketsTokenSearchQueryRowView: View {
     let onTap: () -> Void
 
     var body: some View {
-        Button(action: onTap) {
+        SwiftUI.Button(action: onTap) {
             HStack(spacing: .unit(.x1)) {
                 Assets.search.image
                     .renderingMode(.template)

@@ -99,7 +99,7 @@ private extension AuthView {
 
 private extension AuthView {
     func addWalletNavigationBarButton(_ state: AuthViewState.WalletsState) -> some View {
-        Button(action: state.addWalletButton.action) {
+        SwiftUI.Button(action: state.addWalletButton.action) {
             Text(state.addWalletButton.title)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
         }
@@ -126,7 +126,7 @@ private extension AuthView {
     }
 
     func biometricsUnlockButton(item: AuthViewState.Button) -> some View {
-        Button(action: item.action) {
+        SwiftUI.Button(action: item.action) {
             HStack(spacing: 6) {
                 Text(item.title)
                     .style(Fonts.Bold.callout, color: Colors.Text.primary1)

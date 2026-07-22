@@ -19,7 +19,7 @@ struct WalletConnectRedesignedRowView: View {
     }
 
     var body: some View {
-        TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
+        Row(title: viewModel.title, subtitle: viewModel.subtitle)
             .start {
                 Assets.walletConnect.image
                     .resizable()

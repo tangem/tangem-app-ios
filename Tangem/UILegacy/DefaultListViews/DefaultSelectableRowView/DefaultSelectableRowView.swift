@@ -20,7 +20,7 @@ struct DefaultSelectableRowView<ID: Hashable>: View {
     }
 
     var body: some View {
-        Button(action: { selection.isActive(compare: data.id).toggle() }) {
+        SwiftUI.Button(action: { selection.isActive(compare: data.id).toggle() }) {
             HStack(alignment: .center, spacing: 12) {
                 if let iconURL = data.iconURL {
                     IconView(url: iconURL, size: CGSize(bothDimensions: 24), forceKingfisher: true)

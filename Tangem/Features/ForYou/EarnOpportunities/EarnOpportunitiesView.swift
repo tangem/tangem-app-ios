@@ -86,7 +86,7 @@ private extension EarnOpportunitiesView {
     }
 
     var subtitleShimmer: some View {
-        TangemShimmer()
+        Shimmer()
             .variant(.custom(height: 20, cornerRadius: 10))
             .frame(width: 180)
     }
@@ -105,7 +105,7 @@ private extension EarnOpportunitiesView {
     // MARK: - Explore button
 
     var exploreButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(Localization.forYouEarnOpportunitiesExplore),
             accessibilityLabel: Localization.forYouEarnOpportunitiesExplore,
             action: viewModel.exploreAllTokensTapped

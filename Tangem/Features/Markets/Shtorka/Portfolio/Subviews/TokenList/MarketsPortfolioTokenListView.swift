@@ -236,7 +236,7 @@ private extension MarketsPortfolioTokenListView {
     @ViewBuilder
     func token(row: ViewModel.TokenRow) -> some View {
         if let onTap = row.onTap {
-            Button(action: onTap) {
+            SwiftUI.Button(action: onTap) {
                 MarketsPortfolioTokenListRowView(viewModel: row.model)
             }
             .buttonStyle(.plain)

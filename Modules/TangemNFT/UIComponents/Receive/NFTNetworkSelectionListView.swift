@@ -96,7 +96,7 @@ public struct NFTNetworkSelectionListView: View {
     }
 
     private func makeSectionItemView(_ viewData: NFTNetworkSelectionListItemViewData) -> some View {
-        Button(action: viewData.tapAction) {
+        SwiftUI.Button(action: viewData.tapAction) {
             NFTNetworkSelectionListItemView(viewData: viewData)
         }
     }

@@ -26,7 +26,7 @@ extension PortfolioTokenItemView {
                 TangemTwoLineRowSkeletonView()
                     .transition(.opacity)
             } else {
-                Button {
+                SwiftUI.Button {
                     onTokenSelect(row.id)
                 } label: {
                     RowView(data: row)

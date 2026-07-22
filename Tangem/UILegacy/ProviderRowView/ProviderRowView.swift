@@ -16,7 +16,7 @@ struct ProviderRowView: View {
 
     var body: some View {
         if let action = viewModel.tapAction {
-            Button(action: action) { content }
+            SwiftUI.Button(action: action) { content }
                 .disabled(viewModel.isDisabled)
         } else {
             content

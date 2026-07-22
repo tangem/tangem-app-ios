@@ -32,7 +32,7 @@ struct MarketsPortfolioSingleTokenView: View {
 
 private extension MarketsPortfolioSingleTokenView {
     var content: some View {
-        Button(action: viewModel.onTap) {
+        SwiftUI.Button(action: viewModel.onTap) {
             token
                 .padding(padding)
                 .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: backgroundCornerRadius))

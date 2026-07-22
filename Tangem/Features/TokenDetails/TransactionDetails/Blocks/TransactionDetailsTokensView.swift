@@ -217,7 +217,7 @@ struct TransactionDetailsTokensView: View {
             IconView(url: url, size: CGSize(bothDimensions: legTokenSide))
                 .clipShape(.circle)
         case .loading:
-            TangemShimmer()
+            Shimmer()
                 .frame(size: CGSize(bothDimensions: legTokenSide))
                 .clipShape(.circle)
         }

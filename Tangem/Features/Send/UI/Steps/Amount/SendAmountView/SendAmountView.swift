@@ -82,7 +82,7 @@ struct SendAmountView: View {
             EmptyView()
 
         case .selectButton:
-            Button {
+            SwiftUI.Button {
                 focusedField = nil
                 viewModel.userDidTapReceivedTokenSelection()
             } label: {

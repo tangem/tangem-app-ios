@@ -51,7 +51,7 @@ private extension TangemTabs {
     }
 
     func tab(_ item: Item) -> some View {
-        Button(action: { selection = item }) {
+        SwiftUI.Button(action: { selection = item }) {
             itemContent(item)
                 .background(
                     backgroundColor(isSelected: isItemSelected(item)),

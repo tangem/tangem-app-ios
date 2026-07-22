@@ -15,7 +15,7 @@ struct SettingsUserWalletRowView: View {
     @ObservedObject var viewModel: SettingsUserWalletRowViewModel
 
     var body: some View {
-        Button(action: viewModel.tapAction) {
+        SwiftUI.Button(action: viewModel.tapAction) {
             content
         }
         .buttonStyle(.plain)

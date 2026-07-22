@@ -41,7 +41,7 @@ struct NFTDescriptionView: View {
     }
 
     private var readMoreButton: some View {
-        Button(action: readMoreAction) {
+        SwiftUI.Button(action: readMoreAction) {
             Text(readMoreOffsettedText)
                 .style(Fonts.Regular.footnote, color: Colors.Text.accent)
         }

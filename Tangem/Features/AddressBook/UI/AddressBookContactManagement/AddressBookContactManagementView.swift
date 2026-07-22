@@ -96,7 +96,7 @@ struct AddressBookContactManagementView: View {
             .horizontalPadding(0)
 
             GroupedSection(viewModel.selectedWallet) { wallet in
-                TangemRow(title: Localization.addressBookSaveToWalletTitle)
+                Row(title: Localization.addressBookSaveToWalletTitle)
                     .end { makeWalletValue(wallet: wallet) }
                     .if(wallet.isEditable) { $0.onTap(viewModel.userDidRequestWalletChange) }
 
@@ -111,7 +111,7 @@ struct AddressBookContactManagementView: View {
             .horizontalPadding(0)
 
             if viewModel.canDeleteContact {
-                TangemRow()
+                Row()
                     .start {
                         Text(Localization.addressBookDeleteContact)
                             .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textAccentRed)

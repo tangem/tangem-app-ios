@@ -102,7 +102,7 @@ public struct TangemSearchFieldShowcase: View {
             .frame(height: .unit(.x11))
             .focused($isFocused)
 
-            Button("Resign focus") {
+            SwiftUI.Button("Resign focus") {
                 isFocused = false
             }
         }

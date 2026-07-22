@@ -58,7 +58,7 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
     }
 
     private var buttonView: some View {
-        Button {
+        SwiftUI.Button {
             buttonAction?()
         } label: {
             HStack(spacing: 0) {

@@ -38,7 +38,7 @@ private extension PortfolioReviewView {
 
     // [REDACTED_TODO_COMMENT]
     var allAccountsBadge: some View {
-        TangemBadgeV2(label: Localization.commonAllAccounts, accessibilityLabel: Localization.commonAllAccounts)
+        Badge(label: Localization.commonAllAccounts, accessibilityLabel: Localization.commonAllAccounts)
             .size(.x9)
             .variant(.solid)
             .slotEnd(DesignSystem.Icons.ChevronDown.regular16)
@@ -72,7 +72,7 @@ private extension PortfolioReviewView {
     }
 
     var addFundsButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(Localization.commonAddFunds),
             accessibilityLabel: Localization.commonAddFunds,
             action: viewModel.addFundsTapped
@@ -83,7 +83,7 @@ private extension PortfolioReviewView {
     }
 
     var periodPickerShimmer: some View {
-        TangemShimmer()
+        Shimmer()
             .variant(.custom(height: 40, cornerRadius: 20))
             .frame(maxWidth: .infinity)
     }
@@ -91,7 +91,7 @@ private extension PortfolioReviewView {
     /// Loading placeholder matching the chart card's size/layout (donut ring 200 + summary + AI lines).
     var chartCardSkeleton: some View {
         VStack(alignment: .leading, spacing: 16) {
-            TangemShimmer()
+            Shimmer()
                 .variant(.custom(height: 200, cornerRadius: 100))
                 .frame(width: 200)
                 .mask { Circle().strokeBorder(lineWidth: 28) }
@@ -115,7 +115,7 @@ private extension PortfolioReviewView {
     }
 
     func shimmerBar(width: CGFloat) -> some View {
-        TangemShimmer()
+        Shimmer()
             .variant(.custom(height: 20, cornerRadius: 10))
             .frame(width: width)
     }

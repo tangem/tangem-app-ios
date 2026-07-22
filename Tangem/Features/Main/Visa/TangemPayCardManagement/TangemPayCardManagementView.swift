@@ -213,7 +213,7 @@ struct TangemPayCardManagementView: View {
         } else {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(action: viewModel.onReplaceButton) {
+                    SwiftUI.Button(action: viewModel.onReplaceButton) {
                         Label {
                             Text(Localization.tangempayCardDetailsReissueCard)
                         } icon: {
@@ -226,7 +226,7 @@ struct TangemPayCardManagementView: View {
                     if let closeCardRow = viewModel.closeCardRow {
                         Divider()
 
-                        Button {
+                        SwiftUI.Button {
                             closeCardRow.action?()
                         } label: {
                             Label {

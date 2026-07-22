@@ -97,7 +97,7 @@ public struct ExpandableItemView<
     }
 
     private func headerButton<Label: View>(@ViewBuilder _ label: () -> Label) -> some View {
-        Button(action: toggleExpanded, label: label)
+        SwiftUI.Button(action: toggleExpanded, label: label)
             .buttonStyle(
                 .scaled(
                     scaleAmount: isExpanded ? 1.0 : 0.98,

@@ -20,7 +20,7 @@ struct ExpressTokenItemView: View {
     }
 
     var body: some View {
-        Button(action: viewModel.itemDidTap) {
+        SwiftUI.Button(action: viewModel.itemDidTap) {
             HStack(spacing: 12) {
                 TokenIcon(tokenIconInfo: viewModel.tokenIconInfo, size: iconSize)
                     .saturation(viewModel.isDisable ? 0 : 1)

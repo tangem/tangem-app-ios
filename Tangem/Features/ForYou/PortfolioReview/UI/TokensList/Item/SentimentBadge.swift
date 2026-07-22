@@ -14,7 +14,7 @@ struct SentimentBadge: View {
     let sentiment: ForYouTokenRowData.Sentiment
 
     var body: some View {
-        TangemBadgeV2(label: title, accessibilityLabel: nil)
+        Badge(label: title, accessibilityLabel: nil)
             .size(.x4)
             .variant(.tinted)
             .appearance(appearance)
@@ -31,7 +31,7 @@ private extension SentimentBadge {
         }
     }
 
-    var appearance: TangemBadgeV2Appearance {
+    var appearance: BadgeAppearance {
         switch sentiment {
         case .positive: .success
         case .neutral: .info
