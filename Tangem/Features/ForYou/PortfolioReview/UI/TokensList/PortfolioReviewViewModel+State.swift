@@ -18,6 +18,8 @@ extension PortfolioReviewViewModel {
             let tokenList: [ForYouTokenListItem]
             let periodSegments: [ForYouPeriodSegment]
             let chart: Chart
+            /// Set by the empty state only for the no-amount case, so a real-holdings content never shows the CTA.
+            let showsAddFunds: Bool
         }
 
         /// The donut summary card above the list.
