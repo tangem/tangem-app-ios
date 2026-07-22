@@ -37,7 +37,7 @@ private extension PortfolioRowBuilder {
         ForYouTokenListItem(
             id: group.key,
             assetRow: assetRow(for: group, total: total),
-            networkRows: group.networks.map { networkRow(for: $0, total: total) },
+            networkRows: group.networks.map { networkRow(for: $0, groupKey: group.key, total: total) },
             isExpanded: false,
             // A still-loading asset is inert: nothing to reveal until its balances resolve.
             isExpandable: group.availability != .loading
@@ -57,9 +57,10 @@ private extension PortfolioRowBuilder {
         )
     }
 
-    func networkRow(for network: PortfolioReviewAggregator.NetworkGroup, total: Decimal) -> ForYouTokenRowData {
+    func networkRow(for network: PortfolioReviewAggregator.NetworkGroup, groupKey: String, total: Decimal) -> ForYouTokenRowData {
         ForYouTokenRowData(
-            id: network.id,
+            // Namespace under the asset group to avoid id collisions across networks/tokens.
+            id: "\(groupKey)/\(network.id)",
             tokenItem: network.sample.tokenItem,
             symbol: network.sample.tokenItem.name,
             tokenIconInfo: iconBuilder.build(from: network.sample.tokenItem, isCustom: network.sample.isCustom),
