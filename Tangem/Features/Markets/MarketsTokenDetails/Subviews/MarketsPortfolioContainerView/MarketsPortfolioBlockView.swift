@@ -95,6 +95,7 @@ private struct MarketsPortfolioBlockContentView: View {
 
                 Text(Localization.commonAddFunds)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .lineLimit(1)
             }
             .padding(.horizontal, Constants.actionButtonHorizontalPadding)
             .padding(.vertical, Constants.actionButtonVerticalPadding)
@@ -102,6 +103,7 @@ private struct MarketsPortfolioBlockContentView: View {
                 Capsule().fill(Color.Tangem.Button.backgroundSecondary)
             )
         }
+        .fixedSize(horizontal: true, vertical: false)
         .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addFundsButton)
     }
 
