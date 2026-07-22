@@ -26,6 +26,7 @@ final class PortfolioReviewViewModel: ObservableObject {
     // MARK: - Published
 
     @Published private(set) var state: ViewState = .loading
+    @Published private(set) var showsOutdatedDataBanner = false
     @Published var selectedPeriod: ForYouPeriodSegment = .initial
     @Published var selectedChartSegmentID: GaugeSegment.ID?
 
@@ -104,8 +105,9 @@ private extension PortfolioReviewViewModel {
             .switchToLatest()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, state in
-                viewModel.apply(state)
+            .sink { viewModel, output in
+                viewModel.showsOutdatedDataBanner = output.isOutdatedData
+                viewModel.apply(output.state)
             }
             .store(in: &bag)
     }
@@ -124,25 +126,37 @@ private extension PortfolioReviewViewModel {
             .eraseToAnyPublisher()
     }
 
-    /// Wallet models + total balance + app currency → mapped view state.
-    func statePublisher(for selectedModel: UserWalletModel?) -> AnyPublisher<ViewState, Never> {
+    /// Wallet models + total balance + app currency → mapped view state + outdated-data flag.
+    func statePublisher(
+        for selectedModel: UserWalletModel?
+    ) -> AnyPublisher<(state: ViewState, isOutdatedData: Bool), Never> {
         guard let selectedModel else {
             // No selected wallet → empty content (not an endless loading state).
             return Just(
-                .content(.init(tokenList: [], periodSegments: ForYouPeriodSegment.all, chart: .noData(.cantLoad), showsAddFunds: false))
+                (
+                    state: .content(.init(tokenList: [], periodSegments: ForYouPeriodSegment.all, chart: .noData(.cantLoad), showsAddFunds: false)),
+                    isOutdatedData: false
+                )
             )
             .eraseToAnyPublisher()
         }
 
-        // `totalBalancePublisher` gates skeleton → content/empty and re-fires as balances resolve
-        // (the wallet-models publisher itself does not re-emit on balance changes).
+        // `totalBalancePublisher` gates skeleton → content/empty, re-fires as balances resolve
+        // (the wallet-models publisher itself does not re-emit on balance changes), and feeds the outdated-data flag.
         return Publishers.CombineLatest3(
             AccountWalletModelsAggregator.walletModelsPublisher(from: selectedModel.accountModelsManager),
             selectedModel.totalBalancePublisher,
             AppSettings.shared.$selectedCurrencyCode
         )
         .map { [mapper] walletModels, totalBalance, _ in
-            mapper.map(walletModels: walletModels, totalBalance: totalBalance)
+            let mapped = mapper.map(walletModels: walletModels, totalBalance: totalBalance)
+            return (
+                state: mapped.state,
+                isOutdatedData: PortfolioReviewOutdatedDataResolver.isOutdated(
+                    totalBalance,
+                    displayedItems: mapped.displayedTokenItems
+                )
+            )
         }
         .eraseToAnyPublisher()
     }
