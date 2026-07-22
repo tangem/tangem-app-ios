@@ -13,11 +13,14 @@ protocol SendDestinationAddressViewRoutable: AnyObject {
     func didTapScanQRButton()
 }
 
-class SendDestinationAddressViewModel: ObservableObject, Identifiable {
+final class SendDestinationAddressViewModel: ObservableObject, Identifiable {
     @Published private(set) var textViewModel: SUITextViewModel
-    @Published private(set) var address: Address
+    @Published private(set) var addressIconViewModel: AddressIconViewModel
     @Published private(set) var error: String?
     @Published private(set) var isValidating: Bool = false
+    @Published private(set) var address: Address {
+        didSet { updateAddressIconViewModel(oldAddress: oldValue, newAddress: address) }
+    }
 
     private var shouldIgnoreClearButton: Bool = false
 
@@ -34,6 +37,7 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
     init(textViewModel: SUITextViewModel, address: Address) {
         self.textViewModel = textViewModel
         self.address = address
+        addressIconViewModel = AddressIconViewModel(address: address.string)
     }
 
     func addressPublisher() -> AnyPublisher<Address, Never> {
@@ -69,6 +73,14 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
 
     func didTapScanQRButton() {
         router?.didTapScanQRButton()
+    }
+
+    private func updateAddressIconViewModel(oldAddress: Address, newAddress: Address) {
+        guard newAddress.string != oldAddress.string else {
+            return
+        }
+
+        addressIconViewModel = AddressIconViewModel(address: newAddress.string)
     }
 }
 
