@@ -6,11 +6,14 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import class UIKit.UIImage
 import BlockchainSdk
 import TangemAccounts
 import TangemFoundation
 
 struct SubtitleOwnerResolver {
+    private static let blockiesImageCache = NSCacheWrapper<String, UIImage>()
+
     let blockchain: Blockchain
     let currentUserWalletId: UserWalletId
     let isAccountsMode: Bool
@@ -24,7 +27,7 @@ struct SubtitleOwnerResolver {
             return .unresolved(
                 short: AddressFormatter(address: address).truncated(),
                 fullAddress: address,
-                blockiesImage: AddressIconViewModel(address: address).image
+                blockiesImage: Self.blockiesImage(for: address)
             )
         }
 
@@ -57,5 +60,18 @@ struct SubtitleOwnerResolver {
         case .multiple, .custom, .staking:
             return nil
         }
+    }
+
+    private static func blockiesImage(for address: String) -> UIImage? {
+        if let cachedImage = blockiesImageCache.value(forKey: address) {
+            return cachedImage
+        }
+
+        if let newImage = AddressIconViewModel(address: address).image {
+            blockiesImageCache.setValue(newImage, forKey: address)
+            return newImage
+        }
+
+        return nil
     }
 }
