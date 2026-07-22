@@ -31,6 +31,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     let tangemIconProvider: any TangemIconProvider
     let confirmTransactionPolicy: any ConfirmTransactionPolicy
+    let isTangemPayAccount: Bool
 
     // MARK: - SendReceiveToken
 
