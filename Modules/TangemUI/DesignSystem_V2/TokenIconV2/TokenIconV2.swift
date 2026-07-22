@@ -85,7 +85,7 @@ public struct TokenIconV2: View {
     }
 
     private var shimmerBody: some View {
-        TangemShimmer()
+        Shimmer()
             .clipShape(.circle)
     }
 

@@ -16,7 +16,7 @@ struct MainQRScanTokenSelectorWalletHeaderView: View {
     let toggleAction: () -> Void
 
     var body: some View {
-        Button(action: toggleAction) {
+        SwiftUI.Button(action: toggleAction) {
             HStack(spacing: .zero) {
                 Text(walletName)
                     .style(Fonts.Bold.headline, color: Colors.Text.primary1)
@@ -31,7 +31,7 @@ struct MainQRScanTokenSelectorWalletHeaderView: View {
     }
 
     private var chevronButton: some View {
-        Button(action: {}) {
+        SwiftUI.Button(action: {}) {
             Assets.Glyphs.chevronDownNew.image
                 .resizable()
                 .renderingMode(.template)

@@ -19,7 +19,7 @@ struct FeeSelectorRowView: View {
     // MARK: - View Body
 
     var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             content
         }
         .buttonStyle(.plain)
