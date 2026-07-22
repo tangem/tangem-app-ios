@@ -59,13 +59,27 @@ private extension PortfolioReviewView {
             periodPickerShimmer
             skeletonList
         case .content(let content):
-            PortfolioReviewChartCardView(chart: content.chart)
+            PortfolioReviewChartCardView(chart: content.chart, selectedID: $viewModel.selectedChartSegmentID)
             ForYouPeriodPickerView(
                 segments: content.periodSegments,
                 selection: $viewModel.selectedPeriod
             )
             tokenList(content.tokenList)
+            if content.showsAddFunds {
+                addFundsButton
+            }
         }
+    }
+
+    var addFundsButton: some View {
+        TangemButtonV2(
+            label: AttributedString(Localization.commonAddFunds),
+            accessibilityLabel: Localization.commonAddFunds,
+            action: viewModel.addFundsTapped
+        )
+        .size(.x9)
+        .styleType(.secondary)
+        .horizontalLayout(.infinity)
     }
 
     var periodPickerShimmer: some View {

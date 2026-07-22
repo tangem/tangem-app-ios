@@ -13,19 +13,32 @@ import TangemUI
 struct PortfolioReviewMapper {
     private let rowBuilder = PortfolioRowBuilder()
 
-    func map(walletModels: [any WalletModel]) -> PortfolioReviewViewModel.ViewState {
+    func map(walletModels: [any WalletModel], totalBalance: TotalBalanceState) -> PortfolioReviewViewModel.ViewState {
         let holdings = walletModels.map(makeHolding)
         let (topHoldings, other) = PortfolioReviewAggregator.aggregate(holdings)
         let groups = topHoldings + other
 
-        guard !isStillResolving(walletModels: walletModels, groups: groups) else {
+        guard !isStillResolving(groups: groups, totalBalance: totalBalance) else {
             return .loading
+        }
+
+        // Resolved with nothing to rank (no tokens / all balances zero) → empty state: NoData chart + the held
+        // tokens listed at $0 (unfiltered), never an endless skeleton.
+        guard !groups.isEmpty else {
+            let reason = emptyChartReason(for: totalBalance)
+            return .content(.init(
+                tokenList: rowBuilder.build(topHoldings: PortfolioReviewAggregator.aggregateEmpty(holdings), other: []),
+                periodSegments: ForYouPeriodSegment.all,
+                chart: .noData(reason),
+                showsAddFunds: reason == .noAmount
+            ))
         }
 
         return .content(.init(
             tokenList: rowBuilder.build(topHoldings: topHoldings, other: other),
             periodSegments: ForYouPeriodSegment.all, // [REDACTED_TODO_COMMENT]
-            chart: chart(topHoldings: topHoldings, other: other)
+            chart: chart(topHoldings: topHoldings, other: other, totalBalance: totalBalance),
+            showsAddFunds: false
         ))
     }
 }
@@ -36,10 +49,16 @@ private extension PortfolioReviewMapper {
     /// Feeds every group to the gauge (it takes the top-4 as segments and the full sum as the centre total).
     func chart(
         topHoldings: [PortfolioReviewAggregator.Group],
-        other: [PortfolioReviewAggregator.Group]
+        other: [PortfolioReviewAggregator.Group],
+        totalBalance: TotalBalanceState
     ) -> PortfolioReviewViewModel.ViewState.Chart {
         let groups = topHoldings + other
         guard !groups.isEmpty else {
+            return .noData(.cantLoad)
+        }
+
+        // A failed total can't be charted even if some tokens loaded — "can't load", not a donut on a partial sum.
+        if case .failed = totalBalance {
             return .noData(.cantLoad)
         }
 
@@ -109,9 +128,24 @@ private extension PortfolioReviewMapper {
         }
     }
 
-    /// Whole-screen skeleton only while everything is still unresolved; once anything resolves,
-    /// still-loading rows fall back to per-row skeletons.
-    func isStillResolving(walletModels: [any WalletModel], groups: [PortfolioReviewAggregator.Group]) -> Bool {
-        walletModels.isEmpty || (!groups.isEmpty && groups.allSatisfy { $0.availability == .loading })
+    func isStillResolving(groups: [PortfolioReviewAggregator.Group], totalBalance: TotalBalanceState) -> Bool {
+        if !groups.isEmpty {
+            return groups.allSatisfy { $0.availability == .loading }
+        }
+
+        switch totalBalance {
+        case .loading:
+            return true
+        case .empty, .failed, .loaded:
+            return false
+        }
+    }
+
+    /// Empty-state chart reason: a failed total reads as "can't load"; a genuinely empty/zero wallet as "no amount".
+    func emptyChartReason(for totalBalance: TotalBalanceState) -> PortfolioReviewViewModel.ViewState.Chart.NoData {
+        if case .failed = totalBalance {
+            return .cantLoad
+        }
+        return .noAmount
     }
 }

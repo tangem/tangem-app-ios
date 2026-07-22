@@ -20,6 +20,12 @@ enum PortfolioReviewAggregator {
             .rankedByFiat()
             .splitTop(max: topHoldingsCount)
     }
+
+    /// Unfiltered grouping for the empty / all-zero state: up to `count` assets from the first holdings, no
+    /// "Other" bucket — so a wallet with only zero-balance tokens still lists them.
+    static func aggregateEmpty(_ holdings: [TokenHolding], count: Int = 5) -> [Group] {
+        Array(holdings.prefix(count)).groupedByAsset()
+    }
 }
 
 // MARK: - Holdings pipeline
