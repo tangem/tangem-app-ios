@@ -215,7 +215,7 @@ struct MarketsMainView: View {
                             .frame(height: overlayHeight)
 
                         if FeatureProvider.isAvailable(.forYou) {
-                            Button(action: viewModel.onForYouBannerTap) {
+                            SwiftUI.Button(action: viewModel.onForYouBannerTap) {
                                 ForYouEntranceBannerView()
                             }
                             .buttonStyle(.plain)

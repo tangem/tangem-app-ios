@@ -98,7 +98,7 @@ public struct CustomSearchBar: View {
     }
 
     private var clearButton: some View {
-        Button {
+        SwiftUI.Button {
             if let clearButtonAction {
                 clearButtonAction()
             } else {
@@ -116,7 +116,7 @@ public struct CustomSearchBar: View {
     }
 
     private var cancelButton: some View {
-        Button {
+        SwiftUI.Button {
             if let cancelButtonAction {
                 cancelButtonAction()
             } else {
