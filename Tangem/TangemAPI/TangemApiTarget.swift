@@ -40,6 +40,10 @@ struct TangemApiTarget: TargetType {
             // gateway-segment caveat as notification-preferences above; endpoints are not yet in the
             // contract registry (OQ-1), so the exact host/segment still needs backend confirmation.
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
+        case .coinIndicators:
+            // Full path is `/api/v1/coins/indicators`; the `/api/v1` prefix comes from
+            // `apiBaseUrlWithGatewaySegment`, so `path` below stays relative (`/coins/indicators`).
+            AppEnvironment.current.apiBaseUrlWithGatewaySegment
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -577,7 +581,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .applicationVersions, .marketingCampaigns:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
