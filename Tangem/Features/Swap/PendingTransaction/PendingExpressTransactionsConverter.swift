@@ -95,12 +95,10 @@ struct PendingExpressTransactionsConverter {
         let isFinished = currentStatus.isTerminated(branch: branch) && isCurrentStatus
 
         if isFinished {
-            // Always display cross for failed state
+            // Terminal status: render an explicit final-state icon (no loader / pending styling)
             // [REDACTED_TODO_COMMENT]
             switch status {
-            case .failed:
-                return .init(title: status.passedStatusTitle, state: .cross(passed: true))
-            case .expired, .unknown, .refunded, .txFailed:
+            case .failed, .expired, .unknown, .refunded, .txFailed, .paused:
                 return .init(title: status.passedStatusTitle, state: .cross(passed: false))
             case .awaitingHash:
                 return .init(title: status.passedStatusTitle, state: .exclamationMark)

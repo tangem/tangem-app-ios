@@ -16,7 +16,7 @@ final class TangemSearchDemoViewModel: ObservableObject, Identifiable {}
 struct TangemSearchDemoView: View {
     @ObservedObject var viewModel: TangemSearchDemoViewModel
 
-    @State private var selectedPlacement: TangemSearch.Placement?
+    @State private var selectedPlacement: Search.Placement?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -29,7 +29,7 @@ struct TangemSearchDemoView: View {
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(DesignSystem.Color.bgPrimary)
-        .navigationTitle("TangemSearch")
+        .navigationTitle("Search")
         // Native `.searchable` placement is resolved once at presentation, so each placement is
         // shown on its own freshly pushed screen rather than toggled in place.
         .navigation(item: $selectedPlacement) { placement in
@@ -37,8 +37,8 @@ struct TangemSearchDemoView: View {
         }
     }
 
-    private func placementButton(_ title: String, _ placement: TangemSearch.Placement) -> some View {
-        Button {
+    private func placementButton(_ title: String, _ placement: Search.Placement) -> some View {
+        SwiftUI.Button {
             selectedPlacement = placement
         } label: {
             Text(title)
@@ -48,7 +48,7 @@ struct TangemSearchDemoView: View {
 }
 
 private struct TangemSearchPlacementDemoView: View {
-    let placement: TangemSearch.Placement
+    let placement: Search.Placement
 
     @State private var text: String = ""
     @State private var isActive: Bool = false

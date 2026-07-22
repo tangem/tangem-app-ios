@@ -34,7 +34,7 @@ struct TangemPayInsufficientFundsBanner: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(buttonTitle),
                 accessibilityLabel: buttonTitle,
                 action: buttonAction

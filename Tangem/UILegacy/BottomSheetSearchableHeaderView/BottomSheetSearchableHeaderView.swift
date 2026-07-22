@@ -51,7 +51,7 @@ struct BottomSheetSearchableHeaderView: View {
         ZStack(alignment: .trailing) {
             BottomSheetHeaderView(title: title)
 
-            Button {
+            SwiftUI.Button {
                 isSearch = true
                 isFocused = true
             } label: {

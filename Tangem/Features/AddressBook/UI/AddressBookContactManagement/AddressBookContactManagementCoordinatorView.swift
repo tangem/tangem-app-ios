@@ -42,7 +42,7 @@ struct AddressBookContactManagementCoordinatorView: CoordinatorView {
                     VStack(spacing: 12) {
                         AccountSelectorView(viewModel: viewModel, style: .addTokenRedesigned)
 
-                        TangemButtonV2(
+                        TangemUI.Button(
                             label: AttributedString(Localization.commonCancel),
                             accessibilityLabel: Localization.commonCancel,
                             action: { coordinator?.dismissWalletPicker() }

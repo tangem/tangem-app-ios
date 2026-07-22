@@ -24,7 +24,7 @@ struct LogsView: View {
             ToolbarItem(placement: .principal) {
                 Menu {
                     ForEach(viewModel.categories.indexed(), id: \.1) { index, category in
-                        Button(category, action: { viewModel.selectedCategoryIndex = index })
+                        SwiftUI.Button(category, action: { viewModel.selectedCategoryIndex = index })
                     }
                 } label: {
                     HStack(spacing: 4) {
@@ -40,7 +40,7 @@ struct LogsView: View {
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: viewModel.openSheet) {
+                SwiftUI.Button(action: viewModel.openSheet) {
                     Assets.verticalDots.image
                 }
                 .confirmationDialog(viewModel: $viewModel.choseActionDialog)

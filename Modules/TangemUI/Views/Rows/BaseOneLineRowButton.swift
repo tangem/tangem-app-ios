@@ -21,7 +21,7 @@ public struct BaseOneLineRowButton<SecondLeadingView: View, TitleView: View, Tra
     private var verticalPadding: CGFloat = 0
 
     public var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             content
                 .padding(.vertical, verticalPadding)
                 .contentShape(.rect)

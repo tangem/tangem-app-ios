@@ -18,7 +18,7 @@ struct TangemPayAccountView: View {
     @ObservedObject var viewModel: TangemPayAccountViewModel
 
     var body: some View {
-        Button(action: viewModel.userDidTapView) {
+        SwiftUI.Button(action: viewModel.userDidTapView) {
             HStack(alignment: .center, spacing: 12) {
                 leadingContent
 

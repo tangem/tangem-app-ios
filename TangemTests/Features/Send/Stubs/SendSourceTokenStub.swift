@@ -17,7 +17,7 @@ import TangemUI
 
 // MARK: - SendSourceToken
 
-final class SendSourceTokenStub: SendSourceToken {
+class SendSourceTokenStub: SendSourceToken {
     private let blockchain: Blockchain
 
     init(blockchain: Blockchain = .ton(curve: .ed25519, testnet: false)) {

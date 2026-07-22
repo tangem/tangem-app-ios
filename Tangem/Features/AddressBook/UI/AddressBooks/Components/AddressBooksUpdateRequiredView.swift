@@ -54,7 +54,7 @@ struct AddressBooksUpdateRequiredView: View {
     }
 
     private var updateButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(Localization.forceUpdateRequiredAction),
             accessibilityLabel: Localization.forceUpdateRequiredAction,
             action: onUpdateTap

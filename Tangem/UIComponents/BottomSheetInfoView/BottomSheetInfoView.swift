@@ -74,7 +74,7 @@ struct BottomSheetInfoView: View {
     }
 
     return ZStack {
-        Button("Bottom sheet isShowing \((item != nil).description)") {
+        SwiftUI.Button("Bottom sheet isShowing \((item != nil).description)") {
             item = item == nil ? makeBottomSheetInfoPreviewViewModel() : nil
         }
         .font(Fonts.Bold.body)

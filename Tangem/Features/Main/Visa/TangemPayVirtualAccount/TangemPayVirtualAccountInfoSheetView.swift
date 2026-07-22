@@ -38,7 +38,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
         HStack(spacing: 0) {
             Spacer(minLength: 0)
 
-            TangemButtonV2(icon: DesignSystem.Icons.Cross.regular20, accessibilityLabel: Localization.commonClose, action: viewModel.close)
+            TangemUI.Button(icon: DesignSystem.Icons.Cross.regular20, accessibilityLabel: Localization.commonClose, action: viewModel.close)
                 .size(.x11)
                 .styleType(.material(.glass))
         }
@@ -166,7 +166,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
 
     private var footer: some View {
         VStack(spacing: 16) {
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(Localization.tangempayBankTransferShowDetails),
                 accessibilityLabel: Localization.tangempayBankTransferShowDetails,
                 action: viewModel.showDetails

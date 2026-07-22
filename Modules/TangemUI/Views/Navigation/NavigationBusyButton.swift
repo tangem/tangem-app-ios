@@ -35,7 +35,7 @@ public struct NavigationBusyButton: View {
                 .progressViewStyle(.circular)
                 .tint(Color(uiColor: color))
         } else {
-            Button(action: action, label: {
+            SwiftUI.Button(action: action, label: {
                 image
                     .foregroundColor(Color(color))
             })

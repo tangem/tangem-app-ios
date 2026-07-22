@@ -25,7 +25,7 @@ struct SendAmountCompactView: View {
 
     var body: some View {
         VStack(spacing: .zero) {
-            Button(action: viewModel.userDidTapAmount) {
+            SwiftUI.Button(action: viewModel.userDidTapAmount) {
                 SendAmountCompactTokenView(viewModel: viewModel.sendAmountCompactViewModel)
             }
             .allowsHitTesting(tappable)
@@ -34,7 +34,7 @@ struct SendAmountCompactView: View {
             if let receiveTokenViewModel = viewModel.sendReceiveTokenCompactViewModel {
                 FixedSpacer(length: 8)
 
-                Button(action: viewModel.userDidTapReceiveTokenAmount) {
+                SwiftUI.Button(action: viewModel.userDidTapReceiveTokenAmount) {
                     SendAmountCompactTokenView(viewModel: receiveTokenViewModel)
                 }
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.receiveTokenBlock)
@@ -50,7 +50,7 @@ struct SendAmountCompactView: View {
                 Separator(color: Colors.Stroke.primary)
                     .padding(.horizontal, 14)
 
-                Button(action: viewModel.userDidTapProvider) {
+                SwiftUI.Button(action: viewModel.userDidTapProvider) {
                     SendSwapProviderCompactView(
                         data: sendSwapProviderCompactViewData,
                         shouldAnimateBestRateBadge: $viewModel.shouldAnimateBestRateBadge

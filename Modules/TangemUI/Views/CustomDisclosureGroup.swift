@@ -41,7 +41,7 @@ public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
 
     public var body: some View {
         VStack(alignment: alignment, spacing: 0) {
-            Button(action: { actionOnClick() }, label: {
+            SwiftUI.Button(action: { actionOnClick() }, label: {
                 prompt
                     .contentShape(Rectangle())
             })

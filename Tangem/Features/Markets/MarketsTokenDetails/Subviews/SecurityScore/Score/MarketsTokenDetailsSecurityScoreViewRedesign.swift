@@ -74,7 +74,7 @@ private extension MarketsTokenDetailsSecurityScoreViewRedesign {
     }
 
     var infoButton: some View {
-        Button(action: viewModel.onInfoButtonTap) {
+        SwiftUI.Button(action: viewModel.onInfoButtonTap) {
             HStack(spacing: .unit(.x1)) {
                 Assets.infoCircle16.image
                     .renderingMode(.template)

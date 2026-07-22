@@ -213,7 +213,7 @@ private struct NewsPageContentView: View {
     private func redesignLikeButton(for newsId: Int) -> some View {
         let isLiked = viewModel.isLiked(for: newsId)
 
-        return Button { viewModel.handleViewAction(.like(newsId)) } label: {
+        return SwiftUI.Button { viewModel.handleViewAction(.like(newsId)) } label: {
             HStack(spacing: .unit(.x1)) {
                 ZStack {
                     if isLiked {

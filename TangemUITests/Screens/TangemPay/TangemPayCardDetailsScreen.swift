@@ -14,6 +14,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     private static let replaceCardTitle = "Replace card"
     private static let replacingInProgressText = "Replacing your digital card"
 
+    private lazy var cardNameEditButton = button(.cardNameEditButton)
     private lazy var changePinRow = button(.changePinRow)
     private lazy var freezeRowActive = button(.freezeCardRowStateActive)
     private lazy var freezeRowFrozen = button(.freezeCardRowStateFrozen)
@@ -33,6 +34,26 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     func waitForScreen() -> Self {
         XCTContext.runActivity(named: "Wait for Tangem Pay card details screen") { _ in
             waitAndAssertTrue(changePinRow, "Change PIN row should be displayed on Tangem Pay card details screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapCardName() -> TangemPayCardRenameScreen {
+        XCTContext.runActivity(named: "Tap card name to start renaming") { _ in
+            cardNameEditButton.waitAndTap()
+            return TangemPayCardRenameScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyCardName(contains expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify card name contains '\(expected)'") { _ in
+            let nameButton = app.buttons
+                .matching(identifier: TangemPayAccessibilityIdentifiers.cardNameEditButton)
+                .matching(NSPredicate(format: "label CONTAINS %@", expected))
+                .firstMatch
+            waitAndAssertTrue(nameButton, timeout: .networkRequest, "Card name should contain '\(expected)'")
             return self
         }
     }
@@ -255,6 +276,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
 }
 
 enum TangemPayCardDetailsScreenElement: String, UIElement {
+    case cardNameEditButton
     case changePinRow
     case freezeCardRowStateActive
     case freezeCardRowStateFrozen
@@ -272,6 +294,8 @@ enum TangemPayCardDetailsScreenElement: String, UIElement {
 
     var accessibilityIdentifier: String {
         switch self {
+        case .cardNameEditButton:
+            TangemPayAccessibilityIdentifiers.cardNameEditButton
         case .changePinRow:
             TangemPayAccessibilityIdentifiers.changePinRow
         case .freezeCardRowStateActive:

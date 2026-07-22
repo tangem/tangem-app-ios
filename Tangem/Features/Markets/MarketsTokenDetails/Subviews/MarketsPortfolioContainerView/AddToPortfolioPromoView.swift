@@ -28,7 +28,7 @@ struct AddToPortfolioPromoView: View {
     }
 
     private var actionButton: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             Text(Localization.marketsAddToken)
                 .style(Fonts.Bold.subheadline, color: Color.Tangem.Text.Neutral.primary)
                 .padding(.horizontal, 14)

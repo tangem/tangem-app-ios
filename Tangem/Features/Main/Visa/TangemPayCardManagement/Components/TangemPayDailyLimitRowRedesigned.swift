@@ -69,7 +69,7 @@ struct TangemPayDailyLimitRowRedesigned: View {
         switch state {
         case .loaded:
             if !isFrozen {
-                TangemButtonV2(
+                TangemUI.Button(
                     label: AttributedString(Localization.commonEdit),
                     accessibilityLabel: Localization.commonEdit,
                     action: changeAction

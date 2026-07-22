@@ -126,7 +126,7 @@ struct MarketsPortfolioTokenItemView: View {
                     makeLineRowActionItem()
 
                     // Directly in the view of the fastest action
-                    Button {
+                    SwiftUI.Button {
                         viewModel.didTapContextAction(action)
                     } label: {
                         makeQuickActionItem(for: action, at: index)

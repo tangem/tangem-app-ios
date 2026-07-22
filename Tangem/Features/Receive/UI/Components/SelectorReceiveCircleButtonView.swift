@@ -15,7 +15,7 @@ struct SelectorReceiveCircleButtonView: View {
     let action: () -> Void
 
     var body: some View {
-        Button {
+        SwiftUI.Button {
             action()
         } label: {
             actionType

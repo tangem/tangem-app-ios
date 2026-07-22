@@ -133,7 +133,7 @@ private extension CreateWalletSelectorView {
     }
 
     func mobileWalletAction(item: ViewModel.MobileWalletItem) -> some View {
-        Button(action: item.action) {
+        SwiftUI.Button(action: item.action) {
             HStack(spacing: 0) {
                 Text(item.title)
                     .style(Fonts.Bold.callout, color: Colors.Text.primary1)

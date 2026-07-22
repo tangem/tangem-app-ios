@@ -38,7 +38,7 @@ struct ActiveStakingView: View {
             content
                 .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
         case .balance(_, let action):
-            Button(action: action, label: { content })
+            SwiftUI.Button(action: action, label: { content })
                 .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
         }
     }
