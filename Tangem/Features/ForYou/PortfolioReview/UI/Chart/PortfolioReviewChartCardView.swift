@@ -15,7 +15,7 @@ import TangemUIUtils
 struct PortfolioReviewChartCardView: View {
     let chart: PortfolioReviewViewModel.ViewState.Chart
 
-    @State private var selectedID: GaugeSegment.ID?
+    @Binding var selectedID: GaugeSegment.ID?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
