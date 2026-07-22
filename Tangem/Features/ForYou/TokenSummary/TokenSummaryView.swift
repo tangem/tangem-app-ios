@@ -23,14 +23,20 @@ struct TokenSummaryView: View {
                 VStack(spacing: 24) {
                     periodPicker
 
-                    TokenSummaryGaugeView(
-                        outlook: viewModel.outlook,
-                        lastUpdated: viewModel.lastUpdated
-                    )
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 64)
+                    } else {
+                        TokenSummaryGaugeView(
+                            outlook: viewModel.outlook,
+                            lastUpdated: viewModel.lastUpdated
+                        )
 
-                    aiSummary
+                        aiSummary
 
-                    metricsSection
+                        metricsSection
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
@@ -131,15 +137,24 @@ struct TokenSummaryView: View {
             Spacer()
 
             HStack(spacing: 2) {
-                Badge(label: metric.value, accessibilityLabel: nil)
-                    .size(.x6)
-                    .variant(.tinted)
-                    .appearance(.neutral)
+                switch metric.content {
+                case .reading(let value, let sentiment):
+                    Badge(label: value, accessibilityLabel: nil)
+                        .size(.x6)
+                        .variant(.tinted)
+                        .appearance(.neutral)
 
-                Badge(label: metric.sentiment.badgeTitle, accessibilityLabel: nil)
-                    .size(.x6)
-                    .variant(.tinted)
-                    .appearance(metric.sentiment.badgeAppearance)
+                    Badge(label: sentiment.badgeTitle, accessibilityLabel: nil)
+                        .size(.x6)
+                        .variant(.tinted)
+                        .appearance(sentiment.badgeAppearance)
+
+                case .unavailable:
+                    Badge(label: Localization.commonNone, accessibilityLabel: nil)
+                        .size(.x6)
+                        .variant(.tinted)
+                        .appearance(.neutral)
+                }
             }
         }
         .frame(height: 48)
