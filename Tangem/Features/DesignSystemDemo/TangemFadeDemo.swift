@@ -15,7 +15,7 @@ struct TangemFadeDemoView: View {
     @ObservedObject var viewModel: TangemFadeDemoViewModel
 
     var body: some View {
-        TangemFadeShowcase()
-            .navigationBarTitle(Text("TangemFade"))
+        FadeShowcase()
+            .navigationBarTitle(Text("Fade"))
     }
 }

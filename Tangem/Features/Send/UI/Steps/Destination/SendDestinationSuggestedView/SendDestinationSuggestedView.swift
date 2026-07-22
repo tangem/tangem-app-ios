@@ -113,7 +113,7 @@ struct SendDestinationSuggestedWalletView<BottomView: View>: View {
     let bottomView: () -> BottomView
 
     var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             HStack(spacing: 12) {
                 AddressIconProviderView(type: addressIconType, size: 36)
 
