@@ -83,7 +83,7 @@ struct SendDestinationAddressView: View {
     }
 
     private var scanQRButton: some View {
-        Button(action: viewModel.didTapScanQRButton) {
+        SwiftUI.Button(action: viewModel.didTapScanQRButton) {
             Assets.Glyphs.scanQrIcon.image
                 .resizable()
                 .renderingMode(.template)
@@ -106,7 +106,7 @@ struct SendDestinationAddressView: View {
     }
 
     private var clearButton: some View {
-        Button {
+        SwiftUI.Button {
             viewModel.didTapClearButton()
         } label: {
             Assets.clear.image

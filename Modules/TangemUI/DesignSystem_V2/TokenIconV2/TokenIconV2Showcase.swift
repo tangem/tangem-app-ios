@@ -94,12 +94,12 @@ public struct TokenIconV2Showcase: View {
     private var simulateSection: some View {
         section(title: "Simulate transition") {
             HStack(spacing: 12) {
-                Button("Loading → Loaded") {
+                SwiftUI.Button("Loading → Loaded") {
                     simulate(to: .loaded, evictingCache: true)
                 }
                 .tint(.green)
 
-                Button("Loading → Error") {
+                SwiftUI.Button("Loading → Error") {
                     simulate(to: .failing, evictingCache: false)
                 }
                 .tint(.red)

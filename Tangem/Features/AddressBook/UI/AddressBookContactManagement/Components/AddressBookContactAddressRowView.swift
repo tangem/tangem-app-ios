@@ -31,7 +31,7 @@ struct AddressBookContactAddressRowView: View {
     let viewModel: AddressBookContactAddressRowViewModel
 
     var body: some View {
-        TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
+        Row(title: viewModel.title, subtitle: viewModel.subtitle)
             .start {
                 AddressBlockiesIconView(viewData: viewModel.addressIcon)
             }
