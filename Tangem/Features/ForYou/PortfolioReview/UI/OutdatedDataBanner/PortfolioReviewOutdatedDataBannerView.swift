@@ -27,7 +27,7 @@ private struct OutdatedDataBanner: View {
     @ScaledMetric private var iconSize: CGFloat = 20
 
     var body: some View {
-        TangemMessageBanner(title: Localization.warningSomeTokenBalancesNotUpdated)
+        MessageBanner(title: Localization.warningSomeTokenBalancesNotUpdated)
             .variant(.warning)
             .showGlowRing(false)
             .titleLineLimit(2)
