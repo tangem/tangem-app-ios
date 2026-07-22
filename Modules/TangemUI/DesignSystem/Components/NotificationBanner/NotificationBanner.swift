@@ -84,7 +84,7 @@ public struct NotificationBanner: View, Setupable {
             }
             .accessibilityElement(children: .contain)
         case .tappable(let tapAction):
-            Button(action: tapAction.action) {
+            SwiftUI.Button(action: tapAction.action) {
                 bannerBody()
             }
             .buttonStyle(.plain)
@@ -106,7 +106,7 @@ public struct NotificationBanner: View, Setupable {
     }
 
     private var closeButton: some View {
-        Button(action: { bannerType.closeAction?() }) {
+        SwiftUI.Button(action: { bannerType.closeAction?() }) {
             Circle()
                 .fill(Color.Tangem.Graphic.Neutral.secondary)
                 .frame(size: .init(bothDimensions: SizeUnit.x5.value))

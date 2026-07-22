@@ -103,7 +103,7 @@ struct TokensManagementChooserView: View {
     }
 
     private func row(icon: ImageType, title: String, subtitle: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             HStack(alignment: .center, spacing: 12) {
                 iconView(icon: icon)
 

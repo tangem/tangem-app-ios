@@ -22,7 +22,7 @@ struct MarketTokenRowView: View {
     @ScaledMetric private var chartSpacing: CGFloat = SizeUnit.x3.value
 
     var body: some View {
-        Button(action: { viewModel.didTapAction?() }) {
+        SwiftUI.Button(action: { viewModel.didTapAction?() }) {
             HStack(spacing: chartSpacing) {
                 TangemTwoLineRowLayout(
                     icon: { iconView },

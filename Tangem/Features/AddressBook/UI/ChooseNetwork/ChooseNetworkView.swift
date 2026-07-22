@@ -82,7 +82,7 @@ struct ChooseNetworkView: View {
                     if viewModel.isSelectAllVisible {
                         Spacer(minLength: 0)
 
-                        Button(action: viewModel.toggleSelectAll) {
+                        SwiftUI.Button(action: viewModel.toggleSelectAll) {
                             Text(viewModel.selectAllTitle)
                                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textBrand)
                         }
@@ -101,7 +101,7 @@ struct ChooseNetworkView: View {
     }
 
     private var doneButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(Localization.commonDone),
             accessibilityLabel: Localization.commonDone,
             action: viewModel.done
