@@ -228,36 +228,36 @@ extension ButtonStyle where Self == TangemButtonStyle {
                 font: .system(size: 18)
             ))
 
-        Button(action: {}) { Text("Tap in!") }
+        SwiftUI.Button(action: {}) { Text("Tap in!") }
             .buttonStyle(TangemButtonStyle())
 
-        Button(action: {}) { Text("Tap in!") }
+        SwiftUI.Button(action: {}) { Text("Tap in!") }
             .buttonStyle(TangemButtonStyle(colorStyle: .black))
 
-        Button(action: {}) { Text("No. Go to shop") }
+        SwiftUI.Button(action: {}) { Text("No. Go to shop") }
             .buttonStyle(TangemButtonStyle(
                 colorStyle: .black,
                 layout: .big,
                 isDisabled: true
             ))
 
-        Button(action: {}) { Text("No. Go to shop") }
+        SwiftUI.Button(action: {}) { Text("No. Go to shop") }
             .buttonStyle(TangemButtonStyle(colorStyle: .black, isDisabled: true))
 
-        Button(action: {}) { Text("Go to shop") }
+        SwiftUI.Button(action: {}) { Text("Go to shop") }
             .buttonStyle(TangemButtonStyle(
                 colorStyle: .transparentWhite,
                 layout: .flexibleWidth
             ))
 
-        Button(action: {}) { Text("Go to shop") }
+        SwiftUI.Button(action: {}) { Text("Go to shop") }
             .buttonStyle(TangemButtonStyle(
                 colorStyle: .transparentWhite,
                 layout: .flexibleWidth,
                 isDisabled: true
             ))
 
-        Button(action: {}) { Text("Go to shop") }
+        SwiftUI.Button(action: {}) { Text("Go to shop") }
             .buttonStyle(TangemButtonStyle(
                 colorStyle: .grayAlt3,
                 layout: .flexibleWidth,
