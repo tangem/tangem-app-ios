@@ -109,6 +109,15 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func verifyWithdrawDisabled() -> Self {
+        XCTContext.runActivity(named: "Verify Withdraw button is disabled") { _ in
+            waitAndAssertTrue(withdrawButton, "Withdraw button should be displayed")
+            withdrawButton.waitForState(state: .disabled)
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyPendingExpressTransactionVisible() -> Self {
         XCTContext.runActivity(named: "Verify pending express transaction row is visible") { _ in
             let row = app.buttons[TokenAccessibilityIdentifiers.pendingExpressTransaction].firstMatch
