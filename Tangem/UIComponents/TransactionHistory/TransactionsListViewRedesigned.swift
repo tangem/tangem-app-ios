@@ -95,7 +95,7 @@ struct TransactionsListViewRedesigned: View {
 
     @ViewBuilder
     private func rowOrChip(for viewModel: TransactionViewModel) -> some View {
-        Button {
+        SwiftUI.Button {
             exploreTransactionAction(viewModel.hash)
         } label: {
             switch viewModel.display.style {

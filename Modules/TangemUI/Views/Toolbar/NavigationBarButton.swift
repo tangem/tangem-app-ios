@@ -47,7 +47,7 @@ public struct NavigationBarButton: View {
     }
 
     private var systemLabelButton: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             Text(Image(systemName: sfSymbol))
                 .foregroundStyle(Colors.Text.primary1)
                 .font(.title2)
@@ -56,7 +56,7 @@ public struct NavigationBarButton: View {
     }
 
     private var circleIconButton: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             iconAsset.image
                 .resizable()
                 .renderingMode(.template)
@@ -175,7 +175,7 @@ public extension NavigationBarButton {
 
                 if #available(iOS 26.0, *) {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .close) {}
+                        SwiftUI.Button(role: .close) {}
                     }
                 }
             }

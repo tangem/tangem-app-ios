@@ -87,7 +87,7 @@ private final class BottomSheetCoordinator: ObservableObject, InformationHiddenB
         Colors.Background.primary
             .edgesIgnoringSafeArea(.all)
 
-        Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
+        SwiftUI.Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
             coordinator.toggleItem()
         }
         .font(Fonts.Bold.body)
@@ -109,7 +109,7 @@ private final class BottomSheetCoordinator: ObservableObject, InformationHiddenB
         Colors.Background.primary
             .edgesIgnoringSafeArea(.all)
 
-        Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
+        SwiftUI.Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
             coordinator.toggleItem()
         }
         .font(Fonts.Bold.body)

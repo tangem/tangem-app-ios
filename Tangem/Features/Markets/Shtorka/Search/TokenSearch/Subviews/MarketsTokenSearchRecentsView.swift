@@ -39,7 +39,7 @@ struct MarketsTokenSearchRecentsView: View {
 
             Spacer(minLength: .unit(.x2))
 
-            Button(action: onClearAll) {
+            SwiftUI.Button(action: onClearAll) {
                 Text(Localization.marketsSearchClearAllHints)
                     .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
             }

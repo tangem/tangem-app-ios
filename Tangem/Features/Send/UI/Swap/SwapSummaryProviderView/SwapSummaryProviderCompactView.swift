@@ -22,7 +22,7 @@ struct SwapSummaryProviderCompactView: View {
 
             Group {
                 if viewModel.compactData.isTappable {
-                    Button(action: viewModel.userDidTap) { content }
+                    SwiftUI.Button(action: viewModel.userDidTap) { content }
                         .buttonStyle(.plain)
                 } else {
                     content
