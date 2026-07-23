@@ -14,8 +14,15 @@ extension EarnOpportunitiesViewModel {
         case content(Content)
 
         struct Content: Equatable {
-            let subtitle: EarnRewardSubtitle
-            let accounts: [EarnAccountListItem]
+            /// `nil` hides the subtitle line.
+            let subtitle: EarnRewardSubtitle?
+            let list: List
+        }
+
+        /// Holdings grouped by account, or suggestions when there are none.
+        enum List: Equatable {
+            case accounts([EarnAccountListItem])
+            case suggestions([EarnSuggestionRowData])
         }
     }
 }
