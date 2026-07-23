@@ -22,6 +22,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoin(testnet: false),
                             isCustom: true
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -45,6 +46,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoin(testnet: false),
                             isCustom: true
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -68,6 +70,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoin(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -88,6 +91,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: false,
                         isTestnet: false,
@@ -103,6 +107,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: true,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: true,
@@ -116,6 +121,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereumClassic(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -139,6 +145,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoin(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -152,6 +159,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .arbitrum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -165,6 +173,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .litecoin,
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -178,6 +187,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .stellar(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -191,6 +201,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -204,6 +215,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereumPoW(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -217,6 +229,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereumClassic(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -230,6 +243,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoinCash,
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -243,6 +257,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .binance(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -256,6 +271,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .cardano(extended: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -269,6 +285,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bsc(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -282,6 +299,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dogecoin,
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -295,6 +313,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .polygon(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -308,6 +327,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .avalanche(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -321,6 +341,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .solana(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: false,
                         isTestnet: false,
@@ -334,6 +355,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .fantom(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: false,
                         isTestnet: false,
@@ -347,6 +369,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .polkadot(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -360,6 +383,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .azero(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -373,6 +397,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .tron(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -386,6 +411,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: true,
@@ -399,6 +425,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .optimism(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: true,
@@ -412,6 +439,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ton(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -425,6 +453,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .kava(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -438,6 +467,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .cosmos(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -461,6 +491,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoin(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -481,6 +512,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -496,6 +528,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: false,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: false,
@@ -515,6 +548,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -535,6 +569,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -550,6 +585,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: true,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: false,
@@ -569,6 +605,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -589,6 +626,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -604,6 +642,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: false,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: false,
@@ -623,6 +662,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -643,6 +683,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -658,6 +699,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: true,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: false,
@@ -677,6 +719,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
@@ -697,6 +740,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
@@ -712,6 +756,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             isCustom: false,
                             customTokenColor: nil
                         ),
+                        currencySymbol: "TOKEN",
                         balance: .loaded(text: "22222222222222222222222222222222222222222222.00 $"),
                         hasDerivation: true,
                         isTestnet: false,
