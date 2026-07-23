@@ -208,7 +208,7 @@ struct MarketsView: View {
             }
 
             HStack(spacing: .zero) {
-                Button(action: {
+                SwiftUI.Button(action: {
                     viewModel.onShowUnderCapAction()
                 }, label: {
                     HStack(spacing: .zero) {

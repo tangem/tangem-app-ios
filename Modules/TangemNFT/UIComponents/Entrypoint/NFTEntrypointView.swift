@@ -21,7 +21,7 @@ public struct NFTEntrypointView: View {
     }
 
     public var body: some View {
-        Button(action: viewModel.openCollections) {
+        SwiftUI.Button(action: viewModel.openCollections) {
             HStack(spacing: Constants.iconTextsHSpacing) {
                 image
                     .frame(size: Constants.ImageContainer.size)

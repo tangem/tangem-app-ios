@@ -45,7 +45,7 @@ struct RedesignedSelectorReceiveAssetsDomainItemView: View {
 
     private var buttonView: some View {
         HStack(spacing: 8) {
-            TangemButtonV2(
+            TangemUI.Button(
                 icon: DesignSystem.Icons.Copy.regular20,
                 accessibilityLabel: Localization.commonCopy,
                 action: viewModel.copyAddressButtonDidTap
@@ -53,7 +53,7 @@ struct RedesignedSelectorReceiveAssetsDomainItemView: View {
             .size(.x9)
             .styleType(.secondary)
 
-            TangemButtonV2(
+            TangemUI.Button(
                 icon: DesignSystem.Icons.ShareIos.regular20,
                 accessibilityLabel: Localization.commonShare,
                 action: viewModel.shareAddressButtonDidTap

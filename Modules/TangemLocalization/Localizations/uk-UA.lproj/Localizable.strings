@@ -1390,7 +1390,7 @@
 "staking_enabled" = "Стейкінг увімкнено";
 "staking_error_no_validators_message" = "Наразі немає вільних валідаторів. Повторіть спробу пізніше.";
 "staking_error_no_validators_title" = "Стейкінг недоступний";
-"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
+"staking_error_unavailable_region_description" = "Стейкінг наразі недоступний у вашому регіоні. Якщо у вас увімкнено VPN, спробуйте його вимкнути.";
 "staking_error_unavailable_region" = "Стейкінг недоступний у вашому регіоні";
 "staking_give_permission_fee_footer" = "Комісія за схвалення токену, щоб верифікувати, що саме ви дозволяєте використання токена для стейкінгу.";
 "staking_legal" = "Використовуючи функцію стейкінгу, ви погоджуєтесь з %1$@ та %2$@";
@@ -1953,6 +1953,7 @@
 "token_summary_last_update_subtitle" = "Last update: %1$@";
 "token_summary_negative_outlook_title" = "Negative outlook";
 "token_summary_neutral_outlook_title" = "Neutral outlook";
+"token_summary_outlook_is_not_available" = "Outlook for this token is not available";
 "token_summary_positive_outlook_title" = "Positive outlook";
 "token_summary_title" = "Token summary";
 "token_swap_promotion_button" = "Обміняти";
@@ -1966,6 +1967,8 @@
 "tokens_list_unavailable_to_swap_source_header" = "Недоступно для обміну";
 "transaction_history_claiming_reward" = "Отримання нагороди";
 "transaction_history_contract_address" = "контракт: %@";
+"transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
+"transaction_history_detail_page_amount_value" = "%1@ %2@";
 "transaction_history_disabling_yield_mode" = "Вимкнення режиму дохідності";
 "transaction_history_earned_from_stake" = "Зароблено на стейкінгу";
 "transaction_history_empty_transactions" = "У вас ще немає транзакцій";
