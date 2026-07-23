@@ -36,8 +36,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private(set) lazy var balanceViewModel = TokenDetailsBalanceViewModel(
         tokenItem: walletModel.tokenItem,
         dataProvider: self,
-        reloadBalance: {
-            Task { @MainActor [weak self] in
+        reloadBalance: { [weak self] in
+            Task { @MainActor in
                 await self?.onPullToRefresh()
             }
         }
