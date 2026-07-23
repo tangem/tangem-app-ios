@@ -12,6 +12,7 @@ import struct TangemUI.TokenIconInfo
 
 class StakingFlowFactory: StakingFlowDependenciesFactory {
     @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
+    @Injected(\.keysManager) private var keysManager: KeysManager
 
     let stakingableToken: SendStakingableToken
     let manager: any StakingManager
@@ -20,6 +21,11 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     var actionType: StakingAction.ActionType { .stake }
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
+    lazy var validationHandler = makeValidationHandler(
+        stakingManager: manager,
+        blockaidAPIKey: keysManager.blockaidAPIKey,
+        analyticsLogger: analyticsLogger
+    )
     lazy var stakingModel = makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
@@ -48,6 +54,7 @@ extension StakingFlowFactory {
             analyticsLogger: analyticsLogger,
             accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
             minimalBalanceProvider: walletModelDependenciesProvider.minimalBalanceProvider,
+            validationHandler: validationHandler
         )
     }
 }
@@ -81,6 +88,12 @@ extension StakingFlowFactory: SendGenericFlowFactory {
 
         // Notifications setup
         notificationManager.setup(provider: stakingModel, input: stakingModel)
+        if let validationHandler {
+            notificationManager.setup(
+                validationStatePublisher: validationHandler.validationState,
+                tokenName: tokenItem.currencySymbol
+            )
+        }
         notificationManager.setupManager(with: stakingModel)
 
         // Analytics
@@ -202,7 +215,11 @@ extension StakingFlowFactory: StakingTargetsStepBuildable {
 
 extension StakingFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: stakingModel, output: stakingModel)
+        SendSummaryStepBuilder.IO(
+            input: stakingModel,
+            output: stakingModel,
+            validationStateProvider: stakingModel
+        )
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {

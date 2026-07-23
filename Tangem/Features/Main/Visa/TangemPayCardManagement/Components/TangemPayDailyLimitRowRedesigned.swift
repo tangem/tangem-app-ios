@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayDailyLimitRowRedesigned: View {
     let state: TangemPayDailyLimitState
@@ -22,7 +23,7 @@ struct TangemPayDailyLimitRowRedesigned: View {
 
             VStack(alignment: .leading, spacing: .zero) {
                 Text(Localization.tangempayCardPageDailyLimitTitle)
-                    .font(DesignSystem.Font.bodyMediumToken)
+                    .font(token: DesignSystem.Font.bodyMediumToken)
                     .foregroundStyle(DesignSystem.Color.textSecondary)
 
                 value
@@ -57,9 +58,10 @@ struct TangemPayDailyLimitRowRedesigned: View {
         }()
 
         Text(text)
-            .font(DesignSystem.Font.bodyMediumToken)
+            .font(token: DesignSystem.Font.bodyMediumToken)
             .foregroundStyle(DesignSystem.Color.textPrimary)
             .lineLimit(1)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitRowValue)
     }
 
     @ViewBuilder
@@ -74,6 +76,7 @@ struct TangemPayDailyLimitRowRedesigned: View {
                 )
                 .size(.x10)
                 .styleType(.secondary)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.dailyLimitChangeButton)
             }
         case .loading:
             ProgressView()
@@ -86,7 +89,6 @@ struct TangemPayDailyLimitRowRedesigned: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 12) {
         TangemPayDailyLimitRowRedesigned(state: .loading, isFrozen: false, changeAction: {})
@@ -106,4 +108,3 @@ struct TangemPayDailyLimitRowRedesigned: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG
