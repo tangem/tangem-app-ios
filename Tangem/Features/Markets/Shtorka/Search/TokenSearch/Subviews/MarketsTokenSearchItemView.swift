@@ -7,14 +7,15 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct MarketsTokenSearchItemView: View {
-    @ScaledMetric private var tokensSpacing: CGFloat = .unit(.x2)
-    @ScaledMetric private var retrySpacing: CGFloat = .unit(.x2)
+    @ScaledMetric private var tokensSpacing: CGFloat = 8
+    @ScaledMetric private var retrySpacing: CGFloat = 8
 
-    private let retryTopPadding: CGFloat = .unit(.x10)
-    private let tokenBackgroundCornerRadius: CGFloat = .unit(.x5)
+    private let retryTopPadding: CGFloat = 40
+    private let tokenBackgroundCornerRadius: CGFloat = 20
 
     let item: MarketsTokenSearchViewModel.MarketItem
 
@@ -56,7 +57,7 @@ private extension MarketsTokenSearchItemView {
     func tokenView(model: MarketsItemViewModel) -> some View {
         MarketTokenRowView(viewModel: model.tokenItemViewModel)
             .roundedBackground(
-                with: .Tangem.Surface.level3,
+                with: DesignSystem.Color.bgSecondary,
                 padding: .zero,
                 radius: tokenBackgroundCornerRadius
             )
@@ -73,7 +74,7 @@ private extension MarketsTokenSearchItemView {
             ForEach(0 ..< 3) { _ in
                 TangemTwoLineRowSkeletonView()
                     .roundedBackground(
-                        with: .Tangem.Surface.level3,
+                        with: DesignSystem.Color.bgSecondary,
                         padding: .zero,
                         radius: tokenBackgroundCornerRadius
                     )

@@ -75,7 +75,7 @@ struct SupportChatView: View {
 
     private var navBarMenu: some View {
         Menu {
-            Button(action: { viewModel.sendLogs() }) {
+            SwiftUI.Button(action: { viewModel.sendLogs() }) {
                 Label(Localization.supportChatShareLogsButton, systemImage: "doc.text")
             }
             .disabled(viewModel.isSendingLogs)
