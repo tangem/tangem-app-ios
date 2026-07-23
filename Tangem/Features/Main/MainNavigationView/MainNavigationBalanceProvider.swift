@@ -17,10 +17,10 @@ final class MainNavigationBalanceProvider {
     private let balanceFormatter = BalanceFormatter()
 
     private let balanceFormattingOptions = TotalBalanceFormattingOptions(
-        integerPartFont: Font.Tangem.Body16.medium,
-        fractionalPartFont: Font.Tangem.Body16.medium,
-        integerPartColor: .Tangem.Text.Neutral.primary,
-        fractionalPartColor: .Tangem.Text.Neutral.secondary,
+        integerPartFont: DesignSystem.Font.bodyMediumToken,
+        fractionalPartFont: DesignSystem.Font.bodyMediumToken,
+        integerPartColor: DesignSystem.Color.textPrimary,
+        fractionalPartColor: DesignSystem.Color.textSecondary,
         fractionalPartIncludesDecimalSeparator: true
     )
 
