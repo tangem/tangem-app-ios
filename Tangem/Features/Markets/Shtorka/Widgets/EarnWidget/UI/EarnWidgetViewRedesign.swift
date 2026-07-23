@@ -62,14 +62,14 @@ struct EarnWidgetViewRedesign: View {
             // Negative padding bleeds the carousel past the 16pt horizontal padding
             // that MarketsMainView applies to the entire widget container.
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: .unit(.x2)) {
+                HStack(spacing: 8) {
                     ForEach(tokenViewModels) { tokenViewModel in
                         EarnTokenTileView(viewModel: tokenViewModel)
                     }
                 }
-                .padding(.horizontal, SizeUnit.x4.value)
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, -SizeUnit.x4.value)
+            .padding(.horizontal, -16)
 
         case .failure:
             TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.tryLoadAgain)
@@ -82,14 +82,14 @@ struct EarnWidgetViewRedesign: View {
         // Negative padding bleeds the carousel past the 16pt horizontal padding
         // that MarketsMainView applies to the entire widget container.
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: .unit(.x2)) {
+            HStack(spacing: 8) {
                 EarnTokenTileSkeletonView()
                 EarnTokenTileSkeletonView()
                 EarnTokenTileSkeletonView()
             }
-            .padding(.horizontal, SizeUnit.x4.value)
+            .padding(.horizontal, 16)
         }
         .scrollDisabled(true)
-        .padding(.horizontal, -SizeUnit.x4.value)
+        .padding(.horizontal, -16)
     }
 }

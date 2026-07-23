@@ -46,7 +46,7 @@ struct NewsWidgetViewRedesign: View {
         HStack(alignment: .center, spacing: .zero) {
             Text(Localization.commonNews)
                 .lineLimit(1)
-                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .skeletonable(
                     isShown: viewModel.headerLoadingState.isHeaderSkeletonable,
                     size: CGSize(width: 120, height: 24) * scaleFactor,
@@ -54,35 +54,35 @@ struct NewsWidgetViewRedesign: View {
                 )
 
             if viewModel.headerLoadingState.isButtonVisibility {
-                FixedSpacer(width: SizeUnit.x2.value)
+                FixedSpacer(width: 8)
                 tangemAIAccessory
             }
 
-            Spacer(minLength: SizeUnit.x2.value)
+            Spacer(minLength: 8)
 
             if viewModel.headerLoadingState.isButtonVisibility {
                 seeAllButton
             }
         }
-        .padding(.vertical, SizeUnit.x2.value)
-        .padding(.horizontal, SizeUnit.x2.value)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 8)
     }
 
     private var tangemAIAccessory: some View {
-        HStack(spacing: SizeUnit.x1.value) {
+        HStack(spacing: 4) {
             Assets.Glyphs.tripleSparkles.image
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .frame(width: SizeUnit.x5.value, height: SizeUnit.x5.value)
+                .frame(width: 20, height: 20)
                 .foregroundStyle(NewsHeaderGradient.linearGradient)
 
             Text("Tangem AI")
-                .style(Font.Tangem.Body16.medium, color: .clear)
+                .style(DesignSystem.Font.bodyMediumToken, color: .clear)
                 .overlay(
                     NewsHeaderGradient.linearGradient.mask(
                         Text("Tangem AI")
-                            .style(Font.Tangem.Body16.medium, color: .black)
+                            .style(DesignSystem.Font.bodyMediumToken, color: .black)
                     )
                 )
         }
@@ -92,12 +92,12 @@ struct NewsWidgetViewRedesign: View {
         SwiftUI.Button(action: viewModel.handleAllNewsTap) {
             HStack(spacing: .zero) {
                 Text(Localization.commonSeeAll)
-                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Assets.chevron.image
                     .renderingMode(.template)
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
-                    .frame(width: SizeUnit.x6.value, height: SizeUnit.x6.value)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                    .frame(width: 24, height: 24)
             }
         }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSeeAllButton)
@@ -130,7 +130,7 @@ struct NewsWidgetViewRedesign: View {
                     viewModel.handleCarouselItemAppear(at: index)
                 }
             )
-            .padding(.horizontal, -SizeUnit.x4.value)
+            .padding(.horizontal, -16)
         }
     }
 
@@ -155,7 +155,7 @@ struct NewsWidgetViewRedesign: View {
 
 private extension NewsWidgetViewRedesign {
     enum Layout {
-        static let spacingBetweenSections: CGFloat = .unit(.x3)
+        static let spacingBetweenSections: CGFloat = 12
     }
 }
 

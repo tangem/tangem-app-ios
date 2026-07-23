@@ -30,23 +30,23 @@ struct TrendingCardNewsViewRedesign: View {
 
     private func contentView(for item: TrendingCardNewsItem) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
-            HStack(spacing: .unit(.x2)) {
+            HStack(spacing: 8) {
                 NewsRatingViewRedesign(rating: "\(item.rating) • \(item.timeAgo)", isHighlighted: true)
                 Text(Localization.feedTrendingNow)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
             }
 
-            FixedSpacer(height: .unit(.x2))
+            FixedSpacer(height: 8)
 
             Text(item.title)
                 .multilineTextAlignment(.leading)
-                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
-            Spacer(minLength: .unit(.x4))
+            Spacer(minLength: 16)
 
             InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
         }
-        .padding(.all, .unit(.x4))
+        .padding(.all, 16)
         .infinityFrame(axis: .horizontal, alignment: .topLeading)
         .frame(minHeight: Layout.cardMinHeight)
         .background {
@@ -56,7 +56,7 @@ struct TrendingCardNewsViewRedesign: View {
                 .resizable()
                 .allowsHitTesting(false)
         }
-        .cornerRadiusContinuous(.unit(.x6))
+        .cornerRadiusContinuous(24)
         .opacity(item.isRead ? 0.6 : 1.0)
     }
 }

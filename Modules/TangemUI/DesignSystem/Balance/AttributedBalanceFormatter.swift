@@ -121,6 +121,25 @@ public enum AttributedBalanceFormatter {
         )
     }
 
+    public static func format(
+        _ balance: String,
+        token: TangemTypographyToken,
+        integerColor: Color? = Color.Tangem.Text.Neutral.primary,
+        fractionalColor: Color? = Color.Tangem.Text.Neutral.secondary,
+        decimalSeparator: String = Locale.current.decimalSeparator ?? ".",
+        fractionalIncludesSeparator: Bool = true
+    ) -> AttributedString {
+        var attributed = format(
+            balance,
+            decimalSeparator: decimalSeparator,
+            integerPart: PartStyle(font: nil, color: integerColor),
+            fractionalPart: PartStyle(font: nil, color: fractionalColor),
+            fractionalIncludesSeparator: fractionalIncludesSeparator
+        )
+        attributed.setFontStyle(token)
+        return attributed
+    }
+
     /// Dims only the decimal tail via color and leaves both parts' font unset, so the caller applies
     /// a Dynamic Type-aware font through the SwiftUI `.font(_:)`/`.style(_:)` view modifier. The
     /// integer part is left uncolored so it follows the ambient `foregroundStyle` — e.g. a

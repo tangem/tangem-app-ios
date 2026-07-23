@@ -51,7 +51,7 @@ private extension MarketsPortfolioTokenListRowView {
 
     func noAddressLabel() -> some View {
         Text(viewModel.noAddressText)
-            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .lineLimit(1)
     }
 
@@ -62,28 +62,28 @@ private extension MarketsPortfolioTokenListRowView {
     func icon() -> some View {
         TokenIcon(
             tokenIconInfo: viewModel.tokenIconInfo,
-            size: CGSize(width: .unit(.x10), height: .unit(.x10)) * scaleFactor
+            size: CGSize(width: 40, height: 40) * scaleFactor
         )
     }
 
     func tokenName() -> some View {
         Text(viewModel.tokenName)
-            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
     }
 
     func fiatBalance() -> some View {
-        balanceState(viewModel.fiatBalanceState, skeletonSize: CGSize(width: .unit(.x16), height: .unit(.x5)) * scaleFactor)
+        balanceState(viewModel.fiatBalanceState, skeletonSize: CGSize(width: 64, height: 20) * scaleFactor)
     }
 
     func networkName() -> some View {
         Text(viewModel.networkName)
-            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .lineLimit(1)
     }
 
     func cryptoBalance() -> some View {
-        balanceState(viewModel.cryptoBalanceState, skeletonSize: CGSize(width: .unit(.x13), height: .unit(.x4)) * scaleFactor)
+        balanceState(viewModel.cryptoBalanceState, skeletonSize: CGSize(width: 52, height: 16) * scaleFactor)
     }
 
     func balanceState(_ state: ViewModel.BalanceState, skeletonSize: CGSize) -> some View {
