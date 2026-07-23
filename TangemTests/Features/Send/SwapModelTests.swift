@@ -10,6 +10,7 @@ import BlockchainSdk
 import Combine
 import Foundation
 import TangemFoundation
+import TangemPay
 import Testing
 import TangemTestKit
 @testable import TangemExpress
@@ -145,6 +146,29 @@ final class SwapModelTests: LeakTrackingTestSuite {
         // Restriction lifted: the next quote request reconciles the deferred pair.
         #expect(await manager.currentPair != nil)
     }
+
+    // MARK: - [REDACTED_INFO]: deferred pair resolution
+
+    @Test("Receive selector unblocks while deferred pair resolution is still in flight ([REDACTED_INFO])")
+    func receiveSelectorUnblocksDuringDeferredPairResolution() async throws {
+        let sourceToken = SwapableTokenStub(blockchain: .ethereum(testnet: false))
+        let resolver = MainSwapPairResolver(
+            userWalletModel: PendingResolutionUserWalletModelStub(),
+            swapAvailabilityChecker: SwapAvailabilityCheckerStub()
+        )
+        // The SUT is not leak-tracked here: the suspended resolver keeps the initial-loading
+        // task (and therefore the model) alive until the stub's publishers would emit.
+        let sut = makeSUT(
+            sourceToken: sourceToken,
+            swapTokenPairResolver: resolver,
+            shouldStartInitialLoading: true
+        )
+
+        let error = try await waitForReceiveTokenFailure(sut)
+        #expect(error as? SwapModel.SwapModelError == .tokenSelectionRequired)
+        // The resolver never resumed, so the pre-selected source must stay intact.
+        #expect(sut.sourceToken.value?.tokenItem == sourceToken.tokenItem)
+    }
 }
 
 // MARK: - Helpers
@@ -155,7 +179,9 @@ private extension SwapModelTests {
         receiveToken: SendReceiveToken? = nil,
         expressManager: ExpressManager = ExpressManagerStub(),
         pairUpdateHandler: SwapPairUpdateHandler = SwapPairUpdateHandlerStub(),
-        balanceRestrictionChecker: SwapBalanceRestrictionFeatureChecker = SwapBalanceRestrictionFeatureCheckerStub()
+        balanceRestrictionChecker: SwapBalanceRestrictionFeatureChecker = SwapBalanceRestrictionFeatureCheckerStub(),
+        swapTokenPairResolver: MainSwapPairResolver? = nil,
+        shouldStartInitialLoading: Bool = false
     ) -> SwapModel {
         SwapModel(
             sourceToken: sourceToken,
@@ -169,7 +195,8 @@ private extension SwapModelTests {
             autoupdatingTimer: AutoupdatingTimer(),
             pairUpdateHandler: pairUpdateHandler,
             balanceRestrictionFeatureChecker: balanceRestrictionChecker,
-            shouldStartInitialLoading: false
+            swapTokenPairResolver: swapTokenPairResolver,
+            shouldStartInitialLoading: shouldStartInitialLoading
         )
     }
 
@@ -188,6 +215,23 @@ private extension SwapModelTests {
         for _ in 0 ..< maxAttempts {
             if recorder.count > baseline, let latest = recorder.latest, predicate(latest) {
                 return latest
+            }
+            try await Task.sleep(for: pollInterval)
+        }
+
+        throw TimeoutError()
+    }
+
+    /// Waits until the receive token leaves `.loading` and returns the failure. Under the pre-fix
+    /// ordering (selection state sent only after the resolver await) this never happens with a
+    /// suspended resolver, so the timeout is the regression signal.
+    func waitForReceiveTokenFailure(_ sut: SwapModel) async throws -> any Error {
+        let pollInterval: Duration = .milliseconds(10)
+        let maxAttempts = 500
+
+        for _ in 0 ..< maxAttempts {
+            if case .failure(let error) = sut.receiveToken {
+                return error
             }
             try await Task.sleep(for: pollInterval)
         }
@@ -436,4 +480,36 @@ private final class ReceiveTokenStub: SendReceiveToken {
 
 private struct SwapAvailabilityProviderStub: SwapAvailabilityProvider {
     let isSwapAvailable: Bool
+}
+
+// MARK: - Deferred pair resolution stubs
+
+private struct SwapAvailabilityCheckerStub: SwapAvailabilityChecker {
+    func isSwapAvailable(walletModel: any WalletModel) -> Bool { true }
+}
+
+/// A wallet whose account models never arrive, keeping `MainSwapPairResolver.resolve()`
+/// suspended — the unit-test analogue of balances that never finish loading ([REDACTED_INFO]).
+private final class PendingResolutionUserWalletModelStub: UserWalletModelMock {
+    private let pendingAccountModelsManager = PendingAccountModelsManagerStub()
+
+    override var accountModelsManager: AccountModelsManager { pendingAccountModelsManager }
+    override var config: UserWalletConfig { UserWalletConfigStub() }
+    override var signer: TangemSigner { TangemSignerStub() }
+}
+
+private final class PendingAccountModelsManagerStub: AccountModelsManager {
+    var canAddCryptoAccounts: Bool { false }
+    var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
+    var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
+    var accountModels: [AccountModel] { [] }
+    var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { Empty(completeImmediately: false).eraseToAnyPublisher() }
+    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { Empty().eraseToAnyPublisher() }
+
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult { .none }
+    func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] { [] }
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult { .none }
+    func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
+    func dispose() {}
+    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
 }
