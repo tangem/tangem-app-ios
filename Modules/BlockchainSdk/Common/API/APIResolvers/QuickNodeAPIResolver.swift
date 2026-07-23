@@ -16,8 +16,15 @@ struct QuickNodeAPIResolver {
             return nil
         }
 
-        guard let url = URL(string: "https://\(credentials.subdomain)/\(credentials.apiKey)") else {
+        guard var url = URL(string: "https://\(credentials.subdomain)/\(credentials.apiKey)") else {
             return nil
+        }
+
+        switch blockchain {
+        case .hedera:
+            url.append(path: "api/v1")
+        default:
+            break
         }
 
         return NodeInfo(url: url)
