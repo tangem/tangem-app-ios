@@ -82,6 +82,10 @@ extension AccountIconWithContentView: Setupable {
         }
     }
 
+    public func nameStyle(font: TangemTypographyToken, color: Color) -> Self {
+        nameStyle(font: TangemFontStyle(font), color: color)
+    }
+
     public func subtitleStyle(font: Font, color: Color) -> Self {
         subtitleStyle(font: TangemFontStyle(font: font), color: color)
     }

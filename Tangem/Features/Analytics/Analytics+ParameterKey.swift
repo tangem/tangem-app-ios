@@ -199,5 +199,9 @@ extension Analytics {
 
         case blockaid = "Blockaid"
         case mobileCheck = "Mobile_check"
+
+        // MARK: - Tangem Pay Tiers
+
+        case plan = "Plan"
     }
 }

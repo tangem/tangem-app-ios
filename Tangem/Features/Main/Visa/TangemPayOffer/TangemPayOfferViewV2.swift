@@ -177,12 +177,12 @@ struct TangemPayOfferViewV2: View {
 
     private var footer: some View {
         TangemUI.Button(
-            label: .init(Localization.tangempayOnboardingGetCardButtonText),
-            iconEnd: DesignSystem.Icons.LogoTangem.regular24,
+            label: Localization.tangempayOnboardingGetCardButtonText,
             accessibilityLabel: nil
         ) {
             viewModel.getCard()
         }
+        .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
         .styleType(.default)
         .horizontalLayout(.infinity)
         .isLoading(viewModel.isLoading)
