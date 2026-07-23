@@ -257,6 +257,10 @@ extension CommonSendStepsManager: SendSummaryStepsRoutable {
 
 extension CommonSendStepsManager: SendDestinationStepRoutable {
     func destinationStepFulfilled() {
+        guard currentStep().type.isDestination else {
+            return
+        }
+
         if isEditAction {
             performContinue()
         } else {

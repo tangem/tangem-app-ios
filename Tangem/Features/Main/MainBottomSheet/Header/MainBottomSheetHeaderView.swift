@@ -30,11 +30,7 @@ struct MainBottomSheetHeaderView: View {
     }
 
     var body: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            bodyRedesign
-        } else {
-            bodyLegacy
-        }
+        bodyRedesign
     }
 
     private var bodyRedesign: some View {
@@ -55,16 +51,6 @@ struct MainBottomSheetHeaderView: View {
         .background(backgroundColor)
         .focused($isFocused)
         .onReceive(viewModel.$inputShouldBecomeFocused) { isFocused = $0 }
-    }
-
-    private var bodyLegacy: some View {
-        MainBottomSheetHeaderInputView(
-            searchText: $viewModel.enteredSearchText,
-            isTextFieldFocused: $viewModel.inputShouldBecomeFocused,
-            allowsHitTestingForTextField: true,
-            clearButtonAction: viewModel.clearSearchBarAction,
-            cancelButtonAction: viewModel.cancelSearchBarAction
-        )
     }
 }
 
