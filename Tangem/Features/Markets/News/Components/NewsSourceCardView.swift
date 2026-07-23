@@ -23,7 +23,7 @@ struct NewsSourceCardView: View {
     // MARK: - Redesign
 
     private var redesignBody: some View {
-        Button {
+        SwiftUI.Button {
             onTap(source)
         } label: {
             HStack(alignment: .top, spacing: .unit(.x4)) {

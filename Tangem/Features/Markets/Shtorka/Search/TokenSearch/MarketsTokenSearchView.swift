@@ -16,9 +16,9 @@ struct MarketsTokenSearchView: View {
 
     @State private var frameHeight: CGFloat = .zero
 
-    @ScaledMetric private var portfolioMarketSpacing: CGFloat = .unit(.x10)
-    @ScaledMetric private var sectionHeaderContentSpacing: CGFloat = .unit(.x5)
-    @ScaledMetric private var headerLeadingPadding: CGFloat = .unit(.x2)
+    @ScaledMetric private var portfolioMarketSpacing: CGFloat = 40
+    @ScaledMetric private var sectionHeaderContentSpacing: CGFloat = 20
+    @ScaledMetric private var headerLeadingPadding: CGFloat = 8
 
     @ObservedObject var viewModel: ViewModel
 
@@ -30,7 +30,7 @@ struct MarketsTokenSearchView: View {
 
     var body: some View {
         ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: .unit(.x1)) {
+            VStack(alignment: .leading, spacing: 4) {
                 Color.clear
                     .frame(height: headerHeight)
 
@@ -64,7 +64,7 @@ private extension MarketsTokenSearchView {
     ) -> some View {
         VStack(alignment: .leading, spacing: sectionHeaderContentSpacing) {
             Text(title)
-                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .padding(.leading, headerLeadingPadding)
 
             content()
@@ -113,7 +113,7 @@ private extension MarketsTokenSearchView {
 
     var searchEmptyView: some View {
         Text(viewModel.searchEmptyTitle)
-            .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.tertiary)
+            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
             .frame(maxWidth: .infinity)
             .padding(.top, searchEmptyTopPadding)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSearchNoResultsLabel)
