@@ -1953,6 +1953,7 @@
 "token_summary_last_update_subtitle" = "Last update: %1$@";
 "token_summary_negative_outlook_title" = "Negative outlook";
 "token_summary_neutral_outlook_title" = "Neutral outlook";
+"token_summary_outlook_is_not_available" = "Outlook for this token is not available";
 "token_summary_positive_outlook_title" = "Positive outlook";
 "token_summary_title" = "Token summary";
 "token_swap_promotion_button" = "今すぐスワップ";
