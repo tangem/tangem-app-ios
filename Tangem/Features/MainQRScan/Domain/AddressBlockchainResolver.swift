@@ -10,25 +10,17 @@ import Foundation
 import BlockchainSdk
 
 struct AddressBlockchainResolver {
-    /// Validates a plain address against provided blockchains and returns every matching one.
-    /// For EVM chains, validation is executed once and reused for all EVM-compatible networks.
     func resolve(address: String, blockchains: [Blockchain]) -> Set<Blockchain> {
         var matchingBlockchains = Set<Blockchain>()
-        var validationCache: [String: Bool] = [:]
 
         for blockchain in blockchains {
-            let validationKey = blockchain.isEvm ? "evm" : "blockchain:\(blockchain.codingKey)"
-
-            let isValid: Bool
-            if let cachedResult = validationCache[validationKey] {
-                isValid = cachedResult
-            } else {
-                let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
-                isValid = addressService.validate(address)
-                validationCache[validationKey] = isValid
+            if case .near = blockchain, !NEARAddressUtil.isImplicitAccount(accountId: address) {
+                continue
             }
 
-            if isValid {
+            let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
+
+            if addressService.validatePlainAddress(address) {
                 matchingBlockchains.insert(blockchain)
             }
         }

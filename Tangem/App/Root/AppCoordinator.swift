@@ -40,6 +40,7 @@ class AppCoordinator: CoordinatorObject {
     @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
+    @Injected(\.mailComposePresenter) private var mailComposePresenter: MailComposePresenter
 
     // MARK: - Child coordinators
 
@@ -94,6 +95,8 @@ class AppCoordinator: CoordinatorObject {
             }
         case .jailbreakWarning:
             setupJailbreakWarning()
+        case .forceUpdate(let reason):
+            setupForceUpdate(reason: reason)
         }
     }
 
@@ -121,6 +124,11 @@ class AppCoordinator: CoordinatorObject {
     private func setupJailbreakWarning() {
         let viewModel = JailbreakWarningViewModel(coordinator: self)
         setState(.jailbreakWarning(viewModel))
+    }
+
+    private func setupForceUpdate(reason: ForceUpdateReason) {
+        let viewModel = ForceUpdateViewModel(reason: reason, coordinator: self)
+        setState(.forceUpdate(viewModel))
     }
 
     private func setupWelcome() {
@@ -310,10 +318,11 @@ extension AppCoordinator {
         case lock
         case launch
         case jailbreakWarning(JailbreakWarningViewModel)
+        case forceUpdate(ForceUpdateViewModel)
 
         var shouldAddLockView: Bool {
             switch self {
-            case .auth, .welcome, .launch, .jailbreakWarning:
+            case .auth, .welcome, .launch, .jailbreakWarning, .forceUpdate:
                 return false
             case .lock, .main, .onboarding, .uncompleteBackup:
                 return true
@@ -322,7 +331,7 @@ extension AppCoordinator {
 
         static func == (lhs: AppCoordinator.ViewState, rhs: AppCoordinator.ViewState) -> Bool {
             switch (lhs, rhs) {
-            case (.welcome, .welcome), (.uncompleteBackup, .uncompleteBackup), (.auth, .auth), (.main, .main), (.jailbreakWarning, .jailbreakWarning):
+            case (.welcome, .welcome), (.uncompleteBackup, .uncompleteBackup), (.auth, .auth), (.main, .main), (.jailbreakWarning, .jailbreakWarning), (.forceUpdate, .forceUpdate):
                 return true
             default:
                 return false
@@ -375,6 +384,25 @@ extension AppCoordinator {
 extension AppCoordinator: JailbreakWarningRoutable {
     func closeJailbreakWarning() {
         start()
+    }
+}
+
+extension AppCoordinator: ForceUpdateRoutable {
+    func closeForceUpdate() {
+        start()
+    }
+
+    func openSupport() {
+        let logsComposer = LogsComposer(infoProvider: BaseDataCollector())
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.default.recipient,
+            emailType: .appFeedback(subject: EmailConfig.default.subject)
+        )
+
+        runTask(in: self) { @MainActor coordinator in
+            coordinator.mailComposePresenter.present(viewModel: mailViewModel)
+        }
     }
 }
 
