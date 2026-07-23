@@ -51,7 +51,7 @@ struct OnboardingSeedPhraseIntroView: View {
                     .padding(.horizontal, 44)
             }
 
-            Button(action: readMoreAction) {
+            SwiftUI.Button(action: readMoreAction) {
                 HStack {
                     Assets.arrowRightUpMini.image
                         .renderingMode(.template)

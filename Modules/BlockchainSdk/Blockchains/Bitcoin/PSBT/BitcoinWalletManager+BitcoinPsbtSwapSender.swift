@@ -23,9 +23,11 @@ extension BitcoinWalletManager: BitcoinPsbtSwapSender {
 
         let ownerScriptPubKeys = Set(owners.keys)
 
+        let feeRateLimit = PsbtFeeRateLimit(blockchain: wallet.blockchain)
         let ownedInputs = try BitcoinPsbtSigningBuilder.ownedInputs(
             psbtBase64: psbtBase64,
-            ownerScriptPubKeys: ownerScriptPubKeys
+            ownerScriptPubKeys: ownerScriptPubKeys,
+            feeRateLimit: feeRateLimit
         )
 
         guard !ownedInputs.isEmpty else {
@@ -33,7 +35,12 @@ extension BitcoinWalletManager: BitcoinPsbtSwapSender {
         }
 
         let signInputs = ownedInputs.map { BitcoinPsbtSigningBuilder.SignInput(index: $0.index) }
-        let hashes = try BitcoinPsbtSigningBuilder.hashesToSign(psbtBase64: psbtBase64, signInputs: signInputs)
+        let hashes = try BitcoinPsbtSigningBuilder.hashesToSign(
+            psbtBase64: psbtBase64,
+            signInputs: signInputs,
+            signHashType: txBuilder.signHashType,
+            feeRateLimit: feeRateLimit
+        )
 
         let signData = try zip(ownedInputs, hashes).map { input, hash -> SignData in
             guard let key = owners[input.scriptPubKey] else {
@@ -51,10 +58,16 @@ extension BitcoinWalletManager: BitcoinPsbtSwapSender {
             psbtBase64: psbtBase64,
             signInputs: signInputs,
             signatures: signatures,
-            publicKeys: signData.map(\.publicKey)
+            publicKeys: signData.map(\.publicKey),
+            signHashType: txBuilder.signHashType,
+            feeRateLimit: feeRateLimit
         )
 
-        let rawTransactionHex = try BitcoinPsbtSigningBuilder.extractRawTransactionHex(finalizedPsbtBase64: signedPsbt)
+        let rawTransactionHex = try BitcoinPsbtSigningBuilder.extractRawTransactionHex(
+            finalizedPsbtBase64: signedPsbt,
+            feeRateLimit: feeRateLimit
+        )
+
         let result = try await networkService.send(transaction: rawTransactionHex).async()
 
         addPendingTransaction(
@@ -68,8 +81,12 @@ extension BitcoinWalletManager: BitcoinPsbtSwapSender {
     }
 
     private func addPendingTransaction(psbtBase64: String, ownerScriptPubKeys: Set<Data>, destination: String, hash: String) {
-        guard let sentAmount = try? BitcoinPsbtSigningBuilder.sentAmount(psbtBase64: psbtBase64, ownerScriptPubKeys: ownerScriptPubKeys),
-              let fee = try? BitcoinPsbtSigningBuilder.fee(psbtBase64: psbtBase64) else {
+        let feeRateLimit = PsbtFeeRateLimit(blockchain: wallet.blockchain)
+        guard let sentAmount = try? BitcoinPsbtSigningBuilder.sentAmount(
+            psbtBase64: psbtBase64,
+            ownerScriptPubKeys: ownerScriptPubKeys,
+            feeRateLimit: feeRateLimit
+        ), let fee = try? BitcoinPsbtSigningBuilder.fee(psbtBase64: psbtBase64, feeRateLimit: feeRateLimit) else {
             return
         }
 
