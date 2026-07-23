@@ -142,10 +142,6 @@ public struct TangemButtonShowcase: View {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview {
     TangemButtonShowcase()
 }
-
-#endif // DEBUG

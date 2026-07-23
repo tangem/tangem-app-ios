@@ -126,11 +126,20 @@ struct NotificationSettingsView: View {
         }
     }
 
+    @ViewBuilder
     private var priceAlertsSection: some View {
-        GroupedSection(viewModel.priceAlertsViewModel) {
-            DefaultToggleRowView(viewModel: $0)
-        } footer: {
-            DefaultFooterView(Localization.pushNotificationSettingsPriceAlertsSubtitle)
+        if let priceAlertsRowViewModel = viewModel.priceAlertsRowViewModel {
+            GroupedSection(priceAlertsRowViewModel) {
+                DefaultRowView(viewModel: $0)
+            } footer: {
+                DefaultFooterView(Localization.pushNotificationSettingsPriceAlertsSubtitle)
+            }
+        } else {
+            GroupedSection(viewModel.priceAlertsViewModel) {
+                DefaultToggleRowView(viewModel: $0)
+            } footer: {
+                DefaultFooterView(Localization.pushNotificationSettingsPriceAlertsSubtitle)
+            }
         }
     }
 

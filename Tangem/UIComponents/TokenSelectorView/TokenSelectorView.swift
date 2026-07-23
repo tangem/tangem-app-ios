@@ -62,10 +62,6 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
         }
     }
 
-    private var isRedesignedLayout: Bool {
-        FeatureProvider.isAvailable(.redesign)
-    }
-
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
         ScrollViewReader { reader in
             GroupedScrollView(contentType: .lazy(spacing: 8)) {
@@ -134,17 +130,8 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
         }
     }
 
-    @ViewBuilder
     private var walletChipsView: some View {
-        if isRedesignedLayout {
-            redesignedWalletChipsView
-        } else {
-            HorizontalChipsView(
-                chips: viewModel.walletChips.map { Chip(id: $0.id, title: $0.name) },
-                selectedId: $viewModel.selectedChipId,
-                horizontalInset: 8
-            )
-        }
+        redesignedWalletChipsView
     }
 
     private var redesignedWalletChipsView: some View {
@@ -231,22 +218,12 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
         let itemsCountToDisplay = viewModel.itemsCountToDisplay(configuration: configuration, itemsCount: itemsCount)
 
         return HStack(spacing: 8) {
-            if isRedesignedLayout {
-                Text(configuration.title)
-                    .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.primary)
+            Text(configuration.title)
+                .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.primary)
 
-                if let itemsCountToDisplay {
-                    Text("\(itemsCountToDisplay)")
-                        .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.tertiary)
-                }
-            } else {
-                Text(configuration.title)
-                    .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
-
-                if let itemsCountToDisplay {
-                    Text("\(itemsCountToDisplay)")
-                        .style(Fonts.BoldStatic.title3, color: Colors.Text.tertiary)
-                }
+            if let itemsCountToDisplay {
+                Text("\(itemsCountToDisplay)")
+                    .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.tertiary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -24,12 +24,16 @@ protocol SendSourceToken: SendReceiveToken {
     var allowanceService: (any AllowanceService)? { get }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { get }
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { get }
+    var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async }
 
     // Common providers
     var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
     var tangemIconProvider: any TangemIconProvider { get }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { get }
+
+    /// Whether the source token belongs to a Tangem Pay (Visa Payment) account.
+    var isTangemPayAccount: Bool { get }
 }
 
 extension SendSourceToken {

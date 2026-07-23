@@ -17,6 +17,14 @@ enum SendStepType {
     case onramp(OnrampSummaryViewModel)
     case swap(SwapSummaryViewModel)
 
+    var isDestination: Bool {
+        if case .destination = self {
+            return true
+        }
+
+        return false
+    }
+
     var isSummary: Bool {
         if case .summary = self {
             return true

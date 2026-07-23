@@ -50,8 +50,8 @@ struct AddCustomTokenDerivationPathSelectorView: View {
     }
 }
 
-struct AddCustomTokenDerivationPathSelectorView_Preview: PreviewProvider {
-    static let viewModel = AddCustomTokenDerivationPathSelectorViewModel(
+#Preview {
+    let viewModel = AddCustomTokenDerivationPathSelectorViewModel(
         selectedDerivationOption: .custom(derivationPath: nil),
         defaultDerivationPath: try! DerivationPath(rawPath: "m/44’/0’/0’/0’/0’"),
         blockchainDerivationOptions: SupportedBlockchains.all.map {
@@ -68,7 +68,5 @@ struct AddCustomTokenDerivationPathSelectorView_Preview: PreviewProvider {
         coordinator: AddCustomTokenDerivationPathSelectorCoordinator()
     )
 
-    static var previews: some View {
-        AddCustomTokenDerivationPathSelectorView(viewModel: viewModel)
-    }
+    AddCustomTokenDerivationPathSelectorView(viewModel: viewModel)
 }

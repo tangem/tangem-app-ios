@@ -7,14 +7,30 @@
 //
 
 import Combine
+import Foundation
+import TangemVisa
 import TangemPay
 
-/// Returns hardcoded card details without touching the network or crypto.
 final class MockTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
-    let lastFourDigits: String = "4242"
+    private let card: TangemPayCard
+
+    init(card: TangemPayCard) {
+        self.card = card
+    }
+
+    var lastFourDigits: String {
+        card.cardNumberEnd
+    }
+
+    var cardImageURL: URL? {
+        card.mainImageURL
+    }
 
     var lastFourDigitsPublisher: AnyPublisher<String, Never> {
-        Just(lastFourDigits).eraseToAnyPublisher()
+        card.snapshotPublisher
+            .map(\.card.cardNumberEnd)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     var cardNamePublisher: AnyPublisher<String, Never> {
@@ -22,14 +38,14 @@ final class MockTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
     }
 
     var isReissuingPublisher: AnyPublisher<Bool, Never> {
-        Just(false).eraseToAnyPublisher()
+        card.isReissuingPublisher
     }
 
     func updateCardDisplayName(_ name: String) async throws {}
 
     func revealRequest() async throws -> TangemPayCardDetailsData {
         TangemPayCardDetailsData(
-            number: "4242 4242 4242 4242",
+            number: "4242 4242 4242 \(lastFourDigits)",
             expirationDate: "12/28",
             cvc: "123",
             isPinSet: false
