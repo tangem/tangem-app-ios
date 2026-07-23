@@ -34,12 +34,12 @@ struct StatusBannerDemoView: View {
 
     private var controls: some View {
         VStack(spacing: 8) {
-            Button("▶︎ Play swap flow", action: playFlow)
-            Button("In progress") { set(.init(kind: .inProgress, title: "Awaiting funds")) }
-            Button("Success (auto-hide)") { showSuccess() }
-            Button("Failed") { set(.init(kind: .warning, title: "Failed", subtitle: "Visit provider's website to refund your money")) }
-            Button("Verification required") { set(.init(kind: .attention, title: "Verification required", subtitle: "Visit provider's website to refund your money")) }
-            Button("Hide") { set(nil) }
+            SwiftUI.Button("▶︎ Play swap flow", action: playFlow)
+            SwiftUI.Button("In progress") { set(.init(kind: .inProgress, title: "Awaiting funds")) }
+            SwiftUI.Button("Success (auto-hide)") { showSuccess() }
+            SwiftUI.Button("Failed") { set(.init(kind: .warning, title: "Failed", subtitle: "Visit provider's website to refund your money")) }
+            SwiftUI.Button("Verification required") { set(.init(kind: .attention, title: "Verification required", subtitle: "Visit provider's website to refund your money")) }
+            SwiftUI.Button("Hide") { set(nil) }
         }
         .buttonStyle(.bordered)
     }

@@ -130,6 +130,7 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
                 .sink { _ in confirm() }
         }
         localCancellable?.cancel()
+        await drainMainQueue()
     }
 
     func sendUpdate(
@@ -137,9 +138,16 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
         externalTxId: String
     ) async {
         subject.send([makePendingTransaction(externalTxId: externalTxId)])
-        // Allow Combine pipeline to process the update on main queue
+        await drainMainQueue()
+    }
+
+    /// Waits one main-queue turn so a pending `receive(on: DispatchQueue.main)` delivery drains
+    /// before the suite's synchronous leak check, releasing transiently-retained instances.
+    func drainMainQueue() async {
         await withCheckedContinuation { continuation in
-            DispatchQueue.main.async { continuation.resume() }
+            DispatchQueue.main.async {
+                continuation.resume()
+            }
         }
     }
 
