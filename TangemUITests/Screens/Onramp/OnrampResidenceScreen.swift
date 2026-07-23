@@ -24,9 +24,7 @@ final class OnrampResidenceScreen: ScreenBase<OnrampResidenceScreenElement> {
     @discardableResult
     func searchForCountry(_ countryName: String) -> Self {
         XCTContext.runActivity(named: "Search for country '\(countryName)'") { _ in
-            XCTAssertTrue(searchField.waitForExistence(timeout: .robustUIUpdate), "Search field should exist")
-            searchField.tap()
-            searchField.typeText(countryName)
+            typeWithFocus(into: searchField, text: countryName)
             searchField.typeText(XCUIKeyboardKey.return.rawValue)
         }
         return self

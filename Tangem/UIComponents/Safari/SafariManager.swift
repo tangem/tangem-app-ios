@@ -36,7 +36,9 @@ extension SafariManager {
 
 // MARK: - SafariHandle
 
-protocol SafariHandle: AnyObject {}
+protocol SafariHandle: AnyObject {
+    func isMatching(startingURL: URL) -> Bool
+}
 
 // MARK: - Dependencies
 
@@ -80,7 +82,7 @@ class CommonSafariManager: NSObject, SafariManager {
         controller.dismissButtonStyle = configuration.dismissButtonStyle.sfDismissButtonStyle
         controller.delegate = self
         controller.presentationController?.delegate = self
-        let context = SafariContext(controller: controller, onDismiss: onDismiss, onSuccess: onSuccess)
+        let context = SafariContext(initialURL: url, controller: controller, onDismiss: onDismiss, onSuccess: onSuccess)
         self.context = context
         AppPresenter.shared.show(controller)
         return context
@@ -127,14 +129,25 @@ extension CommonSafariManager: IncomingActionResponder {
 // MARK: - SafariContext
 
 class SafariContext: SafariHandle {
+    let initialURL: URL
     let controller: SFSafariViewController
     let onDismiss: () -> Void
     let onSuccess: (URL) -> Void
 
-    init(controller: SFSafariViewController, onDismiss: @escaping () -> Void, onSuccess: @escaping ((URL) -> Void)) {
+    init(
+        initialURL: URL,
+        controller: SFSafariViewController,
+        onDismiss: @escaping () -> Void,
+        onSuccess: @escaping (URL) -> Void
+    ) {
+        self.initialURL = initialURL
         self.controller = controller
         self.onDismiss = onDismiss
         self.onSuccess = onSuccess
+    }
+
+    func isMatching(startingURL: URL) -> Bool {
+        initialURL == startingURL
     }
 }
 

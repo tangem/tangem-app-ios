@@ -517,7 +517,7 @@ extension TokenActionAvailabilityProvider {
             return yield.isAvailable
         case .loading(let cached), .loadingError(_, let cached):
             return cached != nil
-        case .notEnabled, .temporaryUnavailable:
+        case .notEnabled, .temporaryUnavailable, .unavailableInRegion:
             return false
         }
     }
