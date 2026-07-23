@@ -66,7 +66,7 @@ struct TangemPayCurrentPlanView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(stayTitle),
                 accessibilityLabel: stayTitle,
                 action: viewModel.stayOnPlus
@@ -90,7 +90,7 @@ struct TangemPayCurrentPlanView: View {
 
             VStack(spacing: 0) {
                 ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
-                    TangemRow(title: row.value, subtitle: row.label)
+                    Row(title: row.value, subtitle: row.label)
                         .lineOrder(.secondaryFirst)
                         .showDivider(index < section.rows.count - 1)
                 }
@@ -102,7 +102,7 @@ struct TangemPayCurrentPlanView: View {
     }
 
     private var changePlanButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(viewModel.changePlanButtonTitle),
             accessibilityLabel: viewModel.changePlanButtonTitle,
             action: viewModel.changePlan
