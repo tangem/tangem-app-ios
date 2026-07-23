@@ -100,6 +100,7 @@ extension BlockchainSdkKeysConfig {
         quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
         quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
         quickNodeXrpCredentials: .init(apiKey: "", subdomain: ""),
+        quickNodeHederaCredentials: .init(apiKey: "", subdomain: ""),
         quickNodePlasmaCredentials: .init(apiKey: "", subdomain: ""),
         quickNodeMonadCredentials: .init(apiKey: "", subdomain: ""),
         bittensorDwellirKey: "",

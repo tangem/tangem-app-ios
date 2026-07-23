@@ -190,7 +190,9 @@ private extension AppSettingsViewModel {
             title: Localization.detailsRowTitleCurrency,
             detailsType: .text(selectedCurrencyCode),
             accessibilityIdentifier: AppSettingsAccessibilityIdentifiers.currencyButton,
-            action: coordinator?.openCurrencySelection
+            action: { [weak self] in
+                self?.openCurrencySelection()
+            }
         )
 
         sensitiveTextAvailabilityViewModel = DefaultToggleRowViewModel(
@@ -201,7 +203,9 @@ private extension AppSettingsViewModel {
         themeSettingsViewModel = DefaultRowViewModel(
             title: Localization.appSettingsThemeSelectorTitle,
             detailsType: .text(AppSettings.shared.appTheme.titleForDetails),
-            action: coordinator?.openThemeSelection
+            action: { [weak self] in
+                self?.openThemeSelection()
+            }
         )
     }
 
@@ -352,7 +356,15 @@ private extension AppSettingsViewModel {
 
 // MARK: - Navigation
 
-extension AppSettingsViewModel {
+private extension AppSettingsViewModel {
+    func openCurrencySelection() {
+        coordinator?.openCurrencySelection()
+    }
+
+    func openThemeSelection() {
+        coordinator?.openThemeSelection()
+    }
+
     func openTokenSynchronization() {
         coordinator?.openTokenSynchronization()
     }
@@ -367,7 +379,7 @@ extension AppSettingsViewModel {
     }
 }
 
-extension AppSettingsViewModel {
+private extension AppSettingsViewModel {
     enum Constants {
         static let faceIDTitle = "Face ID"
         static let touchIDTitle = "Touch ID"
