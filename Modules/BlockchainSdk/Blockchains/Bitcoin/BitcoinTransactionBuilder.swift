@@ -20,7 +20,7 @@ class BitcoinTransactionBuilder {
     private let builderType: BuilderType
     private let sequence: SequenceType
 
-    private var signHashType: UTXONetworkParamsSignHashType { network.signHashType }
+    var signHashType: UTXONetworkParamsSignHashType { network.signHashType }
 
     init(
         network: UTXONetworkParams,

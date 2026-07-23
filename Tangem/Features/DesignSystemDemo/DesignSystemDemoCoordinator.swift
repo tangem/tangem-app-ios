@@ -32,7 +32,10 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemSnackbarDemo()
     func openTangemShimmerDemo()
     func openGlowRingDemo()
+    func openTangemTopNavigationDemo()
     func openTangemFadeDemo()
+    func openTangemMessageBubbleDemo()
+    func openTokenIconV2Demo()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -63,7 +66,10 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemSnackbarDemoViewModel: TangemSnackbarDemoViewModel?
     @Published var tangemShimmerDemoViewModel: TangemShimmerDemoViewModel?
     @Published var glowRingDemoViewModel: GlowRingDemoViewModel?
+    @Published var tangemTopNavigationDemoViewModel: TangemTopNavigationDemoViewModel?
     @Published var tangemFadeDemoViewModel: TangemFadeDemoViewModel?
+    @Published var tangemMessageBubbleDemoViewModel: TangemMessageBubbleDemoViewModel?
+    @Published var tokenIconV2DemoViewModel: TokenIconV2DemoViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -171,8 +177,20 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
         glowRingDemoViewModel = .init()
     }
 
+    func openTangemTopNavigationDemo() {
+        tangemTopNavigationDemoViewModel = .init()
+    }
+
     func openTangemFadeDemo() {
         tangemFadeDemoViewModel = .init()
+    }
+
+    func openTangemMessageBubbleDemo() {
+        tangemMessageBubbleDemoViewModel = .init()
+    }
+
+    func openTokenIconV2Demo() {
+        tokenIconV2DemoViewModel = .init()
     }
 }
 

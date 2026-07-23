@@ -1966,6 +1966,8 @@
 "tokens_list_unavailable_to_swap_source_header" = "Unavailable for swap";
 "transaction_history_claiming_reward" = "Claiming reward";
 "transaction_history_contract_address" = "contract: %@";
+"transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
+"transaction_history_detail_page_amount_value" = "%1@ %2@";
 "transaction_history_disabling_yield_mode" = "Disabling Yield mode";
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "您還沒有任何交易";

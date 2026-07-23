@@ -17,7 +17,7 @@ public struct HideKeyboardButton: View {
     }
 
     public var body: some View {
-        Button {
+        SwiftUI.Button {
             focused.wrappedValue = false
         } label: {
             Assets.hideKeyboard.image

@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
@@ -22,7 +23,7 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
 
     var body: some View {
         if isListedOnExchanges {
-            Button(action: buttonAction) {
+            SwiftUI.Button(action: buttonAction) {
                 rowContent
             }
             .buttonStyle(.plain)
@@ -33,10 +34,10 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
     }
 
     private var rowContent: some View {
-        HStack(spacing: .unit(.x4)) {
-            VStack(alignment: .leading, spacing: .unit(.x1)) {
+        HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(Localization.marketsTokenDetailsListedOn)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
                     .accessibilityIdentifier(MarketsAccessibilityIdentifiers.listedOnExchangesTitle)
 
@@ -48,19 +49,19 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
                             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.listedOnExchangesEmptyText)
                     }
                 }
-                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
             }
 
             Spacer(minLength: .zero)
 
             if isListedOnExchanges {
-                Assets.Glyphs.chevronRightNew.image
+                DesignSystem.Icons.ChevronRight.regular24.image
                     .renderingMode(.template)
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
             }
         }
-        .roundedBackground(with: .Tangem.Surface.level3, padding: .unit(.x4), radius: .unit(.x6))
+        .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 16, radius: 24)
         .contentShape(.rect)
     }
 }
@@ -74,5 +75,5 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
         MarketsTokenDetailsListedOnExchangesViewRedesign(exchangesCount: 0, buttonAction: {})
     }
     .padding()
-    .background(Color.Tangem.Surface.level1)
+    .background(DesignSystem.Color.bgPrimary)
 }
