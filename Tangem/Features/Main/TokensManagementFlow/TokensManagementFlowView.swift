@@ -53,13 +53,14 @@ struct TokensManagementFlowView: View {
     }
 
     private var cancelButton: some View {
-        TangemButton(
-            content: .text(AttributedString(Localization.commonCancel)),
+        TangemButtonV2(
+            label: Localization.commonCancel,
+            accessibilityLabel: nil,
             action: viewModel.close
         )
-        .setStyleType(.secondary)
-        .setSize(.x12)
-        .setHorizontalLayout(.infinity)
+        .styleType(.secondary)
+        .size(.x12)
+        .horizontalLayout(.infinity)
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
     }
