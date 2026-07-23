@@ -87,7 +87,7 @@ struct TangemPayDailyLimitSectionView: View {
                 Spacer()
 
                 if !isFrozen {
-                    Button(action: changeAction) {
+                    SwiftUI.Button(action: changeAction) {
                         Text(Localization.tangempayCardPageDailyLimitChange)
                             .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                             .padding(.horizontal, 10)

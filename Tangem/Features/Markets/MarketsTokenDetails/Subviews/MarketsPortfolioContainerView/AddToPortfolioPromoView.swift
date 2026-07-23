@@ -10,6 +10,7 @@ import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct AddToPortfolioPromoView: View {
     let iconURL: URL
@@ -23,20 +24,18 @@ struct AddToPortfolioPromoView: View {
         self.action = action
         _titleAttributedString = State(initialValue: MarketsPortfolioPlateTitle.make(
             Localization.marketsPortfolioBlockAddTokenTitle,
-            emphasizedColor: Color.Tangem.Text.Neutral.primary
+            emphasizedColor: DesignSystem.Color.textPrimary
         ))
     }
 
     private var actionButton: some View {
-        Button(action: action) {
-            Text(Localization.marketsAddToken)
-                .style(Fonts.Bold.subheadline, color: Color.Tangem.Text.Neutral.primary)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(
-                    Capsule().fill(Color.Tangem.Button.backgroundSecondary)
-                )
-        }
+        TangemUI.Button(
+            label: AttributedString(Localization.marketsAddToken),
+            accessibilityLabel: Localization.marketsAddToken,
+            action: action
+        )
+        .size(.x9)
+        .styleType(.secondary)
         .accessibilityIdentifier(MainAccessibilityIdentifiers.addToPortfolioButton)
     }
 
@@ -47,7 +46,7 @@ struct AddToPortfolioPromoView: View {
         .onChange(of: locale.identifier) { _ in
             titleAttributedString = MarketsPortfolioPlateTitle.make(
                 Localization.marketsPortfolioBlockAddTokenTitle,
-                emphasizedColor: Color.Tangem.Text.Neutral.primary
+                emphasizedColor: DesignSystem.Color.textPrimary
             )
         }
     }
