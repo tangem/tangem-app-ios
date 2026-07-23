@@ -1966,6 +1966,8 @@
 "tokens_list_unavailable_to_swap_source_header" = "Nicht zum Tausch verfügbar";
 "transaction_history_claiming_reward" = "Belohnung einfordern";
 "transaction_history_contract_address" = "Vertrag: %@";
+"transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
+"transaction_history_detail_page_amount_value" = "%1@ %2@";
 "transaction_history_disabling_yield_mode" = "Deaktivierung des Ertragsmodus";
 "transaction_history_earned_from_stake" = "Verdient aus dem Einsatz";
 "transaction_history_empty_transactions" = "Du hast noch keine Transaktionen";

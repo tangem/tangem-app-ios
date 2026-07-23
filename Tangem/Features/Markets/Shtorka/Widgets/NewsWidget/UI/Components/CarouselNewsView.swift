@@ -62,7 +62,7 @@ struct CarouselNewsView: View {
     // MARK: - Components
 
     private var allNewsCard: some View {
-        Button(action: {
+        SwiftUI.Button(action: {
             onAllNewsTap?()
         }) {
             redesignedAllNewsCardContent
@@ -79,12 +79,12 @@ struct CarouselNewsView: View {
             FixedSpacer(height: Layout.RedesignAllNewsCard.spacingAfterIcon)
 
             Text(Localization.newsAllNews)
-                .style(Font.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
             FixedSpacer(height: Layout.RedesignAllNewsCard.spacingAfterTitle)
 
             Text(Localization.newsStayInTheLoop)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
             Spacer(minLength: .zero)
         }

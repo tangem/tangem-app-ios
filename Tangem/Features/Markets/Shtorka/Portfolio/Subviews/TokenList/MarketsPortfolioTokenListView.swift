@@ -18,23 +18,23 @@ struct MarketsPortfolioTokenListView: View {
 
     @ObservedObject var viewModel: ViewModel
 
-    @ScaledMetric private var walletsHorizontalPadding: CGFloat = .unit(.x4)
-    @ScaledMetric private var topBarVerticalPadding: CGFloat = .unit(.x4)
-    @ScaledMetric private var topBarHorizontalPadding: CGFloat = .unit(.x3)
-    @ScaledMetric private var walletsSpacing: CGFloat = .unit(.x6)
-    @ScaledMetric private var walletSpacing: CGFloat = .unit(.x4)
-    @ScaledMetric private var walletHeaderSpacing: CGFloat = .unit(.x1)
-    @ScaledMetric private var walletHeaderLeadingPadding: CGFloat = .unit(.x4)
-    @ScaledMetric private var accountsSpacing: CGFloat = .unit(.x2)
-    @ScaledMetric private var accountPadding: CGFloat = .unit(.x3)
-    @ScaledMetric private var accountSpacing: CGFloat = .unit(.x5)
-    @ScaledMetric private var accountCornerRadius: CGFloat = .unit(.x5)
-    @ScaledMetric private var accountHeaderLeadingPadding: CGFloat = .unit(.x1)
-    @ScaledMetric private var tokenRowsSpacing: CGFloat = .unit(.x6)
+    @ScaledMetric private var walletsHorizontalPadding: CGFloat = 16
+    @ScaledMetric private var topBarVerticalPadding: CGFloat = 16
+    @ScaledMetric private var topBarHorizontalPadding: CGFloat = 12
+    @ScaledMetric private var walletsSpacing: CGFloat = 24
+    @ScaledMetric private var walletSpacing: CGFloat = 16
+    @ScaledMetric private var walletHeaderSpacing: CGFloat = 4
+    @ScaledMetric private var walletHeaderLeadingPadding: CGFloat = 16
+    @ScaledMetric private var accountsSpacing: CGFloat = 8
+    @ScaledMetric private var accountPadding: CGFloat = 12
+    @ScaledMetric private var accountSpacing: CGFloat = 20
+    @ScaledMetric private var accountCornerRadius: CGFloat = 20
+    @ScaledMetric private var accountHeaderLeadingPadding: CGFloat = 4
+    @ScaledMetric private var tokenRowsSpacing: CGFloat = 24
     @ScaledMetric private var promoFadeHeight: CGFloat = 60
-    @ScaledMetric private var thumbnailSide = CGFloat.unit(.x5)
+    @ScaledMetric private var thumbnailSide: CGFloat = 20
 
-    private let backgroundColor: Color = .Tangem.Surface.level2
+    private let backgroundColor: Color = DesignSystem.Color.bgPrimary
 
     var body: some View {
         wallets
@@ -71,7 +71,7 @@ private extension MarketsPortfolioTokenListView {
     var navigationBar: some View {
         ZStack {
             Text(viewModel.barTitle)
-                .style(Font.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
             TangemButton(
                 content: .icon(Assets.DesignSystem.close),
@@ -109,10 +109,10 @@ private extension MarketsPortfolioTokenListView {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(Localization.commonAddToken)
-                    .style(.Tangem.Body16.medium.font, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Text(Localization.marketsTokenAddSubtitle)
-                    .style(.Tangem.Caption12.regular.font, color: .Tangem.Text.Neutral.secondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
 
             Spacer(minLength: 8)
@@ -157,7 +157,7 @@ private extension MarketsPortfolioTokenListView {
     func walletHeader(title: String, thumbnail: ThumbnailWalletViewType?) -> some View {
         HStack(spacing: walletHeaderSpacing) {
             Text(title)
-                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.secondary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
 
             thumbnail.map {
                 MiniatureWalletView(type: $0)
@@ -204,7 +204,7 @@ private extension MarketsPortfolioTokenListView {
             tokenRows(section.tokenRows)
         }
         .padding(accountPadding)
-        .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: accountCornerRadius))
+        .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: accountCornerRadius))
     }
 
     func accountHeader(title: String, icon: AccountModel.Icon) -> some View {
@@ -218,7 +218,7 @@ private extension MarketsPortfolioTokenListView {
             name: title
         )
         .iconSettings(.smallSized)
-        .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
+        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
     }
 }
 
@@ -236,7 +236,7 @@ private extension MarketsPortfolioTokenListView {
     @ViewBuilder
     func token(row: ViewModel.TokenRow) -> some View {
         if let onTap = row.onTap {
-            Button(action: onTap) {
+            SwiftUI.Button(action: onTap) {
                 MarketsPortfolioTokenListRowView(viewModel: row.model)
             }
             .buttonStyle(.plain)
