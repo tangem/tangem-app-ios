@@ -22,10 +22,10 @@ struct MarketsTokenSearchRecentsView: View {
             headerView
 
             querySection
-                .padding(.top, .unit(.x3))
+                .padding(.top, 12)
 
             marketAssetSection
-                .padding(.top, .unit(.x6))
+                .padding(.top, 24)
         }
     }
 
@@ -35,17 +35,17 @@ struct MarketsTokenSearchRecentsView: View {
         HStack(alignment: .center, spacing: .zero) {
             Text(Localization.marketsSearchHintHeader)
                 .lineLimit(1)
-                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
-            Spacer(minLength: .unit(.x2))
+            Spacer(minLength: 8)
 
             SwiftUI.Button(action: onClearAll) {
                 Text(Localization.marketsSearchClearAllHints)
-                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             }
         }
-        .padding(.vertical, .unit(.x3))
-        .padding(.horizontal, .unit(.x2))
+        .padding(.vertical, 12)
+        .padding(.horizontal, 8)
     }
 
     // MARK: - Query Rows
@@ -58,11 +58,11 @@ struct MarketsTokenSearchRecentsView: View {
                     MarketsTokenSearchQueryRowView(query: query, onTap: { onQueryTap(query) })
 
                     if index < queries.count - 1 {
-                        Separator(color: .Tangem.Border.Neutral.primary)
+                        Separator(color: DesignSystem.Color.borderSecondary)
                     }
                 }
             }
-            .padding(.horizontal, .unit(.x2))
+            .padding(.horizontal, 8)
         }
     }
 
@@ -71,21 +71,21 @@ struct MarketsTokenSearchRecentsView: View {
     @ViewBuilder
     private var marketAssetSection: some View {
         if marketAssetViewModels.isNotEmpty {
-            VStack(alignment: .leading, spacing: .unit(.x3)) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text(Localization.marketsCommonTitle)
                     .lineLimit(1)
-                    .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
-                    .padding(.horizontal, .unit(.x2))
-                    .padding(.bottom, .unit(.x2))
-                    .padding(.top, .unit(.x4))
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                    .padding(.horizontal, 8)
+                    .padding(.bottom, 8)
+                    .padding(.top, 16)
 
-                VStack(spacing: .unit(.x2)) {
+                VStack(spacing: 8) {
                     ForEach(marketAssetViewModels, id: \.tokenId) { viewModel in
                         MarketTokenRowView(viewModel: viewModel)
                             .roundedBackground(
-                                with: .Tangem.Surface.level3,
+                                with: DesignSystem.Color.bgSecondary,
                                 padding: 0,
-                                radius: .unit(.x5)
+                                radius: 20
                             )
                     }
                 }
@@ -103,6 +103,6 @@ struct MarketsTokenSearchRecentsView: View {
         onQueryTap: { _ in },
         onClearAll: {}
     )
-    .padding(.horizontal, .unit(.x4))
-    .background(Color.Tangem.Surface.level2)
+    .padding(.horizontal, 16)
+    .background(DesignSystem.Color.bgPrimary)
 }
