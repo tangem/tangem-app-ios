@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct MarketsTokenDetailsContentViewRedesign: View {
     @ObservedObject var viewModel: MarketsTokenDetailsViewModel
@@ -67,7 +68,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                     isButtonBusy: viewModel.isLoading,
                     retryButtonAction: viewModel.loadDetailedInfo
                 )
-                .padding(.top, .unit(.x17))
+                .padding(.top, 68)
                 .padding(.horizontal, Constants.contentHorizontalPadding)
 
             case .failedToLoadAllData:
@@ -120,7 +121,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
             if let shortDescription {
                 if model.fullDescription == nil {
                     Text(shortDescription)
-                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                         .multilineTextAlignment(.leading)
                 } else {
                     SwiftUI.Button(action: viewModel.openFullDescription) {
@@ -128,7 +129,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                             Text("\(shortDescription) ")
                                 + readMoreText
                         }
-                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                         .multilineTextAlignment(.leading)
                     }
                 }
@@ -152,7 +153,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
 
     private var readMoreText: Text {
         let readMoreText = Localization.commonReadMore.replacingOccurrences(of: " ", with: String.unbreakableSpace)
-        return Text(readMoreText).foregroundColor(Colors.Text.accent)
+        return Text(readMoreText).foregroundColor(DesignSystem.Color.textAccentBlue)
     }
 }
 
@@ -161,8 +162,8 @@ struct MarketsTokenDetailsContentViewRedesign: View {
 private extension MarketsTokenDetailsContentViewRedesign {
     enum Constants {
         static let contentVerticalSpacing: CGFloat = 32
-        static let contentHorizontalPadding: CGFloat = .unit(.x4)
-        static let coinVerticalPadding: CGFloat = .unit(.x3)
-        static let newsExtraTopPadding: CGFloat = .unit(.x5)
+        static let contentHorizontalPadding: CGFloat = 16
+        static let coinVerticalPadding: CGFloat = 12
+        static let newsExtraTopPadding: CGFloat = 20
     }
 }

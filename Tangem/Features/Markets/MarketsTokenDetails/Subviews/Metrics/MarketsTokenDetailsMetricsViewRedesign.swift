@@ -14,15 +14,15 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
 
     var body: some View {
-        VStack(spacing: .unit(.x3)) {
-            VStack(spacing: .unit(.x2)) {
-                HStack(spacing: .unit(.x2)) {
+        VStack(spacing: 12) {
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
                     MetricsMarketCapCard(viewModel: viewModel)
 
                     MetricsTradingVolumeCard(viewModel: viewModel)
                 }
 
-                HStack(spacing: .unit(.x2)) {
+                HStack(spacing: 8) {
                     MetricsMarketPositionCard(viewModel: viewModel)
 
                     MetricsFDVCard(viewModel: viewModel)
@@ -58,7 +58,7 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
         )
         .padding(.horizontal, 16)
     }
-    .background(Color.Tangem.Surface.level2)
+    .background(DesignSystem.Color.bgPrimary)
 }
 
 #Preview("Silver rank, medium liquidity") {
@@ -83,7 +83,7 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
         )
         .padding(.horizontal, 16)
     }
-    .background(Color.Tangem.Surface.level2)
+    .background(DesignSystem.Color.bgPrimary)
 }
 
 #Preview("No max supply") {
@@ -108,5 +108,5 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
         )
         .padding(.horizontal, 16)
     }
-    .background(Color.Tangem.Surface.level2)
+    .background(DesignSystem.Color.bgPrimary)
 }
