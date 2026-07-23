@@ -55,10 +55,10 @@ private extension MarketsTokenDetailsLinksViewRedesign {
     func linkButton(for item: LinkItem) -> some View {
         TangemUI.Button(
             label: AttributedString(item.data.text),
-            iconStart: item.iconImageType,
             accessibilityLabel: item.data.text,
             action: item.data.action
         )
+        .iconStart(item.iconImageType)
         .size(.x8)
         .styleType(.secondary)
     }
