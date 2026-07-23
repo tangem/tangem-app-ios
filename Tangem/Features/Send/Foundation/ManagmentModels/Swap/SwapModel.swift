@@ -1067,6 +1067,8 @@ extension SwapModel {
         case (.success, _):
             let initialSourceTokenItem = _sourceToken.value.value?.tokenItem
 
+            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
+
             if let swapTokenPairResolver,
                let resolvedSource = await swapTokenPairResolver.resolve(),
                let currentSource = _sourceToken.value.value,
@@ -1075,8 +1077,6 @@ extension SwapModel {
                currentSource.tokenItem != resolvedSource.tokenItem {
                 update(source: resolvedSource)
             }
-
-            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
 
         case (_, .success):
             _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
