@@ -24,6 +24,7 @@ struct SendAmountView: View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: Constants.scrollViewSpacing)) {
             sourceSection
             destinationSection
+            marketingBanner
         }
         .animation(viewModel.animateActiveFieldChange ? .easeInOut(duration: 0.45) : nil, value: viewModel.activeField)
         .animation(viewModel.animateDestinationRemoval ? .easeInOut(duration: 0.45) : nil, value: viewModel.destinationTokenViewType?.isAmountEditable ?? false)
@@ -147,6 +148,15 @@ struct SendAmountView: View {
                     }
                 )
             }
+        }
+    }
+
+    // MARK: - Marketing banner
+
+    @ViewBuilder
+    private var marketingBanner: some View {
+        if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
+            StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
         }
     }
 
