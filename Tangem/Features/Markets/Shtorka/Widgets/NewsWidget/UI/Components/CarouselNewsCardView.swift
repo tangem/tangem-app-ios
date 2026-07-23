@@ -75,17 +75,17 @@ struct CarouselNewsCardView: View {
             NewsRatingViewRedesign(rating: "\(item.rating) • \(item.timeAgo)", isHighlighted: false)
                 .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
 
-            FixedSpacer(height: .unit(.x2))
+            FixedSpacer(height: 8)
 
             Text(item.title)
                 .multilineTextAlignment(.leading)
-                .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(Layout.RedesignCard.titleLineLimit)
                 .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
 
-            Spacer(minLength: .unit(.x2))
+            Spacer(minLength: 8)
 
             InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
                 .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
@@ -112,9 +112,9 @@ extension CarouselNewsCardView {
         }
 
         enum RedesignCard {
-            static let padding: CGFloat = .unit(.x4)
-            static let cornerRadius: CGFloat = .unit(.x6)
-            static let allNewsCornerRadius: CGFloat = .unit(.x6)
+            static let padding: CGFloat = 16
+            static let cornerRadius: CGFloat = 24
+            static let allNewsCornerRadius: CGFloat = 24
             static let width: CGFloat = 280
             static let contentHeight: CGFloat = 132
             static let titleLineLimit: Int = 3
@@ -154,14 +154,14 @@ extension View {
         frame(height: CarouselNewsCardView.Layout.RedesignCard.contentHeight, alignment: .topLeading)
             .padding(CarouselNewsCardView.Layout.RedesignCard.padding)
             .frame(width: CarouselNewsCardView.Layout.RedesignCard.width, alignment: .topLeading)
-            .background(Color.Tangem.Surface.level3)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadiusContinuous(cornerRadius)
             .overlay(
                 Group {
                     if showBorder {
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                             .inset(by: 0.5)
-                            .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: 1)
+                            .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
                     }
                 }
             )

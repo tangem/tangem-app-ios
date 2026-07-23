@@ -68,7 +68,7 @@ struct MarketsMainView: View {
             Group {
                 if showSearchResult {
                     searchResultView
-                        .padding(.horizontal, SizeUnit.x4.value)
+                        .padding(.horizontal, 16)
                         .transition(.opacity)
                 } else {
                     widgetsListView
@@ -152,11 +152,11 @@ struct MarketsMainView: View {
     private var redesignTitleView: some View {
         VStack(alignment: .leading, spacing: .zero) {
             Text(viewModel.headerTitle)
-                .style(Font.Tangem.Heading28.semibold, color: Color.Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
                 .opacity(listOverlayTitleOpacity)
 
             Text(viewModel.headerDate)
-                .style(Font.Tangem.Heading28.semibold, color: Color.Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textSecondary)
                 .opacity(listOverlayTitleOpacity)
         }
     }
@@ -229,7 +229,7 @@ struct MarketsMainView: View {
                                     makeContentView(with: item.content)
                                 }
                             }
-                            .padding(.horizontal, SizeUnit.x4.value)
+                            .padding(.horizontal, 16)
                         }
                     }
                     .padding(.top, Layout.Widgets.topPadding)
@@ -302,7 +302,7 @@ private extension MarketsMainView {
     }
 
     enum BackgroundColor {
-        static let collapsed: Color = .Tangem.Surface.level3
-        static let expanded: Color = .Tangem.Surface.level2
+        static let collapsed: Color = DesignSystem.Color.bgSecondary
+        static let expanded: Color = DesignSystem.Color.bgPrimary
     }
 }
