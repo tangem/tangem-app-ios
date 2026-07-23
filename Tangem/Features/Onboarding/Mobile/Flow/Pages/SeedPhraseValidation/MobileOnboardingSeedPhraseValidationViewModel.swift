@@ -12,7 +12,7 @@ import TangemLocalization
 import TangemMobileWalletSdk
 
 final class MobileOnboardingSeedPhraseValidationViewModel: ObservableObject {
-    @Published var state: State?
+    @Published private(set) var state: State = .initial
 
     let navigationTitle = Localization.commonBackup
 
@@ -62,15 +62,28 @@ private extension MobileOnboardingSeedPhraseValidationViewModel {
             do {
                 let context = try viewModel.mobileWalletSdk.validate(auth: .none, for: viewModel.userWalletModel.userWalletId)
                 let mnemonic = try viewModel.mobileWalletSdk.exportMnemonic(context: context)
-                let item = StateItem(second: mnemonic[1], seventh: mnemonic[6], eleventh: mnemonic[10])
 
                 await runOnMain {
-                    viewModel.state = .item(item)
+                    viewModel.state = .item(viewModel.makeUserValidationViewModel(mnemonic: mnemonic))
                 }
             } catch {
                 AppLogger.error("Export mnemonic to validate failed:", error: error)
             }
         }
+    }
+
+    func makeUserValidationViewModel(mnemonic: [String]) -> OnboardingSeedPhraseUserValidationViewModel {
+        OnboardingSeedPhraseUserValidationViewModel(
+            mode: .mobile,
+            validationInput: .init(
+                secondWord: mnemonic[1],
+                seventhWord: mnemonic[6],
+                eleventhWord: mnemonic[10],
+                createWalletAction: { [weak self] in
+                    self?.onCreateWallet()
+                }
+            )
+        )
     }
 }
 
@@ -90,12 +103,7 @@ private extension MobileOnboardingSeedPhraseValidationViewModel {
 
 extension MobileOnboardingSeedPhraseValidationViewModel {
     enum State {
-        case item(StateItem)
-    }
-
-    struct StateItem {
-        let second: String
-        let seventh: String
-        let eleventh: String
+        case initial
+        case item(OnboardingSeedPhraseUserValidationViewModel)
     }
 }
