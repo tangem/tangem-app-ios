@@ -35,7 +35,7 @@ public struct InfoButtonView: View {
     }
 
     public var body: some View {
-        Button(action: { isTooltipShowing = true }) {
+        SwiftUI.Button(action: { isTooltipShowing = true }) {
             size.icon.image
                 .resizable()
                 .renderingMode(.template)

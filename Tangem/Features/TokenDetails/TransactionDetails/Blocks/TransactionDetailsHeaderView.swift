@@ -77,7 +77,7 @@ struct TransactionDetailsHeaderView: View {
     private var menuButton: some View {
         Menu {
             ForEach(data.menuActions) { action in
-                Button(action: action.handler) {
+                SwiftUI.Button(action: action.handler) {
                     if let icon = action.icon {
                         Label(
                             title: { Text(action.title) },
