@@ -122,6 +122,13 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         ) != initialSnapshot
     }
 
+    var hasUnsavedChangesPublisher: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest4(nameSubject, colorSubject, walletSubject, addressesSubject)
+            .map { [weak self] _ in self?.hasUnsavedChanges ?? false }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     private static func makeSnapshot(
         name: String,
         color: AccountModel.CompositeIcon.Color,
