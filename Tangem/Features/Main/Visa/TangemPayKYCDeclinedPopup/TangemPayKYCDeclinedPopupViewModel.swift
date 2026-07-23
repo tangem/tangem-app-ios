@@ -13,6 +13,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemAssets
 import TangemPay
+import TangemAccessibilityIdentifiers
 
 final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     @Injected(\.mailComposePresenter)
@@ -22,27 +23,23 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     weak var coordinator: TangemPayKYCDeclinedRoutable?
 
     var primaryButton: MainButton.Settings {
-        isRedesigned
-            ? .init(title: Localization.tangempayKycRejectedButtonText, style: .primary, action: hideKYC)
-            : .init(title: Localization.tangempayGoToSupport, style: .primary, action: openSupport)
+        .init(title: Localization.tangempayKycRejectedButtonText, style: .primary, action: hideKYC)
     }
 
     var secondaryButton: MainButton.Settings? {
-        isRedesigned
-            ? .init(title: Localization.commonContactSupport, style: .secondary, action: openSupport)
-            : .init(title: Localization.tangempayCancelKyc, style: .secondary, action: hideKYC)
+        .init(title: Localization.commonContactSupport, style: .secondary, action: openSupport)
     }
 
     var title: AttributedString {
         .init(Localization.tangempayKycRejected)
     }
 
-    var iconStyle: TangemPayPopupIconStyle {
-        .error
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.kycDeclinedSheetPrimaryButton
     }
 
-    private var isRedesigned: Bool {
-        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
+    var iconStyle: TangemPayPopupIconStyle {
+        .error
     }
 
     var description: AttributedString {
@@ -57,9 +54,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     }
 
     var icon: Image {
-        isRedesigned
-            ? DesignSystem.Icons.HeartBroken.regular32.image
-            : Assets.Visa.kycDeclinedBrokenHeart.image
+        DesignSystem.Icons.HeartBroken.regular32.image
     }
 
     init(

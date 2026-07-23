@@ -61,6 +61,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsBuyCoordinator: ActionButtonsBuyCoordinator? = nil
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
+    @Published var tangemPaySelectPlanCoordinator: TangemPaySelectPlanCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
@@ -103,21 +104,15 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     }
 
     func start(with options: Options) {
-        let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper? = FeatureProvider.isAvailable(.redesign)
-            ? nil
-            : WalletSwipeDiscoveryHelper()
-
         let factory = PushNotificationsHelpersFactory()
         let pushNotificationsAvailabilityProvider = factory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)
         let viewModel = MainViewModel(
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
-            swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self),
             pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
         )
 
-        swipeDiscoveryHelper?.delegate = viewModel
         mainViewModel = viewModel
 
         let userWalletModel = options.userWalletModel
@@ -197,7 +192,16 @@ extension MainCoordinator: MainRoutable {
     func openDeepLink(_ deepLink: DeepLinkDestination) {
         switch deepLink {
         case .externalLink(let url):
-            safariManager.openURL(url)
+            guard safariHandle?.isMatching(startingURL: url) == false else {
+                return
+            }
+
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.safariHandle = nil },
+                onSuccess: { [weak self] _ in self?.safariHandle = nil }
+            )
         case .tangemPayMain(let customerWalletId):
             openTangemPayMainFromDeeplink(customerWalletId: customerWalletId)
         case .yield(let walletModel, let userWalletModel):
@@ -503,6 +507,19 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             )
         )
         tangemPayMainCoordinator = coordinator
+    }
+
+    func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector) {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = TangemPaySelectPlanCoordinator(
+            dismissAction: { [weak self] in
+                self?.tangemPaySelectPlanCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(tariffPlanSelector: tariffPlanSelector, mode: .onboarding))
+        tangemPaySelectPlanCoordinator = coordinator
     }
 
     private func openTangemPayMainFromDeeplink(customerWalletId: String) {

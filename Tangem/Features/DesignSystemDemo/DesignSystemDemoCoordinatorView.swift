@@ -29,6 +29,12 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemButtonV2DemoViewModel) {
                 TangemButtonV2DemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemCheckboxV2DemoViewModel) {
+                TangemCheckboxV2DemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tangemCheckmarkV2DemoViewModel) {
+                TangemCheckmarkV2DemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemBadgeDemoViewModel) {
                 TangemBadgeDemoView(viewModel: $0)
             }
@@ -38,7 +44,6 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemMessageBannerDemoViewModel) {
                 TangemMessageBannerDemoView(viewModel: $0)
             }
-            .navigation(item: $coordinator.glowRingDemoViewModel, destination: GlowRingDemoView.init)
             .navigation(item: $coordinator.tangemRowDemoViewModel) {
                 TangemRowDemoView(viewModel: $0)
             }
@@ -57,11 +62,17 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.typographyDemoViewModel) {
                 TypographyDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.typographyV2DemoViewModel) {
+                TypographyV2DemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemTabsDemoViewModel) {
                 TangemTabsDemo(viewModel: $0)
             }
             .navigation(item: $coordinator.tangemSearchFieldDemoViewModel) {
                 TangemSearchFieldDemo(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tangemSearchDemoViewModel) {
+                TangemSearchDemoView(viewModel: $0)
             }
             .navigation(item: $coordinator.tangemDropDownDemoViewModel) {
                 TangemDropDownDemoView(viewModel: $0)
@@ -78,6 +89,10 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemShimmerDemoViewModel) {
                 TangemShimmerDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.glowRingDemoViewModel, destination: GlowRingDemoView.init)
+            .navigation(item: $coordinator.tangemFadeDemoViewModel) {
+                TangemFadeDemoView(viewModel: $0)
+            }
     }
 }
 
@@ -92,6 +107,10 @@ struct DesignSystemDemoView: View {
                         viewModel.openTangemButtonV2Demo()
                     }
 
+                    MainButton(title: "TangemCheckmarkV2") {
+                        viewModel.openTangemCheckmarkV2Demo()
+                    }
+
                     MainButton(title: "TangemBadgeV2") {
                         viewModel.openTangemBadgeV2Demo()
                     }
@@ -100,8 +119,8 @@ struct DesignSystemDemoView: View {
                         viewModel.openTangemMessageBannerDemo()
                     }
 
-                    MainButton(title: "GlowRing") {
-                        viewModel.openGlowRingDemo()
+                    MainButton(title: "TangemCheckboxV2") {
+                        viewModel.openTangemCheckboxV2Demo()
                     }
 
                     MainButton(title: "TangemRow") {
@@ -114,6 +133,22 @@ struct DesignSystemDemoView: View {
 
                     MainButton(title: "TangemShimmer") {
                         viewModel.openTangemShimmerDemo()
+                    }
+
+                    MainButton(title: "GlowRing") {
+                        viewModel.openGlowRingDemo()
+                    }
+
+                    MainButton(title: "TangemFade") {
+                        viewModel.openTangemFadeDemo()
+                    }
+
+                    MainButton(title: "TangemSearch") {
+                        viewModel.openTangemSearchDemo()
+                    }
+
+                    MainButton(title: "Typography V2") {
+                        viewModel.openTypographyV2Demo()
                     }
                 }
 

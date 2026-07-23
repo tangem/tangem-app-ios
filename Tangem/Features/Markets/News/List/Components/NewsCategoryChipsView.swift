@@ -16,11 +16,7 @@ struct NewsCategoryChipsView: View {
     @Binding var selectedCategoryId: Int?
 
     var body: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            redesignContent
-        } else {
-            legacyContent
-        }
+        redesignContent
     }
 
     // MARK: - Redesign
@@ -52,37 +48,6 @@ struct NewsCategoryChipsView: View {
                     selectedCategoryId = nil
                 } else {
                     selectedCategoryId = Int(newValue.id)
-                }
-            }
-        )
-    }
-
-    // MARK: - Legacy
-
-    private var legacyContent: some View {
-        HorizontalChipsView(
-            chips: legacyChips,
-            selectedId: legacySelectedIdBinding,
-            horizontalInset: Constants.horizontalChipsViewInset
-        )
-    }
-
-    private var legacyChips: [Chip] {
-        var result: [Chip] = [Chip(id: Constants.allCategoryId, title: Localization.commonAll)]
-        result.append(contentsOf: categories.map { Chip(id: String($0.id), title: $0.name) })
-        return result
-    }
-
-    private var legacySelectedIdBinding: Binding<String?> {
-        Binding(
-            get: { selectedCategoryId.map { String($0) } ?? Constants.allCategoryId },
-            set: { newValue in
-                if newValue == Constants.allCategoryId {
-                    selectedCategoryId = nil
-                } else if let newValue {
-                    selectedCategoryId = Int(newValue)
-                } else {
-                    selectedCategoryId = nil
                 }
             }
         )

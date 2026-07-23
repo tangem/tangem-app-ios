@@ -54,11 +54,7 @@ struct NewsPagingView<Content: View>: View {
             }
 
             if pageCount > 1 {
-                if FeatureProvider.isAvailable(.redesign) {
-                    PageIndicatorViewRedesign(totalPages: pageCount, currentIndex: currentIndex)
-                } else {
-                    PageIndicatorView(totalPages: pageCount, currentIndex: currentIndex)
-                }
+                PageIndicatorViewRedesign(totalPages: pageCount, currentIndex: currentIndex)
             }
         }
     }
@@ -66,7 +62,6 @@ struct NewsPagingView<Content: View>: View {
 
 // MARK: - Preview
 
-#if DEBUG
 @available(iOS 17.0, *)
 #Preview("NewsPagingView") {
     @Previewable @State var currentIndex = 0
@@ -85,4 +80,3 @@ struct NewsPagingView<Content: View>: View {
     .frame(height: 200)
     .padding()
 }
-#endif

@@ -15,6 +15,16 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let mainScreenTile = "\(prefix)MainScreenTile"
     public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
+    public static let getTangemPayBannerOpenButton = "\(prefix)GetTangemPayBannerOpenButton"
+
+    // MARK: - Onboarding (offer) screen
+
+    public static let onboardingGetCardButton = "\(prefix)OnboardingGetCardButton"
+
+    // MARK: - KYC status sheet
+
+    public static let kycStatusSheetPrimaryButton = "\(prefix)KycStatusSheetPrimaryButton"
+    public static let kycDeclinedSheetPrimaryButton = "\(prefix)KycDeclinedSheetPrimaryButton"
 
     // MARK: - Tangem Pay payment account screen
 
@@ -23,6 +33,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let paymentAccountBalance = "\(prefix)PaymentAccountBalance"
     public static let addFundsButton = "\(prefix)AddFundsButton"
     public static let withdrawButton = "\(prefix)WithdrawButton"
+    public static let moreActionsButton = "\(prefix)MoreActionsButton"
 
     // MARK: - Add funds flow
 
@@ -66,6 +77,32 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let freezeCardRowStateFrozen = "\(prefix)FreezeCardRowStateFrozen"
     public static let freezeSheetConfirmButton = "\(prefix)FreezeSheetConfirmButton"
     public static let unfreezeSheetConfirmButton = "\(prefix)UnfreezeSheetConfirmButton"
+
+    // MARK: - Daily limit
+
+    public static let dailyLimitChangeButton = "\(prefix)DailyLimitChangeButton"
+    public static let dailyLimitRowValue = "\(prefix)DailyLimitRowValue"
+    public static let dailyLimitAmountField = "\(prefix)DailyLimitAmountField"
+    public static let dailyLimitSetButton = "\(prefix)DailyLimitSetButton"
+    public static let dailyLimitSuccessTitle = "\(prefix)DailyLimitSuccessTitle"
+    public static let dailyLimitDoneButton = "\(prefix)DailyLimitDoneButton"
+
+    public static func dailyLimitPresetButton(_ value: String) -> String {
+        "\(prefix)DailyLimitPreset_\(value)"
+    }
+
+    // MARK: - Card reissue
+
+    public static let cardManagementMoreButton = "\(prefix)CardManagementMoreButton"
+    public static let reissueCardRow = "\(prefix)ReissueCardRow"
+    public static let reissueSheetConfirmButton = "\(prefix)ReissueSheetConfirmButton"
+    public static let reissueSheetAddFundsButton = "\(prefix)ReissueSheetAddFundsButton"
+
+    // MARK: - Transaction details
+
+    public static let transactionDetailsTitle = "\(prefix)TransactionDetailsTitle"
+    public static let transactionDetailsAmount = "\(prefix)TransactionDetailsAmount"
+    public static let transactionDetailsMainButton = "\(prefix)TransactionDetailsMainButton"
 
     // MARK: - PIN setup screen
 
