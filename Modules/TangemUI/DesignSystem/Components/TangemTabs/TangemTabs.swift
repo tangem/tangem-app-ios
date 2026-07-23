@@ -44,7 +44,7 @@ public struct TangemTabs<Data>: View
 private extension TangemTabs {
     var content: some View {
         HStack(spacing: spacing) {
-            ForEach(data, id: \.self) { item in
+            ForEach(data) { item in
                 tab(item)
             }
         }
@@ -59,6 +59,7 @@ private extension TangemTabs {
                 )
         }
         .buttonStyle(.plain)
+        .id(item.id) // Explicit identity so a wrapping `ScrollViewReader` can scroll a tab into view.
     }
 
     func itemContent(_ item: Item) -> some View {
@@ -90,6 +91,6 @@ private extension TangemTabs {
 
 // MARK: - TextProvider
 
-public protocol TangemTabsTextProvider: Hashable {
+public protocol TangemTabsTextProvider: Identifiable, Hashable {
     var text: String { get }
 }
