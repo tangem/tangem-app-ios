@@ -48,6 +48,9 @@ public struct TangemMessageBanner<SlotStart: View, SlotEnd: View, ExtraBottom: V
         .padding(TangemMessageBannerMetrics.contentPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(config.variant.background, in: containerShape)
+        .overlay {
+            containerShape.strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: TangemMessageBannerMetrics.borderWidth)
+        }
 
         return applyGlowRing(to: banner)
             .overlay { focusRing }
@@ -161,6 +164,7 @@ private extension TangemMessageBanner {
         .iconStart(model.iconStart)
         .iconEnd(model.iconEnd)
         .styleType(styleType)
+        .size(.x9)
         .horizontalLayout(.infinity)
         .isLoading(model.isLoading)
         .disabled(!model.isEnabled)
@@ -198,10 +202,11 @@ extension TangemMessageBannerVariant {
 enum TangemMessageBannerMetrics {
     static let cornerRadius: CGFloat = 28
     static let contentPadding: CGFloat = 16
-    static let rootSpacing: CGFloat = 24
+    static let rootSpacing: CGFloat = 16
     static let contentRowSpacing: CGFloat = 12
     static let textColumnSpacing: CGFloat = 4
-    static let extraBottomTopPadding: CGFloat = 12
+    static let extraBottomTopPadding: CGFloat = 8
     static let buttonRowSpacing: CGFloat = 8
     static let focusRingWidth: CGFloat = 2
+    static let borderWidth: CGFloat = 1
 }
