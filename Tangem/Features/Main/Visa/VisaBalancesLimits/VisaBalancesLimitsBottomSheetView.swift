@@ -75,7 +75,7 @@ struct VisaBalancesLimitsBottomSheetView: View {
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
 
-            Button(action: infoAction) {
+            SwiftUI.Button(action: infoAction) {
                 Assets.infoCircle20.image
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.inactive)
@@ -103,7 +103,7 @@ private struct PreviewBottomSheet: View {
     @State private var viewModel: VisaBalancesLimitsBottomSheetViewModel?
 
     var body: some View {
-        Button(action: generateBottomSheet) {
+        SwiftUI.Button(action: generateBottomSheet) {
             Text("Open Balances & Limits")
         }
         .bottomSheet(item: $viewModel, backgroundColor: Colors.Background.tertiary) { model in

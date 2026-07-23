@@ -17,7 +17,7 @@ import TangemUI
 /// while the middle grid line spans full width.
 final class InsetGridLineYAxisRenderer: YAxisRenderer {
     var labelOffset: CGFloat = 0.0
-    var labelToLineSpacing: CGFloat = .unit(.x1)
+    var labelToLineSpacing: CGFloat = 4
     var labelFont: UIFont = UIFonts.Regular.caption2
     var leftAxisFormatter: AxisValueFormatter?
     var rightAxisFormatter: AxisValueFormatter?
