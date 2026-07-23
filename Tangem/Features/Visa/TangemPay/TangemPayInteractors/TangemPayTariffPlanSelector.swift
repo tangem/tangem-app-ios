@@ -11,4 +11,9 @@ import TangemPay
 protocol TangemPayTariffPlanSelector {
     func getTariffPlanTransitions() async throws -> TangemPayTariffPlanTransitionsResponse
     func selectTariffPlan(targetTariffPlanId: String, transitionType: TangemPayTariffPlanTransition.TransitionType) async throws
+    func cancelTariffPlanPendingTransition() async throws
+}
+
+extension TangemPayTariffPlanSelector {
+    static var basicTariffPlanType: String { "BASIC" }
 }
