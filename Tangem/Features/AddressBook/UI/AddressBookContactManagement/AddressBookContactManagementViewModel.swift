@@ -240,8 +240,8 @@ private extension AddressBookContactManagementViewModel {
             .removeDuplicates()
 
         interactor.isMainButtonEnabledPublisher
-            .combineLatest(nameValidationErrorPublisher)
-            .map { isEnabled, nameValidationError in isEnabled && nameValidationError == nil }
+            .combineLatest(nameValidationErrorPublisher, interactor.hasUnsavedChangesPublisher)
+            .map { isEnabled, nameValidationError, hasChanges in isEnabled && nameValidationError == nil && hasChanges }
             .receiveOnMain()
             .assign(to: &$isMainButtonEnabled)
 

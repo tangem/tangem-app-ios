@@ -815,6 +815,11 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             .sendBlockchain: sourceTokenItem.blockchain.displayName,
         ]
 
+        if let sourceToken = sendSourceTokenInput?.sourceToken.value {
+            let isTangemPayAccount = sourceToken.isTangemPayAccount
+            analyticsParameters[.payAccount] = Analytics.ParameterValue.boolState(for: isTangemPayAccount).rawValue
+        }
+
         if let selectedFee = sendFeeInput?.selectedFee {
             let parameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: selectedFee.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
             analyticsParameters[.feeType] = parameter.rawValue
