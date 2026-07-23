@@ -465,6 +465,11 @@ extension TangemPayAccount: TangemPayTariffPlanSelector {
 
         await loadCustomerInfo()
     }
+
+    func cancelTariffPlanPendingTransition() async throws {
+        try await customerService.cancelTariffPlanPendingTransition()
+        await loadCustomerInfo()
+    }
 }
 
 private extension TangemPayAccount {
