@@ -21,11 +21,11 @@ struct TransactionDetailsActionButtonView: View {
 
     var body: some View {
         TangemButtonV2(
-            label: AttributedString(data.title),
-            iconEnd: data.icon,
+            label: data.title,
             accessibilityLabel: data.title,
             action: data.handler
         )
+        .iconEnd(data.icon)
         .styleType(.default)
         .size(.x12)
         .horizontalLayout(.infinity)
