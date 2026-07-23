@@ -24,7 +24,7 @@ struct MarketsPortfolioUnsupportedView: View {
     private var title: AttributedString {
         MarketsPortfolioPlateTitle.make(
             Localization.marketsPortfolioBlockTokenUnsupported,
-            emphasizedColor: Color.Tangem.Text.Neutral.primary
+            emphasizedColor: DesignSystem.Color.textPrimary
         )
     }
 }

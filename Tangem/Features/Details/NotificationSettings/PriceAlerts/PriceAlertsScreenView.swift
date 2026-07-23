@@ -69,7 +69,7 @@ struct PriceAlertsScreenView: View {
     }
 
     /// Titled card container shared by the loaded list and the loading skeletons; rows are the
-    /// design-system `TangemRow` with its own 16pt inner padding.
+    /// design-system `Row` with its own 16pt inner padding.
     private func watchlistCard<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
             // [REDACTED_TODO_COMMENT]
@@ -87,7 +87,7 @@ struct PriceAlertsScreenView: View {
 
     /// Shimmer variant of the watchlist row (start slot only, no divider), mirroring the real row's layout.
     private var skeletonRow: some View {
-        TangemRow()
+        Row()
             .titleAccessory { skeletonCapsule(size: Constants.skeletonTitleSize) }
             .subtitleAccessory { skeletonCapsule(size: Constants.skeletonSubtitleSize) }
             .start {

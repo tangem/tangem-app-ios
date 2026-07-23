@@ -103,10 +103,10 @@ final class TangemPayMainViewModel: ObservableObject {
         )
     }
 
-    var awaitingDepositCancelButton: TangemMessageBannerButton? {
+    var awaitingDepositCancelButton: MessageBannerButton? {
         guard let info = awaitingDepositInfo else { return nil }
 
-        return TangemMessageBannerButton(
+        return MessageBannerButton(
             title: Localization.tangempayCardDetailsAwaitingDepositCancelButton(info.planName, info.fallbackPlanName),
             isLoading: isCancellingPaidTariffTransition,
             action: { [weak self] in

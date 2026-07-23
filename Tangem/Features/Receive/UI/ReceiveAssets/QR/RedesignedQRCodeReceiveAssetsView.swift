@@ -71,7 +71,7 @@ struct RedesignedQRCodeReceiveAssetsView: View {
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .accessibilityIdentifier(QRCodeAccessibilityIdentifiers.addressHeader)
 
-            Button {
+            SwiftUI.Button {
                 viewModel.copyToClipboard()
             } label: {
                 SUILabel(viewModel.stringForAddress(viewModel.addressInfo.address))
@@ -95,7 +95,7 @@ struct RedesignedQRCodeReceiveAssetsView: View {
 
     private var actionsButtons: some View {
         HStack(spacing: 8) {
-            TangemButtonV2(
+            TangemUI.Button(
                 label: Localization.commonCopy,
                 accessibilityLabel: Localization.commonCopy,
                 action: viewModel.copyToClipboard
@@ -105,7 +105,7 @@ struct RedesignedQRCodeReceiveAssetsView: View {
             .styleType(.secondary)
             .horizontalLayout(.infinity)
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: Localization.commonShare,
                 accessibilityLabel: Localization.commonShare,
                 action: viewModel.share

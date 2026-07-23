@@ -154,7 +154,7 @@ struct TangemPayMainView: View {
     }
 
     private func awaitingDepositCancelBanner(info: TangemPayAwaitingDepositInfo) -> some View {
-        TangemMessageBanner(
+        MessageBanner(
             title: Localization.tangempayCardDetailsAwaitingDepositTitle(info.fee),
             description: Localization.tangempayCardDetailsAwaitingDepositSubtitle
         )
@@ -172,7 +172,7 @@ struct TangemPayMainView: View {
 
     // [REDACTED_TODO_COMMENT]
     private var inactiveBadge: some View {
-        TangemBadgeV2(label: "Inactive", accessibilityLabel: nil)
+        Badge(label: "Inactive", accessibilityLabel: nil)
             .size(.x6)
             .variant(.tinted)
             .appearance(.warning)
@@ -186,7 +186,7 @@ struct TangemPayMainView: View {
                 redesignedCardEntryButton(for: entry)
             }
 
-            Button(action: viewModel.tapAddCard) {
+            SwiftUI.Button(action: viewModel.tapAddCard) {
                 TangemPayAddCardView()
             }
             .disabled(viewModel.addCardDisabled)
@@ -198,7 +198,7 @@ struct TangemPayMainView: View {
     private func redesignedCardEntryButton(for entry: TangemPayCardEntry) -> some View {
         switch entry {
         case .issued(let card):
-            Button {
+            SwiftUI.Button {
                 viewModel.openCardManagement(entry: entry)
             } label: {
                 TangemPaySmallCardViewRedesigned(
@@ -211,7 +211,7 @@ struct TangemPayMainView: View {
             .disabled(viewModel.isStale)
             .opacity(viewModel.isStale ? 0.6 : 1)
         case .issuing:
-            Button {
+            SwiftUI.Button {
                 viewModel.openCardManagement(entry: entry)
             } label: {
                 TangemPaySmallCardViewRedesigned(
@@ -245,7 +245,7 @@ struct TangemPayMainView: View {
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
                 if FeatureProvider.isAvailable(.tangemPayTiers) {
-                    Button(action: viewModel.openCurrentPlan) {
+                    SwiftUI.Button(action: viewModel.openCurrentPlan) {
                         Text(Localization.tangempayCurrentPlanTitle)
 
                         switch viewModel.currentPlanState {
@@ -266,11 +266,11 @@ struct TangemPayMainView: View {
                     Divider()
                 }
 
-                Button(action: viewModel.termsAndLimits) {
+                SwiftUI.Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }
 
-                Button(action: viewModel.contactSupport) {
+                SwiftUI.Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
                 }
             } label: {

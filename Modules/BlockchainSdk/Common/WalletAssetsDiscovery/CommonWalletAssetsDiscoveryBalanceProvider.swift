@@ -43,7 +43,7 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: WalletAssetsDis
              .shibarium, .areon, .playa3ullGames, .aurora, .manta, .zkSync, .polygonZkEVM,
              .mantle, .flare, .taraxa, .cyber, .blast, .energyWebEVM, .core, .canxium, .xodex,
              .odysseyChain, .bitrock, .apeChain, .sonic, .vanar, .zkLinkNova, .hyperliquidEVM,
-             .quai, .scroll, .arbitrumNova, .plasma, .adi:
+             .quai, .scroll, .robinhood, .arbitrumNova, .plasma, .adi:
             return true
 
         // Unsupported obtain provider

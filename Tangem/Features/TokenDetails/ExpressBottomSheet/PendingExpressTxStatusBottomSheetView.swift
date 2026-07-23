@@ -144,7 +144,7 @@ private extension PendingExpressTxStatusBottomSheetView {
     @ViewBuilder
     var hideTransaction: some View {
         if viewModel.isHideButtonShowed {
-            Button(
+            SwiftUI.Button(
                 action: viewModel.showHideTransactionAlert,
                 label: {
                     Text(Localization.expressStatusHideButtonText)

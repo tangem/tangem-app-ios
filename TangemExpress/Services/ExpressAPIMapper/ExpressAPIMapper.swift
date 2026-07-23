@@ -176,7 +176,13 @@ struct ExpressAPIMapper {
     }
 
     func mapToOnrampPaymentMethod(response: ExpressDTO.Onramp.PaymentMethod) -> OnrampPaymentMethod? {
-        let method = OnrampPaymentMethod(id: response.id, name: response.name, image: response.image)
+        let method = OnrampPaymentMethod(
+            id: response.id,
+            name: response.name,
+            image: response.image,
+            imageLight: response.imageLight,
+            imageDark: response.imageDark
+        )
 
         guard OnrampPaymentMethodsFilter().isSupported(paymentMethod: method) else {
             ExpressLogger.info(
