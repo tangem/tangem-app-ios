@@ -58,6 +58,10 @@ public protocol CustomerInfoManagementService: AnyObject {
     ) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawTransactionResult
 
     func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
+
+    @discardableResult
+    func cancelOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayCancelOrderResponse
+
     func findOrders(
         types: [String],
         statuses: [TangemPayOrderResponse.Status]
@@ -71,6 +75,9 @@ public protocol CustomerInfoManagementService: AnyObject {
     func requestTariffPlanPendingTransition(
         pendingTariffPlanId: String
     ) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.CustomerTariffPlan
+
+    @discardableResult
+    func cancelTariffPlanPendingTransition() async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.CustomerTariffPlan
 
     func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse
     func reissueCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayReissueCardResponse
@@ -235,6 +242,10 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         try await request(for: .getOrder(orderId: orderId))
     }
 
+    public func cancelOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayCancelOrderResponse {
+        try await request(for: .cancelOrder(orderId: orderId))
+    }
+
     public func findOrders(
         types: [String],
         statuses: [TangemPayOrderResponse.Status]
@@ -255,6 +266,11 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         pendingTariffPlanId: String
     ) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.CustomerTariffPlan {
         try await request(for: .requestTariffPlanPendingTransition(pendingTariffPlanId: pendingTariffPlanId))
+    }
+
+    @discardableResult
+    public func cancelTariffPlanPendingTransition() async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.CustomerTariffPlan {
+        try await request(for: .cancelTariffPlanPendingTransition)
     }
 
     public func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse {
