@@ -51,6 +51,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "order"
         case .getOrder(let orderId):
             "order/\(orderId)"
+        case .cancelOrder(let orderId):
+            "order/\(orderId)/cancel"
         case .getCustomerOffers:
             "customer/offers"
         case .getBankCredentials(let productInstanceId):
@@ -59,6 +61,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/tariff-plan/transitions"
         case .requestTariffPlanPendingTransition:
             "customer/tariff-plan/pending-transition"
+        case .cancelTariffPlanPendingTransition:
+            "customer/tariff-plan/pending-transition/cancel"
         case .cancelKYC:
             "customer/pay-enabled"
         case .updateCardDisplayNameLegacy, .setCardLimitLegacy:
@@ -90,6 +94,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
         case .placeOrderLegacy,
              .placeOrder,
+             .cancelOrder,
              .getCardDetailsLegacy,
              .getCardDetails,
              .freeze,
@@ -98,7 +103,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getWithdrawSignableData,
              .sendWithdrawTransaction,
              .reissueCard,
-             .requestTariffPlanPendingTransition:
+             .requestTariffPlanPendingTransition,
+             .cancelTariffPlanPendingTransition:
             .post
 
         case .cancelKYC,
@@ -118,8 +124,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .getCustomerInfo,
              .getKYCAccessToken,
              .getOrder,
+             .cancelOrder,
              .getCustomerOffers,
              .getTariffPlanTransitions,
+             .cancelTariffPlanPendingTransition,
              .getBalance,
              .getPinLegacy,
              .getPin,
@@ -263,12 +271,14 @@ extension CustomerInfoManagementAPITarget {
         case sendWithdrawTransaction(TangemPayWithdraw.Transaction.Request)
 
         case getOrder(orderId: String)
+        case cancelOrder(orderId: String)
         case findOrders(orderTypes: [String], orderStatuses: [TangemPayOrderResponse.Status])
 
         case getCustomerOffers
 
         case getTariffPlanTransitions
         case requestTariffPlanPendingTransition(pendingTariffPlanId: String)
+        case cancelTariffPlanPendingTransition
 
         case getFee(type: TangemPayFeeType)
         case reissueCard(cardId: String)

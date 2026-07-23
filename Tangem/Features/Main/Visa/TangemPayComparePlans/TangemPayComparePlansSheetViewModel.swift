@@ -43,9 +43,12 @@ struct TangemPayComparePlansSheetViewModel: FloatingSheetContentViewModel {
                 cells: orderedAttributes.map { valuesByTitle[$0].flatMap { $0 } ?? Constants.missingValue }
             )
         }
+
+        Analytics.log(.visaTiersPlansComparisonPopupShowed)
     }
 
     func close() {
+        Analytics.log(.visaTiersPlansComparisonPopupClosed)
         coordinator.closeComparePlans()
     }
 }

@@ -45,7 +45,7 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
     // MARK: - Redesign-aware styling
 
     private var sheetBackgroundColor: Color {
-        isRedesign ? Color.Tangem.Surface.level2 : Colors.Background.tertiary
+        isRedesign ? DesignSystem.Color.bgPrimary : Colors.Background.tertiary
     }
 
     // MARK: - View Body

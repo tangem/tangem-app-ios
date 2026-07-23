@@ -143,6 +143,11 @@ public extension LoadableBalanceView {
             fontStyle = font
             self.textColor = textColor
         }
+
+        public init(font: TangemTypographyToken, textColor: Color) {
+            fontStyle = TangemFontStyle(font)
+            self.textColor = textColor
+        }
     }
 
     struct LoaderStyle {
