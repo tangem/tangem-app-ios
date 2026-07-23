@@ -12,6 +12,7 @@ import TangemSdk
 class StartupProcessor {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
+    @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
 
     private let jailbreakWarningUtil = JailbreakWarningUtil()
 
@@ -20,6 +21,10 @@ class StartupProcessor {
     }
 
     func getStartupOption() -> StartupOption {
+        if let reason = forceUpdateService.startupBlockingReason {
+            return .forceUpdate(reason)
+        }
+
         if jailbreakWarningUtil.shouldShowWarning() {
             return .jailbreakWarning
         }
@@ -65,4 +70,5 @@ enum StartupOption {
     case main(UserWalletModel)
     case launchScreen
     case jailbreakWarning
+    case forceUpdate(ForceUpdateReason)
 }

@@ -49,14 +49,13 @@ private extension RatingView {
 
 // MARK: - Previews
 
-#if DEBUG
-private struct RatingViewPreviewStub: RatingProvider {
-    func checkExisting(for transactionId: String) async throws -> ExistingRating? { nil }
-    func submit(request: RatingRequest) async throws {}
-}
-
 #Preview {
-    RatingView(
+    struct RatingViewPreviewStub: RatingProvider {
+        func checkExisting(for transactionId: String) async throws -> ExistingRating? { nil }
+        func submit(request: RatingRequest) async throws {}
+    }
+
+    return RatingView(
         viewModel: RatingViewModel(
             model: RatingModel(
                 ratingProvider: RatingViewPreviewStub(),
@@ -67,4 +66,3 @@ private struct RatingViewPreviewStub: RatingProvider {
     )
     .padding()
 }
-#endif
