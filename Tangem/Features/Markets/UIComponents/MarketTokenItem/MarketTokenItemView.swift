@@ -22,7 +22,7 @@ struct MarketTokenItemView: View {
     }
 
     var body: some View {
-        Button(action: {
+        SwiftUI.Button(action: {
             viewModel.didTapAction?()
         }) {
             HStack(spacing: Constants.itemsHorizontalSpacing) {

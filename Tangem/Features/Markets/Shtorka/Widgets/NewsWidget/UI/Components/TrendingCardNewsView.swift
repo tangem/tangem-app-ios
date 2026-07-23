@@ -45,7 +45,7 @@ struct TrendingCardNewsView: View {
     let itemState: LoadingResult<TrendingCardNewsItem, Never>
 
     var body: some View {
-        Button(action: {
+        SwiftUI.Button(action: {
             if let item = itemState.value {
                 item.onTap(item.id)
             }

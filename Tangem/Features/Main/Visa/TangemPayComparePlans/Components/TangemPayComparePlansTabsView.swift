@@ -46,7 +46,7 @@ struct TangemPayComparePlansTabsView: View {
         var label = AttributedString(title)
         label.foregroundColor = isSelected ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
 
-        return TangemButtonV2(label: label, accessibilityLabel: title, action: action)
+        return TangemUI.Button(label: label, accessibilityLabel: title, action: action)
             .size(.x11)
             .styleType(isSelected ? .material(.glass) : .ghost)
     }

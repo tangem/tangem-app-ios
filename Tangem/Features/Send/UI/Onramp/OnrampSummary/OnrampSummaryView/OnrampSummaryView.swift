@@ -139,7 +139,7 @@ struct OnrampSummaryView: View {
         case .presets(let presets):
             HStack(spacing: 4) {
                 ForEach(presets) { preset in
-                    Button(action: { viewModel.usedDidTapPreset(preset: preset) }) {
+                    SwiftUI.Button(action: { viewModel.usedDidTapPreset(preset: preset) }) {
                         Text(.init(preset.formatted))
                             .padding(.vertical, 6)
                             .style(Fonts.Bold.footnote, color: Colors.Text.primary1)

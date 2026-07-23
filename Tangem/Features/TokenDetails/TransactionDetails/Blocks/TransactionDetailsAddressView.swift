@@ -23,7 +23,7 @@ struct TransactionDetailsAddressView: View {
     let data: TransactionDetailsAddressViewData
 
     var body: some View {
-        TangemRow(title: title, subtitle: data.label)
+        Row(title: title, subtitle: data.label)
             .lineOrder(.secondaryFirst)
             .start { startIcon }
             .end { endAccessory }
@@ -54,7 +54,7 @@ struct TransactionDetailsAddressView: View {
     @ViewBuilder
     private var endAccessory: some View {
         if let onCopy = data.onCopy {
-            Button(action: onCopy) {
+            SwiftUI.Button(action: onCopy) {
                 DesignSystem.Icons.Copy.regular20.image
                     .renderingMode(.template)
                     .frame(size: CGSize(bothDimensions: 20))

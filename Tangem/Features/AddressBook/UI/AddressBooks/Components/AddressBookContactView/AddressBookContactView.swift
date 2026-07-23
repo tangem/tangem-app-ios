@@ -13,7 +13,7 @@ struct AddressBookContactView: View {
     let viewModel: AddressBookContactViewModel
 
     var body: some View {
-        TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
+        Row(title: viewModel.title, subtitle: viewModel.subtitle)
             .start { AddressBookContactNameIconView(viewData: viewModel.iconViewData) }
             .onTap(viewModel.action)
     }
