@@ -56,6 +56,16 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
         self.coordinator = coordinator
     }
 
+    func onAppear() {
+        if case .onboarding = mode {
+            Analytics.log(.visaTiersTierSelectionScreenShowed)
+        }
+    }
+
+    func onPlanSwiped() {
+        Analytics.log(.visaTiersSwiped)
+    }
+
     @MainActor
     func loadTransitions() async {
         isLoading = true
@@ -73,6 +83,8 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
         guard let plan = selectedPlan, !plan.isCurrent, !isPlacingOrder else {
             return
         }
+
+        Analytics.log(event: .visaTiersPlanSelectedClick, params: [.plan: plan.type])
 
         switch mode {
         case .planChange(let onProceedToConfirm):
@@ -107,6 +119,8 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
     }
 
     func comparePlans() {
+        Analytics.log(.visaTiersComparePlansClicked)
+
         let tariffPlans = [currentTariffPlan].compactMap { $0 } + transitions.map(\.tariffPlan)
         coordinator?.openComparePlans(tariffPlans: tariffPlans)
     }
@@ -123,6 +137,7 @@ private extension TangemPaySelectPlanViewModel {
         let currentPlan = currentTariffPlan.map { plan in
             Plan(
                 id: plan.id,
+                type: plan.type,
                 name: plan.name,
                 imageURL: plan.images.first { $0.type == .main }?.url,
                 transitionType: nil,
@@ -134,6 +149,7 @@ private extension TangemPaySelectPlanViewModel {
         let transitionPlans = transitions.map { transition in
             Plan(
                 id: transition.tariffPlan.id,
+                type: transition.tariffPlan.type,
                 name: transition.tariffPlan.name,
                 imageURL: transition.tariffPlan.images.first { $0.type == .main }?.url,
                 transitionType: transition.type,
@@ -184,6 +200,7 @@ extension TangemPaySelectPlanViewModel {
 
     struct Plan: Identifiable {
         let id: String
+        let type: String
         let name: String
         let imageURL: String?
         let transitionType: TangemPayTariffPlanTransition.TransitionType?

@@ -291,6 +291,7 @@ public struct TangemTokenRowShowcase: View {
         case .compact:
             .compact(
                 subtitle: hasCompactSubtitle ? .loaded(text: "$45,000.00") : .empty,
+                currencySymbol: "BTC",
                 trailingIcon: hasCompactTrailingIcon ? Assets.OrganizeTokens.itemDragAndDropIcon : nil
             )
         }
@@ -534,7 +535,7 @@ private extension DynamicTypeSize {
                     ),
                     name: "Dogecoin",
                     badge: nil,
-                    content: .compact(subtitle: .loaded(text: "$0.12"), trailingIcon: nil),
+                    content: .compact(subtitle: .loaded(text: "$0.12"), currencySymbol: "DOGE", trailingIcon: nil),
                     hasMonochromeIcon: false
                 )
             )
@@ -555,7 +556,7 @@ private extension DynamicTypeSize {
                     ),
                     name: "Custom Token",
                     badge: nil,
-                    content: .compact(subtitle: .empty, trailingIcon: Assets.OrganizeTokens.itemDragAndDropIcon),
+                    content: .compact(subtitle: .empty, currencySymbol: nil, trailingIcon: Assets.OrganizeTokens.itemDragAndDropIcon),
                     hasMonochromeIcon: false
                 )
             )
