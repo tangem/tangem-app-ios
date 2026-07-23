@@ -17,9 +17,9 @@ struct MarketTokenRowView: View {
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
     @ScaledMetric private var iconSide: CGFloat = 40
-    @ScaledMetric private var horizontalPadding: CGFloat = SizeUnit.x3.value
-    @ScaledMetric private var verticalPadding: CGFloat = SizeUnit.x3.value
-    @ScaledMetric private var chartSpacing: CGFloat = SizeUnit.x3.value
+    @ScaledMetric private var horizontalPadding: CGFloat = 12
+    @ScaledMetric private var verticalPadding: CGFloat = 12
+    @ScaledMetric private var chartSpacing: CGFloat = 12
 
     var body: some View {
         SwiftUI.Button(action: { viewModel.didTapAction?() }) {
@@ -50,12 +50,12 @@ struct MarketTokenRowView: View {
         IconView(url: viewModel.imageURL, size: CGSize(width: iconSide, height: iconSide), forceKingfisher: true)
             // Adds +4pt on top of `TangemTwoLineRowLayout`'s shared icon spacing (8) to reach the
             // 12pt icon ↔ name gap from the latest design review without forking the DS layout.
-            .padding(.trailing, SizeUnit.x1.value)
+            .padding(.trailing, 4)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenIcon)
     }
 
     private var nameAndSymbolView: some View {
-        HStack(alignment: .firstTextBaseline, spacing: SizeUnit.x1.value) {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
             Text(viewModel.name)
                 .lineLimit(1)
                 .truncationMode(.middle)
@@ -74,11 +74,11 @@ struct MarketTokenRowView: View {
             .lineLimit(1)
             .blinkForegroundColor(
                 publisher: viewModel.$priceChangeAnimation,
-                positiveColor: .Tangem.Text.Status.accent,
-                negativeColor: .Tangem.Text.Status.warning,
-                originalColor: .Tangem.Text.Neutral.primary
+                positiveColor: DesignSystem.Color.textAccentBlue,
+                negativeColor: DesignSystem.Color.textAccentRed,
+                originalColor: DesignSystem.Color.textPrimary
             )
-            .font(Font.Tangem.Body16.medium)
+            .font(token: DesignSystem.Font.bodyMediumToken)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenPrice)
     }
 
@@ -86,7 +86,7 @@ struct MarketTokenRowView: View {
         let rank = viewModel.marketRating.flatMap(Int.init)
         let marketCapColor = rankColors(for: rank).textColor
 
-        return HStack(spacing: SizeUnit.x1.value) {
+        return HStack(spacing: 4) {
             if let marketRating = viewModel.marketRating, let rank {
                 rankBadgeView(rating: marketRating, rank: rank)
                     .fixedSize()
@@ -95,7 +95,7 @@ struct MarketTokenRowView: View {
 
             Text(viewModel.marketCap)
                 .lineLimit(1)
-                .style(Font.Tangem.Caption12.semibold, color: marketCapColor)
+                .style(DesignSystem.Font.captionMediumToken, color: marketCapColor)
                 .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenMarketCap)
 
             if let maxApy = viewModel.maxApy {
@@ -116,15 +116,15 @@ struct MarketTokenRowView: View {
         Group {
             if let charts = viewModel.charts {
                 LineChartView(
-                    color: viewModel.priceChangeState.changeType?.color ?? .Tangem.Text.Neutral.tertiary,
+                    color: viewModel.priceChangeState.changeType?.color ?? DesignSystem.Color.textSecondary,
                     data: charts
                 )
             } else {
                 Color.clear
                     .skeletonable(
                         isShown: true,
-                        size: CGSize(width: chartSize.width, height: SizeUnit.x3.value),
-                        radius: SizeUnit.x1.value
+                        size: CGSize(width: chartSize.width, height: 12),
+                        radius: 4
                     )
             }
         }
@@ -145,7 +145,7 @@ struct MarketTokenRowView: View {
                 .foregroundStyle(colors.oliveColor)
 
             Text(rating)
-                .style(Font.Tangem.Caption12.semibold, color: colors.textColor)
+                .style(DesignSystem.Font.captionMediumToken, color: colors.textColor)
 
             Assets.DesignSystem.oliveRight.image
                 .resizable()
@@ -157,10 +157,11 @@ struct MarketTokenRowView: View {
 
     private func rankColors(for rank: Int?) -> (oliveColor: Color, textColor: Color) {
         switch rank {
+        // [DS3] kept until new DS component lands
         case 1: (oliveColor: .Tangem.Market.iconTop1, textColor: .Tangem.Market.textTop1)
         case 2: (oliveColor: .Tangem.Market.iconTop2, textColor: .Tangem.Market.textTop2)
         case 3: (oliveColor: .Tangem.Market.iconTop3, textColor: .Tangem.Market.textTop3)
-        default: (oliveColor: .Tangem.Graphic.Neutral.secondary, textColor: .Tangem.Text.Neutral.secondary)
+        default: (oliveColor: DesignSystem.Color.iconSecondary, textColor: DesignSystem.Color.textSecondary)
         }
     }
 

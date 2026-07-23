@@ -16,27 +16,27 @@ struct MarketsTokenSearchQueryRowView: View {
 
     var body: some View {
         SwiftUI.Button(action: onTap) {
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 Assets.search.image
                     .renderingMode(.template)
                     .resizable()
                     .frame(width: Constants.iconSize, height: Constants.iconSize)
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+                    .foregroundStyle(DesignSystem.Color.iconPrimary)
 
                 Text(query)
                     .lineLimit(1)
-                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
-                Spacer(minLength: .unit(.x2))
+                Spacer(minLength: 8)
 
                 Assets.DesignSystem.arrowBack.image
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
                     .frame(width: Constants.iconSize, height: Constants.iconSize)
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
             }
-            .padding(.vertical, .unit(.x5))
+            .padding(.vertical, 20)
         }
     }
 }
@@ -57,6 +57,6 @@ private extension MarketsTokenSearchQueryRowView {
         MarketsTokenSearchQueryRowView(query: "Eth", onTap: {})
         MarketsTokenSearchQueryRowView(query: "volume > 1M", onTap: {})
     }
-    .padding(.horizontal, .unit(.x4))
-    .background(Color.Tangem.Surface.level2)
+    .padding(.horizontal, 16)
+    .background(DesignSystem.Color.bgPrimary)
 }
