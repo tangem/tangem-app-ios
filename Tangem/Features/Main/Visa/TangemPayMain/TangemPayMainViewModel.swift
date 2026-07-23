@@ -208,6 +208,8 @@ final class TangemPayMainViewModel: ObservableObject {
     func cancelPaidTariffTransition() async {
         guard !isCancellingPaidTariffTransition, isAwaitingDeposit else { return }
 
+        Analytics.log(.visaTiersCancelPlusMoveToBasicClicked, contextParams: .userWallet(userWalletInfo.id))
+
         isCancellingPaidTariffTransition = true
 
         do {
@@ -360,7 +362,16 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func openCurrentPlan() {
+        Analytics.log(.visaTiersCurrentPlanClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openCurrentPlan()
+    }
+
+    func onTopupBannerAppear() {
+        Analytics.log(.visaTiersTopupBannerForPlusShowed, contextParams: .userWallet(userWalletInfo.id))
+    }
+
+    func onSystemDowngradeBannerAppear() {
+        Analytics.log(.visaTiersPlusCardsClosureWarningBannerShowed, contextParams: .userWallet(userWalletInfo.id))
     }
 
     func termsAndLimits() {

@@ -67,6 +67,8 @@ final class TangemPayStayOnPlusSheetViewModel: TangemPayPopupViewModel {
         self.planName = planName
         self.pendingPlanName = pendingPlanName
         self.coordinator = coordinator
+
+        Analytics.log(.visaTiersStayOnPlusPopupShowed)
     }
 
     func dismiss() {
@@ -79,6 +81,8 @@ final class TangemPayStayOnPlusSheetViewModel: TangemPayPopupViewModel {
 private extension TangemPayStayOnPlusSheetViewModel {
     func confirm() {
         guard !isLoading else { return }
+
+        Analytics.log(.visaTiersStayOnPlusPopupClicked)
 
         isLoading = true
 
