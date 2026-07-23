@@ -94,10 +94,12 @@ struct TangemPayMainView: View {
 
             if let awaitingDepositInfo = viewModel.awaitingDepositInfo {
                 awaitingDepositCancelBanner(info: awaitingDepositInfo)
+                    .onAppear(perform: viewModel.onTopupBannerAppear)
             }
 
             if let bannerType = viewModel.systemDowngradeBanner {
                 NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
+                    .onAppear(perform: viewModel.onSystemDowngradeBannerAppear)
             }
 
             ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
