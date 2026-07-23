@@ -96,6 +96,10 @@ struct TangemPayMainView: View {
                 awaitingDepositCancelBanner
             }
 
+            if let bannerType = viewModel.systemDowngradeBanner {
+                NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
+            }
+
             ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                 PendingExpressTransactionView(info: transactionInfo)
             }
@@ -121,7 +125,7 @@ struct TangemPayMainView: View {
     private var redesignedHeader: some View {
         VStack(spacing: 24) {
             VStack(spacing: 4) {
-                TangemPayBalanceView(state: viewModel.balance)
+                TangemPayBalanceView(state: viewModel.balance, isError: viewModel.isBalanceNegative)
                     .opacity(viewModel.isStale ? 0.6 : 1)
 
                 if viewModel.isAwaitingDeposit {
