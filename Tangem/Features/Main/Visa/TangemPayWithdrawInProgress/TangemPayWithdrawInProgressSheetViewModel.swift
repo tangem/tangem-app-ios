@@ -11,17 +11,22 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-protocol TangemPayWithdrawInProgressSheetRoutable {
+protocol TangemPayWithdrawInProgressSheetRoutable: AnyObject {
     func closeWithdrawInProgressSheet()
 }
 
-struct TangemPayWithdrawInProgressSheetViewModel: FloatingSheetContentViewModel {
-    var id: String { String(describing: Self.self) }
+@MainActor
+final class TangemPayWithdrawInProgressSheetViewModel: FloatingSheetContentViewModel {
+    nonisolated var id: String { String(describing: Self.self) }
 
-    let coordinator: TangemPayWithdrawInProgressSheetRoutable
+    private weak var coordinator: TangemPayWithdrawInProgressSheetRoutable?
+
+    init(coordinator: TangemPayWithdrawInProgressSheetRoutable) {
+        self.coordinator = coordinator
+    }
 
     func close() {
-        coordinator.closeWithdrawInProgressSheet()
+        coordinator?.closeWithdrawInProgressSheet()
     }
 }
 
