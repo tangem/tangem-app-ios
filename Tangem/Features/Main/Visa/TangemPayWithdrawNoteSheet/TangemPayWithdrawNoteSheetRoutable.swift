@@ -10,4 +10,5 @@ import Foundation
 
 protocol TangemPayWithdrawNoteSheetRoutable: AnyObject {
     func closeWithdrawNoteSheetPopup()
+    func openWithdrawal(parameters: PredefinedSwapParameters)
 }

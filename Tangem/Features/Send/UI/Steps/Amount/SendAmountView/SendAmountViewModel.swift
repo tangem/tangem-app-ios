@@ -32,6 +32,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var compactSourceSubtitle: SendAmountTokenViewData.SubtitleType?
     @Published var compactDestinationSubtitle: SendAmountTokenViewData.SubtitleType?
     @Published private(set) var isInputFieldSwitchingLocked: Bool = false
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     /// Gates the `.animation(_, value: activeField)` modifier.
     /// Temporarily set to `false` on first destination entry to prevent animation.
@@ -94,6 +95,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let flowActionType: SendFlowActionType
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
+    private let marketingBannerManager: MarketingBannerManager?
     private let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
 
     @Published private var lastUpdateSource: ActiveAmountField?
@@ -120,6 +122,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger,
+        marketingBannerManager: MarketingBannerManager? = nil,
         shouldStartFromTokensList: Bool,
         providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
     ) {
@@ -132,6 +135,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.flowActionType = flowActionType
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
+        self.marketingBannerManager = marketingBannerManager
         self.providerRateTypesPublisher = providerRateTypesPublisher
         sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
@@ -313,6 +317,10 @@ private extension SendAmountViewModel {
         sourceAmountField.onValueChanged = { [weak self] value in
             self?.textFieldValueDidChanged(amount: value)
         }
+
+        marketingBannerManager?.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
 
         sourceAmountField.$amountType
             .dropFirst()
