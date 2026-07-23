@@ -31,13 +31,14 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Published var accountsViewModel: UserSettingsAccountsViewModel?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
+    @Published var mobileUpgradeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
 
     var commonSectionModels: [DefaultRowViewModel] {
         [mobileBackupViewModel, manageTokensViewModel, cardSettingsViewModel, referralViewModel, notificationSettingsViewModel].compactMap { $0 }
     }
 
-    var isMobileUpgradeAvailable: Bool {
+    private var isMobileUpgradeAvailable: Bool {
         userWalletModel.config.hasFeature(.userWalletUpgrade)
     }
 
@@ -218,10 +219,20 @@ private extension UserWalletSettingsViewModel {
         pushNotificationsViewModel = nil
         notificationSettingsViewModel = nil
         mobileAccessCodeViewModel = nil
+        mobileUpgradeViewModel = nil
         mobileBackupViewModel = nil
     }
 
     func setupViewModels() {
+        if isMobileUpgradeAvailable {
+            mobileUpgradeViewModel = DefaultRowViewModel(
+                title: Localization.detailsMobileWalletUpgradeActionTitle,
+                action: { [weak self] in
+                    self?.mobileUpgradeTap()
+                }
+            )
+        }
+
         if !userWalletModel.config.getFeatureAvailability(.backup).isHidden {
             backupViewModel = DefaultRowViewModel(
                 title: Localization.detailsRowTitleCreateBackup,
