@@ -46,11 +46,21 @@ final class MockTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
     }
 
     func revealRequest() async throws -> TangemPayCardDetailsData {
-        TangemPayCardDetailsData(
+        if ProcessInfo.processInfo.environment["UITEST_TANGEMPAY_CARD_DETAILS_ERROR"] == "1" {
+            throw MockError.revealFailed
+        }
+
+        return TangemPayCardDetailsData(
             number: "4242 4242 4242 \(lastFourDigits)",
             expirationDate: "12/28",
             cvc: "123",
             isPinSet: false
         )
+    }
+}
+
+private extension MockTangemPayCardDetailsRepository {
+    enum MockError: Error {
+        case revealFailed
     }
 }
