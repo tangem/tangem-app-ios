@@ -154,12 +154,12 @@ private extension TangemMessageBanner {
 
     func buttonView(_ model: TangemMessageBannerButton, styleType: TangemButtonV2.StyleType) -> some View {
         TangemButtonV2(
-            label: AttributedString(model.title),
-            iconStart: model.iconStart,
-            iconEnd: model.iconEnd,
+            label: model.title,
             accessibilityLabel: model.accessibilityLabel ?? model.title,
             action: model.action
         )
+        .iconStart(model.iconStart)
+        .iconEnd(model.iconEnd)
         .styleType(styleType)
         .horizontalLayout(.infinity)
         .isLoading(model.isLoading)
