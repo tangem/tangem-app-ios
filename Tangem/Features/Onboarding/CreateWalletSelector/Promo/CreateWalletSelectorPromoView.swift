@@ -144,7 +144,7 @@ private extension CreateWalletSelectorPromoView {
     }
 
     func buyWalletAction(item: ViewModel.BuyWalletItem) -> some View {
-        Button(action: item.action) {
+        SwiftUI.Button(action: item.action) {
             HStack(spacing: 6) {
                 Text(item.title)
                     .style(Fonts.Bold.callout, color: Colors.Text.primary1)
@@ -162,7 +162,7 @@ private extension CreateWalletSelectorPromoView {
     }
 
     func cardWalletAction(item: ViewModel.CardWalletItem) -> some View {
-        Button(action: item.action) {
+        SwiftUI.Button(action: item.action) {
             HStack(spacing: 4) {
                 Text(item.description)
                     .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
