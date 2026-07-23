@@ -70,6 +70,12 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let cardDetailsCopyExpiration = "\(prefix)CardDetailsCopyExpiration"
     public static let cardDetailsCopyCvc = "\(prefix)CardDetailsCopyCvc"
 
+    // MARK: - Add to Apple/Google Pay guide
+
+    public static let addToApplePayGuideBanner = "\(prefix)AddToApplePayGuideBanner"
+    public static let addToApplePayGuideContainer = "\(prefix)AddToApplePayGuideContainer"
+    public static let addToApplePayGuideCloseButton = "\(prefix)AddToApplePayGuideCloseButton"
+
     // MARK: - Card management
 
     public static let changePinRow = "\(prefix)ChangePinRow"
