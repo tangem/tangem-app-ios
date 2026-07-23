@@ -7,11 +7,13 @@
 //
 
 import Foundation
+import TangemUI
 
 struct EarnTokenRowData: Identifiable, Equatable {
     let id: String
+    let tokenIconInfo: TokenIconInfo
     let name: String
     let network: String
     let rewardText: String
-    let apyPercent: String
+    let apyText: String
 }
