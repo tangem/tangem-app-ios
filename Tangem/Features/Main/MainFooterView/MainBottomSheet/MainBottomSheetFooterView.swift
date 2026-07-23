@@ -18,11 +18,7 @@ struct MainBottomSheetFooterView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        redesignBody
-    }
-
-    var redesignBody: some View {
-        VStack(spacing: .unit(.half)) {
+        VStack(spacing: 2) {
             GrabberView(style: .redesigned)
 
             TangemSearchField(text: .constant(""))
@@ -61,7 +57,7 @@ struct MainBottomSheetFooterView: View {
     }
 
     private var backgroundColor: Color {
-        Color.Tangem.Surface.level3
+        DesignSystem.Color.bgSecondary
     }
 
     private var edgeInsets: EdgeInsets {
