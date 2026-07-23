@@ -36,14 +36,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                 YieldModulePromoCoordinatorView(coordinator: $0)
             }
             .modifyView { view in
-                if coordinator.isRedesign {
-                    view.fullScreenCover(item: $coordinator.marketsTokenDetailsCoordinator) { marketsTokenDetailsCoordinator in
-                        MarketsTokenDetailsCoordinatorView(coordinator: marketsTokenDetailsCoordinator)
-                    }
-                } else {
-                    view.navigation(item: $coordinator.marketsTokenDetailsCoordinator) { marketsTokenDetailsCoordinator in
-                        MarketsTokenDetailsCoordinatorView(coordinator: marketsTokenDetailsCoordinator)
-                    }
+                view.fullScreenCover(item: $coordinator.marketsTokenDetailsCoordinator) { marketsTokenDetailsCoordinator in
+                    MarketsTokenDetailsCoordinatorView(coordinator: marketsTokenDetailsCoordinator)
                 }
             }
     }
@@ -76,6 +70,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: DynamicAddressesDisableSheetViewModel.self) {
                 DynamicAddressesDisableSheetView(viewModel: $0)
+            }
+            .floatingSheetContent(for: StakingRegionUnavailableSheetViewModel.self) {
+                StakingRegionUnavailableSheetView(viewModel: $0)
             }
             .sheet(item: $coordinator.dynamicAddressesEnterViewModel) {
                 DynamicAddressesEnterView(viewModel: $0)

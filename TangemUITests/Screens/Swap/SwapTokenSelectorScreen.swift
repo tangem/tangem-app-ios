@@ -58,9 +58,7 @@ final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> 
     @discardableResult
     func typeSearchText(_ text: String) -> Self {
         XCTContext.runActivity(named: "Type '\(text)' in search field") { _ in
-            waitAndAssertTrue(searchField, "Search field should exist")
-            searchField.tap()
-            searchField.typeText(text)
+            typeWithFocus(into: searchField, text: text)
         }
         return self
     }

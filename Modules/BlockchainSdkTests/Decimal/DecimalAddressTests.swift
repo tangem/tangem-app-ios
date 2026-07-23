@@ -36,7 +36,11 @@ struct DecimalAddressTests {
     @Test(arguments: [
         "0xc63763572D45171e4C25cA0818b4",
         "d01ccmkx4edg5t3unp9egyp3dzwtht",
+        "vitalik.eth",
+        "0x.eth",
         "",
+        "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4",
+        "bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3",
     ])
     func addressValidation_invalidAddresses(address: String) {
         #expect(!addressService.validate(address))
@@ -58,5 +62,14 @@ struct DecimalAddressTests {
 
         let dscAddress = try converter.convertToETHAddress("d01ccmkx4edg5t3unp9egyp3dzwthtlts2m320gh9")
         #expect(dscAddress == "0xc63763572d45171e4c25ca0818b44e5dd7f5c15b")
+    }
+
+    @Test
+    func convertToETHAddress_rejectsForeignBech32() {
+        let converter = DecimalAddressConverter()
+
+        #expect(throws: DecimalAddressConverter.Error.self) {
+            try converter.convertToETHAddress("bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4")
+        }
     }
 }

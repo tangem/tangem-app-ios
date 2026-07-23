@@ -11,6 +11,7 @@ import Foundation
 public enum DetailsAccessibilityIdentifiers {
     public static let addressBookButton = "detailsAddressBookButton"
     public static let buyWalletButton = "detailsBuyWalletButton"
+    public static let getTangemPayButton = "detailsGetTangemPayButton"
     public static let addNewWallet = "detailsAddNewWalletButton"
     public static let appSettings = "detailsAppSettingsButton"
     public static let contactSupport = "detailsContactSupportButton"

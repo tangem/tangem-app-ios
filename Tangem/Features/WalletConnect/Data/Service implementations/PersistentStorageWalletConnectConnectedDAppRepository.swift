@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnectedDAppRepository {
     private let persistentStorage: any PersistentStorageProtocol
@@ -14,7 +15,7 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
     private var dAppsBySessionTopic: [String: [WalletConnectConnectedDApp]]
     private var isWarmedUp = false
 
-    private var continuations: [UUID: AsyncStream<[WalletConnectConnectedDApp]>.Continuation] = [:]
+    private var subscribers = AsyncStream<[WalletConnectConnectedDApp]>.MulticastSubscribers<UUID>()
 
     var prefetchedDApps: [WalletConnectConnectedDApp]? {
         guard isWarmedUp else {
@@ -30,20 +31,18 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
     }
 
     func makeDAppsStream() -> AsyncStream<[WalletConnectConnectedDApp]> {
-        AsyncStream { continuation in
-            let id = UUID()
-            continuations[id] = continuation
-
-            continuation.onTermination = { [weak self] _ in
-                guard let self else { return }
-                Task { await self.removeContinuation(with: id) }
+        AsyncStream<[WalletConnectConnectedDApp]>.multicast(
+            with: self,
+            onSubscribe: { repository, id, continuation in
+                // Emit current snapshot immediately so new subscribers start with actual state.
+                // If fetch fails, we still yield the current in-memory cache (possibly empty).
+                try? repository.fetchIfNeeded()
+                repository.subscribers.subscribe(id: id, continuation: continuation, currentValue: repository.inMemoryCache)
+            },
+            onUnsubscribe: { repository, id in
+                repository.subscribers.unsubscribe(id: id)
             }
-
-            // Emit current snapshot immediately so new subscribers start with actual state.
-            // If fetch fails, we still yield the current in-memory cache (possibly empty).
-            try? fetchIfNeeded()
-            continuation.yield(inMemoryCache)
-        }
+        )
     }
 
     func save(dApp: WalletConnectConnectedDApp) throws(WalletConnectDAppPersistenceError) {
@@ -150,11 +149,7 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
     // MARK: - Streaming helpers
 
     private func broadcast(_ dApps: [WalletConnectConnectedDApp]) {
-        continuations.values.forEach { $0.yield(dApps) }
-    }
-
-    private func removeContinuation(with id: UUID) {
-        continuations[id] = nil
+        subscribers.yield(dApps)
     }
 
     private func fetchIfNeeded() throws(WalletConnectDAppPersistenceError) {

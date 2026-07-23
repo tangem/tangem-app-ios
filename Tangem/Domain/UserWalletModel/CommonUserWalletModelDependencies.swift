@@ -19,7 +19,9 @@ struct CommonUserWalletModelDependencies {
     let totalBalanceProvider: TotalBalanceProvider
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
     let accountModelsManager: AccountModelsManager
+    let addressBookManager: AddressBookManager
 
     private let userWalletModelConfigurableDependencies: UserWalletModelConfigurableDependencies
 
@@ -82,6 +84,10 @@ struct CommonUserWalletModelDependencies {
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         accountModelsManagerDependencies.networkMapper.externalParametersProvider = userTokensPushNotificationsManager
 
+        // [REDACTED_TODO_COMMENT]
+        // once the backend subscriptions contract is finalized. Using the stub for now.
+        priceAlertsSubscriptionsProvider = PriceAlertsSubscriptionsProviderStub()
+
         totalBalanceProvider = Self.makeTotalBalanceProvider(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager
@@ -91,6 +97,8 @@ struct CommonUserWalletModelDependencies {
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager
         )
+
+        addressBookManager = Self.makeAddressBookManager(userWalletId: userWalletId, config: config)
 
         userWalletModelConfigurableDependencies = UserWalletModelConfigurableDependencies(
             derivationManager: derivationManager,
@@ -103,6 +111,7 @@ struct CommonUserWalletModelDependencies {
         userWalletModelConfigurableDependencies.derivationManager?.configure(with: model)
         userWalletModelConfigurableDependencies.cryptoAccountsRepository.configure(with: model)
         userWalletModelConfigurableDependencies.keysRepository.configure(with: model)
+        addressBookManager.configure(with: model)
     }
 }
 
@@ -215,7 +224,8 @@ private extension CommonUserWalletModelDependencies {
             userWalletConfig: config,
             keysRepository: keysRepository,
             keysDerivingInteractor: keysDerivingInteractor,
-            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry ?? DummyTransactionHistoryProviderRegistry()
+            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry ?? DummyTransactionHistoryProviderRegistry(),
+            transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
         )
 
         let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
@@ -301,6 +311,31 @@ private extension CommonUserWalletModelDependencies {
                     Analytics.log(event: .nftErrors, params: [.errorCode: errorCode, .errorDescription: description])
                 }
             )
+        )
+    }
+
+    static func makeAddressBookManager(userWalletId: UserWalletId, config: UserWalletConfig) -> AddressBookManager {
+        guard let walletPublicKeySeed = config.userWalletIdSeed else {
+            return NoopAddressBookManager()
+        }
+
+        let repository = CommonAddressBookRepository(
+            walletId: userWalletId,
+            walletPublicKeySeed: walletPublicKeySeed,
+            networkService: InjectedValues[\.addressBookNetworkService],
+            eTagStorage: InjectedValues[\.eTagStorage],
+            persistentStorage: CommonAddressBookPersistentStorage(),
+            encryptionService: CommonAddressBookEncryptionService(),
+            keyProvider: CommonAddressBookEncryptionKeyProvider()
+        )
+
+        return CommonAddressBookManager(
+            walletId: userWalletId,
+            walletPublicKey: walletPublicKeySeed,
+            repository: repository,
+            signer: CommonAddressBookSigner(signer: config.tangemSigner),
+            verifier: CommonAddressBookSignatureVerifier(),
+            supportedBlockchains: config.supportedBlockchains
         )
     }
 }

@@ -46,11 +46,18 @@ struct OnrampOfferView: View {
         }
     }
 
-    /// Read synchronously to avoid an `@Environment(\.colorScheme)` subscription that leaks inside floating sheets.
     private var resolvedColorScheme: ColorScheme {
-        let current: ColorScheme = UITraitCollection.current.userInterfaceStyle == .dark ? .dark : .light
+        let current = Self.appColorScheme
         guard viewModel.isNativePayment else { return current }
         return current == .light ? .dark : .light
+    }
+
+    private static var appColorScheme: ColorScheme {
+        switch AppSettings.shared.appTheme {
+        case .light: return .light
+        case .dark: return .dark
+        case .system: return UITraitCollection.current.userInterfaceStyle == .dark ? .dark : .light
+        }
     }
 
     private var topView: some View {

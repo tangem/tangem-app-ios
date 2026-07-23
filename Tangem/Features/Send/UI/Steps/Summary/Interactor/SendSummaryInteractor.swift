@@ -22,6 +22,7 @@ class CommonSendSummaryInteractor {
     private weak var input: SendSummaryInput?
     private weak var output: SendSummaryOutput?
     private weak var swapModelStateProvider: SwapModelStateProvider?
+    private weak var validationStateProvider: StakingValidationStateProvider?
 
     private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
     private let sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder
@@ -31,6 +32,7 @@ class CommonSendSummaryInteractor {
         input: SendSummaryInput,
         output: SendSummaryOutput,
         swapModelStateProvider: SwapModelStateProvider?,
+        validationStateProvider: StakingValidationStateProvider?,
         sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder,
         sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder,
         stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
@@ -38,6 +40,7 @@ class CommonSendSummaryInteractor {
         self.input = input
         self.output = output
         self.swapModelStateProvider = swapModelStateProvider
+        self.validationStateProvider = validationStateProvider
         self.sendDescriptionBuilder = sendDescriptionBuilder
         self.sendWithSwapDescriptionBuilder = sendWithSwapDescriptionBuilder
         self.stakingDescriptionBuilder = stakingDescriptionBuilder
@@ -68,15 +71,21 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
     }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        guard let swapModelStateProvider else {
-            return .empty
+        if let swapModelStateProvider {
+            return swapModelStateProvider
+                .statePublisher
+                .filter { $0.filter(loading: [.autoupdate]) }
+                .map { $0.isLoading }
+                .eraseToAnyPublisher()
         }
 
-        return swapModelStateProvider
-            .statePublisher
-            .filter { $0.filter(loading: [.autoupdate]) }
-            .map { $0.isLoading }
-            .eraseToAnyPublisher()
+        if let validationStateProvider {
+            return validationStateProvider.validationState
+                .map { $0 == .validating }
+                .eraseToAnyPublisher()
+        }
+
+        return .empty
     }
 
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {

@@ -11,6 +11,8 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class RestakingFlowFactory: StakingFlowDependenciesFactory {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     let stakingableToken: SendStakingableToken
     let manager: any StakingManager
     let action: RestakingModel.Action
@@ -18,6 +20,11 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
     var actionType: StakingAction.ActionType { action.displayType }
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
+    lazy var validationHandler = makeValidationHandler(
+        stakingManager: manager,
+        blockaidAPIKey: keysManager.blockaidAPIKey,
+        analyticsLogger: analyticsLogger
+    )
     lazy var restakingModel = makeRestakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
@@ -49,6 +56,7 @@ extension RestakingFlowFactory {
                 stakingManagerStatePublisher: manager.statePublisher
             ),
             analyticsLogger: analyticsLogger,
+            validationHandler: validationHandler
         )
     }
 }
@@ -94,6 +102,12 @@ extension RestakingFlowFactory: SendGenericFlowFactory {
 
         // Notifications setup
         notificationManager.setup(provider: restakingModel, input: restakingModel)
+        if let validationHandler {
+            notificationManager.setup(
+                validationStatePublisher: validationHandler.validationState,
+                tokenName: tokenItem.currencySymbol
+            )
+        }
         notificationManager.setupManager(with: restakingModel)
 
         // Analytics
@@ -164,7 +178,11 @@ extension RestakingFlowFactory: StakingTargetsStepBuildable {
 
 extension RestakingFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: restakingModel, output: restakingModel)
+        SendSummaryStepBuilder.IO(
+            input: restakingModel,
+            output: restakingModel,
+            validationStateProvider: restakingModel
+        )
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {

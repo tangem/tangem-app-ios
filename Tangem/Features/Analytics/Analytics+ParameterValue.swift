@@ -239,6 +239,15 @@ extension Analytics {
         case stakeActionRebond = "Rebond"
         case stakeActionMigrate = "Migrate"
 
+        // MARK: - Staking Validation
+
+        case blockaidSafe = "Safe"
+        case blockaidNotPerformed = "Not performed"
+        case blockaidWarning = "Warning"
+        case blockaidUnsafe = "Unsafe"
+        case blockaidFailedToValidate = "Failed to validate"
+        case providerStakeKit = "StakeKit"
+
         // MARK: - Markets
 
         case marketsErrorCodeIsNotHTTPError = "Is not http error"
@@ -319,6 +328,15 @@ extension Analytics {
 
         case simple
         case detailed
+
+        // MARK: - Address Book
+
+        case addressBookSourceSendFlow = "Send Flow"
+        case addressBookModeCreate = "Create"
+        case addressBookErrorServer = "Server"
+        case addressBookErrorSigning = "Signing"
+        case addressBookSelectAll = "Select All"
+        case addressBookClearAll = "Clear All"
 
         // MARK: - Choose Provider Options
 
