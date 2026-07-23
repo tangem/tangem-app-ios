@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct MarketsTokenDetailsHeaderView: View {
@@ -19,10 +20,10 @@ struct MarketsTokenDetailsHeaderView: View {
     let priceChangeAnimation: Published<ForegroundBlinkAnimationChange>.Publisher
     let iconURL: URL
 
-    @ScaledMetric private var verticalSpacing: CGFloat = .unit(.x1)
-    @ScaledMetric private var horizontalMinSpacing: CGFloat = .unit(.x1)
-    @ScaledMetric private var nameSpacing: CGFloat = .unit(.x1)
-    @ScaledMetric private var priceSpacing: CGFloat = .unit(.x1_5)
+    @ScaledMetric private var verticalSpacing: CGFloat = 4
+    @ScaledMetric private var horizontalMinSpacing: CGFloat = 4
+    @ScaledMetric private var nameSpacing: CGFloat = 4
+    @ScaledMetric private var priceSpacing: CGFloat = 6
     @ScaledMetric private var iconSide: CGFloat = 70
 
     var body: some View {
@@ -50,10 +51,10 @@ private extension MarketsTokenDetailsHeaderView {
     var nameView: some View {
         HStack(alignment: .lastTextBaseline, spacing: nameSpacing) {
             Text(tokenName)
-                .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
             Text(tokenSymbol)
-                .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         }
         .lineLimit(1)
     }
@@ -63,15 +64,15 @@ private extension MarketsTokenDetailsHeaderView {
             // This `Text` view acts as an invisible container, maintaining constant height
             // to prevent UI from jumping when the font of the price label is scaled down
             Text(Constants.priceStubText)
-                .style(Font.Tangem.Title44.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
                 .opacity(.zero)
                 .accessibilityHidden(true)
 
             AttributedStringBlinkAnimationView(
                 originalString: price,
                 publisher: priceChangeAnimation,
-                positiveColor: .Tangem.Text.Status.accent,
-                negativeColor: .Tangem.Text.Status.warning,
+                positiveColor: DesignSystem.Color.textAccentBlue,
+                negativeColor: DesignSystem.Color.textAccentRed,
                 duration: 0.5
             )
             .minimumScaleFactor(0.5)
@@ -84,7 +85,7 @@ private extension MarketsTokenDetailsHeaderView {
     var priceChangeView: some View {
         HStack(alignment: .firstTextBaseline, spacing: priceSpacing) {
             Text(priceDate)
-                .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
 
             if let priceChangeState {
                 PriceChangeView(
@@ -96,7 +97,7 @@ private extension MarketsTokenDetailsHeaderView {
             }
         }
         // The price → date spacing is 16pt per design; the surrounding VStack already adds 4pt.
-        .padding(.top, .unit(.x3))
+        .padding(.top, 12)
     }
 }
 

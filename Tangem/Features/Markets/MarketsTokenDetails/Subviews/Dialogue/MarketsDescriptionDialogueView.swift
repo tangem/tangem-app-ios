@@ -22,13 +22,13 @@ struct MarketsDescriptionDialogueView: View {
 
             ScrollView {
                 descriptionContent
-                    .padding(.horizontal, .unit(.x4))
-                    .padding(.bottom, .unit(.x4))
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
             }
             .scrollBounceBehavior(.basedOnSize)
         }
         .floatingSheetConfiguration { config in
-            config.sheetBackgroundColor = Color.Tangem.Surface.level3
+            config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             config.backgroundInteractionBehavior = .tapToDismiss
             config.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
         }
@@ -42,30 +42,31 @@ private extension MarketsDescriptionDialogueView {
         BottomSheetHeaderView(
             title: viewModel.title,
             trailing: {
-                TangemButton(content: .icon(Assets.Glyphs.cross20ButtonNew)) {
-                    viewModel.closeAction()
-                }
-                .setStyleType(.secondary)
-                .setSize(.x9)
-                .setHorizontalLayout(.intrinsic)
+                TangemUI.Button(
+                    icon: DesignSystem.Icons.Cross.regular20,
+                    accessibilityLabel: Localization.commonClose,
+                    action: { viewModel.closeAction() }
+                )
+                .size(.x9)
+                .styleType(.secondary)
             }
         )
-        .titleFont(Font.Tangem.Heading17.semibold.font) // [REDACTED_INFO]: tracking deferred
-        .titleColor(Color.Tangem.Text.Neutral.primary)
-        .padding(.horizontal, .unit(.x4))
-        .padding(.top, .unit(.x3))
+        .titleFont(DesignSystem.Font.bodyMediumToken.font) // [REDACTED_INFO]: tracking deferred
+        .titleColor(DesignSystem.Color.textPrimary)
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
         .environment(\.isRedesign, true)
     }
 
     var descriptionContent: some View {
-        VStack(alignment: .leading, spacing: .unit(.x3)) {
+        VStack(alignment: .leading, spacing: 12) {
             Markdown { viewModel.descriptionText }
                 .markdownSoftBreakMode(.lineBreak)
                 .markdownTextStyle(\.text, textStyle: {
                     FontFamily(.system())
                     FontWeight(.regular)
                     FontSize(16)
-                    ForegroundColor(Color.Tangem.Text.Neutral.tertiary)
+                    ForegroundColor(DesignSystem.Color.textSecondary)
                 })
                 .markdownBlockStyle(\.paragraph, body: { configuration in
                     configuration.label
@@ -85,16 +86,16 @@ private extension MarketsDescriptionDialogueView {
         SwiftUI.Button {
             viewModel.onGenerateAITapAction?()
         } label: {
-            HStack(spacing: .unit(.x3)) {
+            HStack(spacing: 12) {
                 Assets.stars.image
-                    .foregroundStyle(Color.Tangem.Graphic.Status.accent)
+                    .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
                 Text(Localization.informationGeneratedWithAi)
                     .multilineTextAlignment(.leading)
-                    .style(Font.Tangem.Caption13.regular, color: Color.Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .defaultRoundedBackground(with: Color.Tangem.Surface.level4)
+            .defaultRoundedBackground(with: DesignSystem.Color.bgTertiary)
         }
         .disabled(viewModel.onGenerateAITapAction == nil)
     }
