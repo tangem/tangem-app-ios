@@ -92,8 +92,8 @@ struct TangemPayMainView: View {
                 TangemPayIssuingCardBannerRedesigned()
             }
 
-            if viewModel.isAwaitingDeposit {
-                awaitingDepositCancelBanner
+            if let awaitingDepositInfo = viewModel.awaitingDepositInfo {
+                awaitingDepositCancelBanner(info: awaitingDepositInfo)
             }
 
             if let bannerType = viewModel.systemDowngradeBanner {
@@ -151,36 +151,21 @@ struct TangemPayMainView: View {
         .padding(.top, 32)
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private var awaitingDepositCancelBanner: some View {
-        let title = viewModel.awaitingDepositMonthlyFee
-            .map { "Top-up your account on \($0)" } ?? "Top-up your account"
-
-        return NotificationBanner(
-            bannerType: .warning(
-                .textWithIcon(
-                    .init(
-                        text: .init(
-                            title: AttributedString(title),
-                            subtitle: AttributedString("To pay monthly fee for plan and start use card")
-                        ),
-                        icon: .init(imageType: Assets.attention)
-                    )
-                ),
-                .buttons(.one(
-                    .init(
-                        content: .text(AttributedString("Cancel Plus, move to Basic")),
-                        styleType: .primary,
-                        cornerStyle: .rounded,
-                        action: { [viewModel] in
-                            Task { @MainActor in viewModel.cancelPlus() }
-                        }
-                    ),
-                    accessibilityIdentifier: nil
-                ))
-            ),
-            accessibilityIdentifier: nil
+    private func awaitingDepositCancelBanner(info: TangemPayAwaitingDepositInfo) -> some View {
+        TangemMessageBanner(
+            title: Localization.tangempayCardDetailsAwaitingDepositTitle(info.fee),
+            description: Localization.tangempayCardDetailsAwaitingDepositSubtitle
         )
+        .variant(.error)
+        .slotEnd {
+            Assets.DesignSystem.warning.image
+                .renderingMode(.template)
+                .resizable()
+                .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+                .frame(width: 24, height: 24)
+        }
+        .primaryButton(viewModel.awaitingDepositCancelButton)
+        .showGlowRing(false)
     }
 
     // [REDACTED_TODO_COMMENT]

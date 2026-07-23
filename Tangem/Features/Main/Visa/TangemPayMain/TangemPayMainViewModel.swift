@@ -51,8 +51,9 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var cardEntries: [TangemPayCardEntry] = []
     @Published private(set) var isAddCardLoading: Bool = false
+    @Published private(set) var isCancellingPaidTariffTransition: Bool = false
 
-    @Published private(set) var awaitingDepositMonthlyFee: String?
+    @Published private(set) var awaitingDepositInfo: TangemPayAwaitingDepositInfo?
 
     @Published private(set) var isBalanceNegative: Bool = false
 
@@ -99,6 +100,20 @@ final class TangemPayMainViewModel: ObservableObject {
         MultiWalletNotificationBannerMapper().mapItems(
             inlineNotifications,
             cardDeactivatedNotificationInput.map { [$0] } ?? []
+        )
+    }
+
+    var awaitingDepositCancelButton: TangemMessageBannerButton? {
+        guard let info = awaitingDepositInfo else { return nil }
+
+        return TangemMessageBannerButton(
+            title: Localization.tangempayCardDetailsAwaitingDepositCancelButton(info.planName, info.fallbackPlanName),
+            isLoading: isCancellingPaidTariffTransition,
+            action: { [weak self] in
+                Task {
+                    await self?.cancelPaidTariffTransition()
+                }
+            }
         )
     }
 
@@ -189,8 +204,21 @@ final class TangemPayMainViewModel: ObservableObject {
             || tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
     }
 
-    func cancelPlus() {
-        // [REDACTED_TODO_COMMENT]
+    @MainActor
+    func cancelPaidTariffTransition() async {
+        guard !isCancellingPaidTariffTransition, isAwaitingDeposit else { return }
+
+        isCancellingPaidTariffTransition = true
+
+        do {
+            try await tangemPayAccount.cancelAwaitingDepositOrder()
+        } catch {
+            isCancellingPaidTariffTransition = false
+
+            showCardIssueFailureAlert()
+
+            await tangemPayAccount.loadCustomerInfo()
+        }
     }
 
     func addFunds() {
@@ -548,9 +576,9 @@ private extension TangemPayMainViewModel {
             .store(in: &bag)
 
         if tiersEnabled {
-            tangemPayAccount.awaitingDepositMonthlyFeePublisher
+            tangemPayAccount.awaitingDepositInfoPublisher
                 .receiveOnMain()
-                .assign(to: &$awaitingDepositMonthlyFee)
+                .assign(to: &$awaitingDepositInfo)
         }
     }
 
