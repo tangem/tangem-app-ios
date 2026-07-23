@@ -11,6 +11,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct MarketsTokenDetailsInsightsViewRedesign: View {
     @ObservedObject var viewModel: MarketsTokenDetailsInsightsViewModel
@@ -23,17 +24,17 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
     ]
 
     var body: some View {
-        VStack(spacing: .unit(.x6)) {
+        VStack(spacing: 24) {
             header
 
-            LazyVGrid(columns: gridItems, alignment: .leading, spacing: .unit(.x4)) {
+            LazyVGrid(columns: gridItems, alignment: .leading, spacing: 16) {
                 ForEach(indexed: viewModel.records.indexed()) { _, info in
                     recordView(for: info)
                 }
             }
             .drawingGroup()
         }
-        .roundedBackground(with: .Tangem.Surface.level3, padding: .unit(.x4), radius: .unit(.x6))
+        .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 16, radius: 24)
     }
 
     private var header: some View {
@@ -52,7 +53,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
 
     @ViewBuilder
     private var headerTitle: some View {
-        let label = HStack(spacing: .unit(.x1)) {
+        let label = HStack(spacing: 4) {
             headerLabel
 
             if viewModel.shouldShowHeaderInfoButton {
@@ -69,17 +70,17 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
 
     private var headerLabel: some View {
         Text(Localization.marketsTokenDetailsInsights)
-            .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
     }
 
     private var infoIcon: some View {
-        Assets.infoCircle16.image
+        DesignSystem.Icons.Info.regular16.image
             .renderingMode(.template)
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
     }
 
     private func recordView(for info: MarketsTokenDetailsInsightsView.RecordInfo) -> some View {
-        VStack(alignment: .leading, spacing: .unit(.x1)) {
+        VStack(alignment: .leading, spacing: 4) {
             valueRow(for: info)
 
             labelRow(for: info)
@@ -87,11 +88,11 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
     }
 
     private func valueRow(for info: MarketsTokenDetailsInsightsView.RecordInfo) -> some View {
-        HStack(spacing: .unit(.x1)) {
+        HStack(spacing: 4) {
             Text(info.recordData)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
-                .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
             trendIcon(for: info.trend)
         }
@@ -99,12 +100,12 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
 
     private func labelRow(for info: MarketsTokenDetailsInsightsView.RecordInfo) -> some View {
         SwiftUI.Button(action: { viewModel.showInfoBottomSheet(for: info.type) }) {
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 infoIcon
 
                 Text(info.title)
                     .lineLimit(1)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
         }
     }
@@ -117,7 +118,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: trendImageSide, height: trendImageSide)
-                .foregroundStyle(Color.Tangem.Graphic.Status.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
         case .negative:
             // We don't have a separate icon for negative trend, so we reuse the positive one with rotation
@@ -127,7 +128,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
                 .renderingMode(.template)
                 .frame(width: trendImageSide, height: trendImageSide)
                 .rotationEffect(.degrees(180))
-                .foregroundStyle(Color.Tangem.Graphic.Status.warning)
+                .foregroundStyle(DesignSystem.Color.iconAccentRed)
 
         case .none:
             EmptyView()
