@@ -29,6 +29,7 @@ struct TangemPaySelectPlanView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbar }
             .alert(item: $viewModel.alert) { $0.alert }
+            .onAppear(perform: viewModel.onAppear)
             .task { await viewModel.loadTransitions() }
             .modifyView { view in
                 if #unavailable(iOS 26.0) {
@@ -55,6 +56,7 @@ struct TangemPaySelectPlanView: View {
                 carousel
                     .padding(.top, 8)
                     .padding(.bottom, 88)
+                    .onChange(of: viewModel.selectedPlanID) { _ in viewModel.onPlanSwiped() }
 
                 if viewModel.plans.count > 1 {
                     TangemPayCardPageIndicatorRedesigned(

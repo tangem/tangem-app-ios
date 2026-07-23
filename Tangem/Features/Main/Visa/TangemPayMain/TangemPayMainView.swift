@@ -92,8 +92,14 @@ struct TangemPayMainView: View {
                 TangemPayIssuingCardBannerRedesigned()
             }
 
-            if viewModel.isAwaitingDeposit {
-                awaitingDepositCancelBanner
+            if let awaitingDepositInfo = viewModel.awaitingDepositInfo {
+                awaitingDepositCancelBanner(info: awaitingDepositInfo)
+                    .onAppear(perform: viewModel.onTopupBannerAppear)
+            }
+
+            if let bannerType = viewModel.systemDowngradeBanner {
+                NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
+                    .onAppear(perform: viewModel.onSystemDowngradeBannerAppear)
             }
 
             ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
@@ -121,7 +127,7 @@ struct TangemPayMainView: View {
     private var redesignedHeader: some View {
         VStack(spacing: 24) {
             VStack(spacing: 4) {
-                TangemPayBalanceView(state: viewModel.balance)
+                TangemPayBalanceView(state: viewModel.balance, isError: viewModel.isBalanceNegative)
                     .opacity(viewModel.isStale ? 0.6 : 1)
 
                 if viewModel.isAwaitingDeposit {
@@ -147,36 +153,21 @@ struct TangemPayMainView: View {
         .padding(.top, 32)
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private var awaitingDepositCancelBanner: some View {
-        let title = viewModel.awaitingDepositMonthlyFee
-            .map { "Top-up your account on \($0)" } ?? "Top-up your account"
-
-        return NotificationBanner(
-            bannerType: .warning(
-                .textWithIcon(
-                    .init(
-                        text: .init(
-                            title: AttributedString(title),
-                            subtitle: AttributedString("To pay monthly fee for plan and start use card")
-                        ),
-                        icon: .init(imageType: Assets.attention)
-                    )
-                ),
-                .buttons(.one(
-                    .init(
-                        content: .text(AttributedString("Cancel Plus, move to Basic")),
-                        styleType: .primary,
-                        cornerStyle: .rounded,
-                        action: { [viewModel] in
-                            Task { @MainActor in viewModel.cancelPlus() }
-                        }
-                    ),
-                    accessibilityIdentifier: nil
-                ))
-            ),
-            accessibilityIdentifier: nil
+    private func awaitingDepositCancelBanner(info: TangemPayAwaitingDepositInfo) -> some View {
+        MessageBanner(
+            title: Localization.tangempayCardDetailsAwaitingDepositTitle(info.fee),
+            description: Localization.tangempayCardDetailsAwaitingDepositSubtitle
         )
+        .variant(.error)
+        .slotEnd {
+            Assets.DesignSystem.warning.image
+                .renderingMode(.template)
+                .resizable()
+                .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+                .frame(width: 24, height: 24)
+        }
+        .primaryButton(viewModel.awaitingDepositCancelButton)
+        .showGlowRing(false)
     }
 
     // [REDACTED_TODO_COMMENT]

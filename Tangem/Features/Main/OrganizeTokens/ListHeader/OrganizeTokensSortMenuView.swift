@@ -49,20 +49,20 @@ struct OrganizeTokensSortMenuView: View {
         let icon = Assets.exchangeMini.image
             .resizable()
             .renderingMode(.template)
-            .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
-            .frame(width: .unit(.x6), height: .unit(.x6))
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
+            .frame(width: 24, height: 24)
             .accessibilityLabel("\(Localization.organizeTokensMenuSortByBalance), \(Localization.organizeTokensMenuGroupByNetworks)")
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.sortMenuTrigger)
 
         if #available(iOS 26.0, *), appliesGlassBackground {
             icon
-                .padding(.unit(.x3))
+                .padding(12)
                 .glassEffect(.regular.interactive(), in: .circle)
         } else if #available(iOS 26.0, *) {
             icon
         } else {
             icon
-                .padding(.unit(.x3))
+                .padding(12)
                 .contentShape(.rect)
         }
     }

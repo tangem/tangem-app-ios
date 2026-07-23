@@ -163,20 +163,20 @@ public struct ButtonShowcase: View {
             switch contentKind {
             case .label:
                 return Button(
-                    label: AttributedString(customText),
-                    iconStart: iconStart,
-                    iconEnd: iconEnd,
+                    label: customText,
                     accessibilityLabel: nil,
                     action: action
                 )
+                .iconStart(iconStart)
+                .iconEnd(iconEnd)
             case .longLabel:
                 return Button(
-                    label: AttributedString("This is a very long button label that may wrap or truncate"),
-                    iconStart: iconStart,
-                    iconEnd: iconEnd,
+                    label: "This is a very long button label that may wrap or truncate",
                     accessibilityLabel: nil,
                     action: action
                 )
+                .iconStart(iconStart)
+                .iconEnd(iconEnd)
             case .iconOnly:
                 return Button(
                     icon: DesignSystem.Icons.ArrowDown.regular24,

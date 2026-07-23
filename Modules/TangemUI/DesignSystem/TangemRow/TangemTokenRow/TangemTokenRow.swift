@@ -49,8 +49,8 @@ public struct TangemTokenRow: View {
             loadedLayout(content: content)
         case .error(let message):
             errorLayout(message: message)
-        case .compact(let subtitle, let trailingIcon):
-            compactLayout(subtitle: subtitle, trailingIcon: trailingIcon)
+        case .compact(let subtitle, let currencySymbol, let trailingIcon):
+            compactLayout(subtitle: subtitle, currencySymbol: currencySymbol, trailingIcon: trailingIcon)
         }
     }
 
@@ -111,10 +111,14 @@ public struct TangemTokenRow: View {
 
     // MARK: - Compact Layout
 
-    private func compactLayout(subtitle: LoadableBalanceView.State, trailingIcon: ImageType?) -> some View {
+    private func compactLayout(
+        subtitle: LoadableBalanceView.State,
+        currencySymbol: String?,
+        trailingIcon: ImageType?
+    ) -> some View {
         TangemTwoLineRowLayout(
             icon: { tokenIconView },
-            primaryLeading: { tokenNameView(isDisabled: false) },
+            primaryLeading: { tokenNameWithCurrencySymbol(currencySymbol: currencySymbol) },
             secondaryLeading: { compactSubtitleView(state: subtitle) },
             centeredTrailing: {
                 if let trailingIcon {
@@ -125,6 +129,19 @@ public struct TangemTokenRow: View {
             }
         )
         .compressionPolicy(.balanced)
+    }
+
+    private func tokenNameWithCurrencySymbol(currencySymbol: String?) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: Constants.Spacings.badgeSpacing) {
+            tokenNameView(isDisabled: false)
+
+            if let currencySymbol {
+                Text(currencySymbol)
+                    .style(RowConstants.Style.Subtitle.font, color: RowConstants.Style.Subtitle.color)
+                    .lineLimit(1)
+                    .layoutPriority(1)
+            }
+        }
     }
 
     private func compactSubtitleView(state: LoadableBalanceView.State) -> some View {

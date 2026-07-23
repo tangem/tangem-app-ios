@@ -17,11 +17,11 @@ struct SendAddContactFinishView: View {
     var body: some View {
         if viewModel.isVisible {
             TangemUI.Button(
-                label: AttributedString(Localization.addressBookAddContact),
-                iconEnd: DesignSystem.Icons.SignPlus.regular20,
+                label: Localization.addressBookAddContact,
                 accessibilityLabel: Localization.addressBookAddContact,
                 action: viewModel.userDidTapAddContact
             )
+            .iconEnd(DesignSystem.Icons.SignPlus.regular20)
             .styleType(.secondary)
             .size(.x10)
             .horizontalLayout(.infinity)
