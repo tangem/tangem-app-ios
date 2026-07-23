@@ -58,6 +58,10 @@ public protocol CustomerInfoManagementService: AnyObject {
     ) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawTransactionResult
 
     func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse
+
+    @discardableResult
+    func cancelOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayCancelOrderResponse
+
     func findOrders(
         types: [String],
         statuses: [TangemPayOrderResponse.Status]
@@ -236,6 +240,10 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
 
     public func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
         try await request(for: .getOrder(orderId: orderId))
+    }
+
+    public func cancelOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayCancelOrderResponse {
+        try await request(for: .cancelOrder(orderId: orderId))
     }
 
     public func findOrders(
