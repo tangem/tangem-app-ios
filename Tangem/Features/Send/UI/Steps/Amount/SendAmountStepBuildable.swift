@@ -62,6 +62,7 @@ enum SendAmountStepBuilder {
         let amountModifier: (any SendAmountModifier)?
         let notificationService: (any SendAmountNotificationService)?
         let analyticsLogger: any SendAmountAnalyticsLogger
+        let marketingBannerManager: MarketingBannerManager?
         let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
 
         init(
@@ -69,12 +70,14 @@ enum SendAmountStepBuilder {
             amountModifier: (any SendAmountModifier)?,
             notificationService: (any SendAmountNotificationService)?,
             analyticsLogger: any SendAmountAnalyticsLogger,
+            marketingBannerManager: MarketingBannerManager? = nil,
             providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
         ) {
             self.sendAmountValidator = sendAmountValidator
             self.amountModifier = amountModifier
             self.notificationService = notificationService
             self.analyticsLogger = analyticsLogger
+            self.marketingBannerManager = marketingBannerManager
             self.providerRateTypesPublisher = providerRateTypesPublisher
         }
     }
@@ -112,6 +115,7 @@ enum SendAmountStepBuilder {
             flowActionType: types.flowActionType,
             interactor: interactor,
             analyticsLogger: dependencies.analyticsLogger,
+            marketingBannerManager: dependencies.marketingBannerManager,
             shouldStartFromTokensList: shouldStartFromTokenList,
             providerRateTypesPublisher: dependencies.providerRateTypesPublisher
         )
