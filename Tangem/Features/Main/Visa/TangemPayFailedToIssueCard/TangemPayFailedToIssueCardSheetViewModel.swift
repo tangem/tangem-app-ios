@@ -30,9 +30,7 @@ final class TangemPayFailedToIssueCardSheetViewModel: TangemPayPopupViewModel {
     }
 
     var icon: Image {
-        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
-            ? DesignSystem.Icons.Error.regular28.image
-            : Assets.Visa.warningCircle.image
+        DesignSystem.Icons.Error.regular28.image
     }
 
     var iconStyle: TangemPayPopupIconStyle {

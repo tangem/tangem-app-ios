@@ -39,9 +39,7 @@ final class TangemPayWithdrawNoteSheetViewModel: TangemPayPopupViewModel {
     }
 
     var icon: Image {
-        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
-            ? DesignSystem.Icons.Error.regular28.image
-            : Assets.warningIcon.image
+        DesignSystem.Icons.Error.regular28.image
     }
 
     var iconStyle: TangemPayPopupIconStyle {

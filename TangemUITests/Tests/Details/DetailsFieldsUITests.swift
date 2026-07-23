@@ -79,13 +79,13 @@ final class DetailsFieldsUITests: BaseTestCase {
             .verifySections(walletConnect: false)
     }
 
-    func testS2C_NoTradeButtonsAndStandardDetails() {
+    func testS2C_ActionButtonsAndStandardDetails() {
         setAllureId(2869)
         launchApp(tangemApiType: .mock)
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .s2c)
-            .verifyTradeActionButtonsHidden()
+            .verifySingleCurrencyWalletActionButtons()
             .openDetails()
             .verifySections(walletConnect: false)
     }

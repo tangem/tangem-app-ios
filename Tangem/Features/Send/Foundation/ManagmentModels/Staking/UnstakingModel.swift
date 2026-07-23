@@ -39,21 +39,25 @@ class UnstakingModel {
     private let sendSourceToken: SendStakingableToken
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let initialAction: Action
+    private let validationHandler: StakingValidationHandler?
 
     private var transactionValidator: SendTransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
     private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
     private var estimatedFeeTask: Task<Void, Never>?
+
     init(
         stakingManager: StakingManager,
         sendSourceToken: SendStakingableToken,
         analyticsLogger: StakingSendAnalyticsLogger,
-        action: Action
+        action: Action,
+        validationHandler: StakingValidationHandler?
     ) {
         self.stakingManager = stakingManager
         self.sendSourceToken = sendSourceToken
         self.analyticsLogger = analyticsLogger
+        self.validationHandler = validationHandler
         initialAction = action
 
         let fiat = sendSourceToken.tokenItem.currencyId.flatMap {
@@ -139,6 +143,13 @@ private extension UnstakingModel {
 
     func update(state: UnstakingModel.State) {
         _state.send(state)
+
+        switch state {
+        case .ready:
+            validationHandler?.validate(action: stakingAction)
+        default:
+            validationHandler?.reset()
+        }
     }
 
     func makeAmount(value: Decimal) -> BSDKAmount {
@@ -170,7 +181,11 @@ private extension UnstakingModel {
         }
 
         do {
-            let transaction = try await stakingManager.transaction(action: stakingAction)
+            let transaction = try await validationHandler.resolveTransaction(
+                action: stakingAction,
+                blockchain: tokenItem.blockchain,
+                stakingManager: stakingManager
+            )
             let dispatcher = sendSourceToken.transactionDispatcherProvider.makeStakingTransactionDispatcher(analyticsLogger: analyticsLogger)
             let result = try await dispatcher.send(transaction: .staking(transaction))
             proceed(result: result)
@@ -293,14 +308,21 @@ extension UnstakingModel: SendFeeInput {
 
 extension UnstakingModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        _state.map { state in
-            switch state {
-            case .loading, .validationError, .networkError:
-                return false
-            case .ready:
-                return true
+        let validationStatePublisher = validationHandler?.validationState ?? Just(.validated).eraseToAnyPublisher()
+
+        return Publishers.CombineLatest(_state, validationStatePublisher)
+            .map { state, validationState in
+                let isModelReady: Bool
+                switch state {
+                case .ready:
+                    isModelReady = true
+                case .loading, .validationError, .networkError:
+                    isModelReady = false
+                }
+
+                return isModelReady && validationState.allowsSending
             }
-        }.eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
@@ -366,6 +388,14 @@ extension UnstakingModel: NotificationTapDelegate {
         default:
             assertionFailure("StakingModel doesn't support notification action \(action)")
         }
+    }
+}
+
+// MARK: - StakingValidationStateProvider
+
+extension UnstakingModel: StakingValidationStateProvider {
+    var validationState: AnyPublisher<StakingValidationState, Never> {
+        validationHandler?.validationState ?? Just(.validated).eraseToAnyPublisher()
     }
 }
 

@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct SupportTypeSelectionView: View {
     let model: SupportTypeSelectionModel
@@ -31,6 +32,7 @@ struct SupportTypeSelectionView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
             }
+            .accessibilityIdentifier(SupportChatAccessibilityIdentifiers.supportTypeSelectionEmailButton)
 
             Divider()
 
@@ -40,6 +42,7 @@ struct SupportTypeSelectionView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
             }
+            .accessibilityIdentifier(SupportChatAccessibilityIdentifiers.supportTypeSelectionChatButton)
         }
         .presentationDetents([.height(Constants.preferredHeight)])
         .presentationDragIndicator(.visible)
@@ -56,8 +59,6 @@ private extension SupportTypeSelectionView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     SupportTypeSelectionView(model: SupportTypeSelectionModel(emailAction: {}, chatAction: {}))
 }
-#endif // DEBUG
