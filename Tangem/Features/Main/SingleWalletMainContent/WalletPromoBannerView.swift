@@ -10,24 +10,21 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct WalletPromoBannerView: View {
     @ObservedObject var viewModel: WalletPromoBannerViewModel
 
-    @ScaledMetric private var padding: CGFloat = .unit(.x3)
+    @ScaledMetric private var padding: CGFloat = 12
     @ScaledMetric private var iconWidth: CGFloat = 176
     @ScaledMetric private var iconHeight: CGFloat = 128
-    @ScaledMetric private var titlePadding: CGFloat = .unit(.x2)
-    @ScaledMetric private var descriptionPadding: CGFloat = .unit(.x1)
-    @ScaledMetric private var actionPadding: CGFloat = .unit(.x5)
+    @ScaledMetric private var titlePadding: CGFloat = 8
+    @ScaledMetric private var descriptionPadding: CGFloat = 4
+    @ScaledMetric private var actionPadding: CGFloat = 20
 
-    private let cornerRadius: CGFloat = .unit(.x6)
+    private let cornerRadius: CGFloat = 24
 
     var body: some View {
-        redesignBody
-    }
-
-    private var redesignBody: some View {
         VStack(spacing: 0) {
             Assets.walletPromoImage.image
                 .renderingMode(.original)
@@ -36,13 +33,13 @@ struct WalletPromoBannerView: View {
                 .frame(width: iconWidth, height: iconHeight)
 
             Text(Localization.walletPromoBannerTitle)
-                .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, titlePadding)
 
             Text(Localization.walletPromoBannerDescription)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, descriptionPadding)
@@ -57,7 +54,7 @@ struct WalletPromoBannerView: View {
             .padding(.top, actionPadding)
         }
         .padding(padding)
-        .background(Color.Tangem.Surface.level3)
+        .background(DesignSystem.Color.bgSecondary)
         .glowBorder(effect: .bannerMagic, cornerRadius: cornerRadius)
         .environment(\.colorScheme, .dark)
         .onAppear(perform: viewModel.onAppear)
