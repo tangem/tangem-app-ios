@@ -11,20 +11,25 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-protocol TangemPayNoDepositAddressSheetRoutable {
+protocol TangemPayNoDepositAddressSheetRoutable: AnyObject {
     func closeNoDepositAddressSheet()
 }
 
-struct TangemPayNoDepositAddressSheetViewModel: FloatingSheetContentViewModel {
-    var id: String { String(describing: Self.self) }
+@MainActor
+final class TangemPayNoDepositAddressSheetViewModel: FloatingSheetContentViewModel {
+    nonisolated var id: String { String(describing: Self.self) }
 
     let title = Localization.tangempayServiceUnavailableTitle
     let subtitle = Localization.tangempayCardDetailsReceiveErrorDescription
 
-    let coordinator: TangemPayNoDepositAddressSheetRoutable
+    private weak var coordinator: TangemPayNoDepositAddressSheetRoutable?
+
+    init(coordinator: TangemPayNoDepositAddressSheetRoutable) {
+        self.coordinator = coordinator
+    }
 
     func close() {
-        coordinator.closeNoDepositAddressSheet()
+        coordinator?.closeNoDepositAddressSheet()
     }
 
     var primaryButtonSettings: MainButton.Settings {
