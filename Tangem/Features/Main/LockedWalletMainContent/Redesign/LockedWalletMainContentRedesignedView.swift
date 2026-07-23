@@ -22,18 +22,18 @@ struct LockedWalletMainContentRedesignedView: View {
             )
             .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
 
-            VStack(spacing: .unit(.x2)) {
+            VStack(spacing: 8) {
                 ForEach(0 ..< Constants.skeletonCount, id: \.self) { _ in
                     RedesignedAccountSkeletonCardView()
                         .setShimmerActive(false)
                 }
             }
-            .padding(.top, .unit(.x3))
+            .padding(.top, 12)
 
             organizeButton
-                .padding(.top, .unit(.x5))
+                .padding(.top, 20)
         }
-        .padding(.horizontal, .unit(.x3))
+        .padding(.horizontal, 12)
         .bindAlert($viewModel.alert)
         .frame(maxHeight: .infinity, alignment: .top)
     }
@@ -43,18 +43,15 @@ struct LockedWalletMainContentRedesignedView: View {
 
 private extension LockedWalletMainContentRedesignedView {
     var organizeButton: some View {
-        TangemButton(
-            content: .combined(
-                text: AttributedString(viewModel.organizeTokensButtonTitle),
-                icon: Assets.OrganizeTokens.filterIcon,
-                iconPosition: .left
-            ),
+        TangemButtonV2(
+            label: viewModel.organizeTokensButtonTitle,
+            accessibilityLabel: viewModel.organizeTokensButtonTitle,
             action: {}
         )
-        .setStyleType(.primaryInverse)
-        .setButtonState(isLoading: false, isDisabled: true)
-        .setSize(.x9)
-        .setFont(Font.Tangem.Body14.regular)
+        .iconStart(Assets.OrganizeTokens.filterIcon)
+        .styleType(.secondary)
+        .size(.x9)
+        .disabled(true)
     }
 }
 
@@ -78,7 +75,7 @@ private extension LockedWalletMainContentRedesignedView {
         )
     )
     .infinityFrame()
-    .background(Color.Tangem.Surface.level2.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }
 
 #Preview("Single-wallet") {
@@ -91,5 +88,5 @@ private extension LockedWalletMainContentRedesignedView {
         )
     )
     .infinityFrame()
-    .background(Color.Tangem.Surface.level2.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }
