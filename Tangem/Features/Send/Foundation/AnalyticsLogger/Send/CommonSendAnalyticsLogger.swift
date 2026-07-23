@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 import BlockchainSdk
 
 class CommonSendAnalyticsLogger {
@@ -19,6 +20,7 @@ class CommonSendAnalyticsLogger {
 
     private let sendType: SendType
     private let coordinatorSource: SendCoordinator.Source
+    private let addressBookAnalyticsLogger: any AddressBookAnalyticsLogger
     private var destinationAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     private var sourceTokenItem: TokenItem? {
         sendSourceTokenInput?.sourceToken.value?.tokenItem
@@ -48,9 +50,14 @@ class CommonSendAnalyticsLogger {
         coordinatorSource == .qrScan ? .qr : .manually
     }
 
-    init(sendType: SendType, coordinatorSource: SendCoordinator.Source = .main) {
+    init(
+        sendType: SendType,
+        coordinatorSource: SendCoordinator.Source = .main,
+        addressBookAnalyticsLogger: any AddressBookAnalyticsLogger
+    ) {
         self.sendType = sendType
         self.coordinatorSource = coordinatorSource
+        self.addressBookAnalyticsLogger = addressBookAnalyticsLogger
     }
 
     private func buildRateTypeAnalyticsValue() -> String? {
@@ -119,6 +126,18 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
 
     func logQRScannerOpened() {
         Analytics.log(.sendButtonQRCode)
+    }
+
+    func logAddressBookWidgetShown() {
+        addressBookAnalyticsLogger.logSendFlowWidgetShown(userWalletId: sendSourceTokenInput?.sourceToken.value?.userWalletInfo.id)
+    }
+
+    func logAddressBookContactSelected(_ contact: AddressBookContact) {
+        addressBookAnalyticsLogger.logContactSelected(userWalletId: contact.walletId, contactId: contact.id.stringValue)
+    }
+
+    func logAddressBookAddressSubstituted(_ contact: AddressBookContact) {
+        addressBookAnalyticsLogger.logAddressSubstitutedInSend(userWalletId: contact.walletId, contactId: contact.id.stringValue)
     }
 
     func logSendAddressEntered(isAddressValid: Bool, addressSource: Analytics.DestinationAddressSource) {
@@ -466,6 +485,26 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
 
         Analytics.log(event: .sendNoticeCantSwapThisToken, params: analyticsParameters)
     }
+
+    func logSendSwapAvailable(token: String) {
+        logSwapAvailableEvent(.sendNoticeSwapAvailable, receiveToken: token)
+    }
+
+    func logSendSwapAvailableClicked(token: String) {
+        logSwapAvailableEvent(.sendNoticeSwapAvailableClicked, receiveToken: token)
+    }
+
+    private func logSwapAvailableEvent(_ event: Analytics.Event, receiveToken: String) {
+        guard let sourceTokenItem else {
+            return
+        }
+
+        Analytics.log(event: event, params: [
+            .sendToken: sourceTokenItem.currencySymbol,
+            .sendBlockchain: sourceTokenItem.blockchain.displayName,
+            .receiveToken: receiveToken,
+        ])
+    }
 }
 
 // MARK: - SendSummaryAnalyticsLogger
@@ -775,6 +814,11 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             .sendToken: sourceTokenItem.currencySymbol,
             .sendBlockchain: sourceTokenItem.blockchain.displayName,
         ]
+
+        if let sourceToken = sendSourceTokenInput?.sourceToken.value {
+            let isTangemPayAccount = sourceToken.isTangemPayAccount
+            analyticsParameters[.payAccount] = Analytics.ParameterValue.boolState(for: isTangemPayAccount).rawValue
+        }
 
         if let selectedFee = sendFeeInput?.selectedFee {
             let parameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: selectedFee.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
