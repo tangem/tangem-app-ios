@@ -48,6 +48,7 @@ extension Analytics {
         case accountDerivation = "Account Derivation"
         case accountDerivationFrom = "Account Derivation (from)"
         case accountDerivationTo = "Account Derivation (to)"
+        case payAccount = "Pay Account"
         case sku = "SKU"
         case amount = "Amount"
         case count = "Count"

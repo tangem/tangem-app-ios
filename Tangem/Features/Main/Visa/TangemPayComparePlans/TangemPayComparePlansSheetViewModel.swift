@@ -31,7 +31,9 @@ struct TangemPayComparePlansSheetViewModel: FloatingSheetContentViewModel {
 
         plans = tariffPlans.map { plan in
             let valuesByTitle = Dictionary(
-                plan.descriptionItems.map { ($0.title, $0.body) },
+                plan.descriptionItems
+                    .filter { $0.type != .onboardingRelated }
+                    .map { ($0.title, $0.body) },
                 uniquingKeysWith: { first, _ in first }
             )
 
@@ -63,7 +65,7 @@ private extension TangemPayComparePlansSheetViewModel {
         var attributes: [(title: String, sortIndex: Int, order: Int)] = []
 
         for plan in plans {
-            for item in plan.descriptionItems where seen.insert(item.title).inserted {
+            for item in plan.descriptionItems where item.type != .onboardingRelated && seen.insert(item.title).inserted {
                 attributes.append((item.title, item.type.sortIndex, item.order))
             }
         }
