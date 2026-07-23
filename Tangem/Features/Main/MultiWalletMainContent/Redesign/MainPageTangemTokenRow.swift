@@ -22,13 +22,13 @@ struct MainPageTangemTokenRow: View {
 
     var body: some View {
         TangemTokenRow(viewData: viewModel.tokenRowViewData)
-            .padding(.horizontal, .unit(.x4))
-            .padding(.vertical, .unit(.x3))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             .background(backgroundColor)
             .onTapGesture(perform: viewModel.tapAction)
             .highlightable(color: .Tangem.Button.backgroundPrimary.opacity(0.03))
             // `previewContentShape` must be called just before `contextMenu` call, otherwise visual glitches may occur
-            .previewContentShape(cornerRadius: .unit(.x6))
+            .previewContentShape(cornerRadius: 24)
             .contextMenu {
                 ForEach(viewModel.contextActionSections, id: \.self) { section in
                     Section {
