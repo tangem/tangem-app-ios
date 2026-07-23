@@ -13,15 +13,8 @@ struct EarnAccountListItem: Identifiable, Equatable {
     let account: EarnAccountRowData
     let tokens: [EarnTokenRowData]
     let isExpanded: Bool
-    let isExpandable: Bool
 
-    func toggledExpansion() -> Self {
-        .init(
-            id: id,
-            account: account,
-            tokens: tokens,
-            isExpanded: !isExpanded,
-            isExpandable: isExpandable
-        )
+    func updating(isExpanded: Bool) -> Self {
+        .init(id: id, account: account, tokens: tokens, isExpanded: isExpanded)
     }
 }

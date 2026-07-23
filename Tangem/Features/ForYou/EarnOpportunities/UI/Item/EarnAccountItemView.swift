@@ -25,20 +25,11 @@ struct EarnAccountItemView: View {
     }
 
     var body: some View {
-        card.transition(.opacity)
+        expandableCard.transition(.opacity)
     }
 }
 
 private extension EarnAccountItemView {
-    @ViewBuilder
-    var card: some View {
-        if item.isExpandable {
-            expandableCard
-        } else {
-            staticCard
-        }
-    }
-
     var expandableCard: some View {
         ExpandableItemView(
             isExpanded: item.isExpanded,
@@ -51,11 +42,6 @@ private extension EarnAccountItemView {
             expandedViewHeader: { expandedHeader },
             onExpandedChange: { _ in onAccountTap(item.id) }
         )
-    }
-
-    var staticCard: some View {
-        collapsedHeader
-            .portfolioTokenCard()
     }
 
     // MARK: - Collapsed

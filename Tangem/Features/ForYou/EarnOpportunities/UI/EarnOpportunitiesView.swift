@@ -33,7 +33,7 @@ private extension EarnOpportunitiesView {
 
             subtitleView
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .infinityFrame(axis: .horizontal, alignment: .leading)
     }
 
     @ViewBuilder
@@ -42,7 +42,9 @@ private extension EarnOpportunitiesView {
         case .loading:
             subtitleShimmer
         case .content(let content):
-            subtitle(content.subtitle)
+            if let subtitle = content.subtitle {
+                self.subtitle(subtitle)
+            }
         }
     }
 
@@ -53,28 +55,52 @@ private extension EarnOpportunitiesView {
             skeletonAccounts
         case .content(let content):
             LazyVStack(spacing: 8) {
-                ForEach(content.accounts) { account in
-                    EarnAccountItemView(item: account, onAccountTap: viewModel.toggle)
-                }
+                listContent(content.list)
                 exploreButton
+            }
+        }
+    }
+
+    @ViewBuilder
+    func listContent(_ list: EarnOpportunitiesViewModel.ViewState.List) -> some View {
+        switch list {
+        case .accounts(let accounts):
+            ForEach(accounts) { account in
+                EarnAccountItemView(item: account, onAccountTap: viewModel.toggle)
+            }
+        case .suggestions(let suggestions):
+            ForEach(suggestions) { suggestion in
+                EarnSuggestionRowView(data: suggestion)
             }
         }
     }
 
     // MARK: - Subtitle
 
+    @ViewBuilder
     func subtitle(_ subtitle: EarnRewardSubtitle) -> some View {
-        HStack(spacing: 4) {
-            subtitleText(subtitle.label)
-            rewardChip(subtitle.amount)
+        if let chip = subtitle.chip {
+            // The chip row cannot wrap — single line keeps the text and the chip on one baseline.
+            HStack(spacing: 4) {
+                subtitleText(subtitle.prefix, lineLimit: 1)
+
+                rewardChip(chip)
+
+                if let suffix = subtitle.suffix {
+                    subtitleText(suffix, lineLimit: 1)
+                }
+            }
+            .infinityFrame(axis: .horizontal, alignment: .leading)
+        } else {
+            subtitleText(subtitle.prefix, lineLimit: nil)
+                .infinityFrame(axis: .horizontal, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    func subtitleText(_ text: String) -> some View {
+    func subtitleText(_ text: String, lineLimit: Int?) -> some View {
         Text(text)
             .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-            .lineLimit(1)
+            .lineLimit(lineLimit)
     }
 
     func rewardChip(_ text: String) -> some View {
@@ -87,8 +113,7 @@ private extension EarnOpportunitiesView {
 
     var subtitleShimmer: some View {
         Shimmer()
-            .variant(.custom(height: 20, cornerRadius: 10))
-            .frame(width: 180)
+            .variant(.text(style: .headingSmall))
     }
 
     // MARK: - Loading
@@ -121,7 +146,8 @@ private extension EarnOpportunitiesView {
 #Preview {
     ScrollView {
         VStack(spacing: 32) {
-            EarnOpportunitiesView(viewModel: EarnOpportunitiesViewModel(state: .mock))
+            EarnOpportunitiesView(viewModel: EarnOpportunitiesViewModel(state: .preview))
+            EarnOpportunitiesView(viewModel: EarnOpportunitiesViewModel(state: .previewSuggestions))
             EarnOpportunitiesView(viewModel: EarnOpportunitiesViewModel(state: .loading))
         }
         .padding(16)

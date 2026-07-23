@@ -22,7 +22,7 @@ extension EarnAccountItemView {
                 title: data.name,
                 subtitle: data.network,
                 value: data.rewardText,
-                subvalue: data.apyPercent
+                subvalue: data.apyText
             )
             .overrideTextColors(.init(subvalue: DesignSystem.Color.textAccentGreen))
             .start { icon }
@@ -34,10 +34,11 @@ extension EarnAccountItemView {
 }
 
 private extension EarnAccountItemView.TokenRowView {
-    // [REDACTED_TODO_COMMENT]
     var icon: some View {
-        Circle()
-            .fill(DesignSystem.Color.bgTertiary)
-            .frame(width: iconSize, height: iconSize)
+        TokenIcon(
+            tokenIconInfo: data.tokenIconInfo,
+            size: CGSize(bothDimensions: iconSize),
+            isWithOverlays: true
+        )
     }
 }

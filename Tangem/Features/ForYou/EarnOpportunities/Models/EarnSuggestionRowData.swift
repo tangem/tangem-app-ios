@@ -1,5 +1,5 @@
 //
-//  EarnTokenRowData.swift
+//  EarnSuggestionRowData.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,11 +9,11 @@
 import Foundation
 import TangemUI
 
-struct EarnTokenRowData: Identifiable, Equatable {
+struct EarnSuggestionRowData: Identifiable, Equatable {
     let id: String
     let tokenIconInfo: TokenIconInfo
     let name: String
     let network: String
-    let rewardText: String
-    let apyText: String
+    let rateText: String
+    let productText: String
 }
