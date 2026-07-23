@@ -18,10 +18,7 @@ struct TangemPayCurrentPlanView: View {
     var body: some View {
         content
             .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
-            .overlay(alignment: .bottom) {
-                BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
-            }
-            .safeAreaInset(edge: .bottom) {
+            .safeAreaInset(edge: .bottom, spacing: 0) {
                 changePlanButton
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -39,6 +36,10 @@ struct TangemPayCurrentPlanView: View {
     private var content: some View {
         ScrollView {
             VStack(spacing: 24) {
+                if let downgradeBanner = viewModel.downgradeBanner {
+                    downgradeBannerView(downgradeBanner)
+                }
+
                 ForEach(viewModel.sections) { section in
                     sectionView(section)
                 }
@@ -47,6 +48,37 @@ struct TangemPayCurrentPlanView: View {
             .padding(.top, 12)
             .padding(.bottom, 24)
         }
+    }
+
+    private func downgradeBannerView(_ banner: TangemPayCurrentPlanViewModel.DowngradeBanner) -> some View {
+        let stayTitle = Localization.tangempayCurrentPlanStayButton(banner.planName)
+
+        return VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 8) {
+                DesignSystem.Icons.Info.regular20.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(DesignSystem.Color.iconStatusInfo)
+
+                Text(banner.text)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            TangemButtonV2(
+                label: AttributedString(stayTitle),
+                accessibilityLabel: stayTitle,
+                action: viewModel.stayOnPlus
+            )
+            .size(.x8)
+            .styleType(.secondary)
+            .horizontalLayout(.infinity)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 16)
+        .background(DesignSystem.Color.bgStatusInfoSubtle)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private func sectionView(_ section: TangemPayCurrentPlanViewModel.Section) -> some View {
@@ -80,6 +112,9 @@ struct TangemPayCurrentPlanView: View {
         .horizontalLayout(.infinity)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .background(alignment: .bottom) {
+            BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
+        }
     }
 
     @ToolbarContentBuilder

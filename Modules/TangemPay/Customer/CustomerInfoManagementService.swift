@@ -72,6 +72,9 @@ public protocol CustomerInfoManagementService: AnyObject {
         pendingTariffPlanId: String
     ) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.CustomerTariffPlan
 
+    @discardableResult
+    func cancelTariffPlanPendingTransition() async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.CustomerTariffPlan
+
     func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse
     func reissueCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayReissueCardResponse
 
@@ -255,6 +258,11 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         pendingTariffPlanId: String
     ) async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.CustomerTariffPlan {
         try await request(for: .requestTariffPlanPendingTransition(pendingTariffPlanId: pendingTariffPlanId))
+    }
+
+    @discardableResult
+    public func cancelTariffPlanPendingTransition() async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse.CustomerTariffPlan {
+        try await request(for: .cancelTariffPlanPendingTransition)
     }
 
     public func getFee(type: TangemPayFeeType) async throws(TangemPayAPIServiceError) -> TangemPayFeeResponse {
