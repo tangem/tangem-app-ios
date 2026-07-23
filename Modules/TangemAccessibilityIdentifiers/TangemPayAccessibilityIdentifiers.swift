@@ -78,6 +78,13 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let freezeSheetConfirmButton = "\(prefix)FreezeSheetConfirmButton"
     public static let unfreezeSheetConfirmButton = "\(prefix)UnfreezeSheetConfirmButton"
 
+    // MARK: - Card rename
+
+    public static let cardNameEditButton = "\(prefix)CardNameEditButton"
+    public static let cardNameTextField = "\(prefix)CardNameTextField"
+    public static let cardRenameDoneButton = "\(prefix)CardRenameDoneButton"
+    public static let cardRenameCloseButton = "\(prefix)CardRenameCloseButton"
+
     // MARK: - Daily limit
 
     public static let dailyLimitChangeButton = "\(prefix)DailyLimitChangeButton"

@@ -10,33 +10,34 @@ import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsTokenDetailsExchangeItemViewRedesign: View {
     let info: MarketsTokenDetailsExchangeItemInfo
 
-    @ScaledMetric private var horizontalPadding: CGFloat = .unit(.x4)
-    @ScaledMetric private var verticalPadding: CGFloat = .unit(.x3)
-    @ScaledMetric private var iconSize: CGFloat = .unit(.x9)
-    @ScaledMetric private var iconCornerRadius: CGFloat = .unit(.x2)
+    @ScaledMetric private var horizontalPadding: CGFloat = 16
+    @ScaledMetric private var verticalPadding: CGFloat = 12
+    @ScaledMetric private var iconSize: CGFloat = 36
+    @ScaledMetric private var iconCornerRadius: CGFloat = 8
 
     var body: some View {
         TangemTwoLineRowLayout(
             icon: { iconView },
             primaryLeading: {
                 Text(info.name)
-                    .style(Font.Tangem.Body16.semibold, color: Color.Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
                     .accessibilityIdentifier(MarketsAccessibilityIdentifiers.exchangesListExchangeName)
             },
             primaryTrailing: {
                 Text(info.formattedVolume)
-                    .style(Font.Tangem.Body16.semibold, color: Color.Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
                     .accessibilityIdentifier(MarketsAccessibilityIdentifiers.exchangesListTradingVolume)
             },
             secondaryLeading: {
                 Text(info.exchangeType.title)
-                    .style(Font.Tangem.Caption12.semibold, color: Color.Tangem.Text.Neutral.secondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
                     .accessibilityIdentifier(MarketsAccessibilityIdentifiers.exchangesListType)
             },

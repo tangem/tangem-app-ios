@@ -36,7 +36,7 @@ struct LinkedMarketingBannerView: View {
     private static let contentVerticalInset: CGFloat = 12
 
     var body: some View {
-        Button {
+        SwiftUI.Button {
             viewModel.action?()
         } label: {
             HStack(spacing: 4) {

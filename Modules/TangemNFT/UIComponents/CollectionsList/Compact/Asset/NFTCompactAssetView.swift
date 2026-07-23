@@ -20,7 +20,7 @@ struct NFTCompactAssetView: View {
             skeleton
 
         case .loaded(let viewData):
-            Button(action: viewModel.didClick) {
+            SwiftUI.Button(action: viewModel.didClick) {
                 makeContent(from: viewData)
             }
             .buttonStyle(.defaultScaled)

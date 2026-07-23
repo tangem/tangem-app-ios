@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -29,15 +30,15 @@ struct MarketsTokenDetailsSecurityScoreDetailsRedesignedView: View {
 
             ScrollView {
                 content
-                    .padding(.horizontal, .unit(.x4))
-                    .padding(.bottom, .unit(.x4))
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
                     .readGeometry(\.size.height) { contentHeight = $0 }
             }
             .scrollBounceBehavior(.basedOnSize)
         }
         .presentationDetents([.height(detentHeight)])
         .presentationDragIndicator(.hidden)
-        .presentationBackground(Color.Tangem.Surface.level2)
+        .presentationBackground(DesignSystem.Color.bgPrimary)
         // iOS 26 sheets use a concentric corner radius matching the device; only override below it.
         .if(!isLiquidGlassSupported) { $0.presentationCornerRadius(24) }
     }
@@ -47,28 +48,30 @@ struct MarketsTokenDetailsSecurityScoreDetailsRedesignedView: View {
             title: viewModel.title,
             titleAccessibilityIdentifier: MarketsAccessibilityIdentifiers.securityScoreDetailsTitle,
             trailing: {
-                TangemButton(content: .icon(Assets.Glyphs.cross20ButtonNew)) {
-                    viewModel.closeAction?()
-                }
-                .setStyleType(.secondary)
-                .setSize(.x9)
-                .setHorizontalLayout(.intrinsic)
+                TangemUI.Button(
+                    icon: DesignSystem.Icons.Cross.regular20,
+                    accessibilityLabel: Localization.commonClose,
+                    action: { viewModel.closeAction?() }
+                )
+                .size(.x9)
+                .styleType(.secondary)
             }
         )
-        .titleStyle(Font.Tangem.Heading17.semibold, color: Color.Tangem.Text.Neutral.primary)
-        .padding(.horizontal, .unit(.x4))
-        .padding(.top, .unit(.x3))
+        .titleFont(DesignSystem.Font.bodyMediumToken.font) // [REDACTED_INFO]: tracking deferred
+        .titleColor(DesignSystem.Color.textPrimary)
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
     }
 
     private var content: some View {
-        VStack(alignment: .leading, spacing: .unit(.x3)) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(viewModel.subtitle)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             MarketsTokenDetailsSecurityScoreProvidersSection(
                 viewModel: viewModel,
-                backgroundColor: Color.Tangem.Surface.level3
+                backgroundColor: DesignSystem.Color.bgSecondary
             )
         }
     }

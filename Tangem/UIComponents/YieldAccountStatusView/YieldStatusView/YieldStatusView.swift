@@ -25,7 +25,7 @@ struct YieldStatusView: View {
         case .loading, .closing:
             content
         case .active:
-            Button(action: viewModel.onTapAction) {
+            SwiftUI.Button(action: viewModel.onTapAction) {
                 content
             }
             .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.activeBlock)

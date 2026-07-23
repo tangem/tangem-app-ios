@@ -18,6 +18,8 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
 
     // MARK: - Call tracking
 
+    var estimatedFeeResult: Result<Fee, Error>?
+
     private(set) var updateInputCalls: [TokenFeeProviderInputData] = []
     private(set) var updateFeesCalls: Int = 0
     private(set) var updateSelectedFeeProviderCalls: [TokenItem] = []
@@ -67,7 +69,11 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
     }
 
     func estimatedFee(amount: Decimal) async throws -> Fee {
-        fatalError("Not used in tests")
+        guard let estimatedFeeResult else {
+            fatalError("Not used in tests")
+        }
+
+        return try estimatedFeeResult.get()
     }
 
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> Fee {

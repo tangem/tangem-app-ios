@@ -107,7 +107,7 @@ private extension HardwareBackupTypesView {
     }
 
     func backupType(item: ViewModel.BackupItem) -> some View {
-        Button(action: item.action) {
+        SwiftUI.Button(action: item.action) {
             HStack(spacing: 4) {
                 backupTypeInfo(item: item)
 

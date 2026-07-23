@@ -53,7 +53,7 @@ struct MarketsCommonWidgetHeaderView: View {
     }
 
     private var buttonView: some View {
-        Button {
+        SwiftUI.Button {
             buttonAction?()
         } label: {
             buttonViewLabel
