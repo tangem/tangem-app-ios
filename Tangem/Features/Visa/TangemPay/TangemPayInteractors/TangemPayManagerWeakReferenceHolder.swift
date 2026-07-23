@@ -57,4 +57,8 @@ extension TangemPayManagerWeakReferenceHolder: TangemPayTariffPlanSelector {
             transitionType: transitionType
         )
     }
+
+    func cancelTariffPlanPendingTransition() async throws {
+        try await tangemPayManager?.cancelTariffPlanPendingTransition()
+    }
 }

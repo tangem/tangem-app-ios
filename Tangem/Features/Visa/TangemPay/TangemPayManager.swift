@@ -295,6 +295,11 @@ final class TangemPayManager: TangemPayAccountModel {
         await refreshState()
     }
 
+    func cancelTariffPlanPendingTransition() async throws {
+        try await customerService.cancelTariffPlanPendingTransition()
+        await refreshState()
+    }
+
     private func issueCardIfNeededAndStartStatusPolling(customerWalletAddress: String) async throws {
         let orderId = try await issueCardIfNeeded(customerWalletAddress: customerWalletAddress)
         startCardIssuingOrderPolling(orderId: orderId)
