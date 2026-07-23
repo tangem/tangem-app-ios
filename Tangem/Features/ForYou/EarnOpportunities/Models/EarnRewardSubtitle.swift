@@ -8,6 +8,9 @@
 
 import Foundation
 
+/// Section subtitle with an optional highlighted chip inside: "{prefix} {chip} {suffix}".
 struct EarnRewardSubtitle: Equatable {
-    let label, amount: String
+    let prefix: String
+    let chip: String?
+    let suffix: String?
 }
