@@ -801,6 +801,26 @@ extension Analytics {
         case visaCloseCardConfirmationPopupOpened = "[Visa Card Management] Visa Close Card Confirmation Popup Opened"
         case visaCloseCardConfirmed = "[Visa Card Management] Visa Close Card Confirmed"
 
+        // Tiers
+
+        case visaTiersTierSelectionScreenShowed = "[Visa Tiers] Tier Selection Screen Showed"
+        case visaTiersSwiped = "[Visa Tiers] Tiers Swiped"
+        case visaTiersComparePlansClicked = "[Visa Tiers] Compare Plans Clicked"
+        case visaTiersPlansComparisonPopupShowed = "[Visa Tiers] Plans Comparison Popup Showed"
+        case visaTiersPlansComparisonPopupClosed = "[Visa Tiers] Plans Comparison Popup Closed"
+        case visaTiersPlanSelectedClick = "[Visa Tiers] Plan Selected Click"
+        case visaTiersTopupBannerForPlusShowed = "[Visa Tiers] Topup Banner For Plus Showed"
+        case visaTiersCancelPlusMoveToBasicClicked = "[Visa Tiers] Cancel Plus Move To Basic Clicked"
+        case visaTiersCurrentPlanClicked = "[Visa Tiers] Current Plan Clicked"
+        case visaTiersChangePlanClicked = "[Visa Tiers] Change Plan Clicked"
+        case visaTiersPlanChangeConfirmationScreenShowed = "[Visa Tiers] Plan Change Confirmation Screen Showed"
+        case visaTiersPlanChangeCancelClicked = "[Visa Tiers] Plan Change Cancel Clicked"
+        case visaTiersPlanChangeUpgradeClicked = "[Visa Tiers] Plan Change Upgrade Clicked"
+        case visaTiersPlusCardsClosureWarningBannerShowed = "[Visa Tiers] Plus Cards Closure Warning Banner Showed"
+        case visaTiersStayOnPlusConditionsClicked = "[Visa Tiers] Stay On Plus Conditions Clicked"
+        case visaTiersStayOnPlusPopupShowed = "[Visa Tiers] Stay On Plus Popup Showed"
+        case visaTiersStayOnPlusPopupClicked = "[Visa Tiers] Stay On Plus Popup Clicked"
+
         // MARK: - NFT
 
         case nftAssetReadMore = "[NFT] Button - Read More"

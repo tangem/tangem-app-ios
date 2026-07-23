@@ -41,6 +41,7 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
     }
 
     func changePlan() {
+        Analytics.log(.visaTiersChangePlanClicked)
         coordinator?.openSelectPlan()
     }
 
@@ -48,6 +49,8 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
         guard let downgradeBanner else {
             return
         }
+
+        Analytics.log(.visaTiersStayOnPlusConditionsClicked)
 
         coordinator?.openStayOnPlusConfirmation(
             planName: downgradeBanner.planName,
