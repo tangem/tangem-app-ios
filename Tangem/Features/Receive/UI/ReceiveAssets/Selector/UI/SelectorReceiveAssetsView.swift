@@ -37,16 +37,9 @@ struct SelectorReceiveAssetsView: View {
     private var notifications: some View {
         if let notificationInputs = viewModel.notificationInputs.nilIfEmpty {
             VStack(spacing: Layout.Notification.verticalSpacing) {
-                if FeatureProvider.isAvailable(.redesign) {
-                    RedesignedReceiveNotificationsView(inputs: notificationInputs)
-                        // Tops the 12pt scroll gap up to the 14pt dots→banner spacing from Figma.
-                        .padding(.top, 2)
-                } else {
-                    // [REDACTED_INFO]: drop the legacy NotificationView once redesign ships.
-                    ForEach(notificationInputs) { input in
-                        NotificationView(input: input)
-                    }
-                }
+                RedesignedReceiveNotificationsView(inputs: notificationInputs)
+                    // Tops the 12pt scroll gap up to the 14pt dots→banner spacing from Figma.
+                    .padding(.top, 2)
             }
         }
     }

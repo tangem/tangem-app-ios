@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemLocalization
 import TangemUIUtils
@@ -99,18 +100,12 @@ struct TangemPayCardDetailsViewRedesigned: View {
 
                     HStack(spacing: 6) {
                         Text("*" + viewModel.lastFourDigits)
-                            .font(DesignSystem.Font.bodyMediumToken)
+                            .font(token: DesignSystem.Font.bodyMediumToken)
                             .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
 
                         Group {
                             if isLoading {
                                 CircularActivityIndicator(color: .white, lineWidth: 1.5)
-                            } else if isFrozen {
-                                DesignSystem.Icons.Snowflake.regular16.image
-                                    .renderingMode(.template)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                             }
                         }
                         .frame(width: 16, height: 16)
@@ -183,7 +178,11 @@ struct TangemPayCardDetailsViewRedesigned: View {
         }
         .padding(16)
         .background {
-            Assets.Visa.cardCredentials.image
+            KFImage(viewModel.cardImageURL)
+                .placeholder {
+                    Assets.Visa.cardCredentials.image
+                        .resizable()
+                }
                 .resizable()
         }
         .screenCaptureProtection()
@@ -192,7 +191,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
     private var showDetailsButton: some View {
         Button(action: viewModel.toggleVisibility) {
             Text(Localization.tangempayCardDetailsShowDetails)
-                .font(DesignSystem.Font.bodyMediumToken)
+                .font(token: DesignSystem.Font.bodyMediumToken)
                 .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
@@ -218,7 +217,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
     private var cardHeader: some View {
         HStack(alignment: .center, spacing: 6) {
             Text(Localization.tangempayDigitalCard)
-                .font(DesignSystem.Font.bodyMediumToken)
+                .font(token: DesignSystem.Font.bodyMediumToken)
                 .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
 
             DesignSystem.Icons.Cloud.filled20.image
@@ -231,7 +230,11 @@ struct TangemPayCardDetailsViewRedesigned: View {
     }
 
     private var cardArtBackground: some View {
-        Assets.Visa.cardPlatinum.image
+        KFImage(viewModel.cardImageURL)
+            .placeholder {
+                Assets.Visa.cardPlatinum.image
+                    .resizable()
+            }
             .resizable()
     }
 
@@ -240,13 +243,13 @@ struct TangemPayCardDetailsViewRedesigned: View {
         switch viewModel.cardNameDisplayMode {
         case .display:
             Text(viewModel.cardName)
-                .font(DesignSystem.Font.bodyMediumToken)
+                .font(token: DesignSystem.Font.bodyMediumToken)
                 .foregroundStyle(DesignSystem.Color.textStaticDarkSecondary)
         case .interactive:
             Button(action: viewModel.cardNameTapped) {
                 HStack(spacing: 4) {
                     Text(viewModel.cardName)
-                        .font(DesignSystem.Font.bodyMediumToken)
+                        .font(token: DesignSystem.Font.bodyMediumToken)
                         .foregroundStyle(DesignSystem.Color.textStaticDarkSecondary)
 
                     DesignSystem.Icons.Edit.regular20.image
@@ -261,11 +264,11 @@ struct TangemPayCardDetailsViewRedesigned: View {
                 text: $viewModel.cardName,
                 label: {
                     Text(Localization.tangempayCardDetailsRenameCardPlaceholder)
-                        .font(DesignSystem.Font.bodyMediumToken)
+                        .font(token: DesignSystem.Font.bodyMediumToken)
                         .foregroundStyle(DesignSystem.Color.textStaticDarkTertiary)
                 }
             )
-            .font(DesignSystem.Font.bodyMediumToken)
+            .font(token: DesignSystem.Font.bodyMediumToken)
             .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
             .tint(DesignSystem.Color.textStaticDarkPrimary)
             .focused($isCardNameFocused)
@@ -286,12 +289,12 @@ struct TangemPayCardDetailsViewRedesigned: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(DesignSystem.Font.captionMediumToken)
+                .font(token: DesignSystem.Font.captionMediumToken)
                 .foregroundStyle(DesignSystem.Color.textStaticDarkTertiary)
 
             HStack {
                 Text(value)
-                    .font(DesignSystem.Font.bodyMediumToken)
+                    .font(token: DesignSystem.Font.bodyMediumToken)
                     .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                     .accessibilityIdentifier(valueAccessibilityIdentifier)
 

@@ -128,8 +128,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     ) {
         sourceAmountField = AmountInputFieldModel(
             tokenItem: sourceToken.tokenItem,
-            fiatItem: sourceToken.fiatItem,
-            possibleToConvertToFiat: sourceToken.possibleToConvertToFiat
+            fiatItem: sourceToken.fiatItem
         )
 
         self.shouldStartFromTokensList = shouldStartFromTokensList
@@ -501,8 +500,7 @@ extension SendAmountViewModel {
 
         sourceAmountField.reconfigure(
             tokenItem: sourceToken.tokenItem,
-            fiatItem: sourceToken.fiatItem,
-            possibleToConvertToFiat: sourceToken.possibleToConvertToFiat
+            fiatItem: sourceToken.fiatItem
         )
     }
 
@@ -599,8 +597,7 @@ extension SendAmountViewModel {
         if !isFirstSelection {
             field.reconfigure(
                 tokenItem: token.tokenItem,
-                fiatItem: token.fiatItem,
-                possibleToConvertToFiat: token.tokenItem.currencyId != nil
+                fiatItem: token.fiatItem
             )
             field.cryptoIconURL = iconInfo.imageURL
         }
@@ -697,8 +694,7 @@ extension SendAmountViewModel {
     ) -> AmountInputFieldModel {
         let field = AmountInputFieldModel(
             tokenItem: destinationToken.tokenItem,
-            fiatItem: destinationToken.fiatItem,
-            possibleToConvertToFiat: destinationToken.tokenItem.currencyId != nil
+            fiatItem: destinationToken.fiatItem
         )
         field.cryptoIconURL = tokenIconInfo.imageURL
 

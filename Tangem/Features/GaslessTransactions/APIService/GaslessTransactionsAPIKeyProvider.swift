@@ -25,7 +25,7 @@ struct GaslessTransactionsAPIKeyProvider {
         let key = switch FeatureStorage.instance.gaslessTransactionsAPIType {
         case .prod:
             keysManager.gaslessTxApiKey
-        case .dev, .stage:
+        case .dev, .stage, .mock:
             keysManager.gaslessTxApiKeyDev
         }
 

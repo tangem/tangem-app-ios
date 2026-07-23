@@ -358,17 +358,12 @@ private extension ActionButtonsBuyCoordinator {
     func makeTokenSelectorViewModel(preferredWalletId: UserWalletId?) -> TokenSelectorViewModel {
         .common(
             walletsProvider: .standardAccountsOnly(),
-            availabilityProvider: FeatureProvider.isAvailable(.redesign)
-                ? .always() : .buy(),
+            availabilityProvider: .always(),
             preferredWalletId: preferredWalletId
         )
     }
 
     func makePulseMarketWidgetViewModel() -> PulseMarketWidgetViewModel? {
-        guard FeatureProvider.isAvailable(.redesign) else {
-            return nil
-        }
-
         let widgetsUpdateHandler = CommonMarketsMainWidgetDataService()
         for widgetType in [MarketsWidgetType.market, .news, .earn] {
             widgetsUpdateHandler.performUpdateLoading(state: .loaded, for: widgetType)
