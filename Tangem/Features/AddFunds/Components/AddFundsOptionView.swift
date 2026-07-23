@@ -32,7 +32,7 @@ struct AddFundsOptionView: View {
     }
 
     var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             TangemTwoLineRowLayout(
                 icon: { iconView },
                 primaryLeading: { titleView },
