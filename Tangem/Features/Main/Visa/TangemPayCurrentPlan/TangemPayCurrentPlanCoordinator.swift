@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import TangemFoundation
 import TangemPay
@@ -13,6 +14,8 @@ import TangemPay
 final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
+
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - Root view model
 
@@ -36,6 +39,7 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
         self.options = options
         currentPlanViewModel = TangemPayCurrentPlanViewModel(
             customerTariffPlan: options.customerTariffPlan,
+            customerTariffPlanPublisher: options.customerTariffPlanPublisher,
             coordinator: self
         )
     }
@@ -46,6 +50,7 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
 extension TangemPayCurrentPlanCoordinator {
     struct Options {
         let customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan
+        let customerTariffPlanPublisher: AnyPublisher<VisaCustomerInfoResponse.CustomerTariffPlan?, Never>
         let tariffPlanSelector: any TangemPayTariffPlanSelector
         let closeFlow: () -> Void
     }
@@ -71,5 +76,31 @@ extension TangemPayCurrentPlanCoordinator: TangemPayCurrentPlanRoutable {
             mode: .planChange(customerTariffPlan: options.customerTariffPlan)
         ))
         selectPlanCoordinator = coordinator
+    }
+
+    func openStayOnPlusConfirmation(planName: String, pendingPlanName: String) {
+        Task { @MainActor in
+            let viewModel = TangemPayStayOnPlusSheetViewModel(
+                planName: planName,
+                pendingPlanName: pendingPlanName,
+                coordinator: self
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - TangemPayStayOnPlusSheetRoutable
+
+extension TangemPayCurrentPlanCoordinator: TangemPayStayOnPlusSheetRoutable {
+    func stayOnCurrentPlan() async throws {
+        try await options?.tariffPlanSelector.cancelTariffPlanPendingTransition()
+    }
+
+    func closeStayOnPlusSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
