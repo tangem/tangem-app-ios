@@ -9,13 +9,14 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsTokenDetailsLinksViewRedesign: View {
-    @ScaledMetric private var verticalSpacing: CGFloat = .unit(.x6)
-    @ScaledMetric private var sectionHorizontalPadding: CGFloat = .unit(.x2)
-    @ScaledMetric private var titleTopPadding: CGFloat = .unit(.x6)
-    @ScaledMetric private var linkListSpacing: CGFloat = .unit(.x2)
-    @ScaledMetric private var linkListTopPadding: CGFloat = .unit(.x4)
+    @ScaledMetric private var verticalSpacing: CGFloat = 24
+    @ScaledMetric private var sectionHorizontalPadding: CGFloat = 8
+    @ScaledMetric private var titleTopPadding: CGFloat = 24
+    @ScaledMetric private var linkListSpacing: CGFloat = 8
+    @ScaledMetric private var linkListTopPadding: CGFloat = 16
 
     let sections: [MarketsTokenDetailsLinkSection]
 
@@ -34,7 +35,7 @@ private extension MarketsTokenDetailsLinksViewRedesign {
     func sectionView(_ item: MarketsTokenDetailsLinkSection) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
             Text(item.section.title)
-                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .padding(.horizontal, sectionHorizontalPadding)
                 .padding(.top, titleTopPadding)
 
@@ -52,23 +53,14 @@ private extension MarketsTokenDetailsLinksViewRedesign {
     }
 
     func linkButton(for item: LinkItem) -> some View {
-        var text = AttributedString(item.data.text)
-        text.setFontStyle(Font.Tangem.Body16.semibold)
-
-        let content: TangemButton.Content = {
-            if let imageType = item.iconImageType {
-                return .combined(
-                    text: text,
-                    icon: imageType,
-                    iconPosition: .left
-                )
-            }
-            return .text(text)
-        }()
-
-        return TangemButton(content: content, action: item.data.action)
-            .setStyleType(.secondary)
-            .setSize(.x8)
+        TangemUI.Button(
+            label: AttributedString(item.data.text),
+            iconStart: item.iconImageType,
+            accessibilityLabel: item.data.text,
+            action: item.data.action
+        )
+        .size(.x8)
+        .styleType(.secondary)
     }
 }
 
