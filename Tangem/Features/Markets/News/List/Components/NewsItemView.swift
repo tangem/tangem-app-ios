@@ -28,7 +28,7 @@ struct NewsItemView: View {
     }
 
     var body: some View {
-        Button(action: onTap) {
+        SwiftUI.Button(action: onTap) {
             redesignContent
         }
         .buttonStyle(.scaled())

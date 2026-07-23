@@ -79,11 +79,17 @@ struct MultiNetworkProviderTests {
     @Test
     func executionRevertedDetectionMatchesBareAndWrappedErrors() {
         let revert = JSONRPC.APIError(code: 3, message: "execution reverted")
+        let invalidOpcodeRevert = JSONRPC.APIError(code: -32000, message: "invalid opcode: INVALID")
+        let invalidFEOpcodeRevert = JSONRPC.APIError(code: -32003, message: "EVM error: InvalidFEOpcode")
         let rateLimit = JSONRPC.APIError(code: -32005, message: "Too Many Requests")
 
         #expect(revert.isEVMExecutionReverted)
+        #expect(invalidOpcodeRevert.isEVMExecutionReverted)
+        #expect(invalidFEOpcodeRevert.isEVMExecutionReverted)
         #expect(MultiNetworkProviderError(networkError: revert, lastRetryHost: "a.example").isEVMExecutionReverted)
+        #expect(MultiNetworkProviderError(networkError: invalidOpcodeRevert, lastRetryHost: "a.example").isEVMExecutionReverted)
         #expect(!rateLimit.isEVMExecutionReverted)
+        #expect(!JSONRPC.APIError(code: -32000, message: nil).isEVMExecutionReverted)
         #expect(!MoyaError.statusCode(Response(statusCode: 429, data: Data())).isEVMExecutionReverted)
     }
 
@@ -98,6 +104,8 @@ struct MultiNetworkProviderTests {
 
         #expect(service.shouldStopSwitching(error: JSONRPC.APIError(code: 3, message: nil)))
         #expect(service.shouldStopSwitching(error: JSONRPC.APIError(code: -32000, message: "Execution Reverted: claim tokens failed")))
+        #expect(service.shouldStopSwitching(error: JSONRPC.APIError(code: -32000, message: "invalid opcode: INVALID")))
+        #expect(service.shouldStopSwitching(error: JSONRPC.APIError(code: -32003, message: "EVM error: InvalidFEOpcode")))
         #expect(!service.shouldStopSwitching(error: JSONRPC.APIError(code: -32005, message: "Too Many Requests")))
         #expect(!service.shouldStopSwitching(error: JSONRPC.APIError(code: nil, message: nil)))
         #expect(!service.shouldStopSwitching(error: MoyaError.statusCode(Response(statusCode: 429, data: Data()))))

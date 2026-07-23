@@ -31,7 +31,7 @@ extension WalletConnectDAppConnectionRequestView {
         }
 
         private var titleRow: some View {
-            Button(action: tapAction) {
+            SwiftUI.Button(action: tapAction) {
                 HStack(spacing: 8) {
                     viewModel.iconAsset.image
                         .resizable()

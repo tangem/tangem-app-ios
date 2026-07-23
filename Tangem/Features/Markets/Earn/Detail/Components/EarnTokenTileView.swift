@@ -21,7 +21,7 @@ struct EarnTokenTileView: View {
     // MARK: - Redesigned
 
     private var redesignedContent: some View {
-        Button(action: {
+        SwiftUI.Button(action: {
             viewModel.onTapAction()
         }) {
             VStack(alignment: .leading, spacing: 0.0) {

@@ -147,7 +147,7 @@ private extension TangemPayTransactionDetailsView {
             .padding(.top, 48)
             .padding(.bottom, 8)
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(model.mainButtonAction.title),
                 accessibilityLabel: model.mainButtonAction.title,
                 action: viewModel.userDidTapMainButton
@@ -179,7 +179,7 @@ private extension TangemPayTransactionDetailsView {
             HStack(spacing: 0) {
                 Spacer(minLength: 0)
 
-                TangemButtonV2(
+                TangemUI.Button(
                     icon: DesignSystem.Icons.Cross.regular20,
                     accessibilityLabel: Localization.commonClose,
                     action: viewModel.userDidTapClose
@@ -226,7 +226,7 @@ private extension TangemPayTransactionDetailsView {
     func redesignedRows(_ rows: [TangemPayTransactionDetailsDisplayModel.Row]) -> some View {
         VStack(spacing: 0) {
             ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
-                TangemRow(title: row.title, value: row.value)
+                Row(title: row.title, value: row.value)
                     .showDivider(rows.count == 1 || index < rows.count - 1)
                     .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
             }

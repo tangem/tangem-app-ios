@@ -141,7 +141,7 @@ struct NewProviderSelectorView: View {
             }
             .frame(minHeight: allModeSectionHeight, alignment: .top)
 
-            ExpressMoreProvidersSoonView()
+            ExpressMoreProvidersSoonView(text: viewModel.moreProvidersFooterText)
                 .padding(.top, 18)
                 .padding(.bottom, 16)
                 .padding(.horizontal, 16)
@@ -149,7 +149,7 @@ struct NewProviderSelectorView: View {
     }
 
     private func approveSettingsButton(name: String) -> some View {
-        Button(action: viewModel.openApprove) {
+        SwiftUI.Button(action: viewModel.openApprove) {
             Assets.sliders.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.informative)
