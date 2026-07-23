@@ -184,10 +184,7 @@ private extension StakingDetailsViewModel {
         switch state {
         case .loading:
             actionButtonLoading = true
-        case .loadingError:
-            actionButtonLoading = false
-            actionButtonType = .none
-        case .notEnabled:
+        case .loadingError, .unavailableInRegion, .notEnabled:
             actionButtonLoading = false
             actionButtonType = .none
         case .temporaryUnavailable(let yieldInfo, _), .availableToStake(let yieldInfo):
