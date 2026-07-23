@@ -67,7 +67,7 @@ struct SubtitleOwnerResolver {
             return cachedImage
         }
 
-        if let newImage = AddressIconViewModel(address: address).image {
+        if let newImage = AddressIconProvider.makeBlockiesImage(address: address) {
             blockiesImageCache.setValue(newImage, forKey: address)
             return newImage
         }

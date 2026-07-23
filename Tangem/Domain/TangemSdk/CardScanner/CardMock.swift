@@ -32,6 +32,7 @@ enum CardMock: String, CaseIterable {
     case wallet2NoWallets
     case walletNoBackup
     case wallet2Imported
+    case wallet2NoEd25519Slip0010
     case s2c
 
     var accessibilityIdentifier: String {
@@ -78,6 +79,8 @@ enum CardMock: String, CaseIterable {
             return CardMockAccessibilityIdentifiers.walletNoBackup.rawValue
         case .wallet2Imported:
             return CardMockAccessibilityIdentifiers.wallet2Imported.rawValue
+        case .wallet2NoEd25519Slip0010:
+            return CardMockAccessibilityIdentifiers.wallet2NoEd25519Slip0010.rawValue
         case .s2c:
             return CardMockAccessibilityIdentifiers.s2c.rawValue
         }
@@ -155,6 +158,8 @@ enum CardMock: String, CaseIterable {
             return .none
         case .wallet2Imported:
             return .none
+        case .wallet2NoEd25519Slip0010:
+            return .none
         case .s2c:
             return .legacy(WalletData(blockchain: "BTC", token: nil))
         }
@@ -204,9 +209,45 @@ enum CardMock: String, CaseIterable {
             return url(fileName: "walletNoBackup")
         case .wallet2Imported:
             return url(fileName: "wallet2Imported")
+        case .wallet2NoEd25519Slip0010:
+            return url(fileName: "wallet2NoEd25519Slip0010")
         case .s2c:
             return url(fileName: "s2c")
         }
+    }
+
+    func card(batchIdOverride: String? = nil, firmwareOverride: String? = nil) throws -> Card {
+        var jsonString = try String(contentsOf: url, encoding: .utf8)
+
+        if let batchIdOverride {
+            jsonString = jsonString.replacingOccurrences(
+                of: #"("batchId"\s*:\s*")([^"]*)"#,
+                with: "$1\(batchIdOverride)",
+                options: .regularExpression
+            )
+        }
+
+        if let firmwareOverride {
+            let firmware = FirmwareVersion(stringValue: firmwareOverride)
+            let replacement = """
+            "firmwareVersion" : {
+                "major" : \(firmware.major),
+                "minor" : \(firmware.minor),
+                "patch" : \(firmware.patch),
+                "stringValue" : "\(firmware.stringValue)",
+                "type" : "\(firmware.type.rawValue)"
+            }
+            """
+            jsonString = jsonString.replacingOccurrences(
+                of: #""firmwareVersion"\s*:\s*\{[^}]*\}"#,
+                with: replacement,
+                options: .regularExpression
+            )
+        }
+
+        let decoder = JSONDecoder.tangemSdkDecoder
+        decoder.keyDecodingStrategy = .useDefaultKeys
+        return try decoder.decode(Card.self, from: jsonString.data(using: .utf8)!)
     }
 
     func cobrandMock(batchId: String, cardsCount: Int) throws -> Card {
