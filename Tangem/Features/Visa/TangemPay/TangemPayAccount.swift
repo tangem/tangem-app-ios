@@ -69,8 +69,8 @@ final class TangemPayAccount {
             .eraseToAnyPublisher()
     }
 
-    var awaitingDepositMonthlyFeePublisher: AnyPublisher<String?, Never> {
-        awaitingDepositMonthlyFeeSubject.eraseToAnyPublisher()
+    var awaitingDepositInfoPublisher: AnyPublisher<TangemPayAwaitingDepositInfo?, Never> {
+        awaitingDepositInfoSubject.eraseToAnyPublisher()
     }
 
     var cardIssueFailureSignal: AnyPublisher<Void, Never> {
@@ -183,7 +183,7 @@ final class TangemPayAccount {
     private let offersSubject = CurrentValueSubject<[TangemPayCustomerOffer], Never>([])
     private let activeIssueOrdersSubject = CurrentValueSubject<[TangemPayOrderResponse], Never>([])
     private let activeIssueOrderEventsSubject = PassthroughSubject<ActiveIssueOrderEvent, Never>()
-    private let awaitingDepositMonthlyFeeSubject = CurrentValueSubject<String?, Never>(nil)
+    private let awaitingDepositInfoSubject = CurrentValueSubject<TangemPayAwaitingDepositInfo?, Never>(nil)
 
     private let loadOffersProcessor = SingleTaskProcessor<Void, Never>()
     private let resumeIssuePollingProcessor = SingleTaskProcessor<Void, Never>()
@@ -194,6 +194,8 @@ final class TangemPayAccount {
     private let firstCardIssueFailedSubject = PassthroughSubject<Void, Never>()
 
     private var placedVirtualAccountOrderId: String?
+
+    private var orderIdPendingBasicFallbackOnCancel: String?
 
     /// The VA order is polled on its own instance so it can't be cancelled by (or cancel) the shared
     /// `orderStatusPollingService`, which is single-slot and reused for freeze/reissue/card-issue.
@@ -231,6 +233,7 @@ final class TangemPayAccount {
         self.account = account
 
         bindActiveIssueOrderEvents()
+        bindAwaitingDepositInfo()
         cardsSubject.send(rebuildingCards(from: customerInfo, existing: []))
         observeCardRefreshSignals()
     }
@@ -381,10 +384,6 @@ extension TangemPayAccount {
             guard let order = bffActiveOrders.mostRecentByUpdatedAt else { return }
             activeIssueOrderEventsSubject.send(.upsert(order))
             startAdditionalCardIssueTracking(orderId: order.id)
-
-            if order.isAwaitingDeposit, let targetPlanId = order.targetTariffPlanId {
-                loadAwaitingDepositMonthlyFee(targetPlanId: targetPlanId)
-            }
         }
     }
 
@@ -424,6 +423,20 @@ extension TangemPayAccount {
         }
         startAdditionalCardIssueTracking(orderId: order.id)
         return order
+    }
+
+    func cancelAwaitingDepositOrder() async throws {
+        guard let orderId = activeIssueOrdersSubject.value.first(where: { $0.isAwaitingDeposit })?.id else {
+            return
+        }
+        orderIdPendingBasicFallbackOnCancel = orderId
+
+        do {
+            try await customerService.cancelOrder(orderId: orderId)
+        } catch {
+            orderIdPendingBasicFallbackOnCancel = nil
+            throw error
+        }
     }
 }
 
@@ -473,19 +486,19 @@ extension TangemPayAccount: TangemPayTariffPlanSelector {
 }
 
 private extension TangemPayAccount {
-    func loadAwaitingDepositMonthlyFee(targetPlanId: String) {
-        runTask { [weak self] in
-            guard let self,
-                  let transitions = try? await customerService.getTariffPlanTransitions(),
-                  let plan = transitions.first(where: { $0.tariffPlan.id == targetPlanId })?.tariffPlan,
-                  let recurringFee = plan.fees.first(where: { $0.type == .recurring }) else {
-                return
-            }
-
-            awaitingDepositMonthlyFeeSubject.send(
-                BalanceFormatter().formatFiatBalance(recurringFee.amount, currencyCode: recurringFee.currency)
-            )
+    func makeAwaitingDepositInfo(targetPlanId: String) async -> TangemPayAwaitingDepositInfo? {
+        guard let transitions = try? await customerService.getTariffPlanTransitions(),
+              let plan = transitions.first(where: { $0.tariffPlan.id == targetPlanId })?.tariffPlan,
+              let recurringFee = plan.fees.first(where: { $0.type == .recurring }),
+              let fallbackPlan = transitions.first(where: { $0.tariffPlan.type == Self.basicTariffPlanType })?.tariffPlan else {
+            return nil
         }
+
+        return TangemPayAwaitingDepositInfo(
+            fee: BalanceFormatter().formatFiatBalance(recurringFee.amount, currencyCode: recurringFee.currency),
+            planName: plan.name,
+            fallbackPlanName: fallbackPlan.name
+        )
     }
 
     func loadCustomerInfoNew() async {
@@ -562,6 +575,19 @@ private extension TangemPayAccount {
             .store(in: &bag)
     }
 
+    func bindAwaitingDepositInfo() {
+        activeIssueOrdersSubject
+            .map { $0.first(where: \.isAwaitingDeposit)?.targetTariffPlanId }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .asyncMap { account, targetPlanId -> TangemPayAwaitingDepositInfo? in
+                guard let targetPlanId else { return nil }
+                return await account.makeAwaitingDepositInfo(targetPlanId: targetPlanId)
+            }
+            .sink { [weak self] in self?.awaitingDepositInfoSubject.send($0) }
+            .store(in: &bag)
+    }
+
     func absorbCompletedIssueOrder(orderId: String) async {
         await loadCustomerInfo()
         activeIssueOrderEventsSubject.send(.remove(id: orderId))
@@ -579,7 +605,7 @@ private extension TangemPayAccount {
                 }
             },
             onCanceled: { [weak self] in
-                self?.handleIssueOrderFailure(orderId: orderId)
+                self?.handleOrderCancellation(orderId: orderId)
             },
             onFailed: { [weak self] error in
                 VisaLogger.error("Failed to poll card-issue order status", error: error)
@@ -589,6 +615,30 @@ private extension TangemPayAccount {
                 self?.activeIssueOrderEventsSubject.send(.update(order))
             }
         )
+    }
+
+    private func handleOrderCancellation(orderId: String) {
+        if orderIdPendingBasicFallbackOnCancel == orderId {
+            orderIdPendingBasicFallbackOnCancel = nil
+            activeIssueOrderEventsSubject.send(.remove(id: orderId))
+            runTask { [weak self] in await self?.placeBasicOrder() }
+        } else {
+            handleIssueOrderFailure(orderId: orderId)
+        }
+    }
+
+    private func placeBasicOrder() async {
+        do {
+            guard let basic = try await getTariffPlanTransitions().first(where: { $0.tariffPlan.type == Self.basicTariffPlanType }) else {
+                await account?.refreshState()
+                return
+            }
+            try await selectTariffPlan(targetTariffPlanId: basic.tariffPlan.id, transitionType: basic.type)
+            await resumeActiveIssueOrderPolling()
+        } catch {
+            VisaLogger.error("Failed to place Basic order after canceling Plus", error: error)
+            await account?.refreshState()
+        }
     }
 
     private func handleIssueOrderFailure(orderId: String) {

@@ -13,3 +13,7 @@ protocol TangemPayTariffPlanSelector {
     func selectTariffPlan(targetTariffPlanId: String, transitionType: TangemPayTariffPlanTransition.TransitionType) async throws
     func cancelTariffPlanPendingTransition() async throws
 }
+
+extension TangemPayTariffPlanSelector {
+    static var basicTariffPlanType: String { "BASIC" }
+}

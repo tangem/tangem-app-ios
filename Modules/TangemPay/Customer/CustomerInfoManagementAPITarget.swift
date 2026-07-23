@@ -51,6 +51,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "order"
         case .getOrder(let orderId):
             "order/\(orderId)"
+        case .cancelOrder(let orderId):
+            "order/\(orderId)/cancel"
         case .getCustomerOffers:
             "customer/offers"
         case .getBankCredentials(let productInstanceId):
@@ -92,6 +94,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
         case .placeOrderLegacy,
              .placeOrder,
+             .cancelOrder,
              .getCardDetailsLegacy,
              .getCardDetails,
              .freeze,
@@ -121,6 +124,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .getCustomerInfo,
              .getKYCAccessToken,
              .getOrder,
+             .cancelOrder,
              .getCustomerOffers,
              .getTariffPlanTransitions,
              .cancelTariffPlanPendingTransition,
@@ -267,6 +271,7 @@ extension CustomerInfoManagementAPITarget {
         case sendWithdrawTransaction(TangemPayWithdraw.Transaction.Request)
 
         case getOrder(orderId: String)
+        case cancelOrder(orderId: String)
         case findOrders(orderTypes: [String], orderStatuses: [TangemPayOrderResponse.Status])
 
         case getCustomerOffers
