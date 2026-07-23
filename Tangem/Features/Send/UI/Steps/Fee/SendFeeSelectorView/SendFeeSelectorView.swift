@@ -45,6 +45,7 @@ struct SendFeeSelectorView: View {
                     title: Localization.commonApply,
                     style: .primary,
                     isDisabled: !viewModel.isMainButtonEnabled,
+                    accessibilityIdentifier: FeeAccessibilityIdentifiers.feeSelectorApplyButton,
                     action: viewModel.userDidTapConfirmButton
                 )
             )

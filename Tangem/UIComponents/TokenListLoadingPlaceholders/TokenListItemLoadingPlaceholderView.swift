@@ -133,27 +133,25 @@ struct TokenListItemLoadingPlaceholderView: View {
 
 // MARK: - Previews
 
-struct TokenListItemLoadingPlaceholderView_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Colors.Background
-                .secondary
-                .ignoresSafeArea()
+#Preview {
+    ZStack {
+        Colors.Background
+            .secondary
+            .ignoresSafeArea()
 
-            VStack {
-                TokenListItemLoadingPlaceholderView(
-                    style: .tokenList(hasNetworkItemPlaceholder: false)
-                )
+        VStack {
+            TokenListItemLoadingPlaceholderView(
+                style: .tokenList(hasNetworkItemPlaceholder: false)
+            )
 
-                TokenListItemLoadingPlaceholderView(
-                    style: .tokenList(hasNetworkItemPlaceholder: true)
-                )
+            TokenListItemLoadingPlaceholderView(
+                style: .tokenList(hasNetworkItemPlaceholder: true)
+            )
 
-                TokenListItemLoadingPlaceholderView(
-                    style: .transactionHistory
-                )
-            }
-            .infinityFrame(alignment: .top)
+            TokenListItemLoadingPlaceholderView(
+                style: .transactionHistory
+            )
         }
+        .infinityFrame(alignment: .top)
     }
 }

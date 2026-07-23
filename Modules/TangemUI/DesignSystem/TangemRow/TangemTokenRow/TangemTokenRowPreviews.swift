@@ -325,9 +325,6 @@ private extension DynamicTypeSize {
     }
 }
 
-#if DEBUG
-
-@available(iOS 17, *)
 #Preview("Huge Dynamic Type") {
     ScrollView {
         VStack(spacing: 0) {
@@ -569,7 +566,7 @@ private extension DynamicTypeSize {
     .environment(\.dynamicTypeSize, .accessibility2)
 }
 
-@available(iOS 17, *)
+@available(iOS 17.0, *)
 #Preview("Dark Mode", traits: .sizeThatFitsLayout) {
     VStack(spacing: 16) {
         TangemTokenRow(
@@ -659,5 +656,3 @@ private extension DynamicTypeSize {
 #Preview("Interactive Showcase") {
     TangemTokenRowShowcase()
 }
-
-#endif // DEBUG
