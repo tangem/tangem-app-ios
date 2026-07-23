@@ -16,6 +16,34 @@ struct TotalBalanceFormattingOptions {
     let fractionalPartColor: Color
     let fractionalPartIncludesDecimalSeparator: Bool
 
+    init(
+        integerPartFont: TangemFontStyle,
+        fractionalPartFont: TangemFontStyle,
+        integerPartColor: Color,
+        fractionalPartColor: Color,
+        fractionalPartIncludesDecimalSeparator: Bool
+    ) {
+        self.integerPartFont = integerPartFont
+        self.fractionalPartFont = fractionalPartFont
+        self.integerPartColor = integerPartColor
+        self.fractionalPartColor = fractionalPartColor
+        self.fractionalPartIncludesDecimalSeparator = fractionalPartIncludesDecimalSeparator
+    }
+
+    init(
+        integerPartFont: TangemTypographyToken,
+        fractionalPartFont: TangemTypographyToken,
+        integerPartColor: Color,
+        fractionalPartColor: Color,
+        fractionalPartIncludesDecimalSeparator: Bool
+    ) {
+        self.integerPartFont = TangemFontStyle(integerPartFont)
+        self.fractionalPartFont = TangemFontStyle(fractionalPartFont)
+        self.integerPartColor = integerPartColor
+        self.fractionalPartColor = fractionalPartColor
+        self.fractionalPartIncludesDecimalSeparator = fractionalPartIncludesDecimalSeparator
+    }
+
     static var defaultOptions: TotalBalanceFormattingOptions {
         .init(
             integerPartFont: TangemFontStyle(font: Fonts.Regular.title1),

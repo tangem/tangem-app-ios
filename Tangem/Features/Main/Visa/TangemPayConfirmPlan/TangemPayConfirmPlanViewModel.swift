@@ -22,6 +22,7 @@ final class TangemPayConfirmPlanViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     private let targetPlanId: String
+    private let targetPlanType: String
     private let transitionType: TangemPayTariffPlanTransition.TransitionType
     private let tariffPlanSelector: any TangemPayTariffPlanSelector
     private weak var coordinator: TangemPayConfirmPlanRoutable?
@@ -35,6 +36,7 @@ final class TangemPayConfirmPlanViewModel: ObservableObject {
         coordinator: TangemPayConfirmPlanRoutable?
     ) {
         targetPlanId = targetPlan.id
+        targetPlanType = targetPlan.type
         self.transitionType = transitionType
         self.tariffPlanSelector = tariffPlanSelector
         self.coordinator = coordinator
@@ -63,8 +65,19 @@ final class TangemPayConfirmPlanViewModel: ObservableObject {
         }
     }
 
+    func onAppear() {
+        Analytics.log(event: .visaTiersPlanChangeConfirmationScreenShowed, params: [.plan: targetPlanType])
+    }
+
     func confirm() {
         guard !isProcessing else { return }
+
+        switch transitionType {
+        case .upgrade, .activation:
+            Analytics.log(.visaTiersPlanChangeUpgradeClicked)
+        case .downgrade:
+            break
+        }
 
         isProcessing = true
 
@@ -86,6 +99,7 @@ final class TangemPayConfirmPlanViewModel: ObservableObject {
     }
 
     func cancel() {
+        Analytics.log(.visaTiersPlanChangeCancelClicked)
         coordinator?.closeConfirmPlan()
     }
 

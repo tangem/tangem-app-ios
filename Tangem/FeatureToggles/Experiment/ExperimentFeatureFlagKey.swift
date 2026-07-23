@@ -15,3 +15,8 @@ enum ExperimentFeatureFlagKey: String {
     case onboardingPushNotificationDoubleAsk = "twi_1403_onboarding_push_notification_double_ask"
     case mainPushNotificationDoubleAsk = "twi_1403_main_push_notification_double_ask"
 }
+
+enum ExperimentFeatureVariantKey: String {
+    case treatment
+    case control
+}
