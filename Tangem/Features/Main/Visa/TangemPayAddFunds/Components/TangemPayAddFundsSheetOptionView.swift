@@ -17,11 +17,7 @@ struct TangemPayAddFundsSheetOptionView: View {
     let action: () -> Void
 
     var body: some View {
-        if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
-            redesignedBody
-        } else {
-            legacyBody
-        }
+        redesignedBody
     }
 }
 
@@ -54,54 +50,15 @@ private extension TangemPayAddFundsSheetOptionView {
     var redesignedTitleView: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(option.title)
-                .font(DesignSystem.Font.subheadingMediumToken)
+                .font(token: DesignSystem.Font.subheadingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Text(option.subtitle)
-                .font(DesignSystem.Font.captionMediumToken)
+                .font(token: DesignSystem.Font.captionMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
         }
         .multilineTextAlignment(.leading)
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-// MARK: - Legacy
-
-private extension TangemPayAddFundsSheetOptionView {
-    var legacyBody: some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                icon
-
-                titleView
-            }
-            .infinityFrame(axis: .horizontal, alignment: .leading)
-            .padding(.vertical, 14)
-        }
-        .accessibilityIdentifier(option.accessibilityIdentifier)
-    }
-
-    var icon: some View {
-        Colors.Icon.accent.opacity(0.1)
-            .frame(width: 36, height: 36)
-            .overlay {
-                option.icon.image
-                    .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.accent)
-            }
-            .clipShape(Circle())
-    }
-
-    var titleView: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(option.title)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-            Text(option.subtitle)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-        }
-        .multilineTextAlignment(.leading)
     }
 }
 
@@ -125,14 +82,6 @@ extension TangemPayAddFundsSheetOptionView {
             case .receive: Localization.tangempayTopupReceiveBody
             case .swap: Localization.tangempayTopupSwapBody
             case .bankTransfer: Localization.tangempayTopupBankTransferBody
-            }
-        }
-
-        var icon: ImageType {
-            switch self {
-            case .receive: Assets.arrowDownMini
-            case .swap: Assets.exchangeMini
-            case .bankTransfer: Assets.dollarMini
             }
         }
 

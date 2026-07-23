@@ -68,8 +68,6 @@ public struct TangemMainActionButtonShowcase: View {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview("Interactive Demo") {
     TangemMainActionButtonShowcase()
 }
@@ -78,5 +76,3 @@ public struct TangemMainActionButtonShowcase: View {
     TangemMainActionButtonShowcase()
         .preferredColorScheme(.dark)
 }
-
-#endif // DEBUG

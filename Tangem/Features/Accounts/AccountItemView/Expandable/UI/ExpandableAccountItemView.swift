@@ -57,11 +57,7 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
             },
             expandedView: {
                 if viewModel.isEmptyContent {
-                    if FeatureProvider.isAvailable(.redesign) {
-                        EmptyContentAccountItemRedesignedView(onManageTokensTap: viewModel.onManageTokensTap)
-                    } else {
-                        EmptyContentAccountItemView(onManageTokensTap: viewModel.onManageTokensTap)
-                    }
+                    EmptyContentAccountItemRedesignedView(onManageTokensTap: viewModel.onManageTokensTap)
                 } else {
                     expandedView
                 }
@@ -112,7 +108,6 @@ private extension ExpandableAccountItemView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     let infoProvider: FakeTokenItemInfoProvider = {
         let walletManagers: [FakeWalletManager] = [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager]
@@ -167,4 +162,3 @@ private extension ExpandableAccountItemView {
         }
     }
 }
-#endif

@@ -22,6 +22,9 @@ final class TangemPayCard: Identifiable {
     var displayName: String { productInstance.displayName ?? "" }
     var cardNumberEnd: String { card.cardNumberEnd }
 
+    var mainImageURL: URL? { imageURL(ofType: .main) }
+    var thumbnailImageURL: URL? { imageURL(ofType: .thumbnail) }
+
     var snapshotPublisher: AnyPublisher<Snapshot, Never> {
         snapshotSubject.eraseToAnyPublisher()
     }
@@ -49,6 +52,10 @@ final class TangemPayCard: Identifiable {
 
     var isIssuing: Bool {
         productInstance.status == .new || productInstance.status == .activating
+    }
+
+    var isFrozen: Bool {
+        productInstance.status == .blocked
     }
 
     var inflightLifecycleOperationPublisher: AnyPublisher<LifecycleOperation?, Never> {
@@ -107,7 +114,7 @@ final class TangemPayCard: Identifiable {
         cardId = card.id
         paymentAccountId = productInstance.paymentAccountId
         self.customerService = customerService
-        orderStatusPollingService = TangemPayOrderStatusPollingService(customerService: customerService, multipleCardsEnabled: true)
+        orderStatusPollingService = TangemPayOrderStatusPollingService(customerService: customerService)
         snapshotSubject = .init(Snapshot(productInstance: productInstance, card: card))
     }
 
@@ -344,6 +351,10 @@ enum TangemPayCardError: Error {
 }
 
 private extension TangemPayCard {
+    func imageURL(ofType type: VisaCustomerInfoResponse.TariffPlan.Image.ImageType) -> URL? {
+        card.images?.first { $0.type == type }.flatMap { URL(string: $0.url) }
+    }
+
     enum Constants {
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
         static let reissueOrderPollInterval: TimeInterval = 5

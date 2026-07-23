@@ -37,22 +37,26 @@ class StakingSingleActionModel {
     private let sendSourceToken: SendStakingableToken
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let action: Action
+    private let validationHandler: StakingValidationHandler?
 
     private var transactionValidator: SendTransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
     private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
     private var estimatedFeeTask: Task<Void, Never>?
+
     init(
         stakingManager: StakingManager,
         sendSourceToken: SendStakingableToken,
         analyticsLogger: StakingSendAnalyticsLogger,
         action: Action,
+        validationHandler: StakingValidationHandler?
     ) {
         self.stakingManager = stakingManager
         self.sendSourceToken = sendSourceToken
         self.analyticsLogger = analyticsLogger
         self.action = action
+        self.validationHandler = validationHandler
 
         updateState()
     }
@@ -124,6 +128,13 @@ private extension StakingSingleActionModel {
 
     func update(state: StakingSingleActionModel.State) {
         _state.send(state)
+
+        switch state {
+        case .ready:
+            validationHandler?.validate(action: action)
+        default:
+            validationHandler?.reset()
+        }
     }
 
     func makeAmount(value: Decimal) -> BSDKAmount {
@@ -151,7 +162,11 @@ private extension StakingSingleActionModel {
 private extension StakingSingleActionModel {
     private func send() async throws -> TransactionDispatcherResult {
         do {
-            let transaction = try await stakingManager.transaction(action: action)
+            let transaction = try await validationHandler.resolveTransaction(
+                action: action,
+                blockchain: tokenItem.blockchain,
+                stakingManager: stakingManager
+            )
             let dispatcher = sendSourceToken.transactionDispatcherProvider.makeStakingTransactionDispatcher(analyticsLogger: analyticsLogger)
             let result = try await dispatcher.send(transaction: .staking(transaction))
             proceed(result: result)
@@ -270,14 +285,21 @@ extension StakingSingleActionModel: SendFeeInput {
 
 extension StakingSingleActionModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        _state.map { state in
-            switch state {
-            case .loading, .validationError, .networkError:
-                return false
-            case .ready:
-                return true
+        let validationStatePublisher = validationHandler?.validationState ?? Just(.validated).eraseToAnyPublisher()
+
+        return Publishers.CombineLatest(_state, validationStatePublisher)
+            .map { state, validationState in
+                let isModelReady: Bool
+                switch state {
+                case .ready:
+                    isModelReady = true
+                case .loading, .validationError, .networkError:
+                    isModelReady = false
+                }
+
+                return isModelReady && validationState.allowsSending
             }
-        }.eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
@@ -343,6 +365,14 @@ extension StakingSingleActionModel: NotificationTapDelegate {
         default:
             assertionFailure("StakingModel doesn't support notification action \(action)")
         }
+    }
+}
+
+// MARK: - StakingValidationStateProvider
+
+extension StakingSingleActionModel: StakingValidationStateProvider {
+    var validationState: AnyPublisher<StakingValidationState, Never> {
+        validationHandler?.validationState ?? Just(.validated).eraseToAnyPublisher()
     }
 }
 

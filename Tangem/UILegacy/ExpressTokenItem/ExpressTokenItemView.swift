@@ -69,8 +69,8 @@ struct ExpressTokenItemView: View {
     }
 }
 
-struct ExpressTokenItemView_Previews: PreviewProvider {
-    static let viewModels = [
+#Preview {
+    let viewModels = [
         ExpressTokenItemViewModel(
             id: "Bitcoin",
             tokenIconInfo: TokenIconInfo(
@@ -86,7 +86,8 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             fiatBalance: "$3.543",
             isDisable: false,
             itemDidTap: {}
-        ), ExpressTokenItemViewModel(
+        ),
+        ExpressTokenItemViewModel(
             id: "Ethereum",
             tokenIconInfo: TokenIconInfo(
                 name: "",
@@ -101,7 +102,8 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             fiatBalance: "$3.543",
             isDisable: false,
             itemDidTap: {}
-        ), ExpressTokenItemViewModel(
+        ),
+        ExpressTokenItemViewModel(
             id: "Tether",
             tokenIconInfo: TokenIconInfo(
                 name: "",
@@ -119,13 +121,11 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
         ),
     ]
 
-    static var previews: some View {
-        ZStack {
-            Colors.Background.secondary
+    ZStack {
+        Colors.Background.secondary
 
-            GroupedSection(viewModels) {
-                ExpressTokenItemView(viewModel: $0)
-            }
+        GroupedSection(viewModels) {
+            ExpressTokenItemView(viewModel: $0)
         }
     }
 }

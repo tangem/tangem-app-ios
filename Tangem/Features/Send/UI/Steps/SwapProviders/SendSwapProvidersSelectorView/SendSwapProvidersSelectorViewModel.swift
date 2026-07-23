@@ -236,7 +236,7 @@ private extension SendSwapProvidersSelectorViewModel {
         let badge: SendSwapProvidersSelectorProviderViewData.Badge? = switch providerBadge {
         case .none: .none
         case .fcaWarning: .fcaWarning
-        case .permissionNeeded: FeatureProvider.isAvailable(.approveFlowV2) ? nil : .permissionNeeded
+        case .permissionNeeded: nil
         case .bestRate: .bestRate
         case .bestDexRate: .bestDexRate
         }
@@ -245,7 +245,7 @@ private extension SendSwapProvidersSelectorViewModel {
             subtitles.append(percentSubtitle)
         }
 
-        let showsTrailingButton = FeatureProvider.isAvailable(.approveFlowV2) && state.isApproveWithSwapRequired
+        let showsTrailingButton = state.isApproveWithSwapRequired
         let provider = availableProvider.provider
         return SendSwapProvidersSelectorProviderViewData(
             id: provider.id,

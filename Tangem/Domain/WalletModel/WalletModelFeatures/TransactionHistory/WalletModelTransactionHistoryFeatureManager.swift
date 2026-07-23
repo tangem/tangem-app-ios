@@ -8,29 +8,24 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
+import CombineExt
 import TangemFoundation
 
 final class WalletModelTransactionHistoryFeatureManager {
+    @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
+
     private let key: TransactionHistoryProviderKey
     private let tokenItem: TokenItem
     private let registry: TransactionHistoryProviderRegistry
-    private let transactionHistoryProviderSubject = CurrentValueSubject<TransactionHistorySyncing?, Never>(nil)
+    private let transactionHistoryProviderSubject = CurrentValueSubject<(any TransactionHistoryProviding)?, Never>(nil)
     private var transactionHistoryProviderSubscription: AnyCancellable?
 
     private var isFeatureAvailable: Bool {
         FeatureProvider.isAvailable(.transactionHistoryV2)
     }
 
-    private var isBlockchainSupported: Bool {
-        // [REDACTED_TODO_COMMENT]
-        switch tokenItem.blockchain {
-        case .solana,
-             _ where tokenItem.blockchain.isEvm:
-            return true
-        default:
-            return false
-        }
+    private var isExpressSupported: Bool {
+        expressAvailabilityProvider.canSwap(tokenItem: tokenItem) || expressAvailabilityProvider.canOnramp(tokenItem: tokenItem)
     }
 
     init(
@@ -46,25 +41,38 @@ final class WalletModelTransactionHistoryFeatureManager {
     }
 
     private func bind() {
-        if isFeatureAvailable, isBlockchainSupported {
-            transactionHistoryProviderSubscription = Future
-                .async { [registry, key] in
-                    await registry.provider(for: key)
-                }
-                .eraseToOptional()
-                .sink { [transactionHistoryProviderSubject] in
-                    transactionHistoryProviderSubject.send($0)
-                }
+        guard isFeatureAvailable else {
+            return
         }
+
+        transactionHistoryProviderSubscription = expressAvailabilityProvider
+            .availabilityDidChangePublisher
+            .withWeakCaptureOf(self)
+            .map(\.0.isExpressSupported)
+            .removeDuplicates()
+            .flatMapLatest { [registry, key] isExpressSupported -> AnyPublisher<(any TransactionHistoryProviding)?, Never> in
+                guard isExpressSupported else {
+                    return .just(output: nil)
+                }
+
+                return Future
+                    .async { await registry.provider(for: key) }
+                    .eraseToOptional()
+                    .eraseToAnyPublisher()
+            }
+            .withWeakCaptureOf(self)
+            .sink { manager, provider in
+                manager.transactionHistoryProviderSubject.send(provider)
+            }
     }
 }
 
 // MARK: - WalletModelFeatureManager protocol conformance
 
 extension WalletModelTransactionHistoryFeatureManager: WalletModelFeatureManager {
-    var featurePayload: TransactionHistorySyncing? { transactionHistoryProviderSubject.value }
+    var featurePayload: (any TransactionHistoryProviding)? { transactionHistoryProviderSubject.value }
 
-    var featurePayloadPublisher: AnyPublisher<TransactionHistorySyncing?, Never> {
+    var featurePayloadPublisher: AnyPublisher<(any TransactionHistoryProviding)?, Never> {
         transactionHistoryProviderSubject.eraseToAnyPublisher()
     }
 }
