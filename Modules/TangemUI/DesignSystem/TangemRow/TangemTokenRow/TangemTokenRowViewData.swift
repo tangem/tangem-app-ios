@@ -51,8 +51,8 @@ public extension TangemTokenRowViewData {
         /// Error state - shows error message instead of balances
         case error(message: String)
 
-        /// Compact state - balance + optional centered trailing icon (e.g., for drag/reorder UI)
-        case compact(subtitle: LoadableBalanceView.State, trailingIcon: ImageType?)
+        /// Compact state - balance + optional currency symbol next to the name + optional centered trailing icon (e.g., for drag/reorder UI)
+        case compact(subtitle: LoadableBalanceView.State, currencySymbol: String?, trailingIcon: ImageType?)
     }
 }
 
