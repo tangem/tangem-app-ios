@@ -90,6 +90,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
                 TangemShimmerDemoView(viewModel: $0)
             }
             .navigation(item: $coordinator.glowRingDemoViewModel, destination: GlowRingDemoView.init)
+            .navigation(item: $coordinator.tangemTopNavigationDemoViewModel) {
+                TangemTopNavigationDemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemFadeDemoViewModel) {
                 TangemFadeDemoView(viewModel: $0)
             }
@@ -163,6 +166,10 @@ struct DesignSystemDemoView: View {
 
                     MainButton(title: "Typography V2") {
                         viewModel.openTypographyV2Demo()
+                    }
+
+                    MainButton(title: "TopNavigation") {
+                        viewModel.openTangemTopNavigationDemo()
                     }
                 }
 

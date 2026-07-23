@@ -107,6 +107,10 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openGlowRingDemo()
     }
 
+    func openTangemTopNavigationDemo() {
+        coordinator?.openTangemTopNavigationDemo()
+    }
+
     func openTangemFadeDemo() {
         coordinator?.openTangemFadeDemo()
     }
