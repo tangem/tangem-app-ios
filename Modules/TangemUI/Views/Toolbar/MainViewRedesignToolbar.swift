@@ -114,7 +114,7 @@ public struct MainViewRedesignToolbar<PrincipalContent: View>: ViewModifier {
     }
 
     private var qrScanButton: some View {
-        Button(action: scanQRCodeAction) {
+        SwiftUI.Button(action: scanQRCodeAction) {
             Assets.Glyphs.scanQrIcon.image
                 .renderingMode(.template)
                 .resizable()
@@ -130,7 +130,7 @@ public struct MainViewRedesignToolbar<PrincipalContent: View>: ViewModifier {
     }
 
     private var detailsButton: some View {
-        Button(action: detailsAction) {
+        SwiftUI.Button(action: detailsAction) {
             Image(systemName: "ellipsis")
                 .frame(width: .unit(.x7), height: .unit(.x7))
                 .foregroundColor(Colors.Icon.primary1)

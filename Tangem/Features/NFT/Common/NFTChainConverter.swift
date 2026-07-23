@@ -154,6 +154,7 @@ enum NFTChainConverter {
              .scroll,
              .linea,
              .monad,
+             .robinhood,
              .arbitrumNova,
              .plasma,
              .adi,

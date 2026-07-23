@@ -58,15 +58,22 @@ public extension Error {
 
 extension JSONRPC.APIError {
     /// EIP-1474 defines code 3 for failed contract execution; some nodes omit
-    /// the code and report reverts with only the message filled in.
+    /// the code and report reverts with only the message filled in. Contracts
+    /// compiled from old Solidity (e.g. USDT) fail assertions via the INVALID
+    /// opcode, which nodes report as `invalid opcode: INVALID` (geth-like) or
+    /// `EVM error: InvalidFEOpcode` instead of `execution reverted`.
     var isContractExecutionError: Bool {
         if code == Self.executionRevertedCode {
             return true
         }
 
-        return message?.range(of: Self.executionRevertedMessage, options: .caseInsensitive) != nil
+        guard let message else {
+            return false
+        }
+
+        return Self.executionRevertedMessages.contains { message.range(of: $0, options: .caseInsensitive) != nil }
     }
 
     private static let executionRevertedCode = 3
-    private static let executionRevertedMessage = "execution reverted"
+    private static let executionRevertedMessages = ["execution reverted", "invalid opcode", "InvalidFEOpcode"]
 }

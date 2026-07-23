@@ -66,7 +66,7 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
     }
 
     private var systemLabelButton: some View {
-        Button("", systemImage: sfSymbol, action: action)
+        SwiftUI.Button("", systemImage: sfSymbol, action: action)
             .labelStyle(.iconOnly)
             .tint(Color.Tangem.Graphic.Neutral.primary)
             .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
@@ -74,7 +74,7 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
     }
 
     private var circleIconButton: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             iconAsset.image
                 .resizable()
                 .renderingMode(.template)

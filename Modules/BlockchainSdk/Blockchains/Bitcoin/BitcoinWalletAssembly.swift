@@ -15,7 +15,7 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
         )
 
         let txBuilder = BitcoinTransactionBuilder(
-            network: input.wallet.blockchain.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinNetworkParams(),
+            network: input.wallet.blockchain.isTestnet ? BitcoinTestnetNetworkParams() : BitcoinNetworkParams(),
             unspentOutputManager: unspentOutputManager,
             builderType: .walletCore(.bitcoin)
         )

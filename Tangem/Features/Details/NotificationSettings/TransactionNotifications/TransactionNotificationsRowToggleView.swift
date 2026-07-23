@@ -23,7 +23,7 @@ struct TransactionNotificationsRowToggleView: View {
             GroupedSection(viewModel.pushNotifyViewModel) {
                 DefaultToggleRowView(viewModel: $0)
             } footer: {
-                Button(action: viewModel.onTapMoreInfoTransactionPushNotifications) {
+                SwiftUI.Button(action: viewModel.onTapMoreInfoTransactionPushNotifications) {
                     Group {
                         Text("\(Localization.walletSettingsPushNotificationsDescription) ")
                             + readMoreText

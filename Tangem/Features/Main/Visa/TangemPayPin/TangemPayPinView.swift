@@ -68,7 +68,7 @@ private extension TangemPayPinView {
                 .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinInputField)
 
                 if viewModel.isLoading {
-                    TangemLoader()
+                    Loader()
                         .loaderSize(.size24)
                 }
             }

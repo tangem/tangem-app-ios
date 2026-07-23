@@ -20,7 +20,7 @@ struct EarnTokenItemViewRedesign: View {
     @ScaledMetric private var verticalPadding = CGFloat.unit(.x3)
 
     var body: some View {
-        Button(action: viewModel.onTapAction) {
+        SwiftUI.Button(action: viewModel.onTapAction) {
             TangemTwoLineRowLayout(
                 icon: icon,
                 primaryLeading: primaryLeading,
