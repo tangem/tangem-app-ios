@@ -59,6 +59,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/tariff-plan/transitions"
         case .requestTariffPlanPendingTransition:
             "customer/tariff-plan/pending-transition"
+        case .cancelTariffPlanPendingTransition:
+            "customer/tariff-plan/pending-transition/cancel"
         case .cancelKYC:
             "customer/pay-enabled"
         case .updateCardDisplayNameLegacy, .setCardLimitLegacy:
@@ -98,7 +100,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getWithdrawSignableData,
              .sendWithdrawTransaction,
              .reissueCard,
-             .requestTariffPlanPendingTransition:
+             .requestTariffPlanPendingTransition,
+             .cancelTariffPlanPendingTransition:
             .post
 
         case .cancelKYC,
@@ -120,6 +123,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getOrder,
              .getCustomerOffers,
              .getTariffPlanTransitions,
+             .cancelTariffPlanPendingTransition,
              .getBalance,
              .getPinLegacy,
              .getPin,
@@ -269,6 +273,7 @@ extension CustomerInfoManagementAPITarget {
 
         case getTariffPlanTransitions
         case requestTariffPlanPendingTransition(pendingTariffPlanId: String)
+        case cancelTariffPlanPendingTransition
 
         case getFee(type: TangemPayFeeType)
         case reissueCard(cardId: String)
