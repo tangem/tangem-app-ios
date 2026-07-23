@@ -13,6 +13,7 @@ import TangemAccessibilityIdentifiers
 
 struct TangemPayBalanceView: View {
     let state: LoadableBalanceView.State
+    var isError: Bool = false
 
     var body: some View {
         LoadableBalanceView(
@@ -20,12 +21,12 @@ struct TangemPayBalanceView: View {
                 state,
                 integerFont: TangemFontStyle(DesignSystem.Font.displayMediumToken),
                 fractionalFont: TangemFontStyle(DesignSystem.Font.headingMediumToken),
-                integerColor: DesignSystem.Color.textPrimary,
-                fractionalColor: DesignSystem.Color.textSecondary
+                integerColor: isError ? DesignSystem.Color.textStatusError : DesignSystem.Color.textPrimary,
+                fractionalColor: isError ? DesignSystem.Color.textStatusError : DesignSystem.Color.textSecondary
             ),
             style: .init(
                 font: DesignSystem.Font.displayMediumToken.font,
-                textColor: DesignSystem.Color.textPrimary
+                textColor: isError ? DesignSystem.Color.textStatusError : DesignSystem.Color.textPrimary
             ),
             loader: .init(
                 size: CGSize(width: 140, height: 44),
@@ -38,7 +39,6 @@ struct TangemPayBalanceView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 24) {
         TangemPayBalanceView(state: .loaded(text: "$18.97"))
@@ -48,4 +48,3 @@ struct TangemPayBalanceView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG
