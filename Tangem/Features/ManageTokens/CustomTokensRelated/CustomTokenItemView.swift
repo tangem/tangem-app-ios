@@ -37,7 +37,7 @@ struct CustomTokenItemView: View {
 
             Spacer(minLength: 16)
 
-            Button {
+            SwiftUI.Button {
                 removeAction(info)
             } label: {
                 Text(Localization.manageTokensRemove)

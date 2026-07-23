@@ -12,15 +12,25 @@ public struct OnrampPaymentMethod: Hashable {
     public let id: String
     public let name: String
     public let image: URL
+    public let imageLight: URL?
+    public let imageDark: URL?
 
     public var type: MethodType {
         MethodType.from(id: id)
     }
 
-    public init(id: String, name: String, image: URL) {
+    public init(id: String, name: String, image: URL, imageLight: URL? = nil, imageDark: URL? = nil) {
         self.id = id
         self.name = name
         self.image = image
+        self.imageLight = imageLight
+        self.imageDark = imageDark
+    }
+
+    public func imageURL(isDark: Bool) -> URL {
+        let preferred = isDark ? imageDark : imageLight
+        let alternative = isDark ? imageLight : imageDark
+        return preferred ?? alternative ?? image
     }
 }
 

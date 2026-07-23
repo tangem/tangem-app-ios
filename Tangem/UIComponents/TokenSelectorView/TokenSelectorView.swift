@@ -171,7 +171,7 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
     private func redesignedWalletChip(_ chip: TokenSelectorViewModel.WalletChipData) -> some View {
         let isSelected = viewModel.selectedChipId == chip.id
 
-        return Button {
+        return SwiftUI.Button {
             if viewModel.selectedChipId != chip.id {
                 viewModel.selectedChipId = chip.id
             }
