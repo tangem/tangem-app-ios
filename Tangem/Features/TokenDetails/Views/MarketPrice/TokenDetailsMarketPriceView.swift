@@ -15,7 +15,7 @@ struct TokenDetailsMarketPriceView: View {
     let viewModel: TokenDetailsMarketPriceViewModel
 
     var body: some View {
-        Button(action: viewModel.action) {
+        SwiftUI.Button(action: viewModel.action) {
             HStack(spacing: .zero) {
                 labels
 
@@ -91,7 +91,7 @@ struct TokenDetailsMarketPriceView: View {
     }
 
     private var expandButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             icon: Assets.arrowExpand,
             accessibilityLabel: nil,
             action: viewModel.action

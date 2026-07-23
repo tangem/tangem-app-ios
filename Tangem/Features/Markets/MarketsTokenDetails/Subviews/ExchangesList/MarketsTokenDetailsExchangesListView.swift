@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct MarketsTokenDetailsExchangesListView: View {
@@ -24,7 +25,7 @@ struct MarketsTokenDetailsExchangesListView: View {
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     private var defaultBackgroundColor: Color {
-        .Tangem.Surface.level2
+        DesignSystem.Color.bgPrimary
     }
 
     private let scrollViewContentTopInset = 14.0
@@ -94,26 +95,26 @@ struct MarketsTokenDetailsExchangesListView: View {
 
             Spacer()
 
-            HStack(spacing: .unit(.x3)) {
+            HStack(spacing: 12) {
                 redesignedHeaderText(Localization.marketsTokenDetailsVolume)
 
                 redesignedHeaderText(Localization.marketsSelectorInterval24hTitle)
             }
         }
-        .padding(.horizontal, .unit(.x7))
-        .padding(.top, .unit(.x3))
-        .padding(.bottom, .unit(.x2))
+        .padding(.horizontal, 28)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
     }
 
     private func redesignedHeaderText(_ text: String) -> some View {
         Text(text)
-            .style(Font.Tangem.Caption12.semibold, color: Color.Tangem.Text.Neutral.secondary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
     }
 
     @ViewBuilder
     private var listContent: some View {
         redesignedListContent
-            .padding(.horizontal, .unit(.x4))
+            .padding(.horizontal, 16)
     }
 
     @ViewBuilder
@@ -134,7 +135,7 @@ struct MarketsTokenDetailsExchangesListView: View {
 
     private var redesignedScrollContent: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: .unit(.x3)) {
+            VStack(spacing: 12) {
                 Color.clear
                     .frame(height: headerHeight)
 
@@ -154,7 +155,7 @@ struct MarketsTokenDetailsExchangesListView: View {
                         EmptyView()
                     }
                 }
-                .roundedBackground(with: .Tangem.Surface.level3, padding: 0, radius: .unit(.x5))
+                .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 0, radius: 20)
             }
             .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 isListContentObscured = contentOffset.y > scrollViewContentTopInset
