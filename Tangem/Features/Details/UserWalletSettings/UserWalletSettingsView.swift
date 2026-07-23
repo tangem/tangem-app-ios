@@ -84,19 +84,16 @@ struct UserWalletSettingsView: View {
 
     @ViewBuilder
     private var mobileUpgradeSubsection: some View {
-        if viewModel.isMobileUpgradeAvailable {
+        if let mobileUpgradeViewModel = viewModel.mobileUpgradeViewModel {
             VStack(alignment: .leading, spacing: 12) {
                 Separator(height: .exact(0.5), color: Colors.Stroke.primary)
 
-                DefaultRowView(viewModel: DefaultRowViewModel(
-                    title: Localization.detailsMobileWalletUpgradeActionTitle,
-                    action: viewModel.mobileUpgradeTap
-                ))
-                .appearance(.init(
-                    isChevronVisible: false,
-                    textColor: Colors.Text.accent,
-                    hasVerticalPadding: false
-                ))
+                DefaultRowView(viewModel: mobileUpgradeViewModel)
+                    .appearance(.init(
+                        isChevronVisible: false,
+                        textColor: Colors.Text.accent,
+                        hasVerticalPadding: false
+                    ))
             }
         }
     }
