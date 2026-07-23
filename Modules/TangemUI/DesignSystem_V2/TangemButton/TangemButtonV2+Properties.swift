@@ -35,7 +35,7 @@ public extension TangemButtonV2 {
         case x8
         case x7
 
-        var height: CGFloat {
+        public var height: CGFloat {
             switch self {
             case .x14: 56
             case .x12: 48

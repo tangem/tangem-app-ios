@@ -27,8 +27,8 @@ struct UserWalletView: View {
     @State private var headerScale: CGFloat = 1
     @State private var headerOpacity: CGFloat = 1
 
-    @ScaledMetric private var headerBalanceTextHeight = CGFloat.unit(.x12)
-    @ScaledMetric private var headerSubtitleHeight = CGFloat.unit(.x7)
+    @ScaledMetric private var headerBalanceTextHeight = CGFloat(48)
+    @ScaledMetric private var headerSubtitleHeight = CGFloat(28)
 
     @State private var settleTask: Task<Void, Never>?
     @State private var scrollEnableTask: Task<Void, Never>?
@@ -266,8 +266,8 @@ extension UserWalletView {
     }
 
     private enum Paddings {
-        static let headerTop = CGFloat.unit(.x13)
-        static let headerBottom = CGFloat.unit(.x3)
+        static let headerTop = CGFloat(52)
+        static let headerBottom = CGFloat(12)
     }
 
     private enum Durations {
