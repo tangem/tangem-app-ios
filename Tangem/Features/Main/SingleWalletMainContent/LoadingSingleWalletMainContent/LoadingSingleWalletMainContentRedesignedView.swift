@@ -7,14 +7,15 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct LoadingSingleWalletMainContentRedesignedView: View {
     var body: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 8) {
             RedesignedAccountSkeletonCardView()
         }
-        .padding(.horizontal, .unit(.x3))
+        .padding(.horizontal, 12)
         .frame(maxHeight: .infinity, alignment: .top)
     }
 }
@@ -23,7 +24,7 @@ struct LoadingSingleWalletMainContentRedesignedView: View {
 
 #Preview {
     ZStack {
-        Color.Tangem.Surface.level2
+        DesignSystem.Color.bgPrimary
             .ignoresSafeArea()
 
         LoadingSingleWalletMainContentRedesignedView()
