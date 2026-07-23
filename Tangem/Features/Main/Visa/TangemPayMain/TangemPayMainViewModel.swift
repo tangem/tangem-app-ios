@@ -8,6 +8,7 @@
 
 import Combine
 import PassKit
+import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
@@ -52,6 +53,10 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var isAddCardLoading: Bool = false
 
     @Published private(set) var awaitingDepositMonthlyFee: String?
+
+    @Published private(set) var isBalanceNegative: Bool = false
+
+    @Published private(set) var systemDowngradeBanner: NotificationBanner.BannerType?
 
     @Published private(set) var currentPlanState: CurrentPlanState
 
@@ -397,6 +402,45 @@ extension TangemPayMainViewModel {
     }
 }
 
+// MARK: - SystemDowngradeBanner
+
+private extension TangemPayMainViewModel {
+    static let systemDowngradeDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM d yyyy"
+        return formatter
+    }()
+
+    static func makeSystemDowngradeBanner(
+        from plan: VisaCustomerInfoResponse.CustomerTariffPlan,
+        addFundsAction: @Sendable @escaping () -> Void
+    ) -> NotificationBanner.BannerType? {
+        guard plan.status == .systemDowngradePending, let nextBillingAt = plan.nextBillingAt else {
+            return nil
+        }
+
+        let date = systemDowngradeDateFormatter.string(from: nextBillingAt)
+        let title = AttributedString(Localization.tangempayCardDetailsSystemDowngradeTitle)
+        let subtitle = AttributedString(Localization.tangempayCardDetailsSystemDowngradeSubtitle(plan.tariffPlan.name, date))
+
+        return .critical(
+            .textWithIcon(.init(
+                text: .init(title: title, subtitle: subtitle),
+                icon: .init(imageType: Assets.clear, width: .zero, height: .zero)
+            )),
+            .buttons(.one(
+                .init(
+                    content: .text(AttributedString(Localization.tangempayCardDetailsAddFunds)),
+                    styleType: .primary,
+                    cornerStyle: .rounded,
+                    action: addFundsAction
+                ),
+                accessibilityIdentifier: nil
+            ))
+        )
+    }
+}
+
 private extension VisaCustomerInfoResponse.CustomerTariffPlan {
     var currentPlanState: TangemPayMainViewModel.CurrentPlanState {
         if status == .transitioning {
@@ -436,17 +480,32 @@ private extension TangemPayMainViewModel {
             .assign(to: &$pendingExpressTransactions)
 
         tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.balanceTypePublisher
-            .map { balance in
-                balance.value?.isZero == true
-            }
+            .map { balance in balance.value.map { $0 <= 0 } ?? false }
             .receiveOnMain()
             .assign(to: &$isWithdrawButtonDisabled)
+
+        tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.balanceTypePublisher
+            .map { balance in balance.value.map { $0 < 0 } ?? false }
+            .receiveOnMain()
+            .assign(to: &$isBalanceNegative)
 
         tangemPayAccount.customerTariffPlanPublisher
             .map { $0?.currentPlanState ?? .unknown }
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$currentPlanState)
+
+        tangemPayAccount.customerTariffPlanPublisher
+            .map { plan in
+                plan.flatMap {
+                    Self.makeSystemDowngradeBanner(from: $0) { [weak self] in
+                        Task { @MainActor in self?.addFunds() }
+                    }
+                }
+            }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$systemDowngradeBanner)
 
         bindInlineNotifications()
 
