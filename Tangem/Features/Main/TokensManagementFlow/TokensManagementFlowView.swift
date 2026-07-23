@@ -53,7 +53,7 @@ struct TokensManagementFlowView: View {
     }
 
     private var cancelButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: Localization.commonCancel,
             accessibilityLabel: nil,
             action: viewModel.close
