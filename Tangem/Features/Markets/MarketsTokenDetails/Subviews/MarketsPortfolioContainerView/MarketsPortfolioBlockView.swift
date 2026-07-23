@@ -90,10 +90,10 @@ private struct MarketsPortfolioBlockContentView: View {
     private var addFundsButton: some View {
         TangemUI.Button(
             label: AttributedString(Localization.commonAddFunds),
-            iconStart: DesignSystem.Icons.ArrowDown.regular20,
             accessibilityLabel: Localization.commonAddFunds,
             action: onAddFundsTap
         )
+        .iconStart(DesignSystem.Icons.ArrowDown.regular20)
         .size(.x9)
         .styleType(.secondary)
         .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addFundsButton)
