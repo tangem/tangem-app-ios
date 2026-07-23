@@ -209,30 +209,21 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
 
     func openTangemPayWithdraw(input: PredefinedSwapParameters) {
         Task { @MainActor in
-            let viewModel = TangemPayWithdrawNoteSheetViewModel(coordinator: self) { [weak self] in
-                Task { @MainActor in
-                    self?.floatingSheetPresenter.removeActiveSheet()
-                    try? await Task.sleep(for: .seconds(0.2))
-                    self?.openSwap(parameters: input)
-                }
-            }
-
+            let viewModel = TangemPayWithdrawNoteSheetViewModel(parameters: input, coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
     func openTangemWithdrawInProgressSheet() {
-        let viewModel = TangemPayWithdrawInProgressSheetViewModel(coordinator: self)
-
         Task { @MainActor in
+            let viewModel = TangemPayWithdrawInProgressSheetViewModel(coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
     func openTangemPayNoDepositAddressSheet() {
-        let viewModel = TangemPayNoDepositAddressSheetViewModel(coordinator: self)
-
         Task { @MainActor in
+            let viewModel = TangemPayNoDepositAddressSheetViewModel(coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -300,12 +291,37 @@ extension TangemPayMainCoordinator: TangemPayWithdrawNoteSheetRoutable {
             floatingSheetPresenter.removeActiveSheet()
         }
     }
+
+    func openWithdrawal(parameters: PredefinedSwapParameters) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            openSwap(parameters: parameters)
+        }
+    }
 }
 
 // MARK: - TangemPayWithdrawInProgressSheetRoutable
 
 extension TangemPayMainCoordinator: TangemPayWithdrawInProgressSheetRoutable {
     func closeWithdrawInProgressSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayBiometryNotSetPopupRoutable
+
+extension TangemPayMainCoordinator: TangemPayBiometryNotSetPopupRoutable {
+    func openBiometrySettings() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            UIApplication.openSystemSettings()
+        }
+    }
+
+    func closeBiometryNotSetPopup() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
@@ -608,15 +624,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
 
     func openTangemPayBiometryNotSetSheet() {
         Task { @MainActor in
-            let viewModel = TangemPayBiometryNotSetPopupViewModel(
-                onSetBiometry: { [weak self] in
-                    self?.floatingSheetPresenter.removeActiveSheet()
-                    UIApplication.openSystemSettings()
-                },
-                onClose: { [weak self] in
-                    self?.floatingSheetPresenter.removeActiveSheet()
-                }
-            )
+            let viewModel = TangemPayBiometryNotSetPopupViewModel(coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
