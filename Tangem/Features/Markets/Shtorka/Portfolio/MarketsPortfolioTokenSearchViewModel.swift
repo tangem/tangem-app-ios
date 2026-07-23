@@ -35,8 +35,8 @@ final class MarketsPortfolioTokenSearchViewModel: ObservableObject {
     var showAllTitle: AttributedString {
         let title = isExpanded ? Localization.feedSearchShowLessUserAssets : Localization.feedSearchShowAllUserAssets
         var string = AttributedString(title)
-        string.setFontStyle(Font.Tangem.Subheadline.medium)
-        string.foregroundColor = .Tangem.Text.Neutral.primary
+        string.setFontStyle(DesignSystem.Font.subheadingMediumToken)
+        string.foregroundColor = DesignSystem.Color.textPrimary
         return string
     }
 

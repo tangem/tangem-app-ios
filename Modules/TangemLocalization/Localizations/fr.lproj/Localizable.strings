@@ -1390,7 +1390,7 @@
 "staking_enabled" = "Staking activé";
 "staking_error_no_validators_message" = "Aucun validateur disponible pour le moment. Veuillez réessayer plus tard.";
 "staking_error_no_validators_title" = "Staking indisponible";
-"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
+"staking_error_unavailable_region_description" = "Le staking n'est actuellement pas disponible dans votre région. Si vous avez un VPN activé, essayez de le désactiver.";
 "staking_error_unavailable_region" = "Le staking est indisponible dans votre région";
 "staking_give_permission_fee_footer" = "Le réseau facturera des frais d’approbation de jeton pour vérifier que vous autorisez l’utilisation de votre jeton pour le jalonnement.";
 "staking_legal" = "En utilisant la fonctionnalité de staking, vous acceptez les %1$@ et %2$@ du fournisseur";
@@ -1966,6 +1966,8 @@
 "tokens_list_unavailable_to_swap_source_header" = "Indisponible pour un échange";
 "transaction_history_claiming_reward" = "Claiming reward";
 "transaction_history_contract_address" = "contrat : %@";
+"transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
+"transaction_history_detail_page_amount_value" = "%1@ %2@";
 "transaction_history_disabling_yield_mode" = "Disabling Yield mode";
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "Vous n'avez pas encore de transactions";
