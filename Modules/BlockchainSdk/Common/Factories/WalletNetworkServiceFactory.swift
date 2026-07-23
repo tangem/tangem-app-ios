@@ -107,6 +107,7 @@ extension WalletNetworkServiceFactory {
              .scroll,
              .linea,
              .monad,
+             .robinhood,
              .arbitrumNova,
              .plasma,
              .adi,
