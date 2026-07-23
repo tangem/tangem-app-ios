@@ -60,7 +60,7 @@ struct SendSummaryView: View {
     @ViewBuilder
     private var destinationSectionView: some View {
         if let destinationCompactViewModel = viewModel.sendDestinationCompactViewModel {
-            Button(action: viewModel.userDidTapDestination) {
+            SwiftUI.Button(action: viewModel.userDidTapDestination) {
                 SendDestinationCompactView(viewModel: destinationCompactViewModel)
             }
             .allowsHitTesting(viewModel.destinationEditableType.isEditable)
@@ -73,7 +73,7 @@ struct SendSummaryView: View {
     @ViewBuilder
     private var stakingValidatorsView: some View {
         if let stakingTargetsCompactViewModel = viewModel.stakingTargetsCompactViewModel {
-            Button(action: viewModel.userDidTapValidator) {
+            SwiftUI.Button(action: viewModel.userDidTapValidator) {
                 StakingTargetsCompactView(viewModel: stakingTargetsCompactViewModel)
             }
             .allowsHitTesting(stakingTargetsCompactViewModel.canEditTarget)

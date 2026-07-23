@@ -103,7 +103,7 @@ extension HorizontalChipsView {
         let action: () -> Void
 
         var body: some View {
-            Button(action: action) {
+            SwiftUI.Button(action: action) {
                 HStack(spacing: Constants.chipIconSpacing) {
                     Text(title)
                         .style(Fonts.Bold.subheadline, color: foregroundColor)
