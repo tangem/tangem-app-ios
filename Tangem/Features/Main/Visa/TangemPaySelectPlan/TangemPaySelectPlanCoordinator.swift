@@ -11,7 +11,7 @@ import TangemFoundation
 import TangemPay
 
 final class TangemPaySelectPlanCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<DismissReason>
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -27,7 +27,7 @@ final class TangemPaySelectPlanCoordinator: CoordinatorObject {
     private var options: Options?
 
     required init(
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<DismissReason>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -72,6 +72,12 @@ extension TangemPaySelectPlanCoordinator {
         case onboarding
         case planChange(customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan)
     }
+
+    enum DismissReason {
+        case planUpgraded
+        case planDowngraded
+        case closed
+    }
 }
 
 // MARK: - Confirmation
@@ -100,7 +106,7 @@ private extension TangemPaySelectPlanCoordinator {
 
 extension TangemPaySelectPlanCoordinator: TangemPaySelectPlanRoutable {
     func closeSelectPlanFlow() {
-        dismiss()
+        dismiss(with: .closed)
     }
 
     func openComparePlans(tariffPlans: [VisaCustomerInfoResponse.TariffPlan]) {
@@ -118,9 +124,15 @@ extension TangemPaySelectPlanCoordinator: TangemPayConfirmPlanRoutable {
         confirmPlanViewModel = nil
     }
 
-    func confirmPlanDidComplete() {
+    func confirmPlanDidComplete(transitionType: TangemPayTariffPlanTransition.TransitionType) {
         confirmPlanViewModel = nil
-        dismiss()
+
+        switch transitionType {
+        case .upgrade, .activation:
+            dismiss(with: .planUpgraded)
+        case .downgrade:
+            dismiss(with: .planDowngraded)
+        }
     }
 }
 

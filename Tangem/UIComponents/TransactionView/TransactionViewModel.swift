@@ -337,20 +337,27 @@ extension TransactionViewModel {
     /// an account + wallet pair (cross-wallet transfer in accounts-mode), or an unresolved
     /// external address that falls back to blockies + truncated hex.
     enum SubtitleOwner: Hashable {
-        case account(name: String, icon: AccountIconView.ViewData)
+        case accountInCurrentWallet(name: String, icon: AccountIconView.ViewData)
         case wallet(name: String)
-        case accountInWallet(accountName: String, accountIcon: AccountIconView.ViewData, walletName: String)
+        case accountInOtherWallet(accountName: String, accountIcon: AccountIconView.ViewData, walletName: String)
         /// Pre-rendered blockies are carried alongside the address so the SwiftUI body doesn't
         /// regenerate the blockies image on every recomputation (long lists scroll-allocate).
         case unresolved(short: String, fullAddress: String, blockiesImage: UIImage?)
 
+        var isOwnWallet: Bool {
+            switch self {
+            case .accountInCurrentWallet, .wallet, .accountInOtherWallet: true
+            case .unresolved: false
+            }
+        }
+
         static func == (lhs: SubtitleOwner, rhs: SubtitleOwner) -> Bool {
             switch (lhs, rhs) {
-            case (.account(let lName, let lIcon), .account(let rName, let rIcon)):
+            case (.accountInCurrentWallet(let lName, let lIcon), .accountInCurrentWallet(let rName, let rIcon)):
                 return lName == rName && lIcon == rIcon
             case (.wallet(let lName), .wallet(let rName)):
                 return lName == rName
-            case (.accountInWallet(let lAcc, let lIcon, let lWallet), .accountInWallet(let rAcc, let rIcon, let rWallet)):
+            case (.accountInOtherWallet(let lAcc, let lIcon, let lWallet), .accountInOtherWallet(let rAcc, let rIcon, let rWallet)):
                 return lAcc == rAcc && lIcon == rIcon && lWallet == rWallet
             case (.unresolved(let lShort, let lAddress, _), .unresolved(let rShort, let rAddress, _)):
                 return lShort == rShort && lAddress == rAddress
@@ -361,14 +368,14 @@ extension TransactionViewModel {
 
         func hash(into hasher: inout Hasher) {
             switch self {
-            case .account(let name, let icon):
+            case .accountInCurrentWallet(let name, let icon):
                 hasher.combine(0)
                 hasher.combine(name)
                 hasher.combine(icon)
             case .wallet(let name):
                 hasher.combine(1)
                 hasher.combine(name)
-            case .accountInWallet(let accountName, let accountIcon, let walletName):
+            case .accountInOtherWallet(let accountName, let accountIcon, let walletName):
                 hasher.combine(2)
                 hasher.combine(accountName)
                 hasher.combine(accountIcon)
