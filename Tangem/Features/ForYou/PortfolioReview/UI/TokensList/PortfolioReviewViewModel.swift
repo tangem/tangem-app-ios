@@ -18,7 +18,8 @@ final class PortfolioReviewViewModel: ObservableObject {
     // MARK: - Properties
 
     private let mapper: PortfolioReviewMapper
-    private let onAddFunds: @MainActor () -> Void
+
+    private weak var router: PortfolioReviewRoutable?
 
     private var expandedIds: Set<String> = []
     private var bag: Set<AnyCancellable> = []
@@ -27,16 +28,16 @@ final class PortfolioReviewViewModel: ObservableObject {
 
     @Published private(set) var state: ViewState = .loading
     @Published private(set) var showsOutdatedDataBanner = false
+
     @Published var selectedPeriod: ForYouPeriodSegment = .initial
     @Published var selectedChartSegmentID: GaugeSegment.ID?
 
-    var onSelectToken: (@MainActor (TokenItem) -> Void)?
-
     // MARK: - Init
 
-    init(mapper: PortfolioReviewMapper = PortfolioReviewMapper(), onAddFunds: @MainActor @escaping () -> Void = {}) {
+    init(mapper: PortfolioReviewMapper = PortfolioReviewMapper(), router: PortfolioReviewRoutable? = nil) {
         self.mapper = mapper
-        self.onAddFunds = onAddFunds
+        self.router = router
+
         bind()
     }
 
@@ -59,7 +60,8 @@ final class PortfolioReviewViewModel: ObservableObject {
             return
         }
 
-        onSelectToken?(tokenItem)
+        let sourceWalletId = userWalletRepository.selectedModel?.userWalletId
+        router?.openTokenSummary(tokenItem: tokenItem, sourceWalletId: sourceWalletId)
     }
 
     private func tokenItem(for id: String) -> TokenItem? {
@@ -82,7 +84,8 @@ final class PortfolioReviewViewModel: ObservableObject {
 
     @MainActor
     func addFundsTapped() {
-        onAddFunds()
+        let preferredWalletId = userWalletRepository.selectedModel?.userWalletId
+        router?.openAddFunds(userWalletModels: userWalletRepository.models, preferredWalletId: preferredWalletId)
     }
 }
 
