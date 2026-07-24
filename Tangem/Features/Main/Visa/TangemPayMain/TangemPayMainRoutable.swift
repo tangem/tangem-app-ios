@@ -22,6 +22,7 @@ protocol TangemPayMainRoutable: AnyObject {
     func openTangemPayNoDepositAddressSheet()
     func openTangemWithdrawInProgressSheet()
     func openTermsAndLimits()
+    func openVisaBenefits()
     func renewTangemPaySession()
     func closePaymentAccount()
 
