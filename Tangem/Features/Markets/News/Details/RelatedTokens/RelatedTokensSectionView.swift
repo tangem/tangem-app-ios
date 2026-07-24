@@ -11,6 +11,7 @@ import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct RelatedTokensSectionView: View {
     @ObservedObject var viewModel: RelatedTokensViewModel
@@ -24,7 +25,7 @@ struct RelatedTokensSectionView: View {
     // MARK: - Redesign
 
     private var redesignContent: some View {
-        VStack(alignment: .leading, spacing: .unit(.x3)) {
+        VStack(alignment: .leading, spacing: 12) {
             redesignHeader
 
             redesignContentBody
@@ -34,7 +35,7 @@ struct RelatedTokensSectionView: View {
 
     private var redesignHeader: some View {
         Text(Localization.newsRelatedTokens)
-            .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
     }
 
     @ViewBuilder
@@ -43,12 +44,12 @@ struct RelatedTokensSectionView: View {
         case .idle, .loading:
             redesignLoadingSkeletons
         case .loaded:
-            VStack(spacing: .unit(.x2)) {
+            VStack(spacing: 8) {
                 ForEach(viewModel.tokenViewModels) { tokenViewModel in
                     MarketTokenRowView(viewModel: tokenViewModel)
                         .background(
-                            RoundedRectangle(cornerRadius: .unit(.x5), style: .continuous)
-                                .fill(Color.Tangem.Surface.level3)
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .fill(DesignSystem.Color.bgSecondary)
                         )
                 }
             }
@@ -62,16 +63,16 @@ struct RelatedTokensSectionView: View {
             isButtonBusy: false,
             retryButtonAction: { viewModel.retry() }
         )
-        .padding(.vertical, .unit(.x4))
+        .padding(.vertical, 16)
     }
 
     private var redesignLoadingSkeletons: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 8) {
             ForEach(0 ..< 2, id: \.self) { _ in
                 MarketsSkeletonItemView()
                     .background(
-                        RoundedRectangle(cornerRadius: .unit(.x5), style: .continuous)
-                            .fill(Color.Tangem.Surface.level3)
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .fill(DesignSystem.Color.bgSecondary)
                     )
             }
         }
