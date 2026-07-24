@@ -178,7 +178,7 @@ public struct Row<
         }
     }
 
-    private func labelLine(text: String?, accessory: some View, role: Role, lineLimit: Int, colorOverride: Color? = nil, truncationMode: Text.TruncationMode = .tail) -> some View {
+    private func labelLine(text: String?, accessory: some View, role: Role, lineLimit: Int?, colorOverride: Color? = nil, truncationMode: Text.TruncationMode = .tail) -> some View {
         HStack(alignment: .center, spacing: RowMetrics.inlineAccessorySpacing) {
             if let text {
                 Text(text)
