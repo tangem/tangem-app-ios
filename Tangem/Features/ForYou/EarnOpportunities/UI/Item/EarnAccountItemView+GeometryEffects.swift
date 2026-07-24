@@ -10,7 +10,6 @@ import SwiftUI
 import TangemUIUtils
 
 extension EarnAccountItemView {
-    /// Matched-geometry effects that morph the account card between its collapsed row and expanded header
     struct GeometryEffects {
         let background, icon, iconBackground, name: GeometryEffectPropertiesModel
 

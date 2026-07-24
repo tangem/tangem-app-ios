@@ -11,6 +11,7 @@ import TangemUI
 
 struct EarnSuggestionRowData: Identifiable, Equatable {
     let id: String
+    let token: EarnTokenModel
     let tokenIconInfo: TokenIconInfo
     let name: String
     let network: String
