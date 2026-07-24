@@ -14,8 +14,7 @@ struct TangemPayComparePlansSheetViewModel: FloatingSheetContentViewModel {
     var id: String { String(describing: Self.self) }
 
     let title = Localization.tangempaySelectPlanCompare
-    let attributes: [Attribute]
-    let plans: [ComparePlan]
+    let sections: [ComparisonSection]
 
     private let coordinator: TangemPayComparePlansRoutable
 
@@ -27,20 +26,25 @@ struct TangemPayComparePlansSheetViewModel: FloatingSheetContentViewModel {
 
         let orderedAttributes = Self.makeOrderedAttributes(from: tariffPlans)
 
-        attributes = orderedAttributes.map { Attribute(id: $0, tabTitle: $0) }
-
-        plans = tariffPlans.map { plan in
+        let plansWithValues = tariffPlans.map { plan in
             let valuesByTitle = Dictionary(
                 plan.descriptionItems
                     .filter { $0.type != .onboardingRelated }
                     .map { ($0.title, $0.body) },
                 uniquingKeysWith: { first, _ in first }
             )
+            return (name: plan.name, valuesByTitle: valuesByTitle)
+        }
 
-            return ComparePlan(
-                name: plan.name,
-                thumbnailURL: plan.images.first { $0.type == .thumbnail }?.url,
-                cells: orderedAttributes.map { valuesByTitle[$0].flatMap { $0 } ?? Constants.missingValue }
+        sections = orderedAttributes.map { attribute in
+            ComparisonSection(
+                title: attribute,
+                rows: plansWithValues.map { plan in
+                    Row(
+                        planName: plan.name,
+                        value: plan.valuesByTitle[attribute].flatMap { $0 } ?? Constants.missingValue
+                    )
+                }
             )
         }
 
@@ -92,16 +96,16 @@ private extension VisaCustomerInfoResponse.TariffPlan.DescriptionItem.ItemType {
 // MARK: - Types
 
 extension TangemPayComparePlansSheetViewModel {
-    struct Attribute: Identifiable {
-        let id: String
-        let tabTitle: String
+    struct ComparisonSection: Identifiable {
+        var id: String { title }
+        let title: String
+        let rows: [Row]
     }
 
-    struct ComparePlan: Identifiable {
-        var id: String { name }
-        let name: String
-        let thumbnailURL: String?
-        let cells: [String]
+    struct Row: Identifiable {
+        var id: String { planName }
+        let planName: String
+        let value: String
     }
 }
 
