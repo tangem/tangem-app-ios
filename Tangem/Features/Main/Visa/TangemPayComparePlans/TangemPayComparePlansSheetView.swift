@@ -13,91 +13,62 @@ import TangemUI
 struct TangemPayComparePlansSheetView: View {
     let viewModel: TangemPayComparePlansSheetViewModel
 
-    @State private var contentOffset = CGPoint(x: 0, y: 0)
-
     var body: some View {
         VStack(spacing: 0) {
             FloatingSheetNavigationBarView(
                 title: viewModel.title,
-                backgroundColor: DesignSystem.Color.bgSecondary,
+                backgroundColor: DesignSystem.Color.bgPrimary,
                 closeButtonAction: viewModel.close
             )
 
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: Constants.sectionSpacing) {
-                    ForEach(viewModel.plans) { plan in
-                        section(for: plan)
+                VStack(spacing: Constants.sectionSpacing) {
+                    ForEach(viewModel.sections) { section in
+                        sectionView(section)
                     }
                 }
+                .padding(.horizontal, Constants.horizontalPadding)
                 .padding(.top, Constants.contentTopPadding)
                 .padding(.bottom, Constants.contentBottomPadding)
             }
-
-            TangemPayComparePlansTabsView(
-                attributes: viewModel.attributes,
-                selectedIndex: selectedIndex,
-                onSelect: scroll(toColumn:)
-            )
         }
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
+            configuration.maxHeightFraction = Constants.maxHeightFraction
+            configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
 
-    private func section(for plan: TangemPayComparePlansSheetViewModel.ComparePlan) -> some View {
+    private func sectionView(_ section: TangemPayComparePlansSheetViewModel.ComparisonSection) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(plan.name)
+            Text(section.title)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
-                .padding(.horizontal, 32)
-                .frame(height: Constants.sectionLabelHeight, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 8)
 
-            SyncedHorizontalScrollView(
-                contentOffset: $contentOffset,
-                itemWidth: Constants.tileWidth,
-                step: Constants.step
-            ) {
-                HStack(spacing: Constants.tileSpacing) {
-                    ForEach(Array(plan.cells.enumerated()), id: \.offset) { index, cell in
-                        TangemPayComparePlanCell(
-                            value: cell,
-                            thumbnailURL: index == 0 ? plan.thumbnailURL : nil
-                        )
-                    }
+            VStack(spacing: 0) {
+                ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
+                    TangemRow(title: row.planName, value: row.value)
+                        .contentLead(.end)
+                        .valueLineLimit(nil)
+                        .overrideTextColors(.init(title: DesignSystem.Color.textSecondary))
+                        .showDivider(index < section.rows.count - 1)
                 }
             }
-            .frame(height: Constants.tileHeight)
+            .background(DesignSystem.Color.bgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: Constants.cardCornerRadius, style: .continuous))
         }
-    }
-}
-
-// MARK: - Scroll helpers
-
-private extension TangemPayComparePlansSheetView {
-    var selectedIndex: Int {
-        guard !viewModel.attributes.isEmpty else { return 0 }
-        let raw = Int(((contentOffset.x + Constants.rowLeadingInset) / Constants.step).rounded())
-        return min(max(raw, 0), viewModel.attributes.count - 1)
-    }
-
-    func scroll(toColumn index: Int) {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            contentOffset = CGPoint(x: CGFloat(index) * Constants.step - Constants.rowLeadingInset, y: 0)
-        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 private extension TangemPayComparePlansSheetView {
     enum Constants {
-        static let tileWidth: CGFloat = 332
-        static let tileHeight: CGFloat = 112
-        static let tileSpacing: CGFloat = 8
-        static let rowLeadingInset: CGFloat = 16
-        static let step: CGFloat = tileWidth + tileSpacing
-
-        static let sectionLabelHeight: CGFloat = 42
+        static let maxHeightFraction: CGFloat = 0.9
         static let sectionSpacing: CGFloat = 24
+        static let horizontalPadding: CGFloat = 16
         static let contentTopPadding: CGFloat = 12
         static let contentBottomPadding: CGFloat = 32
+        static let cardCornerRadius: CGFloat = 24
     }
 }
