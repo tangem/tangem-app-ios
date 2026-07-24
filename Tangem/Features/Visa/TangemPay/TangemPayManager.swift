@@ -14,7 +14,7 @@ import TangemPay
 import TangemVisa
 import TangemSdk
 
-final class TangemPayManager: TangemPayAccountModel {
+final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     var state: TangemPayLocalState? {
         stateSubject.value
     }
@@ -47,7 +47,8 @@ final class TangemPayManager: TangemPayAccountModel {
         }
         return tangemPayAccountBuilder.makeTangemPayAccount(
             customerInfo: cached,
-            account: self
+            account: self,
+            accountRemover: self
         )
     }
 
@@ -171,6 +172,10 @@ final class TangemPayManager: TangemPayAccountModel {
             }
         }
         Analytics.log(.visaOnboardingVisaKYCCanceled, contextParams: .userWallet(userWalletId))
+    }
+
+    func removeAccount(onFinish: @escaping (Bool) -> Void) {
+        cancelKYC(onFinish: onFinish)
     }
 
     func refreshState() async {
@@ -341,7 +346,8 @@ final class TangemPayManager: TangemPayAccountModel {
         orderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
         let account = tangemPayAccountBuilder.makeTangemPayAccount(
             customerInfo: customerInfo,
-            account: self
+            account: self,
+            accountRemover: self
         )
         runTask {
             await account.loadBalance()

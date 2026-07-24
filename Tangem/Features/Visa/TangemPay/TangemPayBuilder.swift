@@ -103,7 +103,8 @@ final class TangemPayBuilder {
 extension TangemPayBuilder: TangemPayAccountBuilder {
     func makeTangemPayAccount(
         customerInfo: VisaCustomerInfoResponse,
-        account: (any TangemPayAccountModel)?
+        account: (any TangemPayAccountModel)?,
+        accountRemover: (any TangemPayAccountRemoving)?
     ) -> TangemPayAccount {
         TangemPayAccount(
             userWalletId: userWalletId,
@@ -117,7 +118,8 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             mainHeaderBalanceProvider: mainHeaderBalanceProvider,
             orderResolver: orderResolver,
             feeRepository: feeRepository,
-            account: account
+            account: account,
+            accountRemover: accountRemover
         )
     }
 }
