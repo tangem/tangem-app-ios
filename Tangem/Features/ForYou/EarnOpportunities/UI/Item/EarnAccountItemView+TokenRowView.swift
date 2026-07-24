@@ -14,6 +14,7 @@ import TangemUIUtils
 extension EarnAccountItemView {
     struct TokenRowView: View {
         let data: EarnTokenRowData
+        let onTap: () -> Void
 
         @ScaledMetric private var iconSize: CGFloat = 40
 
@@ -27,6 +28,7 @@ extension EarnAccountItemView {
             .overrideTextColors(.init(subvalue: DesignSystem.Color.textAccentGreen))
             .start { icon }
             .includeInnerPadding(false)
+            .onTap(onTap)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }

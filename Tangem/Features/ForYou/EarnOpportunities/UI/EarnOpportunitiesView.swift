@@ -66,11 +66,15 @@ private extension EarnOpportunitiesView {
         switch list {
         case .accounts(let accounts):
             ForEach(accounts) { account in
-                EarnAccountItemView(item: account, onAccountTap: viewModel.toggle)
+                EarnAccountItemView(
+                    item: account,
+                    onAccountTap: viewModel.toggle,
+                    onTokenTap: viewModel.selectHolding
+                )
             }
         case .suggestions(let suggestions):
             ForEach(suggestions) { suggestion in
-                EarnSuggestionRowView(data: suggestion)
+                EarnSuggestionRowView(data: suggestion, onTap: { viewModel.selectSuggestion(suggestion.token) })
             }
         }
     }

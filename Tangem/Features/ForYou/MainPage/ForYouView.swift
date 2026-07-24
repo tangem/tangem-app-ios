@@ -48,9 +48,9 @@ struct ForYouView: View {
     private var content: some View {
         ScrollView {
             VStack(spacing: 48) {
-                PortfolioReviewOutdatedDataBannerView(viewModel: viewModel.portfolioReview)
-                PortfolioReviewView(viewModel: viewModel.portfolioReview)
-                EarnOpportunitiesView(viewModel: viewModel.earnOpportunities)
+                PortfolioReviewOutdatedDataBannerView(viewModel: viewModel.portfolioReviewViewModel)
+                PortfolioReviewView(viewModel: viewModel.portfolioReviewViewModel)
+                EarnOpportunitiesView(viewModel: viewModel.earnOpportunitiesViewModel)
             }
             .padding(16)
         }

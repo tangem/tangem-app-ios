@@ -9,21 +9,11 @@
 import Foundation
 
 final class ForYouViewModel: ObservableObject {
-    let portfolioReview: PortfolioReviewViewModel
-    let earnOpportunities: EarnOpportunitiesViewModel
+    let portfolioReviewViewModel: PortfolioReviewViewModel
+    let earnOpportunitiesViewModel: EarnOpportunitiesViewModel
 
-    private weak var coordinator: ForYouRoutable?
-
-    init(
-        coordinator: ForYouRoutable? = nil,
-        onExploreAllEarn: @MainActor @escaping () -> Void = {},
-        onAddFunds: @MainActor @escaping () -> Void = {}
-    ) {
-        self.coordinator = coordinator
-        portfolioReview = .init(onAddFunds: onAddFunds)
-        earnOpportunities = .init(onExploreAllTokens: onExploreAllEarn)
-        portfolioReview.onSelectToken = { [weak self] tokenItem in
-            self?.coordinator?.openTokenSummary(tokenItem: tokenItem)
-        }
+    init(coordinator: ForYouRoutable? = nil) {
+        portfolioReviewViewModel = .init(router: coordinator)
+        earnOpportunitiesViewModel = .init(router: coordinator)
     }
 }
