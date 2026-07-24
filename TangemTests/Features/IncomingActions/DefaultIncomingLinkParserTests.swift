@@ -145,7 +145,26 @@ struct DefaultIncomingLinkParserTests {
     func parsesCampaignsDeeplinkWithoutCampaignId() throws {
         let url = try #require(URL(string: "tangem://campaigns"))
         let result = parser.parse(url)
-        #expect(result != nil, "Expected campaigns deeplink without campaignId to be parsed")
+
+        if case .navigation(let action) = result {
+            #expect(action.destination == .campaigns)
+            #expect(action.params.campaignId == nil)
+        } else {
+            #expect(Bool(false), "Expected campaigns deeplink without campaignId to be parsed")
+        }
+    }
+
+    @Test("Extracts campaignId from a campaigns deeplink")
+    func extractsCampaignIdFromCampaignsDeeplink() throws {
+        let url = try #require(URL(string: "tangem://campaigns?campaignId=whale-swap-cashback"))
+        let result = parser.parse(url)
+
+        if case .navigation(let action) = result {
+            #expect(action.destination == .campaigns)
+            #expect(action.params.campaignId == "whale-swap-cashback")
+        } else {
+            #expect(Bool(false), "Expected campaigns deeplink with campaignId to be parsed")
+        }
     }
 
     @Test("Rejects tangem://news-article since it is not a deeplink host")
