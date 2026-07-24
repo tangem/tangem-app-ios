@@ -77,6 +77,8 @@ struct TangemPayMainView: View {
         VStack(spacing: 28) {
             redesignedHeader
 
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+
             if !viewModel.notificationBannerItems.isEmpty {
                 NotificationBannerContainer(
                     items: viewModel.notificationBannerItems,
@@ -266,12 +268,28 @@ struct TangemPayMainView: View {
                     Divider()
                 }
 
+                if viewModel.isVisaBenefitsAvailable {
+                    SwiftUI.Button(action: viewModel.visaBenefits) {
+                        Label {
+                            Text(Localization.tangempayVisaBenefits)
+                        } icon: {
+                            DesignSystem.Icons.Heart.regular20.image
+                        }
+                    }
+                }
+
                 SwiftUI.Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }
 
                 SwiftUI.Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
+                }
+
+                if viewModel.isDeactivated {
+                    Button(role: .destructive, action: viewModel.promptRemoveAccount) {
+                        Label(Localization.tangempayRemoveAccount, systemImage: "trash")
+                    }
                 }
             } label: {
                 Image(systemName: "ellipsis")
