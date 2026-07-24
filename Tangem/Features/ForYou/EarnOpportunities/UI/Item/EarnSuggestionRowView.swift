@@ -13,6 +13,7 @@ import TangemUIUtils
 
 struct EarnSuggestionRowView: View {
     let data: EarnSuggestionRowData
+    let onTap: () -> Void
 
     @ScaledMetric private var iconSize: CGFloat = 40
 
@@ -25,6 +26,7 @@ struct EarnSuggestionRowView: View {
         )
         .start { icon }
         .includeInnerPadding(false)
+        .onTap(onTap)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .portfolioTokenCard()
