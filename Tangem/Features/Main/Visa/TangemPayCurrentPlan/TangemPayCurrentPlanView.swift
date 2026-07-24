@@ -40,6 +40,10 @@ struct TangemPayCurrentPlanView: View {
                     downgradeBannerView(downgradeBanner)
                 }
 
+                if let feeChargedBannerText = viewModel.feeChargedBannerText {
+                    feeChargedBannerView(feeChargedBannerText)
+                }
+
                 ForEach(viewModel.sections) { section in
                     sectionView(section)
                 }
@@ -81,6 +85,24 @@ struct TangemPayCurrentPlanView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
+    private func feeChargedBannerView(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            DesignSystem.Icons.Info.regular20.image
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 20, height: 20)
+                .foregroundStyle(DesignSystem.Color.iconStatusInfo)
+
+            Text(text)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 16)
+        .background(DesignSystem.Color.bgStatusInfoSubtle)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
     private func sectionView(_ section: TangemPayCurrentPlanViewModel.Section) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(section.title)
@@ -92,6 +114,7 @@ struct TangemPayCurrentPlanView: View {
                 ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
                     Row(title: row.value, subtitle: row.label)
                         .lineOrder(.secondaryFirst)
+                        .titleLineLimit(nil)
                         .showDivider(index < section.rows.count - 1)
                 }
             }
