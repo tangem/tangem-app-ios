@@ -23,13 +23,12 @@ protocol TangemPayMainRoutable: AnyObject {
     func openTangemWithdrawInProgressSheet()
     func openTermsAndLimits()
     func renewTangemPaySession()
+    func closePaymentAccount()
 
     func openTangemPayTransactionDetailsSheet(
         transaction: TangemPayTransactionRecord,
         userWalletId: UserWalletId,
-        customerId: String,
-        cardName: String?,
-        cardNumberEnd: String?
+        customerId: String
     )
 
     func openPendingExpressTransactionDetails(
