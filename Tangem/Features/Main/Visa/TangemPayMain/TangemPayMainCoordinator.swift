@@ -120,6 +120,10 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
     }
 
+    func closePaymentAccount() {
+        dismiss(with: nil)
+    }
+
     func openCardManagement(entry: TangemPayCardEntry) {
         guard let options else {
             assertionFailure("TangemPayMainCoordinator.Options not found")
@@ -231,16 +235,15 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     func openTangemPayTransactionDetailsSheet(
         transaction: TangemPayTransactionRecord,
         userWalletId: UserWalletId,
-        customerId: String,
-        cardName: String?,
-        cardNumberEnd: String?
+        customerId: String
     ) {
+        guard let options else { return }
+
         let viewModel = TangemPayTransactionDetailsViewModel(
             transaction: transaction,
             userWalletId: userWalletId,
             customerId: customerId,
-            cardName: cardName,
-            cardNumberEnd: cardNumberEnd,
+            tangemPayAccount: options.tangemPayAccount,
             coordinator: self
         )
 
