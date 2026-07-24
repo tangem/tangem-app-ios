@@ -34,7 +34,7 @@ private struct TangemPayAccountTile: View {
     @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
-        Button(action: onTap) {
+        SwiftUI.Button(action: onTap) {
             content
                 .padding(state.isSkeleton ? .zero : 12)
                 .background(DesignSystem.Color.bgSecondary)

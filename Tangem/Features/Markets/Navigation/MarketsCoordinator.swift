@@ -36,11 +36,11 @@ final class MarketsCoordinator: CoordinatorObject {
     @Published var newsPagerViewModel: NewsPagerViewModel?
     @Published var newsPagerTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var earnListCoordinator: EarnCoordinator?
+    @Published var forYouCoordinator: ForYouCoordinator?
 
     // MARK: - Child ViewModels
 
     @Published var marketsListOrderBottomSheetViewModel: MarketsListOrderBottomSheetViewModel?
-    @Published var forYouViewModel: ForYouViewModel?
 
     // MARK: - Private Properties
 
@@ -100,7 +100,17 @@ extension MarketsCoordinator: MarketsRoutable {
 
 extension MarketsCoordinator: MarketsMainRoutable {
     func openForYou() {
-        forYouViewModel = ForYouViewModel()
+        let coordinator = ForYouCoordinator(
+            dismissAction: { [weak self] in
+                self?.forYouCoordinator = nil
+            },
+            popToRootAction: popToRootAction,
+            routeOnTokenResolvedAction: { [weak self] resolution, source in
+                self?.routeOnTokenResolved(resolution, source: source)
+            }
+        )
+        coordinator.start(with: .init())
+        forYouCoordinator = coordinator
     }
 
     func openSeeAllTopMarketWidget() {

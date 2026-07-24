@@ -389,6 +389,10 @@ extension SendWithSwapModel: SendSwapProvidersInput {
             .eraseToAnyPublisher()
     }
 
+    var isDexOnlyProvidersMode: Bool {
+        isSwapMode ? swapModel.isDexOnlyProvidersMode : false
+    }
+
     var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? {
         isSwapMode ? swapModel.selectedExpressProvider : nil
     }

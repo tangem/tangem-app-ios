@@ -250,6 +250,18 @@ var serviceModules: [PackageDescription.Target] {
 var featureModules: [PackageDescription.Target] {
     [
         .tangemTarget(
+            name: "TangemPolymarket",
+            dependencies: [
+                "Moya",
+                "TangemFoundation",
+                "TangemNetworkUtils",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
             name: "TangemAccounts",
             dependencies: [
                 "TangemAssets",
@@ -381,6 +393,13 @@ var unitTestsModules: [PackageDescription.Target] {
             name: "TangemNFTTests",
             dependencies: [
                 "TangemNFT",
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemPolymarketTests",
+            dependencies: [
+                "TangemPolymarket",
+                "Moya",
             ]
         ),
     ]
