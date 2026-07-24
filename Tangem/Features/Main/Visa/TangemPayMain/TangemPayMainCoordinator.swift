@@ -41,6 +41,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
     @Published var tangemPayDailyLimitViewModel: TangemPayDailyLimitViewModel?
     @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
+    @Published var visaBenefitsViewModel: WebViewContainerViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
     @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
 
@@ -120,6 +121,10 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
     }
 
+    func closePaymentAccount() {
+        dismiss(with: nil)
+    }
+
     func openCardManagement(entry: TangemPayCardEntry) {
         guard let options else {
             assertionFailure("TangemPayMainCoordinator.Options not found")
@@ -154,7 +159,6 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             tariffPlanSelector: tangemPayAccount,
             closeFlow: { [weak self] in
                 self?.currentPlanCoordinator = nil
-                self?.dismiss(with: nil)
             }
         ))
         currentPlanCoordinator = coordinator
@@ -231,16 +235,15 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     func openTangemPayTransactionDetailsSheet(
         transaction: TangemPayTransactionRecord,
         userWalletId: UserWalletId,
-        customerId: String,
-        cardName: String?,
-        cardNumberEnd: String?
+        customerId: String
     ) {
+        guard let options else { return }
+
         let viewModel = TangemPayTransactionDetailsViewModel(
             transaction: transaction,
             userWalletId: userWalletId,
             customerId: customerId,
-            cardName: cardName,
-            cardNumberEnd: cardNumberEnd,
+            tangemPayAccount: options.tangemPayAccount,
             coordinator: self
         )
 
@@ -267,6 +270,18 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     func openTermsAndLimits() {
         termsAndLimitsViewModel = .init(
             url: AppConstants.tangemPayTermsAndLimitsURL,
+            title: "",
+            withCloseButton: true
+        )
+    }
+
+    func openVisaBenefits() {
+        guard let url = TangemPayVisaBenefitsURLBuilder().url() else {
+            return
+        }
+
+        visaBenefitsViewModel = .init(
+            url: url,
             title: "",
             withCloseButton: true
         )
