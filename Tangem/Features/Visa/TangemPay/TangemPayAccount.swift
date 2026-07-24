@@ -196,7 +196,7 @@ final class TangemPayAccount {
 
     private var placedVirtualAccountOrderId: String?
 
-    private var orderIdPendingBasicFallbackOnCancel: String?
+    private var pendingTransitionCancellation: TransitionCancellationType?
 
     /// The VA order is polled on its own instance so it can't be cancelled by (or cancel) the shared
     /// `orderStatusPollingService`, which is single-slot and reused for freeze/reissue/card-issue.
@@ -436,12 +436,18 @@ extension TangemPayAccount {
         guard let orderId = activeIssueOrdersSubject.value.first(where: { $0.isAwaitingDeposit })?.id else {
             return
         }
-        orderIdPendingBasicFallbackOnCancel = orderId
+
+        let transitions = try await customerService.getTariffPlanTransitions()
+        let isBasicFallbackAvailable = transitions.contains { $0.tariffPlan.type == Self.basicTariffPlanType }
+
+        pendingTransitionCancellation = isBasicFallbackAvailable
+            ? .cancelAndFallbackToBasic(orderId: orderId)
+            : .plainCancel(orderId: orderId)
 
         do {
             try await customerService.cancelOrder(orderId: orderId)
         } catch {
-            orderIdPendingBasicFallbackOnCancel = nil
+            pendingTransitionCancellation = nil
             throw error
         }
     }
@@ -496,8 +502,14 @@ private extension TangemPayAccount {
     func makeAwaitingDepositInfo(targetPlanId: String) async -> TangemPayAwaitingDepositInfo? {
         guard let transitions = try? await customerService.getTariffPlanTransitions(),
               let plan = transitions.first(where: { $0.tariffPlan.id == targetPlanId })?.tariffPlan,
-              let recurringFee = plan.fees.first(where: { $0.type == .recurring }),
-              let fallbackPlan = transitions.first(where: { $0.tariffPlan.type == Self.basicTariffPlanType })?.tariffPlan else {
+              let recurringFee = plan.fees.first(where: { $0.type == .recurring }) else {
+            return nil
+        }
+
+        let fallbackPlan = transitions.first(where: { $0.tariffPlan.type == Self.basicTariffPlanType })?.tariffPlan
+            ?? customerTariffPlan?.tariffPlan
+
+        guard let fallbackPlan else {
             return nil
         }
 
@@ -625,10 +637,17 @@ private extension TangemPayAccount {
     }
 
     private func handleOrderCancellation(orderId: String) {
-        if orderIdPendingBasicFallbackOnCancel == orderId {
-            orderIdPendingBasicFallbackOnCancel = nil
+        if let cancellation = pendingTransitionCancellation, cancellation.orderId == orderId {
+            pendingTransitionCancellation = nil
             activeIssueOrderEventsSubject.send(.remove(id: orderId))
-            runTask { [weak self] in await self?.placeBasicOrder() }
+
+            switch cancellation {
+            case .cancelAndFallbackToBasic:
+                runTask { [weak self] in await self?.placeBasicOrder() }
+
+            case .plainCancel:
+                runTask { [weak self] in await self?.account?.refreshState() }
+            }
         } else {
             handleIssueOrderFailure(orderId: orderId)
         }
