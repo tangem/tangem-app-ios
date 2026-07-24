@@ -268,6 +268,16 @@ struct TangemPayMainView: View {
                     Divider()
                 }
 
+                if viewModel.isVisaBenefitsAvailable {
+                    Button(action: viewModel.visaBenefits) {
+                        Label {
+                            Text(Localization.tangempayVisaBenefits)
+                        } icon: {
+                            DesignSystem.Icons.Heart.regular20.image
+                        }
+                    }
+                }
+
                 Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }
