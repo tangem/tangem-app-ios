@@ -40,6 +40,10 @@ struct TangemPayCurrentPlanView: View {
                     downgradeBannerView(downgradeBanner)
                 }
 
+                if let feeChargedBannerText = viewModel.feeChargedBannerText {
+                    feeChargedBannerView(feeChargedBannerText)
+                }
+
                 ForEach(viewModel.sections) { section in
                     sectionView(section)
                 }
@@ -74,6 +78,24 @@ struct TangemPayCurrentPlanView: View {
             .size(.x8)
             .styleType(.secondary)
             .horizontalLayout(.infinity)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 16)
+        .background(DesignSystem.Color.bgStatusInfoSubtle)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func feeChargedBannerView(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            DesignSystem.Icons.Info.regular20.image
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 20, height: 20)
+                .foregroundStyle(DesignSystem.Color.iconStatusInfo)
+
+            Text(text)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 16)

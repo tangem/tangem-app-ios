@@ -31,11 +31,6 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
 
     private var transitions: TangemPayTariffPlanTransitionsResponse = []
 
-    /// Any non-current plan is selectable; the current plan can't be re-selected.
-    var isSelectEnabled: Bool {
-        selectedPlan?.isCurrent == false
-    }
-
     var selectedPlan: Plan? {
         plans.first { $0.id == selectedPlanID } ?? plans.first
     }
@@ -80,7 +75,7 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
     }
 
     func select() {
-        guard let plan = selectedPlan, !plan.isCurrent, !isPlacingOrder else {
+        guard let plan = selectedPlan, !isPlacingOrder else {
             return
         }
 
@@ -134,31 +129,16 @@ private extension TangemPaySelectPlanViewModel {
     func apply(transitions: TangemPayTariffPlanTransitionsResponse) {
         self.transitions = transitions
 
-        let currentPlan = currentTariffPlan.map { plan in
-            Plan(
-                id: plan.id,
-                type: plan.type,
-                name: plan.name,
-                imageURL: plan.images.first { $0.type == .main }?.url,
-                transitionType: nil,
-                isCurrent: true,
-                points: Self.makePoints(from: plan.descriptionItems)
-            )
-        }
-
-        let transitionPlans = transitions.map { transition in
+        plans = transitions.map { transition in
             Plan(
                 id: transition.tariffPlan.id,
                 type: transition.tariffPlan.type,
                 name: transition.tariffPlan.name,
                 imageURL: transition.tariffPlan.images.first { $0.type == .main }?.url,
                 transitionType: transition.type,
-                isCurrent: false,
                 points: Self.makePoints(from: transition.tariffPlan.descriptionItems)
             )
         }
-
-        plans = [currentPlan].compactMap { $0 } + transitionPlans
         selectedPlanID = plans.first?.id
     }
 
@@ -204,7 +184,6 @@ extension TangemPaySelectPlanViewModel {
         let name: String
         let imageURL: String?
         let transitionType: TangemPayTariffPlanTransition.TransitionType?
-        let isCurrent: Bool
         let points: [Point]
     }
 

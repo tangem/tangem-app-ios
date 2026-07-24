@@ -108,6 +108,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.termsAndLimitsViewModel) {
                 WebViewContainer(viewModel: $0)
             }
+            .sheet(item: $coordinator.visaBenefitsViewModel) {
+                WebViewContainer(viewModel: $0)
+            }
             .bottomSheet(
                 item: $coordinator.pendingExpressTxStatusBottomSheet,
                 backgroundColor: Colors.Background.tertiary
