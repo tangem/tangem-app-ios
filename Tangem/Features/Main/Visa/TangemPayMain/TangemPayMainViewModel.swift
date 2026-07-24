@@ -63,6 +63,8 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var currentPlanState: CurrentPlanState
 
+    @Published private(set) var isVisaBenefitsAvailable = false
+
     lazy var cardDeactivatedNotificationInput: NotificationViewInput? = tangemPayAccount.isDeactivated
         ? NotificationsFactory().buildNotificationInput(
             for: TangemPayCardDeactivatedNotificationEvent(),
@@ -400,6 +402,10 @@ final class TangemPayMainViewModel: ObservableObject {
         coordinator?.openTermsAndLimits()
     }
 
+    func visaBenefits() {
+        coordinator?.openVisaBenefits()
+    }
+
     func contactSupport() {
         Analytics.log(.visaScreenGoToSupportOnBetaBannerClicked, contextParams: .userWallet(userWalletInfo.id))
         let dataCollector = TangemPaySupportDataCollector(
@@ -549,11 +555,30 @@ private extension TangemPayMainViewModel {
             .receiveOnMain()
             .assign(to: &$isBalanceNegative)
 
+        bindCustomerTariffPlan()
+
+        bindInlineNotifications()
+
+        bindMultiCard()
+    }
+
+    func bindCustomerTariffPlan() {
         tangemPayAccount.customerTariffPlanPublisher
             .map { $0?.currentPlanState ?? .unknown }
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$currentPlanState)
+
+        tangemPayAccount.customerTariffPlanPublisher
+            .map { plan in
+                guard FeatureProvider.isAvailable(.tangemPayTiers), let plan else {
+                    return false
+                }
+                return plan.tariffPlan.type != TangemPayAccount.basicTariffPlanType
+            }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$isVisaBenefitsAvailable)
 
         tangemPayAccount.customerTariffPlanPublisher
             .map { plan in
@@ -566,10 +591,6 @@ private extension TangemPayMainViewModel {
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$systemDowngradeBanner)
-
-        bindInlineNotifications()
-
-        bindMultiCard()
     }
 
     func bindMultiCard() {
