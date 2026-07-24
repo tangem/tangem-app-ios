@@ -25,6 +25,7 @@ final class FakeTangemApiService: TangemApiService {
     var loadMarketingCampaignsHandler: ((MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response)?
     var loadPromotionCampaignsHandler: ((String) async throws -> [BannerPromotion.Response.Promotion])?
     var loadYieldBoostPromotionStatusHandler: ((String) async throws -> YieldBoostPromotionDTO.Response)?
+    var registerForPromotionCampaignHandler: ((PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response)?
 
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
@@ -109,6 +110,10 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func registerForPromotionCampaign(request: PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response {
+        if let handler = registerForPromotionCampaignHandler {
+            return try await handler(request)
+        }
+
         throw "Not implemented"
     }
 
