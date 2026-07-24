@@ -11,6 +11,7 @@ import TangemPay
 protocol TangemPayAccountBuilder {
     func makeTangemPayAccount(
         customerInfo: VisaCustomerInfoResponse,
-        account: (any TangemPayAccountModel)?
+        account: (any TangemPayAccountModel)?,
+        accountRemover: (any TangemPayAccountRemoving)?
     ) -> TangemPayAccount
 }

@@ -48,6 +48,8 @@ public protocol CustomerInfoManagementService: AnyObject {
 
     func getTransactionHistory(limit: Int, cursor: String?) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse
 
+    func getTransaction(transactionId: String) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse.Transaction
+
     func getWithdrawPreSignatureInfo(
         request: TangemPayWithdrawRequest
     ) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawPreSignature
@@ -177,6 +179,10 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
 
     public func getTransactionHistory(limit: Int, cursor: String?) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse {
         try await request(for: .getTransactionHistory(limit: limit, cursor: cursor))
+    }
+
+    public func getTransaction(transactionId: String) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse.Transaction {
+        try await request(for: .getTransaction(transactionId: transactionId))
     }
 
     public func getWithdrawPreSignatureInfo(request: TangemPayWithdrawRequest) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawPreSignature {

@@ -8,6 +8,7 @@
 
 import Combine
 import PassKit
+import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -27,16 +28,17 @@ final class TangemPayMainViewModel: ObservableObject {
         // Re-evaluates the account state so it can recover from a stale `.unavailable` / `.syncNeeded`
         // once the backend is reachable again — otherwise the banner and dimming would persist.
         async let stateRefresh: Void? = tangemPayAccount.account?.refreshState()
+        async let promotionsUpdate: Void = promotionNotificationsManager.loadPromotions()
 
         if !isDeactivated {
             async let transactionsUpdate: Void = transactionHistoryService.reloadHistory()
             async let customerInfoUpdate: Void = tangemPayAccount.loadCustomerInfo()
             async let offersUpdate: Void = tangemPayAccount.loadOffers()
             async let resumePolling: Void = tangemPayAccount.resumeActiveIssueOrderPolling()
-            _ = await (stateRefresh, transactionsUpdate, customerInfoUpdate, offersUpdate, resumePolling)
+            _ = await (stateRefresh, promotionsUpdate, transactionsUpdate, customerInfoUpdate, offersUpdate, resumePolling)
         } else {
             async let balanceUpdate: Void = tangemPayAccount.loadBalance()
-            _ = await (stateRefresh, balanceUpdate)
+            _ = await (stateRefresh, promotionsUpdate, balanceUpdate)
         }
     }
 
@@ -61,7 +63,16 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var currentPlanState: CurrentPlanState
 
-    let cardDeactivatedNotificationInput: NotificationViewInput?
+    lazy var cardDeactivatedNotificationInput: NotificationViewInput? = tangemPayAccount.isDeactivated
+        ? NotificationsFactory().buildNotificationInput(
+            for: TangemPayCardDeactivatedNotificationEvent(),
+            buttonAction: { [weak self] _, action in
+                self?.handleDeactivatedBannerButtonTap(action)
+            }
+        )
+        : nil
+
+    let promotionNotificationsViewModel: PromotionNotificationsViewModel
     @Published var alert: AlertBinder?
 
     var isStale: Bool {
@@ -128,6 +139,7 @@ final class TangemPayMainViewModel: ObservableObject {
     private let transactionHistoryService: TangemPayTransactionHistoryService
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
     private let expressStatusPollingHelper: ExpressStatusPollingHelper
+    private let promotionNotificationsManager: PromotionNotificationsManager
 
     private var nextViewOpeningTask: Task<Void, Error>?
     private var bag = Set<AnyCancellable>()
@@ -140,10 +152,6 @@ final class TangemPayMainViewModel: ObservableObject {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
-
-        cardDeactivatedNotificationInput = tangemPayAccount.isDeactivated
-            ? NotificationsFactory().buildNotificationInput(for: TangemPayCardDeactivatedNotificationEvent())
-            : nil
 
         balance = tangemPayAccount.mainHeaderBalanceProvider.balance
         currentPlanState = tangemPayAccount.customerTariffPlan?.currentPlanState ?? .unknown
@@ -169,6 +177,15 @@ final class TangemPayMainViewModel: ObservableObject {
 
         pendingExpressTransactionsManager = expressStatusTracking.manager
         expressStatusPollingHelper = expressStatusTracking.pollingHelper
+
+        let promotionNotificationsManager = CommonPromotionNotificationsManager(
+            userWalletId: userWalletInfo.id,
+            placement: .paymentAccountMain
+        )
+        self.promotionNotificationsManager = promotionNotificationsManager
+        promotionNotificationsViewModel = PromotionNotificationsViewModel(
+            promotionNotificationsManager: promotionNotificationsManager
+        )
 
         bind()
         if !isDeactivated {
@@ -359,6 +376,10 @@ final class TangemPayMainViewModel: ObservableObject {
             await tangemPayAccount.loadOffers()
             await tangemPayAccount.resumeActiveIssueOrderPolling()
         }
+
+        runTask { [promotionNotificationsManager] in
+            await promotionNotificationsManager.loadPromotions()
+        }
     }
 
     func openCurrentPlan() {
@@ -398,6 +419,17 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
+    func promptRemoveAccount() {
+        alert = AlertBinder(alert: Alert(
+            title: Text(Localization.tangempayRemoveAccountAlertTitle),
+            message: Text(Localization.tangempayRemoveAccountAlertDescription),
+            primaryButton: .destructive(Text(Localization.tangempayRemoveAccount)) { [weak self] in
+                self?.performRemoveAccount()
+            },
+            secondaryButton: .cancel()
+        ))
+    }
+
     @MainActor
     func openTransactionDetails(id: String) {
         guard let transaction = transactionHistoryService.getTransaction(id: id) else {
@@ -412,21 +444,10 @@ final class TangemPayMainViewModel: ObservableObject {
             ],
             contextParams: .userWallet(userWalletInfo.id)
         )
-        let cardName: String? = {
-            guard case .spend(let spend) = transaction.record else { return nil }
-            return tangemPayAccount.cardDisplayName(forCardId: spend.cardId)
-        }()
-        let cardNumberEnd: String? = {
-            guard case .spend(let spend) = transaction.record else { return nil }
-            return tangemPayAccount.cardNumberEnd(forCardId: spend.cardId)
-        }()
-
         coordinator?.openTangemPayTransactionDetailsSheet(
             transaction: transaction,
             userWalletId: userWalletInfo.id,
-            customerId: tangemPayAccount.customerId,
-            cardName: cardName,
-            cardNumberEnd: cardNumberEnd
+            customerId: tangemPayAccount.customerId
         )
     }
 }
@@ -624,6 +645,27 @@ private extension TangemPayMainViewModel {
             renewSession()
         default:
             break
+        }
+    }
+
+    func handleDeactivatedBannerButtonTap(_ action: NotificationButtonActionType) {
+        switch action {
+        case .removeTangemPayAccount:
+            promptRemoveAccount()
+        default:
+            break
+        }
+    }
+
+    func performRemoveAccount() {
+        tangemPayAccount.removeAccount { [weak self] success in
+            Task { @MainActor in
+                if success {
+                    self?.coordinator?.closePaymentAccount()
+                } else {
+                    self?.alert = AlertBinder(title: Localization.commonSomethingWentWrong, message: Localization.commonTryAgainLater)
+                }
+            }
         }
     }
 

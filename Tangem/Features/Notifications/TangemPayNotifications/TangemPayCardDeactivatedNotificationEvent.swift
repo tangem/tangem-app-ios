@@ -27,11 +27,17 @@ extension TangemPayCardDeactivatedNotificationEvent {
     }
 
     var icon: NotificationView.MessageIcon {
-        .init(iconType: .image(Assets.warningIcon))
+        .init(
+            iconType: .image(DesignSystem.Icons.Error.regular20),
+            renderingMode: .template,
+            color: .Tangem.Graphic.Neutral.primary,
+            isLeading: true,
+            usesExactSize: true
+        )
     }
 
     var severity: NotificationView.Severity {
-        .warning
+        .critical
     }
 
     var isDismissable: Bool {
@@ -39,7 +45,7 @@ extension TangemPayCardDeactivatedNotificationEvent {
     }
 
     var buttonAction: NotificationButtonAction? {
-        nil
+        NotificationButtonAction(.removeTangemPayAccount)
     }
 }
 
