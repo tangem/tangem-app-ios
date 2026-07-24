@@ -58,9 +58,6 @@ struct MarketsCoordinatorView: CoordinatorView {
                 }
                 .tint(Colors.Text.primary1)
             }
-            .sheet(item: $coordinator.forYouAddFundsCoordinator) {
-                ActionButtonsBuyCoordinatorView(coordinator: $0)
-            }
     }
 
     private var links: some View {
@@ -86,19 +83,8 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.portfolioTokenDetailsCoordinator) {
                 TokenDetailsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.forYouViewModel) { viewModel in
-                ForYouView(viewModel: viewModel, onBackButtonAction: { coordinator.forYouViewModel = nil })
-                    .navigationLinks(forYouEarnLink)
-                    .sheet(
-                        item: $coordinator.forYouTokenSummaryViewModel,
-                        onDismiss: coordinator.onForYouTokenSummaryDismiss
-                    ) { tokenSummaryViewModel in
-                        TokenSummaryView(viewModel: tokenSummaryViewModel)
-                            .presentationDetents([.large])
-                    }
-                    .sheet(item: $coordinator.forYouSwapTokenSelectorViewModel) { swapTokenSelectorViewModel in
-                        ForYouSwapTokenSelectorView(viewModel: swapTokenSelectorViewModel)
-                    }
+            .navigation(item: $coordinator.forYouCoordinator) {
+                ForYouCoordinatorView(coordinator: $0)
             }
     }
 
@@ -107,13 +93,6 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.newsPagerTokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
                     .ignoresSafeArea(.container, edges: .top)
-            }
-    }
-
-    private var forYouEarnLink: some View {
-        NavHolder()
-            .navigation(item: $coordinator.forYouEarnListCoordinator) {
-                EarnDetailCoordinatorView(coordinator: $0)
             }
     }
 

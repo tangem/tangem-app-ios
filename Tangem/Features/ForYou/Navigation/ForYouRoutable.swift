@@ -7,7 +7,5 @@
 
 import Foundation
 
-protocol ForYouRoutable: AnyObject {
-    @MainActor
-    func openTokenSummary(tokenItem: TokenItem)
-}
+@MainActor
+protocol ForYouRoutable: EarnOpportunitiesRoutable, PortfolioReviewRoutable {}
