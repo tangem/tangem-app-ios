@@ -87,7 +87,7 @@ struct ExpressCurrencyView<Content: View>: View {
             ChooseTokenPillView(action: didTapChangeCurrency)
                 .accessibilityIdentifier(SwapAccessibilityIdentifiers.tokenSelector)
         } else {
-            Button(action: { didTapChangeCurrency() }) {
+            SwiftUI.Button(action: { didTapChangeCurrency() }) {
                 ZStack(alignment: .trailing) {
                     iconContent
                         .padding(.all, 2)
@@ -114,7 +114,7 @@ struct ExpressCurrencyView<Content: View>: View {
             HStack(spacing: 4) {
                 if !viewModel.state.isFiatAmountHidden {
                     if viewModel.state.isSwitchCurrencyAvailable, let didTapSwitchCurrency {
-                        Button(action: didTapSwitchCurrency) {
+                        SwiftUI.Button(action: didTapSwitchCurrency) {
                             HStack(spacing: 4) {
                                 switchCurrencyIcon
 
@@ -169,7 +169,7 @@ struct ExpressCurrencyView<Content: View>: View {
     @ViewBuilder
     private var infoButton: some View {
         if let priceChangeState = viewModel.state.priceChangeState, let didTapNetworkFeeInfoButton {
-            Button(action: { didTapNetworkFeeInfoButton(priceChangeState) }) {
+            SwiftUI.Button(action: { didTapNetworkFeeInfoButton(priceChangeState) }) {
                 switch priceChangeState {
                 case .info:
                     infoButtonIcon
@@ -222,8 +222,11 @@ struct ExpressCurrencyView<Content: View>: View {
 struct ChooseTokenPillView: View {
     let action: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var pulseStart = Date().addingTimeInterval(Constants.startDelay)
+
     var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             HStack(spacing: 6) {
                 Text(Localization.commonChooseToken)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
@@ -238,10 +241,40 @@ struct ChooseTokenPillView: View {
             .padding(.vertical, 8)
             .padding(.leading, 16)
             .padding(.trailing, 12)
-            .background(Colors.Button.secondary)
+            .background {
+                Colors.Button.secondary
+
+                emphasisOverlay
+            }
             .cornerRadiusContinuous(24)
             .fixedSize(horizontal: true, vertical: false)
         }
+    }
+
+    @ViewBuilder
+    private var emphasisOverlay: some View {
+        if reduceMotion || !FeatureProvider.isAvailable(.chooseTokenPulseAnimation) {
+            EmptyView()
+        } else {
+            TimelineView(.animation) { context in
+                DesignSystem.Color.bgOpaqueSecondary
+                    .opacity(pulseOpacity(elapsed: context.date.timeIntervalSince(pulseStart)))
+            }
+        }
+    }
+
+    private func pulseOpacity(elapsed: TimeInterval) -> Double {
+        guard elapsed > 0 else { return 0 }
+
+        let progress = elapsed.truncatingRemainder(dividingBy: Constants.pulsePeriod) / Constants.pulsePeriod
+        return 1 - abs(progress * 2 - 1)
+    }
+}
+
+private extension ChooseTokenPillView {
+    enum Constants {
+        static let pulsePeriod: TimeInterval = 3.6
+        static let startDelay: TimeInterval = 0.5
     }
 }
 

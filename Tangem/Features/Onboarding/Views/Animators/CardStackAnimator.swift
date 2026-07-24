@@ -275,7 +275,7 @@ struct CardStackAnimatorPreview: View {
                 .padding(.bottom, 50)
             HStack {
                 ForEach(0 ... viewModel.maxIndex, id: \.self) { index in
-                    Button(action: {
+                    SwiftUI.Button(action: {
                         withAnimation {
                             viewModel.currentCardIndex = index
                         }
@@ -285,7 +285,7 @@ struct CardStackAnimatorPreview: View {
                     })
                     .buttonStyle(TangemButtonStyle())
                 }
-                Button(action: {
+                SwiftUI.Button(action: {
                     var newIndex = viewModel.currentCardIndex + 1
                     if newIndex > viewModel.maxIndex {
                         newIndex = 0

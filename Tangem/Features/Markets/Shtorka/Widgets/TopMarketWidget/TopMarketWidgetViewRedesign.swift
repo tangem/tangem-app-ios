@@ -21,7 +21,7 @@ struct TopMarketWidgetViewRedesign: View {
                 .disableAnimations()
 
             list
-                .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x6))
+                .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: .zero, radius: 24)
                 .id(listStateID)
                 .transition(.opacity)
 

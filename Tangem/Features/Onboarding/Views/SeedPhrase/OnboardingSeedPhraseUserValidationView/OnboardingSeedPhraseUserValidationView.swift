@@ -121,7 +121,7 @@ private struct WordInputView: View {
                 .padding(.vertical, 12)
 
                 if isResponder ?? false {
-                    Button(action: { text.wrappedValue = "" }) {
+                    SwiftUI.Button(action: { text.wrappedValue = "" }) {
                         Assets.clear.image
                             .foregroundColor(Colors.Icon.informative)
                             .padding(.horizontal, 16)

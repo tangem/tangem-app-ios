@@ -135,6 +135,7 @@ struct TransactionParamsBuilder {
              .scroll,
              .linea,
              .monad,
+             .robinhood,
              .arbitrumNova,
              .plasma,
              .adi,

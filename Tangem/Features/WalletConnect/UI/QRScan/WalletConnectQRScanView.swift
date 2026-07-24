@@ -80,7 +80,7 @@ struct WalletConnectQRScanView: View {
 
     private var navigationCloseButton: some View {
         HStack {
-            Button(action: { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }) {
+            SwiftUI.Button(action: { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }) {
                 Text(viewModel.state.navigationBar.closeButtonTitle)
                     .style(Fonts.Regular.body, color: Colors.Text.constantWhite)
                     .contentShape(.rect)
