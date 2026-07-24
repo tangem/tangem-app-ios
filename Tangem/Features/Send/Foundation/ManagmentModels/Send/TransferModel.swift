@@ -497,7 +497,8 @@ extension TransferModel: NotificationTapDelegate {
              .openAppStore,
              .yieldBoostPromoLater,
              .openGetTangemPay,
-             .closeGetTangemPay:
+             .closeGetTangemPay,
+             .removeTangemPayAccount:
             assertionFailure("Notification tap not handled")
         }
     }
