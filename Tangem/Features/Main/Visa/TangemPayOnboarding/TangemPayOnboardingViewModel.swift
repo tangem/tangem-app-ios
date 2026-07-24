@@ -21,6 +21,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
     let closeOfferScreen: @MainActor () -> Void
     @MainActor @Published private(set) var tangemPayOfferViewModel: TangemPayOfferViewModel?
     @MainActor @Published private(set) var showNewOnboarding = false
+    @MainActor @Published private(set) var regionUnavailable = false
 
     private let source: TangemPayOnboardingSource
     private let availableSelection: TangemPayWalletSelectionType
@@ -58,6 +59,9 @@ final class TangemPayOnboardingViewModel: ObservableObject {
                     try? await minimumLoaderShowingTimeTask.value
 
                     makeOffer()
+                } catch TangemPayOnboardingError.invalidDeeplink {
+                    try? await minimumLoaderShowingTimeTask.value
+                    showRegionUnavailable()
                 } catch {
                     try? await minimumLoaderShowingTimeTask.value
                     closeOfferScreen()
@@ -82,6 +86,11 @@ final class TangemPayOnboardingViewModel: ObservableObject {
             closeOfferScreen: closeOfferScreen,
             coordinator: coordinator
         )
+    }
+
+    @MainActor
+    private func showRegionUnavailable() {
+        regionUnavailable = true
     }
 
     private func validateDeeplink(deeplinkString: String) async throws {

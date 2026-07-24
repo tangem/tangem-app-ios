@@ -34,22 +34,28 @@ struct CommonForceUpdateServiceTests {
 
     // MARK: - Min supported version
 
-    @Test("Requires OS update when app ≤ minSupported and OS is too old")
-    func requiresOSUpdateWhenAppAtOrBelowMinSupportedAndOSTooOld() {
+    @Test("Requires OS update when app < minSupported and OS is too old")
+    func requiresOSUpdateWhenAppBelowMinSupportedAndOSTooOld() {
         let dto = makeDTO(minSupportedVersion: "5.40", minSupportedOSVersion: "17.0")
-        #expect(map(dto, currentVersion: "5.40", currentOSVersion: "16.5") == .forceUpdate(reason: .requiresOSUpdate))
+        #expect(map(dto, currentVersion: "5.39", currentOSVersion: "16.5") == .forceUpdate(reason: .requiresOSUpdate))
     }
 
-    @Test("Force app update when app ≤ minSupported and OS is OK")
-    func forceAppUpdateWhenAppAtOrBelowMinSupportedAndOSOK() {
+    @Test("Force app update when app < minSupported and OS is OK")
+    func forceAppUpdateWhenAppBelowMinSupportedAndOSOK() {
         let dto = makeDTO(minSupportedVersion: "5.40", minSupportedOSVersion: "17.0")
-        #expect(map(dto, currentVersion: "5.40", currentOSVersion: "17.0") == .forceUpdate(reason: .requiresAppUpdate))
+        #expect(map(dto, currentVersion: "5.39", currentOSVersion: "17.0") == .forceUpdate(reason: .requiresAppUpdate))
     }
 
-    @Test("Force app update when minSupportedOSVersion is nil")
-    func forceAppUpdateWhenMinSupportedAndOSVersionIsNil() {
+    @Test("Force app update when app < minSupported and minSupportedOSVersion is nil")
+    func forceAppUpdateWhenAppBelowMinSupportedAndOSVersionIsNil() {
         let dto = makeDTO(minSupportedVersion: "5.40", minSupportedOSVersion: nil)
-        #expect(map(dto, currentVersion: "5.40", currentOSVersion: "1.0") == .forceUpdate(reason: .requiresAppUpdate))
+        #expect(map(dto, currentVersion: "5.39", currentOSVersion: "1.0") == .forceUpdate(reason: .requiresAppUpdate))
+    }
+
+    @Test("No force update when app equals minSupported (the supported floor is exclusive below)")
+    func noForceUpdateWhenAppEqualsMinSupported() {
+        let dto = makeDTO(minSupportedVersion: "5.40", minSupportedOSVersion: "17.0")
+        #expect(map(dto, currentVersion: "5.40", currentOSVersion: "16.5") == .upToDate)
     }
 
     // MARK: - Critical takes precedence
@@ -59,10 +65,10 @@ struct CommonForceUpdateServiceTests {
         let dto = makeDTO(
             criticalVersion: "5.40",
             criticalOSVersion: "17.0",
-            minSupportedVersion: "5.40",
+            minSupportedVersion: "5.41",
             minSupportedOSVersion: "17.0"
         )
-        // Both critical and minSupported match the app version, but critical wins → brick (since OS too old).
+        // Both critical (≤) and minSupported (<) match the app version, but critical wins → brick (since OS too old).
         #expect(map(dto, currentVersion: "5.40", currentOSVersion: "16.5") == .forceUpdate(reason: .brick))
     }
 
