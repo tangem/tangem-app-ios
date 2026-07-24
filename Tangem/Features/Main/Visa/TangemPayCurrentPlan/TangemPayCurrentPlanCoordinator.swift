@@ -65,9 +65,15 @@ extension TangemPayCurrentPlanCoordinator: TangemPayCurrentPlanRoutable {
         }
 
         let coordinator = TangemPaySelectPlanCoordinator(
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] reason in
                 self?.selectPlanCoordinator = nil
-                options.closeFlow()
+
+                switch reason {
+                case .planUpgraded:
+                    options.closeFlow()
+                case .planDowngraded, .closed:
+                    break
+                }
             },
             popToRootAction: popToRootAction
         )

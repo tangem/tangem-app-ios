@@ -72,10 +72,10 @@ struct TangemRowConfiguration {
     var contentLead: TangemRowContentLead = .equal
     var verticalAlignment: TangemRowVerticalAlignment = .center
     var lineOrder: TangemRowLineOrder = .primaryFirst
-    var titleLineLimit: Int = 1
-    var subtitleLineLimit: Int = 1
-    var valueLineLimit: Int = 1
-    var subvalueLineLimit: Int = 1
+    var titleLineLimit: Int? = 1
+    var subtitleLineLimit: Int? = 1
+    var valueLineLimit: Int? = 1
+    var subvalueLineLimit: Int? = 1
     var showsDivider: Bool = false
     var includesInnerPadding: Bool = true
     var focusRingEnabled: Bool = false
@@ -139,19 +139,19 @@ public extension TangemRow {
         map { $0.config.lineOrder = lineOrder }
     }
 
-    func titleLineLimit(_ limit: Int) -> Self {
+    func titleLineLimit(_ limit: Int?) -> Self {
         map { $0.config.titleLineLimit = limit }
     }
 
-    func subtitleLineLimit(_ limit: Int) -> Self {
+    func subtitleLineLimit(_ limit: Int?) -> Self {
         map { $0.config.subtitleLineLimit = limit }
     }
 
-    func valueLineLimit(_ limit: Int) -> Self {
+    func valueLineLimit(_ limit: Int?) -> Self {
         map { $0.config.valueLineLimit = limit }
     }
 
-    func subvalueLineLimit(_ limit: Int) -> Self {
+    func subvalueLineLimit(_ limit: Int?) -> Self {
         map { $0.config.subvalueLineLimit = limit }
     }
 
