@@ -32,7 +32,7 @@ public struct TangemNFTEntrypointRow: View {
     }
 
     public var body: some View {
-        Button(action: viewModel.openCollections) {
+        SwiftUI.Button(action: viewModel.openCollections) {
             TangemTwoLineRowLayout(
                 icon: { collectionsPreview },
                 primaryLeading: { titleText },

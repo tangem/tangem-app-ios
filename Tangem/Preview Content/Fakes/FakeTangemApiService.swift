@@ -223,6 +223,16 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    // MARK: - Wallet Backup Status
+
+    func saveWalletCards(userWalletId: String, cards: WalletCardsDTO.Request) async throws {
+        throw "Not implemented"
+    }
+
+    func getWalletCards(userWalletId: String) async throws -> WalletCardsDTO.Response {
+        throw "Not implemented"
+    }
+
     func getUserAccounts(
         userWalletId: String
     ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
@@ -300,6 +310,10 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response {
+        throw "Not implemented"
+    }
+
+    func loadCoinIndicators(requestModel: CoinIndicatorsDTO.Request) async throws -> CoinIndicatorsDTO.Response {
         throw "Not implemented"
     }
 }

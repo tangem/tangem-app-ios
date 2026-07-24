@@ -48,9 +48,8 @@ struct TangemPayComparePlansSheetView: View {
 
             VStack(spacing: 0) {
                 ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
-                    TangemRow(title: row.planName, value: row.value)
+                    Row(title: row.planName, value: row.value)
                         .contentLead(.end)
-                        .valueLineLimit(nil)
                         .overrideTextColors(.init(title: DesignSystem.Color.textSecondary))
                         .showDivider(index < section.rows.count - 1)
                 }

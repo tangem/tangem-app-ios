@@ -66,6 +66,7 @@ extension CommonKeysManager: KeysManager {
             quickNodeHederaCredentials: .init(apiKey: keys.quiknodeHederaApiKey, subdomain: keys.quiknodeHederaSubdomain),
             quickNodePlasmaCredentials: .init(apiKey: keys.quiknodePlasmaApiKey, subdomain: keys.quiknodePlasmaSubdomain),
             quickNodeMonadCredentials: .init(apiKey: keys.quiknodeMonadApiKey, subdomain: keys.quiknodeMonadSubdomain),
+            quickNodeRobinhoodCredentials: .init(apiKey: keys.quiknodeRobinhoodApiKey, subdomain: keys.quiknodeRobinhoodSubdomain),
             bittensorDwellirKey: keys.bittensorDwellirKey,
             dwellirApiKey: keys.dwellirApiKey,
             bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
@@ -202,6 +203,8 @@ extension CommonKeysManager {
         let quiknodePlasmaSubdomain: String
         let quiknodeMonadApiKey: String
         let quiknodeMonadSubdomain: String
+        let quiknodeRobinhoodApiKey: String
+        let quiknodeRobinhoodSubdomain: String
         let etherscanApiKey: String
         let koinosProApiKey: String
         let tangemComAuthorization: String?

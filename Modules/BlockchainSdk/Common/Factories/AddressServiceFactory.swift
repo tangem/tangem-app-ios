@@ -74,6 +74,7 @@ public struct AddressServiceFactory {
              .scroll,
              .linea,
              .monad,
+             .robinhood,
              .arbitrumNova,
              .plasma,
              .adi,
