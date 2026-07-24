@@ -158,7 +158,6 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             tariffPlanSelector: tangemPayAccount,
             closeFlow: { [weak self] in
                 self?.currentPlanCoordinator = nil
-                self?.dismiss(with: nil)
             }
         ))
         currentPlanCoordinator = coordinator
