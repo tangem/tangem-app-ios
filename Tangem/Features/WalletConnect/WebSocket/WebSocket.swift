@@ -57,9 +57,9 @@ class WebSocket {
     private var pingTimer: Timer?
     private var task: URLSessionWebSocketTask?
     private var connectionSetupDispatchWorkItem: DispatchWorkItem?
-    // This stuff is need to find doubling write requests. If everything is OK - remove debug stuff in [REDACTED_INFO]
-    private let accessQueue = DispatchQueue(label: "com.tangem.WebSocket.properties", attributes: .concurrent)
-    private var pendingMessagesToWrite: Set<String> = []
+    /// Deduplicates in-flight frames. Reown awaits a per-call continuation resumed from `completion`,
+    /// so every early return in `write` must still call `completion` or its caller hangs forever.
+    private let pendingMessagesToWrite = OSAllocatedUnfairLock(initialState: Set<String>())
 
     private var bag = Set<AnyCancellable>()
 
@@ -122,27 +122,36 @@ class WebSocket {
     }
 
     func write(string text: String, completion: (() -> Void)?) {
-        // Crash happens when completion is called multiple times for single handler.
-        // This cause sending more than one `resume()` in continuation inside WC library
-        let isMessagePendingToWrite = accessQueue.sync { pendingMessagesToWrite.contains(text) }
-        if isMessagePendingToWrite {
+        // Runs on the cooperative pool (Reown relay send path): a blocking DispatchQueue.sync here starved
+        // the whole pool during WC session-restore ([REDACTED_INFO]), hence a plain lock around an in-place Set op.
+        let didInsert = pendingMessagesToWrite.withLock { $0.insert(text).inserted }
+
+        guard didInsert else {
             Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.attemptingToWriteMessageMultipleTimes)
             log("Attempting to write same message multiple times. \n\(text)")
+            completion?()
             return
         }
 
         guard isConnected else {
             // We need to send completion event, because otherwise WC2 library will stuck and won't work anymore...
+            _ = pendingMessagesToWrite.withLock { $0.remove(text) }
             completion?()
             return
         }
 
-        accessQueue.async(flags: .barrier) { [weak self] in
-            self?.pendingMessagesToWrite.insert(text)
+        // A concurrent disconnect() may null `task`; an optional-chained send would then skip `completion`
+        // and leave `text` stuck in the set. The data race on `task` itself is tracked in [REDACTED_INFO].
+        guard let task else {
+            _ = pendingMessagesToWrite.withLock { $0.remove(text) }
+            completion?()
+            return
         }
 
         log("Writing text: \(text) to socket")
-        task?.send(.string(text)) { [weak self] error in
+        task.send(.string(text)) { [weak self] error in
+            // Resume the awaiting relay continuation even if `self` deallocates mid-send.
+            defer { completion?() }
             guard let self else { return }
             if let error = error {
                 Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.webSocketConnectionError(source: .send, error: error))
@@ -150,10 +159,7 @@ class WebSocket {
             } else {
                 handleEvent(.messageSent(text))
             }
-            completion?()
-            accessQueue.async(flags: .barrier) {
-                self.pendingMessagesToWrite.remove(text)
-            }
+            _ = pendingMessagesToWrite.withLock { $0.remove(text) }
         }
     }
 
