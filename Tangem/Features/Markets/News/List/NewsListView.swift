@@ -19,10 +19,10 @@ struct NewsListView: View {
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     var body: some View {
-        VStack(spacing: .unit(.x6)) {
+        VStack(spacing: 24) {
             navigationBar
-                .padding(.horizontal, .unit(.x4))
-                .padding(.top, .unit(.x3))
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
 
             VStack(spacing: 12) {
                 NewsCategoryChipsView(
@@ -32,7 +32,7 @@ struct NewsListView: View {
 
                 contentView
                     .overlay(alignment: .bottom) {
-                        ListFooterOverlayShadowView(color: Color.Tangem.Surface.level3)
+                        ListFooterOverlayShadowView(color: DesignSystem.Color.bgSecondary)
                             .frame(height: 100)
                             .allowsHitTesting(false)
                     }
@@ -40,7 +40,7 @@ struct NewsListView: View {
             .opacity(viewModel.overlayContentHidingProgress)
         }
         .ignoresSafeArea(.container, edges: .bottom)
-        .background(Color.Tangem.Surface.level2)
+        .background(DesignSystem.Color.bgPrimary)
         .onFirstAppear { viewModel.handleViewAction(.onFirstAppear) }
         .onAppear { viewModel.handleViewAction(.onAppear) }
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
@@ -52,8 +52,8 @@ struct NewsListView: View {
     private var newsListBottomFadeOverlay: some View {
         LinearGradient(
             colors: [
-                Color.Tangem.Surface.level2.opacity(0),
-                Color.Tangem.Surface.level2,
+                DesignSystem.Color.bgPrimary.opacity(0),
+                DesignSystem.Color.bgPrimary,
             ],
             startPoint: .top,
             endPoint: .bottom
@@ -97,7 +97,7 @@ struct NewsListView: View {
     private var navigationBar: some View {
         NavigationBar(
             title: Localization.commonNews,
-            settings: .init(backgroundColor: Color.Tangem.Surface.level2),
+            settings: .init(backgroundColor: DesignSystem.Color.bgPrimary),
             leftButtons: { navigationBarLeadingButton }
         )
         .environment(\.isRedesign, true)
@@ -182,26 +182,26 @@ private struct RedesignNewsSkeletonItemView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             Text(Constants.ratingPlaceholder)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .skeletonable(isShown: true, cornerStyle: .capsule)
 
-            FixedSpacer(height: .unit(.x2))
+            FixedSpacer(height: 8)
 
             Text(Constants.titlePlaceholder)
-                .style(Font.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .skeletonable(isShown: true, cornerStyle: .capsule)
 
-            Spacer(minLength: .unit(.x2))
+            Spacer(minLength: 8)
 
             Text(Constants.timePlaceholder)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .skeletonable(isShown: true, cornerStyle: .capsule)
 
-            FixedSpacer(height: .unit(.x2))
+            FixedSpacer(height: 8)
 
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 ForEach(Constants.chipPlaceholders, id: \.self) { placeholder in
                     InfoChipView(
                         item: InfoChipItem(title: placeholder),
@@ -211,11 +211,11 @@ private struct RedesignNewsSkeletonItemView: View {
                 }
             }
         }
-        .padding(.unit(.x4))
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .frame(height: Constants.cardHeight)
-        .background(Color.Tangem.Surface.level3)
-        .cornerRadiusContinuous(.unit(.x5))
+        .background(DesignSystem.Color.bgSecondary)
+        .cornerRadiusContinuous(20)
     }
 
     private enum Constants {

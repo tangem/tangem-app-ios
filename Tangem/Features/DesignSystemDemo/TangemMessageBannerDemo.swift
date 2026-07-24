@@ -15,7 +15,7 @@ struct TangemMessageBannerDemoView: View {
     @ObservedObject var viewModel: TangemMessageBannerDemoViewModel
 
     var body: some View {
-        TangemMessageBannerShowcase()
-            .navigationBarTitle(Text("TangemMessageBanner"))
+        MessageBannerShowcase()
+            .navigationBarTitle(Text("MessageBanner"))
     }
 }

@@ -11,13 +11,15 @@ import TangemLocalization
 import TangemAssets
 
 struct ExpressMoreProvidersSoonView: View {
+    var text: String = Localization.expressMoreProvidersSoon
+
     var body: some View {
         VStack(spacing: 4) {
             Assets.expressMoreProvidersIcon.image
                 .renderingMode(.template)
                 .foregroundStyle(Colors.Icon.inactive)
 
-            Text(Localization.expressMoreProvidersSoon)
+            Text(text)
                 .style(Fonts.Regular.footnote, color: Colors.Icon.informative)
                 .multilineTextAlignment(.center)
         }
