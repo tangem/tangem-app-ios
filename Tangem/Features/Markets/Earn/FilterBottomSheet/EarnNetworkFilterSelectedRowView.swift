@@ -24,7 +24,7 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
     }
 
     var body: some View {
-        Button(action: { selection.isActive(compare: data.id).toggle() }) {
+        SwiftUI.Button(action: { selection.isActive(compare: data.id).toggle() }) {
             HStack(spacing: 0) {
                 Text(data.title)
                     .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)

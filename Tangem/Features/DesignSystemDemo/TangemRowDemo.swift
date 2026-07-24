@@ -15,7 +15,7 @@ struct TangemRowDemoView: View {
     @ObservedObject var viewModel: TangemRowDemoViewModel
 
     var body: some View {
-        TangemRowShowcase()
-            .navigationBarTitle(Text("TangemRow"))
+        RowShowcase()
+            .navigationBarTitle(Text("Row"))
     }
 }

@@ -39,7 +39,7 @@ private extension TangemPayPopupView {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 Spacer(minLength: 0)
-                TangemButtonV2(icon: DesignSystem.Icons.Cross.regular20, accessibilityLabel: Localization.commonClose, action: viewModel.dismiss)
+                TangemUI.Button(icon: DesignSystem.Icons.Cross.regular20, accessibilityLabel: Localization.commonClose, action: viewModel.dismiss)
                     .size(.x11)
                     .styleType(.material(.glass))
             }
@@ -109,8 +109,8 @@ private extension TangemPayPopupView {
         }
     }
 
-    func button(_ settings: MainButton.Settings, style: TangemButtonV2.StyleType) -> some View {
-        TangemButtonV2(
+    func button(_ settings: MainButton.Settings, style: TangemUI.Button.StyleType) -> some View {
+        TangemUI.Button(
             label: AttributedString(settings.title),
             accessibilityLabel: settings.title,
             action: settings.action

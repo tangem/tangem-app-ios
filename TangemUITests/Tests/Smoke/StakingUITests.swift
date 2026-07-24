@@ -18,7 +18,7 @@ final class StakingUITests: BaseTestCase {
         let tokenValue = "1"
 
         let stakeScenario = ScenarioConfig(
-            name: "staking_eth_pol_balances_ios",
+            name: "staking_eth_pol_balances",
             initialState: "Started"
         )
 
@@ -46,7 +46,7 @@ final class StakingUITests: BaseTestCase {
         setAllureId(3558)
 
         let stakedScenario = ScenarioConfig(
-            name: "staking_eth_pol_balances_ios",
+            name: "staking_eth_pol_balances",
             initialState: "Staked"
         )
 
