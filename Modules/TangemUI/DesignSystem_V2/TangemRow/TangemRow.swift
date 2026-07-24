@@ -110,7 +110,11 @@ public struct TangemRow<
             startContent
                 .opacity(contentOpacity)
 
-            TangemRowContentLayout(contentLead: config.contentLead, minOppositeWidth: minOppositeWidth) {
+            TangemRowContentLayout(
+                contentLead: config.contentLead,
+                minOppositeWidth: minOppositeWidth,
+                verticalAlignment: config.verticalAlignment
+            ) {
                 titleColumn
                 valueColumn
             }
