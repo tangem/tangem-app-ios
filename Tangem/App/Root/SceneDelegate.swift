@@ -32,12 +32,16 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     /// This method can be called during app close, so we have to move out the one-time initialization code outside.
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        let userActivities = connectionOptions.userActivities
+
         if !handleUrlContexts(connectionOptions.urlContexts) {
-            handleActivities(connectionOptions.userActivities)
+            handleActivities(userActivities)
         }
 
         startApp(scene: scene, appCoordinatorOptions: .default)
         appOverlaysManager.setup(with: scene)
+
+        handleAppsFlyerActivities(userActivities)
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
@@ -153,7 +157,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     /// Hot handle deeplinks `https://tangem.com, https://app.tangem.com`
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         handleActivities([userActivity])
-        AppsFlyerWrapper.shared.handleUserActivity(userActivity: userActivity)
+        handleAppsFlyerActivities([userActivity])
     }
 
     /// Hot handle universal links  with `tangem://` scheme
@@ -191,5 +195,11 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         return false
+    }
+
+    private func handleAppsFlyerActivities(_ userActivities: Set<NSUserActivity>) {
+        for activity in userActivities {
+            AppsFlyerWrapper.shared.handleUserActivity(userActivity: activity)
+        }
     }
 }
