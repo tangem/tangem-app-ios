@@ -18,7 +18,7 @@ struct OnrampSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Button(action: viewModel.onTapResidence) {
+            SwiftUI.Button(action: viewModel.onTapResidence) {
                 rowView
             }
             .accessibilityIdentifier(OnrampAccessibilityIdentifiers.residenceButton)
