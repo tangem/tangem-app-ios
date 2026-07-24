@@ -141,7 +141,10 @@ private extension TangemPayTransactionDetailsView {
                     TangemPayTransactionStatusView(model: status)
                 }
 
-                redesignedRows(model.rows)
+                VStack(spacing: 0) {
+                    cardRowView
+                    redesignedRows(model.rows)
+                }
             }
             .padding(.horizontal, 16)
             .padding(.top, 48)
@@ -231,6 +234,60 @@ private extension TangemPayTransactionDetailsView {
                     .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
             }
         }
+    }
+
+    @ViewBuilder
+    var cardRowView: some View {
+        if let cardRow = viewModel.cardRow {
+            switch cardRow {
+            case .loading:
+                TangemRow(title: Localization.tangempayCommonCard)
+                    .verticalAlignment(.top)
+                    .valueAccessory {
+                        cardShimmerLine(width: 157, token: DesignSystem.Font.bodyMediumToken)
+                    }
+                    .subvalueAccessory {
+                        cardShimmerLine(width: 84, token: DesignSystem.Font.captionMediumToken)
+                    }
+                    .showDivider()
+            case .loaded(let cardNumberEnd, let cardName):
+                TangemRow(
+                    title: Localization.tangempayCommonCard,
+                    value: "*" + cardNumberEnd,
+                    subvalue: cardName
+                )
+                .verticalAlignment(.top)
+                .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+                .showDivider()
+            case .failed:
+                TangemRow(title: Localization.tangempayCommonCard)
+                    .valueAccessory {
+                        Button(action: viewModel.retryCardLoad) {
+                            HStack(spacing: 4) {
+                                Text(Localization.tangempayCommonErrorLoading)
+                                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textStatusError)
+
+                                DesignSystem.Icons.ArrowRefresh.regular20.image
+                                    .renderingMode(.template)
+                                    .foregroundStyle(DesignSystem.Color.iconStatusError)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .showDivider()
+            }
+        }
+    }
+
+    private func cardShimmerLine(width: CGFloat, token: TangemTypographyToken) -> some View {
+        Text(" ")
+            .style(token, color: .clear)
+            .frame(width: width)
+            .overlay {
+                SkeletonView()
+                    .clipShape(Capsule())
+                    .padding(.vertical, 2)
+            }
     }
 }
 

@@ -11,6 +11,7 @@ import SwiftUI
 struct TangemRowContentLayout: Layout {
     let contentLead: TangemRowContentLead
     let minOppositeWidth: CGFloat
+    let verticalAlignment: TangemRowVerticalAlignment
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) -> CGSize {
         let split = resolveSplit(proposal: proposal, subviews: subviews)
@@ -21,15 +22,17 @@ struct TangemRowContentLayout: Layout {
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) {
         let split = resolveSplit(proposal: proposal, subviews: subviews)
+        let isTop = verticalAlignment == .top
+        let y = isTop ? bounds.minY : bounds.midY
 
         subviews[0].place(
-            at: CGPoint(x: bounds.minX, y: bounds.midY),
-            anchor: .leading,
+            at: CGPoint(x: bounds.minX, y: y),
+            anchor: isTop ? .topLeading : .leading,
             proposal: ProposedViewSize(width: split.titleWidth, height: nil)
         )
         subviews[1].place(
-            at: CGPoint(x: bounds.maxX, y: bounds.midY),
-            anchor: .trailing,
+            at: CGPoint(x: bounds.maxX, y: y),
+            anchor: isTop ? .topTrailing : .trailing,
             proposal: ProposedViewSize(width: split.valueWidth, height: nil)
         )
     }
