@@ -15,6 +15,7 @@ import TangemUIUtils
 struct EarnAccountItemView: View {
     let item: EarnAccountListItem
     let onAccountTap: (String) -> Void
+    let onTokenTap: (String) -> Void
 
     @Namespace private var namespace
 
@@ -118,7 +119,7 @@ private extension EarnAccountItemView {
     var tokensView: some View {
         VStack(spacing: 0) {
             ForEach(item.tokens) { token in
-                TokenRowView(data: token)
+                TokenRowView(data: token, onTap: { onTokenTap(token.id) })
                     .transition(.opacity)
             }
         }
