@@ -92,6 +92,7 @@ struct TangemPayCurrentPlanView: View {
                 ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
                     TangemRow(title: row.value, subtitle: row.label)
                         .lineOrder(.secondaryFirst)
+                        .titleLineLimit(nil)
                         .showDivider(index < section.rows.count - 1)
                 }
             }

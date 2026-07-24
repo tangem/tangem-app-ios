@@ -87,7 +87,7 @@ final class TangemPayConfirmPlanViewModel: ObservableObject {
                     targetTariffPlanId: viewModel.targetPlanId,
                     transitionType: viewModel.transitionType
                 )
-                viewModel.coordinator?.confirmPlanDidComplete()
+                viewModel.coordinator?.confirmPlanDidComplete(transitionType: viewModel.transitionType)
             } catch {
                 viewModel.isProcessing = false
                 viewModel.alert = AlertBinder(
@@ -104,7 +104,7 @@ final class TangemPayConfirmPlanViewModel: ObservableObject {
     }
 
     func close() {
-        coordinator?.confirmPlanDidComplete()
+        coordinator?.closeSelectPlanFlow()
     }
 }
 
@@ -145,5 +145,6 @@ extension TangemPayConfirmPlanViewModel {
 
 protocol TangemPayConfirmPlanRoutable: AnyObject {
     func closeConfirmPlan()
-    func confirmPlanDidComplete()
+    func closeSelectPlanFlow()
+    func confirmPlanDidComplete(transitionType: TangemPayTariffPlanTransition.TransitionType)
 }
