@@ -22,14 +22,14 @@ protocol TangemPayMainRoutable: AnyObject {
     func openTangemPayNoDepositAddressSheet()
     func openTangemWithdrawInProgressSheet()
     func openTermsAndLimits()
+    func openVisaBenefits()
     func renewTangemPaySession()
+    func closePaymentAccount()
 
     func openTangemPayTransactionDetailsSheet(
         transaction: TangemPayTransactionRecord,
         userWalletId: UserWalletId,
-        customerId: String,
-        cardName: String?,
-        cardNumberEnd: String?
+        customerId: String
     )
 
     func openPendingExpressTransactionDetails(
