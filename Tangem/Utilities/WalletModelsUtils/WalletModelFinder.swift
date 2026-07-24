@@ -14,13 +14,15 @@ enum WalletModelFinder {
     @Injected(\.userWalletRepository)
     private static var userWalletRepository: UserWalletRepository
 
-    static func findMainWalletModel(address: String, blockchain: Blockchain) throws -> Result {
+    static func findMainWalletModel(address: String, networkId: String, isTestnet: Bool) throws -> Result {
         for userWalletModel in userWalletRepository.models {
             let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
             if let walletModel = walletModels.first(where: { walletModel in
-                walletModel.isMainToken
-                    && walletModel.tokenItem.blockchain == blockchain
+                let candidate = walletModel.tokenItem.blockchain
+                return walletModel.isMainToken
+                    && candidate.networkId == networkId
+                    && candidate.isTestnet == isTestnet
                     && walletModel.addresses.contains { $0.value.caseInsensitiveEquals(to: address) }
             }) {
                 return Result(userWalletModel: userWalletModel, walletModel: walletModel)

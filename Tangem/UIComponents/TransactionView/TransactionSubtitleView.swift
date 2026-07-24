@@ -38,7 +38,7 @@ struct TransactionSubtitleView: View {
     @ViewBuilder
     private var ownerView: some View {
         switch owner {
-        case .account(let name, let icon):
+        case .accountInCurrentWallet(let name, let icon):
             HStack(spacing: .unit(.x1)) {
                 AccountIconView(data: icon)
                     .settings(.smallSized)
@@ -54,7 +54,7 @@ struct TransactionSubtitleView: View {
                 .lineLimit(1)
                 .accessibilityIdentifier(accessibilityIdentifier)
 
-        case .accountInWallet(let accountName, let accountIcon, let walletName):
+        case .accountInOtherWallet(let accountName, let accountIcon, let walletName):
             HStack(spacing: .unit(.x1)) {
                 AccountIconView(data: accountIcon)
                     .settings(.smallSized)

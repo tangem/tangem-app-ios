@@ -16,6 +16,7 @@ extension PromotionsDTO {
     enum Placement: String, Codable {
         case main
         case news = "shtorka"
+        case paymentAccountMain = "payment_account_main"
     }
 }
 

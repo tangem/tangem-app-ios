@@ -88,6 +88,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     private var safariHandle: SafariHandle?
     private var deeplinkDestinationSubscription: AnyCancellable?
     private var tangemPayMainDeeplinkSubscription: AnyCancellable?
+    private var tangemPayMainDismissSubscription: AnyCancellable?
     private var yieldDeeplinkRouter: YieldDeeplinkRouter?
     required init(
         coordinatorFactory: MainCoordinatorChildFactory,
@@ -507,13 +508,22 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             )
         )
         tangemPayMainCoordinator = coordinator
+
+        tangemPayMainDismissSubscription = $tangemPayMainCoordinator
+            .filter { $0 == nil }
+            .first()
+            .sink { _ in
+                runTask {
+                    await tangemPayAccount.loadCustomerInfo()
+                }
+            }
     }
 
     func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = TangemPaySelectPlanCoordinator(
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] _ in
                 self?.tangemPaySelectPlanCoordinator = nil
             },
             popToRootAction: popToRootAction

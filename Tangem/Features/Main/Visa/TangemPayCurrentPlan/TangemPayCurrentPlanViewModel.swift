@@ -17,6 +17,7 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
     let changePlanButtonTitle: String
 
     @Published private(set) var downgradeBanner: DowngradeBanner?
+    @Published private(set) var feeChargedBannerText: String?
 
     private weak var coordinator: TangemPayCurrentPlanRoutable?
 
@@ -31,6 +32,7 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
         planName = tariffPlan.name
         sections = Self.makeSections(from: tariffPlan.descriptionItems)
         downgradeBanner = Self.makeDowngradeBanner(from: customerTariffPlan)
+        feeChargedBannerText = Self.makeFeeChargedBannerText(from: customerTariffPlan)
 
         changePlanButtonTitle = Localization.tangempayCurrentPlanChange
 
@@ -38,6 +40,11 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
             .map { $0.flatMap(Self.makeDowngradeBanner(from:)) }
             .receive(on: DispatchQueue.main)
             .assign(to: &$downgradeBanner)
+
+        customerTariffPlanPublisher
+            .map { $0.flatMap(Self.makeFeeChargedBannerText(from:)) }
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$feeChargedBannerText)
     }
 
     func changePlan() {
@@ -93,6 +100,22 @@ private extension TangemPayCurrentPlanViewModel {
         )
 
         return DowngradeBanner(text: text, planName: planName, pendingPlanName: pendingPlan.name)
+    }
+
+    static func makeFeeChargedBannerText(
+        from customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan
+    ) -> String? {
+        guard
+            customerTariffPlan.status == .active,
+            let nextBillingAt = customerTariffPlan.nextBillingAt,
+            let recurringFee = customerTariffPlan.tariffPlan.fees.first(where: { $0.type == .recurring })
+        else {
+            return nil
+        }
+
+        let fee = BalanceFormatter().formatFiatBalance(recurringFee.amount, currencyCode: recurringFee.currency)
+
+        return Localization.tangempayCurrentPlanFeeChargedNotification(fee, downgradeDateFormatter.string(from: nextBillingAt))
     }
 
     static func makeSections(
