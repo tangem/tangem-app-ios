@@ -15,46 +15,77 @@ struct ForceUpdateView: View {
     let viewModel: ForceUpdateViewModel
 
     var body: some View {
-        VStack(spacing: .zero) {
-            Spacer()
-
-            ZStack(alignment: .center) {
-                Circle()
-                    .fill(Colors.Icon.warning.opacity(0.1))
-                    .frame(size: .init(bothDimensions: 72))
-
-                Assets.redCircleWarning20Outline.image
-                    .resizable()
-                    .frame(size: .init(bothDimensions: 32))
+        content
+            .padding(.horizontal, 24)
+            .padding(.top, 84)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .safeAreaInset(edge: .bottom) {
+                buttons
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
             }
-            .padding(20)
+            .background(ForceUpdateGlowBackground(color: viewModel.accentColor))
+            .onAppear(perform: viewModel.onAppear)
+    }
+
+    private var content: some View {
+        VStack(alignment: .leading, spacing: .zero) {
+            viewModel.icon.image
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(size: .init(bothDimensions: 28))
+                .foregroundStyle(viewModel.accentColor)
+                .padding(.bottom, 16)
 
             Text(viewModel.title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                .minimumScaleFactor(0.4)
-                .multilineTextAlignment(.center)
-                .padding(.bottom, 12)
+                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(viewModel.subtitle)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
-                .minimumScaleFactor(0.4)
-                .padding(.horizontal, 48)
-                .multilineTextAlignment(.center)
-
-            Spacer()
-
-            VStack(spacing: 10) {
-                if let primaryButtonSettings = viewModel.primaryButtonSettings {
-                    MainButton(settings: primaryButtonSettings)
-                }
-
-                if let supportButtonSettings = viewModel.supportButtonSettings {
-                    MainButton(settings: supportButtonSettings)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 6)
+                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textSecondary)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .onAppear(perform: viewModel.onAppear)
     }
+
+    private var buttons: some View {
+        VStack(spacing: 8) {
+            if let secondaryButton = viewModel.secondaryButton {
+                button(secondaryButton)
+            }
+
+            if let primaryButton = viewModel.primaryButton {
+                button(primaryButton)
+            }
+        }
+    }
+
+    private func button(_ model: ForceUpdateViewModel.ButtonModel) -> some View {
+        TangemButtonV2(
+            label: AttributedString(model.title),
+            accessibilityLabel: model.title,
+            action: model.action
+        )
+        .styleType(model.style)
+        .size(.x12)
+        .horizontalLayout(.infinity)
+    }
+}
+
+// MARK: - Previews
+
+#Preview("Requires app update") {
+    ForceUpdateView(viewModel: ForceUpdateViewModel(reason: .requiresAppUpdate, coordinator: nil))
+}
+
+#Preview("Requires OS update") {
+    ForceUpdateView(viewModel: ForceUpdateViewModel(reason: .requiresOSUpdate, coordinator: nil))
+}
+
+#Preview("Brick") {
+    ForceUpdateView(viewModel: ForceUpdateViewModel(reason: .brick, coordinator: nil))
 }
