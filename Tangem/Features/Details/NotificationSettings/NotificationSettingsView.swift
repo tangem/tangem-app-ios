@@ -107,7 +107,7 @@ struct NotificationSettingsView: View {
             } footer: {
                 Button(action: viewModel.onTapMoreInfoTransactionPushNotifications) {
                     Group {
-                        Text("\(Localization.walletSettingsPushNotificationsDescription) ")
+                        Text("\(Localization.pushNotificationSettingsTransactionAlertsSubtitle) ")
                             + readMoreText
                     }
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
