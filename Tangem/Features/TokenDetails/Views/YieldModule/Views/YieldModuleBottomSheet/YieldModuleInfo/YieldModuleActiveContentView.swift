@@ -137,7 +137,7 @@ struct YieldModuleActiveContentView: View {
     }
 
     private func promoBonusButton(text: String) -> some View {
-        Button(action: viewModel.onPromoBonusTap) {
+        SwiftUI.Button(action: viewModel.onPromoBonusTap) {
             HStack(spacing: 12) {
                 Assets.Accounts.gift.image
                     .renderingMode(.template)
@@ -176,7 +176,7 @@ struct YieldModuleActiveContentView: View {
 
             Spacer()
 
-            Button(action: viewModel.onBonusPaidOutBannerDismiss) {
+            SwiftUI.Button(action: viewModel.onBonusPaidOutBannerDismiss) {
                 Assets.crossBig.image
                     .renderingMode(.template)
                     .foregroundStyle(Colors.Icon.inactive)

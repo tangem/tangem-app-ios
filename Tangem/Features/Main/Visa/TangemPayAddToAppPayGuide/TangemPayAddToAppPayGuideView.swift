@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayAddToAppPayGuideView: View {
     @ObservedObject var viewModel: TangemPayAddToAppPayGuideViewModel
@@ -28,6 +29,7 @@ struct TangemPayAddToAppPayGuideView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.addToApplePayGuideContainer)
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
             .withCloseButton(
@@ -42,6 +44,7 @@ struct TangemPayAddToAppPayGuideView: View {
                         style: .secondary,
                         action: viewModel.close
                     )
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.addToApplePayGuideCloseButton)
 
                     MainButton(
                         title: Localization.tangempayCardDetailsOpenWalletStep1Apple,

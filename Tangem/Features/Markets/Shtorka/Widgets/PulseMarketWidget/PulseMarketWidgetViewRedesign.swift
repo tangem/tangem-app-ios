@@ -39,7 +39,7 @@ struct PulseMarketWidgetViewRedesign: View {
             }
 
             list
-                .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x6))
+                .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: .zero, radius: 24)
                 .id(listStateID)
                 .transition(.opacity)
         }
@@ -95,7 +95,7 @@ struct PulseMarketWidgetViewRedesign: View {
 
     private var filterSkeletons: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: .unit(.x2)) {
+            HStack(spacing: 8) {
                 SkeletonView()
                     .frame(width: 113, height: 36)
                     .clipShape(.capsule)
@@ -108,10 +108,10 @@ struct PulseMarketWidgetViewRedesign: View {
                     .frame(width: 200, height: 36)
                     .clipShape(.capsule)
             }
-            .padding(.horizontal, SizeUnit.x4.value)
+            .padding(.horizontal, 16)
         }
         .scrollDisabled(true)
-        .padding(.horizontal, -SizeUnit.x4.value)
+        .padding(.horizontal, -16)
         .allowsHitTesting(false)
     }
 }

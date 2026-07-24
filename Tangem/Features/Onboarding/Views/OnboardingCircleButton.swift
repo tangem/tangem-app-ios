@@ -72,7 +72,7 @@ struct OnboardingCircleButton: View {
     @ViewBuilder
     var backgroundView: some View {
         ZStack {
-            Button(action: {
+            SwiftUI.Button(action: {
                 refreshAction()
             }, label: {
                 Circle()

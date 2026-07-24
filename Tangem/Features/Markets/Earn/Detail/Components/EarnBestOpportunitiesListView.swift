@@ -117,7 +117,7 @@ struct EarnBestOpportunitiesListView: View {
                 .style(Font.Tangem.Body14.regular, color: .Tangem.Text.Neutral.tertiary)
 
             if let clearFilterAction {
-                Button(action: clearFilterAction) {
+                SwiftUI.Button(action: clearFilterAction) {
                     Text(Localization.earnClearFilter)
                         .style(
                             Font.Tangem.Body16.semibold,
