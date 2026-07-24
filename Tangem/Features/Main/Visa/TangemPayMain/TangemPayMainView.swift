@@ -77,6 +77,8 @@ struct TangemPayMainView: View {
         VStack(spacing: 28) {
             redesignedHeader
 
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+
             if !viewModel.notificationBannerItems.isEmpty {
                 NotificationBannerContainer(
                     items: viewModel.notificationBannerItems,
@@ -272,6 +274,12 @@ struct TangemPayMainView: View {
 
                 Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
+                }
+
+                if viewModel.isDeactivated {
+                    Button(role: .destructive, action: viewModel.promptRemoveAccount) {
+                        Label(Localization.tangempayRemoveAccount, systemImage: "trash")
+                    }
                 }
             } label: {
                 Image(systemName: "ellipsis")
