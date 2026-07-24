@@ -23,7 +23,7 @@ struct UserWalletConfigStub: UserWalletConfig {
     let tangemSigner: TangemSigner = TangemSignerStub()
     let generalNotificationEvents: [GeneralNotificationEvent] = []
     let isWalletsCreated: Bool = true
-    let supportedBlockchains: Set<Blockchain> = []
+    var supportedBlockchains: Set<Blockchain> = []
     let defaultBlockchains: [TokenItem] = []
     let persistentBlockchains: [TokenItem] = []
     let embeddedBlockchain: TokenItem? = nil
