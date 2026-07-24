@@ -49,7 +49,7 @@ struct TokenDetailsStakingView: View {
 
 private extension TokenDetailsStakingView {
     func availableView(item: TokenDetailsStakingState.AvailableItem) -> some View {
-        Button(action: item.action) {
+        SwiftUI.Button(action: item.action) {
             // [REDACTED_TODO_COMMENT]
             HStack(spacing: horizontalSpacing) {
                 Assets.stakingFilledAero.image
@@ -97,7 +97,7 @@ private extension TokenDetailsStakingView {
     }
 
     func enableView(item: TokenDetailsStakingState.EnableItem) -> some View {
-        Button(action: item.action) {
+        SwiftUI.Button(action: item.action) {
             HStack(spacing: horizontalSpacing) {
                 Assets.stakingFilledAero.image
                     .renderingMode(.original)
@@ -172,7 +172,7 @@ private extension TokenDetailsStakingView {
         }
 
         if let action = item.action {
-            Button(action: action) { content }
+            SwiftUI.Button(action: action) { content }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
         } else {

@@ -45,13 +45,13 @@ struct MainPageTangemTokenRow: View {
     @ViewBuilder
     private func contextMenuButton(for actionType: TokenActionType) -> some View {
         if actionType.isDestructive {
-            Button(
+            SwiftUI.Button(
                 role: .destructive,
                 action: { viewModel.didTapContextAction(actionType) },
                 label: { labelForContextButton(with: actionType) }
             )
         } else {
-            Button(
+            SwiftUI.Button(
                 action: { viewModel.didTapContextAction(actionType) },
                 label: { labelForContextButton(with: actionType) }
             )

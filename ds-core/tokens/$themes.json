@@ -322,6 +322,7 @@
       "color.border.accent.neutral": "f7e7052befb3a69b4e89416cbf9faa520eb988cb",
       "color.overlay.modal": "c1dc05563561bc833c20ce6fd010ed1d634662a7",
       "color.interaction.press.default": "4159ca3edd166ca156f76e2de13c976d1d664d94",
+      "color.interaction.press.light": "bd026bcd0cbd7b634994fd5f2e0c8ec30100b550",
       "color.interaction.press.static-light": "311f1711c8379fbb68773691e5524365d8e6a29c",
       "color.interaction.press.static-dark": "e97adbdaa73fcb33e44965b9fd6ae3e48b43801b",
       "color.interaction.press.inverse": "76dcee17887234d586f22f9059c9581c92721a2b",
@@ -401,7 +402,8 @@
       "color.material.soft-light.solid": "5a0e5d55711dec81e931fc1e2be0edb40650c642",
       "color.material.border.start": "bba8235bd1cc33641a7d980672d60ad56d5ee19e",
       "color.material.border.mid": "11520e410cc508d923fabae68e1cb25cc5c3f3a0",
-      "color.material.border.end": "df59577ff11fd5ac6785c5af54945ebee6b67d2d"
+      "color.material.border.end": "df59577ff11fd5ac6785c5af54945ebee6b67d2d",
+      "size.material.glass.intensity": "29e77e1519e06ccaffb0507d39f7f0528cc00a24"
     },
     "group": "theme"
   },
@@ -515,6 +517,7 @@
       "color.border.accent.neutral": "f7e7052befb3a69b4e89416cbf9faa520eb988cb",
       "color.overlay.modal": "c1dc05563561bc833c20ce6fd010ed1d634662a7",
       "color.interaction.press.default": "4159ca3edd166ca156f76e2de13c976d1d664d94",
+      "color.interaction.press.light": "bd026bcd0cbd7b634994fd5f2e0c8ec30100b550",
       "color.interaction.press.static-light": "311f1711c8379fbb68773691e5524365d8e6a29c",
       "color.interaction.press.static-dark": "e97adbdaa73fcb33e44965b9fd6ae3e48b43801b",
       "color.interaction.press.inverse": "76dcee17887234d586f22f9059c9581c92721a2b",
@@ -594,7 +597,8 @@
       "color.material.soft-light.solid": "5a0e5d55711dec81e931fc1e2be0edb40650c642",
       "color.material.border.start": "bba8235bd1cc33641a7d980672d60ad56d5ee19e",
       "color.material.border.mid": "11520e410cc508d923fabae68e1cb25cc5c3f3a0",
-      "color.material.border.end": "df59577ff11fd5ac6785c5af54945ebee6b67d2d"
+      "color.material.border.end": "df59577ff11fd5ac6785c5af54945ebee6b67d2d",
+      "size.material.glass.intensity": "29e77e1519e06ccaffb0507d39f7f0528cc00a24"
     },
     "group": "theme"
   },

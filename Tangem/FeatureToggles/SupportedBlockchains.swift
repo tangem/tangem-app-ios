@@ -66,6 +66,7 @@ struct SupportedBlockchains {
     /// Blockchains for test. They don't include in supported blockchains by default
     private func testableBlockchains() -> Set<Blockchain> {
         [
+            .robinhood(testnet: false),
             .vanar(testnet: false),
             .zkLinkNova(testnet: false),
         ]
@@ -236,6 +237,7 @@ struct SupportedBlockchains {
             .scroll(testnet: true),
             .linea(testnet: true),
             .monad(testnet: true),
+            .robinhood(testnet: true),
             .plasma(testnet: true),
             .adi(testnet: true),
             .seiEvm(testnet: true),

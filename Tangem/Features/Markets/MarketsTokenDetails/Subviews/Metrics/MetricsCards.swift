@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 // MARK: - Market Cap Card
 
@@ -17,7 +18,7 @@ struct MetricsMarketCapCard: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
 
     var body: some View {
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
+        MetricsCardContainer(backgroundColor: DesignSystem.Color.bgSecondary, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
                 MetricsValueText(viewModel.record(for: .marketCapitalization)?.recordData)
 
@@ -47,15 +48,15 @@ struct MetricsTradingVolumeCard: View {
 
     private var color: Color {
         switch state.liquidityLevel {
-        case .high: .Tangem.Text.Status.positive
-        case .medium: .Tangem.Text.Status.attention
-        case .low: .Tangem.Text.Status.warning
-        case .unknown: .Tangem.Text.Neutral.tertiary
+        case .high: DesignSystem.Color.iconAccentGreen
+        case .medium: DesignSystem.Color.iconAccentYellow
+        case .low: DesignSystem.Color.iconAccentRed
+        case .unknown: DesignSystem.Color.iconAccentNeutral
         }
     }
 
     var body: some View {
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
+        MetricsCardContainer(backgroundColor: DesignSystem.Color.bgSecondary, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
                 titleRow
 
@@ -72,23 +73,23 @@ struct MetricsTradingVolumeCard: View {
 
             Text(Localization.marketsTokenDetailsTradingInterval)
                 .style(
-                    Font.Tangem.Caption11.medium,
+                    DesignSystem.Font.captionMediumToken,
                     color: MetricsValueText.color(
                         hasData: viewModel.record(for: .tradingVolume) != nil
                     )
                 )
-                .padding(.leading, .unit(.x1))
-                .padding(.top, .unit(.x1))
+                .padding(.leading, 4)
+                .padding(.top, 4)
         }
     }
 
     private var bottomSection: some View {
-        VStack(alignment: .leading, spacing: .unit(.x2)) {
+        VStack(alignment: .leading, spacing: 8) {
             if let liquidity = state.liquidity {
                 MetricsProgressBar(
                     progress: liquidity,
                     foregroundColor: color,
-                    backgroundColor: Color.Tangem.Fill.Neutral.primary.opacity(0.1)
+                    backgroundColor: DesignSystem.Color.bgOpaqueSecondary
                 )
             }
 
@@ -110,16 +111,16 @@ struct MetricsFDVCard: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
 
     var body: some View {
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
+        MetricsCardContainer(backgroundColor: DesignSystem.Color.bgSecondary, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
-                VStack(alignment: .leading, spacing: .unit(.x1)) {
+                VStack(alignment: .leading, spacing: 4) {
                     titleRow
 
                     if let recordSubdata = viewModel.record(for: .fullyDilutedValuation)?.recordSubdata {
                         Text(Localization.marketsTokenDetailsValuationValueInTotal(recordSubdata))
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
-                            .style(Font.Tangem.Caption12.medium, color: .Tangem.Text.Neutral.primary)
+                            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
                     }
                 }
 
@@ -139,13 +140,13 @@ struct MetricsFDVCard: View {
 
             Text(Localization.marketsTokenDetailsTradingInterval)
                 .style(
-                    Font.Tangem.Caption11.medium,
+                    DesignSystem.Font.captionMediumToken,
                     color: MetricsValueText.color(
                         hasData: viewModel.record(for: .fullyDilutedValuation) != nil
                     )
                 )
-                .padding(.leading, .unit(.x1))
-                .padding(.top, .unit(.x1))
+                .padding(.leading, 4)
+                .padding(.top, 4)
         }
     }
 
@@ -164,7 +165,7 @@ struct MetricsCirculatingSupplyCard: View {
     }
 
     var body: some View {
-        VStack(spacing: .unit(.x5)) {
+        VStack(spacing: 20) {
             HStack(alignment: .top) {
                 circulatingColumn
 
@@ -176,9 +177,9 @@ struct MetricsCirculatingSupplyCard: View {
             progressBar
         }
         .roundedBackground(
-            with: .Tangem.Surface.level3,
-            padding: .unit(.x4),
-            radius: .unit(.x6)
+            with: DesignSystem.Color.bgSecondary,
+            padding: 16,
+            radius: 24
         )
         .onTapGesture {
             viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.circulatingSupply)
@@ -186,24 +187,24 @@ struct MetricsCirculatingSupplyCard: View {
     }
 
     private var circulatingColumn: some View {
-        VStack(alignment: .leading, spacing: .unit(.x3)) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(Localization.marketsTokenDetailsCirculatingSupply)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-            HStack(alignment: .firstTextBaseline, spacing: .unit(.x1)) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
                 MetricsValueText(redesign.formattedCirculatingSupply)
 
                 Text(redesign.cryptoCurrencyCode)
                     .lineLimit(1)
-                    .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.secondary)
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
             }
         }
     }
 
     private var maxSupplyColumn: some View {
-        VStack(alignment: .trailing, spacing: .unit(.x3)) {
+        VStack(alignment: .trailing, spacing: 12) {
             Text(Localization.marketsTokenDetailsMaxSupply)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
             MetricsValueText(redesign.formattedMaxSupply)
         }
@@ -214,8 +215,8 @@ struct MetricsCirculatingSupplyCard: View {
         if let supplyProgress = redesign.circulatingSupplyProgress {
             MetricsProgressBar(
                 progress: supplyProgress,
-                foregroundColor: .Tangem.Text.Status.accent,
-                backgroundColor: Color.Tangem.Fill.Neutral.primary.opacity(0.1)
+                foregroundColor: DesignSystem.Color.iconAccentBlue,
+                backgroundColor: DesignSystem.Color.bgOpaqueSecondary
             )
         }
     }
@@ -234,11 +235,11 @@ struct MetricsValueText: View {
         Text(value ?? Localization.tokenMarketMetricsNoData)
             .lineLimit(1)
             .minimumScaleFactor(0.6)
-            .style(Font.Tangem.Heading20.semibold, color: Self.color(hasData: value != nil))
+            .style(DesignSystem.Font.headingSmallToken, color: Self.color(hasData: value != nil))
     }
 
     static func color(hasData: Bool) -> Color {
-        hasData ? .Tangem.Text.Neutral.primary : .Tangem.Text.Neutral.tertiary
+        hasData ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
     }
 }
 
@@ -246,19 +247,19 @@ struct MetricsValueText: View {
 
 struct MetricsInfoLabel: View {
     let title: String
-    var color: Color = .Tangem.Text.Neutral.secondary
+    var color: Color = DesignSystem.Color.textSecondary
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: .unit(.x1)) {
-                Assets.infoCircle16.image
+        SwiftUI.Button(action: action) {
+            HStack(spacing: 4) {
+                DesignSystem.Icons.Info.regular16.image
                     .renderingMode(.template)
                     .foregroundStyle(color)
 
                 Text(title)
                     .lineLimit(1)
-                    .style(Font.Tangem.Caption12.semibold, color: color)
+                    .style(DesignSystem.Font.captionMediumToken, color: color)
             }
         }
         .buttonStyle(.plain)

@@ -112,7 +112,7 @@ struct SwapAmountView: View {
     }
 
     private var swappingButton: some View {
-        Button(action: viewModel.userDidTapSwapSourceAndReceiveTokensButton) {
+        SwiftUI.Button(action: viewModel.userDidTapSwapSourceAndReceiveTokensButton) {
             Assets.swappingIcon.image
                 .renderingMode(.template)
                 .resizable()

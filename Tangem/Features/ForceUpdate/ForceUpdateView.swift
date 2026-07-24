@@ -65,7 +65,7 @@ struct ForceUpdateView: View {
     }
 
     private func button(_ model: ForceUpdateViewModel.ButtonModel) -> some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(model.title),
             accessibilityLabel: model.title,
             action: model.action
