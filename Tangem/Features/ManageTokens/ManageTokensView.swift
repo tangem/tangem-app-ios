@@ -148,7 +148,7 @@ struct ManageTokensView: View {
     }
 
     private var addCustomTokenRow: some View {
-        Button(action: viewModel.openAddCustomToken) {
+        SwiftUI.Button(action: viewModel.openAddCustomToken) {
             HStack(spacing: 12) {
                 ZStack(alignment: .center) {
                     RoundedRectangle(cornerRadius: 18)
