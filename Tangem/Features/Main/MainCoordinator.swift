@@ -523,7 +523,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         mainBottomSheetUIManager.hide()
 
         let coordinator = TangemPaySelectPlanCoordinator(
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] _ in
                 self?.tangemPaySelectPlanCoordinator = nil
             },
             popToRootAction: popToRootAction
