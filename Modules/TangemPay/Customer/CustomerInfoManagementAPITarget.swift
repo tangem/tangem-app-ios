@@ -43,6 +43,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/\(cardId)/pin"
         case .getTransactionHistory:
             "customer/transactions"
+        case .getTransaction(let transactionId):
+            "customer/transactions/\(transactionId)"
         case .getWithdrawSignableData:
             "customer/card/withdraw/data"
         case .sendWithdrawTransaction:
@@ -86,6 +88,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getTariffPlanTransitions,
              .getBalance,
              .getTransactionHistory,
+             .getTransaction,
              .getPinLegacy,
              .getPin,
              .getFee,
@@ -132,7 +135,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPinLegacy,
              .getPin,
              .getFee,
-             .getBankCredentials:
+             .getBankCredentials,
+             .getTransaction:
             return .requestPlain
 
         case .cancelKYC:
@@ -266,6 +270,7 @@ extension CustomerInfoManagementAPITarget {
         case freeze(cardId: String)
         case unfreeze(cardId: String)
         case getTransactionHistory(limit: Int, cursor: String?)
+        case getTransaction(transactionId: String)
 
         case getWithdrawSignableData(TangemPayWithdraw.SignableData.Request)
         case sendWithdrawTransaction(TangemPayWithdraw.Transaction.Request)

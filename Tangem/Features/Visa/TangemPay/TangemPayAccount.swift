@@ -173,6 +173,7 @@ final class TangemPayAccount {
 
     let userWalletId: UserWalletId
     private(set) weak var account: (any TangemPayAccountModel)?
+    private(set) weak var accountRemover: (any TangemPayAccountRemoving)?
 
     private let balancesService: any TangemPayBalancesService
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
@@ -217,7 +218,8 @@ final class TangemPayAccount {
         mainHeaderBalanceProvider: MainHeaderBalanceProvider,
         orderResolver: TangemPayOrderResolver,
         feeRepository: TangemPayFeeRepository,
-        account: (any TangemPayAccountModel)?
+        account: (any TangemPayAccountModel)?,
+        accountRemover: (any TangemPayAccountRemoving)?
     ) {
         self.userWalletId = userWalletId
         customerInfoSubject = CurrentValueSubject(customerInfo)
@@ -231,6 +233,7 @@ final class TangemPayAccount {
         self.orderResolver = orderResolver
         self.feeRepository = feeRepository
         self.account = account
+        self.accountRemover = accountRemover
 
         bindActiveIssueOrderEvents()
         bindAwaitingDepositInfo()
@@ -246,16 +249,20 @@ final class TangemPayAccount {
         await loadCustomerInfoNew()
     }
 
+    func removeAccount(onFinish: @escaping (Bool) -> Void) {
+        guard let accountRemover else {
+            onFinish(false)
+            return
+        }
+        accountRemover.removeAccount(onFinish: onFinish)
+    }
+
+    func getTransaction(transactionId: String) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse.Transaction {
+        try await customerService.getTransaction(transactionId: transactionId)
+    }
+
     func card(cardId: String) -> TangemPayCard? {
         cards.first { $0.cardId == cardId }
-    }
-
-    func cardDisplayName(forCardId cardId: String) -> String? {
-        card(cardId: cardId)?.displayName
-    }
-
-    func cardNumberEnd(forCardId cardId: String) -> String? {
-        card(cardId: cardId)?.cardNumberEnd
     }
 }
 
