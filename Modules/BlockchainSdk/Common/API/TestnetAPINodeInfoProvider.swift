@@ -300,6 +300,10 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://testnet-rpc.monad.xyz")!),
             ]
+        case .robinhood:
+            return AlchemyAPIResolver(apiKey: keysConfig.alchemyApiKey)
+                .resolve(for: blockchain)
+                .map { [$0] }
         case .plasma:
             return [
                 .init(url: URL(string: "https://testnet-rpc.plasma.to")!),

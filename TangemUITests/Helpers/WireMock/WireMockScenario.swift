@@ -25,6 +25,15 @@ struct WireMockScenarioStateRequest: Codable {
     let state: String
 }
 
+struct WireMockRequestCountRequest: Codable {
+    let method: String
+    let urlPathPattern: String
+}
+
+struct WireMockRequestCountResponse: Codable {
+    let count: Int
+}
+
 // MARK: - Scenario Configuration
 
 struct ScenarioConfig {
