@@ -32,6 +32,7 @@ final class CommonForceUpdateService {
             return .upToDate
         }
 
+        // criticalVersion is an inclusive ceiling: this build and anything older is known-broken.
         if let criticalVersion = dto.criticalVersion?.nilIfEmpty,
            isVersion(currentVersion, lessThanOrEqualTo: criticalVersion) {
             if let criticalOSVersion = dto.criticalOSVersion?.nilIfEmpty,
@@ -42,8 +43,10 @@ final class CommonForceUpdateService {
             return .forceUpdate(reason: .requiresAppUpdate)
         }
 
+        // minSupportedVersion is the supported floor: only builds strictly below it must update;
+        // a build equal to it is still supported.
         if let minSupportedVersion = dto.minSupportedVersion?.nilIfEmpty,
-           isVersion(currentVersion, lessThanOrEqualTo: minSupportedVersion) {
+           isVersion(currentVersion, lessThan: minSupportedVersion) {
             if let minSupportedOSVersion = dto.minSupportedOSVersion?.nilIfEmpty,
                let currentOSVersion = currentOSVersion?.nilIfEmpty,
                isVersion(currentOSVersion, lessThan: minSupportedOSVersion) {
