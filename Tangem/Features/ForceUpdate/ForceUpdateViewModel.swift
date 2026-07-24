@@ -6,8 +6,10 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
 import Combine
 import TangemFoundation
+import TangemAssets
 import TangemUI
 import TangemLocalization
 
@@ -42,6 +44,26 @@ final class ForceUpdateViewModel {
             }
     }
 
+    // MARK: - Presentation
+
+    var icon: ImageType {
+        switch reason {
+        case .requiresAppUpdate, .brick:
+            return DesignSystem.Icons.Error.filled28
+        case .requiresOSUpdate:
+            return DesignSystem.Icons.Warning.filled28
+        }
+    }
+
+    var accentColor: Color {
+        switch reason {
+        case .requiresAppUpdate, .brick:
+            return DesignSystem.Color.iconStatusError
+        case .requiresOSUpdate:
+            return DesignSystem.Color.iconStatusWarning
+        }
+    }
+
     var title: String {
         switch reason {
         case .requiresAppUpdate:
@@ -64,39 +86,36 @@ final class ForceUpdateViewModel {
         }
     }
 
-    var primaryButtonSettings: MainButton.Settings? {
+    /// The bottom (filled) button. Absent on the OS-update screen, which only offers "Later".
+    var primaryButton: ButtonModel? {
         switch reason {
         case .requiresAppUpdate:
-            return MainButton.Settings(
-                title: Localization.forceUpdateButton,
-                style: .primary,
-                size: .default,
-                action: openAppStore
-            )
+            return ButtonModel(title: Localization.forceUpdateAction, style: .default) { [weak self] in
+                self?.openAppStore()
+            }
         case .requiresOSUpdate:
-            // Soft warning — let the user acknowledge and continue into the app.
-            return MainButton.Settings(
-                title: Localization.commonLater,
-                style: .primary,
-                size: .default,
-                action: dismissOSWarning
-            )
-        case .brick:
             return nil
+        case .brick:
+            return ButtonModel(title: Localization.commonContactSupport, style: .default) { [weak self] in
+                self?.openSupport()
+            }
         }
     }
 
-    var supportButtonSettings: MainButton.Settings? {
-        guard reason == .brick else {
+    /// The top (outlined) button. Absent on the BRICK screen, which offers a single action.
+    var secondaryButton: ButtonModel? {
+        switch reason {
+        case .requiresAppUpdate:
+            return ButtonModel(title: Localization.commonContactSupport, style: .secondary) { [weak self] in
+                self?.openSupport()
+            }
+        case .requiresOSUpdate:
+            return ButtonModel(title: Localization.commonLater, style: .secondary) { [weak self] in
+                self?.dismissOSWarning()
+            }
+        case .brick:
             return nil
         }
-
-        return MainButton.Settings(
-            title: Localization.commonContactSupport,
-            style: .secondary,
-            size: .default,
-            action: openSupport
-        )
     }
 
     func onAppear() {
@@ -114,5 +133,15 @@ final class ForceUpdateViewModel {
     private func dismissOSWarning() {
         forceUpdateService.dismissOSUpdateWarning()
         coordinator?.closeForceUpdate()
+    }
+}
+
+// MARK: - ButtonModel
+
+extension ForceUpdateViewModel {
+    struct ButtonModel {
+        let title: String
+        let style: TangemButtonV2.StyleType
+        let action: () -> Void
     }
 }
