@@ -63,7 +63,7 @@ struct CurrencySelectView: View {
     }
 
     private func currencyView(_ currency: CurrencySelectViewState.CurrencyItem) -> some View {
-        Button(action: { viewModel.handle(viewEvent: .currencySelected(currency)) }) {
+        SwiftUI.Button(action: { viewModel.handle(viewEvent: .currencySelected(currency)) }) {
             HStack(spacing: .zero) {
                 Text(currency.title)
                     .style(Fonts.Regular.callout, color: Colors.Text.primary1)

@@ -1953,6 +1953,7 @@
 "token_summary_last_update_subtitle" = "Letzte Aktualisierung: %1$@";
 "token_summary_negative_outlook_title" = "Negativer Ausblick";
 "token_summary_neutral_outlook_title" = "Neutraler Ausblick";
+"token_summary_outlook_is_not_available" = "Outlook for this token is not available";
 "token_summary_positive_outlook_title" = "Positiver Ausblick";
 "token_summary_title" = "Token-Zusammenfassung";
 "token_swap_promotion_button" = "Jetzt tauschen";
@@ -1966,6 +1967,8 @@
 "tokens_list_unavailable_to_swap_source_header" = "Nicht zum Tausch verfügbar";
 "transaction_history_claiming_reward" = "Belohnung einfordern";
 "transaction_history_contract_address" = "Vertrag: %@";
+"transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
+"transaction_history_detail_page_amount_value" = "%1@ %2@";
 "transaction_history_disabling_yield_mode" = "Deaktivierung des Ertragsmodus";
 "transaction_history_earned_from_stake" = "Verdient aus dem Einsatz";
 "transaction_history_empty_transactions" = "Du hast noch keine Transaktionen";
