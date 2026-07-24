@@ -108,8 +108,13 @@ private extension CommonPromotionRepository {
 
             async let mainPromotions = repository.loadPromotions(for: walletIdString, placement: .main)
             async let newsPromotions = repository.loadPromotions(for: walletIdString, placement: .news)
+            async let paymentAccountPromotions = repository.loadPromotions(for: walletIdString, placement: .paymentAccountMain)
 
-            let promotions: PromotionList = await [.main: mainPromotions, .news: newsPromotions]
+            let promotions: PromotionList = await [
+                .main: mainPromotions,
+                .news: newsPromotions,
+                .paymentAccountMain: paymentAccountPromotions,
+            ]
             PromotionsLogger.info("Finished loading promotions for user wallet: \"\(redactedUserWalletId)\". Promotions \(promotions.mapValues { $0.map(\.id) })")
 
             if Task.isCancelled { return }
