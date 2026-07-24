@@ -204,7 +204,6 @@ struct TangemPaySelectPlanView: View {
             .styleType(.default)
             .horizontalLayout(.infinity)
             .isLoading(viewModel.isPlacingOrder)
-            .disabled(!viewModel.isSelectEnabled)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
