@@ -27,9 +27,9 @@ extension EarnOpportunitiesViewModel.ViewState {
             suffix: "annually"
         ),
         list: .suggestions([
-            EarnSuggestionRowData(id: "atom", tokenIconInfo: previewIcon("Cosmos"), name: "Cosmos", network: "Cosmos network", rateText: "APY 14.20 %", productText: "Staking"),
-            EarnSuggestionRowData(id: "sol", tokenIconInfo: previewIcon("Solana"), name: "Solana", network: "Solana network", rateText: "APY 7.05 %", productText: "Staking"),
-            EarnSuggestionRowData(id: "usdc", tokenIconInfo: previewIcon("USDC"), name: "USDC", network: "Ethereum network", rateText: "APY 5.40 %", productText: "Yield Mode"),
+            EarnSuggestionRowData(id: "atom_cosmos_Staking", token: previewToken(id: "atom", networkId: "cosmos", type: .staking), tokenIconInfo: previewIcon("Cosmos"), name: "Cosmos", network: "Cosmos network", rateText: "APY 14.20 %", productText: "Staking"),
+            EarnSuggestionRowData(id: "sol_solana_Staking", token: previewToken(id: "sol", networkId: "solana", type: .staking), tokenIconInfo: previewIcon("Solana"), name: "Solana", network: "Solana network", rateText: "APY 7.05 %", productText: "Staking"),
+            EarnSuggestionRowData(id: "usdc_ethereum_Yield mode", token: previewToken(id: "usdc", networkId: "ethereum", type: .yieldMode), tokenIconInfo: previewIcon("USDC"), name: "USDC", network: "Ethereum network", rateText: "APY 5.40 %", productText: "Yield Mode"),
         ])
     ))
 
@@ -73,6 +73,24 @@ extension EarnOpportunitiesViewModel.ViewState {
             imageURL: nil,
             isCustom: false,
             customTokenColor: nil
+        )
+    }
+
+    private static func previewToken(id: String, networkId: String, type: EarnType) -> EarnTokenModel {
+        EarnTokenModel(
+            id: id,
+            name: id,
+            symbol: id.uppercased(),
+            imageUrl: nil,
+            networkId: networkId,
+            networkName: networkId,
+            blockchainIconAsset: nil,
+            contractAddress: nil,
+            decimalCount: nil,
+            rateValue: 0,
+            rateType: .apy,
+            rateText: "",
+            earnType: type
         )
     }
 }

@@ -47,7 +47,8 @@ extension EarnOpportunitiesMapper {
 
         func makeSuggestionRow(_ token: EarnTokenModel) -> EarnSuggestionRowData {
             EarnSuggestionRowData(
-                id: [token.id, token.symbol, token.networkName, token.earnType.rawValue].joined(separator: "_"),
+                id: [token.id, token.networkId, token.earnType.rawValue].joined(separator: "_"),
+                token: token,
                 tokenIconInfo: TokenIconInfo(
                     name: token.name,
                     blockchainIconAsset: token.blockchainIconAsset,
