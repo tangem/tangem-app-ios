@@ -39,7 +39,7 @@ struct NewsPagerView: View {
                 .opacity(viewModel.overlayContentHidingProgress)
             }
         }
-        .background(Color.Tangem.Surface.level2.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .onAppear { viewModel.handleViewAction(.onAppear) }
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
             viewModel?.onOverlayContentProgressChange(progress)
@@ -73,8 +73,8 @@ struct NewsPagerView: View {
                 Spacer()
                 LinearGradient(
                     colors: [
-                        Color.Tangem.Surface.level2.opacity(0),
-                        Color.Tangem.Surface.level2,
+                        DesignSystem.Color.bgPrimary.opacity(0),
+                        DesignSystem.Color.bgPrimary,
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -91,7 +91,7 @@ struct NewsPagerView: View {
     private var navigationBar: some View {
         NavigationBar(
             title: "",
-            settings: .init(backgroundColor: Color.Tangem.Surface.level2),
+            settings: .init(backgroundColor: DesignSystem.Color.bgPrimary),
             leftButtons: {
                 Group {
                     if viewModel.isDeeplinkMode {
@@ -183,7 +183,7 @@ private struct NewsPageContentView: View {
         )
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.Tangem.Surface.level2)
+        .background(DesignSystem.Color.bgPrimary)
     }
 
     // MARK: - Article Content
@@ -214,30 +214,30 @@ private struct NewsPageContentView: View {
         let isLiked = viewModel.isLiked(for: newsId)
 
         return SwiftUI.Button { viewModel.handleViewAction(.like(newsId)) } label: {
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 ZStack {
                     if isLiked {
                         Assets.Glyphs.glyphsFavouriteFill.image
                             .resizable()
                             .frame(size: .init(bothDimensions: 20))
-                            .foregroundStyle(Color.Tangem.Graphic.Status.warning)
+                            .foregroundStyle(DesignSystem.Color.iconAccentRed)
                             .transition(.scale.animation(.easeInOut(duration: 0.2)))
                     } else {
                         Assets.Glyphs.glyphsFavorite.image
                             .resizable()
                             .frame(size: .init(bothDimensions: 20))
-                            .foregroundStyle(Color.Tangem.Text.Neutral.primary)
+                            .foregroundStyle(DesignSystem.Color.iconPrimary)
                             .transition(.opacity.animation(.easeInOut(duration: 0.2)))
                     }
                 }
 
                 Text(Localization.newsLike)
-                    .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             }
-            .padding(.horizontal, .unit(.x3))
+            .padding(.horizontal, 12)
             .frame(height: 36)
             .frame(minWidth: 46)
-            .background(Color.Tangem.Button.backgroundSecondary, in: .capsule)
+            .background(DesignSystem.Color.bgOpaquePrimary, in: .capsule)
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, alignment: .leading)
