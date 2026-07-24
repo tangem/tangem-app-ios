@@ -138,8 +138,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func tapMainBuyWhenUnavailable() -> Self {
         XCTContext.runActivity(named: "Tap Buy action on main screen (unavailable state)") { _ in
-            waitAndAssertTrue(buyActionButton, "Buy title should exist on main screen")
-            buyActionButton.tap()
+            tapUnavailableActionButton(MainAccessibilityIdentifiers.buyTitle, actionName: "Buy")
             return self
         }
     }
@@ -147,8 +146,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func tapMainSwapWhenUnavailable() -> Self {
         XCTContext.runActivity(named: "Tap Exchange action on main screen (unavailable state)") { _ in
-            waitAndAssertTrue(swapActionButton, "Exchange title should exist on main screen")
-            swapActionButton.tap()
+            tapUnavailableActionButton(MainAccessibilityIdentifiers.exchangeTitle, actionName: "Exchange")
             return self
         }
     }
@@ -1029,6 +1027,26 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         let enabledButtons = buttonQuery.allElementsBoundByIndex.filter { $0.isEnabled }
         let element = enabledButtons.first { hasVisibleFrame($0) } ?? enabledButtons.first ?? buttonQuery.firstMatch
         element.tapEvenIfNotHittable()
+    }
+
+    /// Restricted button is disabled and carries the id on the Button (not the text); force-tap the visible one and retry until the tap-while-disabled gesture surfaces the alert.
+    private func tapUnavailableActionButton(_ identifier: String, actionName: String) {
+        let buttonQuery = app.buttons.matching(identifier: identifier)
+        let alert = app.alerts.firstMatch
+        XCTAssertTrue(
+            buttonQuery.firstMatch.waitForExistence(timeout: .robustUIUpdate),
+            "\(actionName) action button should exist on main screen"
+        )
+        let deadline = Date().addingTimeInterval(.robustUIUpdate)
+        repeat {
+            let buttons = buttonQuery.allElementsBoundByIndex
+            let element = buttons.first { hasVisibleFrame($0) } ?? buttons.first ?? buttonQuery.firstMatch
+            element.tapEvenIfNotHittable()
+            if alert.waitForExistence(timeout: .conditional) {
+                return
+            }
+        } while Date() < deadline
+        XCTFail("\(actionName) unavailable alert did not appear after retrying taps")
     }
 
     private func isGrouped() -> Bool {

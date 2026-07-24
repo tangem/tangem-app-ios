@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsHistoryChartViewRedesign: View {
     @ObservedObject var viewModel: MarketsHistoryChartViewModel
@@ -54,13 +55,13 @@ struct MarketsHistoryChartViewRedesign: View {
 
     private var noDataView: some View {
         Text(Localization.marketsLoadingNoDataTitle)
-            .style(Font.Tangem.Caption12.semibold, color: Color.Tangem.Text.Neutral.tertiary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
     }
 
     private var overlayLoadingView: some View {
         Color.clear
             .overlay {
-                let overlayColor = Color.Tangem.Surface.level1
+                let overlayColor = DesignSystem.Color.bgPrimary
                     .opacity(2.0 / 3.0)
 
                 LinearGradient(
@@ -170,10 +171,10 @@ struct MarketsHistoryChartViewRedesign: View {
 private extension MarketsHistoryChartViewRedesign {
     enum Constants {
         static let labelFont: UIFont = UIFonts.Regular.caption2
-        static let labelTextColor: UIColor = .init(Color.Tangem.Text.Neutral.tertiary)
-        static let labelOffset: CGFloat = .unit(.x3)
-        static let gridLineColor: UIColor = .init(Color.Tangem.Border.Neutral.secondary).withAlphaComponent(0.3)
-        static let gridLineWidth: CGFloat = .unit(.quarter)
+        static let labelTextColor: UIColor = .init(DesignSystem.Color.textSecondary)
+        static let labelOffset: CGFloat = 12
+        static let gridLineColor: UIColor = .init(DesignSystem.Color.borderTertiary)
+        static let gridLineWidth: CGFloat = 1
     }
 }
 

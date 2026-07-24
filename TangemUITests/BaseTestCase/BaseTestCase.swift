@@ -42,7 +42,8 @@ class BaseTestCase: XCTestCase {
         features: [TestFeature: Bool] = [:],
         scenarios: [ScenarioConfig] = [],
         mockCardBatchIdOverride: String? = nil,
-        mockCardFirmwareOverride: String? = nil
+        mockCardFirmwareOverride: String? = nil,
+        extraLaunchEnvironment: [String: String] = [:]
     ) {
         var arguments: [String] = []
 
@@ -100,6 +101,7 @@ class BaseTestCase: XCTestCase {
         if let mockCardFirmwareOverride {
             launchEnvironment["UITEST_MOCK_CARD_FIRMWARE"] = mockCardFirmwareOverride
         }
+        launchEnvironment.merge(extraLaunchEnvironment) { _, new in new }
         app.launchEnvironment = launchEnvironment
 
         // Setup WireMock scenarios before launching the app
@@ -178,7 +180,8 @@ class BaseTestCase: XCTestCase {
         eligibilityState: String = "PaeraCustomer",
         accessCode: String? = nil,
         expressApiType: ExpressAPI? = nil,
-        scenarios: [ScenarioConfig] = []
+        scenarios: [ScenarioConfig] = [],
+        extraLaunchEnvironment: [String: String] = [:]
     ) -> MainScreen {
         let eligibilityScenario = ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState)
 
@@ -187,7 +190,8 @@ class BaseTestCase: XCTestCase {
             expressApiType: expressApiType,
             visaApiType: .mock,
             clearStorage: true,
-            scenarios: [eligibilityScenario] + scenarios
+            scenarios: [eligibilityScenario] + scenarios,
+            extraLaunchEnvironment: extraLaunchEnvironment
         )
 
         return importHotWallet(accessCode: accessCode)

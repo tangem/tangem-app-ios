@@ -70,6 +70,12 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let cardDetailsCopyExpiration = "\(prefix)CardDetailsCopyExpiration"
     public static let cardDetailsCopyCvc = "\(prefix)CardDetailsCopyCvc"
 
+    // MARK: - Add to Apple/Google Pay guide
+
+    public static let addToApplePayGuideBanner = "\(prefix)AddToApplePayGuideBanner"
+    public static let addToApplePayGuideContainer = "\(prefix)AddToApplePayGuideContainer"
+    public static let addToApplePayGuideCloseButton = "\(prefix)AddToApplePayGuideCloseButton"
+
     // MARK: - Card management
 
     public static let changePinRow = "\(prefix)ChangePinRow"
@@ -77,6 +83,13 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let freezeCardRowStateFrozen = "\(prefix)FreezeCardRowStateFrozen"
     public static let freezeSheetConfirmButton = "\(prefix)FreezeSheetConfirmButton"
     public static let unfreezeSheetConfirmButton = "\(prefix)UnfreezeSheetConfirmButton"
+
+    // MARK: - Card rename
+
+    public static let cardNameEditButton = "\(prefix)CardNameEditButton"
+    public static let cardNameTextField = "\(prefix)CardNameTextField"
+    public static let cardRenameDoneButton = "\(prefix)CardRenameDoneButton"
+    public static let cardRenameCloseButton = "\(prefix)CardRenameCloseButton"
 
     // MARK: - Daily limit
 

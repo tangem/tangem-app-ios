@@ -15,7 +15,7 @@ struct TangemButtonV2DemoView: View {
     @ObservedObject var viewModel: TangemButtonV2DemoViewModel
 
     var body: some View {
-        TangemButtonV2Showcase()
-            .navigationBarTitle(Text("TangemButtonV2"))
+        ButtonShowcase()
+            .navigationBarTitle(Text("TangemUI.Button"))
     }
 }

@@ -30,7 +30,7 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
         HStack(alignment: .center, spacing: .zero) {
             Text(headerTitle)
                 .lineLimit(1)
-                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .skeletonable(
                     isShown: isLoadingState.isHeaderSkeletonable,
                     size: CGSize(width: 120, height: 24) * scaleFactor,
@@ -38,36 +38,36 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
                 )
 
             if let headerImage = headerImage {
-                FixedSpacer(width: SizeUnit.x2.value)
+                FixedSpacer(width: 8)
 
                 headerImage
                     .resizable()
                     .scaledToFit()
-                    .frame(height: SizeUnit.x5.value)
+                    .frame(height: 20)
                     .hidden(isLoadingState.isHeaderSkeletonable)
             }
 
-            Spacer(minLength: SizeUnit.x2.value)
+            Spacer(minLength: 8)
 
             if isDisplayButton {
                 buttonView
             }
         }
-        .padding(.vertical, SizeUnit.x2.value)
-        .padding(.horizontal, SizeUnit.x2.value)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 8)
     }
 
     private var buttonView: some View {
-        Button {
+        SwiftUI.Button {
             buttonAction?()
         } label: {
             HStack(spacing: 0) {
                 Text(buttonTitle ?? "")
-                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Assets.chevron.image
                     .renderingMode(.template)
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .frame(width: chevronSide, height: chevronSide)
             }
         }
