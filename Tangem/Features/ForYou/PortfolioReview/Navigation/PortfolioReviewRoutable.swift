@@ -10,6 +10,6 @@ import TangemFoundation
 
 @MainActor
 protocol PortfolioReviewRoutable: AnyObject {
-    func openTokenSummary(tokenItem: TokenItem, sourceWalletId: UserWalletId?)
+    func openTokenSummary(tokenItem: TokenItem, period: TokenSummaryPeriod)
     func openAddFunds(userWalletModels: [any UserWalletModel], preferredWalletId: UserWalletId?)
 }
