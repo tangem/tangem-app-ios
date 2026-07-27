@@ -226,6 +226,7 @@
 "common_allow" = "允许";
 "common_amount" = "金额";
 "common_analytics" = "分析";
+"common_apply_selected" = "Apply selected";
 "common_apply" = "申请";
 "common_approval" = "批准";
 "common_approve" = "批准";
@@ -370,6 +371,7 @@
 "common_second_no_param" = "秒";
 "common_see_all" = "查看全部";
 "common_seed_phrase" = "助记词";
+"common_select_account" = "Select account";
 "common_select_action" = "选择操作";
 "common_sell" = "出售";
 "common_send_colon" = "发送：";
@@ -625,15 +627,15 @@
 "for_you_earn_per_year" = "%1$@/year";
 "for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "For You";
-"force_update_action" = "Update now";
+"force_update_action" = "立即更新";
 "force_update_banner_message" = "请将应用更新至最新版本，以确保其正常运行";
 "force_update_banner_title" = "需要更新";
-"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
-"force_update_brick_title" = "Update Unavailable";
+"force_update_brick_description" = "Tangem 无法在此操作系统版本上运行。您的资金是安全的，您可以在另一台受支持的设备上继续使用您的钱包。";
+"force_update_brick_title" = "无法更新";
 "force_update_button" = "更新";
-"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
-"force_update_os_title" = "Update Your OS";
-"force_update_required_action" = "Update app";
+"force_update_os_description" = "您的操作系统版本过旧。Tangem 目前仍可继续运行，但您需要更新操作系统才能接收未来的应用更新。";
+"force_update_os_title" = "更新您的操作系统";
+"force_update_required_action" = "更新应用";
 "force_update_warning_message" = "请将应用更新至最新版本，以确保正常运行。";
 "force_update_warning_title" = "需要更新";
 "gasless_not_enough_funds_to_cover_token_fee" = "资金不足";
@@ -793,7 +795,7 @@
 "markets_portfolio_block_subtitle" = "在您的投资组合中";
 "markets_portfolio_block_title" = "您的投资组合";
 "markets_portfolio_block_token_unsupported" = "**Token not supported**. This token is currently not supported in the wallet";
-"markets_portfolio_eligible_block_title" = "Other eligible tokens";
+"markets_portfolio_eligible_block_title" = "其他符合条件的代币";
 "markets_pulse_common_title" = "市场脉搏";
 "markets_search_clear_all_hints" = "全部清除";
 "markets_search_header_title" = "搜索代币";
