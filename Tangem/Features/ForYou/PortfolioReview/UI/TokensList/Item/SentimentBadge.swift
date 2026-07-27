@@ -8,8 +8,9 @@
 
 import SwiftUI
 import TangemUI
+import TangemLocalization
 
-/// Placeholder price-change badge; real sentiment data lands with the price-change pipeline.
+/// Badge showing a token's aggregate coin-indicator sentiment for the selected period.
 struct SentimentBadge: View {
     let sentiment: ForYouTokenRowData.Sentiment
 
@@ -22,12 +23,11 @@ struct SentimentBadge: View {
 }
 
 private extension SentimentBadge {
-    /// Placeholder, not localized — real label comes with price-change data from backend.
     var title: String {
         switch sentiment {
-        case .positive: "Positive"
-        case .neutral: "Neutral"
-        case .negative: "Negative"
+        case .positive: Localization.commonPositive
+        case .neutral: Localization.commonNeutral
+        case .negative: Localization.commonNegative
         }
     }
 
