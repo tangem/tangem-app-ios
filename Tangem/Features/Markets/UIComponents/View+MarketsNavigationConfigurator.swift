@@ -1,5 +1,5 @@
 //
-//  MarketsView+NavigationController.swift
+//  View+MarketsNavigationConfigurator.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
