@@ -24,6 +24,16 @@ enum TokenSummaryPeriod: CaseIterable, Identifiable {
     }
 }
 
+extension TokenSummaryPeriod {
+    var timeframe: TokenSummaryIndicator.Timeframe {
+        switch self {
+        case .day: .day
+        case .week: .week
+        case .month: .month
+        }
+    }
+}
+
 // MARK: - TangemSegmentedPickerTextProvider
 
 extension TokenSummaryPeriod: TangemSegmentedPickerTextProvider {

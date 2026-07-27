@@ -21,13 +21,37 @@ enum TokenSummaryOutlook {
         case .negative: Localization.tokenSummaryNegativeOutlookTitle
         }
     }
+}
 
-    /// Normalized thumb position on the track: 0 = negative (left), 0.5 = neutral (center), 1 = positive (right).
-    var position: CGFloat {
-        switch self {
-        case .negative: 0
-        case .neutral: 0.5
-        case .positive: 1
+struct TokenSummaryScore: Equatable {
+    let value: Int
+    let count: Int
+
+    var outlook: TokenSummaryOutlook {
+        let neutralThreshold = count >= 4 ? 2 : 0
+
+        if value > neutralThreshold {
+            return .positive
         }
+
+        if value < -neutralThreshold {
+            return .negative
+        }
+
+        return .neutral
     }
+
+    var normalizedPosition: Double {
+        Double(value + count) / Double(2 * count)
+    }
+
+    var tickCount: Int {
+        2 * count + 1
+    }
+}
+
+enum TokenSummaryGaugeState: Equatable {
+    case score(TokenSummaryScore)
+    case outlookUnavailable
+    case dataUnavailable
 }

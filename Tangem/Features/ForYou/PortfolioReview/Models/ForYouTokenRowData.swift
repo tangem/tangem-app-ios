@@ -48,11 +48,19 @@ struct ForYouTokenRowData: Identifiable, Equatable {
         case outdated
     }
 
-    /// Placeholder price-change sentiment; real data lands with the price-change pipeline.
+    /// Aggregate coin-indicator outlook for the token over the selected period.
     enum Sentiment: Equatable {
         case positive
         case neutral
         case negative
+
+        init(_ outlook: TokenSummaryOutlook) {
+            switch outlook {
+            case .positive: self = .positive
+            case .neutral: self = .neutral
+            case .negative: self = .negative
+            }
+        }
     }
 
     /// A plain phrase (aggregate / "Other" rows) or a "network · amount" pair rendered with a
