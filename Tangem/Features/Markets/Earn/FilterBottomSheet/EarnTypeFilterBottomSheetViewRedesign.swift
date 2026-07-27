@@ -36,8 +36,8 @@ private extension EarnTypeFilterBottomSheetViewRedesign {
             EarnNetworkFilterSelectedRowView(data: $0, selection: $viewModel.currentSelection)
         }
         .separatorStyle(.none)
-        .horizontalPadding(.unit(.x4))
-        .cornerRadius(.unit(.x6))
-        .settings(\.backgroundColor, Color.Tangem.Surface.level3)
+        .horizontalPadding(16)
+        .cornerRadius(24)
+        .settings(\.backgroundColor, DesignSystem.Color.bgSecondary)
     }
 }
