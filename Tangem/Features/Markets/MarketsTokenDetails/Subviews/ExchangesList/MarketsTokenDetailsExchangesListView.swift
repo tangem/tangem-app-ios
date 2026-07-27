@@ -148,7 +148,7 @@ struct MarketsTokenDetailsExchangesListView: View {
 
                     case .success(let itemsList):
                         ForEach(itemsList) { item in
-                            MarketsTokenDetailsExchangeItemViewRedesign(info: item)
+                            MarketsTokenDetailsExchangeItemView(info: item)
                         }
 
                     case .failure:

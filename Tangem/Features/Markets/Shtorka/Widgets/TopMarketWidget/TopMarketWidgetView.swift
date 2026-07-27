@@ -1,5 +1,5 @@
 //
-//  TopMarketWidgetViewRedesign.swift
+//  TopMarketWidgetView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-struct TopMarketWidgetViewRedesign: View {
+struct TopMarketWidgetView: View {
     @ObservedObject var viewModel: TopMarketWidgetViewModel
 
     var body: some View {
@@ -46,7 +46,7 @@ struct TopMarketWidgetViewRedesign: View {
     }
 
     private var header: some View {
-        MarketsCommonWidgetHeaderViewRedesign(
+        MarketsCommonWidgetHeaderView(
             headerTitle: viewModel.widgetType.headerTitle ?? "",
             headerImage: nil,
             buttonTitle: Localization.commonSeeAll,

@@ -1,5 +1,5 @@
 //
-//  PulseMarketWidgetViewRedesign.swift
+//  PulseMarketWidgetView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 
-struct PulseMarketWidgetViewRedesign: View {
+struct PulseMarketWidgetView: View {
     @ObservedObject var viewModel: PulseMarketWidgetViewModel
 
     var showsSeeAllButton: Bool = true
@@ -47,7 +47,7 @@ struct PulseMarketWidgetViewRedesign: View {
     }
 
     private var header: some View {
-        MarketsCommonWidgetHeaderViewRedesign(
+        MarketsCommonWidgetHeaderView(
             headerTitle: viewModel.headerTitle,
             headerImage: nil,
             buttonTitle: showsSeeAllButton ? Localization.commonSeeAll : nil,

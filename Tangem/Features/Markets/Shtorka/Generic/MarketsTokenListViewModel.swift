@@ -16,7 +16,7 @@ final class MarketsTokenListViewModel: ObservableObject {
 
     @Published private(set) var tokenViewModels: [MarketsItemViewModel] = []
     @Published private(set) var marketsRatingHeaderViewModel: MarketsRatingHeaderViewModel
-    @Published private(set) var tokenListLoadingState: MarketsView.ListLoadingState = .idle
+    @Published private(set) var tokenListLoadingState: MarketsTokenListLoadingState = .idle
 
     // MARK: - Properties
 

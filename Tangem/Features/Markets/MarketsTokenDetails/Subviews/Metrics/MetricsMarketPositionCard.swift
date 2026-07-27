@@ -111,7 +111,7 @@ struct MetricsMarketPositionCard: View {
     }
 
     private func action() {
-        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketRating)
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsRecordType.marketRating)
     }
 
     // MARK: - Rank Colors
