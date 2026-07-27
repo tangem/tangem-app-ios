@@ -226,6 +226,7 @@
 "common_allow" = "Autorizar";
 "common_amount" = "Cantidad";
 "common_analytics" = "Analítica";
+"common_apply_selected" = "Apply selected";
 "common_apply" = "Aplicar";
 "common_approval" = "Aprobación";
 "common_approve" = "Aprobar";
@@ -370,6 +371,7 @@
 "common_second_no_param" = "seg";
 "common_see_all" = "Ver todo";
 "common_seed_phrase" = "Seed phrase";
+"common_select_account" = "Select account";
 "common_select_action" = "Seleccione una acción";
 "common_sell" = "Vender";
 "common_send_colon" = "Enviar:";
@@ -628,11 +630,11 @@
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Actualice la aplicación a la última versión para garantizar su correcto funcionamiento";
 "force_update_banner_title" = "Se necesita actualizar";
-"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
+"force_update_brick_description" = "Tangem can’t run on this OS version. Your funds are safe, and you can continue using your wallet on another supported device.";
 "force_update_brick_title" = "Update Unavailable";
 "force_update_button" = "Actualizar";
-"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
-"force_update_os_title" = "Update Your OS";
+"force_update_os_description" = "Your OS is outdated. Tangem will continue to work for now, but you’ll need to update it to receive future app updates.";
+"force_update_os_title" = "Update your OS";
 "force_update_required_action" = "Update app";
 "force_update_warning_message" = "Por favor, actualice la aplicación a la última versión para garantizar su correcto funcionamiento.";
 "force_update_warning_title" = "Es necesario actualizar";
