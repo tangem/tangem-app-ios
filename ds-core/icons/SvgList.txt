@@ -1,4 +1,6 @@
 Address Polygon / 16, 20, 24 / Regular
+Arrow Down Left / 12, 16, 20, 24, 28 / Regular
+Arrow Down Right / 12, 16, 20, 24, 28 / Regular
 Arrow Down / 12, 16, 20, 24, 28, 32 / Regular
 Arrow Download / 16, 20, 24 / Regular
 Arrow Left / 12, 16, 20, 24, 28 / Regular
@@ -6,6 +8,8 @@ Arrow Refresh / 12, 16, 20, 24, 28, 32 / Regular
 Arrow Right / 12, 16, 20, 24, 28 / Regular
 Arrow Split Top / 16, 20, 24, 28 / Regular
 Arrow Swap Horizontal / 12, 16, 20, 24, 28, 32 / Regular
+Arrow Top Left / 12, 16, 20, 24, 28 / Regular
+Arrow Top Right / 12, 16, 20, 24, 28 / Regular
 Arrow Up / 12, 16, 20, 24, 28, 32 / Regular
 Bell Cross / 20, 24, 28 / Regular
 Bell / 20, 24, 28 / Regular
