@@ -89,8 +89,11 @@ public extension Button {
             case .x14, .x12:
                 8
 
-            case .x11, .x10, .x9, .x8, .x7:
+            case .x11, .x10, .x9, .x8:
                 6
+
+            case .x7:
+                4
             }
         }
 
@@ -121,7 +124,13 @@ public extension Button {
         }
 
         var typographyToken: TangemTypographyToken {
-            DesignSystem.Font.bodyMediumToken
+            switch self {
+            case .x7:
+                DesignSystem.Font.subheadingMediumToken
+
+            case .x14, .x12, .x11, .x10, .x9, .x8:
+                DesignSystem.Font.bodyMediumToken
+            }
         }
     }
 }
