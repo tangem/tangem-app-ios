@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 import TangemLocalization
 
@@ -16,9 +17,9 @@ struct EarnDetailViewRedesign: View {
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
-    @ScaledMetric private var contentSpacing: CGFloat = .unit(.x4)
-    @ScaledMetric private var sectionsSpacing: CGFloat = .unit(.x10)
-    @ScaledMetric private var sectionSpacing: CGFloat = .unit(.x3)
+    @ScaledMetric private var contentSpacing: CGFloat = 16
+    @ScaledMetric private var sectionsSpacing: CGFloat = 40
+    @ScaledMetric private var sectionSpacing: CGFloat = 12
 
     var body: some View {
         content
@@ -34,7 +35,7 @@ struct EarnDetailViewRedesign: View {
 private extension EarnDetailViewRedesign {
     var content: some View {
         scrollContent
-            .background(Color.Tangem.Surface.level2)
+            .background(DesignSystem.Color.bgPrimary)
             .safeAreaInset(edge: .top, spacing: contentSpacing) {
                 navigationBar
             }
@@ -112,6 +113,6 @@ private extension EarnDetailViewRedesign {
 
     var navigationTitle: some View {
         Text(Localization.earnTitle)
-            .style(Font.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
     }
 }
