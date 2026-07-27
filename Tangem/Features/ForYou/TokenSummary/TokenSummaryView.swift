@@ -29,7 +29,7 @@ struct TokenSummaryView: View {
                             .padding(.top, 64)
                     } else {
                         TokenSummaryGaugeView(
-                            outlook: viewModel.outlook,
+                            state: viewModel.gaugeState,
                             lastUpdated: viewModel.lastUpdated
                         )
 
@@ -174,6 +174,7 @@ struct TokenSummaryView: View {
         .styleType(.default)
         .size(.x12)
         .horizontalLayout(.infinity)
+        .disabled(!viewModel.canGoToSwap)
         .padding(16)
     }
 }

@@ -319,7 +319,7 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadCoinIndicators(requestModel: CoinIndicatorsDTO.Request) async throws -> CoinIndicatorsDTO.Response {
-        throw "Not implemented"
+        CoinIndicatorsDTO.Response(assets: [])
     }
 }
 

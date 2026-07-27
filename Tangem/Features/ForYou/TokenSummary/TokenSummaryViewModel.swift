@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemUI
 
 @MainActor
@@ -17,9 +18,10 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
     let networkName: String
     let tokenIconInfo: TokenIconInfo
 
-    @Published var selectedPeriod: TokenSummaryPeriod = .day
+    @Published var selectedPeriod: TokenSummaryPeriod
+    @Published private(set) var canGoToSwap = false
     @Published private(set) var isLoading = true
-    @Published private(set) var outlook: TokenSummaryOutlook?
+    @Published private(set) var gaugeState: TokenSummaryGaugeState = .dataUnavailable
     @Published private(set) var lastUpdated: Date?
     @Published private(set) var metrics: [TokenSummaryMetric] = []
 
@@ -27,8 +29,9 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
     let aiSummaryText: String? = nil
 
     private let symbol: String
-    private let mapper: TokenSummaryMetricsMapper
+    private let mapper: TokenSummaryIndicatorsMapper
     private let indicatorsProvider: TokenSummaryIndicatorsProvider
+    private let canGoToSwapPublisher: AnyPublisher<Bool, Never>
     private var readings: [TokenSummaryIndicator] = []
     private var bag: Set<AnyCancellable> = []
 
@@ -37,7 +40,9 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
 
     convenience init(
         tokenItem: TokenItem,
-        mapper: TokenSummaryMetricsMapper = TokenSummaryMetricsMapper(),
+        period: TokenSummaryPeriod = .day,
+        canGoToSwapPublisher: AnyPublisher<Bool, Never>,
+        mapper: TokenSummaryIndicatorsMapper = TokenSummaryIndicatorsMapper(),
         indicatorsProvider: TokenSummaryIndicatorsProvider = CommonTokenSummaryIndicatorsProvider(),
         onGoToSwap: @escaping () -> Void,
         onClose: @escaping () -> Void
@@ -47,6 +52,8 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
             networkName: tokenItem.networkName,
             tokenIconInfo: TokenIconInfoBuilder().build(from: tokenItem, isCustom: false),
             symbol: tokenItem.currencySymbol,
+            period: period,
+            canGoToSwapPublisher: canGoToSwapPublisher,
             mapper: mapper,
             indicatorsProvider: indicatorsProvider,
             onGoToSwap: onGoToSwap,
@@ -61,7 +68,9 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
         networkName: String,
         tokenIconInfo: TokenIconInfo,
         symbol: String,
-        mapper: TokenSummaryMetricsMapper,
+        period: TokenSummaryPeriod,
+        canGoToSwapPublisher: AnyPublisher<Bool, Never>,
+        mapper: TokenSummaryIndicatorsMapper,
         indicatorsProvider: TokenSummaryIndicatorsProvider,
         onGoToSwap: @escaping () -> Void,
         onClose: @escaping () -> Void
@@ -69,7 +78,9 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
         self.tokenName = tokenName
         self.networkName = networkName
         self.tokenIconInfo = tokenIconInfo
+        self.canGoToSwapPublisher = canGoToSwapPublisher
         self.symbol = symbol
+        selectedPeriod = period
         self.mapper = mapper
         self.indicatorsProvider = indicatorsProvider
         self.onGoToSwap = onGoToSwap
@@ -104,6 +115,14 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
                 self?.updateDerivedState(for: period)
             }
             .store(in: &bag)
+
+        canGoToSwapPublisher
+            .receiveOnMain()
+            .removeDuplicates()
+            .sink { [weak self] canGoToSwap in
+                self?.canGoToSwap = canGoToSwap
+            }
+            .store(in: &bag)
     }
 
     private func loadIndicators() {
@@ -122,10 +141,15 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
     }
 
     private func updateDerivedState(for period: TokenSummaryPeriod) {
-        let result = mapper.map(readings: readings, period: period)
+        let result = mapper.map(readings: readings, timeframe: period.timeframe)
         metrics = result.metrics
-        outlook = result.outlook
         lastUpdated = result.lastUpdated
+
+        if let score = result.score {
+            gaugeState = .score(score)
+        } else {
+            gaugeState = result.metrics.isEmpty ? .dataUnavailable : .outlookUnavailable
+        }
     }
 }
 
@@ -142,7 +166,9 @@ extension TokenSummaryViewModel {
             networkName: tokenItem.networkName,
             tokenIconInfo: TokenIconInfoBuilder().build(from: tokenItem, isCustom: false),
             symbol: tokenItem.currencySymbol,
-            mapper: TokenSummaryMetricsMapper(),
+            period: .day,
+            canGoToSwapPublisher: Just(true).eraseToAnyPublisher(),
+            mapper: TokenSummaryIndicatorsMapper(),
             indicatorsProvider: StubTokenSummaryIndicatorsProvider(),
             onGoToSwap: onGoToSwap,
             onClose: onClose

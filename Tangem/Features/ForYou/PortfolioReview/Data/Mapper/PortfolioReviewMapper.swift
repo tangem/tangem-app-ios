@@ -15,7 +15,9 @@ struct PortfolioReviewMapper {
 
     func map(
         walletModels: [any WalletModel],
-        totalBalance: TotalBalanceState
+        totalBalance: TotalBalanceState,
+        indicators: [String: [TokenSummaryIndicator]],
+        timeframe: TokenSummaryIndicator.Timeframe
     ) -> (state: PortfolioReviewViewModel.ViewState, displayedTokenItems: Set<TokenItem>) {
         let holdings = walletModels.map(makeHolding)
         let (topHoldings, other) = PortfolioReviewAggregator.aggregate(holdings)
@@ -32,7 +34,7 @@ struct PortfolioReviewMapper {
             let emptyGroups = PortfolioReviewAggregator.aggregateEmpty(holdings)
             return (
                 .content(.init(
-                    tokenList: rowBuilder.build(topHoldings: emptyGroups, other: []),
+                    tokenList: rowBuilder.build(topHoldings: emptyGroups, other: [], indicators: indicators, timeframe: timeframe),
                     periodSegments: ForYouPeriodSegment.all,
                     chart: .noData(reason),
                     showsAddFunds: reason == .noAmount
@@ -43,8 +45,8 @@ struct PortfolioReviewMapper {
 
         return (
             .content(.init(
-                tokenList: rowBuilder.build(topHoldings: topHoldings, other: other),
-                periodSegments: ForYouPeriodSegment.all, // [REDACTED_TODO_COMMENT]
+                tokenList: rowBuilder.build(topHoldings: topHoldings, other: other, indicators: indicators, timeframe: timeframe),
+                periodSegments: ForYouPeriodSegment.all,
                 chart: chart(topHoldings: topHoldings, other: other, totalBalance: totalBalance),
                 showsAddFunds: false
             )),
