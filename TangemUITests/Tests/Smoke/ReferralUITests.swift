@@ -30,7 +30,8 @@ final class ReferralUITests: BaseTestCase {
         let tokenNetwork = "Tron"
         let token = "Tether"
 
-        launchApp(tangemApiType: .mock)
+        let referralScenario = ScenarioConfig(name: "user_tokens_api", initialState: "ReferralParticipateFlow")
+        launchApp(tangemApiType: .mock, scenarios: [referralScenario])
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -100,7 +101,8 @@ final class ReferralUITests: BaseTestCase {
         setAllureId(3636)
         let token = "Tron"
 
-        launchApp(tangemApiType: .mock)
+        let referralScenario = ScenarioConfig(name: "user_tokens_api", initialState: "ReferralParticipateFlow")
+        launchApp(tangemApiType: .mock, scenarios: [referralScenario])
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
