@@ -23,7 +23,6 @@ final class MarketsCoordinator: CoordinatorObject {
 
     // MARK: - Root Published
 
-    @Published private(set) var marketsViewModel: MarketsViewModel?
     @Published private(set) var marketsMainViewModel: MarketsMainViewModel?
 
     // MARK: - Coordinators

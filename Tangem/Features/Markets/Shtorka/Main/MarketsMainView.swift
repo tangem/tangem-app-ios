@@ -260,13 +260,13 @@ struct MarketsMainView: View {
     private func makeRedesignContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
         switch item {
         case .top(let viewModel):
-            TopMarketWidgetViewRedesign(viewModel: viewModel)
+            TopMarketWidgetView(viewModel: viewModel)
         case .pulse(let viewModel):
-            PulseMarketWidgetViewRedesign(viewModel: viewModel)
+            PulseMarketWidgetView(viewModel: viewModel)
         case .news(let viewModel):
-            NewsWidgetViewRedesign(viewModel: viewModel)
+            NewsWidgetView(viewModel: viewModel)
         case .earn(let viewModel):
-            EarnWidgetViewRedesign(viewModel: viewModel)
+            EarnWidgetView(viewModel: viewModel)
         }
     }
 }
