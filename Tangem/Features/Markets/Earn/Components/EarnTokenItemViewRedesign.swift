@@ -8,16 +8,17 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct EarnTokenItemViewRedesign: View {
     let viewModel: EarnTokenItemViewModel
 
-    @ScaledMetric private var tokenImageSide = CGFloat.unit(.x10)
-    @ScaledMetric private var earnImageSide = CGFloat.unit(.x4)
-    @ScaledMetric private var textHorizontalSpacing = CGFloat.unit(.x1)
-    @ScaledMetric private var horizontalPadding = CGFloat.unit(.x3)
-    @ScaledMetric private var verticalPadding = CGFloat.unit(.x3)
+    @ScaledMetric private var tokenImageSide: CGFloat = 40
+    @ScaledMetric private var earnImageSide: CGFloat = 16
+    @ScaledMetric private var textHorizontalSpacing: CGFloat = 4
+    @ScaledMetric private var horizontalPadding: CGFloat = 12
+    @ScaledMetric private var verticalPadding: CGFloat = 12
 
     var body: some View {
         SwiftUI.Button(action: viewModel.onTapAction) {
@@ -57,23 +58,23 @@ private extension EarnTokenItemViewRedesign {
     func primaryLeading() -> some View {
         HStack(alignment: .lastTextBaseline, spacing: textHorizontalSpacing) {
             Text(viewModel.name)
-                .style(Font.Tangem.Body15.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
             Text(viewModel.symbol)
-                .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.secondary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         }
         .lineLimit(1)
     }
 
     func primaryTrailing() -> some View {
         Text(viewModel.rateText)
-            .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
     }
 
     func secondaryLeading() -> some View {
         Text(viewModel.networkName)
-            .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.secondary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .lineLimit(1)
     }
 
@@ -83,11 +84,11 @@ private extension EarnTokenItemViewRedesign {
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: earnImageSide, height: earnImageSide)
 
             Text(viewModel.earnType.rawValue)
-                .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
         }
     }
