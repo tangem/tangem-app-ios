@@ -14,6 +14,10 @@ import TangemUI
 final class ForYouCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
+    @Injected(\.userWalletRepository) var userWalletRepository: UserWalletRepository
+    @Injected(\.tangemStoriesPresenter) var tangemStoriesPresenter: any TangemStoriesPresenter
+    @Injected(\.expressAvailabilityProvider) var expressAvailabilityProvider: ExpressAvailabilityProvider
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -32,14 +36,15 @@ final class ForYouCoordinator: CoordinatorObject {
     @Published var earnListCoordinator: EarnCoordinator?
     @Published var addFundsCoordinator: ActionButtonsBuyCoordinator?
     @Published var portfolioTokenDetailsCoordinator: TokenDetailsCoordinator?
+    @Published var sendCoordinator: SendCoordinator?
 
     // MARK: - Child ViewModels
 
     @Published var tokenSummaryViewModel: TokenSummaryViewModel?
     @Published var swapTokenSelectorViewModel: ForYouSwapTokenSelectorViewModel?
 
-    /// Guards the sheet-over-sheet swap race.
-    var pendingSwap: (tokenItem: TokenItem, walletId: UserWalletId)?
+    /// Deferred until the presenting sheet finishes dismissing, avoiding a sheet-over-sheet race.
+    var pendingSwapAction: (@MainActor () -> Void)?
 
     // MARK: - Properties
 
