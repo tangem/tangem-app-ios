@@ -123,6 +123,8 @@ public extension TangemMessageBubble {
     enum Variant: Hashable, Sendable, CaseIterable {
         case neutral
         case success
+        case error
+        case warning
         case info
     }
 }
@@ -149,6 +151,18 @@ private extension TangemMessageBubble.Variant {
                 background: DesignSystem.Color.bgStatusSuccessSubtle,
                 text: DesignSystem.Color.textStatusSuccess,
                 icon: DesignSystem.Color.iconStatusSuccess
+            )
+        case .error:
+            MessageBubblePalette(
+                background: DesignSystem.Color.bgStatusErrorSubtle,
+                text: DesignSystem.Color.textStatusError,
+                icon: DesignSystem.Color.iconStatusError
+            )
+        case .warning:
+            MessageBubblePalette(
+                background: DesignSystem.Color.bgStatusWarningSubtle,
+                text: DesignSystem.Color.textStatusWarning,
+                icon: DesignSystem.Color.iconStatusWarning
             )
         case .info:
             MessageBubblePalette(
