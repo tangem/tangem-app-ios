@@ -1,5 +1,5 @@
 //
-//  MarketsHistoryChartViewRedesign.swift
+//  MarketsHistoryChartView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 
-struct MarketsHistoryChartViewRedesign: View {
+struct MarketsHistoryChartView: View {
     @ObservedObject var viewModel: MarketsHistoryChartViewModel
 
     var body: some View {
@@ -168,7 +168,7 @@ struct MarketsHistoryChartViewRedesign: View {
 
 // MARK: - Constants
 
-private extension MarketsHistoryChartViewRedesign {
+private extension MarketsHistoryChartView {
     enum Constants {
         static let labelFont: UIFont = UIFonts.Regular.caption2
         static let labelTextColor: UIColor = .init(DesignSystem.Color.textSecondary)
@@ -184,10 +184,10 @@ private extension MarketsHistoryChartViewRedesign {
     let factory = FakeMarketsHistoryChartViewModelFactory()
 
     return VStack {
-        MarketsHistoryChartViewRedesign(viewModel: factory.makeAll())
+        MarketsHistoryChartView(viewModel: factory.makeAll())
 
-        MarketsHistoryChartViewRedesign(viewModel: factory.makeHalfYear())
+        MarketsHistoryChartView(viewModel: factory.makeHalfYear())
 
-        MarketsHistoryChartViewRedesign(viewModel: factory.makeWeek())
+        MarketsHistoryChartView(viewModel: factory.makeWeek())
     }
 }

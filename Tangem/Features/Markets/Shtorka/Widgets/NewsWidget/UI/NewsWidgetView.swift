@@ -1,5 +1,5 @@
 //
-//  NewsWidgetViewRedesign.swift
+//  NewsWidgetView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,7 +13,7 @@ import TangemUIUtils
 import TangemUI
 import TangemLocalization
 
-struct NewsWidgetViewRedesign: View {
+struct NewsWidgetView: View {
     @ObservedObject var viewModel: NewsWidgetViewModel
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
@@ -40,7 +40,7 @@ struct NewsWidgetViewRedesign: View {
 
     // MARK: - Private Properties
 
-    /// News header keeps the same shape as `MarketsCommonWidgetHeaderViewRedesign` but renders
+    /// News header keeps the same shape as `MarketsCommonWidgetHeaderView` but renders
     /// "Tangem AI" as a gradient-colored Text node (per latest Figma) instead of a flat image asset.
     private var header: some View {
         HStack(alignment: .center, spacing: .zero) {
@@ -118,7 +118,7 @@ struct NewsWidgetViewRedesign: View {
     func makeSuccessContent(for state: NewsWidgetViewModel.ResultState) -> some View {
         VStack(spacing: Layout.spacingBetweenSections) {
             if let trendingCardNewsItem = state.trendingCardNewsItem {
-                TrendingCardNewsViewRedesign(itemState: .success(trendingCardNewsItem))
+                TrendingCardNewsView(itemState: .success(trendingCardNewsItem))
             }
 
             // Negative padding bleeds the carousel past the 16pt horizontal padding
@@ -153,7 +153,7 @@ struct NewsWidgetViewRedesign: View {
     }
 }
 
-private extension NewsWidgetViewRedesign {
+private extension NewsWidgetView {
     enum Layout {
         static let spacingBetweenSections: CGFloat = 12
     }
