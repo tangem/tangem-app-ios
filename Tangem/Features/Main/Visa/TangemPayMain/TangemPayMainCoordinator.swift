@@ -34,6 +34,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
 
     @Published var cardManagementViewModel: TangemPayCardManagementViewModel?
     @Published var currentPlanCoordinator: TangemPayCurrentPlanCoordinator?
+    @Published var selectPlanCoordinator: TangemPaySelectPlanCoordinator?
 
     // MARK: - Child view models (sheets)
 
@@ -102,6 +103,27 @@ extension TangemPayMainCoordinator {
         coordinator.start(with: .init(type: .swap(parameters), source: .main))
         sendCoordinator = coordinator
     }
+
+    func openSelectPlan() {
+        guard
+            let tangemPayAccount = options?.tangemPayAccount,
+            let customerTariffPlan = tangemPayAccount.customerTariffPlan
+        else {
+            return
+        }
+
+        let coordinator = TangemPaySelectPlanCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.selectPlanCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(
+            tariffPlanSelector: tangemPayAccount,
+            mode: .planChange(customerTariffPlan: customerTariffPlan)
+        ))
+        selectPlanCoordinator = coordinator
+    }
 }
 
 // MARK: - TangemPayMainRoutable
@@ -164,16 +186,18 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         currentPlanCoordinator = coordinator
     }
 
-    func openMaximumCardsIssuedSheet(cardsCount: Int) {
-        let viewModel = TangemPayMaximumCardsIssuedSheetViewModel(
-            cardsCount: cardsCount,
-            onClose: { [weak self] in
-                Task { @MainActor in
-                    self?.floatingSheetPresenter.removeActiveSheet()
-                }
-            }
-        )
+    func openMaximumCardsIssuedSheet() {
         Task { @MainActor in
+            let viewModel = TangemPayMaximumCardsIssuedSheetViewModel(coordinator: self)
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openCardsLimitReachedSheet() {
+        Task { @MainActor in
+            let viewModel = TangemPayCardsLimitReachedSheetViewModel(coordinator: self)
+
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -775,6 +799,34 @@ extension TangemPayMainCoordinator: TangemPayIssueAdditionalCardCostPopupRoutabl
     func issueCostPopupDidCancel() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayMaximumCardsIssuedSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayMaximumCardsIssuedSheetRoutable {
+    func closeMaximumCardsIssuedSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayCardsLimitReachedSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayCardsLimitReachedSheetRoutable {
+    func closeCardsLimitReachedSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func cardsLimitReachedSheetDidRequestPlanUpgrade() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            openSelectPlan()
         }
     }
 }

@@ -599,10 +599,15 @@ private extension TangemPayAccount {
             .map { $0.first(where: \.isAwaitingDeposit)?.targetTariffPlanId }
             .removeDuplicates()
             .withWeakCaptureOf(self)
-            .asyncMap { account, targetPlanId -> TangemPayAwaitingDepositInfo? in
-                guard let targetPlanId else { return nil }
-                return await account.makeAwaitingDepositInfo(targetPlanId: targetPlanId)
+            .map { account, targetPlanId -> AnyPublisher<TangemPayAwaitingDepositInfo?, Never> in
+                if let targetPlanId {
+                    Future.async { await account.makeAwaitingDepositInfo(targetPlanId: targetPlanId) }
+                        .eraseToAnyPublisher()
+                } else {
+                    .just(output: nil)
+                }
             }
+            .switchToLatest()
             .sink { [weak self] in self?.awaitingDepositInfoSubject.send($0) }
             .store(in: &bag)
     }
