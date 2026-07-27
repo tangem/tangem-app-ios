@@ -1,5 +1,5 @@
 //
-//  MarketsTokenDetailsExchangeItemViewRedesign.swift
+//  MarketsTokenDetailsExchangeItemView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 
-struct MarketsTokenDetailsExchangeItemViewRedesign: View {
+struct MarketsTokenDetailsExchangeItemView: View {
     let info: MarketsTokenDetailsExchangeItemInfo
 
     @ScaledMetric private var horizontalPadding: CGFloat = 16
@@ -77,7 +77,7 @@ struct MarketsTokenDetailsExchangeItemViewRedesign: View {
 
 #Preview {
     VStack(spacing: 0) {
-        MarketsTokenDetailsExchangeItemViewRedesign(info: MarketsTokenDetailsExchangeItemInfo(
+        MarketsTokenDetailsExchangeItemView(info: MarketsTokenDetailsExchangeItemInfo(
             id: "btcc",
             name: "BTCC",
             trustScore: .trusted,
@@ -86,7 +86,7 @@ struct MarketsTokenDetailsExchangeItemViewRedesign: View {
             formattedVolume: "$67.52M"
         ))
 
-        MarketsTokenDetailsExchangeItemViewRedesign(info: MarketsTokenDetailsExchangeItemInfo(
+        MarketsTokenDetailsExchangeItemView(info: MarketsTokenDetailsExchangeItemInfo(
             id: "binance",
             name: "Binance",
             trustScore: .caution,
@@ -95,7 +95,7 @@ struct MarketsTokenDetailsExchangeItemViewRedesign: View {
             formattedVolume: "$67.52M"
         ))
 
-        MarketsTokenDetailsExchangeItemViewRedesign(info: MarketsTokenDetailsExchangeItemInfo(
+        MarketsTokenDetailsExchangeItemView(info: MarketsTokenDetailsExchangeItemInfo(
             id: "pionex",
             name: "Pionex",
             trustScore: .risky,

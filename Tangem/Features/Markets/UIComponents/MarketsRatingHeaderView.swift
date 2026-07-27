@@ -1,5 +1,5 @@
 //
-//  MarketsRatingHeaderViewRedesign.swift
+//  MarketsRatingHeaderView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAccessibilityIdentifiers
 
-struct MarketsRatingHeaderViewRedesign: View {
+struct MarketsRatingHeaderView: View {
     @ObservedObject var viewModel: MarketsRatingHeaderViewModel
 
     var body: some View {

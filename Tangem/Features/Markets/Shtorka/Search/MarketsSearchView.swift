@@ -153,7 +153,7 @@ struct MarketsSearchView: View {
 
     private var defaultListOverlay: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            MarketsRatingHeaderViewRedesign(viewModel: viewModel.marketsRatingHeaderViewModel)
+            MarketsRatingHeaderView(viewModel: viewModel.marketsRatingHeaderViewModel)
                 .readGeometry(\.size.height, bindTo: $defaultListOverlayRatingHeaderHeight)
         }
         .infinityFrame(axis: .horizontal)

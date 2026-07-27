@@ -42,7 +42,6 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     @Published private(set) var insightsViewModel: MarketsTokenDetailsInsightsViewModel?
     @Published private(set) var metricsViewModel: MarketsTokenDetailsMetricsViewModel?
-    @Published private(set) var pricePerformanceViewModel: MarketsTokenDetailsPricePerformanceViewModel?
     @Published private(set) var linksSections: [MarketsTokenDetailsLinkSection] = []
 
     @Published private(set) var portfolioViewModel: MarketsPortfolioContainerViewModel?
@@ -596,18 +595,6 @@ private extension MarketsTokenDetailsViewModel {
                 notationFormatter: defaultAmountNotationFormatter,
                 cryptoCurrencyCode: model.symbol,
                 infoRouter: self
-            )
-        }
-
-        if let pricePerformance = model.pricePerformance {
-            let pricePerformanceCurrentPricePublisher = currentPricePublisher
-                .compactMap { $0 }
-                .eraseToAnyPublisher()
-
-            pricePerformanceViewModel = .init(
-                tokenSymbol: model.symbol,
-                pricePerformanceData: pricePerformance,
-                currentPricePublisher: pricePerformanceCurrentPricePublisher
             )
         }
 

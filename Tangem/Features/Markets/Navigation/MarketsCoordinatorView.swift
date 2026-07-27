@@ -16,12 +16,6 @@ struct MarketsCoordinatorView: CoordinatorView {
     var body: some View {
         NavigationStack {
             ZStack {
-                // [REDACTED_TODO_COMMENT]
-                if let marketsViewModel = coordinator.marketsViewModel {
-                    MarketsView(viewModel: marketsViewModel)
-                        .navigationLinks(links)
-                }
-
                 if let mainMarketsViewModel = coordinator.marketsMainViewModel {
                     MarketsMainView(viewModel: mainMarketsViewModel)
                         .navigationLinks(links)

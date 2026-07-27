@@ -1,5 +1,5 @@
 //
-//  MarketsTokenDetailsContentViewRedesign.swift
+//  MarketsTokenDetailsContentView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
-struct MarketsTokenDetailsContentViewRedesign: View {
+struct MarketsTokenDetailsContentView: View {
     @ObservedObject var viewModel: MarketsTokenDetailsViewModel
 
     @Environment(\.mainWindowSize) private var mainWindowSize
@@ -57,7 +57,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
         VStack(spacing: Constants.coinVerticalPadding) {
             switch viewModel.state {
             case .loading:
-                MarketsTokenDetailsView.ContentBlockSkeletonsRedesign()
+                MarketsTokenDetailsView.ContentBlockSkeletons()
                     .padding(.horizontal, Constants.contentHorizontalPadding)
 
             case .loaded:
@@ -80,31 +80,31 @@ struct MarketsTokenDetailsContentViewRedesign: View {
     private var contentBlocks: some View {
         VStack(spacing: Constants.coinVerticalPadding) {
             if let metricsViewModel = viewModel.metricsViewModel {
-                MarketsTokenDetailsMetricsViewRedesign(viewModel: metricsViewModel)
+                MarketsTokenDetailsMetricsView(viewModel: metricsViewModel)
                     .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
             if let insightsViewModel = viewModel.insightsViewModel {
-                MarketsTokenDetailsInsightsViewRedesign(viewModel: insightsViewModel)
+                MarketsTokenDetailsInsightsView(viewModel: insightsViewModel)
                     .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
             if let numberOfExchangesListedOn = viewModel.numberOfExchangesListedOn {
-                MarketsTokenDetailsListedOnExchangesViewRedesign(exchangesCount: numberOfExchangesListedOn) {
+                MarketsTokenDetailsListedOnExchangesView(exchangesCount: numberOfExchangesListedOn) {
                     viewModel.openExchangesList()
                 }
                 .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
             if let securityScoreViewModel = viewModel.securityScoreViewModel {
-                MarketsTokenDetailsSecurityScoreViewRedesign(viewModel: securityScoreViewModel)
+                MarketsTokenDetailsSecurityScoreView(viewModel: securityScoreViewModel)
                     .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
             newsView
 
             if viewModel.linksSections.isNotEmpty {
-                MarketsTokenDetailsLinksViewRedesign(sections: viewModel.linksSections)
+                MarketsTokenDetailsLinksView(sections: viewModel.linksSections)
                     .padding(.horizontal, Constants.contentHorizontalPadding)
             }
         }
@@ -115,7 +115,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
     private var description: some View {
         switch viewModel.state {
         case .loading:
-            MarketsTokenDetailsView.DescriptionBlockSkeletonsRedesign()
+            MarketsTokenDetailsView.DescriptionBlockSkeletons()
 
         case .loaded(let model):
             if let shortDescription {
@@ -159,7 +159,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
 
 // MARK: - Constants
 
-private extension MarketsTokenDetailsContentViewRedesign {
+private extension MarketsTokenDetailsContentView {
     enum Constants {
         static let contentVerticalSpacing: CGFloat = 32
         static let contentHorizontalPadding: CGFloat = 16
