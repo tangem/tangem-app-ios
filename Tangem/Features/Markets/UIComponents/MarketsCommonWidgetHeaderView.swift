@@ -3,149 +3,74 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsCommonWidgetHeaderView: View {
     let headerTitle: String
     let headerImage: Image?
     let buttonTitle: String?
     let buttonAction: (() -> Void)?
-    let isLoadingState: LoadingState
+    let isLoadingState: MarketsCommonWidgetHeaderLoadingState
+
+    @ScaledMetric private var chevronSide: CGFloat = 24
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     private var isDisplayButton: Bool {
         return buttonTitle != nil && isLoadingState.isButtonVisibility
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: .zero) {
-            HStack(alignment: .center, spacing: .zero) {
-                Text(headerTitle)
-                    .lineLimit(1)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-                    .skeletonable(isShown: isLoadingState.isHeaderSkeletonable)
+        HStack(alignment: .center, spacing: .zero) {
+            Text(headerTitle)
+                .lineLimit(1)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                .skeletonable(
+                    isShown: isLoadingState.isHeaderSkeletonable,
+                    size: CGSize(width: 120, height: 24) * scaleFactor,
+                    cornerStyle: .capsule
+                )
 
-                if let headerImage = headerImage {
-                    FixedSpacer(width: Layout.HeaderImage.spacing)
+            if let headerImage = headerImage {
+                FixedSpacer(width: 8)
 
-                    headerImage
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: Layout.HeaderImage.height)
-                        .hidden(isLoadingState.isHeaderSkeletonable)
-                }
-
-                Spacer(minLength: 8)
-
-                if isDisplayButton {
-                    buttonView
-                }
+                headerImage
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 20)
+                    .hidden(isLoadingState.isHeaderSkeletonable)
             }
-            .padding(.horizontal, Layout.Content.horizontalPadding)
+
+            Spacer(minLength: 8)
+
+            if isDisplayButton {
+                buttonView
+            }
         }
-        .padding(.vertical, Layout.Container.verticalPadding)
-        .padding(.horizontal, Layout.Container.horizontalPadding)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 8)
     }
 
     private var buttonView: some View {
         SwiftUI.Button {
             buttonAction?()
         } label: {
-            buttonViewLabel
+            HStack(spacing: 0) {
+                Text(buttonTitle ?? "")
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+                Assets.chevron.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                    .frame(width: chevronSide, height: chevronSide)
+            }
         }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSeeAllButton)
     }
-
-    private var buttonViewLabel: some View {
-        HStack(alignment: .center, spacing: Layout.ButtonView.contentSpacing) {
-            Text(buttonTitle ?? "")
-                .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-        }
-        .defaultRoundedBackground(
-            with: Colors.Button.secondary,
-            verticalPadding: Layout.ButtonView.verticalPadding,
-            horizontalPadding: Layout.ButtonView.horizontalPadding,
-            cornerRadius: Layout.ButtonView.cornerRadius,
-        )
-    }
-}
-
-extension MarketsCommonWidgetHeaderView {
-    enum LoadingState: Hashable {
-        case first
-        case retry
-        case failed
-        case loaded
-
-        // UI Settings
-
-        var isButtonVisibility: Bool {
-            self == .loaded
-        }
-
-        var isHeaderSkeletonable: Bool {
-            self == .first
-        }
-    }
-}
-
-extension MarketsCommonWidgetHeaderView {
-    enum Layout {
-        enum Container {
-            static let horizontalPadding: CGFloat = 16.0
-            static let verticalPadding: CGFloat = 2.0
-        }
-
-        enum Content {
-            static let horizontalPadding: CGFloat = 8.0
-        }
-
-        enum HeaderImage {
-            static let spacing: CGFloat = 8.0
-            static let height: CGFloat = 20.0
-        }
-
-        enum ButtonView {
-            static let iconSize: CGFloat = 20
-            static let verticalPadding: CGFloat = 5
-            static let horizontalPadding: CGFloat = 10
-            static let contentSpacing: CGFloat = 4
-            static let cornerRadius: CGFloat = 14
-        }
-    }
-}
-
-#Preview {
-    VStack(spacing: 20) {
-        MarketsCommonWidgetHeaderView(
-            headerTitle: "News",
-            headerImage: Image("TangemAI"),
-            buttonTitle: "See All",
-            buttonAction: {},
-            isLoadingState: .loaded
-        )
-
-        MarketsCommonWidgetHeaderView(
-            headerTitle: "Markets",
-            headerImage: Image(systemName: "chart.line.uptrend.xyaxis"),
-            buttonTitle: "See All",
-            buttonAction: {},
-            isLoadingState: .loaded
-        )
-
-        MarketsCommonWidgetHeaderView(
-            headerTitle: "Loading Title",
-            headerImage: Image(systemName: "star.fill"),
-            buttonTitle: nil,
-            buttonAction: nil,
-            isLoadingState: .first
-        )
-    }
-    .padding()
-    .background(Colors.Background.primary)
 }
