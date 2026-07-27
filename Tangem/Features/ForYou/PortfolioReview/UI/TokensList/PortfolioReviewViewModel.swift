@@ -18,6 +18,7 @@ final class PortfolioReviewViewModel: ObservableObject {
     // MARK: - Properties
 
     private let mapper: PortfolioReviewMapper
+    private let indicatorsProvider: PortfolioReviewIndicatorsProvider
 
     private weak var router: PortfolioReviewRoutable?
 
@@ -34,8 +35,13 @@ final class PortfolioReviewViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(mapper: PortfolioReviewMapper = PortfolioReviewMapper(), router: PortfolioReviewRoutable? = nil) {
+    init(
+        mapper: PortfolioReviewMapper = PortfolioReviewMapper(),
+        indicatorsProvider: PortfolioReviewIndicatorsProvider = CommonPortfolioReviewIndicatorsProvider(),
+        router: PortfolioReviewRoutable? = nil
+    ) {
         self.mapper = mapper
+        self.indicatorsProvider = indicatorsProvider
         self.router = router
 
         bind()
@@ -60,8 +66,7 @@ final class PortfolioReviewViewModel: ObservableObject {
             return
         }
 
-        let sourceWalletId = userWalletRepository.selectedModel?.userWalletId
-        router?.openTokenSummary(tokenItem: tokenItem, sourceWalletId: sourceWalletId)
+        router?.openTokenSummary(tokenItem: tokenItem, period: selectedPeriod.period)
     }
 
     private func tokenItem(for id: String) -> TokenItem? {
@@ -146,13 +151,26 @@ private extension PortfolioReviewViewModel {
 
         // `totalBalancePublisher` gates skeleton → content/empty, re-fires as balances resolve
         // (the wallet-models publisher itself does not re-emit on balance changes), and feeds the outdated-data flag.
+        let walletModelsPublisher = AccountWalletModelsAggregator.walletModelsPublisher(from: selectedModel.accountModelsManager)
+
+        // One indicators fetch covers all intervals, so a period change only re-derives sentiment locally.
         return Publishers.CombineLatest3(
-            AccountWalletModelsAggregator.walletModelsPublisher(from: selectedModel.accountModelsManager),
+            walletModelsPublisher,
             selectedModel.totalBalancePublisher,
             AppSettings.shared.$selectedCurrencyCode
         )
-        .map { [mapper] walletModels, totalBalance, _ in
-            let mapped = mapper.map(walletModels: walletModels, totalBalance: totalBalance)
+        .combineLatest(
+            indicatorsPublisher(for: walletModelsPublisher),
+            $selectedPeriod.map(\.timeframe).removeDuplicates()
+        )
+        .map { [mapper] base, indicators, timeframe in
+            let (walletModels, totalBalance, _) = base
+            let mapped = mapper.map(
+                walletModels: walletModels,
+                totalBalance: totalBalance,
+                indicators: indicators,
+                timeframe: timeframe
+            )
             return (
                 state: mapped.state,
                 isOutdatedData: PortfolioReviewOutdatedDataResolver.isOutdated(
@@ -162,6 +180,26 @@ private extension PortfolioReviewViewModel {
             )
         }
         .eraseToAnyPublisher()
+    }
+
+    /// Fetches coin indicators for the wallet's symbols, refetching only when the symbol set changes
+    /// (not on balance reorders or period switches). Starts empty so the pipeline isn't gated on it.
+    func indicatorsPublisher(
+        for walletModelsPublisher: AnyPublisher<[any WalletModel], Never>
+    ) -> AnyPublisher<[String: [TokenSummaryIndicator]], Never> {
+        walletModelsPublisher
+            .map { walletModels in
+                Set(walletModels.map { $0.tokenItem.currencySymbol.uppercased() })
+            }
+            .removeDuplicates()
+            .map { [indicatorsProvider] symbols in
+                Future<[String: [TokenSummaryIndicator]], Never>.async {
+                    (try? await indicatorsProvider.loadIndicators(symbols: Array(symbols))) ?? [:]
+                }
+            }
+            .switchToLatest()
+            .prepend([String: [TokenSummaryIndicator]]())
+            .eraseToAnyPublisher()
     }
 
     func apply(_ newState: ViewState) {
