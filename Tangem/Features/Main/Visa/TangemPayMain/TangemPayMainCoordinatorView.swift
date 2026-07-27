@@ -33,6 +33,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.currentPlanCoordinator) {
                 TangemPayCurrentPlanCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.selectPlanCoordinator) {
+                TangemPaySelectPlanCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -84,7 +87,10 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayMaximumCardsIssuedSheetViewModel.self) {
-                TangemPayMaximumCardsIssuedSheetView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayCardsLimitReachedSheetViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayIssueAdditionalCardCostPopupViewModel.self) {
                 TangemPayIssueAdditionalCardCostPopupView(viewModel: $0)

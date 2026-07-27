@@ -10,19 +10,11 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-struct TangemPayMaximumCardsIssuedSheetViewModel: FloatingSheetContentViewModel {
-    var id: String { String(describing: Self.self) }
-
-    let cardsCount: Int
-    let onClose: () -> Void
-
-    func dismiss() {
-        onClose()
-    }
+protocol TangemPayMaximumCardsIssuedSheetRoutable: AnyObject {
+    func closeMaximumCardsIssuedSheet()
 }
 
-@MainActor
-final class TangemPayMaximumCardsIssuedPopupViewModel: TangemPayPopupViewModel {
+final class TangemPayMaximumCardsIssuedSheetViewModel: TangemPayPopupViewModel {
     var icon: Image {
         DesignSystem.Icons.Error.regular28.image
     }
@@ -35,9 +27,8 @@ final class TangemPayMaximumCardsIssuedPopupViewModel: TangemPayPopupViewModel {
         .init(Localization.tangempayMaximumCardsIssuedTitle)
     }
 
-    // [REDACTED_TODO_COMMENT]
     var description: AttributedString {
-        .init("You have \(cardsCount) cards. Delete one to add a new card.")
+        .init(Localization.tangempayMaximumCardsIssuedDescription)
     }
 
     var primaryButton: MainButton.Settings {
@@ -45,19 +36,17 @@ final class TangemPayMaximumCardsIssuedPopupViewModel: TangemPayPopupViewModel {
             title: Localization.commonGotIt,
             style: .primary,
             size: .default,
-            action: onClose
+            action: dismiss
         )
     }
 
-    private let cardsCount: Int
-    private let onClose: () -> Void
+    private weak var coordinator: TangemPayMaximumCardsIssuedSheetRoutable?
 
-    init(cardsCount: Int, onClose: @escaping () -> Void) {
-        self.cardsCount = cardsCount
-        self.onClose = onClose
+    init(coordinator: TangemPayMaximumCardsIssuedSheetRoutable?) {
+        self.coordinator = coordinator
     }
 
     func dismiss() {
-        onClose()
+        coordinator?.closeMaximumCardsIssuedSheet()
     }
 }
