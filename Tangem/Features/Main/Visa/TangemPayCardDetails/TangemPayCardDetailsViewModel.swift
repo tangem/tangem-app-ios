@@ -19,6 +19,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     let cardNameDisplayMode: CardNameDisplayMode
 
     var cardImageURL: URL? { repository.cardImageURL }
+    var cardBackgroundImageURL: URL? { repository.cardBackgroundImageURL }
 
     @Published private(set) var lastFourDigits: String
     @Published private(set) var isReissuing: Bool = false
