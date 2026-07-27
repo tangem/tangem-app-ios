@@ -299,16 +299,32 @@ final class TangemPayMainViewModel: ObservableObject {
                 guard let self else { return }
 
                 await tangemPayAccount.loadOffers()
-                isAddCardLoading = false
 
-                guard let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee else {
-                    coordinator?.openMaximumCardsIssuedSheet(cardsCount: tangemPayAccount.cards.count)
-                    return
+                if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
+                    openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
+                } else if await isTariffPlanUpgradeAvailable() {
+                    coordinator?.openCardsLimitReachedSheet()
+                } else {
+                    coordinator?.openMaximumCardsIssuedSheet()
                 }
 
-                openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
+                isAddCardLoading = false
             }
         )
+    }
+
+    private func isTariffPlanUpgradeAvailable() async -> Bool {
+        guard tiersEnabled else {
+            return false
+        }
+
+        do {
+            let transitions = try await tangemPayAccount.getTariffPlanTransitions()
+            return transitions.contains { $0.type == .upgrade }
+        } catch {
+            VisaLogger.error("Failed to load tariff plan transitions", error: error)
+            return false
+        }
     }
 
     private func openIssueAdditionalCardCostPopup(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee) {
