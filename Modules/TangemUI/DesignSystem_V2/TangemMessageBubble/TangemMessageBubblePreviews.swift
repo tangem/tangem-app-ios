@@ -61,6 +61,8 @@ public struct TangemMessageBubbleShowcase: View {
                 Picker("Variant", selection: $variant) {
                     Text("neutral").tag(TangemMessageBubble.Variant.neutral)
                     Text("success").tag(TangemMessageBubble.Variant.success)
+                    Text("error").tag(TangemMessageBubble.Variant.error)
+                    Text("warning").tag(TangemMessageBubble.Variant.warning)
                     Text("info").tag(TangemMessageBubble.Variant.info)
                 }
                 .pickerStyle(.segmented)
@@ -95,7 +97,7 @@ public struct TangemMessageBubbleShowcase: View {
 #if DEBUG
 
 private struct MessageBubbleGalleryView: View {
-    private let variants: [TangemMessageBubble.Variant] = [.neutral, .success, .info]
+    private let variants: [TangemMessageBubble.Variant] = [.neutral, .success, .error, .warning, .info]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -119,6 +121,8 @@ private struct MessageBubbleGalleryView: View {
         switch variant {
         case .neutral: "Neutral"
         case .success: "Success"
+        case .error: "Error"
+        case .warning: "Warning"
         case .info: "Info"
         }
     }
