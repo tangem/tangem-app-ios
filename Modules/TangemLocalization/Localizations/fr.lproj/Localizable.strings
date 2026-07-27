@@ -226,6 +226,7 @@
 "common_allow" = "Permettre";
 "common_amount" = "Montant";
 "common_analytics" = "Analytique";
+"common_apply_selected" = "Apply selected";
 "common_apply" = "Appliquer";
 "common_approval" = "Approbation";
 "common_approve" = "Approuver";
@@ -370,6 +371,7 @@
 "common_second_no_param" = "sec";
 "common_see_all" = "Voir tout";
 "common_seed_phrase" = "Seed phrase";
+"common_select_account" = "Select account";
 "common_select_action" = "Sélectionnez une action";
 "common_sell" = "Vendre";
 "common_send_colon" = "Vous envoyez :";
@@ -625,15 +627,15 @@
 "for_you_earn_per_year" = "%1$@/year";
 "for_you_portfolio_review_title" = "Portfolio review";
 "for_you_title" = "For You";
-"force_update_action" = "Update now";
+"force_update_action" = "Mettre à jour maintenant";
 "force_update_banner_message" = "Mettez l'application à jour pour assurer son bon fonctionnement";
 "force_update_banner_title" = "Mise à jour nécessaire";
-"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
-"force_update_brick_title" = "Update Unavailable";
+"force_update_brick_description" = "Tangem ne peut pas fonctionner sur cette version de système d'exploitation. Vos fonds sont en sécurité, et vous pouvez continuer à utiliser votre wallet sur un autre appareil compatible.";
+"force_update_brick_title" = "Mise à jour indisponible";
 "force_update_button" = "Mettre à jour";
-"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
-"force_update_os_title" = "Update Your OS";
-"force_update_required_action" = "Update app";
+"force_update_os_description" = "Votre système d'exploitation est obsolète. Tangem continuera de fonctionner pour l'instant, mais vous devrez le mettre à jour pour recevoir les futures mises à jour de l'application.";
+"force_update_os_title" = "Mettez à jour votre système d'exploitation";
+"force_update_required_action" = "Mettre à jour l'application";
 "force_update_warning_message" = "Veuillez mettre à jour l'application pour assurer son bon fonctionnement";
 "force_update_warning_title" = "Mise à jour requise";
 "gasless_not_enough_funds_to_cover_token_fee" = "Fonds insuffisants";
@@ -793,7 +795,7 @@
 "markets_portfolio_block_subtitle" = "Dans votre portfolio";
 "markets_portfolio_block_title" = "Votre portfolio";
 "markets_portfolio_block_token_unsupported" = "**Token non pris en charge**. Ce token n'est actuellement pas pris en charge dans le portefeuille";
-"markets_portfolio_eligible_block_title" = "Other eligible tokens";
+"markets_portfolio_eligible_block_title" = "Autres tokens éligibles";
 "markets_pulse_common_title" = "Rythme du marché";
 "markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Rechercher sur le marché";
