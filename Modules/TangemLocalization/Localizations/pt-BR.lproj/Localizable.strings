@@ -226,6 +226,7 @@
 "common_allow" = "Permitir";
 "common_amount" = "Quantia";
 "common_analytics" = "Análises";
+"common_apply_selected" = "Apply selected";
 "common_apply" = "Aplicar";
 "common_approval" = "Aprovação";
 "common_approve" = "Aprovar";
@@ -370,6 +371,7 @@
 "common_second_no_param" = "segundos";
 "common_see_all" = "Veja tudo";
 "common_seed_phrase" = "Frase-semente";
+"common_select_account" = "Select account";
 "common_select_action" = "Selecione a ação";
 "common_sell" = "Vender";
 "common_send_colon" = "Enviar:";
