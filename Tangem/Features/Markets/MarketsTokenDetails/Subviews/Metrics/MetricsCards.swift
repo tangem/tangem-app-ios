@@ -33,7 +33,7 @@ struct MetricsMarketCapCard: View {
     }
 
     private func action() {
-        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketCapitalization)
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsRecordType.marketCapitalization)
     }
 }
 
@@ -101,7 +101,7 @@ struct MetricsTradingVolumeCard: View {
     }
 
     private func action() {
-        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.tradingVolume)
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsRecordType.tradingVolume)
     }
 }
 
@@ -151,7 +151,7 @@ struct MetricsFDVCard: View {
     }
 
     private func action() {
-        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.fullyDilutedValuation)
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsRecordType.fullyDilutedValuation)
     }
 }
 
@@ -182,7 +182,7 @@ struct MetricsCirculatingSupplyCard: View {
             radius: 24
         )
         .onTapGesture {
-            viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.circulatingSupply)
+            viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsRecordType.circulatingSupply)
         }
     }
 

@@ -1,5 +1,5 @@
 //
-//  EarnWidgetViewRedesign.swift
+//  EarnWidgetView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 
-struct EarnWidgetViewRedesign: View {
+struct EarnWidgetView: View {
     @ObservedObject var viewModel: EarnWidgetViewModel
 
     @ViewBuilder
@@ -43,7 +43,7 @@ struct EarnWidgetViewRedesign: View {
     }
 
     private var header: some View {
-        MarketsCommonWidgetHeaderViewRedesign(
+        MarketsCommonWidgetHeaderView(
             headerTitle: viewModel.widgetType.headerTitle ?? "",
             headerImage: nil,
             buttonTitle: Localization.commonSeeAll,
