@@ -46,7 +46,7 @@ struct SupportedProvidersFilterTests {
         arguments: [
             ("cex-provider", ExpressProviderType.cex, true),
             ("1inch", .dex, true),
-            ("lifi", .dexBridge, true),
+            ("li-fi", .dexBridge, true),
             ("unsupported-dex", .dex, false),
             ("unsupported-bridge", .dexBridge, false),
             ("onramp-provider", .onramp, false),
