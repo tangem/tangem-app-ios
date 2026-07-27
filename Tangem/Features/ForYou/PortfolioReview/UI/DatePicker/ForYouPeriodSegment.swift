@@ -27,3 +27,17 @@ extension ForYouPeriodSegment {
 
     static let initial = ForYouPeriodSegment(id: "day", title: "Day")
 }
+
+extension ForYouPeriodSegment {
+    var period: TokenSummaryPeriod {
+        switch id {
+        case "week": .week
+        case "month": .month
+        default: .day
+        }
+    }
+
+    var timeframe: TokenSummaryIndicator.Timeframe {
+        period.timeframe
+    }
+}

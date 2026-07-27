@@ -19,9 +19,14 @@ struct ForYouCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.yieldPromoCoordinator, destination: YieldModulePromoCoordinatorView.init)
             .navigation(item: $coordinator.portfolioTokenDetailsCoordinator, destination: TokenDetailsCoordinatorView.init)
             .sheet(item: $coordinator.yieldActiveCoordinator, content: YieldModuleActiveCoordinatorView.init)
-            .sheet(item: $coordinator.swapTokenSelectorViewModel, content: ForYouSwapTokenSelectorView.init)
+            .sheet(item: $coordinator.swapTokenSelectorViewModel, onDismiss: coordinator.runPendingSwapAction) {
+                ForYouSwapTokenSelectorView(viewModel: $0)
+            }
             .sheet(item: $coordinator.addFundsCoordinator, content: ActionButtonsBuyCoordinatorView.init)
-            .sheet(item: $coordinator.tokenSummaryViewModel, onDismiss: coordinator.onTokenSummaryDismiss) {
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
+            }
+            .sheet(item: $coordinator.tokenSummaryViewModel, onDismiss: coordinator.runPendingSwapAction) {
                 TokenSummaryView(viewModel: $0)
                     .presentationDetents([.large])
             }
