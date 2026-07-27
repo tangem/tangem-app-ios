@@ -241,7 +241,7 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var chart: some View {
         if let viewModel = viewModel.historyChartViewModel {
-            MarketsHistoryChartViewRedesign(viewModel: viewModel)
+            MarketsHistoryChartView(viewModel: viewModel)
         }
     }
 
@@ -255,7 +255,7 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var content: some View {
-        MarketsTokenDetailsContentViewRedesign(viewModel: viewModel)
+        MarketsTokenDetailsContentView(viewModel: viewModel)
     }
 
     private var backgroundColor: Color {

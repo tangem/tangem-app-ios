@@ -1,5 +1,5 @@
 //
-//  MarketsTokensUnderCupView.swift
+//  MarketsTokensUnderCapView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
