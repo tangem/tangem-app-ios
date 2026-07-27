@@ -20,6 +20,10 @@ final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository
         card.mainImageURL
     }
 
+    var cardBackgroundImageURL: URL? {
+        card.backgroundImageURL
+    }
+
     var lastFourDigitsPublisher: AnyPublisher<String, Never> {
         card.snapshotPublisher
             .map(\.card.cardNumberEnd)
