@@ -318,6 +318,28 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
         }
     }
 
+    @discardableResult
+    func verifyFreezeErrorToast() -> Self {
+        XCTContext.runActivity(named: "Verify freeze failure toast") { _ in
+            let toast = app.staticTexts
+                .matching(NSPredicate(format: "label CONTAINS %@", "Failed to freeze the card"))
+                .firstMatch
+            waitAndAssertTrue(toast, "Freeze failure toast should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyUnfreezeErrorToast() -> Self {
+        XCTContext.runActivity(named: "Verify unfreeze failure toast") { _ in
+            let toast = app.staticTexts
+                .matching(NSPredicate(format: "label CONTAINS %@", "Failed to unfreeze the card"))
+                .firstMatch
+            waitAndAssertTrue(toast, "Unfreeze failure toast should be displayed")
+            return self
+        }
+    }
+
     private func openReplaceCardFromMoreMenu() {
         moreMenuButton.waitAndTap()
         replaceCardMenuItem.waitAndTap()
