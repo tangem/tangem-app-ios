@@ -29,26 +29,26 @@ struct EarnTokenTileView: View {
 
                 FixedSpacer(height: 22.0)
 
-                HStack(alignment: .firstBaselineCustom, spacing: .unit(.half)) {
+                HStack(alignment: .firstBaselineCustom, spacing: 2) {
                     Text(viewModel.name)
                         .lineLimit(1)
-                        .style(Font.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.primary)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                     Text(viewModel.symbol)
                         .lineLimit(1)
-                        .style(Font.Tangem.Caption12.semibold, color: Color.Tangem.Text.Neutral.secondary)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 }
 
-                FixedSpacer(height: .unit(.x1))
+                FixedSpacer(height: 4)
 
                 Text(viewModel.rateText)
                     .lineLimit(1)
-                    .style(Font.Tangem.Caption12.semibold, color: Color.Tangem.Text.Status.positive)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentGreen)
             }
             .frame(width: RedesignLayout.tileWidth, alignment: .topLeading)
-            .padding(.bottom, .unit(.x1))
+            .padding(.bottom, 4)
             .defaultRoundedBackground(
-                with: .Tangem.Surface.level3,
+                with: DesignSystem.Color.bgSecondary,
                 cornerRadius: RedesignLayout.cornerRadius
             )
         }
@@ -65,7 +65,7 @@ struct EarnTokenTileView: View {
                 customTokenColor: nil,
                 networkBorderColor: .clear
             ),
-            size: .init(bothDimensions: .unit(.x10)),
+            size: .init(bothDimensions: 40),
             isWithOverlays: true,
             forceKingfisher: true
         )
@@ -77,6 +77,6 @@ struct EarnTokenTileView: View {
 private extension EarnTokenTileView {
     enum RedesignLayout {
         static let tileWidth: CGFloat = 150.0
-        static let cornerRadius: CGFloat = .unit(.x6)
+        static let cornerRadius: CGFloat = 24
     }
 }

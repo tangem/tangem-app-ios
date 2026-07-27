@@ -8,16 +8,17 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct EarnNetworkFilterNetworkRowViewRedesign: View {
     let input: EarnNetworkFilterNetworkRowInput
 
-    @ScaledMetric private var verticalPadding = CGFloat.unit(.x3)
-    @ScaledMetric private var horizontalSpacing = CGFloat.unit(.x3)
-    @ScaledMetric private var textSpacing = CGFloat.unit(.x1)
-    @ScaledMetric private var networkIconSide = CGFloat.unit(.x10)
-    @ScaledMetric private var markIconSide = CGFloat.unit(.x5)
+    @ScaledMetric private var verticalPadding: CGFloat = 12
+    @ScaledMetric private var horizontalSpacing: CGFloat = 12
+    @ScaledMetric private var textSpacing: CGFloat = 4
+    @ScaledMetric private var networkIconSide: CGFloat = 40
+    @ScaledMetric private var markIconSide: CGFloat = 20
 
     private var isSelected: Bool {
         input.isSelected
@@ -45,10 +46,10 @@ private extension EarnNetworkFilterNetworkRowViewRedesign {
 
             HStack(alignment: .lastTextBaseline, spacing: textSpacing) {
                 Text(input.networkName)
-                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Text(input.currencySymbol)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
             .lineLimit(1)
 
@@ -65,8 +66,8 @@ private extension EarnNetworkFilterNetworkRowViewRedesign {
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.primaryInvertedConstant)
-                    .background(Color.Tangem.Graphic.Status.accent, in: .circle)
+                    .foregroundStyle(DesignSystem.Color.iconStaticDark)
+                    .background(DesignSystem.Color.iconAccentBlue, in: .circle)
             }
         }
         .frame(width: markIconSide, height: markIconSide)
