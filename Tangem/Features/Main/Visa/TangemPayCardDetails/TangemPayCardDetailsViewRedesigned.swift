@@ -178,7 +178,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
         }
         .padding(16)
         .background {
-            KFImage(viewModel.cardImageURL)
+            KFImage(viewModel.cardBackgroundImageURL)
                 .placeholder {
                     Assets.Visa.cardCredentials.image
                         .resizable()
