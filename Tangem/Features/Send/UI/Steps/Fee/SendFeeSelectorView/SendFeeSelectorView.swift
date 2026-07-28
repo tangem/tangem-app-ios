@@ -28,7 +28,7 @@ struct SendFeeSelectorView: View {
     // MARK: - Sub Views
 
     private var content: some View {
-        FeeSelectorBottomSheetContainerView(
+        FloatingSheetContainerView(
             state: viewModel.state.hashValue,
             showsButton: button != nil,
             button: { button },
