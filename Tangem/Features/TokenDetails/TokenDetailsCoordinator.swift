@@ -75,6 +75,12 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             publicKey: options.walletModel.publicKey
         )
 
+        let deeplinkHandler = PromotionDeeplinkHandler(
+            coordinator: self,
+            walletModel: options.walletModel,
+            userWalletInfo: options.userWalletInfo
+        )
+
         tokenDetailsViewModel = .init(
             userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
@@ -85,7 +91,8 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             coordinator: self,
             tokenRouter: tokenRouter,
             pendingTransactionDetails: options.pendingTransactionDetails,
-            presentSource: options.presentSource
+            presentSource: options.presentSource,
+            deeplinkHandler: deeplinkHandler
         )
 
         notificationManager.interactionDelegate = tokenDetailsViewModel
@@ -444,3 +451,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 // MARK: - SendFeeCurrencyNavigating
 
 extension TokenDetailsCoordinator: SendFeeCurrencyNavigating {}
+
+// MARK: - PromotionDeeplinkRoutable
+
+extension TokenDetailsCoordinator: PromotionDeeplinkRoutable {}

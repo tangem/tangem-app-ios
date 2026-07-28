@@ -23,4 +23,5 @@ public struct TangemPayAvailabilityResponse: Decodable {
 public enum TangemPayDistributionChannel: String {
     case banner = "BANNER"
     case details = "DETAILS"
+    case visaVirtualAccount = "VISA_VIRTUAL_ACCOUNT"
 }
