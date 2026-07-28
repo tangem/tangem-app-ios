@@ -118,7 +118,9 @@ private extension CardSettingsViewModel {
             resetToFactoryViewModel = DefaultRowViewModel(
                 title: Localization.cardSettingsResetCardToFactory,
                 accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.resetToFactorySettingsButton,
-                action: openResetCard
+                action: { [weak self] in
+                    self?.openResetCard()
+                }
             )
         }
     }
@@ -128,7 +130,9 @@ private extension CardSettingsViewModel {
             title: Localization.cardSettingsSecurityMode,
             detailsType: .text(securityModeTitle),
             accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.securityModeRow,
-            action: hasSingleSecurityMode ? nil : openSecurityMode
+            action: hasSingleSecurityMode ? nil : { [weak self] in
+                self?.openSecurityMode()
+            }
         )]
 
         if isChangeAccessCodeVisible {
@@ -136,7 +140,9 @@ private extension CardSettingsViewModel {
                 DefaultRowViewModel(
                     title: Localization.cardSettingsChangeAccessCode,
                     detailsType: isChangeAccessCodeLoading ? .loader : .none,
-                    action: openChangeAccessCodeWarningView
+                    action: { [weak self] in
+                        self?.openChangeAccessCodeWarningView()
+                    }
                 )
             )
         }
@@ -147,7 +153,9 @@ private extension CardSettingsViewModel {
             accessCodeRecoverySection = DefaultRowViewModel(
                 title: Localization.cardSettingsAccessCodeRecoveryTitle,
                 detailsType: .text(enabled ? Localization.commonEnabled : Localization.commonDisabled),
-                action: openAccessCodeSettings
+                action: { [weak self] in
+                    self?.openAccessCodeSettings()
+                }
             )
         }
     }

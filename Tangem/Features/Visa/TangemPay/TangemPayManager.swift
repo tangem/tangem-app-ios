@@ -201,7 +201,7 @@ final class TangemPayManager: TangemPayAccountModel {
             switch error {
             case .unauthorized:
                 stateSubject.value = .syncNeeded
-            case .moyaError, .apiError, .decodingError:
+            case .moyaError, .apiError, .decodingError, .serverError:
                 stateSubject.value = .unavailable
             }
             VisaLogger.error("Failed to get TangemPay enrollment state", error: error)
