@@ -21,6 +21,7 @@ import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
@@ -29,6 +30,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     @Published private(set) var isZeroBalance = true
     @Published private(set) var marketPriceViewModel: TokenDetailsMarketPriceViewModel?
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
 
     private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
 
@@ -52,8 +54,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private(set) lazy var balanceViewModel = TokenDetailsBalanceViewModel(
         tokenItem: walletModel.tokenItem,
         dataProvider: self,
-        reloadBalance: {
-            Task { @MainActor [weak self] in
+        reloadBalance: { [weak self] in
+            Task { @MainActor in
                 await self?.onPullToRefresh()
             }
         }
@@ -88,6 +90,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
+    private let marketingBannerManager: MarketingBannerManager
+    private let notificationBannerMapper: MultiWalletNotificationBannerMapper
+    private let deeplinkHandler: PromotionDeeplinkHandler
     private var bag = Set<AnyCancellable>()
 
     private lazy var yieldStateFactory = TokenDetailsYieldStateFactory(
@@ -116,13 +121,19 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         coordinator: any TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable,
         pendingTransactionDetails: PendingTransactionDetails?,
-        presentSource: TokenDetailsPresentSource
+        presentSource: TokenDetailsPresentSource,
+        deeplinkHandler: PromotionDeeplinkHandler,
+        marketingBannerManager: MarketingBannerManager = MarketingBannerManager(),
+        notificationBannerMapper: MultiWalletNotificationBannerMapper = MultiWalletNotificationBannerMapper()
     ) {
         self.coordinator = coordinator
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
         self.presentSource = presentSource
+        self.deeplinkHandler = deeplinkHandler
+        self.marketingBannerManager = marketingBannerManager
+        self.notificationBannerMapper = notificationBannerMapper
 
         actionsViewModel = FeatureProvider.isAvailable(.redesign)
             ? TokenDetailsActionsViewModel(walletModel: walletModel, userWalletInfo: userWalletInfo)
@@ -153,6 +164,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     func onAppear() {
         logScreenOpenedAnalytics()
+        deeplinkHandler.becomeIncomingActionsResponder()
+    }
+
+    func onDisappear() {
+        deeplinkHandler.resignIncomingActionsResponder()
     }
 
     func onFirstAppear() {
@@ -421,7 +437,7 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
-        Task { @MainActor [notificationManager, weak self] in
+        Task { @MainActor [notificationManager, notificationBannerMapper, weak self] in
             let tokenNotificationInputs = await notificationManager.notificationInputs
 
             guard self?.isRedesign == true else {
@@ -429,12 +445,15 @@ private extension TokenDetailsViewModel {
                 return
             }
 
-            self?.notifications = MultiWalletNotificationBannerMapper().mapItems(tokenNotificationInputs)
+            self?.notifications = notificationBannerMapper.mapItems(tokenNotificationInputs)
         }
 
         setupQuickTopUpBanner()
         dotsMenuItems = makeDotsMenuItems()
         marketPriceViewModel = makeMarketPriceViewModel()
+        marketingBannerManager.setup(
+            bannersPublisher: marketingCampaignsRepository.bannersPublisher(for: walletModel.tokenItem, kind: .tokenDetails)
+        )
 
         bind()
     }
@@ -500,6 +519,10 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
+        marketingBannerManager.standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
+
         walletModel.yieldModuleManager?.statePublisher
             .compactMap { $0 }
             .filter { !$0.state.isLoading }
@@ -557,6 +580,27 @@ private extension TokenDetailsViewModel {
             .sink { [weak self] isZeroBalance in
                 // [REDACTED_TODO_COMMENT]
                 self?.isZeroBalance = isZeroBalance
+            }
+            .store(in: &bag)
+
+        let activeStaking = walletModel.stakingManagerStatePublisher
+            .map(\.isActive)
+            .removeDuplicates()
+            .filter { $0 }
+            .map { _ in MarketingCampaignsRepository.Kind.staking }
+            .eraseToAnyPublisher()
+
+        let activeYield = (walletModel.yieldModuleManager?.statePublisher
+            .map { $0?.state.isEffectivelyActive == true }
+            .eraseToAnyPublisher() ?? .just(output: false))
+            .removeDuplicates()
+            .filter { $0 }
+            .map { _ in MarketingCampaignsRepository.Kind.yield }
+            .eraseToAnyPublisher()
+
+        Publishers.Merge(activeStaking, activeYield)
+            .sink { [weak self] kind in
+                self?.marketingCampaignsRepository.loadCampaigns(for: kind)
             }
             .store(in: &bag)
     }
