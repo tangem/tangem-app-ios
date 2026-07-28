@@ -140,6 +140,8 @@ extension NotificationEvent {
             return SendAccessibilityIdentifiers.amountExceedMaximumUTXOBanner
         case .insufficientBalanceForFee:
             return SendAccessibilityIdentifiers.insufficientBalanceForFeeBanner
+        case .existentialDeposit:
+            return SendAccessibilityIdentifiers.existentialDepositWarningBanner
         default:
             return nil
         }
