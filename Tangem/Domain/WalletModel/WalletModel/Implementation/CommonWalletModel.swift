@@ -871,6 +871,10 @@ extension CommonWalletModel: ExistentialDepositInfoProvider {
             return nil
         }
 
+        guard let coinBalance = wallet.amounts[.coin]?.value, coinBalance < existentialDeposit.value else {
+            return nil
+        }
+
         let blockchainName = blockchainNetwork.blockchain.displayName
         let existentialDepositAmount = existentialDeposit.string(roundingMode: .plain)
         return Localization.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
