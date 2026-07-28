@@ -38,7 +38,17 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                     .padding(.horizontal, Constants.contentHorizontalPadding)
             }
 
+            marketingBanner
+
             content
+        }
+    }
+
+    @ViewBuilder
+    private var marketingBanner: some View {
+        if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
+            StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
+                .padding(.horizontal, Constants.contentHorizontalPadding)
         }
     }
 

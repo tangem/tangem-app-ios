@@ -46,4 +46,6 @@ enum AppConstants {
     static let sessionId = UUID().uuidString
     static let tosURL = URL(string: "https://tangem.com/tangem_tos.html")!
     static let tangemPayTermsAndLimitsURL = URL(string: "https://tangem.com/docs/en/tangem-visa-tariffs.pdf")!
+    static let tangemPayVirtualAccountTermsURL = URL(string: "https://tangem.com/docs/en/virtual-account-terms.pdf")!
+    static let tangemPayPrivacyPolicyURL = URL(string: "https://tangem.com/docs/en/pay-privacy-policy.pdf")!
 }

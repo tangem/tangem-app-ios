@@ -49,6 +49,7 @@ enum IncomingActionConstants {
         static let promoCode = "promo_code"
         static let refcode = "ref"
         static let campaign = "campaign"
+        static let campaignId = "campaignId"
         static let order = "order"
         static let interval = "interval"
         static let earnType = "earn_type"
@@ -76,6 +77,7 @@ enum IncomingActionConstants {
         case newsArticle = "news-article"
         case earn
         case survey
+        case campaigns
     }
 
     enum DeeplinkType: String {

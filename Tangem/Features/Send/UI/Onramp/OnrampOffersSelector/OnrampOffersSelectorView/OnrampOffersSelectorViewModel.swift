@@ -14,6 +14,9 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
 
+    @Injected(\.incomingActionHandler)
+    private var incomingActionHandler: IncomingActionHandler
+
     var viewState: ViewState {
         switch selectedProviderItem {
         case .some(let item):
@@ -23,12 +26,16 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         }
     }
 
+    @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
     @Published private var providersList: ProvidersList = []
     @Published private var selectedProviderItem: ProviderItem?
+    @Published private var linkedBanners: [MarketingBanner] = []
 
     private let tokenItem: TokenItem
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
     private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
+    private let standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never>
+    private let linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>
     private var shouldOnrampPaymentMethodScreenOpenedLogged: Bool = true
 
     private lazy var onrampOfferViewModelBuilder = OnrampAllOfferViewModelBuilder(tokenItem: tokenItem)
@@ -40,12 +47,16 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         tokenItem: TokenItem,
         analyticsLogger: SendOnrampOffersAnalyticsLogger,
         buyActionBuilder: OnrampOfferViewModelBuyActionBuilder,
+        standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never>,
+        linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>,
         input: OnrampProvidersInput,
         output: OnrampSummaryOutput,
     ) {
         self.tokenItem = tokenItem
         self.analyticsLogger = analyticsLogger
         self.buyActionBuilder = buyActionBuilder
+        self.standaloneBannersPublisher = standaloneBannersPublisher
+        self.linkedBannersPublisher = linkedBannersPublisher
         self.input = input
         self.output = output
 
@@ -89,6 +100,13 @@ private extension OnrampOffersSelectorViewModel {
             }
             .receiveOnMain()
             .assign(to: &$providersList)
+
+        standaloneBannersPublisher
+            .map { $0.nilIfEmpty }
+            .assign(to: &$standaloneMarketingBanners)
+
+        linkedBannersPublisher
+            .assign(to: &$linkedBanners)
     }
 
     func mapToOnrampPaymentMethodRowViewData(providers: ProvidersList) -> [OnrampProviderItemViewModel] {
@@ -119,11 +137,20 @@ private extension OnrampOffersSelectorViewModel {
 
             return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
                 provider: provider,
-                buyAction: buyAction
+                buyAction: buyAction,
+                linkedBanner: linkedBanner(for: provider)
             )
         }
 
         return offers.sorted { lhs, rhs in lhs.isNativePayment && !rhs.isNativePayment }
+    }
+
+    func linkedBanner(for provider: OnrampProvider) -> LinkedMarketingBannerViewModel? {
+        LinkedMarketingBannerViewModelFactory.make(
+            from: linkedBanners,
+            providerId: provider.provider.id,
+            incomingActionHandler: incomingActionHandler
+        )
     }
 }
 

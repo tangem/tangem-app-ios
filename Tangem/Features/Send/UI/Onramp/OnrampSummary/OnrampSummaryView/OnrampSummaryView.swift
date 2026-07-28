@@ -21,6 +21,8 @@ struct OnrampSummaryView: View {
         GroupedScrollView(contentType: .plain(spacing: 12)) {
             OnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
 
+            marketingBanner
+
             middleContainer
 
             ForEach(viewModel.notificationInputs) { input in
@@ -37,6 +39,13 @@ struct OnrampSummaryView: View {
             case .loading, .suggestedOffers:
                 keyboardActive = false
             }
+        }
+    }
+
+    @ViewBuilder
+    private var marketingBanner: some View {
+        if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
+            StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
         }
     }
 

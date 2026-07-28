@@ -48,6 +48,8 @@ struct TokenDetailsView: View {
 
                 stakingView
 
+                marketingBanner
+
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
                 }
@@ -100,6 +102,9 @@ struct TokenDetailsView: View {
         .onAppear {
             viewModel.onAppear()
             scrollOffsetHandler.onViewAppear()
+        }
+        .onDisappear {
+            viewModel.onDisappear()
         }
         .onFirstAppear {
             viewModel.onFirstAppear()
@@ -298,6 +303,13 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
+    private var marketingBanner: some View {
+        if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
+            StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
+        }
+    }
+
+    @ViewBuilder
     private var marketPriceLegacy: some View {
         if !viewModel.isRedesign, viewModel.isMarketsDetailsAvailable {
             MarketPriceView(
@@ -473,7 +485,12 @@ private extension TokenDetailsView {
                 coordinator: coordinator
             ),
             pendingTransactionDetails: nil,
-            presentSource: .navigation
+            presentSource: .navigation,
+            deeplinkHandler: PromotionDeeplinkHandler(
+                coordinator: coordinator,
+                walletModel: walletModel,
+                userWalletInfo: userWalletModel.userWalletInfo
+            )
         )
     )
 }

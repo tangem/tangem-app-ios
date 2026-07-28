@@ -46,6 +46,10 @@ struct OnrampOffersSelectorView: View {
             .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providersScreenTitle)
 
             GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 8)) {
+                if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
+                    StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
+                }
+
                 content
             }
             .scrollBounceBehavior(.basedOnSize)

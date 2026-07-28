@@ -120,7 +120,7 @@ private extension NewsPagerDataSourceTests {
     }
 
     static func withInjected(_ service: TangemApiService, operation: () async throws -> Void) async throws {
-        try await NewsTestsDependencyIsolation.shared.run {
+        try await InjectedDependenciesIsolation.shared.run {
             let previous = InjectedValues[\.tangemApiService]
             InjectedValues[\.tangemApiService] = service
             defer { InjectedValues[\.tangemApiService] = previous }
