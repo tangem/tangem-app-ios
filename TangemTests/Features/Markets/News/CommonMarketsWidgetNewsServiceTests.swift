@@ -80,7 +80,7 @@ private extension CommonMarketsWidgetNewsServiceTests {
         readStatusProvider: NewsReadStatusProvider,
         operation: () async throws -> Void
     ) async throws {
-        try await NewsTestsDependencyIsolation.shared.run {
+        try await InjectedDependenciesIsolation.shared.run {
             let previousService = InjectedValues[\.tangemApiService]
             let previousReadStatus = InjectedValues[\.newsReadStatusProvider]
             InjectedValues[\.tangemApiService] = apiService

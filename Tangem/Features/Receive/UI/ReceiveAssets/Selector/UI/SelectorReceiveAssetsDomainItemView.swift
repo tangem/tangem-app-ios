@@ -18,9 +18,9 @@ struct SelectorReceiveAssetsDomainItemView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             HStack(spacing: Layout.Container.contentSpacing) {
-                addressIconView(with: viewModel.address)
+                addressIconView
 
-                addressContentView(value: viewModel.address)
+                addressContentView(value: viewModel.domainName)
 
                 Spacer(minLength: .zero)
 
@@ -36,8 +36,8 @@ struct SelectorReceiveAssetsDomainItemView: View {
 
     // MARK: - Private Implementation
 
-    private func addressIconView(with address: String) -> some View {
-        AddressIconView(viewModel: AddressIconViewModel(address: address))
+    private var addressIconView: some View {
+        AddressIconView(viewModel: viewModel.addressIconViewModel)
             .frame(size: Layout.AddressIcon.bothDimensions)
     }
 
