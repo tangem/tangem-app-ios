@@ -193,7 +193,7 @@ extension MainCoordinator: MainRoutable {
     func openDeepLink(_ deepLink: DeepLinkDestination) {
         switch deepLink {
         case .externalLink(let url):
-            guard safariHandle?.isMatching(startingURL: url) == false else {
+            if safariHandle?.isMatching(startingURL: url) == true {
                 return
             }
 
