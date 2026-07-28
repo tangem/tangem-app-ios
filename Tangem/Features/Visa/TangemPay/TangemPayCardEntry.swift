@@ -47,6 +47,10 @@ enum TangemPayCardEntry: Identifiable {
         if case .issuing = self { true } else { false }
     }
 
+    var isGhost: Bool {
+        order?.isAwaitingDeposit == true
+    }
+
     var card: TangemPayCard? {
         switch self {
         case .issued(let card), .issuing(.card(let card)):
