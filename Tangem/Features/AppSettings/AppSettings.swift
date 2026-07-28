@@ -165,6 +165,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.yieldApyBoostFirstSeenCompletedDates)
     var yieldApyBoostFirstSeenCompletedDates: [String: Date] = [:]
 
+    @AppStorageCompat(StorageType.hiddenMarketingCampaigns)
+    var hiddenMarketingCampaignIds: [Int] = []
+
     @AppStorageCompat(StorageType.needsTangemPayMobileOnboarding)
     var needsTangemPayMobileOnboarding: Bool = false
 

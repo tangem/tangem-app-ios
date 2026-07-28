@@ -41,6 +41,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var tangemPayDailyLimitViewModel: TangemPayDailyLimitViewModel?
     @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
+    @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
 
     private var options: Options?
 
@@ -161,14 +162,8 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openMaximumCardsIssuedSheet() {
-        let viewModel = TangemPayMaximumCardsIssuedSheetViewModel(
-            onClose: { [weak self] in
-                Task { @MainActor in
-                    self?.floatingSheetPresenter.removeActiveSheet()
-                }
-            }
-        )
         Task { @MainActor in
+            let viewModel = TangemPayMaximumCardsIssuedSheetViewModel(coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -208,30 +203,21 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
 
     func openTangemPayWithdraw(input: PredefinedSwapParameters) {
         Task { @MainActor in
-            let viewModel = TangemPayWithdrawNoteSheetViewModel(coordinator: self) { [weak self] in
-                Task { @MainActor in
-                    self?.floatingSheetPresenter.removeActiveSheet()
-                    try? await Task.sleep(for: .seconds(0.2))
-                    self?.openSwap(parameters: input)
-                }
-            }
-
+            let viewModel = TangemPayWithdrawNoteSheetViewModel(parameters: input, coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
     func openTangemWithdrawInProgressSheet() {
-        let viewModel = TangemPayWithdrawInProgressSheetViewModel(coordinator: self)
-
         Task { @MainActor in
+            let viewModel = TangemPayWithdrawInProgressSheetViewModel(coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
     func openTangemPayNoDepositAddressSheet() {
-        let viewModel = TangemPayNoDepositAddressSheetViewModel(coordinator: self)
-
         Task { @MainActor in
+            let viewModel = TangemPayNoDepositAddressSheetViewModel(coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -297,12 +283,47 @@ extension TangemPayMainCoordinator: TangemPayWithdrawNoteSheetRoutable {
             floatingSheetPresenter.removeActiveSheet()
         }
     }
+
+    func openWithdrawal(parameters: PredefinedSwapParameters) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            openSwap(parameters: parameters)
+        }
+    }
 }
 
 // MARK: - TangemPayWithdrawInProgressSheetRoutable
 
 extension TangemPayMainCoordinator: TangemPayWithdrawInProgressSheetRoutable {
     func closeWithdrawInProgressSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayMaximumCardsIssuedSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayMaximumCardsIssuedSheetRoutable {
+    func closeMaximumCardsIssuedSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayBiometryNotSetPopupRoutable
+
+extension TangemPayMainCoordinator: TangemPayBiometryNotSetPopupRoutable {
+    func openBiometrySettings() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            UIApplication.openSystemSettings()
+        }
+    }
+
+    func closeBiometryNotSetPopup() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
@@ -376,9 +397,131 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
         }
     }
 
+    func addFundsSheetRequestBankTransfer() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+
+            // Give some time to hide sheet with animation
+            try? await Task.sleep(for: .seconds(0.2))
+            routeVirtualAccountEntry()
+        }
+    }
+
     func closeAddFundsSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - Virtual Account
+
+private extension TangemPayMainCoordinator {
+    func routeVirtualAccountEntry() {
+        guard let tangemPayAccount = options?.tangemPayAccount else { return }
+
+        switch tangemPayAccount.virtualAccountEntry {
+        case .none, .active:
+            openVirtualAccountInfoSheet()
+        case .preparing:
+            openVirtualAccountPreparingPopup()
+        }
+    }
+
+    func openVirtualAccountInfoSheet() {
+        guard let tangemPayAccount = options?.tangemPayAccount else { return }
+
+        Task { @MainActor in
+            let viewModel = TangemPayVirtualAccountInfoSheetViewModel(
+                tangemPayAccount: tangemPayAccount,
+                coordinator: self
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openVirtualAccountPreparingPopup() {
+        Task { @MainActor in
+            let viewModel = TangemPayVirtualAccountPreparingPopupViewModel(coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - TangemPayVirtualAccountBankDetailsErrorPopupRoutable
+
+extension TangemPayMainCoordinator: TangemPayVirtualAccountBankDetailsErrorPopupRoutable {
+    func virtualAccountBankDetailsErrorPopupDidRequestSupport() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            rootViewModel?.contactSupport()
+        }
+    }
+}
+
+// MARK: - TangemPayVirtualAccountBankDetailsRoutable
+
+extension TangemPayMainCoordinator: TangemPayVirtualAccountBankDetailsRoutable {}
+
+// MARK: - TangemPayVirtualAccountPreparingPopupRoutable
+
+extension TangemPayMainCoordinator: TangemPayVirtualAccountPreparingPopupRoutable {}
+
+// MARK: - TangemPayVirtualAccountSuccessRoutable
+
+extension TangemPayMainCoordinator: TangemPayVirtualAccountSuccessRoutable {
+    func closeVirtualAccountSuccess() {
+        virtualAccountSuccessViewModel = nil
+    }
+}
+
+// MARK: - TangemPayVirtualAccountInfoSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
+    func virtualAccountInfoSheetDidCreateOrder() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            virtualAccountSuccessViewModel = TangemPayVirtualAccountSuccessViewModel(coordinator: self)
+        }
+    }
+
+    func virtualAccountDidLoadBankCredentials(_ credentials: TangemPayBankCredentialsResponse) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+
+            let viewModel = TangemPayVirtualAccountBankDetailsViewModel(credentials: credentials, coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func virtualAccountInfoSheetDidFailToLoadBankCredentials(productInstanceId: String) {
+        guard let tangemPayAccount = options?.tangemPayAccount else { return }
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+
+            let viewModel = TangemPayVirtualAccountBankDetailsErrorPopupViewModel(
+                tangemPayAccount: tangemPayAccount,
+                productInstanceId: productInstanceId,
+                coordinator: self
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func closeVirtualAccountSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openVirtualAccountURL(_ url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            safariManager.openURL(url)
         }
     }
 }
@@ -510,15 +653,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
 
     func openTangemPayBiometryNotSetSheet() {
         Task { @MainActor in
-            let viewModel = TangemPayBiometryNotSetPopupViewModel(
-                onSetBiometry: { [weak self] in
-                    self?.floatingSheetPresenter.removeActiveSheet()
-                    UIApplication.openSystemSettings()
-                },
-                onClose: { [weak self] in
-                    self?.floatingSheetPresenter.removeActiveSheet()
-                }
-            )
+            let viewModel = TangemPayBiometryNotSetPopupViewModel(coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
