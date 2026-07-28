@@ -61,7 +61,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var systemDowngradeBanner: NotificationBanner.BannerType?
 
-    @Published private(set) var currentPlanState: CurrentPlanState
+    @Published private(set) var currentPlanState: CurrentPlanState = .unknown
 
     @Published private(set) var isVisaBenefitsAvailable = false
 
@@ -102,7 +102,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     var isAwaitingDeposit: Bool {
-        tiersEnabled && cardEntries.contains { $0.order?.isAwaitingDeposit == true }
+        tiersEnabled && awaitingDepositInfo != nil
     }
 
     var addCardDisabled: Bool {
@@ -156,7 +156,6 @@ final class TangemPayMainViewModel: ObservableObject {
         self.coordinator = coordinator
 
         balance = tangemPayAccount.mainHeaderBalanceProvider.balance
-        currentPlanState = tangemPayAccount.customerTariffPlan?.currentPlanState ?? .unknown
 
         transactionHistoryService = TangemPayTransactionHistoryService(
             apiService: tangemPayAccount.customerService,
@@ -233,6 +232,8 @@ final class TangemPayMainViewModel: ObservableObject {
 
         do {
             try await tangemPayAccount.cancelAwaitingDepositOrder()
+
+            isCancellingPaidTariffTransition = false
         } catch {
             isCancellingPaidTariffTransition = false
 
@@ -484,6 +485,23 @@ extension TangemPayMainViewModel {
     }
 }
 
+private extension TangemPayMainViewModel {
+    static func makeCurrentPlanState(
+        customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan?,
+        isAwaitingDeposit: Bool
+    ) -> CurrentPlanState {
+        if isAwaitingDeposit || customerTariffPlan?.status == .transitioning {
+            return .changing
+        }
+
+        guard let name = customerTariffPlan?.tariffPlan.name.nilIfEmpty else {
+            return .unknown
+        }
+
+        return .plan(name: name)
+    }
+}
+
 // MARK: - SystemDowngradeBanner
 
 private extension TangemPayMainViewModel {
@@ -520,18 +538,6 @@ private extension TangemPayMainViewModel {
                 accessibilityIdentifier: nil
             ))
         )
-    }
-}
-
-private extension VisaCustomerInfoResponse.CustomerTariffPlan {
-    var currentPlanState: TangemPayMainViewModel.CurrentPlanState {
-        if status == .transitioning {
-            return .changing
-        }
-        if let name = tariffPlan.name.nilIfEmpty {
-            return .plan(name: name)
-        }
-        return .unknown
     }
 }
 
@@ -579,11 +585,14 @@ private extension TangemPayMainViewModel {
     }
 
     func bindCustomerTariffPlan() {
-        tangemPayAccount.customerTariffPlanPublisher
-            .map { $0?.currentPlanState ?? .unknown }
-            .removeDuplicates()
-            .receiveOnMain()
-            .assign(to: &$currentPlanState)
+        Publishers.CombineLatest(
+            tangemPayAccount.customerTariffPlanPublisher,
+            $awaitingDepositInfo.map { $0 != nil }.removeDuplicates()
+        )
+        .map { Self.makeCurrentPlanState(customerTariffPlan: $0, isAwaitingDeposit: $1) }
+        .removeDuplicates()
+        .receiveOnMain()
+        .assign(to: &$currentPlanState)
 
         tangemPayAccount.customerTariffPlanPublisher
             .map { plan in
