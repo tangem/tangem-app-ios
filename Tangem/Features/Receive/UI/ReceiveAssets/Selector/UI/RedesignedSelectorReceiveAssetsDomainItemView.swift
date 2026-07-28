@@ -18,9 +18,9 @@ struct RedesignedSelectorReceiveAssetsDomainItemView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            addressIconView(with: viewModel.address)
+            addressIconView
 
-            addressContentView(value: viewModel.address)
+            addressContentView(value: viewModel.domainName)
 
             Spacer(minLength: .zero)
 
@@ -33,8 +33,8 @@ struct RedesignedSelectorReceiveAssetsDomainItemView: View {
 
     // MARK: - Private Implementation
 
-    private func addressIconView(with address: String) -> some View {
-        AddressIconView(viewModel: AddressIconViewModel(address: address))
+    private var addressIconView: some View {
+        AddressIconView(viewModel: viewModel.addressIconViewModel)
             .frame(size: CGSize(bothDimensions: 36))
     }
 

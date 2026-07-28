@@ -12,6 +12,11 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
+protocol TangemPayBiometryNotSetPopupRoutable: AnyObject {
+    func openBiometrySettings()
+    func closeBiometryNotSetPopup()
+}
+
 @MainActor
 final class TangemPayBiometryNotSetPopupViewModel: TangemPayPopupViewModel {
     var icon: Image {
@@ -31,13 +36,12 @@ final class TangemPayBiometryNotSetPopupViewModel: TangemPayPopupViewModel {
             title: content.buttonTitle,
             style: .primary,
             size: .default,
-            action: onSetBiometry
+            action: setBiometry
         )
     }
 
     private let biometryType: LABiometryType
-    private let onSetBiometry: () -> Void
-    private let onClose: () -> Void
+    private weak var coordinator: TangemPayBiometryNotSetPopupRoutable?
 
     private var content: Content {
         switch biometryType {
@@ -60,16 +64,18 @@ final class TangemPayBiometryNotSetPopupViewModel: TangemPayPopupViewModel {
 
     init(
         biometryType: LABiometryType = BiometricsUtil.biometryType,
-        onSetBiometry: @escaping () -> Void,
-        onClose: @escaping () -> Void
+        coordinator: TangemPayBiometryNotSetPopupRoutable
     ) {
         self.biometryType = biometryType
-        self.onSetBiometry = onSetBiometry
-        self.onClose = onClose
+        self.coordinator = coordinator
+    }
+
+    func setBiometry() {
+        coordinator?.openBiometrySettings()
     }
 
     func dismiss() {
-        onClose()
+        coordinator?.closeBiometryNotSetPopup()
     }
 
     private struct Content {
