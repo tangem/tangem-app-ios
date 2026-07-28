@@ -116,6 +116,7 @@ extension TangemPayCardManagementViewModel {
         enum Content {
             case issued(TangemPayCardDetailsViewModel)
             case issuing
+            case ghost
         }
     }
 }
@@ -357,7 +358,7 @@ private extension TangemPayCardManagementViewModel {
                 return CardDetailsItem(
                     id: entry.id,
                     productInstanceId: entry.productInstanceId,
-                    content: .issuing
+                    content: entry.isGhost ? .ghost : .issuing
                 )
             }
         }
