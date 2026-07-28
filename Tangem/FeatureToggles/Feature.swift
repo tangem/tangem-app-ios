@@ -95,7 +95,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushNotificationsSettings: return .version("6.1")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
-        case .forceUpdate: return .unspecified
+        case .forceUpdate: return .version("6.1")
         case .tangemPayTiers: return .version("6.1")
         case .supportChat: return .version("6.1")
         case .supportChatSwap: return .version("6.1")
