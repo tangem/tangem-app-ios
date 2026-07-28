@@ -223,6 +223,8 @@ extension TangemPayAPIServiceError: @retroactive UniversalError, @retroactive Lo
             104015003
         case .decodingError:
             104015004
+        case .serverError:
+            104015005
         }
     }
 }
