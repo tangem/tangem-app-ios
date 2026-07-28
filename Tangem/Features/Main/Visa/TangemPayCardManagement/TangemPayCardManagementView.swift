@@ -161,7 +161,9 @@ struct TangemPayCardManagementView: View {
         case .issued(let detailsViewModel):
             TangemPayCardDetailsViewRedesigned(viewModel: detailsViewModel)
         case .issuing:
-            TangemPayIssuingCardDetailsViewRedesigned()
+            TangemPayIssuingCardDetailsViewRedesigned(isGhost: false)
+        case .ghost:
+            TangemPayIssuingCardDetailsViewRedesigned(isGhost: true)
         }
     }
 
