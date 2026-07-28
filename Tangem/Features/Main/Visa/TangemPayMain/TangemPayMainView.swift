@@ -216,9 +216,7 @@ struct TangemPayMainView: View {
             Button {
                 viewModel.openCardManagement(entry: entry)
             } label: {
-                TangemPaySmallCardViewRedesigned(
-                    state: entry.order?.isAwaitingDeposit == true ? .ghost : .issuing
-                )
+                TangemPaySmallCardViewRedesigned(state: entry.isGhost ? .ghost : .issuing)
             }
         }
     }
@@ -253,15 +251,18 @@ struct TangemPayMainView: View {
                         switch viewModel.currentPlanState {
                         case .plan(let name):
                             Text(name)
-                        case .changing:
-                            // [REDACTED_TODO_COMMENT]
-                            Text("changing your plan")
-                        case .unknown:
-                            EmptyView()
-                        }
 
-                        DesignSystem.Icons.Info.regular20.image
-                            .renderingMode(.template)
+                            DesignSystem.Icons.Info.regular20.image
+                                .renderingMode(.template)
+                        case .changing:
+                            Text(Localization.tangempayChangingPlan)
+
+                            DesignSystem.Icons.ArrowRefresh.regular20.image
+                                .renderingMode(.template)
+                        case .unknown:
+                            DesignSystem.Icons.Info.regular20.image
+                                .renderingMode(.template)
+                        }
                     }
                     .disabled(viewModel.currentPlanState == .changing)
 
