@@ -10,8 +10,10 @@ import SwiftUI
 import TangemAssets
 
 struct TangemPayIssuingCardDetailsViewRedesigned: View {
+    let isGhost: Bool
+
     var body: some View {
-        Assets.Visa.cardIssuing.image
+        cardArt.image
             .resizable()
             .aspectRatio(Constants.plasticCardStandardWidthToHeightRatio, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
@@ -20,6 +22,10 @@ struct TangemPayIssuingCardDetailsViewRedesigned: View {
                     .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
                     .allowsHitTesting(false)
             }
+    }
+
+    private var cardArt: ImageType {
+        isGhost ? Assets.Visa.cardGhost : Assets.Visa.cardIssuing
     }
 }
 
@@ -32,8 +38,11 @@ private extension TangemPayIssuingCardDetailsViewRedesigned {
 // MARK: - Previews
 
 #Preview {
-    TangemPayIssuingCardDetailsViewRedesigned()
-        .padding(16)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DesignSystem.Color.bgPrimary)
+    VStack(spacing: 16) {
+        TangemPayIssuingCardDetailsViewRedesigned(isGhost: false)
+        TangemPayIssuingCardDetailsViewRedesigned(isGhost: true)
+    }
+    .padding(16)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(DesignSystem.Color.bgPrimary)
 }
