@@ -168,9 +168,8 @@ struct TangemPayMainView: View {
         .showGlowRing(false)
     }
 
-    // [REDACTED_TODO_COMMENT]
     private var inactiveBadge: some View {
-        TangemBadgeV2(label: "Inactive", accessibilityLabel: nil)
+        TangemBadgeV2(label: Localization.tangempayStatusInactive, accessibilityLabel: nil)
             .size(.x6)
             .variant(.tinted)
             .appearance(.warning)
