@@ -9,8 +9,13 @@
 import Foundation
 import TangemFoundation
 import Combine
+import CombineExt
 
 final class PortfolioReviewViewModel: ObservableObject {
+    // MARK: - Typealias
+
+    typealias SelectionScopePublisher = ForYouAccountSelectionResolver.SelectionScopePublisher
+
     // MARK: - Dependencies
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -18,14 +23,15 @@ final class PortfolioReviewViewModel: ObservableObject {
     // MARK: - Properties
 
     private let mapper: PortfolioReviewMapper
+    private let selectionScopePublisher: SelectionScopePublisher
     private let indicatorsProvider: PortfolioReviewIndicatorsProvider
 
     private weak var router: PortfolioReviewRoutable?
 
     private var expandedIds: Set<String> = []
-    private var bag: Set<AnyCancellable> = []
+    private var subscription: AnyCancellable?
 
-    // MARK: - Published
+    // MARK: - Publishers
 
     @Published private(set) var state: ViewState = .loading
     @Published private(set) var showsOutdatedDataBanner = false
@@ -37,17 +43,19 @@ final class PortfolioReviewViewModel: ObservableObject {
 
     init(
         mapper: PortfolioReviewMapper = PortfolioReviewMapper(),
+        selectionScopePublisher: SelectionScopePublisher,
         indicatorsProvider: PortfolioReviewIndicatorsProvider = CommonPortfolioReviewIndicatorsProvider(),
         router: PortfolioReviewRoutable? = nil
     ) {
         self.mapper = mapper
+        self.selectionScopePublisher = selectionScopePublisher
         self.indicatorsProvider = indicatorsProvider
         self.router = router
 
         bind()
     }
 
-    // MARK: - Methods
+    // MARK: - Internal methods
 
     func toggle(id: String) {
         guard case .content(let content) = state,
@@ -98,17 +106,14 @@ final class PortfolioReviewViewModel: ObservableObject {
 
 private extension PortfolioReviewViewModel {
     func bind() {
-        selectedModelPublisher()
+        subscription = selectedModelPublisher()
+            // Rebuild only when wallet presence flips; dedup the bare Bool — a self-carrying tuple in removeDuplicates would leak.
+            .map { $0 != nil }
+            .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .handleEvents(receiveOutput: { viewModel, _ in
-                // New wallet → drop the previous wallet's expansion and chart selection (ids collide across
-                // wallets, e.g. shared currencyId).
-                viewModel.expandedIds.removeAll()
-                viewModel.selectedChartSegmentID = nil
-            })
-            .map { viewModel, selectedModel in
-                viewModel.statePublisher(for: selectedModel)
+            .map { viewModel, hasSelectedWallet in
+                viewModel.statePublisher(hasSelectedWallet: hasSelectedWallet)
             }
             .switchToLatest()
             .receiveOnMain()
@@ -117,10 +122,8 @@ private extension PortfolioReviewViewModel {
                 viewModel.showsOutdatedDataBanner = output.isOutdatedData
                 viewModel.apply(output.state)
             }
-            .store(in: &bag)
     }
 
-    /// The selected wallet, re-emitted whenever the repository's selection changes.
     func selectedModelPublisher() -> AnyPublisher<UserWalletModel?, Never> {
         userWalletRepository.eventProvider
             .withWeakCaptureOf(self)
@@ -134,11 +137,8 @@ private extension PortfolioReviewViewModel {
             .eraseToAnyPublisher()
     }
 
-    /// Wallet models + total balance + app currency → mapped view state + outdated-data flag.
-    func statePublisher(
-        for selectedModel: UserWalletModel?
-    ) -> AnyPublisher<(state: ViewState, isOutdatedData: Bool), Never> {
-        guard let selectedModel else {
+    func statePublisher(hasSelectedWallet: Bool) -> AnyPublisher<(state: ViewState, isOutdatedData: Bool), Never> {
+        guard hasSelectedWallet else {
             // No selected wallet → empty content (not an endless loading state).
             return Just(
                 (
@@ -149,14 +149,21 @@ private extension PortfolioReviewViewModel {
             .eraseToAnyPublisher()
         }
 
-        // `totalBalancePublisher` gates skeleton → content/empty, re-fires as balances resolve
-        // (the wallet-models publisher itself does not re-emit on balance changes), and feeds the outdated-data flag.
-        let walletModelsPublisher = AccountWalletModelsAggregator.walletModelsPublisher(from: selectedModel.accountModelsManager)
+        // Shared once: a single cross-wallet subscription feeds the total balance, the token list, and the indicators.
+        let selectedAccounts = selectionScopePublisher
+            .map { $0.selected.map(\.account) }
+            .share(replay: 1)
+            .eraseToAnyPublisher()
 
-        // One indicators fetch covers all intervals, so a period change only re-derives sentiment locally.
+        let walletModelsPublisher = selectedAccounts
+            .map(Self.walletModelsPublisher)
+            .switchToLatest()
+            .share(replay: 1)
+            .eraseToAnyPublisher()
+
         return Publishers.CombineLatest3(
             walletModelsPublisher,
-            selectedModel.totalBalancePublisher,
+            totalBalancePublisher(for: selectedAccounts),
             AppSettings.shared.$selectedCurrencyCode
         )
         .combineLatest(
@@ -182,8 +189,38 @@ private extension PortfolioReviewViewModel {
         .eraseToAnyPublisher()
     }
 
-    /// Fetches coin indicators for the wallet's symbols, refetching only when the symbol set changes
-    /// (not on balance reorders or period switches). Starts empty so the pipeline isn't gated on it.
+    /// Sums the selected accounts' fiat totals into one state (loading/failed if any is; loaded sum otherwise).
+    func totalBalancePublisher(for accounts: AnyPublisher<[any CryptoAccountModel], Never>) -> AnyPublisher<TotalBalanceState, Never> {
+        accounts
+            .map { accounts -> AnyPublisher<TotalBalanceState, Never> in
+                guard !accounts.isEmpty else {
+                    return Just(.loaded(balance: 0)).eraseToAnyPublisher()
+                }
+
+                return accounts
+                    .map(\.fiatTotalBalanceProvider.totalBalancePublisher)
+                    .combineLatest()
+                    .map { TotalBalanceStatesCombiner().mapToTotalBalanceState(states: $0) }
+                    .eraseToAnyPublisher()
+            }
+            .switchToLatest()
+            .eraseToAnyPublisher()
+    }
+
+    /// Wallet models of the given accounts; no accounts → `[]` (`combineLatest` of nothing never emits).
+    static func walletModelsPublisher(for accounts: [any CryptoAccountModel]) -> AnyPublisher<[any WalletModel], Never> {
+        guard !accounts.isEmpty else {
+            return Just([]).eraseToAnyPublisher()
+        }
+
+        return accounts
+            .map(\.walletModelsManager.walletModelsPublisher)
+            .combineLatest()
+            .map { $0.flattened() }
+            .eraseToAnyPublisher()
+    }
+
+    /// Refetches only when the symbol set changes; starts empty so the pipeline isn't gated on it.
     func indicatorsPublisher(
         for walletModelsPublisher: AnyPublisher<[any WalletModel], Never>
     ) -> AnyPublisher<[String: [TokenSummaryIndicator]], Never> {
@@ -204,13 +241,25 @@ private extension PortfolioReviewViewModel {
 
     func apply(_ newState: ViewState) {
         state = newState.expanding(expandedIds)
+
+        // A scope change can drop the selected segment — clear it so the tooltip doesn't resurrect later.
+        if let selectedID = selectedChartSegmentID, !newState.containsChartSegment(selectedID) {
+            selectedChartSegmentID = nil
+        }
     }
 }
 
-// MARK: - Expansion
+// MARK: - ViewState helpers
 
 private extension PortfolioReviewViewModel.ViewState {
-    /// Re-derives each item's `isExpanded` flag from the currently expanded asset ids.
+    func containsChartSegment(_ id: GaugeSegment.ID) -> Bool {
+        guard case .content(let content) = self, case .loaded(let assets, _, _) = content.chart else {
+            return false
+        }
+
+        return assets.contains { $0.id == id }
+    }
+
     func expanding(_ expandedIds: Set<String>) -> Self {
         switch self {
         case .loading:
