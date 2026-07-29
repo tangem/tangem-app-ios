@@ -150,7 +150,8 @@ private struct TangemPayAccountTile: View {
                 loader: LoadableBalanceView.LoaderStyle(
                     size: CGSize(width: 40, height: 12) * scaleFactor,
                     cornerRadiusStyle: .capsule
-                )
+                ),
+                accessibilityIdentifier: TangemPayAccessibilityIdentifiers.mainScreenTileBalance
             )
         }
     }
