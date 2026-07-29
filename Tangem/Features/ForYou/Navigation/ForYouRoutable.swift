@@ -8,4 +8,4 @@
 import Foundation
 
 @MainActor
-protocol ForYouRoutable: EarnOpportunitiesRoutable, PortfolioReviewRoutable {}
+protocol ForYouRoutable: EarnOpportunitiesRoutable, PortfolioReviewRoutable, ForYouAccountSelectorRoutable {}

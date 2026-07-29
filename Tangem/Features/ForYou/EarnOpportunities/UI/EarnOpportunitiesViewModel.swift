@@ -13,14 +13,14 @@ import TangemFoundation
 import TangemUI
 
 final class EarnOpportunitiesViewModel: ObservableObject {
+    // MARK: - Typealias
+
+    typealias SelectionScopePublisher = ForYouAccountSelectionResolver.SelectionScopePublisher
+
     // MARK: - Dependencies
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.earnAnalyticsProvider) private var earnAnalyticsProvider: EarnAnalyticsProvider
-
-    // MARK: - Published
-
-    @Published private(set) var state: ViewState = .loading
 
     // MARK: - Properties
 
@@ -31,18 +31,23 @@ final class EarnOpportunitiesViewModel: ObservableObject {
         ethereumP2PFilter: CommonEarnEthereumP2PFilter()
     )
     private let suggestions = CurrentValueSubject<EarnOpportunitiesMapper.SuggestionsState, Never>(.loading)
+    private let selectionScopePublisher: SelectionScopePublisher
 
     private weak var router: EarnOpportunitiesRoutable?
 
     private var expandedIds: Set<String> = []
-    // Tap routing needs the domain models the mapper output drops. Keyed by holding row id (walletModel.id.id).
-    private var holdingWalletModels: [String: any WalletModel] = [:]
-    private var currentUserWalletModel: (any UserWalletModel)?
+    // Tap routing needs the domain models the mapper output drops. Keyed by a wallet-qualified holding row id.
+    private var holdingContexts: [String: HoldingContext] = [:]
     private var bag: Set<AnyCancellable> = []
+
+    // MARK: - Publishers
+
+    @Published private(set) var state: ViewState = .loading
 
     // MARK: - Init
 
-    init(router: EarnOpportunitiesRoutable? = nil) {
+    init(selectionScopePublisher: SelectionScopePublisher, router: EarnOpportunitiesRoutable? = nil) {
+        self.selectionScopePublisher = selectionScopePublisher
         self.router = router
         bind()
         fetchSuggestions()
@@ -50,10 +55,11 @@ final class EarnOpportunitiesViewModel: ObservableObject {
 
     /// Preview/testing entry point: fixed state, no data pipeline.
     init(state: ViewState) {
+        selectionScopePublisher = Empty().eraseToAnyPublisher()
         self.state = state
     }
 
-    // MARK: - Methods
+    // MARK: - Internal methods
 
     func toggle(_ id: String) {
         guard case .content(let content) = state,
@@ -73,17 +79,16 @@ final class EarnOpportunitiesViewModel: ObservableObject {
 
     @MainActor
     func selectHolding(_ rowId: String) {
-        guard let walletModel = holdingWalletModels[rowId],
-              let userWalletModel = currentUserWalletModel,
-              let product = apyResolver.resolve(for: walletModel)?.product else {
+        guard let context = holdingContexts[rowId],
+              let product = apyResolver.resolve(for: context.walletModel)?.product else {
             return
         }
 
         switch product {
         case .staking:
-            router?.openEarnStaking(walletModel: walletModel, userWalletModel: userWalletModel)
+            router?.openEarnStaking(walletModel: context.walletModel, userWalletModel: context.userWalletModel)
         case .yieldSupply:
-            router?.openEarnYield(walletModel: walletModel, userWalletModel: userWalletModel)
+            router?.openEarnYield(walletModel: context.walletModel, userWalletModel: context.userWalletModel)
         }
     }
 
@@ -104,26 +109,27 @@ final class EarnOpportunitiesViewModel: ObservableObject {
 // MARK: - Data flow
 
 private extension EarnOpportunitiesViewModel {
-    typealias StateOutput = (state: ViewState, walletModels: [String: any WalletModel], userWalletModel: (any UserWalletModel)?)
+    typealias StateOutput = (state: ViewState, contexts: [String: HoldingContext])
 
     func bind() {
         selectedModelPublisher()
-            .receiveOnMain()
+            // Rebuild the state stream only when wallet presence flips, not on every active-wallet switch.
+            .map { $0 != nil }
+            .removeDuplicates()
             .withWeakCaptureOf(self)
-            .flatMapLatest { viewModel, selectedModel in
-                viewModel.statePublisher(forNewlySelected: selectedModel)
-            }
-            .removeDuplicates {
-                $0.userWalletModel?.userWalletId == $1.userWalletModel?.userWalletId && $0.state == $1.state
+            .flatMapLatest { viewModel, hasSelectedWallet in
+                viewModel.statePublisher(hasSelectedWallet: hasSelectedWallet)
             }
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, output in
-                // Applied on main; the off-main mapping must not touch `expandedIds`.
-                // All three assigned together so a holding tap can't pair a stale walletModel with a fresh userWalletModel.
-                viewModel.holdingWalletModels = output.walletModels
-                viewModel.currentUserWalletModel = output.userWalletModel
-                viewModel.state = output.state.expanding(viewModel.expandedIds)
+                // Contexts refresh on every emission — an equal-looking state can still carry new model instances.
+                viewModel.holdingContexts = output.contexts
+
+                let newState = output.state.expanding(viewModel.expandedIds)
+                if viewModel.state != newState {
+                    viewModel.state = newState
+                }
             }
             .store(in: &bag)
     }
@@ -141,16 +147,9 @@ private extension EarnOpportunitiesViewModel {
             .eraseToAnyPublisher()
     }
 
-    /// New wallet selection: drops the previous expansion, then derives its state stream.
-    func statePublisher(forNewlySelected selectedModel: UserWalletModel?) -> AnyPublisher<StateOutput, Never> {
-        expandedIds.removeAll()
-        return statePublisher(for: selectedModel)
-    }
-
-    /// Combines accounts, rates, balance, suggestions, and currency into the state; carries the
-    /// per-row wallet models the mapper output drops, so taps can route.
-    func statePublisher(for selectedModel: UserWalletModel?) -> AnyPublisher<StateOutput, Never> {
-        guard let selectedModel else {
+    /// Carries the per-row wallet models the mapper output drops, so taps can route.
+    func statePublisher(hasSelectedWallet: Bool) -> AnyPublisher<StateOutput, Never> {
+        guard hasSelectedWallet else {
             // No wallet → suggestions variant.
             return suggestions
                 .withWeakCaptureOf(self)
@@ -160,7 +159,8 @@ private extension EarnOpportunitiesViewModel {
                 .eraseToAnyPublisher()
         }
 
-        let accountsPublisher = Self.accountModelsPublisher(from: selectedModel.accountModelsManager)
+        // Shared once: rates, balance, and the main combine reuse a single cross-wallet subscription.
+        let accountsPublisher = selectedAccountsPublisher().share(replay: 1).eraseToAnyPublisher()
 
         // Rates load independently of balances, so re-map on their changes too.
         let ratesTrigger = accountsPublisher
@@ -179,10 +179,25 @@ private extension EarnOpportunitiesViewModel {
             .switchToLatest()
             .prepend(())
 
+        let balanceTrigger = accountsPublisher
+            .map { accounts -> AnyPublisher<Void, Never> in
+                guard !accounts.isEmpty else {
+                    return Just(()).eraseToAnyPublisher()
+                }
+
+                return accounts
+                    .map { $0.account.fiatTotalBalanceProvider.totalBalancePublisher }
+                    .combineLatest()
+                    .mapToVoid()
+                    .eraseToAnyPublisher()
+            }
+            .switchToLatest()
+            .prepend(())
+
         // Rates, balances, and currency only trigger a re-map; their values aren't read here.
         let remapTrigger = Publishers.CombineLatest3(
             ratesTrigger,
-            selectedModel.totalBalancePublisher.mapToVoid(),
+            balanceTrigger,
             AppSettings.shared.$selectedCurrencyCode.mapToVoid()
         )
 
@@ -190,61 +205,70 @@ private extension EarnOpportunitiesViewModel {
             .combineLatest(remapTrigger) { data, _ in data }
             .withWeakCaptureOf(self)
             .map { viewModel, data in
-                viewModel.makeStateOutput(accounts: data.0, suggestions: data.1, userWalletModel: selectedModel)
+                viewModel.makeStateOutput(accounts: data.0, suggestions: data.1)
             }
             .eraseToAnyPublisher()
     }
 
     func makeStateOutput(
         accounts: [AccountWithWalletModels],
-        suggestions: EarnOpportunitiesMapper.SuggestionsState,
-        userWalletModel: any UserWalletModel
+        suggestions: EarnOpportunitiesMapper.SuggestionsState
     ) -> StateOutput {
-        let candidates = accounts.compactMap { candidate(from: $0) }
+        let candidates = accounts.compactMap(candidate)
         let state = mapper.map(
             accounts: candidates,
             suggestions: suggestions,
             isResolvingRates: Self.isResolvingRates(accounts)
         )
 
-        return StateOutput(state: state, walletModels: walletModelsByRowId(accounts), userWalletModel: userWalletModel)
+        return StateOutput(state: state, contexts: holdingContextsByRowId(accounts))
     }
 
     /// No wallet → suggestions only.
     func makeStateOutput(suggestions: EarnOpportunitiesMapper.SuggestionsState) -> StateOutput {
         let state = mapper.map(accounts: [], suggestions: suggestions, isResolvingRates: false)
-        return StateOutput(state: state, walletModels: [:], userWalletModel: nil)
+        return StateOutput(state: state, contexts: [:])
     }
 
-    /// Row id (`walletModel.id.id`) → wallet model, so a holding tap can recover the model the mapper output drops.
-    func walletModelsByRowId(_ accounts: [AccountWithWalletModels]) -> [String: any WalletModel] {
-        var result: [String: any WalletModel] = [:]
+    func holdingContextsByRowId(_ accounts: [AccountWithWalletModels]) -> [String: HoldingContext] {
+        var result: [String: HoldingContext] = [:]
 
-        for walletModel in accounts.flatMap(\.walletModels) {
-            result[walletModel.id.id] = walletModel
+        for account in accounts {
+            for walletModel in account.walletModels {
+                let rowId = Self.holdingRowId(userWalletId: account.userWalletModel.userWalletId, walletModel: walletModel)
+                result[rowId] = HoldingContext(
+                    walletModel: walletModel,
+                    userWalletModel: account.userWalletModel
+                )
+            }
         }
 
         return result
     }
 
-    static func accountModelsPublisher(
-        from accountModelsManager: AccountModelsManager
-    ) -> AnyPublisher<[AccountWithWalletModels], Never> {
-        accountModelsManager
-            .cryptoAccountModelsPublisher
-            .flatMapLatest { cryptoAccounts -> AnyPublisher<[AccountWithWalletModels], Never> in
-                guard cryptoAccounts.isNotEmpty else {
+    /// `walletModel.id.id` excludes the wallet, so it collides across wallets holding the same token — prefix wallet id.
+    static func holdingRowId(userWalletId: UserWalletId, walletModel: any WalletModel) -> String {
+        "\(userWalletId.stringValue)_\(walletModel.id.id)"
+    }
+
+    /// Carries each account's owning wallet so a holding tap routes to the right wallet.
+    func selectedAccountsPublisher() -> AnyPublisher<[AccountWithWalletModels], Never> {
+        selectionScopePublisher
+            .map(\.selected)
+            .map { selected -> AnyPublisher<[AccountWithWalletModels], Never> in
+                guard !selected.isEmpty else {
                     return Just([]).eraseToAnyPublisher()
                 }
 
-                return cryptoAccounts
-                    .map { account in
-                        account.walletModelsManager.walletModelsPublisher
-                            .map { AccountWithWalletModels(account: account, walletModels: $0) }
+                return selected
+                    .map { pair in
+                        pair.account.walletModelsManager.walletModelsPublisher
+                            .map { AccountWithWalletModels(account: pair.account, walletModels: $0, userWalletModel: pair.wallet) }
                     }
                     .combineLatest()
                     .eraseToAnyPublisher()
             }
+            .switchToLatest()
             .eraseToAnyPublisher()
     }
 
@@ -256,7 +280,7 @@ private extension EarnOpportunitiesViewModel {
 
             let tokenItem = walletModel.tokenItem
             return EarnOpportunitiesMapper.HoldingCandidate(
-                id: walletModel.id.id,
+                id: Self.holdingRowId(userWalletId: item.userWalletModel.userWalletId, walletModel: walletModel),
                 assetKey: EarnOpportunitiesMapper.AssetKey(
                     currencyId: tokenItem.currencyId ?? walletModel.id.id,
                     networkId: tokenItem.networkId
@@ -275,7 +299,8 @@ private extension EarnOpportunitiesViewModel {
         }
 
         return EarnOpportunitiesMapper.AccountCandidate(
-            id: "\(item.account.id.toPersistentIdentifier())",
+            // Wallet id in the key: the same account index (persistent id) repeats across wallets.
+            id: "\(item.userWalletModel.userWalletId.stringValue)_\(item.account.id.toPersistentIdentifier())",
             name: item.account.name,
             icon: item.account.icon,
             holdings: holdings
@@ -300,6 +325,13 @@ private extension EarnOpportunitiesViewModel {
     struct AccountWithWalletModels {
         let account: any CryptoAccountModel
         let walletModels: [any WalletModel]
+        let userWalletModel: any UserWalletModel
+    }
+
+    /// The domain models a holding tap needs to route staking/yield — the mapper output drops them.
+    struct HoldingContext {
+        let walletModel: any WalletModel
+        let userWalletModel: any UserWalletModel
     }
 }
 
