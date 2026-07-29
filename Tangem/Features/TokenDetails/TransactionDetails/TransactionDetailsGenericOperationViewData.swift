@@ -1,13 +1,14 @@
 //
-//  TransactionDetailsSingleOperationViewData.swift
+//  TransactionDetailsGenericOperationViewData.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-/// A single-token operation: send / receive / staking / approve / fee / generic "other". The operation
-/// kind is conveyed by the header (title + icon); the sheet body composes the shared blocks.
-struct TransactionDetailsSingleOperationViewData {
+/// The default operation layout — anything that isn't a dedicated Express swap / onramp screen: send, receive,
+/// staking, approve, fee, an on-chain (non-Express) swap that lands as a token transfer, or a generic "other".
+/// The operation kind is conveyed by the header (title + icon); the sheet body composes the shared blocks.
+struct TransactionDetailsGenericOperationViewData {
     /// The main token amount block shown at the top. `nil` for operations without an amount (e.g. the generic "other" section).
     let tokens: TransactionDetailsTokensViewData?
 
