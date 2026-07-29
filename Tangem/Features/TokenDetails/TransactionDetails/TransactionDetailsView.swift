@@ -16,7 +16,9 @@ struct TransactionDetailsView: View {
 
     var body: some View {
         VStack(spacing: .zero) {
-            TransactionDetailsHeaderView(data: viewModel.header)
+            if let header = viewModel.header {
+                TransactionDetailsHeaderView(data: header)
+            }
 
             VStack(spacing: blocksSpacing) {
                 ForEach(viewModel.blocks) { block in
@@ -33,7 +35,7 @@ struct TransactionDetailsView: View {
         .floatingSheetConfiguration { config in
             config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             config.backgroundInteractionBehavior = .tapToDismiss
-            // [REDACTED_TODO_COMMENT]
+            config.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
         }
     }
 
