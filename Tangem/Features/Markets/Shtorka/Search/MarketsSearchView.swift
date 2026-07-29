@@ -37,8 +37,6 @@ struct MarketsSearchView: View {
         labelOffset: Constants.scrollViewContentTopInset + Constants.scrollViewVerticalPadding
     )
 
-    private var copyDefaultBackgroundColor: Color { Colors.Background.primary }
-
     private var overlayHeight: CGFloat { viewModel.isSearching ? searchResultListOverlayTotalHeight : defaultListOverlayTotalHeight }
 
     private var searchFieldInsets: EdgeInsets {
