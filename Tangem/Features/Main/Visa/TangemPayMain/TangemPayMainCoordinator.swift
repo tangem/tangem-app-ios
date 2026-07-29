@@ -47,6 +47,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
 
     private var options: Options?
+    private var safariHandle: SafariHandle?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -557,8 +558,13 @@ extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
 
     func openVirtualAccountURL(_ url: URL) {
         Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-            safariManager.openURL(url)
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() }
+            )
         }
     }
 }
