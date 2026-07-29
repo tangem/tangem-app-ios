@@ -53,7 +53,7 @@ final class TangemPayConfirmPlanViewModel: ObservableObject {
                 Point(Localization.tangempaySelectPlanConfirmPointCancelTill(date)),
                 Point(Localization.tangempaySelectPlanConfirmPointNoFee),
             ]
-            confirmButtonTitle = Localization.commonContinue
+            confirmButtonTitle = Localization.tangempaySelectPlanBtnDowngrade
 
         case .upgrade, .activation:
             title = Localization.tangempaySelectPlanConfirmUpgradeTitle(targetPlan.programName)
