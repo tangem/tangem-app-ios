@@ -10,12 +10,13 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct MarketsNoResultsStateView: View {
     var body: some View {
         Text(Localization.marketsSearchTokenNoResultTitle)
-            .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSearchNoResultsLabel)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, Layout.defaultHorizontalInset)
