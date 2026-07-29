@@ -29,7 +29,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var customFeeTooHighBanner = staticText(.customFeeTooHighBanner)
     private lazy var feeWillBeSubtractFromSendingAmountBanner = staticText(.feeWillBeSubtractFromSendingAmountBanner)
     private lazy var highFeeNotificationBanner = button(.highFeeNotificationBanner)
-    private lazy var existentialDepositWarningBanner = staticText(.existentialDepositWarningBanner)
+    private lazy var existentialDepositWarningBanner = otherElement(.existentialDepositWarningBanner)
     private lazy var reduceFeeButton = button(.reduceFeeButton)
     private lazy var leaveAmountButton = button(.leaveAmountButton)
     private lazy var fromWalletButton = button(.fromWalletButton)
