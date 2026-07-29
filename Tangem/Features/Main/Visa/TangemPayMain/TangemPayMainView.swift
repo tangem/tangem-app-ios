@@ -103,10 +103,6 @@ struct TangemPayMainView: View {
                 NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
                     .onAppear(perform: viewModel.onSystemDowngradeBannerAppear)
             }
-
-            ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
-                PendingExpressTransactionView(info: transactionInfo)
-            }
         }
         .padding(.bottom, 8)
     }
