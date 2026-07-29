@@ -10,6 +10,8 @@ import Foundation
 import Combine
 import UIKit
 import BlockchainSdk
+import TangemAccounts
+import TangemExpress
 import TangemFoundation
 import TangemStories
 import TangemLocalization
@@ -90,7 +92,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         )
     }
 
-    private var isAccountsMode: Bool {
+    var isAccountsMode: Bool {
         userWalletRepository.models.contains {
             $0.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
         }
