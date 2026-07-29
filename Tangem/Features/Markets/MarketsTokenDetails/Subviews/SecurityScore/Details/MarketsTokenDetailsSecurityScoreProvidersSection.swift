@@ -10,10 +10,11 @@ import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsTokenDetailsSecurityScoreProvidersSection: View {
     let viewModel: MarketsTokenDetailsSecurityScoreDetailsViewModel
-    var backgroundColor: Color = Colors.Background.action
+    var backgroundColor: Color = DesignSystem.Color.bgTertiary
 
     var body: some View {
         GroupedSection(viewModel.providers) { provider in
@@ -37,11 +38,11 @@ struct MarketsTokenDetailsSecurityScoreProvidersSection: View {
 
             VStack(alignment: .leading, spacing: Constants.defaultVerticalSpacing) {
                 Text(provider.name)
-                    .style(Fonts.Bold.subheadline.weight(.medium), color: Colors.Text.primary1)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
                 if let auditDate = provider.auditDate {
                     Text(auditDate)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 }
             }
         }
@@ -67,7 +68,7 @@ struct MarketsTokenDetailsSecurityScoreProvidersSection: View {
                                 .renderingMode(.template)
                                 .frame(size: .init(bothDimensions: 16.0))
                         }
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     }
                 }
             }

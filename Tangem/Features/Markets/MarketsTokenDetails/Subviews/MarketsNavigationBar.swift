@@ -61,8 +61,8 @@ extension MarketsNavigationBar where Content == DefaultNavigationBarTitle, Right
             DefaultNavigationBarTitle(
                 title,
                 settings: .init(
-                    font: Fonts.Bold.body,
-                    color: Colors.Text.primary1,
+                    font: DesignSystem.Font.bodyMediumToken.font,
+                    color: DesignSystem.Color.textPrimary,
                     lineLimit: 1,
                     minimumScaleFactor: 0.6
                 )

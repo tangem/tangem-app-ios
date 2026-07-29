@@ -237,5 +237,5 @@ private extension CarouselNewsItem {
         Spacer(minLength: .zero)
     }
     .padding()
-    .background(Colors.Background.secondary)
+    .background(DesignSystem.Color.bgSecondary)
 }

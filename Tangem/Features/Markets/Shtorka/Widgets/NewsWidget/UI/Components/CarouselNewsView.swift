@@ -121,8 +121,6 @@ private extension CarouselNewsView {
             static let spacingAfterTitle: CGFloat = 4
             static let iconSize: CGSize = .init(width: 48, height: 48)
             static let iconImageSize: CGSize = .init(width: 48, height: 48)
-            static let iconBackgroundColor: Color = Colors.Background.tertiary
-            static let iconForegroundColor: Color = Colors.Icon.accent
         }
     }
 }
@@ -195,5 +193,5 @@ private extension CarouselNewsItem {
         Spacer(minLength: 0)
     }
     .padding(.vertical)
-    .background(Colors.Background.secondary)
+    .background(DesignSystem.Color.bgSecondary)
 }
