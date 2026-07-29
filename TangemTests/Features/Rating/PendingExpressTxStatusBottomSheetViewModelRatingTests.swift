@@ -66,8 +66,8 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
     }
 
     @Test("ratingViewModel is available immediately for DEX transactions")
-    func ratingViewModelAvailableImmediatelyForDex() throws {
-        try withInjectedDependenciesSync {
+    func ratingViewModelAvailableImmediatelyForDex() async throws {
+        try await withInjectedDependencies {
             let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
 
             var receivedValues: [RatingViewModel?] = []
@@ -79,6 +79,7 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
             _ = try #require(firstValue)
 
             cancellable.cancel()
+            await drainMainQueue()
         }
     }
 }
@@ -92,31 +93,44 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
     // MARK: - Dependency Isolation
 
     func withInjectedDependencies<T>(operation: () async throws -> T) async rethrows -> T {
-        let previousKeys = InjectedValues[\.keysManager]
-        let previousProvider = InjectedValues[\.ratingProvider]
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousKeys = InjectedValues[\.keysManager]
+            let previousProvider = InjectedValues[\.ratingProvider]
+            let previousQuotes = InjectedValues[\.quotesRepository] as? (TokenQuotesRepository & TokenQuotesRepositoryUpdater)
 
-        InjectedValues[\.keysManager] = KeysManagerStub()
-        InjectedValues[\.ratingProvider] = RatingProviderSpy()
+            InjectedValues[\.keysManager] = KeysManagerStub()
+            InjectedValues[\.ratingProvider] = RatingProviderSpy()
+            InjectedValues.setTokenQuotesRepository(TokenQuotesRepositoryStub(quotes: stubQuotes))
 
-        defer {
-            InjectedValues[\.keysManager] = previousKeys
-            InjectedValues[\.ratingProvider] = previousProvider
+            defer {
+                InjectedValues[\.keysManager] = previousKeys
+                InjectedValues[\.ratingProvider] = previousProvider
+                if let previousQuotes {
+                    InjectedValues.setTokenQuotesRepository(previousQuotes)
+                }
+            }
+            return try await operation()
         }
-        return try await operation()
     }
 
-    func withInjectedDependenciesSync<T>(operation: () throws -> T) rethrows -> T {
-        let previousKeys = InjectedValues[\.keysManager]
-        let previousProvider = InjectedValues[\.ratingProvider]
-
-        InjectedValues[\.keysManager] = KeysManagerStub()
-        InjectedValues[\.ratingProvider] = RatingProviderSpy()
-
-        defer {
-            InjectedValues[\.keysManager] = previousKeys
-            InjectedValues[\.ratingProvider] = previousProvider
+    /// Preloaded quote for the SUT's token so `BalanceConverter.convertToFiat` resolves synchronously
+    /// and the view model's `init` does not spin up an unstructured rate-loading `Task` that would keep it
+    /// alive past the suite's synchronous leak check.
+    var stubQuotes: Quotes {
+        guard let currencyId = makeTokenItem().currencyId else {
+            return [:]
         }
-        return try operation()
+
+        let quote = TokenQuote(
+            currencyId: currencyId,
+            price: 1,
+            priceUsd: nil,
+            priceChange24h: nil,
+            priceChange7d: nil,
+            priceChange30d: nil,
+            currencyCode: "USD"
+        )
+        return [currencyId: quote]
     }
 
     // MARK: - Async Helpers
@@ -245,4 +259,39 @@ private final class PendingExpressTxStatusRouterStub: PendingExpressTxStatusRout
     func openURL(_ url: URL) {}
     func openRefundCurrency(walletModel: any WalletModel, userWalletModel: UserWalletModel) {}
     func dismissPendingTxSheet() {}
+}
+
+private final class TokenQuotesRepositoryStub: TokenQuotesRepository, TokenQuotesRepositoryUpdater {
+    typealias QuotesPublisher = AnyPublisher<Quotes, Never>
+
+    let quotes: Quotes
+
+    init(quotes: Quotes) {
+        self.quotes = quotes
+    }
+
+    var quotesPublisher: QuotesPublisher {
+        Just(quotes).eraseToAnyPublisher()
+    }
+
+    func quote(for currencyId: String) async throws -> TokenQuote {
+        guard let quote = quotes[currencyId] else {
+            throw ErrorStub.quoteNotFound
+        }
+        return quote
+    }
+
+    func loadQuotes(currencyIds: [String]) -> QuotesPublisher {
+        Just(quotes).eraseToAnyPublisher()
+    }
+
+    func fetchFreshQuoteFor(currencyId: String, shouldUpdateCache: Bool) async throws -> TokenQuote {
+        try await quote(for: currencyId)
+    }
+
+    func saveQuotes(_ quotes: [TokenQuote]) {}
+
+    enum ErrorStub: Error {
+        case quoteNotFound
+    }
 }
