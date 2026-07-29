@@ -8,81 +8,155 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemExpress
 import TangemFoundation
 import TangemUI
 
 final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
-    @Published private(set) var header: TransactionDetailsHeaderViewData
-    @Published private(set) var content: Content
+    @Published private(set) var header: TransactionDetailsHeaderViewData?
+    @Published private(set) var content: Content?
 
     @Published private var isSuccessBannerDismissed = false
 
-    private var updatesSubscription: AnyCancellable?
+    private var bag = Set<AnyCancellable>()
 
-    /// Reactive: renders `header` / `content` and keeps them live by re-mapping each record update via
-    /// `rebuild`. The mapping is injected on purpose — the sheet renders very different operations
-    /// (send / receive / swap / onramp / staking / yield), each built from a `TransactionRecord` using
-    /// context the VM doesn't own (token icons, Express resolution, URLs). The VM keeps ownership of the
-    /// orchestration: the subscription and the success-banner lifecycle.
     init(
-        header: TransactionDetailsHeaderViewData,
-        content: Content,
-        recordUpdates: AnyPublisher<TransactionRecord, Never>,
-        rebuild: @escaping (TransactionRecord) -> (header: TransactionDetailsHeaderViewData, content: Content)
+        id: TransactionRecord.ID,
+        walletModel: any WalletModel,
+        userWalletInfo: UserWalletInfo,
+        isAccountsMode: Bool,
+        routable: TransactionDetailsRoutable
     ) {
-        self.header = header
-        self.content = content
-        scheduleSuccessBannerDismissIfNeeded()
+        let context = TransactionDetailsContext(
+            walletModel: walletModel,
+            userWalletInfo: userWalletInfo,
+            isAccountsMode: isAccountsMode,
+            routable: routable
+        )
 
-        updatesSubscription = recordUpdates
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, record in
-                let result = rebuild(record)
-                viewModel.header = result.header
-                viewModel.content = result.content
-                viewModel.scheduleSuccessBannerDismissIfNeeded()
-            }
+        let mapper = TransactionHistoryMapper(
+            currencySymbol: walletModel.tokenItem.currencySymbol,
+            addressesProvider: walletModel,
+            showSign: true,
+            isToken: walletModel.tokenItem.isToken
+        )
+        let resolver = SubtitleOwnerResolver(
+            blockchain: walletModel.tokenItem.blockchain,
+            currentUserWalletId: userWalletInfo.id,
+            isAccountsMode: isAccountsMode
+        )
+
+        subscribe(
+            id: id,
+            publisher: walletModel.transactionHistoryPublisher,
+            context: context,
+            mapper: mapper,
+            resolver: resolver
+        )
     }
 
     var blocks: [TransactionDetailsBlock] {
         guard isSuccessBannerDismissed else { return rawBlocks }
-        return rawBlocks.filter { !isSuccessBanner($0) }
+        return rawBlocks.filter { !Self.isSuccessBanner($0) }
     }
 
     private var rawBlocks: [TransactionDetailsBlock] {
+        guard let content else { return [] }
+        return Self.rawBlocks(for: content)
+    }
+
+    private func subscribe(
+        id: TransactionRecord.ID,
+        publisher: AnyPublisher<WalletModelTransactionHistoryState, Never>,
+        context: TransactionDetailsContext,
+        mapper: TransactionHistoryMapper,
+        resolver: SubtitleOwnerResolver
+    ) {
+        let content = publisher
+            .compactMap { state -> TransactionRecord? in
+                guard case .loaded(let items) = state else { return nil }
+                return items.first { record in
+                    if record.id == id {
+                        return true
+                    }
+
+                    guard let expressTxId = record.expressTxId else {
+                        return false
+                    }
+
+                    return ExpressSyntheticTxHelper(txId: expressTxId).isMatchingTxIdentifier(id.hash)
+                }
+            }
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .map { record in
+                TransactionDetailsFactory.reduce(
+                    transaction: mapper.mapTransactionViewModel(record, subtitleOwnerResolver: resolver),
+                    record: record,
+                    context: context
+                )
+            }
+            .share()
+
+        content
+            .withWeakCaptureOf(self)
+            .sink { viewModel, result in
+                viewModel.header = result.header
+                viewModel.content = result.content
+            }
+            .store(in: &bag)
+
+        // The success banner is only meaningful as a live transition: a transaction that's already finished when
+        // the sheet opens must never flash it, while one that finishes while open shows it briefly, then hides.
+        let hasSuccessBanner = content
+            .map { Self.rawBlocks(for: $0.content).contains(where: Self.isSuccessBanner) }
+            .share()
+
+        // Already finished on the first record → suppress at once.
+        hasSuccessBanner
+            .first()
+            .filter { $0 }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in viewModel.isSuccessBannerDismissed = true }
+            .store(in: &bag)
+
+        // Appears on a later record (live transition) → keep it up briefly, then hide.
+        hasSuccessBanner
+            .dropFirst()
+            .removeDuplicates()
+            .filter { $0 }
+            .delay(for: .seconds(2), scheduler: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in viewModel.isSuccessBannerDismissed = true }
+            .store(in: &bag)
+    }
+
+    private static func rawBlocks(for content: Content) -> [TransactionDetailsBlock] {
         switch content {
-        case .single(let data): data.blocks
+        case .generic(let data): data.blocks
         case .swap(let viewModel): viewModel.blocks
         case .onramp(let viewModel): viewModel.blocks
         case .yield(let data): data.blocks
         }
     }
 
-    /// The success banner ("Funds received") is shown briefly on completion, then hidden — the success is
-    /// already conveyed by the amounts and the title. Every other banner (in progress / failed / attention)
-    /// stays as the content dictates. Once hidden it stays hidden (`isSuccessBannerDismissed` only flips
-    /// `false → true`), so repeated record re-emits can't bring it back.
-    private func scheduleSuccessBannerDismissIfNeeded() {
-        guard !isSuccessBannerDismissed, rawBlocks.contains(where: isSuccessBanner) else { return }
-
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(2), clock: .continuous)
-            self?.isSuccessBannerDismissed = true
-        }
-    }
-
-    private func isSuccessBanner(_ block: TransactionDetailsBlock) -> Bool {
+    private static func isSuccessBanner(_ block: TransactionDetailsBlock) -> Bool {
         guard case .statusBanner(let data) = block else { return false }
         return data.kind == .success
     }
 
     enum Content {
-        case single(TransactionDetailsSingleOperationViewData)
-        case swap(SwapTransactionDetailsViewData)
-        case onramp(OnrampTransactionDetailsViewData)
+        case generic(TransactionDetailsGenericOperationViewData)
+        case swap(TransactionDetailsSwapViewData)
+        case onramp(TransactionDetailsOnrampViewData)
         case yield(TransactionDetailsYieldViewData)
     }
+}
+
+protocol TransactionDetailsRoutable: AnyObject {
+    func openTransactionDetailsURL(_ url: URL)
+    func shareFromTransactionDetails(_ text: String)
+    func closeTransactionDetails()
 }
 
 enum TransactionDetailsBlock: Identifiable {
