@@ -129,6 +129,22 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         AppLogger.debug("TokenDetailsViewModel deinit")
     }
 
+    func openTransactionDetails(_ transaction: TransactionViewModel) {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            openTransactionExplorer(transaction: transaction.hash)
+            return
+        }
+
+        coordinator?.openTransactionDetails(
+            TransactionDetailsRouteData(
+                id: transaction.recordID,
+                walletModel: walletModel,
+                userWalletInfo: userWalletInfo,
+                isAccountsMode: isAccountsMode
+            )
+        )
+    }
+
     func onBack() {
         coordinator?.dismiss()
     }
