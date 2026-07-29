@@ -1,5 +1,5 @@
 //
-//  SwapTransactionDetailsViewData.swift
+//  TransactionDetailsSwapViewData.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -9,7 +9,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemUI
 
-struct SwapTransactionDetailsViewData: TransactionDetailsOperationViewData {
+struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
     struct Leg {
         let amount: String
         let symbol: String?
@@ -54,8 +54,7 @@ struct SwapTransactionDetailsViewData: TransactionDetailsOperationViewData {
         }
 
         if let rate {
-            // [REDACTED_TODO_COMMENT]
-            rows.append(.init(id: "rate", title: "Rate", content: .text(rate)))
+            rows.append(.init(id: "rate", title: Localization.commonRate, content: .text(rate)))
         }
 
         if let networkFee {
@@ -77,13 +76,13 @@ struct SwapTransactionDetailsViewData: TransactionDetailsOperationViewData {
     }
 
     private var sourceAmountText: String? {
-        amountText(prefix: String.minusSign, leg: source)
+        amountText(prefix: AppConstants.minusSign, leg: source)
     }
 
     private var destinationAmountText: String? {
         let prefix: String? = switch stage {
         case .inProgress: isDestinationEstimated ? AppConstants.tildeSign : nil
-        case .finished: String.plusSign
+        case .finished: AppConstants.plusSign
         case .unsuccessful: nil
         }
         return amountText(prefix: prefix, leg: destination)
@@ -100,12 +99,10 @@ struct SwapTransactionDetailsViewData: TransactionDetailsOperationViewData {
             return nil
         }
 
-        let value = "\(amount) \(symbol)"
-
         guard let prefix = prefix?.nilIfEmpty else {
-            return value
+            return Localization.transactionHistoryDetailPageAmountValue(amount, symbol)
         }
-        // [REDACTED_TODO_COMMENT]
-        return "\(prefix) \(value)"
+
+        return Localization.transactionHistoryDetailPageAmountSignedValue(prefix, amount, symbol)
     }
 }
