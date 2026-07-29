@@ -519,17 +519,41 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             }
     }
 
-    func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector) {
+    func openTangemPaySelectPlan(
+        tariffPlanSelector: any TangemPayTariffPlanSelector,
+        userWalletModel: any UserWalletModel
+    ) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = TangemPaySelectPlanCoordinator(
-            dismissAction: { [weak self] _ in
+            dismissAction: { [weak self] reason in
                 self?.tangemPaySelectPlanCoordinator = nil
+
+                switch reason {
+                case .planUpgraded:
+                    self?.openTangemPayMainViewAfterPlanActivation(userWalletModel: userWalletModel)
+                case .planDowngraded, .closed:
+                    break
+                }
             },
             popToRootAction: popToRootAction
         )
         coordinator.start(with: .init(tariffPlanSelector: tariffPlanSelector, mode: .onboarding))
         tangemPaySelectPlanCoordinator = coordinator
+    }
+
+    private func openTangemPayMainViewAfterPlanActivation(userWalletModel: any UserWalletModel) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tangemPayPlanActivationNavigationDelay) { [weak self] in
+            guard let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount else {
+                return
+            }
+
+            self?.openTangemPayMainView(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                tangemPayAccount: tangemPayAccount,
+                userWalletModel: userWalletModel
+            )
+        }
     }
 
     private func openTangemPayMainFromDeeplink(customerWalletId: String) {
@@ -948,6 +972,7 @@ extension MainCoordinator {
         static let tooltipTemporaryHideDuration: Double = 0.1
         static let tooltipAnimationDelay: Double = 1.5
         static let tangemPayMainDeeplinkTimeout: TimeInterval = 10
+        static let tangemPayPlanActivationNavigationDelay: TimeInterval = 0.6
     }
 }
 
