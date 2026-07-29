@@ -49,10 +49,25 @@ struct ForYouView: View {
         ScrollView {
             VStack(spacing: 48) {
                 PortfolioReviewOutdatedDataBannerView(viewModel: viewModel.portfolioReviewViewModel)
-                PortfolioReviewView(viewModel: viewModel.portfolioReviewViewModel)
+                portfolioReviewSection
                 EarnOpportunitiesView(viewModel: viewModel.earnOpportunitiesViewModel)
             }
             .padding(16)
+        }
+    }
+
+    private var portfolioReviewSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 8) {
+                Text(Localization.forYouPortfolioReviewTitle)
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+
+                Spacer(minLength: 8)
+
+                ForYouAccountSelectorChipView(viewModel: viewModel.accountSelectorChipViewModel)
+            }
+
+            PortfolioReviewView(viewModel: viewModel.portfolioReviewViewModel)
         }
     }
 
@@ -80,6 +95,6 @@ struct ForYouView: View {
 
 #Preview {
     NavigationStack {
-        ForYouView(viewModel: ForYouViewModel(), onBackButtonAction: {})
+        ForYouView(viewModel: ForYouViewModel(selectedAccountsProvider: ForYouSelectedAccountsProvider()), onBackButtonAction: {})
     }
 }
