@@ -76,6 +76,7 @@ struct MessageBannerConfiguration {
     var descriptionLineLimit: Int = 3
     var secondaryButton: MessageBannerButton?
     var primaryButton: MessageBannerButton?
+    var onTap: (() -> Void)?
     var accessibilityLabel: String?
 }
 
@@ -141,6 +142,11 @@ public extension MessageBanner {
 
     func primaryButton(_ button: Button?) -> Self {
         map { $0.config.primaryButton = button }
+    }
+
+    /// The banner is tappable only when it has no buttons — `secondaryButton`/`primaryButton` take precedence over `onTap`.
+    func onTap(_ action: (() -> Void)?) -> Self {
+        map { $0.config.onTap = action }
     }
 
     func accessibilityLabel(_ label: String?) -> Self {
