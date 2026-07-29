@@ -10,8 +10,8 @@ import SwiftUI
 import TangemUI
 
 struct MarketsPortfolioTokenBalanceView: View {
-    @ScaledMetric private var failedBalanceTextIconSpacing: CGFloat = .unit(.half)
-    @ScaledMetric private var failedBalanceIconSide = CGFloat.unit(.x4)
+    @ScaledMetric private var failedBalanceTextIconSpacing: CGFloat = 2
+    @ScaledMetric private var failedBalanceIconSide: CGFloat = 16
 
     let state: MarketsPortfolioTokenBalanceState
     let skeletonSize: CGSize

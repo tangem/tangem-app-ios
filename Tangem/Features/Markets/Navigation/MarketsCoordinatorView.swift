@@ -25,14 +25,14 @@ struct MarketsCoordinatorView: CoordinatorView {
             }
             .ignoresSafeArea(.container, edges: .top) // Without it, the content won't go into the safe area top zone on over-scroll
         }
-        .tint(Colors.Text.primary1)
+        .tint(DesignSystem.Color.textPrimary)
     }
 
     private var sheets: some View {
         NavHolder()
             .bottomSheet(
                 item: $coordinator.marketsListOrderBottomSheetViewModel,
-                backgroundColor: Colors.Background.tertiary
+                backgroundColor: DesignSystem.Color.bgTertiary
             ) {
                 MarketsListOrderBottomSheetView(viewModel: $0)
             }
@@ -50,7 +50,7 @@ struct MarketsCoordinatorView: CoordinatorView {
                             )
                         }
                 }
-                .tint(Colors.Text.primary1)
+                .tint(DesignSystem.Color.textPrimary)
             }
     }
 

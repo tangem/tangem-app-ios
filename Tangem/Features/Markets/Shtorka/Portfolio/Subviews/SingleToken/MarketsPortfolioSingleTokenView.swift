@@ -71,8 +71,8 @@ private extension MarketsPortfolioSingleTokenView {
         HStack(spacing: priceWithChangeSpacing) {
             LoadableTextView(
                 state: viewModel.priceWithChangeState.priceState,
-                font: Fonts.Regular.caption1,
-                textColor: Colors.Text.tertiary,
+                font: DesignSystem.Font.captionMediumToken.font,
+                textColor: DesignSystem.Color.textSecondary,
                 loaderSize: CGSize(width: 52, height: 12) * scaleFactor
             )
 

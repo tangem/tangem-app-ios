@@ -170,7 +170,8 @@ struct MarketsHistoryChartView: View {
 
 private extension MarketsHistoryChartView {
     enum Constants {
-        static let labelFont: UIFont = UIFonts.Regular.caption2
+        /// DGCharts axis labels are UIKit sinks with no SwiftUI view-modifier path.
+        static let labelFont: UIFont = DesignSystem.Font.captionMediumToken.uiFont
         static let labelTextColor: UIColor = .init(DesignSystem.Color.textSecondary)
         static let labelOffset: CGFloat = 12
         static let gridLineColor: UIColor = .init(DesignSystem.Color.borderTertiary)
