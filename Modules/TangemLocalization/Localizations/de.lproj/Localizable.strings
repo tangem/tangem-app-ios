@@ -226,6 +226,7 @@
 "common_allow" = "Erlauben";
 "common_amount" = "Betrag";
 "common_analytics" = "Analysen";
+"common_apply_selected" = "Apply selected";
 "common_apply" = "Anwenden";
 "common_approval" = "Genehmigung";
 "common_approve" = "Genehmigen";
@@ -290,7 +291,10 @@
 "common_fee_selector_option_slow" = "Langsam";
 "common_finish" = "Beenden";
 "common_forget" = "Entfernen";
+"common_from_account" = "From account";
+"common_from_address" = "From address";
 "common_from_wallet_name" = "Von %@";
+"common_from_wallet" = "From wallet";
 "common_from" = "Vom";
 "common_generate_addresses" = "Adressen synchronisieren";
 "common_get_started" = "Erste Schritte";
@@ -370,6 +374,7 @@
 "common_second_no_param" = "sek.";
 "common_see_all" = "Alles einblenden";
 "common_seed_phrase" = "Seed phrase";
+"common_select_account" = "Select account";
 "common_select_action" = "Aktion auswählen";
 "common_sell" = "Verkaufen";
 "common_send_colon" = "Senden:";
@@ -1390,7 +1395,7 @@
 "staking_enabled" = "Staking aktiviert";
 "staking_error_no_validators_message" = "Zurzeit sind keine Validierer verfügbar. Bitte versuche es später noch einmal.";
 "staking_error_no_validators_title" = "Staking nicht verfügbar";
-"staking_error_unavailable_region_description" = "Staking ist in Ihrer Region derzeit nicht verfügbar. Falls Sie ein VPN aktiviert haben, deaktivieren Sie es bitte.";
+"staking_error_unavailable_region_description" = "Staking ist in Deiner Region derzeit nicht verfügbar. Falls Du ein VPN aktiviert hast, deaktiviere es bitte.";
 "staking_error_unavailable_region" = "Staking ist in Ihrer Region nicht verfügbar.";
 "staking_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Du die Verwendung Deines Tokens für das Staking genehmigst.";
 "staking_legal" = "Indem Du die Staking-Funktionalität nutzt, stimmst Du den %1$@ und %2$@ des Anbieters zu.";
@@ -1601,7 +1606,7 @@
 "tangem_pay_terms_fees_limits" = "Bedingungen, Gebühren & Limits";
 "tangem_pay_terms_limits" = "Bedingungen und Einschränkungen";
 "tangem_pay_transaction_declined_notification_text" = "Die Bank hat diese Transaktionsanfrage abgelehnt.";
-"tangem_pay_transaction_details_cashback_below_min" = "Der Mindestbetrag für den Versand beträgt %1$@.";
+"tangem_pay_transaction_details_cashback_below_min" = "Versand ab %1$@";
 "tangem_pay_transaction_details_cashback_cap_reached" = "Monatslimit erreicht";
 "tangem_pay_transaction_details_cashback_mcc_excluded" = "MCC ausgeschlossen";
 "tangem_pay_transaction_details_cashback_none" = "Kein Cashback";
@@ -1627,7 +1632,7 @@
 "tangempay_bank_transfer_fee_header" = "Gebühr für die Auffahrt";
 "tangempay_bank_transfer_intro_subtitle" = "Eingegangene USD werden im Verhältnis 1:1 in USDC umgewandelt.";
 "tangempay_bank_transfer_intro_title" = "Eine Banküberweisung kann 1-2 Werktage dauern.";
-"tangempay_bank_transfer_legal" = "Durch die Nutzung des Dienstes stimmen Sie den Bedingungen des Anbieters zu. %1$@ Und %2$@";
+"tangempay_bank_transfer_legal" = "Durch die Nutzung des Dienstes stimmen Sie den %1$@ Und %2$@";
 "tangempay_bank_transfer_show_details" = "Details anzeigen";
 "tangempay_bank_transfer_success_subtitle" = "Dies kann etwas Zeit in Anspruch nehmen.";
 "tangempay_bank_transfer_success_title" = "Vorbereitung Ihrer Bankdaten";
@@ -1666,6 +1671,9 @@
 "tangempay_card_details_open_wallet_title_apple" = "Karte zu Apple Pay hinzufügen";
 "tangempay_card_details_open_wallet_title" = "Karte zu Google Pay hinzufügen";
 "tangempay_card_details_pin_code" = "Pin Code";
+"tangempay_card_details_protection_not_set_button" = "Bildschirmsperre einrichten";
+"tangempay_card_details_protection_not_set_description" = "Ohne Bildschirmsperre keine Kartendaten sichtbar.\nRichten Sie sie in den Geräteeinstellungen ein.";
+"tangempay_card_details_protection_not_set_title" = "Bildschirmsperre nicht eingerichtet";
 "tangempay_card_details_receive_description" = "Teile Deine Adresse mit oder zeig den QR-Code.";
 "tangempay_card_details_receive_error_description" = "Es wurden technische Probleme festgestellt. Bitte versuche es später erneut oder kontaktiere den Support.";
 "tangempay_card_details_receive_error_title" = "Empfangen ist jetzt nicht verfügbar";
@@ -1676,7 +1684,7 @@
 "tangempay_card_details_reveal_text" = "Aufdecken";
 "tangempay_card_details_show_details" = "Kartendetails";
 "tangempay_card_details_swap_description" = "Tausche beliebige Vermögenswerte in Deinem Portfolio für deine Karte.";
-"tangempay_card_details_system_downgrade_subtitle" = "Sollte der Kontostand unter null bleiben, werden Ihre „ %1$@ “-Karten am %2$@";
+"tangempay_card_details_system_downgrade_subtitle" = "Sollte der Kontostand unter null bleiben, werden Ihre %1$@-Karten am %2$@";
 "tangempay_card_details_system_downgrade_title" = "Laden Sie Ihr Konto in Kürze auf.";
 "tangempay_card_details_title" = "Kartendetails";
 "tangempay_card_details_unable_to_rename_card_description" = "Bitte versuche es später noch einmal.";
@@ -1719,12 +1727,12 @@
 "tangempay_cashback_details_cap" = "%1$@ maximal pro Monat";
 "tangempay_cashback_details_eu_excluded" = "Kein Cashback für Einkäufe vor Ort bei Händlern in der EU";
 "tangempay_cashback_details_paid_in" = "Bezahlt in %1$@";
-"tangempay_cashback_details_tier" = "%1$@%% Bei allen Einkäufen mit Ihren „ %2$@ “-Karten gilt ein Mindestumsatz von %3$@";
+"tangempay_cashback_details_tier" = "%1$@%% Bei allen Einkäufen mit Ihren %2$@-Karten gilt ein Mindestumsatz von %3$@";
 "tangempay_cashback_earned_title" = "%1$@ verdient in %2$@";
 "tangempay_cashback_empty_subtitle" = "Der gesammelte Betrag wird hier angezeigt";
 "tangempay_cashback_empty_title" = "Fangen Sie an, Geld auszugeben\nund Cashback zu verdienen";
 "tangempay_cashback_error_title" = "Die Seite konnte nicht geladen werden.\nZum Neuladen bitte antippen";
-"tangempay_cashback_rate_subtitle" = "Mit Ihrem „ %1$@ “-Tarif";
+"tangempay_cashback_rate_subtitle" = "Mit Ihrem %1$@-Tarif";
 "tangempay_cashback_rate_title_up_to" = "Cashback bis zu %1$@%%";
 "tangempay_cashback_rate_title" = "Cashback %1$@%%";
 "tangempay_cashback_refund_banner" = "Wir haben eine Rückerstattung für einen Kauf erhalten, für den zuvor bereits Cashback gewährt worden war";
@@ -1733,6 +1741,10 @@
 "tangempay_cashback_widget_title" = "%1$@ Cashback in %2$@";
 "tangempay_change_pin_code" = "PIN-Code ändern";
 "tangempay_changing_plan" = "Deinen Tarif ändern";
+"tangempay_choose_network_fast_way" = "Schneller Weg";
+"tangempay_choose_network_other_ways" = "Andere Wege";
+"tangempay_choose_network_row_error" = "Adresse nicht abrufbar, bitte erneut versuchen";
+"tangempay_choose_network_row_loading" = "Adresse wird vorbereitet…";
 "tangempay_come_back_if_forget_pin" = "Kehren Sie zur App zurück, falls Sie ihn vergessen.";
 "tangempay_common_card" = "Karte";
 "tangempay_common_error_loading" = "Fehler beim Laden";
@@ -1742,8 +1754,8 @@
 "tangempay_current_plan_section_card" = "Kartenbezogen";
 "tangempay_current_plan_section_plan" = "Planbezogen";
 "tangempay_current_plan_stay_button" = "Bleib dran %1$@";
-"tangempay_current_plan_stay_sheet_body" = "Ihr Übergang auf „ %1$@ “ wird storniert.";
-"tangempay_current_plan_stay_sheet_title" = "Möchtest du auf „ %1$@“ bleiben?";
+"tangempay_current_plan_stay_sheet_body" = "Ihr Übergang auf %1$@ wird storniert.";
+"tangempay_current_plan_stay_sheet_title" = "Möchtest du auf %1$@ bleiben?";
 "tangempay_current_plan_title" = "Aktueller Plan";
 "tangempay_daily_limit_hint" = "Limit von %@ bis %@ festlegen";
 "tangempay_daily_limit_set_button" = "Limits festlegen";
@@ -1839,6 +1851,9 @@
 "tangempay_onboarding_setup_wallet_description" = "Und verknüpfen Tangem Pay damit";
 "tangempay_onboarding_setup_wallet_title" = "Wir erstellen eine neue Wallet";
 "tangempay_onboarding_title" = "Holen Sie sich Ihre Tangem Pay Karte";
+"tangempay_other_networks_header" = "Andere Netzwerke";
+"tangempay_other_networks_subtitle" = "Und dann zum Kurs 1:1 ohne Gebühren ins Zahlungskonto tauschen";
+"tangempay_other_networks_title" = "USDT/USDC über jede Chain an Ihre Tangem Wallet senden";
 "tangempay_pay_support" = "Pay-Betreuung";
 "tangempay_payment_account_sync_needed" = "Tangem Pay sitzung abgelaufen";
 "tangempay_payment_account" = "Zahlungskonto";
@@ -1861,7 +1876,7 @@
 "tangempay_select_plan_btn_select" = "Auswählen";
 "tangempay_select_plan_btn_upgrade" = "Tarif wechseln";
 "tangempay_select_plan_compare" = "Tarife vergleichen";
-"tangempay_select_plan_confirm_downgrade_title" = "Ihr „ %1$@ “-Tarif und Ihre „ %2$@ “-Karten sind gültig bis %3$@";
+"tangempay_select_plan_confirm_downgrade_title" = "Ihr %1$@-Tarif und Ihre %2$@-Karten sind gültig bis %3$@";
 "tangempay_select_plan_confirm_point_cancel_till" = "Sie können diesen Übergang bis zum %1$@";
 "tangempay_select_plan_confirm_point_cards_closed" = "Dein %1$@ Die Karten werden geschlossen";
 "tangempay_select_plan_confirm_point_monthly_fee" = "%1$@ Die monatliche Gebühr wird von Ihrem Konto abgebucht.";
@@ -1870,7 +1885,7 @@
 "tangempay_select_plan_confirm_point_virtual_card" = "In wenigen Minuten erhalten Sie Ihre virtuelle „ %1$@ “.";
 "tangempay_select_plan_confirm_switch_title" = "Sie wechseln zu %1$@";
 "tangempay_select_plan_confirm_title" = "Auswahl bestätigen";
-"tangempay_select_plan_confirm_upgrade_title" = "Wir stellen für Sie eine „ %1$@ “ aus.";
+"tangempay_select_plan_confirm_upgrade_title" = "Wir stellen für Sie eine %1$@ aus";
 "tangempay_select_plan_title" = "Plan auswählen";
 "tangempay_service_unavailable_description" = "Wir beheben ein technisches Problem. Bitte versuchen Sie es später erneut.";
 "tangempay_service_unavailable_title" = "Service vorübergehend nicht verfügbar";
@@ -1891,6 +1906,7 @@
 "tangempay_title" = "Tangem Pay";
 "tangempay_topup_bank_transfer_body" = "Empfangen Sie Fiat-USD per ACH/FedWire";
 "tangempay_topup_bank_transfer_title" = "Banküberweisung";
+"tangempay_topup_receive_body_multichain" = "USDC oder USDT an Ihre Kontoadresse senden";
 "tangempay_topup_receive_body" = "Senden Sie USDC Polygon an die Adresse Ihres Kontos";
 "tangempay_topup_receive_title" = "Von einer anderen Wallet oder Börse";
 "tangempay_topup_swap_body" = "Laden Sie Ihr Konto mit einem beliebigen Token aus Ihrer Wallet auf";
@@ -1949,11 +1965,17 @@
 "token_market_metrics_no_data" = "N / A";
 "token_receive_show_qr_code_title" = "QR-Code anzeigen";
 "token_summary_can_not_load_token" = "Die Daten des Tokens konnten nicht geladen werden.";
+"token_summary_galaxy_score_description" = "It is an indicator that shows the overall health of a cryptocurrency by combining its price performance with how actively and positively it's being talked about on social media, developed by LunarCrush.";
 "token_summary_go_to_swap_button" = "Gehe zum Tauschen";
 "token_summary_last_update_subtitle" = "Letzte Aktualisierung: %1$@";
+"token_summary_ma_cross_description" = "It is an indicator that compares the average price of an asset over the last 50 days with its average price over the last 200 days to show whether it's in a longer-term uptrend or downtrend.";
+"token_summary_macd_description" = "It is an indicator that compares two price averages over different periods to show whether the asset's momentum is picking up or slowing down, and in which direction the trend may be shifting.";
 "token_summary_negative_outlook_title" = "Negativer Ausblick";
 "token_summary_neutral_outlook_title" = "Neutraler Ausblick";
+"token_summary_outlook_is_not_available" = "Outlook für dieses Token ist nicht verfügbar";
 "token_summary_positive_outlook_title" = "Positiver Ausblick";
+"token_summary_rsi_description" = "It is an indicator that shows whether an asset's price has risen or fallen too quickly in the recent period, helping to spot when it might be overbought or oversold.";
+"token_summary_sentiment_description" = "It is an indicator that shows whether people online are talking about the asset in a mostly positive or mostly negative way, based on social media and news data collected by LunarCrush.";
 "token_summary_title" = "Token-Zusammenfassung";
 "token_swap_promotion_button" = "Jetzt tauschen";
 "tokens_list_available_to_buy_header" = "Wähle den Token, den Du kaufen möchtest";
@@ -1966,6 +1988,8 @@
 "tokens_list_unavailable_to_swap_source_header" = "Nicht zum Tausch verfügbar";
 "transaction_history_claiming_reward" = "Belohnung einfordern";
 "transaction_history_contract_address" = "Vertrag: %@";
+"transaction_history_detail_page_amount_signed_value" = "%1@ %2@ %3@";
+"transaction_history_detail_page_amount_value" = "%1@ %2@";
 "transaction_history_disabling_yield_mode" = "Deaktivierung des Ertragsmodus";
 "transaction_history_earned_from_stake" = "Verdient aus dem Einsatz";
 "transaction_history_empty_transactions" = "Du hast noch keine Transaktionen";
@@ -2002,6 +2026,12 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Diese Aktion ist unumkehrbar. Du hast keinen Zugriff mehr auf die alte Wallet.";
 "twins_scan_twin_with_number" = "Tippe auf die Doppelkarte oder Ring mit der Nummer %@ und entferne sie erst am Ende des Vorgangs.";
+"tx_history_details_status_expired" = "Expired";
+"tx_history_onramp_status_awaiting_funds" = "Awaiting funds";
+"tx_history_onramp_status_failed" = "Failed";
+"tx_history_onramp_status_paused" = "Paused";
+"tx_history_onramp_status_refunded" = "Refunded";
+"tx_history_onramp_status_refunding" = "Refunding";
 "tx_history_onramp_top_up" = "Aufladen";
 "tx_history_onramp_topped_up" = "Aufgeladen";
 "tx_history_you_paid" = "Du hast bezahlt";
