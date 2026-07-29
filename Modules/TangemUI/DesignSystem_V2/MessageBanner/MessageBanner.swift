@@ -41,19 +41,44 @@ public struct MessageBanner<SlotStart: View, SlotEnd: View, ExtraBottom: View>: 
     }
 
     public var body: some View {
-        let banner = VStack(alignment: .leading, spacing: MessageBannerMetrics.rootSpacing) {
+        if let tapAction {
+            SwiftUI.Button(action: tapAction) { banner }
+                .buttonStyle(MessageBannerPressStyle())
+        } else {
+            banner
+        }
+    }
+
+    private var banner: some View {
+        let core = bannerContent
+            .padding(MessageBannerMetrics.contentPadding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background { MessageBannerPressBackground(shape: containerShape) }
+            .background(config.variant.background, in: containerShape)
+            .overlay {
+                containerShape.strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: MessageBannerMetrics.borderWidth)
+            }
+
+        return applyGlowRing(to: core)
+            .overlay { focusRing }
+            .contentShape(containerShape)
+    }
+
+    private var bannerContent: some View {
+        VStack(alignment: .leading, spacing: MessageBannerMetrics.rootSpacing) {
             contentView
             buttonsView
         }
-        .padding(MessageBannerMetrics.contentPadding)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(config.variant.background, in: containerShape)
-        .overlay {
-            containerShape.strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: MessageBannerMetrics.borderWidth)
+    }
+
+    private var tapAction: (() -> Void)? {
+        let hasButtons = config.primaryButton != nil || config.secondaryButton != nil
+
+        if hasButtons, config.onTap != nil {
+            assertionFailure("MessageBanner is either tappable via `onTap` or has buttons, not both — `onTap` is ignored when buttons are present.")
         }
 
-        return applyGlowRing(to: banner)
-            .overlay { focusRing }
+        return hasButtons ? nil : config.onTap
     }
 
     private var containerShape: RoundedRectangle {
@@ -170,6 +195,29 @@ private extension MessageBanner {
         .disabled(!model.isEnabled)
         .frame(maxWidth: .infinity)
     }
+}
+
+// MARK: - Press style
+
+private struct MessageBannerPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .environment(\.messageBannerIsPressed, configuration.isPressed)
+    }
+}
+
+private struct MessageBannerPressBackground: View {
+    let shape: RoundedRectangle
+
+    @Environment(\.messageBannerIsPressed) private var isPressed
+
+    var body: some View {
+        shape.fill(isPressed ? DesignSystem.Color.interactionPressLight : Color.clear)
+    }
+}
+
+private extension EnvironmentValues {
+    @Entry var messageBannerIsPressed = false
 }
 
 // MARK: - Variant tokens
