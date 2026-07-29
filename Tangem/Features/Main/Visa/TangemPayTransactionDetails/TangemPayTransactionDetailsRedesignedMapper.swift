@@ -118,7 +118,7 @@ struct TangemPayTransactionDetailsRedesignedMapper {
     ) -> TangemPayTransactionStatusView.Model {
         switch status {
         case .pending:
-            .init(style: .inProgress, title: Localization.commonInProgress, reason: nil)
+            .init(style: .inProgress, title: Localization.tangemPayStatusPending, reason: nil)
         case .completed:
             .init(style: .completed, title: Localization.tangemPayStatusCompleted, reason: nil)
         case .declined:
