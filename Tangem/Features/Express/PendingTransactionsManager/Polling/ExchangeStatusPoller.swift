@@ -172,27 +172,7 @@ final class ExchangeStatusPoller {
     }
 
     private func filterRelatedTokenTransactions(list: [ExpressPendingTransactionRecord]) -> [ExpressPendingTransactionRecord] {
-        list.filter { record in
-            guard !record.isHidden else {
-                return false
-            }
-
-            // We should show only `supportStatusTracking` transaction on UI
-            guard record.provider.type.supportStatusTracking else {
-                return false
-            }
-
-            let isSourceWallet = userWalletId.stringValue == record.sourceTokenTxInfo.userWalletId
-            let isDestinationWallet = userWalletId.stringValue == record.destinationTokenTxInfo.userWalletId
-
-            let isSourceToken = tokenItem == record.sourceTokenTxInfo.tokenItem
-            let isDestinationToken = tokenItem == record.destinationTokenTxInfo.tokenItem
-
-            let isRelatedWallet = isSourceWallet || isDestinationWallet
-            let isRelatedToken = isSourceToken || isDestinationToken
-
-            return isRelatedWallet && isRelatedToken
-        }
+        list.filter { $0.isRelated(to: userWalletId, tokenItem: tokenItem) }
     }
 
     private func loadPendingTransactionStatus(
