@@ -29,7 +29,6 @@ struct TransactionDetailsInfoSectionViewData: Equatable {
 
         struct Link: Equatable {
             let text: String
-            let iconURL: URL?
             @IgnoredEquatable var handler: (() -> Void)?
         }
     }
@@ -65,17 +64,12 @@ struct TransactionDetailsInfoSectionView: View {
 
     private func linkValue(_ link: TransactionDetailsInfoSectionViewData.Row.Link) -> some View {
         HStack(spacing: 4) {
-            if let iconURL = link.iconURL {
-                IconView(url: iconURL, size: CGSize(bothDimensions: 20))
-            }
-
             Text(link.text)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
 
             if link.handler != nil {
-                // [REDACTED_TODO_COMMENT]
-                Assets.arrowRightUpMini.image
+                DesignSystem.Icons.ArrowTopRight.regular20.image
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
@@ -90,7 +84,7 @@ struct TransactionDetailsInfoSectionView: View {
 
 #Preview("Info section") {
     TransactionDetailsInfoSectionView(data: .init(rows: [
-        .init(id: "provider", title: "Provider", content: .link(.init(text: "DEX • Mercuryo", iconURL: nil, handler: {}))),
+        .init(id: "provider", title: "Provider", content: .link(.init(text: "DEX • Mercuryo", handler: {}))),
         .init(id: "rate", title: "Rate", content: .text("1 POL ≈ 0.36 USDT")),
         .init(id: "networkFee", title: "Network fee", content: .text("0.00056 ETH")),
     ]))
