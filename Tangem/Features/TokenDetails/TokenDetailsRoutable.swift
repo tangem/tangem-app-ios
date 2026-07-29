@@ -12,6 +12,8 @@ import BlockchainSdk
 protocol TokenDetailsRoutable: FeeCurrencyNavigating, CloreMigrationRoutable {
     func dismiss()
 
+    func openTransactionDetails(_ data: TransactionDetailsRouteData)
+
     func openYieldModulePromoView(apy: Decimal, isApyBoostPromo: Bool, factory: YieldModuleFlowFactory)
     func openYieldApyBoostStory(apy: Decimal, factory: YieldModuleFlowFactory)
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory)
