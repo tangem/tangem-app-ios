@@ -70,8 +70,17 @@ public struct TangemTypographyToken: Hashable, Sendable {
 
     @available(iOS, deprecated: 10000, message: "Use the `.font(token:)` view modifier; this accessor exists only for `Font` sinks with no view-modifier path.")
     public var font: Font {
+        Font(scaledUIFont)
+    }
+
+    @available(iOS, deprecated: 10000, message: "Use the `.font(token:)` view modifier; this accessor exists only for UIKit sinks with no view-modifier path.")
+    public var uiFont: UIFont {
+        scaledUIFont
+    }
+
+    private var scaledUIFont: UIFont {
         let base = UIFont.systemFont(ofSize: fontSize, weight: fontWeight.uiWeight)
-        return Font(UIFontMetrics(forTextStyle: relativeTo.uiTextStyle).scaledFont(for: base))
+        return UIFontMetrics(forTextStyle: relativeTo.uiTextStyle).scaledFont(for: base)
     }
 }
 
