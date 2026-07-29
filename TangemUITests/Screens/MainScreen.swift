@@ -29,6 +29,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var walletLockedNotification = otherElement(.walletLockedNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
+    private lazy var tangemPayTileBalance = app.staticTexts[TangemPayAccessibilityIdentifiers.mainScreenTileBalance].firstMatch
     /// Type-agnostic: redesign and legacy notifications expose different element types.
     private lazy var getTangemPayBanner = app.descendants(matching: .any)
         .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
@@ -498,6 +499,23 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             scrollToElement(tangemPayTile)
             tangemPayTile.waitAndTap()
             return TangemPayMainScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileBalanceContains(_ expectedSubstring: String) -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile balance contains '\(expectedSubstring)'") { _ in
+            scrollToElement(tangemPayTile)
+            let predicate = NSPredicate(format: "label CONTAINS[c] %@", expectedSubstring)
+            let match = app.staticTexts
+                .matching(identifier: TangemPayAccessibilityIdentifiers.mainScreenTileBalance)
+                .matching(predicate)
+                .firstMatch
+            XCTAssertTrue(
+                match.waitForExistence(timeout: .networkRequest),
+                "Tangem Pay tile balance should contain '\(expectedSubstring)'. Actual: '\(tangemPayTileBalance.label)'"
+            )
+            return self
         }
     }
 
