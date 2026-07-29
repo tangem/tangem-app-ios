@@ -33,6 +33,7 @@ public struct MessageBannerShowcase: View {
     @State private var hasDescription = true
     @State private var hasSecondaryButton = true
     @State private var hasPrimaryButton = true
+    @State private var isTappable = false
     @State private var hasCloseButton = false
     @State private var hasSlotStart = false
     @State private var hasSlotEnd = false
@@ -107,8 +108,9 @@ public struct MessageBannerShowcase: View {
             .showGlowRing(hasGlowRing)
             .titleLineLimit(titleLineLimit)
             .descriptionLineLimit(descriptionLineLimit)
-            .secondaryButton(hasSecondaryButton ? .init(title: "Yes", action: {}) : nil)
-            .primaryButton(hasPrimaryButton ? .init(title: "Oh, yes", action: {}) : nil)
+            .secondaryButton(!isTappable && hasSecondaryButton ? .init(title: "Yes", action: {}) : nil)
+            .primaryButton(!isTappable && hasPrimaryButton ? .init(title: "Oh, yes", action: {}) : nil)
+            .onTap(isTappable ? {} : nil)
     }
 
     private var baseBanner: MessageBanner<EmptyView, EmptyView, EmptyView> {
@@ -190,8 +192,9 @@ public struct MessageBannerShowcase: View {
             VStack(spacing: 8) {
                 Toggle("glowRing", isOn: $hasGlowRing)
                 Toggle("description", isOn: $hasDescription)
-                Toggle("secondaryButton", isOn: $hasSecondaryButton)
-                Toggle("primaryButton", isOn: $hasPrimaryButton)
+                Toggle("secondaryButton", isOn: $hasSecondaryButton).disabled(isTappable)
+                Toggle("primaryButton", isOn: $hasPrimaryButton).disabled(isTappable)
+                Toggle("tappable", isOn: $isTappable)
                 Toggle("closeButton", isOn: $hasCloseButton)
                 Toggle("slotStart", isOn: $hasSlotStart)
                 Toggle("slotEnd", isOn: $hasSlotEnd)
