@@ -267,6 +267,71 @@ final class MarketingCampaignsRepositoryTests: LeakTrackingTestSuite {
             #expect(persisted)
         }
     }
+
+    @Test(
+        "Kind raw values are the on-disk snapshot keys",
+        arguments: MarketingCampaignsRepository.Kind.allCases
+    )
+    func kindRawValueIsTheDiskKey(kind: MarketingCampaignsRepository.Kind) {
+        let diskKey = switch kind {
+        case .staking: "staking"
+        case .yield: "yield"
+        case .tokenDetails: "tokenDetails"
+        case .marketsToken: "marketsToken"
+        }
+
+        #expect(kind.rawValue == diskKey)
+    }
+
+    @Test("Persisting one kind merges into the snapshot instead of replacing it")
+    func persistingOneKindKeepsOtherKindsOnDisk() async throws {
+        try seedDiskSnapshot(["staking": [makeEthereumCampaign(id: 42)]])
+
+        let apiSpy = MarketingCampaignsApiSpy(campaigns: [makeEthereumCampaign(id: 7)])
+
+        await withInjectedTangemApiService(apiSpy.fake) {
+            let sut = makeSUT()
+
+            sut.loadCampaigns(for: .tokenDetails)
+
+            let persisted = await waitUntilConditionMet { [self] in
+                diskSnapshot()?["tokenDetails"]?.map(\.id) == [7]
+            }
+            #expect(persisted)
+            #expect(diskSnapshot()?["staking"]?.map(\.id) == [42])
+        }
+    }
+
+    @Test("A kind keeps its disk fallback after another kind loads successfully")
+    func diskFallbackSurvivesAnotherKindPersisting() async throws {
+        try seedDiskSnapshot(["staking": [makeEthereumCampaign(id: 42)]])
+
+        let apiService = FakeTangemApiService()
+        apiService.loadMarketingCampaignsHandler = { [campaign = makeEthereumCampaign(id: 7)] request in
+            guard case .tokenDetails = request else {
+                throw TestError.sample
+            }
+
+            return MarketingCampaignsDTO.Response(campaigns: [campaign])
+        }
+
+        await withInjectedTangemApiService(apiService) {
+            let sut = makeSUT()
+            let recorder = PublisherRecorder(sut.bannersPublisher(for: ethereumCoin, kind: .staking))
+
+            sut.loadCampaigns(for: .tokenDetails)
+
+            let persisted = await waitUntilConditionMet { [self] in
+                diskSnapshot()?["tokenDetails"]?.map(\.id) == [7]
+            }
+            #expect(persisted)
+
+            sut.loadCampaigns(for: .staking)
+
+            let fellBackToCache = await waitUntilConditionMet { recorder.values.last?.standalone.map(\.id) == [42] }
+            #expect(fellBackToCache)
+        }
+    }
 }
 
 private enum TestError: Error {
