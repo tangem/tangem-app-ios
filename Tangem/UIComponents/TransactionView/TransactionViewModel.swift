@@ -16,9 +16,14 @@ import TangemMacro
 
 struct TransactionViewModel: Hashable, Identifiable {
     let id: ViewModelId
-    let hash: String
     let icon: TransactionViewIconViewData
     let amount: TransactionViewAmountViewData
+
+    /// The stable record identity behind this row — used to look the record up in the history stream.
+    var recordID: TransactionRecord.ID { id.id }
+
+    var hash: String { recordID.hash }
+    var index: Int { recordID.index }
 
     /// Resolved at construction time by the `SubtitleOwnerResolver` for records that have a
     /// single resolvable counterparty. `nil` for legacy callers that don't run resolution.
@@ -131,7 +136,6 @@ struct TransactionViewModel: Hashable, Identifiable {
         cardName: String? = nil
     ) {
         id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
-        self.hash = hash
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
         self.amount = TransactionViewAmountViewData(
             amount: amount,
