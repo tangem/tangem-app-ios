@@ -9,7 +9,7 @@
 import Foundation
 import TangemUI
 
-/// Turns the selected wallet's models into the Portfolio Review view state: extract → aggregate → build rows.
+/// Turns the selected accounts' wallet models into the Portfolio Review view state: extract → aggregate → build rows.
 struct PortfolioReviewMapper {
     private let rowBuilder = PortfolioRowBuilder()
 
@@ -109,7 +109,7 @@ private extension PortfolioReviewMapper {
 
         return PortfolioReviewAggregator.TokenHolding(
             id: walletModel.id.id,
-            groupKey: tokenItem.currencyId ?? walletModel.id.id,
+            groupKey: tokenItem.groupKey,
             networkKey: tokenItem.networkId,
             networkName: tokenItem.networkName,
             symbol: tokenItem.currencySymbol,
@@ -164,5 +164,19 @@ private extension PortfolioReviewMapper {
             return .cantLoad
         }
         return .noAmount
+    }
+}
+
+// MARK: - TokenItem+GroupKey
+
+private extension TokenItem {
+    /// Same asset across accounts/derivations → one key: `currencyId`, or network + lowercased contract for customs.
+    var groupKey: String {
+        switch self {
+        case .token(let token, _):
+            return token.id ?? "\(networkId)_\(token.contractAddress.lowercased())"
+        case .blockchain(let network):
+            return network.blockchain.currencyId
+        }
     }
 }
