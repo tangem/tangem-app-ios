@@ -101,7 +101,7 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
                         targetTariffPlanId: plan.id,
                         transitionType: transitionType
                     )
-                    viewModel.coordinator?.closeSelectPlanFlow()
+                    viewModel.coordinator?.planDidActivate()
                 } catch {
                     viewModel.isPlacingOrder = false
                     viewModel.alert = AlertBinder(
@@ -198,5 +198,6 @@ extension TangemPaySelectPlanViewModel {
 
 protocol TangemPaySelectPlanRoutable: AnyObject {
     func closeSelectPlanFlow()
+    func planDidActivate()
     func openComparePlans(tariffPlans: [VisaCustomerInfoResponse.TariffPlan])
 }
