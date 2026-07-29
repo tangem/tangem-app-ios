@@ -14,6 +14,7 @@ public enum TangemPayAccessibilityIdentifiers {
     // MARK: - Main screen entry
 
     public static let mainScreenTile = "\(prefix)MainScreenTile"
+    public static let mainScreenTileBalance = "\(prefix)MainScreenTileBalance"
     public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
     public static let getTangemPayBannerOpenButton = "\(prefix)GetTangemPayBannerOpenButton"
 
