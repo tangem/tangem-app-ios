@@ -16,41 +16,15 @@ struct PortfolioReviewView: View {
     @ObservedObject var viewModel: PortfolioReviewViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            header
-            content
-        }
-    }
-}
-
-private extension PortfolioReviewView {
-    var header: some View {
-        HStack(spacing: 8) {
-            Text(Localization.forYouPortfolioReviewTitle)
-                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-
-            Spacer(minLength: 8)
-
-            allAccountsBadge
-        }
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    var allAccountsBadge: some View {
-        Badge(label: Localization.commonAllAccounts, accessibilityLabel: Localization.commonAllAccounts)
-            .size(.x9)
-            .variant(.solid)
-            .slotEnd(DesignSystem.Icons.ChevronDown.regular16)
-    }
-
-    var content: some View {
         VStack(spacing: 8) {
             stateContent
                 // Animate the crossfade only, not the frame shifts from the banner above.
                 .transition(.opacity.animation(.easeInOut(duration: 0.3)))
         }
     }
+}
 
+private extension PortfolioReviewView {
     @ViewBuilder
     var stateContent: some View {
         switch viewModel.state {
