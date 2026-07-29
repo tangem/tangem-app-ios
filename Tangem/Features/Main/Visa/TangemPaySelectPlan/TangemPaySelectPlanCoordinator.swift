@@ -109,6 +109,10 @@ extension TangemPaySelectPlanCoordinator: TangemPaySelectPlanRoutable {
         dismiss(with: .closed)
     }
 
+    func planDidActivate() {
+        dismiss(with: .planUpgraded)
+    }
+
     func openComparePlans(tariffPlans: [VisaCustomerInfoResponse.TariffPlan]) {
         let viewModel = TangemPayComparePlansSheetViewModel(tariffPlans: tariffPlans, coordinator: self)
         Task { @MainActor in
