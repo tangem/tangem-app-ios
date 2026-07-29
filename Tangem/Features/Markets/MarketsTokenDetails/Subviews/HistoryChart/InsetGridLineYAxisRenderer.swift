@@ -10,7 +10,6 @@ import Foundation
 import CoreGraphics
 import UIKit
 import DGCharts
-import TangemAssets
 import TangemUI
 
 /// A `YAxisRenderer` subclass that insets min/max grid lines to avoid overlapping axis labels,
@@ -18,7 +17,7 @@ import TangemUI
 final class InsetGridLineYAxisRenderer: YAxisRenderer {
     var labelOffset: CGFloat = 0.0
     var labelToLineSpacing: CGFloat = 4
-    var labelFont: UIFont = UIFonts.Regular.caption2
+    var labelFont: UIFont = .preferredFont(forTextStyle: .caption2)
     var leftAxisFormatter: AxisValueFormatter?
     var rightAxisFormatter: AxisValueFormatter?
 
