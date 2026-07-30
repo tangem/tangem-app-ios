@@ -80,6 +80,7 @@ enum UITestsStorageCleaner {
         AppSettings.shared.tangemPayEligibleDistributionChannels = []
         AppSettings.shared.tangemPayShouldShowGetBanner = true
         AppSettings.shared.tangemPayCachedLocalState = [:]
+        AppSettings.shared.tangemPayCachedTransactionHistory = [:]
         AppLogger.info("Tangem Pay state cleared for UI tests")
         #endif
     }
