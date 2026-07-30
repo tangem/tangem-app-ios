@@ -33,6 +33,8 @@ extension MarketsTokenDetailsView {
     struct ContentBlockSkeletons: View {
         var body: some View {
             VStack(spacing: Constants.blockSpacing) {
+                MarketsTokenSummaryPlaceholderView()
+
                 metrics
 
                 insights

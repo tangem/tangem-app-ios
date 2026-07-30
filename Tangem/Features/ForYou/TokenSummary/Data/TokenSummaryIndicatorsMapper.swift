@@ -12,6 +12,15 @@ struct TokenSummaryIndicatorsMapper {
         let metrics: [TokenSummaryMetric]
         let score: TokenSummaryScore?
         let lastUpdated: Date?
+
+        /// Without a score there is either nothing loaded at all or readings that don't net into a verdict.
+        var gaugeState: TokenSummaryGaugeState {
+            if let score {
+                return .score(score)
+            }
+
+            return metrics.isEmpty ? .dataUnavailable : .outlookUnavailable
+        }
     }
 
     func mapToDomain(_ readings: [CoinIndicatorsDTO.IndicatorReading]) -> [TokenSummaryIndicator] {

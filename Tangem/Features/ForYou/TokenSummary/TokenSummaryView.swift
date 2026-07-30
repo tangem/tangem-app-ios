@@ -42,7 +42,7 @@ struct TokenSummaryView: View {
                 .padding(.bottom, 16)
             }
 
-            goToSwapButton
+            primaryActionButton
         }
         .background {
             DesignSystem.Color.bgSecondary.ignoresSafeArea()
@@ -57,8 +57,10 @@ struct TokenSummaryView: View {
                 Text(viewModel.tokenName)
                     .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
-                Text(viewModel.networkName)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                if let networkName = viewModel.networkName {
+                    Text(networkName)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                }
             }
 
             Spacer()
@@ -165,17 +167,20 @@ struct TokenSummaryView: View {
         }
     }
 
-    private var goToSwapButton: some View {
-        TangemUI.Button(
-            label: AttributedString(Localization.tokenSummaryGoToSwapButton),
-            accessibilityLabel: Localization.tokenSummaryGoToSwapButton,
-            action: viewModel.goToSwapTapped
-        )
-        .styleType(.default)
-        .size(.x12)
-        .horizontalLayout(.infinity)
-        .disabled(!viewModel.canGoToSwap)
-        .padding(16)
+    @ViewBuilder
+    private var primaryActionButton: some View {
+        if let primaryAction = viewModel.primaryAction {
+            TangemUI.Button(
+                label: primaryAction.title,
+                accessibilityLabel: primaryAction.title,
+                action: viewModel.primaryActionTapped
+            )
+            .styleType(.default)
+            .size(.x12)
+            .horizontalLayout(.infinity)
+            .disabled(!primaryAction.isEnabled)
+            .padding(16)
+        }
     }
 }
 

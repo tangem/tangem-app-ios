@@ -15,14 +15,6 @@ struct TokenSummaryGaugeView: View {
     let state: TokenSummaryGaugeState
     let lastUpdated: Date?
 
-    private var score: TokenSummaryScore? {
-        if case .score(let score) = state {
-            return score
-        }
-
-        return nil
-    }
-
     var body: some View {
         VStack(spacing: 40) {
             header
@@ -35,8 +27,7 @@ struct TokenSummaryGaugeView: View {
 
     @ViewBuilder
     private var header: some View {
-        switch state {
-        case .score(let score):
+        if let score = state.score {
             VStack(spacing: 4) {
                 Text(Localization.tokenSummaryTitle)
                     .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
@@ -51,80 +42,15 @@ struct TokenSummaryGaugeView: View {
                 }
             }
             .multilineTextAlignment(.center)
-        case .outlookUnavailable:
-            message(Localization.tokenSummaryOutlookIsNotAvailable)
-        case .dataUnavailable:
-            message(Localization.tokenSummaryCanNotLoadToken)
+        } else if let message = state.unavailabilityMessage {
+            Text(message)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
+                .multilineTextAlignment(.center)
         }
-    }
-
-    private func message(_ text: String) -> some View {
-        Text(text)
-            .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textSecondary)
-            .multilineTextAlignment(.center)
     }
 
     private var track: some View {
-        GeometryReader { proxy in
-            let width = proxy.size.width
-            let midY = proxy.size.height / 2
-
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(trackFill)
-                    .frame(height: Constants.trackHeight)
-                    .frame(maxHeight: .infinity, alignment: .center)
-
-                if let score {
-                    ForEach(Array(0 ..< score.tickCount), id: \.self) { index in
-                        tick
-                            .position(
-                                x: centerX(forPosition: Double(index) / Double(score.tickCount - 1), width: width),
-                                y: midY
-                            )
-                    }
-
-                    thumb
-                        .position(x: centerX(forPosition: score.normalizedPosition, width: width), y: midY)
-                }
-            }
-        }
-        .frame(height: Constants.tickSize.height)
-    }
-
-    private var tick: some View {
-        Capsule()
-            .fill(DesignSystem.Color.iconPrimary)
-            .frame(width: Constants.tickSize.width, height: Constants.tickSize.height)
-    }
-
-    private var thumb: some View {
-        Circle()
-            .fill(DesignSystem.Color.iconPrimary)
-            .frame(width: Constants.thumbSize, height: Constants.thumbSize)
-            .shadow(color: .black.opacity(0.25), radius: 4, y: 1)
-    }
-
-    private func centerX(forPosition position: Double, width: CGFloat) -> CGFloat {
-        Constants.thumbSize / 2 + CGFloat(position) * (width - Constants.thumbSize)
-    }
-
-    private var trackFill: AnyShapeStyle {
-        guard score != nil else {
-            return AnyShapeStyle(DesignSystem.Color.bgDisabled)
-        }
-
-        return AnyShapeStyle(
-            LinearGradient(
-                colors: [
-                    DesignSystem.Color.bgStatusError,
-                    DesignSystem.Color.bgStatusInfo,
-                    DesignSystem.Color.bgStatusSuccess,
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        )
+        TokenSummaryTrackView(score: state.score)
     }
 
     private static let dateFormatter: DateFormatter = {
@@ -134,16 +60,6 @@ struct TokenSummaryGaugeView: View {
         formatter.timeStyle = .none
         return formatter
     }()
-}
-
-// MARK: - Constants
-
-private extension TokenSummaryGaugeView {
-    enum Constants {
-        static let trackHeight: CGFloat = 6
-        static let thumbSize: CGFloat = 10
-        static let tickSize = CGSize(width: 1, height: 16)
-    }
 }
 
 // MARK: - Previews
