@@ -132,6 +132,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
     var tangemPayShouldShowGetBanner: Bool = true
 
+    @AppStorageCompat(StorageType.tangemPayVirtualAccountConditionsShown)
+    var tangemPayVirtualAccountConditionsShown: Bool = false
+
     @AppStorageCompat(StorageType.tangemPayCachedLocalState)
     var tangemPayCachedLocalState: [String: String] = [:]
 
