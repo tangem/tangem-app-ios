@@ -65,6 +65,10 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                 onDismiss: coordinator.addFundsDidDismiss,
                 content: { AddFundsView(viewModel: $0) }
             )
+            .sheet(item: $coordinator.tokenSummaryViewModel, onDismiss: coordinator.tokenSummaryDidDismiss) {
+                TokenSummaryView(viewModel: $0)
+                    .presentationDetents([.large])
+            }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }

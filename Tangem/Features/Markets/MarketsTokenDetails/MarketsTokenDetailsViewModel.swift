@@ -48,6 +48,8 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var portfolioBlockState: MarketsPortfolioContainerViewModel.PortfolioBlockState = .loading
     @Published private(set) var isAddButtonVisible: Bool = false
 
+    @Published private(set) var tokenSummaryCardViewModel: MarketsTokenSummaryViewModel?
+
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
     @Published var securityScoreDetailsViewModel: MarketsTokenDetailsSecurityScoreDetailsViewModel?
@@ -202,6 +204,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         bind()
         loadDetailedInfo()
         makeHistoryChartViewModel()
+        makeTokenSummaryCardViewModel()
         makePortfolioViewModel()
         bindToPortfolioViewModel()
         bindToHistoryChartViewModel()
@@ -629,6 +632,79 @@ private extension MarketsTokenDetailsViewModel {
             .removeDuplicates()
             .assign(to: \.isAddButtonVisible, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    func makeTokenSummaryCardViewModel() {
+        tokenSummaryCardViewModel = MarketsTokenSummaryViewModel(symbol: tokenInfo.symbol) { [weak self] in
+            Task { @MainActor in
+                guard let self else { return }
+
+                self.coordinator?.openTokenSummary(
+                    self.makeTokenSummaryInput(),
+                    walletDataProvider: self.walletDataProvider
+                )
+            }
+        }
+    }
+
+    private func makeTokenSummaryInput() -> TokenSummaryInput {
+        let holdings = coinHoldings()
+        let networks = loadedInfo?.availableNetworks ?? []
+
+        return TokenSummaryInput(
+            token: tokenInfo,
+            indicators: tokenSummaryCardViewModel?.indicators ?? [],
+            primaryActionPublisher: makeTokenSummaryActionPublisher(holdings: holdings, networks: networks),
+            holdings: holdings,
+            swapCandidates: Self.fundedHoldings(among: holdings),
+            underivedTokens: portfolioViewModel?.matchedUnderivedTokens ?? [],
+            addTokenInputData: .init(
+                coinId: tokenInfo.id,
+                coinName: tokenInfo.name,
+                coinSymbol: tokenInfo.symbol,
+                networks: networks
+            ),
+            iconURL: IconURLBuilder().tokenIconURL(id: tokenInfo.id, size: .large)
+        )
+    }
+
+    /// The portfolio block only exists in the sheet presentation styles, so its holdings can't be the source here:
+    /// Token Summary is also reachable from a navigation stack and a full-screen cover.
+    private func coinHoldings() -> [any WalletModel] {
+        walletDataProvider.userWalletModels.flatMap { userWalletModel in
+            AccountWalletModelsAggregator
+                .walletModels(from: userWalletModel.accountModelsManager)
+                .filter { $0.tokenItem.currencyId == tokenInfo.id }
+        }
+    }
+
+    private static func fundedHoldings(among holdings: [any WalletModel]) -> [any WalletModel] {
+        holdings.filter { ($0.availableBalanceProvider.balanceType.value ?? 0) > 0 }
+    }
+
+    /// Balance decides the action: anything to swap sends the coin to swap, otherwise the sheet offers a top up.
+    /// A coin with no supported networks offers nothing, since adding it would dead-end.
+    private func makeTokenSummaryActionPublisher(
+        holdings: [any WalletModel],
+        networks: [NetworkModel]
+    ) -> AnyPublisher<TokenSummaryPrimaryAction?, Never> {
+        guard holdings.isNotEmpty else {
+            return Just<TokenSummaryPrimaryAction?>(networks.isEmpty ? nil : .addFunds).eraseToAnyPublisher()
+        }
+
+        let resolveAction: () -> TokenSummaryPrimaryAction? = {
+            Self.fundedHoldings(among: holdings).isNotEmpty ? .goToSwap(isEnabled: true) : .addFunds
+        }
+
+        let updates = holdings.map {
+            $0.availableBalanceProvider.balanceTypePublisher.mapToVoid().eraseToAnyPublisher()
+        }
+
+        return Publishers.MergeMany(updates)
+            .map { _ in resolveAction() }
+            .prepend(resolveAction())
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     func makePortfolioViewModel() {
