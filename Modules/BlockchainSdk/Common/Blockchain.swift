@@ -111,6 +111,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case scroll(testnet: Bool)
     case linea(testnet: Bool)
     case monad(testnet: Bool)
+    case igra(testnet: Bool)
     case robinhood(testnet: Bool)
     case arbitrumNova
     case plasma(testnet: Bool)
@@ -175,6 +176,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .scroll(let testnet),
              .linea(let testnet),
              .monad(let testnet),
+             .igra(let testnet),
              .robinhood(let testnet),
              .plasma(let testnet),
              .adi(let testnet):
@@ -361,6 +363,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .scroll,
              .linea,
              .monad,
+             .igra,
              .robinhood,
              .arbitrumNova,
              .plasma,
@@ -574,6 +577,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "QUAI"
         case .monad:
             return "MON"
+        case .igra:
+            return "iKAS"
         case .plasma:
             return "XPL"
         case .adi:
@@ -682,6 +687,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return isTestnet ? "Quai Orchard Testnet" : "Quai Network"
         case .monad:
             return "Monad" + testnetSuffix
+        case .igra:
+            return "Igra" + testnetSuffix
         case .robinhood:
             return "Robinhood Chain" + testnetSuffix
         case .arbitrumNova:
@@ -983,6 +990,7 @@ public extension Blockchain {
         case .scroll: return isTestnet ? 534351 : 534352
         case .linea: return isTestnet ? 59141 : 59144
         case .monad: return isTestnet ? 10143 : 143
+        case .igra: return isTestnet ? 38836 : 38833
         case .robinhood: return isTestnet ? 46630 : 4663
         case .arbitrumNova: return 42170
         case .plasma: return isTestnet ? 9746 : 9745
@@ -1076,6 +1084,7 @@ public extension Blockchain {
         case .scroll: return true
         case .linea: return true
         case .monad: return true
+        case .igra: return true
         case .robinhood: return true
         case .arbitrumNova: return true
         case .plasma: return true
@@ -1248,6 +1257,7 @@ extension Blockchain: Codable {
         case .scroll: return "scroll"
         case .linea: return "linea"
         case .monad: return "monad"
+        case .igra: return "igra"
         case .robinhood: return "robinhood"
         case .arbitrumNova: return "arbitrum-nova"
         case .plasma: return "plasma"
@@ -1369,6 +1379,7 @@ extension Blockchain: Codable {
         case "scroll": self = .scroll(testnet: isTestnet)
         case "linea": self = .linea(testnet: isTestnet)
         case "monad": self = .monad(testnet: isTestnet)
+        case "igra": self = .igra(testnet: isTestnet)
         case "robinhood": self = .robinhood(testnet: isTestnet)
         case "arbitrum-nova": self = .arbitrumNova
         case "plasma": self = .plasma(testnet: isTestnet)
@@ -1674,6 +1685,11 @@ private extension Blockchain {
             }
         case .monad:
             return "monad"
+        case .igra:
+            switch type {
+            case .network: return "igra"
+            case .coin: return "igra-bridged-kaspa"
+            }
         case .robinhood:
             switch type {
             case .network: return "robinhood"
@@ -1755,6 +1771,7 @@ extension Blockchain {
              .hyperliquidEVM,
              .linea,
              .monad,
+             .igra,
              .robinhood,
              .arbitrumNova,
              .plasma,
