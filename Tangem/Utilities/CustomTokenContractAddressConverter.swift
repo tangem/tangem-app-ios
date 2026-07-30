@@ -125,6 +125,7 @@ struct CustomTokenContractAddressConverter {
              .scroll,
              .linea,
              .monad,
+             .igra,
              .robinhood,
              .arbitrumNova,
              .plasma,
