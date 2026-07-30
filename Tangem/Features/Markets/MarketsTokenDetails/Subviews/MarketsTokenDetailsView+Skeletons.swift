@@ -12,7 +12,7 @@ import TangemUI
 
 extension MarketsTokenDetailsView {
     struct DescriptionBlockSkeletons: View {
-        private let lineHeight: CGFloat = .unit(.x4)
+        private let lineHeight: CGFloat = 16
 
         var body: some View {
             VStack(alignment: .leading, spacing: 5) {
@@ -23,9 +23,9 @@ extension MarketsTokenDetailsView {
         }
 
         private func skeletonLine(trailingInset: CGFloat) -> some View {
-            SkeletonView()
-                .cornerRadiusContinuous(lineHeight / 2)
-                .frame(maxWidth: .infinity, minHeight: lineHeight, maxHeight: lineHeight)
+            Shimmer()
+                .variant(.custom(height: lineHeight))
+                .frame(maxWidth: .infinity)
                 .padding(.trailing, trailingInset)
         }
     }
@@ -52,14 +52,14 @@ extension MarketsTokenDetailsView {
         // MARK: - Metrics
 
         private var metrics: some View {
-            VStack(spacing: .unit(.x3)) {
-                VStack(spacing: .unit(.x2)) {
-                    HStack(spacing: .unit(.x2)) {
+            VStack(spacing: 12) {
+                VStack(spacing: 8) {
+                    HStack(spacing: 8) {
                         metricsCard
                         metricsCard
                     }
 
-                    HStack(spacing: .unit(.x2)) {
+                    HStack(spacing: 8) {
                         metricsCard
                         metricsCard
                     }
@@ -70,46 +70,46 @@ extension MarketsTokenDetailsView {
         }
 
         private var metricsCard: some View {
-            VStack(alignment: .leading, spacing: .unit(.x6)) {
+            VStack(alignment: .leading, spacing: 24) {
                 skeletonView(width: .infinity, height: 26)
 
                 skeletonView(width: 82, height: 16)
             }
-            .padding(.unit(.x4))
-            .background(Color.Tangem.Surface.level3)
-            .cornerRadiusContinuous(.unit(.x6))
+            .padding(16)
+            .background(DesignSystem.Color.bgSecondary)
+            .cornerRadiusContinuous(24)
         }
 
         private var circulatingSupplyCard: some View {
-            VStack(spacing: .unit(.x5)) {
+            VStack(spacing: 20) {
                 HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: .unit(.x3)) {
+                    VStack(alignment: .leading, spacing: 12) {
                         skeletonView(width: 110, height: 16)
                         skeletonView(width: 160, height: 28)
                     }
 
                     Spacer()
 
-                    VStack(alignment: .trailing, spacing: .unit(.x3)) {
+                    VStack(alignment: .trailing, spacing: 12) {
                         skeletonView(width: 70, height: 16)
                         skeletonView(width: 50, height: 28)
                     }
                 }
 
-                skeletonView(width: .infinity, height: .unit(.x1))
+                skeletonView(width: .infinity, height: 4)
             }
             .roundedBackground(
-                with: .Tangem.Surface.level3,
-                padding: .unit(.x4),
-                radius: .unit(.x6)
+                with: DesignSystem.Color.bgSecondary,
+                padding: 16,
+                radius: 24
             )
         }
 
         // MARK: - Insights
 
         private var insights: some View {
-            VStack(spacing: .unit(.x6)) {
-                HStack(spacing: .unit(.x1)) {
+            VStack(spacing: 24) {
+                HStack(spacing: 4) {
                     skeletonView(width: 112, height: 24)
 
                     Spacer()
@@ -123,10 +123,10 @@ extension MarketsTokenDetailsView {
                         GridItem(.flexible(), alignment: .topLeading),
                     ],
                     alignment: .leading,
-                    spacing: .unit(.x4)
+                    spacing: 16
                 ) {
                     ForEach(0 ..< 4, id: \.self) { _ in
-                        VStack(alignment: .leading, spacing: .unit(.x1)) {
+                        VStack(alignment: .leading, spacing: 4) {
                             skeletonView(width: 154, height: 24)
 
                             skeletonView(width: 78, height: 16)
@@ -135,9 +135,9 @@ extension MarketsTokenDetailsView {
                 }
             }
             .roundedBackground(
-                with: .Tangem.Surface.level3,
-                padding: .unit(.x4),
-                radius: .unit(.x6)
+                with: DesignSystem.Color.bgSecondary,
+                padding: 16,
+                radius: 24
             )
         }
 
@@ -145,7 +145,7 @@ extension MarketsTokenDetailsView {
 
         private var listedOnExchanges: some View {
             HStack {
-                VStack(alignment: .leading, spacing: .unit(.x1)) {
+                VStack(alignment: .leading, spacing: 4) {
                     skeletonView(width: 112, height: 24)
                     skeletonView(width: 75, height: 16)
                 }
@@ -153,23 +153,23 @@ extension MarketsTokenDetailsView {
                 Spacer()
             }
             .roundedBackground(
-                with: .Tangem.Surface.level3,
-                padding: .unit(.x4),
-                radius: .unit(.x6)
+                with: DesignSystem.Color.bgSecondary,
+                padding: 16,
+                radius: 24
             )
         }
 
         // MARK: - News
 
         private var news: some View {
-            VStack(alignment: .leading, spacing: .unit(.x3)) {
-                skeletonView(width: 120, height: .unit(.x6))
-                    .padding(.horizontal, .unit(.x2))
+            VStack(alignment: .leading, spacing: 12) {
+                skeletonView(width: 120, height: 24)
+                    .padding(.horizontal, 8)
 
                 MarketsCarouselNewsSkeletonView()
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, .unit(.x4))
+            .padding(.vertical, 16)
         }
 
         // MARK: - Security score
@@ -182,15 +182,15 @@ extension MarketsTokenDetailsView {
 
                 makeScoreColumn(alignment: .trailing)
             }
-            .padding(.vertical, .unit(.x5))
-            .padding(.horizontal, .unit(.x4))
-            .background(Color.Tangem.Surface.level3)
-            .cornerRadiusContinuous(.unit(.x6))
-            .padding(.vertical, .unit(.x5))
+            .padding(.vertical, 20)
+            .padding(.horizontal, 16)
+            .background(DesignSystem.Color.bgSecondary)
+            .cornerRadiusContinuous(24)
+            .padding(.vertical, 20)
         }
 
         private func makeScoreColumn(alignment: HorizontalAlignment) -> some View {
-            VStack(alignment: alignment, spacing: .unit(.x2)) {
+            VStack(alignment: alignment, spacing: 8) {
                 skeletonView(width: 115, height: 36)
 
                 skeletonView(width: 84, height: 16)
@@ -200,24 +200,30 @@ extension MarketsTokenDetailsView {
         // MARK: - Links
 
         private var links: some View {
-            VStack(alignment: .leading, spacing: .unit(.x4)) {
+            VStack(alignment: .leading, spacing: 16) {
                 skeletonView(width: 64, height: 20)
-                    .padding(.top, .unit(.x6))
+                    .padding(.top, 24)
 
-                HStack(spacing: .unit(.x2)) {
+                HStack(spacing: 8) {
                     skeletonView(width: 148, height: 36)
                     skeletonView(width: 110, height: 36)
                 }
             }
-            .padding(.bottom, .unit(.x2))
+            .padding(.bottom, 8)
         }
 
         // MARK: - Helpers
 
+        @ViewBuilder
         private func skeletonView(width: CGFloat, height: CGFloat) -> some View {
-            SkeletonView()
-                .cornerRadiusContinuous(height / 2)
-                .frame(maxWidth: width, minHeight: height, maxHeight: height)
+            if width == .infinity {
+                Shimmer()
+                    .variant(.custom(height: height))
+                    .frame(maxWidth: .infinity)
+            } else {
+                Shimmer()
+                    .variant(.custom(width: width, height: height))
+            }
         }
     }
 }
@@ -226,7 +232,7 @@ extension MarketsTokenDetailsView {
 
 private extension MarketsTokenDetailsView.ContentBlockSkeletons {
     enum Constants {
-        static let blockSpacing: CGFloat = .unit(.x2)
+        static let blockSpacing: CGFloat = 8
     }
 }
 
@@ -239,7 +245,7 @@ private extension MarketsTokenDetailsView.ContentBlockSkeletons {
 
             MarketsTokenDetailsView.ContentBlockSkeletons()
         }
-        .padding(.horizontal, .unit(.x4))
+        .padding(.horizontal, 16)
     }
-    .background(Color.Tangem.Surface.level2.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }
