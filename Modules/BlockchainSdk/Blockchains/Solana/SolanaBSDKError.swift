@@ -9,4 +9,6 @@
 enum SolanaBSDKError: Error {
     case transactionIsEmpty
     case notImplemented
+    case signerPublicKeyNotFound
+    case invalidSignatureLength
 }
