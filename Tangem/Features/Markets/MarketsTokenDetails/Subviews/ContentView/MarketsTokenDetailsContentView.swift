@@ -79,6 +79,11 @@ struct MarketsTokenDetailsContentView: View {
 
     private var contentBlocks: some View {
         VStack(spacing: Constants.coinVerticalPadding) {
+            if let tokenSummaryCardViewModel = viewModel.tokenSummaryCardViewModel {
+                MarketsTokenSummaryView(viewModel: tokenSummaryCardViewModel)
+                    .padding(.horizontal, Constants.contentHorizontalPadding)
+            }
+
             if let metricsViewModel = viewModel.metricsViewModel {
                 MarketsTokenDetailsMetricsView(viewModel: metricsViewModel)
                     .padding(.horizontal, Constants.contentHorizontalPadding)
