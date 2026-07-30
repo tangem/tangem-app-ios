@@ -46,7 +46,7 @@ extension UserWalletConfig where Self: SingleCardOnboardingStepsBuilderFactory {
     ) -> OnboardingStepsBuilder {
         return SingleCardOnboardingStepsBuilder(
             cardId: card.cardId,
-            hasWallets: !card.wallets.isEmpty,
+            hasWallets: isWalletsCreated,
             isMultiCurrency: hasFeature(.multiCurrency)
         )
     }
@@ -62,7 +62,7 @@ extension UserWalletConfig where Self: NoteCardOnboardingStepsBuilderFactory {
     ) -> OnboardingStepsBuilder {
         return NoteOnboardingStepsBuilder(
             cardId: card.cardId,
-            hasWallets: !card.wallets.isEmpty
+            hasWallets: isWalletsCreated
         )
     }
 }

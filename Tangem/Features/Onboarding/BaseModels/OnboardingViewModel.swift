@@ -204,9 +204,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         bindAnalytics()
     }
 
-    func initializeUserWallet(from cardInfo: CardInfo, walletCreationType: WalletOnboardingViewModel.WalletCreationType) {
-        guard userWalletModel == nil else {
-            return
+    @discardableResult
+    func initializeUserWallet(from cardInfo: CardInfo) -> Bool {
+        guard userWalletModel == nil, cardInfo.card.wallets.first?.publicKey != nil else {
+            return false
         }
 
         runTask(in: self) { _ in
@@ -227,17 +228,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             walletInfo: .cardWallet(cardInfo),
             keys: .cardWallet(keys: cardInfo.card.wallets)
         ) else {
-            return
+            return false
         }
 
         AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWallet.userWalletId)
-        var params = walletCreationType.params
-        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
-        logAnalytics(event: .walletCreatedSuccessfully, params: params, analyticsSystems: .all)
-
         Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId, contextParams: getContextParams())
 
         userWalletModel = userWallet
+        return true
     }
 
     func handleUserWalletOnFinish() {
