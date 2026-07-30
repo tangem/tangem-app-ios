@@ -14,7 +14,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUIUtils
 import TangemMobileWalletSdk
-import class TangemSdk.BiometricsUtil
+import TangemSdk
 
 final class MobileOnboardingAccessCodeViewModel: ObservableObject {
     @Published private(set) var state: State = .accessCode
