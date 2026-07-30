@@ -12,7 +12,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
 import TangemAssets
-import class TangemSdk.BiometricsUtil
+import TangemSdk
 
 final class AuthViewModel: ObservableObject {
     @Published private(set) var state: AuthViewState?
