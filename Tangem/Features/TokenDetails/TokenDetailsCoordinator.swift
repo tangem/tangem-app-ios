@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 import UIKit
+import SwiftUI
 
 final class TokenDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -354,6 +355,26 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
             AppPresenter.shared.show(controller)
         }
     }
+
+    #if INTERNAL || DEBUG
+    func openTransactionDetailsDebug(_ info: TransactionDetailsDebugInfo) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+
+            let viewModel = TransactionDetailsDebugViewModel(info: info)
+            let controller = UIHostingController(rootView: TransactionDetailsDebugView(viewModel: viewModel))
+            controller.modalPresentationStyle = .overFullScreen
+
+            viewModel.onClose = { [weak self, weak controller] in
+                controller?.dismiss(animated: true) {
+                    self?.floatingSheetPresenter.resumeSheetsDisplaying()
+                }
+            }
+
+            AppPresenter.shared.show(controller)
+        }
+    }
+    #endif
 
     func closeTransactionDetails() {
         Task { @MainActor in

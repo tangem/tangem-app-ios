@@ -81,7 +81,7 @@ struct TransactionDetailsHeaderView: View {
                     if let icon = action.icon {
                         Label(
                             title: { Text(action.title) },
-                            icon: { icon.image }
+                            icon: { icon.image.renderingMode(.template) }
                         )
                     } else {
                         Text(action.title)
