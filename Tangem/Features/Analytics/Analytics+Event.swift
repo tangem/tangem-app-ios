@@ -821,6 +821,21 @@ extension Analytics {
         case visaTiersStayOnPlusPopupShowed = "[Visa Tiers] Stay On Plus Popup Showed"
         case visaTiersStayOnPlusPopupClicked = "[Visa Tiers] Stay On Plus Popup Clicked"
 
+        // Virtual Account topup
+
+        case visaVATopupButtonShowed = "[Visa VA Topup] Visa VA Topup Button Showed"
+        case visaVATopupButtonClicked = "[Visa VA Topup] Visa VA Topup Button Clicked"
+        case visaVATopupConditionsPopupShowedFirstTime = "[Visa VA Topup] Conditions Popup Showed First Time"
+        case visaVATopupShowDetailsFirstTimeClicked = "[Visa VA Topup] Show Details First Time Clicked"
+        case visaVATopupSuccessScreenActivation = "[Visa VA Topup] Success Screen Activation"
+        case visaVATopupPreparationPopupShowed = "[Visa VA Topup] Preparation Popup Showed"
+        case visaVATopupConditionsPopupShowed = "[Visa VA Topup] Conditions Popup Showed"
+        case visaVATopupShowDetailsClicked = "[Visa VA Topup] Show Details Clicked"
+        case visaVATopupBankingDetailsShowed = "[Visa VA Topup] Banking Details Showed"
+        case visaVATopupDetailsErrorShowed = "[Visa VA Topup] Details Error Showed"
+        case visaVATopupShareDetailsButtonClicked = "[Visa VA Topup] Share Details Button Clicked"
+        case visaVATopupCopyFieldClicked = "[Visa VA Topup] Copy Field Clicked"
+
         // MARK: - NFT
 
         case nftAssetReadMore = "[NFT] Button - Read More"
