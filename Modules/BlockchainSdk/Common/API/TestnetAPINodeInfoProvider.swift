@@ -300,6 +300,10 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://testnet-rpc.monad.xyz")!),
             ]
+        case .igra:
+            return [
+                .init(url: URL(string: "https://galleon-testnet.igralabs.com:8545")!),
+            ]
         case .robinhood:
             return AlchemyAPIResolver(apiKey: keysConfig.alchemyApiKey)
                 .resolve(for: blockchain)
