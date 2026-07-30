@@ -14,6 +14,15 @@ public extension TokenIconV2 {
         case size44
         case size56
         case size72
+
+        public var containerSize: CGSize {
+            switch self {
+            case .size40: return .init(bothDimensions: 40)
+            case .size44: return .init(bothDimensions: 44)
+            case .size56: return .init(bothDimensions: 56)
+            case .size72: return .init(bothDimensions: 72)
+            }
+        }
     }
 }
 
@@ -22,7 +31,7 @@ extension TokenIconV2.Size {
         switch self {
         case .size40:
             TokenIconV2.Metrics(
-                container: 40,
+                container: containerSize.width,
                 networkDiameter: 12,
                 networkOverhang: 1,
                 cutoutGap: 1,
@@ -31,7 +40,7 @@ extension TokenIconV2.Size {
             )
         case .size44:
             TokenIconV2.Metrics(
-                container: 44,
+                container: containerSize.width,
                 networkDiameter: 16,
                 networkOverhang: 2,
                 cutoutGap: 1,
@@ -40,7 +49,7 @@ extension TokenIconV2.Size {
             )
         case .size56:
             TokenIconV2.Metrics(
-                container: 56,
+                container: containerSize.width,
                 networkDiameter: 20,
                 networkOverhang: 4,
                 cutoutGap: 1,
@@ -49,7 +58,7 @@ extension TokenIconV2.Size {
             )
         case .size72:
             TokenIconV2.Metrics(
-                container: 72,
+                container: containerSize.width,
                 networkDiameter: 24,
                 networkOverhang: 4,
                 cutoutGap: 1,

@@ -16,7 +16,6 @@ struct MarketTokenRowView: View {
     @ObservedObject var viewModel: MarketTokenItemViewModel
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
-    @ScaledMetric private var iconSide: CGFloat = 40
     @ScaledMetric private var horizontalPadding: CGFloat = 12
     @ScaledMetric private var verticalPadding: CGFloat = 12
     @ScaledMetric private var chartSpacing: CGFloat = 12
@@ -47,11 +46,14 @@ struct MarketTokenRowView: View {
     // MARK: - Subviews
 
     private var iconView: some View {
-        IconView(url: viewModel.imageURL, size: CGSize(width: iconSide, height: iconSide), forceKingfisher: true)
-            // Adds +4pt on top of `TangemTwoLineRowLayout`'s shared icon spacing (8) to reach the
-            // 12pt icon ↔ name gap from the latest design review without forking the DS layout.
-            .padding(.trailing, 4)
-            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenIcon)
+        TokenIconV2(
+            tokenIconInfo: .remote(name: viewModel.name, imageURL: viewModel.imageURL),
+            size: .size40
+        )
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenIcon)
+        // Adds +4pt on top of `TangemTwoLineRowLayout`'s shared icon spacing (8) to reach the
+        // 12pt icon ↔ name gap from the latest design review without forking the DS layout.
+        .padding(.trailing, 4)
     }
 
     private var nameAndSymbolView: some View {
