@@ -26,7 +26,7 @@ struct CommonSendSourceTokenFactory {
 
         let transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
             walletModel: walletModel,
-            signer: userWalletInfo.signer
+            signer: userWalletInfo.signerFactory.makeSigner()
         )
 
         let allowanceService = AllowanceServiceFactory(

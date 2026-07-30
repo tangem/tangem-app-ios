@@ -25,7 +25,7 @@ class CommonCardScanner: CardScanner {
     convenience init() {
         var config = TangemSdkConfigFactory().makeDefaultConfig()
 
-        if AppSettings.shared.saveUserWallets {
+        if AppSettings.shared.saveAccessCodes, AppSettings.shared.askedToSaveUserWallets {
             config.accessCodeRequestPolicy = .alwaysWithBiometrics
         }
 
