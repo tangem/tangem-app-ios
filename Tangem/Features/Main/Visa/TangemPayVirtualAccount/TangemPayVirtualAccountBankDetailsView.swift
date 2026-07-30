@@ -77,7 +77,7 @@ struct TangemPayVirtualAccountBankDetailsView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Button(action: { viewModel.copy(row.value) }) {
+            Button(action: { viewModel.copy(row) }) {
                 DesignSystem.Icons.Copy.regular24.image
                     .renderingMode(.template)
                     .resizable()

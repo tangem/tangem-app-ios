@@ -35,16 +35,24 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
     }
 
     private let tangemPayAccount: TangemPayAccount
+    private let isFirstTimeConditions: Bool
     private weak var coordinator: TangemPayVirtualAccountInfoSheetRoutable?
 
     init(tangemPayAccount: TangemPayAccount, coordinator: TangemPayVirtualAccountInfoSheetRoutable) {
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
+
+        isFirstTimeConditions = !AppSettings.shared.tangemPayVirtualAccountConditionsShown
+        AppSettings.shared.tangemPayVirtualAccountConditionsShown = true
+
+        Analytics.log(isFirstTimeConditions ? .visaVATopupConditionsPopupShowedFirstTime : .visaVATopupConditionsPopupShowed)
     }
 
     func showDetails() {
         guard !isLoading else { return }
         isLoading = true
+
+        Analytics.log(isFirstTimeConditions ? .visaVATopupShowDetailsFirstTimeClicked : .visaVATopupShowDetailsClicked)
 
         switch tangemPayAccount.virtualAccountEntry {
         case .active(let productInstanceId):
