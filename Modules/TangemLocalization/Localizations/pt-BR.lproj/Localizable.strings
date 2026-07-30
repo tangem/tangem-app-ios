@@ -291,7 +291,10 @@
 "common_fee_selector_option_slow" = "Lento";
 "common_finish" = "Terminar";
 "common_forget" = "Esquecer";
+"common_from_account" = "From account";
+"common_from_address" = "From address";
 "common_from_wallet_name" = "De %@";
+"common_from_wallet" = "From wallet";
 "common_from" = "De";
 "common_generate_addresses" = "Sincronizar endereços";
 "common_get_started" = "Comece agora";
@@ -1110,6 +1113,11 @@
 "organize_tokens_ungroup" = "Desagrupar";
 "prediction_account_subtitle" = "Adicione fundos e comece a fazer previsões.";
 "prediction_account_title" = "Conta de previsão";
+"prediction_event_probability" = "Probability";
+"prediction_event_total_volume" = "Total volume:";
+"prediction_main_empty_events" = "No events yet";
+"prediction_main_subtitle" = "USDC on Polygon network";
+"prediction_main_title" = "Predictions";
 "promo_campaign_already_activated_subtitle" = "O cashback elegível será distribuído para:";
 "promo_campaign_already_activated_title" = "Você já está matriculado(a) em %1$@";
 "promo_campaign_eligible_tokens" = "Tokens elegíveis";
@@ -1532,6 +1540,8 @@
 "swap_story_third_subtitle" = "Sem complicações e intuitivo, permitindo que você troque tokens com apenas alguns toques";
 "swap_story_third_title_v2" = "mais de 90 blockchains\n16.000+ ativos";
 "swap_story_third_title" = "Simplesmente conveniente";
+"swap_token_selector_empty_filtered_message" = "You don't have any funded tokens on this wallet. Explore other wallets or change the filter";
+"swap_token_selector_filter_hide_zero_balance" = "Hide 0 balance";
 "swap_via_provider" = "Trocar através do provedor";
 "swap_your_assets_title" = "Seus ativos";
 "swapping_alert_cex_description_with_slippage" = "O valor inclui:\n• taxa do provedor de serviços\n• taxa de rede para envio %1$@ da central de câmbio de volta para o endereço do usuário. \n\nO deslizamento do provedor depende de %2$@";
@@ -1603,7 +1613,7 @@
 "tangem_pay_terms_fees_limits" = "Termos, taxas e limites";
 "tangem_pay_terms_limits" = "Termos e Limites";
 "tangem_pay_transaction_declined_notification_text" = "O banco rejeitou esta solicitação de transação.";
-"tangem_pay_transaction_details_cashback_below_min" = "O valor mínimo da transação é %1$@";
+"tangem_pay_transaction_details_cashback_below_min" = "Transação mínima: %1$@";
 "tangem_pay_transaction_details_cashback_cap_reached" = "O limite mensal foi atingido.";
 "tangem_pay_transaction_details_cashback_mcc_excluded" = "MCC excluído";
 "tangem_pay_transaction_details_cashback_none" = "Sem reembolso";
@@ -1629,7 +1639,7 @@
 "tangempay_bank_transfer_fee_header" = "Taxa de acesso à rampa";
 "tangempay_bank_transfer_intro_subtitle" = "Os USD recebidos serão convertidos para USDC na proporção de 1:1.";
 "tangempay_bank_transfer_intro_title" = "A transferência bancária pode levar de 1 a 2 dias úteis";
-"tangempay_bank_transfer_legal" = "Ao utilizar o serviço, você concorda com o provedor. %1$@ e %2$@";
+"tangempay_bank_transfer_legal" = "Ao utilizar o serviço, você concorda com o %1$@ e %2$@";
 "tangempay_bank_transfer_show_details" = "Mostrar detalhes";
 "tangempay_bank_transfer_success_subtitle" = "Isso pode levar um pouco de tempo.";
 "tangempay_bank_transfer_success_title" = "Preparando seus dados bancários";
@@ -1668,9 +1678,9 @@
 "tangempay_card_details_open_wallet_title_apple" = "Adicionar cartão ao Apple Pay";
 "tangempay_card_details_open_wallet_title" = "Adicionar cartão ao Google Pay";
 "tangempay_card_details_pin_code" = "Código PIN";
-"tangempay_card_details_protection_not_set_button" = "Set screen lock";
-"tangempay_card_details_protection_not_set_description" = "Unable to view your card data without a screen lock. \nSet one in your device settings.";
-"tangempay_card_details_protection_not_set_title" = "Screen lock is not set";
+"tangempay_card_details_protection_not_set_button" = "Definir bloqueio de tela";
+"tangempay_card_details_protection_not_set_description" = "Sem bloqueio de tela, os dados do cartão ficam ocultos.\nAtive-o nas configurações do dispositivo.";
+"tangempay_card_details_protection_not_set_title" = "Bloqueio de tela não definido";
 "tangempay_card_details_receive_description" = "Compartilhe seu endereço ou mostre o código QR.";
 "tangempay_card_details_receive_error_description" = "Problemas técnicos detectados. Tente novamente mais tarde ou entre em contato com o suporte.";
 "tangempay_card_details_receive_error_title" = "Receber indisponível agora";
@@ -1879,7 +1889,7 @@
 "tangempay_select_plan_confirm_point_monthly_fee" = "%1$@ A taxa mensal será debitada da sua conta.";
 "tangempay_select_plan_confirm_point_move_on_date" = "Sobre %1$@ nós o transferiremos para %2$@ plano";
 "tangempay_select_plan_confirm_point_no_fee" = "Nenhuma taxa será cobrada.";
-"tangempay_select_plan_confirm_point_virtual_card" = "Você receberá sua versão virtual. %1$@ em minutos";
+"tangempay_select_plan_confirm_point_virtual_card" = "Você receberá sua versão virtual %1$@ em minutos";
 "tangempay_select_plan_confirm_switch_title" = "Você está mudando para %1$@";
 "tangempay_select_plan_confirm_title" = "Confirmar seleção";
 "tangempay_select_plan_confirm_upgrade_title" = "Iremos emitir %1$@ para você";
