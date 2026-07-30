@@ -17,14 +17,11 @@ struct MarketsPortfolioPlateView<Trailing: View>: View {
     var titleColor: Color = DesignSystem.Color.textSecondary
     @ViewBuilder let trailing: Trailing
 
-    @ScaledMetric private var iconSize: CGFloat = 40
-
     var body: some View {
         HStack(spacing: 12) {
-            IconView(
-                url: iconURL,
-                size: CGSize(bothDimensions: iconSize),
-                forceKingfisher: true
+            TokenIconV2(
+                tokenIconInfo: .remote(name: "", imageURL: iconURL),
+                size: .size40
             )
 
             Text(title)
