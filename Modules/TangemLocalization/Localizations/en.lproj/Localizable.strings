@@ -291,7 +291,10 @@
 "common_fee_selector_option_slow" = "Slow";
 "common_finish" = "Finish";
 "common_forget" = "Forget";
+"common_from_account" = "From account";
+"common_from_address" = "From address";
 "common_from_wallet_name" = "From %@";
+"common_from_wallet" = "From wallet";
 "common_from" = "From";
 "common_generate_addresses" = "Synchronize addresses";
 "common_get_started" = "Get started";
@@ -1110,6 +1113,11 @@
 "organize_tokens_ungroup" = "Ungroup";
 "prediction_account_subtitle" = "Add funds & start predict";
 "prediction_account_title" = "Prediction account";
+"prediction_event_probability" = "Probability";
+"prediction_event_total_volume" = "Total volume:";
+"prediction_main_empty_events" = "No events yet";
+"prediction_main_subtitle" = "USDC on Polygon network";
+"prediction_main_title" = "Predictions";
 "promo_campaign_already_activated_subtitle" = "Eligible cashback will be distributed to:";
 "promo_campaign_already_activated_title" = "You're already enrolled in %1$@";
 "promo_campaign_eligible_tokens" = "Eligible tokens";
@@ -1532,6 +1540,8 @@
 "swap_story_third_subtitle" = "Hassle-free and intuitive, allowing you to swap tokens in just a few taps";
 "swap_story_third_title_v2" = "90+ Blockchains\n16,000+ Assets";
 "swap_story_third_title" = "Simply Convenient";
+"swap_token_selector_empty_filtered_message" = "You don't have any funded tokens on this wallet. Explore other wallets or change the filter";
+"swap_token_selector_filter_hide_zero_balance" = "Hide 0 balance";
 "swap_via_provider" = "Swap via provider";
 "swap_your_assets_title" = "Your assets";
 "swapping_alert_cex_description_with_slippage" = "The amount includes:\n• service provider's fee\n• network fee for sending %1$@ from the exchange back to the user's address. \n\nProvider slippage is up to %2$@";
@@ -1629,7 +1639,7 @@
 "tangempay_bank_transfer_fee_header" = "Fee for onramp";
 "tangempay_bank_transfer_intro_subtitle" = "Received USD will be converted to USDC by 1:1 rate";
 "tangempay_bank_transfer_intro_title" = "Bank transfer might take 1-2 business days";
-"tangempay_bank_transfer_legal" = "By using service, you agree with provider %1$@ and %2$@";
+"tangempay_bank_transfer_legal" = "By using service, you agree with %1$@ and %2$@";
 "tangempay_bank_transfer_show_details" = "Show details";
 "tangempay_bank_transfer_success_subtitle" = "This may take a little time";
 "tangempay_bank_transfer_success_title" = "Preparing your banking details";
@@ -1681,7 +1691,7 @@
 "tangempay_card_details_reveal_text" = "Reveal";
 "tangempay_card_details_show_details" = "Details";
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
-"tangempay_card_details_system_downgrade_subtitle" = "If it will remain below zero your %1$@ cards will be closed on %2$@";
+"tangempay_card_details_system_downgrade_subtitle" = "If it remain below zero your %1$@ cards will be closed on %2$@";
 "tangempay_card_details_system_downgrade_title" = "Top up your account shortly";
 "tangempay_card_details_title" = "Details";
 "tangempay_card_details_unable_to_rename_card_description" = "Please try again later";
