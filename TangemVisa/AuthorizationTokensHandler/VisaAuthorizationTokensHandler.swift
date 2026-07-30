@@ -67,7 +67,7 @@ public protocol VisaRefreshTokenSaver: AnyObject {
 public protocol VisaRefreshTokenRepository: VisaRefreshTokenSaver {
     func save(refreshToken: String, visaRefreshTokenId: VisaRefreshTokenId) throws
     func deleteToken(visaRefreshTokenId: VisaRefreshTokenId) throws
-    func clearPersistent()
+    func clean()
     func fetch(using context: LAContext)
     func getToken(forVisaRefreshTokenId visaRefreshTokenId: VisaRefreshTokenId) -> String?
     func lock()

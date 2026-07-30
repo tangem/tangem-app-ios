@@ -19,7 +19,7 @@ final class MockTangemPayAssembly: TangemPayAssembly {
 
     func makeTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
-        hasNFCInteraction: Bool,
+        signerFactory: TangemSignerFactory,
         walletPublicKey: Wallet.PublicKey?
     ) -> TransactionDispatcher {
         MockTangemPayTransactionDispatcher()

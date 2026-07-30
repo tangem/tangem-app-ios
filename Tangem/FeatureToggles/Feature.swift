@@ -38,6 +38,7 @@ enum Feature: String, Hashable, CaseIterable {
     case highFeeWarning
     case priceAlertsSubscription
     case solanaRentExemptionPreflight
+    case backup4cards
     case promoCampaignsAttribution
     case onboardingPushNotificationDoubleAsk
     case mainPushNotificationDoubleAsk
@@ -80,6 +81,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .forYou: return "TWI-1469_for_you_product_shelves_add_indicators"
         case .highFeeWarning: return "TWI-1367_high_fee_warning"
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
+        case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
         case .solanaRentExemptionPreflight: return "[REDACTED_INFO]_solana_rent_exemption_preflight"
         case .tangemPayVirtualAccount: return "TWI-1638_tangempay_virtual_account"
         case .onboardingPushNotificationDoubleAsk: return "TWI-1403_onboarding_push_notification_double_ask"
@@ -129,6 +131,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .onboardingPushNotificationDoubleAsk: return .version("6.1")
         case .mainPushNotificationDoubleAsk: return .version("6.1")
         case .promoCampaignsAttribution: return .version("6.0.2")
+        case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
         case .bitcoinLikePsbtSwap: return .unspecified
         case .onrampPaymentMethodThemedImages: return .unspecified

@@ -13,7 +13,7 @@ import Combine
 import LocalAuthentication
 import TangemFoundation
 import TangemMobileWalletSdk
-import class TangemSdk.BiometricsUtil
+import TangemSdk
 
 final class MobileUnlockUtil {
     private var presentedAccessCodeController: UIViewController?

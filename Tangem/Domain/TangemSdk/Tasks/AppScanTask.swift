@@ -49,7 +49,15 @@ struct AppScanTaskResponse {
 final class AppScanTask: CardSessionRunnable {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
-    var preflightReadMode: PreflightReadMode { shouldCheckAccessCode ? .fullCardReadWithAccessCodeCheck : .fullCardRead }
+    var preflightReadMode: PreflightReadMode {
+        var options: PreflightReadMode.Options = [.readMasterSecret, .verifyBackup]
+
+        if shouldCheckAccessCode {
+            options.insert(.accessCodeCheck)
+        }
+
+        return .fullCardRead(options: options)
+    }
 
     let shouldAskForAccessCode: Bool
 
@@ -130,8 +138,10 @@ final class AppScanTask: CardSessionRunnable {
     private func readPrimaryIfNeeded(_ card: Card, _ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
         let isWalletInOnboarding = AppSettings.shared.cardsStartedActivation.contains(card.cardId)
 
-        if isWalletInOnboarding,
-           card.settings.isBackupAllowed, card.backupStatus == .noBackup {
+        let masterSecretInitialized = card.firmwareVersion >= .v8 ? card.masterSecret != nil : true
+        let shouldReadPrimaryCard = card.settings.isBackupAllowed && card.backupStatus == .noBackup && masterSecretInitialized
+
+        if isWalletInOnboarding, shouldReadPrimaryCard {
             readPrimaryCard(session, completion)
             return
         } else {

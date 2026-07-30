@@ -100,7 +100,7 @@ enum UITestsStorageCleaner {
 
         /// Clear Documents/user_wallets directory
         let userWalletDataStorage = UserWalletDataStorage()
-        userWalletDataStorage.clear()
+        userWalletDataStorage.clean()
 
         // Clear WalletConnect encrypted files
         clearWalletConnectFiles()
