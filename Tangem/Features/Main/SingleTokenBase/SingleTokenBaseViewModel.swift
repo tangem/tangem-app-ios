@@ -247,7 +247,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private func fulfillRequirementsPublisher() -> AnyPublisher<AlertBinder?, Never> {
         walletModel
-            .fulfillRequirements(signer: userWalletInfo.signer)
+            .fulfillRequirements(signer: userWalletInfo.signerFactory.makeSigner())
             .materialize()
             .failures()
             .withWeakCaptureOf(self)
