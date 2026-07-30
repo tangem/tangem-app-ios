@@ -54,4 +54,20 @@ enum TokenSummaryGaugeState: Equatable {
     case score(TokenSummaryScore)
     case outlookUnavailable
     case dataUnavailable
+
+    var score: TokenSummaryScore? {
+        switch self {
+        case .score(let score): score
+        case .outlookUnavailable, .dataUnavailable: nil
+        }
+    }
+
+    /// The gauge stands empty in both unavailable states, so only the wording tells them apart.
+    var unavailabilityMessage: String? {
+        switch self {
+        case .score: nil
+        case .outlookUnavailable: Localization.tokenSummaryOutlookIsNotAvailable
+        case .dataUnavailable: Localization.tokenSummaryCanNotLoadToken
+        }
+    }
 }
