@@ -15,11 +15,11 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     let tokenName: String
-    let networkName: String
+    let networkName: String?
     let tokenIconInfo: TokenIconInfo
 
     @Published var selectedPeriod: TokenSummaryPeriod
-    @Published private(set) var canGoToSwap = false
+    @Published private(set) var primaryAction: TokenSummaryPrimaryAction?
     @Published private(set) var isLoading = true
     @Published private(set) var gaugeState: TokenSummaryGaugeState = .dataUnavailable
     @Published private(set) var lastUpdated: Date?
@@ -31,20 +31,20 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
     private let symbol: String
     private let mapper: TokenSummaryIndicatorsMapper
     private let indicatorsProvider: TokenSummaryIndicatorsProvider
-    private let canGoToSwapPublisher: AnyPublisher<Bool, Never>
+    private let primaryActionPublisher: AnyPublisher<TokenSummaryPrimaryAction?, Never>
     private var readings: [TokenSummaryIndicator] = []
     private var bag: Set<AnyCancellable> = []
 
-    private let onGoToSwap: () -> Void
+    private let onPrimaryAction: (TokenSummaryPrimaryAction.Kind) -> Void
     private let onClose: () -> Void
 
     convenience init(
         tokenItem: TokenItem,
         period: TokenSummaryPeriod = .day,
-        canGoToSwapPublisher: AnyPublisher<Bool, Never>,
+        primaryActionPublisher: AnyPublisher<TokenSummaryPrimaryAction?, Never>,
         mapper: TokenSummaryIndicatorsMapper = TokenSummaryIndicatorsMapper(),
         indicatorsProvider: TokenSummaryIndicatorsProvider = CommonTokenSummaryIndicatorsProvider(),
-        onGoToSwap: @escaping () -> Void,
+        onPrimaryAction: @escaping (TokenSummaryPrimaryAction.Kind) -> Void,
         onClose: @escaping () -> Void
     ) {
         self.init(
@@ -53,44 +53,80 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
             tokenIconInfo: TokenIconInfoBuilder().build(from: tokenItem, isCustom: false),
             symbol: tokenItem.currencySymbol,
             period: period,
-            canGoToSwapPublisher: canGoToSwapPublisher,
+            primaryActionPublisher: primaryActionPublisher,
             mapper: mapper,
             indicatorsProvider: indicatorsProvider,
-            onGoToSwap: onGoToSwap,
+            onPrimaryAction: onPrimaryAction,
             onClose: onClose
         )
 
         loadIndicators()
     }
 
+    convenience init(
+        coinName: String,
+        symbol: String,
+        tokenIconInfo: TokenIconInfo,
+        period: TokenSummaryPeriod = .day,
+        preloadedIndicators: [TokenSummaryIndicator]? = nil,
+        primaryActionPublisher: AnyPublisher<TokenSummaryPrimaryAction?, Never>,
+        mapper: TokenSummaryIndicatorsMapper = TokenSummaryIndicatorsMapper(),
+        indicatorsProvider: TokenSummaryIndicatorsProvider = CommonTokenSummaryIndicatorsProvider(),
+        onPrimaryAction: @escaping (TokenSummaryPrimaryAction.Kind) -> Void,
+        onClose: @escaping () -> Void
+    ) {
+        self.init(
+            tokenName: coinName,
+            networkName: nil,
+            tokenIconInfo: tokenIconInfo,
+            symbol: symbol,
+            period: period,
+            primaryActionPublisher: primaryActionPublisher,
+            mapper: mapper,
+            indicatorsProvider: indicatorsProvider,
+            onPrimaryAction: onPrimaryAction,
+            onClose: onClose
+        )
+
+        if let preloadedIndicators {
+            apply(readings: preloadedIndicators)
+        } else {
+            loadIndicators()
+        }
+    }
+
     private init(
         tokenName: String,
-        networkName: String,
+        networkName: String?,
         tokenIconInfo: TokenIconInfo,
         symbol: String,
         period: TokenSummaryPeriod,
-        canGoToSwapPublisher: AnyPublisher<Bool, Never>,
+        primaryActionPublisher: AnyPublisher<TokenSummaryPrimaryAction?, Never>,
         mapper: TokenSummaryIndicatorsMapper,
         indicatorsProvider: TokenSummaryIndicatorsProvider,
-        onGoToSwap: @escaping () -> Void,
+        onPrimaryAction: @escaping (TokenSummaryPrimaryAction.Kind) -> Void,
         onClose: @escaping () -> Void
     ) {
         self.tokenName = tokenName
         self.networkName = networkName
         self.tokenIconInfo = tokenIconInfo
-        self.canGoToSwapPublisher = canGoToSwapPublisher
+        self.primaryActionPublisher = primaryActionPublisher
         self.symbol = symbol
         selectedPeriod = period
         self.mapper = mapper
         self.indicatorsProvider = indicatorsProvider
-        self.onGoToSwap = onGoToSwap
+        self.onPrimaryAction = onPrimaryAction
         self.onClose = onClose
 
         bind()
     }
 
-    func goToSwapTapped() {
-        onGoToSwap()
+    func primaryActionTapped() {
+        guard let primaryAction, primaryAction.isEnabled else {
+            return
+        }
+
+        onPrimaryAction(primaryAction.kind)
     }
 
     func closeTapped() {
@@ -116,11 +152,11 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        canGoToSwapPublisher
+        primaryActionPublisher
             .receiveOnMain()
             .removeDuplicates()
-            .sink { [weak self] canGoToSwap in
-                self?.canGoToSwap = canGoToSwap
+            .sink { [weak self] primaryAction in
+                self?.primaryAction = primaryAction
             }
             .store(in: &bag)
     }
@@ -129,27 +165,29 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
         Task { [weak self] in
             guard let self else { return }
 
+            let loaded: [TokenSummaryIndicator]
+
             do {
-                readings = try await indicatorsProvider.loadIndicators(symbol: symbol)
+                loaded = try await indicatorsProvider.loadIndicators(symbol: symbol)
             } catch {
-                readings = []
+                loaded = []
             }
 
-            isLoading = false
-            updateDerivedState(for: selectedPeriod)
+            apply(readings: loaded)
         }
+    }
+
+    private func apply(readings: [TokenSummaryIndicator]) {
+        self.readings = readings
+        isLoading = false
+        updateDerivedState(for: selectedPeriod)
     }
 
     private func updateDerivedState(for period: TokenSummaryPeriod) {
         let result = mapper.map(readings: readings, timeframe: period.timeframe)
         metrics = result.metrics
         lastUpdated = result.lastUpdated
-
-        if let score = result.score {
-            gaugeState = .score(score)
-        } else {
-            gaugeState = result.metrics.isEmpty ? .dataUnavailable : .outlookUnavailable
-        }
+        gaugeState = result.gaugeState
     }
 }
 
@@ -158,7 +196,8 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
 extension TokenSummaryViewModel {
     static func mock(
         tokenItem: TokenItem,
-        onGoToSwap: @escaping () -> Void = {},
+        primaryAction: TokenSummaryPrimaryAction? = .goToSwap(isEnabled: true),
+        onPrimaryAction: @escaping (TokenSummaryPrimaryAction.Kind) -> Void = { _ in },
         onClose: @escaping () -> Void = {}
     ) -> TokenSummaryViewModel {
         let viewModel = TokenSummaryViewModel(
@@ -167,10 +206,10 @@ extension TokenSummaryViewModel {
             tokenIconInfo: TokenIconInfoBuilder().build(from: tokenItem, isCustom: false),
             symbol: tokenItem.currencySymbol,
             period: .day,
-            canGoToSwapPublisher: Just(true).eraseToAnyPublisher(),
+            primaryActionPublisher: Just(primaryAction).eraseToAnyPublisher(),
             mapper: TokenSummaryIndicatorsMapper(),
             indicatorsProvider: StubTokenSummaryIndicatorsProvider(),
-            onGoToSwap: onGoToSwap,
+            onPrimaryAction: onPrimaryAction,
             onClose: onClose
         )
 
