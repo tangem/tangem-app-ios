@@ -71,8 +71,10 @@
 "add_and_manage_sheet_manage_title" = "Adicionar tokens";
 "add_and_manage_sheet_organize_subtitle" = "Classificação e agrupamento";
 "add_and_manage_sheet_organize_title" = "Organizar tokens";
+"add_crypto_account_subtitle" = "Organize funds across accounts";
 "add_custom_token_choose_network" = "Escolha a rede";
 "add_custom_token_title" = "Adicionar token personalizado";
+"add_joint_account_subtitle" = "Manage shared funds together";
 "add_tokens_title" = "Gerenciar tokens";
 "addfunds_buy_row_description" = "Cartão de crédito ou conta bancária";
 "addfunds_fund_token" = "Adicionar token";
@@ -266,6 +268,7 @@
 "common_copy_address" = "Copiar endereço";
 "common_copy" = "Cópia";
 "common_create" = "Criar";
+"common_crypto_account" = "Crypto account";
 "common_custom" = "Personalizado";
 "common_day" = "dia";
 "common_delete" = "Excluir";
@@ -310,6 +313,7 @@
 "common_in_progress" = "Em andamento";
 "common_in" = "em";
 "common_insufficient_balance" = "Saldo insuficiente";
+"common_joint_account" = "Joint account";
 "common_later" = "Mais tarde";
 "common_learn_and_earn" = "Aprenda e Ganhe";
 "common_learn_more" = "Saber mais";
@@ -745,6 +749,7 @@
 "initial_wallet_sync_restore_progress" = "Restaurando %li%%";
 "jailbreak_warning_message" = "Dispositivos com jailbreak são considerados menos seguros. Seus dados podem estar expostos a riscos adicionais.";
 "jailbreak_warning_title" = "Detecção de violação";
+"joint_account_onboarding_subtitle" = " A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "Você atualizou seus dados biométricos. Escaneie seu cartão ou toque a campainha para entrar.";
 "koinos_insufficient_balance_to_send_koin_description" = "Seu saldo deve ser superior ao valor da taxa para efetuar uma transferência.";
 "koinos_insufficient_balance_to_send_koin_title" = "Saldo insuficiente";
@@ -1858,6 +1863,17 @@
 "tangempay_onboarding_setup_wallet_description" = "E vincularemos o Tangem Pay a essa carteira";
 "tangempay_onboarding_setup_wallet_title" = "Vamos configurar uma carteira";
 "tangempay_onboarding_title" = "Obtenha seu cartão Tangem Pay em minutos";
+"tangempay_order_type_delivery_fee" = "Delivery fee";
+"tangempay_order_type_delivery_time_instant" = "Instant";
+"tangempay_order_type_delivery_time" = "Delivery time";
+"tangempay_order_type_delivery_to" = "Deliver to";
+"tangempay_order_type_first_delivery_free" = "First delivery for free";
+"tangempay_order_type_issue_fee" = "Issue fee";
+"tangempay_order_type_not_enough_money" = "Not enough money";
+"tangempay_order_type_segment_plastic" = "Plastic";
+"tangempay_order_type_segment_virtual" = "Virtual";
+"tangempay_order_type_select" = "Select";
+"tangempay_order_type_title" = "Order new card";
 "tangempay_other_networks_header" = "Outras redes";
 "tangempay_other_networks_subtitle" = "Em seguida, transfira para uma conta de pagamento com taxa de câmbio de 1:1 e sem tarifas.";
 "tangempay_other_networks_title" = "Envie USDT/USDC de qualquer blockchain para sua carteira Tangem.";
