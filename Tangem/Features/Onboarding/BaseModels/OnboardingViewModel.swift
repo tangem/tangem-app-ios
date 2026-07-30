@@ -144,8 +144,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     lazy var addTokensViewModel: OnboardingAddTokensViewModel? = {
         guard
             let userWalletModel,
-            userWalletModel.config.hasFeature(.multiCurrency),
-            let context = makeManageTokensContext(for: userWalletModel)
+            userWalletModel.config.hasFeature(.multiCurrency)
         else {
             goToNextStep()
             return nil
@@ -156,18 +155,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         logAnalytics(event: .manageTokensScreenOpened, params: analyticsParams)
 
-        let manageTokensAdapter = ManageTokensAdapter(
-            settings: .init(
+        return OnboardingAddTokensViewModel(
+            input: .init(
+                accountModelsManager: userWalletModel.accountModelsManager,
                 existingCurves: userWalletModel.config.existingCurves,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
                 hardwareLimitationUtil: HardwareLimitationsUtil(config: userWalletModel.config),
-                analyticsSourceRawValue: analyticsSourceRawValue,
-                context: context
-            )
-        )
-
-        return OnboardingAddTokensViewModel(
-            adapter: manageTokensAdapter,
+                analyticsSourceRawValue: analyticsSourceRawValue
+            ),
             delegate: self
         )
     }()
@@ -471,18 +466,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 }
             }
             .store(in: &bag)
-    }
-
-    private func makeManageTokensContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
-        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
-            return nil
-        }
-
-        // Working with accounts in onboarding is equivalent of working with main account
-        return CommonManageTokensContext(
-            accountModelsManager: userWalletModel.accountModelsManager,
-            currentAccount: mainAccount
-        )
     }
 }
 
