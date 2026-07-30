@@ -24,7 +24,6 @@ struct MarketsTokenDetailsHeaderView: View {
     @ScaledMetric private var horizontalMinSpacing: CGFloat = 4
     @ScaledMetric private var nameSpacing: CGFloat = 4
     @ScaledMetric private var priceSpacing: CGFloat = 6
-    @ScaledMetric private var iconSide: CGFloat = 70
 
     var body: some View {
         HStack(alignment: .top, spacing: .zero) {
@@ -40,7 +39,10 @@ struct MarketsTokenDetailsHeaderView: View {
 
             Spacer(minLength: horizontalMinSpacing)
 
-            IconView(url: iconURL, size: CGSize(width: iconSide, height: iconSide), forceKingfisher: true)
+            TokenIconV2(
+                tokenIconInfo: .remote(name: tokenName, imageURL: iconURL),
+                size: .size72
+            )
         }
     }
 }
