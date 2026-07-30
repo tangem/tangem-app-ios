@@ -34,7 +34,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     private var portfolioBlockStateCancellable: AnyCancellable?
     private var addButtonVisibilityCancellable: AnyCancellable?
     private var matchedWalletModels: [any WalletModel] = []
-    private var matchedUnderivedTokens: [MarketsPortfolioTokenListViewModel.UnderivedToken] = []
+    private(set) var matchedUnderivedTokens: [MarketsPortfolioTokenListViewModel.UnderivedToken] = []
     private var hasMultiCurrencyWallet: Bool = false
     @Published private var totalFiatBalanceText: String?
 
