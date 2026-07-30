@@ -39,7 +39,7 @@ class SendSourceTokenStub: SendSourceToken {
             config: UserWalletConfigStub(),
             backupState: .valid,
             refcode: nil,
-            signer: TangemSignerStub(),
+            signerFactory: TangemSignerFactory(),
             emailDataProvider: EmailDataProviderStub()
         )
     }
