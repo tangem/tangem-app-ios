@@ -42,6 +42,14 @@ struct TransactionDetailsContext {
         }
     }
 
+    #if INTERNAL || DEBUG
+    var openDebug: (TransactionDetailsDebugInfo) -> Void {
+        { [weak routable] info in
+            routable?.openTransactionDetailsDebug(info)
+        }
+    }
+    #endif
+
     var onClose: () -> Void {
         { [weak routable] in
             routable?.closeTransactionDetails()
