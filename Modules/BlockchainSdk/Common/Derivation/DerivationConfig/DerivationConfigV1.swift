@@ -58,6 +58,7 @@ struct DerivationConfigV1: DerivationConfig {
              .zkLinkNova,
              .hyperliquidEVM,
              .linea,
+             .igra,
              .arbitrumNova,
              .plasma,
              .robinhood,
