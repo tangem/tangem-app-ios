@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -178,6 +179,7 @@ private struct StatusStateView: View {
             icon.image
                 .renderingMode(.template)
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.statusStateIcon)
 
             Text(message)
                 .multilineTextAlignment(.center)

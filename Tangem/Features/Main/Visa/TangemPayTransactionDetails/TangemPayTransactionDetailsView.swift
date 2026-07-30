@@ -120,6 +120,7 @@ private extension TangemPayTransactionDetailsView {
 
             VStack(spacing: 12) {
                 redesignedIcon(model.icon)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsIcon)
 
                 VStack(spacing: 8) {
                     SensitiveText(model.amount)
@@ -176,6 +177,7 @@ private extension TangemPayTransactionDetailsView {
 
                 Text(subtitle)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsDate)
             }
             .multilineTextAlignment(.center)
 
