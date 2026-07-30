@@ -15,7 +15,11 @@ struct EarnOpportunitiesMapper {
     typealias ViewState = EarnOpportunitiesViewModel.ViewState
 
     private let rowBuilder = RowBuilder()
-    private let tokenItemMapper = TokenItemMapper(supportedBlockchains: SupportedBlockchains.all)
+    private let tokenItemMapper: TokenItemMapper
+
+    init(supportedBlockchains: Set<Blockchain> = SupportedBlockchains.all) {
+        tokenItemMapper = TokenItemMapper(supportedBlockchains: supportedBlockchains)
+    }
 
     func map(
         accounts: [AccountCandidate],
