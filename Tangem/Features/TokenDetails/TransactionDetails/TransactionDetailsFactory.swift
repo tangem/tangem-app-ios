@@ -436,6 +436,18 @@ enum TransactionDetailsFactory {
             ))
         }
 
+        #if INTERNAL || DEBUG
+        // Debug dump of the raw record
+        if let record {
+            menuActions.append(.init(
+                id: "debug",
+                title: "Debug",
+                icon: Assets.Glyphs.docNew,
+                handler: { context.openDebug(debugInfo(for: record)) }
+            ))
+        }
+        #endif
+
         return TransactionDetailsHeaderViewData(
             title: title,
             date: transaction.subtitleText,
@@ -631,6 +643,38 @@ enum TransactionDetailsFactory {
         let formattedAmount = amount.map { balanceFormatter.formatDecimal($0) }
         return [formattedAmount, symbol].compactMap { $0 }.joined(separator: " ")
     }
+
+    // MARK: - Debug
+
+    #if INTERNAL || DEBUG
+    private static func debugInfo(for record: TransactionRecord) -> TransactionDetailsDebugInfo {
+        let isSynthetic = ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash)
+
+        let source: String
+        let operation: String
+
+        switch record.expressExtraInfo {
+        case .exchange:
+            operation = "Swap"
+            source = isSynthetic ? "Express (synthetic)" : "BSDK + Express (merged)"
+        case .onramp:
+            operation = "Onramp"
+            source = isSynthetic ? "Express (synthetic)" : "BSDK + Express (merged)"
+        case nil:
+            operation = "On-chain"
+            source = "BSDK (on-chain)"
+        }
+
+        return TransactionDetailsDebugInfo(
+            summary: [
+                .init(title: "Source", value: source),
+                .init(title: "Operation", value: operation),
+                .init(title: "Synthetic", value: isSynthetic ? "Yes" : "No"),
+            ],
+            dump: ReflectionDump.text(for: record)
+        )
+    }
+    #endif
 
     // MARK: - Side effects
 
