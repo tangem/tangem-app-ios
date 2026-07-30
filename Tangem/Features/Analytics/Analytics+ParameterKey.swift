@@ -203,5 +203,9 @@ extension Analytics {
         // MARK: - Tangem Pay Tiers
 
         case plan = "Plan"
+
+        // MARK: - Tangem Pay Virtual Account
+
+        case field = "Field"
     }
 }
