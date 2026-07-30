@@ -20,6 +20,7 @@ struct TangemPayMainView: View {
     @StateObject private var elasticContainerModel: TangemElasticContainerModel
     @State private var headerHeightRatio: CGFloat = 1
     @State private var visibleBodyHeight: CGFloat = 0
+    @State private var cardsRowWidth: CGFloat = 0
 
     init(viewModel: TangemPayMainViewModel) {
         self.viewModel = viewModel
@@ -176,19 +177,24 @@ struct TangemPayMainView: View {
             .slotStart(DesignSystem.Icons.Info.regular16)
     }
 
-    @ViewBuilder
     private var redesignedCardsRow: some View {
-        HStack(spacing: 8) {
-            ForEach(viewModel.cardEntries) { entry in
-                redesignedCardEntryButton(for: entry)
-            }
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(viewModel.cardEntries) { entry in
+                    redesignedCardEntryButton(for: entry)
+                }
 
-            Button(action: viewModel.tapAddCard) {
-                TangemPayAddCardView()
+                Button(action: viewModel.tapAddCard) {
+                    TangemPayAddCardView()
+                }
+                .disabled(viewModel.addCardDisabled)
+                .opacity(viewModel.addCardDisabled ? 0.6 : 1)
             }
-            .disabled(viewModel.addCardDisabled)
-            .opacity(viewModel.addCardDisabled ? 0.6 : 1)
+            .padding(.horizontal, 16)
+            .frame(minWidth: cardsRowWidth)
         }
+        // cardsRowWidth logic is needed to preserve center alignment, on iOS 17+ can be replaced with containerRelativeFrame
+        .readGeometry(\.size.width, bindTo: $cardsRowWidth)
     }
 
     @ViewBuilder
