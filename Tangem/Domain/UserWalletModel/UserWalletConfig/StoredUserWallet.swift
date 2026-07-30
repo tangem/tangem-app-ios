@@ -11,11 +11,14 @@ import CryptoKit
 import TangemSdk
 import TangemMobileWalletSdk
 
-struct StoredUserWallet: Identifiable, Encodable {
+struct StoredUserWallet: Identifiable {
     var id = UUID()
     let userWalletId: Data
     var name: String
     var walletInfo: WalletInfo
+
+    /// Not persisted: marks a record decoded through a legacy-format fallback, so the caller can re-save it in the current format.
+    var wasDecodedFromLegacyFormat = false
 }
 
 extension StoredUserWallet {
@@ -71,7 +74,7 @@ extension StoredUserWallet.SensitiveInfo {
     }
 }
 
-extension StoredUserWallet: Decodable {
+extension StoredUserWallet: Codable {
     enum CodingKeys: String, CodingKey {
         case id
         case userWalletId
@@ -92,6 +95,8 @@ extension StoredUserWallet: Decodable {
         if let mobileWallet = try? container.decode(MobileWalletInfo.self, forKey: .mobileWalletInfo) {
             walletInfo = .mobileWallet(mobileWallet)
         } else if let cardDTOv4 = try? container.decode(CardDTOv4.self, forKey: .card) {
+            wasDecodedFromLegacyFormat = true
+
             let associatedCardIds = try container.decode(Set<String>.self, forKey: .associatedCardIds)
             let walletData = try container.decode(DefaultWalletData.self, forKey: .walletData)
 
