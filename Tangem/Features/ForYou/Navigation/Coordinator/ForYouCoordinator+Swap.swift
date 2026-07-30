@@ -16,11 +16,15 @@ extension ForYouCoordinator {
         let canGoToSwapPublisher = userWalletRepository.selectedModel
             .map { makeCanGoToSwapPublisher(of: tokenItem, in: $0) } ?? Just(false).eraseToAnyPublisher()
 
+        let primaryActionPublisher: AnyPublisher<TokenSummaryPrimaryAction?, Never> = canGoToSwapPublisher
+            .map { .goToSwap(isEnabled: $0) }
+            .eraseToAnyPublisher()
+
         tokenSummaryViewModel = TokenSummaryViewModel(
             tokenItem: tokenItem,
             period: period,
-            canGoToSwapPublisher: canGoToSwapPublisher,
-            onGoToSwap: { [weak self] in self?.goToSwap(with: tokenItem) },
+            primaryActionPublisher: primaryActionPublisher,
+            onPrimaryAction: { [weak self] _ in self?.goToSwap(with: tokenItem) },
             onClose: { [weak self] in self?.tokenSummaryViewModel = nil }
         )
     }
