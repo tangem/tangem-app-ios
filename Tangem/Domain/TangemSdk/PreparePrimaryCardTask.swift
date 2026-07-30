@@ -13,13 +13,15 @@ import BlockchainSdk
 class PreparePrimaryCardTask: CardSessionRunnable {
     var shouldAskForAccessCode: Bool { false }
 
+    /// Wraps `CreateMasterSecretCommand`, whose `.alreadyCreated` pre-check reads `card.masterSecret`.
+    /// Only the top-level runnable's `preflightReadMode` is applied, so the master secret must be loaded here.
+    var preflightReadMode: PreflightReadMode { .fullCardRead(options: [.readMasterSecret]) }
+
     private let curves: [EllipticCurve]
     private let shouldReset: Bool
     private let mnemonic: Mnemonic?
     private let passphrase: String?
-    private var commandBag: (any CardSessionRunnable)?
 
-    private var initializedCard: Card?
     private var primaryCard: PrimaryCard?
 
     init(curves: [EllipticCurve], mnemonic: Mnemonic?, passphrase: String?, shouldReset: Bool) {
@@ -40,17 +42,8 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         }
 
         if card.settings.isHDWalletAllowed {
-            let config = UserWalletConfigFactory().makeConfig(
-                cardInfo: CardInfo(card: CardDTO(card: card), walletData: .none, associatedCardIds: [])
-            )
-            let blockchainNetworks = config.defaultBlockchains.map { $0.blockchainNetwork }
-
-            let derivations: [EllipticCurve: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { result, network in
-                result[network.blockchain.curve, default: []].append(contentsOf: network.derivationPaths())
-            }
-
             var sdkConfig = session.environment.config
-            sdkConfig.defaultDerivationPaths = derivations
+            sdkConfig.defaultDerivationPaths = DefaultDerivationsHelper().makeDefaultDerivations(for: card)
             session.updateConfig(with: sdkConfig)
         }
 
@@ -65,16 +58,75 @@ class PreparePrimaryCardTask: CardSessionRunnable {
 
     private func createMultiWallet(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
         let command = CreateMultiWalletTask(curves: curves, mnemonic: mnemonic, passphrase: passphrase)
-        commandBag = command
         command.run(in: session) { result in
             switch result {
             case .success:
-                // save the card with derived wallets
-                self.initializedCard = session.environment.card
+                guard let card = session.environment.card else {
+                    completion(.failure(.missingPreflightRead))
+                    return
+                }
+
+                if card.firmwareVersion >= .v8 {
+                    self.createMasterSecret(in: session, completion: completion)
+                } else {
+                    self.checkIfAllWalletsCreated(in: session, completion: completion)
+                }
+
+            case .failure(let error):
+                completion(.failure(error))
+            }
+
+            withExtendedLifetime(command) {}
+        }
+    }
+
+    private func prepareMasterSecret() throws -> ExtendedPrivateKey? {
+        guard let mnemonic else { return nil }
+
+        let privKeyFactory = AnyMasterKeyFactory(mnemonic: mnemonic, passphrase: passphrase ?? "")
+        let privateKey = try privKeyFactory.makeMasterKey(for: .secp256k1)
+        // https://github.com/bitcoin/bips/blob/master/bip-0085.mediawiki
+        // `m/83696968'/39'/{language}'/{words}'/{index}'`
+        let bip85MasterKey = try privateKey.derivePrivateKey(node: .hardened(83696968))
+        return bip85MasterKey
+    }
+
+    private func createMasterSecret(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
+        do {
+            let masterSecret = try prepareMasterSecret()
+            let command = CreateMasterSecretCommand(privateKey: masterSecret)
+            command.run(in: session) { result in
+                switch result {
+                case .success:
+                    self.checkMasterSecret(in: session, completion: completion)
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+
+                withExtendedLifetime(command) {}
+            }
+        } catch {
+            completion(.failure(error.toTangemSdkError()))
+        }
+    }
+
+    private func checkMasterSecret(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
+        let command = ReadMasterSecretCommand()
+        command.run(in: session) { result in
+            switch result {
+            case .success(let response):
+                guard response.masterSecret != nil else {
+                    // This specific error is intended to trigger a retry of the entire task.
+                    completion(.failure(.walletAlreadyCreated))
+                    return
+                }
+
                 self.checkIfAllWalletsCreated(in: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
+
+            withExtendedLifetime(command) {}
         }
     }
 
@@ -85,12 +137,11 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         }
 
         guard card.firmwareVersion >= .multiwalletAvailable else {
-            complete(completion)
+            complete(in: session, completion)
             return
         }
 
         let command = ReadWalletsListCommand()
-        commandBag = command
         command.run(in: session) { result in
             switch result {
             case .success(let response):
@@ -105,6 +156,8 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             case .failure(let error):
                 completion(.failure(error))
             }
+
+            withExtendedLifetime(command) {}
         }
     }
 
@@ -120,21 +173,21 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         }
 
         let command = StartPrimaryCardLinkingCommand()
-        commandBag = command
         command.run(in: session) { result in
             switch result {
             case .success(let primaryCard):
                 self.primaryCard = primaryCard
-                self.complete(completion)
+                self.complete(in: session, completion)
             case .failure(let error):
                 completion(.failure(error))
             }
+
+            withExtendedLifetime(command) {}
         }
     }
 
     private func resetCard(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
         let command = ResetToFactorySettingsTask()
-        commandBag = command
         command.run(in: session) { result in
             switch result {
             case .success:
@@ -142,11 +195,13 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             case .failure(let error):
                 completion(.failure(error))
             }
+
+            withExtendedLifetime(command) {}
         }
     }
 
-    private func complete(_ completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
-        guard let card = initializedCard else {
+    private func complete(in session: CardSession, _ completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
+        guard let card = session.environment.card else {
             completion(.failure(.unknownError))
             return
         }
