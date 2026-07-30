@@ -214,7 +214,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             return nil
         }
 
-        let factory = WalletModelTransactionDispatcherProvider(walletModel: input.walletModel, signer: input.userWalletInfo.signer)
+        let factory = WalletModelTransactionDispatcherProvider(walletModel: input.walletModel, signer: input.userWalletInfo.signerFactory.makeSigner())
         let dispatcher = factory.makeYieldModuleTransactionDispatcher()
 
         return CommonYieldModuleFlowFactory(
