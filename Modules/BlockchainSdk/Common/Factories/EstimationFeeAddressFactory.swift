@@ -99,6 +99,7 @@ struct EstimationFeeAddressFactory {
              .scroll,
              .linea,
              .monad,
+             .igra,
              .robinhood,
              .arbitrumNova,
              .plasma,
