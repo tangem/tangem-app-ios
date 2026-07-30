@@ -535,7 +535,7 @@ struct GaslessYieldFeeTests {
     }
 }
 
-private final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
+final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
     private let plainError: Error?
     private let plainFee: BSDKFee
     private let yieldFee: BSDKFee
