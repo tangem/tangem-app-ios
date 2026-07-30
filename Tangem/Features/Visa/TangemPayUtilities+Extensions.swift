@@ -56,13 +56,13 @@ extension TangemPayUtilities {
         return repository.keys
             .first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })
             .flatMap { key -> Wallet.PublicKey? in
-                guard let derivedKey = key.derivedKeys[TangemPayUtilities.derivationPath]
+                guard let publicKey = key.publicKey, let derivedKey = key.derivedKeys[TangemPayUtilities.derivationPath]
                 else {
                     return nil
                 }
 
                 return Wallet.PublicKey(
-                    seedKey: key.publicKey,
+                    seedKey: publicKey,
                     derivationType: .plain(
                         .init(
                             path: TangemPayUtilities.derivationPath,

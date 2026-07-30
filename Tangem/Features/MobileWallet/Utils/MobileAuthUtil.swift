@@ -10,7 +10,7 @@ import Foundation
 import LocalAuthentication
 import TangemFoundation
 import TangemMobileWalletSdk
-import class TangemSdk.BiometricsUtil
+import TangemSdk
 
 final class MobileAuthUtil {
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()

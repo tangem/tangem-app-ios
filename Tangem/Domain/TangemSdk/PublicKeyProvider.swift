@@ -9,5 +9,5 @@
 import Foundation
 
 public protocol PublicKeyProvider {
-    var publicKey: Data { get }
+    var publicKey: Data? { get }
 }
