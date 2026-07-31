@@ -60,13 +60,15 @@ struct MainUserWalletHeader: View {
     private var loadableBalance: some View {
         LoadableBalanceView(
             state: headerViewModel.balance,
-            style: .init(
+            style: LoadableBalanceView.Style(
                 font: DesignSystem.Font.displayMediumToken,
                 textColor: DesignSystem.Color.textPrimary
             ),
-            loader: .init(
-                size: Sizes.balanceSkeletonSize * scaleFactor,
-                cornerRadiusStyle: .capsule
+            loader: LoadableBalanceView.LoaderStyle(
+                // Unscaled on purpose — the DS3 shimmer block applies Dynamic Type scaling itself.
+                size: Sizes.balanceSkeletonSize,
+                cornerRadiusStyle: .capsule,
+                appearance: .tangemShimmer
             ),
             accessibilityIdentifier: MainAccessibilityIdentifiers.totalBalance
         )
