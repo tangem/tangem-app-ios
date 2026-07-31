@@ -367,6 +367,10 @@ extension CommonWalletModel: WalletModel {
         walletManager as? MinimalBalanceProvider
     }
 
+    var scaledUIAmountProvider: (any ScaledUIAmountProvider)? {
+        walletManager as? ScaledUIAmountProvider
+    }
+
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {
         walletManager as? EthereumGaslessDataProvider
     }
