@@ -36,6 +36,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemFadeDemo()
     func openTangemMessageBubbleDemo()
     func openTokenIconV2Demo()
+    func openUtilGraphDemo()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -70,6 +71,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemFadeDemoViewModel: TangemFadeDemoViewModel?
     @Published var tangemMessageBubbleDemoViewModel: TangemMessageBubbleDemoViewModel?
     @Published var tokenIconV2DemoViewModel: TokenIconV2DemoViewModel?
+    @Published var utilGraphDemoViewModel: UtilGraphDemoViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -191,6 +193,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTokenIconV2Demo() {
         tokenIconV2DemoViewModel = .init()
+    }
+
+    func openUtilGraphDemo() {
+        utilGraphDemoViewModel = .init()
     }
 }
 
