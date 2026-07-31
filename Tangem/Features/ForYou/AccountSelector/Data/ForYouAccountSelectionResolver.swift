@@ -22,34 +22,34 @@ struct ForYouAccountSelectionResolver {
     private let userWalletRepository: UserWalletRepository
     private let selectionPublisher: AnyPublisher<ForYouAccountSelection, Never>
 
+    /// The wallet set all the scope publishers derive from.
+    var unlockedWallets: [any UserWalletModel] {
+        userWalletRepository.models.filter { !$0.isUserWalletLocked }
+    }
+
+    /// True when no locked wallet is hiding accounts from the selector's universe.
+    var includesAllWallets: Bool {
+        userWalletRepository.models.allSatisfy { !$0.isUserWalletLocked }
+    }
+
+    var selectionScopePublisher: SelectionScopePublisher {
+        Publishers.CombineLatest(allWalletAccountsPublisher(), selectionPublisher)
+            .map { [self] all, selection in
+                SelectionScope(
+                    all: all,
+                    selection: selection,
+                    includesAllWallets: includesAllWallets
+                )
+            }
+            .eraseToAnyPublisher()
+    }
+
     init(
         userWalletRepository: UserWalletRepository = InjectedValues[\.userWalletRepository],
         selectionPublisher: AnyPublisher<ForYouAccountSelection, Never>
     ) {
         self.userWalletRepository = userWalletRepository
         self.selectionPublisher = selectionPublisher
-    }
-
-    func selectionScopePublisher() -> SelectionScopePublisher {
-        Publishers.CombineLatest(allWalletAccountsPublisher(), selectionPublisher)
-            .map { [self] all, selection in
-                SelectionScope(
-                    all: all,
-                    selection: selection,
-                    includesAllWallets: includesAllWallets()
-                )
-            }
-            .eraseToAnyPublisher()
-    }
-
-    /// The wallet set all the scope publishers derive from.
-    func unlockedWallets() -> [any UserWalletModel] {
-        userWalletRepository.models.filter { !$0.isUserWalletLocked }
-    }
-
-    /// True when no locked wallet is hiding accounts from the selector's universe.
-    func includesAllWallets() -> Bool {
-        userWalletRepository.models.allSatisfy { !$0.isUserWalletLocked }
     }
 }
 
@@ -61,7 +61,7 @@ private extension ForYouAccountSelectionResolver {
         userWalletRepository.eventProvider
             .mapToVoid()
             .prepend(())
-            .map { [self] _ in walletAccountsPublisher(for: unlockedWallets()) }
+            .map { [self] _ in walletAccountsPublisher(for: unlockedWallets) }
             .switchToLatest()
             .eraseToAnyPublisher()
     }
@@ -80,9 +80,10 @@ private extension ForYouAccountSelectionResolver {
     }
 
     func walletAccountsPublisher(for wallet: any UserWalletModel) -> WalletAccountsPublisher {
-        wallet.accountModelsManager.cryptoAccountModelsPublisher
-            .map { accounts in accounts.map { WalletAccount(wallet: wallet, account: $0) } }
-            .eraseToAnyPublisher()
+        wallet.accountModelsManager.cryptoAccountModelsPublisher.map { accounts in
+            accounts.map { WalletAccount(wallet: wallet, account: $0) }
+        }
+        .eraseToAnyPublisher()
     }
 }
 
