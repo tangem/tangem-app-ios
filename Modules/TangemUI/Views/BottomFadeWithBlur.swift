@@ -21,15 +21,13 @@ public struct BottomFadeWithBlur: View {
             .dimmingTintColor(backgroundColor)
             .dimmingAlpha(.constant(alpha: 1.0))
             .dimmingOvershoot(nil)
-            .frame(maxWidth: .infinity)
-            .frame(height: Constants.height)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .ignoresSafeArea(.container, edges: .bottom)
             .allowsHitTesting(false)
     }
 
     private enum Constants {
         static let blurRadius: CGFloat = 10
-        static let height: CGFloat = 140
     }
 }
 
