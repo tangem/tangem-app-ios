@@ -23,12 +23,17 @@ struct TangemPayAddToAppPayGuideView: View {
                         viewModel: viewModel.tangemPayCardDetailsViewModel,
                         showsInlineDetailsButton: true
                     )
+                    .padding(.horizontal, 16)
 
                     steps
                 }
-                .padding(.horizontal, 16)
                 .padding(.top, 12)
             }
+            .scrollIndicators(.hidden)
+            .background(
+                DesignSystem.Color.bgPrimary
+                    .ignoresSafeArea()
+            )
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.addToApplePayGuideContainer)
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
@@ -58,10 +63,10 @@ struct TangemPayAddToAppPayGuideView: View {
     }
 
     var steps: some View {
-        VStack(spacing: 24) {
+        VStack(alignment: .leading, spacing: 24) {
             Text(Localization.tangempayCardDetailsOpenWalletTitleApple)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                .multilineTextAlignment(.center)
+                .multilineTextAlignment(.leading)
 
             VStack(alignment: .leading, spacing: 16) {
                 step(number: "1", text: Localization.tangempayCardDetailsOpenWalletStep1Apple)
@@ -71,23 +76,26 @@ struct TangemPayAddToAppPayGuideView: View {
                 step(number: "5", text: Localization.tangempayCardDetailsOpenWalletStep4)
                 step(number: "6", text: Localization.tangempayCardDetailsOpenWalletStep5)
             }
-            .padding(.horizontal, 24)
         }
+        .padding(.horizontal, 24)
     }
 
     func step(number: String, text: String) -> some View {
-        HStack(spacing: 16) {
-            Text(number)
-                .style(Fonts.Bold.footnote, color: Colors.Text.constantWhite)
-                .background {
-                    Circle()
-                        .foregroundStyle(Colors.Text.accent)
-                        .frame(minWidth: 24, minHeight: 24)
-                }
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(DesignSystem.Color.bgInverse)
+                    .frame(minWidth: 24, minHeight: 24)
+
+                Text(number)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textInversePrimary)
+            }
+            .fixedSize()
 
             Text(text)
-                .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                .style(DesignSystem.Font.subheadingMediumToken, color: Colors.Text.primary1)
                 .multilineTextAlignment(.leading)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
