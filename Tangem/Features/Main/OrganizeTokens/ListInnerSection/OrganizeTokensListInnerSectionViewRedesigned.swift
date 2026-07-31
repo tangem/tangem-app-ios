@@ -13,7 +13,7 @@ import TangemUIUtils
 
 struct OrganizeTokensListInnerSectionViewRedesigned: View {
     let title: String
-    let identifier: AnyHashable
+    var identifier: AnyHashable = 0 // Placeholder value when the view has no corresponding identifier from the VM
     let isDraggable: Bool
 
     @ScaledMetric private var leadingPadding: CGFloat = 16

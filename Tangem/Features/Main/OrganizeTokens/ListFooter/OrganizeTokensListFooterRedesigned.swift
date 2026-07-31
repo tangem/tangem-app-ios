@@ -18,18 +18,12 @@ struct OrganizeTokensListFooterRedesigned: View {
     let isTokenListFooterGradientHidden: Bool
     let contentInsets: EdgeInsets
 
-    @State private var hasBottomSafeAreaInset = false
-
     private let buttonSize: TangemButtonV2.Size = .x12
 
     private var buttonsPadding: EdgeInsets {
         var contentInsets = contentInsets
-        contentInsets.bottom += (hasBottomSafeAreaInset ? 6.0 : 12.0)
+        contentInsets.bottom += 12.0
         return contentInsets
-    }
-
-    private var overlayViewTopPadding: CGFloat {
-        return -max(75.0 - buttonsPadding.top - buttonSize.height, 0.0)
     }
 
     var body: some View {
@@ -55,17 +49,12 @@ struct OrganizeTokensListFooterRedesigned: View {
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.applyButton)
         }
         .padding(buttonsPadding)
-        .readGeometry(\.safeAreaInsets.bottom) { [oldValue = hasBottomSafeAreaInset] bottomInset in
-            let newValue = bottomInset != 0.0
-            if newValue != oldValue {
-                hasBottomSafeAreaInset = newValue
-            }
-        }
-        .background(
-            ListFooterOverlayShadowView(color: DesignSystem.Color.bgPrimary)
-                .padding(.top, overlayViewTopPadding)
+        .background(alignment: .bottom) {
+            TangemFade(position: .bottom)
+                .variant(.hard)
+                .ignoresSafeArea(edges: .bottom)
                 .hidden(isTokenListFooterGradientHidden)
-        )
+        }
     }
 }
 
