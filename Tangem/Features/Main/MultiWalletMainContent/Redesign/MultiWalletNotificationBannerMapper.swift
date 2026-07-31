@@ -57,6 +57,10 @@ private extension MultiWalletNotificationBannerMapper {
             return .mid
         }
 
+        if input.settings.event is TangemPayNotificationEvent {
+            return .low
+        }
+
         switch input.severity {
         case .critical, .warning:
             return .high
@@ -356,6 +360,7 @@ private extension MultiWalletNotificationBannerMapper {
             content: mapButtonContent(actionType),
             styleType: mapButtonStyleType(actionType.style),
             cornerStyle: .rounded,
+            isLoading: button.isLoading,
             action: { button.action(notificationId, actionType) }
         )
     }
