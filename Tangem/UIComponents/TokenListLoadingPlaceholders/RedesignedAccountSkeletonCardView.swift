@@ -31,7 +31,7 @@ struct RedesignedAccountSkeletonCardView: View {
         }
         .padding(.unit(.x3))
         .background(Color.Tangem.Surface.level3)
-        .cornerRadiusContinuous(.unit(.x5))
+        .cornerRadiusContinuous(24)
         .environment(\.isSkeletonShimmerActive, isShimmerActive)
     }
 

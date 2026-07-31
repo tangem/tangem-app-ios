@@ -289,7 +289,7 @@ struct TangemPayMainView: View {
                 }
 
                 if viewModel.isDeactivated {
-                    Button(role: .destructive, action: viewModel.promptRemoveAccount) {
+                    SwiftUI.Button(role: .destructive, action: viewModel.promptRemoveAccount) {
                         Label(Localization.tangempayRemoveAccount, systemImage: "trash")
                     }
                 }
