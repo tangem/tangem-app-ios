@@ -1,5 +1,5 @@
 //
-//  SolanaScaledUiAmountDTO.swift
+//  SolanaScaledUIAmountDTO.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum SolanaScaledUiAmountDTO {
+enum SolanaScaledUIAmountDTO {
     struct GetAccountInfoResult: Decodable {
         let value: Value?
 

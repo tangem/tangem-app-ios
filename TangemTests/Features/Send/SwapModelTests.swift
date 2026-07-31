@@ -437,6 +437,7 @@ private final class SwapableTokenStub: SendSwapableToken {
     var fiatAvailableBalanceProvider: TokenBalanceProvider { inner.fiatAvailableBalanceProvider }
     var allowanceService: (any AllowanceService)? { inner.allowanceService }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { inner.withdrawalNotificationProvider }
+    var scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver? { inner.scaledUIAmountMultiplierResolver }
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { inner.emailDataCollectorBuilder }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { await inner.transactionHistoryEnricher } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { inner.transactionDispatcherProvider }
