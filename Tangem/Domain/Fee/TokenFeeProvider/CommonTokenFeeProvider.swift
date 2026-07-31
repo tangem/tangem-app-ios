@@ -20,6 +20,8 @@ final class CommonTokenFeeProvider {
     let feeTokenItemBalanceProvider: TokenBalanceProvider
     let supportingOptions: TokenFeeProviderSupportingOptions
 
+    var isBridgeFeeRestrictionEnabled = FeatureProvider.isAvailable(.gaslessBridgeFeeRestriction)
+
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
 
@@ -261,12 +263,10 @@ private extension CommonTokenFeeProvider {
             tokenFeeProvider: self
         )
 
-        let allowsZeroFeePaid = feeTokenItem.blockchain.allowsZeroFeePaid
-
         feeTokenItemBalanceStateCancellable = feeTokenItemBalanceProvider
             .balanceTypePublisher
-            .map { $0.value ?? 0 }
-            .map { allowsZeroFeePaid ? $0 >= 0 : $0 > 0 }
+            .withWeakCaptureOf(self)
+            .map { feeProvider, balanceType in feeProvider.hasFeeCurrency(balance: balanceType.value ?? 0) }
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { feeProvider, hasFeeCurrency in
@@ -281,6 +281,8 @@ private extension CommonTokenFeeProvider {
     }
 
     func updateSupportingState(input: TokenFeeProviderInputData?) {
+        updateBridgeFeeSupportingState(input: input)
+
         switch input {
         case .none:
             updateState(state: .unavailable(.inputDataNotSet))
@@ -313,6 +315,45 @@ private extension CommonTokenFeeProvider {
             break
         case .approveWithSwap:
             updateState(state: .unavailable(.notSupported))
+        }
+    }
+
+    /// A bridge provider charges its own fee in the blockchain's coin and expects it as the transaction
+    /// value, which a gasless transaction can't carry: the relayer forwards no coin value.
+    ///
+    /// The same provider quotes with and without a bridge fee from one quote to the next, so the verdict
+    /// is withdrawn as well — while this provider stays unselected, nothing else would clear it.
+    /// The withdrawal restores the balance verdict rather than a plain `.idle`: for an unchanged
+    /// zero balance the balance publisher never re-emits, so nothing else would bring it back
+    func updateBridgeFeeSupportingState(input: TokenFeeProviderInputData?) {
+        guard isBridgeFeeRestrictionEnabled, tokenFeeLoader is CommonGaslessTokenFeeLoader else {
+            return
+        }
+
+        switch (bridgeFee(in: input) > 0, stateSubject.value) {
+        case (true, _):
+            updateState(state: .unavailable(.notSupported))
+        case (false, .unavailable(.notSupported)):
+            let balance = feeTokenItemBalanceProvider.balanceType.value ?? 0
+            updateState(state: hasFeeCurrency(balance: balance) ? .idle : .unavailable(.noTokenBalance))
+        case (false, _):
+            break
+        }
+    }
+
+    func hasFeeCurrency(balance: Decimal) -> Bool {
+        feeTokenItem.blockchain.allowsZeroFeePaid ? balance >= 0 : balance > 0
+    }
+
+    /// The fee a bridge provider charges in the blockchain's coin, carried by every input that can describe a swap
+    func bridgeFee(in input: TokenFeeProviderInputData?) -> Decimal {
+        switch input {
+        case .dex(.ethereum(_, _, _, let otherNativeFee)),
+             .dex(.ethereumEstimate(_, let otherNativeFee)),
+             .approveWithSwap(_, _, _, let otherNativeFee, _):
+            otherNativeFee ?? 0
+        default:
+            0
         }
     }
 

@@ -3,177 +3,170 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Combine
-import TangemLocalization
 import SwiftUI
 import TangemAssets
+import TangemLocalization
+import TangemUI
+import TangemUIUtils
 
 struct MarketsTokenDetailsInsightsView: View {
     @ObservedObject var viewModel: MarketsTokenDetailsInsightsViewModel
-    let viewWidth: CGFloat
 
-    private var itemWidth: CGFloat {
-        max(0, (viewWidth - Constants.itemsSpacing - Constants.backgroundHorizontalPadding * 2) / 2)
-    }
+    @ScaledMetric private var trendImageSide: CGFloat = 12
 
-    private var gridItems: [GridItem] {
-        [GridItem(.adaptive(minimum: itemWidth), spacing: Constants.itemsSpacing, alignment: .topLeading)]
-    }
+    private let gridItems = [
+        GridItem(.flexible(), alignment: .topLeading),
+        GridItem(.flexible(), alignment: .topLeading),
+    ]
 
     var body: some View {
-        VStack(spacing: .zero) {
+        VStack(spacing: 24) {
             header
 
-            LazyVGrid(columns: gridItems, alignment: .center, spacing: 16, content: {
-                ForEach(viewModel.records.indexed(), id: \.0) { index, info in
-                    MarketsTokenDetailsStatisticsRecordView(
-                        title: info.title,
-                        message: info.recordData,
-                        trend: info.trend,
-                        infoButtonAction: {
-                            viewModel.showInfoBottomSheet(for: info.type)
-                        }
-                    )
-                    .frame(minWidth: itemWidth, alignment: .leading)
+            LazyVGrid(columns: gridItems, alignment: .leading, spacing: 16) {
+                ForEach(indexed: viewModel.records.indexed()) { _, info in
+                    recordView(for: info)
                 }
-            })
+            }
             .drawingGroup()
-            .padding(.vertical, Constants.itemsSpacing)
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: .zero, horizontalPadding: Constants.backgroundHorizontalPadding)
+        .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 16, radius: 24)
     }
 
     private var header: some View {
-        HStack {
-            if viewModel.shouldShowHeaderInfoButton {
-                Button(action: viewModel.showInsightsSheetInfo) {
-                    HStack(spacing: 4) {
-                        headerLabel
-
-                        Assets.infoCircle16.image
-                            .renderingMode(.template)
-                            .foregroundStyle(Colors.Icon.informative)
-                    }
-                }
-            } else {
-                headerLabel
-            }
+        HStack(spacing: .zero) {
+            headerTitle
 
             Spacer()
 
-            MarketsPickerView(
-                marketPriceIntervalType: $viewModel.selectedInterval,
-                options: viewModel.availableIntervals,
-                shouldStretchToFill: false,
-                style: .init(textVerticalPadding: 2),
-                titleFactory: { $0.tokenDetailsNameLocalized }
+            TangemSegmentedPicker(
+                data: viewModel.availableIntervals,
+                selection: $viewModel.selectedInterval
             )
+            .style(.fixed)
         }
-        .padding(.top, 12)
-        .padding(.bottom, 6)
+    }
+
+    @ViewBuilder
+    private var headerTitle: some View {
+        let label = HStack(spacing: 4) {
+            headerLabel
+
+            if viewModel.shouldShowHeaderInfoButton {
+                infoIcon
+            }
+        }
+
+        if viewModel.shouldShowHeaderInfoButton {
+            SwiftUI.Button(action: viewModel.showInsightsSheetInfo) { label }
+        } else {
+            label
+        }
     }
 
     private var headerLabel: some View {
         Text(Localization.marketsTokenDetailsInsights)
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
     }
-}
 
-extension MarketsTokenDetailsInsightsView {
-    enum Constants {
-        static let itemsSpacing: CGFloat = 12
-        static let backgroundHorizontalPadding: CGFloat = 14
+    private var infoIcon: some View {
+        DesignSystem.Icons.Info.regular16.image
+            .renderingMode(.template)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
     }
-}
 
-extension MarketsTokenDetailsInsightsView {
-    enum RecordType: String, Identifiable, MarketsTokenDetailsInfoDescriptionProvider {
-        case buyers
-        case buyPressure
-        case holdersChange
-        case liquidity
+    private func recordView(for info: MarketsTokenDetailsInsightsRecordInfo) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            valueRow(for: info)
 
-        var id: String { rawValue }
-
-        var titleShort: String {
-            switch self {
-            case .buyers: return Localization.marketsTokenDetailsExperiencedBuyers
-            case .buyPressure: return Localization.marketsTokenDetailsBuyPressure
-            case .holdersChange: return Localization.marketsTokenDetailsHolders
-            case .liquidity: return Localization.marketsTokenDetailsLiquidity
-            }
+            labelRow(for: info)
         }
+    }
 
-        var titleFull: String {
-            switch self {
-            case .buyers: return Localization.marketsTokenDetailsExperiencedBuyersFull
-            case .buyPressure: return Localization.marketsTokenDetailsBuyPressureFull
-            case .holdersChange: return Localization.marketsTokenDetailsHoldersFull
-            case .liquidity: return Localization.marketsTokenDetailsLiquidityFull
-            }
+    private func valueRow(for info: MarketsTokenDetailsInsightsRecordInfo) -> some View {
+        HStack(spacing: 4) {
+            Text(info.recordData)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+            trendIcon(for: info.trend)
         }
+    }
 
-        var infoDescription: String {
-            switch self {
-            case .buyers: return Localization.marketsTokenDetailsExperiencedBuyersDescription
-            case .buyPressure: return Localization.marketsTokenDetailsBuyPressureDescription
-            case .holdersChange: return Localization.marketsTokenDetailsHoldersDescription
-            case .liquidity: return Localization.marketsTokenDetailsLiquidityDescription
+    private func labelRow(for info: MarketsTokenDetailsInsightsRecordInfo) -> some View {
+        SwiftUI.Button(action: { viewModel.showInfoBottomSheet(for: info.type) }) {
+            HStack(spacing: 4) {
+                infoIcon
+
+                Text(info.title)
+                    .lineLimit(1)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
         }
     }
 
-    struct RecordInfo: Identifiable {
-        let type: RecordType
-        let recordData: String
-        let trend: MarketsTokenDetailsStatisticsRecordView.Trend?
+    @ViewBuilder
+    private func trendIcon(for trend: MarketsTokenDetailsStatisticTrend?) -> some View {
+        switch trend {
+        case .positive:
+            Assets.DesignSystem.upDynamic.image
+                .resizable()
+                .renderingMode(.template)
+                .frame(width: trendImageSide, height: trendImageSide)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
-        var id: String {
-            "\(type.id) - \(recordData)"
-        }
+        case .negative:
+            // We don't have a separate icon for negative trend, so we reuse the positive one with rotation
+            // Yeah, ugly, but DS is in progress it will be fixed shortly
+            Assets.DesignSystem.upDynamic.image
+                .resizable()
+                .renderingMode(.template)
+                .frame(width: trendImageSide, height: trendImageSide)
+                .rotationEffect(.degrees(180))
+                .foregroundStyle(DesignSystem.Color.iconAccentRed)
 
-        var title: String {
-            type.titleShort
+        case .none:
+            EmptyView()
         }
     }
 }
+
+// MARK: - Previews
 
 #Preview {
-    let insights = CurrentValueSubject<MarketsTokenDetailsInsights?, Never>(nil)
-
-    return MarketsTokenDetailsInsightsView(
-        viewModel: .init(
-            tokenSymbol: "BTC",
-            insights: .init(dto: MarketsDTO.Coins.Insights(
-                holdersChange: [
-                    "24h": nil,
-                    "1w": 0,
-                    "1m": nil,
-                ],
-                liquidityChange: [
-                    "24h": -5704467.269745085,
-                    "1w": -5714908.849255774,
-                    "1m": -5714908.849255774,
-                ],
-                buyPressureChange: [
-                    "24h": 1379091.5783956223,
-                    "1w": -334647.79027640104,
-                    "1m": -4501466.504872012,
-                ],
-                experiencedBuyerChange: [
-                    "24h": 0,
-                    "1w": nil,
-                    "1m": nil,
-                ],
-                networks: nil
-            ))!,
-            insightsPublisher: insights,
-            notationFormatter: .init(),
-            infoRouter: nil
-        ),
-        viewWidth: 300
+    MarketsTokenDetailsInsightsView(viewModel: MarketsTokenDetailsInsightsViewModel(
+        tokenSymbol: "BTC",
+        insights: MarketsTokenDetailsInsights(dto: MarketsDTO.Coins.Insights(
+            holdersChange: [
+                "24h": 358,
+                "1w": 120,
+                "1m": -50,
+            ],
+            liquidityChange: [
+                "24h": -446.45,
+                "1w": -5714908.849255774,
+                "1m": -5714908.849255774,
+            ],
+            buyPressureChange: [
+                "24h": -446.45,
+                "1w": -334647.79027640104,
+                "1m": -4501466.504872012,
+            ],
+            experiencedBuyerChange: [
+                "24h": 44,
+                "1w": 10,
+                "1m": -5,
+            ],
+            networks: nil
+        ))!,
+        insightsPublisher: CurrentValueSubject<MarketsTokenDetailsInsights?, Never>(nil),
+        notationFormatter: DefaultAmountNotationFormatter(),
+        infoRouter: nil
+    )
     )
 }

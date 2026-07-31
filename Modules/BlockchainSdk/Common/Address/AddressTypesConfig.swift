@@ -113,6 +113,8 @@ struct AddressTypesConfig {
              .scroll,
              .linea,
              .monad,
+             .igra,
+             .robinhood,
              .arbitrumNova,
              .plasma,
              .adi,

@@ -49,6 +49,7 @@ struct StakingDetailsView: View {
                     DefaultHeaderView(Localization.stakingYourStakes)
                         .padding(.top, 12)
                         .padding(.bottom, 8)
+                        .accessibilityIdentifier(StakingAccessibilityIdentifiers.yourStakesHeader)
                 }
                 .separatorStyle(.none)
                 .interItemSpacing(0)
@@ -86,7 +87,7 @@ struct StakingDetailsView: View {
     }
 
     private var banner: some View {
-        Button(action: viewModel.userDidTapBanner) {
+        SwiftUI.Button(action: viewModel.userDidTapBanner) {
             ZStack(alignment: .leading) {
                 Assets.whatIsStakingBanner.image
                     .resizable()

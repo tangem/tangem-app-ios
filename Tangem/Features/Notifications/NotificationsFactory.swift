@@ -63,6 +63,7 @@ struct NotificationsFactory {
                 action: action,
                 actionType: buttonAction.type,
                 isWithLoader: buttonAction.withLoader,
+                isLoading: buttonAction.isLoading,
                 isDisabled: buttonAction.isDisabled
             ),
         ])

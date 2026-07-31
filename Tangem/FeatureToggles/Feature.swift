@@ -37,10 +37,19 @@ enum Feature: String, Hashable, CaseIterable {
     case tangemPayVirtualAccount
     case highFeeWarning
     case priceAlertsSubscription
+    case solanaRentExemptionPreflight
+    case backup4cards
     case promoCampaignsAttribution
     case onboardingPushNotificationDoubleAsk
     case mainPushNotificationDoubleAsk
     case backendAuthentication
+    case swapHideZeroBalanceSource
+    case bitcoinLikePsbtSwap
+    case onrampPaymentMethodThemedImages
+    case chooseTokenPulseAnimation
+    case hotWalletDexRatesUntilDeposit
+    case gaslessBridgeFeeRestriction
+    case polymarket
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -73,11 +82,20 @@ enum Feature: String, Hashable, CaseIterable {
         case .forYou: return "TWI-1469_for_you_product_shelves_add_indicators"
         case .highFeeWarning: return "TWI-1367_high_fee_warning"
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
+        case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
+        case .solanaRentExemptionPreflight: return "[REDACTED_INFO]_solana_rent_exemption_preflight"
         case .tangemPayVirtualAccount: return "TWI-1638_tangempay_virtual_account"
         case .onboardingPushNotificationDoubleAsk: return "TWI-1403_onboarding_push_notification_double_ask"
         case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
         case .promoCampaignsAttribution: return "TWI-1637_promo_campaigns_attribution"
         case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
+        case .swapHideZeroBalanceSource: return "[REDACTED_INFO]_hide_zero_balance_tokens_in_swap_source"
+        case .bitcoinLikePsbtSwap: return "TWI-1668_support_other_bitcoin_like_tokens_for_psbt_signature"
+        case .onrampPaymentMethodThemedImages: return "[REDACTED_INFO]_two_payment_method_pictures"
+        case .chooseTokenPulseAnimation: return "[REDACTED_INFO]_choose_token_pulse_animation"
+        case .hotWalletDexRatesUntilDeposit: return "[REDACTED_INFO]_hot_wallet_dex_rates_until_deposit"
+        case .gaslessBridgeFeeRestriction: return "[REDACTED_INFO]_gasless_bridge_fee_restriction"
+        case .polymarket: return "TWI-1576_polymarket"
         }
     }
 
@@ -110,11 +128,20 @@ enum Feature: String, Hashable, CaseIterable {
         case .forYou: return .unspecified
         case .highFeeWarning: return .version("6.1")
         case .priceAlertsSubscription: return .unspecified
-        case .tangemPayVirtualAccount: return .version("6.0.2")
+        case .tangemPayVirtualAccount: return .version("6.1")
+        case .solanaRentExemptionPreflight: return .unspecified
         case .onboardingPushNotificationDoubleAsk: return .version("6.1")
         case .mainPushNotificationDoubleAsk: return .version("6.1")
         case .promoCampaignsAttribution: return .version("6.0.2")
+        case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
+        case .swapHideZeroBalanceSource: return .unspecified
+        case .bitcoinLikePsbtSwap: return .unspecified
+        case .onrampPaymentMethodThemedImages: return .unspecified
+        case .chooseTokenPulseAnimation: return .unspecified
+        case .hotWalletDexRatesUntilDeposit: return .unspecified
+        case .gaslessBridgeFeeRestriction: return .unspecified
+        case .polymarket: return .unspecified
         }
     }
 }

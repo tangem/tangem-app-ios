@@ -15,19 +15,19 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
     let data: DefaultSelectableRowViewModel<ID>
     let selection: Binding<ID>
 
-    @ScaledMetric private var verticalPadding: CGFloat = .unit(.x4) + .unit(.half)
-    @ScaledMetric private var horizontalMinLength = CGFloat.unit(.x1)
-    @ScaledMetric private var iconSide = CGFloat.unit(.x5)
+    @ScaledMetric private var verticalPadding: CGFloat = 18
+    @ScaledMetric private var horizontalMinLength: CGFloat = 4
+    @ScaledMetric private var iconSide: CGFloat = 20
 
     private var isSelected: Bool {
         selection.isActive(compare: data.id).wrappedValue
     }
 
     var body: some View {
-        Button(action: { selection.isActive(compare: data.id).toggle() }) {
+        SwiftUI.Button(action: { selection.isActive(compare: data.id).toggle() }) {
             HStack(spacing: 0) {
                 Text(data.title)
-                    .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Spacer(minLength: horizontalMinLength)
 
@@ -48,14 +48,14 @@ private extension EarnNetworkFilterSelectedRowView {
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.primaryInvertedConstant)
-                    .background(Color.Tangem.Graphic.Status.accent, in: .circle)
+                    .foregroundStyle(DesignSystem.Color.iconStaticDark)
+                    .background(DesignSystem.Color.iconAccentBlue, in: .circle)
             } else {
                 Assets.circleOutline20.image
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .foregroundStyle(Color.Tangem.Border.Neutral.secondary)
+                    .foregroundStyle(DesignSystem.Color.borderTertiary)
             }
         }
         .frame(width: iconSide, height: iconSide)

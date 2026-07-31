@@ -22,4 +22,6 @@ protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutab
     func openInfoDialogue(title: String, message: String)
     @MainActor
     func openFullDescriptionDialogue(title: String, description: String, onGenerateAITapAction: @escaping () -> Void)
+    @MainActor
+    func openTokenSummary(_ input: TokenSummaryInput, walletDataProvider: MarketsWalletDataProvider)
 }

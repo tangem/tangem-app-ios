@@ -14,7 +14,7 @@ struct StandaloneMarketingBannerView: View {
     let viewModel: StandaloneMarketingBannerViewModel
 
     var body: some View {
-        TangemMessageBanner(title: viewModel.title)
+        MessageBanner(title: viewModel.title)
             .showGlowRing(false)
             .slotStart { leadingIcon }
             .slotEnd { trailingContent }
@@ -34,7 +34,7 @@ struct StandaloneMarketingBannerView: View {
     private var trailingContent: some View {
         if viewModel.isDismissible {
             if let dismiss = viewModel.dismiss {
-                TangemMessageBannerCloseButton(accessibilityLabel: Localization.commonClose, action: dismiss)
+                MessageBannerCloseButton(accessibilityLabel: Localization.commonClose, action: dismiss)
             }
         } else {
             iconView
