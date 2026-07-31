@@ -749,7 +749,7 @@
 "initial_wallet_sync_restore_progress" = "%li%%を復元中";
 "jailbreak_warning_message" = "ジェイルブレイクされた端末はセキュリティが低いと判断されます。データが追加のリスクにさらされる可能性があります。";
 "jailbreak_warning_title" = "ジェイルブレイクが検出されました";
-"joint_account_onboarding_subtitle" = " A shared account that several people own together. Money moves only when enough members sign.";
+"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "生体認証を更新しました。カードまたはリングをスキャンして入ってください。";
 "koinos_insufficient_balance_to_send_koin_description" = "送金するには、残高が手数料額より高くなければなりません。";
 "koinos_insufficient_balance_to_send_koin_title" = "残高不足";
@@ -1644,7 +1644,7 @@
 "tangempay_bank_transfer_fee_header" = "オンランプ手数料";
 "tangempay_bank_transfer_intro_subtitle" = "受け取ったUSDは1:1のレートでUSDCに変換されます";
 "tangempay_bank_transfer_intro_title" = "銀行振込には1～2営業日かかる場合があります";
-"tangempay_bank_transfer_legal" = "本サービスをご利用いただくことで、プロバイダーの %1$@ および %2$@ に同意したことになります";
+"tangempay_bank_transfer_legal" = "本サービスをご利用いただくことで、プロバイダーの %1$@ に同意したことになります";
 "tangempay_bank_transfer_show_details" = "詳細を表示";
 "tangempay_bank_transfer_success_subtitle" = "少々お時間がかかる場合があります";
 "tangempay_bank_transfer_success_title" = "銀行情報を準備しています";
