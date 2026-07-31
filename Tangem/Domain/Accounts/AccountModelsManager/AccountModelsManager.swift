@@ -32,7 +32,7 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult
 
-    func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async
+    func acceptTangemPayOffer(authorizingInteractor: TangemPayAuthorizing) async throws(TangemPayAuthorizationError)
 }
 
 // MARK: - Convenience extensions
