@@ -71,8 +71,10 @@
 "add_and_manage_sheet_manage_title" = "Add tokens";
 "add_and_manage_sheet_organize_subtitle" = "Sorting and grouping";
 "add_and_manage_sheet_organize_title" = "Organize tokens";
+"add_crypto_account_subtitle" = "Organize funds across accounts";
 "add_custom_token_choose_network" = "Choose network";
 "add_custom_token_title" = "添加自定義代幣";
+"add_joint_account_subtitle" = "Manage shared funds together";
 "add_tokens_title" = "管理代幣";
 "addfunds_buy_row_description" = "Credit card or bank account";
 "addfunds_fund_token" = "Fund token";
@@ -266,6 +268,7 @@
 "common_copy_address" = "複製地址";
 "common_copy" = "複製";
 "common_create" = "創造";
+"common_crypto_account" = "Crypto account";
 "common_custom" = "Custom";
 "common_day" = "day";
 "common_delete" = "刪除";
@@ -310,6 +313,7 @@
 "common_in_progress" = "進行中";
 "common_in" = "在";
 "common_insufficient_balance" = "Insufficient balance";
+"common_joint_account" = "Joint account";
 "common_later" = "Later";
 "common_learn_and_earn" = "Learn & Earn";
 "common_learn_more" = "Learn more";
@@ -745,6 +749,7 @@
 "initial_wallet_sync_restore_progress" = "Restoring %li%%";
 "jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
 "jailbreak_warning_title" = "Jailbreak detected";
+"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "您已更新生物識別登入，掃描您的卡進入";
 "koinos_insufficient_balance_to_send_koin_description" = "Your balance should be higher than the fee value to make a transfer";
 "koinos_insufficient_balance_to_send_koin_title" = "Not enough balance";
@@ -1113,6 +1118,11 @@
 "organize_tokens_ungroup" = "Ungroup";
 "prediction_account_subtitle" = "Add funds & start predict";
 "prediction_account_title" = "Prediction account";
+"prediction_event_probability" = "Probability";
+"prediction_event_total_volume" = "Total volume:";
+"prediction_main_empty_events" = "No events yet";
+"prediction_main_subtitle" = "USDC on Polygon network";
+"prediction_main_title" = "Predictions";
 "promo_campaign_already_activated_subtitle" = "Eligible cashback will be distributed to:";
 "promo_campaign_already_activated_title" = "You're already enrolled in %1$@";
 "promo_campaign_eligible_tokens" = "Eligible tokens";
@@ -1535,6 +1545,8 @@
 "swap_story_third_subtitle" = "Hassle-free and intuitive, allowing you to swap tokens in just a few taps";
 "swap_story_third_title_v2" = "90+ Blockchains\n16,000+ Assets";
 "swap_story_third_title" = "Simply Convenient";
+"swap_token_selector_empty_filtered_message" = "You don't have any funded tokens on this wallet. Explore other wallets or change the filter";
+"swap_token_selector_filter_hide_zero_balance" = "Hide 0 balance";
 "swap_via_provider" = "Swap via provider";
 "swap_your_assets_title" = "Your assets";
 "swapping_alert_cex_description_with_slippage" = "The amount includes:\n• service provider's fee\n• network fee for sending %1$@ from the exchange back to the user's address. \n\nProvider slippage is up to %2$@";
@@ -1632,7 +1644,7 @@
 "tangempay_bank_transfer_fee_header" = "入金手續費";
 "tangempay_bank_transfer_intro_subtitle" = "收到的美元將按 1:1 的匯率轉換為 USDC";
 "tangempay_bank_transfer_intro_title" = "銀行轉帳可能需要 1-2 個工作日";
-"tangempay_bank_transfer_legal" = "使用本服務即表示您同意服務提供商的 %1$@ 和 %2$@";
+"tangempay_bank_transfer_legal" = "使用本服務即表示您同意服務提供商的 %1$@";
 "tangempay_bank_transfer_show_details" = "顯示詳情";
 "tangempay_bank_transfer_success_subtitle" = "這可能需要一些時間";
 "tangempay_bank_transfer_success_title" = "正在準備您的銀行資訊";
@@ -1851,6 +1863,17 @@
 "tangempay_onboarding_setup_wallet_description" = "並將 Tangem Pay 綁定到該錢包";
 "tangempay_onboarding_setup_wallet_title" = "我們將建立新錢包";
 "tangempay_onboarding_title" = "立即獲取你的 Tangem Pay 卡";
+"tangempay_order_type_delivery_fee" = "Delivery fee";
+"tangempay_order_type_delivery_time_instant" = "Instant";
+"tangempay_order_type_delivery_time" = "Delivery time";
+"tangempay_order_type_delivery_to" = "Deliver to";
+"tangempay_order_type_first_delivery_free" = "First delivery for free";
+"tangempay_order_type_issue_fee" = "Issue fee";
+"tangempay_order_type_not_enough_money" = "Not enough money";
+"tangempay_order_type_segment_plastic" = "Plastic";
+"tangempay_order_type_segment_virtual" = "Virtual";
+"tangempay_order_type_select" = "Select";
+"tangempay_order_type_title" = "Order new card";
 "tangempay_other_networks_header" = "其他網路";
 "tangempay_other_networks_subtitle" = "然後以 1:1 匯率、零手續費兌換到支付帳戶";
 "tangempay_other_networks_title" = "在任意鏈上將 USDT / USDC 傳送至您的 Tangem 錢包";
