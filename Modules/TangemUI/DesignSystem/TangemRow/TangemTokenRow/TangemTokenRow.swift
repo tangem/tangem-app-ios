@@ -212,10 +212,11 @@ public struct TangemTokenRow: View {
     }
 
     private func rewardsBadge(info: TangemTokenRowViewData.RewardsInfo) -> some View {
-        TangemBadge(text: info.value, size: .x4)
-            .type(.tinted)
-            .color(info.isActive ? .blue : .gray)
-            .shimmer()
+        TangemBadgeV2(label: info.value, accessibilityLabel: nil)
+            .size(.x4)
+            .variant(.tinted)
+            .appearance(info.isActive ? .info : .neutral)
+            .tangemShimmer()
             .environment(\.isShimmerActive, info.isUpdating)
             .accessibilityIdentifier(viewData.accessibilityIdentifiers?.rewardsBadge)
     }
