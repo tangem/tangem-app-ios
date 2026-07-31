@@ -56,6 +56,7 @@ private extension TangemPayPinCheckView {
 
             redesignedChangePinButton
         }
+        .screenCaptureProtection()
         .frame(maxWidth: .infinity)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
