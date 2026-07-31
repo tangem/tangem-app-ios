@@ -116,6 +116,7 @@ struct ExpressAPIMapper {
         }
 
         fromAmount /= pow(10, response.fromDecimals)
+        fromAmount = item.displayedSourceAmount(fromAmount)
         toAmount /= pow(10, response.toDecimals)
 
         let txValue = try mapTxValueToDecimalValue(item: item, txValue: txDetails.txValue, txType: txDetails.txType)
@@ -151,7 +152,9 @@ struct ExpressAPIMapper {
             }
 
             // For CEX/send we have txValue amount as value which have to be sent
-            return decimalTxValue / pow(10, item.source.currency.decimalCount)
+            let onChainValue = decimalTxValue / pow(10, item.source.currency.decimalCount)
+            // The transaction is built from a displayed amount, and the chain unscales it again on the way out.
+            return item.displayedSourceAmount(onChainValue)
         case .swap:
             if let txValue, let decimalTxValue = Decimal(stringValue: txValue) {
                 // For DEX/swap we have txValue amount as coin. Because it's EVM or Solana DEX
