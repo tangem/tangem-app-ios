@@ -38,14 +38,14 @@ final class SignActivationOrderTask: CardSessionRunnable {
             return
         }
 
-        guard let wallet = card.wallets.first(where: { $0.curve == VisaUtilities.mandatoryCurve }) else {
+        guard let walletPublicKey = card.wallets.first(where: { $0.curve == VisaUtilities.mandatoryCurve })?.publicKey else {
             completion(.failure(.underlying(error: VisaActivationError.missingWallet)))
             return
         }
 
         let signHashCommand = SignHashCommand(
             hash: orderToSign.hashToSignByWallet,
-            walletPublicKey: wallet.publicKey
+            walletPublicKey: walletPublicKey
         )
         signHashCommand.run(in: session) { result in
             switch result {
@@ -54,7 +54,7 @@ final class SignActivationOrderTask: CardSessionRunnable {
                     let processor = VisaAcceptanceSignatureProcessor()
                     let processedSignature = try processor.processAcceptanceSignature(
                         signature: signResponse.signature,
-                        walletPublicKey: wallet.publicKey,
+                        walletPublicKey: walletPublicKey,
                         originHash: self.orderToSign.hashToSignByWallet
                     )
 

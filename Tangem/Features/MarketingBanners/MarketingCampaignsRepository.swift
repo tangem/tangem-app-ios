@@ -31,7 +31,7 @@ final class MarketingCampaignsRepository {
 // MARK: - Kind
 
 extension MarketingCampaignsRepository {
-    enum Kind: String, Hashable {
+    enum Kind: String, Hashable, CaseIterable {
         case staking
         case yield
         case tokenDetails
@@ -99,6 +99,8 @@ extension MarketingCampaignsRepository {
 // MARK: - Private
 
 private extension MarketingCampaignsRepository {
+    typealias Snapshot = [String: [MarketingCampaignsDTO.Campaign]]
+
     @MainActor
     func apply(_ campaigns: [MarketingCampaignsDTO.Campaign], for kind: Kind, persist: Bool) {
         campaignsSubject.value[kind] = campaigns
@@ -107,12 +109,13 @@ private extension MarketingCampaignsRepository {
             return
         }
 
-        let snapshot = Dictionary(uniqueKeysWithValues: campaignsSubject.value.map { ($0.key.rawValue, $0.value) })
-        storage.store(value: snapshot)
+        storage.modify(defaultValue: Snapshot()) { snapshot in
+            snapshot[kind.rawValue] = campaigns
+        }
     }
 
     func cachedCampaigns(for kind: Kind) -> [MarketingCampaignsDTO.Campaign]? {
-        let snapshot: [String: [MarketingCampaignsDTO.Campaign]]? = try? storage.value()
+        let snapshot: Snapshot? = try? storage.value()
         return snapshot?[kind.rawValue]
     }
 

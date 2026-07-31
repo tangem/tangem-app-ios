@@ -141,7 +141,7 @@ final class ForceUpdateViewModel {
 extension ForceUpdateViewModel {
     struct ButtonModel {
         let title: String
-        let style: TangemButtonV2.StyleType
+        let style: TangemUI.Button.StyleType
         let action: () -> Void
     }
 }

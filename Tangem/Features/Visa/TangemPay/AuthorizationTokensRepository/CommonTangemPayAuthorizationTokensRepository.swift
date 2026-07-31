@@ -42,6 +42,24 @@ final class CommonTangemPayAuthorizationTokensRepository: TangemPayAuthorization
         storeCustomerWalletIds(savedCustomerWalletIds)
     }
 
+    func clean(genericPasswordAccounts: [String]) {
+        let tokensPrefix = StorageKey.authorizationTokens.rawValue + "_"
+
+        for account in genericPasswordAccounts where account.hasPrefix(tokensPrefix) {
+            do {
+                try secureStorage.delete(account)
+            } catch {
+                VisaLogger.error("Failed to clean authorization tokens", error: error)
+            }
+        }
+
+        do {
+            try secureStorage.delete(StorageKey.customerWalletIds.rawValue)
+        } catch {
+            VisaLogger.error("Failed to clean the customer wallet index", error: error)
+        }
+    }
+
     func getToken(forCustomerWalletId customerWalletId: String) -> TangemPayAuthorizationTokens? {
         let key = makeAuthorizationTokensStorageKey(customerWalletId: customerWalletId)
         guard let tokensData = try? secureStorage.get(key),

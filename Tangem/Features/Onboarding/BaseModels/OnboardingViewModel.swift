@@ -144,8 +144,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     lazy var addTokensViewModel: OnboardingAddTokensViewModel? = {
         guard
             let userWalletModel,
-            userWalletModel.config.hasFeature(.multiCurrency),
-            let context = makeManageTokensContext(for: userWalletModel)
+            userWalletModel.config.hasFeature(.multiCurrency)
         else {
             goToNextStep()
             return nil
@@ -156,18 +155,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         logAnalytics(event: .manageTokensScreenOpened, params: analyticsParams)
 
-        let manageTokensAdapter = ManageTokensAdapter(
-            settings: .init(
+        return OnboardingAddTokensViewModel(
+            input: .init(
+                accountModelsManager: userWalletModel.accountModelsManager,
                 existingCurves: userWalletModel.config.existingCurves,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
                 hardwareLimitationUtil: HardwareLimitationsUtil(config: userWalletModel.config),
-                analyticsSourceRawValue: analyticsSourceRawValue,
-                context: context
-            )
-        )
-
-        return OnboardingAddTokensViewModel(
-            adapter: manageTokensAdapter,
+                analyticsSourceRawValue: analyticsSourceRawValue
+            ),
             delegate: self
         )
     }()
@@ -204,9 +199,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         bindAnalytics()
     }
 
-    func initializeUserWallet(from cardInfo: CardInfo, walletCreationType: WalletOnboardingViewModel.WalletCreationType) {
-        guard userWalletModel == nil else {
-            return
+    @discardableResult
+    func initializeUserWallet(from cardInfo: CardInfo) -> Bool {
+        guard userWalletModel == nil, cardInfo.card.wallets.first?.publicKey != nil else {
+            return false
         }
 
         runTask(in: self) { _ in
@@ -227,17 +223,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             walletInfo: .cardWallet(cardInfo),
             keys: .cardWallet(keys: cardInfo.card.wallets)
         ) else {
-            return
+            return false
         }
 
         AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWallet.userWalletId)
-        var params = walletCreationType.params
-        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
-        logAnalytics(event: .walletCreatedSuccessfully, params: params, analyticsSystems: .all)
-
         Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId, contextParams: getContextParams())
 
         userWalletModel = userWallet
+        return true
     }
 
     func handleUserWalletOnFinish() {
@@ -473,18 +466,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 }
             }
             .store(in: &bag)
-    }
-
-    private func makeManageTokensContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
-        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
-            return nil
-        }
-
-        // Working with accounts in onboarding is equivalent of working with main account
-        return CommonManageTokensContext(
-            accountModelsManager: userWalletModel.accountModelsManager,
-            currentAccount: mainAccount
-        )
     }
 }
 

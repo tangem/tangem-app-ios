@@ -34,7 +34,7 @@ final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
         self.walletThumbnail = walletThumbnail
         self.viewType = viewType
 
-        contentVisibility = .empty
+        contentVisibility = .empty(.noTokens)
 
         bind()
     }
@@ -54,7 +54,7 @@ final class TokenSelectorWalletItemViewModel: ObservableObject, Identifiable {
     private func bind() {
         viewType.itemsCount
             .removeDuplicates()
-            .map { $0 == 0 ? .empty : .visible(itemsCount: $0) }
+            .map { $0 == 0 ? .empty(.noTokens) : .visible(itemsCount: $0) }
             .removeDuplicates()
             .assign(to: &$contentVisibility)
     }

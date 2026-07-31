@@ -20,13 +20,8 @@ struct EarnFilterHeaderView: View {
     let onNetworksTap: () -> Void
     let onTypesTap: () -> Void
 
-    @ScaledMetric private var horizontalPadding: CGFloat = .unit(.x4)
-    @ScaledMetric private var verticalPadding: CGFloat = .unit(.x2)
-    @ScaledMetric private var filtersSpacing: CGFloat = .unit(.x2)
-    @ScaledMetric private var buttonContentSpacing: CGFloat = .unit(.x1)
-    @ScaledMetric private var buttonHorizontalPadding: CGFloat = .unit(.x3)
-    @ScaledMetric private var buttonVerticalPadding: CGFloat = .unit(.x2)
-    @ScaledMetric private var buttonCornerRadius: CGFloat = .unit(.x2)
+    @ScaledMetric private var horizontalPadding: CGFloat = 16
+    @ScaledMetric private var filtersSpacing: CGFloat = 8
 
     var body: some View {
         HStack(spacing: .zero) {
@@ -75,28 +70,23 @@ struct EarnFilterHeaderView: View {
         if isLoading {
             ButtonSkeleton()
         } else {
-            TangemButton(
-                content: .combined(
-                    text: AttributedString(title),
-                    icon: Assets.chevronDown24,
-                    iconPosition: .right
-                ),
+            TangemUI.Button(
+                label: title,
+                accessibilityLabel: title,
                 action: action
             )
-            .setStyleType(.primaryInverse)
-            .setSize(.x9)
-            .setButtonState(isLoading: isLoading, isDisabled: !isEnabled)
+            .iconEnd(DesignSystem.Icons.ChevronDown.regular20)
+            .size(.x9)
+            .styleType(.secondary)
+            .isLoading(isLoading)
+            .disabled(!isEnabled)
         }
     }
 }
 
 private struct ButtonSkeleton: View {
-    @ScaledMetric private var height: CGFloat = 36
-    @ScaledMetric private var width: CGFloat = 142
-
     var body: some View {
-        SkeletonView()
-            .frame(width: width, height: height)
-            .clipShape(.capsule)
+        Shimmer()
+            .variant(.custom(width: 142, height: 36))
     }
 }

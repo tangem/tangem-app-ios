@@ -25,6 +25,21 @@ struct WireMockScenarioStateRequest: Codable {
     let state: String
 }
 
+struct WireMockRequestCountRequest: Codable {
+    let method: String
+    let urlPathPattern: String
+}
+
+/// Matches the whole URL including the query string, unlike `WireMockRequestCountRequest`
+struct WireMockRequestCountURLPatternRequest: Codable {
+    let method: String
+    let urlPattern: String
+}
+
+struct WireMockRequestCountResponse: Codable {
+    let count: Int
+}
+
 // MARK: - Scenario Configuration
 
 struct ScenarioConfig {

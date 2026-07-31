@@ -152,7 +152,7 @@ struct TokenItemView: View {
     private func contextMenuButton(for actionType: TokenActionType) -> some View {
         let action = { viewModel.didTapContextAction(actionType) }
         if actionType.isDestructive {
-            Button(
+            SwiftUI.Button(
                 role: .destructive,
                 action: action,
                 label: {
@@ -160,7 +160,7 @@ struct TokenItemView: View {
                 }
             )
         } else {
-            Button(action: action, label: {
+            SwiftUI.Button(action: action, label: {
                 labelForContextButton(with: actionType)
             })
         }
