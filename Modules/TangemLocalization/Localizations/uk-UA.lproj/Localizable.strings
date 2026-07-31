@@ -71,8 +71,10 @@
 "add_and_manage_sheet_manage_title" = "Додати токени";
 "add_and_manage_sheet_organize_subtitle" = "Сортування та групування";
 "add_and_manage_sheet_organize_title" = "Упорядкувати токени";
+"add_crypto_account_subtitle" = "Organize funds across accounts";
 "add_custom_token_choose_network" = "Оберіть мережу";
 "add_custom_token_title" = "Додати токен";
+"add_joint_account_subtitle" = "Manage shared funds together";
 "add_tokens_title" = "Токени";
 "addfunds_buy_row_description" = "Банківська картка або банківський рахунок";
 "addfunds_fund_token" = "Поповнити токен";
@@ -266,6 +268,7 @@
 "common_copy_address" = "Скопіювати адресу";
 "common_copy" = "Скопіювати";
 "common_create" = "Створити";
+"common_crypto_account" = "Crypto account";
 "common_custom" = "Власна";
 "common_day" = "day";
 "common_delete" = "Видалити";
@@ -310,6 +313,7 @@
 "common_in_progress" = "В процесі";
 "common_in" = "у";
 "common_insufficient_balance" = "Недостатній баланс";
+"common_joint_account" = "Joint account";
 "common_later" = "Пізніше";
 "common_learn_and_earn" = "Навчайся та заробляй";
 "common_learn_more" = "Дізнатися більше";
@@ -745,6 +749,7 @@
 "initial_wallet_sync_restore_progress" = "Відновлення %li%%";
 "jailbreak_warning_message" = "Пристрої з джейлбрейком вважаються менш безпечними. Ваші дані можуть бути піддані додатковим ризикам.";
 "jailbreak_warning_title" = "Виявлено джейлбрейк";
+"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "Ви оновили дані біометрії, відскануйте свою картку або кільце для входу";
 "koinos_insufficient_balance_to_send_koin_description" = "Ваш баланс повинен перевищувати суму комісії для здійснення переказу";
 "koinos_insufficient_balance_to_send_koin_title" = "Недостатньо балансу";
@@ -1113,6 +1118,11 @@
 "organize_tokens_ungroup" = "Список";
 "prediction_account_subtitle" = "Add funds & start predict";
 "prediction_account_title" = "Prediction account";
+"prediction_event_probability" = "Probability";
+"prediction_event_total_volume" = "Total volume:";
+"prediction_main_empty_events" = "No events yet";
+"prediction_main_subtitle" = "USDC on Polygon network";
+"prediction_main_title" = "Predictions";
 "promo_campaign_already_activated_subtitle" = "Нарахований кешбек буде надіслано на:";
 "promo_campaign_already_activated_title" = "Ви вже долучилися до %1$@";
 "promo_campaign_eligible_tokens" = "Доступні токени";
@@ -1535,6 +1545,8 @@
 "swap_story_third_subtitle" = "Просто та зручно — обмін токенів в декілька дотиків";
 "swap_story_third_title_v2" = "90+ Блокчейнів\n16 000+ Активів";
 "swap_story_third_title" = "Легше, ніж будь-коли";
+"swap_token_selector_empty_filtered_message" = "You don't have any funded tokens on this wallet. Explore other wallets or change the filter";
+"swap_token_selector_filter_hide_zero_balance" = "Hide 0 balance";
 "swap_via_provider" = "Обмін через провайдера";
 "swap_your_assets_title" = "Ваші активи";
 "swapping_alert_cex_description_with_slippage" = "У суму входить:\n- комісія провайдера\n- мережева комісія за відправку %1$@ з біржі назад на адресу користувача. \n\nПроскакування провайдера становить до %2$@";
@@ -1632,7 +1644,7 @@
 "tangempay_bank_transfer_fee_header" = "Комісія за онрамп";
 "tangempay_bank_transfer_intro_subtitle" = "Отримані USD будуть конвертовані в USDC за курсом 1:1";
 "tangempay_bank_transfer_intro_title" = "Банківський переказ може тривати 1-2 робочі дні";
-"tangempay_bank_transfer_legal" = "Використовуючи сервіс, ви погоджуєтеся з %1$@ та %2$@";
+"tangempay_bank_transfer_legal" = "Використовуючи сервіс, ви погоджуєтеся з %1$@";
 "tangempay_bank_transfer_show_details" = "Показати деталі";
 "tangempay_bank_transfer_success_subtitle" = "Це може зайняти певний час";
 "tangempay_bank_transfer_success_title" = "Підготовка ваших банківських реквізитів";
@@ -1851,6 +1863,17 @@
 "tangempay_onboarding_setup_wallet_description" = "І прив’яжемо Tangem Pay до нього";
 "tangempay_onboarding_setup_wallet_title" = "Ми створимо новий гаманець";
 "tangempay_onboarding_title" = "Отримайте картку Tangem Pay за лічені хвилини";
+"tangempay_order_type_delivery_fee" = "Delivery fee";
+"tangempay_order_type_delivery_time_instant" = "Instant";
+"tangempay_order_type_delivery_time" = "Delivery time";
+"tangempay_order_type_delivery_to" = "Deliver to";
+"tangempay_order_type_first_delivery_free" = "First delivery for free";
+"tangempay_order_type_issue_fee" = "Issue fee";
+"tangempay_order_type_not_enough_money" = "Not enough money";
+"tangempay_order_type_segment_plastic" = "Plastic";
+"tangempay_order_type_segment_virtual" = "Virtual";
+"tangempay_order_type_select" = "Select";
+"tangempay_order_type_title" = "Order new card";
 "tangempay_other_networks_header" = "Інші мережі";
 "tangempay_other_networks_subtitle" = "А потім обміняйте на платіжний рахунок за курсом 1:1 без комісії";
 "tangempay_other_networks_title" = "Надішліть USDT / USDC у будь-якій мережі на ваш Tangem Wallet";
