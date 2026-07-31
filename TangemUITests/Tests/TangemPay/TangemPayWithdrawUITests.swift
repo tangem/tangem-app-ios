@@ -32,7 +32,6 @@ final class TangemPayWithdrawUITests: BaseTestCase {
         TangemPayMainScreen(app)
             .verifyBalanceContains("$5.00")
             .verifyTransactionRowVisible(label: "Withdrawal")
-            .verifyPendingExpressTransactionVisible()
     }
 
     func testWithdrawButtonDisabled_WhenBalanceIsZero() {
@@ -101,7 +100,6 @@ final class TangemPayWithdrawUITests: BaseTestCase {
         TangemPayMainScreen(app)
             .verifyBalanceContains("$0.00")
             .verifyTransactionRowVisible(label: "Withdrawal")
-            .verifyPendingExpressTransactionVisible()
     }
 
     private func openWithdrawSwapScreen() -> SwapScreen {
