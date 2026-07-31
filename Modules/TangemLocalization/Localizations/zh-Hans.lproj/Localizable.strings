@@ -71,8 +71,10 @@
 "add_and_manage_sheet_manage_title" = "添加代币";
 "add_and_manage_sheet_organize_subtitle" = "排序和分组";
 "add_and_manage_sheet_organize_title" = "整理代币";
+"add_crypto_account_subtitle" = "Organize funds across accounts";
 "add_custom_token_choose_network" = "选择网络";
 "add_custom_token_title" = "添加自定义代币";
+"add_joint_account_subtitle" = "Manage shared funds together";
 "add_tokens_title" = "管理代币";
 "addfunds_buy_row_description" = "信用卡或银行账户";
 "addfunds_fund_token" = "资金代币";
@@ -266,6 +268,7 @@
 "common_copy_address" = "复制地址";
 "common_copy" = "复制";
 "common_create" = "创建";
+"common_crypto_account" = "Crypto account";
 "common_custom" = "定制";
 "common_day" = "day";
 "common_delete" = "删除";
@@ -310,6 +313,7 @@
 "common_in_progress" = "进行中";
 "common_in" = "在";
 "common_insufficient_balance" = "余额不足";
+"common_joint_account" = "Joint account";
 "common_later" = "稍后";
 "common_learn_and_earn" = "边学边赚";
 "common_learn_more" = "了解更多";
@@ -745,6 +749,7 @@
 "initial_wallet_sync_restore_progress" = "恢复 %li%%";
 "jailbreak_warning_message" = "越狱设备安全性较低，您的数据可能面临额外的风险。";
 "jailbreak_warning_title" = "检测到越狱";
+"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "您的生物识别信息已更新，请扫描您的卡片或使用指环进入。";
 "koinos_insufficient_balance_to_send_koin_description" = "您的余额必须高于转账手续费才能进行转账。";
 "koinos_insufficient_balance_to_send_koin_title" = "余额不足";
@@ -1113,6 +1118,11 @@
 "organize_tokens_ungroup" = "取消分组";
 "prediction_account_subtitle" = "Add funds & start predict";
 "prediction_account_title" = "Prediction account";
+"prediction_event_probability" = "Probability";
+"prediction_event_total_volume" = "Total volume:";
+"prediction_main_empty_events" = "No events yet";
+"prediction_main_subtitle" = "USDC on Polygon network";
+"prediction_main_title" = "Predictions";
 "promo_campaign_already_activated_subtitle" = "符合条件的返现将发放给：";
 "promo_campaign_already_activated_title" = "您已经注册了 %1$@";
 "promo_campaign_eligible_tokens" = "符合条件的代币";
@@ -1535,6 +1545,8 @@
 "swap_story_third_subtitle" = "操作简便直观，只需轻点几下即可完成代币兑换。";
 "swap_story_third_title_v2" = "90+ 条区块链\n16,000+ 项资产";
 "swap_story_third_title" = "简单方便";
+"swap_token_selector_empty_filtered_message" = "You don't have any funded tokens on this wallet. Explore other wallets or change the filter";
+"swap_token_selector_filter_hide_zero_balance" = "Hide 0 balance";
 "swap_via_provider" = "通过提供商进行互换";
 "swap_your_assets_title" = "您的资产";
 "swapping_alert_cex_description_with_slippage" = "金额包含：\n• 服务提供商费用\n• 发送网络费用 %1$@ 从交易所到用户地址的资金流动。\n\n提供商滑点最高可达 %2$@";
@@ -1632,7 +1644,7 @@
 "tangempay_bank_transfer_fee_header" = "入金手续费";
 "tangempay_bank_transfer_intro_subtitle" = "收到的美元将按 1:1 的汇率转换为 USDC";
 "tangempay_bank_transfer_intro_title" = "银行转账可能需要 1-2 个工作日";
-"tangempay_bank_transfer_legal" = "使用本服务即表示您同意服务提供商的 %1$@ 和 %2$@";
+"tangempay_bank_transfer_legal" = "使用本服务即表示您同意服务提供商的 %1$@";
 "tangempay_bank_transfer_show_details" = "显示详情";
 "tangempay_bank_transfer_success_subtitle" = "这可能需要一些时间";
 "tangempay_bank_transfer_success_title" = "正在准备您的银行信息";
@@ -1851,6 +1863,17 @@
 "tangempay_onboarding_setup_wallet_description" = "并将 Tangem Pay 绑定到该钱包";
 "tangempay_onboarding_setup_wallet_title" = "我们将创建新钱包";
 "tangempay_onboarding_title" = "立即获取你的 Tangem Pay 卡";
+"tangempay_order_type_delivery_fee" = "Delivery fee";
+"tangempay_order_type_delivery_time_instant" = "Instant";
+"tangempay_order_type_delivery_time" = "Delivery time";
+"tangempay_order_type_delivery_to" = "Deliver to";
+"tangempay_order_type_first_delivery_free" = "First delivery for free";
+"tangempay_order_type_issue_fee" = "Issue fee";
+"tangempay_order_type_not_enough_money" = "Not enough money";
+"tangempay_order_type_segment_plastic" = "Plastic";
+"tangempay_order_type_segment_virtual" = "Virtual";
+"tangempay_order_type_select" = "Select";
+"tangempay_order_type_title" = "Order new card";
 "tangempay_other_networks_header" = "其他网络";
 "tangempay_other_networks_subtitle" = "然后以 1:1 汇率、零手续费兑换到支付账户";
 "tangempay_other_networks_title" = "在任意链上将 USDT / USDC 发送至您的 Tangem 钱包";
