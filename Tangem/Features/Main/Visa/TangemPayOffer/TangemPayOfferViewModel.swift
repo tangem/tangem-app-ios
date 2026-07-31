@@ -9,14 +9,18 @@
 import Combine
 import TangemVisa
 import TangemFoundation
+import TangemLocalization
+import TangemPay
 import TangemSdk
 import TangemUI
+import TangemUIUtils
 
 final class TangemPayOfferViewModel: ObservableObject {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
     @Published private(set) var isLoading = false
+    @Published var alert: AlertBinder?
     @Published var termsFeesAndLimitsViewModel: WebViewContainerViewModel?
 
     var getCardButtonIcon: MainButton.Icon? {
@@ -83,10 +87,14 @@ final class TangemPayOfferViewModel: ObservableObject {
     func acceptOffer(on userWalletModel: UserWalletModel) {
         isLoading = true
         runTask(in: self) { viewModel in
-            await userWalletModel.accountModelsManager.acceptTangemPayOffer(
-                authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
-            )
-            await viewModel.closeOfferScreen()
+            do throws(TangemPayAuthorizationError) {
+                try await userWalletModel.accountModelsManager.acceptTangemPayOffer(
+                    authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
+                )
+                await viewModel.closeOfferScreen()
+            } catch {
+                await viewModel.handleAuthorizationFailure(error)
+            }
         }
     }
 
@@ -102,6 +110,22 @@ final class TangemPayOfferViewModel: ObservableObject {
 }
 
 private extension TangemPayOfferViewModel {
+    @MainActor
+    func handleAuthorizationFailure(_ error: TangemPayAuthorizationError) {
+        isLoading = false
+
+        guard !error.isUserCancelled else {
+            return
+        }
+
+        alert = AlertBinder(
+            title: Localization.commonError,
+            message: error.serverErrorStatusCode == nil
+                ? Localization.commonUnknownError
+                : Localization.commonServerUnavailable
+        )
+    }
+
     enum TangemPayOfferError: Error {
         case unableToCreateWalletPublicKey
     }
