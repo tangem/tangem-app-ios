@@ -643,6 +643,49 @@ struct CommonDeepLinkValidatorTests {
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
 
+    // MARK: - Campaigns deeplink
+
+    @Test
+    func campaignsWithValidCampaignId_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .campaigns,
+            params: .init(campaignId: "whale-swap-cashback"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    /// `tangem://campaigns` requires no params — a missing id falls back to the not-active sheet at routing.
+    @Test
+    func campaignsWithNoParams_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .campaigns,
+            params: .empty,
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func campaignsWithInvalidCharactersInCampaignId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .campaigns,
+            params: .init(campaignId: "whale swap#cashback"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func campaignsWithEmptyCampaignId_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .campaigns,
+            params: .init(campaignId: ""),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
     // MARK: - Survey deeplink
 
     @Test

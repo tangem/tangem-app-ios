@@ -158,7 +158,7 @@ public struct TangemDropDownSelectionItems<Data>: View
 
     public var body: some View {
         ForEach(data, id: \.self) { item in
-            Button {
+            SwiftUI.Button {
                 selection = item
             } label: {
                 Text(item.text)
@@ -208,7 +208,7 @@ public struct TangemDropDownItems: View {
 
     public var body: some View {
         ForEach(items) { item in
-            Button(action: item.action) {
+            SwiftUI.Button(action: item.action) {
                 Text(item.text)
 
                 if item.isChecked == true {

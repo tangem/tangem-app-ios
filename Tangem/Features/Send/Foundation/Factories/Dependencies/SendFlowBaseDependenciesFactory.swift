@@ -30,7 +30,7 @@ extension SendFlowBaseDependenciesFactory {
         TransferModel(
             userWalletId: userWalletInfo.id,
             userToken: transferableToken,
-            transactionSigner: userWalletInfo.signer,
+            transactionSigner: userWalletInfo.signerFactory.makeSigner(),
             feeIncludedCalculator: CommonFeeIncludedCalculator(validator: transferableToken.transactionValidator),
             analyticsLogger: analyticsLogger,
             sendAlertBuilder: makeSendAlertBuilder(),
