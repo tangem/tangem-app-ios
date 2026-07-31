@@ -138,18 +138,6 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
-    func verifyPendingExpressTransactionVisible() -> Self {
-        XCTContext.runActivity(named: "Verify pending express transaction row is visible") { _ in
-            let row = app.buttons[TokenAccessibilityIdentifiers.pendingExpressTransaction].firstMatch
-            XCTAssertTrue(
-                row.waitForExistence(timeout: .networkRequest),
-                "Pending express transaction row should be displayed"
-            )
-            return self
-        }
-    }
-
-    @discardableResult
     func verifyTransactionRowVisible(label: String) -> Self {
         XCTContext.runActivity(named: "Verify transaction row '\(label)' is visible") { _ in
             let txCell = app.staticTexts[label].firstMatch
