@@ -77,7 +77,7 @@ struct TangemPayVirtualAccountBankDetailsView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            SwiftUI.Button(action: { viewModel.copy(row.value) }) {
+            SwiftUI.Button(action: { viewModel.copy(row) }) {
                 DesignSystem.Icons.Copy.regular24.image
                     .renderingMode(.template)
                     .resizable()
