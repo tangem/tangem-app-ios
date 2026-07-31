@@ -15,6 +15,8 @@ final class TangemPayVirtualAccountSuccessViewModel: ObservableObject, Identifia
 
     init(coordinator: TangemPayVirtualAccountSuccessRoutable) {
         self.coordinator = coordinator
+
+        Analytics.log(.visaVATopupSuccessScreenActivation)
     }
 
     func close() {
