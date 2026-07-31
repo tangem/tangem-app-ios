@@ -21,7 +21,7 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
         let terms = Localization.commonTermsOfUse
         let privacy = Localization.commonPrivacyPolicy
 
-        var attributedString = AttributedString(Localization.tangempayBankTransferLegal(terms, privacy))
+        var attributedString = AttributedString(Localization.tangempayBankTransferLegal(terms))
 
         if let range = attributedString.range(of: terms) {
             attributedString[range].link = AppConstants.tangemPayVirtualAccountTermsURL

@@ -749,7 +749,7 @@
 "initial_wallet_sync_restore_progress" = "Restauration %li%%";
 "jailbreak_warning_message" = "Les appareils jailbreakés sont considérés comme moins sécurisés. Vos données peuvent être exposées à des risques supplémentaires.";
 "jailbreak_warning_title" = "Jailbreak détecté";
-"joint_account_onboarding_subtitle" = " A shared account that several people own together. Money moves only when enough members sign.";
+"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "Vous avez mis à jour vos données biométriques, scannez votre carte ou bague pour entrer";
 "koinos_insufficient_balance_to_send_koin_description" = "Votre solde doit être supérieur à la valeur des frais pour effectuer un transfert";
 "koinos_insufficient_balance_to_send_koin_title" = "Solde insuffisant";
@@ -1644,7 +1644,7 @@
 "tangempay_bank_transfer_fee_header" = "Frais d'onramp";
 "tangempay_bank_transfer_intro_subtitle" = "USD reçus convertis en USDC au taux 1:1";
 "tangempay_bank_transfer_intro_title" = "Virement bancaire : 1 à 2 jours ouvrés";
-"tangempay_bank_transfer_legal" = "En utilisant le service, vous acceptez %1$@ et %2$@";
+"tangempay_bank_transfer_legal" = "En utilisant le service, vous acceptez %1$@";
 "tangempay_bank_transfer_show_details" = "Afficher les détails";
 "tangempay_bank_transfer_success_subtitle" = "Cela peut prendre un moment";
 "tangempay_bank_transfer_success_title" = "Préparation de vos coordonnées bancaires";
