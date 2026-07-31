@@ -749,7 +749,7 @@
 "initial_wallet_sync_restore_progress" = "恢复 %li%%";
 "jailbreak_warning_message" = "越狱设备安全性较低，您的数据可能面临额外的风险。";
 "jailbreak_warning_title" = "检测到越狱";
-"joint_account_onboarding_subtitle" = " A shared account that several people own together. Money moves only when enough members sign.";
+"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "您的生物识别信息已更新，请扫描您的卡片或使用指环进入。";
 "koinos_insufficient_balance_to_send_koin_description" = "您的余额必须高于转账手续费才能进行转账。";
 "koinos_insufficient_balance_to_send_koin_title" = "余额不足";
@@ -1644,7 +1644,7 @@
 "tangempay_bank_transfer_fee_header" = "入金手续费";
 "tangempay_bank_transfer_intro_subtitle" = "收到的美元将按 1:1 的汇率转换为 USDC";
 "tangempay_bank_transfer_intro_title" = "银行转账可能需要 1-2 个工作日";
-"tangempay_bank_transfer_legal" = "使用本服务即表示您同意服务提供商的 %1$@ 和 %2$@";
+"tangempay_bank_transfer_legal" = "使用本服务即表示您同意服务提供商的 %1$@";
 "tangempay_bank_transfer_show_details" = "显示详情";
 "tangempay_bank_transfer_success_subtitle" = "这可能需要一些时间";
 "tangempay_bank_transfer_success_title" = "正在准备您的银行信息";

@@ -749,7 +749,7 @@
 "initial_wallet_sync_restore_progress" = "Восстановление %li%%";
 "jailbreak_warning_message" = "Устройства с джейлбрейком считаются менее безопасными. Ваши данные могут быть подвержены дополнительным рискам.";
 "jailbreak_warning_title" = "Обнаружен джейлбрейк";
-"joint_account_onboarding_subtitle" = " A shared account that several people own together. Money moves only when enough members sign.";
+"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "Вы обновили данные биометрии, отсканируйте свою карту или кольцо для входа";
 "koinos_insufficient_balance_to_send_koin_description" = "Ваш баланс должен быть выше суммы комиссии для осуществления перевода";
 "koinos_insufficient_balance_to_send_koin_title" = "Недостаточно средств";
@@ -1644,7 +1644,7 @@
 "tangempay_bank_transfer_fee_header" = "Комиссия за онрамп";
 "tangempay_bank_transfer_intro_subtitle" = "Полученные USD будут конвертированы в USDC по курсу 1:1";
 "tangempay_bank_transfer_intro_title" = "Банковский перевод может занять 1-2 рабочих дня";
-"tangempay_bank_transfer_legal" = "Используя сервис, вы соглашаетесь с %1$@ и %2$@";
+"tangempay_bank_transfer_legal" = "Используя сервис, вы соглашаетесь с %1$@";
 "tangempay_bank_transfer_show_details" = "Показать детали";
 "tangempay_bank_transfer_success_subtitle" = "Это может занять некоторое время";
 "tangempay_bank_transfer_success_title" = "Подготовка ваших банковских реквизитов";
