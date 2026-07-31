@@ -51,7 +51,7 @@ public struct ProgressBar: View {
             .padding()
         Spacer()
             .frame(height: 50)
-        Button(action: {
+        SwiftUI.Button(action: {
             var newProgress = progress + 0.3
             if newProgress > 2 {
                 newProgress = -2

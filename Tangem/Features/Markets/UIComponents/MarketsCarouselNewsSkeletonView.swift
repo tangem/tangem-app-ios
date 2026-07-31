@@ -7,14 +7,15 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct MarketsCarouselNewsSkeletonView: View {
-    private let bleedInset: CGFloat = .unit(.x4)
+    private let bleedInset: CGFloat = 16
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: .unit(.x3)) {
+            HStack(spacing: 12) {
                 CarouselNewsCardSkeletonView()
                 CarouselNewsCardSkeletonView()
             }
@@ -29,6 +30,6 @@ struct MarketsCarouselNewsSkeletonView: View {
 
 #Preview {
     MarketsCarouselNewsSkeletonView()
-        .padding(.horizontal, .unit(.x4))
-        .background(Color.Tangem.Surface.level2)
+        .padding(.horizontal, 16)
+        .background(DesignSystem.Color.bgPrimary)
 }
