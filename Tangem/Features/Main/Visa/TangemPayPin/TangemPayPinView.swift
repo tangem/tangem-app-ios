@@ -77,6 +77,7 @@ private extension TangemPayPinView {
 
             Spacer()
         }
+        .screenCaptureProtection()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .onAppear(perform: viewModel.onAppear)
