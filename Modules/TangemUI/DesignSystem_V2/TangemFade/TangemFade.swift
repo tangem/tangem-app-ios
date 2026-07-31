@@ -65,18 +65,19 @@ public struct TangemFade: View {
         let opaque = backgroundColor.opacity(Metrics.hardAlpha)
         let soft = backgroundColor.opacity(Metrics.softAlpha)
         let transparent = Color.clear
+        let rampRatio = Metrics.hardRampRatio
 
         let stops: [Gradient.Stop] = switch (variant, position) {
         case (.hard, .top):
             [
                 .init(color: opaque, location: 0),
-                .init(color: opaque, location: Metrics.solidRatio),
+                .init(color: opaque, location: 1 - rampRatio),
                 .init(color: transparent, location: 1),
             ]
         case (.hard, .bottom):
             [
                 .init(color: transparent, location: 0),
-                .init(color: opaque, location: 1 - Metrics.solidRatio),
+                .init(color: opaque, location: rampRatio),
                 .init(color: opaque, location: 1),
             ]
         case (.soft, .top):
@@ -116,7 +117,9 @@ extension TangemFade: Setupable {
 private extension TangemFade {
     enum Metrics {
         static let height: CGFloat = 96
-        static let solidRatio: CGFloat = 40.0 / height
+        static let hardRampHeight: CGFloat = 40
+        /// `hard` is a fixed-length ramp with the solid band filling whatever height is left.
+        static let hardRampRatio: Double = hardRampHeight / height
         static let hardAlpha: Double = 0.95
         static let softAlpha: Double = 0.6
         static let blurRadius: CGFloat = 10

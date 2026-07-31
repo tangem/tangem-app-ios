@@ -16,7 +16,7 @@ struct TokenSectionView: View {
 
     var body: some View {
         if let title = title {
-            OrganizeTokensListInnerSectionView(title: title, isDraggable: false)
+            OrganizeTokensListInnerSectionViewRedesigned(title: title, isDraggable: false)
                 .background(background)
         }
     }
