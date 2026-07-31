@@ -51,6 +51,12 @@ extension TokenBalanceType {
         case .loaded: nil
         }
     }
+
+    /// Unknown balances (`.empty`, or `.loading`/`.failure` without a cached value) are not treated as zero.
+    var isZeroBalance: Bool {
+        guard let value else { return false }
+        return value <= 0
+    }
 }
 
 // MARK: - isEmpty
