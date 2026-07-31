@@ -58,7 +58,9 @@ final class SellActionButtonViewModel: ActionButtonViewModel {
         switch viewState {
         case .initial:
             handleInitialStateTap()
-        case .loading, .disabled, .unavailable, .restricted:
+        case .restricted(let reason):
+            alert = .init(title: "", message: reason)
+        case .loading, .disabled, .unavailable:
             break
         case .idle:
             let tokenSelectorViewModel = TokenSelectorViewModel.common(

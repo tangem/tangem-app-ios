@@ -24,7 +24,7 @@ public struct CircleButton: View {
     }
 
     public var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             image.image
                 .resizable()
                 .renderingMode(.template)

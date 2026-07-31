@@ -19,12 +19,12 @@ final class CommonTangemPayAssembly: TangemPayAssembly {
 
     func makeTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
-        hasNFCInteraction: Bool,
+        signerFactory: TangemSignerFactory,
         walletPublicKey: Wallet.PublicKey?
     ) -> TransactionDispatcher {
         TangemPayTransactionDispatcher(
             withdrawTransactionService: withdrawTransactionService,
-            hasNFCInteraction: hasNFCInteraction,
+            signerFactory: signerFactory,
             walletPublicKey: walletPublicKey
         )
     }

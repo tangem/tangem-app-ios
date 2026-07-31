@@ -66,7 +66,7 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
                 isToken: walletModel.tokenItem.isToken
             )
 
-        case .bitcoin:
+        case let blockchain where blockchain.isPsbtDexSwapSupported:
             return try await sendBitcoinPsbt(data: data)
 
         case let blockchain:

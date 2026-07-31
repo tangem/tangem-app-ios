@@ -321,6 +321,10 @@ extension SolanaBSDKError: UniversalError {
             102010100
         case .notImplemented:
             102010101
+        case .signerPublicKeyNotFound:
+            102010102
+        case .invalidSignatureLength:
+            102010103
         }
     }
 }

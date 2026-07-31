@@ -28,7 +28,7 @@ private extension TangemPayPinCheckView {
             HStack(spacing: 0) {
                 Spacer(minLength: 0)
 
-                TangemButtonV2(
+                TangemUI.Button(
                     icon: DesignSystem.Icons.Cross.regular20,
                     accessibilityLabel: Localization.commonClose,
                     action: viewModel.close
@@ -69,7 +69,7 @@ private extension TangemPayPinCheckView {
             .overlay {
                 switch viewModel.state {
                 case .loading:
-                    TangemLoader()
+                    Loader()
                         .loaderSize(.size24)
 
                 case .loaded(let pin):
@@ -83,7 +83,7 @@ private extension TangemPayPinCheckView {
     }
 
     var redesignedChangePinButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(Localization.tangempayChangePinCode),
             accessibilityLabel: Localization.tangempayChangePinCode,
             action: viewModel.changePin

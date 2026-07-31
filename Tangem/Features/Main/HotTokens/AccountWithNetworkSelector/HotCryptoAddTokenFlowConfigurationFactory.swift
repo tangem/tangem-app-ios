@@ -31,11 +31,13 @@ enum HotCryptoAddTokenFlowConfigurationFactory {
                 account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
             },
             postAddBehavior: .executeAction { [weak coordinator] tokenItem, accountSelectorCell in
-                handleTokenAddedSuccessfully(
-                    addedToken: tokenItem,
-                    accountSelectorCell: accountSelectorCell,
-                    coordinator: coordinator
-                )
+                Task { @MainActor in
+                    await handleTokenAddedSuccessfully(
+                        addedToken: tokenItem,
+                        accountSelectorCell: accountSelectorCell,
+                        coordinator: coordinator
+                    )
+                }
             },
             accountFilter: makeAccountFilter(hotToken: hotToken),
             accountAvailabilityProvider: makeAccountAvailabilityProvider(hotToken: hotToken),
@@ -48,19 +50,18 @@ enum HotCryptoAddTokenFlowConfigurationFactory {
 // MARK: - Private
 
 private extension HotCryptoAddTokenFlowConfigurationFactory {
+    @MainActor
     static func handleTokenAddedSuccessfully(
         addedToken: TokenItem,
         accountSelectorCell: AccountSelectorCellModel,
         coordinator: HotCryptoAddTokenRoutable?
-    ) {
+    ) async {
         guard let coordinator else { return }
 
         FeedbackGenerator.success()
 
-        // Find the wallet model for the added token
-        let walletModel = accountSelectorCell.cryptoAccountModel.walletModelsManager.walletModels.first {
-            $0.tokenItem == addedToken
-        }
+        let walletModel = await accountSelectorCell.cryptoAccountModel
+            .walletModelsManager.waitForWalletModel(for: addedToken)
 
         guard let walletModel else {
             coordinator.presentErrorToast(with: Localization.commonSomethingWentWrong)
@@ -70,7 +71,6 @@ private extension HotCryptoAddTokenFlowConfigurationFactory {
 
         let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
         coordinator.close()
-
         coordinator.openAddFunds(userWalletInfo: userWalletInfo, walletModel: walletModel)
     }
 

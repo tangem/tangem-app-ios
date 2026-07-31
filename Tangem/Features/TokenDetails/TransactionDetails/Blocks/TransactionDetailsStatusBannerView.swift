@@ -69,7 +69,7 @@ struct TransactionDetailsStatusBannerView: View {
     private var indicator: some View {
         switch data.kind {
         case .inProgress:
-            TangemLoader()
+            Loader()
                 .loaderSize(.size20)
                 .loaderColor(DesignSystem.Color.iconStatusInfo)
         case .success:
