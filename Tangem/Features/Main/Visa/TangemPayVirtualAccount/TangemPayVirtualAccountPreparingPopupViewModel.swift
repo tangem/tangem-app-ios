@@ -41,6 +41,8 @@ final class TangemPayVirtualAccountPreparingPopupViewModel: TangemPayPopupViewMo
 
     init(coordinator: TangemPayVirtualAccountPreparingPopupRoutable) {
         self.coordinator = coordinator
+
+        Analytics.log(.visaVATopupPreparationPopupShowed)
     }
 
     func dismiss() {
