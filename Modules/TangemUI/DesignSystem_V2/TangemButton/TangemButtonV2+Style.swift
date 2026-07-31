@@ -101,11 +101,10 @@ extension TangemButtonV2 {
             }
         }
 
-        @ViewBuilder
         private func pressOverlay(isPressed: Bool) -> some View {
-            if isPressed, isInteractive {
-                Capsule().fill(styleType.pressOverlay)
-            }
+            Capsule()
+                .fill(styleType.pressOverlay)
+                .opacity(isPressed && isInteractive ? 1 : 0)
         }
 
         private var isInteractive: Bool {
