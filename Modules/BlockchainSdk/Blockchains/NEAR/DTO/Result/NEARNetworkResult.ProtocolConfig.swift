@@ -15,11 +15,32 @@ extension NEARNetworkResult {
         struct RuntimeConfig: Decodable {
             let transactionCosts: TransactionCosts
             let storageAmountPerByte: String
+            let minGasPurchasePrice: String
         }
 
         struct TransactionCosts: Decodable {
             let actionReceiptCreationConfig: CostConfig
             let actionCreationConfig: ActionCreationConfig
+            let pessimisticGasPriceInflationRatio: Ratio
+        }
+
+        /// A rational number, returned as a pair of a numerator and a denominator.
+        struct Ratio: Decodable {
+            let numerator: Int
+            let denominator: Int
+
+            init(from decoder: Decoder) throws {
+                var container = try decoder.unkeyedContainer()
+                numerator = try container.decode(Int.self)
+                denominator = try container.decode(Int.self)
+
+                guard denominator != 0 else {
+                    throw DecodingError.dataCorruptedError(
+                        in: container,
+                        debugDescription: "A ratio can't have a denominator of zero"
+                    )
+                }
+            }
         }
 
         struct AddKeyCost: Decodable {
