@@ -90,8 +90,8 @@ extension MarketsSearchNavigationBar where Content == DefaultNavigationBarTitle 
         let font: Font
         let color: Color
 
-        font = Font.Tangem.Body16.semibold.font // [REDACTED_INFO]: tracking deferred
-        color = Color.Tangem.Text.Neutral.primary
+        font = DesignSystem.Font.bodyMediumToken.font // [REDACTED_INFO]: tracking deferred
+        color = DesignSystem.Color.textPrimary
 
         titleView = {
             DefaultNavigationBarTitle(

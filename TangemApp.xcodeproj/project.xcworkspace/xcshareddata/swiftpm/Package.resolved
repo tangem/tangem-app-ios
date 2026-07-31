@@ -1,5 +1,5 @@
 {
-  "originHash" : "c2cc2335fa78bec441d7cb37c15ee42be9148e4c7b6d3f84f70783cdca60c350",
+  "originHash" : "fcbc7ce556109ce2592c6682677833a6f0b92298edc8500be22305d942ce1976",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -242,6 +242,15 @@
       "state" : {
         "revision" : "60da361632d0de02786f709bdc0c4df340f7613e",
         "version" : "8.1.0"
+      }
+    },
+    {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/groue/GRDB.swift.git",
+      "state" : {
+        "revision" : "b83108d10f42680d78f23fe4d4d80fc88dab3212",
+        "version" : "7.11.1"
       }
     },
     {
@@ -761,8 +770,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "e171dc3b7ccd9b721e2ba95b7f082b3376318261",
-        "version" : "4.1.2"
+        "revision" : "0210c69f43c68308aec5e58a6375c65a57c21134",
+        "version" : "5.0.8"
       }
     },
     {

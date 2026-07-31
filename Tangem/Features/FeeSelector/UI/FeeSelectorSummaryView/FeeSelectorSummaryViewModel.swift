@@ -113,7 +113,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
         )
     }
 
-    private func mapFeeStateToRowViewModel(
+    func mapFeeStateToRowViewModel(
         state: TokenFeeProviderState,
         feeCoverage: FeeCoverage,
         tokenFeeProvider: any TokenFeeProvider,
@@ -121,7 +121,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
     ) -> FeeSelectorRowViewModel {
         let subtitleState: LoadableTextView.State = {
             switch (state, feeCoverage) {
-            case (.unavailable(.notEnoughFeeBalance), _):
+            case (.unavailable(.notEnoughFeeBalance), _), (.unavailable(.noTokenBalance), _):
                 return .loaded(text: Localization.gaslessNotEnoughFundsToCoverTokenFee)
 
             case (.idle, _), (.unavailable, _), (.error, _):
@@ -151,7 +151,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
         let isInsufficientFundsError: Bool = {
             switch (state, feeCoverage) {
-            case (.unavailable(.notEnoughFeeBalance), _), (.available, .uncovered):
+            case (.unavailable(.notEnoughFeeBalance), _), (.unavailable(.noTokenBalance), _), (.available, .uncovered):
                 return true
             default:
                 return false
@@ -160,7 +160,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
         var feeTokenAvailability: FeeSelectorRowViewModel.Availability {
             switch (state, feeCoverage) {
-            case (.unavailable(.notEnoughFeeBalance), _):
+            case (.unavailable(.notEnoughFeeBalance), _), (.unavailable(.noTokenBalance), _):
                 return .unavailable(isSubtitleHighlighted: true)
 
             case (.idle, _), (.unavailable, _), (.error, _), (_, .undefined):

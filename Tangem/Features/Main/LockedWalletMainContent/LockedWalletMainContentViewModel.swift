@@ -11,7 +11,7 @@ import TangemFoundation
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
-import class TangemSdk.BiometricsUtil
+import TangemSdk
 
 protocol MainLockedUserWalletDelegate: AnyObject {
     func openScanCardManual()

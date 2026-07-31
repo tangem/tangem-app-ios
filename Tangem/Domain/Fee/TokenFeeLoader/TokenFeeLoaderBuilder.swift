@@ -40,7 +40,7 @@ struct TokenFeeLoaderBuilder {
             )
         }
 
-        if case .bitcoin = tokenItem.blockchain {
+        if tokenItem.blockchain.isPsbtDexSwapSupported {
             return CommonBitcoinTokenFeeLoader(tokenItem: tokenItem, tokenFeeLoader: tokenFeeLoader)
         }
 

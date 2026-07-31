@@ -264,7 +264,11 @@ private extension CampaignViewModel {
         isEnrolling = false
         coordinator?.presentErrorToast(with: Localization.commonSomethingWentWrong)
     }
+}
 
+// MARK: - Token selection
+
+extension CampaignViewModel {
     func handleSelectedToken(_ item: TokenSelectorItem) {
         selectedToken = item
         selectedTokenRowViewModel = TokenSelectorItemViewModelBuilder(availabilityProvider: AvailableTokenSelectorItemAvailabilityProvider())
