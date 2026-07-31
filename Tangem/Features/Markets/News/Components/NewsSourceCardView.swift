@@ -11,6 +11,7 @@ import SwiftUI
 import TangemAssets
 import TangemFoundation
 import TangemUI
+import TangemUIUtils
 
 struct NewsSourceCardView: View {
     let source: NewsSource
@@ -23,36 +24,36 @@ struct NewsSourceCardView: View {
     // MARK: - Redesign
 
     private var redesignBody: some View {
-        Button {
+        SwiftUI.Button {
             onTap(source)
         } label: {
-            HStack(alignment: .top, spacing: .unit(.x4)) {
+            HStack(alignment: .top, spacing: 16) {
                 VStack(alignment: .leading, spacing: .zero) {
-                    HStack(spacing: .unit(.x1)) {
+                    HStack(spacing: 4) {
                         Assets.Glyphs.exploreNew.image
                             .resizable()
                             .renderingMode(.template)
                             .frame(size: .init(bothDimensions: 16))
-                            .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+                            .foregroundStyle(DesignSystem.Color.iconPrimary)
 
                         Text(source.sourceName)
-                            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                             .lineLimit(1)
                     }
 
                     Text(source.title)
-                        .style(Font.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                         .lineLimit(RedesignConstants.titleLineLimit)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
-                        .padding(.top, .unit(.x2))
+                        .padding(.top, 8)
 
                     // Keep at least 32pt between the title and the date; with the fixed 132pt content
                     // height this pins the date to the bottom and adds more spacing for shorter titles.
-                    Spacer(minLength: .unit(.x8))
+                    Spacer(minLength: 32)
 
                     Text(source.publishedAt)
-                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                         .lineLimit(1)
                 }
                 .frame(maxHeight: .infinity, alignment: .topLeading)
@@ -62,14 +63,14 @@ struct NewsSourceCardView: View {
                 }
             }
             .frame(height: RedesignConstants.contentHeight, alignment: .topLeading)
-            .padding(.unit(.x4))
+            .padding(16)
             .frame(width: RedesignConstants.cardWidth, alignment: .topLeading)
-            .background(Color.Tangem.Surface.level3)
-            .cornerRadiusContinuous(.unit(.x5))
+            .background(DesignSystem.Color.bgSecondary)
+            .cornerRadiusContinuous(20)
             .overlay(
-                RoundedRectangle(cornerRadius: .unit(.x5), style: .continuous)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .inset(by: 0.5)
-                    .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: 1)
+                    .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)

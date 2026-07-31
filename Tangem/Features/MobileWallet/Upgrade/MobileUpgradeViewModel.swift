@@ -106,7 +106,7 @@ extension MobileUpgradeViewModel {
 
     func makeOnboardingInput(cardInfo: CardInfo) -> OnboardingInput? {
         // Card for mobile backup must not have an access code set.
-        let backupFactory = GenericBackupServiceFactory(isAccessCodeSet: false)
+        let backupFactory = GenericBackupServiceFactory(isAccessCodeSet: false, defaultBlockchains: [])
         let backupService = backupFactory.makeBackupService()
 
         if let primaryCard = cardInfo.primaryCard {

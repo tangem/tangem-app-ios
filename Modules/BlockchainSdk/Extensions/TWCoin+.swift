@@ -146,6 +146,8 @@ extension CoinType {
              .scroll,
              .linea,
              .monad,
+             .igra,
+             .robinhood,
              .arbitrumNova,
              .plasma,
              .adi,

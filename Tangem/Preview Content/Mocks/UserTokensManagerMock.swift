@@ -11,6 +11,8 @@ import Combine
 import BlockchainSdk
 
 struct UserTokensManagerMock: UserTokensManager {
+    var containsTokenItem = false
+
     var userTokens: [TokenItem] { [] }
 
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: userTokens) }
@@ -44,7 +46,7 @@ struct UserTokensManagerMock: UserTokensManager {
     }
 
     func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
-        false
+        containsTokenItem
     }
 
     func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
