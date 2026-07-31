@@ -52,6 +52,7 @@ class SendSourceTokenStub: SendSourceToken {
     var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderStub() }
     var allowanceService: (any AllowanceService)? { nil }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
+    var scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver? { nil }
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { EmailDataCollectorBuilderStub() }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { nil } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { TransactionDispatcherProviderStub() }
