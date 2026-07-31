@@ -187,7 +187,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
             return fee
 
-        case (.dex(let data), .bitcoin):
+        case (.dex(let data), _) where blockchain.isPsbtDexSwapSupported:
             guard let psbtBase64 = data.txData else {
                 throw ExpressProviderError.transactionDataNotFound
             }

@@ -41,17 +41,20 @@ extension NotificationView {
         let action: NotificationButtonTapAction
         let actionType: NotificationButtonActionType
         let isWithLoader: Bool
+        let isLoading: Bool
         let isDisabled: Bool
 
         init(
             action: @escaping NotificationButtonTapAction,
             actionType: NotificationButtonActionType,
             isWithLoader: Bool,
+            isLoading: Bool = false,
             isDisabled: Bool = false
         ) {
             self.action = action
             self.actionType = actionType
             self.isWithLoader = isWithLoader
+            self.isLoading = isLoading
             self.isDisabled = isDisabled
         }
 
@@ -59,6 +62,7 @@ extension NotificationView {
 
         static func == (lhs: NotificationButton, rhs: NotificationButton) -> Bool {
             return lhs.actionType.id == rhs.actionType.id
+                && lhs.isLoading == rhs.isLoading
         }
     }
 

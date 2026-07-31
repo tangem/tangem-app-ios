@@ -14,6 +14,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     private static let replaceCardTitle = "Replace card"
     private static let replacingInProgressText = "Replacing your digital card"
 
+    private lazy var cardNameEditButton = button(.cardNameEditButton)
     private lazy var changePinRow = button(.changePinRow)
     private lazy var freezeRowActive = button(.freezeCardRowStateActive)
     private lazy var freezeRowFrozen = button(.freezeCardRowStateFrozen)
@@ -28,11 +29,32 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     private lazy var copyNumberButton = button(.cardDetailsCopyNumber)
     private lazy var copyExpirationButton = button(.cardDetailsCopyExpiration)
     private lazy var copyCvcButton = button(.cardDetailsCopyCvc)
+    private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
 
     @discardableResult
     func waitForScreen() -> Self {
         XCTContext.runActivity(named: "Wait for Tangem Pay card details screen") { _ in
             waitAndAssertTrue(changePinRow, "Change PIN row should be displayed on Tangem Pay card details screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapCardName() -> TangemPayCardRenameScreen {
+        XCTContext.runActivity(named: "Tap card name to start renaming") { _ in
+            cardNameEditButton.waitAndTap()
+            return TangemPayCardRenameScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyCardName(contains expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify card name contains '\(expected)'") { _ in
+            let nameButton = app.buttons
+                .matching(identifier: TangemPayAccessibilityIdentifiers.cardNameEditButton)
+                .matching(NSPredicate(format: "label CONTAINS %@", expected))
+                .firstMatch
+            waitAndAssertTrue(nameButton, timeout: .networkRequest, "Card name should contain '\(expected)'")
             return self
         }
     }
@@ -248,6 +270,76 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
         }
     }
 
+    @discardableResult
+    func verifyRequisites() -> Self {
+        XCTContext.runActivity(named: "Verify revealed card requisites") { _ in
+            waitAndAssertTrue(cardNumberValue, timeout: .networkRequest, "Card number value should be displayed")
+            waitAndAssertTrue(cardExpirationValue, "Card expiration value should be displayed")
+            waitAndAssertTrue(cardCvcValue, "Card CVC value should be displayed")
+            XCTAssertTrue(cardNumberValue.label.contains("4242 4242 4242"), "Card number should contain the mock PAN prefix")
+            XCTAssertEqual(cardExpirationValue.label, "12/28", "Card expiration should match the mock value")
+            XCTAssertEqual(cardCvcValue.label, "123", "Card CVC should match the mock value")
+            waitAndAssertTrue(hideDetailsButton, "Hide details button should be displayed while requisites are revealed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapApplePayGuideBanner() -> TangemPayAddToAppPayGuideScreen {
+        XCTContext.runActivity(named: "Tap Apple/Google Pay instruction banner") { _ in
+            applePayGuideBanner.waitAndTap()
+            return TangemPayAddToAppPayGuideScreen(app)
+        }
+    }
+
+    @discardableResult
+    func waitForRequisitesHiddenOnCard() -> Self {
+        XCTContext.runActivity(named: "Wait for card requisites to auto-hide on the card") { _ in
+            XCTAssertTrue(
+                hideDetailsButton.waitForNonExistence(timeout: .robustUIUpdate),
+                "Hide details button should disappear once the card returns to the front"
+            )
+            XCTAssertTrue(
+                cardNumberValue.waitForNonExistence(timeout: .robustUIUpdate),
+                "Card requisites should not be displayed once the card returns to the front"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCardDetailsErrorToast() -> Self {
+        XCTContext.runActivity(named: "Verify card details load error toast") { _ in
+            let toast = app.staticTexts
+                .matching(NSPredicate(format: "label CONTAINS %@", "Failed to load data"))
+                .firstMatch
+            waitAndAssertTrue(toast, "Card details load error toast should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyFreezeErrorToast() -> Self {
+        XCTContext.runActivity(named: "Verify freeze failure toast") { _ in
+            let toast = app.staticTexts
+                .matching(NSPredicate(format: "label CONTAINS %@", "Failed to freeze the card"))
+                .firstMatch
+            waitAndAssertTrue(toast, "Freeze failure toast should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyUnfreezeErrorToast() -> Self {
+        XCTContext.runActivity(named: "Verify unfreeze failure toast") { _ in
+            let toast = app.staticTexts
+                .matching(NSPredicate(format: "label CONTAINS %@", "Failed to unfreeze the card"))
+                .firstMatch
+            waitAndAssertTrue(toast, "Unfreeze failure toast should be displayed")
+            return self
+        }
+    }
+
     private func openReplaceCardFromMoreMenu() {
         moreMenuButton.waitAndTap()
         replaceCardMenuItem.waitAndTap()
@@ -255,6 +347,7 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
 }
 
 enum TangemPayCardDetailsScreenElement: String, UIElement {
+    case cardNameEditButton
     case changePinRow
     case freezeCardRowStateActive
     case freezeCardRowStateFrozen
@@ -272,6 +365,8 @@ enum TangemPayCardDetailsScreenElement: String, UIElement {
 
     var accessibilityIdentifier: String {
         switch self {
+        case .cardNameEditButton:
+            TangemPayAccessibilityIdentifiers.cardNameEditButton
         case .changePinRow:
             TangemPayAccessibilityIdentifiers.changePinRow
         case .freezeCardRowStateActive:

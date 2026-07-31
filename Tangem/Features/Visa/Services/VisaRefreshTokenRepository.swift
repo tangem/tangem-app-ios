@@ -73,16 +73,30 @@ class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
         storeVisaRefreshTokenIds(savedVisaRefreshTokenIds)
     }
 
-    func clearPersistent() {
-        do {
-            let savedVisaRefreshTokenIds = loadStoredVisaRefreshTokenIds()
-            storeVisaRefreshTokenIds([])
-            for visaRefreshTokenId in savedVisaRefreshTokenIds {
-                let storageKey = makeRefreshTokenStorageKey(visaRefreshTokenId: visaRefreshTokenId)
-                try biometricsStorage.delete(storageKey)
+    func clean() {
+        clean(genericPasswordAccounts: [])
+    }
+
+    func clean(genericPasswordAccounts: [String]) {
+        let refreshTokenPrefix = StorageKey.visaRefreshToken.rawValue + "_"
+
+        // With a Keychain snapshot from the caller — filter it; without one (e.g. logout) — delete by the stored id index.
+        let accountsToDelete = genericPasswordAccounts.isEmpty
+            ? loadStoredVisaRefreshTokenIds().map { makeRefreshTokenStorageKey(visaRefreshTokenId: $0) }
+            : genericPasswordAccounts.filter { $0.hasPrefix(refreshTokenPrefix) }
+
+        for account in accountsToDelete {
+            do {
+                try biometricsStorage.delete(account)
+            } catch {
+                VisaLogger.error("Failed to clean a refresh token", error: error)
             }
+        }
+
+        do {
+            try secureStorage.delete(StorageKey.visaRefreshTokenIds.rawValue)
         } catch {
-            VisaLogger.error("Failed to clear repository", error: error)
+            VisaLogger.error("Failed to clean the refresh token index", error: error)
         }
     }
 

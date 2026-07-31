@@ -138,13 +138,13 @@ private extension CardActivationTask {
 
     func deriveKey(in session: CardSession, completion: @escaping CompletionHandler) {
         guard
-            let wallet = session.environment.card?.wallets.first(where: { $0.curve == VisaUtilities.mandatoryCurve })
+            let walletPublicKey = session.environment.card?.wallets.first(where: { $0.curve == VisaUtilities.mandatoryCurve })?.publicKey
         else {
             completion(.failure(.underlying(error: VisaActivationError.missingWallet)))
             return
         }
 
-        processDerivedKey(wallet: wallet, in: session, completion: completion)
+        processDerivedKey(walletPublicKey: walletPublicKey, in: session, completion: completion)
     }
 
     func createOTP(in session: CardSession, completion: @escaping CompletionHandler) {
@@ -305,12 +305,12 @@ private extension CardActivationTask {
 
 private extension CardActivationTask {
     func processDerivedKey(
-        wallet: Card.Wallet,
+        walletPublicKey: Data,
         in session: CardSession,
         completion: @escaping CompletionHandler
     ) {
         do {
-            let address = try VisaUtilities.makeAddress(walletPublicKey: wallet.publicKey, isTestnet: isTestnet)
+            let address = try VisaUtilities.makeAddress(walletPublicKey: walletPublicKey, isTestnet: isTestnet)
             awaitBFFAuthorization(walletAddress: address.value)
             createOTP(in: session, completion: completion)
         } catch {

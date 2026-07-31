@@ -17,7 +17,7 @@ import TangemUI
 
 // MARK: - SendSourceToken
 
-final class SendSourceTokenStub: SendSourceToken {
+class SendSourceTokenStub: SendSourceToken {
     private let blockchain: Blockchain
 
     init(blockchain: Blockchain = .ton(curve: .ed25519, testnet: false)) {
@@ -39,7 +39,7 @@ final class SendSourceTokenStub: SendSourceToken {
             config: UserWalletConfigStub(),
             backupState: .valid,
             refcode: nil,
-            signer: TangemSignerStub(),
+            signerFactory: TangemSignerFactory(),
             emailDataProvider: EmailDataProviderStub()
         )
     }

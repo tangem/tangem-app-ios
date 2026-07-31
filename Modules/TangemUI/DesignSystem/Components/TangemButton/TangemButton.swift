@@ -59,7 +59,7 @@ public struct TangemButton: View, Setupable {
     }
 
     public var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             label
         }
         .buttonStyle(Style(

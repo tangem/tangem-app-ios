@@ -26,6 +26,8 @@ final class WalletModelTestsMock: WalletModel {
 
     var transactionCreatorMock: TransactionCreator?
     var multipleTransactionsSenderMock: MultipleTransactionsSender?
+    var stakingManagerMock: StakingManager?
+    var yieldModuleManagerMock: (any YieldModuleManager)?
     private(set) var updateAfterSendingTransactionCallCount = 0
 
     init(fiatBalance: Decimal, priceChange24h: Decimal?) {
@@ -172,11 +174,11 @@ final class WalletModelTestsMock: WalletModel {
     var demoBalance: Decimal? { get { nil } set {} }
     var sendingRestrictions: SendingRestrictions? { nil }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { .empty }
-    var stakingManager: StakingManager? { nil }
+    var stakingManager: StakingManager? { stakingManagerMock }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }
     var p2pTransactionSender: (any P2PTransactionSender)? { nil }
     var account: (any CryptoAccountModel)? { _account }
-    var yieldModuleManager: YieldModuleManager? { nil }
+    var yieldModuleManager: YieldModuleManager? { yieldModuleManagerMock }
     var feeTokenItemBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var availableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var stakingBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }

@@ -44,7 +44,7 @@ private extension SendAmountInputView {
     }
 
     func rateBadgeButton(_ badge: RateBadgeConfig) -> some View {
-        Button(action: badge.action) {
+        SwiftUI.Button(action: badge.action) {
             HStack(spacing: 4) {
                 badge.icon.image
                     .resizable()
@@ -107,7 +107,7 @@ private extension SendAmountInputView {
                         .optionalAccessibilityIdentifier(accessibilityConfiguration?.errorIdentifier)
                 }
             } else if field.possibleToConvertToFiat {
-                Button(action: {
+                SwiftUI.Button(action: {
                     if focusedField != nil {
                         onWillToggle?()
                     }

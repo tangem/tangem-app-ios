@@ -73,7 +73,8 @@ private extension TokenDetailsActionsViewModel {
                     for: type,
                     isAvailable: isRowItemAvailable(for: type),
                     onTap: { [weak self] in
-                        self?.perform(type, kind: .addFunds)
+                        let kind: TokenDetailsActionsKind = type == .exchange ? .swap : .addFunds
+                        self?.perform(type, kind: kind)
                     }
                 )
             }

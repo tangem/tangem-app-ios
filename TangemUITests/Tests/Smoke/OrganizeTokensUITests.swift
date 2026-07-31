@@ -132,7 +132,8 @@ final class OrganizeTokensUITests: BaseTestCase {
 
     func testGroupUngroup_TokensGroupedAndUngroupedCorrectly() {
         setAllureId(2755)
-        launchApp(tangemApiType: .mock)
+        let scenario = ScenarioConfig(name: "user_tokens_api", initialState: "OrganizeGroupFlow")
+        launchApp(tangemApiType: .mock, scenarios: [scenario])
 
         let organizeTokensScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)

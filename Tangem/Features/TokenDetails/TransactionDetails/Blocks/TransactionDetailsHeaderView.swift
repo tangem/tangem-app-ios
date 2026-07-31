@@ -77,11 +77,11 @@ struct TransactionDetailsHeaderView: View {
     private var menuButton: some View {
         Menu {
             ForEach(data.menuActions) { action in
-                Button(action: action.handler) {
+                SwiftUI.Button(action: action.handler) {
                     if let icon = action.icon {
                         Label(
                             title: { Text(action.title) },
-                            icon: { icon.image }
+                            icon: { icon.image.renderingMode(.template) }
                         )
                     } else {
                         Text(action.title)
