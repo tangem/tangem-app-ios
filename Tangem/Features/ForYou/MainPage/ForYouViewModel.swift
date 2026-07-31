@@ -47,7 +47,7 @@ private extension ForYouViewModel {
         selectedAccountsProvider: ForYouSelectedAccountsProvider
     ) -> ForYouAccountSelectionResolver.SelectionScopePublisher {
         ForYouAccountSelectionResolver(selectionPublisher: selectedAccountsProvider.selectionPublisher)
-            .selectionScopePublisher()
+            .selectionScopePublisher
             .share(replay: 1)
             .eraseToAnyPublisher()
     }

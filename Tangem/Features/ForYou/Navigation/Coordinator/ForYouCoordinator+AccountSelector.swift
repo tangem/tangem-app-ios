@@ -22,9 +22,9 @@ extension ForYouCoordinator {
 
         floatingSheetPresenter.enqueue(
             sheet: ForYouAccountSelectorViewModel(
-                userWalletModels: accountsResolver.unlockedWallets(),
+                userWalletModels: accountsResolver.unlockedWallets,
                 selection: selectedAccountsProvider.selection,
-                includesAllWallets: accountsResolver.includesAllWallets(),
+                includesAllWallets: accountsResolver.includesAllWallets,
                 applySelectionAction: { [selectedAccountsProvider] in
                     selectedAccountsProvider.select($0)
                 },
