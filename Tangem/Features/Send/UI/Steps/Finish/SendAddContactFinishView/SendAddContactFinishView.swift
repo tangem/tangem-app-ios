@@ -16,7 +16,7 @@ struct SendAddContactFinishView: View {
 
     var body: some View {
         if viewModel.isVisible {
-            TangemButtonV2(
+            TangemUI.Button(
                 label: Localization.addressBookAddContact,
                 accessibilityLabel: Localization.addressBookAddContact,
                 action: viewModel.userDidTapAddContact

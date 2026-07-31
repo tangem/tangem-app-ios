@@ -36,7 +36,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
-    private var accessCode: String?
     private var cardIds: Set<String>?
     private var stepPublisher: AnyCancellable?
 
@@ -315,6 +314,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         backupService = input.backupService
         cardIds = input.backupService.allCardIds
+        cardIds?.insert(input.primaryCardId)
         cardInitializer = input.cardInitializer
 
         super.init(input: input, coordinator: coordinator)
@@ -556,13 +556,26 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override func didAskToSaveUserWallets(agreed: Bool) {
         super.didAskToSaveUserWallets(agreed: agreed)
-        trySaveAccessCodes()
+
+        if agreed {
+            trySavePendingCredentials()
+        } else {
+            backupService.deletePendingCredentials()
+        }
+    }
+
+    private func trySavePendingCredentials() {
+        guard AppSettings.shared.saveAccessCodes else {
+            return
+        }
+
+        backupService.savePendingCredentials()
     }
 
     private func back() {
         closeOnboarding()
 
-        backupService.discardIncompletedBackup()
+        backupService.discardIncompleteBackup()
     }
 
     private func fireConfettiIfNeeded() {
@@ -574,10 +587,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private func saveAccessCode(_ code: String) {
         do {
             try backupService.setAccessCode(code)
-
-            accessCode = code
-            cardIds = backupService.allCardIds
-
             stackCalculator.setupNumberOfCards(1 + backupCardsAddedCount)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -670,11 +679,20 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
             switch result {
             case .success(let cardInfo):
-                initializeUserWallet(from: cardInfo, walletCreationType: walletCreationType)
+                // Wallet 3 can be configured not to reveal the public keys until the backup process is completed.
+                // In that case, the user wallet will be initialized after the backup.
+                if initializeUserWallet(from: cardInfo) {
+                    // This is just an optimization for the case where Wallet 3 is configured to reveal the public keys from the start.
+                    backupService.config.defaultDerivationPaths = [:]
+                }
 
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
+
+                var params = walletCreationType.params
+                params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+                logAnalytics(event: .walletCreatedSuccessfully, params: params, analyticsSystems: .all)
 
                 processPrimaryCardScan()
             case .failure(let error):
@@ -755,6 +773,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                 }
                 self?.stepPublisher = nil
             }, receiveValue: { [weak self] card, _ in
+                self?.cardIds?.insert(card.cardId)
                 self?.loadImage(for: card)
                 self?.updateStep()
                 withAnimation {
@@ -774,13 +793,31 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         }
     }
 
-    private func backupCard() {
-        // Sometimes a step state does not update for an unknown reason.
-        if backupServiceState == .finished {
-            goToNextStep()
+    private func findOrInitializeUserWalletModel(updatedCard: Card) {
+        guard userWalletModel == nil else {
             return
         }
 
+        let cardInfo = CardInfo(card: CardDTO(card: updatedCard), walletData: .none, associatedCardIds: [])
+
+        // It's an impossible case because a card always has wallets after its finalization.
+        guard let userWalletId = UserWalletId(cardInfo: cardInfo) else {
+            return
+        }
+
+        if let existingUserWalletModel = userWalletRepository.models[userWalletId] {
+            // Used during a mobile-to-hardware wallet upgrade when the backup flow
+            // was interrupted. In this case, we need to locate the corresponding
+            // UserWalletModel by deriving its userWalletId from the card's public key.
+            userWalletModel = existingUserWalletModel
+        } else {
+            // Wallet 3 can be configured not to reveal the public keys until the backup process is completed.
+            // In that case, the user wallet will be initialized after the backup.
+            initializeUserWallet(from: cardInfo)
+        }
+    }
+
+    private func backupCard() {
         isMainButtonBusy = true
 
         let ringUtil = RingUtil()
@@ -808,34 +845,20 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 return
                             }
 
+                            trySavePendingCredentials()
+
                             if backupServiceState == .finished {
+                                backupValidator.onBackupCompleted()
+
+                                findOrInitializeUserWalletModel(updatedCard: updatedCard)
+
                                 // Ring onboarding. Save userWalletId with ring, except interrupted backups
                                 if containsRing,
                                    let userWalletId = userWalletModel?.userWalletId.stringValue {
                                     AppSettings.shared.userWalletIdsWithRing.insert(userWalletId)
                                 }
 
-                                trySaveAccessCodes()
-
-                                backupValidator.onBackupCompleted()
-
-                                let backupedUserWalletModel: UserWalletModel?
-                                switch userWalletModel {
-                                case .some(let model):
-                                    backupedUserWalletModel = model
-                                case .none:
-                                    // Used during mobile-to-hardware wallet upgrade when the backup flow
-                                    // was interrupted. In this case we need to locate the corresponding
-                                    // UserWalletModel by deriving its userWalletId from the card's public key.
-                                    let cardInfo = CardInfo(card: CardDTO(card: updatedCard), walletData: .none, associatedCardIds: [])
-                                    if let userWalletId = UserWalletId(cardInfo: cardInfo) {
-                                        backupedUserWalletModel = userWalletRepository.models[userWalletId]
-                                    } else {
-                                        backupedUserWalletModel = nil
-                                    }
-                                }
-
-                                backupedUserWalletModel?.update(type: .backupCompleted(card: updatedCard, associatedCardIds: cardIds ?? []))
+                                userWalletModel?.update(type: .backupCompleted(card: updatedCard, associatedCardIds: cardIds ?? []))
                                 logAnalytics(
                                     event: .backupFinished,
                                     params: [.cardsCount: String((updatedCard.backupStatus?.backupCardsCount ?? 0) + 1)]
@@ -850,7 +873,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                 }
             }
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
-            .delay(for: 0.1, scheduler: DispatchQueue.main)
             .first()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
@@ -874,17 +896,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                     self?.isMainButtonBusy = false
                 }
             }
-    }
-
-    private func trySaveAccessCodes() {
-        guard
-            let accessCode = accessCode,
-            let cardIds = cardIds
-        else {
-            return
-        }
-
-        AccessCodeSaveUtility().trySave(accessCode: accessCode, cardIds: cardIds)
     }
 
     private func processBackupError(_ error: Error) {
@@ -1069,7 +1080,7 @@ private extension WalletOnboardingViewModel {
     }
 
     func onDidFinishResetCardSet() {
-        backupService.discardIncompletedBackup()
+        backupService.discardIncompleteBackup()
         backupValidator.onBackupCompleted()
         closeOnboarding()
     }

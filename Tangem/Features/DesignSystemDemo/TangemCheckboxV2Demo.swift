@@ -15,7 +15,7 @@ struct TangemCheckboxV2DemoView: View {
     @ObservedObject var viewModel: TangemCheckboxV2DemoViewModel
 
     var body: some View {
-        TangemCheckboxV2Showcase()
-            .navigationBarTitle(Text("TangemCheckboxV2"))
+        CheckboxShowcase()
+            .navigationBarTitle(Text("Checkbox"))
     }
 }

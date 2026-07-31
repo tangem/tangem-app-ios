@@ -76,11 +76,11 @@ public extension VisaUtilities {
     }
 
     static func makeAddress(using cardActivationResponse: CardActivationResponse, isTestnet: Bool) throws -> Address {
-        guard let wallet = cardActivationResponse.signedActivationOrder.cardSignedOrder.wallets.first(where: { $0.curve == mandatoryCurve }) else {
+        guard let walletPublicKey = cardActivationResponse.signedActivationOrder.cardSignedOrder.wallets.first(where: { $0.curve == mandatoryCurve })?.publicKey else {
             throw VisaActivationError.missingWallet
         }
 
-        return try makeAddress(walletPublicKey: wallet.publicKey, isTestnet: isTestnet)
+        return try makeAddress(walletPublicKey: walletPublicKey, isTestnet: isTestnet)
     }
 }
 

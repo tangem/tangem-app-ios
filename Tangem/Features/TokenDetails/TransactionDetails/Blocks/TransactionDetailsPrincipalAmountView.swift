@@ -27,7 +27,7 @@ struct TransactionDetailsPrincipalAmountView: View {
     @ScaledMetric private var tokenBadgeSide: CGFloat = 16
 
     var body: some View {
-        TangemRow(title: data.amount, subtitle: data.label)
+        Row(title: data.amount, subtitle: data.label)
             .lineOrder(.secondaryFirst)
             .verticalAlignment(.center)
             .titleAccessory { TokenIcon(tokenIconInfo: data.tokenIconInfo, size: CGSize(bothDimensions: tokenBadgeSide)) }
