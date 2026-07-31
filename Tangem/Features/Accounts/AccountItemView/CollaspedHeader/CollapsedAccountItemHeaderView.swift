@@ -28,7 +28,11 @@ struct CollapsedAccountItemHeaderView: View {
     @ScaledMetric private var geometryEffectAnchorOffset: CGFloat = 20
 
     private var balanceLoaderStyle: LoadableBalanceView.LoaderStyle {
-        .init(size: .init(width: .unit(.x18), height: .unit(.x4)), cornerRadiusStyle: .capsule)
+        LoadableBalanceView.LoaderStyle(
+            size: CGSize(width: 72, height: 16),
+            cornerRadiusStyle: .capsule,
+            appearance: .tangemShimmer
+        )
     }
 
     private var lineSpacing: CGFloat {
@@ -83,7 +87,8 @@ struct CollapsedAccountItemHeaderView: View {
                 PriceChangeView(
                     state: priceChange,
                     showSkeletonWhenLoading: true,
-                    showIconForNeutral: false
+                    showIconForNeutral: false,
+                    shimmerAppearance: .tangemShimmer
                 )
             }
         )

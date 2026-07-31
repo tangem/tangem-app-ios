@@ -63,4 +63,14 @@ struct TotalBalanceFormattingOptions {
             fractionalPartIncludesDecimalSeparator: true
         )
     }
+
+    static var mainHeaderRedesign: TotalBalanceFormattingOptions {
+        TotalBalanceFormattingOptions(
+            integerPartFont: DesignSystem.Font.displayMediumToken,
+            fractionalPartFont: DesignSystem.Font.headingMediumToken,
+            integerPartColor: DesignSystem.Color.textPrimary,
+            fractionalPartColor: DesignSystem.Color.textPrimary,
+            fractionalPartIncludesDecimalSeparator: true
+        )
+    }
 }
