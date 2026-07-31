@@ -18,7 +18,7 @@ final class NewsWidgetViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published private(set) var isFirstLoading: Bool = true
-    @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderView.LoadingState = .first
+    @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderLoadingState = .first
     @Published private(set) var resultState: LoadingResult<ResultState, Error> = .loading
 
     let widgetType: MarketsWidgetType

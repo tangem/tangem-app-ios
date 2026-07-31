@@ -325,6 +325,10 @@ private extension TransactionHistoryMapper {
     }
 
     func transactionType(from record: TransactionRecord) -> TransactionViewModel.TransactionType {
+        if case .exchange = record.expressExtraInfo {
+            return .swap
+        }
+
         switch record.type {
         case .transfer:
             return .transfer
@@ -374,16 +378,7 @@ private extension TransactionHistoryMapper {
     }
 
     func status(from record: TransactionRecord) -> TransactionViewModel.Status {
-        switch record.status {
-        case .confirmed:
-            return .confirmed
-        case .failed:
-            return .failed
-        case .unconfirmed:
-            return .inProgress
-        case .undefined:
-            return .undefined
-        }
+        TransactionOperationStatusMapper.viewStatus(for: record)
     }
 
     func formatted(amount: Decimal, isOutgoing: Bool, isFailed: Bool) -> FormattedAmount {

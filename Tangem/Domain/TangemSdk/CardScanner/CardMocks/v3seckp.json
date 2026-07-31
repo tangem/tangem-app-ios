@@ -11,6 +11,7 @@
             "curve": "secp256k1",
             "publicKey": "027145A57C26832421FF8D7BB34F248DF1231462E9EA16D7643FB22DC041C86C50",
             "index": 0,
+            "status": 2,
             "totalSignedHashes": 0,
             "isImported": false,
             "hasBackup": true,
@@ -42,6 +43,7 @@
         "isLinkedTerminalEnabled": true,
         "isFilesAllowed": true,
         "isKeysImportAllowed": false,
+        "isBackupRequired": false,
         "securityDelay": 15000,
         "supportedEncryptionModes": [
             "strong",
@@ -75,6 +77,8 @@
         "publicKey": "0000"
     },
     "userSettings": {
-        "isUserCodeRecoveryAllowed": false
+        "isUserCodeRecoveryAllowed": false,
+        "isPINRequired": false,
+        "isNDEFDisabled": false
     }
 }

@@ -55,7 +55,7 @@ struct AddressActionsView: View {
     }
 
     private var copyButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: Localization.addressBookCopyAddress,
             accessibilityLabel: Localization.addressBookCopyAddress,
             action: viewModel.copy
@@ -68,7 +68,7 @@ struct AddressActionsView: View {
 
     private var actionButtons: some View {
         VStack(spacing: 8) {
-            TangemButtonV2(
+            TangemUI.Button(
                 label: removeLabel,
                 accessibilityLabel: Localization.addressBookRemoveAddress,
                 action: viewModel.remove
@@ -77,7 +77,7 @@ struct AddressActionsView: View {
             .size(.x12)
             .horizontalLayout(.infinity)
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(Localization.addressBookEditAddress),
                 accessibilityLabel: Localization.addressBookEditAddress,
                 action: viewModel.edit
