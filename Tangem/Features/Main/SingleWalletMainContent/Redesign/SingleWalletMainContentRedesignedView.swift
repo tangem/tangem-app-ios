@@ -60,7 +60,7 @@ struct SingleWalletMainContentRedesignedView: View {
 
 private extension SingleWalletMainContentRedesignedView {
     enum Constants {
-        static let cornerRadius: CGFloat = 20
+        static let cornerRadius: CGFloat = 24
         static let tokenListBackgroundColor = DesignSystem.Color.bgSecondary
     }
 }
