@@ -101,7 +101,11 @@ struct TangemPayCardDetailsViewRedesigned: View {
                     HStack(spacing: 6) {
                         Text("*" + viewModel.lastFourDigits)
                             .font(token: DesignSystem.Font.bodyMediumToken)
-                            .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
+                            .foregroundStyle(
+                                viewModel.cardNameDisplayMode == .editing
+                                    ? DesignSystem.Color.textStaticDarkSecondary
+                                    : DesignSystem.Color.textStaticDarkPrimary
+                            )
 
                         Group {
                             if isLoading {
