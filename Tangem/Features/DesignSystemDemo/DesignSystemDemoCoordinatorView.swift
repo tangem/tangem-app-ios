@@ -102,6 +102,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tokenIconV2DemoViewModel) {
                 TokenIconV2DemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.utilGraphDemoViewModel) {
+                UtilGraphDemoView(viewModel: $0)
+            }
     }
 }
 
@@ -158,6 +161,10 @@ struct DesignSystemDemoView: View {
 
                     MainButton(title: "TokenIconV2") {
                         viewModel.openTokenIconV2Demo()
+                    }
+
+                    MainButton(title: "UtilGraph") {
+                        viewModel.openUtilGraphDemo()
                     }
 
                     MainButton(title: "Search") {
