@@ -84,25 +84,116 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
     @ViewBuilder
     private var scrollContent: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if !viewModel.contentVisibility.isEmpty {
-                headerContent
-            }
-
-            switch viewModel.contentVisibility {
-            case .empty:
-                emptyContentView.transition(.move(edge: .top).combined(with: .opacity))
-            case .loading:
-                TokenSelectorLoadingView().transition(.content)
-            case .visible(let itemsCount):
-                // zIndex keeps the token list above other content during animated transitions
-                tokenListContent(itemsCount: itemsCount).transition(.content).zIndex(1)
-            }
-
-            if !viewModel.contentVisibility.isLoading {
-                additionalContent.transition(.content)
+            if viewModel.showsBalanceFilter {
+                balanceFilterContent
+            } else {
+                legacyContent
             }
         }
         .padding(.top, 24)
+    }
+
+    @ViewBuilder
+    private var legacyContent: some View {
+        if !viewModel.contentVisibility.isEmpty {
+            headerContent
+        }
+
+        switch viewModel.contentVisibility {
+        case .empty:
+            emptyContentView.transition(.move(edge: .top).combined(with: .opacity))
+        case .loading:
+            TokenSelectorLoadingView().transition(.content)
+        case .visible(let itemsCount):
+            // zIndex keeps the token list above other content during animated transitions
+            tokenListContent(itemsCount: itemsCount).transition(.content).zIndex(1)
+        }
+
+        if !viewModel.contentVisibility.isLoading {
+            additionalContent.transition(.content)
+        }
+    }
+
+    // MARK: - Balance filter (opt-in)
+
+    @ViewBuilder
+    private var balanceFilterContent: some View {
+        if !viewModel.contentVisibility.isEmpty {
+            headerContent
+        }
+
+        if showsPersistentChrome {
+            balanceFilterHeader(itemsCount: visibleItemsCount)
+        }
+
+        switch viewModel.contentVisibility {
+        case .empty:
+            emptyContentView.transition(.opacity)
+        case .loading:
+            TokenSelectorLoadingView().transition(.content)
+        case .visible:
+            balanceFilterWalletsList.transition(.content).zIndex(1)
+        }
+
+        if !viewModel.contentVisibility.isLoading {
+            additionalContent
+                // Keep the section in place when the filter toggles the list above it; otherwise the
+                // ambient content animation slides it in from offscreen on iOS 26.
+                .animation(nil, value: viewModel.contentVisibility)
+        }
+    }
+
+    private var showsPersistentChrome: Bool {
+        switch viewModel.contentVisibility {
+        case .visible: true
+        // Keep the header while searching so switching wallets mid-search doesn't drop the chrome.
+        case .empty(let reason): reason == .filteredOut || !viewModel.searchText.isEmpty
+        case .loading: false
+        }
+    }
+
+    private var visibleItemsCount: Int? {
+        if case .visible(let itemsCount) = viewModel.contentVisibility {
+            return itemsCount
+        }
+
+        return nil
+    }
+
+    @ViewBuilder
+    private func balanceFilterHeader(itemsCount: Int?) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                if let sectionHeaderConfiguration {
+                    Text(sectionHeaderConfiguration.title)
+                        .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.primary)
+
+                    if let itemsCount, let displayed = viewModel.itemsCountToDisplay(configuration: sectionHeaderConfiguration, itemsCount: itemsCount) {
+                        Text("\(displayed)")
+                            .style(.Tangem.Heading20.semibold.font, color: .Tangem.Text.Neutral.tertiary)
+                    }
+                }
+
+                Spacer(minLength: 8)
+
+                TangemDropDown(singleSelection: $viewModel.balanceFilter, in: TokenSelectorBalanceFilter.allCases)
+                    .fixedSize()
+                    .id(viewModel.balanceFilter)
+            }
+            .padding(.horizontal, 8)
+
+            if viewModel.walletChips.count > 1 {
+                walletChipsView
+            }
+        }
+    }
+
+    private var balanceFilterWalletsList: some View {
+        VStack(spacing: 0) {
+            ForEach(viewModel.wallets) {
+                TokenSelectorWalletItemView(viewModel: $0)
+            }
+        }
     }
 
     @ViewBuilder
