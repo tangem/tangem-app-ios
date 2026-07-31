@@ -41,6 +41,7 @@ struct TangemPayOfferViewV2: View {
         .sheet(item: $viewModel.termsFeesAndLimitsViewModel) {
             WebViewContainer(viewModel: $0)
         }
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     private var heroBackground: some View {
@@ -176,7 +177,7 @@ struct TangemPayOfferViewV2: View {
     }
 
     private var footer: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: Localization.tangempayOnboardingGetCardButtonText,
             accessibilityLabel: nil
         ) {

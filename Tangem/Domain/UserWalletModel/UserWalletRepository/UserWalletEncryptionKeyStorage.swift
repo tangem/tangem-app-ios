@@ -75,9 +75,27 @@ class UserWalletEncryptionKeyStorage {
         }
     }
 
+    /// Removes every stored encryption key. Matched by prefix because the wallet-id list
+    /// doesn't survive an app reinstall, so the keys can't be enumerated by id.
+    func clean(genericPasswordAccounts: [String]) {
+        for account in genericPasswordAccounts where account.hasPrefix(Constants.encryptionKeyPrefix) {
+            do {
+                try biometricsStorage.delete(account)
+            } catch {
+                AppLogger.error("Failed to delete a user wallet encryption key", error: error)
+            }
+        }
+    }
+
     // MARK: - Saving the list of UserWallet IDs
 
     private func encryptionKeyStorageKey(for userWalletId: UserWalletId) -> String {
-        "user_wallet_encryption_key_\(userWalletId.stringValue.lowercased())"
+        Constants.encryptionKeyPrefix + userWalletId.stringValue.lowercased()
+    }
+}
+
+private extension UserWalletEncryptionKeyStorage {
+    enum Constants {
+        static let encryptionKeyPrefix = "user_wallet_encryption_key_"
     }
 }

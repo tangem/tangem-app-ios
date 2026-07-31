@@ -9,6 +9,8 @@
 import Foundation
 
 public enum TxHistoryAccessibilityIdentifiers {
+    public static let statusStateIcon = "txHistoryStatusStateIcon"
+
     public static func transactionItem(key: String) -> String {
         "txHistoryTransactionItem_\(key)"
     }
