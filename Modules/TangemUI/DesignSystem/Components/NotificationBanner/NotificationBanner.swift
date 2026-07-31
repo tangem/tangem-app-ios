@@ -218,12 +218,15 @@ public struct NotificationBanner: View, Setupable {
             EmptyView()
         case .one(let model, let identifier):
             TangemButton(model: model)
+                .setButtonState(isLoading: model.isLoading)
                 .accessibilityIdentifier(identifier)
         case .two(let left, let right, let leftIdentifier, let rightIdentifier):
             HStack(spacing: SizeUnit.x3.value) {
                 TangemButton(model: left)
+                    .setButtonState(isLoading: left.isLoading)
                     .accessibilityIdentifier(leftIdentifier)
                 TangemButton(model: right)
+                    .setButtonState(isLoading: right.isLoading)
                     .accessibilityIdentifier(rightIdentifier)
             }
         }
