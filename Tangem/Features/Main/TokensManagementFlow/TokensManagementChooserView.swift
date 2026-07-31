@@ -161,7 +161,7 @@ private extension TokensManagementChooserView {
         static let iconCornerRadius: CGFloat = 18
         static let iconSize: CGFloat = 24
         static let rowCornerRadius: CGFloat = 14
-        static let redesignRowCornerRadius: CGFloat = 20
+        static let redesignRowCornerRadius: CGFloat = 24
         static let horizontalInset: CGFloat = 16
     }
 }

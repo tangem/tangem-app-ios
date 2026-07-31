@@ -309,6 +309,7 @@ struct OrganizeTokensView: View {
                     isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
                     contentInsets: footerContentInsets
                 )
+                .animation(.easeInOut(duration: 0.25), value: scrollState.isTokenListFooterGradientHidden)
             } else {
                 OrganizeTokensListFooter(
                     actionsHandler: viewModel,
@@ -316,9 +317,9 @@ struct OrganizeTokensView: View {
                     cornerRadius: contentCornerRadius,
                     contentInsets: footerContentInsets
                 )
+                .animation(.linear(duration: 0.1), value: scrollState.isTokenListFooterGradientHidden)
             }
         }
-        .animation(.linear(duration: 0.1), value: scrollState.isTokenListFooterGradientHidden)
         .readGeometry(inCoordinateSpace: .global) { geometryInfo in
             scrollState.tokenListFooterFrameMinYSubject.send(geometryInfo.frame.minY + Constants.contentVerticalInset)
             $scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height
@@ -715,7 +716,7 @@ private extension AnyTransition {
 private extension OrganizeTokensView {
     enum Constants {
         static let contentCornerRadius = 14.0
-        static let redesignContentCornerRadius: CGFloat = 20
+        static let redesignContentCornerRadius: CGFloat = 24
         static let interSectionSpacing = 8.0
         static let headerBottomInset = 10.0
         static var headerAdditionalBottomInset: CGFloat { contentVerticalInset - headerBottomInset }

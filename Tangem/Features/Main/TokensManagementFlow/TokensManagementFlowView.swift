@@ -14,6 +14,8 @@ import TangemUIUtils
 struct TokensManagementFlowView: View {
     @ObservedObject var viewModel: TokensManagementFlowCoordinator
 
+    @State private var cancelButtonHeight: CGFloat = 0
+
     private var isRedesignedAccountSelector: Bool {
         viewModel.state.isChooseAccount && viewModel.isAddAndOrganizeRedesignEnabled
     }
@@ -72,10 +74,13 @@ struct TokensManagementFlowView: View {
             TokensManagementChooserView(viewModel: viewModel)
         case .chooseAccount(let accountSelector):
             if viewModel.isAddAndOrganizeRedesignEnabled {
-                VStack(spacing: 0) {
+                ZStack(alignment: .bottom) {
                     AccountSelectorView(viewModel: accountSelector, style: .addTokenRedesigned)
+                        .bottomFade()
+                        .bottomContentInset(cancelButtonHeight)
 
                     cancelButton
+                        .readGeometry(\.size.height) { cancelButtonHeight = $0 }
                 }
             } else {
                 AccountSelectorView(viewModel: accountSelector, style: .addAndManage)
