@@ -245,7 +245,7 @@ extension TangemPayTransactionHistoryResponse.Spend {
             enrichedMerchantName: enrichedMerchantName,
             enrichedMerchantIcon: enrichedMerchantIcon,
             amount: amount,
-            authorizedAmount: authorizedAmount,
+            authorizedAmount: authorizedAmount ?? amount,
             currency: currency,
             localAmount: localAmount,
             localCurrency: localCurrency,
