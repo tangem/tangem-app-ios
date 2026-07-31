@@ -157,6 +157,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
+    var scaledUIAmountProvider: (any ScaledUIAmountProvider)? {
+        nil
+    }
+
     var state: WalletModelState {
         tokenBalanceProvider.balanceType.value.map(WalletModelState.loaded) ?? .created
     }
