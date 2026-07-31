@@ -217,6 +217,7 @@ protocol WalletModelDependenciesProvider {
 
     var accountInitializationService: BlockchainAccountInitializationService? { get }
     var minimalBalanceProvider: MinimalBalanceProvider? { get }
+    var scaledUIAmountProvider: ScaledUIAmountProvider? { get }
 
     // MARK: - Gasless Transactions
 

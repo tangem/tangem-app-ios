@@ -59,7 +59,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
         switch item.amountType {
         case .from:
-            fromAmount = item.sourceAmountWEI()
+            fromAmount = try item.sourceAmountWEI()
             toAmount = nil
         case .to:
             fromAmount = nil
@@ -86,6 +86,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
         let response = try await expressAPIService.exchangeQuote(request: request)
         var quote = try expressAPIMapper.mapToExpressQuote(response: response)
+        quote.fromAmount = item.displayedSourceAmount(quote.fromAmount)
 
         // We have to check the "fromAmount" because sometimes we can receive it more than was sent
         // Only applicable for .from quotes where the user specified the source amount
@@ -104,7 +105,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
         switch item.amountType {
         case .from:
-            fromAmount = item.sourceAmountWEI()
+            fromAmount = try item.sourceAmountWEI()
             toAmount = nil
         case .to:
             fromAmount = nil

@@ -1,5 +1,5 @@
 //
-//  SolanaScaledUiAmountTarget.swift
+//  SolanaScaledUIAmountTarget.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,12 +11,12 @@ import AnyCodable
 import SolanaSwift
 import TangemNetworkUtils
 
-struct SolanaScaledUiAmountTarget {
+struct SolanaScaledUIAmountTarget {
     let endpoint: RPCEndpoint
     let request: Request
 }
 
-extension SolanaScaledUiAmountTarget {
+extension SolanaScaledUIAmountTarget {
     enum Request {
         case getAccountInfo(mintAddress: String)
 
@@ -41,7 +41,7 @@ extension SolanaScaledUiAmountTarget {
     }
 }
 
-extension SolanaScaledUiAmountTarget: TargetType {
+extension SolanaScaledUIAmountTarget: TargetType {
     var baseURL: URL {
         endpoint.url
     }
@@ -68,7 +68,7 @@ extension SolanaScaledUiAmountTarget: TargetType {
     }
 }
 
-private extension SolanaScaledUiAmountTarget {
+private extension SolanaScaledUIAmountTarget {
     struct GetAccountInfoConfiguration: Encodable {
         let encoding: String = "jsonParsed"
     }
