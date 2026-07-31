@@ -71,8 +71,10 @@
 "add_and_manage_sheet_manage_title" = "トークンを追加";
 "add_and_manage_sheet_organize_subtitle" = "並べ替え・グループ化";
 "add_and_manage_sheet_organize_title" = "トークンを整理";
+"add_crypto_account_subtitle" = "Organize funds across accounts";
 "add_custom_token_choose_network" = "ネットワークを選択";
 "add_custom_token_title" = "カスタムトークンの追加";
+"add_joint_account_subtitle" = "Manage shared funds together";
 "add_tokens_title" = "トークンの管理";
 "addfunds_buy_row_description" = "クレジットカードまたは銀行口座";
 "addfunds_fund_token" = "トークンを追加";
@@ -266,6 +268,7 @@
 "common_copy_address" = "アドレスをコピー";
 "common_copy" = "コピー";
 "common_create" = "作成";
+"common_crypto_account" = "Crypto account";
 "common_custom" = "設定";
 "common_day" = "日";
 "common_delete" = "削除";
@@ -310,6 +313,7 @@
 "common_in_progress" = "進行中";
 "common_in" = "・";
 "common_insufficient_balance" = "残高不足";
+"common_joint_account" = "Joint account";
 "common_later" = "後で";
 "common_learn_and_earn" = "学ぶ＆稼ぐ";
 "common_learn_more" = "もっと詳しく";
@@ -745,6 +749,7 @@
 "initial_wallet_sync_restore_progress" = "%li%%を復元中";
 "jailbreak_warning_message" = "ジェイルブレイクされた端末はセキュリティが低いと判断されます。データが追加のリスクにさらされる可能性があります。";
 "jailbreak_warning_title" = "ジェイルブレイクが検出されました";
+"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "生体認証を更新しました。カードまたはリングをスキャンして入ってください。";
 "koinos_insufficient_balance_to_send_koin_description" = "送金するには、残高が手数料額より高くなければなりません。";
 "koinos_insufficient_balance_to_send_koin_title" = "残高不足";
@@ -1113,6 +1118,11 @@
 "organize_tokens_ungroup" = "グループ解除";
 "prediction_account_subtitle" = "Add funds & start predict";
 "prediction_account_title" = "Prediction account";
+"prediction_event_probability" = "Probability";
+"prediction_event_total_volume" = "Total volume:";
+"prediction_main_empty_events" = "No events yet";
+"prediction_main_subtitle" = "USDC on Polygon network";
+"prediction_main_title" = "Predictions";
 "promo_campaign_already_activated_subtitle" = "対象のキャッシュバックは次のアドレスに配布されます：";
 "promo_campaign_already_activated_title" = "すでに%1$@に参加しています";
 "promo_campaign_eligible_tokens" = "対象トークン";
@@ -1535,6 +1545,8 @@
 "swap_story_third_subtitle" = "手間がかからず直感的に操作でき、数回タップするだけでトークンを交換できます。";
 "swap_story_third_title_v2" = "90以上のブロックチェーン\n16,000種類以上の暗号資産";
 "swap_story_third_title" = "とにかく便利";
+"swap_token_selector_empty_filtered_message" = "You don't have any funded tokens on this wallet. Explore other wallets or change the filter";
+"swap_token_selector_filter_hide_zero_balance" = "Hide 0 balance";
 "swap_via_provider" = "プロバイダー経由のスワップ";
 "swap_your_assets_title" = "資産";
 "swapping_alert_cex_description_with_slippage" = "金額には以下が含まれます: \n • サービス プロバイダーの手数料\n • 取引所からユーザーのアドレスに%1$@を送金するためのネットワーク手数料。 \n\nプロバイダーのスリッページは最大%2$@です";
@@ -1632,7 +1644,7 @@
 "tangempay_bank_transfer_fee_header" = "オンランプ手数料";
 "tangempay_bank_transfer_intro_subtitle" = "受け取ったUSDは1:1のレートでUSDCに変換されます";
 "tangempay_bank_transfer_intro_title" = "銀行振込には1～2営業日かかる場合があります";
-"tangempay_bank_transfer_legal" = "本サービスをご利用いただくことで、プロバイダーの %1$@ および %2$@ に同意したことになります";
+"tangempay_bank_transfer_legal" = "本サービスをご利用いただくことで、プロバイダーの %1$@ に同意したことになります";
 "tangempay_bank_transfer_show_details" = "詳細を表示";
 "tangempay_bank_transfer_success_subtitle" = "少々お時間がかかる場合があります";
 "tangempay_bank_transfer_success_title" = "銀行情報を準備しています";
@@ -1851,6 +1863,17 @@
 "tangempay_onboarding_setup_wallet_description" = "Tangem Payをこのウォレットに紐づけます";
 "tangempay_onboarding_setup_wallet_title" = "新しいウォレットを作成します";
 "tangempay_onboarding_title" = "Tangem Pay カードをすぐに手に入れよう";
+"tangempay_order_type_delivery_fee" = "Delivery fee";
+"tangempay_order_type_delivery_time_instant" = "Instant";
+"tangempay_order_type_delivery_time" = "Delivery time";
+"tangempay_order_type_delivery_to" = "Deliver to";
+"tangempay_order_type_first_delivery_free" = "First delivery for free";
+"tangempay_order_type_issue_fee" = "Issue fee";
+"tangempay_order_type_not_enough_money" = "Not enough money";
+"tangempay_order_type_segment_plastic" = "Plastic";
+"tangempay_order_type_segment_virtual" = "Virtual";
+"tangempay_order_type_select" = "Select";
+"tangempay_order_type_title" = "Order new card";
 "tangempay_other_networks_header" = "その他のネットワーク";
 "tangempay_other_networks_subtitle" = "その後、1:1のレートかつ手数料無料で決済口座に交換できます";
 "tangempay_other_networks_title" = "任意のチェーンでUSDT / USDCをTangem Walletに送金してください";

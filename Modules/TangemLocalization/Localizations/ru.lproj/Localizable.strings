@@ -71,8 +71,10 @@
 "add_and_manage_sheet_manage_title" = "Добавить токены";
 "add_and_manage_sheet_organize_subtitle" = "Сортировка и группировка";
 "add_and_manage_sheet_organize_title" = "Упорядочить токены";
+"add_crypto_account_subtitle" = "Organize funds across accounts";
 "add_custom_token_choose_network" = "Выберите сеть";
 "add_custom_token_title" = "Добавить токен";
+"add_joint_account_subtitle" = "Manage shared funds together";
 "add_tokens_title" = "Валюты";
 "addfunds_buy_row_description" = "Банковская карта или банковский счет";
 "addfunds_fund_token" = "Пополнить токен";
@@ -266,6 +268,7 @@
 "common_copy_address" = "Скопировать адрес";
 "common_copy" = "Скопировать";
 "common_create" = "Создать";
+"common_crypto_account" = "Crypto account";
 "common_custom" = "Свое";
 "common_day" = "day";
 "common_delete" = "Удалить";
@@ -310,6 +313,7 @@
 "common_in_progress" = "В процессе";
 "common_in" = "в";
 "common_insufficient_balance" = "Недостаточный баланс";
+"common_joint_account" = "Joint account";
 "common_later" = "Позже";
 "common_learn_and_earn" = "Учись и зарабатывай";
 "common_learn_more" = "Узнать больше";
@@ -745,6 +749,7 @@
 "initial_wallet_sync_restore_progress" = "Восстановление %li%%";
 "jailbreak_warning_message" = "Устройства с джейлбрейком считаются менее безопасными. Ваши данные могут быть подвержены дополнительным рискам.";
 "jailbreak_warning_title" = "Обнаружен джейлбрейк";
+"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "Вы обновили данные биометрии, отсканируйте свою карту или кольцо для входа";
 "koinos_insufficient_balance_to_send_koin_description" = "Ваш баланс должен быть выше суммы комиссии для осуществления перевода";
 "koinos_insufficient_balance_to_send_koin_title" = "Недостаточно средств";
@@ -1113,6 +1118,11 @@
 "organize_tokens_ungroup" = "Список";
 "prediction_account_subtitle" = "Add funds & start predict";
 "prediction_account_title" = "Prediction account";
+"prediction_event_probability" = "Probability";
+"prediction_event_total_volume" = "Total volume:";
+"prediction_main_empty_events" = "No events yet";
+"prediction_main_subtitle" = "USDC on Polygon network";
+"prediction_main_title" = "Predictions";
 "promo_campaign_already_activated_subtitle" = "Начисленный кешбэк будет отправлен на:";
 "promo_campaign_already_activated_title" = "Вы уже участвуете в %1$@";
 "promo_campaign_eligible_tokens" = "Доступные токены";
@@ -1535,6 +1545,8 @@
 "swap_story_third_subtitle" = "Интуитивный обмен в пару касаний — без сложностей и ожидания";
 "swap_story_third_title_v2" = "90+ Блокчейнов\n16 000+ Активов";
 "swap_story_third_title" = "Проще простого";
+"swap_token_selector_empty_filtered_message" = "You don't have any funded tokens on this wallet. Explore other wallets or change the filter";
+"swap_token_selector_filter_hide_zero_balance" = "Hide 0 balance";
 "swap_via_provider" = "Обмен через провайдера";
 "swap_your_assets_title" = "Ваши средства";
 "swapping_alert_cex_description_with_slippage" = "В сумму включено: \n• комиссия провайдера сервиса\n• комиссия сети за отправку %1$@ от биржи обратно на адрес пользователя \n\nПроскальзывание провайдера составляет до %2$@";
@@ -1632,7 +1644,7 @@
 "tangempay_bank_transfer_fee_header" = "Комиссия за онрамп";
 "tangempay_bank_transfer_intro_subtitle" = "Полученные USD будут конвертированы в USDC по курсу 1:1";
 "tangempay_bank_transfer_intro_title" = "Банковский перевод может занять 1-2 рабочих дня";
-"tangempay_bank_transfer_legal" = "Используя сервис, вы соглашаетесь с %1$@ и %2$@";
+"tangempay_bank_transfer_legal" = "Используя сервис, вы соглашаетесь с %1$@";
 "tangempay_bank_transfer_show_details" = "Показать детали";
 "tangempay_bank_transfer_success_subtitle" = "Это может занять некоторое время";
 "tangempay_bank_transfer_success_title" = "Подготовка ваших банковских реквизитов";
@@ -1851,6 +1863,17 @@
 "tangempay_onboarding_setup_wallet_description" = "И привяжем Tangem Pay к нему";
 "tangempay_onboarding_setup_wallet_title" = "Настроим новый кошелёк";
 "tangempay_onboarding_title" = "Откройте виртуальную\nTangem Pay Card";
+"tangempay_order_type_delivery_fee" = "Delivery fee";
+"tangempay_order_type_delivery_time_instant" = "Instant";
+"tangempay_order_type_delivery_time" = "Delivery time";
+"tangempay_order_type_delivery_to" = "Deliver to";
+"tangempay_order_type_first_delivery_free" = "First delivery for free";
+"tangempay_order_type_issue_fee" = "Issue fee";
+"tangempay_order_type_not_enough_money" = "Not enough money";
+"tangempay_order_type_segment_plastic" = "Plastic";
+"tangempay_order_type_segment_virtual" = "Virtual";
+"tangempay_order_type_select" = "Select";
+"tangempay_order_type_title" = "Order new card";
 "tangempay_other_networks_header" = "Другие сети";
 "tangempay_other_networks_subtitle" = "А затем обменяйте на платёжный счёт по курсу 1:1 без комиссии";
 "tangempay_other_networks_title" = "Отправьте USDT / USDC в любой сети на ваш Tangem Wallet";
