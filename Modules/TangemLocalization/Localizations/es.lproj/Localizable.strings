@@ -71,8 +71,10 @@
 "add_and_manage_sheet_manage_title" = "Agregar tokens";
 "add_and_manage_sheet_organize_subtitle" = "Clasificación y agrupación";
 "add_and_manage_sheet_organize_title" = "Organizar tokens";
+"add_crypto_account_subtitle" = "Organize funds across accounts";
 "add_custom_token_choose_network" = "Elige red";
 "add_custom_token_title" = "Agregue un token personalizado";
+"add_joint_account_subtitle" = "Manage shared funds together";
 "add_tokens_title" = "Gestionar tokens";
 "addfunds_buy_row_description" = "Tarjeta de crédito o cuenta bancaria";
 "addfunds_fund_token" = "Fondear token";
@@ -266,6 +268,7 @@
 "common_copy_address" = "Copiar la dirección";
 "common_copy" = "Copiar";
 "common_create" = "Crear";
+"common_crypto_account" = "Crypto account";
 "common_custom" = "Personalizado";
 "common_day" = "day";
 "common_delete" = "Suprimir";
@@ -310,6 +313,7 @@
 "common_in_progress" = "En progreso";
 "common_in" = "en";
 "common_insufficient_balance" = "Fondos insuficientes";
+"common_joint_account" = "Joint account";
 "common_later" = "Más tarde";
 "common_learn_and_earn" = "Aprende y gane";
 "common_learn_more" = "Más información";
@@ -745,6 +749,7 @@
 "initial_wallet_sync_restore_progress" = "Restaurando %li%%";
 "jailbreak_warning_message" = "Los dispositivos con jailbreak se consideran menos seguros. Sus datos podrían estar expuestos a riesgos adicionales.";
 "jailbreak_warning_title" = "Jailbreak detectado";
+"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "Ha actualizado la biometría, escanee su tarjeta o anillo para entrar";
 "koinos_insufficient_balance_to_send_koin_description" = "Su saldo debe ser mayor que el valor de la tarifa para hacer una transferencia";
 "koinos_insufficient_balance_to_send_koin_title" = "Saldo insuficiente";
@@ -1113,6 +1118,11 @@
 "organize_tokens_ungroup" = "Desagrupar";
 "prediction_account_subtitle" = "Add funds & start predict";
 "prediction_account_title" = "Prediction account";
+"prediction_event_probability" = "Probability";
+"prediction_event_total_volume" = "Total volume:";
+"prediction_main_empty_events" = "No events yet";
+"prediction_main_subtitle" = "USDC on Polygon network";
+"prediction_main_title" = "Predictions";
 "promo_campaign_already_activated_subtitle" = "El reembolso elegible se distribuirá a:";
 "promo_campaign_already_activated_title" = "Ya está inscrito en %1$@";
 "promo_campaign_eligible_tokens" = "Tokens elegibles";
@@ -1535,6 +1545,8 @@
 "swap_story_third_subtitle" = "Sencillo e intuitivo, permite cambiar tokens con solo unos cuantos toques";
 "swap_story_third_title_v2" = "90+ Blockchains\n16.000+ Activos";
 "swap_story_third_title" = "Simplemente cómodo";
+"swap_token_selector_empty_filtered_message" = "You don't have any funded tokens on this wallet. Explore other wallets or change the filter";
+"swap_token_selector_filter_hide_zero_balance" = "Hide 0 balance";
 "swap_via_provider" = "Intercambio a través del proveedor";
 "swap_your_assets_title" = "Sus activos";
 "swapping_alert_cex_description_with_slippage" = "El importe incluye:\n- comisión del proveedor de servicios\n- comisión de red por el envío de %1$@ desde el exchange de vuelta a la dirección del usuario. \n\nEl deslizamiento (slippage) del proveedor es de hasta %2$@";
@@ -1632,7 +1644,7 @@
 "tangempay_bank_transfer_fee_header" = "Comisión de onramp";
 "tangempay_bank_transfer_intro_subtitle" = "Los USD recibidos se convierten a USDC a 1:1";
 "tangempay_bank_transfer_intro_title" = "Transferencia bancaria: 1-2 días hábiles";
-"tangempay_bank_transfer_legal" = "Al usar el servicio, acepta %1$@ y %2$@";
+"tangempay_bank_transfer_legal" = "Al usar el servicio, acepta %1$@";
 "tangempay_bank_transfer_show_details" = "Mostrar detalles";
 "tangempay_bank_transfer_success_subtitle" = "Esto puede tardar un poco";
 "tangempay_bank_transfer_success_title" = "Preparando sus datos bancarios";
@@ -1851,6 +1863,17 @@
 "tangempay_onboarding_setup_wallet_description" = "Y vincularemos Tangem Pay a esta wallet";
 "tangempay_onboarding_setup_wallet_title" = "Crearemos una nueva wallet";
 "tangempay_onboarding_title" = "Obtén tu tarjeta Tangem Pay en minutos";
+"tangempay_order_type_delivery_fee" = "Delivery fee";
+"tangempay_order_type_delivery_time_instant" = "Instant";
+"tangempay_order_type_delivery_time" = "Delivery time";
+"tangempay_order_type_delivery_to" = "Deliver to";
+"tangempay_order_type_first_delivery_free" = "First delivery for free";
+"tangempay_order_type_issue_fee" = "Issue fee";
+"tangempay_order_type_not_enough_money" = "Not enough money";
+"tangempay_order_type_segment_plastic" = "Plastic";
+"tangempay_order_type_segment_virtual" = "Virtual";
+"tangempay_order_type_select" = "Select";
+"tangempay_order_type_title" = "Order new card";
 "tangempay_other_networks_header" = "Otras redes";
 "tangempay_other_networks_subtitle" = "Luego cámbielo a la cuenta de pago a 1:1 sin comisiones";
 "tangempay_other_networks_title" = "Envíe USDT/USDC en cualquier red a su Tangem Wallet";
