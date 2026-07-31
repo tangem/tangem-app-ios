@@ -749,7 +749,7 @@
 "initial_wallet_sync_restore_progress" = "Відновлення %li%%";
 "jailbreak_warning_message" = "Пристрої з джейлбрейком вважаються менш безпечними. Ваші дані можуть бути піддані додатковим ризикам.";
 "jailbreak_warning_title" = "Виявлено джейлбрейк";
-"joint_account_onboarding_subtitle" = " A shared account that several people own together. Money moves only when enough members sign.";
+"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign.";
 "key_invalidated_warning_description" = "Ви оновили дані біометрії, відскануйте свою картку або кільце для входу";
 "koinos_insufficient_balance_to_send_koin_description" = "Ваш баланс повинен перевищувати суму комісії для здійснення переказу";
 "koinos_insufficient_balance_to_send_koin_title" = "Недостатньо балансу";
@@ -1644,7 +1644,7 @@
 "tangempay_bank_transfer_fee_header" = "Комісія за онрамп";
 "tangempay_bank_transfer_intro_subtitle" = "Отримані USD будуть конвертовані в USDC за курсом 1:1";
 "tangempay_bank_transfer_intro_title" = "Банківський переказ може тривати 1-2 робочі дні";
-"tangempay_bank_transfer_legal" = "Використовуючи сервіс, ви погоджуєтеся з %1$@ та %2$@";
+"tangempay_bank_transfer_legal" = "Використовуючи сервіс, ви погоджуєтеся з %1$@";
 "tangempay_bank_transfer_show_details" = "Показати деталі";
 "tangempay_bank_transfer_success_subtitle" = "Це може зайняти певний час";
 "tangempay_bank_transfer_success_title" = "Підготовка ваших банківських реквізитів";
