@@ -223,6 +223,7 @@ protocol WalletModelDependenciesProvider {
 
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { get }
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { get }
+    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { get }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { get }
 }
 

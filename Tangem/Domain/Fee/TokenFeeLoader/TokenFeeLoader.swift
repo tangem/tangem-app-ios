@@ -76,6 +76,9 @@ enum TokenFeeLoaderError: LocalizedError {
     case approveFeeNotFound
     case swapFeeParametersNotFound
     case gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
+    case gaslessTronTokenFeeSupportOnlyTokenTransactions
+    case gaslessTronTransactionAmountConversionFailed(Decimal)
+    case invalidGaslessTronCompensationAmount(String)
     case feeTokenIdNotFound
     case missingFeeRecipientAddress
     case notEnoughFeeBalance
@@ -89,6 +92,9 @@ enum TokenFeeLoaderError: LocalizedError {
         case .approveFeeNotFound: "Approve fee not found"
         case .swapFeeParametersNotFound: "Swap fee parameters are not EthereumFeeParameters"
         case .gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem: "GaslessEthereumTokenFeeLoader supports only token as fee token item"
+        case .gaslessTronTokenFeeSupportOnlyTokenTransactions: "GaslessTronTokenFeeLoader supports only token transactions"
+        case .gaslessTronTransactionAmountConversionFailed(let amount): "Failed to convert Tron gasless transaction amount to raw value: \(amount)"
+        case .invalidGaslessTronCompensationAmount(let amount): "Invalid compensation amount in Tron gasless quote: \(amount)"
         case .feeTokenIdNotFound: "Fee token id not found"
         case .missingFeeRecipientAddress: "Missing fee recipient address"
         case .notEnoughFeeBalance: "Not enough fee balance"
