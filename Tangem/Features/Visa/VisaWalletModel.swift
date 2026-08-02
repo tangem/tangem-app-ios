@@ -184,6 +184,7 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var minimalBalanceProvider: (any MinimalBalanceProvider)? { nil }
     var scaledUIAmountProvider: (any ScaledUIAmountProvider)? { nil }
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
+    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { nil }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 }
 
