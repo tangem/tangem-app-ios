@@ -11,6 +11,7 @@ import BlockchainSdk
 struct TokenFeeLoaderBuilder {
     /// `TokenItem` which is sending.
     let tokenItem: TokenItem
+    let sourceAddress: String
     /// Provides all necessary dependencies for creating fee loaders.
     let dependenciesProvider: WalletModelDependenciesProvider
     let isDemo: Bool
@@ -48,6 +49,15 @@ struct TokenFeeLoaderBuilder {
     }
 
     func makeGaslessTokenFeeLoader(feeToken: BSDKToken, yieldFeeContext: GaslessYieldFeeContext?) -> TokenFeeLoader? {
+        if case .tron = tokenItem.blockchain,
+           dependenciesProvider.tronGaslessTransactionsBuilder != nil {
+            return CommonTronGaslessTokenFeeLoader(
+                tokenItem: tokenItem,
+                feeToken: feeToken,
+                sourceAddress: sourceAddress
+            )
+        }
+
         guard let gaslessTransactionFeeProvider = dependenciesProvider.ethereumGaslessTransactionFeeProvider else {
             assertionFailure("WalletModelDependenciesProvider does not have ethereumGaslessTransactionFeeProvider")
             return nil
