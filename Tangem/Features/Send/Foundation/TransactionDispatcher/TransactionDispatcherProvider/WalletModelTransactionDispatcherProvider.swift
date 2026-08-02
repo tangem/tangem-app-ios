@@ -27,10 +27,12 @@ extension WalletModelTransactionDispatcherProvider: TransactionDispatcherProvide
             transactionSigner: signer,
             gaslessTransactionBuilder: gaslessTransactionBuilder
         )
+        let tronGaslessTransactionSender = TronGaslessTransactionSender(walletModel: walletModel, transactionSigner: signer)
         return TransferTransactionDispatcher(
             walletModel: walletModel,
             transactionSigner: signer,
-            gaslessTransactionSender: gaslessTransactionSender
+            gaslessTransactionSender: gaslessTransactionSender,
+            tronGaslessTransactionSender: tronGaslessTransactionSender
         )
     }
 
