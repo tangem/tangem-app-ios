@@ -16,6 +16,7 @@ enum Feature: String, Hashable, CaseIterable {
     case surveySparrow
     case gaslessYieldFee
     case usdtRevokeGaslessFee
+    case tronGasless
     case yieldModuleUpdate
     case xrplTransactionHistory
     case pushNotificationsSettings
@@ -62,6 +63,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .surveySparrow: return "SurveySparrow service integration"
         case .gaslessYieldFee: return "TWI-1327_smart_gas_support_for_tokens_in_yield_mode"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
+        case .tronGasless: return "TWI-1259_tron_gasless"
         case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
         case .xrplTransactionHistory: return "XRPL Transaction History"
         case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
@@ -108,6 +110,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .surveySparrow: return .version("6.1")
         case .gaslessYieldFee: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
+        case .tronGasless: return .unspecified
         case .yieldModuleUpdate: return .version("6.1")
         case .xrplTransactionHistory: return .unspecified
         case .pushNotificationsSettings: return .version("6.1")
