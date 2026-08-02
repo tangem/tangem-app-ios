@@ -930,6 +930,7 @@ public extension Blockchain {
         case .base: true
         case .arbitrum: true
         case .polygon: true
+        case .tron: true
         default: false
         }
     }

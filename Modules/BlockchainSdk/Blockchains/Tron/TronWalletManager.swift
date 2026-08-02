@@ -220,6 +220,53 @@ class TronWalletManager: BaseWalletManager, WalletManager {
 
 extension TronWalletManager: ThenProcessable {}
 
+// MARK: - TronGaslessTransactionsBuilder
+
+extension TronWalletManager: TronGaslessTransactionsBuilder {
+    func buildForGaslessSubmit(
+        originalTransaction: Transaction,
+        compensationTransaction: Transaction,
+        signer: TransactionSigner
+    ) async throws -> TronGaslessSignedTransactions {
+        let block = try await networkService.getNowBlock().async()
+        let compensationPresignedInput = try txBuilder.buildForSign(transaction: compensationTransaction, block: block)
+        let originalPresignedInput = try txBuilder.buildForSign(transaction: originalTransaction, block: block)
+        let signatures = try await signer.sign(
+            hashes: [compensationPresignedInput.hash, originalPresignedInput.hash],
+            walletPublicKey: wallet.publicKey
+        ).async()
+
+        guard signatures.count == 2,
+              let compensationSignatureInfo = signatures.first(where: { $0.hash == compensationPresignedInput.hash }),
+              let originalSignatureInfo = signatures.first(where: { $0.hash == originalPresignedInput.hash }) else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
+        let encoder = TronTransactionJSONEncoder()
+        let compensationSignature = unmarshal(
+            compensationSignatureInfo.signature,
+            hash: compensationPresignedInput.hash,
+            publicKey: wallet.publicKey
+        )
+        let originalSignature = unmarshal(
+            originalSignatureInfo.signature,
+            hash: originalPresignedInput.hash,
+            publicKey: wallet.publicKey
+        )
+
+        return TronGaslessSignedTransactions(
+            signedCompensationTx: try encoder.encode(
+                rawData: compensationPresignedInput.rawData,
+                signature: compensationSignature
+            ),
+            signedOriginalTx: try encoder.encode(
+                rawData: originalPresignedInput.rawData,
+                signature: originalSignature
+            )
+        )
+    }
+}
+
 private class DummySigner: TransactionSigner {
     let privateKey: Data
     let publicKey: Wallet.PublicKey
@@ -295,6 +342,15 @@ extension TronWalletManager: StakeKitTransactionSender, StakingTransactionsBuild
 extension TronWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.broadcastHex(rawTransaction).async().txid
+    }
+}
+
+// MARK: - PendingTransactionRecordAdding
+
+extension TronWalletManager: PendingTransactionRecordAdding {
+    public func addPendingTransaction(_ transaction: Transaction, hash: String) {
+        let mapper = PendingTransactionRecordMapper()
+        wallet.addPendingTransaction(mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash))
     }
 }
 
