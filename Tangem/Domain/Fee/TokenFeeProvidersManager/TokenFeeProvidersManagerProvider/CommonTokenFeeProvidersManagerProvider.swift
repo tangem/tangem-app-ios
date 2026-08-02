@@ -76,22 +76,33 @@ private extension CommonTokenFeeProvidersManagerProvider {
     }
 
     func makeGaslessTokenFeeProviders() -> [any TokenFeeProvider] {
-        let availableTokens = gaslessTransactionsNetworkManager.availableFeeTokens
-            .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
+        let availableTokenAddresses: [String] = {
+            if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
+                guard FeatureProvider.isAvailable(.tronGasless) else {
+                    return []
+                }
 
-        guard !availableTokens.isEmpty else {
+                return gaslessTransactionsNetworkManager.availableTronFeeTokens.map(\.address)
+            }
+
+            return gaslessTransactionsNetworkManager.availableFeeTokens
+                .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
+                .map(\.tokenAddress)
+        }()
+
+        guard !availableTokenAddresses.isEmpty else {
             return []
         }
 
         let currentAccountWalletModels = walletModel.account?.walletModelsManager.walletModels ?? []
 
         let sourceTokenChainId = walletModel.tokenItem.blockchain.chainId
-        let availableTokenAddresses: Set<String?> = Set(availableTokens.map { $0.tokenAddress })
 
         // Wallet models eligible for gasless fees: same chain as the source token, token address is supported,
         // and active Yield Mode is included only for the dedicated gasless-yield flow.
         let gaslessFeeWalletModels: [any WalletModel] = currentAccountWalletModels.compactMap { model in
-            guard availableTokenAddresses.contains(model.tokenItem.contractAddress) else { return nil }
+            guard let contractAddress = model.tokenItem.contractAddress else { return nil }
+            guard availableTokenAddresses.contains(contractAddress) else { return nil }
             guard model.tokenItem.blockchain.chainId == sourceTokenChainId else { return nil }
             if model.yieldModuleManager?.state?.state.isEffectivelyActive == true {
                 guard FeatureProvider.isAvailable(.gaslessYieldFee) else { return nil }
