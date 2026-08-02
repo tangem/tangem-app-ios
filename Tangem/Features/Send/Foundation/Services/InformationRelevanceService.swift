@@ -58,7 +58,17 @@ class CommonInformationRelevanceService {
 
 extension CommonInformationRelevanceService: InformationRelevanceService {
     var isActual: Bool {
-        Date().timeIntervalSince(lastUpdateStartTime) < informationValidityInterval
+        let currentDate = Date()
+        guard currentDate.timeIntervalSince(lastUpdateStartTime) < informationValidityInterval else {
+            return false
+        }
+
+        // move it in more appropriate place with general gasless refactoring
+        guard let parameters = input?.selectedFee?.value.value?.parameters as? TronGaslessFeeParameters else {
+            return true
+        }
+
+        return parameters.expiresAt > currentDate.addingTimeInterval(TronGaslessFeeParameters.expirationBuffer)
     }
 
     func informationDidUpdated() {
