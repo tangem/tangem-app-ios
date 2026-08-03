@@ -111,6 +111,7 @@ public extension View {
         contentPosition: TopNavigation.ContentPosition = .center,
         leading: TopNavigation.LeadingPolicy = .automatic,
         actions: TopNavigation.Actions? = nil,
+        actionsHaveBackground: Bool = true,
         onClose: (() -> Void)? = nil
     ) -> some View {
         modifier(
@@ -118,6 +119,7 @@ public extension View {
                 contentPosition: contentPosition,
                 leading: leading,
                 actions: actions,
+                actionsHaveBackground: actionsHaveBackground,
                 onClose: onClose
             ) {
                 TopNavigationTitleContent(
@@ -133,6 +135,7 @@ public extension View {
         contentPosition: TopNavigation.ContentPosition = .center,
         leading: TopNavigation.LeadingPolicy = .automatic,
         actions: TopNavigation.Actions? = nil,
+        actionsHaveBackground: Bool = true,
         onClose: (() -> Void)? = nil,
         @ViewBuilder content: () -> Slot
     ) -> some View {
@@ -141,6 +144,7 @@ public extension View {
                 contentPosition: contentPosition,
                 leading: leading,
                 actions: actions,
+                actionsHaveBackground: actionsHaveBackground,
                 onClose: onClose,
                 slot: content
             )
