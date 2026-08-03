@@ -33,6 +33,9 @@ struct TransactionViewModel: Hashable, Identifiable {
     /// re-evaluations don't re-run the matrix.
     let display: TransactionDisplayModel
 
+    /// Optional warning surfaced under the row. The concrete copy is resolved by the view.
+    let warning: Warning?
+
     var inProgress: Bool {
         status == .inProgress
     }
@@ -133,7 +136,8 @@ struct TransactionViewModel: Hashable, Identifiable {
         status: TransactionViewModel.Status,
         isFromYieldContract: Bool,
         subtitleOwner: SubtitleOwner? = nil,
-        cardName: String? = nil
+        cardName: String? = nil,
+        warning: Warning? = nil
     ) {
         id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
@@ -155,6 +159,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         self.status = status
         self.subtitleOwner = subtitleOwner
         self.cardName = cardName
+        self.warning = warning
 
         display = TransactionDisplayModel.make(
             transactionType: transactionType,
@@ -334,6 +339,11 @@ extension TransactionViewModel {
         case failed
         case confirmed
         case undefined
+    }
+
+    enum Warning: Hashable {
+        case verifying
+        case paused
     }
 
     /// Counterparty rendered alongside the direction prefix in the redesigned subtitle.
