@@ -9,6 +9,7 @@ import Foundation
 
 struct TokenSummaryMetric: Identifiable {
     var id: String { title }
+    let kind: TokenSummaryIndicator.Kind
     let title: String
     /// Explanation shown in the bottom sheet opened from the row's info button.
     let info: String

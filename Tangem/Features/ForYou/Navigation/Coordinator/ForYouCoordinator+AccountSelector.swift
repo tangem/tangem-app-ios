@@ -16,6 +16,8 @@ extension ForYouCoordinator {
             return
         }
 
+        analyticsLogger.logAccountFilterOpened()
+
         let accountsResolver = ForYouAccountSelectionResolver(
             selectionPublisher: selectedAccountsProvider.selectionPublisher
         )
@@ -25,6 +27,7 @@ extension ForYouCoordinator {
                 userWalletModels: accountsResolver.unlockedWallets,
                 selection: selectedAccountsProvider.selection,
                 includesAllWallets: accountsResolver.includesAllWallets,
+                analyticsLogger: analyticsLogger,
                 applySelectionAction: { [selectedAccountsProvider] in
                     selectedAccountsProvider.select($0)
                 },
