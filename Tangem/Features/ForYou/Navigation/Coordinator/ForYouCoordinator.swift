@@ -21,6 +21,7 @@ final class ForYouCoordinator: CoordinatorObject {
     let floatingSheetPresenter: FloatingSheetPresenter
     let floatingSheetPresentingStateProvider: FloatingSheetPresentingStateProvider
     let selectedAccountsProvider = ForYouSelectedAccountsProvider()
+    let analyticsLogger: ForYouAnalyticsLogger
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -66,13 +67,15 @@ final class ForYouCoordinator: CoordinatorObject {
         popToRootAction: @escaping Action<PopToRootOptions>,
         routeOnTokenResolvedAction: @MainActor @escaping (EarnTokenResolution, EarnOpportunitySource) -> Void,
         floatingSheetPresenter: FloatingSheetPresenter = InjectedValues[\.floatingSheetPresenter],
-        floatingSheetPresentingStateProvider: FloatingSheetPresentingStateProvider = InjectedValues[\.floatingSheetPresentingStateProvider]
+        floatingSheetPresentingStateProvider: FloatingSheetPresentingStateProvider = InjectedValues[\.floatingSheetPresentingStateProvider],
+        analyticsLogger: ForYouAnalyticsLogger = CommonForYouAnalyticsLogger()
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
         self.routeOnTokenResolvedAction = routeOnTokenResolvedAction
         self.floatingSheetPresenter = floatingSheetPresenter
         self.floatingSheetPresentingStateProvider = floatingSheetPresentingStateProvider
+        self.analyticsLogger = analyticsLogger
 
         bind()
     }
@@ -80,7 +83,12 @@ final class ForYouCoordinator: CoordinatorObject {
     // MARK: - Implementation
 
     func start(with options: Options) {
-        rootViewModel = ForYouViewModel(coordinator: self, selectedAccountsProvider: selectedAccountsProvider)
+        analyticsLogger.logScreenOpened()
+        rootViewModel = ForYouViewModel(
+            coordinator: self,
+            selectedAccountsProvider: selectedAccountsProvider,
+            analyticsLogger: analyticsLogger
+        )
     }
 }
 

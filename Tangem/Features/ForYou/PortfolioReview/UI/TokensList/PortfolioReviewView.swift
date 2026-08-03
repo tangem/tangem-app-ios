@@ -33,7 +33,11 @@ private extension PortfolioReviewView {
             periodPickerShimmer
             skeletonList
         case .content(let content):
-            PortfolioReviewChartCardView(chart: content.chart, selectedID: $viewModel.selectedChartSegmentID)
+            PortfolioReviewChartCardView(
+                chart: content.chart,
+                selectedID: $viewModel.selectedChartSegmentID,
+                onSegmentTap: viewModel.chartSegmentTapped
+            )
             ForYouPeriodPickerView(
                 segments: content.periodSegments,
                 selection: $viewModel.selectedPeriod
