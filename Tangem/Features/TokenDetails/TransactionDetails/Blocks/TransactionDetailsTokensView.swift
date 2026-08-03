@@ -125,7 +125,7 @@ struct TransactionDetailsTokensView: View {
     // MARK: - Pair
 
     private func pairCard(from: TransactionDetailsTokensViewData.Leg, to: TransactionDetailsTokensViewData.Leg) -> some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 2) {
             legRow(from)
 
             DashedDivider(color: DesignSystem.Color.borderSecondary)
