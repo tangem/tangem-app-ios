@@ -122,7 +122,7 @@ private extension TokenSummaryIndicatorsMapper {
             content = .unavailable
         }
 
-        return TokenSummaryMetric(title: descriptor.title, info: descriptor.info, content: content)
+        return TokenSummaryMetric(kind: reading.kind, title: descriptor.title, info: descriptor.info, content: content)
     }
 
     func outlook(for signal: TokenSummaryIndicator.Signal) -> TokenSummaryOutlook? {

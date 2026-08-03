@@ -14,6 +14,7 @@ final class ForYouAccountSelectorViewModel: ObservableObject {
     // MARK: - Properties
 
     private let includesAllWallets: Bool
+    private let analyticsLogger: ForYouAccountSelectorAnalyticsLogger
     private let applySelectionAction: (ForYouAccountSelection) -> Void
     private let dismissAction: () -> Void
 
@@ -32,10 +33,12 @@ final class ForYouAccountSelectorViewModel: ObservableObject {
         userWalletModels: [any UserWalletModel],
         selection: ForYouAccountSelection,
         includesAllWallets: Bool,
+        analyticsLogger: ForYouAccountSelectorAnalyticsLogger,
         applySelectionAction: @escaping (ForYouAccountSelection) -> Void,
         dismissAction: @escaping () -> Void
     ) {
         self.includesAllWallets = includesAllWallets
+        self.analyticsLogger = analyticsLogger
         self.applySelectionAction = applySelectionAction
         self.dismissAction = dismissAction
 
@@ -67,6 +70,8 @@ final class ForYouAccountSelectorViewModel: ObservableObject {
     }
 
     func apply() {
+        analyticsLogger.logApplySelected()
+
         // Collapse to symbolic `.all` only when no wallet is locked; otherwise a wallet unlocked
         // later would silently join a selection the user never saw or made.
         let coversEntireUniverse = selectedAccountIDs == allAccountIDs && includesAllWallets

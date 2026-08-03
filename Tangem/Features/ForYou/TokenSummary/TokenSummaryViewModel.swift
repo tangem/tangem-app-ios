@@ -32,6 +32,7 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
     private let mapper: TokenSummaryIndicatorsMapper
     private let indicatorsProvider: TokenSummaryIndicatorsProvider
     private let primaryActionPublisher: AnyPublisher<TokenSummaryPrimaryAction?, Never>
+    private let analyticsLogger: TokenSummaryAnalyticsLogger
     private var readings: [TokenSummaryIndicator] = []
     private var bag: Set<AnyCancellable> = []
 
@@ -44,6 +45,7 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
         primaryActionPublisher: AnyPublisher<TokenSummaryPrimaryAction?, Never>,
         mapper: TokenSummaryIndicatorsMapper = TokenSummaryIndicatorsMapper(),
         indicatorsProvider: TokenSummaryIndicatorsProvider = CommonTokenSummaryIndicatorsProvider(),
+        analyticsLogger: TokenSummaryAnalyticsLogger,
         onPrimaryAction: @escaping (TokenSummaryPrimaryAction.Kind) -> Void,
         onClose: @escaping () -> Void
     ) {
@@ -56,10 +58,12 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
             primaryActionPublisher: primaryActionPublisher,
             mapper: mapper,
             indicatorsProvider: indicatorsProvider,
+            analyticsLogger: analyticsLogger,
             onPrimaryAction: onPrimaryAction,
             onClose: onClose
         )
 
+        analyticsLogger.logOpened()
         loadIndicators()
     }
 
@@ -72,6 +76,7 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
         primaryActionPublisher: AnyPublisher<TokenSummaryPrimaryAction?, Never>,
         mapper: TokenSummaryIndicatorsMapper = TokenSummaryIndicatorsMapper(),
         indicatorsProvider: TokenSummaryIndicatorsProvider = CommonTokenSummaryIndicatorsProvider(),
+        analyticsLogger: TokenSummaryAnalyticsLogger,
         onPrimaryAction: @escaping (TokenSummaryPrimaryAction.Kind) -> Void,
         onClose: @escaping () -> Void
     ) {
@@ -84,9 +89,12 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
             primaryActionPublisher: primaryActionPublisher,
             mapper: mapper,
             indicatorsProvider: indicatorsProvider,
+            analyticsLogger: analyticsLogger,
             onPrimaryAction: onPrimaryAction,
             onClose: onClose
         )
+
+        analyticsLogger.logOpened()
 
         if let preloadedIndicators {
             apply(readings: preloadedIndicators)
@@ -104,6 +112,7 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
         primaryActionPublisher: AnyPublisher<TokenSummaryPrimaryAction?, Never>,
         mapper: TokenSummaryIndicatorsMapper,
         indicatorsProvider: TokenSummaryIndicatorsProvider,
+        analyticsLogger: TokenSummaryAnalyticsLogger,
         onPrimaryAction: @escaping (TokenSummaryPrimaryAction.Kind) -> Void,
         onClose: @escaping () -> Void
     ) {
@@ -115,6 +124,7 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
         selectedPeriod = period
         self.mapper = mapper
         self.indicatorsProvider = indicatorsProvider
+        self.analyticsLogger = analyticsLogger
         self.onPrimaryAction = onPrimaryAction
         self.onClose = onClose
 
@@ -126,6 +136,7 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
             return
         }
 
+        analyticsLogger.logPrimaryAction(kind: primaryAction.kind)
         onPrimaryAction(primaryAction.kind)
     }
 
@@ -134,6 +145,8 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func metricInfoTapped(_ metric: TokenSummaryMetric) {
+        analyticsLogger.logIndicatorInfo(kind: metric.kind)
+
         let infoViewModel = TokenSummaryMetricInfoViewModel(
             title: metric.title,
             info: metric.info,
@@ -149,6 +162,15 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
         $selectedPeriod
             .sink { [weak self] period in
                 self?.updateDerivedState(for: period)
+            }
+            .store(in: &bag)
+
+        // `dropFirst` skips the initial period so only user-driven changes are reported.
+        $selectedPeriod
+            .removeDuplicates()
+            .dropFirst()
+            .sink { [weak self] period in
+                self?.analyticsLogger.logInterval(period: period)
             }
             .store(in: &bag)
 
@@ -209,6 +231,7 @@ extension TokenSummaryViewModel {
             primaryActionPublisher: Just(primaryAction).eraseToAnyPublisher(),
             mapper: TokenSummaryIndicatorsMapper(),
             indicatorsProvider: StubTokenSummaryIndicatorsProvider(),
+            analyticsLogger: TokenSummaryAnalyticsLoggerStub(),
             onPrimaryAction: onPrimaryAction,
             onClose: onClose
         )

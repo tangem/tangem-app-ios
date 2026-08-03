@@ -254,6 +254,7 @@ private extension ForYouAccountSelectorViewModelTests {
             userWalletModels: wallets,
             selection: selection,
             includesAllWallets: includesAllWallets,
+            analyticsLogger: ForYouAnalyticsLoggerStub(),
             applySelectionAction: recorder.apply,
             dismissAction: recorder.dismiss
         )

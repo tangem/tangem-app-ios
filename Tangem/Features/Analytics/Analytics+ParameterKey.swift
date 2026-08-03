@@ -207,5 +207,9 @@ extension Analytics {
         // MARK: - Tangem Pay Virtual Account
 
         case field = "Field"
+
+        // MARK: - For You
+
+        case info = "Info"
     }
 }
