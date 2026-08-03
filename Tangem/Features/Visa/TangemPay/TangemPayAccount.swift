@@ -110,7 +110,13 @@ final class TangemPayAccount {
     }
 
     var depositAddress: String? {
-        customerInfoSubject.value.depositAddress
+        customerInfoSubject.value.depositAddress?.nilIfEmpty
+    }
+
+    var depositAddressPublisher: some Publisher<String?, Never> {
+        customerInfoSubject
+            .map(\.depositAddress?.nilIfEmpty)
+            .removeDuplicates()
     }
 
     var customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan? {
@@ -204,6 +210,11 @@ final class TangemPayAccount {
         customerService: customerService
     )
 
+    /// Polls `customer/me` until a deposit address is available.
+    private lazy var depositAddressPollingService = TangemPayDepositAddressPollingService(
+        customerService: customerService
+    )
+
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -247,6 +258,20 @@ final class TangemPayAccount {
 
     func loadCustomerInfo() async {
         await loadCustomerInfoNew()
+    }
+
+    func startDepositAddressPolling() {
+        if depositAddress == nil {
+            depositAddressPollingService.startPolling { [weak self] customerInfo in
+                self?.customerInfoSubject.send(customerInfo)
+            }
+        } else {
+            stopDepositAddressPolling()
+        }
+    }
+
+    func stopDepositAddressPolling() {
+        depositAddressPollingService.cancel()
     }
 
     func removeAccount(onFinish: @escaping (Bool) -> Void) {
