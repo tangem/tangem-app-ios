@@ -47,6 +47,7 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) var isWithdrawButtonLoading: Bool = false
     @Published private(set) var isWithdrawButtonDisabled: Bool = false
+    @Published private(set) var isAddFundsButtonDisabled: Bool = false
     @Published private(set) var inlineNotifications: [NotificationViewInput] = []
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
 
@@ -391,7 +392,6 @@ final class TangemPayMainViewModel: ObservableObject {
 
         runTask { [tangemPayAccount] in
             await tangemPayAccount.loadCustomerInfo()
-            await tangemPayAccount.loadBalance()
             await tangemPayAccount.loadOffers()
             await tangemPayAccount.resumeActiveIssueOrderPolling()
         }
@@ -399,6 +399,12 @@ final class TangemPayMainViewModel: ObservableObject {
         runTask { [promotionNotificationsManager] in
             await promotionNotificationsManager.loadPromotions()
         }
+
+        tangemPayAccount.startDepositAddressPolling()
+    }
+
+    func onDisappear() {
+        tangemPayAccount.stopDepositAddressPolling()
     }
 
     func openCurrentPlan() {
@@ -571,6 +577,11 @@ private extension TangemPayMainViewModel {
             .map { balance in balance.value.map { $0 <= 0 } ?? false }
             .receiveOnMain()
             .assign(to: &$isWithdrawButtonDisabled)
+
+        tangemPayAccount.depositAddressPublisher
+            .map { $0 == nil }
+            .receiveOnMain()
+            .assign(to: &$isAddFundsButtonDisabled)
 
         tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.balanceTypePublisher
             .map { balance in balance.value.map { $0 < 0 } ?? false }
