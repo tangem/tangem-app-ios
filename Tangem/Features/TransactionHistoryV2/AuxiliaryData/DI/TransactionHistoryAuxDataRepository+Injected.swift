@@ -22,8 +22,6 @@ private struct TransactionHistoryAuxDataRepositoryKey: InjectionKey {
         cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory { userWalletId, refcode in
             ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
         },
-        storage: UserDefaultsTransactionHistoryAuxDataStorage(
-            dataStorage: UserDefaultsBlockchainDataStorage()
-        )
+        storage: CommonTransactionHistoryAuxDataStorage()
     )
 }
