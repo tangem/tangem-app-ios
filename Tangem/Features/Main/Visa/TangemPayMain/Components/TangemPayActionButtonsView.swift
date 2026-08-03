@@ -14,6 +14,7 @@ import TangemAccessibilityIdentifiers
 
 struct TangemPayActionButtonsView: View {
     let actionButtonsDisabled: Bool
+    let isAddFundsDisabled: Bool
     let isWithdrawDisabled: Bool
     let addFundsAction: () -> Void
     let withdrawAction: () -> Void
@@ -25,7 +26,7 @@ struct TangemPayActionButtonsView: View {
                 icon: DesignSystem.Icons.ArrowDown.regular16,
                 action: addFundsAction
             )
-            .disabled(actionButtonsDisabled)
+            .disabled(actionButtonsDisabled || isAddFundsDisabled)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.addFundsButton)
 
             TangemMainActionButton(
@@ -44,6 +45,7 @@ struct TangemPayActionButtonsView: View {
 #Preview {
     TangemPayActionButtonsView(
         actionButtonsDisabled: false,
+        isAddFundsDisabled: false,
         isWithdrawDisabled: true,
         addFundsAction: {},
         withdrawAction: {}
