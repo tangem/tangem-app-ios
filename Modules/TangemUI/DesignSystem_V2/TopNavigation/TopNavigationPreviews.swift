@@ -18,6 +18,7 @@ public struct TopNavigationShowcase: View {
     @State private var subtitleValueToggle = false
     @State private var showsBack = true
     @State private var actionCount = 2
+    @State private var actionsHaveBackground = true
     @State private var usesTextAction = false
     @State private var showsClose = false
     @State private var showsSheet = false
@@ -48,6 +49,7 @@ public struct TopNavigationShowcase: View {
                     contentPosition: contentPosition,
                     leading: leadingPolicy,
                     actions: actions,
+                    actionsHaveBackground: actionsHaveBackground,
                     onClose: closeAction
                 ) {
                     slotContent
@@ -61,6 +63,7 @@ public struct TopNavigationShowcase: View {
                     contentPosition: contentPosition,
                     leading: leadingPolicy,
                     actions: actions,
+                    actionsHaveBackground: actionsHaveBackground,
                     onClose: closeAction
                 )
         }
@@ -95,6 +98,8 @@ public struct TopNavigationShowcase: View {
                     .disabled(usesTextAction)
 
                 Toggle("Text action", isOn: $usesTextAction)
+
+                Toggle("Actions have background", isOn: $actionsHaveBackground)
 
                 Toggle("Close", isOn: $showsClose)
             }
@@ -133,7 +138,9 @@ public struct TopNavigationShowcase: View {
     @ViewBuilder
     private var sheet: some View {
         let dismissSheet = { showsSheet = false }
-        let sheetLeading: TopNavigation.LeadingPolicy = showsBack ? .custom(.back(action: dismissSheet)) : .none
+        let sheetLeading: TopNavigation.LeadingPolicy = showsBack
+            ? .custom(.back(action: dismissSheet))
+            : .none
 
         NavigationStack {
             Group {
@@ -143,6 +150,7 @@ public struct TopNavigationShowcase: View {
                             contentPosition: contentPosition,
                             leading: sheetLeading,
                             actions: actions,
+                            actionsHaveBackground: actionsHaveBackground,
                             onClose: dismissSheet
                         ) {
                             slotContent
@@ -156,6 +164,7 @@ public struct TopNavigationShowcase: View {
                             contentPosition: contentPosition,
                             leading: sheetLeading,
                             actions: actions,
+                            actionsHaveBackground: actionsHaveBackground,
                             onClose: dismissSheet
                         )
                 }
@@ -225,6 +234,7 @@ public struct TopNavigationShowcase: View {
             showsSubtitle: showsSubtitle,
             animatesSubtitleAppearance: animatesSubtitleAppearance,
             actionCount: actionCount,
+            actionsHaveBackground: actionsHaveBackground,
             usesTextAction: usesTextAction,
             showsClose: showsClose,
             dynamicTypeSize: dynamicTypeSize
@@ -240,6 +250,7 @@ extension TopNavigationShowcase {
         var showsSubtitle: Bool
         var animatesSubtitleAppearance: Bool
         var actionCount: Int
+        var actionsHaveBackground: Bool
         var usesTextAction: Bool
         var showsClose: Bool
         var dynamicTypeSize: DynamicTypeSize
@@ -293,6 +304,7 @@ private struct TopNavigationPushDemo: View {
             contentPosition: config.contentPosition,
             leading: .automatic,
             actions: config.actions,
+            actionsHaveBackground: config.actionsHaveBackground,
             onClose: config.showsClose ? { dismiss() } : nil
         )
     }
@@ -327,6 +339,9 @@ extension TopNavigationShowcase {
 // MARK: - Previews
 
 private struct TopNavigationGallery: View {
+    var leading: TopNavigation.LeadingPolicy = .automatic
+    var actionsHaveBackground = true
+
     private let actions: TopNavigation.Actions = .two(
         TopNavigation.Action(icon: DesignSystem.Icons.Bell.regular20, accessibilityLabel: "Notifications") {},
         TopNavigation.Action(icon: DesignSystem.Icons.Search.regular20, accessibilityLabel: "Search") {}
@@ -344,8 +359,9 @@ private struct TopNavigationGallery: View {
             .topNavigation(
                 title: "Title",
                 subtitle: "Subtitle",
-                leading: .automatic,
+                leading: leading,
                 actions: actions,
+                actionsHaveBackground: actionsHaveBackground,
                 onClose: {}
             )
         }
@@ -364,4 +380,8 @@ private struct TopNavigationGallery: View {
 #Preview("Dynamic Type XXL") {
     TopNavigationGallery()
         .dynamicTypeSize(.accessibility3)
+}
+
+#Preview("Bare actions") {
+    TopNavigationGallery(actionsHaveBackground: false)
 }
