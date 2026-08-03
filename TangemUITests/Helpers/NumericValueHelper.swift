@@ -18,7 +18,8 @@ enum NumericValueHelper {
 
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
-        formatter.locale = Locale.current
+        // The app is launched pinned to en_US, so parse in the same locale rather than the runner's regional format.
+        formatter.locale = Locale(identifier: "en_US")
 
         // Parsing with original text first
         if let number = formatter.number(from: text) {
