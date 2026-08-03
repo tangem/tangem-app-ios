@@ -52,6 +52,7 @@ enum Feature: String, Hashable, CaseIterable {
     case hotWalletDexRatesUntilDeposit
     case gaslessBridgeFeeRestriction
     case polymarket
+    case walletCardsBackupReport
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -100,6 +101,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .hotWalletDexRatesUntilDeposit: return "[REDACTED_INFO]_hot_wallet_dex_rates_until_deposit"
         case .gaslessBridgeFeeRestriction: return "[REDACTED_INFO]_gasless_bridge_fee_restriction"
         case .polymarket: return "TWI-1576_polymarket"
+        case .walletCardsBackupReport: return "[REDACTED_INFO]_cardlinked_status_update_stage2"
         }
     }
 
@@ -148,6 +150,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .hotWalletDexRatesUntilDeposit: return .unspecified
         case .gaslessBridgeFeeRestriction: return .unspecified
         case .polymarket: return .unspecified
+        case .walletCardsBackupReport: return .unspecified
         }
     }
 }
