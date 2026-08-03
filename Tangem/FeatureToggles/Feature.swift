@@ -138,8 +138,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .promoCampaignsAttribution: return .version("6.0.2")
         case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
+        case .bitcoinLikePsbtSwap: return .version("6.2")
         case .swapHideZeroBalanceSource: return .unspecified
-        case .bitcoinLikePsbtSwap: return .unspecified
         case .onrampPaymentMethodThemedImages: return .unspecified
         case .chooseTokenPulseAnimation: return .unspecified
         case .hotWalletDexRatesUntilDeposit: return .unspecified
