@@ -147,6 +147,35 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(await manager.currentPair != nil)
     }
 
+    // MARK: - [REDACTED_INFO]: autoupdate cancellation after send
+
+    @Test("A cancelled update cannot push a quote amount onto the finish screen ([REDACTED_INFO])")
+    func cancelledUpdateDoesNotPushComplementaryAmount() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager
+        )
+        _ = try await manager.update(amountType: .from(5))
+
+        // Any loaded state carrying a quote works — only `loadedState.quote` is read.
+        let quote = SwapModel.Quote(fromAmount: 5, expectAmount: 7, highPriceImpact: nil)
+        let state = SwapModel.ProvidersState.loaded(
+            .swap(selected: .none, providers: .empty),
+            state: .restriction(.hasPendingTransaction, quote: quote)
+        )
+
+        // Stands in for the update task that `stopAutoupdating()` cancels while it is
+        // suspended on `expressManager.getAmountType()` inside `updateComplementaryAmount`.
+        let task = Task { try await sut.updateComplementaryAmount(state: state) }
+        task.cancel()
+
+        await #expect(throws: CancellationError.self) { try await task.value }
+        // The receive amount stays empty: the late quote never reaches the finish screen.
+        #expect(sut.receiveAmount.value == nil)
+    }
+
     // MARK: - [REDACTED_INFO]: deferred pair resolution
 
     @Test("Receive selector unblocks while deferred pair resolution is still in flight ([REDACTED_INFO])")
