@@ -12,7 +12,7 @@ import TangemAssets
 struct TransactionDetailsView: View {
     @ObservedObject var viewModel: TransactionDetailsViewModel
 
-    private let blocksSpacing: CGFloat = 16
+    private let blocksSpacing: CGFloat = 12
 
     var body: some View {
         VStack(spacing: .zero) {
@@ -28,8 +28,8 @@ struct TransactionDetailsView: View {
             }
             .animation(.easeInOut(duration: 0.3), value: viewModel.blocks.map(\.id))
             .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 24)
+            .padding(.top, 4)
+            .padding(.bottom, 16)
         }
         .background(DesignSystem.Color.bgSecondary)
         .floatingSheetConfiguration { config in
