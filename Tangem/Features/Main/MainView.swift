@@ -21,8 +21,6 @@ struct MainView: View {
             .onAppear(perform: viewModel.onViewAppear)
             .onDisappear(perform: viewModel.onViewDisappear)
             .onDidAppear(perform: viewModel.onDidAppear)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden(true)
             .ignoresSafeArea(.keyboard)
     }
 
