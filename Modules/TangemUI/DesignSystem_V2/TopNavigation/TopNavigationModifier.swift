@@ -9,14 +9,15 @@
 import SwiftUI
 import TangemAssets
 import TangemFoundation
-import TangemUIUtils
 
 struct TopNavigationModifier<Slot: View>: ViewModifier {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private let contentPosition: TopNavigation.ContentPosition
     private let leadingPolicy: TopNavigation.LeadingPolicy
     private let actions: [TopNavigation.Action]
+    private let actionsHaveBackground: Bool
     private let onClose: (() -> Void)?
     private let slot: Slot
 
@@ -24,12 +25,14 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
         contentPosition: TopNavigation.ContentPosition,
         leading: TopNavigation.LeadingPolicy,
         actions: TopNavigation.Actions?,
+        actionsHaveBackground: Bool,
         onClose: (() -> Void)?,
         @ViewBuilder slot: () -> Slot
     ) {
         self.contentPosition = contentPosition
         leadingPolicy = leading
         self.actions = actions?.values ?? []
+        self.actionsHaveBackground = actionsHaveBackground
         self.onClose = onClose
         self.slot = slot()
     }
@@ -40,6 +43,10 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
         case .custom(let action): action
         case .none: nil
         }
+    }
+
+    private var barDynamicTypeSize: DynamicTypeSize {
+        min(dynamicTypeSize, TopNavigationChromeMetrics.maxDynamicTypeSize)
     }
 
     func body(content: Content) -> some View {
@@ -67,37 +74,59 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
             }
         }
 
+        principalContent
+        trailingContent
+    }
+
+    @ToolbarContentBuilder
+    private var principalContent: some ToolbarContent {
         switch contentPosition {
         case .center:
-            ToolbarItem(placement: .principal) {
-                barTitle(.center)
-            }
-        case .start:
             if #available(iOS 26.0, *) {
                 ToolbarItem(placement: .principal) {
-                    barTitle(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    barTitle(.center)
                 }
                 .sharedBackgroundVisibility(.hidden)
             } else {
                 ToolbarItem(placement: .principal) {
-                    barTitle(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    barTitle(.center)
+                }
+            }
+        case .start:
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .principal) {
+                    startPositionedTitle
+                }
+                .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .principal) {
+                    startPositionedTitle
                         .transaction { $0.disablesAnimations = true }
                 }
             }
         }
+    }
 
+    private var startPositionedTitle: some View {
+        barTitle(.leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ToolbarContentBuilder
+    private var trailingContent: some ToolbarContent {
         if actions.isNotEmpty {
             if #available(iOS 26.0, *) {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    ForEach(actions.indices, id: \.self) { index in
-                        TopNavigationNativeBarButton(action: actions[index])
+                ToolbarItem(placement: .topBarTrailing) {
+                    barHosted {
+                        TopNavigationNativeActionsGroup(actions: actions, hasBackground: actionsHaveBackground)
                     }
                 }
+                .sharedBackgroundVisibility(.hidden)
             } else {
                 ToolbarItem(placement: .topBarTrailing) {
-                    TopNavigationActionsPill(actions: actions)
+                    barHosted {
+                        TopNavigationActionsPill(actions: actions, hasBackground: actionsHaveBackground)
+                    }
                 }
             }
         }
@@ -116,15 +145,25 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
     }
 
     private func barTitle(_ alignment: HorizontalAlignment) -> some View {
-        slot.environment(\.topNavigationContentAlignment, alignment)
+        barHosted {
+            slot.environment(\.topNavigationContentAlignment, alignment)
+        }
     }
 
-    @ViewBuilder
     private func chromeButton(_ action: TopNavigation.Action) -> some View {
-        if #available(iOS 26.0, *) {
-            TopNavigationNativeBarButton(action: action)
-        } else {
-            TopNavigationCircleButton(action: action)
+        barHosted {
+            if #available(iOS 26.0, *) {
+                TopNavigationNativeBarButton(action: action)
+            } else {
+                TopNavigationCircleButton(action: action)
+            }
         }
+    }
+
+    /// The bar hosts its items outside the content's view tree and does not pass on every content-size-category
+    /// change, so the ambient size — read here, in content scope — is injected explicitly, clamped to what the
+    /// fixed-height bar can show.
+    private func barHosted<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        content().dynamicTypeSize(barDynamicTypeSize)
     }
 }
