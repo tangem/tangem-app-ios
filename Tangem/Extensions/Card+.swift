@@ -18,4 +18,8 @@ extension CardDTO {
     var walletCurves: [EllipticCurve] {
         wallets.uniqueProperties(\.curve)
     }
+
+    var hasImportedWallets: Bool {
+        wallets.contains { $0.isImported == true }
+    }
 }
