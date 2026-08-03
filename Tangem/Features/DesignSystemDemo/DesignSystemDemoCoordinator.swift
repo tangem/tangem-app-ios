@@ -38,6 +38,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTokenIconV2Demo()
     func openUtilGraphDemo()
     func openUtilPriceChangeDemo()
+    func openUtilBalanceDemo()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -74,6 +75,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tokenIconV2DemoViewModel: TokenIconV2DemoViewModel?
     @Published var utilGraphDemoViewModel: UtilGraphDemoViewModel?
     @Published var utilPriceChangeDemoViewModel: UtilPriceChangeDemoViewModel?
+    @Published var utilBalanceDemoViewModel: UtilBalanceDemoViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -203,6 +205,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openUtilPriceChangeDemo() {
         utilPriceChangeDemoViewModel = .init()
+    }
+
+    func openUtilBalanceDemo() {
+        utilBalanceDemoViewModel = .init()
     }
 }
 
