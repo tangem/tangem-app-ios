@@ -130,4 +130,8 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openUtilPriceChangeDemo() {
         coordinator?.openUtilPriceChangeDemo()
     }
+
+    func openUtilBalanceDemo() {
+        coordinator?.openUtilBalanceDemo()
+    }
 }
