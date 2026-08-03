@@ -31,6 +31,7 @@ final class MobileUpgradeViewModel: ObservableObject {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.walletCardsBackupReportService) private var reportService: WalletCardsBackupReportService
 
     private var analyticsContextParams: Analytics.ContextParams {
         .custom(userWalletModel.analyticsContextData)
@@ -111,6 +112,7 @@ extension MobileUpgradeViewModel {
 
         if let primaryCard = cardInfo.primaryCard {
             backupService.setPrimaryCard(primaryCard)
+            reportService.reportPrimaryCard(cardInfo: cardInfo)
         }
 
         let stepsBuilder = userWalletModel.config.makeOnboardingStepsBuilder(
