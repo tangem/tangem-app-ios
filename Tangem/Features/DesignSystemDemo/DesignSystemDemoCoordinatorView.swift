@@ -105,6 +105,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.utilGraphDemoViewModel) {
                 UtilGraphDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.utilPriceChangeDemoViewModel) {
+                UtilPriceChangeDemoView(viewModel: $0)
+            }
     }
 }
 
@@ -165,6 +168,10 @@ struct DesignSystemDemoView: View {
 
                     MainButton(title: "UtilGraph") {
                         viewModel.openUtilGraphDemo()
+                    }
+
+                    MainButton(title: "UtilPriceChange") {
+                        viewModel.openUtilPriceChangeDemo()
                     }
 
                     MainButton(title: "Search") {

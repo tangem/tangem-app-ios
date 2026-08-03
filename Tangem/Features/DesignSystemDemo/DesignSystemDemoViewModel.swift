@@ -126,4 +126,8 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openUtilGraphDemo() {
         coordinator?.openUtilGraphDemo()
     }
+
+    func openUtilPriceChangeDemo() {
+        coordinator?.openUtilPriceChangeDemo()
+    }
 }
