@@ -132,7 +132,7 @@ private extension CommonStakingNotificationManager {
     func update(state: UnstakingModel.State, yield: StakingYieldInfo, action: UnstakingModel.Action, stakedBalance: Decimal) {
         switch (state, action.type) {
         case (.ready(_, let stakesCount), .pending(.withdraw)):
-            show(events: [.withdraw] + tonNotifications(yield: yield, action: action, stakesCount: stakesCount))
+            show(events: tonNotifications(action: action, stakesCount: stakesCount) + [.withdraw])
             hideErrorNotifications()
         case (.loading, .pending(.withdraw)),
              (.loading, .pending(.claimUnstaked)), (.ready, .pending(.claimUnstaked)):
@@ -259,37 +259,39 @@ private extension CommonStakingNotificationManager {
             }
         }()
 
-        var notifications: [StakingNotificationEvent] = [.unstake(description: description)]
+        var notifications = tonNotifications(action: action, stakesCount: stakesCount)
+        notifications.append(.unstake(description: description))
 
         let remainingAmount = stakedBalance - action.amount
         if remainingAmount > 0, remainingAmount < yield.exitMinimumRequirement {
             notifications.append(.lowStakedBalance)
         }
 
-        notifications.append(
-            contentsOf: tonNotifications(yield: yield, action: action, stakesCount: stakesCount)
-        )
-
         show(events: notifications)
     }
 
+    /// The order matters: the extra reserve notice comes first, then the affected positions warning.
     func tonNotifications(
-        yield: StakingYieldInfo,
         action: StakingAction,
         stakesCount: Int? = nil
     ) -> [StakingNotificationEvent] {
+        guard case .ton = tokenItem.blockchain else {
+            return []
+        }
+
         var notifications = [StakingNotificationEvent]()
+
+        if case .unstake = action.type {
+            notifications.append(.tonExtraReserveInfo)
+        }
+
         // unstaking / withdrawing ton affects all the stakes
-        if let stakesCount, stakesCount > 1, case .ton = tokenItem.blockchain {
+        if let stakesCount, stakesCount > 1 {
             switch action.type {
             case .unstake, .pending(.withdraw):
                 notifications.append(.tonUnstaking)
             default: break
             }
-        }
-
-        if case .ton = tokenItem.blockchain, case .unstake = action.type {
-            notifications.append(.tonExtraReserveInfo)
         }
 
         return notifications
