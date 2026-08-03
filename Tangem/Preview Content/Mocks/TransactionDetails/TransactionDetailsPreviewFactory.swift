@@ -139,6 +139,11 @@ enum TransactionDetailsPreviewFactory {
         .init(tokenIconInfo: icon("Tether", color: .green), amountText: "+350.31 USDT", fiatText: "$350.31")
     }
 
+    /// Failed single operation — the amount is struck through and dimmed.
+    static func tokensSingleFailed() -> TransactionDetailsTokensViewData {
+        .init(tokenIconInfo: icon("Tether", color: .green), amountText: "350.31 USDT", fiatText: "$350.31", isAmountStrikethrough: true)
+    }
+
     static func tokensPair() -> TransactionDetailsTokensViewData {
         .init(
             from: .init(direction: .init(label: "From", actor: nil), icon: .token(icon("Tether", color: .green)), amountText: "− 390 USDT", fiatText: "$391.12"),
