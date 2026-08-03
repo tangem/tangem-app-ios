@@ -17,6 +17,8 @@ struct PortfolioReviewChartCardView: View {
 
     @Binding var selectedID: GaugeSegment.ID?
 
+    var onSegmentTap: (() -> Void)? = nil
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             gauge
@@ -34,7 +36,12 @@ struct PortfolioReviewChartCardView: View {
 
 private extension PortfolioReviewChartCardView {
     var gauge: some View {
-        SummaryGaugeView(assets: gaugeAssets, noDataText: gaugeNoDataText, selectedID: $selectedID)
+        SummaryGaugeView(
+            assets: gaugeAssets,
+            noDataText: gaugeNoDataText,
+            selectedID: $selectedID,
+            onSegmentTap: onSegmentTap
+        )
     }
 
     var gaugeAssets: [SummaryGaugeAsset] {

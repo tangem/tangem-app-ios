@@ -25,11 +25,13 @@ final class PortfolioReviewViewModel: ObservableObject {
     private let mapper: PortfolioReviewMapper
     private let selectionScopePublisher: SelectionScopePublisher
     private let indicatorsProvider: PortfolioReviewIndicatorsProvider
+    private let analyticsLogger: PortfolioReviewAnalyticsLogger
 
     private weak var router: PortfolioReviewRoutable?
 
     private var expandedIds: Set<String> = []
     private var subscription: AnyCancellable?
+    private var periodAnalyticsSubscription: AnyCancellable?
 
     // MARK: - Publishers
 
@@ -45,11 +47,13 @@ final class PortfolioReviewViewModel: ObservableObject {
         mapper: PortfolioReviewMapper = PortfolioReviewMapper(),
         selectionScopePublisher: SelectionScopePublisher,
         indicatorsProvider: PortfolioReviewIndicatorsProvider = CommonPortfolioReviewIndicatorsProvider(),
+        analyticsLogger: PortfolioReviewAnalyticsLogger,
         router: PortfolioReviewRoutable? = nil
     ) {
         self.mapper = mapper
         self.selectionScopePublisher = selectionScopePublisher
         self.indicatorsProvider = indicatorsProvider
+        self.analyticsLogger = analyticsLogger
         self.router = router
 
         bind()
@@ -75,6 +79,11 @@ final class PortfolioReviewViewModel: ObservableObject {
         }
 
         router?.openTokenSummary(tokenItem: tokenItem, period: selectedPeriod.period)
+    }
+
+    /// The diagram is decorative, so every tap on a slice counts — including re-taps on the selected one.
+    func chartSegmentTapped() {
+        analyticsLogger.logDiagramTap()
     }
 
     private func tokenItem(for id: String) -> TokenItem? {
@@ -106,6 +115,8 @@ final class PortfolioReviewViewModel: ObservableObject {
 
 private extension PortfolioReviewViewModel {
     func bind() {
+        bindPeriodAnalytics()
+
         subscription = selectedModelPublisher()
             // Rebuild only when wallet presence flips; dedup the bare Bool — a self-carrying tuple in removeDuplicates would leak.
             .map { $0 != nil }
@@ -135,6 +146,18 @@ private extension PortfolioReviewViewModel {
                 $0?.userWalletId == $1?.userWalletId
             }
             .eraseToAnyPublisher()
+    }
+
+    /// `dropFirst` skips the initial period so only user-driven changes are reported.
+    func bindPeriodAnalytics() {
+        periodAnalyticsSubscription = $selectedPeriod
+            .map(\.period)
+            .removeDuplicates()
+            .dropFirst()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, period in
+                viewModel.analyticsLogger.logFilterInterval(period: period)
+            }
     }
 
     func statePublisher(hasSelectedWallet: Bool) -> AnyPublisher<(state: ViewState, isOutdatedData: Bool), Never> {

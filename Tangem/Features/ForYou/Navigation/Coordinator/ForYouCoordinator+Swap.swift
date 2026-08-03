@@ -24,6 +24,7 @@ extension ForYouCoordinator {
             tokenItem: tokenItem,
             period: period,
             primaryActionPublisher: primaryActionPublisher,
+            analyticsLogger: CommonTokenSummaryAnalyticsLogger(tokenItem: tokenItem),
             onPrimaryAction: { [weak self] _ in self?.goToSwap(with: tokenItem) },
             onClose: { [weak self] in self?.tokenSummaryViewModel = nil }
         )
