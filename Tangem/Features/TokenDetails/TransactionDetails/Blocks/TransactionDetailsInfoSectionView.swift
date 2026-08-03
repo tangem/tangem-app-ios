@@ -29,6 +29,8 @@ struct TransactionDetailsInfoSectionViewData: Equatable {
 
         struct Link: Equatable {
             let text: String
+            /// Optional trailing detail (e.g. the CEX/DEX provider type)
+            let secondaryText: String?
             @IgnoredEquatable var handler: (() -> Void)?
         }
     }
@@ -51,12 +53,13 @@ struct TransactionDetailsInfoSectionView: View {
         case .text(let value):
             TangemUI.Row(title: row.title, value: value)
                 .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
-                .contentLead(.end)
+                .contentLead(.start)
                 .valueLineLimit(1)
                 .showDivider(showsDivider)
         case .link(let link):
             TangemUI.Row(title: row.title)
                 .valueAccessory { linkValue(link) }
+                .contentLead(.end)
                 .showDivider(showsDivider)
                 .ifLet(link.handler) { view, handler in view.onTap(handler) }
         }
@@ -67,6 +70,15 @@ struct TransactionDetailsInfoSectionView: View {
             Text(link.text)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
+                .truncationMode(.tail)
+
+            if let secondaryText = link.secondaryText {
+                Text("\(AppConstants.dotSign) \(secondaryText)")
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
+                    .layoutPriority(1)
+                    .fixedSize(horizontal: true, vertical: false)
+            }
 
             if link.handler != nil {
                 DesignSystem.Icons.ArrowTopRight.regular20.image
@@ -84,8 +96,8 @@ struct TransactionDetailsInfoSectionView: View {
 
 #Preview("Info section") {
     TransactionDetailsInfoSectionView(data: .init(rows: [
-        .init(id: "provider", title: "Provider", content: .link(.init(text: "DEX • Mercuryo", handler: {}))),
-        .init(id: "rate", title: "Rate", content: .text("1 POL ≈ 0.36 USDT")),
+        .init(id: "provider", title: "Provider", content: .link(.init(text: "Mercuryo", secondaryText: "DEX", handler: {}))),
+        .init(id: "rate", title: "Rate", content: .text("1,00 POL ≈ 0,07703936 USDT")),
         .init(id: "networkFee", title: "Network fee", content: .text("0.00056 ETH")),
     ]))
     .padding(16)

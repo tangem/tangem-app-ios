@@ -80,11 +80,16 @@ enum TransactionDetailsFactory {
         }
     }
 
-    private static func tokensBlock(for transaction: TransactionViewModel, context: TransactionDetailsContext) -> TransactionDetailsTokensViewData {
+    private static func tokensBlock(for transaction: TransactionViewModel, isFailed: Bool, context: TransactionDetailsContext) -> TransactionDetailsTokensViewData {
         TransactionDetailsTokensViewData(
             tokenIconInfo: context.tokenIconInfo,
-            amountText: transaction.amount.amount
+            amountText: transaction.amount.amount,
+            isAmountStrikethrough: isFailed
         )
+    }
+
+    private static func isFailed(_ transaction: TransactionViewModel, record: TransactionRecord?) -> Bool {
+        headerStatus(for: record, fallback: transaction.status) == .failed
     }
 
     private static func genericOperationContent(
@@ -94,7 +99,7 @@ enum TransactionDetailsFactory {
         counterpartyLabel: String?
     ) -> TransactionDetailsGenericOperationViewData {
         .init(
-            tokens: tokensBlock(for: transaction, context: context),
+            tokens: tokensBlock(for: transaction, isFailed: isFailed(transaction, record: record), context: context),
             // On-chain operations don't get a live status banner (that's an Express-only transition)
             statusBanner: nil,
             // and the "for sending X" block
@@ -279,7 +284,7 @@ enum TransactionDetailsFactory {
         let label = transaction.isOutgoing ? Localization.sendRecipient : Localization.commonFrom
 
         return .init(
-            tokens: tokensBlock(for: transaction, context: context),
+            tokens: tokensBlock(for: transaction, isFailed: isFailed(transaction, record: record), context: context),
             statusBanner: nil,
             principalAmount: nil,
             counterparty: counterparty(for: transaction, label: label),
@@ -302,8 +307,23 @@ enum TransactionDetailsFactory {
 
         return TransactionDetailsProviderInfo(
             name: provider?.name ?? fallbackId,
+            type: providerTypeTitle(provider?.type),
             onTap: onTap
         )
+    }
+
+    /// CEX / DEX label for the provider row. Onramp (and unknown) providers have no meaningful type to surface here.
+    private static func providerTypeTitle(_ type: ExpressProviderType?) -> String? {
+        guard let type else {
+            return nil
+        }
+
+        switch type {
+        case .dex, .cex, .dexBridge:
+            return type.title
+        case .onramp, .unknown:
+            return nil
+        }
     }
 
     private static func action(
