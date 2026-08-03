@@ -9,27 +9,41 @@
 import Foundation
 import GRDB
 
-struct ExpressProviderRecord {
-    let id: String
-    let name: String
-    let type: String
-    let exchangeOnlyWithinSingleAddress: Bool
-    let imageURL: String?
-    let termsOfUse: String?
-    let privacyPolicy: String?
-    let recommended: Bool?
+public struct ExpressProviderRecord {
+    public let id: String
+    public let name: String
+    public let type: String
+    public let exchangeOnlyWithinSingleAddress: Bool
+    public let imageURL: String?
+    public let termsOfUse: String?
+    public let privacyPolicy: String?
+    public let recommended: Bool?
     /// - Note: Actually a decimal number.
-    let slippage: String?
-    let updatedAt: Date
-}
+    public let slippage: String?
+    public let updatedAt: Date
 
-// MARK: - Columns
-
-extension ExpressProviderRecord {
-    /// - Note: Only columns used twice or more are extracted to this enum.
-    enum Columns {
-        static let id = Column(CodingKeys.id)
-        static let type = Column(CodingKeys.type)
+    public init(
+        id: String,
+        name: String,
+        type: String,
+        exchangeOnlyWithinSingleAddress: Bool,
+        imageURL: String?,
+        termsOfUse: String?,
+        privacyPolicy: String?,
+        recommended: Bool?,
+        slippage: String?,
+        updatedAt: Date
+    ) {
+        self.id = id
+        self.name = name
+        self.type = type
+        self.exchangeOnlyWithinSingleAddress = exchangeOnlyWithinSingleAddress
+        self.imageURL = imageURL
+        self.termsOfUse = termsOfUse
+        self.privacyPolicy = privacyPolicy
+        self.recommended = recommended
+        self.slippage = slippage
+        self.updatedAt = updatedAt
     }
 }
 
@@ -64,7 +78,13 @@ extension ExpressProviderRecord: FetchableRecord {}
 // MARK: - TableRecord protocol conformance
 
 extension ExpressProviderRecord: TableRecord {
-    static let databaseTableName = ExpressProvidersCacheTable.tableName
+    /// - Note: Only columns used twice or more are extracted to this enum.
+    public enum Columns {
+        public static let id = Column(CodingKeys.id)
+        public static let type = Column(CodingKeys.type)
+    }
+
+    public static let databaseTableName = ExpressProvidersCacheTable.tableName
 }
 
 // MARK: - PersistableRecord protocol conformance

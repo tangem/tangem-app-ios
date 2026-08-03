@@ -374,7 +374,7 @@ private final class SourceWalletStub: ExpressSourceWallet {
 private final class ExpressAPIProviderStub: ExpressAPIProvider {
     func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] { [] }
     func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] { [] }
-    func providers(branch: ExpressBranch) async throws -> [ExpressProvider] { [] }
+    func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { [] }
 
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote {
         ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: nil, quoteId: nil, txType: nil)
