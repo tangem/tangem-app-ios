@@ -16,8 +16,7 @@ import TangemTestKit
 @Suite("CommonStakingNotificationManager")
 final class StakingNotificationManagerTests: LeakTrackingTestSuite {
     private let blockchain = Blockchain.solana(curve: .ed25519_slip0010, testnet: false)
-
-    private var tokenItem: TokenItem { .blockchain(.init(blockchain, derivationPath: nil)) }
+    private let tonBlockchain = Blockchain.ton(curve: .ed25519_slip0010, testnet: false)
 
     private var rentExemptionError: ValidationError {
         .remainingAmountIsLessThanRentExemption(amount: .init(with: blockchain, value: Decimal(string: "0.00089088")!))
@@ -71,12 +70,82 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
         #expect(containsWithdrawInfo(events))
         #expect(events.count == 2)
     }
+
+    @Test("TON unstake notifications are ordered: extra reserve, positions status, unbonding period")
+    func tonUnstakeNotificationsOrder() throws {
+        let (manager, stateSubject) = makeSUT(
+            blockchain: tonBlockchain,
+            action: StakingAction(amount: 0.02, targetType: .empty, type: .unstake)
+        )
+
+        stateSubject.send(.ready(fee: 0.05, stakesCount: 2))
+
+        let events = stakingEvents(manager)
+        try #require(events.count == 3)
+
+        #expect(isTonExtraReserveInfo(events[0]))
+        #expect(isTonUnstaking(events[1]))
+        #expect(isUnstake(events[2]))
+    }
+
+    @Test("Low staked balance warning stays below the TON unstake notifications")
+    func tonPartialUnstakeKeepsLowStakedBalanceLast() throws {
+        let (manager, stateSubject) = makeSUT(
+            blockchain: tonBlockchain,
+            action: StakingAction(amount: 0.02, targetType: .empty, type: .unstake),
+            stakedBalance: 0.03,
+            exitMinimumRequirement: 0.05
+        )
+
+        stateSubject.send(.ready(fee: 0.05, stakesCount: 2))
+
+        let events = stakingEvents(manager)
+        try #require(events.count == 4)
+
+        #expect(isTonExtraReserveInfo(events[0]))
+        #expect(isTonUnstaking(events[1]))
+        #expect(isUnstake(events[2]))
+        #expect(isLowStakedBalance(events[3]))
+    }
+
+    @Test("Non-TON unstake shows only the unbonding period notification")
+    func solanaUnstakeNotifications() throws {
+        let (manager, stateSubject) = makeSUT(
+            action: StakingAction(amount: 0.02, targetType: .empty, type: .unstake)
+        )
+
+        stateSubject.send(.ready(fee: 0.000205, stakesCount: 2))
+
+        let events = stakingEvents(manager)
+        try #require(events.count == 1)
+
+        #expect(isUnstake(events[0]))
+    }
+
+    @Test("TON withdraw shows the positions status notification above the withdraw info")
+    func tonWithdrawNotificationsOrder() throws {
+        let (manager, stateSubject) = makeSUT(blockchain: tonBlockchain)
+
+        stateSubject.send(.ready(fee: 0.05, stakesCount: 2))
+
+        let events = stakingEvents(manager)
+        try #require(events.count == 2)
+
+        #expect(isTonUnstaking(events[0]))
+        #expect(containsWithdrawInfo([events[1]]))
+    }
 }
 
 // MARK: - Helpers
 
 private extension StakingNotificationManagerTests {
-    func makeSUT() -> (manager: CommonStakingNotificationManager, stateSubject: CurrentValueSubject<UnstakingModel.State, Never>) {
+    func makeSUT(
+        blockchain: Blockchain? = nil,
+        action: StakingAction = StakingAction(amount: 0.02, targetType: .empty, type: .pending(.withdraw(passthroughs: []))),
+        stakedBalance: Decimal? = nil,
+        exitMinimumRequirement: Decimal = .zero
+    ) -> (manager: CommonStakingNotificationManager, stateSubject: CurrentValueSubject<UnstakingModel.State, Never>) {
+        let tokenItem = TokenItem.blockchain(.init(blockchain ?? self.blockchain, derivationPath: nil))
         let manager = CommonStakingNotificationManager(
             tokenItem: tokenItem,
             feeTokenItem: tokenItem,
@@ -86,11 +155,11 @@ private extension StakingNotificationManagerTests {
         let stateSubject = CurrentValueSubject<UnstakingModel.State, Never>(.loading)
         let provider = UnstakingModelStateProviderStub(
             stateSubject: stateSubject,
-            stakingAction: StakingAction(amount: 0.02, targetType: .empty, type: .pending(.withdraw(passthroughs: []))),
-            stakedBalance: 0.02
+            stakingAction: action,
+            stakedBalance: stakedBalance ?? action.amount
         )
         let input = StakingNotificationManagerInputStub(
-            stakingManagerStatePublisher: Just(makeStakedState()).eraseToAnyPublisher()
+            stakingManagerStatePublisher: Just(makeStakedState(exitMinimumRequirement: exitMinimumRequirement)).eraseToAnyPublisher()
         )
 
         manager.setup(provider: provider, input: input)
@@ -98,18 +167,24 @@ private extension StakingNotificationManagerTests {
         return (trackForMemoryLeaks(manager), stateSubject)
     }
 
-    func makeStakedState() -> StakingManagerState {
-        .staked(.init(balances: [], yieldInfo: makeYieldInfo(), canStakeMore: true))
+    func makeStakedState(exitMinimumRequirement: Decimal = .zero) -> StakingManagerState {
+        .staked(
+            .init(
+                balances: [],
+                yieldInfo: makeYieldInfo(exitMinimumRequirement: exitMinimumRequirement),
+                canStakeMore: true
+            )
+        )
     }
 
-    func makeYieldInfo() -> StakingYieldInfo {
+    func makeYieldInfo(exitMinimumRequirement: Decimal = .zero) -> StakingYieldInfo {
         StakingYieldInfo(
             id: "solana-sol-native-multivalidator-staking",
             isAvailable: true,
             rewardType: .apy,
             rewardRateValues: RewardRateValues(aprs: [0.05], rewardRate: .zero),
             enterMinimumRequirement: .zero,
-            exitMinimumRequirement: .zero,
+            exitMinimumRequirement: exitMinimumRequirement,
             targets: [],
             preferredTargets: [],
             item: StakingTokenItem(network: .solana, name: "Solana", decimals: 9, symbol: "SOL"),
@@ -132,6 +207,34 @@ private extension StakingNotificationManagerTests {
             }
             return false
         }
+    }
+
+    func isUnstake(_ event: StakingNotificationEvent) -> Bool {
+        if case .unstake = event {
+            return true
+        }
+        return false
+    }
+
+    func isTonUnstaking(_ event: StakingNotificationEvent) -> Bool {
+        if case .tonUnstaking = event {
+            return true
+        }
+        return false
+    }
+
+    func isTonExtraReserveInfo(_ event: StakingNotificationEvent) -> Bool {
+        if case .tonExtraReserveInfo = event {
+            return true
+        }
+        return false
+    }
+
+    func isLowStakedBalance(_ event: StakingNotificationEvent) -> Bool {
+        if case .lowStakedBalance = event {
+            return true
+        }
+        return false
     }
 
     func containsRentExemptionError(_ events: [StakingNotificationEvent]) -> Bool {
