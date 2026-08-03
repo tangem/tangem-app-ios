@@ -14,7 +14,7 @@ public protocol ExpressAPIProvider {
     func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset]
     func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair]
 
-    func providers(branch: ExpressBranch) async throws -> [ExpressProvider]
+    func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider]
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData
     func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction
@@ -35,4 +35,12 @@ public protocol ExpressAPIProvider {
 
     func onrampHistory(item: ExpressHistoryRequestItem) async throws -> OnrampHistoryPage
     func onrampHistoryDelta(item: ExpressHistoryRequestItem) async throws -> OnrampHistoryPage
+}
+
+// MARK: - Convenience extensions
+
+public extension ExpressAPIProvider {
+    func providers(branch: ExpressBranch) async throws -> [ExpressProvider] {
+        try await providers(branches: [branch])
+    }
 }
