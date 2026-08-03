@@ -9,27 +9,32 @@
 import Foundation
 import GRDB
 
-struct FiatCurrencyRecord {
-    let code: String
-    let name: String
-    let imageURL: String?
-    let precision: Int
-    let updatedAt: Date
-}
+public struct FiatCurrencyRecord {
+    public let code: String
+    public let name: String
+    public let imageURL: String?
+    public let precision: Int
+    public let updatedAt: Date
 
-// MARK: - Columns
-
-extension FiatCurrencyRecord {
-    /// - Note: Only columns used twice or more are extracted to this enum.
-    enum Columns {
-        static let code = Column(CodingKeys.code)
+    public init(
+        code: String,
+        name: String,
+        imageURL: String?,
+        precision: Int,
+        updatedAt: Date
+    ) {
+        self.code = code
+        self.name = name
+        self.imageURL = imageURL
+        self.precision = precision
+        self.updatedAt = updatedAt
     }
 }
 
 // MARK: - Identifiable protocol conformance
 
 extension FiatCurrencyRecord: Identifiable {
-    var id: String { code }
+    public var id: String { code }
 }
 
 // MARK: - Codable protocol conformance
@@ -43,7 +48,12 @@ extension FiatCurrencyRecord: FetchableRecord {}
 // MARK: - TableRecord protocol conformance
 
 extension FiatCurrencyRecord: TableRecord {
-    static let databaseTableName = FiatCurrenciesCacheTable.tableName
+    /// - Note: Only columns used twice or more are extracted to this enum.
+    public enum Columns {
+        public static let code = Column(CodingKeys.code)
+    }
+
+    public static let databaseTableName = FiatCurrenciesCacheTable.tableName
 }
 
 // MARK: - PersistableRecord protocol conformance
