@@ -22,6 +22,7 @@
 		B605DFA23012E37400366B0D /* TangemFirebaseDynamicShim in Embed Frameworks */ = {isa = PBXBuildFile; productRef = B605DFA03012E35F00366B0D /* TangemFirebaseDynamicShim */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		B608020F2ECEA1E600CC5F4E /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B608020E2ECEA1E600CC5F4E /* AnyCodable */; };
 		B61B905A2F912D950081CC13 /* BlockchainSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B61B90592F912D950081CC13 /* BlockchainSdk */; };
+		B625C4A530137E6F00B25A74 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = B625C4A430137E6F00B25A74 /* GRDB */; };
 		B62C16792CBE095A00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C16782CBE095A00522683 /* Alamofire */; };
 		B62C167B2CBE0A1E00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167A2CBE0A1E00522683 /* Alamofire */; };
 		B62C167D2CBE0A3D00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167C2CBE0A3D00522683 /* Alamofire */; };
@@ -310,6 +311,7 @@
 				B69FC9092CF67D9300A5C51D /* GDPerformanceView-Swift in Frameworks */,
 				B67E38C12CC71A2C00D660EB /* TangemSdk in Frameworks */,
 				B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */,
+				B625C4A530137E6F00B25A74 /* GRDB in Frameworks */,
 				C24656702F575ACD00270AA7 /* MessagingPushFCM in Frameworks */,
 				B605DFA13012E35F00366B0D /* TangemFirebaseDynamicShim in Frameworks */,
 				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
@@ -592,6 +594,7 @@
 				B6457BCF2F9120CA00C91066 /* TangemMacro */,
 				B6DBDE492F97790F00885068 /* Hiero */,
 				B605DFA03012E35F00366B0D /* TangemFirebaseDynamicShim */,
+				B625C4A430137E6F00B25A74 /* GRDB */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -917,6 +920,7 @@
 				B6457BCE2F9120CA00C91066 /* XCLocalSwiftPackageReference "TangemMacro" */,
 				B6DBDE482F97790F00885068 /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */,
 				B605DF9F3012E35F00366B0D /* XCLocalSwiftPackageReference "TangemFirebaseDynamicShim" */,
+				B625C4A330137E6F00B25A74 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -4375,6 +4379,14 @@
 				minimumVersion = 2.4.1;
 			};
 		};
+		B625C4A330137E6F00B25A74 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.11.1;
+			};
+		};
 		B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
@@ -4562,6 +4574,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */;
 			productName = BlockchainSdk;
+		};
+		B625C4A430137E6F00B25A74 /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B625C4A330137E6F00B25A74 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			productName = GRDB;
 		};
 		B62C16782CBE095A00522683 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
