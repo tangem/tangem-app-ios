@@ -16,14 +16,6 @@ import TangemUI
 final class MainNavigationBalanceProvider {
     private let balanceFormatter = BalanceFormatter()
 
-    private let balanceFormattingOptions = TotalBalanceFormattingOptions(
-        integerPartFont: DesignSystem.Font.bodyMediumToken,
-        fractionalPartFont: DesignSystem.Font.bodyMediumToken,
-        integerPartColor: DesignSystem.Color.textPrimary,
-        fractionalPartColor: DesignSystem.Color.textSecondary,
-        fractionalPartIncludesDecimalSeparator: true
-    )
-
     private let isUserWalletLocked: Bool
     private let totalBalanceProvider: TotalBalanceProvider
 
@@ -66,11 +58,12 @@ final class MainNavigationBalanceProvider {
         }
     }
 
+    /// The font is left unset so the view can apply a Dynamic Type-aware one — an attributed font attribute
+    /// would override the `.style(_:color:)` modifier and freeze the balance at its design size.
     private func formatBalance(balance: Decimal?) -> AttributedString {
-        let formattedBalance = balanceFormatter.formatFiatBalance(balance)
-        return balanceFormatter.formatAttributedTotalBalance(
-            fiatBalance: formattedBalance,
-            formattingOptions: balanceFormattingOptions
+        AttributedBalanceFormatter.dimmingDecimals(
+            balanceFormatter.formatFiatBalance(balance),
+            decimalColor: DesignSystem.Color.textSecondary
         )
     }
 }
