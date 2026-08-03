@@ -824,6 +824,7 @@ extension MarketsTokenDetailsCoordinator {
             ),
             preloadedIndicators: input.indicators,
             primaryActionPublisher: input.primaryActionPublisher,
+            analyticsLogger: CommonTokenSummaryAnalyticsLogger(symbol: input.token.symbol),
             onPrimaryAction: { [weak self] kind in
                 self?.handleTokenSummaryAction(kind, input: input, walletDataProvider: walletDataProvider)
             },
