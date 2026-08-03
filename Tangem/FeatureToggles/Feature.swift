@@ -31,6 +31,7 @@ enum Feature: String, Hashable, CaseIterable {
     case sendWithSwapAvailabilityCheck
     case swapFiatCalculation
     case addressBook
+    case stakingFlowV2
     case hideStoriesInMobileWallet
     case marketingBanners
     case stakingRegionUnavailable
@@ -78,6 +79,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendWithSwapAvailabilityCheck: return "14316_Send_With_Swap_Availability_Check"
         case .swapFiatCalculation: return "14315_Swap_Fiat_Calculation"
         case .addressBook: return "TWI-83_address_book"
+        case .stakingFlowV2: return "[REDACTED_INFO]_staking_flow_v2"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         case .marketingBanners: return "TWI-1522_special_offer_promo_placement_for_onramp_and_swaps"
         case .stakingRegionUnavailable: return "[REDACTED_INFO]_p2p_staking_region_unavailable"
@@ -125,6 +127,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendWithSwapAvailabilityCheck: return .version("6.1")
         case .swapFiatCalculation: return .version("6.1")
         case .addressBook: return .version("6.1")
+        case .stakingFlowV2: return .unspecified
         case .hideStoriesInMobileWallet: return .version("6.1")
         case .marketingBanners: return .version("6.0.2")
         case .stakingRegionUnavailable: return .version("6.1")
