@@ -304,6 +304,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     private lazy var mobileSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
+    @Injected(\.walletCardsBackupReportService)
+    private var reportService: WalletCardsBackupReportService
+
     private let backupService: BackupService
     private var cardInitializer: CardInitializer?
     private var resetCardSetUtil: ResetToFactoryUtil?
@@ -688,6 +691,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
+                    reportService.reportPrimaryCard(cardInfo: cardInfo)
                 }
 
                 var params = walletCreationType.params
@@ -753,10 +757,16 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         stepPublisher =
             Deferred {
                 Future { [weak self] promise in
-                    self?.backupService.addBackupCard { result in
+                    self?.backupService.addBackupCard { [weak self] result in
                         switch result {
                         case .success(let card):
                             promise(.success(card))
+
+                            if let self {
+                                let processed = WalletCardsCurrentlyProcessedCard(card: card, role: backupService.role(for: card))
+                                reportService.reportCard(processed, primaryCardId: input.primaryCardId)
+                            }
+
                         case .failure(let error):
                             promise(.failure(error))
                         }
@@ -840,6 +850,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                         switch result {
                         case .success(let updatedCard):
+                            let role = backupService.role(for: updatedCard)
+                            let processed = WalletCardsCurrentlyProcessedCard(card: updatedCard, role: role)
+                            reportService.reportCard(processed, primaryCardId: input.primaryCardId)
+
                             guard backupValidator.onProceedBackup(updatedCard) else {
                                 alert = makeResetCardSetAlert()
                                 return
@@ -867,6 +881,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                             promise(.success(()))
                         case .failure(let error):
+                            // A cancelled session tells nothing about the card's state — don't record it as a
+                            // backup failure.
+                            if !error.isUserCancelled, let processed = backupService.finalizingProcessedCard {
+                                reportService.reportFailure(processed, primaryCardId: input.primaryCardId, error: error)
+                            }
+
                             promise(.failure(error))
                         }
                     }
