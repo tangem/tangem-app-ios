@@ -9,24 +9,32 @@
 import Foundation
 import GRDB
 
-struct CryptoCurrencyRecord {
-    let id: String?
-    let networkID: String
-    let name: String
-    let symbol: String
+public struct CryptoCurrencyRecord {
+    public let id: String?
+    public let networkID: String
+    public let name: String
+    public let symbol: String
     /// - Note: May have a value of `ExpressConstants.coinContractAddress` for native coins.
-    let contractAddress: String
-    let decimalCount: Int
-    let updatedAt: Date
-}
+    public let contractAddress: String
+    public let decimalCount: Int
+    public let updatedAt: Date
 
-// MARK: - Columns
-
-extension CryptoCurrencyRecord {
-    /// - Note: Only columns used twice or more are extracted to this enum.
-    enum Columns {
-        static let networkID = Column(CodingKeys.networkID)
-        static let contractAddress = Column(CodingKeys.contractAddress)
+    public init(
+        id: String?,
+        networkID: String,
+        name: String,
+        symbol: String,
+        contractAddress: String,
+        decimalCount: Int,
+        updatedAt: Date
+    ) {
+        self.id = id
+        self.networkID = networkID
+        self.name = name
+        self.symbol = symbol
+        self.contractAddress = contractAddress
+        self.decimalCount = decimalCount
+        self.updatedAt = updatedAt
     }
 }
 
@@ -41,7 +49,13 @@ extension CryptoCurrencyRecord: FetchableRecord {}
 // MARK: - TableRecord protocol conformance
 
 extension CryptoCurrencyRecord: TableRecord {
-    static let databaseTableName = CryptoCurrenciesCacheTable.tableName
+    /// - Note: Only columns used twice or more are extracted to this enum.
+    public enum Columns {
+        public static let networkID = Column(CodingKeys.networkID)
+        public static let contractAddress = Column(CodingKeys.contractAddress)
+    }
+
+    public static let databaseTableName = CryptoCurrenciesCacheTable.tableName
 }
 
 // MARK: - PersistableRecord protocol conformance

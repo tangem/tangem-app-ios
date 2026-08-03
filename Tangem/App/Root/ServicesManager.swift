@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemStaking
 import TangemStories
 import TangemFoundation
+import TangemAppDatabase
 import TangemFirebaseDynamicShim
 
 private struct ServicesManagerKey: InjectionKey {
@@ -52,6 +53,7 @@ final class CommonServicesManager {
     @Injected(\.stakingTargetAmountLimitProvider) private var stakingTargetAmountLimitProvider: CommonStakingTargetAmountLimitProvider
     @Injected(\.silentPushHandlersStorage) private var silentPushHandlersStorage: SilentPushHandlersStorage
     @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
+    @Injected(\.appDatabase) private var appDatabase: AppDatabase
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -213,6 +215,7 @@ extension CommonServicesManager: ServicesManager {
         stakingTargetAmountLimitProvider.initialize()
         // Refresh the cached app-versions DTO once per session. Applied on the next launch.
         forceUpdateService.refreshCache()
+        appDatabase.initialize()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating

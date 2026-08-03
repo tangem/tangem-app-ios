@@ -433,7 +433,7 @@ private struct StubExpressFeeProvider: ExpressFeeProvider {
 private final class StubExpressAPIProvider: ExpressAPIProvider {
     func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] { fatalError("Not used in tests") }
     func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] { fatalError("Not used in tests") }
-    func providers(branch: ExpressBranch) async throws -> [ExpressProvider] { fatalError("Not used in tests") }
+    func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { fatalError("Not used in tests") }
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote { fatalError("Not used in tests") }
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData { fatalError("Not used in tests") }
     func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction { fatalError("Not used in tests") }

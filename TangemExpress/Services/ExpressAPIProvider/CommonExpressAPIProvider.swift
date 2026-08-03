@@ -9,6 +9,7 @@
 import Foundation
 import AnyCodable
 import TangemLogger
+import TangemFoundation
 
 final class CommonExpressAPIProvider {
     let expressAPIService: ExpressAPIService
@@ -44,11 +45,15 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return pairs
     }
 
-    func providers(branch: ExpressBranch) async throws -> [ExpressProvider] {
+    func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] {
         let response = try await expressAPIService.providers()
+        let supportedProviderTypes = branches
+            .flatMap(\.supportedProviderTypes)
+            .toSet()
+
         let providers = response
             .map(expressAPIMapper.mapToExpressProvider(provider:))
-            .filter { branch.supportedProviderTypes.contains($0.type) }
+            .filter { supportedProviderTypes.contains($0.type) }
 
         return providers
     }
