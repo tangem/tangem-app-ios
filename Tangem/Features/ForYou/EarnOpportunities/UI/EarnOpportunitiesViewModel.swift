@@ -32,6 +32,7 @@ final class EarnOpportunitiesViewModel: ObservableObject {
     )
     private let suggestions = CurrentValueSubject<EarnOpportunitiesMapper.SuggestionsState, Never>(.loading)
     private let selectionScopePublisher: SelectionScopePublisher
+    private let analyticsLogger: EarnOpportunitiesAnalyticsLogger
 
     private weak var router: EarnOpportunitiesRoutable?
 
@@ -46,8 +47,13 @@ final class EarnOpportunitiesViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(selectionScopePublisher: SelectionScopePublisher, router: EarnOpportunitiesRoutable? = nil) {
+    init(
+        selectionScopePublisher: SelectionScopePublisher,
+        analyticsLogger: EarnOpportunitiesAnalyticsLogger,
+        router: EarnOpportunitiesRoutable? = nil
+    ) {
         self.selectionScopePublisher = selectionScopePublisher
+        self.analyticsLogger = analyticsLogger
         self.router = router
         bind()
         fetchSuggestions()
@@ -56,6 +62,7 @@ final class EarnOpportunitiesViewModel: ObservableObject {
     /// Preview/testing entry point: fixed state, no data pipeline.
     init(state: ViewState) {
         selectionScopePublisher = Empty().eraseToAnyPublisher()
+        analyticsLogger = ForYouAnalyticsLoggerStub()
         self.state = state
     }
 
@@ -74,6 +81,7 @@ final class EarnOpportunitiesViewModel: ObservableObject {
 
     @MainActor
     func exploreAllTokensTapped() {
+        analyticsLogger.logExploreAllTokens()
         router?.openSeeAllEarn()
     }
 
@@ -83,6 +91,8 @@ final class EarnOpportunitiesViewModel: ObservableObject {
               let product = apyResolver.resolve(for: context.walletModel)?.product else {
             return
         }
+
+        analyticsLogger.logEarnTokenOpened(tokenItem: context.walletModel.tokenItem, product: product)
 
         switch product {
         case .staking:
