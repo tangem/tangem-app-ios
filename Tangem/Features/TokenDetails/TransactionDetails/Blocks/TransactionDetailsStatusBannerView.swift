@@ -39,29 +39,30 @@ struct TransactionDetailsStatusBannerView: View {
     @ScaledMetric private var indicatorSide: CGFloat = 20
 
     var body: some View {
-        HStack(spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
                 Text(data.title)
                     .style(DesignSystem.Font.bodyMediumToken, color: titleColor)
                     .contentTransition(.opacity)
                     .animation(.easeInOut(duration: 0.3), value: data.title)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                if let subtitle = data.subtitle {
-                    Text(subtitle)
-                        .style(DesignSystem.Font.captionMediumToken, color: subtitleColor)
-                        .contentTransition(.opacity)
-                        .animation(.easeInOut(duration: 0.3), value: subtitle)
-                }
+                indicator
+                    .frame(size: CGSize(bothDimensions: indicatorSide))
             }
 
-            Spacer(minLength: .zero)
-
-            indicator
-                .frame(size: CGSize(bothDimensions: indicatorSide))
+            if let subtitle = data.subtitle {
+                Text(subtitle)
+                    .style(DesignSystem.Font.captionMediumToken, color: subtitleColor)
+                    .contentTransition(.opacity)
+                    .animation(.easeInOut(duration: 0.3), value: subtitle)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
-        .padding(16)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(backgroundColor, in: RoundedRectangle(cornerRadius: 24))
+        .background(backgroundColor, in: RoundedRectangle(cornerRadius: 20))
         .animation(.easeInOut(duration: 0.3), value: data.kind)
     }
 
@@ -77,8 +78,11 @@ struct TransactionDetailsStatusBannerView: View {
         case .warning:
             badge(color: DesignSystem.Color.iconStatusError, glyph: DesignSystem.Icons.Cross.regular20)
         case .attention:
-            // [REDACTED_TODO_COMMENT]
-            badge(color: DesignSystem.Color.iconStatusWarning, glyph: Assets.attention)
+            DesignSystem.Icons.Warning.filled20.image
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(DesignSystem.Color.iconStatusWarning)
         }
     }
 
@@ -105,7 +109,7 @@ struct TransactionDetailsStatusBannerView: View {
     }
 
     private var subtitleColor: Color {
-        titleColor.opacity(0.7)
+        titleColor
     }
 
     private var backgroundColor: Color {
