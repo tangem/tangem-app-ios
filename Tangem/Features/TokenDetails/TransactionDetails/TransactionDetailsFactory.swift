@@ -20,6 +20,12 @@ import TangemUI
 enum TransactionDetailsFactory {
     private static let balanceFormatter = BalanceFormatter()
     private static let balanceConverter = BalanceConverter()
+    private static let headerDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
 
     static func reduce(
         transaction: TransactionViewModel,
@@ -448,9 +454,16 @@ enum TransactionDetailsFactory {
         }
         #endif
 
+        let dateText: String
+        if let date = record?.date {
+            dateText = headerDateFormatter.string(from: date)
+        } else {
+            dateText = transaction.subtitleText
+        }
+
         return TransactionDetailsHeaderViewData(
             title: title,
-            date: transaction.subtitleText,
+            date: dateText,
             operationIcon: TransactionViewIconViewData(type: transaction.transactionType, status: status, isOutgoing: transaction.isOutgoing),
             menuActions: menuActions,
             onClose: context.onClose
