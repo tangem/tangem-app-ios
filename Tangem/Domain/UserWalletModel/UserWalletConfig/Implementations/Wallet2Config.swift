@@ -918,9 +918,3 @@ private extension Card.BackupStatus {
         return nil
     }
 }
-
-private extension CardDTO {
-    var hasImportedWallets: Bool {
-        wallets.contains(where: { $0.isImported == true })
-    }
-}
