@@ -97,14 +97,17 @@ final class WelcomeCoordinator: CoordinatorObject {
     // MARK: - Rendering
 
     private func render(_ state: WelcomeProcessor.State) {
-        // Stories are the base layer, dropped only for the promo/referral flow.
-        setStoriesVisible(state.deepLink != .promo)
-
-        // The welcome onboarding gates the deep link — while it's up, nothing else shows over it.
+        // The welcome onboarding gates the deep link — while it's up, nothing else shows over it. It also
+        // needs the stories as its backdrop (its material background blurs them), so keep the base layer
+        // until it's dismissed, even once a promo deep link has resolved underneath it.
         if let steps = state.welcomeOnboarding {
+            setStoriesVisible(true)
             showWelcomeOnboarding(steps: steps)
             return
         }
+
+        // Stories are the base layer, dropped only for the promo flow.
+        setStoriesVisible(state.deepLink != .promo)
 
         switch state.deepLink {
         case .tangemPay:
