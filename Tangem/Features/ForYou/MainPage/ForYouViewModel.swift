@@ -23,12 +23,21 @@ final class ForYouViewModel: ObservableObject {
 
     init(
         coordinator: ForYouRoutable? = nil,
-        selectedAccountsProvider: ForYouSelectedAccountsProvider
+        selectedAccountsProvider: ForYouSelectedAccountsProvider,
+        analyticsLogger: ForYouAnalyticsLogger = ForYouAnalyticsLoggerStub()
     ) {
         let selectionScopePublisher = Self.makeSelectionScopePublisher(selectedAccountsProvider: selectedAccountsProvider)
 
-        portfolioReviewViewModel = .init(selectionScopePublisher: selectionScopePublisher, router: coordinator)
-        earnOpportunitiesViewModel = .init(selectionScopePublisher: selectionScopePublisher, router: coordinator)
+        portfolioReviewViewModel = .init(
+            selectionScopePublisher: selectionScopePublisher,
+            analyticsLogger: analyticsLogger,
+            router: coordinator
+        )
+        earnOpportunitiesViewModel = .init(
+            selectionScopePublisher: selectionScopePublisher,
+            analyticsLogger: analyticsLogger,
+            router: coordinator
+        )
         accountSelectorChipViewModel = .init(
             selectionScopePublisher: selectionScopePublisher,
             resetSelectionAction: { selectedAccountsProvider.select(.all) },

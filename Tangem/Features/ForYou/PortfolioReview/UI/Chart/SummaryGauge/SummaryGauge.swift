@@ -19,6 +19,7 @@ struct SummaryGaugeView: View {
     var noDataText: String? = nil
     /// Owned by the card so a tap anywhere off the ring can clear the selection.
     @Binding var selectedID: GaugeSegment.ID?
+    var onSegmentTap: (() -> Void)? = nil
 
     @State private var pillSize: CGSize = .zero
 
@@ -49,7 +50,8 @@ struct SummaryGaugeView: View {
             selectedID: selectedSegment?.id,
             onSelect: { id in
                 withAnimation(Constants.tooltipEnterSpring) { selectedID = id }
-            }
+            },
+            onSegmentTap: onSegmentTap
         )
         .overlay { centerContent }
         .position(x: cardSize.width / 2, y: Constants.ringTopPadding + RingGauge.Constants.diameter / 2)

@@ -16,6 +16,8 @@ struct RingGauge: View {
     let total: Double
     let selectedID: GaugeSegment.ID?
     let onSelect: ((GaugeSegment.ID?) -> Void)?
+    /// Reports every tap that lands on a slice, whether or not it changes the selection.
+    var onSegmentTap: (() -> Void)? = nil
 
     @State private var dimProgress: CGFloat = 0
     /// Latches the last selected slice so it stays bright while the dim springs out after deselection.
@@ -136,6 +138,11 @@ struct RingGauge: View {
             .contentShape(Rectangle())
             .onTapGesture { location in
                 let hit = hitTest(location, in: size)
+
+                if hit != nil {
+                    onSegmentTap?()
+                }
+
                 // Re-tapping the already-selected slice is a no-op; deselect happens only on a miss.
                 guard hit != selectedID else { return }
                 onSelect?(hit)
