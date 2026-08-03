@@ -108,6 +108,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.utilPriceChangeDemoViewModel) {
                 UtilPriceChangeDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.utilBalanceDemoViewModel) {
+                UtilBalanceDemoView(viewModel: $0)
+            }
     }
 }
 
@@ -172,6 +175,10 @@ struct DesignSystemDemoView: View {
 
                     MainButton(title: "UtilPriceChange") {
                         viewModel.openUtilPriceChangeDemo()
+                    }
+
+                    MainButton(title: "UtilBalance") {
+                        viewModel.openUtilBalanceDemo()
                     }
 
                     MainButton(title: "Search") {
