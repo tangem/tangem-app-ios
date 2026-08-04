@@ -1209,6 +1209,8 @@
 "prediction_main_empty_events" = "No events yet";
 "prediction_main_subtitle" = "USDC on Polygon network";
 "prediction_main_title" = "Predictions";
+"prediction_region_restrictions_subtitle" = "Predictions – not supported in your region, you still can view events";
+"prediction_region_restrictions_title" = "Region restrictions";
 "promo_campaign_already_activated_subtitle" = "符合条件的返现将发放给：";
 "promo_campaign_already_activated_title" = "您已经注册了 %1$@";
 "promo_campaign_eligible_tokens" = "符合条件的代币";
@@ -1223,7 +1225,7 @@
 "promo_campaign_terms_agreement_android" = "我同意";
 "promo_campaign_terms_agreement" = "我同意 %1$@";
 "promo_campaign_terms_link" = "%1$@ 条款";
-"promo_campaign_whale_swap_summary_description" = "7月底前，每次1万美元及以上的兑换均可获得返现。\n\n返现率随交易金额递增：1万美元起为0.10%% ，2万美元起为0.20%% ，10万美元起为0.50%% 。n\n最高奖励：每笔最少兑换500美元，且在活动期间内，每个钱包单向兑换方向的奖励上限为10,000美元。稳定币与稳定币之间的兑换不计入奖励范围。\n\n奖励每周发放至您指定的USDT或USDC地址。";
+"promo_campaign_whale_swap_summary_description" = "8月底前，每次1万美元及以上的兑换均可获得返现。\n\n返现率随交易金额递增：1万美元起为0.10%% ，2万美元起为0.20%% ，10万美元起为0.50%% 。n\n最高奖励：每笔最少兑换500美元，且在活动期间内，每个钱包单向兑换方向的奖励上限为10,000美元。稳定币与稳定币之间的兑换不计入奖励范围。\n\n奖励每周发放至您指定的USDT或USDC地址。";
 "provider_name_support" = "%@ 支持";
 "push_notification_settings_banner_description" = "推送通知已启用，但需要您在设备设置中允许通知才能正常工作。";
 "push_notification_settings_banner_title" = "允许通知";
@@ -1847,6 +1849,7 @@
 "tangempay_common_card" = "卡片";
 "tangempay_common_error_loading" = "加载出错";
 "tangempay_current_plan_active_till_notification" = "您的 %1$@ 套餐将持续有效至 %2$@，之后我们将为您切换到 %3$@。不会向您收取 %4$@。";
+"tangempay_current_plan_awaiting_deposit_notification" = "We are in process of moving you to %@ plan and awaiting payment for plan fee";
 "tangempay_current_plan_change" = "更改套餐";
 "tangempay_current_plan_fee_charged_notification" = "月费 %1$@ 将于 %2$@ 扣除";
 "tangempay_current_plan_section_card" = "卡片相关";

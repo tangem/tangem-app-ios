@@ -1209,6 +1209,8 @@
 "prediction_main_empty_events" = "No events yet";
 "prediction_main_subtitle" = "USDC on Polygon network";
 "prediction_main_title" = "Predictions";
+"prediction_region_restrictions_subtitle" = "Predictions – not supported in your region, you still can view events";
+"prediction_region_restrictions_title" = "Region restrictions";
 "promo_campaign_already_activated_subtitle" = "対象のキャッシュバックは次のアドレスに配布されます：";
 "promo_campaign_already_activated_title" = "すでに%1$@に参加しています";
 "promo_campaign_eligible_tokens" = "対象トークン";
@@ -1223,7 +1225,7 @@
 "promo_campaign_terms_agreement_android" = "I agree with";
 "promo_campaign_terms_agreement" = "%1$@に同意します";
 "promo_campaign_terms_link" = "%1$@ 利用規約";
-"promo_campaign_whale_swap_summary_description" = "7月末まで、累計1万ドル以上のスワップでキャッシュバックを獲得できます。\n\n累計スワップ額に応じて還元率がアップします。1万ドル以上で0.10%%、2万ドル以上で0.20%%、10万ドル以上で0.50%%。\n\nキャッシュバックは、1回のスワップあたり最大500ドル、ウォレットごと・スワップ方向ごとにキャンペーン期間中、合計最大1万ドルです。ステーブルコイン同士のスワップは対象外です。\n\nキャッシュバックは毎週、ご指定のUSDTまたはUSDCアドレスにお支払いします。";
+"promo_campaign_whale_swap_summary_description" = "8月末まで、累計1万ドル以上のスワップでキャッシュバックを獲得できます。\n\n累計スワップ額に応じて還元率がアップします。1万ドル以上で0.10%%、2万ドル以上で0.20%%、10万ドル以上で0.50%%。\n\nキャッシュバックは、1回のスワップあたり最大500ドル、ウォレットごと・スワップ方向ごとにキャンペーン期間中、合計最大1万ドルです。ステーブルコイン同士のスワップは対象外です。\n\nキャッシュバックは毎週、ご指定のUSDTまたはUSDCアドレスにお支払いします。";
 "provider_name_support" = "%@サポート";
 "push_notification_settings_banner_description" = "プッシュ通知は有効ですが、許可するまで動作しません";
 "push_notification_settings_banner_title" = "通知を許可する";
@@ -1847,6 +1849,7 @@
 "tangempay_common_card" = "カード";
 "tangempay_common_error_loading" = "読み込みエラー";
 "tangempay_current_plan_active_till_notification" = "%1$@ プランは %2$@ まで有効です。その後は %3$@ に移行されます。%4$@ は請求されません。";
+"tangempay_current_plan_awaiting_deposit_notification" = "We are in process of moving you to %@ plan and awaiting payment for plan fee";
 "tangempay_current_plan_change" = "プランを変更";
 "tangempay_current_plan_fee_charged_notification" = "%1$@ の月額料金は %2$@ に請求されます";
 "tangempay_current_plan_section_card" = "カード関連";
