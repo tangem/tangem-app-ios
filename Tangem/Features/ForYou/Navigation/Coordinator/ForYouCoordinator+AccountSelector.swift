@@ -12,10 +12,6 @@ import Foundation
 @MainActor
 extension ForYouCoordinator {
     func openAccountSelector() {
-        guard !isAnySheetPresented else {
-            return
-        }
-
         analyticsLogger.logAccountFilterOpened()
 
         let accountsResolver = ForYouAccountSelectionResolver(
