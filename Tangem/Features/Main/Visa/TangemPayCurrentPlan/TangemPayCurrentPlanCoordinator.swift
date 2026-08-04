@@ -38,8 +38,10 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
     func start(with options: Options) {
         self.options = options
         currentPlanViewModel = TangemPayCurrentPlanViewModel(
+            userWalletId: options.userWalletId,
             customerTariffPlan: options.customerTariffPlan,
             customerTariffPlanPublisher: options.customerTariffPlanPublisher,
+            awaitingDepositCanceller: options.awaitingDepositCanceller,
             coordinator: self
         )
     }
@@ -49,9 +51,11 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
 
 extension TangemPayCurrentPlanCoordinator {
     struct Options {
+        let userWalletId: UserWalletId
         let customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan
         let customerTariffPlanPublisher: AnyPublisher<VisaCustomerInfoResponse.CustomerTariffPlan?, Never>
         let tariffPlanSelector: any TangemPayTariffPlanSelector
+        let awaitingDepositCanceller: any TangemPayAwaitingDepositCanceller
         let closeFlow: () -> Void
     }
 }
