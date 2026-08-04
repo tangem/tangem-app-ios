@@ -656,6 +656,18 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? BitcoinPsbtSwapSender
     }
 
+    var tronTransactionFeeProvider: TronTransactionFeeProvider? {
+        walletManager as? TronTransactionFeeProvider
+    }
+
+    var tronAllowanceProvider: TronAllowanceProvider? {
+        walletManager as? TronAllowanceProvider
+    }
+
+    var tronTransactionDataBuilder: TronTransactionDataBuilder? {
+        walletManager as? TronTransactionDataBuilder
+    }
+
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {
         walletManager as? BitcoinTransactionFeeCalculator
     }

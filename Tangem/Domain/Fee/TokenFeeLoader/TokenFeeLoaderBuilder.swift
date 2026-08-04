@@ -45,6 +45,11 @@ struct TokenFeeLoaderBuilder {
             return CommonBitcoinTokenFeeLoader(tokenItem: tokenItem, tokenFeeLoader: tokenFeeLoader)
         }
 
+        if FeatureProvider.isAvailable(.tronDexSwap),
+           let tronTransactionFeeProvider = dependenciesProvider.tronTransactionFeeProvider {
+            return CommonTronTokenFeeLoader(tokenFeeLoader: tokenFeeLoader, tronTransactionFeeProvider: tronTransactionFeeProvider)
+        }
+
         return tokenFeeLoader
     }
 
