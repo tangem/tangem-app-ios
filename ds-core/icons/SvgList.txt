@@ -29,7 +29,7 @@ Chevron Right / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Up / 12, 16, 20, 24, 28, 32 / Regular
 Clock / 12, 16, 20, 24, 28, 32 / Regular
 Cloud Exclamation / 12, 16, 20, 24, 28, 32 / Regular
-Cloud / 12, 16, 20, 24 / Filled & Regular
+Cloud / 12, 16, 20, 24, 28, 32 / Filled & Regular
 Contact Book / 16, 20, 24, 28, 32 / Filled
 Control Box / 20, 24 / Filled & Regular
 Control Checkmark / 20, 24 / Regular
@@ -46,6 +46,7 @@ Edit / 16, 20, 24 / Regular
 Error / 16, 20, 24, 28 / Filled & Regular
 Eye Cross / 16, 20, 24, 28 / Regular
 Eye / 16, 20, 24, 28 / Regular
+Filter / 12, 16, 20, 24, 28, 32 / Regular
 Gauge / 20, 24 / Regular
 Globe / 16, 20, 24, 28 / Regular
 Grid Plus / 16, 20, 24, 28 / Regular
@@ -70,14 +71,14 @@ Scan / 12, 16, 20, 24, 28 / Regular
 Search / 16, 20, 24 / Regular
 Share Android / 16, 20, 24, 28 / Regular
 Share iOS / 16, 20, 24, 28 / Regular
-Shield Checkmark / 20, 24, 28 / Regular
+Shield Checkmark / 20, 24, 28 / Filled & Regular
 Sign Equal / 12, 16, 20, 24, 28, 32 / Regular
 Sign Minus / 12, 16, 20, 24, 28 / Regular
 Sign Plus / 12, 16, 20, 24, 28 / Regular
 Sign USD / 12, 16, 20, 24, 28, 32 / Regular
 Snowflake / 12, 16, 20, 24, 28 / Regular
 Stack / 16, 20, 24, 28 / Regular
-Success / 16, 20, 24, 28 / Regular
+Success / 16, 20, 24, 28, 32 / Filled & Regular
 Sun / 16, 20, 24, 28 / Regular
 Trash Bin / 12, 16, 20, 24, 28 / Regular
 Triangle Down / 12, 16, 20, 24, 28, 32 / Regular
