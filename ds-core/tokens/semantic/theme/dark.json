@@ -642,6 +642,21 @@
           "$type": "color",
           "$value": "{palette.neutral.50}"
         }
+      },
+      "special": {
+        "control": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.special.control",
+              "iOS": "DesignSystem.Color.bgSpecialControl"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-white.10}"
+        }
       }
     },
     "icon": {
@@ -1190,7 +1205,7 @@
           ]
         },
         "$type": "color",
-        "$value": "{palette.opaque.base-black.80}"
+        "$value": "{palette.opaque.base-black.50}"
       }
     },
     "interaction": {
