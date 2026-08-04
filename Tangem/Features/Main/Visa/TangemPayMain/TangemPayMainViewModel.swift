@@ -54,7 +54,6 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var cardEntries: [TangemPayCardEntry] = []
     @Published private(set) var isAddCardLoading: Bool = false
-    @Published private(set) var isCancellingPaidTariffTransition: Bool = false
 
     @Published private(set) var awaitingDepositInfo: TangemPayAwaitingDepositInfo?
 
@@ -114,20 +113,6 @@ final class TangemPayMainViewModel: ObservableObject {
         MultiWalletNotificationBannerMapper().mapItems(
             inlineNotifications,
             cardDeactivatedNotificationInput.map { [$0] } ?? []
-        )
-    }
-
-    var awaitingDepositCancelButton: MessageBannerButton? {
-        guard let info = awaitingDepositInfo else { return nil }
-
-        return MessageBannerButton(
-            title: Localization.tangempayCardDetailsAwaitingDepositCancelButton(info.planName, info.fallbackPlanName),
-            isLoading: isCancellingPaidTariffTransition,
-            action: { [weak self] in
-                Task {
-                    await self?.cancelPaidTariffTransition()
-                }
-            }
         )
     }
 
@@ -221,27 +206,6 @@ final class TangemPayMainViewModel: ObservableObject {
         // Eligibility only gates issuing a brand-new VA. An already-issued one stays reachable.
         return tangemPayAccount.hasVirtualAccount
             || tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
-    }
-
-    @MainActor
-    func cancelPaidTariffTransition() async {
-        guard !isCancellingPaidTariffTransition, isAwaitingDeposit else { return }
-
-        Analytics.log(.visaTiersCancelPlusMoveToBasicClicked, contextParams: .userWallet(userWalletInfo.id))
-
-        isCancellingPaidTariffTransition = true
-
-        do {
-            try await tangemPayAccount.cancelAwaitingDepositOrder()
-
-            isCancellingPaidTariffTransition = false
-        } catch {
-            isCancellingPaidTariffTransition = false
-
-            showCardIssueFailureAlert()
-
-            await tangemPayAccount.loadCustomerInfo()
-        }
     }
 
     func addFunds() {
@@ -410,10 +374,6 @@ final class TangemPayMainViewModel: ObservableObject {
     func openCurrentPlan() {
         Analytics.log(.visaTiersCurrentPlanClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openCurrentPlan()
-    }
-
-    func onTopupBannerAppear() {
-        Analytics.log(.visaTiersTopupBannerForPlusShowed, contextParams: .userWallet(userWalletInfo.id))
     }
 
     func onSystemDowngradeBannerAppear() {
