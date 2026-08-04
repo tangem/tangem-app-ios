@@ -55,9 +55,6 @@ private extension EarnAccountItemView {
         // Name goes through a slot, not the `title` string, so it keeps its matched-geometry morph.
         .titleAccessory { name(font: DesignSystem.Font.bodyMediumToken) }
         .start { icon(settings: .redesignDefaultSized) }
-        .includeInnerPadding(false)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
     }
 
     // MARK: - Expanded
