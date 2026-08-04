@@ -14,6 +14,10 @@ protocol TangemPayAssembly {
 
     func makeCardDetailsRepository(for card: TangemPayCard) -> TangemPayCardDetailsRepository
 
+    func makePinReader(for card: TangemPayCard) -> TangemPayPinReader
+
+    func makeBiometryAuthorizer() -> TangemPayBiometryAuthorizer
+
     func makeTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         signerFactory: TangemSignerFactory,
