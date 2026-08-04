@@ -43,6 +43,23 @@ protocol BitcoinTokenFeeLoader: TokenFeeLoader {
     func getFee(psbtBase64: String) async throws -> [BSDKFee]
 }
 
+// MARK: - TronTokenFeeLoader
+
+struct TronFeeRequestData: Hashable {
+    let amount: BSDKAmount
+    let destination: String
+    /// Non-nil prices a smart-contract call (`amount` must be coin-typed — its value becomes the
+    /// TRX `call_value`); `nil` prices a plain transfer of `amount`.
+    let callData: Data?
+    /// Affects the fee: flat memo fee + extra bandwidth.
+    let memo: String?
+    let otherNativeFee: Decimal?
+}
+
+protocol TronTokenFeeLoader: TokenFeeLoader {
+    func getFee(request: TronFeeRequestData) async throws -> [BSDKFee]
+}
+
 // MARK: - TokenFeeLoader+
 
 extension TokenFeeLoader {
@@ -68,6 +85,14 @@ extension TokenFeeLoader {
         }
 
         return bitcoinTokenFeeLoader
+    }
+
+    func asTronTokenFeeLoader() throws -> TronTokenFeeLoader {
+        guard let tronTokenFeeLoader = self as? TronTokenFeeLoader else {
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+        }
+
+        return tronTokenFeeLoader
     }
 }
 
