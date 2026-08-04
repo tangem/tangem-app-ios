@@ -236,9 +236,11 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .dex(.bitcoinPsbt(let psbtBase64)):
             return try await updateFees(psbtBase64: psbtBase64)
 
+        case .dex(.tron(let request)):
+            return try await updateFees(request: request)
+
         case .approve(let txData, let toContractAddress, let feeMultiplier):
-            let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
-            let allFees = try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
+            let allFees = try await updateApproveFees(txData: txData, toContractAddress: toContractAddress)
 
             // Approve flow never shows a speed selector — only market fee is needed.
             // [safe: 1] = market for EIP-1559 (3 fees), fallback to [safe: 0] for single-fee (gasless).
@@ -299,16 +301,22 @@ private extension CommonTokenFeeProvider {
         case .dex(.bitcoinPsbt) where tokenFeeLoader is BitcoinTokenFeeLoader:
             // Is available. Do nothing
             break
+        case .dex(.tron) where tokenFeeLoader is TronTokenFeeLoader:
+            // Is available. Do nothing
+            break
         case .dex:
-            // DEX but tokenFeeLoader is not (EthereumTokenFeeLoader or SolanaTokenFeeLoader)
+            // DEX but tokenFeeLoader isn't one of the loaders supported above
             updateState(state: .unavailable(.notSupported))
         case .approve(_, _, let feeMultiplier) where tokenFeeLoader is CommonGaslessTokenFeeLoader && feeMultiplier == .triple && !FeatureProvider.isAvailable(.usdtRevokeGaslessFee):
             updateState(state: .unavailable(.notSupported))
         case .approve where tokenFeeLoader is EthereumTokenFeeLoader:
             // ERC-20 approve — available for Ethereum loaders (includes gasless)
             break
+        case .approve where tokenFeeLoader is TronTokenFeeLoader:
+            // Is available. Do nothing
+            break
         case .approve:
-            // Approve but tokenFeeLoader is not EthereumTokenFeeLoader
+            // Approve but tokenFeeLoader isn't one of the loaders supported above
             updateState(state: .unavailable(.notSupported))
         case .approveWithSwap where tokenFeeLoader is EthereumTokenFeeLoader:
             // One-tap approve+swap is EVM-only (allowance + state override)
@@ -352,6 +360,8 @@ private extension CommonTokenFeeProvider {
              .dex(.ethereumEstimate(_, let otherNativeFee)),
              .approveWithSwap(_, _, _, let otherNativeFee, _):
             otherNativeFee ?? 0
+        case .dex(.tron(let request)):
+            request.otherNativeFee ?? 0
         default:
             0
         }
@@ -488,6 +498,38 @@ private extension CommonTokenFeeProvider {
         let fees = try await tokenFeeLoader.asBitcoinTokenFeeLoader().getFee(psbtBase64: psbtBase64)
         try Task.checkCancellation()
         return fees
+    }
+
+    // MARK: - Tron
+
+    func updateFees(request: TronFeeRequestData) async throws -> [BSDKFee] {
+        let fees = try await tokenFeeLoader.asTronTokenFeeLoader().getFee(request: request)
+        try Task.checkCancellation()
+        return fees
+    }
+
+    // MARK: - Approve
+
+    /// Pricing an approve is chain-specific: `eth_estimateGas` on EVM, a `triggerconstantcontract` simulation on Tron.
+    func updateApproveFees(txData: Data, toContractAddress: String) async throws -> [BSDKFee] {
+        let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
+
+        switch tokenFeeLoader {
+        case is EthereumTokenFeeLoader:
+            return try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
+
+        case is TronTokenFeeLoader:
+            return try await updateFees(request: TronFeeRequestData(
+                amount: zeroAmount,
+                destination: toContractAddress,
+                callData: txData,
+                memo: nil,
+                otherNativeFee: nil
+            ))
+
+        default:
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+        }
     }
 }
 
