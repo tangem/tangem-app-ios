@@ -32,7 +32,11 @@ extension CommonTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvid
         }
 
         let initialSelectedProvider = prepareInitialTokenFeeProvider(main: coinTokenFeeProvider, all: feeProviders)
-        return CommonTokenFeeProvidersManager(feeProviders: feeProviders, initialSelectedProvider: initialSelectedProvider)
+        return CommonTokenFeeProvidersManager(
+            feeProviders: feeProviders,
+            initialSelectedProvider: initialSelectedProvider,
+            ownerAddress: walletModel.defaultAddressString
+        )
     }
 }
 
