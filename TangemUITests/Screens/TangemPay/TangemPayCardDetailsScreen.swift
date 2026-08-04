@@ -67,6 +67,15 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
         }
     }
 
+    /// The same row leads to the current PIN sheet instead of PIN entry once a PIN is set on the card.
+    @discardableResult
+    func tapPinCode() -> TangemPayPinCheckSheet {
+        XCTContext.runActivity(named: "Tap PIN code row") { _ in
+            changePinRow.waitAndTap()
+            return TangemPayPinCheckSheet(app)
+        }
+    }
+
     @discardableResult
     func tapFreezeCard() -> TangemPayFreezeConfirmationSheet {
         XCTContext.runActivity(named: "Tap Freeze card row") { _ in
