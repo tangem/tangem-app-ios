@@ -19,8 +19,7 @@ final class ForYouCoordinator: CoordinatorObject {
     @Injected(\.expressAvailabilityProvider) var expressAvailabilityProvider: ExpressAvailabilityProvider
 
     let floatingSheetPresenter: FloatingSheetPresenter
-    let floatingSheetPresentingStateProvider: FloatingSheetPresentingStateProvider
-    let selectedAccountsProvider = ForYouSelectedAccountsProvider()
+    let selectedAccountsProvider: ForYouSelectedAccountsProvider
     let analyticsLogger: ForYouAnalyticsLogger
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -55,29 +54,22 @@ final class ForYouCoordinator: CoordinatorObject {
     /// Held during yield handling.
     var yieldDeeplinkRouter: YieldDeeplinkRouter?
 
-    /// Read in `openAccountSelector` to avoid presenting the account selector over an already-shown sheet.
-    private(set) var isAnySheetPresented = false
-
-    private var sheetStateSubscription: AnyCancellable?
-
     // MARK: - Init
 
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>,
         routeOnTokenResolvedAction: @MainActor @escaping (EarnTokenResolution, EarnOpportunitySource) -> Void,
+        selectedAccountsProvider: ForYouSelectedAccountsProvider = .init(),
         floatingSheetPresenter: FloatingSheetPresenter = InjectedValues[\.floatingSheetPresenter],
-        floatingSheetPresentingStateProvider: FloatingSheetPresentingStateProvider = InjectedValues[\.floatingSheetPresentingStateProvider],
         analyticsLogger: ForYouAnalyticsLogger = CommonForYouAnalyticsLogger()
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
         self.routeOnTokenResolvedAction = routeOnTokenResolvedAction
         self.floatingSheetPresenter = floatingSheetPresenter
-        self.floatingSheetPresentingStateProvider = floatingSheetPresentingStateProvider
+        self.selectedAccountsProvider = selectedAccountsProvider
         self.analyticsLogger = analyticsLogger
-
-        bind()
     }
 
     // MARK: - Implementation
@@ -94,16 +86,6 @@ final class ForYouCoordinator: CoordinatorObject {
 
 extension ForYouCoordinator {
     struct Options {}
-}
-
-// MARK: - Private
-
-private extension ForYouCoordinator {
-    func bind() {
-        sheetStateSubscription = floatingSheetPresentingStateProvider
-            .hasPresentedSheetPublisher
-            .sink { [weak self] in self?.isAnySheetPresented = $0 }
-    }
 }
 
 // MARK: - ForYouRoutable
