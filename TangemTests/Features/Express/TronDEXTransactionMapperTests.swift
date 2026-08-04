@@ -91,7 +91,7 @@ struct TronDEXTransactionMapperTests {
     func map_transferDestinationMismatch_throws() {
         let data = makeTransferExpressTransactionData(destinationAddress: routerAddress)
 
-        #expect(throws: TronDEXTransactionMapperError.destinationAddressMismatch) {
+        #expect(throws: TronDEXTransactionValidationError.destinationAddressMismatch) {
             _ = try mapper.map(data: data, expectedOwner: nil)
         }
     }
@@ -100,14 +100,14 @@ struct TronDEXTransactionMapperTests {
     func map_transferAmountMismatch_throws() {
         let data = makeTransferExpressTransactionData(txValue: 49)
 
-        #expect(throws: TronDEXTransactionMapperError.valueMismatch) {
+        #expect(throws: TronDEXTransactionValidationError.valueMismatch) {
             _ = try mapper.map(data: data, expectedOwner: nil)
         }
     }
 
     @Test("a transfer built for a different owner is rejected")
     func map_transferOwnerMismatch_throws() {
-        #expect(throws: TronDEXTransactionMapperError.ownerAddressMismatch) {
+        #expect(throws: TronDEXTransactionValidationError.ownerAddressMismatch) {
             _ = try mapper.map(
                 data: makeTransferExpressTransactionData(),
                 expectedOwner: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF"
@@ -119,7 +119,7 @@ struct TronDEXTransactionMapperTests {
     func map_callDestinationMismatch_throws() {
         let data = makeExpressTransactionData(destinationAddress: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn")
 
-        #expect(throws: TronDEXTransactionMapperError.destinationAddressMismatch) {
+        #expect(throws: TronDEXTransactionValidationError.destinationAddressMismatch) {
             _ = try mapper.map(data: data, expectedOwner: nil)
         }
     }
@@ -128,14 +128,14 @@ struct TronDEXTransactionMapperTests {
     func map_callValueMismatch_throws() {
         let data = makeExpressTransactionData(txValue: 1)
 
-        #expect(throws: TronDEXTransactionMapperError.valueMismatch) {
+        #expect(throws: TronDEXTransactionValidationError.valueMismatch) {
             _ = try mapper.map(data: data, expectedOwner: nil)
         }
     }
 
     @Test("a call built for a different owner is rejected")
     func map_ownerMismatch_throws() {
-        #expect(throws: TronDEXTransactionMapperError.ownerAddressMismatch) {
+        #expect(throws: TronDEXTransactionValidationError.ownerAddressMismatch) {
             _ = try mapper.map(
                 data: makeExpressTransactionData(),
                 expectedOwner: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF"
@@ -195,6 +195,20 @@ struct TronDEXTransactionMapperTests {
     )
     func adjustedFeeLimit_absentProviderLimit_floorsAtDefault(feeTRX: Decimal, expectedLimit: Int64) {
         let call = TronDEXContractCall(contractAddress: routerAddress, callData: Data([0xAB]), callValue: 0, feeLimit: nil, memo: nil)
+        let fee = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: feeTRX))
+
+        #expect(call.adjustedFeeLimit(covering: fee, blockchain: .tron(testnet: false)) == expectedLimit)
+    }
+
+    @Test(
+        "an excessive provider fee limit is capped by a multiple of the estimate",
+        arguments: [
+            (feeTRX: Decimal(30), expectedLimit: Int64(100_000_000)),
+            (feeTRX: Decimal(50), expectedLimit: Int64(150_000_000)),
+        ]
+    )
+    func adjustedFeeLimit_excessiveProviderLimit_capped(feeTRX: Decimal, expectedLimit: Int64) {
+        let call = TronDEXContractCall(contractAddress: routerAddress, callData: Data([0xAB]), callValue: 0, feeLimit: 5_000_000_000, memo: nil)
         let fee = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: feeTRX))
 
         #expect(call.adjustedFeeLimit(covering: fee, blockchain: .tron(testnet: false)) == expectedLimit)

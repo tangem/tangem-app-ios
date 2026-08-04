@@ -1,5 +1,5 @@
 //
-//  AllowanceChecker.swift
+//  EVMAllowanceChecker.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemFoundation
 
-public struct AllowanceChecker: AllowanceChecking {
+public struct EVMAllowanceChecker: AllowanceChecking {
     public var supportsOneTapApprove: Bool { true }
 
     private let blockchain: Blockchain
@@ -113,7 +113,7 @@ public struct AllowanceChecker: AllowanceChecking {
     }
 }
 
-private extension AllowanceChecker {
+private extension EVMAllowanceChecker {
     enum Constants {
         static let ethereumUSDTContractAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
     }
