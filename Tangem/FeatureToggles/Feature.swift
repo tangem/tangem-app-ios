@@ -51,6 +51,7 @@ enum Feature: String, Hashable, CaseIterable {
     case chooseTokenPulseAnimation
     case hotWalletDexRatesUntilDeposit
     case gaslessBridgeFeeRestriction
+    case tronDexSwap
     case polymarket
     case walletCardsBackupReport
 
@@ -100,6 +101,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .chooseTokenPulseAnimation: return "[REDACTED_INFO]_choose_token_pulse_animation"
         case .hotWalletDexRatesUntilDeposit: return "[REDACTED_INFO]_hot_wallet_dex_rates_until_deposit"
         case .gaslessBridgeFeeRestriction: return "[REDACTED_INFO]_gasless_bridge_fee_restriction"
+        case .tronDexSwap: return "[REDACTED_INFO]_tron_dex_swap"
         case .polymarket: return "TWI-1576_polymarket"
         case .walletCardsBackupReport: return "[REDACTED_INFO]_cardlinked_status_update_stage2"
         }
@@ -149,6 +151,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .chooseTokenPulseAnimation: return .unspecified
         case .hotWalletDexRatesUntilDeposit: return .unspecified
         case .gaslessBridgeFeeRestriction: return .unspecified
+        case .tronDexSwap: return .unspecified
         case .polymarket: return .unspecified
         case .walletCardsBackupReport: return .unspecified
         }
