@@ -27,18 +27,12 @@ struct TronDEXTransactionMapper {
         }
 
         let parsed = try TronRawTransactionParser().parse(rawTransaction: rawTransaction)
+        try TronDEXTransactionValidator.validate(parsed, against: data, expectedOwner: expectedOwner, blockchain: blockchain)
+
         let fallbackMemo = data.extraDestinationId?.nilIfEmpty
 
         switch parsed {
         case .contractCall(let call):
-            try validate(
-                destination: call.contractAddress,
-                valueSun: call.callValue,
-                owner: call.ownerAddress,
-                against: data,
-                expectedOwner: expectedOwner
-            )
-
             return .contractCall(TronDEXContractCall(
                 contractAddress: call.contractAddress,
                 callData: call.callData,
@@ -48,39 +42,11 @@ struct TronDEXTransactionMapper {
             ))
 
         case .transfer(let transfer):
-            try validate(
-                destination: transfer.destinationAddress,
-                valueSun: transfer.amount,
-                owner: transfer.ownerAddress,
-                against: data,
-                expectedOwner: expectedOwner
-            )
-
             return .transfer(TronDEXTransfer(
                 destinationAddress: transfer.destinationAddress,
                 amount: Decimal(transfer.amount) / blockchain.decimalValue,
                 memo: transfer.memo ?? fallbackMemo
             ))
-        }
-    }
-
-    private func validate(
-        destination: String,
-        valueSun: Int64,
-        owner: String,
-        against data: ExpressTransactionData,
-        expectedOwner: String?
-    ) throws {
-        guard destination == data.destinationAddress else {
-            throw TronDEXTransactionMapperError.destinationAddressMismatch
-        }
-
-        guard Decimal(valueSun) / blockchain.decimalValue == data.txValue else {
-            throw TronDEXTransactionMapperError.valueMismatch
-        }
-
-        if let expectedOwner, owner != expectedOwner {
-            throw TronDEXTransactionMapperError.ownerAddressMismatch
         }
     }
 }
@@ -101,16 +67,20 @@ struct TronDEXContractCall {
 }
 
 extension TronDEXContractCall {
-    /// A cap below the quoted fee reverts with `OUT_OF_ENERGY` and the energy already burnt,
-    /// while raising the cap costs nothing — it isn't itself charged.
+    /// A cap below the quoted fee reverts with `OUT_OF_ENERGY` and the energy already burnt, while
+    /// raising the cap costs nothing — it isn't itself charged. The provider's limit is in turn bounded
+    /// by a multiple of our own estimate, so it can't set an arbitrarily high burn ceiling.
     func adjustedFeeLimit(covering fee: BSDKFee, blockchain: Blockchain) -> Int64 {
-        let estimatedSun = (fee.amount.value * blockchain.decimalValue).rounded(roundingMode: .up)
+        let estimatedSun = ((fee.amount.value * blockchain.decimalValue).rounded(roundingMode: .up) as NSDecimalNumber).int64Value
+        let ceiling = max(estimatedSun * Self.feeLimitCeilingMultiplier, TronTransactionParams.defaultSmartContractFeeLimit)
 
-        return max(
-            feeLimit ?? TronTransactionParams.defaultSmartContractFeeLimit,
-            (estimatedSun as NSDecimalNumber).int64Value
+        return min(
+            max(feeLimit ?? TronTransactionParams.defaultSmartContractFeeLimit, estimatedSun),
+            ceiling
         )
     }
+
+    private static let feeLimitCeilingMultiplier: Int64 = 3
 }
 
 struct TronDEXTransfer {
@@ -118,18 +88,4 @@ struct TronDEXTransfer {
     /// In coin units.
     let amount: Decimal
     let memo: String?
-}
-
-enum TronDEXTransactionMapperError: String, Hashable, LocalizedError {
-    case destinationAddressMismatch
-    case valueMismatch
-    case ownerAddressMismatch
-
-    var errorDescription: String? {
-        switch self {
-        case .destinationAddressMismatch: "The provider transaction targets a different destination than the swap declares."
-        case .valueMismatch: "The provider transaction moves a different value than the swap declares."
-        case .ownerAddressMismatch: "The provider transaction was built for a different owner address."
-        }
-    }
 }

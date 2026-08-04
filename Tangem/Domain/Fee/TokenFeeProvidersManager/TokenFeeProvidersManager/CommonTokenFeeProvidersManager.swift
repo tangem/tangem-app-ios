@@ -116,6 +116,10 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
 // MARK: - ExpressFeeProvider
 
 extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
+    var supportsGasBasedFeeEstimate: Bool {
+        selectedFeeProvider.feeTokenItem.blockchain.isEvm
+    }
+
     func feeCurrency() -> ExpressWalletCurrency {
         selectedFeeProvider.feeTokenItem.expressCurrency
     }
