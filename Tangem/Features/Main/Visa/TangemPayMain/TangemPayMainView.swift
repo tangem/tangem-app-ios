@@ -96,11 +96,6 @@ struct TangemPayMainView: View {
                 TangemPayIssuingCardBannerRedesigned()
             }
 
-            if let awaitingDepositInfo = viewModel.awaitingDepositInfo {
-                awaitingDepositCancelBanner(info: awaitingDepositInfo)
-                    .onAppear(perform: viewModel.onTopupBannerAppear)
-            }
-
             if let bannerType = viewModel.systemDowngradeBanner {
                 NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
                     .onAppear(perform: viewModel.onSystemDowngradeBannerAppear)
@@ -152,23 +147,6 @@ struct TangemPayMainView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 32)
-    }
-
-    private func awaitingDepositCancelBanner(info: TangemPayAwaitingDepositInfo) -> some View {
-        MessageBanner(
-            title: Localization.tangempayCardDetailsAwaitingDepositTitle(info.fee),
-            description: Localization.tangempayCardDetailsAwaitingDepositSubtitle
-        )
-        .variant(.error)
-        .slotEnd {
-            Assets.DesignSystem.warning.image
-                .renderingMode(.template)
-                .resizable()
-                .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
-                .frame(width: 24, height: 24)
-        }
-        .primaryButton(viewModel.awaitingDepositCancelButton)
-        .showGlowRing(false)
     }
 
     private var inactiveBadge: some View {
@@ -267,7 +245,6 @@ struct TangemPayMainView: View {
                                 .renderingMode(.template)
                         }
                     }
-                    .disabled(viewModel.currentPlanState == .changing)
 
                     Divider()
                 }
