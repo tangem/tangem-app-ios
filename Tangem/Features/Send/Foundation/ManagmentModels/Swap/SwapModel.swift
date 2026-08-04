@@ -142,8 +142,8 @@ private extension SwapModel {
                 guard let publisher = self?._providersState else { return .float }
                 let states = await publisher.dropFirst().values
                 for await state in states {
-                    if case .loaded(.swap(_, let providers), _) = state, providers.supportedRateTypes.isNotEmpty {
-                        return providers.supportedRateTypes.contains(.fixed) ? .fixed : .float
+                    if case .loaded(.swap(let selected, let providers), _) = state, providers.supportedRateTypes.isNotEmpty {
+                        return selected?.rateType ?? .float
                     }
                 }
                 return .float
