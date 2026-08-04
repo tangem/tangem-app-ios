@@ -141,7 +141,7 @@ struct CommonTokenFeeProvidersManagerTronDEXTests {
                 data: .dex(data: makeExpressTransactionData(txData: "0x" + TronDEXFixtures.liFiRawTransactionHex))
             )
             Issue.record("Expected transactionFee to throw ownerAddressMismatch")
-        } catch TronDEXTransactionMapperError.ownerAddressMismatch {
+        } catch TronDEXTransactionValidationError.ownerAddressMismatch {
         } catch {
             Issue.record("Unexpected error: \(error)")
         }

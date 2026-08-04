@@ -446,6 +446,8 @@ private struct ExpressWalletDummy: ExpressSourceWallet {
 }
 
 private struct ExpressFeeProviderDummy: ExpressFeeProvider {
+    var supportsGasBasedFeeEstimate: Bool { fatalError("Not used in tests") }
+
     func feeCurrency() -> ExpressWalletCurrency { fatalError("Not used in tests") }
     func feeCurrencyBalance() throws -> Decimal { fatalError("Not used in tests") }
     func estimatedFee(amount: Decimal) async throws -> BSDKFee { fatalError("Not used in tests") }

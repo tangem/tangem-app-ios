@@ -12,6 +12,8 @@ import TangemFoundation
 @testable import Tangem
 
 final class AllowanceServiceMock: AllowanceService {
+    var supportsOneTapApprove: Bool = true
+
     private struct State {
         var allowanceStateResult: Result<AllowanceState, Error> = .success(.enoughAllowance)
         var allowanceStateResultsByPolicy: [ApprovePolicy: Result<AllowanceState, Error>] = [:]
