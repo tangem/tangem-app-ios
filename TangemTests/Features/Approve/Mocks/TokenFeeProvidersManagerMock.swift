@@ -18,6 +18,7 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
 
     // MARK: - Call tracking
 
+    var supportsGasBasedFeeEstimate: Bool = true
     var estimatedFeeResult: Result<Fee, Error>?
 
     private(set) var updateInputCalls: [TokenFeeProviderInputData] = []
