@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemUI
 import TangemUIUtils
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct TangemPayPinCheckView: View {
     @ObservedObject var viewModel: TangemPayPinCheckViewModel
@@ -43,6 +44,7 @@ private extension TangemPayPinCheckView {
                 VStack(spacing: 8) {
                     Text(Localization.tangempayYourPinCode)
                         .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinCheckTitle)
 
                     Text(Localization.tangempayComeBackIfForgetPin)
                         .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
@@ -72,6 +74,7 @@ private extension TangemPayPinCheckView {
                 case .loading:
                     Loader()
                         .loaderSize(.size24)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinCheckLoader)
 
                 case .loaded(let pin):
                     TangemPayPinStackView(
@@ -79,6 +82,7 @@ private extension TangemPayPinCheckView {
                         length: viewModel.pinCodeLength,
                         isDisabled: true
                     )
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinCheckValue)
                 }
             }
     }
@@ -93,6 +97,7 @@ private extension TangemPayPinCheckView {
         .styleType(.default)
         .horizontalLayout(.infinity)
         .disabled(!viewModel.isPinLoaded)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinCheckChangeButton)
         .padding(.top, 32)
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
