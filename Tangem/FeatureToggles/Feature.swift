@@ -54,6 +54,7 @@ enum Feature: String, Hashable, CaseIterable {
     case tronDexSwap
     case polymarket
     case walletCardsBackupReport
+    case jointAccounts
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -104,6 +105,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tronDexSwap: return "[REDACTED_INFO]_tron_dex_swap"
         case .polymarket: return "TWI-1576_polymarket"
         case .walletCardsBackupReport: return "[REDACTED_INFO]_cardlinked_status_update_stage2"
+        case .jointAccounts: return "TWI-1611_joint_accounts"
         }
     }
 
@@ -154,6 +156,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tronDexSwap: return .unspecified
         case .polymarket: return .unspecified
         case .walletCardsBackupReport: return .unspecified
+        case .jointAccounts: return .unspecified
         }
     }
 }
