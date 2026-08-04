@@ -31,7 +31,6 @@ struct MaterialSurface<S: InsettableShape>: ViewModifier {
             content
                 .glassEffect(
                     .regular
-                        .tint(DesignSystem.Color.materialTintGlass)
                         .interactive(interactive),
                     in: shape
                 )
