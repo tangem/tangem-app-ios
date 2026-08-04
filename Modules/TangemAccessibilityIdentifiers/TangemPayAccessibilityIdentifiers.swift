@@ -129,6 +129,13 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let pinSubmitButton = "\(prefix)PinSubmitButton"
     public static let pinErrorMessage = "\(prefix)PinErrorMessage"
 
+    // MARK: - PIN check sheet
+
+    public static let pinCheckTitle = "\(prefix)PinCheckTitle"
+    public static let pinCheckLoader = "\(prefix)PinCheckLoader"
+    public static let pinCheckValue = "\(prefix)PinCheckValue"
+    public static let pinCheckChangeButton = "\(prefix)PinCheckChangeButton"
+
     // MARK: - PIN success screen
 
     public static let pinSuccessTitle = "\(prefix)PinSuccessTitle"
