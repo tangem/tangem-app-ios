@@ -1,5 +1,5 @@
 //
-//  AllowanceCheckerTests.swift
+//  EVMAllowanceCheckerTests.swift
 //  BlockchainSdkTests
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -12,7 +12,7 @@ import BigInt
 import TangemFoundation
 @testable import BlockchainSdk
 
-struct AllowanceCheckerTests {
+struct EVMAllowanceCheckerTests {
     private let token = Token(name: "USDC", symbol: "USDC", contractAddress: "0xUSDCContract", decimalCount: 6)
     private let approveCalldata = Data([0x09, 0x5e, 0xa7, 0xb3])
 
@@ -55,10 +55,10 @@ struct AllowanceCheckerTests {
 
 // MARK: - Helpers
 
-private extension AllowanceCheckerTests {
-    func makeSUT() -> (sut: AllowanceChecker, builder: EthereumTransactionDataBuilderSpy) {
+private extension EVMAllowanceCheckerTests {
+    func makeSUT() -> (sut: EVMAllowanceChecker, builder: EthereumTransactionDataBuilderSpy) {
         let builder = EthereumTransactionDataBuilderSpy(approveData: approveCalldata)
-        let sut = AllowanceChecker(
+        let sut = EVMAllowanceChecker(
             blockchain: .ethereum(testnet: false),
             amountType: .token(value: token),
             walletAddress: anyOwner,
