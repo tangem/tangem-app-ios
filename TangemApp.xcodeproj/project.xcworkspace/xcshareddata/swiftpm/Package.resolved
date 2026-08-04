@@ -436,9 +436,10 @@
     {
       "identity" : "reown-swift",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:tangem-developments/reown-swift.git",
+      "location" : "https://github.com/reown-com/reown-swift.git",
       "state" : {
-        "revision" : "62114d209ec942ea7ce6eb7c154980212f980bb0"
+        "revision" : "968a82d440e51c4de18857928b60a03d36af7a2a",
+        "version" : "2.3.1"
       }
     },
     {
@@ -824,8 +825,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/yttrium",
       "state" : {
-        "revision" : "c670309e6593875ba8211b9722d465b92d7ea2cf",
-        "version" : "0.10.50"
+        "revision" : "e2175fd8456599f18acc7e9a7bf29d5d534f7232",
+        "version" : "0.10.57"
       }
     },
     {

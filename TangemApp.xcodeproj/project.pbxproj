@@ -4509,10 +4509,10 @@
 		};
 		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/reown-swift.git";
+			repositoryURL = "https://github.com/reown-com/reown-swift.git";
 			requirement = {
-				kind = revision;
-				revision = 62114d209ec942ea7ce6eb7c154980212f980bb0;
+				kind = exactVersion;
+				version = 2.3.1;
 			};
 		};
 		DCED46512EF04FBC0021AC0D /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
