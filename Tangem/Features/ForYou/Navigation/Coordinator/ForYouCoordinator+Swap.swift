@@ -38,6 +38,18 @@ extension ForYouCoordinator {
         pendingSwapAction = nil
         Task { @MainActor in action() }
     }
+
+    func openSwap(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) {
+        guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+            walletModel: walletModel,
+            userWalletInfo: userWalletInfo,
+            position: .automatic
+        ) else {
+            return
+        }
+
+        presentSwap(parameters: parameters)
+    }
 }
 
 private extension ForYouCoordinator {
@@ -108,19 +120,6 @@ private extension ForYouCoordinator {
             .prepend(isAnySwapAvailable())
             .removeDuplicates()
             .eraseToAnyPublisher()
-    }
-
-    @MainActor
-    func openSwap(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) {
-        guard let parameters = SwapPredefinedParametersHelper().makeParameters(
-            walletModel: walletModel,
-            userWalletInfo: userWalletInfo,
-            position: .automatic
-        ) else {
-            return
-        }
-
-        presentSwap(parameters: parameters)
     }
 
     @MainActor

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import BlockchainSdk
 import TangemFoundation
 import TangemUI
 
@@ -111,8 +112,43 @@ final class EarnOpportunitiesViewModel: ObservableObject {
         )
 
         let models = userWalletRepository.models.filter { !$0.isUserWalletLocked }
+
+        // A suggested token already held on the same network tops up those holdings (Add funds); otherwise
+        // fall back to add-token resolution. The same coin can live on several networks, but the earn
+        // opportunity is network-specific, so match the network too — not just the coin.
+        if let tokenItem = Self.suggestedTokenItem(for: token, in: models), let currencyId = tokenItem.currencyId {
+            let holdings = EarnAddFundsHoldingsAggregator.aggregate(
+                currencyId: currencyId,
+                networkId: tokenItem.networkId,
+                in: models
+            )
+            if !holdings.isEmpty {
+                router?.openEarnAddFunds(holdings: holdings)
+                return
+            }
+        }
+
         let resolution = EarnTokenInWalletResolver().resolve(earnToken: token, userWalletModels: models)
         router?.routeEarnSuggestion(resolution)
+    }
+}
+
+// MARK: - Suggested token portfolio membership
+
+private extension EarnOpportunitiesViewModel {
+    static func suggestedTokenItem(for token: EarnTokenModel, in models: [any UserWalletModel]) -> TokenItem? {
+        let supportedBlockchains = models.reduce(into: Set<Blockchain>()) {
+            $0.formUnion($1.config.supportedBlockchains)
+        }
+
+        let networkModel = NetworkModel(
+            networkId: token.networkId,
+            contractAddress: token.contractAddress,
+            decimalCount: token.decimalCount
+        )
+
+        return TokenItemMapper(supportedBlockchains: supportedBlockchains)
+            .mapToTokenItem(id: token.id, name: token.name, symbol: token.symbol, network: networkModel)
     }
 }
 
