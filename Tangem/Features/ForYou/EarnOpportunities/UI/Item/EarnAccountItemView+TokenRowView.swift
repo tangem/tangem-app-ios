@@ -27,10 +27,9 @@ extension EarnAccountItemView {
             )
             .overrideTextColors(.init(subvalue: DesignSystem.Color.textAccentGreen))
             .start { icon }
-            .includeInnerPadding(false)
-            .onTap(onTap)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onTap)
+            .accessibilityAddTraits(.isButton)
         }
     }
 }
