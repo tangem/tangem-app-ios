@@ -294,6 +294,18 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.bitcoinPsbtSwapSender
     }
 
+    var tronTransactionFeeProvider: TronTransactionFeeProvider? {
+        mainTokenWalletModel.tronTransactionFeeProvider
+    }
+
+    var tronAllowanceProvider: TronAllowanceProvider? {
+        mainTokenWalletModel.tronAllowanceProvider
+    }
+
+    var tronTransactionDataBuilder: TronTransactionDataBuilder? {
+        mainTokenWalletModel.tronTransactionDataBuilder
+    }
+
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {
         mainTokenWalletModel.ethereumTransactionDataBuilder
     }
