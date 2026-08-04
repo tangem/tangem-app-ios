@@ -50,6 +50,8 @@ public struct EIP7702AuthorizationData {
     public let address: String
     public let nonce: Int
     public let data: Data
+    /// Generation of the executor at `address`, so callers sign the payload that executor expects.
+    public let executorVersion: GaslessExecutorVersion
 }
 
 public struct EthereumTransaction: Decodable {
