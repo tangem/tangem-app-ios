@@ -76,7 +76,7 @@ private extension CommonTokenFeeProvidersManagerApproveWithSwapTests {
             selectedTokenFee: TokenFee(option: .market, tokenItem: ethTokenItem, value: .success(loadedFee))
         )
 
-        return CommonTokenFeeProvidersManager(feeProviders: [provider], initialSelectedProvider: provider)
+        return CommonTokenFeeProvidersManager(feeProviders: [provider], initialSelectedProvider: provider, ownerAddress: nil)
     }
 
     func makeAllowanceOverride() -> AllowanceOverride {
