@@ -637,6 +637,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
         guard let options else { return }
         let viewModel = TangemPayPinCheckViewModel(
             card: card,
+            pinReader: tangemPayAssembly.makePinReader(for: card),
             userWalletId: options.userWalletInfo.id,
             coordinator: self
         )

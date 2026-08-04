@@ -17,6 +17,14 @@ final class CommonTangemPayAssembly: TangemPayAssembly {
         CommonTangemPayCardDetailsRepository(card: card)
     }
 
+    func makePinReader(for card: TangemPayCard) -> TangemPayPinReader {
+        CommonTangemPayPinReader(card: card)
+    }
+
+    func makeBiometryAuthorizer() -> TangemPayBiometryAuthorizer {
+        CommonTangemPayBiometryAuthorizer()
+    }
+
     func makeTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         signerFactory: TangemSignerFactory,
