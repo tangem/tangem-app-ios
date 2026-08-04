@@ -9,7 +9,9 @@
 import Foundation
 import TangemFoundation
 
-public struct AllowanceChecker {
+public struct AllowanceChecker: AllowanceChecking {
+    public var supportsOneTapApprove: Bool { true }
+
     private let blockchain: Blockchain
     private let amountType: Amount.AmountType
     private let walletAddress: String
@@ -107,24 +109,6 @@ public struct AllowanceChecker {
         case .coin: blockchain.decimalValue
         case .token(let token): token.decimalValue
         case .feeResource, .reserve: throw AllowanceCheckerError.wrongAmountType
-        }
-    }
-}
-
-public enum AllowanceCheckerResult {
-    case enoughAllowance
-    case approveRequired(ApproveTransactionData)
-    case revokeAndApproveRequired(revoke: ApproveTransactionData, approve: ApproveTransactionData)
-}
-
-public enum AllowanceCheckerError: String, Hashable, LocalizedError {
-    case contractAddressNotFound
-    case wrongAmountType
-
-    public var errorDescription: String? {
-        switch self {
-        case .contractAddressNotFound: "Contract address not found."
-        case .wrongAmountType: "Wrong amount type."
         }
     }
 }
