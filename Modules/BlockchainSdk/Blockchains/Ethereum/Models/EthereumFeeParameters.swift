@@ -169,24 +169,26 @@ extension EthereumEIP1559FeeParameters: EthereumFeeParameters {
 public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
     public struct YieldWithdraw: Hashable {
         public let yieldContractAddress: String
-        public let originalGasLimit: BigUInt
         public let withdrawGasLimit: BigUInt
         public let upgrade: GaslessYieldUpgrade
 
         public init(
             yieldContractAddress: String,
-            originalGasLimit: BigUInt,
             withdrawGasLimit: BigUInt,
             upgrade: GaslessYieldUpgrade
         ) {
             self.yieldContractAddress = yieldContractAddress
-            self.originalGasLimit = originalGasLimit
             self.withdrawGasLimit = withdrawGasLimit
             self.upgrade = upgrade
         }
     }
 
+    /// The whole sponsored gas budget: the user's call, the fee token transfer and the executor's own overhead.
+    /// Used to price the fee in the fee token.
     public let gasLimit: BigUInt
+    /// Gas the executor forwards to the user's own call. Part of the EIP-712 payload the user signs,
+    /// so it has to match the gas the executor will actually forward on-chain.
+    public let callGasLimit: BigUInt
     /// Maximum fee which will be spend. Should include `priorityFee` in itself
     public let maxFeePerGas: BigUInt
     /// The part of `maxFeePerGas` which will be sent a mainer like a tips
@@ -207,6 +209,7 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
 
     public init(
         gasLimit: BigUInt,
+        callGasLimit: BigUInt,
         baseFee: BigUInt,
         priorityFee: BigUInt,
         nonce: Int? = nil,
@@ -215,6 +218,7 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
         yieldWithdraw: YieldWithdraw?
     ) {
         self.gasLimit = gasLimit
+        self.callGasLimit = callGasLimit
         maxFeePerGas = baseFee + priorityFee
         self.priorityFee = priorityFee
         self.nonce = nonce
@@ -225,6 +229,7 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
 
     public init(
         gasLimit: BigUInt,
+        callGasLimit: BigUInt,
         maxFeePerGas: BigUInt,
         priorityFee: BigUInt,
         nonce: Int? = nil,
@@ -233,6 +238,7 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
         yieldWithdraw: YieldWithdraw?
     ) {
         self.gasLimit = gasLimit
+        self.callGasLimit = callGasLimit
         self.maxFeePerGas = maxFeePerGas
         self.priorityFee = priorityFee
         self.nonce = nonce
@@ -279,6 +285,7 @@ extension EthereumGaslessTransactionFeeParameters: EthereumFeeParameters {
     public func changingGasLimit(to value: BigUInt) -> EthereumGaslessTransactionFeeParameters {
         EthereumGaslessTransactionFeeParameters(
             gasLimit: value,
+            callGasLimit: callGasLimit,
             maxFeePerGas: maxFeePerGas,
             priorityFee: priorityFee,
             nonce: nonce,
