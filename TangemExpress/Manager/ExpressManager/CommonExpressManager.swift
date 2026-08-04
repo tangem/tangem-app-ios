@@ -233,8 +233,6 @@ private extension CommonExpressManager {
         requested: ExpressProviderRateType
     ) -> ExpressProviderRateType {
         Self.preferredRate(
-            operationType: _pair?.source.operationType ?? .swap,
-            hasFixedProviders: !providers.availableProviders(rate: .fixed).isEmpty,
             hasFloatProviders: !providers.availableProviders(rate: .float).isEmpty,
             requested: requested
         )
@@ -266,15 +264,9 @@ private extension CommonExpressManager {
 
 extension CommonExpressManager {
     static func preferredRate(
-        operationType: ExpressOperationType,
-        hasFixedProviders: Bool,
         hasFloatProviders: Bool,
         requested: ExpressProviderRateType
     ) -> ExpressProviderRateType {
-        if operationType == .swapAndSend, hasFixedProviders {
-            return .fixed
-        }
-
         if requested == .float, !hasFloatProviders {
             return .fixed
         }
