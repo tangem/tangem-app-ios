@@ -1,5 +1,5 @@
 //
-//  EarnAccountItemView+TokenRowView.swift
+//  ForYouAddFundsTokenSelectorView+RowView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,10 +11,9 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 
-extension EarnAccountItemView {
-    struct TokenRowView: View {
-        let data: EarnTokenRowData
-        let onTap: () -> Void
+extension ForYouAddFundsTokenSelectorView {
+    struct RowView: View {
+        let data: ForYouAddFundsTokenSelectorViewModel.RowData
 
         @ScaledMetric private var iconSize: CGFloat = 40
 
@@ -22,24 +21,22 @@ extension EarnAccountItemView {
             Row(
                 title: data.name,
                 subtitle: data.network,
-                value: data.rewardText,
-                subvalue: data.apyText
+                value: data.fiat,
+                subvalue: data.crypto
             )
-            .overrideTextColors(.init(subvalue: DesignSystem.Color.textAccentGreen))
             .start { icon }
             .contentShape(Rectangle())
-            .onTapGesture(perform: onTap)
+            .onTapGesture(perform: data.onTap)
             .accessibilityAddTraits(.isButton)
         }
     }
 }
 
-private extension EarnAccountItemView.TokenRowView {
+private extension ForYouAddFundsTokenSelectorView.RowView {
     var icon: some View {
         TokenIcon(
             tokenIconInfo: data.tokenIconInfo,
-            size: CGSize(bothDimensions: iconSize),
-            isWithOverlays: true
+            size: CGSize(bothDimensions: iconSize)
         )
     }
 }
