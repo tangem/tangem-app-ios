@@ -161,7 +161,7 @@ struct GaslessBridgeFeeSupportTests {
     func managerSelectsCoinProviderWhenBridgeFeeArrives() {
         let coin = makeCoinProvider()
         let gasless = makeGaslessProvider()
-        let sut = CommonTokenFeeProvidersManager(feeProviders: [coin, gasless], initialSelectedProvider: gasless)
+        let sut = CommonTokenFeeProvidersManager(feeProviders: [coin, gasless], initialSelectedProvider: gasless, ownerAddress: nil)
 
         #expect(sut.selectedFeeProvider.feeTokenItem == gaslessFeeTokenItem)
 
