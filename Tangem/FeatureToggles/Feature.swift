@@ -112,7 +112,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .priceAlertsSubscription: return .unspecified
         case .tangemPayVirtualAccount: return .version("6.0.2")
         case .onboardingPushNotificationDoubleAsk: return .version("6.1")
-        case .mainPushNotificationDoubleAsk: return .version("6.1")
+        case .mainPushNotificationDoubleAsk: return .version("6.2")
         case .promoCampaignsAttribution: return .version("6.0.2")
         case .backendAuthentication: return .unspecified
         }
