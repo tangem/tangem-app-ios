@@ -25,11 +25,10 @@ struct EarnSuggestionRowView: View {
             subvalue: data.productText
         )
         .start { icon }
-        .includeInnerPadding(false)
-        .onTap(onTap)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
         .portfolioTokenCard()
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onTap)
+        .accessibilityAddTraits(.isButton)
     }
 }
 
