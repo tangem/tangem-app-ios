@@ -12,7 +12,7 @@ import TangemAccessibilityIdentifiers
 final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     /// Every Tangem Pay row shares this accessibility identifier key, see `TransactionViewModel.TransactionType`.
     private static let tangemPayKey = "tangemPay"
-    private static let scrollRounds = 3
+    private static let historyScrollAttempts = 12
 
     private lazy var historyStateIcon = app.images[TxHistoryAccessibilityIdentifiers.statusStateIcon].firstMatch
     private lazy var historyErrorMessage = app.staticTexts
@@ -95,9 +95,9 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
-    func tapAddFundsExpectingServiceUnavailable() -> TangemPayNoDepositAddressSheet {
-        XCTContext.runActivity(named: "Tap Add funds button expecting service unavailable sheet") { _ in
-            addFundsButton.waitAndTap()
+    func tapWithdrawExpectingServiceUnavailable() -> TangemPayNoDepositAddressSheet {
+        XCTContext.runActivity(named: "Tap Withdraw button expecting service unavailable sheet") { _ in
+            withdrawButton.waitAndTap()
             return TangemPayNoDepositAddressSheet(app)
         }
     }
@@ -236,9 +236,9 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
                 identifier: TxHistoryAccessibilityIdentifiers.transactionItem(key: Self.tangemPayKey),
                 label: name
             )
-            // Rows of the next page render only after the previous ones are scrolled past, so keep scrolling in rounds.
-            for _ in 0 ..< Self.scrollRounds where !row.exists {
-                scrollToElement(row, attempts: .lazy)
+            // Rows of the next page render only after the previous ones are scrolled past, so re-check after every swipe.
+            for _ in 0 ..< Self.historyScrollAttempts where !row.exists {
+                scrollToElement(row, attempts: .single)
             }
             return self
         }
