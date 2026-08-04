@@ -30,6 +30,7 @@ struct ForYouCoordinatorView: CoordinatorView {
                 TokenSummaryView(viewModel: $0)
                     .presentationDetents([.large])
             }
+            .floatingSheetContent(for: ReceiveMainViewModel.self, viewBuilder: ReceiveMainView.init)
     }
 }
 
