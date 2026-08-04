@@ -25,6 +25,11 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
 
     var currentHost: String { networkService.host }
 
+    /// The batch-capable executor deployment ships behind the gasless yield feature toggle.
+    var gaslessExecutorVersion: GaslessExecutorVersion {
+        isGaslessYieldEnabled ? .batchCapable : .legacy
+    }
+
     init(
         wallet: Wallet,
         addressConverter: EthereumAddressConverter,
@@ -748,8 +753,7 @@ private extension EthereumWalletManager {
         let yieldWithdraw = try await makeYieldWithdraw(
             feeToken: feeToken,
             from: convertedOurAddress,
-            yieldFeeOptions: yieldFeeOptions,
-            originalGasLimit: transactionFeeParameters.gasLimit
+            yieldFeeOptions: yieldFeeOptions
         )
 
         // 4) Combine gas limits and add BASE_GAS buffer (60_000)
@@ -761,6 +765,7 @@ private extension EthereumWalletManager {
         // 5) Create updated fee params
         let gaslessParams = EthereumGaslessTransactionFeeParameters(
             gasLimit: combinedGasLimit,
+            callGasLimit: transactionFeeParameters.gasLimit,
             maxFeePerGas: transactionFeeParameters.maxFeePerGas,
             priorityFee: transactionFeeParameters.priorityFee,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
@@ -783,8 +788,7 @@ private extension EthereumWalletManager {
     func makeYieldWithdraw(
         feeToken: Token,
         from: String,
-        yieldFeeOptions: GaslessYieldFeeOptions?,
-        originalGasLimit: BigUInt
+        yieldFeeOptions: GaslessYieldFeeOptions?
     ) async throws -> EthereumGaslessTransactionFeeParameters.YieldWithdraw? {
         guard let yieldFeeOptions else {
             return nil
@@ -819,7 +823,6 @@ private extension EthereumWalletManager {
 
         return EthereumGaslessTransactionFeeParameters.YieldWithdraw(
             yieldContractAddress: yieldFeeOptions.yieldContractAddress,
-            originalGasLimit: originalGasLimit,
             withdrawGasLimit: withdrawGasLimitBuffered,
             upgrade: yieldFeeOptions.upgrade
         )
@@ -1020,9 +1023,10 @@ extension EthereumWalletManager: EthereumGaslessDataProvider {
             throw EthereumTransactionBuilderError.missingChainId
         }
 
+        let version = gaslessExecutorVersion
         let contractAddress = try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(
             blockchain: wallet.blockchain,
-            isGaslessYieldEnabled: isGaslessYieldEnabled
+            version: version
         )
 
         let data = try EthEip7702Util().encodeAuthorizationForSigning(
@@ -1031,13 +1035,12 @@ extension EthereumWalletManager: EthereumGaslessDataProvider {
             nonce: BigUInt(nonce)
         )
 
-        return EIP7702AuthorizationData(chainId: chainId, address: contractAddress, nonce: nonce, data: data)
-    }
-
-    func getGaslessExecutorContractAddress() throws -> String {
-        try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(
-            blockchain: wallet.blockchain,
-            isGaslessYieldEnabled: isGaslessYieldEnabled
+        return EIP7702AuthorizationData(
+            chainId: chainId,
+            address: contractAddress,
+            nonce: nonce,
+            data: data,
+            executorVersion: version
         )
     }
 }

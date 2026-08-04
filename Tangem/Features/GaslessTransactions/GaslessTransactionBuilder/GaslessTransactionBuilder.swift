@@ -31,17 +31,23 @@ struct GaslessTransactionBuilder {
         }
 
         let (parameters, _) = try gaslessFeeParameters(from: bsdkTransaction.fee)
+        let eip7702Data = try await getEIP7702Data()
 
         if let yieldWithdraw = parameters.yieldWithdraw {
             return try await buildGaslessBatchTransaction(
                 bsdkTransaction: bsdkTransaction,
                 feeRecipientAddress: feeRecipientAddress,
                 chainId: chainId,
-                yieldWithdraw: yieldWithdraw
+                parameters: parameters,
+                yieldWithdraw: yieldWithdraw,
+                eip7702Data: eip7702Data
             )
         }
 
-        let transaction = try await makeTransaction(from: bsdkTransaction, gasLimit: nil)
+        let transaction = try await makeTransaction(
+            from: bsdkTransaction,
+            gasLimit: callGasLimit(parameters, executorVersion: eip7702Data.executorVersion)
+        )
         let smartContractNonce = try await getSmartContractNonce(address: walletModel.defaultAddressString)
 
         let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee, feeRecipientAddress: feeRecipientAddress)
@@ -52,7 +58,7 @@ struct GaslessTransactionBuilder {
             fee: feeData,
             chainId: chainId,
             smartContractNonce: smartContractNonce,
-            feeRecipientAddress: feeRecipientAddress
+            eip7702Data: eip7702Data
         )
 
         let gaslessTransaction = GaslessTransaction(
@@ -77,11 +83,13 @@ struct GaslessTransactionBuilder {
         bsdkTransaction: BSDKTransaction,
         feeRecipientAddress: String,
         chainId: Int,
-        yieldWithdraw: EthereumGaslessTransactionFeeParameters.YieldWithdraw
+        parameters: EthereumGaslessTransactionFeeParameters,
+        yieldWithdraw: EthereumGaslessTransactionFeeParameters.YieldWithdraw,
+        eip7702Data: EIP7702AuthorizationData
     ) async throws -> GaslessTransactionBuildResult {
         let transaction = try await makeTransaction(
             from: bsdkTransaction,
-            gasLimit: yieldWithdraw.originalGasLimit.description
+            gasLimit: callGasLimit(parameters, executorVersion: eip7702Data.executorVersion)
         )
         let (yieldTransaction, yieldTransactionHandlesUpgrade) = try makeUpgradeWrappedYieldTransactionIfNeeded(
             transaction,
@@ -105,7 +113,7 @@ struct GaslessTransactionBuilder {
             fee: feeData,
             chainId: chainId,
             smartContractNonce: smartContractNonce,
-            feeRecipientAddress: feeRecipientAddress
+            eip7702Data: eip7702Data
         )
 
         let batchTransaction = GaslessBatchTransaction(
@@ -137,15 +145,14 @@ struct GaslessTransactionBuilder {
         fee: GaslessTransactionFee,
         chainId: Int,
         smartContractNonce: String,
-        feeRecipientAddress: String
+        eip7702Data: EIP7702AuthorizationData
     ) async throws -> SignedData {
-        let eip7702Data = try await getEIP7702Data()
-
-        let eip712Hash = try await makeEIP712Hash(
+        let eip712Hash = try makeEIP712Hash(
             transaction: transaction,
             fee: fee,
             nonce: smartContractNonce,
-            chainId: chainId
+            chainId: chainId,
+            executorVersion: eip7702Data.executorVersion
         )
 
         // Both eip7702Data.data and eip712Hash are 32-byte digests to be signed
@@ -181,10 +188,8 @@ struct GaslessTransactionBuilder {
         fee: GaslessTransactionFee,
         chainId: Int,
         smartContractNonce: String,
-        feeRecipientAddress: String
+        eip7702Data: EIP7702AuthorizationData
     ) async throws -> SignedData {
-        let eip7702Data = try await getEIP7702Data()
-
         let eip712Hash = try await makeBatchEIP712Hash(
             transactions: transactions,
             fee: fee,
@@ -242,14 +247,16 @@ struct GaslessTransactionBuilder {
         transaction: TransactionData.Transaction,
         fee: GaslessTransactionFee,
         nonce: String,
-        chainId: Int
-    ) async throws -> Data {
-        let typedData = GaslessTransactionsEIP712Util().makeGaslessTypedData(
+        chainId: Int,
+        executorVersion: GaslessExecutorVersion
+    ) throws -> Data {
+        let typedData = try GaslessTransactionsEIP712Util().makeGaslessTypedData(
             transaction: transaction,
             fee: fee,
             nonce: nonce,
             chainId: chainId,
             verifyingContract: walletModel.defaultAddressString,
+            executorVersion: executorVersion
         )
 
         return typedData.signHash
@@ -270,6 +277,15 @@ struct GaslessTransactionBuilder {
         )
 
         return typedData.signHash
+    }
+
+    /// The gas the executor forwards to the user's call. Only signed — and therefore only sent — by executor
+    /// generations whose `Transaction` struct declares it.
+    private func callGasLimit(
+        _ parameters: EthereumGaslessTransactionFeeParameters,
+        executorVersion: GaslessExecutorVersion
+    ) -> String? {
+        executorVersion.requiresCallGasLimit ? parameters.callGasLimit.description : nil
     }
 
     private func makeGaslessTransactionFee(bsdkFee: BSDKFee, feeRecipientAddress: String) async throws -> GaslessTransactionFee {
@@ -414,12 +430,24 @@ extension GaslessTransactionBuilder {
         var eip712Hashes: [Data] = []
 
         for (index, bsdkTransaction) in bsdkTransactions.enumerated() {
-            let transaction = try await makeTransaction(from: bsdkTransaction, gasLimit: nil)
+            let (parameters, _) = try gaslessFeeParameters(from: bsdkTransaction.fee)
+            let transaction = try await makeTransaction(
+                from: bsdkTransaction,
+                gasLimit: callGasLimit(parameters, executorVersion: eip7702Data.executorVersion)
+            )
             let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee, feeRecipientAddress: feeRecipientAddress)
             let nonce = (baseNonce + index).description
 
             transactionsData.append(TransactionData(transaction: transaction, fee: feeData, nonce: nonce))
-            eip712Hashes.append(try await makeEIP712Hash(transaction: transaction, fee: feeData, nonce: nonce, chainId: chainId))
+            eip712Hashes.append(
+                try makeEIP712Hash(
+                    transaction: transaction,
+                    fee: feeData,
+                    nonce: nonce,
+                    chainId: chainId,
+                    executorVersion: eip7702Data.executorVersion
+                )
+            )
         }
 
         let signedHashes = try await signer
@@ -499,6 +527,7 @@ extension GaslessTransactionBuilder {
         case unsupportedFeeToken
         case missingTokenId
         case invalidPricing
+        case missingCallGasLimit
 
         // Signing
         case failedToSignTransactions
