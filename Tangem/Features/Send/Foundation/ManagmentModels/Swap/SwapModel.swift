@@ -127,6 +127,12 @@ private extension SwapModel {
         }
     }
 
+    func stopAutoupdating() {
+        autoupdatingTimer.setup(refresh: .none)
+        updateTask?.cancel()
+        updateTask = nil
+    }
+
     func bind() {
         _receiveToken
             .map { $0.value?.tokenItem }
@@ -279,7 +285,7 @@ private extension SwapModel {
                 let providersState = try await input.mapToLoadedProvidersState(state: state)
                 try Task.checkCancellation()
 
-                await input.updateComplementaryAmount(state: providersState)
+                try await input.updateComplementaryAmount(state: providersState)
                 input.update(providersState: providersState)
 
             } catch is CancellationError {
@@ -758,12 +764,13 @@ extension SwapModel {
         }
     }
 
-    func updateComplementaryAmount(state: ProvidersState) async {
+    func updateComplementaryAmount(state: ProvidersState) async throws {
         guard case .loaded(_, let loadedState) = state else {
             return
         }
 
         let amountType = await expressManager.getAmountType()
+        try Task.checkCancellation()
 
         switch (amountType, loadedState.quote) {
         case (.from, .some(let quote)):
@@ -924,6 +931,10 @@ extension SwapModel {
 
         _transactionTime.send(.now)
         _transactionURL.send(result.url)
+
+        // The swap is done: stop refreshing quotes. Cancelling the in-flight update prevents a
+        // refresh started just before sending from landing and overwriting the finish screen.
+        stopAutoupdating()
 
         return result
     }
