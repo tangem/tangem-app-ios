@@ -473,10 +473,15 @@ extension TangemPayAccount {
             try await customerService.cancelOrder(orderId: orderId)
         } catch {
             pendingTransitionCancellation = nil
+            await loadCustomerInfo()
             throw error
         }
     }
 }
+
+// MARK: - TangemPayAwaitingDepositCanceller
+
+extension TangemPayAccount: TangemPayAwaitingDepositCanceller {}
 
 // MARK: - TangemPayTariffPlanSelector
 
@@ -526,8 +531,7 @@ extension TangemPayAccount: TangemPayTariffPlanSelector {
 private extension TangemPayAccount {
     func makeAwaitingDepositInfo(targetPlanId: String) async -> TangemPayAwaitingDepositInfo? {
         guard let transitions = try? await customerService.getTariffPlanTransitions(),
-              let plan = transitions.first(where: { $0.tariffPlan.id == targetPlanId })?.tariffPlan,
-              let recurringFee = plan.fees.first(where: { $0.type == .recurring }) else {
+              let plan = transitions.first(where: { $0.tariffPlan.id == targetPlanId })?.tariffPlan else {
             return nil
         }
 
@@ -539,7 +543,6 @@ private extension TangemPayAccount {
         }
 
         return TangemPayAwaitingDepositInfo(
-            fee: BalanceFormatter().formatFiatBalance(recurringFee.amount, currencyCode: recurringFee.currency),
             planName: plan.name,
             fallbackPlanName: fallbackPlan.name
         )
