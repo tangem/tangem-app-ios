@@ -97,7 +97,16 @@ final class ActionButtonsViewModel: ObservableObject {
 
     // [REDACTED_TODO_COMMENT]
     func isRedesignActionDisabled(_ actionViewModel: any ActionButtonViewModel) -> Bool {
-        userWalletModel.isUserWalletLocked || actionViewModel.isDimmed
+        if userWalletModel.isUserWalletLocked {
+            return true
+        }
+
+        switch (actionViewModel.model, actionViewModel.viewState) {
+        case (.sell, .restricted):
+            return false
+        default:
+            return actionViewModel.isDimmed
+        }
     }
 
     func refresh() {

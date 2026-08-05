@@ -28,10 +28,13 @@ final class TokenSelectorViewModelsMapper {
     private let tokenSelectorStateStorage: (any TokenSelectorStateStorage)?
     private let initiallyExpandedAccount: TokenSelectorViewModel.InitiallyExpandedAccount?
 
+    lazy var availableItemsCountByWalletId: [UserWalletId: AnyPublisher<Int, Never>] = makeAvailableItemsCountByWalletId()
+
     // MARK: - Internal
 
     private let searchText: CurrentValueSubject<String, Never> = .init("")
     private let selectedItem: CurrentValueSubject<WalletTokenItem?, Never> = .init(.none)
+    private let balanceFilter: CurrentValueSubject<TokenSelectorBalanceFilter, Never> = .init(.all)
     private weak var output: (any TokenSelectorViewModelOutput)?
 
     private let itemViewModelBuilder: TokenSelectorItemViewModelBuilder
@@ -44,6 +47,7 @@ final class TokenSelectorViewModelsMapper {
 
     private var searchTextCancellable: AnyCancellable?
     private var selectedItemCancellable: AnyCancellable?
+    private var balanceFilterCancellable: AnyCancellable?
 
     init(
         walletsProvider: any TokenSelectorWalletsProvider,
@@ -70,6 +74,11 @@ final class TokenSelectorViewModelsMapper {
             .assign(to: \.searchText.value, on: self, ownership: .weak)
     }
 
+    func setupBalanceFilter(publisher: some Publisher<TokenSelectorBalanceFilter, Never>) {
+        balanceFilterCancellable = publisher
+            .assign(to: \.balanceFilter.value, on: self, ownership: .weak)
+    }
+
     func setInitialSelectedItem(_ item: WalletTokenItem?) {
         selectedItem.value = item
     }
@@ -90,6 +99,15 @@ private extension TokenSelectorViewModelsMapper {
     }
 
     func itemsPublisher(provider: TokenSelectorAccountModelItemsProvider) -> AnyPublisher<[TokenSelectorItem], Never> {
+        availableItemsPublisher(provider: provider)
+            .combineLatest(balanceFilter.removeDuplicates())
+            .flatMapLatest { items, filter in
+                Self.applyBalanceFilter(items, filter: filter)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func availableItemsPublisher(provider: TokenSelectorAccountModelItemsProvider) -> AnyPublisher<[TokenSelectorItem], Never> {
         provider
             .itemsPublisher
             // 1. Filter `searchText`
@@ -109,6 +127,50 @@ private extension TokenSelectorViewModelsMapper {
                 }
 
                 return items
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func makeAvailableItemsCountByWalletId() -> [UserWalletId: AnyPublisher<Int, Never>] {
+        var result: [UserWalletId: AnyPublisher<Int, Never>] = [:]
+
+        for wallet in walletsProvider.wallets {
+            let providers: [TokenSelectorAccountModelItemsProvider]
+            switch wallet.accounts {
+            case .single(let account): providers = [account.itemsProvider]
+            case .multiple(let accounts): providers = accounts.map(\.itemsProvider)
+            }
+
+            result[wallet.wallet.id] = providers.isEmpty
+                ? Just(0).eraseToAnyPublisher()
+                : providers
+                .map { availableItemsPublisher(provider: $0).map(\.count).prepend(0) }
+                .combineLatest()
+                .map { $0.sum() }
+                .eraseToAnyPublisher()
+        }
+
+        return result
+    }
+
+    static func applyBalanceFilter(
+        _ items: [TokenSelectorItem],
+        filter: TokenSelectorBalanceFilter
+    ) -> AnyPublisher<[TokenSelectorItem], Never> {
+        guard filter == .hideZero, !items.isEmpty else {
+            return Just(items).eraseToAnyPublisher()
+        }
+
+        return items
+            .map { item in
+                item.cryptoBalanceProvider.balanceTypePublisher
+                    .prepend(item.cryptoBalanceProvider.balanceType)
+                    .removeDuplicates()
+                    .map { balanceType in (item: item, isZeroBalance: balanceType.isZeroBalance) }
+            }
+            .combineLatest()
+            .map { pairs in
+                pairs.filter { !$0.isZeroBalance }.map(\.item)
             }
             .eraseToAnyPublisher()
     }

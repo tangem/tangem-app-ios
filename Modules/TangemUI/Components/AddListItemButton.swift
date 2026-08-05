@@ -18,7 +18,7 @@ public struct AddListItemButton: View {
     }
 
     public var body: some View {
-        Button(action: viewData.buttonAction) {
+        SwiftUI.Button(action: viewData.buttonAction) {
             HStack(spacing: 12) {
                 plusIcon
 

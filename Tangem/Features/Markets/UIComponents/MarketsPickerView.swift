@@ -137,5 +137,5 @@ private struct MarketsPickerViewRedesign: View {
     }
 
     return MarketsPickerPreviewView()
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgPrimary)
 }

@@ -33,7 +33,9 @@ final class MarketsTokenDetailsScreen: ScreenBase<MarketsTokenDetailsScreenEleme
     @discardableResult
     func openExchanges() -> MarketsExchangeScreen {
         XCTContext.runActivity(named: "Open exchanges list") { _ in
-            listedOnExchangesButton.waitAndTapWithScroll()
+            // The block sits at the very bottom of the coin page, so short fixed-length scrolls don't reach it.
+            scrollToElement(listedOnExchangesButton, attempts: .lazy)
+            listedOnExchangesButton.waitAndTap()
             return MarketsExchangeScreen(app)
         }
     }

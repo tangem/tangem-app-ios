@@ -14,7 +14,7 @@ struct SendReceiveTokenNetworkSelectorNetworkView: View {
     let viewModel: SendReceiveTokenNetworkSelectorNetworkViewData
 
     var body: some View {
-        Button(action: viewModel.tapAction) {
+        SwiftUI.Button(action: viewModel.tapAction) {
             HStack(alignment: .center, spacing: 12) {
                 IconView(url: viewModel.iconURL, size: CGSize(width: 36, height: 36), forceKingfisher: true)
 

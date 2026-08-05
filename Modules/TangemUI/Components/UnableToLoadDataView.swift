@@ -26,7 +26,7 @@ public struct UnableToLoadDataView: View {
             Text(Localization.marketsLoadingErrorTitle)
                 .style(Fonts.Bold.caption1.weight(.medium), color: Colors.Text.tertiary)
 
-            Button(action: retryButtonAction, label: {
+            SwiftUI.Button(action: retryButtonAction, label: {
                 HStack(spacing: .zero) {
                     Text(Localization.tryToLoadDataAgainButtonTitle)
                         .style(Fonts.Bold.caption1.weight(.medium), color: Colors.Text.primary1)

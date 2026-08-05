@@ -213,8 +213,14 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func onTapNewAccount() {
-        Analytics.log(event: .walletSettingsButtonAddAccount, params: [.productType: userWalletConfig.productType.rawValue])
-        coordinator?.addNewAccount(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)
+        guard FeatureProvider.isAvailable(.jointAccounts) else {
+            // With the selector the event is logged once the crypto account is picked, see `AddAccountTypeSelectorViewModel`
+            Analytics.log(event: .walletSettingsButtonAddAccount, params: [.productType: userWalletConfig.productType.rawValue])
+            coordinator?.addNewAccount(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)
+            return
+        }
+
+        coordinator?.openAddAccountTypeSelector(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)
     }
 
     private func handleAccountLimitReached() {

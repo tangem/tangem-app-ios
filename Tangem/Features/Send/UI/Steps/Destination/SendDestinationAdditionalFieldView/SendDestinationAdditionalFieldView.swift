@@ -71,7 +71,7 @@ struct SendDestinationAdditionalFieldView: View {
     }
 
     private var clearButton: some View {
-        Button {
+        SwiftUI.Button {
             viewModel.didTapClearButton()
         } label: {
             Assets.clear.image

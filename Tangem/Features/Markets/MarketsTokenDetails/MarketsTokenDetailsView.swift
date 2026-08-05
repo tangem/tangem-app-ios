@@ -117,6 +117,7 @@ struct MarketsTokenDetailsView: View {
     private var redesignedAddButton: some View {
         NavigationBarButton.add(action: viewModel.onTapAddButton)
             .redesigned()
+            .dimmed(!viewModel.isAddButtonEnabled)
             .accessibilityLabel(Localization.commonAddToken)
             .transition(.opacity)
     }
@@ -241,7 +242,7 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var chart: some View {
         if let viewModel = viewModel.historyChartViewModel {
-            MarketsHistoryChartViewRedesign(viewModel: viewModel)
+            MarketsHistoryChartView(viewModel: viewModel)
         }
     }
 
@@ -255,11 +256,11 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var content: some View {
-        MarketsTokenDetailsContentViewRedesign(viewModel: viewModel)
+        MarketsTokenDetailsContentView(viewModel: viewModel)
     }
 
     private var backgroundColor: Color {
-        return Color.Tangem.Surface.level2
+        return DesignSystem.Color.bgPrimary
     }
 
     @ViewBuilder
@@ -272,9 +273,10 @@ struct MarketsTokenDetailsView: View {
                 onAddFundsTap: viewModel.onAddFundsTap,
                 onExpandTap: viewModel.onExpandPortfolioBlockTap
             )
-            .padding(.horizontal, .unit(.x4))
-            .padding(.vertical, .unit(.x2))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .background(alignment: .bottom) {
+                // [REDACTED_TODO_COMMENT]
                 LinearGradient.Tangem.Common.tokenDetailsMarketPrice
                     .padding(.top, -Constants.shadowTopExtension)
                     .ignoresSafeArea()

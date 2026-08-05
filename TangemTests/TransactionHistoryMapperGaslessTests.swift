@@ -226,6 +226,11 @@ private final class StubGaslessTransactionsNetworkManager: GaslessTransactionsNe
         Just([]).eraseToAnyPublisher()
     }
 
+    var availableTronFeeTokens: [GaslessTransactionsDTO.Response.TronFeeToken] { [] }
+    var availableTronFeeTokensPublisher: AnyPublisher<[GaslessTransactionsDTO.Response.TronFeeToken], Never> {
+        Just([]).eraseToAnyPublisher()
+    }
+
     var currentHost: String { "" }
 
     init(cachedFeeRecipientAddress: String?) {
@@ -235,6 +240,18 @@ private final class StubGaslessTransactionsNetworkManager: GaslessTransactionsNe
     func updateAvailableTokens() {}
     func sendGaslessTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessTransaction) async throws -> String { "" }
     func sendGaslessBatchTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction) async throws -> String { "" }
+    func estimateTronGaslessTransaction(
+        _ request: GaslessTransactionsDTO.Request.TronEstimate
+    ) async throws -> GaslessTransactionsDTO.Response.TronEstimate {
+        throw CancellationError()
+    }
+
+    func submitTronGaslessTransaction(
+        _ request: GaslessTransactionsDTO.Request.TronSubmit
+    ) async throws -> GaslessTransactionsDTO.Response.TronSubmit {
+        throw CancellationError()
+    }
+
     func initialize() {}
     var feeRecipientAddress: String? { cachedFeeRecipientAddress }
     func preloadFeeRecipientAddress() {}
