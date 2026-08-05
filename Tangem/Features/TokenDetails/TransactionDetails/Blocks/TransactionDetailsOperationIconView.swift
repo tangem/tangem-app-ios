@@ -33,7 +33,7 @@ struct TransactionDetailsOperationIconView: View {
         switch data.status {
         case .failed, .undefined: DesignSystem.Color.bgStatusErrorSubtle
         case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
-        case .confirmed: DesignSystem.Color.bgSecondary
+        case .confirmed: DesignSystem.Color.bgOpaqueSecondary
         }
     }
 
@@ -41,7 +41,7 @@ struct TransactionDetailsOperationIconView: View {
         switch data.status {
         case .failed, .undefined: DesignSystem.Color.iconStatusError
         case .inProgress: DesignSystem.Color.iconStatusInfo
-        case .confirmed: DesignSystem.Color.iconSecondary
+        case .confirmed: DesignSystem.Color.iconPrimary
         }
     }
 }

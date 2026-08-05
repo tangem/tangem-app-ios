@@ -35,9 +35,9 @@ struct CampaignAnalyticsLogger {
     }
 }
 
-// MARK: - Private
+// MARK: - Internal
 
-private extension CampaignAnalyticsLogger {
+extension CampaignAnalyticsLogger {
     var campaignValue: Analytics.ParameterValue {
         switch campaign {
         case .whaleSwap: .cashback
