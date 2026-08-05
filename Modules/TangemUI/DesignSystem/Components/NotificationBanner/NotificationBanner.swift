@@ -15,6 +15,7 @@ import TangemAccessibilityIdentifiers
 public struct NotificationBanner: View, Setupable {
     private let bannerType: BannerType
     private let accessibilityIdentifier: String?
+    private let closeAccessibilityIdentifier: String?
 
     @ScaledMetric private var padding: CGFloat
     @ScaledMetric private var iconWidth: CGFloat
@@ -22,9 +23,10 @@ public struct NotificationBanner: View, Setupable {
 
     private let cornerRadius: CGFloat = .unit(.x6)
 
-    public init(bannerType: BannerType, accessibilityIdentifier: String?) {
+    public init(bannerType: BannerType, accessibilityIdentifier: String?, closeAccessibilityIdentifier: String? = nil) {
         self.bannerType = bannerType
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.closeAccessibilityIdentifier = closeAccessibilityIdentifier
         let iconSize = bannerType.content.iconSize
         _padding = ScaledMetric(wrappedValue: SizeUnit.x3.value)
         _iconWidth = ScaledMetric(wrappedValue: iconSize.width)
@@ -122,6 +124,7 @@ public struct NotificationBanner: View, Setupable {
                 }
                 .padding(SizeUnit.x3.value)
         }
+        .accessibilityIdentifier(closeAccessibilityIdentifier)
     }
 
     @ViewBuilder
