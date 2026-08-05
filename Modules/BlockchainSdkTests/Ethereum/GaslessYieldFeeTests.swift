@@ -50,7 +50,7 @@ struct GaslessYieldFeeTests {
         let yieldWithdraw = try #require(parameters.yieldWithdraw)
 
         #expect(parameters.feeTokenTransferGasLimit == 110_000)
-        #expect(yieldWithdraw.originalGasLimit == 21_000)
+        #expect(parameters.callGasLimit == 21_000)
         #expect(yieldWithdraw.withdrawGasLimit == 70_000)
         #expect(parameters.gasLimit == 21_000 + 110_000 + 70_000 + EthereumFeeParametersConstants.gaslessBaseGasBuffer)
     }
@@ -78,7 +78,7 @@ struct GaslessYieldFeeTests {
         let parameters = try #require(fee.parameters as? EthereumGaslessTransactionFeeParameters)
         let yieldWithdraw = try #require(parameters.yieldWithdraw)
 
-        #expect(yieldWithdraw.originalGasLimit == 32_000)
+        #expect(parameters.callGasLimit == 32_000)
         #expect(parameters.feeTokenTransferGasLimit == 55_000)
         #expect(yieldWithdraw.withdrawGasLimit == 84_000)
         #expect(parameters.gasLimit == 32_000 + 55_000 + 84_000 + EthereumFeeParametersConstants.gaslessBaseGasBuffer)
