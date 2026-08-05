@@ -23,6 +23,7 @@ public struct NavigationBarButton: View {
     private let action: () -> Void
 
     @Environment(\.isRedesign) private var isRedesign
+    @Environment(\.isDimmed) private var isDimmed
 
     /// Creates a navigation bar button.
     /// - Parameters:
@@ -47,21 +48,21 @@ public struct NavigationBarButton: View {
     }
 
     private var systemLabelButton: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             Text(Image(systemName: sfSymbol))
-                .foregroundStyle(Colors.Text.primary1)
+                .foregroundStyle(isDimmed ? Colors.Text.disabled : Colors.Text.primary1)
                 .font(.title2)
                 .frame(width: 44, height: 44)
         }
     }
 
     private var circleIconButton: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             iconAsset.image
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: 20, height: 20)
-                .foregroundStyle(Colors.Icon.informative)
+                .foregroundStyle(isDimmed ? Colors.Icon.inactive : Colors.Icon.informative)
                 .padding(4)
                 .background {
                     Circle()
@@ -175,7 +176,7 @@ public extension NavigationBarButton {
 
                 if #available(iOS 26.0, *) {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .close) {}
+                        SwiftUI.Button(role: .close) {}
                     }
                 }
             }

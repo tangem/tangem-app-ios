@@ -23,6 +23,7 @@ protocol SendSourceToken: SendReceiveToken {
     var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
     var allowanceService: (any AllowanceService)? { get }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { get }
+    var scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver? { get }
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { get }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async }
 

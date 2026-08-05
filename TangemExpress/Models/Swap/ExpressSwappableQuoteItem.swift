@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 import TangemFoundation
 
 public struct ExpressSwappableQuoteItem {
@@ -15,15 +16,18 @@ public struct ExpressSwappableQuoteItem {
     public let amountType: ExpressAmountType
     public let rateType: ExpressProviderRateType
     public let providerInfo: ProviderInfo
+    public let sourceAmountScale: Decimal?
 
     public var amount: Decimal {
         amountType.amount
     }
 
-    func sourceAmountWEI() -> String? {
+    func sourceAmountWEI() throws -> String? {
         switch amountType {
         case .from(let value):
-            let wei = source.convertToWEI(value: value) as NSDecimalNumber
+            let unscaled = try ScaledUIAmount.unscale(displayed: value, by: sourceAmountScale)
+            // Unscaling can yield more precision than the token has, and the API only accepts whole units.
+            let wei = source.convertToWEI(value: unscaled).rounded(scale: 0, roundingMode: .down)
             return wei.stringValue
         case .to:
             return nil
@@ -38,6 +42,11 @@ public struct ExpressSwappableQuoteItem {
         case .from:
             return nil
         }
+    }
+
+    /// Converts an on-chain source amount from a response back into the space the app displays.
+    func displayedSourceAmount(_ amount: Decimal) -> Decimal {
+        ScaledUIAmount.scale(onChain: amount, by: sourceAmountScale)
     }
 }
 
