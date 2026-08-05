@@ -14,7 +14,7 @@ import protocol TangemSdk.TangemSdkLogger
 public let TSDKLogger = Logger(category: OSLogCategory(name: "TangemSDK", prefix: .none))
 
 struct TangemLoggerConfigurator: Initializable {
-    let tangemSDKLogConfig: Log.Config = .custom(
+    let tangemSDKLogConfig: Log.LogConfig = .custom(
         logLevel: [.warning, .error, .command, .debug, .nfc, .session, .network],
         loggers: [TangemSDKLogger()]
     )

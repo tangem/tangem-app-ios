@@ -293,7 +293,7 @@ private extension MarketsTokenSearchViewModel {
 private extension MarketsTokenSearchViewModel {
     func makeMarketItem(
         models: [MarketsItemViewModel],
-        loadingState: MarketsView.ListLoadingState
+        loadingState: MarketsTokenListLoadingState
     ) -> MarketItem {
         let state: MarketState = makeMarketState(loadingState)
 
@@ -315,7 +315,7 @@ private extension MarketsTokenSearchViewModel {
         )
     }
 
-    func makeMarketState(_ loadingState: MarketsView.ListLoadingState) -> MarketState {
+    func makeMarketState(_ loadingState: MarketsTokenListLoadingState) -> MarketState {
         switch loadingState {
         case .idle: .idle
         case .loading: .loading

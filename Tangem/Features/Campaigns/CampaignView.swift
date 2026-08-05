@@ -60,7 +60,7 @@ struct CampaignView: View {
     }
 
     private var loadingContent: some View {
-        TangemLoader()
+        Loader()
             .frame(maxWidth: .infinity)
             .padding(.vertical, 50)
     }
@@ -118,7 +118,7 @@ struct CampaignView: View {
                     .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Button(action: viewModel.openLearnMore) {
+                SwiftUI.Button(action: viewModel.openLearnMore) {
                     Text(Localization.commonLearnMore)
                         .style(Fonts.Bold.caption1, color: Colors.Text.primary1)
                 }
@@ -136,7 +136,7 @@ struct CampaignView: View {
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
             if let rowViewModel = viewModel.selectedTokenRowViewModel {
-                Button(action: viewModel.selectToken) {
+                SwiftUI.Button(action: viewModel.selectToken) {
                     VStack(alignment: .leading, spacing: 16) {
                         if let accountViewData = viewModel.selectedAccountViewData {
                             AccountInlineHeaderView(
