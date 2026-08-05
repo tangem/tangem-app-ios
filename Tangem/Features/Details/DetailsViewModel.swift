@@ -15,7 +15,7 @@ import TangemLocalization
 import TangemUI
 import TangemMacro
 import TangemAccessibilityIdentifiers
-import class TangemSdk.BiometricsUtil
+import TangemSdk
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
