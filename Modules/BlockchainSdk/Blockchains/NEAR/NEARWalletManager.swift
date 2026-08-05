@@ -113,43 +113,6 @@ final class NEARWalletManager: BaseWalletManager {
         }
         .eraseToAnyPublisher()
     }
-
-    private func calculateBasicCostsSum(
-        config: NEARProtocolConfig,
-        gasPriceForCurrentBlock: Decimal,
-        gasPriceForNextBlock: Decimal,
-        senderIsReceiver: Bool
-    ) -> Decimal {
-        if senderIsReceiver {
-            return config.senderIsReceiver.cumulativeBasicSendCost * gasPriceForCurrentBlock
-                + config.senderIsReceiver.cumulativeBasicExecutionCost * gasPriceForNextBlock
-        }
-
-        return config.senderIsNotReceiver.cumulativeBasicSendCost * gasPriceForCurrentBlock
-            + config.senderIsNotReceiver.cumulativeBasicExecutionCost * gasPriceForNextBlock
-    }
-
-    /// Additional fees for transer action are used only if the receiver has an implicit accound ID,
-    /// see https://nomicon.io/RuntimeSpec/Fees/ for details.
-    private func calculateAdditionalCostsSum(
-        config: NEARProtocolConfig,
-        gasPriceForCurrentBlock: Decimal,
-        gasPriceForNextBlock: Decimal,
-        senderIsReceiver: Bool,
-        destination: String
-    ) -> Decimal {
-        guard NEARAddressUtil.isImplicitAccount(accountId: destination) else {
-            return .zero
-        }
-
-        if senderIsReceiver {
-            return config.senderIsReceiver.cumulativeAdditionalSendCost * gasPriceForCurrentBlock
-                + config.senderIsReceiver.cumulativeAdditionalExecutionCost * gasPriceForNextBlock
-        }
-
-        return config.senderIsNotReceiver.cumulativeAdditionalSendCost * gasPriceForCurrentBlock
-            + config.senderIsNotReceiver.cumulativeAdditionalExecutionCost * gasPriceForNextBlock
-    }
 }
 
 // MARK: - WalletManager protocol conformance
@@ -163,38 +126,22 @@ extension NEARWalletManager: WalletManager {
             networkService.getGasPrice()
         )
         .withWeakCaptureOf(self)
-        .tryMap { walletManager, input in
-            // The gas units on this next block (where the `execution` action takes place) could be multiplied
-            // by a gas price that's up to 1% different, since gas price is recalculated on each block
-            guard let nextBlockGasMultiplier = Decimal(string: "1.01") else {
-                throw BlockchainSdkError.failedToGetFee
-            }
+        .map { walletManager, input in
+            let (protocolConfig, gasPrice) = input
+            let blockchain = walletManager.wallet.blockchain
 
-            let (config, gasPrice) = input
-            let approximateGasPriceForNextBlock = gasPrice * nextBlockGasMultiplier
-            let source = walletManager.wallet.address
-            let senderIsReceiver = source.caseInsensitiveCompare(destination) == .orderedSame
-
-            let basicCostsSum = walletManager.calculateBasicCostsSum(
-                config: config,
-                gasPriceForCurrentBlock: gasPrice,
-                gasPriceForNextBlock: approximateGasPriceForNextBlock,
-                senderIsReceiver: senderIsReceiver
+            let feeCalculator = NEARFeeCalculator(
+                protocolConfig: protocolConfig,
+                gasPrice: gasPrice,
+                decimalValue: blockchain.decimalValue
             )
 
-            let additionalCostsSum = walletManager.calculateAdditionalCostsSum(
-                config: config,
-                gasPriceForCurrentBlock: gasPrice,
-                gasPriceForNextBlock: approximateGasPriceForNextBlock,
-                senderIsReceiver: senderIsReceiver,
+            let feeValue = feeCalculator.calculateFee(
+                source: walletManager.wallet.address,
                 destination: destination
             )
 
-            let blockchain = walletManager.wallet.blockchain
-            let feeValue = (basicCostsSum + additionalCostsSum) / blockchain.decimalValue
-            let amount = Amount(with: blockchain, value: feeValue)
-
-            return [Fee(amount)]
+            return [Fee(Amount(with: blockchain, value: feeValue))]
         }
         .eraseToAnyPublisher()
     }
