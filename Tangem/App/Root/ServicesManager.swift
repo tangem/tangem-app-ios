@@ -40,7 +40,7 @@ final class CommonServicesManager {
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
-    @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
+    @Injected(\.userWalletPushNotificationsService) private var userWalletPushNotificationsService: UserWalletPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.eTagStorage) private var eTagStorage: ETagStorage
@@ -196,7 +196,7 @@ extension CommonServicesManager: ServicesManager {
 
         sellService.initialize()
         apiListProvider.initialize()
-        userTokensPushNotificationsService.initialize()
+        userWalletPushNotificationsService.initialize()
         pushNotificationsInteractor.initialize()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)

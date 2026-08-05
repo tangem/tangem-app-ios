@@ -27,7 +27,7 @@ class CommonUserWalletModel {
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
 
-    let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
     let accountModelsManager: AccountModelsManager
     let addressBookManager: AddressBookManager
@@ -56,7 +56,7 @@ class CommonUserWalletModel {
         nftManager: NFTManager,
         keysRepository: KeysRepository,
         totalBalanceProvider: TotalBalanceProvider,
-        userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
+        userWalletPushNotificationsManager: UserWalletPushNotificationsManager,
         priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider,
         accountModelsManager: AccountModelsManager,
         addressBookManager: AddressBookManager
@@ -68,7 +68,7 @@ class CommonUserWalletModel {
         self.nftManager = nftManager
         self.keysRepository = keysRepository
         self.totalBalanceProvider = totalBalanceProvider
-        self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
+        self.userWalletPushNotificationsManager = userWalletPushNotificationsManager
         self.priceAlertsSubscriptionsProvider = priceAlertsSubscriptionsProvider
         self.accountModelsManager = accountModelsManager
         self.addressBookManager = addressBookManager

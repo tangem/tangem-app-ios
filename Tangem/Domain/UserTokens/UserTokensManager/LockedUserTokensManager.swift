@@ -62,9 +62,9 @@ struct LockedUserTokensManager: UserTokensManager {
     }
 }
 
-// MARK: - UserTokensPushNotificationsRemoteStatusSyncing protocol conformance
+// MARK: - UserWalletPushNotificationsRemoteStatusSyncing protocol conformance
 
-extension LockedUserTokensManager: UserTokensPushNotificationsRemoteStatusSyncing {
+extension LockedUserTokensManager: UserWalletPushNotificationsRemoteStatusSyncing {
     func syncRemoteStatus() {}
 }
 
