@@ -27,9 +27,6 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
-
-            sut.onAppear()
-
             #expect(await waitUntilConditionMet { sut.viewState == .summary })
         }
     }
@@ -41,9 +38,6 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT(campaignId: "unknown-campaign")
-
-            sut.onAppear()
-
             #expect(await waitUntilConditionMet { sut.viewState == .campaignNotActive })
         }
     }
@@ -55,9 +49,6 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
-
-            sut.onAppear()
-
             #expect(await waitUntilConditionMet { sut.viewState == .campaignNotActive })
         }
     }
@@ -72,9 +63,6 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
-
-            sut.onAppear()
-
             #expect(await waitUntilConditionMet { sut.viewState == .campaignNotActive })
         }
     }
@@ -88,9 +76,6 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
-
-            sut.onAppear()
-
             #expect(await waitUntilConditionMet { sut.viewState == .campaignNotActive })
         }
     }
@@ -104,14 +89,11 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
-
-            sut.onAppear()
-
             #expect(await waitUntilConditionMet { sut.viewState == .campaignNotActive })
         }
     }
 
-    @Test("Campaign loads only once for repeated appearances")
+    @Test("Campaign loads only once per view model lifecycle")
     func campaignLoadsOnlyOnce() async {
         let spy = makeApiSpy(promotions: [makeActivePromotion()])
         let repository = makeRepositoryWithSelectedWallet()
@@ -119,12 +101,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT()
 
-            sut.onAppear()
             #expect(await waitUntilConditionMet { sut.viewState == .summary })
-
-            sut.onAppear()
-
-            #expect(sut.viewState == .summary)
             #expect(spy.requestedWalletIds.count == 1)
         }
     }
@@ -136,9 +113,6 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
         await withInjectedCampaignDependencies(spy.fake, userWalletRepository: repository) {
             let sut = makeSUT(campaignId: "", initialState: .campaignNotActive)
-
-            sut.onAppear()
-
             #expect(sut.viewState == .campaignNotActive)
             #expect(spy.requestedWalletIds.isEmpty)
         }
@@ -156,7 +130,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
         }
 
         await withInjectedCampaignDependencies(apiService) {
-            let sut = makeSUT()
+            let sut = makeSUT(initialState: .summary)
 
             sut.enroll()
 
@@ -179,7 +153,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
         }
 
         try await withInjectedCampaignDependencies(apiService, userWalletRepository: repository) {
-            let sut = makeSUT()
+            let sut = makeSUT(initialState: .summary)
             selectEligibleToken(on: sut)
             #expect(sut.viewState == .readyToEnroll)
 
@@ -206,7 +180,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
         }
 
         await withInjectedCampaignDependencies(apiService, userWalletRepository: FakeUserWalletRepository(models: [])) {
-            let sut = makeSUT()
+            let sut = makeSUT(initialState: .summary)
             selectEligibleToken(on: sut)
 
             sut.enroll()
@@ -222,7 +196,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
         apiService.registerForPromotionCampaignHandler = { _ in throw TestError.sample }
 
         await withInjectedCampaignDependencies(apiService, userWalletRepository: FakeUserWalletRepository(models: [])) {
-            let (sut, coordinator) = makeSUTWithCoordinator()
+            let (sut, coordinator) = makeSUTWithCoordinator(initialState: .summary)
             selectEligibleToken(on: sut)
 
             sut.enroll()
@@ -245,7 +219,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
         }
 
         await withInjectedCampaignDependencies(apiService, userWalletRepository: FakeUserWalletRepository(models: [])) {
-            let sut = makeSUT()
+            let sut = makeSUT(initialState: .summary)
             selectEligibleToken(on: sut)
 
             sut.enroll()
@@ -262,7 +236,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
     @Test("Close forwards to the coordinator")
     func closeForwardsToCoordinator() {
-        let (sut, coordinator) = makeSUTWithCoordinator()
+        let (sut, coordinator) = makeSUTWithCoordinator(initialState: .campaignNotActive)
 
         sut.close()
 
@@ -271,7 +245,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
     @Test("Learn-more opens the whale-swap blog post")
     func learnMoreOpensBlogPost() {
-        let (sut, coordinator) = makeSUTWithCoordinator()
+        let (sut, coordinator) = makeSUTWithCoordinator(initialState: .campaignNotActive)
 
         sut.openLearnMore()
 
@@ -280,7 +254,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
 
     @Test("Terms opens the whale-swap terms document")
     func termsOpensTermsDocument() {
-        let (sut, coordinator) = makeSUTWithCoordinator()
+        let (sut, coordinator) = makeSUTWithCoordinator(initialState: .campaignNotActive)
 
         sut.openTerms()
 
@@ -290,7 +264,7 @@ final class CampaignViewModelTests: LeakTrackingTestSuite {
     @Test("Selecting a token dismisses the selector and moves to ready-to-enroll")
     func selectingTokenMovesToReadyToEnroll() async {
         await withInjectedCampaignDependencies(FakeTangemApiService(), userWalletRepository: FakeUserWalletRepository(models: [])) {
-            let sut = makeSUT()
+            let sut = makeSUT(initialState: .summary)
             sut.tokenSelectorViewModel = CampaignTokenSelectorViewModel(
                 eligibleTokens: [],
                 initiallyExpandedAccount: nil,
@@ -326,9 +300,11 @@ private extension CampaignViewModelTests {
         )
     }
 
-    func makeSUTWithCoordinator() -> (CampaignViewModel, CampaignRoutableSpy) {
+    func makeSUTWithCoordinator(
+        initialState: CampaignViewModel.ViewState = .idle
+    ) -> (CampaignViewModel, CampaignRoutableSpy) {
         let coordinator = CampaignRoutableSpy()
-        return (makeSUT(coordinator: coordinator), coordinator)
+        return (makeSUT(coordinator: coordinator, initialState: initialState), coordinator)
     }
 
     func makeApiSpy(promotions: [BannerPromotion.Response.Promotion]) -> PromotionCampaignsApiSpy {
