@@ -216,10 +216,7 @@ extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRo
 
 extension ActionButtonsBuyCoordinator: PulseMarketWidgetRoutable {
     func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
-        guard
-            let userWalletIdString = tokenListViewModel?.tokenSelectorViewModel.selectedChipId,
-            let userWalletModel = userWalletModels.first(where: { $0.userWalletId.stringValue == userWalletIdString })
-        else {
+        guard let userWalletModel = resolveMarketsTokenTargetWallet() else {
             openMarketsDetailsCoordinator(for: tokenInfo)
             return
         }
@@ -265,9 +262,8 @@ extension ActionButtonsBuyCoordinator: PulseMarketWidgetRoutable {
                 Task { @MainActor in
                     guard let self else { return }
 
-                    let walletModel = accountSelectorCell.cryptoAccountModel
-                        .walletModelsManager.walletModels
-                        .first { $0.tokenItem == tokenItem }
+                    let walletModel = await accountSelectorCell.cryptoAccountModel
+                        .walletModelsManager.waitForWalletModel(for: tokenItem)
 
                     guard let walletModel else { return }
 
@@ -316,6 +312,18 @@ extension ActionButtonsBuyCoordinator: PulseMarketWidgetRoutable {
 
     func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType) {
         assertionFailure("See all is hidden in the Buy pulse widget, so this is never invoked.")
+    }
+}
+
+// MARK: - Markets token add funds helpers
+
+private extension ActionButtonsBuyCoordinator {
+    func resolveMarketsTokenTargetWallet() -> UserWalletModel? {
+        if let selectedChipId = tokenListViewModel?.tokenSelectorViewModel.selectedChipId {
+            return userWalletModels.first { $0.userWalletId.stringValue == selectedChipId }
+        }
+
+        return userWalletModels.count == 1 ? userWalletModels.first : nil
     }
 }
 
