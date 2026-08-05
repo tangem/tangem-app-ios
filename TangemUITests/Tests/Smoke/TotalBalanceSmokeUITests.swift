@@ -206,7 +206,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         setAllureId(166)
 
         let stakingScenario = ScenarioConfig(
-            name: "staking_eth_pol_balances_ios",
+            name: "staking_eth_pol_balances",
             initialState: "Staked"
         )
 
@@ -219,9 +219,11 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         let tokenScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken("POL (ex-MATIC)")
+            // The total balance folds in the staked amount only once staking has loaded, so wait for the staking block first.
+            .waitForStakingInfo()
 
-        let totalBalanceValue = try XCTUnwrap(Double(tokenScreen.getTotalBalance().replacingOccurrences(of: "$", with: "")))
         let stakingBalanceValue = try XCTUnwrap(Double(tokenScreen.getStakingBalance().replacingOccurrences(of: "$", with: "")))
+        let totalBalanceValue = try XCTUnwrap(Double(tokenScreen.getTotalBalance().replacingOccurrences(of: "$", with: "")))
 
         tokenScreen.tapAvailableSegment()
 

@@ -16,7 +16,7 @@ struct ExpressProviderRowView: View {
 
     var body: some View {
         if let action = viewModel.tapAction {
-            Button(action: { action() }) {
+            SwiftUI.Button(action: { action() }) {
                 content
             }
             .disabled(viewModel.isDisabled)
