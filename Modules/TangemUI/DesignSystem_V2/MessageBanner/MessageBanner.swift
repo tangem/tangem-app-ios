@@ -72,8 +72,6 @@ public struct MessageBanner<SlotStart: View, SlotEnd: View, ExtraBottom: View>: 
     }
 
     private var tapAction: (() -> Void)? {
-        let hasButtons = config.primaryButton != nil || config.secondaryButton != nil
-
         if hasButtons, config.onTap != nil {
             assertionFailure("MessageBanner is either tappable via `onTap` or has buttons, not both — `onTap` is ignored when buttons are present.")
         }
@@ -81,14 +79,22 @@ public struct MessageBanner<SlotStart: View, SlotEnd: View, ExtraBottom: View>: 
         return hasButtons ? nil : config.onTap
     }
 
+    private var hasButtons: Bool {
+        config.primaryButton != nil || config.secondaryButton != nil
+    }
+
+    private var cornerRadius: CGFloat {
+        hasButtons ? MessageBannerMetrics.cornerRadiusWithButtons : MessageBannerMetrics.cornerRadius
+    }
+
     private var containerShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: MessageBannerMetrics.cornerRadius, style: .continuous)
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
     }
 
     @ViewBuilder
     private func applyGlowRing(to content: some View) -> some View {
         if config.showsGlowRing {
-            content.glowRing(config.variant.glowAppearance, cornerRadius: MessageBannerMetrics.cornerRadius)
+            content.glowRing(config.variant.glowAppearance, cornerRadius: cornerRadius)
         } else {
             content
         }
@@ -248,7 +254,8 @@ extension MessageBannerVariant {
 // MARK: - Constants
 
 enum MessageBannerMetrics {
-    static let cornerRadius: CGFloat = 28
+    static let cornerRadius: CGFloat = 24
+    static let cornerRadiusWithButtons: CGFloat = 28
     static let contentPadding: CGFloat = 16
     static let rootSpacing: CGFloat = 16
     static let contentRowSpacing: CGFloat = 12

@@ -27,9 +27,11 @@ struct TangemPayVirtualAccountInfoSheetView: View {
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
+        .animation(.contentFrameUpdate, value: viewModel.state)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             configuration.backgroundInteractionBehavior = .tapToDismiss
+            configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
         .alert(item: $viewModel.alert) { $0.alert }
     }
@@ -52,10 +54,12 @@ struct TangemPayVirtualAccountInfoSheetView: View {
 
             texts
 
-            feeSection
-                .padding(.top, 24)
+            VStack(spacing: viewModel.state == .failed ? 10 : 24) {
+                feeSection
 
-            banner
+                banner
+            }
+            .padding(.top, 24)
         }
         .padding(.top, 8)
     }
@@ -112,7 +116,19 @@ struct TangemPayVirtualAccountInfoSheetView: View {
         .padding(.horizontal, 16)
     }
 
+    @ViewBuilder
     private var feeSection: some View {
+        switch viewModel.state {
+        case .loading:
+            feeList(achFee: nil, fedwireFee: nil)
+        case .loaded(let achFee, let fedwireFee):
+            feeList(achFee: achFee, fedwireFee: fedwireFee)
+        case .failed:
+            feeErrorBanner
+        }
+    }
+
+    private func feeList(achFee: String?, fedwireFee: String?) -> some View {
         VStack(spacing: 12) {
             HStack(spacing: 0) {
                 Text(Localization.tangempayBankTransferFeeHeader)
@@ -122,16 +138,31 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                 Spacer(minLength: 0)
             }
 
-            feeRow(title: Localization.tangempayBankTransferFeeAch, value: "$1")
+            feeRow(title: Localization.tangempayBankTransferFeeAch, value: achFee)
 
             DesignSystem.Color.borderSecondary
                 .frame(height: 2)
 
-            feeRow(title: Localization.tangempayBankTransferFeeFedwire, value: "$11")
+            feeRow(title: Localization.tangempayBankTransferFeeFedwire, value: fedwireFee)
         }
     }
 
-    private func feeRow(title: String, value: String) -> some View {
+    private var feeErrorBanner: some View {
+        MessageBanner(
+            title: Localization.tangempayBankTransferFeeErrorTitle,
+            description: Localization.tangempayBankTransferFeeErrorSubtitle
+        )
+        .variant(.error)
+        .slotEnd {
+            DesignSystem.Icons.ArrowRefresh.regular20.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
+        }
+        .showGlowRing(false)
+        .onTap(viewModel.reloadFees)
+    }
+
+    private func feeRow(title: String, value: String?) -> some View {
         HStack(spacing: 0) {
             Text(verbatim: title)
                 .font(token: DesignSystem.Font.bodyMediumToken)
@@ -139,9 +170,17 @@ struct TangemPayVirtualAccountInfoSheetView: View {
 
             Spacer(minLength: 0)
 
-            Text(verbatim: value)
-                .font(token: DesignSystem.Font.bodyMediumToken)
-                .foregroundStyle(DesignSystem.Color.textPrimary)
+            if let value {
+                Text(verbatim: value)
+                    .font(token: DesignSystem.Font.bodyMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textPrimary)
+            }
+        }
+        .overlay(alignment: .trailing) {
+            if value == nil {
+                Shimmer()
+                    .variant(.text(style: .body, alignment: .trailing))
+            }
         }
     }
 
@@ -190,4 +229,10 @@ struct TangemPayVirtualAccountInfoSheetView: View {
         }
         .padding(.top, 24)
     }
+}
+
+// MARK: - Animations
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
 }
