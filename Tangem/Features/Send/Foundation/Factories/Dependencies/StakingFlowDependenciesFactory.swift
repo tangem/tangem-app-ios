@@ -113,18 +113,13 @@ private extension StakingFlowDependenciesFactory {
             return nil
         }
 
-        let isLocalValidationEnabled = LocalStakingSupportedNetwork(blockchain: blockchain) != nil
-        let isRemoteValidationEnabled = RemoteValidationNetwork(blockchain: blockchain) != nil
-
-        guard isLocalValidationEnabled || isRemoteValidationEnabled else {
-            return nil
-        }
-
-        let validator = StakingValidationComposer.make(
+        guard let validator = StakingValidationComposer.make(
             blockchain: blockchain,
             accountAddress: stakingableToken.defaultAddressString,
             verifier: StakingTransactionVerifierFactory.make(apiKey: blockaidAPIKey)
-        )
+        ) else {
+            return nil
+        }
 
         return StakingValidationService(
             validator: validator,
