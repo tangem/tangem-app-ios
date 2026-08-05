@@ -10,6 +10,7 @@ import SwiftUI
 import Kingfisher
 import TangemAssets
 import TangemFoundation
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 import TangemAccessibilityIdentifiers
@@ -20,6 +21,7 @@ struct TransactionViewRedesigned: View {
     @ScaledMetric private var iconContainerSide: CGFloat = 40
     @ScaledMetric private var glyphSize: CGFloat = 20
     @ScaledMetric private var iconBorderWidth: CGFloat = 1
+    @ScaledMetric private var warningIconSize: CGFloat = 16
 
     private var display: TransactionDisplayModel { viewModel.display }
 
@@ -34,6 +36,16 @@ struct TransactionViewRedesigned: View {
     }
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            rowLayout
+
+            if let warning = viewModel.warning {
+                warningView(warning)
+            }
+        }
+    }
+
+    private var rowLayout: some View {
         TangemTwoLineRowLayout(
             icon: { iconView },
             primaryLeading: { nameView },
@@ -42,6 +54,34 @@ struct TransactionViewRedesigned: View {
             secondaryTrailing: { secondaryTrailingView }
         )
         .compressionPolicy(.trailingPreserved)
+    }
+
+    private func warningView(_ warning: TransactionViewModel.Warning) -> some View {
+        HStack(spacing: .unit(.x3)) {
+            DesignSystem.Icons.Error.filled16.image
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: warningIconSize, height: warningIconSize)
+                .frame(width: iconContainerSide)
+                .foregroundStyle(DesignSystem.Color.iconStatusWarning)
+
+            Text(warningTitle(for: warning))
+                .style(Font.Tangem.Caption12.medium, color: DesignSystem.Color.textStatusWarning)
+                .lineLimit(2)
+
+            Spacer(minLength: 0)
+        }
+        .padding(.top, .unit(.x2))
+    }
+
+    private func warningTitle(for warning: TransactionViewModel.Warning) -> String {
+        switch warning {
+        case .verifying:
+            Localization.expressExchangeNotificationVerificationTitle
+        case .paused:
+            Localization.expressExchangeStatusPaused
+        }
     }
 
     private var iconView: some View {
@@ -269,6 +309,23 @@ private extension TransactionViewRedesigned {
                 transactionType: .swap,
                 status: .inProgress,
                 isFromYieldContract: false
+            )
+        )
+
+        TransactionViewRedesigned(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .contract("33BdfS...ga2B"),
+                timeFormatted: "10:45",
+                amount: "−390.00 USDT",
+                value: "−390.00",
+                currencyCode: "USDT",
+                isOutgoing: true,
+                transactionType: .swap,
+                status: .inProgress,
+                isFromYieldContract: false,
+                warning: .verifying
             )
         )
     }

@@ -32,8 +32,8 @@ struct KeysManagerStub: KeysManager {
     let tangemApiKeyStage: String = ""
     let amplitudeApiKey: String = ""
     let appsFlyerConfig: AppsFlyerConfig = .stub
-    let yieldModuleApiKey: String = ""
-    let yieldModuleApiKeyDev: String = ""
+    let yieldModuleApiKey: String = "stub"
+    let yieldModuleApiKeyDev: String = "stub"
     let p2pApiKeys: P2PAPIKeys = .stub
     let bffStaticToken: String = ""
     let bffStaticTokenDev: String = ""
@@ -103,6 +103,7 @@ extension BlockchainSdkKeysConfig {
         quickNodeHederaCredentials: .init(apiKey: "", subdomain: ""),
         quickNodePlasmaCredentials: .init(apiKey: "", subdomain: ""),
         quickNodeMonadCredentials: .init(apiKey: "", subdomain: ""),
+        quickNodeRobinhoodCredentials: .init(apiKey: "", subdomain: ""),
         bittensorDwellirKey: "",
         dwellirApiKey: "",
         bittensorOnfinalityKey: "",

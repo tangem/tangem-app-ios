@@ -105,7 +105,7 @@ struct SendView: View {
 
         case .qrCodeButton(let action):
             ToolbarItem(placement: placement) {
-                Button(action: action) {
+                SwiftUI.Button(action: action) {
                     Assets.qrCode.image
                         .renderingMode(.template)
                         .foregroundColor(Colors.Icon.primary1)
@@ -114,7 +114,7 @@ struct SendView: View {
 
         case .dotsButton(let action):
             ToolbarItem(placement: placement) {
-                Button(action: action) {
+                SwiftUI.Button(action: action) {
                     NavbarDotsImage()
                 }
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.settingsButton)

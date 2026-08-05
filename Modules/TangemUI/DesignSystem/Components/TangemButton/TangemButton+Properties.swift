@@ -16,6 +16,7 @@ public extension TangemButton {
         public let styleType: StyleType
         public let cornerStyle: CornerStyle
         public let horizontalLayout: HorizontalLayout
+        public let isLoading: Bool
         public let action: @Sendable () -> Void
 
         public init(
@@ -24,6 +25,7 @@ public extension TangemButton {
             styleType: StyleType = .primary,
             cornerStyle: CornerStyle = .rounded,
             horizontalLayout: HorizontalLayout = .infinity,
+            isLoading: Bool = false,
             action: @Sendable @escaping () -> Void
         ) {
             self.content = content
@@ -31,6 +33,7 @@ public extension TangemButton {
             self.styleType = styleType
             self.cornerStyle = cornerStyle
             self.horizontalLayout = horizontalLayout
+            self.isLoading = isLoading
             self.action = action
         }
 
@@ -44,6 +47,7 @@ public extension TangemButton {
             hasher.combine(styleType)
             hasher.combine(cornerStyle)
             hasher.combine(horizontalLayout)
+            hasher.combine(isLoading)
         }
     }
 }

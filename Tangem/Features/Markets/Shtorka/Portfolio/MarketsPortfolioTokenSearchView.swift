@@ -13,8 +13,8 @@ import TangemAssets
 struct MarketsPortfolioTokenSearchView: View {
     typealias ViewModel = MarketsPortfolioTokenSearchViewModel
 
-    @ScaledMetric private var contentSpacing: CGFloat = .unit(.x2)
-    @ScaledMetric private var itemsSpacing: CGFloat = .unit(.x2)
+    @ScaledMetric private var contentSpacing: CGFloat = 8
+    @ScaledMetric private var itemsSpacing: CGFloat = 8
 
     @ObservedObject var viewModel: ViewModel
 
@@ -96,7 +96,7 @@ private extension MarketsPortfolioTokenSearchView {
 // MARK: - ExpandableContainer
 
 private struct ExpandableContainer<Footer: View, Content: View>: View {
-    @ScaledMetric private var verticalSpacing: CGFloat = .unit(.x2)
+    @ScaledMetric private var verticalSpacing: CGFloat = 8
 
     private var height: CGFloat? {
         isExpanded ? nil : 0

@@ -29,7 +29,7 @@ enum MobileOnboardingFlowNavBarAction {
             CloseTextButton(action: handler)
                 .padding(.leading, 16)
         case .skip(let handler):
-            Button(action: handler) {
+            SwiftUI.Button(action: handler) {
                 Text(Localization.commonSkip)
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
                     .frame(height: OnboardingLayoutConstants.navbarSize.height)

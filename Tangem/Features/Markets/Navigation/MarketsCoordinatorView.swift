@@ -16,12 +16,6 @@ struct MarketsCoordinatorView: CoordinatorView {
     var body: some View {
         NavigationStack {
             ZStack {
-                // [REDACTED_TODO_COMMENT]
-                if let marketsViewModel = coordinator.marketsViewModel {
-                    MarketsView(viewModel: marketsViewModel)
-                        .navigationLinks(links)
-                }
-
                 if let mainMarketsViewModel = coordinator.marketsMainViewModel {
                     MarketsMainView(viewModel: mainMarketsViewModel)
                         .navigationLinks(links)
@@ -31,14 +25,14 @@ struct MarketsCoordinatorView: CoordinatorView {
             }
             .ignoresSafeArea(.container, edges: .top) // Without it, the content won't go into the safe area top zone on over-scroll
         }
-        .tint(Colors.Text.primary1)
+        .tint(DesignSystem.Color.textPrimary)
     }
 
     private var sheets: some View {
         NavHolder()
             .bottomSheet(
                 item: $coordinator.marketsListOrderBottomSheetViewModel,
-                backgroundColor: Colors.Background.tertiary
+                backgroundColor: DesignSystem.Color.bgTertiary
             ) {
                 MarketsListOrderBottomSheetView(viewModel: $0)
             }
@@ -56,7 +50,7 @@ struct MarketsCoordinatorView: CoordinatorView {
                             )
                         }
                 }
-                .tint(Colors.Text.primary1)
+                .tint(DesignSystem.Color.textPrimary)
             }
     }
 
@@ -83,8 +77,8 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.portfolioTokenDetailsCoordinator) {
                 TokenDetailsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.forYouViewModel) { viewModel in
-                ForYouView(viewModel: viewModel, onBackButtonAction: { coordinator.forYouViewModel = nil })
+            .navigation(item: $coordinator.forYouCoordinator) {
+                ForYouCoordinatorView(coordinator: $0)
             }
     }
 

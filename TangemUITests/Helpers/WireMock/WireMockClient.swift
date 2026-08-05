@@ -85,6 +85,42 @@ final class WireMockClient {
         return scenarios.first { $0.name == scenarioName }?.state
     }
 
+    // MARK: - Request Journal
+
+    /// Count requests matching the given method and URL path pattern in the WireMock journal
+    func requestCount(method: String, urlPathPattern: String) async throws -> Int {
+        let url = URL(string: "\(baseURL)/__admin/requests/count")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(WireMockRequestCountRequest(method: method, urlPathPattern: urlPathPattern))
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw WireMockError.httpError(response)
+        }
+
+        return try JSONDecoder().decode(WireMockRequestCountResponse.self, from: data).count
+    }
+
+    /// Count requests matching the given method and URL pattern, which also covers the query string
+    func requestCount(method: String, urlPattern: String) async throws -> Int {
+        let url = URL(string: "\(baseURL)/__admin/requests/count")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(WireMockRequestCountURLPatternRequest(method: method, urlPattern: urlPattern))
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw WireMockError.httpError(response)
+        }
+
+        return try JSONDecoder().decode(WireMockRequestCountResponse.self, from: data).count
+    }
+
     // MARK: - Sync Wrappers for XCTest
 
     func resetAllScenariosSync() {
@@ -113,6 +149,38 @@ final class WireMockClient {
             }
         }
         XCTestCase().wait(for: [expectation], timeout: .networkRequest)
+    }
+
+    func requestCountSync(method: String, urlPathPattern: String) -> Int {
+        var count = 0
+        let expectation = XCTestExpectation(description: "Count WireMock requests")
+        Task {
+            do {
+                count = try await requestCount(method: method, urlPathPattern: urlPathPattern)
+                expectation.fulfill()
+            } catch {
+                XCTFail("Failed to count requests for \(method) \(urlPathPattern): \(error)")
+                expectation.fulfill()
+            }
+        }
+        XCTestCase().wait(for: [expectation], timeout: .networkRequest)
+        return count
+    }
+
+    func requestCountSync(method: String, urlPattern: String) -> Int {
+        var count = 0
+        let expectation = XCTestExpectation(description: "Count WireMock requests by URL pattern")
+        Task {
+            do {
+                count = try await requestCount(method: method, urlPattern: urlPattern)
+                expectation.fulfill()
+            } catch {
+                XCTFail("Failed to count requests for \(method) \(urlPattern): \(error)")
+                expectation.fulfill()
+            }
+        }
+        XCTestCase().wait(for: [expectation], timeout: .networkRequest)
+        return count
     }
 
     func resetScenarioSync(_ scenarioName: String) {

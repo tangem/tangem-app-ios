@@ -35,7 +35,7 @@ struct EarnDeeplinkContainerView: View {
                             )
                         }
                 }
-                .tint(Colors.Text.primary1)
+                .tint(DesignSystem.Color.textPrimary)
             }
             .fullScreenCover(item: $coordinator.yieldModulePromoCoordinator) { promoCoordinator in
                 NavigationStack {
@@ -47,7 +47,7 @@ struct EarnDeeplinkContainerView: View {
                             )
                         }
                 }
-                .tint(Colors.Text.primary1)
+                .tint(DesignSystem.Color.textPrimary)
             }
             .sheet(item: $coordinator.yieldModuleActiveCoordinator) { activeCoordinator in
                 YieldModuleActiveCoordinatorView(coordinator: activeCoordinator)

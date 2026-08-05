@@ -326,14 +326,14 @@ private enum BottomSheetContainerPreviewData {
                 }
 
                 VStack {
-                    Button(action: viewModel.close) {
+                    SwiftUI.Button(action: viewModel.close) {
                         Text(Localization.commonCancel)
                             .frame(maxWidth: .infinity)
                             .background(Color.red)
                             .padding(.horizontal, 16)
                     }
 
-                    Button(action: viewModel.close) {
+                    SwiftUI.Button(action: viewModel.close) {
                         Text(Localization.commonClose)
                             .frame(maxWidth: .infinity)
                             .background(Color.red)
@@ -368,7 +368,7 @@ private enum BottomSheetContainerPreviewData {
         Colors.Background.primary
             .edgesIgnoringSafeArea(.all)
 
-        Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
+        SwiftUI.Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
             coordinator.toggleItem()
         }
         .font(Fonts.Bold.body)
