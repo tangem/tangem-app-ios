@@ -18,5 +18,6 @@ struct TokenSummaryInput {
     let swapCandidates: [any WalletModel]
     let underivedTokens: [MarketsPortfolioTokenListViewModel.UnderivedToken]
     let addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData
+    let isTokenAddedEverywhere: Bool
     let iconURL: URL
 }
