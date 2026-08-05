@@ -1,5 +1,5 @@
 //
-//  UserTokensPushNotificationsManager.swift
+//  UserWalletPushNotificationsManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,23 +9,17 @@
 import Foundation
 import Combine
 
-// [REDACTED_TODO_COMMENT]
-protocol UserTokensPushNotificationsManager {
-    @available(iOS, deprecated: 100000.0, message: "Will be removed after full migration to channel-based push notifications.")
-    var statusPublisher: AnyPublisher<UserWalletPushNotifyStatus, Never> { get }
-    @available(iOS, deprecated: 100000.0, message: "Will be removed after full migration to channel-based push notifications.")
-    var status: UserWalletPushNotifyStatus { get }
-
+protocol UserWalletPushNotificationsManager {
     /// Emits the current per-channel preference state whenever it changes (fetch, optimistic
     /// update, or rollback). Consumers can use `RemotePushPreferences.remoteValueState(for:)`
     /// to extract a single channel's `PushRemoteValueState<PushChannelPreference>`.
     var preferencesPublisher: AnyPublisher<RemotePushPreferences, Never> { get }
 
-    /// Displayed last synced remote status on backend
-    @available(iOS, deprecated: 100000.0, message: "Will be removed after full migration to channel-based push notifications. [REDACTED_INFO]")
-    var isRemoteStatusEnabled: Bool { get }
+    /// The latest per-channel preference snapshot — a synchronous read of the value
+    /// `preferencesPublisher` currently holds.
+    var preferences: RemotePushPreferences { get }
 
-    /// Handles a push-status event and updates internal manager state accordingly.
+    /// Handles a push-notification event and updates internal manager state accordingly.
     func process(_ event: UserWalletPushNotificationsEvent)
 
     /// User toggled the switch for the given channel (UI intent).
@@ -37,16 +31,12 @@ protocol UserTokensPushNotificationsManager {
     func refetchPreferences() async throws
 }
 
-/// Events that drive push-notification status transitions. Callers post these
+/// Events that drive push-notification preference transitions. Callers post these
 /// through `process(_:)` instead of invoking dedicated handler methods; the manager
-/// owns the fan-out into remote-subject updates, status recomputation, and any
-/// downstream backend resync.
+/// owns the fan-out into the preferences fetch and any downstream backend resync.
 enum UserWalletPushNotificationsEvent: Equatable {
-    /// Triggers manager-side status synchronization after wallet binding with application sync.
+    /// Triggers a manager-side preferences fetch after wallet binding with application sync.
     case walletApplicationBindingSynchronized
     /// Push sync cannot proceed because wallet/application binding info is unavailable.
     case walletBindingInfoUnavailable
-    /// Remote status was fetched or refreshed (e.g., during initial sync or after
-    /// a backend response).
-    case remoteStatusReceived(Bool, PushChannel)
 }
