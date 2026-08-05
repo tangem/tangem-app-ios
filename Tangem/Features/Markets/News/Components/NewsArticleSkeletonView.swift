@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemFoundation
 import TangemUI
 
@@ -34,22 +35,22 @@ private extension NewsArticleSkeletonView {
             ScrollView {
                 VStack(alignment: .leading, spacing: .zero) {
                     rateBlockSkeleton
-                        .padding(.top, .unit(.x4))
+                        .padding(.top, 16)
 
-                    FixedSpacer(height: .unit(.x5))
+                    FixedSpacer(height: 20)
 
                     titleSkeleton
 
-                    FixedSpacer(height: .unit(.x4))
+                    FixedSpacer(height: 16)
 
                     categoryChipsSkeleton
 
-                    FixedSpacer(height: .unit(.x8))
+                    FixedSpacer(height: 32)
 
                     contentSkeletonLines
                 }
-                .padding(.horizontal, .unit(.x4))
-                .padding(.top, .unit(.x4))
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
             }
             .scrollIndicators(.hidden)
         }
@@ -59,7 +60,7 @@ private extension NewsArticleSkeletonView {
                 rateColumnSkeleton(titleWidth: 70, subtitleWidth: 110)
 
                 Rectangle()
-                    .fill(Color.Tangem.Border.Neutral.primary)
+                    .fill(DesignSystem.Color.borderSecondary)
                     .frame(width: 1, height: 45)
 
                 rateColumnSkeleton(titleWidth: 50, subtitleWidth: 120)
@@ -68,51 +69,45 @@ private extension NewsArticleSkeletonView {
 
         private func rateColumnSkeleton(titleWidth: CGFloat, subtitleWidth: CGFloat) -> some View {
             VStack(alignment: .leading, spacing: 10) {
-                SkeletonView()
-                    .frame(width: titleWidth, height: 16)
-                    .cornerRadius(8)
+                Shimmer()
+                    .variant(.custom(width: titleWidth, height: 16, cornerRadius: 8))
 
-                SkeletonView()
-                    .frame(width: subtitleWidth, height: 16)
-                    .cornerRadius(8)
+                Shimmer()
+                    .variant(.custom(width: subtitleWidth, height: 16, cornerRadius: 8))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
 
         private var titleSkeleton: some View {
-            VStack(alignment: .leading, spacing: .unit(.x3)) {
-                SkeletonView()
+            VStack(alignment: .leading, spacing: 12) {
+                Shimmer()
+                    .variant(.custom(height: 32, cornerRadius: 16))
                     .frame(maxWidth: .infinity)
-                    .frame(height: 32)
-                    .cornerRadius(16)
 
-                SkeletonView()
-                    .frame(width: (contentWidth - 32) * 0.6, height: 32)
-                    .cornerRadius(16)
+                Shimmer()
+                    .variant(.custom(width: (contentWidth - 32) * 0.6, height: 32, cornerRadius: 16))
             }
         }
 
         private var categoryChipsSkeleton: some View {
-            HStack(spacing: .unit(.x1)) {
-                SkeletonView()
-                    .frame(width: 82, height: 32)
-                    .cornerRadius(16)
+            HStack(spacing: 4) {
+                Shimmer()
+                    .variant(.custom(width: 82, height: 32, cornerRadius: 16))
 
-                SkeletonView()
-                    .frame(width: 66, height: 32)
-                    .cornerRadius(16)
+                Shimmer()
+                    .variant(.custom(width: 66, height: 32, cornerRadius: 16))
             }
         }
 
         private var contentSkeletonLines: some View {
-            VStack(alignment: .leading, spacing: .unit(.x2)) {
+            VStack(alignment: .leading, spacing: 8) {
                 ForEach(0 ..< contentLineWidths.count, id: \.self) { index in
-                    SkeletonView()
-                        .frame(
+                    Shimmer()
+                        .variant(.custom(
                             width: (contentWidth - 32) * contentLineWidths[index],
-                            height: 16
-                        )
-                        .cornerRadius(8)
+                            height: 16,
+                            cornerRadius: 8
+                        ))
                 }
             }
         }

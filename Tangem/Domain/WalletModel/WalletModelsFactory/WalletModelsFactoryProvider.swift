@@ -12,7 +12,7 @@ struct WalletModelsFactoryProvider {
     let userWalletId: UserWalletId
     let userWalletConfig: UserWalletConfig
     let keysRepository: KeysRepository
-    let keysDerivingInteractor: KeysDeriving
+    let keysDerivingInteractorFactory: KeysDerivingInteractorFactory
     let transactionHistoryProviderRegistry: TransactionHistoryProviderRegistry
     let transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage
 
@@ -22,7 +22,7 @@ struct WalletModelsFactoryProvider {
     ) -> any WalletModelsFactory {
         let dynamicAddressesManagerProvider = DynamicAddressesManagerProvider(
             keysRepository: keysRepository,
-            keysDerivingInteractor: keysDerivingInteractor,
+            keysDerivingInteractorFactory: keysDerivingInteractorFactory,
             blockchainSettingsUpdater: blockchainSettingsUpdater,
             userTokensManager: userTokensManager
         )

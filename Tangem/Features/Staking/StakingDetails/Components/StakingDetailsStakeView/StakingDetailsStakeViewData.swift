@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemStaking
+import TangemAccessibilityIdentifiers
 
 struct StakingDetailsStakeViewData: Identifiable {
     var id: Int { hashValue }
@@ -20,6 +21,19 @@ struct StakingDetailsStakeViewData: Identifiable {
     let subtitleType: SubtitleType?
     let balance: BalanceFormatted
     let action: (() -> Void)?
+
+    var accessibilityIdentifier: String? {
+        switch subtitleType {
+        case .active:
+            return StakingAccessibilityIdentifiers.activeStakeRow
+        case .unbonding:
+            return StakingAccessibilityIdentifiers.unstakingStakeRow
+        case .withdraw:
+            return StakingAccessibilityIdentifiers.withdrawStakeRow
+        default:
+            return nil
+        }
+    }
 
     var subtitle: AttributedString? {
         switch subtitleType {
