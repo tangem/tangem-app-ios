@@ -35,6 +35,8 @@ struct LocalStakingTransactionValidator: StakingTransactionValidator {
             try BNBStakingTransactionValidator.validate(unsignedData)
         case .cardano:
             try CardanoStakingTransactionValidator.validate(unsignedData)
+        case .ethereumPOL:
+            try POLStakingTransactionValidator.validate(unsignedData)
         }
     }
 }
