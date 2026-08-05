@@ -15,6 +15,9 @@ final class TangemPayAddToAppPayGuideScreen: ScreenBase<TangemPayAddToAppPayGuid
     private lazy var cardNumberValue = scopedElement(TangemPayAccessibilityIdentifiers.cardDetailsNumberValue)
     private lazy var cardExpirationValue = scopedElement(TangemPayAccessibilityIdentifiers.cardDetailsExpirationValue)
     private lazy var cardCvcValue = scopedElement(TangemPayAccessibilityIdentifiers.cardDetailsCvcValue)
+    private lazy var copyNumberButton = scopedElement(TangemPayAccessibilityIdentifiers.cardDetailsCopyNumber)
+    private lazy var copyExpirationButton = scopedElement(TangemPayAccessibilityIdentifiers.cardDetailsCopyExpiration)
+    private lazy var copyCvcButton = scopedElement(TangemPayAccessibilityIdentifiers.cardDetailsCopyCvc)
     private lazy var closeButton = button(.closeButton)
 
     @discardableResult
@@ -72,6 +75,30 @@ final class TangemPayAddToAppPayGuideScreen: ScreenBase<TangemPayAddToAppPayGuid
                 cardCvcValue.waitForNonExistence(timeout: .conditional),
                 "Card CVC should not be revealed inside the guide"
             )
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapCopyCardNumber() -> Self {
+        XCTContext.runActivity(named: "Tap copy card number inside the guide") { _ in
+            copyNumberButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapCopyExpiration() -> Self {
+        XCTContext.runActivity(named: "Tap copy expiration date inside the guide") { _ in
+            copyExpirationButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapCopyCvc() -> Self {
+        XCTContext.runActivity(named: "Tap copy CVC inside the guide") { _ in
+            copyCvcButton.waitAndTap()
             return self
         }
     }

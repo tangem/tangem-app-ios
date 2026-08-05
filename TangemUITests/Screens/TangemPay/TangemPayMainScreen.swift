@@ -30,6 +30,8 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var moreActionsButton = button(.moreActionsButton)
     private lazy var termsAndFeesMenuItem = button("Terms and fees")
     private lazy var backButton = app.navigationBars.buttons.element(boundBy: 0)
+    private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
+    private lazy var applePayGuideBannerCloseButton = app.buttons[TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton].firstMatch
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -256,6 +258,37 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
             waitAndAssertTrue(historyErrorMessage, timeout: .networkRequest, "History error message should be displayed")
             waitAndAssertTrue(historyStateIcon, "History error icon should be displayed")
             waitAndAssertTrue(reloadHistoryButton, "Reload button should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyApplePayGuideBannerVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Apple/Google Pay banner is displayed on payment account") { _ in
+            waitAndAssertTrue(
+                applePayGuideBanner,
+                timeout: .networkRequest,
+                "Apple/Google Pay banner should be displayed on payment account screen"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyApplePayGuideBannerHidden() -> Self {
+        XCTContext.runActivity(named: "Verify Apple/Google Pay banner is not displayed on payment account") { _ in
+            XCTAssertTrue(
+                applePayGuideBanner.waitForNonExistence(timeout: .robustUIUpdate),
+                "Apple/Google Pay banner should not be displayed on payment account screen"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func closeApplePayGuideBanner() -> Self {
+        XCTContext.runActivity(named: "Close Apple/Google Pay banner") { _ in
+            applePayGuideBannerCloseButton.waitAndTap()
             return self
         }
     }
