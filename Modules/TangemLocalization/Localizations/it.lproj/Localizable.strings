@@ -1752,6 +1752,7 @@
 "tangempay_account_unable_to_use_rooted" = "Non disponibile su dispositivi rooted";
 "tangempay_available_balance" = "Saldo";
 "tangempay_bank_transfer_fee_ach" = "ACH";
+"tangempay_bank_transfer_fee_error_subtitle" = "Tap to reload";
 "tangempay_bank_transfer_fee_error_title" = "Error loading fee info";
 "tangempay_bank_transfer_fee_fedwire" = "FedWire";
 "tangempay_bank_transfer_fee_header" = "Commissione onramp";
