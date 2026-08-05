@@ -16,9 +16,14 @@ import TangemMacro
 
 struct TransactionViewModel: Hashable, Identifiable {
     let id: ViewModelId
-    let hash: String
     let icon: TransactionViewIconViewData
     let amount: TransactionViewAmountViewData
+
+    /// The stable record identity behind this row — used to look the record up in the history stream.
+    var recordID: TransactionRecord.ID { id.id }
+
+    var hash: String { recordID.hash }
+    var index: Int { recordID.index }
 
     /// Resolved at construction time by the `SubtitleOwnerResolver` for records that have a
     /// single resolvable counterparty. `nil` for legacy callers that don't run resolution.
@@ -27,6 +32,9 @@ struct TransactionViewModel: Hashable, Identifiable {
     /// Pre-computed title/subtitle/style for the redesigned row/chip. Baked once so SwiftUI body
     /// re-evaluations don't re-run the matrix.
     let display: TransactionDisplayModel
+
+    /// Optional warning surfaced under the row. The concrete copy is resolved by the view.
+    let warning: Warning?
 
     var inProgress: Bool {
         status == .inProgress
@@ -128,10 +136,10 @@ struct TransactionViewModel: Hashable, Identifiable {
         status: TransactionViewModel.Status,
         isFromYieldContract: Bool,
         subtitleOwner: SubtitleOwner? = nil,
-        cardName: String? = nil
+        cardName: String? = nil,
+        warning: Warning? = nil
     ) {
         id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
-        self.hash = hash
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
         self.amount = TransactionViewAmountViewData(
             amount: amount,
@@ -151,6 +159,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         self.status = status
         self.subtitleOwner = subtitleOwner
         self.cardName = cardName
+        self.warning = warning
 
         display = TransactionDisplayModel.make(
             transactionType: transactionType,
@@ -330,6 +339,11 @@ extension TransactionViewModel {
         case failed
         case confirmed
         case undefined
+    }
+
+    enum Warning: Hashable {
+        case verifying
+        case paused
     }
 
     /// Counterparty rendered alongside the direction prefix in the redesigned subtitle.

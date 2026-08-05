@@ -212,7 +212,7 @@ public struct TangemTokenRow: View {
     }
 
     private func rewardsBadge(info: TangemTokenRowViewData.RewardsInfo) -> some View {
-        TangemBadgeV2(label: info.value, accessibilityLabel: nil)
+        Badge(label: info.value, accessibilityLabel: nil)
             .size(.x4)
             .variant(.tinted)
             .appearance(info.isActive ? .info : .neutral)

@@ -4,13 +4,21 @@
       "tint": {
         "glass": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.material.tint.glass",
+              "iOS": "iosIgnores"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
-          "$value": "rgba({palette.neutral.80},{opacity.40})"
+          "$value": "rgba(#1b1b1b,{opacity.60})"
         },
         "blur": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.material.tint.blur",
+              "iOS": "iosIgnores"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -18,6 +26,10 @@
         },
         "solid": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.material.tint.solid",
+              "iOS": "iosIgnores"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -27,6 +39,10 @@
       "fill": {
         "glass": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.material.fill.glass",
+              "iOS": "DesignSystem.Color.materialFillGlass"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -34,6 +50,10 @@
         },
         "blur": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.material.fill.blur",
+              "iOS": "DesignSystem.Color.materialFillBlur"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -41,15 +61,23 @@
         },
         "solid": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.material.fill.solid",
+              "iOS": "DesignSystem.Color.materialFillSolid"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
-          "$value": "rgba({palette.neutral.80}, {opacity.90})"
+          "$value": "{palette.neutral.80}"
         }
       },
       "lighten": {
         "glass": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -57,6 +85,10 @@
         },
         "blur": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -64,6 +96,10 @@
         },
         "solid": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -73,6 +109,10 @@
       "soft-light": {
         "glass": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -80,6 +120,10 @@
         },
         "blur": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -87,6 +131,10 @@
         },
         "solid": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -96,6 +144,10 @@
       "border": {
         "start": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.material.border.start",
+              "iOS": "DesignSystem.Color.materialBorderStart"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -103,6 +155,10 @@
         },
         "mid": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.material.border.mid",
+              "iOS": "DesignSystem.Color.materialBorderMid"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
@@ -110,6 +166,364 @@
         },
         "end": {
           "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.material.border.end",
+              "iOS": "DesignSystem.Color.materialBorderEnd"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.10})"
+        }
+      }
+    },
+    "material-inverted": {
+      "tint": {
+        "glass": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialInverted.tint.glass",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white},{opacity.70})"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialInverted.tint.blur",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialInverted.tint.solid",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.10})"
+        }
+      },
+      "fill": {
+        "glass": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialInverted.fill.glass",
+              "iOS": "DesignSystem.Color.materialInvertedFillGlass"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialInverted.fill.blur",
+              "iOS": "DesignSystem.Color.materialInvertedFillBlur"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.70})"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialInverted.fill.solid",
+              "iOS": "DesignSystem.Color.materialInvertedFillSolid"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.95})"
+        }
+      },
+      "lighten": {
+        "glass": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white} ,{opacity.20})"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        }
+      },
+      "soft-light": {
+        "glass": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.10})"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        }
+      },
+      "border": {
+        "start": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialInverted.border.start",
+              "iOS": "DesignSystem.Color.materialInvertedBorderStart"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.20})"
+        },
+        "mid": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialInverted.border.mid",
+              "iOS": "DesignSystem.Color.materialInvertedBorderMid"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.0})"
+        },
+        "end": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialInverted.border.end",
+              "iOS": "DesignSystem.Color.materialInvertedBorderEnd"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.10})"
+        }
+      }
+    },
+    "material-modal": {
+      "tint": {
+        "glass": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialModal.tint.glass",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.neutral.80},{opacity.40})"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialModal.tint.blur",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialModal.tint.solid",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.10})"
+        }
+      },
+      "fill": {
+        "glass": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialModal.fill.glass",
+              "iOS": "DesignSystem.Color.materialModalFillGlass"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialModal.fill.blur",
+              "iOS": "DesignSystem.Color.materialModalFillBlur"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.10})"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialModal.fill.solid",
+              "iOS": "DesignSystem.Color.materialModalFillSolid"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.neutral.80}, {opacity.90})"
+        }
+      },
+      "lighten": {
+        "glass": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba(24,24,24,{opacity.20})"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        }
+      },
+      "soft-light": {
+        "glass": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.black}, {opacity.10})"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "androidIgnores",
+              "iOS": "iosIgnores"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        }
+      },
+      "border": {
+        "start": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialModal.border.start",
+              "iOS": "DesignSystem.Color.materialModalBorderStart"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.20})"
+        },
+        "mid": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialModal.border.mid",
+              "iOS": "DesignSystem.Color.materialModalBorderMid"
+            },
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.0})"
+        },
+        "end": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.materialModal.border.end",
+              "iOS": "DesignSystem.Color.materialModalBorderEnd"
+            },
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",

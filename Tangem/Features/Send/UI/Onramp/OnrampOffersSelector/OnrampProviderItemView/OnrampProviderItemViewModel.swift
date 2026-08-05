@@ -45,7 +45,8 @@ extension OnrampProviderItemViewModel {
     struct PaymentMethod: Hashable {
         let id: String
         let name: String
-        let iconURL: URL?
+        let lightIconURL: URL?
+        let darkIconURL: URL?
     }
 
     struct Amount: Hashable {
