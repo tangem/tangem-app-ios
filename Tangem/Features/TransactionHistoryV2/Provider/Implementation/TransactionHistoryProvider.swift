@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import CombineExt
 import BlockchainSdk
-import CryptoSwift
 import TangemExpress
 import TangemFoundation
 
@@ -18,7 +17,7 @@ final actor TransactionHistoryProvider {
     @Injected(\.transactionHistoryAuxDataRepository) private nonisolated var auxDataRepository: TransactionHistoryAuxDataRepository
 
     private let repository: TransactionHistoryRepository
-    private let syncMetadataStorage: () async -> SyncMetadataStorage
+    private let syncMetadataStorage: TransactionHistorySyncMetadataStorage
     private let tokenItem: TokenItem
     private let userWalletId: UserWalletId
     private let address: String
@@ -56,25 +55,24 @@ final actor TransactionHistoryProvider {
 
     init(
         repository: TransactionHistoryRepository,
+        syncMetadataStorage: TransactionHistorySyncMetadataStorage,
         userWalletId: UserWalletId,
         tokenItem: TokenItem,
         address: String
     ) {
         self.repository = repository
+        self.syncMetadataStorage = syncMetadataStorage
         self.tokenItem = tokenItem
         self.userWalletId = userWalletId
         self.address = address
-
-        syncMetadataStorage = { @MainActor in
-            SyncMetadataStorage(userWalletId: userWalletId, address: address)
-        }
 
         subscribeToRepositoryUpdates()
         subscribeToAuxDataUpdates()
     }
 
     private nonisolated func subscribeToRepositoryUpdates() {
-        let exchangeUpdatesSubscription = runTask { [weak self] in
+        // Bare `Task` is used here intentionally to avoid capturing `self` for the duration of the subscription
+        let exchangeUpdatesSubscription = Task { [weak self] in
             guard let stream = self?.repository.exchangeHistoryUpdates else {
                 return
             }
@@ -85,7 +83,8 @@ final actor TransactionHistoryProvider {
         }
         .eraseToAnyCancellable()
 
-        let onrampUpdatesSubscription = runTask { [weak self] in
+        // Bare `Task` is used here intentionally to avoid capturing `self` for the duration of the subscription
+        let onrampUpdatesSubscription = Task { [weak self] in
             guard let stream = self?.repository.onrampHistoryUpdates else {
                 return
             }
@@ -103,7 +102,8 @@ final actor TransactionHistoryProvider {
     }
 
     private nonisolated func subscribeToAuxDataUpdates() {
-        let auxDataSubscription = runTask { [weak self] in
+        // Bare `Task` is used here intentionally to avoid capturing `self` for the duration of the subscription
+        let auxDataSubscription = Task { [weak self] in
             guard let stream = self?.auxDataRepository.didLoadAuxData else {
                 return
             }
@@ -127,9 +127,12 @@ final actor TransactionHistoryProvider {
     private func markInitialSyncCompleted() {
         _hasCompletedInitialSync = true
         // Fire-and-forget, we don't need to await this because we have an actor-protected value
-        runTask { [syncMetadataStorage] in
-            let storage = await syncMetadataStorage()
-            await MainActor.run { storage.hasCompletedInitialSync = true }
+        runTask(in: self) { provider in
+            do {
+                try await provider.syncMetadataStorage.setIsInitialSyncDone(true)
+            } catch {
+                TransactionHistoryLogger.error(provider, "Failed to persist the initial sync flag", error: error)
+            }
         }
     }
 
@@ -139,7 +142,16 @@ final actor TransactionHistoryProvider {
             return cached
         }
 
-        let value = await syncMetadataStorage().hasCompletedInitialSync
+        let value: Bool
+
+        do {
+            value = try await syncMetadataStorage.isInitialSyncDone()
+        } catch {
+            // No caching on error, because we want to retry on the next call
+            TransactionHistoryLogger.error(self, "Failed to read the initial sync flag", error: error)
+
+            return false
+        }
 
         // Double-check required since there is a suspension point above on storage read
         if let cached = _hasCompletedInitialSync {
@@ -444,38 +456,5 @@ private extension TransactionHistoryProvider {
         static let pullToRefreshThrottle: TimeInterval = 10
         static let postBroadcastDelay: Duration = .seconds(5)
         static let maskedAddressPrefixSuffixLength = 4
-    }
-}
-
-// MARK: - Auxiliary types
-
-private extension TransactionHistoryProvider {
-    // [REDACTED_TODO_COMMENT]
-    /// A dummy wrapper to allow initialization of a MainActor-isolated `AppStorageCompat` instance inside
-    /// the synchronous and implicitly isolated init of the `TransactionHistoryProvider` actor.
-    /// Without it, we either would have to make that init async or silence the compiler warning
-    /// `Call to main actor-isolated initializer 'init...' in a synchronous actor-isolated context`.
-    final class SyncMetadataStorage {
-        @AppStorageCompat<SyncMetadataStorageKey, Bool>
-        var hasCompletedInitialSync: Bool
-
-        init(
-            userWalletId: UserWalletId,
-            address: String
-        ) {
-            _hasCompletedInitialSync = .init(wrappedValue: false, .makeKey(userWalletId: userWalletId, address: address))
-        }
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    struct SyncMetadataStorageKey: RawRepresentable {
-        let rawValue: String
-
-        static func makeKey(
-            userWalletId: UserWalletId,
-            address: String
-        ) -> Self {
-            Self(rawValue: "TransactionHistoryV2InitialSyncCompleted_\(userWalletId.stringValue)_\(address.sha256())")
-        }
     }
 }

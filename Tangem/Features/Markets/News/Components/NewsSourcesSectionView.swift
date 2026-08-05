@@ -11,6 +11,7 @@ import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct NewsSourcesSectionView: View {
     let sources: [NewsSource]
@@ -23,19 +24,19 @@ struct NewsSourcesSectionView: View {
     // MARK: - Redesign
 
     private var redesignContent: some View {
-        VStack(alignment: .leading, spacing: .unit(.x3)) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(Localization.newsRelatedNews)
-                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
-                .padding(.horizontal, .unit(.x4))
-                .padding(.vertical, .unit(.x3))
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
 
             ScrollView(.horizontal) {
-                HStack(spacing: .unit(.x3)) {
+                HStack(spacing: 12) {
                     ForEach(sources) { source in
                         NewsSourceCardView(source: source, onTap: onSourceTap)
                     }
                 }
-                .padding(.horizontal, .unit(.x4))
+                .padding(.horizontal, 16)
             }
             .scrollIndicators(.hidden)
         }

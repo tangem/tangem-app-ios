@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
+import TangemUIUtils
 
 struct MarketsTokenDetailsSecurityScoreRatingView: View {
     let viewData: MarketsTokenDetailsSecurityScoreRatingViewData
@@ -16,7 +17,7 @@ struct MarketsTokenDetailsSecurityScoreRatingView: View {
     var body: some View {
         HStack(spacing: 6.0) {
             Text(viewData.securityScore)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
                 .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreValue)
 
             Group {
@@ -56,7 +57,7 @@ private extension MarketsTokenDetailsSecurityScoreRatingView {
                 .image
                 .resizable()
                 .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                 .frame(size: Constants.ratingViewDimensions)
         }
     }

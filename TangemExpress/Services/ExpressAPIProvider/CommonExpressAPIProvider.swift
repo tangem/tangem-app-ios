@@ -9,6 +9,7 @@
 import Foundation
 import AnyCodable
 import TangemLogger
+import TangemFoundation
 
 final class CommonExpressAPIProvider {
     let expressAPIService: ExpressAPIService
@@ -44,11 +45,15 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return pairs
     }
 
-    func providers(branch: ExpressBranch) async throws -> [ExpressProvider] {
+    func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] {
         let response = try await expressAPIService.providers()
+        let supportedProviderTypes = branches
+            .flatMap(\.supportedProviderTypes)
+            .toSet()
+
         let providers = response
             .map(expressAPIMapper.mapToExpressProvider(provider:))
-            .filter { branch.supportedProviderTypes.contains($0.type) }
+            .filter { supportedProviderTypes.contains($0.type) }
 
         return providers
     }
@@ -59,7 +64,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
         switch item.amountType {
         case .from:
-            fromAmount = item.sourceAmountWEI()
+            fromAmount = try item.sourceAmountWEI()
             toAmount = nil
         case .to:
             fromAmount = nil
@@ -86,6 +91,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
         let response = try await expressAPIService.exchangeQuote(request: request)
         var quote = try expressAPIMapper.mapToExpressQuote(response: response)
+        quote.fromAmount = item.displayedSourceAmount(quote.fromAmount)
 
         // We have to check the "fromAmount" because sometimes we can receive it more than was sent
         // Only applicable for .from quotes where the user specified the source amount
@@ -104,7 +110,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
         switch item.amountType {
         case .from:
-            fromAmount = item.sourceAmountWEI()
+            fromAmount = try item.sourceAmountWEI()
             toAmount = nil
         case .to:
             fromAmount = nil

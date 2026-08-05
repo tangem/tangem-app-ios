@@ -183,7 +183,7 @@ struct TransactionHistoryExpressDataMergerTests {
         #expect(synthetic.type == .contractMethodName(name: "swap"))
         #expect(synthetic.isOutgoing)
         #expect(synthetic.status == .unconfirmed)
-        #expect(synthetic.hash == "exchange-tx")
+        #expect(synthetic.hash == "ExpressSyntheticTx_exchange-tx")
         #expect(synthetic.exchangeInfo != nil)
     }
 
@@ -1632,7 +1632,7 @@ struct TransactionHistoryExpressDataMergerTests {
 
         #expect(output.count == 2)
         #expect(record(in: output, hash: "0xShared")?.exchangeInfo?.transaction.txId == "E1")
-        let synthetic = try #require(record(in: output, hash: "E2"))
+        let synthetic = try #require(record(in: output, hash: "ExpressSyntheticTx_E2"))
         #expect(synthetic.exchangeInfo?.transaction.txId == "E2")
     }
 

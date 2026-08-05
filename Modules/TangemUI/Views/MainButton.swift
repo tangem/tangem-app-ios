@@ -69,7 +69,7 @@ public struct MainButton: View {
     }
 
     public var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             content
                 .frame(maxWidth: .infinity, minHeight: size.height, maxHeight: size.height, alignment: .center)
                 .background(style.background(isDisabled: isDisabled))

@@ -374,12 +374,27 @@ extension VisaOnboardingViewModel: UserWalletStorageAgreementRoutable {
     func didAskToSaveUserWallets(agreed: Bool) {
         visaActivationManager.setupRefreshTokenSaver(visaRefreshTokenRepository)
         OnboardingUtils().processSaveUserWalletRequestResult(agreed: agreed)
-        trySaveAccessCode()
+
+        if agreed {
+            trySaveAccessCode()
+        }
     }
 
+    /// The access code is set on the card by `CardActivationTask` and never reaches `input.backupService`,
+    /// so the backup service's pending-credentials mechanism can't persist it - save it explicitly.
     private func trySaveAccessCode() {
-        let cardIdToSave: String
+        guard AppSettings.shared.saveAccessCodes else {
+            return
+        }
 
+        // Resumed activations skip the access-code step, so there is nothing to save.
+        // The SDK persists the code itself after the next successful manual entry.
+        let accessCode = accessCodeSetupViewModel.accessCode
+        guard !accessCode.isEmpty else {
+            return
+        }
+
+        let cardIdToSave: String
         switch input.cardInput {
         case .cardId(let cardId):
             cardIdToSave = cardId
@@ -389,8 +404,7 @@ extension VisaOnboardingViewModel: UserWalletStorageAgreementRoutable {
             cardIdToSave = cardId
         }
 
-        let accessCode = accessCodeSetupViewModel.accessCode
-        AccessCodeSaveUtility().trySave(accessCode: accessCode, cardIds: [cardIdToSave])
+        try? AccessCodeRepository().save(accessCode.getSHA256(), for: cardIdToSave, firmwareVersion: .backupAvailable)
     }
 }
 

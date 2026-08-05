@@ -32,7 +32,7 @@ struct KeyValuePairView: View {
     @ViewBuilder
     private var title: some View {
         if let action = pair.key.action {
-            Button(action: action) {
+            SwiftUI.Button(action: action) {
                 HStack(spacing: 4) {
                     makeTitleText(from: pair.key.text)
 
