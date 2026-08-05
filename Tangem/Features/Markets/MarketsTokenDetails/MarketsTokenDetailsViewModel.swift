@@ -47,6 +47,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var portfolioViewModel: MarketsPortfolioContainerViewModel?
     @Published private(set) var portfolioBlockState: MarketsPortfolioContainerViewModel.PortfolioBlockState = .loading
     @Published private(set) var isAddButtonVisible: Bool = false
+    @Published private(set) var isAddButtonEnabled: Bool = true
 
     @Published private(set) var tokenSummaryCardViewModel: MarketsTokenSummaryViewModel?
 
@@ -330,9 +331,16 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     private func addTokenToPortfolio() {
         guard
             let portfolioViewModel,
-            !portfolioViewModel.isAddTokenButtonDisabled,
             !portfolioViewModel.isLoadingNetworks
         else {
+            return
+        }
+
+        guard !portfolioViewModel.isTokenAddedEverywhere else {
+            alert = AlertBinder(
+                title: Localization.marketsTokenAddAllAddedTitle,
+                message: Localization.marketsTokenAddAllAddedDescription
+            )
             return
         }
 
@@ -632,6 +640,14 @@ private extension MarketsTokenDetailsViewModel {
             .removeDuplicates()
             .assign(to: \.isAddButtonVisible, on: self, ownership: .weak)
             .store(in: &bag)
+
+        portfolioViewModel
+            .$isTokenAddedEverywhere
+            .map { !$0 }
+            .receiveOnMain()
+            .removeDuplicates()
+            .assign(to: \.isAddButtonEnabled, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     func makeTokenSummaryCardViewModel() {
@@ -664,7 +680,18 @@ private extension MarketsTokenDetailsViewModel {
                 coinSymbol: tokenInfo.symbol,
                 networks: networks
             ),
+            isTokenAddedEverywhere: isTokenAddedEverywhere(networks: networks),
             iconURL: IconURLBuilder().tokenIconURL(id: tokenInfo.id, size: .large)
+        )
+    }
+
+    private func isTokenAddedEverywhere(networks: [NetworkModel]) -> Bool {
+        portfolioViewModel?.isTokenAddedEverywhere ?? TokenAdditionChecker.isCoinAddedInAllAccounts(
+            coinId: tokenInfo.id,
+            coinName: tokenInfo.name,
+            coinSymbol: tokenInfo.symbol,
+            availableNetworks: networks,
+            userWalletModels: walletDataProvider.userWalletModels
         )
     }
 
