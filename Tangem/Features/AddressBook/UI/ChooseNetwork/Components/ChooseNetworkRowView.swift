@@ -15,7 +15,7 @@ struct ChooseNetworkRowView: View {
     let viewModel: ChooseNetworkRowViewModel
 
     var body: some View {
-        TangemRow(title: viewModel.blockchain.displayName)
+        Row(title: viewModel.blockchain.displayName)
             .titleLineLimit(1)
             .titleAccessory {
                 Text(viewModel.blockchain.currencySymbol)

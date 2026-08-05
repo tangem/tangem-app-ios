@@ -15,6 +15,7 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
     private lazy var exploreButton = button(.exploreButton)
     private lazy var shareButton = button(.shareButton)
     private lazy var closeButton = button(.closeButton)
+    private lazy var amountValue = staticText(.amountValue)
 
     @discardableResult
     func waitForDisplay() -> Self {
@@ -75,6 +76,22 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
         }
         return TokenScreen(app)
     }
+
+    @discardableResult
+    func assertAmountDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert amount block is displayed on the success screen") { _ in
+            waitAndAssertTrue(amountValue, "Amount value should be displayed on the success screen")
+            return self
+        }
+    }
+
+    func closeToStakingDetails() -> StakingDetailsScreen {
+        XCTContext.runActivity(named: "Tap Close and return to staking details") { _ in
+            waitAndAssertTrue(closeButton, "Close button should exist")
+            closeButton.waitAndTap()
+            return StakingDetailsScreen(app)
+        }
+    }
 }
 
 enum SendFinishScreenElement: String, UIElement {
@@ -83,6 +100,7 @@ enum SendFinishScreenElement: String, UIElement {
     case exploreButton
     case shareButton
     case closeButton
+    case amountValue
 
     var accessibilityIdentifier: String {
         switch self {
@@ -96,6 +114,8 @@ enum SendFinishScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.finishShareButton
         case .closeButton:
             return SendAccessibilityIdentifiers.sendViewNextButton
+        case .amountValue:
+            return SendAccessibilityIdentifiers.finishAmountValue
         }
     }
 }

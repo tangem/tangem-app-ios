@@ -35,7 +35,7 @@ struct MarketsSearchCoordinatorView: CoordinatorView {
         NavHolder()
             .bottomSheet(
                 item: $coordinator.marketsListOrderBottomSheetViewModel,
-                backgroundColor: Colors.Background.tertiary
+                backgroundColor: DesignSystem.Color.bgTertiary
             ) {
                 MarketsListOrderBottomSheetView(viewModel: $0)
             }

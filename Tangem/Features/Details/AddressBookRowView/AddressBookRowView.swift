@@ -16,7 +16,7 @@ struct AddressBookRowView: View {
     let viewModel: AddressBookRowViewModel
 
     var body: some View {
-        TangemRow(
+        Row(
             title: Localization.addressBookTitle,
             subtitle: Localization.addressBookDescription
         )

@@ -122,8 +122,15 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     }
 
     func authorizeWithCustomerWallet(
-        authorizingInteractor: TangemPayAuthorizing
-    ) async {
+        authorizingInteractor: TangemPayAuthorizing,
+        showSyncInProgress: Bool
+    ) async throws(TangemPayAuthorizationError) {
+        let stateBeforeAuthorization = stateSubject.value
+
+        if showSyncInProgress {
+            stateSubject.value = .syncInProgress
+        }
+
         do {
             let authorizingResponse = try await authorizingInteractor.authorize(
                 customerWalletId: customerWalletId,
@@ -138,8 +145,8 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         } catch {
             keysRepository.update(derivations: error.derivationResult)
             VisaLogger.error("Failed to authorize with customer wallet", error: error.underlyingError)
-            stateSubject.value = .unavailable
-            return
+            stateSubject.value = stateBeforeAuthorization
+            throw error
         }
 
         await refreshState()
@@ -262,8 +269,10 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         completion: @escaping () -> Void
     ) {
         runTask { [self] in
-            stateSubject.value = .syncInProgress
-            await authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor)
+            try? await authorizeWithCustomerWallet(
+                authorizingInteractor: authorizingInteractor,
+                showSyncInProgress: true
+            )
             completion()
         }
     }
