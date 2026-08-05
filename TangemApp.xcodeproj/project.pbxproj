@@ -2086,7 +2086,21 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				EXCLUDED_SOURCE_FILE_NAMES = "GDPerformance*";
+				EXCLUDED_SOURCE_FILE_NAMES = (
+					"GDPerformance*",
+					config_dev.json,
+					README.md,
+					"*/CardMocks/*",
+					coinsListResponse.json,
+					coinsResponse.json,
+					earnNetworks.json,
+					earnTokens.json,
+					trendingNews.json,
+					walletUserWalletList.json,
+					notReferralMock.json,
+					referralMock.json,
+					visaSingleTransaction.json,
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
