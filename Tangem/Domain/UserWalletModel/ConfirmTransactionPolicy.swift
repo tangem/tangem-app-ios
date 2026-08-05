@@ -16,7 +16,7 @@ struct CommonConfirmTransactionPolicy: ConfirmTransactionPolicy {
     let needsHoldToConfirm: Bool
 
     init(userWalletInfo: UserWalletInfo) {
-        needsHoldToConfirm = !userWalletInfo.signer.hasNFCInteraction
+        needsHoldToConfirm = !userWalletInfo.signerFactory.makeSigner().hasNFCInteraction
     }
 
     init(dispatcher: TransactionDispatcher) {

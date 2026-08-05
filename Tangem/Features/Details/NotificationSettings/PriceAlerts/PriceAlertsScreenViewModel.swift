@@ -33,11 +33,11 @@ final class PriceAlertsScreenViewModel: ObservableObject {
     private weak var coordinator: PriceAlertsScreenRoutable?
 
     private let provider: PriceAlertsSubscriptionsProvider
-    private let pushManager: UserTokensPushNotificationsManager
+    private let pushManager: UserWalletPushNotificationsManager
 
     /// Reuses the push-settings toggle flow (pending enable + system-permission handling) verbatim.
     private lazy var toggleInteractor = PushChannelToggleInteractor(
-        userTokensPushNotificationsManager: pushManager,
+        userWalletPushNotificationsManager: pushManager,
         output: self
     )
 
@@ -62,7 +62,7 @@ final class PriceAlertsScreenViewModel: ObservableObject {
         self.coordinator = coordinator
 
         provider = userWalletModel.priceAlertsSubscriptionsProvider
-        pushManager = userWalletModel.userTokensPushNotificationsManager
+        pushManager = userWalletModel.userWalletPushNotificationsManager
 
         setupToggleViewModel()
         bind()

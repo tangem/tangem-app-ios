@@ -33,7 +33,7 @@ struct AccountDetailsView: View {
     @ViewBuilder
     private var accountSection: some View {
         if viewModel.canBeEdited {
-            Button(action: viewModel.openEditAccount) {
+            SwiftUI.Button(action: viewModel.openEditAccount) {
                 accountSectionContent
             }
         } else {
@@ -72,7 +72,7 @@ struct AccountDetailsView: View {
     @ViewBuilder
     private var manageTokensSection: some View {
         if viewModel.canManageTokens {
-            Button(action: viewModel.openManageTokens) {
+            SwiftUI.Button(action: viewModel.openManageTokens) {
                 HStack(spacing: 0) {
                     Text(Localization.addTokensTitle)
                         .style(Fonts.Regular.callout, color: Colors.Text.primary1)
@@ -106,7 +106,7 @@ struct AccountDetailsView: View {
     }
 
     private func makeArchivingSectionContent(from state: AccountDetailsViewModel.ArchivingState) -> some View {
-        Button(action: viewModel.showShouldArchiveDialog) {
+        SwiftUI.Button(action: viewModel.showShouldArchiveDialog) {
             HStack(spacing: 0) {
                 Text(viewModel.getArchivingButtonTitle(from: state))
                     .style(Fonts.Regular.callout, color: viewModel.getArchivingButtonColor(from: state))
@@ -130,7 +130,7 @@ struct AccountDetailsView: View {
             isPresented: $viewModel.archiveAccountDialogPresented,
             titleVisibility: .visible
         ) {
-            Button(Localization.accountDetailsArchive, role: .destructive) {
+            SwiftUI.Button(Localization.accountDetailsArchive, role: .destructive) {
                 viewModel.archiveAccount()
             }
         }

@@ -18,6 +18,7 @@ enum PersistentStorageKey {
     case pendingExpressTransactions
     case pendingOnrampTransactions
     case onrampUnknownStatuses
+    case walletCardsBackupReports
     case pendingStakingTransactions
     case onrampPreference
     case tokenSearchQueryHistory
@@ -38,6 +39,8 @@ enum PersistentStorageKey {
             return "onramp_pending_transactions"
         case .onrampUnknownStatuses:
             return "onramp_unknown_statuses"
+        case .walletCardsBackupReports:
+            return "wallet_cards_backup_reports"
         case .pendingStakingTransactions:
             return "staking_pending_transactions"
         case .onrampPreference:
@@ -63,6 +66,8 @@ enum PersistentStorageKey {
         case .pendingOnrampTransactions:
             false
         case .onrampUnknownStatuses:
+            false
+        case .walletCardsBackupReports:
             false
         case .pendingStakingTransactions:
             false

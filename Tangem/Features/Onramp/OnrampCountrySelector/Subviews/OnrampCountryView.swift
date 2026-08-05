@@ -16,7 +16,7 @@ struct OnrampCountryView: View {
     let data: OnrampCountryViewData
 
     var body: some View {
-        Button(action: data.action) {
+        SwiftUI.Button(action: data.action) {
             labelView
         }
         .accessibilityIdentifier(OnrampAccessibilityIdentifiers.countryItem(code: data.name))
