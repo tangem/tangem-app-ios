@@ -90,8 +90,26 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
                 TangemShimmerDemoView(viewModel: $0)
             }
             .navigation(item: $coordinator.glowRingDemoViewModel, destination: GlowRingDemoView.init)
+            .navigation(item: $coordinator.tangemTopNavigationDemoViewModel) {
+                TangemTopNavigationDemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemFadeDemoViewModel) {
                 TangemFadeDemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tangemMessageBubbleDemoViewModel) {
+                TangemMessageBubbleDemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tokenIconV2DemoViewModel) {
+                TokenIconV2DemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.utilGraphDemoViewModel) {
+                UtilGraphDemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.utilPriceChangeDemoViewModel) {
+                UtilPriceChangeDemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.utilBalanceDemoViewModel) {
+                UtilBalanceDemoView(viewModel: $0)
             }
     }
 }
@@ -103,35 +121,39 @@ struct DesignSystemDemoView: View {
         ScrollView {
             VStack(spacing: 24) {
                 section(title: "Design System V2") {
-                    MainButton(title: "TangemButtonV2") {
+                    MainButton(title: "TangemUI.Button") {
                         viewModel.openTangemButtonV2Demo()
                     }
 
-                    MainButton(title: "TangemCheckmarkV2") {
+                    MainButton(title: "TangemUI.Checkmark") {
                         viewModel.openTangemCheckmarkV2Demo()
                     }
 
-                    MainButton(title: "TangemBadgeV2") {
+                    MainButton(title: "Badge") {
                         viewModel.openTangemBadgeV2Demo()
                     }
 
-                    MainButton(title: "TangemMessageBanner") {
+                    MainButton(title: "MessageBanner") {
                         viewModel.openTangemMessageBannerDemo()
                     }
 
-                    MainButton(title: "TangemCheckboxV2") {
+                    MainButton(title: "MessageBubble") {
+                        viewModel.openTangemMessageBubbleDemo()
+                    }
+
+                    MainButton(title: "Checkbox") {
                         viewModel.openTangemCheckboxV2Demo()
                     }
 
-                    MainButton(title: "TangemRow") {
+                    MainButton(title: "Row") {
                         viewModel.openTangemRowDemo()
                     }
 
-                    MainButton(title: "TangemLoader") {
+                    MainButton(title: "Loader") {
                         viewModel.openTangemLoaderDemo()
                     }
 
-                    MainButton(title: "TangemShimmer") {
+                    MainButton(title: "Shimmer") {
                         viewModel.openTangemShimmerDemo()
                     }
 
@@ -139,16 +161,36 @@ struct DesignSystemDemoView: View {
                         viewModel.openGlowRingDemo()
                     }
 
-                    MainButton(title: "TangemFade") {
+                    MainButton(title: "Fade") {
                         viewModel.openTangemFadeDemo()
                     }
 
-                    MainButton(title: "TangemSearch") {
+                    MainButton(title: "TokenIconV2") {
+                        viewModel.openTokenIconV2Demo()
+                    }
+
+                    MainButton(title: "UtilGraph") {
+                        viewModel.openUtilGraphDemo()
+                    }
+
+                    MainButton(title: "UtilPriceChange") {
+                        viewModel.openUtilPriceChangeDemo()
+                    }
+
+                    MainButton(title: "UtilBalance") {
+                        viewModel.openUtilBalanceDemo()
+                    }
+
+                    MainButton(title: "Search") {
                         viewModel.openTangemSearchDemo()
                     }
 
                     MainButton(title: "Typography V2") {
                         viewModel.openTypographyV2Demo()
+                    }
+
+                    MainButton(title: "TopNavigation") {
+                        viewModel.openTangemTopNavigationDemo()
                     }
                 }
 

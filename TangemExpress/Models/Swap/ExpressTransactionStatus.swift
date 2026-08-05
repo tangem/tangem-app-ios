@@ -6,9 +6,7 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
-
-public enum ExpressTransactionStatus: String, Codable {
+public enum ExpressTransactionStatus: String, Codable, CaseIterable {
     case unknown
     case preview
     case created
@@ -25,6 +23,5 @@ public enum ExpressTransactionStatus: String, Codable {
     case refunded
     case verifying
     // [REDACTED_TODO_COMMENT]
-    @available(iOS, deprecated: 100000.0, message: "Not present in the Express API (`EExchangeStatus`); Investigate and remove if not used")
     case paused
 }

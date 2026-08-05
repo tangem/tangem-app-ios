@@ -18,13 +18,12 @@ final class PushNotificationsSyncWalletsProvider {
         let response = try await tangemApiService.getUserWallets(applicationUid: applicationUid)
 
         // Deduplicate by wallet id keeping the first occurrence. ApplicationWalletEntry's
-        // Hashable hashes id+name+notifyStatus, so a plain Set would let two entries with
-        // the same id but diverging metadata slip through and trap later in
-        // Dictionary(uniqueKeysWithValues:).
+        // Hashable hashes id+name, so a plain Set would let two entries with the same id but
+        // diverging names slip through and trap later in Dictionary(uniqueKeysWithValues:).
         let uniqueEntries = Dictionary(
             response.map { (
                 $0.id,
-                ApplicationWalletEntry(id: $0.id, name: $0.name ?? "", notifyStatus: $0.notifyStatus)
+                ApplicationWalletEntry(id: $0.id, name: $0.name ?? "")
             ) },
             uniquingKeysWith: { first, _ in first }
         )
@@ -45,7 +44,7 @@ final class PushNotificationsSyncWalletsProvider {
 
     func handleSyncErrorForAllWallets() {
         for userWalletModel in userWalletRepository.models {
-            userWalletModel.userTokensPushNotificationsManager.process(.walletBindingInfoUnavailable)
+            userWalletModel.userWalletPushNotificationsManager.process(.walletBindingInfoUnavailable)
         }
     }
 }
@@ -90,30 +89,22 @@ private extension PushNotificationsSyncWalletsProvider {
         return toSyncEntries
     }
 
-    /// Fetches fresh remote data for a wallet that was just connected. Falls back to a
-    /// locally-derived entry if the remote fetch fails.
-    ///
-    /// Always returns the real remote `notifyStatus` (or `false` on fallback). Bootstrap
-    /// enabling for first-time eligible wallets is driven by `UserTokensPushNotificationsUpdateTrigger`'s
-    /// `autoEnablePreferencesRequired` event, which routes through `tryUpdateEnableState(true)` and
-    /// thus performs a real backend sync — overriding the value here would make the manager
-    /// believe remote is already `true` and skip that sync.
+    /// Fetches fresh remote data (the wallet name) for a wallet that was just connected.
+    /// Falls back to a locally-derived entry if the remote fetch fails.
     func resolveNewlyConnectedEntry(for model: UserWalletModel) async -> ApplicationWalletEntry {
         let walletId = model.userWalletId.stringValue
 
         if let remoteWallet = try? await tangemApiService.getUserWallet(userWalletId: walletId) {
             return ApplicationWalletEntry(
                 id: remoteWallet.id,
-                name: remoteWallet.name ?? "",
-                notifyStatus: remoteWallet.notifyStatus
+                name: remoteWallet.name ?? ""
             )
         }
 
         // Fallback implementation.
         return ApplicationWalletEntry(
             id: walletId,
-            name: model.name,
-            notifyStatus: false
+            name: model.name
         )
     }
 
@@ -129,10 +120,6 @@ private extension PushNotificationsSyncWalletsProvider {
         if !entry.name.isEmpty, findUserWalletModel.name != entry.name {
             findUserWalletModel.update(type: .newName(entry.name))
         }
-
-        findUserWalletModel
-            .userTokensPushNotificationsManager
-            .process(.remoteStatusReceived(entry.notifyStatus, .transactionAlerts))
     }
 
     func connectWallets(walletIds: [String], shouldRetry: Bool = true) async throws {

@@ -53,7 +53,7 @@ struct NotificationView: View {
             HStack {
                 Spacer()
 
-                Button(action: {
+                SwiftUI.Button(action: {
                     settings.dismissAction?(settings.id)
                 }) {
                     Assets.cross.image
@@ -74,7 +74,7 @@ struct NotificationView: View {
         case .plain:
             messageIconContent
         case .tappable(let hasChevron, let action):
-            Button(action: { action(settings.id) }) {
+            SwiftUI.Button(action: { action(settings.id) }) {
                 HStack(spacing: 0) {
                     messageIconContent
 
@@ -298,7 +298,7 @@ private extension View {
                     .transition(.notificationTransition)
             }
 
-            Button(action: viewModel.addNotification) {
+            SwiftUI.Button(action: viewModel.addNotification) {
                 Text("Add notification")
             }
         }

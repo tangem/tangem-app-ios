@@ -3,138 +3,110 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
-import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct MarketsTokenDetailsMetricsView: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
-    let viewWidth: CGFloat
-
-    private var itemWidth: CGFloat {
-        max(0, (viewWidth - Constants.itemsSpacing - Constants.backgroundHorizontalPadding * 2) / 2)
-    }
-
-    private var gridItems: [GridItem] {
-        [GridItem(.adaptive(minimum: itemWidth), spacing: Constants.itemsSpacing, alignment: .topLeading)]
-    }
 
     var body: some View {
-        VStack(spacing: .zero) {
-            BlockHeaderTitleView(title: Localization.marketsTokenDetailsMetrics)
+        VStack(spacing: 12) {
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    MetricsMarketCapCard(viewModel: viewModel)
 
-            LazyVGrid(columns: gridItems, alignment: .center, spacing: 16, content: {
-                ForEach(viewModel.records.indexed(), id: \.1.id) { index, info in
-                    MarketsTokenDetailsStatisticsRecordView(
-                        title: info.title,
-                        message: info.recordData,
-                        trend: nil,
-                        infoButtonAction: {
-                            viewModel.showInfoBottomSheet(for: info.type)
-                        }
-                    )
-                    .frame(minWidth: itemWidth, alignment: .leading)
+                    MetricsTradingVolumeCard(viewModel: viewModel)
                 }
-            })
-            .drawingGroup()
-            .padding(.vertical, Constants.itemsSpacing)
+
+                HStack(spacing: 8) {
+                    MetricsMarketPositionCard(viewModel: viewModel)
+
+                    MetricsFDVCard(viewModel: viewModel)
+                }
+            }
+
+            MetricsCirculatingSupplyCard(viewModel: viewModel)
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: .zero, horizontalPadding: Constants.backgroundHorizontalPadding)
     }
 }
 
-extension MarketsTokenDetailsMetricsView {
-    enum Constants {
-        static let itemsSpacing: CGFloat = 12
-        static let backgroundHorizontalPadding: CGFloat = 14
-    }
-}
-
-extension MarketsTokenDetailsMetricsView {
-    enum RecordType: String, Identifiable, MarketsTokenDetailsInfoDescriptionProvider {
-        case marketCapitalization
-        case marketRating
-        case tradingVolume
-        case fullyDilutedValuation
-        case circulatingSupply
-        case totalSupply
-        case maxSupply
-
-        var id: String { rawValue }
-
-        var titleShort: String {
-            switch self {
-            case .marketCapitalization: return Localization.marketsTokenDetailsMarketCapitalization
-            case .marketRating: return Localization.marketsTokenDetailsMarketRating
-            case .tradingVolume: return Localization.marketsTokenDetailsTradingVolume
-            case .fullyDilutedValuation: return Localization.marketsTokenDetailsFullyDilutedValuation
-            case .circulatingSupply: return Localization.marketsTokenDetailsCirculatingSupply
-            case .totalSupply: return Localization.marketsTokenDetailsTotalSupply
-            case .maxSupply: return Localization.marketsTokenDetailsMaxSupply
-            }
-        }
-
-        var titleFull: String {
-            switch self {
-            case .marketCapitalization: return Localization.marketsTokenDetailsMarketCapitalizationFull
-            case .marketRating: return Localization.marketsTokenDetailsMarketRatingFull
-            case .tradingVolume: return Localization.marketsTokenDetailsTradingVolumeFull
-            case .fullyDilutedValuation: return Localization.marketsTokenDetailsFullyDilutedValuationFull
-            case .circulatingSupply: return Localization.marketsTokenDetailsCirculatingSupplyFull
-            case .totalSupply: return Localization.marketsTokenDetailsTotalSupplyFull
-            case .maxSupply: return Localization.marketsTokenDetailsMaxSupplyFull
-            }
-        }
-
-        var infoDescription: String {
-            switch self {
-            case .marketCapitalization: return Localization.marketsTokenDetailsMarketCapitalizationDescription
-            case .marketRating: return Localization.marketsTokenDetailsMarketRatingDescription
-            case .tradingVolume: return Localization.marketsTokenDetailsTradingVolume24hDescription
-            case .fullyDilutedValuation: return Localization.marketsTokenDetailsFullyDilutedValuationDescription
-            case .circulatingSupply: return Localization.marketsTokenDetailsCirculatingSupplyDescription
-            case .totalSupply: return Localization.marketsTokenDetailsTotalSupplyDescription
-            case .maxSupply: return Localization.marketsTokenDetailsMaxSupplyDescription
-            }
-        }
-    }
-
-    struct RecordInfo: Identifiable {
-        let type: RecordType
-        let recordData: String
-        var recordSubdata: String?
-
-        var id: String {
-            "\(type.id) - \(recordData)"
-        }
-
-        var title: String {
-            type.titleShort
-        }
-    }
-}
+// MARK: - Previews
 
 #Preview {
-    MarketsTokenDetailsMetricsView(
-        viewModel: .init(
-            metrics: .init(
-                marketRating: 3,
-                marketRatingChange24H: -2,
-                circulatingSupply: 112259808785.143,
-                marketCap: 112234033891,
-                volume24H: 42854017104,
-                totalSupply: 112286364258.112,
-                maxSupply: 112286364258.112,
-                fullyDilutedValuation: 112234033891,
-                fullyDilutedValuationChange24H: 242234033
-            ),
-            notationFormatter: .init(),
-            cryptoCurrencyCode: "USDT",
-            infoRouter: nil
-        ),
-        viewWidth: 300
-    )
+    ScrollView {
+        MarketsTokenDetailsMetricsView(
+            viewModel: MarketsTokenDetailsMetricsViewModel(
+                metrics: MarketsTokenDetailsMetrics(
+                    marketRating: 1,
+                    marketRatingChange24H: nil,
+                    circulatingSupply: 19_930_000,
+                    marketCap: 2_440_000_000_000,
+                    volume24H: 7_900_000_000_000,
+                    totalSupply: 21_000_000,
+                    maxSupply: 21_000_000,
+                    fullyDilutedValuation: 2_785_400_000_000,
+                    fullyDilutedValuationChange24H: 30_450_000_000
+                ),
+                notationFormatter: DefaultAmountNotationFormatter(),
+                cryptoCurrencyCode: "KAS",
+                infoRouter: nil
+            )
+        )
+        .padding(.horizontal, 16)
+    }
+    .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Silver rank, medium liquidity") {
+    ScrollView {
+        MarketsTokenDetailsMetricsView(
+            viewModel: MarketsTokenDetailsMetricsViewModel(
+                metrics: MarketsTokenDetailsMetrics(
+                    marketRating: 2,
+                    marketRatingChange24H: 1,
+                    circulatingSupply: 112_259_808_785,
+                    marketCap: 112_234_033_891,
+                    volume24H: 42_854_017_104,
+                    totalSupply: 112_286_364_258,
+                    maxSupply: 112_286_364_258,
+                    fullyDilutedValuation: 112_234_033_891,
+                    fullyDilutedValuationChange24H: 1_350_000_000
+                ),
+                notationFormatter: DefaultAmountNotationFormatter(),
+                cryptoCurrencyCode: "USDT",
+                infoRouter: nil
+            )
+        )
+        .padding(.horizontal, 16)
+    }
+    .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("No max supply") {
+    ScrollView {
+        MarketsTokenDetailsMetricsView(
+            viewModel: MarketsTokenDetailsMetricsViewModel(
+                metrics: MarketsTokenDetailsMetrics(
+                    marketRating: 42,
+                    marketRatingChange24H: -15,
+                    circulatingSupply: 18_900_000,
+                    marketCap: 500_000_000_000,
+                    volume24H: 50_000_000_000,
+                    totalSupply: nil,
+                    maxSupply: 0,
+                    fullyDilutedValuation: 600_000_000_000,
+                    fullyDilutedValuationChange24H: 45_350_000_000
+                ),
+                notationFormatter: DefaultAmountNotationFormatter(),
+                cryptoCurrencyCode: "ETH",
+                infoRouter: nil
+            )
+        )
+        .padding(.horizontal, 16)
+    }
+    .background(DesignSystem.Color.bgPrimary)
 }
