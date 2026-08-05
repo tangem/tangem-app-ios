@@ -295,6 +295,7 @@ enum TangemPayAccountError: Error {
     case missingPaymentAccountAddress
     case missingDepositAddress
     case missingCardIssueOffer
+    case missingOnrampFees
 }
 
 extension TangemPayAccount {
@@ -351,6 +352,14 @@ extension TangemPayAccount {
                 self?.placedVirtualAccountOrderId = nil
             }
         )
+    }
+}
+
+// MARK: - Fees
+
+extension TangemPayAccount {
+    func loadOnrampFees() async throws -> [TangemPayFeeResponse] {
+        try await customerService.getFees(groups: [.onramp])
     }
 }
 
