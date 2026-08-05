@@ -134,13 +134,30 @@ extension SwapMarketsTokensView {
 
 // MARK: - SwapTokenSelectorEmptyContentView
 
-/// A wrapper view that observes the markets view model state to conditionally show empty content.
-/// This is needed because the empty content view needs to react to markets state changes.
 struct SwapTokenSelectorEmptyContentView: View {
+    @ObservedObject var tokenSelectorViewModel: TokenSelectorViewModel
     var marketsTokensViewModel: SwapMarketsTokensViewModel?
     let message: String
 
     var body: some View {
+        switch emptyReason {
+        case .filteredOut:
+            SwapSourceFilteredOutEmptyView(action: tokenSelectorViewModel.resetBalanceFilter)
+        case .noTokens, .none:
+            defaultEmptyContent
+        }
+    }
+
+    private var emptyReason: TokenSelectorEmptyReason? {
+        if case .empty(let reason) = tokenSelectorViewModel.contentVisibility {
+            return reason
+        }
+
+        return nil
+    }
+
+    @ViewBuilder
+    private var defaultEmptyContent: some View {
         if let marketsViewModel = marketsTokensViewModel {
             // Observe markets state and hide empty message when markets has content
             SwapTokenSelectorEmptyContentViewObserver(
@@ -164,5 +181,44 @@ private struct SwapTokenSelectorEmptyContentViewObserver: View {
         if !marketsTokensViewModel.hasVisibleContent {
             TokenSelectorEmptyContentView(message: message)
         }
+    }
+}
+
+private struct SwapSourceFilteredOutEmptyView: View {
+    let action: () -> Void
+
+    var body: some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 16) {
+                icon
+
+                Text(Localization.swapTokenSelectorEmptyFilteredMessage)
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                    .multilineTextAlignment(.center)
+            }
+
+            TangemButton(
+                content: .text(AttributedString(Localization.commonSeeAll)),
+                action: action
+            )
+            .setStyleType(.secondary)
+            .setSize(.x9)
+            .fixedSize(horizontal: true, vertical: false)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 48)
+        .padding(.vertical, 24)
+        .background(Colors.Background.action)
+        .cornerRadiusContinuous(SwapMarketsTokensView.Constants.cornerRadius)
+    }
+
+    private var icon: some View {
+        Assets.infoCircle20.image
+            .renderingMode(.template)
+            .resizable()
+            .frame(width: 20, height: 20)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
+            .frame(width: 40, height: 40)
+            .background(DesignSystem.Color.bgOpaqueSecondary, in: Circle())
     }
 }
