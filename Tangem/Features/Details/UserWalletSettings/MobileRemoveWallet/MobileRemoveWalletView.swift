@@ -86,7 +86,7 @@ private extension MobileRemoveWalletView {
         @Binding var isChecked: Bool
 
         var body: some View {
-            Button(action: onTap) {
+            SwiftUI.Button(action: onTap) {
                 HStack(spacing: 12) {
                     mark
                     text

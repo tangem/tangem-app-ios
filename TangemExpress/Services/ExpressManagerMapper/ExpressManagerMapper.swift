@@ -20,7 +20,8 @@ struct ExpressManagerMapper {
             destination: pair.destination.currency,
             amountType: request.amountType,
             rateType: request.rateType,
-            providerInfo: .init(id: providerId, type: providerType)
+            providerInfo: .init(id: providerId, type: providerType),
+            sourceAmountScale: pair.sourceAmountScale
         )
     }
 
@@ -43,7 +44,8 @@ struct ExpressManagerMapper {
             address: sourceAddress,
             yieldContractAddress: pair.source.yieldModuleTransactionHelper?.yieldContractAddress,
             currency: pair.source.currency,
-            coinCurrency: pair.source.coinCurrency
+            coinCurrency: pair.source.coinCurrency,
+            amountScale: pair.sourceAmountScale
         )
 
         let destination = ExpressSwappableDataItem.DestinationWalletInfo(

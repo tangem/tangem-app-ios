@@ -11,7 +11,7 @@ import TangemSdk
 
 struct DynamicAddressesManagerProvider {
     let keysRepository: KeysRepository
-    let keysDerivingInteractor: KeysDeriving
+    let keysDerivingInteractorFactory: KeysDerivingInteractorFactory
     let blockchainSettingsUpdater: BlockchainSettingsUpdater
     let userTokensManager: UserTokensManager
 
@@ -35,7 +35,7 @@ struct DynamicAddressesManagerProvider {
 
         let generator = CommonXPUBKeyGenerator(
             keysRepository: keysRepository,
-            keysDerivingInteractor: keysDerivingInteractor,
+            keysDerivingInteractorFactory: keysDerivingInteractorFactory,
             tokenItem: tokenItem
         )
 

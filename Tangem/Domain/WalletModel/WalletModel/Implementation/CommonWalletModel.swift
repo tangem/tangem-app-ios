@@ -367,6 +367,10 @@ extension CommonWalletModel: WalletModel {
         walletManager as? MinimalBalanceProvider
     }
 
+    var scaledUIAmountProvider: (any ScaledUIAmountProvider)? {
+        walletManager as? ScaledUIAmountProvider
+    }
+
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {
         walletManager as? EthereumGaslessDataProvider
     }
@@ -600,7 +604,12 @@ extension CommonWalletModel: WalletModelHelpers {
 
 extension CommonWalletModel: WalletModelFeesProvider {
     var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
-        TokenFeeLoaderBuilder(tokenItem: tokenItem, dependenciesProvider: self, isDemo: isDemo)
+        TokenFeeLoaderBuilder(
+            tokenItem: tokenItem,
+            sourceAddress: defaultAddressString,
+            dependenciesProvider: self,
+            isDemo: isDemo
+        )
     }
 
     var customFeeProviderBuilder: CustomFeeProviderBuilder {
@@ -647,6 +656,18 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? BitcoinPsbtSwapSender
     }
 
+    var tronTransactionFeeProvider: TronTransactionFeeProvider? {
+        walletManager as? TronTransactionFeeProvider
+    }
+
+    var tronAllowanceProvider: TronAllowanceProvider? {
+        walletManager as? TronAllowanceProvider
+    }
+
+    var tronTransactionDataBuilder: TronTransactionDataBuilder? {
+        walletManager as? TronTransactionDataBuilder
+    }
+
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {
         walletManager as? BitcoinTransactionFeeCalculator
     }
@@ -673,6 +694,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
         walletManager as? GaslessTransactionFeeProvider
+    }
+
+    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? {
+        walletManager as? TronGaslessTransactionsBuilder
     }
 
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
@@ -868,6 +893,10 @@ extension CommonWalletModel: ExistentialDepositInfoProvider {
 
     var existentialDepositWarning: String? {
         guard let existentialDeposit = existentialDeposit else {
+            return nil
+        }
+
+        guard let coinBalance = wallet.amounts[.coin]?.value, coinBalance < existentialDeposit.value else {
             return nil
         }
 

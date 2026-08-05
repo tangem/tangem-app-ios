@@ -59,7 +59,7 @@ class FakeWalletManager: WalletManager {
             userWalletId: userWalletId,
             userWalletConfig: config,
             keysRepository: keysRepository,
-            keysDerivingInteractor: KeysDerivingMock(),
+            keysDerivingInteractorFactory: KeysDerivingInteractorFactory(),
             transactionHistoryProviderRegistry: transactionHistoryProviderRegistry,
             transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
         )
