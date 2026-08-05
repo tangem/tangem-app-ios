@@ -45,7 +45,7 @@ struct TangemPayVirtualAccountBankDetailsView: View {
     }
 
     private var closeButton: some View {
-        TangemButtonV2(icon: DesignSystem.Icons.Cross.regular20, accessibilityLabel: Localization.commonClose, action: viewModel.close)
+        TangemUI.Button(icon: DesignSystem.Icons.Cross.regular20, accessibilityLabel: Localization.commonClose, action: viewModel.close)
             .size(.x11)
             .styleType(.material(.glass))
     }
@@ -77,7 +77,7 @@ struct TangemPayVirtualAccountBankDetailsView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Button(action: { viewModel.copy(row) }) {
+            SwiftUI.Button(action: { viewModel.copy(row) }) {
                 DesignSystem.Icons.Copy.regular24.image
                     .renderingMode(.template)
                     .resizable()
@@ -115,7 +115,7 @@ struct TangemPayVirtualAccountBankDetailsView: View {
     }
 
     private var shareButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(Localization.commonShare),
             accessibilityLabel: Localization.commonShare,
             action: viewModel.share
