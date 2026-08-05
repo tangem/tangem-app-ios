@@ -28,12 +28,12 @@ private struct PaginationDemoView: View {
             TangemPagination(totalPages: total, currentIndex: current)
 
             HStack(spacing: 12) {
-                Button("-") {
+                SwiftUI.Button("-") {
                     current = max(current - 1, 0)
                 }
                 .buttonStyle(.bordered)
 
-                Button("+") {
+                SwiftUI.Button("+") {
                     current = min(current + 1, total - 1)
                 }
                 .buttonStyle(.bordered)

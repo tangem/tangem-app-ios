@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct RewardView: View {
     let data: RewardViewData
@@ -30,6 +31,7 @@ struct RewardView: View {
         case .noRewards:
             Text(Localization.stakingDetailsNoRewardsToClaim)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .accessibilityIdentifier(StakingAccessibilityIdentifiers.noRewardsToClaim)
 
         case .automaticRewards where data.networkType == .solana:
             Text(Localization.stakingSolanaDetailsAutoClaimingRewardsDailyText)
@@ -44,7 +46,7 @@ struct RewardView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
         case .rewards(let claimable, let fiatFormatted, let cryptoFormatted, let action):
-            Button(action: action) {
+            SwiftUI.Button(action: action) {
                 HStack(spacing: 4) {
                     SensitiveText(fiatFormatted)
                         .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
@@ -64,6 +66,7 @@ struct RewardView: View {
                     }
                 }
             }
+            .accessibilityIdentifier(StakingAccessibilityIdentifiers.rewardClaimBlock)
         }
     }
 }

@@ -19,7 +19,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     @Published var filterSelectedId: String? = nil
     @Published private(set) var searchText: String = ""
     @Published private(set) var isFirstLoading: Bool = true
-    @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderView.LoadingState = .first
+    @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderLoadingState = .first
     @Published private(set) var tokenViewModelsState: LoadingResult<[MarketTokenItemViewModel], Error> = .loading
 
     var isSearchActive: Bool {
