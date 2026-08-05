@@ -19,7 +19,8 @@ struct TangemPayAddToApplePayBannerRedesigned: View {
     var body: some View {
         NotificationBanner(
             bannerType: bannerType,
-            accessibilityIdentifier: TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner
+            accessibilityIdentifier: TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner,
+            closeAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton
         )
         .overlay {
             RoundedRectangle(cornerRadius: 24)

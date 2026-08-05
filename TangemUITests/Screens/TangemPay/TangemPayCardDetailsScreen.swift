@@ -258,15 +258,6 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
     }
 
     @discardableResult
-    func verifyToastVisible(text: String) -> Self {
-        XCTContext.runActivity(named: "Verify toast '\(text)' is visible") { _ in
-            let toast = app.staticTexts[text].firstMatch
-            waitAndAssertTrue(toast, timeout: .conditional, "Toast with text '\(text)' should be displayed")
-            return self
-        }
-    }
-
-    @discardableResult
     func verifyPasteboard(equals expected: String) -> Self {
         XCTContext.runActivity(named: "Verify pasteboard equals '\(expected)'") { _ in
             let actual = UIPasteboard.general.string ?? ""
@@ -289,6 +280,29 @@ final class TangemPayCardDetailsScreen: ScreenBase<TangemPayCardDetailsScreenEle
             XCTAssertEqual(cardExpirationValue.label, "12/28", "Card expiration should match the mock value")
             XCTAssertEqual(cardCvcValue.label, "123", "Card CVC should match the mock value")
             waitAndAssertTrue(hideDetailsButton, "Hide details button should be displayed while requisites are revealed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyApplePayGuideBannerVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Apple/Google Pay banner is displayed on card details") { _ in
+            waitAndAssertTrue(
+                applePayGuideBanner,
+                timeout: .networkRequest,
+                "Apple/Google Pay banner should be displayed on card details screen"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyApplePayGuideBannerHidden() -> Self {
+        XCTContext.runActivity(named: "Verify Apple/Google Pay banner is not displayed on card details") { _ in
+            XCTAssertTrue(
+                applePayGuideBanner.waitForNonExistence(timeout: .robustUIUpdate),
+                "Apple/Google Pay banner should not be displayed on card details screen"
+            )
             return self
         }
     }
