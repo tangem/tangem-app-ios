@@ -45,12 +45,12 @@ final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
     }
 
     @discardableResult
-    func tapTrendingToken(_ name: String) -> MarketsTokenDetailsScreen {
+    func tapTrendingToken(_ name: String) -> AddTokenFlowScreen {
         XCTContext.runActivity(named: "Tap Trending token with name: \(name)") { _ in
             let tokenButton = app.buttons[MarketsAccessibilityIdentifiers.marketsListTokenItem(uniqueId: name)].firstMatch
             waitAndAssertTrue(tokenButton, "Trending token \(name) should exist on Buy Token Selector screen")
             tokenButton.waitAndTap()
-            return MarketsTokenDetailsScreen(app)
+            return AddTokenFlowScreen(app)
         }
     }
 

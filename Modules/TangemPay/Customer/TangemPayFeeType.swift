@@ -8,4 +8,6 @@
 
 public enum TangemPayFeeType: String {
     case cardReplacement = "CARD_REPLACEMENT"
+    case achOnramp = "ACH_ONRAMP"
+    case fedwireOnramp = "FEDWIRE_ONRAMP"
 }

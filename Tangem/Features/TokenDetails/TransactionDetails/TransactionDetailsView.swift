@@ -12,11 +12,13 @@ import TangemAssets
 struct TransactionDetailsView: View {
     @ObservedObject var viewModel: TransactionDetailsViewModel
 
-    private let blocksSpacing: CGFloat = 16
+    private let blocksSpacing: CGFloat = 12
 
     var body: some View {
         VStack(spacing: .zero) {
-            TransactionDetailsHeaderView(data: viewModel.header)
+            if let header = viewModel.header {
+                TransactionDetailsHeaderView(data: header)
+            }
 
             VStack(spacing: blocksSpacing) {
                 ForEach(viewModel.blocks) { block in
@@ -26,14 +28,14 @@ struct TransactionDetailsView: View {
             }
             .animation(.easeInOut(duration: 0.3), value: viewModel.blocks.map(\.id))
             .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .padding(.bottom, 24)
+            .padding(.top, 4)
+            .padding(.bottom, 16)
         }
         .background(DesignSystem.Color.bgSecondary)
         .floatingSheetConfiguration { config in
             config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             config.backgroundInteractionBehavior = .tapToDismiss
-            // [REDACTED_TODO_COMMENT]
+            config.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
         }
     }
 

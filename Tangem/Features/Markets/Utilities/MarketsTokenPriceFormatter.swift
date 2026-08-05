@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 
 /// An experimental implementation, currently used only in the `Markets` module.
 /// Most likely requires some tuning and improvements ([REDACTED_INFO] and [REDACTED_INFO]).
@@ -17,11 +18,12 @@ final class MarketsTokenPriceFormatter {
     /// - scale: Scale of a decimal number
     private typealias Scale = (threshold: Decimal, scale: Int)
 
-    /// Scale computation is resource-heavy, so the results are cached.
-    private static var cachedScales: [Scale] = {
+    /// Scale computation is resource-heavy, so the results are cached. The cache is shared by formatter
+    /// instances living in view models that format on different queues, hence the lock.
+    private static let cachedScales: OSAllocatedUnfairLock<[Scale]> = {
         var cachedScales: [Scale] = []
         cachedScales.reserveCapacity(128) // Maximum scale of `Decimal`
-        return cachedScales
+        return OSAllocatedUnfairLock(initialState: cachedScales)
     }()
 
     private let fractionalPartLengthAfterLeadingZeroes: Int
@@ -33,50 +35,26 @@ final class MarketsTokenPriceFormatter {
     }
 
     func formatPrice(_ value: Decimal?) -> String {
-        // Whole numbers and absent values are formatted using default formatting options
+        // Values outside the `(0, 1)` range and absent values are formatted using default formatting options;
+        // non-positive values must not reach the scale calculation: its ladder either never terminates
+        // (iOS 16/17 Foundation) or poisons the cache with NaN thresholds (iOS 18+)
         guard
             let value,
+            value > 0,
             value < 1.0
         else {
             return formatPrice(value, formattingOptions: defaultFormattingOptions)
         }
 
-        // Check if the scale for a given `value` has been calculated previously and stored in the cache
-        for (threshold, scale) in Self.cachedScales {
-            if value >= threshold {
-                let formattingOptions = makeFormattingOptions(forScale: scale)
-
-                return formatPrice(value, formattingOptions: formattingOptions)
-            }
+        let scale = Self.cachedScales.withLock { cachedScales in
+            Self.scale(
+                for: value,
+                fractionalPartLengthAfterLeadingZeroes: fractionalPartLengthAfterLeadingZeroes,
+                cachedScales: &cachedScales
+            )
         }
 
-        // We got a cache miss; calculating the scale and threshold for a given `value`
-        // Scales are calculated from the last known scale (from `cachedScales`) up to (and including) the scale of the current `value`
-        var fractionalPartLeadingZeroesCount: Int
-        var threshold: Decimal
-
-        if let lastCachedScale = Self.cachedScales.last {
-            fractionalPartLeadingZeroesCount = lastCachedScale.scale - fractionalPartLengthAfterLeadingZeroes + 1
-            threshold = lastCachedScale.threshold
-        } else {
-            fractionalPartLeadingZeroesCount = 0
-            threshold = 1 // `ExpressibleByIntegerLiteral` maintains required precision, unlike `ExpressibleByFloatLiteral`
-        }
-
-        let step: Decimal = 10 // `ExpressibleByIntegerLiteral` maintains required precision, unlike `ExpressibleByFloatLiteral`
-
-        while threshold > value {
-            threshold /= step
-
-            let scale = fractionalPartLeadingZeroesCount + fractionalPartLengthAfterLeadingZeroes
-            Self.cachedScales.append((threshold, scale))
-
-            fractionalPartLeadingZeroesCount += 1
-        }
-
-        let formattingOptions = makeFormattingOptions(forScale: Self.cachedScales.last?.scale ?? 0)
-
-        return formatPrice(value, formattingOptions: formattingOptions)
+        return formatPrice(value, formattingOptions: makeFormattingOptions(forScale: scale))
     }
 
     func formatPrice(_ price: String) -> AttributedString {
@@ -92,6 +70,45 @@ final class MarketsTokenPriceFormatter {
             fiatBalance: price,
             formattingOptions: formattingOptions
         )
+    }
+
+    private static func scale(
+        for value: Decimal,
+        fractionalPartLengthAfterLeadingZeroes: Int,
+        cachedScales: inout [Scale]
+    ) -> Int {
+        // Check if the scale for a given `value` has been calculated previously and stored in the cache
+        for (threshold, scale) in cachedScales {
+            if value >= threshold {
+                return scale
+            }
+        }
+
+        // We got a cache miss; calculating the scale and threshold for a given `value`
+        // Scales are calculated from the last known scale (from `cachedScales`) up to (and including) the scale of the current `value`
+        var fractionalPartLeadingZeroesCount: Int
+        var threshold: Decimal
+
+        if let lastCachedScale = cachedScales.last {
+            fractionalPartLeadingZeroesCount = lastCachedScale.scale - fractionalPartLengthAfterLeadingZeroes + 1
+            threshold = lastCachedScale.threshold
+        } else {
+            fractionalPartLeadingZeroesCount = 0
+            threshold = 1 // `ExpressibleByIntegerLiteral` maintains required precision, unlike `ExpressibleByFloatLiteral`
+        }
+
+        let step: Decimal = 10 // `ExpressibleByIntegerLiteral` maintains required precision, unlike `ExpressibleByFloatLiteral`
+
+        while threshold > value {
+            threshold /= step
+
+            let scale = fractionalPartLeadingZeroesCount + fractionalPartLengthAfterLeadingZeroes
+            cachedScales.append((threshold, scale))
+
+            fractionalPartLeadingZeroesCount += 1
+        }
+
+        return cachedScales.last?.scale ?? 0
     }
 
     private func makeFormattingOptions(forScale scale: Int) -> BalanceFormattingOptions {

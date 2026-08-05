@@ -21,6 +21,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let allowanceService: (any AllowanceService)?
     let withdrawalNotificationProvider: (any BlockchainSdk.WithdrawalNotificationProvider)?
+    let scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver?
     let emailDataCollectorBuilder: any EmailDataCollectorBuilder
 
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? {

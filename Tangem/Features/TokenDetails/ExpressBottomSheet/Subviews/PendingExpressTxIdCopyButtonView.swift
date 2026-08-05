@@ -27,7 +27,7 @@ struct PendingExpressTxIdCopyButtonView: View {
     let viewModel: PendingExpressTxIdCopyButtonViewModel
 
     var body: some View {
-        Button(action: viewModel.copyTransactionID) {
+        SwiftUI.Button(action: viewModel.copyTransactionID) {
             HStack(spacing: 4) {
                 Assets.Glyphs.copy.image
                     .resizable()

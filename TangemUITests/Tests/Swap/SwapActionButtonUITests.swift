@@ -22,6 +22,7 @@ final class SwapActionButtonUITests: BaseTestCase {
         let swapScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
+            .waitForNonZeroTotalBalance()
             .waitForSwapButtonEnabled()
             .tapSwapButton()
             .closeStoriesIfNeeded()

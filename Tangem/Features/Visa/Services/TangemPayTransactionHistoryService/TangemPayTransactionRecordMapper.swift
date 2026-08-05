@@ -77,7 +77,7 @@ struct TangemPayTransactionRecordMapper {
         case .spend(let spend):
             let prefix: String = spend.amount < 0 ? .plusSign : .empty
             return format(
-                amount: -(spend.isDeclined ? spend.authorizedAmount : spend.amount),
+                amount: -(spend.isDeclined ? spend.authorizedAmount ?? spend.amount : spend.amount),
                 currencyCode: spend.currency,
                 prefix: prefix
             )

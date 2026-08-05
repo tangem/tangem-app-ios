@@ -11,5 +11,4 @@ import Foundation
 struct ApplicationWalletEntry: Hashable, Identifiable {
     let id: String
     let name: String
-    let notifyStatus: Bool
 }

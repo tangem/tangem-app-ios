@@ -26,7 +26,8 @@ extension TangemPayTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerPro
 
         return CommonTokenFeeProvidersManager(
             feeProviders: [feeProvider],
-            initialSelectedProvider: feeProvider
+            initialSelectedProvider: feeProvider,
+            ownerAddress: nil
         )
     }
 }

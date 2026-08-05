@@ -16,11 +16,11 @@ struct MarketsPortfolioMultipleTokenView: View {
 
     @ObservedObject var viewModel: ViewModel
 
-    @ScaledMetric private var padding: CGFloat = .unit(.x3)
-    @ScaledMetric private var horizontalSpacing: CGFloat = .unit(.x3)
-    @ScaledMetric private var backgroundCornerRadius: CGFloat = .unit(.x5)
-    @ScaledMetric private var tokenIconSetWidth: CGFloat = .unit(.x12)
-    @ScaledMetric private var tokenIconSide = CGFloat.unit(.x10)
+    @ScaledMetric private var padding: CGFloat = 12
+    @ScaledMetric private var horizontalSpacing: CGFloat = 12
+    @ScaledMetric private var backgroundCornerRadius: CGFloat = 20
+    @ScaledMetric private var tokenIconSetWidth: CGFloat = 48
+    @ScaledMetric private var tokenIconSide: CGFloat = 40
     @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
@@ -33,13 +33,13 @@ struct MarketsPortfolioMultipleTokenView: View {
 
 private extension MarketsPortfolioMultipleTokenView {
     var content: some View {
-        Button(action: viewModel.onTap) {
+        SwiftUI.Button(action: viewModel.onTap) {
             HStack(spacing: horizontalSpacing) {
                 token
                 arrow
             }
             .padding(padding)
-            .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: backgroundCornerRadius))
+            .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: backgroundCornerRadius))
         }
         .buttonStyle(.plain)
     }
@@ -92,22 +92,22 @@ private extension MarketsPortfolioMultipleTokenView {
 
     func tokenName() -> some View {
         Text(viewModel.tokenName)
-            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
     }
 
     func fiatBalance() -> some View {
-        balanceState(viewModel.fiatBalanceState, skeletonSize: CGSize(width: .unit(.x16), height: .unit(.x5)) * scaleFactor)
+        balanceState(viewModel.fiatBalanceState, skeletonSize: CGSize(width: 64, height: 20) * scaleFactor)
     }
 
     func tokensCount() -> some View {
         Text(viewModel.tokensCount)
-            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .lineLimit(1)
     }
 
     func cryptoBalance() -> some View {
-        balanceState(viewModel.cryptoBalanceState, skeletonSize: CGSize(width: .unit(.x13), height: .unit(.x4)) * scaleFactor)
+        balanceState(viewModel.cryptoBalanceState, skeletonSize: CGSize(width: 52, height: 16) * scaleFactor)
     }
 
     func balanceState(_ state: ViewModel.BalanceState, skeletonSize: CGSize) -> some View {

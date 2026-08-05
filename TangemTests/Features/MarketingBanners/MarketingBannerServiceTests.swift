@@ -165,7 +165,7 @@ final class MarketingBannerServicePublisherTests: LeakTrackingTestSuite {
             let sut = makeSUT()
             let requests = CurrentValueSubject<SwapMarketingBannerRequest?, Never>(swapRequest)
 
-            let recorder = PublisherRecorder(makePipeline(sut, requests: requests))
+            let subscription = makePipeline(sut, requests: requests).sink { _ in }
 
             let requested = await waitUntilConditionMet { apiSpy.callCount == 1 }
             #expect(requested)
@@ -179,8 +179,7 @@ final class MarketingBannerServicePublisherTests: LeakTrackingTestSuite {
             ))
             #expect(apiSpy.recordedRequests == [expected])
 
-            // Let the in-flight emission task settle before the leak check runs.
-            _ = await waitUntilConditionMet(timeout: 0.3) { !recorder.values.isEmpty }
+            subscription.cancel()
         }
     }
 
@@ -193,10 +192,10 @@ final class MarketingBannerServicePublisherTests: LeakTrackingTestSuite {
             let onrampRequest = OnrampMarketingBannerRequest(destination: sourceTokenItem, fiatCurrencyCode: "EUR")
             let requests = CurrentValueSubject<OnrampMarketingBannerRequest?, Never>(onrampRequest)
 
-            let recorder = PublisherRecorder(sut.bannerPublisher(
+            let subscription = sut.bannerPublisher(
                 for: requests.eraseToAnyPublisher(),
                 amount: Just<MarketingBannerAmount?>(nil).eraseToAnyPublisher()
-            ))
+            ).sink { _ in }
 
             let requested = await waitUntilConditionMet { apiSpy.callCount == 1 }
             #expect(requested)
@@ -209,8 +208,7 @@ final class MarketingBannerServicePublisherTests: LeakTrackingTestSuite {
             ))
             #expect(apiSpy.recordedRequests == [expected])
 
-            // Let the in-flight emission task settle before the leak check runs.
-            _ = await waitUntilConditionMet(timeout: 0.3) { !recorder.values.isEmpty }
+            subscription.cancel()
         }
     }
 
@@ -222,7 +220,7 @@ final class MarketingBannerServicePublisherTests: LeakTrackingTestSuite {
             let sut = makeSUT()
             let requests = CurrentValueSubject<SwapMarketingBannerRequest?, Never>(swapRequest)
 
-            let recorder = PublisherRecorder(makePipeline(sut, requests: requests))
+            let subscription = makePipeline(sut, requests: requests).sink { _ in }
 
             let initialFetched = await waitUntilConditionMet { apiSpy.callCount == 1 }
             #expect(initialFetched)
@@ -249,8 +247,7 @@ final class MarketingBannerServicePublisherTests: LeakTrackingTestSuite {
             ))
             #expect(apiSpy.recordedRequests == [expectedInitial, expectedReversed])
 
-            // Let the in-flight emission task settle before the leak check runs.
-            _ = await waitUntilConditionMet(timeout: 0.3) { recorder.values.count >= 2 }
+            subscription.cancel()
         }
     }
 

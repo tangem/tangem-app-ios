@@ -167,7 +167,7 @@ private extension SegmentedPickerView {
         // MARK: - UI
 
         var body: some View {
-            Button(action: action) {
+            SwiftUI.Button(action: action) {
                 content
                     .frame(maxWidth: shouldStretchToFill ? .infinity : targetWidth)
                     .background {

@@ -35,6 +35,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var scanCardSettingsCoordinator: ScanCardSettingsCoordinator?
     @Published var accountDetailsCoordinator: AccountDetailsCoordinator?
     @Published var archivedAccountsCoordinator: ArchivedAccountsCoordinator?
+    @Published var jointAccountManagementCoordinator: JointAccountManagementCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
     @Published var notificationSettingsCoordinator: NotificationSettingsCoordinator?
@@ -250,22 +251,39 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
     }
 }
 
-// MARK: - TransactionNotificationsRowToggleRoutable
+// MARK: - AddAccountTypeSelectorRoutable
 
-extension UserWalletSettingsCoordinator: TransactionNotificationsRowToggleRoutable {
-    func openTransactionNotifications() {
-        let transactionNotificationsModalViewModel = TransactionNotificationsModalViewModel(coordinator: self)
-
+extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
+    func openCryptoAccountForm(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: transactionNotificationsModalViewModel)
+            floatingSheetPresenter.removeActiveSheet()
+            addNewAccount(accountModelsManager: accountModelsManager, userWalletConfig: userWalletConfig)
         }
     }
-}
 
-// MARK: - TransactionNotificationsModalRoutable
+    func openJointAccountManagement(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
 
-extension UserWalletSettingsCoordinator: TransactionNotificationsModalRoutable {
-    func dismissTransactionNotifications() {
+            let coordinator = JointAccountManagementCoordinator(
+                dismissAction: { [weak self] in
+                    self?.jointAccountManagementCoordinator = nil
+                },
+                popToRootAction: popToRootAction
+            )
+
+            coordinator.start(
+                with: JointAccountManagementCoordinator.Options(
+                    accountModelsManager: accountModelsManager,
+                    userWalletConfig: userWalletConfig
+                )
+            )
+
+            jointAccountManagementCoordinator = coordinator
+        }
+    }
+
+    func dismissAddAccountTypeSelector() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
@@ -291,6 +309,18 @@ extension UserWalletSettingsCoordinator: UserSettingsAccountsRoutable {
                 accountFormViewModel = nil
             }
         )
+    }
+
+    func openAddAccountTypeSelector(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
+        let viewModel = AddAccountTypeSelectorViewModel(
+            accountModelsManager: accountModelsManager,
+            userWalletConfig: userWalletConfig,
+            coordinator: self
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     /// Implementation for `UserSettingsAccountsRoutable` interface.

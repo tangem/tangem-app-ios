@@ -14,6 +14,11 @@ protocol UserSettingsAccountsRoutable: AnyObject {
         userWalletConfig: UserWalletConfig
     )
 
+    func openAddAccountTypeSelector(
+        accountModelsManager: any AccountModelsManager,
+        userWalletConfig: UserWalletConfig
+    )
+
     func openManageTokens(
         accountModelsManager: any AccountModelsManager,
         cryptoAccountModel: any CryptoAccountModel,

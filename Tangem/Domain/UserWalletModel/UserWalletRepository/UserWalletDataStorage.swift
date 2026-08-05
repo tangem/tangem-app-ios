@@ -25,7 +25,7 @@ class UserWalletDataStorage {
 
     // MARK: - Clear
 
-    func clear() {
+    func clean() {
         do {
             try secureStorage.delete(Constants.publicDataEncryptionKeyStorageKey)
 
@@ -67,7 +67,14 @@ class UserWalletDataStorage {
 
             let userWalletsPublicDataEncrypted = try Data(contentsOf: userWalletListPath)
             let userWalletsPublicData = try decrypt(userWalletsPublicDataEncrypted, with: publicDataEncryptionKey())
+
             let userWallets = try decoder.decode([StoredUserWallet].self, from: userWalletsPublicData)
+
+            // One-shot migration: re-encoding upgrades legacy (CardDTOv4) records to the current format
+            if userWallets.contains(where: \.wasDecodedFromLegacyFormat) {
+                savePublicData(userWallets)
+            }
+
             return userWallets
         } catch {
             AppLogger.error(error: error)

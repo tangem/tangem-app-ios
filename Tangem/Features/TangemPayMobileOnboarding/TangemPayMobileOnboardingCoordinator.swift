@@ -99,7 +99,7 @@ private extension TangemPayMobileOnboardingCoordinator {
 
         isProcessing = true
 
-        await userWalletModel.accountModelsManager.acceptTangemPayOffer(
+        try? await userWalletModel.accountModelsManager.acceptTangemPayOffer(
             authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
         )
 
