@@ -34,7 +34,6 @@ struct FeatureToggleNamingTests {
         .usdtRevokeGaslessFee,
         .yieldModuleUpdate,
         .xrplTransactionHistory,
-        .pushNotificationsSettings,
         .deeplinkPresentationWay,
         .transactionHistoryV2,
         .supportChat,
