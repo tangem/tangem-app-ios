@@ -208,6 +208,9 @@ protocol WalletModelDependenciesProvider {
     var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? { get }
     var compiledTransactionSender: CompiledTransactionSender? { get }
     var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? { get }
+    var tronTransactionFeeProvider: TronTransactionFeeProvider? { get }
+    var tronAllowanceProvider: TronAllowanceProvider? { get }
+    var tronTransactionDataBuilder: TronTransactionDataBuilder? { get }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }
     var ethereumNetworkProvider: EthereumNetworkProvider? { get }
@@ -217,11 +220,13 @@ protocol WalletModelDependenciesProvider {
 
     var accountInitializationService: BlockchainAccountInitializationService? { get }
     var minimalBalanceProvider: MinimalBalanceProvider? { get }
+    var scaledUIAmountProvider: ScaledUIAmountProvider? { get }
 
     // MARK: - Gasless Transactions
 
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { get }
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { get }
+    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { get }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { get }
 }
 

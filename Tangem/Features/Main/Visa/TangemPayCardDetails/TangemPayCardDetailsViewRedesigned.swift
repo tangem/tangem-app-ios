@@ -101,7 +101,11 @@ struct TangemPayCardDetailsViewRedesigned: View {
                     HStack(spacing: 6) {
                         Text("*" + viewModel.lastFourDigits)
                             .font(token: DesignSystem.Font.bodyMediumToken)
-                            .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
+                            .foregroundStyle(
+                                viewModel.cardNameDisplayMode == .editing
+                                    ? DesignSystem.Color.textStaticDarkSecondary
+                                    : DesignSystem.Color.textStaticDarkPrimary
+                            )
 
                         Group {
                             if isLoading {
@@ -259,6 +263,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
                         .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                 }
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardNameEditButton)
         case .editing:
             TextField(
                 text: $viewModel.cardName,
@@ -271,6 +276,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
             .font(token: DesignSystem.Font.bodyMediumToken)
             .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
             .tint(DesignSystem.Color.textStaticDarkPrimary)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardNameTextField)
             .focused($isCardNameFocused)
             .disabled(viewModel.isCardNameEditingDisabled)
             .task {
