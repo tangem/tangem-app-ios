@@ -74,6 +74,7 @@ public enum TangemPayAccessibilityIdentifiers {
     // MARK: - Add to Apple/Google Pay guide
 
     public static let addToApplePayGuideBanner = "\(prefix)AddToApplePayGuideBanner"
+    public static let addToApplePayGuideBannerCloseButton = "\(prefix)AddToApplePayGuideBannerCloseButton"
     public static let addToApplePayGuideContainer = "\(prefix)AddToApplePayGuideContainer"
     public static let addToApplePayGuideCloseButton = "\(prefix)AddToApplePayGuideCloseButton"
 
