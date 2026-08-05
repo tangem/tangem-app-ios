@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0A40A8802E2FCB28006411E5 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0A40A87F2E2FCB28006411E5 /* Lottie */; };
 		2D67256B2EB0A6490035A4BC /* Experiment in Frameworks */ = {isa = PBXBuildFile; productRef = 2D67256A2EB0A6490035A4BC /* Experiment */; };
+		2DF2B17430233C29009B888D /* ios_cio_config.json in Resources */ = {isa = PBXBuildFile; fileRef = 2F184EBAB4A0E9D2286980C2 /* ios_cio_config.json */; };
 		3075F0D02DCA6B430094B4C7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 3075F0CF2DCA6B430094B4C7 /* Kingfisher */; };
 		5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DAC08832513917F00B73E8B /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		798508AE2DF1AF9100388668 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = 798508AD2DF1AF9100388668 /* TangemModules */; };
@@ -201,6 +202,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2F184EBAB4A0E9D2286980C2 /* ios_cio_config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ios_cio_config.json; sourceTree = "<group>"; };
 		5D3F77C224BF56D800E8695B /* Tangem.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tangem.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77D824BF56DC00E8695B /* TangemTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77E324BF56DC00E8695B /* TangemUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -496,6 +498,7 @@
 				C21C40AD2F7D778F00CF1555 /* issuers.json */,
 				C21C40AE2F7D778F00CF1555 /* providers_order.json */,
 				C21C40B02F7D778F00CF1555 /* visa_config.json */,
+				2F184EBAB4A0E9D2286980C2 /* ios_cio_config.json */,
 			);
 			path = "tangem-app-config";
 			sourceTree = "<group>";
@@ -947,6 +950,7 @@
 				C21C40CF2F7D778F00CF1555 /* config_prod.json in Resources */,
 				C21C40D02F7D778F00CF1555 /* issuers.json in Resources */,
 				C2A96C042F7EE114001D0602 /* Intents.strings in Resources */,
+				2DF2B17430233C29009B888D /* ios_cio_config.json in Resources */,
 				C21C40D12F7D778F00CF1555 /* providers_order.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
