@@ -122,7 +122,7 @@ struct AddTokenConfirmView: View {
         @ViewBuilder let icon: () -> Icon
 
         var body: some View {
-            Button(action: onTap) {
+            SwiftUI.Button(action: onTap) {
                 HStack(spacing: AddTokenRedesignedConstants.selectorRowContentSpacing) {
                     icon()
 

@@ -12,11 +12,21 @@ public struct ExpressManagerSwappingPair {
     public let source: any ExpressSourceWallet
     public let destination: any ExpressDestinationWallet
 
+    /// The factor between the amounts shown to the user and the amounts the chain operates on for the
+    /// source token, or `nil` when the two coincide. Resolved before the pair is handed over so that
+    /// amounts can be converted without further I/O.
+    public let sourceAmountScale: Decimal?
+
     public var isTransfer: Bool { source.currency == destination.currency }
 
-    public init(source: any ExpressSourceWallet, destination: any ExpressDestinationWallet) {
+    public init(
+        source: any ExpressSourceWallet,
+        destination: any ExpressDestinationWallet,
+        sourceAmountScale: Decimal? = nil
+    ) {
         self.source = source
         self.destination = destination
+        self.sourceAmountScale = sourceAmountScale
     }
 
     public func currencySymbol(for amountType: ExpressAmountType) -> String {

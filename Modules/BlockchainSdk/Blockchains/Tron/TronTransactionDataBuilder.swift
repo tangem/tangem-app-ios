@@ -8,6 +8,7 @@
 
 import Foundation
 
-protocol TronTransactionDataBuilder {
+public protocol TronTransactionDataBuilder {
+    /// Returns the full TRC20 `approve(address,uint256)` calldata: selector + padded spender + padded amount.
     func buildForApprove(spender: String, amount: Amount) throws -> Data
 }

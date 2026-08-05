@@ -16,6 +16,7 @@ enum Feature: String, Hashable, CaseIterable {
     case surveySparrow
     case gaslessYieldFee
     case usdtRevokeGaslessFee
+    case tronGasless
     case yieldModuleUpdate
     case xrplTransactionHistory
     case pushNotificationsSettings
@@ -30,6 +31,7 @@ enum Feature: String, Hashable, CaseIterable {
     case sendWithSwapAvailabilityCheck
     case swapFiatCalculation
     case addressBook
+    case stakingFlowV2
     case hideStoriesInMobileWallet
     case marketingBanners
     case stakingRegionUnavailable
@@ -37,10 +39,22 @@ enum Feature: String, Hashable, CaseIterable {
     case tangemPayVirtualAccount
     case highFeeWarning
     case priceAlertsSubscription
+    case solanaRentExemptionPreflight
+    case backup4cards
     case promoCampaignsAttribution
     case onboardingPushNotificationDoubleAsk
     case mainPushNotificationDoubleAsk
     case backendAuthentication
+    case swapHideZeroBalanceSource
+    case bitcoinLikePsbtSwap
+    case onrampPaymentMethodThemedImages
+    case chooseTokenPulseAnimation
+    case hotWalletDexRatesUntilDeposit
+    case gaslessBridgeFeeRestriction
+    case tronDexSwap
+    case polymarket
+    case walletCardsBackupReport
+    case jointAccounts
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -53,6 +67,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .surveySparrow: return "SurveySparrow service integration"
         case .gaslessYieldFee: return "TWI-1327_smart_gas_support_for_tokens_in_yield_mode"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
+        case .tronGasless: return "TWI-1259_tron_gasless"
         case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
         case .xrplTransactionHistory: return "XRPL Transaction History"
         case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
@@ -67,17 +82,30 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendWithSwapAvailabilityCheck: return "14316_Send_With_Swap_Availability_Check"
         case .swapFiatCalculation: return "14315_Swap_Fiat_Calculation"
         case .addressBook: return "TWI-83_address_book"
+        case .stakingFlowV2: return "[REDACTED_INFO]_staking_flow_v2"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         case .marketingBanners: return "TWI-1522_special_offer_promo_placement_for_onramp_and_swaps"
         case .stakingRegionUnavailable: return "[REDACTED_INFO]_p2p_staking_region_unavailable"
         case .forYou: return "TWI-1469_for_you_product_shelves_add_indicators"
         case .highFeeWarning: return "TWI-1367_high_fee_warning"
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
+        case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
+        case .solanaRentExemptionPreflight: return "[REDACTED_INFO]_solana_rent_exemption_preflight"
         case .tangemPayVirtualAccount: return "TWI-1638_tangempay_virtual_account"
         case .onboardingPushNotificationDoubleAsk: return "TWI-1403_onboarding_push_notification_double_ask"
         case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
         case .promoCampaignsAttribution: return "TWI-1637_promo_campaigns_attribution"
         case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
+        case .swapHideZeroBalanceSource: return "[REDACTED_INFO]_hide_zero_balance_tokens_in_swap_source"
+        case .bitcoinLikePsbtSwap: return "TWI-1668_support_other_bitcoin_like_tokens_for_psbt_signature"
+        case .onrampPaymentMethodThemedImages: return "[REDACTED_INFO]_two_payment_method_pictures"
+        case .chooseTokenPulseAnimation: return "[REDACTED_INFO]_choose_token_pulse_animation"
+        case .hotWalletDexRatesUntilDeposit: return "[REDACTED_INFO]_hot_wallet_dex_rates_until_deposit"
+        case .gaslessBridgeFeeRestriction: return "[REDACTED_INFO]_gasless_bridge_fee_restriction"
+        case .tronDexSwap: return "[REDACTED_INFO]_tron_dex_swap"
+        case .polymarket: return "TWI-1576_polymarket"
+        case .walletCardsBackupReport: return "[REDACTED_INFO]_cardlinked_status_update_stage2"
+        case .jointAccounts: return "TWI-1611_joint_accounts"
         }
     }
 
@@ -90,6 +118,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .surveySparrow: return .version("6.1")
         case .gaslessYieldFee: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
+        case .tronGasless: return .unspecified
         case .yieldModuleUpdate: return .version("6.1")
         case .xrplTransactionHistory: return .unspecified
         case .pushNotificationsSettings: return .version("6.1")
@@ -104,17 +133,30 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendWithSwapAvailabilityCheck: return .version("6.1")
         case .swapFiatCalculation: return .version("6.1")
         case .addressBook: return .version("6.1")
+        case .stakingFlowV2: return .unspecified
         case .hideStoriesInMobileWallet: return .version("6.1")
         case .marketingBanners: return .version("6.0.2")
         case .stakingRegionUnavailable: return .version("6.1")
         case .forYou: return .unspecified
         case .highFeeWarning: return .version("6.1")
         case .priceAlertsSubscription: return .unspecified
-        case .tangemPayVirtualAccount: return .version("6.0.2")
+        case .tangemPayVirtualAccount: return .version("6.1")
+        case .solanaRentExemptionPreflight: return .unspecified
         case .onboardingPushNotificationDoubleAsk: return .version("6.1")
         case .mainPushNotificationDoubleAsk: return .version("6.2")
         case .promoCampaignsAttribution: return .version("6.0.2")
+        case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
+        case .bitcoinLikePsbtSwap: return .version("6.2")
+        case .swapHideZeroBalanceSource: return .unspecified
+        case .onrampPaymentMethodThemedImages: return .unspecified
+        case .chooseTokenPulseAnimation: return .unspecified
+        case .hotWalletDexRatesUntilDeposit: return .unspecified
+        case .gaslessBridgeFeeRestriction: return .unspecified
+        case .tronDexSwap: return .unspecified
+        case .polymarket: return .unspecified
+        case .walletCardsBackupReport: return .unspecified
+        case .jointAccounts: return .unspecified
         }
     }
 }

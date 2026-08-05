@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct MarketsNavigationBarTitle: View {
     struct State: Equatable {
@@ -29,7 +30,7 @@ struct MarketsNavigationBarTitle: View {
     var body: some View {
         VStack(spacing: 0) {
             Text(tokenName)
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
                 .lineLimit(1)
                 .multilineTextAlignment(.center)
@@ -58,7 +59,7 @@ struct MarketsNavigationBarTitle: View {
 
     private func priceText(_ text: String) -> some View {
         Text(text)
-            .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .fixedSize(horizontal: false, vertical: true)
             .lineLimit(1)
             .multilineTextAlignment(.center)

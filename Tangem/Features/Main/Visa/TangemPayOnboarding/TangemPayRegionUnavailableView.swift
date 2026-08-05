@@ -39,7 +39,7 @@ struct TangemPayRegionUnavailableView: View {
 
             Spacer()
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(Localization.commonGotIt),
                 accessibilityLabel: Localization.commonGotIt,
                 action: onGotIt

@@ -185,7 +185,7 @@ struct TangemPaySelectPlanView: View {
 
     private var footer: some View {
         VStack(spacing: 8) {
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(Localization.tangempaySelectPlanCompare),
                 accessibilityLabel: Localization.tangempaySelectPlanCompare,
                 action: viewModel.comparePlans
@@ -195,7 +195,7 @@ struct TangemPaySelectPlanView: View {
             .horizontalLayout(.infinity)
             .disabled(viewModel.isPlacingOrder)
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(Localization.tangempaySelectPlanBtnSelect),
                 accessibilityLabel: Localization.tangempaySelectPlanBtnSelect,
                 action: viewModel.select

@@ -47,13 +47,13 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) var isWithdrawButtonLoading: Bool = false
     @Published private(set) var isWithdrawButtonDisabled: Bool = false
+    @Published private(set) var isAddFundsButtonDisabled: Bool = false
     @Published private(set) var inlineNotifications: [NotificationViewInput] = []
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
 
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var cardEntries: [TangemPayCardEntry] = []
     @Published private(set) var isAddCardLoading: Bool = false
-    @Published private(set) var isCancellingPaidTariffTransition: Bool = false
 
     @Published private(set) var awaitingDepositInfo: TangemPayAwaitingDepositInfo?
 
@@ -113,20 +113,6 @@ final class TangemPayMainViewModel: ObservableObject {
         MultiWalletNotificationBannerMapper().mapItems(
             inlineNotifications,
             cardDeactivatedNotificationInput.map { [$0] } ?? []
-        )
-    }
-
-    var awaitingDepositCancelButton: TangemMessageBannerButton? {
-        guard let info = awaitingDepositInfo else { return nil }
-
-        return TangemMessageBannerButton(
-            title: Localization.tangempayCardDetailsAwaitingDepositCancelButton(info.planName, info.fallbackPlanName),
-            isLoading: isCancellingPaidTariffTransition,
-            action: { [weak self] in
-                Task {
-                    await self?.cancelPaidTariffTransition()
-                }
-            }
         )
     }
 
@@ -220,27 +206,6 @@ final class TangemPayMainViewModel: ObservableObject {
         // Eligibility only gates issuing a brand-new VA. An already-issued one stays reachable.
         return tangemPayAccount.hasVirtualAccount
             || tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
-    }
-
-    @MainActor
-    func cancelPaidTariffTransition() async {
-        guard !isCancellingPaidTariffTransition, isAwaitingDeposit else { return }
-
-        Analytics.log(.visaTiersCancelPlusMoveToBasicClicked, contextParams: .userWallet(userWalletInfo.id))
-
-        isCancellingPaidTariffTransition = true
-
-        do {
-            try await tangemPayAccount.cancelAwaitingDepositOrder()
-
-            isCancellingPaidTariffTransition = false
-        } catch {
-            isCancellingPaidTariffTransition = false
-
-            showCardIssueFailureAlert()
-
-            await tangemPayAccount.loadCustomerInfo()
-        }
     }
 
     func addFunds() {
@@ -391,7 +356,6 @@ final class TangemPayMainViewModel: ObservableObject {
 
         runTask { [tangemPayAccount] in
             await tangemPayAccount.loadCustomerInfo()
-            await tangemPayAccount.loadBalance()
             await tangemPayAccount.loadOffers()
             await tangemPayAccount.resumeActiveIssueOrderPolling()
         }
@@ -399,15 +363,17 @@ final class TangemPayMainViewModel: ObservableObject {
         runTask { [promotionNotificationsManager] in
             await promotionNotificationsManager.loadPromotions()
         }
+
+        tangemPayAccount.startDepositAddressPolling()
+    }
+
+    func onDisappear() {
+        tangemPayAccount.stopDepositAddressPolling()
     }
 
     func openCurrentPlan() {
         Analytics.log(.visaTiersCurrentPlanClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openCurrentPlan()
-    }
-
-    func onTopupBannerAppear() {
-        Analytics.log(.visaTiersTopupBannerForPlusShowed, contextParams: .userWallet(userWalletInfo.id))
     }
 
     func onSystemDowngradeBannerAppear() {
@@ -571,6 +537,11 @@ private extension TangemPayMainViewModel {
             .map { balance in balance.value.map { $0 <= 0 } ?? false }
             .receiveOnMain()
             .assign(to: &$isWithdrawButtonDisabled)
+
+        tangemPayAccount.depositAddressPublisher
+            .map { $0 == nil }
+            .receiveOnMain()
+            .assign(to: &$isAddFundsButtonDisabled)
 
         tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.balanceTypePublisher
             .map { balance in balance.value.map { $0 < 0 } ?? false }

@@ -20,6 +20,7 @@
     "isFilesAllowed" : true,
     "isHDWalletAllowed" : true,
     "isKeysImportAllowed" : true,
+    "isBackupRequired" : false,
     "maxWalletsCount" : 20,
     "isSettingAccessCodeAllowed" : true,
     "isBackupAllowed" : true,
@@ -31,7 +32,9 @@
     "isSelectBlockchainAllowed" : true
   },
   "userSettings" : {
-    "isUserCodeRecoveryAllowed" : true
+    "isUserCodeRecoveryAllowed" : true,
+    "isPINRequired" : false,
+    "isNDEFDisabled" : false
   },
   "isPasscodeSet" : false,
   "batchId" : "CB00",
@@ -70,7 +73,8 @@
       },
       "publicKey" : "02ABDD35AA09B35CA72513F01685453FA1C8CA48F9A5F272BF09AADBF63EF66BCC",
       "curve" : "secp256k1",
-      "index" : 0
+      "index" : 0,
+      "status" : 2
     },
     {
       "curve" : "ed25519",
@@ -78,6 +82,7 @@
       "publicKey" : "CEFF0340710855A0F539DCD6ABBD645BA8ACF52E43325B117D286FF8DC036207",
       "chainCode" : "B2DAF8ED36BA8A11BE60A50F99F6FDF992B435421AC81778188134A16612AF75",
       "index" : 1,
+      "status" : 2,
       "isImported" : false,
       "hasBackup" : false,
       "settings" : {
@@ -112,7 +117,8 @@
       "hasBackup" : false,
       "curve" : "bls12381_G2_AUG",
       "isImported" : false,
-      "index" : 2
+      "index" : 2,
+      "status" : 2
     },
     {
       "derivedKeys" : {
@@ -124,6 +130,7 @@
       "hasBackup" : false,
       "totalSignedHashes" : 0,
       "index" : 3,
+      "status" : 2,
       "isImported" : false,
       "publicKey" : "D01FF6E1EA15D202E049E9AB8C8D07C5D37DF52DD09AD4A2691930EA30A5F9FB",
       "curve" : "bip0340"
@@ -138,6 +145,7 @@
       "curve" : "ed25519_slip0010",
       "publicKey" : "28638A8786D5D9B808DC9E51B86B832724351E715C739E8DA2FA77A67949DD0F",
       "index" : 4,
+      "status" : 2,
       "isImported" : false,
       "derivedKeys" : {
         "m/44'/501'/0'" : {
