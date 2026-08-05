@@ -17,7 +17,7 @@ struct SolanaStakingTransactionValidatorTests {
 
     // MARK: - Valid Transactions
 
-    @Test(arguments: [syntheticStakingHex])
+    @Test(arguments: [syntheticStakingHex, manyAccountKeysHex])
     func validStakingTransactionPasses(hex: String) {
         assertValid(hex)
     }
@@ -29,12 +29,12 @@ struct SolanaStakingTransactionValidatorTests {
 
     // MARK: - Invalid Transactions
 
-    @Test(arguments: [nonStakingHex, tamperedStakeProgramHex, emptyAccountKeysHex])
+    @Test(arguments: [nonStakingHex, tamperedStakeProgramHex, emptyAccountKeysHex, stakeProgramInInstructionDataHex])
     func invalidStakingTransactionFails(hex: String) {
         assertInvalid(hex)
     }
 
-    @Test(arguments: [emptyData, malformedHex, oddLengthHex])
+    @Test(arguments: [emptyData, malformedHex, oddLengthHex, truncatedAccountKeysHex])
     func malformedDataFails(data: String) {
         assertInvalid(data, error: .emptyOrMalformedData)
     }
@@ -72,11 +72,26 @@ private extension SolanaStakingTransactionValidatorTests {
         buildTransactionWithEmptyAccountKeys()
     }
 
+    /// Transaction with Stake program ID bytes in instruction data instead of account keys
+    static var stakeProgramInInstructionDataHex: String {
+        buildTransactionWithStakeProgramInInstructionData()
+    }
+
+    /// Transaction with 130 account keys — the shortvec length takes two bytes
+    static var manyAccountKeysHex: String {
+        buildTransactionWithManyAccountKeys()
+    }
+
     // MARK: Malformed Data
 
     static let emptyData = ""
     static let malformedHex = "not_valid_hex"
     static let oddLengthHex = "abc"
+
+    /// Transaction that declares more account keys than the data contains
+    static var truncatedAccountKeysHex: String {
+        buildTruncatedTransaction()
+    }
 }
 
 // MARK: - Helpers
@@ -187,6 +202,83 @@ private extension SolanaStakingTransactionValidatorTests {
         data.append(0x00)
 
         // No account keys
+
+        return data.hex()
+    }
+
+    /// Builds a transaction where the Stake program ID bytes appear only after the account keys section.
+    /// The old substring check passed it; the account-keys parser must reject it.
+    static func buildTransactionWithStakeProgramInInstructionData() -> String {
+        var data = Data()
+
+        // 1. Signature count = 1
+        data.append(0x01)
+
+        // 2. Signature placeholder (64 zeros)
+        data.append(contentsOf: [UInt8](repeating: 0, count: 64))
+
+        // 3. Message header
+        data.append(contentsOf: [0x01, 0x00, 0x01])
+
+        // 4. Account count = 2
+        data.append(0x02)
+
+        // 5. Two random account keys (not Stake program)
+        data.append(contentsOf: [UInt8](repeating: 0x11, count: 32))
+        data.append(contentsOf: [UInt8](repeating: 0x22, count: 32))
+
+        // 6. Recent blockhash
+        data.append(contentsOf: [UInt8](repeating: 0x33, count: 32))
+
+        // 7. "Instruction data" carrying the Stake program ID bytes
+        data.append(SUT.stakeProgramBytes)
+
+        return data.hex()
+    }
+
+    /// Builds a transaction with 130 account keys to exercise the two-byte shortvec length (0x82 0x01).
+    static func buildTransactionWithManyAccountKeys() -> String {
+        var data = Data()
+
+        // 1. Signature count = 1
+        data.append(0x01)
+
+        // 2. Signature placeholder (64 zeros)
+        data.append(contentsOf: [UInt8](repeating: 0, count: 64))
+
+        // 3. Message header
+        data.append(contentsOf: [0x01, 0x00, 0x01])
+
+        // 4. Account count = 130, shortvec-encoded
+        data.append(contentsOf: [0x82, 0x01])
+
+        // 5. 129 filler account keys
+        for index in 0 ..< 129 {
+            data.append(contentsOf: [UInt8](repeating: UInt8(index), count: 32))
+        }
+
+        // 6. Stake program ID as the last account key
+        data.append(SUT.stakeProgramBytes)
+
+        return data.hex()
+    }
+
+    /// Builds a transaction that declares 4 account keys but contains only one.
+    static func buildTruncatedTransaction() -> String {
+        var data = Data()
+
+        // 1. Signature count = 1
+        data.append(0x01)
+
+        // 2. Signature placeholder (64 zeros)
+        data.append(contentsOf: [UInt8](repeating: 0, count: 64))
+
+        // 3. Message header
+        data.append(contentsOf: [0x01, 0x00, 0x01])
+
+        // 4. Account count = 4, but only one key follows
+        data.append(0x04)
+        data.append(contentsOf: [UInt8](repeating: 0x11, count: 32))
 
         return data.hex()
     }

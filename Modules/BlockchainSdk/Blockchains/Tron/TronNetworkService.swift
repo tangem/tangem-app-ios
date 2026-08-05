@@ -44,10 +44,14 @@ class TronNetworkService: MultiNetworkProvider {
                         throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
+                    // Absent on chains that predate the memo-fee proposal.
+                    let memoFee = $0.chainParameter.first(where: { $0.key == "getMemoFee" })?.value ?? 0
+
                     return TronChainParameters(
                         sunPerEnergyUnit: energyFee,
                         dynamicEnergyMaxFactor: dynamicEnergyMaxFactor,
-                        dynamicEnergyIncreaseFactor: dynamicEnergyIncreaseFactor
+                        dynamicEnergyIncreaseFactor: dynamicEnergyIncreaseFactor,
+                        memoFee: memoFee
                     )
                 }
                 .eraseToAnyPublisher()
@@ -144,6 +148,14 @@ class TronNetworkService: MultiNetworkProvider {
     func contractEnergyUsage(sourceAddress: String, contractAddress: String, contractEnergyUsageData: String) -> AnyPublisher<Int, Error> {
         providerPublisher {
             $0.contractEnergyUsage(sourceAddress: sourceAddress, contractAddress: contractAddress, parameter: contractEnergyUsageData)
+                .map(\.energy_used)
+                .eraseToAnyPublisher()
+        }
+    }
+
+    func contractEnergyUsage(sourceAddress: String, contractAddress: String, callDataHex: String, callValue: UInt64) -> AnyPublisher<Int, Error> {
+        providerPublisher {
+            $0.contractEnergyUsageForCallData(sourceAddress: sourceAddress, contractAddress: contractAddress, data: callDataHex, callValue: callValue)
                 .map(\.energy_used)
                 .eraseToAnyPublisher()
         }

@@ -20,6 +20,7 @@ struct SwapTokenSelectorView: View {
                 viewModel: viewModel.tokenSelectorViewModel,
                 emptyContentView: {
                     SwapTokenSelectorEmptyContentView(
+                        tokenSelectorViewModel: viewModel.tokenSelectorViewModel,
                         marketsTokensViewModel: viewModel.marketsTokensViewModel,
                         message: Localization.expressTokenListEmptySearch
                     )

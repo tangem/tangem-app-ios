@@ -29,6 +29,7 @@
       "hasBackup" : true,
       "publicKey" : "034A022957159A571C3BFF97CBF31A164D38BAD85EDAD6A652C66CF150E77C13A3",
       "index" : 0,
+      "status" : 2,
       "chainCode" : "8A9B10654910703D720D03612D6F7538913C27A7F8392845BD5AD0BE83A63DF6",
       "derivedKeys" : {
         "m/0'/1" : {
@@ -50,6 +51,7 @@
       "hasBackup" : true,
       "publicKey" : "416521E9F23A623D2758361541FCB527419990D7B3C54FF2C37DF10B241C8796",
       "index" : 1,
+      "status" : 2,
       "chainCode" : "C9CA11A4E7A61B4587D9CA43D3D252C26661206F3CB8B1621DE00AC56DF47035",
       "derivedKeys" : {
         "m/0'/1" : {
@@ -71,6 +73,7 @@
       "hasBackup" : true,
       "publicKey" : "A132F11EE45900EF1160F2C902602FCE3F43C697C9CD0D27605546C800E11E2D37919D234C92D6A8983177BB21058205",
       "index" : 2,
+      "status" : 2,
       "derivedKeys" : {
 
       }
@@ -85,6 +88,7 @@
       "hasBackup" : true,
       "publicKey" : "4A022957159A571C3BFF97CBF31A164D38BAD85EDAD6A652C66CF150E77C13A3",
       "index" : 3,
+      "status" : 2,
       "chainCode" : "8A9B10654910703D720D03612D6F7538913C27A7F8392845BD5AD0BE83A63DF6",
       "derivedKeys" : {
         "m/0'/1" : {
@@ -106,6 +110,7 @@
       "hasBackup" : true,
       "publicKey" : "812E3191F6FA1D314D67E8FC89C2AAF45DBABD7DCAD7CD0D071A2F7880BDB601",
       "index" : 4,
+      "status" : 2,
       "chainCode" : "C30202A490FBA004DA34BAD0DCD7F2AA5839F1AEF10BC6092C30F570F71B7C59",
       "derivedKeys" : {
         "m/0'/1'" : {
@@ -121,7 +126,9 @@
   "cardId" : "BA00000100129772",
   "isAccessCodeSet" : true,
   "userSettings" : {
-    "isUserCodeRecoveryAllowed" : true
+    "isUserCodeRecoveryAllowed" : true,
+    "isPINRequired" : false,
+    "isNDEFDisabled" : false
   },
   "isPasscodeSet" : false,
   "settings" : {
@@ -132,6 +139,7 @@
     "isSettingPasscodeAllowed" : true,
     "isBackupAllowed" : true,
     "isKeysImportAllowed" : true,
+    "isBackupRequired" : false,
     "supportedEncryptionModes" : [
       "strong",
       "fast",
