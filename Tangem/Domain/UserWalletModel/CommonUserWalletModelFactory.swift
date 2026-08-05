@@ -57,9 +57,8 @@ struct CommonUserWalletModelFactory {
             userWalletId: userWalletId,
             nftManager: dependencies.nftManager,
             keysRepository: dependencies.keysRepository,
-            keysDerivingInteractor: dependencies.keysDerivingInteractor,
             totalBalanceProvider: dependencies.totalBalanceProvider,
-            userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager,
+            userWalletPushNotificationsManager: dependencies.userWalletPushNotificationsManager,
             priceAlertsSubscriptionsProvider: dependencies.priceAlertsSubscriptionsProvider,
             accountModelsManager: dependencies.accountModelsManager,
             addressBookManager: dependencies.addressBookManager
