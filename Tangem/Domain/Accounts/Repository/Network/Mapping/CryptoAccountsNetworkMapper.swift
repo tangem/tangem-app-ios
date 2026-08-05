@@ -29,7 +29,7 @@ final class CryptoAccountsNetworkMapper {
     // MARK: - Stored to Remote
 
     func map(request: [StoredCryptoAccount]) -> (accounts: AccountsDTO.Request.Accounts, userTokens: AccountsDTO.Request.UserTokens) {
-        let walletModelAddresses = externalParametersProvider?.provideTokenListAddresses()
+        let walletModelAddresses = mapTokenListAddresses()
         var tokens: [AccountsDTO.Request.Token] = []
 
         let accounts = request
@@ -51,8 +51,6 @@ final class CryptoAccountsNetworkMapper {
                 )
             }
 
-        let notifyStatusValue = mapTokenListNotifyStatusValue()
-
         // Currently, we assume that all accounts share the same grouping option
         let group = mapGroupType(groupingOption: request.first?.grouping)
 
@@ -68,7 +66,6 @@ final class CryptoAccountsNetworkMapper {
             tokens: uniqueTokens,
             group: group,
             sort: sort,
-            notifyStatus: notifyStatusValue,
             version: Constants.apiVersion
         )
 
@@ -196,16 +193,15 @@ final class CryptoAccountsNetworkMapper {
         }
     }
 
-    private func mapTokenListNotifyStatusValue() -> Bool {
-        if let externalParametersProvider {
-            return externalParametersProvider.provideTokenListNotifyStatusValue()
+    private func mapTokenListAddresses() -> [WalletModelId: [String]]? {
+        guard let externalParametersProvider else {
+            let message = "Programmer error: '\(self)' is not configured with 'UserTokenListExternalParametersProvider' instance before using"
+            AccountsLogger.error(error: message)
+            assertionFailure(message)
+            return nil
         }
 
-        let message = "Programmer error: '\(self)' is not configured with 'UserTokenListExternalParametersProvider' instance before using"
-        AccountsLogger.error(error: message)
-        assertionFailure(message)
-
-        return false
+        return externalParametersProvider.provideTokenListAddresses()
     }
 
     // MARK: - Remote to Stored
