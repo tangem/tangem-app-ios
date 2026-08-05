@@ -19,7 +19,6 @@ enum Feature: String, Hashable, CaseIterable {
     case tronGasless
     case yieldModuleUpdate
     case xrplTransactionHistory
-    case pushNotificationsSettings
     case deeplinkPresentationWay
     case transactionHistoryV2
     case forceUpdate
@@ -71,7 +70,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .tronGasless: return "TWI-1259_tron_gasless"
         case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
         case .xrplTransactionHistory: return "XRPL Transaction History"
-        case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
         case .forceUpdate: return "[REDACTED_INFO]_force_update"
@@ -123,7 +121,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .tronGasless: return .unspecified
         case .yieldModuleUpdate: return .version("6.1")
         case .xrplTransactionHistory: return .unspecified
-        case .pushNotificationsSettings: return .version("6.1")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .forceUpdate: return .version("6.1")

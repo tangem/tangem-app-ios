@@ -64,9 +64,9 @@ struct UserTokensManagerMock: UserTokensManager {
     }
 }
 
-// MARK: - UserTokensPushNotificationsRemoteStatusSyncing protocol conformance
+// MARK: - UserWalletPushNotificationsRemoteStatusSyncing protocol conformance
 
-extension UserTokensManagerMock: UserTokensPushNotificationsRemoteStatusSyncing {
+extension UserTokensManagerMock: UserWalletPushNotificationsRemoteStatusSyncing {
     func syncRemoteStatus() {}
 }
 
