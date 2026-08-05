@@ -21,7 +21,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
 
     // MARK: - Published Properties
 
-    @Published private(set) var isAddTokenButtonDisabled: Bool = true
+    @Published private(set) var isTokenAddedEverywhere: Bool = true
     @Published private(set) var isLoadingNetworks: Bool = false
     @Published private(set) var typeView: TypeView = .loading
     @Published private(set) var tokenItemViewModels: [MarketsPortfolioTokenItemViewModel] = []
@@ -89,7 +89,6 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
 
     @MainActor
     func onExpandTap() {
-        let iconURL = IconURLBuilder().tokenIconURL(id: coinId, size: .large)
         let inputData = MarketsAddTokenFlowConfigurationFactory.InputData(
             coinId: coinId,
             coinName: coinName,
@@ -99,7 +98,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         coordinator?.openMatchedTokenList(
             walletModels: matchedWalletModels,
             underivedTokens: matchedUnderivedTokens,
-            iconURL: iconURL,
+            isTokenAddedEverywhere: isTokenAddedEverywhere,
             addTokenInputData: inputData,
             walletDataProvider: walletDataProvider
         )
@@ -125,18 +124,12 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     }
 
     private func areTokenItemsAddedInAllAccounts(availableNetworks: [NetworkModel]) -> Bool {
-        TokenAdditionChecker.areTokenItemsAddedInAllAccounts(
-            userWalletModels: walletDataProvider.userWalletModels,
-            tokenItemsFactory: { [coinId, coinName, coinSymbol] account, supportedBlockchains in
-                MarketsTokenItemsProvider.calculateTokenItems(
-                    coinId: coinId,
-                    coinName: coinName,
-                    coinSymbol: coinSymbol,
-                    networks: availableNetworks,
-                    supportedBlockchains: supportedBlockchains,
-                    cryptoAccount: account
-                )
-            }
+        TokenAdditionChecker.isCoinAddedInAllAccounts(
+            coinId: coinId,
+            coinName: coinName,
+            coinSymbol: coinSymbol,
+            availableNetworks: availableNetworks,
+            userWalletModels: walletDataProvider.userWalletModels
         )
     }
 
@@ -169,12 +162,12 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     }
 
     private func bindAddButtonVisibility() {
-        addButtonVisibilityCancellable = Publishers.CombineLatest($typeView, $isAddTokenButtonDisabled)
-            .map { [weak self] typeView, isAddTokenButtonDisabled in
+        addButtonVisibilityCancellable = $typeView
+            .map { [weak self] typeView in
                 guard let self, hasMultiCurrencyWallet else { return false }
                 switch typeView {
                 case .empty, .list:
-                    return !isAddTokenButtonDisabled
+                    return true
                 case .loading, .unsupported, .unavailable:
                     return false
                 }
@@ -208,7 +201,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             return .notSupported
 
         case .empty:
-            guard hasMultiCurrencyWallet, !isAddTokenButtonDisabled else { return .hidden }
+            guard hasMultiCurrencyWallet, !isTokenAddedEverywhere else { return .hidden }
             return .addToken
 
         case .list:
@@ -305,7 +298,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
         balanceCancellables.removeAll()
         matchedWalletModels = []
         hasMultiCurrencyWallet = false
-        isAddTokenButtonDisabled = true
+        isTokenAddedEverywhere = true
         totalFiatBalanceText = nil
         tokenItemViewModels = []
         typeView = .loading
@@ -567,7 +560,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     private func updateTypeView(hasTokens: Bool, listStyle: TypeView.ListStyle, animated: Bool) {
         if let networks {
             let supportedState = supportedState(networks: networks)
-            isAddTokenButtonDisabled = areTokenItemsAddedInAllAccounts(availableNetworks: networks)
+            isTokenAddedEverywhere = areTokenItemsAddedInAllAccounts(availableNetworks: networks)
 
             let targetState = determineTypeViewState(hasTokens: hasTokens, listStyle: listStyle, supportedState: supportedState)
 
