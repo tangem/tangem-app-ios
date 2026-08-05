@@ -117,6 +117,7 @@ struct MarketsTokenDetailsView: View {
     private var redesignedAddButton: some View {
         NavigationBarButton.add(action: viewModel.onTapAddButton)
             .redesigned()
+            .dimmed(!viewModel.isAddButtonEnabled)
             .accessibilityLabel(Localization.commonAddToken)
             .transition(.opacity)
     }

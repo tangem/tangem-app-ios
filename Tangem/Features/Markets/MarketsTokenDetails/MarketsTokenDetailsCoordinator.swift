@@ -523,7 +523,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     func openMatchedTokenList(
         walletModels: [any WalletModel],
         underivedTokens: [MarketsPortfolioTokenListViewModel.UnderivedToken],
-        iconURL: URL,
+        isTokenAddedEverywhere: Bool,
         addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData,
         walletDataProvider: MarketsWalletDataProvider
     ) {
@@ -538,14 +538,12 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
 
         let flowViewModel = MarketsPortfolioFlowViewModel(portfolioViewModel: portfolioViewModel)
 
-        portfolioViewModel.addTokenPromo = .init(iconURL: iconURL) { [weak self, weak flowViewModel] in
-            guard let self, let flowViewModel else { return }
-            showAddTokenFlow(
-                in: flowViewModel,
-                inputData: addTokenInputData,
-                walletDataProvider: walletDataProvider
-            )
-        }
+        portfolioViewModel.addTokenFooter = makeAddTokenFooter(
+            isTokenAddedEverywhere: isTokenAddedEverywhere,
+            flowViewModel: flowViewModel,
+            addTokenInputData: addTokenInputData,
+            walletDataProvider: walletDataProvider
+        )
 
         floatingSheetPresenter.enqueue(sheet: flowViewModel)
     }
@@ -576,6 +574,27 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
 
         flowViewModel.showAddToken(viewModel)
+    }
+
+    @MainActor
+    private func makeAddTokenFooter(
+        isTokenAddedEverywhere: Bool,
+        flowViewModel: MarketsPortfolioFlowViewModel,
+        addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData,
+        walletDataProvider: MarketsWalletDataProvider
+    ) -> MarketsPortfolioTokenListViewModel.AddTokenFooter {
+        guard !isTokenAddedEverywhere else {
+            return .noMoreToAdd
+        }
+
+        return .add { [weak self, weak flowViewModel] in
+            guard let self, let flowViewModel else { return }
+            showAddTokenFlow(
+                in: flowViewModel,
+                inputData: addTokenInputData,
+                walletDataProvider: walletDataProvider
+            )
+        }
     }
 
     func openAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider) {
@@ -917,14 +936,12 @@ extension MarketsTokenDetailsCoordinator {
 
         let flowViewModel = MarketsPortfolioFlowViewModel(portfolioViewModel: portfolioViewModel)
 
-        portfolioViewModel.addTokenPromo = .init(iconURL: input.iconURL) { [weak self, weak flowViewModel] in
-            guard let self, let flowViewModel else { return }
-            showAddTokenFlow(
-                in: flowViewModel,
-                inputData: input.addTokenInputData,
-                walletDataProvider: walletDataProvider
-            )
-        }
+        portfolioViewModel.addTokenFooter = makeAddTokenFooter(
+            isTokenAddedEverywhere: input.isTokenAddedEverywhere,
+            flowViewModel: flowViewModel,
+            addTokenInputData: input.addTokenInputData,
+            walletDataProvider: walletDataProvider
+        )
 
         floatingSheetPresenter.enqueue(sheet: flowViewModel)
     }

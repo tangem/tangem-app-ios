@@ -97,21 +97,37 @@ private extension MarketsPortfolioTokenListView {
 
     @ViewBuilder
     var bottomBar: some View {
-        if let promo = viewModel.addTokenPromo {
-            addTokenView(action: promo.action)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 20)
-                .background(backgroundColor)
+        switch viewModel.addTokenFooter {
+        case .add(let action):
+            addTokenView(
+                title: Localization.commonAddToken,
+                subtitle: Localization.marketsTokenAddSubtitle,
+                action: action
+            )
+
+        case .noMoreToAdd:
+            addTokenView(
+                title: Localization.marketsTokenAddAllAddedTitle,
+                subtitle: Localization.marketsTokenAddAllAddedDescription,
+                action: nil
+            )
+
+        case nil:
+            EmptyView()
         }
     }
 
-    func addTokenView(action: @escaping () -> Void) -> some View {
+    func addTokenView(
+        title: String,
+        subtitle: String,
+        action: (() -> Void)?
+    ) -> some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(Localization.commonAddToken)
+                Text(title)
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
-                Text(Localization.marketsTokenAddSubtitle)
+                Text(subtitle)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
 
@@ -119,12 +135,16 @@ private extension MarketsPortfolioTokenListView {
 
             TangemButton(
                 content: .text(AttributedString(Localization.marketsAddToken)),
-                action: action
+                action: action ?? {}
             )
             .setSize(.x9)
             .setStyleType(.secondary)
+            .setButtonState(isLoading: false, isDisabled: action == nil)
             .accessibilityIdentifier(MainAccessibilityIdentifiers.addToPortfolioButton)
         }
+        .padding(.horizontal, 24)
+        .padding(.bottom, 20)
+        .background(backgroundColor)
     }
 }
 
@@ -168,7 +188,7 @@ private extension MarketsPortfolioTokenListView {
 
     @ViewBuilder
     var walletsBlur: some View {
-        if viewModel.addTokenPromo == nil {
+        if viewModel.addTokenFooter == nil {
             LinearGradient(
                 colors: [
                     backgroundColor.opacity(0),
