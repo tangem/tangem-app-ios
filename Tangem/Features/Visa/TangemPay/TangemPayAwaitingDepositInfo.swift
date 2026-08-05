@@ -6,7 +6,6 @@
 //
 
 struct TangemPayAwaitingDepositInfo: Equatable {
-    let fee: String
     let planName: String
     let fallbackPlanName: String
 }

@@ -163,12 +163,11 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openCurrentPlan() {
-        guard
-            let tangemPayAccount = options?.tangemPayAccount,
-            let customerTariffPlan = tangemPayAccount.customerTariffPlan
-        else {
+        guard let options, let customerTariffPlan = options.tangemPayAccount.customerTariffPlan else {
             return
         }
+
+        let tangemPayAccount = options.tangemPayAccount
 
         let coordinator = TangemPayCurrentPlanCoordinator(
             dismissAction: { [weak self] in
@@ -177,9 +176,11 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             popToRootAction: popToRootAction
         )
         coordinator.start(with: .init(
+            userWalletId: options.userWalletInfo.id,
             customerTariffPlan: customerTariffPlan,
             customerTariffPlanPublisher: tangemPayAccount.customerTariffPlanPublisher,
             tariffPlanSelector: tangemPayAccount,
+            awaitingDepositCanceller: tangemPayAccount,
             closeFlow: { [weak self] in
                 self?.currentPlanCoordinator = nil
             }
@@ -637,6 +638,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
         guard let options else { return }
         let viewModel = TangemPayPinCheckViewModel(
             card: card,
+            pinReader: tangemPayAssembly.makePinReader(for: card),
             userWalletId: options.userWalletInfo.id,
             coordinator: self
         )
