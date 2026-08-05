@@ -547,6 +547,22 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func verifyProviderName(contains expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify swap provider name contains '\(expected)'") { _ in
+            let providerName = app.staticTexts[SendAccessibilityIdentifiers.swapProviderName].firstMatch
+            waitAndAssertTrue(providerName, timeout: .networkRequest, "Provider name element should be displayed")
+            let predicate = NSPredicate(format: "label CONTAINS %@", expected)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: providerName)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .networkRequest),
+                .completed,
+                "Provider name should contain '\(expected)' but was '\(providerName.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func waitForProviderBlockNotDisplayed() -> Self {
         XCTContext.runActivity(named: "Assert provider block is hidden in Transfer mode") { _ in
             let providerBlock = app.descendants(matching: .any)[SendAccessibilityIdentifiers.swapProviderBlock]

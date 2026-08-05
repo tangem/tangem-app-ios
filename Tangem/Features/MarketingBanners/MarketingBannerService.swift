@@ -35,14 +35,24 @@ extension MarketingBannerService {
         for requests: AnyPublisher<SwapMarketingBannerRequest?, Never>,
         amount: AnyPublisher<MarketingBannerAmount?, Never>
     ) -> AnyPublisher<MarketingBanners, Never> {
-        makeBannerPublisher(for: requests, amount: amount, fetch: fetchCampaigns)
+        let apiService = apiService
+        let language = language
+
+        return makeBannerPublisher(for: requests, amount: amount, fetch: { request in
+            await Self.fetchCampaigns(for: request, apiService: apiService, language: language)
+        })
     }
 
     func bannerPublisher(
         for requests: AnyPublisher<OnrampMarketingBannerRequest?, Never>,
         amount: AnyPublisher<MarketingBannerAmount?, Never>
     ) -> AnyPublisher<MarketingBanners, Never> {
-        makeBannerPublisher(for: requests, amount: amount, fetch: fetchCampaigns)
+        let apiService = apiService
+        let language = language
+
+        return makeBannerPublisher(for: requests, amount: amount, fetch: { request in
+            await Self.fetchCampaigns(for: request, apiService: apiService, language: language)
+        })
     }
 }
 
@@ -84,7 +94,11 @@ private extension MarketingBannerService {
             .eraseToAnyPublisher()
     }
 
-    func fetchCampaigns(for request: SwapMarketingBannerRequest) async -> [MarketingCampaignsDTO.Campaign] {
+    static func fetchCampaigns(
+        for request: SwapMarketingBannerRequest,
+        apiService: TangemApiService,
+        language: String?
+    ) async -> [MarketingCampaignsDTO.Campaign] {
         let dtoRequest = MarketingCampaignsDTO.Request.swap(
             .init(
                 fromNetwork: request.source.networkId,
@@ -98,7 +112,11 @@ private extension MarketingBannerService {
         return (try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns) ?? []
     }
 
-    func fetchCampaigns(for request: OnrampMarketingBannerRequest) async -> [MarketingCampaignsDTO.Campaign] {
+    static func fetchCampaigns(
+        for request: OnrampMarketingBannerRequest,
+        apiService: TangemApiService,
+        language: String?
+    ) async -> [MarketingCampaignsDTO.Campaign] {
         let dtoRequest = MarketingCampaignsDTO.Request.onramp(
             .init(
                 toNetwork: request.destination.networkId,

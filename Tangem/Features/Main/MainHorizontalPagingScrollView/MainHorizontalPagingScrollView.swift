@@ -46,14 +46,15 @@ struct MainHorizontalPagingScrollView: View {
             backgroundColor: DesignSystem.Color.bgPrimary,
             opacity: selectedUserWalletScrollAdjustedValues.backgroundOpacity
         )
-        .redesignToolbar(
-            pageBuilder: selectedUserWalletPageBuilder,
-            principalContentOpacity: selectedUserWalletScrollAdjustedValues.navigationBarBalanceOpacity,
-            principalContentOffset: selectedUserWalletScrollAdjustedValues.navigationBarBalanceOffsetY,
-            trailingButtonsHaveLiquidGlassEffect: selectedUserWalletBalanceHasReachedNavigationBar,
+        .mainTopNavigation(
             scanQRCodeAction: scanQRCodeAction,
-            detailsAction: detailsAction
-        )
+            detailsAction: detailsAction,
+            actionsHaveBackground: selectedUserWalletBalanceHasReachedNavigationBar
+        ) {
+            selectedUserWalletPageBuilder.navigation
+                .opacity(selectedUserWalletScrollAdjustedValues.navigationBarBalanceOpacity)
+                .offset(y: selectedUserWalletScrollAdjustedValues.navigationBarBalanceOffsetY)
+        }
         .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { safeAreaInsetsTop in
             self.safeAreaInsetsTop = safeAreaInsetsTop
         }
@@ -376,30 +377,6 @@ extension MainHorizontalPagingScrollView {
             pagingIndicatorOffsetY: 0,
             backgroundOpacity: 1,
             contentFooterOverlayIsVisible: false
-        )
-    }
-}
-
-private extension View {
-    func redesignToolbar(
-        pageBuilder: MainUserWalletPageBuilder,
-        principalContentOpacity: CGFloat,
-        principalContentOffset: CGFloat,
-        trailingButtonsHaveLiquidGlassEffect: Bool,
-        scanQRCodeAction: @escaping () -> Void,
-        detailsAction: @escaping () -> Void
-    ) -> some View {
-        modifier(
-            MainViewRedesignToolbar(
-                principalContent: {
-                    pageBuilder.navigation
-                        .opacity(principalContentOpacity)
-                        .offset(y: principalContentOffset)
-                },
-                trailingButtonsHaveLiquidGlassEffect: trailingButtonsHaveLiquidGlassEffect,
-                scanQRCodeAction: scanQRCodeAction,
-                detailsAction: detailsAction
-            )
         )
     }
 }

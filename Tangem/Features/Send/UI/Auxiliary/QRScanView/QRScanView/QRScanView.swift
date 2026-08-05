@@ -58,7 +58,7 @@ struct QRScanView: View {
 
     private func topButtons() -> some View {
         HStack(spacing: 14) {
-            Button(Localization.commonClose) {
+            SwiftUI.Button(Localization.commonClose) {
                 dismiss()
             }
             .padding(7)
@@ -67,13 +67,13 @@ struct QRScanView: View {
 
             Spacer()
 
-            Button(action: viewModel.toggleFlash) {
+            SwiftUI.Button(action: viewModel.toggleFlash) {
                 viewModel.isFlashActive ? Assets.flashDisabled.image : Assets.flash.image
             }
             .padding(7)
             .accessibilityIdentifier(SendQRScannerAccessibilityIdentifiers.flashToggleButton)
 
-            Button(action: viewModel.scanFromGallery) {
+            SwiftUI.Button(action: viewModel.scanFromGallery) {
                 Assets.gallery.image
             }
             .padding(7)

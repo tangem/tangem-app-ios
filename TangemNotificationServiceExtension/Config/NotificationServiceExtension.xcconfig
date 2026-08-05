@@ -1,0 +1,48 @@
+//
+//  NotificationServiceExtension.xcconfig
+//  TangemNotificationServiceExtension
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+// Shared Notification Service Extension settings. The per-variant configs include this after the
+// matching app environment config, so `APP_BUNDLE_IDENTIFIER` is inherited from the host variant
+// while the extension-specific keys below override the app values.
+
+// Derived from the host's bundle id inherited from the included app environment config.
+PRODUCT_BUNDLE_IDENTIFIER = $(APP_BUNDLE_IDENTIFIER).NotificationService
+
+// Same wiring as other targets: variant configs set `ENTITLEMENTS_PATH`, this references it.
+CODE_SIGN_ENTITLEMENTS = $(ENTITLEMENTS_PATH)
+
+// Use the checked-in Info.plist as the single source of truth (same approach as the host target)
+// instead of letting Xcode generate one.
+GENERATE_INFOPLIST_FILE = NO
+
+// `INFOPLIST_FILE`, `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` stay in project.pbxproj, not here:
+// `agvtool` (fastlane's version bump) reads them from the project file and ignores xcconfig, so keeping
+// them there is what lets the extension version bump in step with the app instead of drifting.
+
+// The extension has no asset catalog; clear the host's app-icon name to avoid a missing-icon warning.
+ASSETCATALOG_COMPILER_APPICON_NAME =
+
+// The app environment config sets PRODUCT_NAME = "Tangem"; the extension needs its own.
+PRODUCT_NAME = $(TARGET_NAME)
+
+// Extensions must not be installed as a standalone product.
+SKIP_INSTALL = YES
+
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM = $(APP_ID_PREFIX)
+
+// Pin the extension to iPhone-only, like the host app. Without these, Xcode defaults would make it
+// iPad/Mac/visionOS-eligible (TARGETED_DEVICE_FAMILY = 1,2, SUPPORTS_*_DESIGNED_FOR_* = YES), which an
+// extension must not be when its container app isn't.
+TARGETED_DEVICE_FAMILY = 1
+SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO
+SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO
+
+// Marks this target as an app extension so shared code (e.g. `CustomerIOSharedConfiguration`) can compile
+// out app-only modules the NSE must not link. Appended to the conditions from the app-env config above.
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) IS_APP_EXTENSION

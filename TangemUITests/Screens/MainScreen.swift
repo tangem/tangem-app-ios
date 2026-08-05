@@ -29,6 +29,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var walletLockedNotification = otherElement(.walletLockedNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
+    private lazy var tangemPayTileBalance = app.staticTexts[TangemPayAccessibilityIdentifiers.mainScreenTileBalance].firstMatch
     /// Type-agnostic: redesign and legacy notifications expose different element types.
     private lazy var getTangemPayBanner = app.descendants(matching: .any)
         .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
@@ -138,8 +139,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func tapMainBuyWhenUnavailable() -> Self {
         XCTContext.runActivity(named: "Tap Buy action on main screen (unavailable state)") { _ in
-            waitAndAssertTrue(buyActionButton, "Buy title should exist on main screen")
-            buyActionButton.tap()
+            tapUnavailableActionButton(MainAccessibilityIdentifiers.buyTitle, actionName: "Buy")
             return self
         }
     }
@@ -147,8 +147,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func tapMainSwapWhenUnavailable() -> Self {
         XCTContext.runActivity(named: "Tap Exchange action on main screen (unavailable state)") { _ in
-            waitAndAssertTrue(swapActionButton, "Exchange title should exist on main screen")
-            swapActionButton.tap()
+            tapUnavailableActionButton(MainAccessibilityIdentifiers.exchangeTitle, actionName: "Exchange")
             return self
         }
     }
@@ -500,6 +499,23 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             scrollToElement(tangemPayTile)
             tangemPayTile.waitAndTap()
             return TangemPayMainScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileBalanceContains(_ expectedSubstring: String) -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile balance contains '\(expectedSubstring)'") { _ in
+            scrollToElement(tangemPayTile)
+            let predicate = NSPredicate(format: "label CONTAINS[c] %@", expectedSubstring)
+            let match = app.staticTexts
+                .matching(identifier: TangemPayAccessibilityIdentifiers.mainScreenTileBalance)
+                .matching(predicate)
+                .firstMatch
+            XCTAssertTrue(
+                match.waitForExistence(timeout: .networkRequest),
+                "Tangem Pay tile balance should contain '\(expectedSubstring)'. Actual: '\(tangemPayTileBalance.label)'"
+            )
+            return self
         }
     }
 
@@ -1029,6 +1045,26 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         let enabledButtons = buttonQuery.allElementsBoundByIndex.filter { $0.isEnabled }
         let element = enabledButtons.first { hasVisibleFrame($0) } ?? enabledButtons.first ?? buttonQuery.firstMatch
         element.tapEvenIfNotHittable()
+    }
+
+    /// Restricted button is disabled and carries the id on the Button (not the text); force-tap the visible one and retry until the tap-while-disabled gesture surfaces the alert.
+    private func tapUnavailableActionButton(_ identifier: String, actionName: String) {
+        let buttonQuery = app.buttons.matching(identifier: identifier)
+        let alert = app.alerts.firstMatch
+        XCTAssertTrue(
+            buttonQuery.firstMatch.waitForExistence(timeout: .robustUIUpdate),
+            "\(actionName) action button should exist on main screen"
+        )
+        let deadline = Date().addingTimeInterval(.robustUIUpdate)
+        repeat {
+            let buttons = buttonQuery.allElementsBoundByIndex
+            let element = buttons.first { hasVisibleFrame($0) } ?? buttons.first ?? buttonQuery.firstMatch
+            element.tapEvenIfNotHittable()
+            if alert.waitForExistence(timeout: .conditional) {
+                return
+            }
+        } while Date() < deadline
+        XCTFail("\(actionName) unavailable alert did not appear after retrying taps")
     }
 
     private func isGrouped() -> Bool {

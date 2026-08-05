@@ -110,7 +110,13 @@ final class TangemPayAccount {
     }
 
     var depositAddress: String? {
-        customerInfoSubject.value.depositAddress
+        customerInfoSubject.value.depositAddress?.nilIfEmpty
+    }
+
+    var depositAddressPublisher: some Publisher<String?, Never> {
+        customerInfoSubject
+            .map(\.depositAddress?.nilIfEmpty)
+            .removeDuplicates()
     }
 
     var customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan? {
@@ -204,6 +210,11 @@ final class TangemPayAccount {
         customerService: customerService
     )
 
+    /// Polls `customer/me` until a deposit address is available.
+    private lazy var depositAddressPollingService = TangemPayDepositAddressPollingService(
+        customerService: customerService
+    )
+
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -249,6 +260,20 @@ final class TangemPayAccount {
         await loadCustomerInfoNew()
     }
 
+    func startDepositAddressPolling() {
+        if depositAddress == nil {
+            depositAddressPollingService.startPolling { [weak self] customerInfo in
+                self?.customerInfoSubject.send(customerInfo)
+            }
+        } else {
+            stopDepositAddressPolling()
+        }
+    }
+
+    func stopDepositAddressPolling() {
+        depositAddressPollingService.cancel()
+    }
+
     func removeAccount(onFinish: @escaping (Bool) -> Void) {
         guard let accountRemover else {
             onFinish(false)
@@ -270,6 +295,7 @@ enum TangemPayAccountError: Error {
     case missingPaymentAccountAddress
     case missingDepositAddress
     case missingCardIssueOffer
+    case missingOnrampFees
 }
 
 extension TangemPayAccount {
@@ -326,6 +352,14 @@ extension TangemPayAccount {
                 self?.placedVirtualAccountOrderId = nil
             }
         )
+    }
+}
+
+// MARK: - Fees
+
+extension TangemPayAccount {
+    func loadOnrampFees() async throws -> [TangemPayFeeResponse] {
+        try await customerService.getFees(groups: [.onramp])
     }
 }
 
@@ -448,10 +482,15 @@ extension TangemPayAccount {
             try await customerService.cancelOrder(orderId: orderId)
         } catch {
             pendingTransitionCancellation = nil
+            await loadCustomerInfo()
             throw error
         }
     }
 }
+
+// MARK: - TangemPayAwaitingDepositCanceller
+
+extension TangemPayAccount: TangemPayAwaitingDepositCanceller {}
 
 // MARK: - TangemPayTariffPlanSelector
 
@@ -501,8 +540,7 @@ extension TangemPayAccount: TangemPayTariffPlanSelector {
 private extension TangemPayAccount {
     func makeAwaitingDepositInfo(targetPlanId: String) async -> TangemPayAwaitingDepositInfo? {
         guard let transitions = try? await customerService.getTariffPlanTransitions(),
-              let plan = transitions.first(where: { $0.tariffPlan.id == targetPlanId })?.tariffPlan,
-              let recurringFee = plan.fees.first(where: { $0.type == .recurring }) else {
+              let plan = transitions.first(where: { $0.tariffPlan.id == targetPlanId })?.tariffPlan else {
             return nil
         }
 
@@ -514,7 +552,6 @@ private extension TangemPayAccount {
         }
 
         return TangemPayAwaitingDepositInfo(
-            fee: BalanceFormatter().formatFiatBalance(recurringFee.amount, currencyCode: recurringFee.currency),
             planName: plan.name,
             fallbackPlanName: fallbackPlan.name
         )

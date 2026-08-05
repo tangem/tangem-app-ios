@@ -40,7 +40,7 @@ final class NotificationSettingsViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private weak var coordinator: NotificationSettingsRoutable?
 
-    private var userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    private let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
 
     private var isEnabledTransactionAlertsBinding: BindingValue<Bool> {
         BindingValue<Bool>(
@@ -83,7 +83,7 @@ final class NotificationSettingsViewModel: ObservableObject {
 
     /// Shared push-settings toggle flow (pending enable + system-permission handling).
     private lazy var toggleInteractor = PushChannelToggleInteractor(
-        userTokensPushNotificationsManager: userTokensPushNotificationsManager,
+        userWalletPushNotificationsManager: userWalletPushNotificationsManager,
         output: self
     )
 
@@ -95,7 +95,7 @@ final class NotificationSettingsViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
 
-        userTokensPushNotificationsManager = userWalletModel.userTokensPushNotificationsManager
+        userWalletPushNotificationsManager = userWalletModel.userWalletPushNotificationsManager
 
         setupViewModels()
         bind()
@@ -132,7 +132,7 @@ final class NotificationSettingsViewModel: ObservableObject {
         retryTask?.cancel()
         retryTask = runTask(in: self) { @MainActor viewModel in
             defer { viewModel.isRetryButtonBusy = false }
-            try? await viewModel.userTokensPushNotificationsManager.refetchPreferences()
+            try? await viewModel.userWalletPushNotificationsManager.refetchPreferences()
         }
     }
 }
@@ -182,7 +182,7 @@ private extension NotificationSettingsViewModel {
         }
         .store(in: &bag)
 
-        userTokensPushNotificationsManager
+        userWalletPushNotificationsManager
             .preferencesPublisher
             .removeDuplicates()
             .receiveOnMain()
@@ -194,7 +194,6 @@ private extension NotificationSettingsViewModel {
     }
 
     func setupViewModels() {
-        transactionAlertsEnabled = userTokensPushNotificationsManager.status.isActive
         rebuildToggleViewModels()
     }
 
