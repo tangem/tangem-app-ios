@@ -129,6 +129,7 @@ private extension MarketsPortfolioTokenListRowViewModel {
                 let attributedBalance = attributedUnreachableBalance()
                 let icon = BalanceState.Icon(
                     type: Assets.DesignSystem.attention,
+                    // [DS3] kept until new DS component lands
                     color: .Tangem.Graphic.Status.attention,
                     location: .trailing
                 )
@@ -149,16 +150,17 @@ private extension MarketsPortfolioTokenListRowViewModel {
     func attributedCryptoBalance(_ balance: String) -> Text {
         let attributedBalance = AttributedBalanceFormatter.format(
             balance,
-            font: Font.Tangem.Caption12.semibold,
-            integerColor: .Tangem.Text.Neutral.secondary,
-            fractionalColor: .Tangem.Text.Neutral.secondary
+            token: DesignSystem.Font.captionMediumToken,
+            integerColor: DesignSystem.Color.textSecondary,
+            fractionalColor: DesignSystem.Color.textSecondary
         )
         return .attributed(attributedBalance)
     }
 
     func attributedUnreachableBalance() -> Text {
         var attributed = AttributedString(Localization.commonUnreachable)
-        attributed.setFontStyle(Font.Tangem.Caption12.semibold)
+        attributed.setFontStyle(DesignSystem.Font.captionMediumToken)
+        // [DS3] kept until new DS component lands
         attributed.foregroundColor = .Tangem.Text.Status.attention
         return .attributed(attributed)
     }
@@ -188,7 +190,7 @@ private extension MarketsPortfolioTokenListRowViewModel {
                 if hasFailedBalance {
                     let icon = BalanceState.Icon(
                         type: Assets.DesignSystem.errorSync,
-                        color: .Tangem.Graphic.Neutral.secondary,
+                        color: DesignSystem.Color.iconSecondary,
                         location: .leading
                     )
                     return .failed(attributedBalance, icon)
@@ -211,9 +213,9 @@ private extension MarketsPortfolioTokenListRowViewModel {
     func attributedFiatBalance(_ balance: String) -> Text {
         let attributedBalance = AttributedBalanceFormatter.format(
             balance,
-            font: Font.Tangem.Body16.medium,
-            integerColor: .Tangem.Text.Neutral.primary,
-            fractionalColor: .Tangem.Text.Neutral.secondary
+            token: DesignSystem.Font.bodyMediumToken,
+            integerColor: DesignSystem.Color.textPrimary,
+            fractionalColor: DesignSystem.Color.textSecondary
         )
         return .attributed(attributedBalance)
     }

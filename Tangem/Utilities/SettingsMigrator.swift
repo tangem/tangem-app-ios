@@ -43,6 +43,6 @@ enum SettingsMigrator {
         }
 
         let storage = UserWalletDataStorage()
-        storage.clear()
+        storage.clean()
     }
 }

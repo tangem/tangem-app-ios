@@ -15,6 +15,8 @@ actor CommonTransactionHistoryAuxDataRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    private var cacheState: CacheState = .empty
+
     /// Actor-protected cache for isolated asynchronous access.
     private var cache = Cache()
 
@@ -23,7 +25,7 @@ actor CommonTransactionHistoryAuxDataRepository {
 
     private var subscribers = AsyncStream<Void>.MulticastSubscribers<UUID>()
 
-    private var inFlightProviderLoadTasks: [ExpressBranch: Task<Void, Never>] = [:]
+    private var inFlightProvidersLoadTask: Task<Void, Never>?
     private var inFlightFiatCurrenciesLoadTask: Task<Void, Never>?
 
     private var pendingCryptoCurrenciesToLoad: [String: ExpressCurrency] = [:]
@@ -32,21 +34,51 @@ actor CommonTransactionHistoryAuxDataRepository {
     private var cryptoCurrenciesDebounceTask: Task<Void, Never>?
 
     private let cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
-    private let storage: UserDefaultsTransactionHistoryAuxDataStorage
+    private let storage: TransactionHistoryAuxDataStorage
 
     init(
         cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory,
-        storage: UserDefaultsTransactionHistoryAuxDataStorage
+        storage: TransactionHistoryAuxDataStorage
     ) {
         self.cachingExpressAPIProviderFactory = cachingExpressAPIProviderFactory
         self.storage = storage
 
-        let cacheFromStorage = Self.makeCache(from: storage)
-        cache = cacheFromStorage
-        syncCache { $0 = cacheFromStorage }
+        runTask(in: self) { repository in
+            await repository.loadCacheFromStorageIfNeeded()
+        }
     }
 
     // MARK: - Shared helpers
+
+    private func loadCacheFromStorageIfNeeded() async {
+        switch cacheState {
+        case .empty:
+            break
+        case .loading(let task):
+            return await task.value
+        case .loaded,
+             .failed:
+            // Early exit; No re-load on failure here, since the storage (database) failure is unlikely to be recoverable
+            return
+        }
+
+        // Bare `Task` is used here intentionally to mutate actor properties from the same actor context
+        let cacheLoadingTask = Task {
+            do {
+                let cacheFromStorage = try await Self.makeCache(from: storage)
+                cache = cacheFromStorage
+                syncCache { $0 = cacheFromStorage }
+                cacheState = .loaded
+            } catch {
+                TransactionHistoryLogger.error(error: "Failed to populate cache from storage: \(error)")
+                cacheState = .failed
+            }
+        }
+
+        cacheState = .loading(cacheLoadingTask)
+
+        await cacheLoadingTask.value
+    }
 
     private func mirrorToSyncCache() {
         let cacheSnapshot = cache
@@ -55,59 +87,73 @@ actor CommonTransactionHistoryAuxDataRepository {
 
     // MARK: - Persistence
 
-    private func persistProviders() {
-        storage.expressProviders = Array(cache.expressProviders.values)
-        storage.onrampProviders = Array(cache.onrampProviders.values)
+    private func persistProviders() async {
+        do {
+            let providers = Array(cache.expressProviders.values) + Array(cache.onrampProviders.values)
+            try await storage.saveProviders(providers)
+        } catch {
+            TransactionHistoryLogger.error(error: "Failed to persist providers: \(error)")
+        }
     }
 
-    private func persistFiatCurrencies() {
-        storage.fiatCurrencies = Array(cache.fiatCurrencies.values)
+    private func persistFiatCurrencies() async {
+        do {
+            try await storage.saveFiatCurrencies(Array(cache.fiatCurrencies.values))
+        } catch {
+            TransactionHistoryLogger.error(error: "Failed to persist fiat currencies: \(error)")
+        }
     }
 
-    private func persistCryptoCurrencies() {
-        storage.cryptoCurrencies = cache.remotelyResolvedCryptoCurrencies
+    private func persistCryptoCurrencies(_ tokenItems: [TokenItem]) async {
+        do {
+            try await storage.saveCryptoCurrencies(tokenItems)
+        } catch {
+            TransactionHistoryLogger.error(error: "Failed to persist crypto currencies: \(error)")
+        }
     }
 
     // MARK: - Providers loading
 
-    private func loadProvidersIfNeeded(branch: ExpressBranch) async {
-        if let task = inFlightProviderLoadTasks[branch] {
+    private func loadProvidersIfNeeded() async {
+        await loadCacheFromStorageIfNeeded()
+
+        if let task = inFlightProvidersLoadTask {
             return await task.value
         }
 
         let task = runTask(in: self) { repository in
-            await repository.loadProviders(branch: branch)
+            await repository.loadProviders()
         }
 
-        defer { inFlightProviderLoadTasks[branch] = nil }
-        inFlightProviderLoadTasks[branch] = task
+        defer { inFlightProvidersLoadTask = nil }
+        inFlightProvidersLoadTask = task
         await task.value
     }
 
-    private func loadProviders(branch: ExpressBranch) async {
+    private func loadProviders() async {
         guard let expressAPIProvider = makeExpressAPIProvider() else {
             TransactionHistoryLogger.error(self, error: "Failed to create ExpressAPIProvider for providers load")
             return
         }
 
         do {
-            let providers = try await expressAPIProvider.providers(branch: branch)
-            let hasChanges = switch branch {
-            case .swap:
-                mergeProviders(providers, into: &cache.expressProviders)
-            case .onramp:
-                mergeProviders(providers, into: &cache.onrampProviders)
-            }
+            let providers = try await expressAPIProvider.providers(branches: ExpressBranch.allCases)
 
-            guard hasChanges else {
+            let expressProviders = providers.filter { ExpressBranch.swap.supportedProviderTypes.contains($0.type) }
+            let onrampProviders = providers.filter { ExpressBranch.onramp.supportedProviderTypes.contains($0.type) }
+
+            let expressChanged = mergeProviders(expressProviders, into: &cache.expressProviders)
+            let onrampChanged = mergeProviders(onrampProviders, into: &cache.onrampProviders)
+
+            guard expressChanged || onrampChanged else {
                 return
             }
 
             mirrorToSyncCache()
-            persistProviders()
             subscribers.yield()
+            await persistProviders()
         } catch {
-            TransactionHistoryLogger.error(self, "Failed to load \(branch.rawValue) providers", error: error)
+            TransactionHistoryLogger.error(self, "Failed to load providers", error: error)
         }
     }
 
@@ -128,6 +174,8 @@ actor CommonTransactionHistoryAuxDataRepository {
     // MARK: - Fiat currencies loading
 
     private func loadFiatCurrenciesIfNeeded() async {
+        await loadCacheFromStorageIfNeeded()
+
         if let task = inFlightFiatCurrenciesLoadTask {
             return await task.value
         }
@@ -161,8 +209,8 @@ actor CommonTransactionHistoryAuxDataRepository {
             }
 
             mirrorToSyncCache()
-            persistFiatCurrencies()
             subscribers.yield()
+            await persistFiatCurrencies()
         } catch {
             TransactionHistoryLogger.error(self, "Failed to load onramp currencies", error: error)
         }
@@ -175,6 +223,8 @@ actor CommonTransactionHistoryAuxDataRepository {
     /// (previous) loads in-progress to prevent re-fetching the same crypto currencies multiple times concurrently.
     /// In addition, async callers await via the collection of continuations (`pendingCryptoCurrencyContinuations`).
     private func loadCryptoCurrenciesIfNeeded(_ currency: ExpressCurrency, key: String, isFromAsyncContext: Bool) async {
+        await loadCacheFromStorageIfNeeded()
+
         if cache.cryptoCurrency(for: key) != nil {
             return
         }
@@ -303,21 +353,21 @@ actor CommonTransactionHistoryAuxDataRepository {
                 requestedKeys: batch.keys.toSet()
             )
 
-            var hasChanges = false
+            var newlyResolvedCryptoCurrencies: [TokenItem] = []
             for (key, tokenItem) in tokenItems {
                 if cache.remotelyResolvedCryptoCurrencies[key] == nil {
                     cache.remotelyResolvedCryptoCurrencies[key] = tokenItem
-                    hasChanges = true
+                    newlyResolvedCryptoCurrencies.append(tokenItem)
                 }
             }
 
-            guard hasChanges else {
+            guard newlyResolvedCryptoCurrencies.isNotEmpty else {
                 return
             }
 
             mirrorToSyncCache()
-            persistCryptoCurrencies()
             subscribers.yield()
+            await persistCryptoCurrencies(newlyResolvedCryptoCurrencies)
         } catch {
             TransactionHistoryLogger.error(self, "Failed to load crypto currencies", error: error)
         }
@@ -350,12 +400,29 @@ actor CommonTransactionHistoryAuxDataRepository {
         )
     }
 
-    private static func makeCache(from storage: UserDefaultsTransactionHistoryAuxDataStorage) -> Cache {
+    private static func makeCache(from storage: TransactionHistoryAuxDataStorage) async throws -> Cache {
         var cache = Cache()
-        cache.expressProviders = storage.expressProviders.keyedLast(by: \.id)
-        cache.onrampProviders = storage.onrampProviders.keyedLast(by: \.id)
-        cache.fiatCurrencies = storage.fiatCurrencies.keyedLast(by: \.identity.code)
-        cache.remotelyResolvedCryptoCurrencies = storage.cryptoCurrencies
+        let providers = try await storage
+            .providers()
+            .map(\.value) // [REDACTED_TODO_COMMENT]
+
+        cache.expressProviders = providers
+            .filter { ExpressBranch.swap.supportedProviderTypes.contains($0.type) }
+            .keyedLast(by: \.id)
+
+        cache.onrampProviders = providers
+            .filter { ExpressBranch.onramp.supportedProviderTypes.contains($0.type) }
+            .keyedLast(by: \.id)
+
+        cache.fiatCurrencies = try await storage
+            .fiatCurrencies()
+            .map(\.value) // [REDACTED_TODO_COMMENT]
+            .keyedLast(by: \.identity.code)
+
+        cache.remotelyResolvedCryptoCurrencies = try await storage
+            .cryptoCurrencies()
+            .map(\.value) // [REDACTED_TODO_COMMENT]
+            .keyedLast { Self.makeCryptoCurrencyCacheKey(networkId: $0.networkId, contractAddress: $0.contractAddress) }
 
         return cache
     }
@@ -415,7 +482,7 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
 
         if cached == nil {
             runTask(in: self) { repository in
-                await repository.loadProvidersIfNeeded(branch: branch)
+                await repository.loadProvidersIfNeeded()
             }
         }
 
@@ -427,7 +494,7 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
             return cached
         }
 
-        await loadProvidersIfNeeded(branch: branch)
+        await loadProvidersIfNeeded()
 
         return cache.providers(for: branch)[id]
     }
@@ -526,6 +593,15 @@ private extension CommonTransactionHistoryAuxDataRepository {
             // Remote info takes precedence over local info, since the remote info is more likely to be up-to-date
             return remotelyResolvedCryptoCurrencies[key] ?? locallyResolvedCryptoCurrencies[key]
         }
+    }
+
+    /// A dedicated state to prevent re-entrancy issues with cache population.
+    /// Can't be replaced with `TangemFoundation.LoadingResult` since we need to await on the loading task.
+    enum CacheState {
+        case empty
+        case loading(Task<Void, Never>)
+        case loaded
+        case failed
     }
 }
 
