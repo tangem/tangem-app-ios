@@ -6,15 +6,19 @@
 //
 
 import Foundation
+import TangemFoundation
 
 enum CoinIndicatorsDTO {
+    /// The contract rejects a request carrying more symbols than this, so callers have to batch.
+    static let symbolsPerRequestLimit = 20
+
     struct Request: Encodable {
         let symbols: [String]?
-        let indicators: [IndicatorType]?
+        let types: [IndicatorType]?
 
-        init(symbols: [String]? = nil, indicators: [IndicatorType]? = nil) {
+        init(symbols: [String]? = nil, types: [IndicatorType]? = nil) {
             self.symbols = symbols
-            self.indicators = indicators
+            self.types = types
         }
 
         var parameters: [String: Any] {
@@ -24,8 +28,8 @@ enum CoinIndicatorsDTO {
                 params["symbols"] = symbols.joined(separator: ",")
             }
 
-            if let indicators, !indicators.isEmpty {
-                params["indicators"] = indicators.map(\.rawValue).joined(separator: ",")
+            if let types, !types.isEmpty {
+                params["types"] = types.map(\.rawValue).joined(separator: ",")
             }
 
             return params
@@ -43,14 +47,15 @@ enum CoinIndicatorsDTO {
 
     struct IndicatorReading: Decodable {
         let type: IndicatorType
-        let timeframe: Timeframe?
-        let value: Decimal?
+        /// Display name of the indicator, worded by the backend.
+        let name: String
+        let timeframe: Timeframe
+        /// Travels as a string with two decimals (`"67.80"`). For MA Cross it's the deviation of SMA50 from SMA200, in percent.
+        @FlexibleDecimal var value: Decimal?
         let label: Signal
-        let subLabel: String?
         let updatedAt: Date?
     }
 
-    /// `maCross`, `galaxyScore` and `sentiment` are timeframe-agnostic and always report a `nil` timeframe.
     enum IndicatorType: Codable, Equatable {
         case rsi
         case macd
@@ -92,6 +97,7 @@ enum CoinIndicatorsDTO {
         }
     }
 
+    /// Every reading is timeframed, including the social indicators — the backend repeats each type once per timeframe.
     enum Timeframe: Decodable, Equatable {
         case day
         case week
@@ -109,27 +115,24 @@ enum CoinIndicatorsDTO {
         }
     }
 
-    /// `insufficientData` — not enough history (e.g. MA cross without SMA200).
-    /// `notApplicable` — indicator not meaningful for the asset (stablecoins).
-    /// `na` — no fresh data (2+ consecutive sync misses).
+    /// `insufficientData` — not enough history behind the indicator (e.g. MA Cross before SMA200 exists).
+    /// `notAvailable` — the backend holds no reading it's willing to report.
     enum Signal: Decodable, Equatable {
-        case bullish
-        case bearish
+        case positive
+        case negative
         case neutral
         case insufficientData
-        case notApplicable
-        case na
+        case notAvailable
         case unknown(String)
 
         init(from decoder: Decoder) throws {
             let raw = try decoder.singleValueContainer().decode(String.self)
             switch raw {
-            case "bullish": self = .bullish
-            case "bearish": self = .bearish
+            case "positive": self = .positive
+            case "negative": self = .negative
             case "neutral": self = .neutral
             case "insufficient_data": self = .insufficientData
-            case "not_applicable": self = .notApplicable
-            case "na": self = .na
+            case "not_available": self = .notAvailable
             default: self = .unknown(raw)
             }
         }
