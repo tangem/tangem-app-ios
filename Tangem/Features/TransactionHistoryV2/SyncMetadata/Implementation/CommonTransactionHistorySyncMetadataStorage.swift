@@ -15,7 +15,7 @@ struct CommonTransactionHistorySyncMetadataStorage {
 
     private let ownerAddress: String
 
-    public init(ownerAddress: String) {
+    init(ownerAddress: String) {
         self.ownerAddress = ownerAddress
     }
 }
@@ -23,7 +23,7 @@ struct CommonTransactionHistorySyncMetadataStorage {
 // MARK: - TransactionHistorySyncMetadataStorage protocol conformance
 
 extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMetadataStorage {
-    public func initialSyncCursor(for branch: ExpressBranch) async throws -> Any? {
+    func initialSyncCursor(for branch: ExpressBranch) async throws -> Any? {
         return try await appDatabase.databaseHandle.read { database in
             try ExpressSyncMetadataRecord
                 .filter(ownerAddress: ownerAddress, endpointType: branch.endpointType)
@@ -32,7 +32,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
         }
     }
 
-    public func setInitialSyncCursor(_ cursor: Any?, for branch: ExpressBranch) async throws {
+    func setInitialSyncCursor(_ cursor: Any?, for branch: ExpressBranch) async throws {
         try await appDatabase.databaseHandle.write { database in
             let endpointType = branch.endpointType
             let lastSyncAt = Date()
@@ -63,7 +63,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
         }
     }
 
-    public func deltaSyncCursor(for branch: ExpressBranch) async throws -> Any? {
+    func deltaSyncCursor(for branch: ExpressBranch) async throws -> Any? {
         return try await appDatabase.databaseHandle.read { database in
             try ExpressSyncMetadataRecord
                 .filter(ownerAddress: ownerAddress, endpointType: branch.endpointType)
@@ -72,7 +72,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
         }
     }
 
-    public func setDeltaSyncCursor(_ cursor: Any?, for branch: ExpressBranch) async throws {
+    func setDeltaSyncCursor(_ cursor: Any?, for branch: ExpressBranch) async throws {
         try await appDatabase.databaseHandle.write { database in
             let endpointType = branch.endpointType
             let lastSyncAt = Date()
@@ -103,7 +103,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
         }
     }
 
-    public func isInitialSyncDone() async throws -> Bool {
+    func isInitialSyncDone() async throws -> Bool {
         return try await appDatabase.databaseHandle.read { database in
             try ExpressSyncMetadataRecord
                 // There is no separate sync completion tracking for different branches, so any record will do
@@ -113,7 +113,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
         }
     }
 
-    public func setIsInitialSyncDone(_ isDone: Bool) async throws {
+    func setIsInitialSyncDone(_ isDone: Bool) async throws {
         try await appDatabase.databaseHandle.write { database in
             let lastSyncAt = Date()
 
@@ -146,7 +146,7 @@ extension CommonTransactionHistorySyncMetadataStorage: TransactionHistorySyncMet
         }
     }
 
-    public func clear() async throws {
+    func clear() async throws {
         try await appDatabase.databaseHandle.write { database in
             _ = try ExpressSyncMetadataRecord
                 .filter(ownerAddress: ownerAddress)

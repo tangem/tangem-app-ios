@@ -9,63 +9,80 @@
 import Foundation
 import GRDB
 
-struct ExpressOnrampTransactionRecord {
-    let id: String
-    let ownerAddress: String
-    let providerID: String
-    let payOutAddress: String
-    let status: String
-    let externalTxID: String?
-    let externalTxURL: String?
-    let payOutHash: String?
-    let fromCurrency: String
+public struct ExpressOnrampTransactionRecord {
+    public let id: String
+    public let ownerAddress: String
+    public let providerID: String
+    public let payOutAddress: String
+    public let status: String
+    public let externalTxID: String?
+    public let externalTxURL: String?
+    public let payOutHash: String?
+    public let fromCurrency: String
     /// - Note: Actually a decimal number.
-    let fromAmount: String
-    let toNetwork: String
+    public let fromAmount: String
+    public let toNetwork: String
     /// - Note: May have a value of `ExpressConstants.coinContractAddress` for native coins.
-    let toContract: String
+    public let toContract: String
     /// - Note: Actually a decimal number.
-    let toAmount: String?
-    let toDecimals: Int
+    public let toAmount: String?
+    public let toDecimals: Int
     /// - Note: Actually a decimal number.
-    let toActualAmount: String?
-    let failReason: String?
-    let paymentMethod: String
-    let countryCode: String
-    let createdAt: Date
-    let updatedAt: Date
-}
+    public let toActualAmount: String?
+    public let failReason: String?
+    public let paymentMethod: String
+    public let countryCode: String
+    public let createdAt: Date
+    public let updatedAt: Date
 
-// MARK: - Columns
-
-extension ExpressOnrampTransactionRecord {
-    /// - Note: Only columns used twice or more are extracted to this enum.
-    enum Columns {
-        static let id = Column(CodingKeys.id)
-        static let providerID = Column(CodingKeys.providerID)
-        static let fromCurrency = Column(CodingKeys.fromCurrency)
-        static let toNetwork = Column(CodingKeys.toNetwork)
-        static let toContract = Column(CodingKeys.toContract)
+    public init(
+        id: String,
+        ownerAddress: String,
+        providerID: String,
+        payOutAddress: String,
+        status: String,
+        externalTxID: String?,
+        externalTxURL: String?,
+        payOutHash: String?,
+        fromCurrency: String,
+        fromAmount: String,
+        toNetwork: String,
+        toContract: String,
+        toAmount: String?,
+        toDecimals: Int,
+        toActualAmount: String?,
+        failReason: String?,
+        paymentMethod: String,
+        countryCode: String,
+        createdAt: Date,
+        updatedAt: Date
+    ) {
+        self.id = id
+        self.ownerAddress = ownerAddress
+        self.providerID = providerID
+        self.payOutAddress = payOutAddress
+        self.status = status
+        self.externalTxID = externalTxID
+        self.externalTxURL = externalTxURL
+        self.payOutHash = payOutHash
+        self.fromCurrency = fromCurrency
+        self.fromAmount = fromAmount
+        self.toNetwork = toNetwork
+        self.toContract = toContract
+        self.toAmount = toAmount
+        self.toDecimals = toDecimals
+        self.toActualAmount = toActualAmount
+        self.failReason = failReason
+        self.paymentMethod = paymentMethod
+        self.countryCode = countryCode
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 }
 
-// MARK: - Identifiable protocol conformance
+// MARK: - Fetching helpers
 
-extension ExpressOnrampTransactionRecord: Identifiable {}
-
-// MARK: - Codable protocol conformance
-
-extension ExpressOnrampTransactionRecord: Codable {}
-
-// MARK: - FetchableRecord protocol conformance
-
-extension ExpressOnrampTransactionRecord: FetchableRecord {}
-
-// MARK: - TableRecord protocol conformance
-
-extension ExpressOnrampTransactionRecord: TableRecord {
-    static let databaseTableName = ExpressOnrampTransactionsTable.tableName
-
+extension ExpressOnrampTransactionRecord {
     static let provider = belongsTo(
         ExpressProviderRecord.self,
         key: "provider",
@@ -106,6 +123,33 @@ extension ExpressOnrampTransactionRecord: TableRecord {
         key: "historyIndexRecords",
         using: TransactionHistoryIndexRecord.onrampEntityForeignKey
     )
+}
+
+// MARK: - Identifiable protocol conformance
+
+extension ExpressOnrampTransactionRecord: Identifiable {}
+
+// MARK: - Codable protocol conformance
+
+extension ExpressOnrampTransactionRecord: Codable {}
+
+// MARK: - FetchableRecord protocol conformance
+
+extension ExpressOnrampTransactionRecord: FetchableRecord {}
+
+// MARK: - TableRecord protocol conformance
+
+extension ExpressOnrampTransactionRecord: TableRecord {
+    /// - Note: Only columns used twice or more are extracted to this enum.
+    public enum Columns {
+        public static let id = Column(CodingKeys.id)
+        public static let providerID = Column(CodingKeys.providerID)
+        public static let fromCurrency = Column(CodingKeys.fromCurrency)
+        public static let toNetwork = Column(CodingKeys.toNetwork)
+        public static let toContract = Column(CodingKeys.toContract)
+    }
+
+    public static let databaseTableName = ExpressOnrampTransactionsTable.tableName
 }
 
 // MARK: - PersistableRecord protocol conformance
