@@ -745,9 +745,9 @@
 "hw_cloud_backup_restore_no_backup_description" = "We couldn't find a Google Drive backup for this account. You can import your wallet with a recovery phrase instead.";
 "hw_cloud_backup_restore_no_backup_title" = "No backup found";
 "hw_cloud_backup_restore_password_button" = "Restore";
-"hw_cloud_backup_restore_password_description" = "You're restoring “%1$@” from a %2$@ backup created on %3$@. Enter the encryption password to continue.";
-"hw_cloud_backup_restore_password_navtitle" = "Enter password";
-"hw_cloud_backup_restore_password_title" = "Restore wallet";
+"hw_cloud_backup_restore_password_description" = "You're restoring “%1$@” from a %2$@ backup created on %3$@";
+"hw_cloud_backup_restore_password_navtitle" = "Restore wallet";
+"hw_cloud_backup_restore_password_title" = "Enter password";
 "hw_cloud_backup_restore_use_recovery_phrase" = "Import recovery phrase";
 "hw_cloud_backup_restore_wrong_password" = "Wrong password. Please try again.";
 "hw_cloud_backup_retry" = "Try again";
@@ -1891,6 +1891,8 @@
 "tangempay_cashback_empty_subtitle" = "累計金額將顯示於此";
 "tangempay_cashback_empty_title" = "開始消費\n即可賺取現金回饋";
 "tangempay_cashback_error_title" = "頁面載入失敗。\n點選以重新載入";
+"tangempay_cashback_menu_item_loading" = "Loading...";
+"tangempay_cashback_menu_item_title" = "Cashback in %@";
 "tangempay_cashback_rate_subtitle" = "使用您的 %1$@ 方案";
 "tangempay_cashback_rate_title_up_to" = "最高 %1$@%% 現金回饋";
 "tangempay_cashback_rate_title" = "現金回饋 %1$@%%";
