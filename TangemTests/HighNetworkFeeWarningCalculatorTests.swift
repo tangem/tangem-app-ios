@@ -26,15 +26,6 @@ struct HighNetworkFeeWarningCalculatorTests {
         #expect(sut.shouldShowWarning(for: nil) == false)
     }
 
-    @Test("Feature disabled does not show warning")
-    func featureDisabledDoesNotShowWarning() {
-        let tokenFee = makeTokenFee(value: 11)
-        let (sut, teardown) = makeSUT(isFeatureAvailable: false)
-        defer { teardown() }
-
-        #expect(sut.shouldShowWarning(for: tokenFee) == false)
-    }
-
     @Test(
         "Fee threshold is exclusive",
         arguments: [
@@ -82,12 +73,9 @@ struct HighNetworkFeeWarningCalculatorTests {
 // MARK: - Helpers
 
 private extension HighNetworkFeeWarningCalculatorTests {
-    func makeSUT(
-        priceUsd: Decimal? = 1,
-        isFeatureAvailable: Bool = true
-    ) -> (HighNetworkFeeWarningCalculator, () -> Void) {
+    func makeSUT(priceUsd: Decimal? = 1) -> (HighNetworkFeeWarningCalculator, () -> Void) {
         let previousRepository = injectRepository(MockTokenQuotesRepository(quotes: makeQuotes(priceUsd: priceUsd)))
-        let sut = HighNetworkFeeWarningCalculator(isFeatureAvailable: { isFeatureAvailable })
+        let sut = HighNetworkFeeWarningCalculator()
 
         let teardown = {
             InjectedValues.setTokenQuotesRepository(previousRepository)

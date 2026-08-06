@@ -20,7 +20,6 @@ extension TangemPayLocalState {
         case .loading,
              .kycRequired,
              .kycDeclined,
-             .issuingCard,
              .failedToIssueCard,
              .tangemPayAccount,
              .cardDeactivated,
