@@ -717,6 +717,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
             transactionHistoryPublisher: transactionHistoryState(),
             featuresPublisher: featureManager.featuresPublisher,
+            tokenItem: tokenItem,
             feeTokenItem: feeTokenItem
         )
     }
