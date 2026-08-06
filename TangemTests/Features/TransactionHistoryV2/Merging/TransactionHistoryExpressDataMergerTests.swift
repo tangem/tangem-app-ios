@@ -187,8 +187,8 @@ struct TransactionHistoryExpressDataMergerTests {
         #expect(synthetic.exchangeInfo != nil)
     }
 
-    @Test("Exchange: a terminal deal with no on-chain leg is dropped (no synthetic)")
-    func exchangeTerminalStatusWithoutMatchIsDropped() {
+    @Test("Exchange: a terminal deal with no on-chain leg still yields a synthetic record")
+    func exchangeTerminalStatusWithoutMatchYieldsSynthetic() throws {
         let merger = ExpressMergeTestDataFactory.makeMerger(
             currentToken: ExpressMergeTestDataFactory.ethereumToken,
             ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
@@ -216,7 +216,79 @@ struct TransactionHistoryExpressDataMergerTests {
 
         let output = merger.merge(bsdkTransactions: [], exchangeTransactions: [exchange], onrampTransactions: [])
 
+        #expect(output.count == 1)
+        let synthetic = try #require(output.first)
+        #expect(synthetic.hash == "ExpressSyntheticTx_exchange-tx")
+        #expect(synthetic.exchangeInfo != nil)
+    }
+
+    @Test("Exchange: a `created` deal without a pay-in hash yields no synthetic record")
+    func exchangeCreatedStatusWithoutPayInHashYieldsNoSynthetic() {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .created,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xPayIn",
+            payInHash: nil,
+            payOutAddress: "0xPayOut",
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            fromAmount: 2,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [], exchangeTransactions: [exchange], onrampTransactions: [])
+
         #expect(output.isEmpty)
+    }
+
+    @Test("Exchange: a `created` deal with a pay-in hash yields a synthetic record")
+    func exchangeCreatedStatusWithPayInHashYieldsSynthetic() throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .created,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xPayIn",
+            payInHash: "0xPayInHash",
+            payOutAddress: "0xPayOut",
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            fromAmount: 2,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(bsdkTransactions: [], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(output.count == 1)
+        let synthetic = try #require(output.first)
+        #expect(synthetic.hash == "ExpressSyntheticTx_exchange-tx")
+        #expect(synthetic.exchangeInfo != nil)
     }
 
     @Test("Onramp: an active deal with no on-chain leg yields a synthetic record")
@@ -251,8 +323,8 @@ struct TransactionHistoryExpressDataMergerTests {
         #expect(synthetic.onrampInfo != nil)
     }
 
-    @Test("Onramp: a terminal deal with no on-chain leg is dropped (no synthetic)")
-    func onrampTerminalStatusWithoutMatchIsDropped() throws {
+    @Test("Onramp: a terminal deal with no on-chain leg still yields a synthetic record")
+    func onrampTerminalStatusWithoutMatchYieldsSynthetic() throws {
         let merger = ExpressMergeTestDataFactory.makeMerger(
             currentToken: ExpressMergeTestDataFactory.ethereumToken,
             ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
@@ -274,7 +346,10 @@ struct TransactionHistoryExpressDataMergerTests {
 
         let output = merger.merge(bsdkTransactions: [], exchangeTransactions: [], onrampTransactions: [onramp])
 
-        #expect(output.isEmpty)
+        #expect(output.count == 1)
+        let synthetic = try #require(output.first)
+        #expect(synthetic.hash == "ExpressSyntheticTx_onramp-tx")
+        #expect(synthetic.onrampInfo != nil)
     }
 
     // MARK: - Send heuristic (Exchange)
@@ -365,8 +440,9 @@ struct TransactionHistoryExpressDataMergerTests {
 
         let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [exchange], onrampTransactions: [])
 
-        #expect(output.count == 1)
-        #expect(!(try #require(output.first).isEnriched))
+        // The deal doesn't claim the on-chain transfer, so it contributes a synthetic record of its own
+        #expect(output.count == 2)
+        #expect(!(try #require(output.first { $0.hash == "0xSend" }).isEnriched))
     }
 
     @Test("Send heuristic (EVM): an amount outside the (exact) tolerance prevents matching")
@@ -498,7 +574,9 @@ struct TransactionHistoryExpressDataMergerTests {
 
         let output = merger.merge(bsdkTransactions: [onChain], exchangeTransactions: [exchange], onrampTransactions: [])
 
-        #expect(!(try #require(output.first).isEnriched))
+        // The deal doesn't claim the on-chain transfer, so it contributes a synthetic record of its own
+        #expect(output.count == 2)
+        #expect(!(try #require(output.first { $0.hash == "btcSend" }).isEnriched))
     }
 
     @Test("Send heuristic (EVM): addresses are compared case-insensitively")
@@ -1683,8 +1761,10 @@ struct TransactionHistoryExpressDataMergerTests {
             onrampTransactions: []
         )
 
-        #expect(output.count == 1)
-        #expect(try #require(output.first).exchangeInfo?.transaction.txId == "E1")
+        // `E1` claims the on-chain transfer, `E2` can't re-claim it and contributes a synthetic record instead
+        #expect(output.count == 2)
+        #expect(try #require(output.first { $0.hash == "0xSend" }).exchangeInfo?.transaction.txId == "E1")
+        #expect(try #require(output.first { $0.hash == "ExpressSyntheticTx_E2" }).exchangeInfo?.transaction.txId == "E2")
     }
 
     // MARK: - Pass-through and ordering

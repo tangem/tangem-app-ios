@@ -55,6 +55,22 @@ public final class AppDatabase {
 
     // MARK: - File system helpers
 
+    public static var databaseDirectoryURL: URL {
+        get throws {
+            let applicationSupportDirectoryURL = try FileManager.default.url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )
+
+            return applicationSupportDirectoryURL.appending(
+                path: Constants.databaseDirectoryName,
+                directoryHint: .isDirectory
+            )
+        }
+    }
+
     /// Two deliberate policies, applied at the database directory level:
     /// - The directory is *included* in backups: this storage is planned to hold user data
     ///   in the future, not just throw-away caches.
@@ -92,24 +108,12 @@ public final class AppDatabase {
     }
 
     private static func makeDatabaseFilePath() throws -> String {
-        let fileManager = FileManager.default
+        var directoryURL = try databaseDirectoryURL
 
-        let applicationSupportDirectoryURL = try fileManager.url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: true
-        )
+        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        applyFileProtection(to: &directoryURL)
 
-        var databaseDirectoryURL = applicationSupportDirectoryURL.appending(
-            path: Constants.databaseDirectoryName,
-            directoryHint: .isDirectory
-        )
-
-        try fileManager.createDirectory(at: databaseDirectoryURL, withIntermediateDirectories: true)
-        applyFileProtection(to: &databaseDirectoryURL)
-
-        return databaseDirectoryURL
+        return directoryURL
             .appending(path: Constants.databaseFileName, directoryHint: .notDirectory)
             .path(percentEncoded: false)
     }
