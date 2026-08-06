@@ -17,14 +17,9 @@ final class MarketingCampaignsRepository {
     private let loadState = OSAllocatedUnfairLock(initialState: LoadState())
     private let storage = CachesDirectoryStorage(file: .cachedMarketingCampaigns)
     private let language: String?
-    private let isFeatureAvailable: () -> Bool
 
-    init(
-        language: String? = Locale.current.language.languageCode?.identifier,
-        isFeatureAvailable: @escaping () -> Bool = { FeatureProvider.isAvailable(.marketingBanners) }
-    ) {
+    init(language: String? = Locale.current.language.languageCode?.identifier) {
         self.language = language
-        self.isFeatureAvailable = isFeatureAvailable
     }
 }
 
@@ -61,10 +56,6 @@ extension MarketingCampaignsRepository {
     }
 
     func loadCampaigns(for kind: Kind) {
-        guard isFeatureAvailable() else {
-            return
-        }
-
         let shouldLoad = loadState.withLock { state in
             guard !state.loaded.contains(kind), !state.inFlight.contains(kind) else {
                 return false

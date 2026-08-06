@@ -225,29 +225,27 @@ struct TangemPayMainView: View {
 
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
-                if FeatureProvider.isAvailable(.tangemPayTiers) {
-                    SwiftUI.Button(action: viewModel.openCurrentPlan) {
-                        Text(Localization.tangempayCurrentPlanTitle)
+                SwiftUI.Button(action: viewModel.openCurrentPlan) {
+                    Text(Localization.tangempayCurrentPlanTitle)
 
-                        switch viewModel.currentPlanState {
-                        case .plan(let name):
-                            Text(name)
+                    switch viewModel.currentPlanState {
+                    case .plan(let name):
+                        Text(name)
 
-                            DesignSystem.Icons.Info.regular20.image
-                                .renderingMode(.template)
-                        case .changing:
-                            Text(Localization.tangempayChangingPlan)
+                        DesignSystem.Icons.Info.regular20.image
+                            .renderingMode(.template)
+                    case .changing:
+                        Text(Localization.tangempayChangingPlan)
 
-                            DesignSystem.Icons.ArrowRefresh.regular20.image
-                                .renderingMode(.template)
-                        case .unknown:
-                            DesignSystem.Icons.Info.regular20.image
-                                .renderingMode(.template)
-                        }
+                        DesignSystem.Icons.ArrowRefresh.regular20.image
+                            .renderingMode(.template)
+                    case .unknown:
+                        DesignSystem.Icons.Info.regular20.image
+                            .renderingMode(.template)
                     }
-
-                    Divider()
                 }
+
+                Divider()
 
                 if viewModel.isVisaBenefitsAvailable {
                     SwiftUI.Button(action: viewModel.visaBenefits) {

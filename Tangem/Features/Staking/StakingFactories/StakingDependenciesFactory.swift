@@ -67,8 +67,7 @@ class StakingDependenciesFactory {
                     stakingWallet: wallet,
                     storage: CachesDirectoryStorage(file: .cachedStakingManagerState)
                 ),
-                analyticsLogger: CommonStakingAnalyticsLogger(),
-                isRegionUnavailableHandlingEnabled: FeatureProvider.isAvailable(.stakingRegionUnavailable)
+                analyticsLogger: CommonStakingAnalyticsLogger()
             )
         default:
             TangemStakingFactory().makeStakeKitStakingManager(

@@ -39,7 +39,6 @@ class BaseTestCase: XCTestCase {
         skipToS: Bool = true,
         clearStorage: Bool = false,
         keepWallets: Bool = false,
-        features: [TestFeature: Bool] = [:],
         scenarios: [ScenarioConfig] = [],
         mockCardBatchIdOverride: String? = nil,
         mockCardFirmwareOverride: String? = nil,
@@ -77,11 +76,6 @@ class BaseTestCase: XCTestCase {
 
         if keepWallets {
             arguments.append("-uitest-keep-wallets")
-        }
-
-        for (feature, isEnabled) in features {
-            let suffix = isEnabled ? "on" : "off"
-            arguments.append("-uitest-feature-\(feature.rawValue)-\(suffix)")
         }
 
         // Pin locale/language so currency, number and date assertions don't depend on the simulator region.
