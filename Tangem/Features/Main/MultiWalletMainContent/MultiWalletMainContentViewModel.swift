@@ -708,10 +708,6 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
         coordinator?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
     }
 
-    func openTangemPayIssuingYourCardPopup() {
-        coordinator?.openTangemPayIssuingYourCardPopup()
-    }
-
     func openTangemPayFailedToIssueCardPopup() {
         coordinator?.openTangemPayFailedToIssueCardPopup(userWalletModel: userWalletModel)
     }
