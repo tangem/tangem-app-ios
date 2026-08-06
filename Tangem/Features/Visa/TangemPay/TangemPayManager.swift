@@ -196,10 +196,10 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             stateSubject.value = .loading
         }
 
-        guard let (customerWalletAddress, _) = tangemPayAssembly.customerWalletAddressAndSavedTokensResolver.resolve(
+        guard tangemPayAssembly.customerWalletAddressAndSavedTokensResolver.resolve(
             customerWalletId: customerWalletId,
             keysRepository: keysRepository
-        ) else {
+        ) != nil else {
             stateSubject.value = .syncNeeded
             return
         }
@@ -221,15 +221,6 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         let weakReferenceHolder = TangemPayManagerWeakReferenceHolder(tangemPayManager: self)
 
         switch enrollmentState {
-        case .issuingCard:
-            do {
-                try await issueCardIfNeededAndStartStatusPolling(customerWalletAddress: customerWalletAddress)
-                stateSubject.value = .issuingCard
-            } catch {
-                stateSubject.value = .unavailable
-            }
-            Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
-
         case .enrolled(let customerInfo, _):
             let account = makePaymentAccount(customerInfo: customerInfo)
             customerInfoCacheStorage.saveCachedCustomerInfo(
@@ -243,16 +234,9 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             let account = makePaymentAccount(customerInfo: customerInfo)
             stateSubject.value = .cardDeactivated(account)
 
-        case .kycRequired(let productInstanceExists):
+        case .kycRequired:
             orderStatusPollingService.cancel()
             stateSubject.value = .kycRequired(weakReferenceHolder)
-            if !productInstanceExists, !FeatureProvider.isAvailable(.tangemPayTiers) {
-                do {
-                    try await issueCardIfNeeded(customerWalletAddress: customerWalletAddress)
-                } catch {
-                    stateSubject.value = .unavailable
-                }
-            }
 
         case .kycDeclined:
             orderStatusPollingService.cancel()
@@ -312,40 +296,6 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     func cancelTariffPlanPendingTransition() async throws {
         try await customerService.cancelTariffPlanPendingTransition()
         await refreshState()
-    }
-
-    private func issueCardIfNeededAndStartStatusPolling(customerWalletAddress: String) async throws {
-        let orderId = try await issueCardIfNeeded(customerWalletAddress: customerWalletAddress)
-        startCardIssuingOrderPolling(orderId: orderId)
-    }
-
-    private func startCardIssuingOrderPolling(orderId: String) {
-        orderStatusPollingService.startOrderStatusPolling(
-            orderId: orderId,
-            interval: Constants.cardIssuingOrderPollInterval,
-            onCompleted: { [weak self] in
-                runTask {
-                    await self?.refreshState()
-                }
-            },
-            onCanceled: { [weak self] in
-                self?.stateSubject.value = .failedToIssueCard
-            },
-            onFailed: { error in
-                VisaLogger.error("Failed to poll order status", error: error)
-            }
-        )
-    }
-
-    @discardableResult
-    private func issueCardIfNeeded(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> String {
-        if let cardIssuingOrderId = orderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
-            return cardIssuingOrderId
-        } else {
-            let orderId = try await customerService.placeOrder(customerWalletAddress: customerWalletAddress).id
-            orderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
-            return orderId
-        }
     }
 
     private func makePaymentAccount(
@@ -415,12 +365,6 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
                 )
             }
             .store(in: &bag)
-    }
-}
-
-private extension TangemPayManager {
-    enum Constants {
-        static let cardIssuingOrderPollInterval: TimeInterval = 5
     }
 }
 
