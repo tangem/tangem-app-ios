@@ -44,6 +44,8 @@ struct TangemApiTarget: TargetType {
             // Full path is `/api/v1/coins/indicators`; the `/api/v1` prefix comes from
             // `apiBaseUrlWithGatewaySegment`, so `path` below stays relative (`/coins/indicators`).
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
+        case .getWalletCards, .saveWalletCards:
+            AppEnvironment.current.apiBaseUrlWithGatewaySegment
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -138,7 +140,7 @@ struct TangemApiTarget: TargetType {
         case .getUserWallet(let userWalletId), .updateWallet(let userWalletId, _):
             return "/user-wallets/wallets/\(userWalletId)"
         case .getWalletCards(let userWalletId), .saveWalletCards(let userWalletId, _):
-            return "/user-wallets/wallets/\(userWalletId)/cards"
+            return "/wallets/\(userWalletId)/card-backups"
         case .getNotificationPreferences(let userWalletId),
              .updateNotificationPreferences(let userWalletId, _):
             // Contract v1.3: `/api/v1/notification-preferences/{walletId}`. The `/api/v1` part comes
