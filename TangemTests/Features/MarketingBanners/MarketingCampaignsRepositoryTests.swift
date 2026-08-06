@@ -21,8 +21,8 @@ final class MarketingCampaignsRepositoryTests: LeakTrackingTestSuite {
     private let ethereumCoin: TokenItem = .blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
     private let storage = CachesDirectoryStorage(file: .cachedMarketingCampaigns)
 
-    private func makeSUT(isFeatureAvailable: Bool = true) -> MarketingCampaignsRepository {
-        trackForMemoryLeaks(MarketingCampaignsRepository(language: "en", isFeatureAvailable: { isFeatureAvailable }))
+    private func makeSUT() -> MarketingCampaignsRepository {
+        trackForMemoryLeaks(MarketingCampaignsRepository(language: "en"))
     }
 
     private func makeEthereumCampaign(id: Int = 1) -> MarketingCampaignsDTO.Campaign {
@@ -139,20 +139,6 @@ final class MarketingCampaignsRepositoryTests: LeakTrackingTestSuite {
             sut.loadCampaigns(for: .tokenDetails)
             let refetched = await waitUntilConditionMet(timeout: 0.3) { apiSpy.callCount > 1 }
             #expect(!refetched)
-        }
-    }
-
-    @Test("Disabled feature never hits the API")
-    func disabledFeatureDoesNotLoad() async throws {
-        let apiSpy = MarketingCampaignsApiSpy(campaigns: [makeEthereumCampaign()])
-
-        await withInjectedTangemApiService(apiSpy.fake) {
-            let sut = makeSUT(isFeatureAvailable: false)
-
-            sut.loadCampaigns(for: .tokenDetails)
-
-            let called = await waitUntilConditionMet(timeout: 0.3) { apiSpy.callCount > 0 }
-            #expect(!called)
         }
     }
 

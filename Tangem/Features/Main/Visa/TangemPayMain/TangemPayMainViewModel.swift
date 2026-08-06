@@ -18,10 +18,6 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayMainViewModel: ObservableObject {
-    private var tiersEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayTiers)
-    }
-
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
 
@@ -102,7 +98,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     var isAwaitingDeposit: Bool {
-        tiersEnabled && awaitingDepositInfo != nil
+        awaitingDepositInfo != nil
     }
 
     var addCardDisabled: Bool {
@@ -199,7 +195,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     private var isBankTransferAvailable: Bool {
-        guard FeatureProvider.isAvailable(.tangemPayVirtualAccount), tangemPayAccount.isKYCApproved else {
+        guard tangemPayAccount.isKYCApproved else {
             return false
         }
 
@@ -280,10 +276,6 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     private func isTariffPlanUpgradeAvailable() async -> Bool {
-        guard tiersEnabled else {
-            return false
-        }
-
         do {
             let transitions = try await tangemPayAccount.getTariffPlanTransitions()
             return transitions.contains { $0.type == .upgrade }
@@ -567,7 +559,7 @@ private extension TangemPayMainViewModel {
 
         tangemPayAccount.customerTariffPlanPublisher
             .map { plan in
-                guard FeatureProvider.isAvailable(.tangemPayTiers), let plan else {
+                guard let plan else {
                     return false
                 }
                 return plan.tariffPlan.type != TangemPayAccount.basicTariffPlanType
@@ -624,11 +616,9 @@ private extension TangemPayMainViewModel {
             }
             .store(in: &bag)
 
-        if tiersEnabled {
-            tangemPayAccount.awaitingDepositInfoPublisher
-                .receiveOnMain()
-                .assign(to: &$awaitingDepositInfo)
-        }
+        tangemPayAccount.awaitingDepositInfoPublisher
+            .receiveOnMain()
+            .assign(to: &$awaitingDepositInfo)
     }
 
     func bindInlineNotifications() {
