@@ -18,7 +18,6 @@ enum TangemPayLocalState {
 
     case kycRequired(TangemPayKYCInteractor)
     case kycDeclined(TangemPayKYCInteractor)
-    case issuingCard
     case failedToIssueCard
 
     case tangemPayAccount(TangemPayAccount)
@@ -30,7 +29,6 @@ enum TangemPayLocalState {
 enum TangemPayCachedLocalState: Codable {
     case kycRequired
     case kycDeclined
-    case issuingCard
     case failedToIssueCard
     case tangemPayAccount(CardsSummary)
     case cardDeactivated(CardsSummary)
@@ -70,7 +68,7 @@ extension TangemPayLocalState {
         case .unavailable, .syncNeeded:
             return true
         case .loading, .syncInProgress, .kycRequired, .kycDeclined,
-             .issuingCard, .failedToIssueCard, .tangemPayAccount, .cardDeactivated,
+             .failedToIssueCard, .tangemPayAccount, .cardDeactivated,
              .planSelectNeeded:
             return false
         }
@@ -91,8 +89,6 @@ extension TangemPayLocalState {
             .kycRequired
         case .kycDeclined:
             .kycDeclined
-        case .issuingCard:
-            .issuingCard
         case .failedToIssueCard:
             .failedToIssueCard
         case .tangemPayAccount(let account):
