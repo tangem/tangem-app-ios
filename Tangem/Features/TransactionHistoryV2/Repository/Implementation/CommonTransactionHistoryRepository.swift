@@ -46,12 +46,12 @@ final class CommonTransactionHistoryRepository: Sendable {
 // MARK: - TransactionHistoryRepository protocol conformance
 
 extension CommonTransactionHistoryRepository: TransactionHistoryRepository {
-    var exchangeHistoryUpdates: AsyncStream<[ExchangeTransaction]> {
-        exchangeStorage.recordsUpdates
+    func exchangeHistoryUpdates(for currency: ExpressCurrency) -> AsyncStream<[ExchangeTransaction]> {
+        exchangeStorage.recordsUpdates(for: currency)
     }
 
-    var onrampHistoryUpdates: AsyncStream<[OnrampTransaction]> {
-        onrampStorage.recordsUpdates
+    func onrampHistoryUpdates(for currency: ExpressCurrency) -> AsyncStream<[OnrampTransaction]> {
+        onrampStorage.recordsUpdates(for: currency)
     }
 
     func syncInitial() async throws {
