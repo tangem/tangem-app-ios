@@ -569,11 +569,18 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
             throw BlockchainSdkError.failedToGetFee
         }
 
+        let transactionFeeParameters = try await makeUpgradeAwareYieldTransactionFeeParameters(
+            params,
+            amount: sanitizedAmount,
+            destination: originalDestination,
+            yieldFeeOptions: yieldFeeOptions
+        )
+
         return try await buildGaslessFee(
             feeToken: feeToken,
             feeRecipientAddress: feeRecipientAddress,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
-            transactionFeeParameters: params,
+            transactionFeeParameters: transactionFeeParameters,
             yieldFeeOptions: yieldFeeOptions
         )
     }
@@ -835,29 +842,84 @@ private extension EthereumWalletManager {
         data: Data?,
         yieldFeeOptions: GaslessYieldFeeOptions
     ) async throws -> EthereumEIP1559FeeParameters {
+        guard let wrappedGasLimit = try await getUpgradeWrappedYieldGasLimit(
+            destination: destination,
+            value: value,
+            data: data,
+            yieldFeeOptions: yieldFeeOptions
+        ) else {
+            return transactionFeeParameters
+        }
+
+        return transactionFeeParameters.changingGasLimit(to: wrappedGasLimit)
+    }
+
+    /// Re-estimates the user's call for the amount based send path, the way the calldata based overload does.
+    ///
+    /// A supplied token is moved by the yield module, so the user's own call is the batch leg that
+    /// `GaslessTransactionBuilder` wraps into the upgrade. `getFee` prices it bare and against the module's
+    /// current implementation, while the leg executes wrapped and on the new one under a hard gas cap.
+    ///
+    /// The buffer `getYieldModuleInteractionFee` applies stays on top, since the module still picks its
+    /// withdrawal route from state that only settles at execution time.
+    func makeUpgradeAwareYieldTransactionFeeParameters(
+        _ transactionFeeParameters: EthereumEIP1559FeeParameters,
+        amount: Amount,
+        destination: String,
+        yieldFeeOptions: GaslessYieldFeeOptions
+    ) async throws -> EthereumEIP1559FeeParameters {
+        guard case .token(let token) = amount.type, let yieldSupply = token.metadata.yieldSupply else {
+            return transactionFeeParameters
+        }
+
+        let transferData = try buildForTokenTransfer(destination: destination, amount: amount)
+
+        guard let wrappedGasLimit = try await getUpgradeWrappedYieldGasLimit(
+            destination: yieldSupply.yieldContractAddress,
+            value: nil,
+            data: transferData,
+            yieldFeeOptions: yieldFeeOptions
+        ) else {
+            return transactionFeeParameters
+        }
+
+        let bufferedGasLimit = wrappedGasLimit
+            * (BigUInt(100) + EthereumFeeParametersConstants.yieldModuleGasLimitIncreasePercent)
+            / BigUInt(100)
+
+        return transactionFeeParameters.changingGasLimit(to: bufferedGasLimit)
+    }
+
+    /// Estimates the user's call as the batch builder will submit it — wrapped into `upgradeToAndCall` — or
+    /// returns `nil` when nothing gets wrapped and the original estimate already matches what will execute.
+    func getUpgradeWrappedYieldGasLimit(
+        destination: String,
+        value: String?,
+        data: Data?,
+        yieldFeeOptions: GaslessYieldFeeOptions
+    ) async throws -> BigUInt? {
         guard case .required(let upgradeImplementation) = yieldFeeOptions.upgrade,
               destination.caseInsensitiveEquals(to: yieldFeeOptions.yieldContractAddress)
         else {
-            return transactionFeeParameters
+            return nil
         }
 
         let transactionData = data ?? Data()
         guard !UpgradeToAndCallMethod.isEncodedCall(transactionData.hexString.addHexPrefix()) else {
-            return transactionFeeParameters
+            return nil
         }
 
         let upgradeMethod = UpgradeToAndCallMethod(
             newImplementation: upgradeImplementation,
             callData: transactionData
         )
-        let wrappedGasLimit = try await getGasLimit(
+
+        return try await getGasLimit(
             to: destination,
             from: wallet.defaultAddress.value,
             value: value,
             data: upgradeMethod.encodedData
         ).async()
-
-        return transactionFeeParameters.changingGasLimit(to: wrappedGasLimit)
     }
 
     /// Converts `otherNativeFee` (e.g. bridge fee in native coin) to the fee token and adds it to the fee amount.
@@ -937,7 +999,7 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
     /// Builds and returns a minimal transaction payload that is fully prepared for signing.
     /// The payload contains only the essential on-chain fields (destination, data, value)
     func buildTransactionPayload(transaction: Transaction) async throws -> TransactionPayload {
-        var tx = transaction
+        var tx = Self.sanitizeTransaction(transaction, wallet: wallet)
         let params = (tx.params as? EthereumTransactionParams) ?? EthereumTransactionParams()
 
         if params.nonce == nil {
