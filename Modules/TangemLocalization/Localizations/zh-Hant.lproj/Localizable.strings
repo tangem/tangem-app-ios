@@ -1795,6 +1795,7 @@
 "tangempay_bank_transfer_success_subtitle" = "這可能需要一些時間";
 "tangempay_bank_transfer_success_title" = "正在準備您的銀行資訊";
 "tangempay_bank_transfer_swift_warning" = "僅支援透過 ACH 或 FedWire 存款。SWIFT 轉帳將被退回。";
+"tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "在主畫面隱藏身份驗證";
 "tangempay_card_default_name" = "Tangem Pay 卡片 1";
 "tangempay_card_details_add_funds_subtitle" = "充值选项";
@@ -1896,6 +1897,8 @@
 "tangempay_cashback_refund_banner" = "我們收到了一筆此前已獲得現金回饋的購買退款";
 "tangempay_cashback_title" = "現金回饋";
 "tangempay_cashback_total_earned" = "累計賺取 %1$@";
+"tangempay_cashback_widget_error_description" = "Tap to reload";
+"tangempay_cashback_widget_error_title" = "Cashback unavailable";
 "tangempay_cashback_widget_title" = "%2$@ 中的 %1$@ 現金回饋";
 "tangempay_change_pin_code" = "修改PIN码";
 "tangempay_changing_plan" = "正在變更您的方案";
