@@ -47,6 +47,7 @@ private extension ExpressExchangeTransactionsTable {
                 table.column(Columns.fromContract, .text).notNull().collate(.nocase)
                 table.column("fromAmount", .text).notNull()
                 table.column("fromDecimals", .integer).notNull()
+                table.column("fromActualAmount", .text)
                 table.column(Columns.toNetwork, .text).notNull()
                 // Collation is used to make the contract address case-insensitive.
                 // This matches the current `BlockchainSdk.Token` equality implementation.
