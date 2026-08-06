@@ -10,10 +10,10 @@ import Foundation
 /// Domain representation of a single coin-indicator reading, decoupled from the transport DTO.
 struct TokenSummaryIndicator {
     let kind: Kind
-    let timeframe: Timeframe?
+    let timeframe: Timeframe
+    let title: String
     let value: Decimal?
     let signal: Signal
-    let subLabel: String?
     let updatedAt: Date?
 }
 
@@ -27,8 +27,7 @@ extension TokenSummaryIndicator {
         case unknown
     }
 
-    /// A `nil` timeframe on the reading marks a timeframe-agnostic indicator; `.unknown` is a value the contract
-    /// reports that this build doesn't recognize.
+    /// `.unknown` is a value the contract reports that this build doesn't recognize.
     enum Timeframe: Equatable {
         case day
         case week
@@ -38,8 +37,8 @@ extension TokenSummaryIndicator {
 
     /// Directional signals drive the gauge; `.unavailable` collapses every non-directional case and is left out of it.
     enum Signal: Equatable {
-        case bullish
-        case bearish
+        case positive
+        case negative
         case neutral
         case unavailable
     }
