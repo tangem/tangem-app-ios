@@ -14,7 +14,6 @@ import TangemPay
 import TangemUI
 
 protocol TangemPayAccountRoutable: AnyObject {
-    func openTangemPayIssuingYourCardPopup()
     func openTangemPayFailedToIssueCardPopup()
     func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
@@ -63,8 +62,6 @@ final class TangemPayAccountViewModel: ObservableObject {
             router?.openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
         case .kycDeclined(let tangemPayKYCInteractor):
             router?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
-        case .issuingCard:
-            router?.openTangemPayIssuingYourCardPopup()
         case .failedToIssueCard:
             router?.openTangemPayFailedToIssueCardPopup()
         case .tangemPayAccount(let tangemPayAccount), .cardDeactivated(let tangemPayAccount):
@@ -97,8 +94,6 @@ private extension TangemPayAccountViewModel {
                     .just(output: .kycInProgress)
                 case .kycDeclined:
                     .just(output: .kycDeclined)
-                case .issuingCard:
-                    .just(output: .issuingYourCard)
                 case .failedToIssueCard:
                     .just(output: .failedToIssueCard)
                 case .tangemPayAccount(let tangemPayAccount):
@@ -160,12 +155,6 @@ private extension TangemPayAccountViewModel {
         case .kycDeclined:
             CachedDisplayData(
                 subtitle: Localization.tangempayKycHasFailed,
-                trailing: .empty
-            )
-
-        case .issuingCard:
-            CachedDisplayData(
-                subtitle: Localization.tangempayIssuingYourCard,
                 trailing: .empty
             )
 

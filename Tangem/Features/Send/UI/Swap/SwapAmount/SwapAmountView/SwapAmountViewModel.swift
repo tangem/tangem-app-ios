@@ -270,7 +270,7 @@ private extension SwapAmountViewModel {
             sourceExpressCurrencyViewModel.update(alternativeAmountState: .loaded(text: fiatFormatted))
 
         case .success(let token):
-            let isSwitchCurrencyAvailable = FeatureProvider.isAvailable(.swapFiatCalculation) && token.possibleToConvertToFiat
+            let isSwitchCurrencyAvailable = token.possibleToConvertToFiat
             sourceExpressCurrencyViewModel.update(isSwitchCurrencyAvailable: isSwitchCurrencyAvailable)
 
             if !isSwitchCurrencyAvailable {
