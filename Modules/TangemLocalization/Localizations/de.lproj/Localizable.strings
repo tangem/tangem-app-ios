@@ -745,9 +745,9 @@
 "hw_cloud_backup_restore_no_backup_description" = "Wir konnten kein Google Drive-Backup für dieses Konto finden. Du kannst dein Wallet stattdessen mithilfe einer Wiederherstellungsphrase importieren.";
 "hw_cloud_backup_restore_no_backup_title" = "Keine Sicherung gefunden";
 "hw_cloud_backup_restore_password_button" = "Wiederherstellen";
-"hw_cloud_backup_restore_password_description" = "Sie stellen „%1$@“ aus einem Google Drive-Backup wieder her, das unter %2$@erstellt wurde. Geben Sie das Verschlüsselungskennwort ein, um fortzufahren.";
-"hw_cloud_backup_restore_password_navtitle" = "Passwort eingeben";
-"hw_cloud_backup_restore_password_title" = "Wallet wiederherstellen";
+"hw_cloud_backup_restore_password_description" = "Sie stellen „%1$@“ aus einem Google Drive-Backup wieder her, das unter %2$@erstellt wurde";
+"hw_cloud_backup_restore_password_navtitle" = "Wallet wiederherstellen";
+"hw_cloud_backup_restore_password_title" = "Passwort eingeben";
 "hw_cloud_backup_restore_use_recovery_phrase" = "Import-Wiederherstellungsphrase";
 "hw_cloud_backup_restore_wrong_password" = "Falsches Passwort. Bitte versuchen Sie es erneut.";
 "hw_cloud_backup_retry" = "Versuchen Sie es erneut";
@@ -1891,6 +1891,8 @@
 "tangempay_cashback_empty_subtitle" = "Der gesammelte Betrag wird hier angezeigt";
 "tangempay_cashback_empty_title" = "Fangen Sie an, Geld auszugeben\nund Cashback zu verdienen";
 "tangempay_cashback_error_title" = "Die Seite konnte nicht geladen werden.\nZum Neuladen bitte antippen";
+"tangempay_cashback_menu_item_loading" = "Loading...";
+"tangempay_cashback_menu_item_title" = "Cashback in %@";
 "tangempay_cashback_rate_subtitle" = "Mit Ihrem %1$@-Tarif";
 "tangempay_cashback_rate_title_up_to" = "Cashback bis zu %1$@%%";
 "tangempay_cashback_rate_title" = "Cashback %1$@%%";
