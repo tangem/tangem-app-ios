@@ -25,9 +25,9 @@ extension BackupService {
     }
 
     /// Snapshot of the card currently being finalized — used to attribute a finalize failure. `backupStatus`
-    /// is left unknown: the ceremony phase can't tell a linked card from an unlinked one (the SDK keeps both
-    /// in `.finalizingPrimaryCard` and reveals no linking signal), and a guess here would either hide a card
-    /// the finalization really did leave `cardLinked` or invent one.
+    /// reads `.noBackup` because the back end takes no card without a status, while the ceremony phase can't
+    /// tell a linked card from an unlinked one: a primary that the failed step had already flipped to
+    /// `cardLinked` therefore reads as not backed up until the card is read again.
     var finalizingProcessedCard: WalletCardsCurrentlyProcessedCard? {
         switch currentState {
         case .finalizingPrimaryCard:
@@ -41,7 +41,7 @@ extension BackupService {
                 role: .primary,
                 identity: nil,
                 curves: primaryCard.walletCurves,
-                backupStatus: nil
+                backupStatus: .noBackup
             )
         case .finalizingBackupCard(let index):
             // `index` is 1-based (the card being finalized), so shift to a 0-based array index.
@@ -55,7 +55,7 @@ extension BackupService {
                 role: .backup(index: index),
                 identity: nil,
                 curves: [],
-                backupStatus: nil
+                backupStatus: .noBackup
             )
         case .preparing, .finished:
             return nil
