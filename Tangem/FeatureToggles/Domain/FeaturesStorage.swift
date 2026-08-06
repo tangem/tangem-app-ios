@@ -58,6 +58,9 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.applePayMerchantType)
     var applePayMerchantType = ApplePayMerchantType.sandbox
 
+    @AppStorageCompat(FeatureStorageKeys.appDatabaseDropScheduled)
+    var isAppDatabaseDropScheduled = false
+
     private init() {}
 }
 
@@ -80,4 +83,5 @@ private enum FeatureStorageKeys: String {
     case yieldModuleAPIType = "yield_module_api_type"
     case gaslessTransactionsAPIType = "gasless_transactions_api_type"
     case applePayMerchantType = "apple_pay_merchant_id_env"
+    case appDatabaseDropScheduled = "app_database_drop_scheduled"
 }

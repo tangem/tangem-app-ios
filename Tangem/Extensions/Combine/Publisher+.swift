@@ -27,11 +27,6 @@ extension Publisher where Output: Equatable {
 }
 
 extension Publisher {
-    /// Subscribes to current publisher without handling events
-    func sink() -> AnyCancellable {
-        return sink(receiveCompletion: { _ in }, receiveValue: { _ in })
-    }
-
     /// An overload of the default `sink` method with the only `receiveValue` required closure.
     func receiveValue(_ receiveValue: @escaping ((Self.Output) -> Void)) -> AnyCancellable {
         sink(receiveCompletion: { _ in }, receiveValue: receiveValue)
