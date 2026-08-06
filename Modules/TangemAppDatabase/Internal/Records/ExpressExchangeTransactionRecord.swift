@@ -9,76 +9,110 @@
 import Foundation
 import GRDB
 
-struct ExpressExchangeTransactionRecord {
-    let id: String
-    let ownerAddress: String
-    let providerID: String
-    let fromAddress: String?
-    let payInAddress: String
-    let payInExtraId: String?
-    let payOutAddress: String
-    let status: String
-    let rateType: String?
-    let externalTxID: String?
-    let externalTxURL: String?
-    let payInHash: String?
-    let payOutHash: String?
-    let fromNetwork: String
+public struct ExpressExchangeTransactionRecord {
+    public let id: String
+    public let ownerAddress: String
+    public let providerID: String
+    public let fromAddress: String?
+    public let payInAddress: String
+    public let payInExtraId: String?
+    public let payOutAddress: String
+    public let status: String
+    public let rateType: String?
+    public let externalTxID: String?
+    public let externalTxURL: String?
+    public let payInHash: String?
+    public let payOutHash: String?
+    public let fromNetwork: String
     /// - Note: May have a value of `ExpressConstants.coinContractAddress` for native coins.
-    let fromContract: String
+    public let fromContract: String
     /// - Note: Actually a decimal number.
-    let fromAmount: String
-    let fromDecimals: Int
-    let toNetwork: String
+    public let fromAmount: String
+    public let fromDecimals: Int
+    /// - Note: Actually a decimal number.
+    public let fromActualAmount: String?
+    public let toNetwork: String
     /// - Note: May have a value of `ExpressConstants.coinContractAddress` for native coins.
-    let toContract: String
+    public let toContract: String
     /// - Note: Actually a decimal number.
-    let toAmount: String
-    let toDecimals: Int
+    public let toAmount: String
+    public let toDecimals: Int
     /// - Note: Actually a decimal number.
-    let toActualAmount: String?
-    let refundAddress: String?
-    let refundExtraId: String?
-    let refundNetwork: String?
+    public let toActualAmount: String?
+    public let refundAddress: String?
+    public let refundExtraId: String?
+    public let refundNetwork: String?
     /// - Note: May have a value of `ExpressConstants.coinContractAddress` for native coins.
-    let refundContractAddress: String?
-    let createdAt: Date
-    let updatedAt: Date
-}
+    public let refundContractAddress: String?
+    public let createdAt: Date
+    public let updatedAt: Date
 
-// MARK: - Columns
-
-extension ExpressExchangeTransactionRecord {
-    /// - Note: Only columns used twice or more are extracted to this enum.
-    enum Columns {
-        static let id = Column(CodingKeys.id)
-        static let providerID = Column(CodingKeys.providerID)
-        static let fromNetwork = Column(CodingKeys.fromNetwork)
-        static let fromContract = Column(CodingKeys.fromContract)
-        static let toNetwork = Column(CodingKeys.toNetwork)
-        static let toContract = Column(CodingKeys.toContract)
-        static let refundNetwork = Column(CodingKeys.refundNetwork)
-        static let refundContractAddress = Column(CodingKeys.refundContractAddress)
+    public init(
+        id: String,
+        ownerAddress: String,
+        providerID: String,
+        fromAddress: String?,
+        payInAddress: String,
+        payInExtraId: String?,
+        payOutAddress: String,
+        status: String,
+        rateType: String?,
+        externalTxID: String?,
+        externalTxURL: String?,
+        payInHash: String?,
+        payOutHash: String?,
+        fromNetwork: String,
+        fromContract: String,
+        fromAmount: String,
+        fromDecimals: Int,
+        fromActualAmount: String?,
+        toNetwork: String,
+        toContract: String,
+        toAmount: String,
+        toDecimals: Int,
+        toActualAmount: String?,
+        refundAddress: String?,
+        refundExtraId: String?,
+        refundNetwork: String?,
+        refundContractAddress: String?,
+        createdAt: Date,
+        updatedAt: Date
+    ) {
+        self.id = id
+        self.ownerAddress = ownerAddress
+        self.providerID = providerID
+        self.fromAddress = fromAddress
+        self.payInAddress = payInAddress
+        self.payInExtraId = payInExtraId
+        self.payOutAddress = payOutAddress
+        self.status = status
+        self.rateType = rateType
+        self.externalTxID = externalTxID
+        self.externalTxURL = externalTxURL
+        self.payInHash = payInHash
+        self.payOutHash = payOutHash
+        self.fromNetwork = fromNetwork
+        self.fromContract = fromContract
+        self.fromAmount = fromAmount
+        self.fromDecimals = fromDecimals
+        self.fromActualAmount = fromActualAmount
+        self.toNetwork = toNetwork
+        self.toContract = toContract
+        self.toAmount = toAmount
+        self.toDecimals = toDecimals
+        self.toActualAmount = toActualAmount
+        self.refundAddress = refundAddress
+        self.refundExtraId = refundExtraId
+        self.refundNetwork = refundNetwork
+        self.refundContractAddress = refundContractAddress
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 }
 
-// MARK: - Identifiable protocol conformance
+// MARK: - Fetching helpers
 
-extension ExpressExchangeTransactionRecord: Identifiable {}
-
-// MARK: - Codable protocol conformance
-
-extension ExpressExchangeTransactionRecord: Codable {}
-
-// MARK: - FetchableRecord protocol conformance
-
-extension ExpressExchangeTransactionRecord: FetchableRecord {}
-
-// MARK: - TableRecord protocol conformance
-
-extension ExpressExchangeTransactionRecord: TableRecord {
-    static let databaseTableName = ExpressExchangeTransactionsTable.tableName
-
+extension ExpressExchangeTransactionRecord {
     static let provider = belongsTo(
         ExpressProviderRecord.self,
         key: "provider",
@@ -132,6 +166,36 @@ extension ExpressExchangeTransactionRecord: TableRecord {
         key: "historyIndexRecords",
         using: TransactionHistoryIndexRecord.expressEntityForeignKey
     )
+}
+
+// MARK: - Identifiable protocol conformance
+
+extension ExpressExchangeTransactionRecord: Identifiable {}
+
+// MARK: - Codable protocol conformance
+
+extension ExpressExchangeTransactionRecord: Codable {}
+
+// MARK: - FetchableRecord protocol conformance
+
+extension ExpressExchangeTransactionRecord: FetchableRecord {}
+
+// MARK: - TableRecord protocol conformance
+
+extension ExpressExchangeTransactionRecord: TableRecord {
+    /// - Note: Only columns used twice or more are extracted to this enum.
+    public enum Columns {
+        public static let id = Column(CodingKeys.id)
+        public static let providerID = Column(CodingKeys.providerID)
+        public static let fromNetwork = Column(CodingKeys.fromNetwork)
+        public static let fromContract = Column(CodingKeys.fromContract)
+        public static let toNetwork = Column(CodingKeys.toNetwork)
+        public static let toContract = Column(CodingKeys.toContract)
+        public static let refundNetwork = Column(CodingKeys.refundNetwork)
+        public static let refundContractAddress = Column(CodingKeys.refundContractAddress)
+    }
+
+    public static let databaseTableName = ExpressExchangeTransactionsTable.tableName
 }
 
 // MARK: - PersistableRecord protocol conformance
