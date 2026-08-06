@@ -90,6 +90,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
                 TangemShimmerDemoView(viewModel: $0)
             }
             .navigation(item: $coordinator.glowRingDemoViewModel, destination: GlowRingDemoView.init)
+            .navigation(item: $coordinator.tabNavigationDemoViewModel) {
+                TabNavigationDemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemTopNavigationDemoViewModel) {
                 TangemTopNavigationDemoView(viewModel: $0)
             }
@@ -117,148 +120,113 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
 struct DesignSystemDemoView: View {
     @ObservedObject var viewModel: DesignSystemDemoViewModel
 
+    @State private var searchText = ""
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                section(title: "Design System V2") {
-                    MainButton(title: "TangemUI.Button") {
-                        viewModel.openTangemButtonV2Demo()
-                    }
+                let visibleSections = filteredSections
 
-                    MainButton(title: "TangemUI.Checkmark") {
-                        viewModel.openTangemCheckmarkV2Demo()
-                    }
-
-                    MainButton(title: "Badge") {
-                        viewModel.openTangemBadgeV2Demo()
-                    }
-
-                    MainButton(title: "MessageBanner") {
-                        viewModel.openTangemMessageBannerDemo()
-                    }
-
-                    MainButton(title: "MessageBubble") {
-                        viewModel.openTangemMessageBubbleDemo()
-                    }
-
-                    MainButton(title: "Checkbox") {
-                        viewModel.openTangemCheckboxV2Demo()
-                    }
-
-                    MainButton(title: "Row") {
-                        viewModel.openTangemRowDemo()
-                    }
-
-                    MainButton(title: "Loader") {
-                        viewModel.openTangemLoaderDemo()
-                    }
-
-                    MainButton(title: "Shimmer") {
-                        viewModel.openTangemShimmerDemo()
-                    }
-
-                    MainButton(title: "GlowRing") {
-                        viewModel.openGlowRingDemo()
-                    }
-
-                    MainButton(title: "Fade") {
-                        viewModel.openTangemFadeDemo()
-                    }
-
-                    MainButton(title: "TokenIconV2") {
-                        viewModel.openTokenIconV2Demo()
-                    }
-
-                    MainButton(title: "UtilGraph") {
-                        viewModel.openUtilGraphDemo()
-                    }
-
-                    MainButton(title: "UtilPriceChange") {
-                        viewModel.openUtilPriceChangeDemo()
-                    }
-
-                    MainButton(title: "UtilBalance") {
-                        viewModel.openUtilBalanceDemo()
-                    }
-
-                    MainButton(title: "Search") {
-                        viewModel.openTangemSearchDemo()
-                    }
-
-                    MainButton(title: "Typography V2") {
-                        viewModel.openTypographyV2Demo()
-                    }
-
-                    MainButton(title: "TopNavigation") {
-                        viewModel.openTangemTopNavigationDemo()
-                    }
-                }
-
-                section(title: "Legacy") {
-                    MainButton(title: "TangemButton") {
-                        viewModel.openTangemButtonDemo()
-                    }
-
-                    MainButton(title: "TangemBadge") {
-                        viewModel.openTangemBadgeDemo()
-                    }
-
-                    MainButton(title: "TangemCallout") {
-                        viewModel.openTangemCalloutDemo()
-                    }
-
-                    MainButton(title: "TangemSegmentedPicker") {
-                        viewModel.openTangemSegmentedPickerDemo()
-                    }
-
-                    MainButton(title: "TangemTabs") {
-                        viewModel.openTangemTabsDemo()
-                    }
-
-                    MainButton(title: "TangemSearchField") {
-                        viewModel.openTangemSearchFieldDemo()
-                    }
-
-                    MainButton(title: "MainActionButton") {
-                        viewModel.openTangemMainActionButtonDemo()
-                    }
-
-                    MainButton(title: "NotificationBanner") {
-                        viewModel.openNotificationBannerDemo()
-                    }
-
-                    MainButton(title: "TangemDropDown") {
-                        viewModel.openTangemDropDownDemo()
-                    }
-
-                    MainButton(title: "TangemTokenRow") {
-                        viewModel.openTangemTokenRowDemo()
-                    }
-
-                    MainButton(title: "TangemSnackbar") {
-                        viewModel.openTangemSnackbarDemo()
-                    }
-
-                    MainButton(title: "Typography") {
-                        viewModel.openTypographyDemo()
+                if visibleSections.isEmpty {
+                    Text("Nothing found")
+                        .font(.headline)
+                        .padding(.top, 32)
+                } else {
+                    ForEach(visibleSections) { section in
+                        sectionView(section)
                     }
                 }
             }
             .padding()
         }
         .navigationBarTitle(Text("Design System Demo"))
+        .tangemSearchable(text: $searchText, prompt: "Search components", placement: .bottom)
     }
 
-    @ViewBuilder
-    private func section<Content: View>(
-        title: String,
-        @ViewBuilder content: () -> Content
-    ) -> some View {
+    private func sectionView(_ section: DemoSection) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(title)
+            Text(section.title)
                 .font(.headline)
                 .padding(.horizontal, 4)
-            content()
+
+            ForEach(section.items) { item in
+                MainButton(title: item.title, action: item.open)
+            }
         }
+    }
+
+    private var filteredSections: [DemoSection] {
+        guard !searchText.isEmpty else {
+            return sections
+        }
+
+        return sections.compactMap { section in
+            let items = section.items.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+            return items.isEmpty ? nil : DemoSection(title: section.title, items: items)
+        }
+    }
+
+    private var sections: [DemoSection] {
+        [
+            DemoSection(title: "Design System V2", items: designSystemV2Items),
+            DemoSection(title: "Legacy", items: legacyItems),
+        ]
+    }
+
+    private var designSystemV2Items: [DemoItem] {
+        [
+            DemoItem(title: "Button", open: viewModel.openTangemButtonV2Demo),
+            DemoItem(title: "Checkmark", open: viewModel.openTangemCheckmarkV2Demo),
+            DemoItem(title: "Badge", open: viewModel.openTangemBadgeV2Demo),
+            DemoItem(title: "MessageBanner", open: viewModel.openTangemMessageBannerDemo),
+            DemoItem(title: "MessageBubble", open: viewModel.openTangemMessageBubbleDemo),
+            DemoItem(title: "Checkbox", open: viewModel.openTangemCheckboxV2Demo),
+            DemoItem(title: "Row", open: viewModel.openTangemRowDemo),
+            DemoItem(title: "Loader", open: viewModel.openTangemLoaderDemo),
+            DemoItem(title: "Shimmer", open: viewModel.openTangemShimmerDemo),
+            DemoItem(title: "GlowRing", open: viewModel.openGlowRingDemo),
+            DemoItem(title: "Fade", open: viewModel.openTangemFadeDemo),
+            DemoItem(title: "TokenIconV2", open: viewModel.openTokenIconV2Demo),
+            DemoItem(title: "UtilGraph", open: viewModel.openUtilGraphDemo),
+            DemoItem(title: "UtilPriceChange", open: viewModel.openUtilPriceChangeDemo),
+            DemoItem(title: "UtilBalance", open: viewModel.openUtilBalanceDemo),
+            DemoItem(title: "Search", open: viewModel.openTangemSearchDemo),
+            DemoItem(title: "Typography V2", open: viewModel.openTypographyV2Demo),
+            DemoItem(title: "TabNavigation", open: viewModel.openTabNavigationDemo),
+            DemoItem(title: "TopNavigation", open: viewModel.openTangemTopNavigationDemo),
+        ]
+    }
+
+    private var legacyItems: [DemoItem] {
+        [
+            DemoItem(title: "TangemButton", open: viewModel.openTangemButtonDemo),
+            DemoItem(title: "TangemBadge", open: viewModel.openTangemBadgeDemo),
+            DemoItem(title: "TangemCallout", open: viewModel.openTangemCalloutDemo),
+            DemoItem(title: "TangemSegmentedPicker", open: viewModel.openTangemSegmentedPickerDemo),
+            DemoItem(title: "TangemTabs", open: viewModel.openTangemTabsDemo),
+            DemoItem(title: "TangemSearchField", open: viewModel.openTangemSearchFieldDemo),
+            DemoItem(title: "MainActionButton", open: viewModel.openTangemMainActionButtonDemo),
+            DemoItem(title: "NotificationBanner", open: viewModel.openNotificationBannerDemo),
+            DemoItem(title: "TangemDropDown", open: viewModel.openTangemDropDownDemo),
+            DemoItem(title: "TangemTokenRow", open: viewModel.openTangemTokenRowDemo),
+            DemoItem(title: "TangemSnackbar", open: viewModel.openTangemSnackbarDemo),
+            DemoItem(title: "Typography", open: viewModel.openTypographyDemo),
+        ]
+    }
+}
+
+private extension DesignSystemDemoView {
+    struct DemoItem: Identifiable {
+        let title: String
+        let open: () -> Void
+
+        var id: String { title }
+    }
+
+    struct DemoSection: Identifiable {
+        let title: String
+        let items: [DemoItem]
+
+        var id: String { title }
     }
 }
