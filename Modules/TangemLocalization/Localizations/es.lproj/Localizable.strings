@@ -1795,6 +1795,7 @@
 "tangempay_bank_transfer_success_subtitle" = "Esto puede tardar un poco";
 "tangempay_bank_transfer_success_title" = "Preparando sus datos bancarios";
 "tangempay_bank_transfer_swift_warning" = "Depósito solo vía ACH o FedWire. Las transferencias SWIFT serán devueltas.";
+"tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "Ocultar verificación de la pantalla";
 "tangempay_card_default_name" = "Tarjeta Tangem Pay 1";
 "tangempay_card_details_add_funds_subtitle" = "Opciones de recarga";
@@ -1896,6 +1897,8 @@
 "tangempay_cashback_refund_banner" = "Reembolso recibido por una compra ya acreditada en cashback";
 "tangempay_cashback_title" = "Cashback";
 "tangempay_cashback_total_earned" = "%1$@ ganado en total";
+"tangempay_cashback_widget_error_description" = "Tap to reload";
+"tangempay_cashback_widget_error_title" = "Cashback unavailable";
 "tangempay_cashback_widget_title" = "%1$@ de cashback en %2$@";
 "tangempay_change_pin_code" = "Cambiar código PIN";
 "tangempay_changing_plan" = "Cambiando plan";
