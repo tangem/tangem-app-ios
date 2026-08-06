@@ -13,6 +13,7 @@ import Combine
 protocol WalletModelTransactionHistoryEnriching {
     func enrichedTransactionHistoryPublisher(
         from originalTransactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
+        tokenItem: TokenItem,
         feeTokenItem: TokenItem
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never>
 }

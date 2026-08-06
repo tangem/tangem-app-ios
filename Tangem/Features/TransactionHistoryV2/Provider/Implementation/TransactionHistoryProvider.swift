@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import CombineExt
 import BlockchainSdk
 import TangemExpress
 import TangemFoundation
@@ -18,9 +17,12 @@ final actor TransactionHistoryProvider {
 
     private let repository: TransactionHistoryRepository
     private let syncMetadataStorage: TransactionHistorySyncMetadataStorage
-    private let tokenItem: TokenItem
+    private let key: TransactionHistoryProviderKey
     private let userWalletId: UserWalletId
-    private let address: String
+
+    private nonisolated var address: String {
+        key.address
+    }
 
     private nonisolated var maskedAddress: String {
         address.prefix(Constants.maskedAddressPrefixSuffixLength) + "••••" + address.suffix(Constants.maskedAddressPrefixSuffixLength)
@@ -35,88 +37,22 @@ final actor TransactionHistoryProvider {
     private var _hasCompletedInitialSync: Bool?
     private var lastSuccessfulPullToRefreshAt: Date?
 
-    /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
-    private nonisolated let exchangeUpdatesSubject = CurrentValueSubject<[ExchangeTransaction], Never>([])
-
-    /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
-    private nonisolated let onrampUpdatesSubject = CurrentValueSubject<[OnrampTransaction], Never>([])
-
-    /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
-    private nonisolated let auxDataUpdatesSubject = PassthroughSubject<Void, Never>()
-
     private nonisolated let mappingQueue = DispatchQueue(
         label: "com.tangem.TransactionHistoryProvider.mappingQueue",
         qos: .userInitiated,
         target: .global(qos: .userInitiated)
     )
 
-    /// - Note: Manual protection needed due to mutation from a non-isolated context, therefore the lock is used.
-    private nonisolated let bag = OSAllocatedUnfairLock(uncheckedState: Set<AnyCancellable>())
-
     init(
         repository: TransactionHistoryRepository,
         syncMetadataStorage: TransactionHistorySyncMetadataStorage,
         userWalletId: UserWalletId,
-        tokenItem: TokenItem,
-        address: String
+        key: TransactionHistoryProviderKey
     ) {
         self.repository = repository
         self.syncMetadataStorage = syncMetadataStorage
-        self.tokenItem = tokenItem
+        self.key = key
         self.userWalletId = userWalletId
-        self.address = address
-
-        subscribeToRepositoryUpdates()
-        subscribeToAuxDataUpdates()
-    }
-
-    private nonisolated func subscribeToRepositoryUpdates() {
-        // Bare `Task` is used here intentionally to avoid capturing `self` for the duration of the subscription
-        let exchangeUpdatesSubscription = Task { [weak self] in
-            guard let stream = self?.repository.exchangeHistoryUpdates else {
-                return
-            }
-
-            for await transactions in stream {
-                self?.exchangeUpdatesSubject.send(transactions)
-            }
-        }
-        .eraseToAnyCancellable()
-
-        // Bare `Task` is used here intentionally to avoid capturing `self` for the duration of the subscription
-        let onrampUpdatesSubscription = Task { [weak self] in
-            guard let stream = self?.repository.onrampHistoryUpdates else {
-                return
-            }
-
-            for await transactions in stream {
-                self?.onrampUpdatesSubject.send(transactions)
-            }
-        }
-        .eraseToAnyCancellable()
-
-        bag { bag in
-            bag.insert(exchangeUpdatesSubscription)
-            bag.insert(onrampUpdatesSubscription)
-        }
-    }
-
-    private nonisolated func subscribeToAuxDataUpdates() {
-        // Bare `Task` is used here intentionally to avoid capturing `self` for the duration of the subscription
-        let auxDataSubscription = Task { [weak self] in
-            guard let stream = self?.auxDataRepository.didLoadAuxData else {
-                return
-            }
-
-            for await _ in stream {
-                self?.auxDataUpdatesSubject.send(())
-            }
-        }
-        .eraseToAnyCancellable()
-
-        bag { bag in
-            _ = bag.insert(auxDataSubscription)
-        }
     }
 
     private func emit(_ newState: TransactionHistorySyncState) {
@@ -375,6 +311,7 @@ extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
 extension TransactionHistoryProvider: WalletModelTransactionHistoryEnriching {
     nonisolated func enrichedTransactionHistoryPublisher(
         from originalTransactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
+        tokenItem: TokenItem,
         feeTokenItem: TokenItem
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
         let merger = TransactionHistoryExpressDataMerger(
@@ -382,13 +319,21 @@ extension TransactionHistoryProvider: WalletModelTransactionHistoryEnriching {
             currentToken: tokenItem,
             feeTokenItem: feeTokenItem
         )
+        let currency = tokenItem.expressCurrency.asCurrency
 
         // [REDACTED_TODO_COMMENT]
         return originalTransactionHistoryPublisher
             .combineLatest(
-                exchangeUpdatesSubject,
-                onrampUpdatesSubject,
-                auxDataUpdatesSubject
+                Publishers.stream { [repository] in
+                    repository.exchangeHistoryUpdates(for: currency)
+                },
+                Publishers.stream { [repository] in
+                    repository.onrampHistoryUpdates(for: currency)
+                },
+                Publishers
+                    .stream { [auxDataRepository] in
+                        auxDataRepository.didLoadAuxData
+                    }
                     .prepend(()) // Emit an initial value in case the aux data is already cached and no updates are coming
             )
             .receive(on: mappingQueue)
@@ -440,9 +385,9 @@ extension TransactionHistoryProvider: CustomStringConvertible {
         objectDescription(
             self,
             userInfo: [
-                "name": tokenItem.name,
-                "type": tokenItem.isToken ? "Token" : "Coin",
-                "derivation": tokenItem.blockchainNetwork.derivationPath?.rawPath ?? "nil",
+                "name": key.tokenItem.name,
+                "type": key.tokenItem.isToken ? "Token" : "Coin",
+                "derivation": key.tokenItem.blockchainNetwork.derivationPath?.rawPath ?? "nil",
                 "address": maskedAddress,
             ]
         )
