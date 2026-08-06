@@ -33,7 +33,7 @@ class OnboardingAddTokensViewModel: ObservableObject {
                 style: .secondary,
                 size: .default,
                 isLoading: false,
-                action: weakify(self, forFunction: OnboardingAddTokensViewModel.saveChanges)
+                action: weakify(self, forFunction: OnboardingAddTokensViewModel.skipAddTokens)
             )
         }
 
@@ -65,10 +65,6 @@ class OnboardingAddTokensViewModel: ObservableObject {
 
         isSavingChanges = true
 
-        if isPendingListsEmpty {
-            Analytics.log(.manageTokensButtonLater)
-        }
-
         adapter.saveChanges { [weak self] result in
             self?.isSavingChanges = false
             switch result {
@@ -85,6 +81,7 @@ class OnboardingAddTokensViewModel: ObservableObject {
     }
 
     func skipAddTokens() {
+        Analytics.log(.manageTokensButtonLater)
         delegate?.goToNextStep()
     }
 
