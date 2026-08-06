@@ -192,6 +192,7 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
             do {
                 loaded = try await indicatorsProvider.loadIndicators(symbol: symbol)
             } catch {
+                AppLogger.error("Failed to load coin indicators for \(symbol)", error: error)
                 loaded = []
             }
 
@@ -245,11 +246,11 @@ extension TokenSummaryViewModel {
 
     private static var mockReadings: [TokenSummaryIndicator] {
         [
-            .init(kind: .galaxyScore, timeframe: nil, value: 72, signal: .neutral, subLabel: nil, updatedAt: nil),
-            .init(kind: .sentiment, timeframe: nil, value: nil, signal: .unavailable, subLabel: nil, updatedAt: nil),
-            .init(kind: .rsi, timeframe: .day, value: 61, signal: .bearish, subLabel: nil, updatedAt: nil),
-            .init(kind: .macd, timeframe: .day, value: Decimal(string: "145.67"), signal: .bearish, subLabel: nil, updatedAt: nil),
-            .init(kind: .maCross, timeframe: nil, value: 50, signal: .bearish, subLabel: nil, updatedAt: nil),
+            .init(kind: .galaxyScore, timeframe: .day, title: "Galaxy Score", value: 72, signal: .neutral, updatedAt: nil),
+            .init(kind: .sentiment, timeframe: .day, title: "Sentiment", value: nil, signal: .unavailable, updatedAt: nil),
+            .init(kind: .rsi, timeframe: .day, title: "RSI", value: 61, signal: .negative, updatedAt: nil),
+            .init(kind: .macd, timeframe: .day, title: "MACD", value: Decimal(string: "145.67"), signal: .negative, updatedAt: nil),
+            .init(kind: .maCross, timeframe: .day, title: "MA Cross", value: 50, signal: .negative, updatedAt: nil),
         ]
     }
 }
