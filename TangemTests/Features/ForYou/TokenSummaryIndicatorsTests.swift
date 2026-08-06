@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import TangemFoundation
 @testable import Tangem
 
 // MARK: - Score / outlook thresholds
@@ -54,8 +55,8 @@ struct TokenSummaryIndicatorsMapperTests {
     func aggregatesScore() {
         let readings = [
             indicator(.galaxyScore, .neutral),
-            indicator(.rsi, .bullish, timeframe: .day),
-            indicator(.macd, .bearish, timeframe: .day),
+            indicator(.rsi, .positive),
+            indicator(.macd, .negative),
         ]
 
         let result = mapper.map(readings: readings, timeframe: .day)
@@ -64,12 +65,12 @@ struct TokenSummaryIndicatorsMapperTests {
         #expect(result.score?.outlook == .neutral)
     }
 
-    @Test("Timeframe-agnostic readings always show; timeframed ones only for the selected period")
+    @Test("Only readings for the selected period show")
     func timeframeFiltering() {
         let readings = [
-            indicator(.galaxyScore, .bullish),
-            indicator(.rsi, .bullish, timeframe: .day),
-            indicator(.macd, .bullish, timeframe: .week),
+            indicator(.galaxyScore, .positive),
+            indicator(.rsi, .positive),
+            indicator(.macd, .positive, timeframe: .week),
         ]
 
         let result = mapper.map(readings: readings, timeframe: .day)
@@ -81,8 +82,8 @@ struct TokenSummaryIndicatorsMapperTests {
     @Test("Only the first reading of a repeated kind is kept")
     func dedupPerKind() {
         let readings = [
-            indicator(.rsi, .bullish, timeframe: .day),
-            indicator(.rsi, .bearish, timeframe: .day),
+            indicator(.rsi, .positive),
+            indicator(.rsi, .negative),
         ]
 
         let result = mapper.map(readings: readings, timeframe: .day)
@@ -92,7 +93,7 @@ struct TokenSummaryIndicatorsMapperTests {
 
     @Test("Unknown indicator kinds are dropped entirely")
     func unknownDropped() {
-        let result = mapper.map(readings: [indicator(.unknown, .bullish, timeframe: .day)], timeframe: .day)
+        let result = mapper.map(readings: [indicator(.unknown, .positive)], timeframe: .day)
 
         #expect(result.metrics.isEmpty)
         #expect(result.score == nil)
@@ -102,13 +103,25 @@ struct TokenSummaryIndicatorsMapperTests {
     func allUnavailableHasNoScore() {
         let readings = [
             indicator(.galaxyScore, .unavailable, value: nil),
-            indicator(.rsi, .unavailable, timeframe: .day, value: nil),
+            indicator(.rsi, .unavailable, value: nil),
         ]
 
         let result = mapper.map(readings: readings, timeframe: .day)
 
         #expect(!result.metrics.isEmpty)
         #expect(result.score == nil)
+    }
+
+    @Test("Row titles come from the contract, explanations from the client")
+    func titlesComeFromBackend() throws {
+        let readings = mapper.mapToDomain([
+            .init(type: .rsi, name: "RSI", timeframe: .day, value: 31.68, label: .neutral, updatedAt: nil),
+        ])
+
+        let metric = try #require(mapper.map(readings: readings, timeframe: .day).metrics.first)
+
+        #expect(metric.title == "RSI")
+        #expect(!metric.info.isEmpty)
     }
 
     @Test("Empty readings yield no metrics and no score")
@@ -122,9 +135,9 @@ struct TokenSummaryIndicatorsMapperTests {
     @Test("Maps transport readings into the domain model, collapsing non-directional signals")
     func mapsDtoToDomain() {
         let readings: [CoinIndicatorsDTO.IndicatorReading] = [
-            .init(type: .rsi, timeframe: .day, value: 61, label: .bearish, subLabel: "Overbought", updatedAt: nil),
-            .init(type: .maCross, timeframe: nil, value: nil, label: .insufficientData, subLabel: nil, updatedAt: nil),
-            .init(type: .unknown("foo"), timeframe: .unknown("bar"), value: nil, label: .unknown("baz"), subLabel: nil, updatedAt: nil),
+            .init(type: .rsi, name: "RSI", timeframe: .day, value: 61, label: .negative, updatedAt: nil),
+            .init(type: .maCross, name: "MA Cross", timeframe: .week, value: nil, label: .insufficientData, updatedAt: nil),
+            .init(type: .unknown("foo"), name: "Foo", timeframe: .unknown("bar"), value: nil, label: .unknown("baz"), updatedAt: nil),
         ]
 
         let domain = mapper.mapToDomain(readings)
@@ -133,10 +146,10 @@ struct TokenSummaryIndicatorsMapperTests {
 
         #expect(domain[0].kind == .rsi)
         #expect(domain[0].timeframe == .day)
-        #expect(domain[0].signal == .bearish)
+        #expect(domain[0].signal == .negative)
 
         #expect(domain[1].kind == .maCross)
-        #expect(domain[1].timeframe == nil)
+        #expect(domain[1].timeframe == .week)
         #expect(domain[1].signal == .unavailable)
 
         #expect(domain[2].kind == .unknown)
@@ -147,10 +160,93 @@ struct TokenSummaryIndicatorsMapperTests {
     private func indicator(
         _ kind: TokenSummaryIndicator.Kind,
         _ signal: TokenSummaryIndicator.Signal,
-        timeframe: TokenSummaryIndicator.Timeframe? = nil,
+        timeframe: TokenSummaryIndicator.Timeframe = .day,
         value: Decimal? = 1
     ) -> TokenSummaryIndicator {
-        TokenSummaryIndicator(kind: kind, timeframe: timeframe, value: value, signal: signal, subLabel: nil, updatedAt: nil)
+        TokenSummaryIndicator(kind: kind, timeframe: timeframe, title: "\(kind)", value: value, signal: signal, updatedAt: nil)
+    }
+}
+
+// MARK: - Transport: the wire format the backend actually sends
+
+@Suite("CoinIndicatorsDTO decoding")
+struct CoinIndicatorsDTODecodingTests {
+    /// Shaped after a real `/api/v1/coins/indicators` response: string values, `positive`/`negative` labels
+    /// and a timeframe on every reading, including the social indicators.
+    private let json = Data(
+        """
+        {
+          "assets": [
+            {
+              "symbol": "BTC",
+              "indicators": [
+                {"type": "rsi", "name": "RSI", "timeframe": "24h", "value": "31.68", "label": "neutral", "updatedAt": "2026-07-30T07:51:28.299Z"},
+                {"type": "macd", "name": "MACD", "timeframe": "7d", "value": "-8.20", "label": "negative", "updatedAt": "2026-07-30T07:51:28.299Z"},
+                {"type": "sentiment", "name": "Sentiment", "timeframe": "1m", "value": "79.00", "label": "positive", "updatedAt": "2026-07-30T07:51:28.299Z"},
+                {"type": "ma_cross", "name": "MA Cross", "timeframe": "24h", "value": null, "label": "not_available", "updatedAt": null}
+              ]
+            }
+          ]
+        }
+        """.utf8
+    )
+
+    private var decoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }
+
+    @Test("Decodes string values, the full label vocabulary and per-reading timeframes")
+    func decodesContractPayload() throws {
+        let response = try decoder.decode(CoinIndicatorsDTO.Response.self, from: json)
+        let asset = try #require(response.assets.first)
+
+        #expect(asset.symbol == "BTC")
+        #expect(asset.indicators.count == 4)
+
+        #expect(asset.indicators[0].value == Decimal(string: "31.68"))
+        #expect(asset.indicators[0].timeframe == .day)
+        #expect(asset.indicators[0].label == .neutral)
+        #expect(asset.indicators[0].name == "RSI")
+        #expect(asset.indicators[0].updatedAt != nil)
+
+        #expect(asset.indicators[1].value == Decimal(string: "-8.20"))
+        #expect(asset.indicators[1].timeframe == .week)
+        #expect(asset.indicators[1].label == .negative)
+
+        #expect(asset.indicators[2].timeframe == .month)
+        #expect(asset.indicators[2].label == .positive)
+
+        #expect(asset.indicators[3].value == nil)
+        #expect(asset.indicators[3].label == .notAvailable)
+        #expect(asset.indicators[3].updatedAt == nil)
+    }
+
+    @Test("A reading of an unrecognized type or timeframe doesn't fail the whole response")
+    func toleratesUnknownValues() throws {
+        let json = Data(
+            """
+            {"assets": [{"symbol": "BTC", "indicators": [
+              {"type": "brand_new", "name": "Brand New", "timeframe": "3y", "value": "1.00", "label": "sideways", "updatedAt": null}
+            ]}]}
+            """.utf8
+        )
+
+        let reading = try #require(decoder.decode(CoinIndicatorsDTO.Response.self, from: json).assets.first?.indicators.first)
+
+        #expect(reading.type == .unknown("brand_new"))
+        #expect(reading.timeframe == .unknown("3y"))
+        #expect(reading.label == .unknown("sideways"))
+    }
+
+    @Test("Request sends the symbols and types the contract names")
+    func requestParameters() {
+        let parameters = CoinIndicatorsDTO.Request(symbols: ["BTC", "ETH"], types: [.rsi, .maCross]).parameters
+
+        #expect(parameters["symbols"] as? String == "BTC,ETH")
+        #expect(parameters["types"] as? String == "rsi,ma_cross")
     }
 }
 
@@ -168,7 +264,7 @@ struct PortfolioReviewSentimentMapperTests {
     @Test("All-unavailable readings produce no sentiment")
     func allUnavailable() {
         let readings = [
-            TokenSummaryIndicator(kind: .rsi, timeframe: .day, value: nil, signal: .unavailable, subLabel: nil, updatedAt: nil),
+            TokenSummaryIndicator(kind: .rsi, timeframe: .day, title: "RSI", value: nil, signal: .unavailable, updatedAt: nil),
         ]
 
         #expect(mapper.sentiment(for: readings, timeframe: .day) == nil)
@@ -177,8 +273,8 @@ struct PortfolioReviewSentimentMapperTests {
     @Test("Badge sentiment matches the Token Summary outlook for the same readings")
     func agreesWithMapperOutlook() {
         let readings = [
-            TokenSummaryIndicator(kind: .rsi, timeframe: .day, value: 1, signal: .bullish, subLabel: nil, updatedAt: nil),
-            TokenSummaryIndicator(kind: .macd, timeframe: .day, value: 1, signal: .bullish, subLabel: nil, updatedAt: nil),
+            TokenSummaryIndicator(kind: .rsi, timeframe: .day, title: "RSI", value: 1, signal: .positive, updatedAt: nil),
+            TokenSummaryIndicator(kind: .macd, timeframe: .day, title: "MACD", value: 1, signal: .positive, updatedAt: nil),
         ]
 
         let outlook = TokenSummaryIndicatorsMapper().map(readings: readings, timeframe: .day).score?.outlook

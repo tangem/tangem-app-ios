@@ -133,15 +133,15 @@ private struct PreviewIndicatorsProvider: TokenSummaryIndicatorsProvider {
         switch readings {
         case .score:
             return [
-                .init(kind: .galaxyScore, timeframe: nil, value: 72, signal: .bullish, subLabel: nil, updatedAt: nil),
-                .init(kind: .sentiment, timeframe: nil, value: 4, signal: .bullish, subLabel: nil, updatedAt: nil),
-                .init(kind: .rsi, timeframe: .day, value: 61, signal: .neutral, subLabel: nil, updatedAt: nil),
-                .init(kind: .macd, timeframe: .day, value: Decimal(string: "145.67"), signal: .bullish, subLabel: nil, updatedAt: nil),
-                .init(kind: .maCross, timeframe: nil, value: 50, signal: .bullish, subLabel: nil, updatedAt: nil),
+                .init(kind: .galaxyScore, timeframe: .day, title: "Galaxy Score", value: 72, signal: .positive, updatedAt: nil),
+                .init(kind: .sentiment, timeframe: .day, title: "Sentiment", value: 4, signal: .positive, updatedAt: nil),
+                .init(kind: .rsi, timeframe: .day, title: "RSI", value: 61, signal: .neutral, updatedAt: nil),
+                .init(kind: .macd, timeframe: .day, title: "MACD", value: Decimal(string: "145.67"), signal: .positive, updatedAt: nil),
+                .init(kind: .maCross, timeframe: .day, title: "MA Cross", value: 50, signal: .positive, updatedAt: nil),
             ]
 
         case .outlookUnavailable:
-            return [.init(kind: .rsi, timeframe: .day, value: nil, signal: .unavailable, subLabel: nil, updatedAt: nil)]
+            return [.init(kind: .rsi, timeframe: .day, title: "RSI", value: nil, signal: .unavailable, updatedAt: nil)]
 
         case .dataUnavailable:
             return []

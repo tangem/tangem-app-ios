@@ -254,7 +254,12 @@ private extension PortfolioReviewViewModel {
             .removeDuplicates()
             .map { [indicatorsProvider] symbols in
                 Future<[String: [TokenSummaryIndicator]], Never>.async {
-                    (try? await indicatorsProvider.loadIndicators(symbols: Array(symbols))) ?? [:]
+                    do {
+                        return try await indicatorsProvider.loadIndicators(symbols: Array(symbols))
+                    } catch {
+                        AppLogger.error("Failed to load Portfolio Review indicators", error: error)
+                        return [:]
+                    }
                 }
             }
             .switchToLatest()
