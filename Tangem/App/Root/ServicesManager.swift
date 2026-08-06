@@ -54,6 +54,7 @@ final class CommonServicesManager {
     @Injected(\.silentPushHandlersStorage) private var silentPushHandlersStorage: SilentPushHandlersStorage
     @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
     @Injected(\.appDatabase) private var appDatabase: AppDatabase
+    @Injected(\.walletCardsBackupReportService) private var walletCardsBackupReportService: WalletCardsBackupReportService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -213,6 +214,7 @@ extension CommonServicesManager: ServicesManager {
         referralService.retryBindingIfNeeded()
         mobileUpgradeBannerStorageManager.initialize()
         stakingTargetAmountLimitProvider.initialize()
+        walletCardsBackupReportService.initialize()
         // Refresh the cached app-versions DTO once per session. Applied on the next launch.
         forceUpdateService.refreshCache()
         appDatabase.initialize()
