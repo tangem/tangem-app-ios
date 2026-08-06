@@ -1795,6 +1795,7 @@
 "tangempay_bank_transfer_success_subtitle" = "Это может занять некоторое время";
 "tangempay_bank_transfer_success_title" = "Подготовка ваших банковских реквизитов";
 "tangempay_bank_transfer_swift_warning" = "Пополнение только через ACH или FedWire. Переводы SWIFT будут возвращены.";
+"tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "Скрыть KYC с главной";
 "tangempay_card_default_name" = "Карта Tangem Pay 1";
 "tangempay_card_details_add_funds_subtitle" = "Способы пополнения";
@@ -1896,6 +1897,8 @@
 "tangempay_cashback_refund_banner" = "Мы получили возврат за покупку, за которую ранее был начислен кэшбэк";
 "tangempay_cashback_title" = "Кэшбэк";
 "tangempay_cashback_total_earned" = "%1$@ заработали всего";
+"tangempay_cashback_widget_error_description" = "Tap to reload";
+"tangempay_cashback_widget_error_title" = "Cashback unavailable";
 "tangempay_cashback_widget_title" = "%1$@ кэшбэк в %2$@";
 "tangempay_change_pin_code" = "Изменить PIN-код";
 "tangempay_changing_plan" = "Изменение тарифа";
