@@ -23,6 +23,7 @@ enum Feature: String, Hashable, CaseIterable {
     case stakingTransactionValidation
     case stakingFlowV2
     case forYou
+    case tangemPayMultichain
     case priceAlertsSubscription
     case solanaRentExemptionPreflight
     case backup4cards
@@ -62,6 +63,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
         case .solanaRentExemptionPreflight: return "[REDACTED_INFO]_solana_rent_exemption_preflight"
+        case .tangemPayMultichain: return "TWI-1684_tangem_pay_multichain"
         case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
         case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
         case .swapHideZeroBalanceSource: return "[REDACTED_INFO]_hide_zero_balance_tokens_in_swap_source"
@@ -97,6 +99,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .forYou: return .unspecified
         case .priceAlertsSubscription: return .unspecified
         case .solanaRentExemptionPreflight: return .unspecified
+        case .tangemPayMultichain: return .version("6.3")
         case .mainPushNotificationDoubleAsk: return .version("6.2")
         case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
