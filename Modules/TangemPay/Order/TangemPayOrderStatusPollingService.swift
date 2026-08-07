@@ -24,7 +24,9 @@ public final class TangemPayOrderStatusPollingService {
         onCompleted: @escaping () -> Void,
         onCanceled: @escaping () -> Void,
         onFailed: @escaping (Error) -> Void,
-        onProgress: ((TangemPayOrderResponse) -> Void)? = nil
+        onProgress: ((TangemPayOrderResponse) -> Void)? = nil,
+        timeout: TimeInterval? = nil,
+        onTimeout: (() -> Void)? = nil
     ) {
         orderStatusPollingTask?.cancel()
 
@@ -35,8 +37,15 @@ public final class TangemPayOrderStatusPollingService {
             }
         )
 
+        let deadline = timeout.map { Date().addingTimeInterval($0) }
+
         orderStatusPollingTask = runTask {
             for await result in polling {
+                if let deadline, Date() >= deadline {
+                    onTimeout?()
+                    return
+                }
+
                 switch result {
                 case .success(let order):
                     switch order.status {
