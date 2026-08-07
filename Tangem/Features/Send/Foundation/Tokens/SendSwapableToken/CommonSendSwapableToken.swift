@@ -46,6 +46,11 @@ struct CommonSendSwapableToken: SendSwapableToken {
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { sourceToken.accountModelAnalyticsProvider }
     var tangemIconProvider: any TangemIconProvider { sourceToken.tangemIconProvider }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { sourceToken.confirmTransactionPolicy }
+    var isTangemPayAccount: Bool { sourceToken.isTangemPayAccount }
+
+    var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? {
+        get async { await sourceToken.transactionHistoryEnricher }
+    }
 
     var tokenItem: TokenItem { sourceToken.tokenItem }
     var fiatItem: FiatItem { sourceToken.fiatItem }

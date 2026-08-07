@@ -32,6 +32,22 @@
         <string>%li 卡片</string>
       </dict>
     </dict>
+    <key>common_assets_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li asset</string>
+        <key>other</key>
+        <string>%li assets</string>
+      </dict>
+    </dict>
     <key>common_days_no_param</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -343,6 +359,22 @@
         <string>up to %li days</string>
       </dict>
     </dict>
+    <key>prediction_event_more_outcomes</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>+%li Outcome</string>
+        <key>other</key>
+        <string>+%li Outcomes</string>
+      </dict>
+    </dict>
     <key>referral_number_of_wallets</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -403,6 +435,22 @@
         <string>%li 張卡</string>
       </dict>
     </dict>
+    <key>tangempay_order_type_delivery_eta</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Up to %li business day</string>
+        <key>other</key>
+        <string>Up to %li business days</string>
+      </dict>
+    </dict>
     <key>visa_limits_available_for_days_title</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -448,7 +496,7 @@
         <key>one</key>
         <string>Sync addresses to get an address for %li network</string>
         <key>other</key>
-        <string>Sync addresses to get an addresses for %li networks</string>
+        <string>Sync addresses to get addresses for %li networks</string>
       </dict>
     </dict>
   </dict>

@@ -38,6 +38,10 @@ struct DecimalAddressConverter: EthereumAddressConverter {
 
         let decodeValue = try bech32.decode(address)
 
+        guard decodeValue.hrp == Constants.addressPrefix || decodeValue.hrp == Constants.legacyAddressPrefix else {
+            throw Error.unsupportedAddressPrefix
+        }
+
         let convertedAddressBytes = try bech32.convertBits(
             data: decodeValue.checksum.bytes,
             fromBits: 5,
@@ -53,5 +57,9 @@ extension DecimalAddressConverter {
     enum Constants {
         static let addressPrefix = "d0"
         static let legacyAddressPrefix = "dx"
+    }
+
+    enum Error: Swift.Error {
+        case unsupportedAddressPrefix
     }
 }
