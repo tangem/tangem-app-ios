@@ -48,4 +48,5 @@ enum AppConstants {
     static let tangemPayTermsAndLimitsURL = URL(string: "https://tangem.com/docs/en/tangem-visa-tariffs.pdf")!
     static let tangemPayVirtualAccountTermsURL = URL(string: "https://tangem.com/docs/en/virtual-account-terms.pdf")!
     static let tangemPayPrivacyPolicyURL = URL(string: "https://tangem.com/docs/en/pay-privacy-policy.pdf")!
+    static let appStoreURL = URL(string: "itms-apps://apps.apple.com/app/id1354868448")!
 }

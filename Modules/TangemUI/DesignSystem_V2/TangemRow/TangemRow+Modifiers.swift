@@ -35,17 +35,52 @@ public enum TangemRowLineOrder: Sendable, Hashable, CaseIterable {
     case secondaryFirst
 }
 
+public struct TangemRowOverrideTextColors {
+    public var title: Color?
+    public var subtitle: Color?
+    public var value: Color?
+    public var subvalue: Color?
+
+    public init(title: Color? = nil, subtitle: Color? = nil, value: Color? = nil, subvalue: Color? = nil) {
+        self.title = title
+        self.subtitle = subtitle
+        self.value = value
+        self.subvalue = subvalue
+    }
+}
+
+public struct TangemRowTruncationModes {
+    public var title: Text.TruncationMode
+    public var subtitle: Text.TruncationMode
+    public var value: Text.TruncationMode
+    public var subvalue: Text.TruncationMode
+
+    public init(
+        title: Text.TruncationMode = .tail,
+        subtitle: Text.TruncationMode = .tail,
+        value: Text.TruncationMode = .tail,
+        subvalue: Text.TruncationMode = .tail
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.value = value
+        self.subvalue = subvalue
+    }
+}
+
 struct TangemRowConfiguration {
     var contentLead: TangemRowContentLead = .equal
-    var verticalAlignment: TangemRowVerticalAlignment = .top
+    var verticalAlignment: TangemRowVerticalAlignment = .center
     var lineOrder: TangemRowLineOrder = .primaryFirst
-    var titleLineLimit: Int = 1
-    var subtitleLineLimit: Int = 1
-    var valueLineLimit: Int = 1
-    var subvalueLineLimit: Int = 1
+    var titleLineLimit: Int? = 1
+    var subtitleLineLimit: Int? = 1
+    var valueLineLimit: Int? = 1
+    var subvalueLineLimit: Int? = 1
     var showsDivider: Bool = false
     var includesInnerPadding: Bool = true
     var focusRingEnabled: Bool = false
+    var overrideTextColors: TangemRowOverrideTextColors = .init()
+    var truncationModes: TangemRowTruncationModes = .init()
     var onTap: (() -> Void)?
     var accessibilityLabel: String?
     var accessibilityHint: String?
@@ -104,19 +139,19 @@ public extension TangemRow {
         map { $0.config.lineOrder = lineOrder }
     }
 
-    func titleLineLimit(_ limit: Int) -> Self {
+    func titleLineLimit(_ limit: Int?) -> Self {
         map { $0.config.titleLineLimit = limit }
     }
 
-    func subtitleLineLimit(_ limit: Int) -> Self {
+    func subtitleLineLimit(_ limit: Int?) -> Self {
         map { $0.config.subtitleLineLimit = limit }
     }
 
-    func valueLineLimit(_ limit: Int) -> Self {
+    func valueLineLimit(_ limit: Int?) -> Self {
         map { $0.config.valueLineLimit = limit }
     }
 
-    func subvalueLineLimit(_ limit: Int) -> Self {
+    func subvalueLineLimit(_ limit: Int?) -> Self {
         map { $0.config.subvalueLineLimit = limit }
     }
 
@@ -142,6 +177,14 @@ public extension TangemRow {
 
     func accessibilityHint(_ hint: String?) -> Self {
         map { $0.config.accessibilityHint = hint }
+    }
+
+    func overrideTextColors(_ colors: TangemRowOverrideTextColors) -> Self {
+        map { $0.config.overrideTextColors = colors }
+    }
+
+    func truncationModes(_ modes: TangemRowTruncationModes) -> Self {
+        map { $0.config.truncationModes = modes }
     }
 }
 

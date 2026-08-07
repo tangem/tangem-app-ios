@@ -11,8 +11,7 @@ import TangemAccounts
 
 enum AccountItemConstants {
     static var collapsedIconSettings: AccountIconView.Settings {
-        // [REDACTED_INFO]: drop the legacy branch; redesign always uses redesignDefaultSized (40pt).
-        FeatureProvider.isAvailable(.redesign) ? .redesignDefaultSized : .defaultSized
+        .redesignDefaultSized
     }
 
     static let expandedIconSettings = AccountIconView.Settings.extraSmallSized

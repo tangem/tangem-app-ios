@@ -108,6 +108,10 @@ extension MarketsTokenDetailsCoordinator {
 }
 
 extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
+    func openAppSettings() {
+        UIApplication.openSystemSettings()
+    }
+
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
         let inputData = MarketsAddTokenFlowConfigurationFactory.InputData(
             coinId: model.id,
@@ -121,18 +125,11 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             coordinator: self
         )
 
-        if FeatureProvider.isAvailable(.redesign) {
-            openRedesignedAddTokenFlow(
-                inputData: inputData,
-                configuration: configuration,
-                walletDataProvider: walletDataProvider
-            )
-        } else {
-            openLegacyAddTokenFlow(
-                configuration: configuration,
-                walletDataProvider: walletDataProvider
-            )
-        }
+        openRedesignedAddTokenFlow(
+            inputData: inputData,
+            configuration: configuration,
+            walletDataProvider: walletDataProvider
+        )
     }
 
     private func openRedesignedAddTokenFlow(
@@ -161,20 +158,6 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
                 self.presentErrorToast(with: Localization.commonSomethingWentWrong)
                 return
             }
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
-    private func openLegacyAddTokenFlow(
-        configuration: AddTokenFlowConfiguration,
-        walletDataProvider: MarketsWalletDataProvider
-    ) {
-        Task { @MainActor in
-            let viewModel = AddTokenFlowViewModel(
-                userWalletModels: walletDataProvider.userWalletModels,
-                configuration: configuration,
-                coordinator: self
-            )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -728,7 +711,7 @@ extension MarketsTokenDetailsCoordinator {
 
             Task {
                 try await Task.sleep(for: .seconds(1))
-                await walletModel.update(silent: true, features: .balances)
+                await walletModel.update(silent: true, options: .balances)
             }
         }
     }

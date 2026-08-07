@@ -52,7 +52,6 @@ struct NFTNotificationView: View {
     }
 }
 
-#if DEBUG
 #Preview {
     NFTNotificationView(
         viewData: .init(
@@ -62,4 +61,3 @@ struct NFTNotificationView: View {
         )
     )
 }
-#endif

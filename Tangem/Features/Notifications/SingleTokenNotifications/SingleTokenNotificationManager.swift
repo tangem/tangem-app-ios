@@ -91,10 +91,6 @@ final class SingleTokenNotificationManager {
 
         var events = [TokenNotificationEvent]()
 
-        if !FeatureProvider.isAvailable(.redesign), let event = makeStakingNotificationEvent() {
-            events.append(event)
-        }
-
         if let existentialWarning = walletModel.existentialDepositWarning {
             events.append(.existentialDepositWarning(message: existentialWarning))
         }
@@ -396,18 +392,6 @@ final class SingleTokenNotificationManager {
         let formattedValue = balanceFormatter.formatDecimal(amount.value)
 
         return (formattedValue, amount.currencySymbol)
-    }
-
-    func makeStakingNotificationEvent() -> TokenNotificationEvent? {
-        guard case .availableToStake(let yield) = walletModel.stakingManagerState else {
-            return nil
-        }
-
-        let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
-        let apyFormatted = PercentFormatter().format(yield.rewardRateValues.max, option: .staking)
-        let isBeta = yield.item.network == .ethereum
-
-        return .staking(tokenIconInfo: tokenIconInfo, earnUpToFormatted: apyFormatted, isBeta: isBeta)
     }
 
     private func hideNotification(_ notification: NotificationViewInput) {

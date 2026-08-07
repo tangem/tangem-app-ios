@@ -8,6 +8,7 @@
 
 import struct BlockchainSdk.EIP712TypedData
 import struct BlockchainSdk.EIP712Type
+import enum BlockchainSdk.GaslessExecutorVersion
 import enum BlockchainSdk.JSON
 
 extension GaslessTransactionBuilder {
@@ -15,10 +16,109 @@ extension GaslessTransactionBuilder {
         let domainName = "Tangem7702GaslessExecutor"
         let domainVersion = "1"
         let primaryType = "GaslessTransaction"
+        let batchPrimaryType = "GaslessBatchTransaction"
 
         // MARK: - Public Implementation
 
+        /// The two executor generations declare a different `Transaction` struct, and the struct is hashed into the
+        /// digest the user signs. Each generation therefore gets its own literal rather than one parameterised
+        /// builder, so a change made for one can never move the other's digest.
         func makeGaslessTypedData(
+            transaction: GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction,
+            fee: GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee,
+            nonce: String,
+            chainId: Int,
+            verifyingContract: String,
+            executorVersion: GaslessExecutorVersion
+        ) throws -> EIP712TypedData {
+            switch executorVersion {
+            case .legacy:
+                return makeLegacyGaslessTypedData(
+                    transaction: transaction,
+                    fee: fee,
+                    nonce: nonce,
+                    chainId: chainId,
+                    verifyingContract: verifyingContract
+                )
+            case .batchCapable:
+                return try makeBatchCapableGaslessTypedData(
+                    transaction: transaction,
+                    fee: fee,
+                    nonce: nonce,
+                    chainId: chainId,
+                    verifyingContract: verifyingContract
+                )
+            }
+        }
+
+        func makeGaslessBatchTypedData(
+            transactions: [GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction],
+            fee: GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee,
+            nonce: String,
+            chainId: Int,
+            verifyingContract: String
+        ) -> EIP712TypedData {
+            let types: [String: [EIP712Type]] = [
+                "EIP712Domain": [
+                    .init(name: "name", type: "string"),
+                    .init(name: "version", type: "string"),
+                    .init(name: "chainId", type: "uint256"),
+                    .init(name: "verifyingContract", type: "address"),
+                ],
+                "Transaction": [
+                    .init(name: "to", type: "address"),
+                    .init(name: "value", type: "uint256"),
+                    .init(name: "gasLimit", type: "uint256"),
+                    .init(name: "data", type: "bytes"),
+                ],
+                "Fee": [
+                    .init(name: "feeToken", type: "address"),
+                    .init(name: "maxTokenFee", type: "uint256"),
+                    .init(name: "coinPriceInToken", type: "uint256"),
+                    .init(name: "feeTransferGasLimit", type: "uint256"),
+                    .init(name: "baseGas", type: "uint256"),
+                    .init(name: "feeReceiver", type: "address"),
+                ],
+                batchPrimaryType: [
+                    .init(name: "transactions", type: "Transaction[]"),
+                    .init(name: "fee", type: "Fee"),
+                    .init(name: "nonce", type: "uint256"),
+                ],
+            ]
+
+            let domain: JSON = .object([
+                "name": .string(domainName),
+                "version": .string(domainVersion),
+                "chainId": .number(chainId),
+                "verifyingContract": .string(verifyingContract),
+            ])
+
+            let message: JSON = .object([
+                "transactions": .array(transactions.map { transaction in
+                    .object([
+                        "to": .string(transaction.to),
+                        "value": .string(transaction.value),
+                        "gasLimit": .string(transaction.gasLimit ?? "0"),
+                        "data": .string(transaction.data),
+                    ])
+                }),
+                "fee": .object([
+                    "feeToken": .string(fee.feeToken),
+                    "maxTokenFee": .string(fee.maxTokenFee),
+                    "coinPriceInToken": .string(fee.coinPriceInToken),
+                    "feeTransferGasLimit": .string(fee.feeTransferGasLimit),
+                    "baseGas": .string(fee.baseGas),
+                    "feeReceiver": .string(fee.feeReceiver),
+                ]),
+                "nonce": .string(nonce),
+            ])
+
+            return EIP712TypedData(types: types, primaryType: batchPrimaryType, domain: domain, message: message)
+        }
+
+        // MARK: - Private Implementation
+
+        private func makeLegacyGaslessTypedData(
             transaction: GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction,
             fee: GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee,
             nonce: String,
@@ -63,6 +163,73 @@ extension GaslessTransactionBuilder {
                 "transaction": .object([
                     "to": .string(transaction.to),
                     "value": .string(transaction.value),
+                    "data": .string(transaction.data),
+                ]),
+                "fee": .object([
+                    "feeToken": .string(fee.feeToken),
+                    "maxTokenFee": .string(fee.maxTokenFee),
+                    "coinPriceInToken": .string(fee.coinPriceInToken),
+                    "feeTransferGasLimit": .string(fee.feeTransferGasLimit),
+                    "baseGas": .string(fee.baseGas),
+                    "feeReceiver": .string(fee.feeReceiver),
+                ]),
+                "nonce": .string(nonce),
+            ])
+
+            return EIP712TypedData(types: types, primaryType: primaryType, domain: domain, message: message)
+        }
+
+        private func makeBatchCapableGaslessTypedData(
+            transaction: GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction,
+            fee: GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee,
+            nonce: String,
+            chainId: Int,
+            verifyingContract: String
+        ) throws -> EIP712TypedData {
+            guard let gasLimit = transaction.gasLimit else {
+                throw GaslessTransactionBuilderError.missingCallGasLimit
+            }
+
+            let types: [String: [EIP712Type]] = [
+                "EIP712Domain": [
+                    .init(name: "name", type: "string"),
+                    .init(name: "version", type: "string"),
+                    .init(name: "chainId", type: "uint256"),
+                    .init(name: "verifyingContract", type: "address"),
+                ],
+                "Transaction": [
+                    .init(name: "to", type: "address"),
+                    .init(name: "value", type: "uint256"),
+                    .init(name: "gasLimit", type: "uint256"),
+                    .init(name: "data", type: "bytes"),
+                ],
+                "Fee": [
+                    .init(name: "feeToken", type: "address"),
+                    .init(name: "maxTokenFee", type: "uint256"),
+                    .init(name: "coinPriceInToken", type: "uint256"),
+                    .init(name: "feeTransferGasLimit", type: "uint256"),
+                    .init(name: "baseGas", type: "uint256"),
+                    .init(name: "feeReceiver", type: "address"),
+                ],
+                primaryType: [
+                    .init(name: "transaction", type: "Transaction"),
+                    .init(name: "fee", type: "Fee"),
+                    .init(name: "nonce", type: "uint256"),
+                ],
+            ]
+
+            let domain: JSON = .object([
+                "name": .string(domainName),
+                "version": .string(domainVersion),
+                "chainId": .number(chainId),
+                "verifyingContract": .string(verifyingContract),
+            ])
+
+            let message: JSON = .object([
+                "transaction": .object([
+                    "to": .string(transaction.to),
+                    "value": .string(transaction.value),
+                    "gasLimit": .string(gasLimit),
                     "data": .string(transaction.data),
                 ]),
                 "fee": .object([

@@ -81,6 +81,7 @@ struct OrganizeTokensListFactory {
         return OrganizeTokensListItemViewModel(
             id: identifier,
             tokenIcon: tokenIcon,
+            currencySymbol: walletModel.tokenItem.currencySymbol,
             balance: fiatBalance(for: walletModel),
             hasDerivation: true,
             isTestnet: walletModel.tokenItem.blockchain.isTestnet,
@@ -111,6 +112,7 @@ struct OrganizeTokensListFactory {
             return OrganizeTokensListItemViewModel(
                 id: identifier,
                 tokenIcon: tokenIcon,
+                currencySymbol: userToken.currencySymbol,
                 balance: .empty,
                 hasDerivation: false,
                 isTestnet: isTestnet,
@@ -128,6 +130,7 @@ struct OrganizeTokensListFactory {
         return OrganizeTokensListItemViewModel(
             id: identifier,
             tokenIcon: tokenIcon,
+            currencySymbol: userToken.currencySymbol,
             balance: .empty,
             hasDerivation: false,
             isTestnet: isTestnet,

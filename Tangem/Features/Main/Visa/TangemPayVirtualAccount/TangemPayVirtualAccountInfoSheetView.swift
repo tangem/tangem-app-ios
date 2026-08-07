@@ -100,11 +100,11 @@ struct TangemPayVirtualAccountInfoSheetView: View {
     private var texts: some View {
         VStack(spacing: 8) {
             Text(Localization.tangempayBankTransferIntroTitle)
-                .font(DesignSystem.Font.headingMediumToken)
+                .font(token: DesignSystem.Font.headingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Text(Localization.tangempayBankTransferIntroSubtitle)
-                .font(DesignSystem.Font.subheadingMediumToken)
+                .font(token: DesignSystem.Font.subheadingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
         }
         .multilineTextAlignment(.center)
@@ -116,7 +116,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
         VStack(spacing: 12) {
             HStack(spacing: 0) {
                 Text(Localization.tangempayBankTransferFeeHeader)
-                    .font(DesignSystem.Font.subheadingMediumToken)
+                    .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textSecondary)
 
                 Spacer(minLength: 0)
@@ -134,13 +134,13 @@ struct TangemPayVirtualAccountInfoSheetView: View {
     private func feeRow(title: String, value: String) -> some View {
         HStack(spacing: 0) {
             Text(verbatim: title)
-                .font(DesignSystem.Font.bodyMediumToken)
+                .font(token: DesignSystem.Font.bodyMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Spacer(minLength: 0)
 
             Text(verbatim: value)
-                .font(DesignSystem.Font.bodyMediumToken)
+                .font(token: DesignSystem.Font.bodyMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
         }
     }
@@ -154,7 +154,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                 .foregroundStyle(DesignSystem.Color.iconStatusInfo)
 
             Text(Localization.tangempayBankTransferSwiftWarning)
-                .font(DesignSystem.Font.subheadingMediumToken)
+                .font(token: DesignSystem.Font.subheadingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -182,7 +182,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                     viewModel.openURL(url)
                     return .handled
                 })
-                .font(DesignSystem.Font.captionMediumToken)
+                .font(token: DesignSystem.Font.captionMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
                 .tint(DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)

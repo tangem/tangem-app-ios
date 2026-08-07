@@ -28,8 +28,8 @@ struct TransactionChipRedesigned: View {
         HStack(spacing: .unit(.x1)) {
             titleView
 
-            if viewModel.amount.value.isNotEmpty {
-                SensitiveText(builder: amountWithCurrency, sensitive: viewModel.amount.value)
+            if let displayValue = viewModel.amount.displayValue, displayValue.isNotEmpty {
+                SensitiveText(builder: amountWithCurrency, sensitive: displayValue)
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
             }

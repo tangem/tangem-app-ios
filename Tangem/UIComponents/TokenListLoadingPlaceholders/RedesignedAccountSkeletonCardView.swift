@@ -31,7 +31,7 @@ struct RedesignedAccountSkeletonCardView: View {
         }
         .padding(.unit(.x3))
         .background(Color.Tangem.Surface.level3)
-        .cornerRadiusContinuous(.unit(.x5))
+        .cornerRadiusContinuous(24)
         .environment(\.isSkeletonShimmerActive, isShimmerActive)
     }
 
@@ -64,7 +64,6 @@ extension RedesignedAccountSkeletonCardView: Setupable {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ZStack {
         Color.Tangem.Surface.level2
@@ -78,4 +77,3 @@ extension RedesignedAccountSkeletonCardView: Setupable {
         .padding(.horizontal, .unit(.x3))
     }
 }
-#endif

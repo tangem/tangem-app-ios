@@ -12,6 +12,8 @@ import BigInt
 /// Encodes a call to `upgradeToAndCall(address newImplementation, bytes memory data)`.
 /// Used to atomically upgrade a proxy contract and invoke a function in a single transaction.
 public struct UpgradeToAndCallMethod {
+    public static let methodId = "0x4f1ef286"
+
     public let newImplementation: String
     public let callData: Data
 
@@ -19,11 +21,15 @@ public struct UpgradeToAndCallMethod {
         self.newImplementation = newImplementation
         self.callData = callData
     }
+
+    public static func isEncodedCall(_ data: String) -> Bool {
+        data.removeHexPrefix().hasPrefix(methodId.removeHexPrefix())
+    }
 }
 
 extension UpgradeToAndCallMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `upgradeToAndCall(address,bytes)` method.
-    public var methodId: String { "0x4f1ef286" }
+    public var methodId: String { Self.methodId }
 
     public var data: Data {
         var result = Data(hex: methodId)

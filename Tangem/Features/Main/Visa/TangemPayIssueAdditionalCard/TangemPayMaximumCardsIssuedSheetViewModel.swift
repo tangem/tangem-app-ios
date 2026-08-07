@@ -14,35 +14,7 @@ protocol TangemPayMaximumCardsIssuedSheetRoutable: AnyObject {
     func closeMaximumCardsIssuedSheet()
 }
 
-@MainActor
-final class TangemPayMaximumCardsIssuedSheetViewModel: FloatingSheetContentViewModel {
-    nonisolated var id: String { String(describing: Self.self) }
-
-    let title = Localization.tangempayMaximumCardsIssuedTitle
-    let description = Localization.tangempayMaximumCardsIssuedDescription
-
-    private weak var coordinator: TangemPayMaximumCardsIssuedSheetRoutable?
-
-    init(coordinator: TangemPayMaximumCardsIssuedSheetRoutable) {
-        self.coordinator = coordinator
-    }
-
-    var primaryButton: MainButton.Settings {
-        MainButton.Settings(
-            title: Localization.commonGotIt,
-            style: .secondary,
-            size: .default,
-            action: dismiss
-        )
-    }
-
-    func dismiss() {
-        coordinator?.closeMaximumCardsIssuedSheet()
-    }
-}
-
-@MainActor
-final class TangemPayMaximumCardsIssuedPopupViewModel: TangemPayPopupViewModel {
+final class TangemPayMaximumCardsIssuedSheetViewModel: TangemPayPopupViewModel {
     var icon: Image {
         DesignSystem.Icons.Error.regular28.image
     }
@@ -64,17 +36,17 @@ final class TangemPayMaximumCardsIssuedPopupViewModel: TangemPayPopupViewModel {
             title: Localization.commonGotIt,
             style: .primary,
             size: .default,
-            action: onClose
+            action: dismiss
         )
     }
 
-    private let onClose: () -> Void
+    private weak var coordinator: TangemPayMaximumCardsIssuedSheetRoutable?
 
-    init(onClose: @escaping () -> Void) {
-        self.onClose = onClose
+    init(coordinator: TangemPayMaximumCardsIssuedSheetRoutable?) {
+        self.coordinator = coordinator
     }
 
     func dismiss() {
-        onClose()
+        coordinator?.closeMaximumCardsIssuedSheet()
     }
 }
