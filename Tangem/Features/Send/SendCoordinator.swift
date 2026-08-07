@@ -72,6 +72,7 @@ final class SendCoordinator: CoordinatorObject {
 
     private var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionCoordinator?
     private var safariHandle: SafariHandle?
+    private var receiveTokensListDismissHandler: (() -> Void)?
 
     private let stateProvider = CommonSendCoordinatorStateProvider()
 
@@ -117,6 +118,11 @@ final class SendCoordinator: CoordinatorObject {
              .other:
             return nil
         }
+    }
+
+    func onReceiveTokensListDismissed() {
+        receiveTokensListDismissHandler?()
+        receiveTokensListDismissHandler = nil
     }
 }
 
@@ -252,11 +258,14 @@ extension SendCoordinator: SendRoutable {
     }
 
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?) {
+        // Fired from the sheet's onDismiss so it also covers an interactive swipe-dismissal,
+        // where the child coordinator's dismissAction never runs — that's why it isn't called here.
+        receiveTokensListDismissHandler = onDismiss
+
         let coordinator = SendReceiveTokenCoordinator(
             receiveTokensListBuilder: tokensListBuilder,
             dismissAction: { [weak self] swapOption in
                 self?.sendReceiveTokenCoordinator = nil
-                onDismiss?()
 
                 if let swapOption {
                     self?.dismiss(with: .openSwap(swapOption))
