@@ -52,8 +52,8 @@ struct PushNotificationsPermissionRequestView: View {
 
                     OnboardingFeatureDescriptionView(
                         iconImage: Assets.notificationBulletItemTwo.image,
-                        title: Localization.userPushNotificationAgreementArgumentTwoTitle,
-                        description: Localization.userPushNotificationAgreementArgumentTwoSubtitle
+                        title: secondArgumentTitle,
+                        description: secondArgumentDescription
                     )
                 }
                 .layoutPriority(100) // Higher layout priority causes spacers to collapse if there is not enough vertical space
@@ -98,6 +98,18 @@ struct PushNotificationsPermissionRequestView: View {
             action: viewModel.didTapLater
         )
         .accessibilityIdentifier(PushPermissionAccessibilityIdentifiers.laterButton)
+    }
+
+    private var secondArgumentTitle: String {
+        FeatureProvider.isAvailable(.pushNotificationsSettings)
+            ? Localization.userPushNotificationAgreementArgumentTwoTitleV2
+            : Localization.userPushNotificationAgreementArgumentTwoTitle
+    }
+
+    private var secondArgumentDescription: String {
+        FeatureProvider.isAvailable(.pushNotificationsSettings)
+            ? Localization.userPushNotificationAgreementArgumentTwoSubtitleV2
+            : Localization.userPushNotificationAgreementArgumentTwoSubtitle
     }
 
     private var iconColor: Color {
