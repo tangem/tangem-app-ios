@@ -55,6 +55,7 @@ extension JointAccountManagementCoordinator {
     enum Step {
         case accountForm(viewModel: AccountFormViewModel)
         case membersCount(viewModel: JointAccountMembersCountViewModel)
+        case memberName(viewModel: JointAccountMemberNameViewModel)
     }
 }
 
@@ -64,6 +65,7 @@ extension JointAccountManagementCoordinator.Step: Hashable {
         switch (lhs, rhs) {
         case (.accountForm(let lhs), .accountForm(let rhs)): lhs === rhs
         case (.membersCount(let lhs), .membersCount(let rhs)): lhs === rhs
+        case (.memberName(let lhs), .memberName(let rhs)): lhs === rhs
         default: false
         }
     }
@@ -72,6 +74,7 @@ extension JointAccountManagementCoordinator.Step: Hashable {
         switch self {
         case .accountForm(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
         case .membersCount(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
+        case .memberName(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
         }
     }
 }
@@ -88,10 +91,10 @@ extension JointAccountManagementCoordinator: JointAccountOnboardingRoutable {
             return
         }
 
-        let creationHelper = JointAccountCreationHelper()
+        let creationContext = JointAccountCreationContext(userWalletConfig: options.userWalletConfig)
         let creator = JointAccountFormViewCreator(
             accountModelsManager: options.accountModelsManager,
-            creationHelper: creationHelper
+            creationContext: creationContext
         )
 
         let viewModel = AccountFormViewModel(flowType: .create(creator: creator), coordinator: self)
@@ -104,8 +107,8 @@ extension JointAccountManagementCoordinator: JointAccountOnboardingRoutable {
 extension JointAccountManagementCoordinator: AccountFormViewModelRoutable {
     func closeAccountForm(outcome: AccountFormOutcome) {
         switch outcome {
-        case .completed(.joint(let creationHelper)):
-            let viewModel = JointAccountMembersCountViewModel(creationHelper: creationHelper, coordinator: self)
+        case .completed(.joint(let creationContext)):
+            let viewModel = JointAccountMembersCountViewModel(creationContext: creationContext, coordinator: self)
             path.append(.membersCount(viewModel: viewModel))
 
         case .completed(.crypto):
@@ -125,7 +128,20 @@ extension JointAccountManagementCoordinator: JointAccountMembersCountRoutable {
         dismiss()
     }
 
-    func continueMembersCount() {
+    func continueMembersCount(creationContext: JointAccountCreationContext) {
+        let viewModel = JointAccountMemberNameViewModel(creationContext: creationContext, coordinator: self)
+        path.append(.memberName(viewModel: viewModel))
+    }
+}
+
+// MARK: - JointAccountMemberNameRoutable
+
+extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
+    func closeMemberName() {
+        dismiss()
+    }
+
+    func createJointAccount() {
         // [REDACTED_TODO_COMMENT]
     }
 }

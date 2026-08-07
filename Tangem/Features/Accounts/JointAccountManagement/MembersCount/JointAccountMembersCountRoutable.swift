@@ -8,5 +8,5 @@
 
 protocol JointAccountMembersCountRoutable: AnyObject {
     func closeMembersCount()
-    func continueMembersCount()
+    func continueMembersCount(creationContext: JointAccountCreationContext)
 }
