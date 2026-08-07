@@ -33,7 +33,7 @@ final class PushNotificationsMainViewModel: ObservableObject {
 
     private var isWarningViewAvailable: Bool {
         FeatureProvider.isAvailable(.mainPushNotificationDoubleAsk)
-            && experimentService.isOn(.mainPushNotificationDoubleAsk)
+            && experimentService.isOn(.mainPushNotificationDoubleAsk, variant: .treatment)
     }
 
     private lazy var warningViewModel = PushNotificationsWarningViewModel(

@@ -20,3 +20,14 @@ public struct StakingTargetAmountLimitInfo: Sendable {
 public protocol StakingTargetAmountLimitProvider: Sendable {
     func snapshot() async -> [String: StakingTargetAmountLimitInfo]
 }
+
+public enum StakingAvailabilityError: Error, LocalizedError {
+    case dataUnavailable(underlying: any Error)
+
+    public var errorDescription: String? {
+        switch self {
+        case .dataUnavailable(let underlying):
+            return underlying.localizedDescription
+        }
+    }
+}

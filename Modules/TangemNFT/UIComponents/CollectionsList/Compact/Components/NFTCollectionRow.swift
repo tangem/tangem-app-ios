@@ -103,7 +103,6 @@ extension NFTCollectionRow {
     }
 }
 
-#if DEBUG
 #Preview {
     ZStack {
         Color.gray
@@ -126,4 +125,3 @@ extension NFTCollectionRow {
         }
     }
 }
-#endif

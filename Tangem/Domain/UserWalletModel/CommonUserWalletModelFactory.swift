@@ -60,7 +60,9 @@ struct CommonUserWalletModelFactory {
             keysDerivingInteractor: dependencies.keysDerivingInteractor,
             totalBalanceProvider: dependencies.totalBalanceProvider,
             userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager,
-            accountModelsManager: dependencies.accountModelsManager
+            priceAlertsSubscriptionsProvider: dependencies.priceAlertsSubscriptionsProvider,
+            accountModelsManager: dependencies.accountModelsManager,
+            addressBookManager: dependencies.addressBookManager
         )
 
         dependencies.update(from: commonModel)

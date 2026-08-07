@@ -45,6 +45,7 @@ public struct TangemSearchField: View, Setupable {
     private var fieldCornerStyle: CornerStyle = .capsule
     private var hasSearchIcon: Bool = true
     private var hasClearButton: Bool = true
+    private var disablesAutocorrection: Bool = false
     private var containerAccessibilityIdentifier: String?
     private var textFieldAccessibilityIdentifier: String?
     private var clearButtonAccessibilityIdentifier: String?
@@ -142,6 +143,7 @@ private extension TangemSearchField {
         TextField("", text: $text)
             .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
             .focused($isFocused)
+            .autocorrectionDisabled(disablesAutocorrection)
             .accessibilityIdentifier(textFieldAccessibilityIdentifier)
     }
 
@@ -267,11 +269,13 @@ public extension TangemSearchField {
 
     func configure(
         hasSearchIcon: Bool = true,
-        hasClearButton: Bool = true
+        hasClearButton: Bool = true,
+        disablesAutocorrection: Bool = false
     ) -> Self {
         map {
             $0.hasSearchIcon = hasSearchIcon
             $0.hasClearButton = hasClearButton
+            $0.disablesAutocorrection = disablesAutocorrection
         }
     }
 

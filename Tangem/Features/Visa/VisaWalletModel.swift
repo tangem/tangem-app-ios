@@ -54,11 +54,16 @@ class VisaWalletModel {
 }
 
 extension VisaWalletModel: WalletModelUpdater {
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {
+    func update(
+        silent: Bool,
+        options: WalletModelUpdateOptions,
+        updateToken: some Hashable,
+        stakingUpdateSource: StakingUpdateSource
+    ) async {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func updateTransactionsHistory() async {
+    func updateTransactionHistory() async {
         // [REDACTED_TODO_COMMENT]
     }
 
@@ -287,8 +292,6 @@ extension VisaWalletModel: WalletModel {
     var sendingRestrictions: SendingRestrictions? {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
-
-    var features: [WalletModelFeature] { [] }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         .just(output: [])

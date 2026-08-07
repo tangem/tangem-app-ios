@@ -32,7 +32,7 @@ final class TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel, Tangem
 
     var primaryButton: MainButton.Settings {
         MainButton.Settings(
-            title: isRedesigned ? Localization.tangempayCardDetailsFreezeCard : Localization.tangemPayFreezeCardFreeze,
+            title: Localization.tangempayCardDetailsFreezeCard,
             style: .primary,
             size: .default,
             action: freeze
@@ -44,20 +44,12 @@ final class TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel, Tangem
     }
 
     var secondaryButton: MainButton.Settings? {
-        guard isRedesigned else {
-            return nil
-        }
-
-        return MainButton.Settings(
+        MainButton.Settings(
             title: Localization.commonCancel,
             style: .secondary,
             size: .default,
             action: dismiss
         )
-    }
-
-    private var isRedesigned: Bool {
-        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
     }
 
     let userWalletId: UserWalletId

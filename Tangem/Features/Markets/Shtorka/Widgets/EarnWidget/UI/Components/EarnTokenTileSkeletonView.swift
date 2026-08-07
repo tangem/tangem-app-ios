@@ -47,7 +47,6 @@ struct EarnTokenTileSkeletonView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     HStack(spacing: .unit(.x2)) {
         EarnTokenTileSkeletonView()
@@ -56,4 +55,3 @@ struct EarnTokenTileSkeletonView: View {
     }
     .padding()
 }
-#endif // DEBUG

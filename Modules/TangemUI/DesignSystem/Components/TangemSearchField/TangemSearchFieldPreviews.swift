@@ -111,10 +111,6 @@ public struct TangemSearchFieldShowcase: View {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview("Interactive Demo") {
     TangemSearchFieldShowcase()
 }
-
-#endif // DEBUG

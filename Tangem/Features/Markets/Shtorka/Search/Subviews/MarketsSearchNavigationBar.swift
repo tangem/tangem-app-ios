@@ -90,13 +90,8 @@ extension MarketsSearchNavigationBar where Content == DefaultNavigationBarTitle 
         let font: Font
         let color: Color
 
-        if FeatureProvider.isAvailable(.redesign) {
-            font = Font.Tangem.Body16.semibold.font // [REDACTED_INFO]: tracking deferred
-            color = Color.Tangem.Text.Neutral.primary
-        } else {
-            font = Fonts.Bold.body
-            color = Colors.Text.primary1
-        }
+        font = Font.Tangem.Body16.semibold.font // [REDACTED_INFO]: tracking deferred
+        color = Color.Tangem.Text.Neutral.primary
 
         titleView = {
             DefaultNavigationBarTitle(
@@ -115,7 +110,6 @@ extension MarketsSearchNavigationBar where Content == DefaultNavigationBarTitle 
     }
 }
 
-#if DEBUG
 #Preview {
     MarketsSearchNavigationBar(
         title: "Market",
@@ -124,4 +118,3 @@ extension MarketsSearchNavigationBar where Content == DefaultNavigationBarTitle 
         onSearchButtonAction: {}
     )
 }
-#endif

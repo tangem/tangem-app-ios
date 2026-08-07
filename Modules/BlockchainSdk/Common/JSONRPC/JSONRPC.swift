@@ -1,5 +1,5 @@
 //
-//  JSONRPC.Request.swift
+//  JSONRPC.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

@@ -16,7 +16,7 @@ enum ActionButtonsAnalyticsService {
         case .buy: .mainScreenButtonAddFunds
         case .swap: .actionButtonsSwapButton
         // In the redesign the `.sell` button is labeled "Transfer" and opens the transfer method screen.
-        case .sell: FeatureProvider.isAvailable(.redesign) ? .mainScreenButtonTransfer : .actionButtonsSellButton
+        case .sell: .mainScreenButtonTransfer
         }
 
         let status: ActionButtonStatus = switch state {

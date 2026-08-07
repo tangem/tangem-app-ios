@@ -40,7 +40,9 @@ protocol UserWalletModel:
     var nftManager: NFTManager { get }
     var walletImageProvider: WalletImageProviding { get }
     var accountModelsManager: AccountModelsManager { get }
+    var addressBookManager: AddressBookManager { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
+    var priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider { get }
     var name: String { get }
 
     func update(type: UpdateRequest)

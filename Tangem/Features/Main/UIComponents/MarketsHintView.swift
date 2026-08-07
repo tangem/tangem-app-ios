@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct MarketsHintView: View {
     @Environment(\.isRedesign) var isRedesign
@@ -23,20 +24,20 @@ struct MarketsHintView: View {
     }
 
     private var redesignBody: some View {
-        VStack(spacing: .unit(.x1)) {
+        VStack(spacing: 4) {
             Text(Localization.marketsHintPartOne)
-                .style(Font.Tangem.Body15.regular, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
-            HStack(spacing: .unit(.x1)) {
+            HStack(spacing: 4) {
                 Text(Localization.marketsHintPartTwo)
-                    .style(Font.Tangem.Body15.regular, color: .Tangem.Text.Neutral.tertiary)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
 
                 Assets.Glyphs.tripleSparkles.image
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
-                    .frame(width: .unit(.x5), height: .unit(.x5))
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                    .frame(width: 20, height: 20)
             }
         }
     }

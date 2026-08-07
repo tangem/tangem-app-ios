@@ -11,12 +11,6 @@ struct TangemPayReissuePopupView: View {
     @ObservedObject var viewModel: TangemPayReissueSheetViewModel
 
     var body: some View {
-        TangemPayPopupView(viewModel: viewModel) {
-            TangemPayPopupFeeRows(
-                feeLabel: viewModel.feeLabel,
-                feeValue: viewModel.feeText,
-                balanceValue: viewModel.isInsufficientFunds ? viewModel.balanceText : nil
-            )
-        }
+        TangemPayFeePopupView(viewModel: viewModel)
     }
 }

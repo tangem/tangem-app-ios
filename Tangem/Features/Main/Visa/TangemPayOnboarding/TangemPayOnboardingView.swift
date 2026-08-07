@@ -16,7 +16,9 @@ struct TangemPayOnboardingView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if let tangemPayOfferViewModel = viewModel.tangemPayOfferViewModel {
+                if viewModel.regionUnavailable {
+                    TangemPayRegionUnavailableView(onGotIt: viewModel.closeOfferScreen)
+                } else if let tangemPayOfferViewModel = viewModel.tangemPayOfferViewModel {
                     Group {
                         if viewModel.showNewOnboarding {
                             TangemPayOfferViewV2(viewModel: tangemPayOfferViewModel)
@@ -49,7 +51,9 @@ struct TangemPayOnboardingView: View {
                     }
                 }
 
-                NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.closeOfferScreen)
+                if !viewModel.regionUnavailable {
+                    NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.closeOfferScreen)
+                }
             }
         }
     }

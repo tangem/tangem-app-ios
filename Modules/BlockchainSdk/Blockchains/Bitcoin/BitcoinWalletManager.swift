@@ -1,5 +1,5 @@
 //
-//  Bitcoin.swift
+//  BitcoinWalletManager.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

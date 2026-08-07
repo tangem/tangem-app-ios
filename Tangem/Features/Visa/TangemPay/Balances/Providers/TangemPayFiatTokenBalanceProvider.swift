@@ -17,6 +17,16 @@ struct TangemPayFiatTokenBalanceProvider {
 
     private let fiatItem: FiatItem = TangemPayUtilities.fiatItem
 
+    private let fiatFormatter = {
+        let formatter = BalanceFormatter().makeDefaultFiatFormatter(
+            forCurrencyCode: TangemPayUtilities.fiatItem.currencyCode,
+            formattingOptions: .defaultFiatFormattingOptions
+        )
+        formatter.positiveFormat = "¤#,##0.00"
+        formatter.negativeFormat = "-¤#,##0.00"
+        return formatter
+    }()
+
     init(cryptoBalanceProvider: TokenBalanceProvider) {
         self.cryptoBalanceProvider = cryptoBalanceProvider
     }
@@ -49,7 +59,7 @@ extension TangemPayFiatTokenBalanceProvider: TokenBalanceProvider {
 extension TangemPayFiatTokenBalanceProvider {
     func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
         let builder = FormattedTokenBalanceTypeBuilder(format: { value in
-            balanceFormatter.formatFiatBalance(value, currencyCode: fiatItem.currencyCode)
+            balanceFormatter.formatFiatBalance(value, currencyCode: fiatItem.currencyCode, formatter: fiatFormatter)
         })
 
         return builder.mapToFormattedTokenBalanceType(type: type)

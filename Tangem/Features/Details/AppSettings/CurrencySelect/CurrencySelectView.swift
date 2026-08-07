@@ -93,18 +93,14 @@ struct CurrencySelectView: View {
     }
 }
 
-struct CurrencySelectView_Preview: PreviewProvider {
-    private final class CurrencySelectRoutableMock: CurrencySelectRoutable {
+#Preview {
+    final class CurrencySelectRoutableMock: CurrencySelectRoutable {
         func dismissCurrencySelect() {}
     }
 
-    static var previews: some View {
-        NavigationStack {
-            CurrencySelectView(
-                viewModel: CurrencySelectViewModel(
-                    coordinator: CurrencySelectRoutableMock()
-                )
-            )
-        }
+    return NavigationStack {
+        CurrencySelectView(
+            viewModel: CurrencySelectViewModel(coordinator: CurrencySelectRoutableMock())
+        )
     }
 }

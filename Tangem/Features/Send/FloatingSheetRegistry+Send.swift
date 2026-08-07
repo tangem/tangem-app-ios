@@ -20,13 +20,7 @@ extension FloatingSheetRegistry {
         }
 
         register(SendSwapProvidersSelectorViewModel.self) { viewModel in
-            Group {
-                if FeatureProvider.isAvailable(.approveFlowV2) {
-                    NewProviderSelectorView(viewModel: viewModel)
-                } else {
-                    SendSwapProvidersSelectorView(viewModel: viewModel)
-                }
-            }
+            NewProviderSelectorView(viewModel: viewModel)
         }
 
         register(HighPriceImpactWarningSheetViewModel.self) { viewModel in
@@ -51,6 +45,10 @@ extension FloatingSheetRegistry {
 
         register(BlockchainAccountInitializationViewModel.self) { viewModel in
             BlockchainAccountInitializationView(viewModel: viewModel)
+        }
+
+        register(ChooseAddressViewModel.self) { viewModel in
+            ChooseAddressView(viewModel: viewModel)
         }
     }
 }

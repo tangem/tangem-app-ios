@@ -10,7 +10,8 @@ import Foundation
 import Combine
 
 class SendReceiveTokenCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    /// Non-nil payload requests opening the regular Swap flow after the Send flow is dismissed.
+    let dismissAction: Action<SwapNavigatingDismissOption?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Dependencies
@@ -28,10 +29,11 @@ class SendReceiveTokenCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     private let receiveTokensListBuilder: SendReceiveTokensListBuilder
+    private var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionCoordinator?
 
     required init(
         receiveTokensListBuilder: SendReceiveTokensListBuilder,
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<SwapNavigatingDismissOption?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.receiveTokensListBuilder = receiveTokensListBuilder
@@ -65,7 +67,7 @@ extension SendReceiveTokenCoordinator: SendReceiveTokensListViewRoutable {
     }
 
     func closeTokensList() {
-        dismiss()
+        dismiss(with: nil)
     }
 }
 
@@ -77,8 +79,32 @@ extension SendReceiveTokenCoordinator: SendReceiveTokenNetworkSelectorViewRoutab
             floatingSheetPresenter.removeActiveSheet()
 
             if isSelected {
-                dismiss()
+                dismiss(with: nil)
             }
+        }
+    }
+
+    func openManualSwap(option: SwapNavigatingDismissOption) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            dismiss(with: option)
+        }
+    }
+
+    func openAddTokenFlow(
+        inputData: ExpressAddTokenInputData,
+        makeSwapOption: @escaping (TokenItem) -> SwapNavigatingDismissOption
+    ) {
+        let additionCoordinator = SwapMarketsTokenAdditionCoordinator(onTokenAdded: { [weak self] item in
+            self?.marketsTokenAdditionCoordinator = nil
+            self?.openManualSwap(option: makeSwapOption(item.tokenItem))
+        })
+
+        marketsTokenAdditionCoordinator = additionCoordinator
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            additionCoordinator.requestAddToken(inputData: inputData)
         }
     }
 }

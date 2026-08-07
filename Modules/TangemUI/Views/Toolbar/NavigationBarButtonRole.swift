@@ -43,4 +43,13 @@ struct NavigationBarButtonRole {
         iconAsset: Assets.verticalDots,
         accessibilityIdentifier: nil
     )
+
+    /// Filled bell when subscribed, outline otherwise. Caller sets the accessibility identifier.
+    static func priceAlert(isActive: Bool) -> NavigationBarButtonRole {
+        NavigationBarButtonRole(
+            sfSymbol: isActive ? "bell.fill" : "bell",
+            iconAsset: DesignSystem.Icons.Bell.regular24,
+            accessibilityIdentifier: nil
+        )
+    }
 }

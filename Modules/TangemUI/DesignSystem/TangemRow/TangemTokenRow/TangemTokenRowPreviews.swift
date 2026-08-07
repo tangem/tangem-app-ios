@@ -291,6 +291,7 @@ public struct TangemTokenRowShowcase: View {
         case .compact:
             .compact(
                 subtitle: hasCompactSubtitle ? .loaded(text: "$45,000.00") : .empty,
+                currencySymbol: "BTC",
                 trailingIcon: hasCompactTrailingIcon ? Assets.OrganizeTokens.itemDragAndDropIcon : nil
             )
         }
@@ -325,9 +326,6 @@ private extension DynamicTypeSize {
     }
 }
 
-#if DEBUG
-
-@available(iOS 17, *)
 #Preview("Huge Dynamic Type") {
     ScrollView {
         VStack(spacing: 0) {
@@ -537,7 +535,7 @@ private extension DynamicTypeSize {
                     ),
                     name: "Dogecoin",
                     badge: nil,
-                    content: .compact(subtitle: .loaded(text: "$0.12"), trailingIcon: nil),
+                    content: .compact(subtitle: .loaded(text: "$0.12"), currencySymbol: "DOGE", trailingIcon: nil),
                     hasMonochromeIcon: false
                 )
             )
@@ -558,7 +556,7 @@ private extension DynamicTypeSize {
                     ),
                     name: "Custom Token",
                     badge: nil,
-                    content: .compact(subtitle: .empty, trailingIcon: Assets.OrganizeTokens.itemDragAndDropIcon),
+                    content: .compact(subtitle: .empty, currencySymbol: nil, trailingIcon: Assets.OrganizeTokens.itemDragAndDropIcon),
                     hasMonochromeIcon: false
                 )
             )
@@ -569,7 +567,7 @@ private extension DynamicTypeSize {
     .environment(\.dynamicTypeSize, .accessibility2)
 }
 
-@available(iOS 17, *)
+@available(iOS 17.0, *)
 #Preview("Dark Mode", traits: .sizeThatFitsLayout) {
     VStack(spacing: 16) {
         TangemTokenRow(
@@ -659,5 +657,3 @@ private extension DynamicTypeSize {
 #Preview("Interactive Showcase") {
     TangemTokenRowShowcase()
 }
-
-#endif // DEBUG
