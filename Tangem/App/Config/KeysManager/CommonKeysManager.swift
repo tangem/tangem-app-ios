@@ -23,10 +23,6 @@ extension CommonKeysManager: KeysManager {
         keys.appsFlyer
     }
 
-    var customerIO: CustomerIOKeys {
-        keys.customerIO
-    }
-
     var surveySparrow: SurveySparrowKeys {
         keys.surveySparrow
     }
@@ -184,7 +180,6 @@ extension CommonKeysManager {
         let chiaFireAcademyApiKey: String
         let chiaTangemApiKey: String
         let appsFlyer: AppsFlyerConfig
-        let customerIO: CustomerIOKeys
         let surveySparrow: SurveySparrowKeys
         let amplitudeApiKey: String
         let amplitudeApiKeyDev: String

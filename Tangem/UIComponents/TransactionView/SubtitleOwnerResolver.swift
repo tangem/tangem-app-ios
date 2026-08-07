@@ -23,7 +23,11 @@ struct SubtitleOwnerResolver {
             return nil
         }
 
-        guard let match = try? WalletModelFinder.findMainWalletModel(address: address, blockchain: blockchain) else {
+        guard let match = try? WalletModelFinder.findMainWalletModel(
+            address: address,
+            networkId: blockchain.networkId,
+            isTestnet: blockchain.isTestnet
+        ) else {
             return .unresolved(
                 short: AddressFormatter(address: address).truncated(),
                 fullAddress: address,
@@ -43,10 +47,10 @@ struct SubtitleOwnerResolver {
         )
 
         if match.userWalletModel.userWalletId == currentUserWalletId {
-            return .account(name: account.name, icon: iconViewData)
+            return .accountInCurrentWallet(name: account.name, icon: iconViewData)
         }
 
-        return .accountInWallet(
+        return .accountInOtherWallet(
             accountName: account.name,
             accountIcon: iconViewData,
             walletName: walletName
@@ -67,7 +71,7 @@ struct SubtitleOwnerResolver {
             return cachedImage
         }
 
-        if let newImage = AddressIconViewModel(address: address).image {
+        if let newImage = AddressIconProvider.makeBlockiesImage(address: address) {
             blockiesImageCache.setValue(newImage, forKey: address)
             return newImage
         }

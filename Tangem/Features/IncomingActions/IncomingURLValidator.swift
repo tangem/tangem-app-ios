@@ -31,6 +31,10 @@ extension CommonIncomingURLValidator: IncomingURLValidator {
             return true
         }
 
+        if TangemPayOnboardingLinkParser.matches(url) {
+            return true
+        }
+
         if scheme == "https" {
             return IncomingActionConstants.supportedExternalLinkHosts.contains(host.lowercased())
         }

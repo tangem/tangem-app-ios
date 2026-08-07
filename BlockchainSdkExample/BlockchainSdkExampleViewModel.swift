@@ -70,7 +70,8 @@ class BlockchainSdkExampleViewModel: ObservableObject {
             dependencies: .init(
                 accountCreator: SimpleAccountCreator { [weak self] in self?.card },
                 dataStorage: InMemoryBlockchainDataStorage { return nil },
-                isYieldModuleUpdateEnabled: true
+                isYieldModuleUpdateEnabled: true,
+                isGaslessYieldEnabled: true
             ),
             apiList: apiList,
         )

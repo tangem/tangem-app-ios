@@ -138,14 +138,12 @@ struct OnboardingSeedPhraseImportView: View {
     }
 }
 
-struct OnboardingSeedPhraseImportView_Previews: PreviewProvider {
-    private static let viewModel = OnboardingSeedPhraseImportViewModel(
-        inputProcessor: SeedPhraseInputProcessor(),
-        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true),
-        delegate: nil
+#Preview {
+    OnboardingSeedPhraseImportView(
+        viewModel: OnboardingSeedPhraseImportViewModel(
+            inputProcessor: SeedPhraseInputProcessor(),
+            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true),
+            delegate: nil
+        )
     )
-
-    static var previews: some View {
-        OnboardingSeedPhraseImportView(viewModel: viewModel)
-    }
 }

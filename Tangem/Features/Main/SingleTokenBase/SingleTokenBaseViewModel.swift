@@ -28,7 +28,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published final var isFulfillingAssetRequirements = false
     @Published final var actionButtons: [FixedSizeButtonWithIconInfo] = []
 
-    @Published final var tokenNotificationInputs: [NotificationViewInput] = []
     @Published final var notifications = [NotificationBannerItem]()
 
     @Published final var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
@@ -51,6 +50,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let priceFormatter = MarketsTokenPriceFormatter()
     private let tokenActionAvailabilityAnalyticsMapper = TokenActionAvailabilityAnalyticsMapper()
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
+    private let expressStatusPollingHelper: ExpressStatusPollingHelper
     private let priceChangeUtility = PriceChangeUtility()
 
     private var updateTask: Task<Void, Never>?
@@ -101,13 +101,12 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private let miniChartPriceIntervalType = MarketsPriceIntervalType.day
 
-    final let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
-
     init(
         userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
         notificationManager: NotificationManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
+        expressStatusPollingHelper: ExpressStatusPollingHelper,
         tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletInfo = userWalletInfo
@@ -118,6 +117,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             walletModel: walletModel
         )
         self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
+        self.expressStatusPollingHelper = expressStatusPollingHelper
         self.tokenRouter = tokenRouter
 
         prepareSelf()
@@ -235,7 +235,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     private func performLoadHistory() async {
-        await walletModel.updateTransactionsHistory()
+        await walletModel.updateTransactionHistory()
         await MainActor.run {
             if isReloadingTransactionHistory {
                 isReloadingTransactionHistory = false
@@ -384,12 +384,9 @@ extension SingleTokenBaseViewModel {
             // [REDACTED_TODO_COMMENT]
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
             .sink { [weak self] notificationViewInput in
-                guard self?.isRedesign == true else {
-                    self?.tokenNotificationInputs = notificationViewInput
-                    return
-                }
+                guard let self else { return }
 
-                self?.notifications = notificationsMapper.mapItems(notificationViewInput)
+                notifications = notificationsMapper.mapItems(notificationViewInput)
             }
             .store(in: &bag)
 
@@ -519,13 +516,10 @@ extension SingleTokenBaseViewModel {
         case .error(let error):
             transactionHistoryState = .error(error)
         case .loaded(let records):
-            // [REDACTED_INFO]: redesign collapses old txs into monthly groups and resolves rich
-            // account/wallet chips per row; legacy keeps day-only buckets and plain addresses.
-            let redesignEnabled = FeatureProvider.isAvailable(.redesign)
             let listItems = transactionHistoryMapper.mapTransactionListItem(
                 from: records,
-                groupingStyle: redesignEnabled ? .day(.long) : .day(.short),
-                subtitleOwnerResolver: redesignEnabled ? subtitleOwnerResolver : nil
+                groupingStyle: .day(.long),
+                subtitleOwnerResolver: subtitleOwnerResolver
             )
             transactionHistoryState = .loaded(listItems)
         }

@@ -35,20 +35,35 @@ public struct TangemPayPlaceOrderRequest: Encodable {
             depositAddress: depositAddress
         )
     }
+
+    /// Tariff plan transition order (`TARIFF_PLAN_TRANSITION`). Used on plan selection during
+    /// onboarding and on upgrade: PA and PI are created inside the order. `transitionType` is the
+    /// raw value of `TangemPayTariffPlanTransition.TransitionType` (`ACTIVATION` / `UPGRADE` / `DOWNGRADE`).
+    public init(targetTariffPlanId: String, transitionType: String, customerWalletAddress: String) {
+        data = Data(
+            targetTariffPlanId: targetTariffPlanId,
+            transitionType: transitionType,
+            customerWalletAddress: customerWalletAddress
+        )
+    }
 }
 
 public extension TangemPayPlaceOrderRequest {
     struct Data: Encodable {
         public let type: String
-        public let specificationName: String
+        public let specificationName: String?
         public let customerWalletAddress: String?
         public let depositAddress: String?
+        public let targetTariffPlanId: String?
+        public let tariffPlanTransitionType: String?
 
         enum CodingKeys: String, CodingKey {
             case type
             case specificationName = "specification_name"
             case customerWalletAddress = "customer_wallet_address"
             case depositAddress = "deposit_address"
+            case targetTariffPlanId = "target_tariff_plan_id"
+            case tariffPlanTransitionType = "tariff_plan_transition_type"
         }
 
         init(customerWalletAddress: String) {
@@ -56,6 +71,8 @@ public extension TangemPayPlaceOrderRequest {
             specificationName = TangemPayPlaceOrderRequest.firstCardSpecificationName
             self.customerWalletAddress = customerWalletAddress
             depositAddress = nil
+            targetTariffPlanId = nil
+            tariffPlanTransitionType = nil
         }
 
         init(type: String, specificationName: String, customerWalletAddress: String) {
@@ -63,6 +80,8 @@ public extension TangemPayPlaceOrderRequest {
             self.specificationName = specificationName
             self.customerWalletAddress = customerWalletAddress
             depositAddress = nil
+            targetTariffPlanId = nil
+            tariffPlanTransitionType = nil
         }
 
         init(type: String, specificationName: String, depositAddress: String) {
@@ -70,6 +89,17 @@ public extension TangemPayPlaceOrderRequest {
             self.specificationName = specificationName
             customerWalletAddress = nil
             self.depositAddress = depositAddress
+            targetTariffPlanId = nil
+            tariffPlanTransitionType = nil
+        }
+
+        init(targetTariffPlanId: String, transitionType: String, customerWalletAddress: String) {
+            type = TangemPayOrderType.tariffPlanTransition.rawValue
+            specificationName = nil
+            self.customerWalletAddress = customerWalletAddress
+            depositAddress = nil
+            self.targetTariffPlanId = targetTariffPlanId
+            tariffPlanTransitionType = transitionType
         }
     }
 }

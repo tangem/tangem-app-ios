@@ -85,53 +85,51 @@ extension TangemButtonLegacy {
     }
 }
 
-struct TangemButtonLegacy_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            TangemButtonLegacy(title: "Recharge de portefeuille", image: Assets.scan) {}
-                .buttonStyle(TangemButtonStyle(colorStyle: .black))
+#Preview {
+    VStack {
+        TangemButtonLegacy(title: "Recharge de portefeuille", image: Assets.scan) {}
+            .buttonStyle(TangemButtonStyle(colorStyle: .black))
 
-            TangemButtonLegacy(title: "Scan", image: Assets.scan) {}
-                .buttonStyle(TangemButtonStyle(
-                    colorStyle: .black,
-                    layout: .big
-                ))
+        TangemButtonLegacy(title: "Scan", image: Assets.scan) {}
+            .buttonStyle(TangemButtonStyle(
+                colorStyle: .black,
+                layout: .big
+            ))
 
+        TangemButtonLegacy(
+            title: Localization.commonExplore,
+            systemImage: "chevron.right",
+            iconPosition: .trailing
+        ) {}
+            .buttonStyle(TangemButtonStyle(
+                colorStyle: .transparentWhite,
+                layout: .wide
+            ))
+
+        HStack {
             TangemButtonLegacy(
-                title: Localization.commonExplore,
-                systemImage: "chevron.right",
-                iconPosition: .trailing
+                title: Localization.commonSend,
+                image: Assets.scan
             ) {}
                 .buttonStyle(TangemButtonStyle(
-                    colorStyle: .transparentWhite,
-                    layout: .wide
+                    layout: .smallVertical,
+                    isLoading: true
                 ))
 
-            HStack {
-                TangemButtonLegacy(
-                    title: Localization.commonSend,
-                    image: Assets.scan
-                ) {}
-                    .buttonStyle(TangemButtonStyle(
-                        layout: .smallVertical,
-                        isLoading: true
-                    ))
+            TangemButtonLegacy.vertical(
+                title: Localization.commonBuy,
+                systemImage: "arrow.up"
+            ) {}
+                .buttonStyle(TangemButtonStyle(layout: .smallVertical))
 
-                TangemButtonLegacy.vertical(
-                    title: Localization.commonBuy,
-                    systemImage: "arrow.up"
-                ) {}
-                    .buttonStyle(TangemButtonStyle(layout: .smallVertical))
-
-                TangemButtonLegacy.vertical(
-                    title: "Scan",
-                    systemImage: "arrow.right"
-                ) {}
-                    .buttonStyle(TangemButtonStyle(layout: .smallVertical))
-            }
-            .padding(.horizontal, 8)
+            TangemButtonLegacy.vertical(
+                title: "Scan",
+                systemImage: "arrow.right"
+            ) {}
+                .buttonStyle(TangemButtonStyle(layout: .smallVertical))
         }
-        .environment(\.locale, .init(identifier: "fr"))
-        .previewGroup()
+        .padding(.horizontal, 8)
     }
+    .environment(\.locale, .init(identifier: "fr"))
+    .previewGroup()
 }

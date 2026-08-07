@@ -27,7 +27,7 @@
           "com.figma.hiddenFromPublishing": true
         },
         "$type": "color",
-        "$value": "{color.material.border.start}"
+        "$value": "{color.material.border.end}"
       }
     },
     "color": {

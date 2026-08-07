@@ -144,18 +144,16 @@ private struct WordInputView: View {
     }
 }
 
-struct OnboardingSeedPhraseUserValidationView_Previews: PreviewProvider {
-    private static let viewModel = OnboardingSeedPhraseUserValidationViewModel(
-        mode: .card,
-        validationInput: .init(
-            secondWord: "tree",
-            seventhWord: "lunar",
-            eleventhWord: "banana",
-            createWalletAction: {}
+#Preview {
+    OnboardingSeedPhraseUserValidationView(
+        viewModel: OnboardingSeedPhraseUserValidationViewModel(
+            mode: .card,
+            validationInput: .init(
+                secondWord: "tree",
+                seventhWord: "lunar",
+                eleventhWord: "banana",
+                createWalletAction: {}
+            )
         )
     )
-
-    static var previews: some View {
-        OnboardingSeedPhraseUserValidationView(viewModel: viewModel)
-    }
 }
