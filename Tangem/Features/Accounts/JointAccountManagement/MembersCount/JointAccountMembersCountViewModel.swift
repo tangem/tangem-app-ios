@@ -8,8 +8,11 @@
 
 import Combine
 import Foundation
+import struct TangemUIUtils.AlertBinder
 
 final class JointAccountMembersCountViewModel: ObservableObject {
+    @Published var alert: AlertBinder?
+
     @Published var membersCount: Int = 3 {
         // A composition can't require more signatures than it has members
         didSet { signersCount = min(signersCount, membersCount) }
@@ -21,24 +24,31 @@ final class JointAccountMembersCountViewModel: ObservableObject {
     var membersCountRange: ClosedRange<Int> { Constants.membersCountRange }
     var signersCountRange: ClosedRange<Int> { Constants.minimumSignersCount ... membersCount }
 
-    private let creationHelper: JointAccountCreationHelper
+    private let creationContext: JointAccountCreationContext
     private weak var coordinator: JointAccountMembersCountRoutable?
 
     init(
-        creationHelper: JointAccountCreationHelper,
+        creationContext: JointAccountCreationContext,
         coordinator: JointAccountMembersCountRoutable?
     ) {
-        self.creationHelper = creationHelper
+        self.creationContext = creationContext
         self.coordinator = coordinator
     }
 
     func onContinueTap() {
-        creationHelper.update(membersCount: membersCount, signersCount: signersCount)
-        coordinator?.continueMembersCount()
+        creationContext.update(membersCount: membersCount, signersCount: signersCount)
+        coordinator?.continueMembersCount(creationContext: creationContext)
     }
 
     func onCloseTap() {
-        coordinator?.closeMembersCount()
+        guard creationContext.hasUnsavedChanges else {
+            coordinator?.closeMembersCount()
+            return
+        }
+
+        alert = JointAccountExitAlert.make { [weak self] in
+            self?.coordinator?.closeMembersCount()
+        }
     }
 }
 

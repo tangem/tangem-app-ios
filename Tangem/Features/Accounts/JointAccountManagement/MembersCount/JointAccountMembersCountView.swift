@@ -31,6 +31,7 @@ struct JointAccountMembersCountView: View {
                 .close(placement: .topBarTrailing, action: viewModel.onCloseTap)
         }
         .backportTranslucentNavigationBar()
+        .alert(item: $viewModel.alert, content: { $0.alert })
         .safeAreaInset(edge: .bottom) { footer }
     }
 
@@ -96,7 +97,7 @@ struct JointAccountMembersCountView: View {
 #Preview {
     JointAccountMembersCountView(
         viewModel: JointAccountMembersCountViewModel(
-            creationHelper: JointAccountCreationHelper(),
+            creationContext: JointAccountCreationContext(userWalletConfig: UserWalletConfigStubs.walletV2Stub),
             coordinator: nil
         )
     )
