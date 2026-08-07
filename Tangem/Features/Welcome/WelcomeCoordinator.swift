@@ -20,7 +20,6 @@ final class WelcomeCoordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
-    @Injected(\.mobileWalletPromoService) private var mobileWalletPromoService: MobileWalletPromoService
 
     private var mailPresenterLifecycleSubject = PassthroughSubject<Bool, Never>()
 
@@ -40,6 +39,9 @@ final class WelcomeCoordinator: CoordinatorObject {
 
     // MARK: - Private
 
+    private lazy var processor = WelcomeProcessor(isIdle: isIdlePublisher)
+    private var bag: Set<AnyCancellable> = []
+
     private var lifecyclePublisher: AnyPublisher<Bool, Never> {
         // Only modals, because the modal presentation will not trigger onAppear/onDisappear events
         var publishers: [AnyPublisher<Bool, Never>] = []
@@ -52,12 +54,22 @@ final class WelcomeCoordinator: CoordinatorObject {
             .eraseToAnyPublisher()
     }
 
-    private var tangemPayMobileOnboardingObserver: AnyCancellable?
-    private var needsToShowTangemPayMobileOnboarding = false
-
-    /// When the user carries a referral signal, the intro stories are skipped in favour of the
-    /// alternative wallet creation screen. We can't open it until any startup onboarding is dismissed.
-    private var shouldSkipStories = false
+    /// `true` while nothing the user navigated to themselves is on screen — create wallet, token search or
+    /// mail. The processor gates the promo/Tangem Pay deep links on this, so they never present over such a
+    /// screen (it's `true` when all three are closed). Startup onboardings aren't here — they live in `State`
+    /// and are sequenced by the reducer.
+    private var isIdlePublisher: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest3(
+            $createWalletSelectorCoordinator.map { $0 == nil },
+            $searchTokensViewModel.map { $0 == nil },
+            mailPresenterLifecycleSubject.prepend(true)
+        )
+        .map { createWalletClosed, searchClosed, mailClosed in
+            createWalletClosed && searchClosed && mailClosed
+        }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
+    }
 
     required init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -69,54 +81,65 @@ final class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        shouldSkipStories = FeatureProvider.isAvailable(.hideStoriesInMobileWallet)
-            && mobileWalletPromoService.shouldShowMobilePromoWalletSelector
-
-        if !shouldSkipStories {
-            let storiesModel = StoriesViewModel()
-            let welcomeViewModel = WelcomeViewModel(coordinator: self, storiesModel: storiesModel)
-            storiesModel.setDelegate(delegate: welcomeViewModel)
-            storiesModel.setLifecyclePublisher(publisher: lifecyclePublisher)
-            rootViewModel = welcomeViewModel
-        }
-
-        if let onboarding = WelcomeOnboardingsHelper().getStartupOnboarding() {
-            switch onboarding {
-            case .welcome(let steps):
-                showWelcomeOnboarding(steps: steps)
-            case .tangemPayMobile:
-                showTangemPayMobileOnboarding()
-            }
-        } else if shouldSkipStories {
-            openCreateWallet(showsBackButton: false)
-        }
-
-        bindTangemPayMobileOnboarding()
+        bind()
     }
 
-    private func bindTangemPayMobileOnboarding() {
-        tangemPayMobileOnboardingObserver = AppSettings.shared.$needsTangemPayMobileOnboarding
-            .dropFirst()
-            .first()
-            .receive(on: DispatchQueue.main)
+    private func bind() {
+        // Touching `processor` builds it and computes the real state, so the first emission is never a placeholder.
+        processor.statePublisher
             .withWeakCaptureOf(self)
-            .sink { coordinator, isOnboardingNeeded in
-                guard coordinator.tangemPayMobileOnboardingCoordinator == nil, isOnboardingNeeded else {
-                    return
-                }
-
-                // If the notification-permission (welcome) onboarding is still on screen,
-                // defer Tangem Pay onboarding until the user dismisses it, so the screens
-                // are shown sequentially instead of racing.
-                if coordinator.welcomeOnboardingCoordinator != nil {
-                    coordinator.needsToShowTangemPayMobileOnboarding = true
-                } else {
-                    coordinator.showTangemPayMobileOnboarding()
-                }
+            .sink { coordinator, state in
+                coordinator.render(state)
             }
+            .store(in: &bag)
+    }
+
+    // MARK: - Rendering
+
+    private func render(_ state: WelcomeProcessor.State) {
+        // The welcome onboarding gates the deep link — while it's up, nothing else shows over it. It also
+        // needs the stories as its backdrop (its material background blurs them), so keep the base layer
+        // until it's dismissed, even once a promo deep link has resolved underneath it.
+        if let steps = state.welcomeOnboarding {
+            setStoriesVisible(true)
+            showWelcomeOnboarding(steps: steps)
+            return
+        }
+
+        // Stories are the base layer, dropped only for the promo flow.
+        setStoriesVisible(state.deepLink != .promo)
+
+        switch state.deepLink {
+        case .tangemPay:
+            showTangemPayMobileOnboarding()
+        case .promo:
+            openCreateWallet(showsBackButton: false)
+        case .none:
+            break
+        }
+    }
+
+    private func setStoriesVisible(_ visible: Bool) {
+        if visible {
+            if rootViewModel == nil {
+                rootViewModel = makeStoriesViewModel()
+            }
+        } else if rootViewModel != nil {
+            rootViewModel = nil
+        }
+    }
+
+    private func makeStoriesViewModel() -> WelcomeViewModel {
+        let storiesModel = StoriesViewModel()
+        let welcomeViewModel = WelcomeViewModel(coordinator: self, storiesModel: storiesModel)
+        storiesModel.setDelegate(delegate: welcomeViewModel)
+        storiesModel.setLifecyclePublisher(publisher: lifecyclePublisher)
+        return welcomeViewModel
     }
 
     private func showWelcomeOnboarding(steps: [WelcomeOnboardingStep]) {
+        guard welcomeOnboardingCoordinator == nil else { return }
+
         let factory = PushNotificationsHelpersFactory()
         let permissionManager = factory.makePermissionManagerForWelcomeOnboarding(using: pushNotificationsInteractor)
 
@@ -127,12 +150,7 @@ final class WelcomeCoordinator: CoordinatorObject {
                 self.welcomeOnboardingCoordinator = nil
             }
 
-            if needsToShowTangemPayMobileOnboarding {
-                needsToShowTangemPayMobileOnboarding = false
-                showTangemPayMobileOnboarding()
-            } else if shouldSkipStories, createWalletSelectorCoordinator == nil {
-                openCreateWallet(showsBackButton: false)
-            }
+            processor.welcomeOnboardingDismissed()
         }
 
         let coordinator = WelcomeOnboardingCoordinator(dismissAction: dismissAction)
@@ -141,6 +159,8 @@ final class WelcomeCoordinator: CoordinatorObject {
     }
 
     private func showTangemPayMobileOnboarding() {
+        guard tangemPayMobileOnboardingCoordinator == nil else { return }
+
         let dismissAction: Action<TangemPayMobileOnboardingCoordinator.OutputOptions> = { [weak self] options in
             guard let self else { return }
             switch options {
@@ -155,6 +175,8 @@ final class WelcomeCoordinator: CoordinatorObject {
     }
 
     private func openCreateWallet(showsBackButton: Bool) {
+        guard createWalletSelectorCoordinator == nil else { return }
+
         let dismissAction: Action<CreateWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main(let model):

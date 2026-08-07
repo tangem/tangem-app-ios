@@ -13,5 +13,9 @@ protocol SendDestinationAnalyticsLogger {
     func logDestinationStepOpened()
     func logDestinationStepReopened()
 
+    func logAddressBookWidgetShown()
+    func logAddressBookContactSelected(_ contact: AddressBookContact)
+    func logAddressBookAddressSubstituted(_ contact: AddressBookContact)
+
     func setDestinationAnalyticsProvider(_ analyticsProvider: (any AccountModelAnalyticsProviding)?)
 }

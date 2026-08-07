@@ -31,27 +31,18 @@ extension OverlayContentContainerViewControllerAdapter: OverlayContentContainer 
     func installOverlay(_ overlayView: some View) {
         let overlayViewController: UIViewController
 
-        if FeatureProvider.isAvailable(.redesign) {
-            let hostingController = UIHostingController(
-                rootView: VStack(spacing: .unit(.half)) {
-                    GrabberView(style: .redesigned)
-                    overlayView
-                        .mask {
-                            RoundedCorner(radius: cornerRadius, corners: .topEdge)
-                                .ignoresSafeArea(edges: .bottom)
-                        }
-                }
-            )
-            hostingController.view.backgroundColor = .clear
-            overlayViewController = hostingController
-        } else {
-            overlayViewController = UIHostingController(
-                rootView: overlayView
-                    .overlay(alignment: .top) {
-                        GrabberView()
+        let hostingController = UIHostingController(
+            rootView: VStack(spacing: .unit(.half)) {
+                GrabberView(style: .redesigned)
+                overlayView
+                    .mask {
+                        RoundedCorner(radius: cornerRadius, corners: .topEdge)
+                            .ignoresSafeArea(edges: .bottom)
                     }
-            )
-        }
+            }
+        )
+        hostingController.view.backgroundColor = .clear
+        overlayViewController = hostingController
 
         containerViewController?.installOverlay(overlayViewController)
     }

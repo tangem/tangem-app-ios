@@ -14,7 +14,7 @@ final class CommonOnrampUnknownStatusRecoveryService {
     @Injected(\.onrampUnknownStatusRepository) private var unknownStatusRepository: OnrampUnknownStatusRepository
     @Injected(\.onrampPendingTransactionsRepository) private var pendingRepository: OnrampPendingTransactionRepository
 
-    private let userWalletId: String
+    private let userWalletId: UserWalletId
     private let tokenItem: TokenItem
     private let expressAPIProvider: ExpressAPIProvider
 
@@ -22,7 +22,7 @@ final class CommonOnrampUnknownStatusRecoveryService {
     private var tickTask: Task<Void, Never>?
     private var recoveryTask: Task<Void, Never>?
 
-    init(userWalletId: String, tokenItem: TokenItem, expressAPIProvider: ExpressAPIProvider) {
+    init(userWalletId: UserWalletId, tokenItem: TokenItem, expressAPIProvider: ExpressAPIProvider) {
         self.userWalletId = userWalletId
         self.tokenItem = tokenItem
         self.expressAPIProvider = expressAPIProvider
@@ -39,7 +39,7 @@ final class CommonOnrampUnknownStatusRecoveryService {
             let toContractAddress = currency.contractAddress
             let toNetwork = currency.network
             let records = service.unknownStatusRepository.pendingRecoveryCandidates(
-                userWalletId: service.userWalletId,
+                userWalletId: service.userWalletId.stringValue,
                 toContractAddress: toContractAddress,
                 toNetwork: toNetwork
             )

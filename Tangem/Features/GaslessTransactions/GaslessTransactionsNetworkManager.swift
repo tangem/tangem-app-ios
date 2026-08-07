@@ -14,6 +14,7 @@ import TangemNetworkUtils
 protocol GaslessTransactionsNetworkManager {
     typealias FeeToken = GaslessTransactionsDTO.Response.FeeToken
     typealias GaslessTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
+    typealias GaslessBatchTransaction = GaslessTransactionsDTO.Request.GaslessBatchTransaction
 
     var availableFeeTokens: [FeeToken] { get }
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { get }
@@ -22,6 +23,7 @@ protocol GaslessTransactionsNetworkManager {
 
     func updateAvailableTokens()
     func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String
+    func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String
     func initialize()
 
     var cachedFeeRecipientAddress: String? { get }
@@ -121,6 +123,10 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         try await apiService.sendGaslessTransaction(transaction)
     }
 
+    func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String {
+        try await apiService.sendGaslessBatchTransaction(transaction)
+    }
+
     func preloadFeeRecipientAddress() {
         Task { [weak self] in
             self?._feeRecipientAddress = try await self?.apiService.getFeeRecipientAddress()
@@ -130,9 +136,15 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
 
 private struct GaslessTransactionsNetworkManagerKey: InjectionKey {
     static var currentValue: GaslessTransactionsNetworkManager = {
-        let apiType: GaslessTransactionsAPIType = AppEnvironment.current.isProduction
-            ? .prod
-            : FeatureStorage.instance.gaslessTransactionsAPIType
+        let apiType: GaslessTransactionsAPIType = {
+            if AppEnvironment.current.isProduction {
+                return .prod
+            }
+            if FeatureStorage.instance.tangemAPIType == .mock {
+                return .mock
+            }
+            return FeatureStorage.instance.gaslessTransactionsAPIType
+        }()
 
         let provider = TangemProvider<GaslessTransactionsAPITarget>(
             configuration: TangemProviderConfiguration(

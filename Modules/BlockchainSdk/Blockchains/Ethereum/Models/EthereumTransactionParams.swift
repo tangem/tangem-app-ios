@@ -10,7 +10,7 @@ import BigInt
 
 public struct EthereumTransactionParams: TransactionParams {
     public let data: Data?
-    let nonce: Int?
+    public let nonce: Int?
 
     public init(data: Data? = nil, nonce: Int? = nil) {
         self.data = data

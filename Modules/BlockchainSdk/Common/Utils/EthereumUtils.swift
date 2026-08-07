@@ -77,7 +77,7 @@ public enum EthereumUtils {
         return mainPart
     }
 
-    /// Responses from blockaid may contain odd symbols amount in hex string
+    /// Some external services may return odd symbol count in hex strings
     /// like "0x12345" which is not valid hex representation.
     /// This function tries to parse such strings by adding a leading zero (inside asciiHexToData) if needed.
     public static func sanitizeAndParseToBigUInt(_ string: String) -> BigUInt? {

@@ -289,113 +289,137 @@ extension TransactionsListView {
     }
 }
 
-struct TransactionsListView_Previews: PreviewProvider {
-    class TxHistoryModel: ObservableObject {
-        @Published var state: TransactionsListView.State
+#if DEBUG
 
-        static let oldItems = [
-            TransactionListItem(
-                header: "Yesterday",
-                items: TransactionView_Previews.previewViewModels
-            ),
-            TransactionListItem(
-                header: "02.05.23",
-                items: TransactionView_Previews.previewViewModels
-            ),
-        ]
+final class TxHistoryModel: ObservableObject {
+    @Published var state: TransactionsListView.State
 
-        static let todayItems = [
-            TransactionListItem(
-                header: "Today",
-                items: TransactionView_Previews.previewViewModels
-            ),
-        ]
+    static let oldItems = [
+        TransactionListItem(
+            header: "Yesterday",
+            items: TransactionViewPreviewData.previewViewModels
+        ),
+        TransactionListItem(
+            header: "02.05.23",
+            items: TransactionViewPreviewData.previewViewModels
+        ),
+    ]
 
-        private var onlyOldItems = true
+    static let todayItems = [
+        TransactionListItem(
+            header: "Today",
+            items: TransactionViewPreviewData.previewViewModels
+        ),
+    ]
 
-        init(state: TransactionsListView.State) {
-            self.state = state
-        }
+    private var onlyOldItems = true
 
-        func toggleState() {
-            switch state {
-            case .loading:
-                state = .loaded(Self.oldItems)
-            case .loaded:
-                if onlyOldItems {
-                    state = .loaded(Self.todayItems + Self.oldItems)
-                    onlyOldItems = false
-                    return
-                }
-
-                state = .error("Don't touch this!!!")
-                onlyOldItems = true
-            case .error:
-                state = .notSupported
-            case .notSupported:
-                state = .loading
-            }
-        }
+    init(state: TransactionsListView.State) {
+        self.state = state
     }
 
-    struct PreviewView: View {
-        @ObservedObject var model: TxHistoryModel
-
-        init(state: TransactionsListView.State) {
-            model = .init(state: state)
-        }
-
-        var body: some View {
-            VStack {
-                Button(action: model.toggleState) {
-                    Text("Toggle state")
-                }
-
-                ScrollView {
-                    TransactionsListView(
-                        state: model.state,
-                        exploreAction: {},
-                        exploreConfirmationDialog: nil,
-                        exploreTransactionAction: { _ in },
-                        reloadButtonAction: {},
-                        isReloadButtonBusy: false,
-                        fetchMore: nil
-                    )
-                    .animation(.default, value: model.state)
-                    .padding(.horizontal, 16)
-                }
+    func toggleState() {
+        switch state {
+        case .loading:
+            state = .loaded(Self.oldItems)
+        case .loaded:
+            if onlyOldItems {
+                state = .loaded(Self.todayItems + Self.oldItems)
+                onlyOldItems = false
+                return
             }
-            .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        }
-    }
 
-    static var previews: some View {
-        Group {
-            PreviewView(state: .loaded(TxHistoryModel.oldItems))
-                .previewDisplayName("Yesterday")
-
-            PreviewView(state: .loaded(TxHistoryModel.todayItems + TxHistoryModel.oldItems))
-                .previewDisplayName("Today")
-
-            PreviewView(state: .loaded(
-                [
-                    TransactionListItem(header: "Today", items: TransactionView_Previews.figmaViewModels1),
-                    TransactionListItem(header: "Yesterday", items: TransactionView_Previews.figmaViewModels2),
-                ]
-            ))
-            .previewDisplayName("Figma")
-
-            PreviewView(state: .loaded([]))
-                .previewDisplayName("Empty")
-
-            PreviewView(state: .loading)
-                .previewDisplayName("Loading")
-
-            PreviewView(state: .notSupported)
-                .previewDisplayName("Not supported")
-
-            PreviewView(state: .error("eror!"))
-                .previewDisplayName("Error")
+            state = .error("Don't touch this!!!")
+            onlyOldItems = true
+        case .error:
+            state = .notSupported
+        case .notSupported:
+            state = .loading
         }
     }
 }
+
+struct TransactionsListPreview: View {
+    @ObservedObject var model: TxHistoryModel
+
+    var body: some View {
+        VStack {
+            Button(action: model.toggleState) {
+                Text("Toggle state")
+            }
+
+            ScrollView {
+                TransactionsListView(
+                    state: model.state,
+                    exploreAction: {},
+                    exploreConfirmationDialog: nil,
+                    exploreTransactionAction: { _ in },
+                    reloadButtonAction: {},
+                    isReloadButtonBusy: false,
+                    fetchMore: nil
+                )
+                .animation(.default, value: model.state)
+                .padding(.horizontal, 16)
+            }
+        }
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    }
+}
+
+@available(iOS 17.0, *)
+#Preview("Yesterday") {
+    @Previewable @StateObject var model = TxHistoryModel(state: .loaded(TxHistoryModel.oldItems))
+
+    TransactionsListPreview(model: model)
+}
+
+@available(iOS 17.0, *)
+#Preview("Today") {
+    @Previewable @StateObject var model = TxHistoryModel(
+        state: .loaded(TxHistoryModel.todayItems + TxHistoryModel.oldItems)
+    )
+
+    TransactionsListPreview(model: model)
+}
+
+@available(iOS 17.0, *)
+#Preview("Figma") {
+    @Previewable @StateObject var model = TxHistoryModel(
+        state: .loaded([
+            TransactionListItem(header: "Today", items: TransactionViewPreviewData.figmaViewModels1),
+            TransactionListItem(header: "Yesterday", items: TransactionViewPreviewData.figmaViewModels2),
+        ])
+    )
+
+    TransactionsListPreview(model: model)
+}
+
+@available(iOS 17.0, *)
+#Preview("Empty") {
+    @Previewable @StateObject var model = TxHistoryModel(state: .loaded([]))
+
+    TransactionsListPreview(model: model)
+}
+
+@available(iOS 17.0, *)
+#Preview("Loading") {
+    @Previewable @StateObject var model = TxHistoryModel(state: .loading)
+
+    TransactionsListPreview(model: model)
+}
+
+@available(iOS 17.0, *)
+#Preview("Not supported") {
+    @Previewable @StateObject var model = TxHistoryModel(state: .notSupported)
+
+    TransactionsListPreview(model: model)
+}
+
+@available(iOS 17.0, *)
+#Preview("Error") {
+    @Previewable @StateObject var model = TxHistoryModel(state: .error("eror!"))
+
+    TransactionsListPreview(model: model)
+}
+
+#endif // DEBUG

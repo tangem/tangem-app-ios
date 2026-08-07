@@ -46,6 +46,11 @@ public struct TangemRowShowcase: View {
     @State private var valueLineLimit = 1
     @State private var subvalueLineLimit = 1
 
+    @State private var titleColorOverride: ShowcaseColor = .default
+    @State private var subtitleColorOverride: ShowcaseColor = .default
+    @State private var valueColorOverride: ShowcaseColor = .default
+    @State private var subvalueColorOverride: ShowcaseColor = .default
+
     @State private var dynamicTypeIndex = Self.dynamicTypeAllCases.firstIndex(of: .large) ?? 0
     @State private var tapCount = 0
     @State private var expanded: [String: Bool] = [:]
@@ -61,20 +66,20 @@ public struct TangemRowShowcase: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: 12) {
-                controls
-
-                Divider()
-
-                Text("taps: \(tapCount)")
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-
                 rowPreview
                     .dynamicTypeSize(dynamicTypeSize)
                     .environment(\.layoutDirection, rightToLeft ? .rightToLeft : .leftToRight)
                     .padding(.vertical, 24)
                     .frame(maxWidth: .infinity)
                     .background(DesignSystem.Color.bgOpaquePrimary)
+
+                Text("taps: \(tapCount)")
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+
+                Divider()
+
+                controls
             }
             .padding()
         }
@@ -141,6 +146,13 @@ public struct TangemRowShowcase: View {
             Toggle("override label", isOn: $overrideLabel)
             Toggle("custom hint", isOn: $customHint)
             voiceOverPanel
+        }
+
+        group("Text color overrides") {
+            pickerRow(title: "title", cases: ShowcaseColor.allCases, binding: $titleColorOverride, label: { $0.label })
+            pickerRow(title: "subtitle", cases: ShowcaseColor.allCases, binding: $subtitleColorOverride, label: { $0.label })
+            pickerRow(title: "value", cases: ShowcaseColor.allCases, binding: $valueColorOverride, label: { $0.label })
+            pickerRow(title: "subvalue", cases: ShowcaseColor.allCases, binding: $subvalueColorOverride, label: { $0.label })
         }
 
         group("Dynamic Type") {
@@ -297,6 +309,12 @@ public struct TangemRowShowcase: View {
         .focusRing(focusRing)
         .accessibilityLabel(overrideLabel ? overrideLabelSample : nil)
         .accessibilityHint(customHint ? customHintSample : nil)
+        .overrideTextColors(.init(
+            title: titleColorOverride.color,
+            subtitle: subtitleColorOverride.color,
+            value: valueColorOverride.color,
+            subvalue: subvalueColorOverride.color
+        ))
 
         if isInteractive {
             row.onTap { tapCount += 1 }.disabled(!isEnabled)
@@ -350,6 +368,36 @@ public struct TangemRowShowcase: View {
                 }
             }
             .pickerStyle(.segmented)
+        }
+    }
+}
+
+// MARK: - ShowcaseColor
+
+private enum ShowcaseColor: CaseIterable, Hashable {
+    case `default`
+    case red
+    case orange
+    case green
+    case purple
+
+    var label: String {
+        switch self {
+        case .default: "default"
+        case .red: "red"
+        case .orange: "orange"
+        case .green: "green"
+        case .purple: "purple"
+        }
+    }
+
+    var color: Color? {
+        switch self {
+        case .default: nil
+        case .red: .red
+        case .orange: .orange
+        case .green: .green
+        case .purple: .purple
         }
     }
 }

@@ -48,7 +48,7 @@ extension ApproveTransactionDispatcher: TransactionDispatcher {
 
     /// Sends multiple approve transactions in a single signing session (e.g. revoke+approve for USDT).
     func send(transactions: [TransactionDispatcherTransactionType]) async throws -> [TransactionDispatcherResult] {
-        guard !transactions.isEmpty else {
+        guard transactions.isNotEmpty else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 

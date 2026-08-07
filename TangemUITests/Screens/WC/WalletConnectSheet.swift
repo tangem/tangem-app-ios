@@ -62,13 +62,13 @@ final class WalletConnectSheet: ScreenBase<WalletConnectConnectionScreenElement>
     }
 
     func rejectConnection() {
-        XCTContext.runActivity(named: "Reject WalletConnect connection") { _ in
+        _ = XCTContext.runActivity(named: "Reject WalletConnect connection") { _ in
             cancelButton.waitAndTap()
         }
     }
 
     func tapConnectionButton() {
-        XCTContext.runActivity(named: "Approve WalletConnect connection") { _ in
+        _ = XCTContext.runActivity(named: "Approve WalletConnect connection") { _ in
             connectButton.waitAndTap()
         }
     }

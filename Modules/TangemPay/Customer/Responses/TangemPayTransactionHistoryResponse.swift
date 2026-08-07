@@ -93,6 +93,8 @@ public extension TangemPayTransactionHistoryResponse {
         public let enrichedMerchantCategory: String?
         public let cardId: String
         public let cardType: String
+        public let cardDisplayName: String?
+        public let cardNumberEnd: String?
         public let status: PaymentStatus
         public let declinedReason: String?
         public let authorizedAt: Date

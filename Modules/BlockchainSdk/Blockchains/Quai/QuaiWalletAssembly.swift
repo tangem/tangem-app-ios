@@ -47,7 +47,8 @@ struct QuaiWalletAssembly: WalletManagerAssembly {
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
-            pendingTransactionsManager: pendingTransactionsManager
+            pendingTransactionsManager: pendingTransactionsManager,
+            isGaslessYieldEnabled: input.blockchainSdkDependencies.isGaslessYieldEnabled
         )
     }
 }

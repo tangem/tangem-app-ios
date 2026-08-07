@@ -185,6 +185,8 @@ extension Analytics {
         case sendSwapErrorExpressQuote = "[Token / Send] Error - Express quote"
         case sendSendWithSwapAmountScreenOpened = "[Token / Send] Send With Swap Amount Screen Opened"
         case sendNoticeCantSwapThisToken = "[Token / Send] Notice - Can't Swap This Token"
+        case sendNoticeSwapAvailable = "[Token / Send] Notice - Swap Available"
+        case sendNoticeSwapAvailableClicked = "[Token / Send] Notice - Swap Available Clicked"
         case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
         case sendNoticeNetworkFeeCoverage = "[Token / Send] Notice - Network Fee Coverage"
         case sendButtonSendWithSwap = "[Token / Send] Button - Send with Swap"
@@ -527,6 +529,7 @@ extension Analytics {
         case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
         case stakingPermissionScreenOpened = "[Staking] Permission Screen Opened"
+        case stakingScamVerification = "[Staking] Scam Verification"
 
         // MARK: - Markets
 
@@ -790,8 +793,6 @@ extension Analytics {
 
         case visaCardIconClicked = "[Visa Card Management] Visa Card Icon Clicked"
         case visaAddExtraCardClicked = "[Visa Card Management] Visa Add Extra Card Clicked"
-        case visaFakedoorPopupDisplayed = "[Visa Card Management] Visa Fakedoor Popup Displayed"
-        case visaFakedoorGotitClicked = "[Visa Card Management] Visa Fakedoor Gotit Clicked"
         case visaExtraCardIssuancePopupDisplayed = "[Visa Screen] Visa Extra Card Issuance Popup Displayed"
         case visaExtraCardIssuanceConfirmed = "[Visa Screen] Visa Extra Card Issuance Confirmed"
 
@@ -799,6 +800,41 @@ extension Analytics {
         case visaCloseCardClicked = "[Visa Card Management] Visa Close Card Clicked"
         case visaCloseCardConfirmationPopupOpened = "[Visa Card Management] Visa Close Card Confirmation Popup Opened"
         case visaCloseCardConfirmed = "[Visa Card Management] Visa Close Card Confirmed"
+
+        // Tiers
+
+        case visaTiersTierSelectionScreenShowed = "[Visa Tiers] Tier Selection Screen Showed"
+        case visaTiersSwiped = "[Visa Tiers] Tiers Swiped"
+        case visaTiersComparePlansClicked = "[Visa Tiers] Compare Plans Clicked"
+        case visaTiersPlansComparisonPopupShowed = "[Visa Tiers] Plans Comparison Popup Showed"
+        case visaTiersPlansComparisonPopupClosed = "[Visa Tiers] Plans Comparison Popup Closed"
+        case visaTiersPlanSelectedClick = "[Visa Tiers] Plan Selected Click"
+        case visaTiersTopupBannerForPlusShowed = "[Visa Tiers] Topup Banner For Plus Showed"
+        case visaTiersCancelPlusMoveToBasicClicked = "[Visa Tiers] Cancel Plus Move To Basic Clicked"
+        case visaTiersCurrentPlanClicked = "[Visa Tiers] Current Plan Clicked"
+        case visaTiersChangePlanClicked = "[Visa Tiers] Change Plan Clicked"
+        case visaTiersPlanChangeConfirmationScreenShowed = "[Visa Tiers] Plan Change Confirmation Screen Showed"
+        case visaTiersPlanChangeCancelClicked = "[Visa Tiers] Plan Change Cancel Clicked"
+        case visaTiersPlanChangeUpgradeClicked = "[Visa Tiers] Plan Change Upgrade Clicked"
+        case visaTiersPlusCardsClosureWarningBannerShowed = "[Visa Tiers] Plus Cards Closure Warning Banner Showed"
+        case visaTiersStayOnPlusConditionsClicked = "[Visa Tiers] Stay On Plus Conditions Clicked"
+        case visaTiersStayOnPlusPopupShowed = "[Visa Tiers] Stay On Plus Popup Showed"
+        case visaTiersStayOnPlusPopupClicked = "[Visa Tiers] Stay On Plus Popup Clicked"
+
+        // Virtual Account topup
+
+        case visaVATopupButtonShowed = "[Visa VA Topup] Visa VA Topup Button Showed"
+        case visaVATopupButtonClicked = "[Visa VA Topup] Visa VA Topup Button Clicked"
+        case visaVATopupConditionsPopupShowedFirstTime = "[Visa VA Topup] Conditions Popup Showed First Time"
+        case visaVATopupShowDetailsFirstTimeClicked = "[Visa VA Topup] Show Details First Time Clicked"
+        case visaVATopupSuccessScreenActivation = "[Visa VA Topup] Success Screen Activation"
+        case visaVATopupPreparationPopupShowed = "[Visa VA Topup] Preparation Popup Showed"
+        case visaVATopupConditionsPopupShowed = "[Visa VA Topup] Conditions Popup Showed"
+        case visaVATopupShowDetailsClicked = "[Visa VA Topup] Show Details Clicked"
+        case visaVATopupBankingDetailsShowed = "[Visa VA Topup] Banking Details Showed"
+        case visaVATopupDetailsErrorShowed = "[Visa VA Topup] Details Error Showed"
+        case visaVATopupShareDetailsButtonClicked = "[Visa VA Topup] Share Details Button Clicked"
+        case visaVATopupCopyFieldClicked = "[Visa VA Topup] Copy Field Clicked"
 
         // MARK: - NFT
 
@@ -867,5 +903,23 @@ extension Analytics {
         case initialTokenSyncCompleted = "[Token Sync] Sync Completed"
         case initialTokenSyncButtonClosed = "[Token Sync] Button - Close Banner"
         case initialTokenSyncManageTokens = "[Token Sync] Button - Manage Tokens"
+
+        // MARK: - Address Book
+
+        case addressBookContactListScreenOpened = "[Address Book] Contact List Screen Opened"
+        case addressBookAddContactTapped = "[Address Book] Add Contact Tapped"
+        case addressBookContactScreenOpened = "[Address Book] Contact Screen Opened"
+        case addressBookButtonSaveTo = "[Address Book] Button - Save To"
+        case addressBookContactSaved = "[Address Book] Contact Saved"
+        case addressBookSaveErrorShown = "[Address Book] Save Error Shown"
+        case addressBookAddressScreenOpened = "[Address Book] Address Screen Opened"
+        case addressBookAddressInvalid = "[Address Book] Address Invalid"
+        case addressBookDuplicateNameErrorShown = "[Address Book] Duplicate Name Error Shown"
+        case addressBookAddressRemoved = "[Address Book] Address Removed"
+        case addressBookContactDeleted = "[Address Book] Contact Deleted"
+        case addressBookSendFlowWidgetShown = "[Address Book] Send Flow Widget Shown"
+        case addressBookContactSelected = "[Address Book] Contact Selected"
+        case addressBookAddressSubstitutedInSend = "[Address Book] Address Substituted In Send"
+        case addressBookSelectAllNetworksTapped = "[Address Book] Select All Networks Tapped"
     }
 }

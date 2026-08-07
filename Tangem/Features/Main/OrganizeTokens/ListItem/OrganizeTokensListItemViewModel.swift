@@ -17,6 +17,8 @@ struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
 
     var name: String { tokenIcon.name }
 
+    let currencySymbol: String
+
     var imageURL: URL? { tokenIcon.imageURL }
     var customTokenColor: Color? { tokenIcon.customTokenColor }
     var blockchainIconAsset: ImageType? { tokenIcon.blockchainIconAsset }
@@ -49,6 +51,7 @@ struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
     init(
         id: Identifier,
         tokenIcon: TokenIconInfo,
+        currencySymbol: String,
         balance: LoadableBalanceView.State,
         hasDerivation: Bool,
         isTestnet: Bool,
@@ -57,6 +60,7 @@ struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
     ) {
         self.id = id
         self.tokenIcon = tokenIcon
+        self.currencySymbol = currencySymbol
         self.balance = balance
         self.hasDerivation = hasDerivation
         self.isTestnet = isTestnet
