@@ -130,7 +130,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapDestinationField() -> Self {
-        XCTContext.runActivity(named: "Tap destination field") { _ in
+        _ = XCTContext.runActivity(named: "Tap destination field") { _ in
             destinationTextView.waitAndTap()
         }
         return self
@@ -138,7 +138,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapScanQRButton() -> SendQRScannerScreen {
-        XCTContext.runActivity(named: "Tap Scan QR button") { _ in
+        _ = XCTContext.runActivity(named: "Tap Scan QR button") { _ in
             scanQRButton.waitAndTap()
         }
         return SendQRScannerScreen(app)
@@ -149,14 +149,14 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         XCTContext.runActivity(named: "Enter address '\(address)' in destination field") { _ in
             // typeText() is flaky
             UIPasteboard.general.string = address
-            pasteButton.waitAndTap()
+            pasteFromEditMenu(into: destinationTextView)
         }
         return self
     }
 
     @discardableResult
     func clearDestination() -> Self {
-        XCTContext.runActivity(named: "Clear destination address field") { _ in
+        _ = XCTContext.runActivity(named: "Clear destination address field") { _ in
             addressClearButton.waitAndTap()
         }
         return self
@@ -164,7 +164,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapNextButton() -> Self {
-        XCTContext.runActivity(named: "Tap Next button") { _ in
+        _ = XCTContext.runActivity(named: "Tap Next button") { _ in
             nextButton.waitAndTap()
         }
         return self
@@ -172,7 +172,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapNextButtonToSummary() -> SendSummaryScreen {
-        XCTContext.runActivity(named: "Tap Next button to go to Summary screen") { _ in
+        _ = XCTContext.runActivity(named: "Tap Next button to go to Summary screen") { _ in
             nextButton.waitAndTapWithScroll()
         }
         return SendSummaryScreen(app)
@@ -180,7 +180,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapMaxButton() -> Self {
-        XCTContext.runActivity(named: "Tap Max button") { _ in
+        _ = XCTContext.runActivity(named: "Tap Max button") { _ in
             maxButton.waitAndTap()
         }
         return self
@@ -188,7 +188,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapBackButton() -> Self {
-        XCTContext.runActivity(named: "Tap Back button") { _ in
+        _ = XCTContext.runActivity(named: "Tap Back button") { _ in
             backButton.waitAndTap()
         }
         return self
@@ -196,7 +196,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapCloseButton() -> TokenScreen {
-        XCTContext.runActivity(named: "Tap Close button on Send screen") { _ in
+        _ = XCTContext.runActivity(named: "Tap Close button on Send screen") { _ in
             closeButton.waitAndTap()
         }
         return TokenScreen(app)
@@ -204,10 +204,32 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapSendButton() -> Self {
-        XCTContext.runActivity(named: "Tap Send button") { _ in
+        _ = XCTContext.runActivity(named: "Tap Send button") { _ in
             app.buttons["Send"].firstMatch.waitAndTap()
         }
         return self
+    }
+
+    @discardableResult
+    func verifyPendingTransactionSendUnavailableAlert(network: String) -> Self {
+        XCTContext.runActivity(named: "Verify send is unavailable due to pending transaction in \(network)") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Send unavailability alert should be displayed")
+
+            let expectedText = "Sending funds will be available once the pending transaction(s) in network \(network) is complete"
+            let message = alert.staticTexts.element(
+                matching: NSPredicate(format: NSPredicateFormat.labelContains.rawValue, expectedText)
+            ).firstMatch
+            waitAndAssertTrue(message, "Alert should contain the pending-transaction reason text")
+            return self
+        }
+    }
+
+    func dismissPendingTransactionAlert() -> TokenScreen {
+        XCTContext.runActivity(named: "Dismiss pending-transaction alert") { _ in
+            app.alerts.firstMatch.buttons["OK"].waitAndTap()
+            return TokenScreen(app)
+        }
     }
 
     @discardableResult
@@ -420,7 +442,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func reduceFee() -> Self {
-        XCTContext.runActivity(named: "Tap reduce fee button") { _ in
+        _ = XCTContext.runActivity(named: "Tap reduce fee button") { _ in
             reduceFeeButton.waitAndTap()
         }
         return self
@@ -428,7 +450,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapLeaveAmountButton() -> Self {
-        XCTContext.runActivity(named: "Tap leave amount button") { _ in
+        _ = XCTContext.runActivity(named: "Tap leave amount button") { _ in
             leaveAmountButton.waitAndTap()
         }
         return self
@@ -436,7 +458,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapFromWalletButton() -> Self {
-        XCTContext.runActivity(named: "Tap from wallet button") { _ in
+        _ = XCTContext.runActivity(named: "Tap from wallet button") { _ in
             fromWalletButton.waitAndTap()
         }
         return self
@@ -567,9 +589,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     @discardableResult
     func enterAdditionalField(_ value: String) -> Self {
         XCTContext.runActivity(named: "Enter additional field value '\(value)'") { _ in
-            waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
-            additionalFieldTextField.waitAndTap()
-            additionalFieldTextField.typeText(value)
+            typeWithFocus(into: additionalFieldTextField, text: value)
         }
         return self
     }
@@ -586,7 +606,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func clearAdditionalField() -> Self {
-        XCTContext.runActivity(named: "Clear additional field") { _ in
+        _ = XCTContext.runActivity(named: "Clear additional field") { _ in
             additionalFieldClearButton.waitAndTap()
         }
         return self
@@ -730,7 +750,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func pasteDestination(_ address: String) -> Self {
         XCTContext.runActivity(named: "Paste address '\(address)' via Paste button") { _ in
             UIPasteboard.general.string = address
-            pasteButton.waitAndTap()
+            pasteFromEditMenu(into: destinationTextView)
         }
         return self
     }
@@ -1149,7 +1169,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapConvertButton() -> Self {
-        XCTContext.runActivity(named: "Tap 'Convert to another token' button") { _ in
+        _ = XCTContext.runActivity(named: "Tap 'Convert to another token' button") { _ in
             convertToAnotherTokenButton.waitAndTap()
         }
         return self
@@ -1188,7 +1208,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 
     @discardableResult
     func tapRemoveConvertButton() -> Self {
-        XCTContext.runActivity(named: "Tap 'Remove Convert' button to cancel conversion") { _ in
+        _ = XCTContext.runActivity(named: "Tap 'Remove Convert' button to cancel conversion") { _ in
             removeConvertButton.waitAndTap()
         }
         return self

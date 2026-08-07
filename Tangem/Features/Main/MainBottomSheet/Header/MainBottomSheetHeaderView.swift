@@ -23,21 +23,13 @@ struct MainBottomSheetHeaderView: View {
 
     init(
         viewModel: MainBottomSheetHeaderViewModel,
-        backgroundColor: Color = .Tangem.Surface.level2
+        backgroundColor: Color = DesignSystem.Color.bgPrimary
     ) {
         self.viewModel = viewModel
         self.backgroundColor = backgroundColor
     }
 
     var body: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            bodyRedesign
-        } else {
-            bodyLegacy
-        }
-    }
-
-    private var bodyRedesign: some View {
         TangemSearchField(
             text: $viewModel.enteredSearchText,
             focusAction: viewModel.focusSearchBarAction,
@@ -56,16 +48,6 @@ struct MainBottomSheetHeaderView: View {
         .focused($isFocused)
         .onReceive(viewModel.$inputShouldBecomeFocused) { isFocused = $0 }
     }
-
-    private var bodyLegacy: some View {
-        MainBottomSheetHeaderInputView(
-            searchText: $viewModel.enteredSearchText,
-            isTextFieldFocused: $viewModel.inputShouldBecomeFocused,
-            allowsHitTestingForTextField: true,
-            clearButtonAction: viewModel.clearSearchBarAction,
-            cancelButtonAction: viewModel.cancelSearchBarAction
-        )
-    }
 }
 
 // MARK: - Constants
@@ -74,8 +56,8 @@ extension MainBottomSheetHeaderView {
     enum Constants {
         /// Not a scaled property because `RootViewControllerFactory` uses this control internally
         /// and its `Constants` values cannot be made scaled as it can't be added to the view hierarchy.
-        static let searchFieldInsets: EdgeInsets = .init(inset: .unit(.x4))
-        static let searchFieldHeight: CGFloat = .unit(.x11)
+        static let searchFieldInsets: EdgeInsets = .init(inset: 16)
+        static let searchFieldHeight: CGFloat = 44
     }
 }
 

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  PushPermissionAccessibilityIdentifiers.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]

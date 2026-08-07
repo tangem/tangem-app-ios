@@ -27,26 +27,10 @@ struct TokenDetailsView: View {
         // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: Constants.sectionSpacing) {
-                if !viewModel.isRedesign {
-                    TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
-                }
+                TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
+                    .padding(.vertical, max(0, .unit(.x10) - Constants.sectionSpacing))
 
-                if viewModel.isRedesign {
-                    TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
-                        .padding(.vertical, max(0, .unit(.x10) - Constants.sectionSpacing))
-
-                    redesignActionsSection
-                } else {
-                    BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
-                }
-
-                notifications
-
-                marketPriceLegacy
-
-                yieldView
-
-                stakingView
+                redesignActionsSection
 
                 marketingBanner
 
@@ -59,34 +43,16 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
 
-                if !viewModel.isRedesign, let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
-                    QuickTopUpBannerView(viewModel: quickTopUpVM)
-                }
-
-                if FeatureProvider.isAvailable(.redesign) {
-                    TransactionsListViewRedesigned(
-                        state: viewModel.transactionHistoryState,
-                        exploreAction: viewModel.openExplorer,
-                        exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
-                        exploreTransactionAction: viewModel.openTransactionExplorer,
-                        reloadButtonAction: viewModel.onButtonReloadHistory,
-                        isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                        fetchMore: viewModel.fetchMoreHistory()
-                    )
-                    .padding(.bottom, 40)
-                } else {
-                    // [REDACTED_INFO]: remove legacy transactions list after redesign rollout.
-                    TransactionsListView(
-                        state: viewModel.transactionHistoryState,
-                        exploreAction: viewModel.openExplorer,
-                        exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
-                        exploreTransactionAction: viewModel.openTransactionExplorer,
-                        reloadButtonAction: viewModel.onButtonReloadHistory,
-                        isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                        fetchMore: viewModel.fetchMoreHistory()
-                    )
-                    .padding(.bottom, 40)
-                }
+                TransactionsListViewRedesigned(
+                    state: viewModel.transactionHistoryState,
+                    exploreAction: viewModel.openExplorer,
+                    exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
+                    exploreTransactionAction: viewModel.openTransactionExplorer,
+                    reloadButtonAction: viewModel.onButtonReloadHistory,
+                    isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
+                    fetchMore: viewModel.fetchMoreHistory()
+                )
+                .padding(.bottom, 40)
             }
             .padding(.top, Constants.headerTopPadding)
             .readContentOffset(
@@ -131,55 +97,20 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var principalContent: some View {
-        if viewModel.isRedesign {
-            redesignPrincipalToolbarContent
-        } else {
-            legacyPrincipalToolbarContent
-        }
+        redesignPrincipalToolbarContent
     }
 
     private var redesignPrincipalToolbarContent: some View {
         TokenDetailsNavigationBar(viewModel: viewModel.navigationBarViewModel)
     }
 
-    private var legacyPrincipalToolbarContent: some View {
-        TokenIcon(
-            tokenIconInfo: .init(
-                name: "",
-                blockchainIconAsset: nil,
-                imageURL: viewModel.iconUrl,
-                isCustom: false,
-                customTokenColor: viewModel.customTokenColor
-            ),
-            size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
-        )
-        .opacity(scrollOffsetHandler.state)
-    }
-
     private var trailingContent: some View {
         Group {
-            if viewModel.isRedesign {
-                redesignTrailingToolbarButton
-            } else {
-                legacyTrailingToolbarButton
-            }
+            redesignTrailingToolbarButton
         }
         .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(Localization.commonMore)
         .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
-    }
-
-    @ViewBuilder
-    private var legacyTrailingToolbarButton: some View {
-        if !viewModel.dotsMenuItems.isEmpty {
-            Menu {
-                ForEach(indexed: viewModel.dotsMenuItems.indexed()) { _, item in
-                    Button(item.type.title, role: item.type.role, action: item.action)
-                        .accessibilityIdentifier(item.type.accessibilityIdentifier)
-                }
-            } label: {
-                NavbarDotsImage()
-            }
-        }
     }
 
     @ViewBuilder
@@ -209,26 +140,12 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    private var yieldView: some View {
-        if !viewModel.isRedesign {
-            yieldStatusView
-        }
-    }
-
-    @ViewBuilder
     private var redesignYieldView: some View {
         switch viewModel.yieldState {
         case .some(let state):
             TokenDetailsYieldView(state: state)
         case .none:
             EmptyView()
-        }
-    }
-
-    @ViewBuilder
-    private var stakingView: some View {
-        if !viewModel.isRedesign {
-            legacyStakingView
         }
     }
 
@@ -243,16 +160,6 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    private var legacyStakingView: some View {
-        if let activeStakingViewData = viewModel.activeStakingViewData {
-            ActiveStakingView(data: activeStakingViewData)
-                .padding(14)
-                .background(Colors.Background.primary)
-                .cornerRadiusContinuous(14)
-        }
-    }
-
-    @ViewBuilder
     private var redesignTrailingToolbarButton: some View {
         let menuItems = ForEach(viewModel.dotsMenuItems) { menuItem in
             Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
@@ -261,33 +168,16 @@ struct TokenDetailsView: View {
         }
 
         if !viewModel.dotsMenuItems.isEmpty {
-            switch viewModel.presentSource {
-            case .navigation:
-                Menu("", systemImage: "ellipsis") {
+            Menu(
+                content: {
                     menuItems
+                },
+                label: {
+                    NavigationBarButton.details(action: {})
+                        .redesigned()
+                        .allowsHitTesting(false)
                 }
-            case .markets:
-                Menu(
-                    content: {
-                        menuItems
-                    },
-                    label: {
-                        NavigationBarButton.details(action: {})
-                            .redesigned()
-                            .allowsHitTesting(false)
-                    }
-                )
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var notifications: some View {
-        if !viewModel.isRedesign {
-            ForEach(viewModel.tokenNotificationInputs) { input in
-                NotificationView(input: input)
-                    .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
-            }
+            )
         }
     }
 
@@ -310,19 +200,6 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    private var marketPriceLegacy: some View {
-        if !viewModel.isRedesign, viewModel.isMarketsDetailsAvailable {
-            MarketPriceView(
-                currencySymbol: viewModel.currencySymbol,
-                price: viewModel.rateFormatted,
-                priceChangeState: viewModel.priceChangeState,
-                miniChartData: viewModel.miniChartData,
-                tapAction: viewModel.openMarketsTokenDetails
-            )
-        }
-    }
-
-    @ViewBuilder
     private var marketPriceRedesign: some View {
         if let viewModel = viewModel.marketPriceViewModel {
             TokenDetailsMarketPriceView(viewModel: viewModel)
@@ -335,24 +212,8 @@ struct TokenDetailsView: View {
         }
     }
 
-    @ViewBuilder
-    private var yieldStatusView: some View {
-        switch viewModel.yieldModuleAvailability {
-        case .checking, .notApplicable:
-            EmptyView()
-
-        case .eligible(let vm):
-            YieldAvailableNotificationView(viewModel: vm)
-
-        case .enter(let vm), .exit(let vm), .active(let vm):
-            YieldStatusView(viewModel: vm)
-        }
-    }
-
     private var backgroundColor: Color {
-        viewModel.isRedesign
-            ? Color.Tangem.Surface.level2
-            : Colors.Background.secondary
+        Color.Tangem.Surface.level2
     }
 }
 
@@ -394,7 +255,7 @@ private extension TokenDetailsView {
                 }
             }
             .modifyView { view in
-                if #unavailable(iOS 26.0), FeatureProvider.isAvailable(.redesign) {
+                if #unavailable(iOS 26.0) {
                     view.backportTranslucentNavigationBar()
                 } else {
                     view
@@ -406,9 +267,27 @@ private extension TokenDetailsView {
             content
                 .toolbar {
                     ToolbarItem(placement: .principal) { principalContent }
-                    ToolbarItem(placement: .topBarTrailing) { trailingContent }
+                    trailingToolbarItem
                 }
                 .navigationBarTitleDisplayMode(.inline)
+        }
+
+        /// [REDACTED_INFO]: works around an iOS 26 bug. If you open the ⋯ menu and go back to Main very quickly,
+        /// the menu button's glass gets pulled into the back animation and leaves a stray rectangle over
+        /// Main's toolbar buttons. There is no way to close a SwiftUI Menu from code to avoid this, so we turn
+        /// off the system glass on this item and give the ⋯ its own glass through the custom
+        /// `NavigationBarButton` label in `redesignTrailingToolbarButton` instead.
+        ///
+        /// Turning off the system glass is not something we want to do normally — it drops the nice built-in
+        /// animation. Only do it when a system bug leaves no other option, like here.
+        @ToolbarContentBuilder
+        private var trailingToolbarItem: some ToolbarContent {
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .topBarTrailing) { trailingContent }
+                    .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .topBarTrailing) { trailingContent }
+            }
         }
 
         private func makeMarketsNavigation(content: Content) -> some View {
@@ -426,6 +305,8 @@ private extension TokenDetailsView {
         }
     }
 }
+
+// MARK: - Previews
 
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
@@ -447,29 +328,41 @@ private extension TokenDetailsView {
     let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
         ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
     }
-    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
-        userWalletId: userWalletModel.userWalletId.stringValue,
+    let exchangeStatusPoller = ExchangeStatusPoller(
+        userWalletId: userWalletModel.userWalletId,
         tokenItem: walletModel.tokenItem,
-        walletModelUpdater: walletModel,
         cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
+    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
+        walletModelUpdater: walletModel,
+        poller: exchangeStatusPoller
+    )
     let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
-    let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
-        userWalletId: userWalletModel.userWalletId.stringValue,
+    let onrampStatusPoller = OnrampStatusPoller(
+        userWalletId: userWalletModel.userWalletId,
         tokenItem: walletModel.tokenItem,
-        expressAPIProvider: onrampExpressAPIProvider,
-        unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
-            userWalletId: userWalletModel.userWalletId.stringValue,
-            tokenItem: walletModel.tokenItem,
-            expressAPIProvider: onrampExpressAPIProvider
-        )
+        expressAPIProvider: onrampExpressAPIProvider
+    )
+    let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
+        userWalletId: userWalletModel.userWalletId,
+        tokenItem: walletModel.tokenItem,
+        expressAPIProvider: onrampExpressAPIProvider
+    )
+    let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
+        unknownStatusRecoveryService: unknownStatusRecoveryService,
+        poller: onrampStatusPoller
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
         first: pendingExpressTxsManager,
         second: pendingOnrampTxsManager
     )
     let coordinator = TokenDetailsCoordinator()
+    let expressStatusPollingHelper = ExpressStatusPollingHelper(
+        exchangePoller: exchangeStatusPoller,
+        onrampPoller: onrampStatusPoller,
+        enricherFactory: { nil }
+    )
 
     TokenDetailsView(
         viewModel: .init(
@@ -478,6 +371,7 @@ private extension TokenDetailsView {
             notificationManager: notifManager,
             userTokensManager: cryptoAccountModel.userTokensManager,
             pendingExpressTransactionsManager: pendingTxsManager,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             xpubGenerator: nil,
             coordinator: coordinator,
             tokenRouter: SingleTokenRouter(
@@ -485,12 +379,12 @@ private extension TokenDetailsView {
                 coordinator: coordinator
             ),
             pendingTransactionDetails: nil,
-            presentSource: .navigation,
             deeplinkHandler: PromotionDeeplinkHandler(
                 coordinator: coordinator,
                 walletModel: walletModel,
                 userWalletInfo: userWalletModel.userWalletInfo
-            )
+            ),
+            presentSource: .navigation
         )
     )
 }

@@ -12,7 +12,6 @@ import Foundation
 
 struct KeysManagerStub: KeysManager {
     let appsFlyer: AppsFlyerConfig = .stub
-    let customerIO: CustomerIOKeys = .stub
     let surveySparrow: SurveySparrowKeys = .stub
     let moonPayKeys: MoonPayKeys = .stub
     let mercuryoWidgetId: String = ""
@@ -46,12 +45,6 @@ struct KeysManagerStub: KeysManager {
 extension AppsFlyerConfig {
     static let stub: AppsFlyerConfig = decode("""
     {"appsFlyerDevKey": "", "appsFlyerAppID": ""}
-    """)
-}
-
-extension CustomerIOKeys {
-    static let stub: CustomerIOKeys = decode("""
-    {"iosApiKey": ""}
     """)
 }
 
