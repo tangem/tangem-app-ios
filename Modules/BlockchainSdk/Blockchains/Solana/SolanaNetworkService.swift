@@ -240,32 +240,24 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             .eraseToAnyPublisher()
     }
 
+    /// The multiplier divides the amount the card signs, so unlike every other read here it is not acted on as soon
+    /// as one provider answers: every provider is asked at once and the value is used only once two of them report it
+    /// identically, at which point the requests still in flight are cancelled.
     func getScaledUiAmountMultiplier(
         mintAddress: String,
         transactionDate: Date
     ) -> AnyPublisher<Decimal?, Error> {
-        providerPublisher { [weak self] provider in
+        return Future.async { [weak self] in
             guard let self else {
-                return .anyFail(error: BlockchainSdkError.empty)
+                throw BlockchainSdkError.empty
             }
 
-            let target = SolanaScaledUiAmountTarget(
-                endpoint: provider,
-                request: .getAccountInfo(mintAddress: mintAddress)
+            return try await corroboratedScaledUIAmountMultiplier(
+                mintAddress: mintAddress,
+                transactionDate: transactionDate
             )
-
-            return networkProvider.requestPublisher(target)
-                .filterSuccessfulStatusAndRedirectCodes()
-                .map(JSONRPC.Response<SolanaScaledUiAmountDTO.GetAccountInfoResult, JSONRPC.APIError>.self)
-                .tryMap { response in
-                    let accountInfo = try response.result.get()
-                    return self.selectScaledUiAmountMultiplier(
-                        from: accountInfo,
-                        transactionDate: transactionDate
-                    )
-                }
-                .eraseToAnyPublisher()
         }
+        .eraseToAnyPublisher()
     }
 
     func getAddressLookupTable(accountKey: PublicKey) async throws -> AddressLookupTableAccount {
@@ -507,31 +499,118 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         }
     }
 
-    private func selectScaledUiAmountMultiplier(
-        from accountInfo: SolanaScaledUiAmountDTO.GetAccountInfoResult,
+    private func corroboratedScaledUIAmountMultiplier(
+        mintAddress: String,
         transactionDate: Date
-    ) -> Decimal? {
-        let extensionConfig = accountInfo.value?
-            .data?
-            .parsed?
-            .info?
-            .extensions
-            .first(where: { $0.extension == "scaledUiAmountConfig" })
+    ) async throws -> Decimal? {
+        try await withThrowingTaskGroup(of: ScaledUIAmountProviderAnswer.self) { group in
+            for endpoint in distinctProviders {
+                group.addTask { [weak self] in
+                    guard let self else {
+                        return ScaledUIAmountProviderAnswer(host: endpoint.host, result: .failure(BlockchainSdkError.empty))
+                    }
 
-        guard let state = extensionConfig?.state else {
-            return nil
+                    do {
+                        let answer = try await scaledUIAmountAnswer(
+                            from: endpoint,
+                            mintAddress: mintAddress,
+                            transactionDate: transactionDate
+                        ).async()
+
+                        return ScaledUIAmountProviderAnswer(host: endpoint.host, result: .success(answer))
+                    } catch {
+                        return ScaledUIAmountProviderAnswer(host: endpoint.host, result: .failure(error))
+                    }
+                }
+            }
+
+            var reported: [(host: String, answer: ScaledUIAmount.Answer)] = []
+            var lastFailure: (host: String, error: Error)?
+
+            for try await provider in group {
+                switch provider.result {
+                case .success(let answer):
+                    reported.append((provider.host, answer))
+
+                    if answer == .unknown {
+                        BSDKLogger.warning("\(provider.host) settled nothing about the scaling of \(mintAddress)")
+                    } else {
+                        BSDKLogger.debug("\(provider.host) reports \(answer) for \(mintAddress)")
+                    }
+
+                    if let corroborated = ScaledUIAmount.corroborated(in: reported.map(\.answer)) {
+                        group.cancelAll()
+                        return corroborated.multiplier
+                    }
+
+                case .failure(let error):
+                    logScaledUIAmountFailure(error, host: provider.host)
+                    lastFailure = (provider.host, error)
+
+                    if shouldStopSwitching(error: error) {
+                        group.cancelAll()
+                        throw MultiNetworkProviderError(networkError: error.toUniversalError(), lastRetryHost: provider.host)
+                    }
+                }
+            }
+
+            do {
+                return try ScaledUIAmount.corroborate(answers: reported.map(\.answer))
+            } catch {
+                // A quorum missing because hosts failed is a network problem, and reporting it as one keeps the
+                // failing host in the error for analytics. A quorum missing because the hosts that did answer
+                // disagreed is about the scaling itself, and that error goes out as is.
+                let voted = reported.filter { $0.answer != .unknown }.count
+
+                if let lastFailure, voted < ScaledUIAmount.corroboratingProviderCount {
+                    throw MultiNetworkProviderError(
+                        networkError: lastFailure.error.toUniversalError(),
+                        lastRetryHost: lastFailure.host
+                    )
+                }
+
+                let answers = reported.map { "\($0.host) — \($0.answer)" }.joined(separator: ", ")
+                BSDKLogger.error("Scaling of \(mintAddress) rejected, reported: \(answers)", error: error)
+                throw error
+            }
         }
-
-        let transactionTimestamp = Int64(transactionDate.timeIntervalSince1970)
-        let multiplierString: String?
-
-        if let effectiveTimestamp = state.newMultiplierEffectiveTimestamp,
-           transactionTimestamp >= effectiveTimestamp {
-            multiplierString = state.newMultiplier
-        } else {
-            multiplierString = state.multiplier
-        }
-
-        return Decimal(stringValue: multiplierString)
     }
+
+    private func logScaledUIAmountFailure(_ error: Error, host: String) {
+        if let body = error.asMoyaError?.unsuccessfulResponseBody {
+            NetworkLogger.error("Scaled UI amount request to \(host) failed: \(body)", error: error)
+        } else {
+            NetworkLogger.error("Scaled UI amount request to \(host) failed", error: error)
+        }
+    }
+
+    private var distinctProviders: [RPCEndpoint] {
+        var seenHosts: Set<String> = []
+        return providers.filter { seenHosts.insert($0.host).inserted }
+    }
+
+    private func scaledUIAmountAnswer(
+        from endpoint: RPCEndpoint,
+        mintAddress: String,
+        transactionDate: Date
+    ) -> AnyPublisher<ScaledUIAmount.Answer, Error> {
+        let target = SolanaScaledUiAmountTarget(
+            endpoint: endpoint,
+            request: .getAccountInfo(mintAddress: mintAddress)
+        )
+
+        return networkProvider.requestPublisher(target)
+            .filterSuccessfulStatusAndRedirectCodes()
+            .map(JSONRPC.Response<SolanaScaledUiAmountDTO.GetAccountInfoResult, JSONRPC.APIError>.self)
+            .tryMap { response in
+                let accountInfo = try response.result.get()
+                return ScaledUIAmount.Answer(accountInfo: accountInfo, transactionDate: transactionDate)
+            }
+            .eraseToAnyPublisher()
+    }
+}
+
+private struct ScaledUIAmountProviderAnswer {
+    let host: String
+    let result: Result<ScaledUIAmount.Answer, Error>
 }
