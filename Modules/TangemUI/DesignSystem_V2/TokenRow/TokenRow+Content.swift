@@ -24,19 +24,25 @@ public struct TokenRowPriceChange: Equatable, Hashable, Sendable {
     }
 }
 
-public enum TokenRowBalanceValue: Equatable, Hashable, Sendable {
+public enum TokenRowValue: Equatable, Hashable, Sendable {
     case loading
     case updating(UtilBalance.Value)
     case loaded(UtilBalance.Value)
 }
 
-public extension TokenRowBalanceValue {
+public extension TokenRowValue {
     static func updating(_ value: String) -> Self {
-        TokenRowBalanceValue.updating(UtilBalance.Value.string(value))
+        TokenRowValue.updating(UtilBalance.Value.string(value))
     }
 
     static func loaded(_ value: String) -> Self {
-        TokenRowBalanceValue.loaded(UtilBalance.Value.string(value))
+        TokenRowValue.loaded(UtilBalance.Value.string(value))
+    }
+}
+
+extension TokenRowValue {
+    var isLoading: Bool {
+        self == TokenRowValue.loading
     }
 }
 
@@ -55,9 +61,9 @@ public extension TokenRow {
 
     struct Balance: Equatable, Hashable, Sendable {
         public let fiat: Fiat
-        public let crypto: TokenRowBalanceValue?
+        public let crypto: TokenRowValue?
 
-        public init(fiat: Fiat, crypto: TokenRowBalanceValue? = nil) {
+        public init(fiat: Fiat, crypto: TokenRowValue? = nil) {
             self.fiat = fiat
             self.crypto = crypto
         }
@@ -129,7 +135,7 @@ public extension TokenRow {
     }
 
     enum CompactSubtitle: Equatable, Hashable, Sendable {
-        case balance(TokenRowBalanceValue)
+        case balance(TokenRowValue)
         case message(String)
     }
 
@@ -168,7 +174,7 @@ extension TokenRow.Balance {
     }
 
     var hasSkeleton: Bool {
-        fiat == TokenRow.Balance.Fiat.loading || crypto == TokenRowBalanceValue.loading
+        fiat == TokenRow.Balance.Fiat.loading || crypto?.isLoading == true
     }
 }
 
@@ -180,11 +186,11 @@ extension TokenRow.Balance.Fiat {
         }
     }
 
-    var value: TokenRowBalanceValue {
+    var value: TokenRowValue {
         switch self {
-        case .loading: TokenRowBalanceValue.loading
-        case .updating(let value): TokenRowBalanceValue.updating(value)
-        case .loaded(let value, _): TokenRowBalanceValue.loaded(value)
+        case .loading: TokenRowValue.loading
+        case .updating(let value): TokenRowValue.updating(value)
+        case .loaded(let value, _): TokenRowValue.loaded(value)
         }
     }
 }
