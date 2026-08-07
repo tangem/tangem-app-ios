@@ -102,17 +102,15 @@ struct CurrenciesStoryPage: View {
     }
 }
 
-struct CurrenciesStoryPage_Previews: PreviewProvider {
-    static var previews: some View {
-        CurrenciesStoryPage(
-            progress: 1,
-            isScanning: false,
-            createWallet: {},
-            scanCard: {},
-            orderCard: {},
-            searchTokens: {},
-            scanTroubleshootingDialog: .constant(nil)
-        )
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
-    }
+#Preview {
+    CurrenciesStoryPage(
+        progress: 1,
+        isScanning: false,
+        createWallet: {},
+        scanCard: {},
+        orderCard: {},
+        searchTokens: {},
+        scanTroubleshootingDialog: .constant(nil)
+    )
+    .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
 }

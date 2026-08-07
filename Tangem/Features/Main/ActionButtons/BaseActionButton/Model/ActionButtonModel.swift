@@ -28,14 +28,13 @@ enum ActionButtonModel: Hashable {
     }
 
     var icon: ImageType {
-        let isRedesign = FeatureProvider.isAvailable(.redesign)
         switch self {
         case .buy:
-            return isRedesign ? Assets.DesignSystem.arrowDown : Assets.arrowDownMini
+            return Assets.DesignSystem.arrowDown
         case .swap:
-            return isRedesign ? Assets.DesignSystem.exchange : Assets.addfundsSwap
+            return Assets.DesignSystem.exchange
         case .sell:
-            return isRedesign ? Assets.DesignSystem.arrowUp : Assets.arrowUpMini
+            return Assets.DesignSystem.arrowUp
         }
     }
 

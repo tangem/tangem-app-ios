@@ -53,7 +53,8 @@ extension TransactionDisplayModel {
                 status: status,
                 isOutgoing: isOutgoing,
                 isFromYieldContract: isFromYieldContract,
-                legacyName: legacyName
+                legacyName: legacyName,
+                subtitleOwner: subtitleOwner
             ),
             subtitle: subtitle(
                 transactionType: transactionType,
@@ -97,19 +98,22 @@ extension TransactionDisplayModel {
         status: TransactionViewModel.Status,
         isOutgoing: Bool,
         isFromYieldContract: Bool,
-        legacyName: String
+        legacyName: String,
+        subtitleOwner: TransactionViewModel.SubtitleOwner?
     ) -> String {
         switch transactionType {
         case .transfer:
-            return directionalTitle(isOutgoing: isOutgoing, status: status)
+            return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
         case .yieldSend where transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract):
-            return directionalTitle(isOutgoing: isOutgoing, status: status)
+            return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
         case .swap:
             return statusTitle(status: status, progress: Localization.commonSwapping, done: Localization.commonSwapped)
         case .approve:
             return statusTitle(status: status, progress: Localization.commonApproving, done: Localization.commonApproved)
         case .stake:
             return statusTitle(status: status, progress: Localization.commonStaking, done: Localization.commonStaked)
+        case .unstake:
+            return statusTitle(status: status, progress: Localization.stakingUnstaking, done: Localization.stakingUnstaked)
         default:
             return legacyName
         }
@@ -154,6 +158,18 @@ extension TransactionDisplayModel {
         default:
             return nil
         }
+    }
+
+    private static func transferTitle(
+        isOutgoing: Bool,
+        status: TransactionViewModel.Status,
+        subtitleOwner: TransactionViewModel.SubtitleOwner?
+    ) -> String {
+        if subtitleOwner?.isOwnWallet == true {
+            return statusTitle(status: status, progress: Localization.commonTransfer, done: Localization.commonTransferred)
+        }
+
+        return directionalTitle(isOutgoing: isOutgoing, status: status)
     }
 
     private static func directionalTitle(isOutgoing: Bool, status: TransactionViewModel.Status) -> String {

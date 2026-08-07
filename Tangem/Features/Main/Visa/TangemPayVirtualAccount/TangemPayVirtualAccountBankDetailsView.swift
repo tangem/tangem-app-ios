@@ -66,18 +66,18 @@ struct TangemPayVirtualAccountBankDetailsView: View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: row.title)
-                    .font(DesignSystem.Font.captionMediumToken)
+                    .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textSecondary)
 
                 Text(verbatim: row.value)
-                    .font(DesignSystem.Font.subheadingMediumToken)
+                    .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountBankDetailValue(row.key))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            Button(action: { viewModel.copy(row.value) }) {
+            Button(action: { viewModel.copy(row) }) {
                 DesignSystem.Icons.Copy.regular24.image
                     .renderingMode(.template)
                     .resizable()
@@ -99,11 +99,11 @@ struct TangemPayVirtualAccountBankDetailsView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: "\(Localization.tangempayVaAvailableToDepositDay) \(Constants.dailyDepositLimit)")
-                    .font(DesignSystem.Font.subheadingMediumToken)
+                    .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
 
                 Text(Localization.tangempayVaLimitResettingEveryday)
-                    .font(DesignSystem.Font.captionMediumToken)
+                    .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textSecondary)
             }
             .fixedSize(horizontal: false, vertical: true)
