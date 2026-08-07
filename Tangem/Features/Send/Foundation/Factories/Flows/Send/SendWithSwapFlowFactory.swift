@@ -210,6 +210,7 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
             providersSelector: providers.selector,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendWithSwapModel),
             initialStep: predefinedInitialStep,
+            shouldStartFromTokenList: shouldStartFromTokenList,
             router: router
         )
 
