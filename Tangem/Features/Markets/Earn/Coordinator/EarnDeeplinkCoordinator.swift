@@ -15,10 +15,17 @@ final class EarnDeeplinkCoordinator: ObservableObject {
     @Injected(\.earnAnalyticsProvider) private var earnAnalyticsProvider: EarnAnalyticsProvider
 
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
+    @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator?
+    @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator?
 
     private(set) var earnCoordinator: EarnCoordinator!
 
+    private let earnType: EarnFilterType?
+    private var yieldDeeplinkRouter: YieldDeeplinkRouter?
+
     init(earnType: EarnFilterType?, networkId: String?, dismissAction: @escaping () -> Void) {
+        self.earnType = earnType
+
         earnCoordinator = EarnCoordinator(
             dismissAction: dismissAction,
             routeOnEarnTokenResolvedAction: { [weak self] resolution, source in
@@ -104,6 +111,18 @@ extension EarnDeeplinkCoordinator: EarnAddTokenRoutable {
         tokenDetailsCoordinator = coordinator
     }
 
+    /// In a yield-intent flow (`earn_type=yield`) a freshly added token routes straight to the
+    /// Yield onboarding; otherwise it opens token details as usual. The yield routing itself
+    /// falls back to token details when the Yield state can't be resolved.
+    func presentAfterAdd(by walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
+        guard earnType == .yield else {
+            presentTokenDetails(by: walletModel, with: userWalletModel)
+            return
+        }
+
+        openYieldOnboarding(walletModel: walletModel, userWalletModel: userWalletModel)
+    }
+
     func close() {
         floatingSheetPresenter.removeActiveSheet()
     }
@@ -125,10 +144,83 @@ extension EarnDeeplinkCoordinator: EarnAddTokenRoutable {
     }
 }
 
+// MARK: - Yield onboarding
+
+private extension EarnDeeplinkCoordinator {
+    func openYieldOnboarding(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        yieldDeeplinkRouter = YieldDeeplinkRouter(
+            discardIncomingAction: { [weak self] in
+                self?.presentTokenDetails(by: walletModel, with: userWalletModel)
+            },
+            openYieldPromoAction: { [weak self] apy, flowFactory in
+                self?.openYieldModulePromoView(apy: apy, factory: flowFactory)
+            },
+            openYieldActiveAction: { [weak self] flowFactory in
+                self?.openYieldModuleActiveInfo(factory: flowFactory)
+            },
+            onFinish: { [weak self] in
+                self?.yieldDeeplinkRouter = nil
+            }
+        )
+
+        yieldDeeplinkRouter?.handle(walletModel: walletModel, userWalletModel: userWalletModel)
+    }
+
+    func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
+        let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
+            self?.handleYieldDismiss(option)
+        }
+
+        yieldModulePromoCoordinator = factory.makeYieldPromoCoordinator(
+            apy: apy,
+            isApyBoostPromo: false,
+            dismissAction: dismissAction
+        )
+    }
+
+    func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
+        let dismissAction: Action<YieldModuleActiveCoordinator.DismissOptions?> = { [weak self] option in
+            self?.handleYieldDismiss(option)
+        }
+
+        yieldModuleActiveCoordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
+    }
+
+    /// Mirrors `FeeCurrencyNavigating` (which this coordinator can't adopt — it isn't a
+    /// `CoordinatorObject`): clears the active Yield screen and, when requested, opens token
+    /// details for the fee currency.
+    func handleYieldDismiss(_ option: FeeCurrencyNavigatingDismissOption?) {
+        yieldModulePromoCoordinator = nil
+        yieldModuleActiveCoordinator = nil
+
+        guard
+            let option,
+            let result = try? WalletModelFinder.findWalletModel(
+                userWalletId: option.userWalletId,
+                tokenItem: option.tokenItem
+            )
+        else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feeCurrencyNavigationDelay) { [weak self] in
+            self?.presentTokenDetails(by: result.walletModel, with: result.userWalletModel)
+        }
+    }
+}
+
 // MARK: - Constants
 
 private extension EarnDeeplinkCoordinator {
     enum ToastConstants {
         static let topPadding: CGFloat = 52
+    }
+
+    enum Constants {
+        /// Lets the dismissed Yield screen finish its closing animation before the fee-currency
+        /// token details are presented — without it SwiftUI may drop the new presentation that
+        /// starts while the previous one is still dismissing. Mirrors `FeeCurrencyNavigating`
+        /// (0.6), shortened a touch to feel snappier while still clearing the ~0.35s animation.
+        static let feeCurrencyNavigationDelay: TimeInterval = 0.5
     }
 }

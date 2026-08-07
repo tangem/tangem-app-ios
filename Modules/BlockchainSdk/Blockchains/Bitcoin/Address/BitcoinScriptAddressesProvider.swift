@@ -1,5 +1,5 @@
 //
-//  BitcoinScriptAddressProvider.swift
+//  BitcoinScriptAddressesProvider.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

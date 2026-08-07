@@ -13,6 +13,8 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
     case loading(cached: CachedStakingManagerState? = nil)
     case notEnabled
     case loadingError(String, cached: CachedStakingManagerState? = nil)
+    /// The p2p API returned 451: staking is blocked in the user's region
+    case unavailableInRegion(cached: CachedStakingManagerState? = nil)
     // When we turn off the YieldInfo in the admin panel
     case temporaryUnavailable(StakingYieldInfo, cached: CachedStakingManagerState? = nil)
     case availableToStake(StakingYieldInfo)
@@ -20,7 +22,7 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
 
     public var yieldInfo: StakingYieldInfo? {
         switch self {
-        case .loading, .notEnabled, .loadingError:
+        case .loading, .notEnabled, .loadingError, .unavailableInRegion:
             return nil
         case .temporaryUnavailable(let yieldInfo, _), .availableToStake(let yieldInfo):
             return yieldInfo
@@ -60,6 +62,7 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
         case .loading: "loading"
         case .notEnabled: "notEnabled"
         case .loadingError(let error, _): "loadingError \(error)"
+        case .unavailableInRegion: "unavailableInRegion"
         case .temporaryUnavailable: "temporaryUnavailable"
         case .availableToStake: "availableToStake"
         case .staked: "staked"
@@ -72,7 +75,7 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
             stakingYieldInfo.apy
         case .staked(let staked):
             staked.balances.apy(fallbackAPY: staked.yieldInfo.apy)
-        case .loading(let cached), .loadingError(_, let cached):
+        case .loading(let cached), .loadingError(_, let cached), .unavailableInRegion(let cached):
             cached?.apy
         default:
             nil
@@ -85,7 +88,7 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
             stakingYieldInfo.rewardType
         case .staked(let staked):
             staked.yieldInfo.rewardType
-        case .loading(.some(let cached)), .loadingError(_, .some(let cached)):
+        case .loading(.some(let cached)), .loadingError(_, .some(let cached)), .unavailableInRegion(.some(let cached)):
             switch cached.rewardType {
             case .apy: .apy
             case .apr: .apr
@@ -99,7 +102,7 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
         switch self {
         case .availableToStake: false
         case .staked: true
-        case .loading(.some(let cached)), .loadingError(_, .some(let cached)):
+        case .loading(.some(let cached)), .loadingError(_, .some(let cached)), .unavailableInRegion(.some(let cached)):
             switch cached.stakeState {
             case .availableToStake: false
             case .staked: true

@@ -31,19 +31,7 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
         bind()
     }
 
-    func onBottomSheetExpand(isTapGesture: Bool) {
-        guard
-            isTapGesture,
-            // In the redesign the search field opens only on a tap when the sheet is already expanded,
-            // so expanding the sheet itself must not focus the input.
-            !FeatureProvider.isAvailable(.redesign),
-            delegate?.isViewVisibleForHeaderViewModel(self) == true
-        else {
-            return
-        }
-
-        inputShouldBecomeFocused = true
-    }
+    func onBottomSheetExpand(isTapGesture: Bool) {}
 
     func focusSearchBarAction() {
         inputShouldBecomeFocused = true

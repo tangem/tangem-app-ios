@@ -47,7 +47,7 @@ struct EarnFilterHeaderView: View {
             )
         }
         .padding(.horizontal, horizontalPadding)
-        .padding(.vertical, FeatureProvider.isAvailable(.redesign) ? .zero : verticalPadding)
+        .padding(.vertical, .zero)
     }
 
     @ViewBuilder
@@ -57,49 +57,12 @@ struct EarnFilterHeaderView: View {
         isLoading: Bool,
         isEnabled: Bool
     ) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            filterButtonRedesign(
-                title: title,
-                action: action,
-                isLoading: isLoading,
-                isEnabled: isEnabled
-            )
-        } else {
-            filterButtonLegacy(
-                title: title,
-                action: action,
-                isLoading: isLoading,
-                isEnabled: isEnabled
-            )
-        }
-    }
-
-    private func filterButtonLegacy(
-        title: String,
-        action: @escaping () -> Void,
-        isLoading: Bool,
-        isEnabled: Bool
-    ) -> some View {
-        Button {
-            action()
-        } label: {
-            HStack(spacing: Layout.buttonContentSpacing) {
-                Text(title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-
-                Assets.chevronDownMini.image
-            }
-            .padding(.horizontal, Layout.buttonHorizontalPadding)
-            .padding(.vertical, Layout.buttonVerticalPadding)
-            .background(
-                RoundedRectangle(cornerRadius: Layout.buttonCornerRadius)
-                    .fill(Colors.Button.secondary)
-            )
-            .opacity(isEnabled ? Layout.enabledOpacity : Layout.disabledOpacity)
-            .skeletonable(isShown: isLoading, radius: Layout.buttonCornerRadius)
-        }
-        .buttonStyle(.plain)
-        .allowsHitTesting(isEnabled)
+        filterButtonRedesign(
+            title: title,
+            action: action,
+            isLoading: isLoading,
+            isEnabled: isEnabled
+        )
     }
 
     @ViewBuilder
@@ -135,16 +98,5 @@ private struct ButtonSkeleton: View {
         SkeletonView()
             .frame(width: width, height: height)
             .clipShape(.capsule)
-    }
-}
-
-private extension EarnFilterHeaderView {
-    enum Layout {
-        static let buttonContentSpacing: CGFloat = 6.0
-        static let buttonHorizontalPadding: CGFloat = 10.0
-        static let buttonVerticalPadding: CGFloat = 6.0
-        static let buttonCornerRadius: CGFloat = 8.0
-        static let enabledOpacity = 1.0
-        static let disabledOpacity = 0.7
     }
 }

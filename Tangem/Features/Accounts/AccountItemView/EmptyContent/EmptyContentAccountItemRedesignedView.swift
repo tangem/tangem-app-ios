@@ -21,13 +21,14 @@ struct EmptyContentAccountItemRedesignedView: View {
                 .textColor(Color.Tangem.Text.Neutral.tertiary)
                 .spacing(.unit(.x5))
 
-            TangemButton(
-                content: .text(AttributedString(Localization.commonAddTokens)),
+            TangemButtonV2(
+                label: Localization.commonAddTokens,
+                accessibilityLabel: nil,
                 action: onManageTokensTap
             )
-            .setStyleType(.secondary)
-            .setSize(.x10)
-            .setHorizontalLayout(.intrinsic)
+            .styleType(.secondary)
+            .size(.x10)
+            .horizontalLayout(.intrinsic)
         }
         .padding(.vertical, .unit(.x9))
     }

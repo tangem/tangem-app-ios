@@ -1,6 +1,6 @@
 //
-//  File.swift
-//
+//  SigningAlgorithm.swift
+//  XRPKit
 //
 //  Created by [REDACTED_AUTHOR]
 //

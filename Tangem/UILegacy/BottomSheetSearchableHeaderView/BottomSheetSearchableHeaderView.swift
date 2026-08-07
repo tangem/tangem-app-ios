@@ -65,11 +65,9 @@ struct BottomSheetSearchableHeaderView: View {
     }
 }
 
-struct BottomSheetSearchableHeaderView_Preview: PreviewProvider {
-    @State private static var searchText: String = ""
-    static var previews: some View {
-        StatefulPreviewWrapper(searchText) { searchText in
-            BottomSheetSearchableHeaderView(title: "Choose token", searchText: searchText)
-        }
-    }
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var searchText = ""
+
+    BottomSheetSearchableHeaderView(title: "Choose token", searchText: $searchText)
 }

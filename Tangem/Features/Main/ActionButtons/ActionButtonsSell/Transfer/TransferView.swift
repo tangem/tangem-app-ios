@@ -32,13 +32,13 @@ struct TransferView: View {
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 20)
-        .background(Color.Tangem.Surface.level2.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .navigationBarHidden(true)
         .onFirstAppear(perform: viewModel.onAppear)
     }
 
     private var optionsSection: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: 8) {
             ForEach(viewModel.options) { option in
                 AddFundsOptionView(viewData: option.viewData, isEnabled: viewModel.isEnabled(option), action: {
                     viewModel.userDidTap(option)

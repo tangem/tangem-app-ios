@@ -45,12 +45,8 @@ struct OnrampProviderRequirementsBottomSheetView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-struct OnrampProviderRequirementsBottomSheetView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnrampProviderRequirementsBottomSheetView(
-            viewModel: OnrampProviderRequirementsBottomSheetViewModel()
-        )
-    }
+#Preview {
+    OnrampProviderRequirementsBottomSheetView(
+        viewModel: OnrampProviderRequirementsBottomSheetViewModel()
+    )
 }
-#endif // DEBUG

@@ -9,12 +9,16 @@
 import Combine
 import TangemAssets
 
-final class SelectorReceiveAssetsDomainItemViewModel: Identifiable, ObservableObject {
-    let domainName: String
-    let addressIconViewModel: AddressIconViewModel
+class SelectorReceiveAssetsDomainItemViewModel: Identifiable, ObservableObject {
+    var address: String {
+        domainName
+    }
+
+    let addressIcon: AddressBlockiesIconViewData
 
     // MARK: - Private Properties
 
+    private let domainName: String
     private let addressInfo: ReceiveAddressInfo
     private let analyticsLogger: ItemSelectorReceiveAssetsAnalyticsLogger
     private weak var coordinator: SelectorReceiveAssetItemRoutable?
@@ -31,7 +35,8 @@ final class SelectorReceiveAssetsDomainItemViewModel: Identifiable, ObservableOb
         self.addressInfo = addressInfo
         self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
-        addressIconViewModel = AddressIconViewModel(address: domainName)
+
+        addressIcon = AddressIconProvider.makeBlockiesIconViewData(address: domainName)
     }
 
     // MARK: - Actions
