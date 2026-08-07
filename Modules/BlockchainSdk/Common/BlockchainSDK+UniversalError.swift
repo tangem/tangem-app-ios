@@ -96,6 +96,10 @@ extension BlockchainSdkError: UniversalError {
             return 102000023
         case .noTrustlineAtDestination:
             return 102000024
+        case .scaledUIAmountMultiplierMismatch:
+            return 102000025
+        case .scaledUIAmountMultiplierNotCorroborated:
+            return 102000026
         }
     }
 }
