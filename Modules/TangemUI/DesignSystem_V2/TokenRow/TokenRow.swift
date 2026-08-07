@@ -158,7 +158,7 @@ private extension TokenRow {
 
     @ViewBuilder
     func balanceLine(
-        _ value: TokenRowBalanceValue,
+        _ value: TokenRowValue,
         token: TangemTypographyToken,
         color: Color,
         skeletonStyle: Shimmer.TextStyle,
@@ -407,26 +407,15 @@ private extension TokenRow {
 
 private extension TokenRow {
     func titleText(_ text: String, isDimmed: Bool = false) -> some View {
-        Text(text)
-            .style(
-                DesignSystem.Font.bodyMediumToken,
-                color: isDimmed ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
-            )
-            .lineLimit(1)
-            .truncationMode(.tail)
-            .accessibilityIdentifier(identifiers?.name)
+        TokenRowTitleText(text, isDimmed: isDimmed, accessibilityIdentifier: identifiers?.name)
     }
 
     func captionText(_ text: String) -> some View {
-        Text(text)
-            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-            .lineLimit(1)
-            .truncationMode(.tail)
+        TokenRowCaptionText(text)
     }
 
     func tokenIcon(_ icon: TokenIconInfo, isGrayscale: Bool = false) -> some View {
-        TokenIconV2(tokenIconInfo: icon, size: TokenRowMetrics.iconSize)
-            .grayscale(isGrayscale)
+        TokenRowTokenIcon(icon, isGrayscale: isGrayscale)
     }
 }
 

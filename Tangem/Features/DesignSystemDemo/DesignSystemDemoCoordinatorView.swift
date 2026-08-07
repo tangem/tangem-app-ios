@@ -108,6 +108,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tokenRowV2DemoViewModel) {
                 TokenRowV2DemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tokenRowMarketDemoViewModel) {
+                TokenRowMarketDemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.utilGraphDemoViewModel) {
                 UtilGraphDemoView(viewModel: $0)
             }
@@ -191,6 +194,7 @@ struct DesignSystemDemoView: View {
             DemoItem(title: "Fade", open: viewModel.openTangemFadeDemo),
             DemoItem(title: "TokenIconV2", open: viewModel.openTokenIconV2Demo),
             DemoItem(title: "TokenRow", open: viewModel.openTokenRowV2Demo),
+            DemoItem(title: "TokenRowMarket", open: viewModel.openTokenRowMarketDemo),
             DemoItem(title: "UtilGraph", open: viewModel.openUtilGraphDemo),
             DemoItem(title: "UtilPriceChange", open: viewModel.openUtilPriceChangeDemo),
             DemoItem(title: "UtilBalance", open: viewModel.openUtilBalanceDemo),
