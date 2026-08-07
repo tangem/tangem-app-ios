@@ -44,6 +44,15 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayChooseNetworkSheetViewModel.self) {
+                TangemPayChooseNetworkSheetView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayReceiveSheetViewModel.self) {
+                TangemPayReceiveSheetView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayOtherNetworksSheetViewModel.self) {
+                TangemPayOtherNetworksSheetView(viewModel: $0)
+            }
             .floatingSheetContent(for: TangemPayNoDepositAddressSheetViewModel.self) {
                 TangemPayNoDepositAddressSheetView(viewModel: $0)
             }
