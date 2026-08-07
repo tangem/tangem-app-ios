@@ -44,6 +44,8 @@ public extension TangemPayOrderResponse {
         public let paymentAccountId: String?
         public let transactionHash: String?
         public let targetTariffPlanId: String?
+        public let chainId: Int?
+        public let depositAddress: String?
     }
 
     enum Step: String {
