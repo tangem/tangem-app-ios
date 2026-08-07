@@ -127,6 +127,10 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openTokenIconV2Demo()
     }
 
+    func openTokenRowV2Demo() {
+        coordinator?.openTokenRowV2Demo()
+    }
+
     func openUtilGraphDemo() {
         coordinator?.openUtilGraphDemo()
     }
