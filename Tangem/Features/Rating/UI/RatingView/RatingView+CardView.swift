@@ -40,7 +40,6 @@ extension RatingView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 16) {
         RatingView.CardView(displayRating: 0)
@@ -50,4 +49,3 @@ extension RatingView {
     .padding(.horizontal, 16)
     .background(Color.gray.opacity(0.1))
 }
-#endif

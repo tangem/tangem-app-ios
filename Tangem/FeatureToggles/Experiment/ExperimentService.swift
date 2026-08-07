@@ -17,7 +17,7 @@ protocol ExperimentService {
     func configure()
 
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant?
-    func isOn(_ key: ExperimentFeatureFlagKey) -> Bool
+    func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool
 }
 
 final class CommonExperimentService {
@@ -36,6 +36,7 @@ final class CommonExperimentService {
 
     private var _client: ExperimentClient?
     private var bag: Set<AnyCancellable> = []
+    private var refetchTask: Task<Void, Never>?
 
     // MARK: - Public Implementation
 
@@ -47,6 +48,8 @@ final class CommonExperimentService {
             .build()
 
         _client = Experiment.initialize(apiKey: keysManager.amplitudeApiKey, config: config)
+
+        setContext(for: nil)
     }
 
     // MARK: - Private Implementation
@@ -69,14 +72,18 @@ final class CommonExperimentService {
             .store(in: &bag)
     }
 
-    private func setContext(for userWalletId: UserWalletId) {
+    private func setContext(for userWalletId: UserWalletId?) {
         let ctx = ExperimentWalletContext.initial(for: userWalletId)
-        Task { await refetch(for: ctx) }
+
+        refetchTask?.cancel()
+        refetchTask = runTask(in: self) { service in
+            await service.refetch(for: ctx)
+        }
     }
 
     private func refetch(for ctx: ExperimentWalletContext) async {
         let builder = ExperimentUserBuilder()
-            .userId(ctx.userWalletId.hashedStringValue)
+            .userId(ctx.userWalletId?.hashedStringValue)
             .region(ctx.region)
             .language(ctx.language)
             .version(ctx.appVersion)
@@ -94,6 +101,8 @@ final class CommonExperimentService {
         }
 
         do {
+            try Task.checkCancellation()
+
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
                 client.fetch(user: user) { _, error in
                     if let error {
@@ -104,9 +113,13 @@ final class CommonExperimentService {
                 }
             }
 
-            AppLogger.info("Experiments fetched for wallet \(ctx.userWalletId)")
+            try Task.checkCancellation()
+
+            AppLogger.info("Experiments fetched for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
+        } catch is CancellationError {
+            AppLogger.info("Experiment fetch cancelled for wallet \(ctx.userWalletId?.stringValue ?? "empty")")
         } catch {
-            AppLogger.error("Experiment fetch failed for wallet \(ctx.userWalletId)", error: error)
+            AppLogger.error("Experiment fetch failed for wallet \(ctx.userWalletId?.stringValue ?? "empty")", error: error)
         }
     }
 }
@@ -118,8 +131,8 @@ extension CommonExperimentService: ExperimentService {
         _client?.variant(key.rawValue)
     }
 
-    func isOn(_ key: ExperimentFeatureFlagKey) -> Bool {
-        _client?.variant(key.rawValue).value == "on"
+    func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool {
+        _client?.variant(key.rawValue).value == variant.rawValue
     }
 }
 

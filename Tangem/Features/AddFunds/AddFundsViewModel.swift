@@ -21,13 +21,6 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
 
     var showsBackButton: Bool { onBack != nil }
 
-    let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
-
-    // Available-balance data for the legacy (non-redesign) layout.
-    let tokenIconInfo: TokenIconInfo
-    let fiatBalanceText: String
-    let cryptoBalanceText: String
-
     @Published private(set) var tokenInfoViewData: AddFundsTokenInfoView.ViewData
 
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
@@ -52,14 +45,6 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         title = Self.makeTitle(tokenItem: input.walletModel.tokenItem)
 
         let tokenIconInfo = TokenIconInfoBuilder().build(from: input.walletModel.tokenItem, isCustom: input.walletModel.isCustom)
-        self.tokenIconInfo = tokenIconInfo
-
-        let formatter = BalanceFormatter()
-        fiatBalanceText = formatter.formatFiatBalance(input.walletModel.fiatAvailableBalanceProvider.balanceType.value)
-        cryptoBalanceText = formatter.formatCryptoBalance(
-            input.walletModel.availableBalanceProvider.balanceType.value,
-            currencyCode: input.walletModel.tokenItem.currencySymbol
-        )
 
         let badge = Self.makeBadge(walletModel: input.walletModel, userWalletModel: input.userWalletModel)
         tokenInfoViewData = AddFundsTokenInfoView.ViewData(

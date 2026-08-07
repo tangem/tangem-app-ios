@@ -20,6 +20,7 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var isSaving: Bool = false
     @Published private(set) var isTokenAlreadyAdded: Bool = false
+    @Published private(set) var needsCardDerivation: Bool = false
     @Published private(set) var walletIcon: ImageValue?
 
     // MARK: - Token Display
@@ -38,7 +39,9 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
     // MARK: - UI
 
     var confirmButtonContent: TangemButton.Content {
-        let providedIcon = CommonTangemIconProvider(config: accountSelectorCell.userWalletModel.config).getMainButtonIcon()
+        let providedIcon = needsCardDerivation
+            ? CommonTangemIconProvider(config: accountSelectorCell.userWalletModel.config).getMainButtonIcon()
+            : nil
         let text = AttributedString(Localization.commonConfirm)
 
         if let providedIcon {
@@ -163,6 +166,14 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
                 vm.isTokenAddedPredicate(vm.tokenItem, vm.account)
             }
             .assign(to: &$isTokenAlreadyAdded)
+
+        account.userTokensManager
+            .userTokensPublisher
+            .withWeakCaptureOf(self)
+            .map { vm, _ in
+                vm.account.userTokensManager.needsCardDerivation(itemsToRemove: [], itemsToAdd: [vm.tokenItem])
+            }
+            .assign(to: &$needsCardDerivation)
     }
 
     private func performAddToken() async {

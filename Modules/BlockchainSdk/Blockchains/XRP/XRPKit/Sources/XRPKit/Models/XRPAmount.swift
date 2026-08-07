@@ -1,5 +1,6 @@
 //
 //  XRPAmount.swift
+//  XRPKit
 //
 //  Created by [REDACTED_AUTHOR]
 //

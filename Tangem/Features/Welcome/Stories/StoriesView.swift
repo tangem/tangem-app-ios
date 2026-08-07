@@ -105,8 +105,6 @@ struct StoriesView: View {
     }
 }
 
-struct StoriesView_Previews: PreviewProvider {
-    static var previews: some View {
-        StoriesView(viewModel: StoriesViewModel(), scanTroubleshootingDialog: .constant(nil))
-    }
+#Preview {
+    StoriesView(viewModel: StoriesViewModel(), scanTroubleshootingDialog: .constant(nil))
 }

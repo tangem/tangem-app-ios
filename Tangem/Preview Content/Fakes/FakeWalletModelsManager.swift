@@ -37,8 +37,11 @@ class FakeWalletModelsManager: WalletModelsManager {
     }
 
     func updateAll(silent: Bool) async {
+        // Single token shared across the batch of all wallet models, so all updates belong to the same cycle
+        let updateToken = UUID()
+
         await TaskGroup.executeKeepingOrder(items: walletModels) {
-            await $0.update(silent: silent, features: .balances)
+            await $0.update(silent: silent, options: .balances, updateToken: updateToken)
         }
     }
 

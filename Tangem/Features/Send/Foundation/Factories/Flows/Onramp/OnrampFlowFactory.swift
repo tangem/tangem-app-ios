@@ -17,7 +17,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let parameters: PredefinedOnrampParameters
     let coordinatorSource: SendCoordinator.Source
 
-    let pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder
+    let onrampStatusTrackingFactory: OnrampStatusTrackingFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var autoupdatingTimer = AutoupdatingTimer()
@@ -56,9 +56,12 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         self.parameters = parameters
         self.coordinatorSource = coordinatorSource
 
-        pendingExpressTransactionsManagerBuilder = .init(
-            userWalletId: sourceToken.userWalletInfo.id.stringValue,
+        onrampStatusTrackingFactory = .init(
+            userWalletId: sourceToken.userWalletInfo.id,
             tokenItem: sourceToken.tokenItem,
+            transactionHistoryEnricherFactory: { [sourceToken] in
+                await sourceToken.transactionHistoryEnricher
+            }
         )
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
@@ -80,6 +83,10 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             output: onrampModel
         )
 
+        let onrampStatusTracking = onrampStatusTrackingFactory.makeOnrampStatusTracking(
+            expressAPIProvider: expressDependenciesFactory.expressAPIProvider
+        )
+
         let finish = makeSendFinishStep(
             onrampAmountCompactViewModel: OnrampAmountCompactViewModel(
                 onrampAmountInput: onrampModel,
@@ -88,9 +95,8 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             ),
             onrampStatusCompactViewModel: OnrampStatusCompactViewModel(
                 input: onrampModel,
-                pendingTransactionsManager: pendingExpressTransactionsManagerBuilder.makePendingExpressTransactionsManager(
-                    expressAPIProvider: expressDependenciesFactory.expressAPIProvider
-                )
+                pendingTransactionsManager: onrampStatusTracking.manager,
+                expressStatusPollingHelper: onrampStatusTracking.pollingHelper
             ),
             router: router
         )

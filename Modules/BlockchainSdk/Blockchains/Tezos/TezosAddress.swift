@@ -1,5 +1,5 @@
 //
-//  TezosResponse.swift
+//  TezosAddress.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

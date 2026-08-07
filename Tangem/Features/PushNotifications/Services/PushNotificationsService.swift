@@ -24,6 +24,20 @@ protocol PushNotificationEventsPublishing {
     var eventsPublisher: AnyPublisher<PushNotificationsEvent, Never> { get }
 }
 
+extension PushNotificationsPermissionService {
+    /// Whether push notifications are authorized, requesting the system prompt first when authorization
+    /// hasn't been determined yet (a no-op when already denied). Callers fall back to their own
+    /// "open Settings" affordance if this still returns `false`.
+    func ensureAuthorized() async -> Bool {
+        if await isAuthorized {
+            return true
+        }
+
+        await requestAuthorizationAndRegister()
+        return await isAuthorized
+    }
+}
+
 // MARK: - Dependency injection
 
 extension InjectedValues {

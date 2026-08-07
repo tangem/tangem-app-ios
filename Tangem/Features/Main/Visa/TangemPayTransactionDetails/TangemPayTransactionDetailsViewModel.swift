@@ -10,6 +10,7 @@ import Combine
 import TangemUI
 import TangemFoundation
 import TangemLocalization
+import TangemPay
 
 final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
     // MARK: - ViewState
@@ -27,11 +28,15 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
     @Published private(set) var displayModel: TangemPayTransactionDetailsDisplayModel?
 
+    @Published private(set) var cardRow: CardRowState?
+
     // MARK: - Dependencies
 
     private let origin: Origin
     private let userWalletId: UserWalletId
     private let customerId: String
+    private let tangemPayAccount: TangemPayAccount?
+    private var cardLoadTask: Task<Void, Never>?
     private weak var coordinator: TangemPayTransactionDetailsRoutable?
 
     struct DisplayData {
@@ -54,12 +59,13 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         origin: Origin,
         userWalletId: UserWalletId,
         customerId: String,
-        cardName: String? = nil,
+        tangemPayAccount: TangemPayAccount? = nil,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
         self.origin = origin
         self.userWalletId = userWalletId
         self.customerId = customerId
+        self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
 
         title = "\(displayData.date) \(AppConstants.dotSign) \(displayData.time)"
@@ -82,16 +88,16 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         additionalInfo = displayData.additionalInfo
         mainButtonAction = displayData.mainButtonAction
 
-        displayModel = FeatureProvider.isAvailable(.tangemPaySpendRedesign)
-            ? Self.makeDisplayModel(origin: origin, cardName: cardName)
-            : nil
+        displayModel = Self.makeDisplayModel(origin: origin)
+
+        startCardLoad()
     }
 
     convenience init(
         transaction: TangemPayTransactionRecord,
         userWalletId: UserWalletId,
         customerId: String,
-        cardName: String?,
+        tangemPayAccount: TangemPayAccount,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
         self.init(
@@ -99,19 +105,16 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
             origin: .history(transaction),
             userWalletId: userWalletId,
             customerId: customerId,
-            cardName: cardName,
+            tangemPayAccount: tangemPayAccount,
             coordinator: coordinator
         )
     }
 
-    private static func makeDisplayModel(
-        origin: Origin,
-        cardName: String?
-    ) -> TangemPayTransactionDetailsDisplayModel? {
+    private static func makeDisplayModel(origin: Origin) -> TangemPayTransactionDetailsDisplayModel? {
         let mapper = TangemPayTransactionDetailsRedesignedMapper()
         switch origin {
         case .history(let transaction):
-            return transaction.redesignedDisplayModel(using: mapper, cardName: cardName)
+            return transaction.redesignedDisplayModel(using: mapper)
         case .push(let payload):
             return payload.redesignedDisplayModel(using: mapper)
         }
@@ -143,6 +146,42 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
         coordinator?.transactionDetailsDidRequestDispute(dataCollector: dataCollector, subject: subject)
     }
+
+    func retryCardLoad() {
+        startCardLoad()
+    }
+
+    private func startCardLoad() {
+        guard case .history(let transaction) = origin,
+              case .spend = transaction.record,
+              tangemPayAccount != nil
+        else {
+            return
+        }
+
+        let transactionId = transaction.id
+        cardLoadTask?.cancel()
+        cardRow = .loading
+        cardLoadTask = runTask(in: self) { viewModel in
+            await viewModel.loadCard(transactionId: transactionId)
+        }
+    }
+
+    @MainActor
+    private func loadCard(transactionId: String) async {
+        guard let tangemPayAccount else { return }
+
+        do {
+            let response = try await tangemPayAccount.getTransaction(transactionId: transactionId)
+            if case .spend(let spend) = response.record, let cardNumberEnd = spend.cardNumberEnd {
+                cardRow = .loaded(cardNumberEnd: cardNumberEnd, cardName: spend.cardDisplayName)
+            } else {
+                cardRow = .failed
+            }
+        } catch {
+            cardRow = .failed
+        }
+    }
 }
 
 extension TangemPayTransactionDetailsViewModel {
@@ -161,5 +200,11 @@ extension TangemPayTransactionDetailsViewModel {
     enum Origin {
         case history(TangemPayTransactionRecord)
         case push(TangemPayPushPayload)
+    }
+
+    enum CardRowState: Equatable {
+        case loading
+        case loaded(cardNumberEnd: String, cardName: String?)
+        case failed
     }
 }

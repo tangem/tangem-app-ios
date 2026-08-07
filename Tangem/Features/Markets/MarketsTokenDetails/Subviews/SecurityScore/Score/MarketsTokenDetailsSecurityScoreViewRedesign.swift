@@ -117,7 +117,6 @@ private extension MarketsTokenDetailsSecurityScoreViewRedesign {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     MarketsTokenDetailsSecurityScoreViewRedesign(
         viewModel: MarketsTokenDetailsSecurityScoreViewModel(
@@ -144,4 +143,3 @@ private extension MarketsTokenDetailsSecurityScoreViewRedesign {
     .padding()
     .background(Color.Tangem.Surface.level1)
 }
-#endif // DEBUG

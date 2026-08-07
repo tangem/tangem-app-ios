@@ -56,28 +56,15 @@ struct NewsPagerView: View {
         }
     }
 
-    @ViewBuilder
     private var pageIndicator: some View {
-        if viewModel.isRedesign {
-            PageIndicatorViewRedesign(
-                totalPages: viewModel.newsIds.count,
-                currentIndex: viewModel.currentIndex
-            )
-        } else {
-            PageIndicatorView(
-                totalPages: viewModel.newsIds.count,
-                currentIndex: viewModel.currentIndex
-            )
-        }
+        PageIndicatorViewRedesign(
+            totalPages: viewModel.newsIds.count,
+            currentIndex: viewModel.currentIndex
+        )
     }
 
-    @ViewBuilder
     private var pageIndicatorOverlay: some View {
-        if viewModel.isRedesign {
-            redesignPageIndicatorOverlay
-        } else {
-            legacyPageIndicatorOverlay
-        }
+        redesignPageIndicatorOverlay
     }
 
     private var redesignPageIndicatorOverlay: some View {
@@ -99,69 +86,28 @@ struct NewsPagerView: View {
         .allowsHitTesting(false)
     }
 
-    private var legacyPageIndicatorOverlay: some View {
-        ZStack(alignment: .bottom) {
-            VStack {
-                Spacer()
-                LinearGradient(
-                    colors: [
-                        Color.Tangem.Surface.level2.opacity(0),
-                        Color.Tangem.Surface.level2,
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 200)
-                .ignoresSafeArea(.container, edges: .bottom)
-            }
-        }
-        .allowsHitTesting(false)
-    }
-
     // MARK: - Navigation Bar
-
-    private var shareButtonColor: Color {
-        viewModel.isCurrentArticleLoading
-            ? Color.Tangem.Graphic.Neutral.tertiary
-            : Color.Tangem.Graphic.Neutral.primary
-    }
 
     private var navigationBar: some View {
         NavigationBar(
             title: "",
             settings: .init(backgroundColor: Color.Tangem.Surface.level2),
             leftButtons: {
-                if viewModel.isRedesign {
-                    Group {
-                        if viewModel.isDeeplinkMode {
-                            NavigationBarButton.close(action: { viewModel.handleViewAction(.back) })
-                        } else {
-                            NavigationBarButton.back(action: { viewModel.handleViewAction(.back) })
-                        }
+                Group {
+                    if viewModel.isDeeplinkMode {
+                        NavigationBarButton.close(action: { viewModel.handleViewAction(.back) })
+                    } else {
+                        NavigationBarButton.back(action: { viewModel.handleViewAction(.back) })
                     }
-                    .redesigned()
-                    .padding(.leading, 16)
-                } else {
-                    MarketsNavigationBackButton(
-                        presentSource: viewModel.isDeeplinkMode ? .deeplink : .navigation,
-                        action: { viewModel.handleViewAction(.back) }
-                    )
                 }
+                .redesigned()
+                .padding(.leading, 16)
             },
             rightButtons: {
-                if viewModel.isRedesign {
-                    NavigationBarButton.share(action: { viewModel.handleViewAction(.share) })
-                        .redesigned()
-                        .disabled(viewModel.isCurrentArticleLoading)
-                        .padding(.trailing, 16)
-                } else {
-                    Button(action: { viewModel.handleViewAction(.share) }) {
-                        Assets.Glyphs.moreVertical.image
-                            .foregroundColor(shareButtonColor)
-                            .padding(.trailing, 16)
-                    }
+                NavigationBarButton.share(action: { viewModel.handleViewAction(.share) })
+                    .redesigned()
                     .disabled(viewModel.isCurrentArticleLoading)
-                }
+                    .padding(.trailing, 16)
             }
         )
         .padding(.top, 12)
@@ -169,21 +115,11 @@ struct NewsPagerView: View {
 
     @ToolbarContentBuilder
     private var trailingToolbarContent: some ToolbarContent {
-        if viewModel.isRedesign {
-            NavigationToolbarButton.share(placement: .topBarTrailing) {
-                viewModel.handleViewAction(.share)
-            }
-            .redesigned()
-            .customizationBehavior(viewModel.isCurrentArticleLoading ? .disabled : .default)
-        } else {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { viewModel.handleViewAction(.share) }) {
-                    Assets.Glyphs.moreVertical.image
-                        .foregroundColor(shareButtonColor)
-                }
-                .disabled(viewModel.isCurrentArticleLoading)
-            }
+        NavigationToolbarButton.share(placement: .topBarTrailing) {
+            viewModel.handleViewAction(.share)
         }
+        .redesigned()
+        .customizationBehavior(viewModel.isCurrentArticleLoading ? .disabled : .default)
     }
 
     // MARK: - Pager Content
@@ -240,25 +176,14 @@ private struct NewsPageContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    @ViewBuilder
     private var errorView: some View {
-        if viewModel.isRedesign {
-            TangemUnableToLoadDataView(
-                isButtonBusy: false,
-                retryButtonAction: { viewModel.handleViewAction(.retry) }
-            )
-            .padding(.horizontal, 16)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.Tangem.Surface.level2)
-        } else {
-            UnableToLoadDataView(
-                isButtonBusy: false,
-                retryButtonAction: { viewModel.handleViewAction(.retry) }
-            )
-            .padding(.horizontal, 16)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.Tangem.Surface.level2)
-        }
+        TangemUnableToLoadDataView(
+            isButtonBusy: false,
+            retryButtonAction: { viewModel.handleViewAction(.retry) }
+        )
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.Tangem.Surface.level2)
     }
 
     // MARK: - Article Content
@@ -281,13 +206,8 @@ private struct NewsPageContentView: View {
 
     // MARK: - Like Button
 
-    @ViewBuilder
     private func likeButton(for newsId: Int) -> some View {
-        if viewModel.isRedesign {
-            redesignLikeButton(for: newsId)
-        } else {
-            legacyLikeButton(for: newsId)
-        }
+        redesignLikeButton(for: newsId)
     }
 
     private func redesignLikeButton(for newsId: Int) -> some View {
@@ -318,38 +238,6 @@ private struct NewsPageContentView: View {
             .frame(height: 36)
             .frame(minWidth: 46)
             .background(Color.Tangem.Button.backgroundSecondary, in: .capsule)
-        }
-        .buttonStyle(.plain)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func legacyLikeButton(for newsId: Int) -> some View {
-        let isLiked = viewModel.isLiked(for: newsId)
-
-        return Button { viewModel.handleViewAction(.like(newsId)) } label: {
-            HStack(spacing: 8) {
-                ZStack {
-                    if isLiked {
-                        Assets.Glyphs.glyphsFavouriteFill.image
-                            .resizable()
-                            .frame(size: .init(bothDimensions: 22))
-                            .foregroundStyle(Color.Tangem.Graphic.Status.warning)
-                            .transition(.scale.animation(.easeInOut(duration: 0.2)))
-                    } else {
-                        Assets.Glyphs.glyphsFavorite.image
-                            .frame(size: .init(bothDimensions: 22))
-                            .foregroundStyle(Color.Tangem.Text.Neutral.primary)
-                            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
-                    }
-                }
-
-                Text(Localization.newsLike)
-                    .style(Fonts.Bold.subheadline, color: Color.Tangem.Text.Neutral.primary)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(Color.Tangem.Surface.level3)
-            .cornerRadius(20)
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, alignment: .leading)

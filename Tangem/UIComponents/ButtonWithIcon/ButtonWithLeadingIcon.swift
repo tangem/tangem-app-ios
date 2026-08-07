@@ -276,77 +276,75 @@ private struct ButtonWithLeadingIconContentView: View {
 
 // MARK: - Previews
 
-struct ButtonWithLeadingIcon_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Color.gray
-                .opacity(0.1)
-                .ignoresSafeArea()
+#Preview {
+    ZStack {
+        Color.gray
+            .opacity(0.1)
+            .ignoresSafeArea()
 
-            VStack {
-                FixedSizeButtonWithLeadingIcon(
-                    title: "Buy",
-                    icon: Assets.plusMini.image,
-                    style: .default
-                ) {}
+        VStack {
+            FixedSizeButtonWithLeadingIcon(
+                title: "Buy",
+                icon: Assets.plusMini.image,
+                style: .default
+            ) {}
 
-                FixedSizeButtonWithLeadingIcon(
-                    title: "Exchange",
-                    icon: Assets.exchangeMini.image,
-                    style: .default,
-                    action: {}
-                )
-                .disabled(true)
+            FixedSizeButtonWithLeadingIcon(
+                title: "Exchange",
+                icon: Assets.exchangeMini.image,
+                style: .default,
+                action: {}
+            )
+            .disabled(true)
 
-                FixedSizeButtonWithLeadingIcon(
-                    title: "Organize tokens",
-                    icon: Assets.sliders.image,
-                    style: .disabled
-                ) {}
+            FixedSizeButtonWithLeadingIcon(
+                title: "Organize tokens",
+                icon: Assets.sliders.image,
+                style: .disabled
+            ) {}
 
-                FixedSizeButtonWithLeadingIcon(
-                    title: "",
-                    icon: Assets.horizontalDots.image,
-                    style: .disabled,
-                    action: {}
-                )
-                .disabled(true)
+            FixedSizeButtonWithLeadingIcon(
+                title: "",
+                icon: Assets.horizontalDots.image,
+                style: .disabled,
+                action: {}
+            )
+            .disabled(true)
 
-                FixedSizeButtonWithLeadingIcon(
-                    title: "LongTitle_LongTitle_LongTitle_LongTitle_LongTitle",
-                    icon: Assets.infoIconMini.image,
-                    style: .default
-                ) {}
+            FixedSizeButtonWithLeadingIcon(
+                title: "LongTitle_LongTitle_LongTitle_LongTitle_LongTitle",
+                icon: Assets.infoIconMini.image,
+                style: .default
+            ) {}
 
-                FlexySizeButtonWithLeadingIcon(
-                    title: "Buy",
-                    icon: Assets.plusMini.image
-                ) {}
+            FlexySizeButtonWithLeadingIcon(
+                title: "Buy",
+                icon: Assets.plusMini.image
+            ) {}
 
-                FlexySizeButtonWithLeadingIcon(
-                    title: "Exchange",
-                    icon: Assets.exchangeMini.image,
-                    isToggled: true
-                ) {}
+            FlexySizeButtonWithLeadingIcon(
+                title: "Exchange",
+                icon: Assets.exchangeMini.image,
+                isToggled: true
+            ) {}
 
-                FlexySizeButtonWithLeadingIcon(
-                    title: "",
-                    icon: Assets.horizontalDots.image
-                ) {}
+            FlexySizeButtonWithLeadingIcon(
+                title: "",
+                icon: Assets.horizontalDots.image
+            ) {}
 
-                FlexySizeButtonWithLeadingIcon(
-                    title: "Organize tokens",
-                    icon: Assets.sliders.image,
-                    isToggled: true
-                ) {}
+            FlexySizeButtonWithLeadingIcon(
+                title: "Organize tokens",
+                icon: Assets.sliders.image,
+                isToggled: true
+            ) {}
 
-                FlexySizeButtonWithLeadingIcon(
-                    title: "LongTitle_LongTitle_LongTitle_LongTitle_LongTitle",
-                    icon: Assets.infoIconMini.image
-                ) {}
-            }
-            .padding(.horizontal)
-            .infinityFrame()
+            FlexySizeButtonWithLeadingIcon(
+                title: "LongTitle_LongTitle_LongTitle_LongTitle_LongTitle",
+                icon: Assets.infoIconMini.image
+            ) {}
         }
+        .padding(.horizontal)
+        .infinityFrame()
     }
 }

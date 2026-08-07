@@ -37,14 +37,11 @@ public struct LoadableBalanceView: View {
             switch state {
             case .loading(.some(let cached)):
                 textView(cached)
-                    .shimmer()
+                    .loadingShimmer(loader.appearance)
                     .accessibilityIdentifier(accessibilityIdentifier.map { "\($0)Shimmer" })
 
             case .loading(.none):
-                skeletonView
-                    .frame(size: loader.size)
-                    .padding(loader.padding)
-                    .shimmer()
+                placeholderView
                     .accessibilityIdentifier(accessibilityIdentifier.map { "\($0)Shimmer" })
 
             case .failed(let text, .none):
@@ -69,6 +66,26 @@ public struct LoadableBalanceView: View {
             }
         }
         .environment(\.isShimmerActive, true)
+    }
+
+    @ViewBuilder
+    private var placeholderView: some View {
+        switch loader.appearance {
+        case .skeleton:
+            skeletonView
+                .frame(size: loader.size)
+                .padding(loader.padding)
+                .shimmer()
+
+        case .tangemShimmer:
+            TangemShimmer()
+                .variant(.custom(
+                    width: loader.size.width,
+                    height: loader.size.height,
+                    cornerRadius: loader.cornerRadiusStyle.explicitCornerRadius
+                ))
+                .padding(loader.padding)
+        }
     }
 
     @ViewBuilder
@@ -143,6 +160,11 @@ public extension LoadableBalanceView {
             fontStyle = font
             self.textColor = textColor
         }
+
+        public init(font: TangemTypographyToken, textColor: Color) {
+            fontStyle = TangemFontStyle(font)
+            self.textColor = textColor
+        }
     }
 
     struct LoaderStyle {
@@ -150,29 +172,34 @@ public extension LoadableBalanceView {
         public let padding: EdgeInsets
         public let cornerRadiusStyle: CornerRadiusStyle
         public let skeletonColor: Color
+        public let appearance: LoadingShimmerAppearance
 
         public init(
             size: CGSize,
             padding: EdgeInsets = .init(),
             cornerRadiusStyle: CornerRadiusStyle = .rounded(3),
-            skeletonColor: Color = Color.Tangem.Skeleton.backgroundPrimary
+            skeletonColor: Color = Color.Tangem.Skeleton.backgroundPrimary,
+            appearance: LoadingShimmerAppearance = .skeleton
         ) {
             self.size = size
             self.padding = padding
             self.cornerRadiusStyle = cornerRadiusStyle
             self.skeletonColor = skeletonColor
+            self.appearance = appearance
         }
 
         public init(
             size: CGSize,
             padding: EdgeInsets = .init(),
             cornerRadius: CGFloat,
-            skeletonColor: Color = Color.Tangem.Skeleton.backgroundPrimary
+            skeletonColor: Color = Color.Tangem.Skeleton.backgroundPrimary,
+            appearance: LoadingShimmerAppearance = .skeleton
         ) {
             self.size = size
             self.padding = padding
             cornerRadiusStyle = .rounded(cornerRadius)
             self.skeletonColor = skeletonColor
+            self.appearance = appearance
         }
     }
 }
@@ -181,6 +208,14 @@ public extension LoadableBalanceView.LoaderStyle {
     enum CornerRadiusStyle {
         case rounded(CGFloat)
         case capsule
+
+        /// `nil` for a capsule, so `TangemShimmer` derives the radius from the block's height.
+        var explicitCornerRadius: CGFloat? {
+            switch self {
+            case .rounded(let radius): radius
+            case .capsule: nil
+            }
+        }
     }
 }
 
@@ -227,76 +262,69 @@ extension LoadableBalanceView: Setupable {
 
 // MARK: - Previews
 
-#if DEBUG
+#Preview {
+    VStack(alignment: .trailing, spacing: 16) {
+        VStack(alignment: .trailing, spacing: 2) {
+            LoadableBalanceView(
+                state: .loading(cached: .string("1 312 422,23 $")),
+                style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
+                loader: .init(size: .init(width: 40, height: 12))
+            )
 
-// MARK: - Previews
-
-struct LoadableBalanceView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(alignment: .trailing, spacing: 16) {
-            VStack(alignment: .trailing, spacing: 2) {
-                LoadableBalanceView(
-                    state: .loading(cached: .string("1 312 422,23 $")),
-                    style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
-                    loader: .init(size: .init(width: 40, height: 12))
-                )
-
-                LoadableBalanceView(
-                    state: .loading(cached: .string("1,23 BTC")),
-                    style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
-                    loader: .init(size: .init(width: 40, height: 12))
-                )
-            }
-
-            Divider()
-
-            VStack(alignment: .trailing, spacing: 2) {
-                LoadableBalanceView(
-                    state: .loading(cached: .none),
-                    style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
-                    loader: .init(size: .init(width: 40, height: 12))
-                )
-
-                LoadableBalanceView(
-                    state: .loading(cached: .none),
-                    style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
-                    loader: .init(size: .init(width: 40, height: 12))
-                )
-            }
-
-            Divider()
-
-            VStack(alignment: .trailing, spacing: 2) {
-                LoadableBalanceView(
-                    state: .loaded(text: .string("1 312 422,23 $")),
-                    style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
-                    loader: .init(size: .init(width: 40, height: 12))
-                )
-
-                LoadableBalanceView(
-                    state: .loaded(text: .string("1,23 BTC")),
-                    style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
-                    loader: .init(size: .init(width: 40, height: 12))
-                )
-            }
-
-            Divider()
-
-            VStack(alignment: .trailing, spacing: 2) {
-                LoadableBalanceView(
-                    state: .failed(cached: .string("1 312 422,23 $"), icon: .leading),
-                    style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
-                    loader: .init(size: .init(width: 40, height: 12))
-                )
-
-                LoadableBalanceView(
-                    state: .failed(cached: .string("1,23 BTC")),
-                    style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
-                    loader: .init(size: .init(width: 40, height: 12))
-                )
-            }
+            LoadableBalanceView(
+                state: .loading(cached: .string("1,23 BTC")),
+                style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
+                loader: .init(size: .init(width: 40, height: 12))
+            )
         }
-        .padding()
+
+        Divider()
+
+        VStack(alignment: .trailing, spacing: 2) {
+            LoadableBalanceView(
+                state: .loading(cached: .none),
+                style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
+                loader: .init(size: .init(width: 40, height: 12))
+            )
+
+            LoadableBalanceView(
+                state: .loading(cached: .none),
+                style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
+                loader: .init(size: .init(width: 40, height: 12))
+            )
+        }
+
+        Divider()
+
+        VStack(alignment: .trailing, spacing: 2) {
+            LoadableBalanceView(
+                state: .loaded(text: .string("1 312 422,23 $")),
+                style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
+                loader: .init(size: .init(width: 40, height: 12))
+            )
+
+            LoadableBalanceView(
+                state: .loaded(text: .string("1,23 BTC")),
+                style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
+                loader: .init(size: .init(width: 40, height: 12))
+            )
+        }
+
+        Divider()
+
+        VStack(alignment: .trailing, spacing: 2) {
+            LoadableBalanceView(
+                state: .failed(cached: .string("1 312 422,23 $"), icon: .leading),
+                style: .init(font: Font.Tangem.Body15.semibold, textColor: Color.Tangem.Text.Neutral.primary),
+                loader: .init(size: .init(width: 40, height: 12))
+            )
+
+            LoadableBalanceView(
+                state: .failed(cached: .string("1,23 BTC")),
+                style: .init(font: Font.Tangem.Caption12.regular, textColor: Color.Tangem.Text.Neutral.tertiary),
+                loader: .init(size: .init(width: 40, height: 12))
+            )
+        }
     }
+    .padding()
 }
-#endif // DEBUG

@@ -255,35 +255,33 @@ private extension SendDecimalNumberTextField {
 
 // MARK: - Previews
 
-struct SendDecimalNumberTextField_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Colors.Background.tertiary.ignoresSafeArea()
+#Preview {
+    ZStack {
+        Colors.Background.tertiary.ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: 16) {
-                SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .prefixSuffixOptions(.suffix(text: "WEI", hasSpace: true))
-                    .padding()
-                    .background(Colors.Background.action)
+        VStack(alignment: .leading, spacing: 16) {
+            SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
+                .prefixSuffixOptions(.suffix(text: "WEI", hasSpace: true))
+                .padding()
+                .background(Colors.Background.action)
 
-                SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .padding()
-                    .background(Colors.Background.action)
+            SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
+                .padding()
+                .background(Colors.Background.action)
 
-                SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .prefixSuffixOptions(.suffix(text: "USDT", hasSpace: true))
-                    .padding()
-                    .background(Colors.Background.action)
+            SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
+                .prefixSuffixOptions(.suffix(text: "USDT", hasSpace: true))
+                .padding()
+                .background(Colors.Background.action)
 
-                SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .prefixSuffixOptions(.suffix(text: "WEI", hasSpace: true))
-                    .appearance(.init(font: Fonts.Regular.body))
-                    .alignment(.leading)
-                    .padding()
-                    .background(Colors.Background.action)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
+            SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
+                .prefixSuffixOptions(.suffix(text: "WEI", hasSpace: true))
+                .appearance(.init(font: Fonts.Regular.body))
+                .alignment(.leading)
+                .padding()
+                .background(Colors.Background.action)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
     }
 }

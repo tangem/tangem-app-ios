@@ -13,6 +13,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.twinCardOnboardingDisplayed)
     var isTwinCardOnboardingWasDisplayed: Bool = false
 
+    @AppStorageCompat(StorageType.priceAlertsOnboardingShown)
+    var isPriceAlertsOnboardingShown: Bool = false
+
     @AppStorageCompat(StorageType.numberOfAppLaunches)
     var numberOfLaunches: Int = 0
 
@@ -128,6 +131,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
     var tangemPayShouldShowGetBanner: Bool = true
+
+    @AppStorageCompat(StorageType.tangemPayVirtualAccountConditionsShown)
+    var tangemPayVirtualAccountConditionsShown: Bool = false
 
     @AppStorageCompat(StorageType.tangemPayCachedLocalState)
     var tangemPayCachedLocalState: [String: String] = [:]
