@@ -110,6 +110,14 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
     }
 
     @discardableResult
+    func verifyReferralUnavailable() -> Self {
+        XCTContext.runActivity(named: "Verify Referral program is unavailable for current wallet") { _ in
+            XCTAssertTrue(referralButton.waitForNonExistence(timeout: .conditional), "Referral program should be unavailable")
+            return self
+        }
+    }
+
+    @discardableResult
     func confirmMigrationDialog() -> Self {
         XCTContext.runActivity(named: "Confirm migration dialog") { _ in
             let alert = app.alerts.firstMatch

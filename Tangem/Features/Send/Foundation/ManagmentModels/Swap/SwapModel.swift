@@ -127,6 +127,12 @@ private extension SwapModel {
         }
     }
 
+    func stopAutoupdating() {
+        autoupdatingTimer.setup(refresh: .none)
+        updateTask?.cancel()
+        updateTask = nil
+    }
+
     func bind() {
         _receiveToken
             .map { $0.value?.tokenItem }
@@ -136,8 +142,8 @@ private extension SwapModel {
                 guard let publisher = self?._providersState else { return .float }
                 let states = await publisher.dropFirst().values
                 for await state in states {
-                    if case .loaded(.swap(_, let providers), _) = state, providers.supportedRateTypes.isNotEmpty {
-                        return providers.supportedRateTypes.contains(.fixed) ? .fixed : .float
+                    if case .loaded(.swap(let selected, let providers), _) = state, providers.supportedRateTypes.isNotEmpty {
+                        return selected?.rateType ?? .float
                     }
                 }
                 return .float
@@ -279,7 +285,7 @@ private extension SwapModel {
                 let providersState = try await input.mapToLoadedProvidersState(state: state)
                 try Task.checkCancellation()
 
-                await input.updateComplementaryAmount(state: providersState)
+                try await input.updateComplementaryAmount(state: providersState)
                 input.update(providersState: providersState)
 
             } catch is CancellationError {
@@ -377,14 +383,10 @@ extension SwapModel {
         case .idle:
             return .idle
 
-        case .transfer where FeatureProvider.isAvailable(.transfers):
+        case .transfer:
             let loadedState = try await mapToReadyToTransferState()
             try Task.checkCancellation()
             return .loaded(state, state: loadedState)
-
-        case .transfer:
-            // Toggle is off. Use just no providers state
-            return .loaded(.swap(selected: .none, providers: .empty), state: .idle)
 
         case .swap(.some(let selected), _):
             let loaded = try await mapToLoadedState(selected: selected)
@@ -597,7 +599,7 @@ extension SwapModel {
 
         let isBitcoinDexSwap: Bool = {
             guard case .bitcoin = source.tokenItem.blockchain else { return false }
-            return FeatureProvider.isAvailable(.bitcoinDexSwap)
+            return true
         }()
 
         let restriction = try isBitcoinDexSwap
@@ -762,12 +764,13 @@ extension SwapModel {
         }
     }
 
-    func updateComplementaryAmount(state: ProvidersState) async {
+    func updateComplementaryAmount(state: ProvidersState) async throws {
         guard case .loaded(_, let loadedState) = state else {
             return
         }
 
         let amountType = await expressManager.getAmountType()
+        try Task.checkCancellation()
 
         switch (amountType, loadedState.quote) {
         case (.from, .some(let quote)):
@@ -873,7 +876,7 @@ extension SwapModel {
                 analyticsLogger.logSwapTransactionSent(result: result)
 
                 await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
-                addTransactionToPendingRepository(
+                persistSentTransaction(
                     source: source,
                     receive: receive,
                     provider: selected.provider,
@@ -929,6 +932,10 @@ extension SwapModel {
         _transactionTime.send(.now)
         _transactionURL.send(result.url)
 
+        // The swap is done: stop refreshing quotes. Cancelling the in-flight update prevents a
+        // refresh started just before sending from landing and overwriting the finish screen.
+        stopAutoupdating()
+
         return result
     }
 
@@ -951,7 +958,7 @@ extension SwapModel {
             try? await source.sendYieldModuleHelper?.refreshVersionAfterUpgrade()
         }
 
-        addTransactionToPendingRepository(
+        persistSentTransaction(
             source: source,
             receive: receive,
             provider: provider,
@@ -979,7 +986,7 @@ extension SwapModel {
         try? await expressAPIProvider.exchangeSent(result: expressSentResult)
     }
 
-    func addTransactionToPendingRepository(
+    func persistSentTransaction(
         source: SendSwapableToken,
         receive: SendReceiveToken,
         provider: ExpressProvider,
@@ -999,6 +1006,19 @@ extension SwapModel {
         )
 
         expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData)
+
+        persistSentTransaction(sentTransactionData, source: source)
+    }
+
+    func persistSentTransaction(_ txData: SentSwapTransactionData, source: SendSwapableToken) {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            return
+        }
+
+        // Fire-and-forget since we can't handle enriching errors anyway
+        runTask {
+            await source.transactionHistoryEnricher?.enrich(with: txData)
+        }
     }
 }
 
@@ -1050,7 +1070,7 @@ extension SwapModel: SwapTokenSelectorOutput {
             .makeSwapableToken()
 
         if _sourceToken.value.value?.tokenItem != token.tokenItem {
-            externalAmountUpdater.externalUpdate(amount: nil)
+            externalAmountUpdater.externalUpdate(cryptoAmount: nil)
         }
 
         preselectedTokenChangeAnalyticsLogger.logIfNeeded(direction: .source, selected: token.tokenItem)
@@ -1062,7 +1082,7 @@ extension SwapModel: SwapTokenSelectorOutput {
             .makeSwapableToken()
 
         if _receiveToken.value.value?.tokenItem != token.tokenItem {
-            externalAmountUpdater.externalUpdate(amount: nil)
+            externalAmountUpdater.externalUpdate(cryptoAmount: nil)
         }
 
         preselectedTokenChangeAnalyticsLogger.logIfNeeded(direction: .receive, selected: token.tokenItem)
@@ -1103,7 +1123,7 @@ extension SwapModel: SendSourceTokenAmountInput, SendSourceTokenAmountOutput {
     var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         Publishers.CombineLatest(_providersState, _sourceAmount)
             .withWeakCaptureOf(self)
-            .map { $0.mapToAmountResult(state: $1.0, amount: $1.1) }
+            .map { $0.mapToSourceAmountResult(state: $1.0, amount: $1.1) }
             .eraseToAnyPublisher()
     }
 
@@ -1156,7 +1176,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
     var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         Publishers.CombineLatest(_providersState, _receiveAmount)
             .withWeakCaptureOf(self)
-            .map { $0.mapToAmountResult(state: $1.0, amount: $1.1) }
+            .map { $0.mapToReceiveAmountResult(state: $1.0, amount: $1.1) }
             .eraseToAnyPublisher()
     }
 
@@ -1213,10 +1233,28 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
             .eraseToAnyPublisher()
     }
 
-    private func mapToAmountResult(state: ProvidersState, amount: SendAmount?) -> LoadingResult<SendAmount, any Error> {
+    private func mapToSourceAmountResult(state: ProvidersState, amount: SendAmount?) -> LoadingResult<SendAmount, any Error> {
         switch state {
         case .loading(.rates), .loading(.providers):
             return .loading
+        default:
+            break
+        }
+
+        switch amount {
+        case .none: return .failure(SendAmountError.noAmount)
+        case .some(let amount): return .success(amount)
+        }
+    }
+
+    private func mapToReceiveAmountResult(state: ProvidersState, amount: SendAmount?) -> LoadingResult<SendAmount, any Error> {
+        switch state {
+        case .loading(.rates), .loading(.providers):
+            return .loading
+        case .failure(let error):
+            return .failure(error)
+        case .loaded(_, .requiredRefresh(let occurredError, _)):
+            return .failure(occurredError)
         default:
             break
         }
@@ -1572,7 +1610,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
                 return raw.rounded(scale: token.tokenItem.decimalCount, roundingMode: .down)
             }
         }()
-        externalAmountUpdater.externalUpdate(amount: amount)
+        externalAmountUpdater.externalUpdate(cryptoAmount: amount)
     }
 
     func userDidRequestSwapSourceAndReceiveToken() {
@@ -1583,7 +1621,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         let sourceResult = _sourceToken.value
         let receiveResult = _receiveToken.value
 
-        externalAmountUpdater.externalUpdate(amount: nil)
+        externalAmountUpdater.externalUpdate(cryptoAmount: nil)
 
         switch (sourceResult, receiveResult) {
         case (.success(let source), .success(let destination as SendSwapableToken)):
@@ -1806,10 +1844,12 @@ extension SwapModel: NotificationTapDelegate {
              .renewTangemPaySession,
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
-             .yieldBoostPromoLater,
              .addFunds,
+             .openAppStore,
+             .yieldBoostPromoLater,
              .openGetTangemPay,
-             .closeGetTangemPay:
+             .closeGetTangemPay,
+             .removeTangemPayAccount:
             assertionFailure("Notification tap not handled")
         }
     }
@@ -1823,7 +1863,7 @@ extension SwapModel: NotificationTapDelegate {
         }
 
         // Amount will be changed automatically via SendAmountOutput
-        externalAmountUpdater.externalUpdate(amount: newAmount)
+        externalAmountUpdater.externalUpdate(cryptoAmount: newAmount)
     }
 
     private func reduceAmountBy(_ amount: Decimal, source: Decimal) {
@@ -1837,12 +1877,12 @@ extension SwapModel: NotificationTapDelegate {
         }
 
         // Amount will be changed automatically via SendAmountOutput
-        externalAmountUpdater.externalUpdate(amount: newAmount)
+        externalAmountUpdater.externalUpdate(cryptoAmount: newAmount)
     }
 
     private func reduceAmountTo(_ amount: Decimal) {
         // Amount will be changed automatically via SendAmountOutput
-        externalAmountUpdater.externalUpdate(amount: amount)
+        externalAmountUpdater.externalUpdate(cryptoAmount: amount)
     }
 }
 

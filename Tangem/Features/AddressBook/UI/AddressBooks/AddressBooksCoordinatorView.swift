@@ -31,8 +31,9 @@ struct AddressBooksCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.contactManagementCoordinator) {
-                AddressBookContactManagementCoordinatorView(coordinator: $0)
+            .sheet(item: $coordinator.contactManagementCoordinator) { contactManagementCoordinator in
+                AddressBookContactManagementCoordinatorView(coordinator: contactManagementCoordinator)
+                    .presentation(onDismissalAttempt: { contactManagementCoordinator.rootViewModel?.userDidRequestDismiss() })
             }
     }
 }

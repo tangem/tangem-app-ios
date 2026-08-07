@@ -23,6 +23,13 @@ class AppsFlyerWrapper {
 
     private var bag: Set<AnyCancellable> = []
 
+    /// `didStart` / `pendingUserActivities` are touched only from the main thread (UIKit scene callbacks),
+    /// so they need no synchronization.
+    private var didStart = false
+    /// Universal links that arrived before `start()` (cold-launch `willConnectTo`); replayed once the SDK
+    /// starts, because AppsFlyer resolves deep links only after `start()`.
+    private var pendingUserActivities: [NSUserActivity] = []
+
     private init() {
         bind()
     }
@@ -44,6 +51,13 @@ class AppsFlyerWrapper {
         }
 
         AppsFlyerLib.shared().start()
+        didStart = true
+
+        for userActivity in pendingUserActivities {
+            continueUserActivity(userActivity)
+        }
+
+        pendingUserActivities.removeAll()
     }
 
     func handleUserActivity(userActivity: NSUserActivity) {
@@ -51,6 +65,15 @@ class AppsFlyerWrapper {
             return
         }
 
+        guard didStart else {
+            pendingUserActivities.append(userActivity)
+            return
+        }
+
+        continueUserActivity(userActivity)
+    }
+
+    private func continueUserActivity(_ userActivity: NSUserActivity) {
         AppsFlyerLib.shared().continue(userActivity, restorationHandler: nil)
     }
 

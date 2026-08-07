@@ -27,17 +27,13 @@ final class LockedWalletMainContentViewModel: ObservableObject {
     lazy var lockedNotificationInput: NotificationViewInput = {
         let hasNFCInteraction = userWalletModel.config.hasFeature(.nfcInteraction)
         let event: GeneralNotificationEvent = .walletLocked(hasNFCInteraction: hasNFCInteraction)
-        let style: NotificationView.Style = FeatureProvider.isAvailable(.redesign)
-            ? .withButtons([
-                NotificationView.NotificationButton(
-                    action: { [weak self] _, _ in self?.onLockedWalletNotificationTap() },
-                    actionType: .unlock(icon: nil),
-                    isWithLoader: false
-                ),
-            ])
-            : .tappable(hasChevron: true) { [weak self] _ in
-                self?.onLockedWalletNotificationTap()
-            }
+        let style: NotificationView.Style = .withButtons([
+            NotificationView.NotificationButton(
+                action: { [weak self] _, _ in self?.onLockedWalletNotificationTap() },
+                actionType: .unlock(icon: nil),
+                isWithLoader: false
+            ),
+        ])
         return NotificationViewInput(
             style: style,
             severity: event.severity,

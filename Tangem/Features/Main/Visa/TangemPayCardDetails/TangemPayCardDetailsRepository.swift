@@ -7,10 +7,13 @@
 //
 
 import Combine
+import Foundation
 import TangemPay
 
 protocol TangemPayCardDetailsRepository: AnyObject {
     var lastFourDigits: String { get }
+    var cardImageURL: URL? { get }
+    var cardBackgroundImageURL: URL? { get }
     var lastFourDigitsPublisher: AnyPublisher<String, Never> { get }
     var cardNamePublisher: AnyPublisher<String, Never> { get }
     var isReissuingPublisher: AnyPublisher<Bool, Never> { get }

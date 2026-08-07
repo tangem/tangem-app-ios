@@ -24,7 +24,7 @@ struct MarketsTokenDetailsExchangesListView: View {
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     private var defaultBackgroundColor: Color {
-        FeatureProvider.isAvailable(.redesign) ? .Tangem.Surface.level2 : Colors.Background.primary
+        .Tangem.Surface.level2
     }
 
     private let scrollViewContentTopInset = 14.0
@@ -84,11 +84,7 @@ struct MarketsTokenDetailsExchangesListView: View {
 
     @ViewBuilder
     private var header: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            redesignedHeader
-        } else {
-            legacyHeader
-        }
+        redesignedHeader
     }
 
     private var redesignedHeader: some View {
@@ -114,39 +110,10 @@ struct MarketsTokenDetailsExchangesListView: View {
             .style(Font.Tangem.Caption12.semibold, color: Color.Tangem.Text.Neutral.secondary)
     }
 
-    private var legacyHeader: some View {
-        HStack {
-            Text(Localization.marketsTokenDetailsExchange)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.exchangesListTitle)
-
-            Spacer()
-
-            HStack(spacing: 4) {
-                Text(Localization.marketsTokenDetailsVolume)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-
-                Colors.Icon.informative
-                    .clipShape(Circle())
-                    .frame(size: .init(bothDimensions: 2.5))
-
-                Text(Localization.marketsSelectorInterval24hTitle)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-            }
-        }
-        .padding(.horizontal, 14)
-        .padding(.top, 12)
-        .padding(.bottom, 8)
-    }
-
     @ViewBuilder
     private var listContent: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            redesignedListContent
-                .padding(.horizontal, .unit(.x4))
-        } else {
-            legacyListContent
-        }
+        redesignedListContent
+            .padding(.horizontal, .unit(.x4))
     }
 
     @ViewBuilder
@@ -161,25 +128,6 @@ struct MarketsTokenDetailsExchangesListView: View {
                 retryButtonAction: viewModel.reloadExchangesList
             )
             .infinityFrame()
-            .padding(.top, headerHeight)
-        }
-    }
-
-    @ViewBuilder
-    private var legacyListContent: some View {
-        switch viewModel.exchangesList {
-        case .loading, .success:
-            legacyScrollContent
-
-        case .failure:
-            UnableToLoadDataView(
-                isButtonBusy: false,
-                retryButtonAction: {
-                    viewModel.reloadExchangesList()
-                }
-            )
-            .infinityFrame()
-            .padding(.horizontal, 16)
             .padding(.top, headerHeight)
         }
     }
@@ -207,33 +155,6 @@ struct MarketsTokenDetailsExchangesListView: View {
                     }
                 }
                 .roundedBackground(with: .Tangem.Surface.level3, padding: 0, radius: .unit(.x5))
-            }
-            .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
-                isListContentObscured = contentOffset.y > scrollViewContentTopInset
-            }
-            .id(viewModel.exchangesList.value)
-        }
-        .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
-    }
-
-    private var legacyScrollContent: some View {
-        ScrollView(showsIndicators: false) {
-            LazyVStack(spacing: 0) {
-                Color.clear
-                    .frame(height: headerHeight)
-
-                switch viewModel.exchangesList {
-                case .loading:
-                    ForEach(0 ... max(viewModel.numberOfExchangesListedOn - 1, 0)) { _ in
-                        ExchangeLoaderView()
-                    }
-                case .success(let itemsList):
-                    ForEach(itemsList) { item in
-                        MarketsTokenDetailsExchangeItemView(info: item)
-                    }
-                case .failure:
-                    EmptyView()
-                }
             }
             .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 isListContentObscured = contentOffset.y > scrollViewContentTopInset

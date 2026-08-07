@@ -10,7 +10,7 @@ import Foundation
 import TangemFoundation
 
 struct ExperimentWalletContext {
-    let userWalletId: UserWalletId
+    let userWalletId: UserWalletId?
 
     let region: String
     let language: String
@@ -28,7 +28,7 @@ struct ExperimentWalletContext {
 
     // MARK: - Static
 
-    static func initial(for userWalletId: UserWalletId) -> ExperimentWalletContext {
+    static func initial(for userWalletId: UserWalletId?) -> ExperimentWalletContext {
         ExperimentWalletContext(
             userWalletId: userWalletId,
             region: Locale.current.region?.identifier ?? "",
