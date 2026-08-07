@@ -78,6 +78,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "fees"
         case .reissueCard:
             "customer/card/reissue"
+        case .getCashbackSummary:
+            "customer/cashback/summary"
         }
     }
 
@@ -96,6 +98,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin,
              .getFee,
              .getFees,
+             .getCashbackSummary,
              .getBankCredentials:
             .get
 
@@ -140,7 +143,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin,
              .getFee,
              .getBankCredentials,
-             .getTransaction:
+             .getTransaction,
+             .getCashbackSummary:
             return .requestPlain
 
         case .cancelKYC:
@@ -303,6 +307,8 @@ extension CustomerInfoManagementAPITarget {
         case reissueCard(cardId: String)
 
         case getBankCredentials(productInstanceId: String)
+
+        case getCashbackSummary
     }
 }
 
