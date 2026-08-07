@@ -50,7 +50,6 @@ protocol TangemPayAvailabilityRepository {
     ) -> AnyPublisher<TangemPayWalletSelectionType?, Never>
     func userDidCloseGetTangemPayBanner()
     func requestEligibleDistributionChannels() async -> [TangemPayDistributionChannel]
-    func isEligible(for channel: TangemPayDistributionChannel) -> Bool
 }
 
 private struct TangemPayAvailabilityRepositoryKey: InjectionKey {
