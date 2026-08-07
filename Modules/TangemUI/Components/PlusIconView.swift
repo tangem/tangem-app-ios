@@ -49,7 +49,6 @@ private extension PlusIconView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Default") {
     PlusIconView(textAndIconColor: Colors.Text.accent)
         .padding()
@@ -76,4 +75,3 @@ private extension PlusIconView {
     }
     .padding()
 }
-#endif // DEBUG

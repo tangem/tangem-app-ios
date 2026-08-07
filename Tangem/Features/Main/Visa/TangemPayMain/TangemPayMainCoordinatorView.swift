@@ -30,6 +30,12 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.cardManagementViewModel) {
                 TangemPayCardManagementView(viewModel: $0)
             }
+            .navigation(item: $coordinator.currentPlanCoordinator) {
+                TangemPayCurrentPlanCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.selectPlanCoordinator) {
+                TangemPaySelectPlanCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -77,17 +83,20 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayReissueSheetViewModel.self) {
                 TangemPayReissuePopupView(viewModel: $0)
             }
-            .floatingSheetContent(for: TangemPayFakedoorSheetViewModel.self) {
-                TangemPayPopupView(viewModel: $0)
-            }
             .floatingSheetContent(for: TangemPayWithdrawNoteSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayMaximumCardsIssuedSheetViewModel.self) {
-                TangemPayMaximumCardsIssuedSheetView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayCardsLimitReachedSheetViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayIssueAdditionalCardCostPopupViewModel.self) {
                 TangemPayIssueAdditionalCardCostPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayStayOnPlusSheetViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
             }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
@@ -103,6 +112,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                     .presentationCornerRadius(24)
             }
             .sheet(item: $coordinator.termsAndLimitsViewModel) {
+                WebViewContainer(viewModel: $0)
+            }
+            .sheet(item: $coordinator.visaBenefitsViewModel) {
                 WebViewContainer(viewModel: $0)
             }
             .bottomSheet(

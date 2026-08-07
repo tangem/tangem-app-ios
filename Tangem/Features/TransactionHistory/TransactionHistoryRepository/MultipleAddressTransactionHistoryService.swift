@@ -175,30 +175,7 @@ private extension MultipleAddressTransactionHistoryService {
         ///
         /// - Returns: The hashes of records that were zipped with existing entries (for caller-side logging).
         func merge(_ newRecords: [TransactionRecord]) -> [String] {
-            var zippedHashes: [String] = []
-
-            for record in newRecords {
-                if let index = records.firstIndex(where: { $0.hash == record.hash && $0.index == record.index }) {
-                    let oldRecord = records[index]
-                    records[index] = TransactionRecord(
-                        hash: record.hash,
-                        index: record.index,
-                        source: oldRecord.source + record.source,
-                        destination: oldRecord.destination + record.destination,
-                        fee: oldRecord.fee,
-                        status: oldRecord.status,
-                        isOutgoing: oldRecord.isOutgoing,
-                        type: oldRecord.type,
-                        date: oldRecord.date,
-                        tokenTransfers: oldRecord.tokenTransfers
-                    )
-                    zippedHashes.append(record.hash)
-                } else {
-                    records.append(record)
-                }
-            }
-
-            return zippedHashes
+            records.appendMerging(newRecords)
         }
     }
 }

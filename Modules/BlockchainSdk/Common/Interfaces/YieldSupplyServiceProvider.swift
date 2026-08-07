@@ -1,5 +1,5 @@
 //
-//  YieldServiceProvider.swift
+//  YieldSupplyServiceProvider.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

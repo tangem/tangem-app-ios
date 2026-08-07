@@ -7,10 +7,13 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.display.weight.medium}",
           "lineHeight": "{font.display.lineHeight.medium}",
+          "lineSpacing": "{font.display.lineSpacing.medium}",
           "fontSize": "{font.display.size.medium}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.display.spacing.medium}",
-          "fontFeature": "ss01,ss11,liga,calt,kern"
+          "tracking": "{font.display.tracking.medium}",
+          "iosRelation": "LargeTitle",
+          "fontFeature": "liga,calt,kern"
         }
       }
     },
@@ -21,10 +24,13 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.heading.weight.medium}",
           "lineHeight": "{font.heading.lineHeight.medium}",
+          "lineSpacing": "{font.heading.lineSpacing.medium}",
           "fontSize": "{font.heading.size.medium}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.heading.spacing.medium}",
-          "fontFeature": "ss01,ss11,liga,calt,kern"
+          "tracking": "{font.heading.tracking.medium}",
+          "iosRelation": "Title1",
+          "fontFeature": "liga,calt,kern"
         }
       },
       "small": {
@@ -33,10 +39,13 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.heading.weight.small}",
           "lineHeight": "{font.heading.lineHeight.small}",
+          "lineSpacing": "{font.heading.lineSpacing.small}",
           "fontSize": "{font.heading.size.small}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.heading.spacing.small}",
-          "fontFeature": "ss01,ss11,liga,calt,kern"
+          "tracking": "{font.heading.tracking.small}",
+          "iosRelation": "Title3",
+          "fontFeature": "liga,calt,kern"
         }
       }
     },
@@ -47,10 +56,13 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.subheading.weight.medium}",
           "lineHeight": "{font.subheading.lineHeight.medium}",
+          "lineSpacing": "{font.subheading.lineSpacing.medium}",
           "fontSize": "{font.subheading.size.medium}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.subheading.spacing.medium}",
-          "fontFeature": "ss01,ss11,liga,calt,kern"
+          "tracking": "{font.subheading.tracking.medium}",
+          "iosRelation": "Subheadline",
+          "fontFeature": "liga,calt,kern"
         }
       }
     },
@@ -61,10 +73,13 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.body.weight.medium}",
           "lineHeight": "{font.body.lineHeight.medium}",
+          "lineSpacing": "{font.body.lineSpacing.medium}",
           "fontSize": "{font.body.size.medium}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.body.spacing.medium}",
-          "fontFeature": "ss01,ss11,liga,calt,kern"
+          "tracking": "{font.body.tracking.medium}",
+          "iosRelation": "Callout",
+          "fontFeature": "liga,calt,kern"
         }
       }
     },
@@ -75,10 +90,13 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.caption.weight.medium}",
           "lineHeight": "{font.caption.lineHeight.medium}",
+          "lineSpacing": "{font.caption.lineSpacing.medium}",
           "fontSize": "{font.caption.size.medium}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.caption.spacing.medium}",
-          "fontFeature": "ss01,ss11,liga,calt,kern"
+          "tracking": "{font.caption.tracking.medium}",
+          "iosRelation": "Caption1",
+          "fontFeature": "liga,calt,kern"
         }
       }
     }

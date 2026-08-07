@@ -13,26 +13,8 @@ struct TangemPayNoDepositAddressSheetView: View {
     let viewModel: TangemPayNoDepositAddressSheetViewModel
 
     var body: some View {
-        if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
-            TangemPayPopupView(
-                viewModel: TangemPayNoDepositAddressPopupViewModel(onClose: viewModel.close)
-            )
-        } else {
-            legacyBody
-        }
-    }
-}
-
-private extension TangemPayNoDepositAddressSheetView {
-    var legacyBody: some View {
-        BottomSheetErrorContentView(
-            title: viewModel.title,
-            subtitle: viewModel.subtitle,
-            closeAction: viewModel.close,
-            primaryButton: viewModel.primaryButtonSettings
+        TangemPayPopupView(
+            viewModel: TangemPayNoDepositAddressPopupViewModel(onClose: viewModel.close)
         )
-        .floatingSheetConfiguration { configuration in
-            configuration.backgroundInteractionBehavior = .tapToDismiss
-        }
     }
 }

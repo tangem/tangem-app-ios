@@ -64,6 +64,8 @@ final class TangemPayVirtualAccountBankDetailsErrorPopupViewModel: TangemPayPopu
         self.tangemPayAccount = tangemPayAccount
         self.productInstanceId = productInstanceId
         self.coordinator = coordinator
+
+        Analytics.log(.visaVATopupDetailsErrorShowed)
     }
 
     func dismiss() {
