@@ -16,10 +16,18 @@ final class JointAccountCreationHelper {
         state.withLock { $0.formData }
     }
 
+    var membersData: MembersData? {
+        state.withLock { $0.membersData }
+    }
+
     private let state = OSAllocatedUnfairLock(initialState: State())
 
     func update(name: String, icon: AccountModel.CompositeIcon) {
         state.withLock { $0.formData = FormData(name: name, icon: icon) }
+    }
+
+    func update(membersCount: Int, signersCount: Int) {
+        state.withLock { $0.membersData = MembersData(membersCount: membersCount, signersCount: signersCount) }
     }
 }
 
@@ -30,10 +38,17 @@ extension JointAccountCreationHelper {
         let name: String
         let icon: AccountModel.CompositeIcon
     }
+
+    struct MembersData {
+        let membersCount: Int
+        /// How many of the members have to sign for an operation to go through
+        let signersCount: Int
+    }
 }
 
 private extension JointAccountCreationHelper {
     struct State {
         var formData: FormData?
+        var membersData: MembersData?
     }
 }
