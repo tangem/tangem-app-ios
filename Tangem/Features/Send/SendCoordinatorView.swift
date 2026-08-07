@@ -59,7 +59,7 @@ struct SendCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.onrampCurrencySelectorViewModel) {
                 OnrampCurrencySelectorView(viewModel: $0)
             }
-            .sheet(item: $coordinator.sendReceiveTokenCoordinator) {
+            .sheet(item: $coordinator.sendReceiveTokenCoordinator, onDismiss: coordinator.onReceiveTokensListDismissed) {
                 SendReceiveTokenCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.addressBooksCoordinator) { coordinator in
