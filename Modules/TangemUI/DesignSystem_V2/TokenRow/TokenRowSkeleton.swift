@@ -11,10 +11,18 @@ import TangemAssets
 import TangemUIUtils
 
 struct TokenRowSkeleton: View {
+    private let hasGraph: Bool
+
     @ScaledMetric private var padding: CGFloat = TokenRowMetrics.padding
     @ScaledMetric private var spacing: CGFloat = TokenRowMetrics.skeletonSpacing
     @ScaledMetric private var lineSpacing: CGFloat = TokenRowMetrics.lineSpacing
     @ScaledMetric private var iconSize: CGFloat = TokenRowMetrics.iconWidth
+    @ScaledMetric private var graphWidth: CGFloat = TokenRowMetrics.graphWidth
+    @ScaledMetric private var graphHeight: CGFloat = TokenRowMetrics.graphHeight
+
+    init(hasGraph: Bool = false) {
+        self.hasGraph = hasGraph
+    }
 
     var body: some View {
         HStack(alignment: .center, spacing: spacing) {
@@ -24,6 +32,12 @@ struct TokenRowSkeleton: View {
 
             column(alignment: .leading)
             column(alignment: .trailing)
+
+            if hasGraph {
+                UtilGraph(values: [])
+                    .isLoading()
+                    .frame(width: graphWidth, height: graphHeight)
+            }
         }
         .padding(padding)
         .accessibilityHidden(true)

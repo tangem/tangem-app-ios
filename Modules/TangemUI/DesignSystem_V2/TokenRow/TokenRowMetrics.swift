@@ -24,5 +24,7 @@ enum TokenRowMetrics {
     static let balanceIndicatorSize: CGFloat = 20
     static let balanceIndicatorSpacing: CGFloat = 2
     static let trailingIconSize: CGFloat = 24
-    static let skeletonSpacing: CGFloat = 8
+    static let graphWidth: CGFloat = 24
+    static let graphHeight: CGFloat = 32
+    static let skeletonSpacing = RowGeometry.slotSpacing
 }
