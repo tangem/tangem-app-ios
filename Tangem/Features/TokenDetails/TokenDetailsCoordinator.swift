@@ -41,8 +41,6 @@ final class TokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
 
-    let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
-
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -61,13 +59,20 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             coordinator: self
         )
 
-        let expressFactory = ExpressPendingTransactionsFactory(
+        let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: options.userWalletInfo,
             tokenItem: options.walletModel.tokenItem,
             walletModelUpdater: options.walletModel,
+            transactionHistoryEnricherFactory: { [weak walletModel = options.walletModel] in
+                try? await walletModel?
+                    .featuresPublisher
+                    .first()
+                    .async()
+                    .transactionHistoryProvider
+            }
         )
 
-        let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
+        let expressStatusTracking = expressFactory.makeExpressStatusTracking()
 
         let factory = XPUBGeneratorFactory(cardInteractor: options.keysDerivingInteractor)
         let xpubGenerator = factory.makeXPUBGenerator(
@@ -86,13 +91,14 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             walletModel: options.walletModel,
             notificationManager: notificationManager,
             userTokensManager: options.userTokensManager,
-            pendingExpressTransactionsManager: pendingTransactionsManager,
+            pendingExpressTransactionsManager: expressStatusTracking.manager,
+            expressStatusPollingHelper: expressStatusTracking.pollingHelper,
             xpubGenerator: xpubGenerator,
             coordinator: self,
             tokenRouter: tokenRouter,
             pendingTransactionDetails: options.pendingTransactionDetails,
-            presentSource: options.presentSource,
-            deeplinkHandler: deeplinkHandler
+            deeplinkHandler: deeplinkHandler,
+            presentSource: options.presentSource
         )
 
         notificationManager.interactionDelegate = tokenDetailsViewModel
@@ -201,6 +207,13 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         }
     }
 
+    func openStakingRegionUnavailableSheet() {
+        let viewModel = StakingRegionUnavailableSheetViewModel(coordinator: self)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openDynamicAddressesDisableSheet(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
         compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,
@@ -244,6 +257,16 @@ extension TokenDetailsCoordinator: DynamicAddressesUnavailableSheetRoutable {
 
 extension TokenDetailsCoordinator: DynamicAddressesDisableSheetRoutable {
     func closeDynamicAddressesDisableSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - StakingRegionUnavailableSheetRoutable
+
+extension TokenDetailsCoordinator: StakingRegionUnavailableSheetRoutable {
+    func closeStakingRegionUnavailableSheet() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
@@ -411,7 +434,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             }
         )
 
-        let presentationStyle: MarketsTokenDetailsPresentationStyle = isRedesign ? .fullScreenCover : .navigationStack
+        let presentationStyle: MarketsTokenDetailsPresentationStyle = .fullScreenCover
 
         coordinator.start(with: .init(info: tokenModel, style: presentationStyle))
         marketsTokenDetailsCoordinator = coordinator

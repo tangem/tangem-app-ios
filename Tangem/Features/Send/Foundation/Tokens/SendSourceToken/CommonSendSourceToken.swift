@@ -23,10 +23,15 @@ struct CommonSendSourceToken: SendSourceToken {
     let withdrawalNotificationProvider: (any BlockchainSdk.WithdrawalNotificationProvider)?
     let emailDataCollectorBuilder: any EmailDataCollectorBuilder
 
+    var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? {
+        get async { await transactionHistoryEnricherFactory() }
+    }
+
     let transactionDispatcherProvider: any TransactionDispatcherProvider
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     let tangemIconProvider: any TangemIconProvider
     let confirmTransactionPolicy: any ConfirmTransactionPolicy
+    let isTangemPayAccount: Bool
 
     // MARK: - SendReceiveToken
 
@@ -37,4 +42,7 @@ struct CommonSendSourceToken: SendSourceToken {
 
     let address: String?
     let extraId: String?
+
+    /// - Note: Implementation details, not a part of public API of `SendSourceToken`.
+    let transactionHistoryEnricherFactory: TransactionHistoryExpressDataEnriching.Factory
 }

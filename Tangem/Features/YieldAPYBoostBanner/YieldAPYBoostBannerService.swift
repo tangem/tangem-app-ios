@@ -110,14 +110,6 @@ private extension YieldAPYBoostBannerService {
 
         let event = YieldAPYBoostBannerNotificationEvent()
 
-        guard FeatureProvider.isAvailable(.redesign) else {
-            return NotificationsFactory().buildNotificationInput(
-                for: event,
-                buttonAction: exploreAction,
-                dismissAction: dismissAction
-            )
-        }
-
         let laterButton = NotificationView.NotificationButton(
             action: { id, _ in dismissAction(id) },
             actionType: .yieldBoostPromoLater,
