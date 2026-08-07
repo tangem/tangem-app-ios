@@ -190,14 +190,14 @@ public struct TokenRowShowcase: View {
         }
     }
 
-    private func balanceValue(_ state: BalanceStateOption, _ string: String) -> TokenRowBalanceValue {
+    private func balanceValue(_ state: BalanceStateOption, _ string: String) -> TokenRowValue {
         switch state {
         case .loading:
-            return TokenRowBalanceValue.loading
+            return TokenRowValue.loading
         case .updating:
-            return TokenRowBalanceValue.updating(balanceText(string))
+            return TokenRowValue.updating(balanceText(string))
         case .loaded:
-            return TokenRowBalanceValue.loaded(balanceText(string))
+            return TokenRowValue.loaded(balanceText(string))
         }
     }
 
