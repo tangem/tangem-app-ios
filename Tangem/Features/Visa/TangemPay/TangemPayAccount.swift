@@ -119,6 +119,10 @@ final class TangemPayAccount {
             .removeDuplicates()
     }
 
+    var networks: [TangemPayBalance.Network] {
+        balancesService.networks
+    }
+
     var customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan? {
         customerInfoSubject.value.customerTariffPlan
     }
