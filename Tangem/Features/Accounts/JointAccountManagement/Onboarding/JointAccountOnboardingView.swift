@@ -29,6 +29,8 @@ struct JointAccountOnboardingView: View {
                 FixedSpacer(height: max(0, imageSize.height - 80))
 
                 textSection
+
+                Text("[REDACTED_TODO_COMMENT]")
             }
         }
         .ignoresSafeArea()

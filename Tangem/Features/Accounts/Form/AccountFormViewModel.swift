@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import CombineExt
 import Combine
 import TangemAssets
 import TangemLocalization
@@ -93,15 +92,11 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     private let initialStateSnapshot: StateSnapshot
     private let flowType: FlowType
-    private let closeAction: (AccountOperationResult, (any CryptoAccountModel)?) -> Void
-    private let accountModelsManager: AccountModelsManager
-
-    private var bag = Set<AnyCancellable>()
+    private weak var coordinator: AccountFormViewModelRoutable?
 
     init(
-        accountModelsManager: AccountModelsManager,
         flowType: FlowType,
-        closeAction: @escaping (AccountOperationResult, (any CryptoAccountModel)?) -> Void
+        coordinator: AccountFormViewModelRoutable?
     ) {
         let accountName: String
         let iconColor: AccountModel.CompositeIcon.Color
@@ -133,8 +128,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         self.selectedColor = selectedColor
         self.selectedIcon = selectedIcon
         self.flowType = flowType
-        self.closeAction = closeAction
-        self.accountModelsManager = accountModelsManager
+        self.coordinator = coordinator
 
         initialStateSnapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
 
@@ -182,8 +176,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         switch flowType {
         case .edit:
             Localization.commonSave
-        case .create:
-            Localization.accountFormTitleCreate
+        case .create(let creator):
+            creator.mainButtonTitle
         }
     }
 
@@ -205,25 +199,21 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
             defer { viewModel.isLoading = false }
 
-            // Accounts are created with a derivation index incremented by one from the last existing account, which makes
-            // it possible to determine the derivation index of the next newly created account from the `totalAccountsCount`
-            // Not the most robust solution, but it allows to avoid passing the id of the newly created account from the manager
-            let newAccountDerivationIndex = viewModel.totalAccountsCount
-            let result: AccountOperationResult
+            let output: AccountFormOperationResult
 
             do throws(AccountEditError) {
                 switch viewModel.flowType {
                 case .edit(let account):
                     try await viewModel.editAccount(account: account)
                     // Tokens redistribution can't be performed when editing an existing account
-                    result = .none
-                case .create:
-                    result = try await viewModel.accountModelsManager.addCryptoAccount(
+                    output = .crypto(operationResult: .none, createdAccount: nil)
+                case .create(let creator):
+                    output = try await creator.handleMainButtonTap(
                         name: viewModel.trimmedAccountName,
                         icon: viewModel.accountIcon
                     )
                 }
-                viewModel.handleFlowSuccess(result: result, newAccountDerivationIndex: newAccountDerivationIndex)
+                viewModel.handleFlowSuccess(output)
             } catch {
                 viewModel.handleFlowFailure(error: error)
             }
@@ -242,7 +232,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             params.enrich(with: account.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
             Analytics.log(event: .accountSettingsButtonSave, params: params)
 
-        case .create:
+        case .create(_ as CryptoAccountFormViewCreator):
             let params: [Analytics.ParameterKey: String] = [
                 .accountName: trimmedAccountName,
                 .accountColor: selectedColor.id.rawValue,
@@ -253,6 +243,10 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             ]
 
             Analytics.log(event: .accountSettingsButtonAddNewAccount, params: params)
+
+        case .create:
+            // The joint account flow has no events of its own specified yet
+            break
         }
     }
 
@@ -269,8 +263,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
             alert = makeExitAlert(message: message)
         } else {
-            // No changes were made, no tokens redistribution performed
-            close(result: .none, createdAccount: nil)
+            close(.cancelled)
         }
     }
 
@@ -289,57 +282,30 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func close(result: AccountOperationResult, createdAccount: (any CryptoAccountModel)?) {
+    private func close(_ outcome: AccountFormOutcome) {
         activeTask?.cancel()
-        closeAction(result, createdAccount)
+        coordinator?.closeAccountForm(outcome: outcome)
     }
 
     @MainActor
-    private func handleFlowSuccess(result: AccountOperationResult, newAccountDerivationIndex: Int?) {
-        let toastText: String
+    private func handleFlowSuccess(_ output: AccountFormOperationResult) {
+        switch (flowType, output) {
+        case (.edit, _):
+            Toast(view: SuccessToast(text: Localization.accountEditSuccessMessage))
+                .present(layout: .top(padding: 24), type: .temporary(interval: 4))
 
-        switch flowType {
-        case .edit:
-            toastText = Localization.accountEditSuccessMessage
-            close(result: result, createdAccount: nil)
-        case .create:
-            toastText = Localization.accountCreateSuccessMessage
-            var subscription: AnyCancellable?
+        case (.create, .crypto):
+            Toast(view: SuccessToast(text: Localization.accountCreateSuccessMessage))
+                .present(layout: .top(padding: 24), type: .temporary(interval: 4))
 
-            let accountFoundPublisher = accountModelsManager
-                .cryptoAccountModelsPublisher
-                .compactMap { cryptoAccountModels in
-                    cryptoAccountModels.first { account in
-                        // `AnyHashable` unwraps underlying value and allows comparing `Int` with `Int?` without explicit unwrapping
-                        account.id.toPersistentIdentifier().toAnyHashable() == newAccountDerivationIndex.toAnyHashable()
-                    }
-                }
-                .first()
-                .mapToOptional()
+            Analytics.log(.walletSettingsAccountCreated)
 
-            let timeoutPublisher: some Publisher<(any CryptoAccountModel)?, Never> = Just(nil)
-                .delay(for: .seconds(Constants.fallbackTimeout), scheduler: DispatchQueue.main)
-
-            // One-time subscription to get the latest list of crypto accounts.
-            // Falls back to `nil` from `timeoutPublisher` after a timeout if the account model isn't found.
-            subscription = accountFoundPublisher
-                .amb(timeoutPublisher)
-                .receiveOnMain()
-                .withWeakCaptureOf(self)
-                .sink { viewModel, cryptoAccountModel in
-                    assert(
-                        cryptoAccountModel != nil,
-                        "Newly created account with derivation index '\(String(describing: newAccountDerivationIndex))' was not found"
-                    )
-
-                    Analytics.log(.walletSettingsAccountCreated)
-                    viewModel.close(result: result, createdAccount: cryptoAccountModel)
-                    withExtendedLifetime(subscription) {}
-                }
+        case (.create, .joint):
+            // No toasts for joint accounts creation
+            break
         }
 
-        Toast(view: SuccessToast(text: toastText))
-            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+        close(.completed(output))
     }
 
     @MainActor
@@ -386,9 +352,9 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     }
 
     private func setupDescription() {
-        guard case .create = flowType else { return }
+        guard case .create(let creator) = flowType else { return }
 
-        accountModelsManager.totalCryptoAccountsCountPublisher
+        creator.totalAccountsCountPublisher
             .receiveOnMain()
             .assign(to: &$totalAccountsCount)
     }
@@ -411,8 +377,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             keepEditingButtonText: Localization.accountUnsavedDialogActionFirst,
             discardButtonText: Localization.accountUnsavedDialogActionSecond,
             discardAction: { [weak self] in
-                // No accounts were added and no tokens redistribution performed
-                self?.close(result: .none, createdAccount: nil)
+                self?.close(.cancelled)
             }
         )
     }
@@ -423,19 +388,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 extension AccountFormViewModel {
     enum FlowType {
         case edit(account: any CryptoAccountModel)
-        case create(CreatedAccountType)
-    }
-}
-
-extension AccountFormViewModel.FlowType {
-    enum CreatedAccountType {
-        case crypto
-
-        @available(*, unavailable, message: "This account type is not implemented yet")
-        case smart
-
-        @available(*, unavailable, message: "This account type is not implemented yet")
-        case visa
+        case create(creator: any AccountFormViewCreator)
     }
 }
 
@@ -461,13 +414,5 @@ private extension AccountFormViewModel {
         func resolve(accountModel: any TangemPayAccountModel) -> String? {
             nil
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension AccountFormViewModel {
-    enum Constants {
-        static let fallbackTimeout: TimeInterval = 3.0
     }
 }
