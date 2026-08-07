@@ -15,7 +15,7 @@ import TangemUI
 
 final class TokensManagementFlowCoordinator: ObservableObject, FloatingSheetContentViewModel {
     static var isAddAndOrganizeRedesignAvailable: Bool {
-        FeatureProvider.isAvailable(.redesign) && FeatureProvider.isAvailable(.addAndOrganizeRedesign)
+        true
     }
 
     @Published private(set) var state: ViewState = .chooser

@@ -33,10 +33,14 @@ final class TangemPayVirtualAccountBankDetailsViewModel: ObservableObject, Float
             Row(key: "routing_number", title: Localization.virtualAccountRequisitesRoutingNumber, value: credentials.routingNumber),
         ]
         .filter { !$0.value.isEmpty }
+
+        Analytics.log(.visaVATopupBankingDetailsShowed)
     }
 
-    func copy(_ value: String) {
-        UIPasteboard.general.string = value
+    func copy(_ row: Row) {
+        Analytics.log(event: .visaVATopupCopyFieldClicked, params: [.field: row.key])
+
+        UIPasteboard.general.string = row.value
 
         Toast(
             view: TangemSnackbar(title: Localization.commonValueCopied)
@@ -47,6 +51,8 @@ final class TangemPayVirtualAccountBankDetailsViewModel: ObservableObject, Float
     }
 
     func share() {
+        Analytics.log(.visaVATopupShareDetailsButtonClicked)
+
         let text = rows.map { "\($0.title): \($0.value)" }.joined(separator: "\n")
         shareActivitiesPresenter.share(activityItems: [text])
     }

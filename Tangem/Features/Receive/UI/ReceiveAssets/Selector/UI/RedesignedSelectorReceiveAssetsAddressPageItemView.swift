@@ -50,33 +50,34 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
     private var qrCodeButton: some View {
         // [REDACTED_TODO_COMMENT]
         TangemButtonV2(
-            label: AttributedString(Localization.tokenReceiveShowQrCodeTitle),
-            iconStart: Assets.Receive.qrButtonIcon,
+            label: Localization.tokenReceiveShowQrCodeTitle,
             accessibilityLabel: Localization.tokenReceiveShowQrCodeTitle,
             action: viewModel.qrCodeButtonDidTap
         )
+        .iconStart(Assets.Receive.qrButtonIcon)
         .size(.x10)
         .styleType(.ghost)
         .disabled(viewModel.isLoading)
+        .accessibilityIdentifier(viewModel.qrCodeButtonAccessibilityIdentifier)
     }
 
     private var actionsButtons: some View {
         HStack(spacing: 8) {
             TangemButtonV2(
-                label: AttributedString(Localization.commonCopy),
-                iconStart: DesignSystem.Icons.Copy.regular24,
+                label: Localization.commonCopy,
                 accessibilityLabel: Localization.commonCopy,
                 action: viewModel.copyAddressButtonDidTap
             )
+            .iconStart(DesignSystem.Icons.Copy.regular24)
             .size(.x12)
             .styleType(.secondary)
 
             TangemButtonV2(
-                label: AttributedString(Localization.commonShare),
-                iconStart: DesignSystem.Icons.ShareIos.regular24,
+                label: Localization.commonShare,
                 accessibilityLabel: Localization.commonShare,
                 action: viewModel.shareButtonDidTap
             )
+            .iconStart(DesignSystem.Icons.ShareIos.regular24)
             .size(.x12)
             .styleType(.secondary)
         }
@@ -98,6 +99,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .infinityFrame(axis: .horizontal, alignment: .center)
+                    .accessibilityIdentifier(viewModel.addressAccessibilityIdentifier)
             }
         }
         .padding(.horizontal, 24)

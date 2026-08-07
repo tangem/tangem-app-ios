@@ -512,30 +512,6 @@ private struct BuildSettings {
 /// Loosely based on this thread: https://forums.swift.org/t/43593
 /// - Warning: Does not work with Xcode, only works for builds made with the `fastlane`, `xcodebuild` or `swift build`.
 private func makeBuildSettings() -> BuildSettings? {
-    func makeAlphaBetaBuildSettings() -> BuildSettings {
-        return BuildSettings(
-            cSettings: [.define("ALPHA_OR_BETA", to: "1")],
-            cxxSettings: [.define("ALPHA_OR_BETA", to: "1")],
-            swiftSettings: [.define("ALPHA_OR_BETA")]
-        )
-    }
-
-    if ProcessInfo.processInfo.environment["SWIFT_PACKAGE_BUILD_FOR_ALPHA"] != nil {
-        var buildSettings = makeAlphaBetaBuildSettings()
-        buildSettings.cSettings.append(.define("ALPHA", to: "1"))
-        buildSettings.cxxSettings.append(.define("ALPHA", to: "1"))
-        buildSettings.swiftSettings.append(.define("ALPHA"))
-        return buildSettings
-    }
-
-    if ProcessInfo.processInfo.environment["SWIFT_PACKAGE_BUILD_FOR_BETA"] != nil {
-        var buildSettings = makeAlphaBetaBuildSettings()
-        buildSettings.cSettings.append(.define("BETA", to: "1"))
-        buildSettings.cxxSettings.append(.define("BETA", to: "1"))
-        buildSettings.swiftSettings.append(.define("BETA"))
-        return buildSettings
-    }
-
     if ProcessInfo.processInfo.environment["SWIFT_PACKAGE_BUILD_FOR_INTERNAL"] != nil {
         return BuildSettings(
             cSettings: [.define("INTERNAL", to: "1")],

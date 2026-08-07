@@ -23,8 +23,6 @@ struct StoriesTangemLogo: View {
     }
 }
 
-struct StoriesTangemLogo_Previews: PreviewProvider {
-    static var previews: some View {
-        StoriesTangemLogo()
-    }
+#Preview {
+    StoriesTangemLogo()
 }

@@ -48,6 +48,7 @@ extension Analytics {
         case accountDerivation = "Account Derivation"
         case accountDerivationFrom = "Account Derivation (from)"
         case accountDerivationTo = "Account Derivation (to)"
+        case payAccount = "Pay Account"
         case sku = "SKU"
         case amount = "Amount"
         case count = "Count"
@@ -187,5 +188,24 @@ extension Analytics {
         case variant
         case zone
         case walletId = "wallet_id"
+
+        // MARK: - Address Book
+
+        case addressBookWalletId = "Wallet Id"
+        case contactId = "Contact Id"
+        case contactsCount = "Contacts Count"
+
+        // MARK: - Staking validation
+
+        case blockaid = "Blockaid"
+        case mobileCheck = "Mobile_check"
+
+        // MARK: - Tangem Pay Tiers
+
+        case plan = "Plan"
+
+        // MARK: - Tangem Pay Virtual Account
+
+        case field = "Field"
     }
 }

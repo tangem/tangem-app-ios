@@ -11,7 +11,8 @@
 import Foundation
 import Testing
 import Combine
-import BlockchainSdk
+@testable import BlockchainSdk
+import BigInt
 import TangemFoundation
 @testable import Tangem
 
@@ -370,4 +371,429 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
         // → fallback to usdt should still happen (fix only kicks in for .notSupported).
         #expect(sut.selectedFeeProvider.feeTokenItem == usdtTokenItem)
     }
+}
+
+@Suite("Gasless Yield Fee", .serialized)
+struct GaslessYieldFeeTests {
+    @Test("WithdrawMethod encodes withdraw(address,uint256) selector and params")
+    func withdrawMethodEncoding() {
+        let tokenAddress = "0x0000000000000000000000000000000000000001"
+        let method = WithdrawMethod(
+            tokenContractAddress: tokenAddress,
+            amount: EthereumFeeParametersConstants.gaslessMinTokenAmount
+        )
+
+        #expect(method.encodedData.hasPrefix("0xf3fef3a3"))
+        #expect(method.encodedData.contains(tokenAddress.removeHexPrefix()))
+    }
+
+    @Test("Gasless yield fee metadata survives gas-limit updates")
+    func yieldFeeMetadataSurvivesGasLimitUpdate() {
+        let yieldWithdraw = EthereumGaslessTransactionFeeParameters.YieldWithdraw(
+            yieldContractAddress: "0x0000000000000000000000000000000000000002",
+            withdrawGasLimit: 50_000,
+            upgrade: .required(implementation: "0x0000000000000000000000000000000000000003")
+        )
+        let parameters = EthereumGaslessTransactionFeeParameters(
+            gasLimit: 210_000,
+            callGasLimit: 100_000,
+            maxFeePerGas: 1_000,
+            priorityFee: 100,
+            nativeToFeeTokenRate: 1,
+            feeTokenTransferGasLimit: 30_000,
+            yieldWithdraw: yieldWithdraw
+        )
+
+        let updated = parameters.changingGasLimit(to: 300_000)
+
+        #expect(updated.gasLimit == 300_000)
+        #expect(updated.callGasLimit == 100_000)
+        #expect(updated.yieldWithdraw == yieldWithdraw)
+    }
+
+    @Test("Batch EIP-712 typed data includes transactions array and gasLimit")
+    func batchTypedDataShape() {
+        let transaction = GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction(
+            to: "0x0000000000000000000000000000000000000001",
+            value: "0",
+            gasLimit: "21000",
+            data: "0x"
+        )
+        let fee = GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee(
+            feeToken: "0x0000000000000000000000000000000000000002",
+            maxTokenFee: "10000",
+            coinPriceInToken: "1",
+            feeTransferGasLimit: "50000",
+            baseGas: "60000",
+            feeReceiver: "0x0000000000000000000000000000000000000003"
+        )
+
+        let typedData = GaslessTransactionBuilder.GaslessTransactionsEIP712Util().makeGaslessBatchTypedData(
+            transactions: [transaction],
+            fee: fee,
+            nonce: "0",
+            chainId: 1,
+            verifyingContract: "0x0000000000000000000000000000000000000004"
+        )
+
+        #expect(typedData.primaryType == "GaslessBatchTransaction")
+        #expect(typedData.types["Transaction"]?.contains { $0.name == "gasLimit" && $0.type == "uint256" } == true)
+        #expect(typedData.types["GaslessBatchTransaction"]?.contains { $0.name == "transactions" && $0.type == "Transaction[]" } == true)
+        #expect(typedData.message.objectValue?["transactions"]?.arrayValue?.first?.objectValue?["gasLimit"]?.stringValue == "21000")
+    }
+
+    /// The encoded type strings are hashed into the signed digest, so they have to match
+    /// `Tangem7702GaslessExecutor` byte for byte. The literals below are copied from the deployed contract.
+    @Test("Batch-capable executor type strings match the deployed contract")
+    func batchCapableTypeStringsMatchContract() throws {
+        let util = GaslessTransactionBuilder.GaslessTransactionsEIP712Util()
+        let feeType = "Fee(address feeToken,uint256 maxTokenFee,uint256 coinPriceInToken,uint256 feeTransferGasLimit,uint256 baseGas,address feeReceiver)"
+        let transactionType = "Transaction(address to,uint256 value,uint256 gasLimit,bytes data)"
+
+        let single = try util.makeGaslessTypedData(
+            transaction: Self.stubTransaction(gasLimit: "21000"),
+            fee: Self.stubFee(),
+            nonce: "0",
+            chainId: 1,
+            verifyingContract: Self.stubVerifyingContract,
+            executorVersion: .batchCapable
+        )
+        let batch = util.makeGaslessBatchTypedData(
+            transactions: [Self.stubTransaction(gasLimit: "21000")],
+            fee: Self.stubFee(),
+            nonce: "0",
+            chainId: 1,
+            verifyingContract: Self.stubVerifyingContract
+        )
+
+        #expect(
+            String(decoding: single.makeTypeData(primaryType: "GaslessTransaction"), as: UTF8.self)
+                == "GaslessTransaction(Transaction transaction,Fee fee,uint256 nonce)" + feeType + transactionType
+        )
+        #expect(
+            String(decoding: batch.makeTypeData(primaryType: "GaslessBatchTransaction"), as: UTF8.self)
+                == "GaslessBatchTransaction(Transaction[] transactions,Fee fee,uint256 nonce)" + feeType + transactionType
+        )
+    }
+
+    /// Golden digests produced by `ethers.TypedDataEncoder.hash` over the type definitions in the contract
+    /// repository's own `test/helpers/eip712Gasless.js`, for the payload built below. They pin our hashing to an
+    /// independent implementation, so a regression in either the types or the encoder shows up here.
+    @Test("Signed digests match the reference EIP-712 encoder")
+    func digestsMatchReferenceEncoder() throws {
+        let util = GaslessTransactionBuilder.GaslessTransactionsEIP712Util()
+
+        let single = try util.makeGaslessTypedData(
+            transaction: Self.stubTransaction(gasLimit: "21000"),
+            fee: Self.stubFee(),
+            nonce: "0",
+            chainId: 1,
+            verifyingContract: Self.stubVerifyingContract,
+            executorVersion: .batchCapable
+        )
+        let batch = util.makeGaslessBatchTypedData(
+            transactions: [Self.stubTransaction(gasLimit: "21000")],
+            fee: Self.stubFee(),
+            nonce: "0",
+            chainId: 1,
+            verifyingContract: Self.stubVerifyingContract
+        )
+
+        #expect(single.signHash.hexString.lowercased() == "9e385b7d4a71cc70496d0f1f1d2ab5fda665d617cbb0ea26a99c79a4cec21cf4")
+        #expect(batch.signHash.hexString.lowercased() == "0dda1b2d4786084e451e9b6b90d386d6ae685b4405b59d134e667bdcbc45ff1a")
+    }
+
+    @Test("Legacy executor signs the pre-batch Transaction type without a gas limit")
+    func legacyExecutorOmitsCallGasLimit() throws {
+        let typedData = try GaslessTransactionBuilder.GaslessTransactionsEIP712Util().makeGaslessTypedData(
+            transaction: Self.stubTransaction(gasLimit: nil),
+            fee: Self.stubFee(),
+            nonce: "0",
+            chainId: 1,
+            verifyingContract: Self.stubVerifyingContract,
+            executorVersion: .legacy
+        )
+
+        #expect(
+            String(decoding: typedData.makeTypeData(primaryType: "Transaction"), as: UTF8.self)
+                == "Transaction(address to,uint256 value,bytes data)"
+        )
+        #expect(typedData.message.objectValue?["transaction"]?.objectValue?["gasLimit"] == nil)
+    }
+
+    /// Signing `gasLimit: 0` would leave the executor forwarding no gas to the user's call, so a missing
+    /// value has to fail before the user is asked to sign.
+    @Test("Batch-capable executor rejects a transaction without a call gas limit")
+    func batchCapableRequiresCallGasLimit() {
+        #expect(throws: GaslessTransactionBuilder.GaslessTransactionBuilderError.self) {
+            try GaslessTransactionBuilder.GaslessTransactionsEIP712Util().makeGaslessTypedData(
+                transaction: Self.stubTransaction(gasLimit: nil),
+                fee: Self.stubFee(),
+                nonce: "0",
+                chainId: 1,
+                verifyingContract: Self.stubVerifyingContract,
+                executorVersion: .batchCapable
+            )
+        }
+    }
+
+    @Test("Batch request uses v2 route and documented payload key")
+    func batchRequestUsesV2Contract() throws {
+        let transaction = GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction(
+            to: "0x0000000000000000000000000000000000000001",
+            value: "0",
+            gasLimit: "21000",
+            data: "0x"
+        )
+        let fee = GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee(
+            feeToken: "0x0000000000000000000000000000000000000002",
+            maxTokenFee: "10000",
+            coinPriceInToken: "1",
+            feeTransferGasLimit: "50000",
+            baseGas: "60000",
+            feeReceiver: "0x0000000000000000000000000000000000000003"
+        )
+        let batchTransaction = GaslessTransactionsDTO.Request.GaslessBatchTransaction(
+            gaslessTransaction: .init(transactions: [transaction], fee: fee, nonce: "0"),
+            signature: "0xsignature",
+            userAddress: "0x0000000000000000000000000000000000000004",
+            chainId: 137,
+            eip7702auth: .init(
+                chainId: 137,
+                address: "0x0000000000000000000000000000000000000005",
+                nonce: "1",
+                yParity: 0,
+                r: "0xr",
+                s: "0xs"
+            )
+        )
+
+        let target = GaslessTransactionsAPITarget(apiType: .prod, target: .sendGaslessBatchTransaction(transaction: batchTransaction))
+        let encoded = try JSONSerialization.jsonObject(with: JSONEncoder().encode(batchTransaction)) as? [String: Any]
+
+        #expect(target.baseURL.absoluteString == "https://gasless.tangem.org/api/v2")
+        #expect(encoded?["gaslessTransaction"] != nil)
+        #expect(encoded?["gaslessBatchTransaction"] == nil)
+    }
+
+    @Test("Yield fee remains reachable when the plain gasless quote reverts")
+    func yieldFeeReachableAfterPlainGaslessQuoteRevert() async throws {
+        let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
+        InjectedValues[\.gaslessTransactionsNetworkManager] = GaslessTransactionsNetworkManagerStub(
+            feeRecipientAddress: "0x0000000000000000000000000000000000000001"
+        )
+        defer {
+            InjectedValues[\.gaslessTransactionsNetworkManager] = previousNetworkManager
+        }
+
+        let blockchain = BSDKBlockchain.polygon(testnet: false)
+        let token = Token(
+            name: "USDT",
+            symbol: "USDT",
+            contractAddress: "0x0000000000000000000000000000000000000002",
+            decimalCount: 6,
+            id: blockchain.coinId
+        )
+        let feeToken = BSDKToken(
+            name: token.name,
+            symbol: token.symbol,
+            contractAddress: token.contractAddress,
+            decimalCount: token.decimalCount,
+            id: token.id
+        )
+        let yieldFee = BSDKFee(BSDKAmount(with: blockchain, type: .token(value: feeToken), value: 2))
+        let feeProvider = GaslessTransactionFeeProviderStub(
+            plainError: JSONRPC.APIError(code: 3, message: "ERC20: transfer amount exceeds balance"),
+            yieldFee: yieldFee
+        )
+
+        let sut = CommonGaslessTokenFeeLoader(
+            tokenItem: .token(token, .init(blockchain, derivationPath: nil)),
+            feeToken: feeToken,
+            gaslessTransactionFeeProvider: feeProvider,
+            yieldFeeContext: GaslessYieldFeeContext(
+                yieldContractAddress: "0x0000000000000000000000000000000000000003",
+                yieldModuleBalance: 100,
+                feeTokenBalanceProvider: TokenBalanceProviderTestsMock(balance: 120),
+                versionChecker: nil
+            )
+        )
+
+        let fees = try await sut.getFee(
+            amount: 1,
+            destination: "0x0000000000000000000000000000000000000004"
+        )
+
+        #expect(fees.count == 1)
+        #expect(fees.first?.amount.value == yieldFee.amount.value)
+        #expect(feeProvider.getGaslessFeeCallCount == 1)
+        #expect(feeProvider.getGaslessYieldFeeCallCount == 1)
+    }
+}
+
+private extension GaslessYieldFeeTests {
+    static let stubVerifyingContract = "0x0000000000000000000000000000000000000004"
+
+    static func stubTransaction(gasLimit: String?) -> GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction {
+        .init(
+            to: "0x0000000000000000000000000000000000000001",
+            value: "0",
+            gasLimit: gasLimit,
+            data: "0x"
+        )
+    }
+
+    static func stubFee() -> GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee {
+        .init(
+            feeToken: "0x0000000000000000000000000000000000000002",
+            maxTokenFee: "10000",
+            coinPriceInToken: "1",
+            feeTransferGasLimit: "50000",
+            baseGas: "60000",
+            feeReceiver: "0x0000000000000000000000000000000000000003"
+        )
+    }
+}
+
+private final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
+    private let plainError: Error?
+    private let plainFee: BSDKFee
+    private let yieldFee: BSDKFee
+
+    private(set) var getGaslessFeeCallCount = 0
+    private(set) var getGaslessYieldFeeCallCount = 0
+
+    init(plainError: Error?, plainFee: BSDKFee? = nil, yieldFee: BSDKFee) {
+        self.plainError = plainError
+        self.plainFee = plainFee ?? yieldFee
+        self.yieldFee = yieldFee
+    }
+
+    func getGaslessFee(
+        feeToken: BSDKToken,
+        amount: BSDKAmount,
+        destination: String,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> BSDKFee {
+        getGaslessFeeCallCount += 1
+
+        if let plainError {
+            throw plainError
+        }
+
+        return plainFee
+    }
+
+    func getEstimatedGaslessFee(
+        feeToken: BSDKToken,
+        amount: BSDKAmount,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> BSDKFee {
+        if let plainError {
+            throw plainError
+        }
+
+        return plainFee
+    }
+
+    func getEstimatedGaslessYieldFee(
+        feeToken: BSDKToken,
+        amount: BSDKAmount,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal,
+        yieldFeeOptions: YieldFeeOptions
+    ) async throws -> BSDKFee {
+        yieldFee
+    }
+
+    func getGaslessTransactionFee(
+        feeToken: BSDKToken,
+        destination: String,
+        value: String?,
+        data: Data?,
+        stateOverride: EthereumStateOverride?,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> BSDKFee {
+        if let plainError {
+            throw plainError
+        }
+
+        return plainFee
+    }
+
+    func getEstimatedGaslessTransactionFee(
+        feeToken: BSDKToken,
+        estimatedGasLimit: Int,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> BSDKFee {
+        if let plainError {
+            throw plainError
+        }
+
+        return plainFee
+    }
+
+    func getGaslessYieldFee(
+        feeToken: BSDKToken,
+        amount: BSDKAmount,
+        destination: String,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal,
+        yieldFeeOptions: YieldFeeOptions
+    ) async throws -> BSDKFee {
+        getGaslessYieldFeeCallCount += 1
+        return yieldFee
+    }
+
+    func getGaslessYieldTransactionFee(
+        feeToken: BSDKToken,
+        destination: String,
+        value: String?,
+        data: Data?,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal,
+        yieldFeeOptions: YieldFeeOptions
+    ) async throws -> BSDKFee {
+        yieldFee
+    }
+
+    func getEstimatedGaslessYieldTransactionFee(
+        feeToken: BSDKToken,
+        estimatedGasLimit: Int,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal,
+        yieldFeeOptions: YieldFeeOptions
+    ) async throws -> BSDKFee {
+        yieldFee
+    }
+}
+
+private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNetworkManager {
+    let cachedFeeRecipientAddress: String?
+
+    var availableFeeTokens: [FeeToken] { [] }
+    var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> {
+        Just([]).eraseToAnyPublisher()
+    }
+
+    var currentHost: String { "test" }
+    var feeRecipientAddress: String? { cachedFeeRecipientAddress }
+
+    init(feeRecipientAddress: String?) {
+        cachedFeeRecipientAddress = feeRecipientAddress
+    }
+
+    func updateAvailableTokens() {}
+    func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String { "" }
+    func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String { "" }
+    func initialize() {}
+    func preloadFeeRecipientAddress() {}
 }

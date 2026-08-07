@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct YieldModuleTransactionView: View {
     @ObservedObject var viewModel: YieldModuleTransactionViewModel
@@ -69,6 +70,7 @@ struct YieldModuleTransactionView: View {
             isDisabled: !viewModel.isActionButtonAvailable,
             action: viewModel.onActionTap
         ))
+        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.confirmButton)
     }
 
     private var mainActionHoldButton: some View {
@@ -78,6 +80,7 @@ struct YieldModuleTransactionView: View {
             isDisabled: !viewModel.isActionButtonAvailable,
             action: viewModel.onActionTap
         )
+        .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.confirmButton)
     }
 
     private var header: some View {

@@ -28,6 +28,10 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
         options = [.swap, .receive] + (input.isBankTransferAvailable ? [.bankTransfer] : [])
 
         self.coordinator = coordinator
+
+        if options.contains(.bankTransfer) {
+            Analytics.log(.visaVATopupButtonShowed, contextParams: .userWallet(userWalletInfo.id))
+        }
     }
 
     func userDidTapOption(option: TangemPayAddFundsSheetOptionView.Option) {
@@ -41,6 +45,7 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
             openReceiveSheet()
 
         case .bankTransfer:
+            Analytics.log(.visaVATopupButtonClicked, contextParams: .userWallet(userWalletInfo.id))
             coordinator?.addFundsSheetRequestBankTransfer()
         }
     }
