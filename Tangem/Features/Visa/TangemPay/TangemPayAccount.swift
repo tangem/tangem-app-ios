@@ -50,6 +50,10 @@ final class TangemPayAccount {
         offersSubject.value.first { $0.type.isAdditionalCardIssue }
     }
 
+    var cashbackPublisher: AnyPublisher<TangemPayCashback?, Never> {
+        cashbackSubject.eraseToAnyPublisher()
+    }
+
     var statePublisher: AnyPublisher<VisaCustomerInfoResponse.CustomerState, Never> {
         customerInfoSubject
             .map(\.state)
@@ -195,8 +199,10 @@ final class TangemPayAccount {
     private let activeIssueOrdersSubject = CurrentValueSubject<[TangemPayOrderResponse], Never>([])
     private let activeIssueOrderEventsSubject = PassthroughSubject<ActiveIssueOrderEvent, Never>()
     private let awaitingDepositInfoSubject = CurrentValueSubject<TangemPayAwaitingDepositInfo?, Never>(nil)
+    private let cashbackSubject = CurrentValueSubject<TangemPayCashback?, Never>(nil)
 
     private let loadOffersProcessor = SingleTaskProcessor<Void, Never>()
+    private let loadCashbackSummaryProcessor = SingleTaskProcessor<Void, TangemPayAPIServiceError>()
     private let resumeIssuePollingProcessor = SingleTaskProcessor<Void, Never>()
     private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
     private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
@@ -398,6 +404,15 @@ extension TangemPayAccount {
             } catch {
                 VisaLogger.error("Failed to load TangemPay offers", error: error)
             }
+        }
+    }
+
+    func loadCashbackSummary() async throws(TangemPayAPIServiceError) {
+        try await loadCashbackSummaryProcessor.execute { @MainActor [weak self] () async throws(TangemPayAPIServiceError) in
+            guard let self else { return }
+
+            let response = try await customerService.getCashbackSummary()
+            cashbackSubject.send(TangemPayCashback(response))
         }
     }
 
