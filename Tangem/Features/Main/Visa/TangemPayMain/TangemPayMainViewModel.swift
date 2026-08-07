@@ -260,7 +260,8 @@ final class TangemPayMainViewModel: ObservableObject {
                     userWalletInfo: userWalletInfo,
                     address: depositAddress,
                     swapableToken: swapableToken,
-                    isBankTransferAvailable: isBankTransferAvailable
+                    isBankTransferAvailable: isBankTransferAvailable,
+                    networks: tangemPayAccount.networks
                 )
             )
         }
