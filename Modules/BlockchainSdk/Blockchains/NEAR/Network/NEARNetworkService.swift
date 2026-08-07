@@ -47,50 +47,7 @@ final class NEARNetworkService: MultiNetworkProvider {
         return providerPublisher { provider in
             return provider
                 .getProtocolConfig()
-                .map { result in
-                    let transactionCosts = result.runtimeConfig.transactionCosts
-                    let actionCreationConfig = transactionCosts.actionCreationConfig.transferCost
-                    let createAccountCostConfig = transactionCosts.actionCreationConfig.createAccountCost
-                    let addKeyCostConfig = transactionCosts.actionCreationConfig.addKeyCost.fullAccessCost
-                    let actionReceiptCreationConfig = transactionCosts.actionReceiptCreationConfig
-
-                    let cumulativeBasicExecutionCost = Decimal(actionCreationConfig.execution)
-                        + Decimal(actionReceiptCreationConfig.execution)
-
-                    let cumulativeAdditionalExecutionCost = Decimal(createAccountCostConfig.execution)
-                        + Decimal(addKeyCostConfig.execution)
-
-                    let senderIsReceiverCumulativeBasicSendCost = Decimal(actionCreationConfig.sendSir)
-                        + Decimal(actionReceiptCreationConfig.sendSir)
-
-                    let senderIsReceiverCumulativeAdditionalSendCost = Decimal(createAccountCostConfig.sendSir)
-                        + Decimal(addKeyCostConfig.sendSir)
-
-                    let senderIsNotReceiverCumulativeBasicSendCost = Decimal(actionCreationConfig.sendNotSir)
-                        + Decimal(actionReceiptCreationConfig.sendNotSir)
-
-                    let senderIsNotReceiverCumulativeAdditionalSendCost = Decimal(createAccountCostConfig.sendNotSir)
-                        + Decimal(addKeyCostConfig.sendNotSir)
-
-                    let storageAmountPerByte = Decimal(stringValue: result.runtimeConfig.storageAmountPerByte)
-                        ?? NEARProtocolConfig.fallbackProtocolConfig.storageAmountPerByte
-
-                    return NEARProtocolConfig(
-                        senderIsReceiver: .init(
-                            cumulativeBasicSendCost: senderIsReceiverCumulativeBasicSendCost,
-                            cumulativeBasicExecutionCost: cumulativeBasicExecutionCost,
-                            cumulativeAdditionalSendCost: senderIsReceiverCumulativeAdditionalSendCost,
-                            cumulativeAdditionalExecutionCost: cumulativeAdditionalExecutionCost
-                        ),
-                        senderIsNotReceiver: .init(
-                            cumulativeBasicSendCost: senderIsNotReceiverCumulativeBasicSendCost,
-                            cumulativeBasicExecutionCost: cumulativeBasicExecutionCost,
-                            cumulativeAdditionalSendCost: senderIsNotReceiverCumulativeAdditionalSendCost,
-                            cumulativeAdditionalExecutionCost: cumulativeAdditionalExecutionCost
-                        ),
-                        storageAmountPerByte: storageAmountPerByte
-                    )
-                }
+                .map(NEARProtocolConfig.init(from:))
                 .eraseToAnyPublisher()
         }
     }

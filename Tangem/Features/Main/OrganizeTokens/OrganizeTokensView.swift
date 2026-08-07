@@ -84,14 +84,14 @@ struct OrganizeTokensView: View {
 
     private var backgroundColor: Color {
         if isRedesign {
-            return Color.Tangem.Surface.level2
+            return DesignSystem.Color.bgPrimary
         }
         return .clear
     }
 
     private var cellBackgroundColor: Color {
         if isRedesign {
-            return Color.Tangem.Surface.level3
+            return DesignSystem.Color.bgSecondary
         }
         return Colors.Background.action
     }
@@ -309,6 +309,7 @@ struct OrganizeTokensView: View {
                     isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
                     contentInsets: footerContentInsets
                 )
+                .animation(.easeInOut(duration: 0.25), value: scrollState.isTokenListFooterGradientHidden)
             } else {
                 OrganizeTokensListFooter(
                     actionsHandler: viewModel,
@@ -316,9 +317,9 @@ struct OrganizeTokensView: View {
                     cornerRadius: contentCornerRadius,
                     contentInsets: footerContentInsets
                 )
+                .animation(.linear(duration: 0.1), value: scrollState.isTokenListFooterGradientHidden)
             }
         }
-        .animation(.linear(duration: 0.1), value: scrollState.isTokenListFooterGradientHidden)
         .readGeometry(inCoordinateSpace: .global) { geometryInfo in
             scrollState.tokenListFooterFrameMinYSubject.send(geometryInfo.frame.minY + Constants.contentVerticalInset)
             $scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height
@@ -715,13 +716,13 @@ private extension AnyTransition {
 private extension OrganizeTokensView {
     enum Constants {
         static let contentCornerRadius = 14.0
-        static let redesignContentCornerRadius: CGFloat = .unit(.x5)
+        static let redesignContentCornerRadius: CGFloat = 24
         static let interSectionSpacing = 8.0
         static let headerBottomInset = 10.0
         static var headerAdditionalBottomInset: CGFloat { contentVerticalInset - headerBottomInset }
         static let contentVerticalInset = 14.0
         static let contentHorizontalInset = 16.0
-        static let redesignContentHorizontalInset: CGFloat = .unit(.x3)
+        static let redesignContentHorizontalInset: CGFloat = 12
         static let dragAndDropGestureDuration = 0.15
         static let dragAndDropGestureAllowableMovement = 5.0
         static let dragLiftAnimationDuration = 0.2

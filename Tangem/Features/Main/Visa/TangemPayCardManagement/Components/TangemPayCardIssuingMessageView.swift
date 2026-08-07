@@ -24,7 +24,7 @@ struct TangemPayCardIssuingMessageView: View {
                 Text(Localization.tangempayIssuingNewDigitalCardTitle)
                 Text(Localization.tangempayReissueCardInProgressDescription)
             }
-            .font(DesignSystem.Font.captionMediumToken)
+            .font(token: DesignSystem.Font.captionMediumToken)
             .foregroundStyle(DesignSystem.Color.textSecondary)
             .multilineTextAlignment(.center)
         }
@@ -35,10 +35,8 @@ struct TangemPayCardIssuingMessageView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     TangemPayCardIssuingMessageView()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

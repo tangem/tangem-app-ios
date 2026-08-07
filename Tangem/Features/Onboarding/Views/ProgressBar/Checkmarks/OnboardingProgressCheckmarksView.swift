@@ -94,42 +94,36 @@ struct OnboardingProgressCheckmarksView: View {
     }
 }
 
-private class Provider: ObservableObject {
-    @Published var currentStep: Int = 10
+@available(iOS 17.0, *)
+#Preview {
+    final class Provider: ObservableObject {
+        @Published var currentStep: Int = 10
 
-    var numberOfSteps: Int { 6 }
+        var numberOfSteps: Int { 6 }
 
-    func goToNextStep() {
-        var nextStep = currentStep + 1
-        if nextStep > numberOfSteps {
-            nextStep = 0
-        }
-        currentStep = nextStep
-    }
-}
-
-struct OnboardingProgressCheckmarksPreview: View {
-    @ObservedObject fileprivate var model: Provider
-
-    var body: some View {
-        VStack {
-            OnboardingProgressCheckmarksView(
-                numberOfSteps: model.numberOfSteps,
-                currentStep: model.$currentStep
-            )
-            .padding(.horizontal, 40)
-            Button(action: {
-                model.goToNextStep()
-            }, label: {
-                Text("Step number: \(model.currentStep)")
-                    .padding()
-            })
+        func goToNextStep() {
+            var nextStep = currentStep + 1
+            if nextStep > numberOfSteps {
+                nextStep = 0
+            }
+            currentStep = nextStep
         }
     }
-}
 
-struct OnboardingProgressCheckmarksView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnboardingProgressCheckmarksPreview(model: Provider())
+    @Previewable @StateObject var model = Provider()
+
+    return VStack {
+        OnboardingProgressCheckmarksView(
+            numberOfSteps: model.numberOfSteps,
+            currentStep: model.$currentStep
+        )
+        .padding(.horizontal, 40)
+
+        Button(action: {
+            model.goToNextStep()
+        }, label: {
+            Text("Step number: \(model.currentStep)")
+                .padding()
+        })
     }
 }

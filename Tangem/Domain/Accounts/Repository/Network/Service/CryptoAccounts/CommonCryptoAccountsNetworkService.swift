@@ -14,7 +14,7 @@ import class Alamofire.RetryPolicy
 /// Conforms to both `CryptoAccountsNetworkService` and `ArchivedCryptoAccountsProvider` protocols.
 final class CommonCryptoAccountsNetworkService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
+    @Injected(\.eTagStorage) private var eTagStorage: ETagStorage
 
     private let userWalletId: UserWalletId
     private let mapper: CryptoAccountsNetworkMapper
@@ -76,7 +76,7 @@ extension CommonCryptoAccountsNetworkService: WalletsNetworkService {
             let newRevision = try await walletsNetworkService.createWallet(with: context)
 
             if let newRevision {
-                eTagStorage.saveETag(newRevision, for: userWalletId)
+                eTagStorage.saveETag(newRevision, for: .accounts(walletId: userWalletId))
             }
 
             return newRevision
@@ -109,7 +109,7 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
                 let (newRevision, accountsDTO) = try await tangemApiService.getUserAccounts(userWalletId: userWalletId.stringValue)
 
                 if let newRevision {
-                    eTagStorage.saveETag(newRevision, for: userWalletId)
+                    eTagStorage.saveETag(newRevision, for: .accounts(walletId: userWalletId))
                 }
 
                 return mapper.map(response: accountsDTO)
@@ -131,7 +131,7 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
             do {
                 let (accountsDTO, _) = mapper.map(request: cryptoAccounts)
 
-                guard let revision = eTagStorage.loadETag(for: userWalletId) else {
+                guard let revision = eTagStorage.loadETag(for: .accounts(walletId: userWalletId)) else {
                     throw CryptoAccountsNetworkServiceError.missingRevision
                 }
 
@@ -142,7 +142,7 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
                 )
 
                 if let newRevision {
-                    eTagStorage.saveETag(newRevision, for: userWalletId)
+                    eTagStorage.saveETag(newRevision, for: .accounts(walletId: userWalletId))
                 }
 
                 return mapper.map(response: newAccountsDTO)

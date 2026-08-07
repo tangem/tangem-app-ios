@@ -118,10 +118,6 @@ public struct TangemSegmentedPickerShowcase: View {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview("Interactive Demo") {
     TangemSegmentedPickerShowcase()
 }
-
-#endif // DEBUG

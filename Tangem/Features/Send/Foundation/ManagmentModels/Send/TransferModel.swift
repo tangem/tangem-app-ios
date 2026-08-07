@@ -493,10 +493,12 @@ extension TransferModel: NotificationTapDelegate {
              .renewTangemPaySession,
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
-             .yieldBoostPromoLater,
              .addFunds,
+             .openAppStore,
+             .yieldBoostPromoLater,
              .openGetTangemPay,
-             .closeGetTangemPay:
+             .closeGetTangemPay,
+             .removeTangemPayAccount:
             assertionFailure("Notification tap not handled")
         }
     }
