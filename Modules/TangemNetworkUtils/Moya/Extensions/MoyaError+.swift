@@ -36,6 +36,15 @@ public extension MoyaError {
         return false
     }
 
+    /// What the host answered when it rejected the request, for logs that have to say why a node was skipped.
+    var unsuccessfulResponseBody: String? {
+        guard case .statusCode(let response) = self else {
+            return nil
+        }
+
+        return String(data: response.data, encoding: .utf8) ?? "no response data"
+    }
+
     var isMappingError: Bool {
         switch self {
         case .objectMapping,
