@@ -6,8 +6,10 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemAssets
 import TangemLocalization
+import TangemUI
 
 enum ReceiveNotificationEvent {
     case irreversibleLossNotification(assetSymbol: String, networkName: String)
@@ -59,6 +61,25 @@ extension ReceiveNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.blueCircleWarning))
         case .unsupportedTokenWarning:
             return .init(iconType: .image(Assets.warningIcon))
+        }
+    }
+
+    var redesignedBannerContent: RedesignedBannerContent? {
+        switch self {
+        case .irreversibleLossNotification:
+            return RedesignedBannerContent(
+                icon: NotificationView.MessageIcon(
+                    iconType: .image(DesignSystem.Icons.Info.regular24),
+                    renderingMode: .template,
+                    color: DesignSystem.Color.iconBrand,
+                    isLeading: false,
+                    alignment: .top,
+                    usesExactSize: true,
+                    size: CGSize(bothDimensions: 24)
+                )
+            )
+        case .unsupportedTokenWarning:
+            return nil
         }
     }
 

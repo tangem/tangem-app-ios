@@ -69,7 +69,7 @@ extension EarnMostlyUsedView {
 
 private extension EarnMostlyUsedView {
     enum Layout {
-        static let height: CGFloat = FeatureProvider.isAvailable(.redesign) ? 130.0 : 106.0
+        static let height: CGFloat = 130.0
         static let cardSpacing: CGFloat = 8.0
         static let horizontalPadding: CGFloat = 16.0
     }

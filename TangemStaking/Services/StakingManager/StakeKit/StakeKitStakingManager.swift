@@ -200,6 +200,7 @@ private extension StakeKitStakingManager {
             _balances.withLock { $0 = stakeInfo.balances }
         case .availableToStake,
              .loadingError,
+             .unavailableInRegion,
              .notEnabled,
              .temporaryUnavailable:
             _balances.withLock { $0 = nil }

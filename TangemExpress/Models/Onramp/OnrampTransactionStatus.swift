@@ -16,7 +16,11 @@ public enum OnrampTransactionStatus: String, Codable {
     case failed
     case paid
     case sending
+    // [REDACTED_TODO_COMMENT]
+    @available(iOS, deprecated: 100000.0, message: "Not present in the Express API (`EOnrampStatus`); Investigate and remove if not used")
     case refunding = "refund-in-progress"
+    // [REDACTED_TODO_COMMENT]
+    @available(iOS, deprecated: 100000.0, message: "Not present in the Express API (`EOnrampStatus`); Investigate and remove if not used")
     case refunded
     case finished
     case paused

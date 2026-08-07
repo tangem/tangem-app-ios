@@ -135,6 +135,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
 
             let yieldApyBoostBannerNotificationManager = YieldAPYBoostBannerService(userWalletId: model.userWalletId)
+            let forceUpdateBannerNotificationManager = ForceUpdateBannerNotificationManager()
 
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
                 userWalletModel: model,
@@ -153,6 +154,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 tangemPayNotificationManager: tangemPayNotificationManager,
                 getTangemPayBannerNotificationManager: getTangemPayBannerNotificationManager,
                 yieldApyBoostBannerNotificationManager: yieldApyBoostBannerNotificationManager,
+                forceUpdateBannerNotificationManager: forceUpdateBannerNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
                 tokenRouter: tokenRouter,
@@ -191,13 +193,20 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             placement: .main
         )
 
-        let expressFactory = ExpressPendingTransactionsFactory(
+        let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: model.userWalletInfo,
             tokenItem: dependencies.walletModel.tokenItem,
             walletModelUpdater: dependencies.walletModel,
+            transactionHistoryEnricherFactory: { [weak walletModel = dependencies.walletModel] in
+                try? await walletModel?
+                    .featuresPublisher
+                    .first()
+                    .async()
+                    .transactionHistoryProvider
+            }
         )
 
-        let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
+        let expressStatusTracking = expressFactory.makeExpressStatusTracking()
 
         let accountModel: (any CryptoAccountModel)? = {
             let cryptoAccounts = model.accountModelsManager.accountModels.cryptoAccounts()
@@ -210,7 +219,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             walletModel: dependencies.walletModel,
             userWalletNotificationManager: userWalletNotificationManager,
             promotionNotificationsManager: promotionNotificationsManager,
-            pendingExpressTransactionsManager: pendingTransactionsManager,
+            forceUpdateBannerNotificationManager: ForceUpdateBannerNotificationManager(),
+            pendingExpressTransactionsManager: expressStatusTracking.manager,
+            expressStatusPollingHelper: expressStatusTracking.pollingHelper,
             tokenNotificationManager: singleWalletNotificationManager,
             rateAppController: rateAppController,
             tokenRouter: tokenRouter,

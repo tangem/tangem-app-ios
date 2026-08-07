@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct YieldModuleBottomSheetNotificationBannerView: View {
     // MARK: - Config
@@ -126,6 +127,7 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
     private var titleView: some View {
         Text(title)
             .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+            .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.notificationTitle)
     }
 
     @ViewBuilder
@@ -145,6 +147,7 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
                 size: .notification,
                 action: buttonConfig.action
             )
+            .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.notificationButton)
         }
     }
 }

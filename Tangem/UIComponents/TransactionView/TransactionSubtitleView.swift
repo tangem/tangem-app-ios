@@ -18,6 +18,7 @@ import TangemUIUtils
 struct TransactionSubtitleView: View {
     let direction: TransactionDisplayModel.Direction
     let owner: TransactionViewModel.SubtitleOwner
+    var accessibilityIdentifier: String? = nil
 
     @ScaledMetric private var glyphSize: CGFloat = 16
 
@@ -37,27 +38,30 @@ struct TransactionSubtitleView: View {
     @ViewBuilder
     private var ownerView: some View {
         switch owner {
-        case .account(let name, let icon):
+        case .accountInCurrentWallet(let name, let icon):
             HStack(spacing: .unit(.x1)) {
                 AccountIconView(data: icon)
                     .settings(.smallSized)
                 Text(name)
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
+                    .accessibilityIdentifier(accessibilityIdentifier)
             }
 
         case .wallet(let name):
             Text(name)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                 .lineLimit(1)
+                .accessibilityIdentifier(accessibilityIdentifier)
 
-        case .accountInWallet(let accountName, let accountIcon, let walletName):
+        case .accountInOtherWallet(let accountName, let accountIcon, let walletName):
             HStack(spacing: .unit(.x1)) {
                 AccountIconView(data: accountIcon)
                     .settings(.smallSized)
                 Text(accountName)
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
+                    .accessibilityIdentifier(accessibilityIdentifier)
                 Text(Localization.commonIn)
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                 Text(walletName)
@@ -72,6 +76,7 @@ struct TransactionSubtitleView: View {
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                     .lineLimit(1)
                     .truncationMode(.middle)
+                    .accessibilityIdentifier(accessibilityIdentifier)
             }
         }
     }

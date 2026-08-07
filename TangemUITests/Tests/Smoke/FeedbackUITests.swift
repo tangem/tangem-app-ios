@@ -78,6 +78,7 @@ final class FeedbackUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .openDetails()
             .contactSupport()
+            .openMail()
             .validateFallbackSheet()
     }
 }

@@ -28,18 +28,19 @@ struct CollapsedAccountItemHeaderView: View {
     @ScaledMetric private var geometryEffectAnchorOffset: CGFloat = 20
 
     private var balanceLoaderStyle: LoadableBalanceView.LoaderStyle {
-        FeatureProvider.isAvailable(.redesign)
-            ? .init(size: .init(width: .unit(.x18), height: .unit(.x4)), cornerRadiusStyle: .capsule)
-            : .init(size: .init(width: .unit(.x10), height: .unit(.x3)))
+        LoadableBalanceView.LoaderStyle(
+            size: CGSize(width: 72, height: 16),
+            cornerRadiusStyle: .capsule,
+            appearance: .tangemShimmer
+        )
     }
 
-    // [REDACTED_INFO]: drop gating, keep the redesign values (line spacing 4, padding 12).
     private var lineSpacing: CGFloat {
-        FeatureProvider.isAvailable(.redesign) ? .unit(.x1) : 2
+        .unit(.x1)
     }
 
     private var contentPadding: CGFloat {
-        FeatureProvider.isAvailable(.redesign) ? .unit(.x3) : 14
+        .unit(.x3)
     }
 
     var body: some View {
@@ -86,7 +87,8 @@ struct CollapsedAccountItemHeaderView: View {
                 PriceChangeView(
                     state: priceChange,
                     showSkeletonWhenLoading: true,
-                    showIconForNeutral: false
+                    showIconForNeutral: false,
+                    shimmerAppearance: .tangemShimmer
                 )
             }
         )
@@ -95,33 +97,26 @@ struct CollapsedAccountItemHeaderView: View {
     }
 }
 
-#if DEBUG
-private struct CollapsedAccountItemHeaderViewPreview: View {
-    @Namespace private var namespace
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @Namespace var namespace
 
-    var body: some View {
+    ZStack {
         let effects = AccountGeometryEffects(namespace: namespace)
 
-        ZStack {
-            Color.gray
+        Color.gray
 
-            CollapsedAccountItemHeaderView(
-                name: "Test",
-                iconData: .composite(backgroundColor: .red, nameMode: .letter("A")),
-                tokensCount: "5 Tokens",
-                totalFiatBalance: .loaded(text: "$1234.56"),
-                priceChange: .loaded(changeType: .positive, text: "+5.67%"),
-                iconGeometryEffect: effects.icon,
-                iconBackgroundGeometryEffect: effects.iconBackground,
-                nameGeometryEffect: effects.name,
-                tokensCountGeometryEffect: effects.tokensCount,
-                balanceGeometryEffect: effects.balance
-            )
-        }
+        CollapsedAccountItemHeaderView(
+            name: "Test",
+            iconData: .composite(backgroundColor: .red, nameMode: .letter("A")),
+            tokensCount: "5 Tokens",
+            totalFiatBalance: .loaded(text: "$1234.56"),
+            priceChange: .loaded(changeType: .positive, text: "+5.67%"),
+            iconGeometryEffect: effects.icon,
+            iconBackgroundGeometryEffect: effects.iconBackground,
+            nameGeometryEffect: effects.name,
+            tokensCountGeometryEffect: effects.tokensCount,
+            balanceGeometryEffect: effects.balance
+        )
     }
 }
-
-#Preview {
-    CollapsedAccountItemHeaderViewPreview()
-}
-#endif

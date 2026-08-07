@@ -151,7 +151,9 @@ final class TransactionHistoryMapperGaslessTests {
             status: .confirmed,
             isOutgoing: true,
             type: .transfer,
-            date: Date()
+            date: Date(),
+            tokenTransfers: [],
+            nonce: nil
         )
         let suggested = mapper.mapSuggestedRecord(record)
         #expect(suggested?.address == "0xReceiverAddress")
@@ -198,7 +200,8 @@ private extension TransactionHistoryMapperGaslessTests {
                     decimals: 6,
                     contract: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
                 ),
-            ]
+            ],
+            nonce: nil
         )
     }
 }
@@ -231,6 +234,7 @@ private final class StubGaslessTransactionsNetworkManager: GaslessTransactionsNe
 
     func updateAvailableTokens() {}
     func sendGaslessTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessTransaction) async throws -> String { "" }
+    func sendGaslessBatchTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction) async throws -> String { "" }
     func initialize() {}
     var feeRecipientAddress: String? { cachedFeeRecipientAddress }
     func preloadFeeRecipientAddress() {}

@@ -110,7 +110,6 @@ private extension NFTAssetDetailsView {
     }
 }
 
-#if DEBUG
 #Preview {
     NavigationStack {
         NFTAssetDetailsView(
@@ -162,4 +161,3 @@ private extension NFTAssetDetailsView {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
-#endif

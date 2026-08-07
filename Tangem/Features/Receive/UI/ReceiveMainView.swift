@@ -49,22 +49,12 @@ struct ReceiveMainView: View {
 
     @ViewBuilder
     private func tokenAlertView(viewModel: TokenAlertReceiveAssetsViewModel) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            RedesignedTokenAlertReceiveAssetsView(viewModel: viewModel)
-        } else {
-            // [REDACTED_INFO]: drop the legacy token alert view once redesign ships.
-            TokenAlertReceiveAssetsView(viewModel: viewModel)
-        }
+        RedesignedTokenAlertReceiveAssetsView(viewModel: viewModel)
     }
 
     @ViewBuilder
     private func qrCodeView(viewModel: QRCodeReceiveAssetsViewModel) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            RedesignedQRCodeReceiveAssetsView(viewModel: viewModel)
-        } else {
-            // [REDACTED_INFO]: drop the legacy QR view once redesign ships.
-            QRCodeReceiveAssetsView(viewModel: viewModel)
-        }
+        RedesignedQRCodeReceiveAssetsView(viewModel: viewModel)
     }
 
     private func header(from viewState: ReceiveMainViewModel.ViewState) -> some View {
@@ -98,15 +88,6 @@ struct ReceiveMainView: View {
 
 private extension ReceiveMainViewModel.ViewState {
     var backgroundColor: Color {
-        guard FeatureProvider.isAvailable(.redesign) else {
-            // [REDACTED_INFO]: drop the legacy branch once redesign ships.
-            switch self {
-            case .selector, .tokenAlert:
-                return Colors.Background.tertiary
-            case .qrCode:
-                return Colors.Background.primary
-            }
-        }
         return DesignSystem.Color.bgSecondary
     }
 }

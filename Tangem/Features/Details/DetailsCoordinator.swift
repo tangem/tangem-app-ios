@@ -174,7 +174,7 @@ extension DetailsCoordinator: DetailsRoutable {
         }
 
         let coordinator = AddressBooksCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: .default)
+        coordinator.start(with: .init(addressBooksProvider: NonEmptyAddressBooksProvider()))
         addressBooksCoordinator = coordinator
     }
 

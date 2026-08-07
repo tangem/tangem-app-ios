@@ -47,10 +47,8 @@ struct DetailsView: View {
     private var topSection: some View {
         GroupedSection(viewModel.topSectionTypes) { type in
             switch type {
-            case .walletConnect(let viewModel) where FeatureProvider.isAvailable(.redesign):
-                WalletConnectRedesignedRowView(viewModel: viewModel)
             case .walletConnect(let viewModel):
-                WalletConnectRowView(viewModel: viewModel)
+                WalletConnectRedesignedRowView(viewModel: viewModel)
             case .addressBook(let viewModel):
                 AddressBookRowView(viewModel: viewModel)
             }
@@ -137,14 +135,12 @@ struct DetailsView: View {
     }
 }
 
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            DetailsView(
-                viewModel: DetailsViewModel(
-                    coordinator: DetailsCoordinator()
-                )
+#Preview {
+    NavigationStack {
+        DetailsView(
+            viewModel: DetailsViewModel(
+                coordinator: DetailsCoordinator()
             )
-        }
+        )
     }
 }

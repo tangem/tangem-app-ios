@@ -123,45 +123,68 @@ extension FeeRowView: Setupable {
     }
 }
 
-struct ExpressFeeRowView_Preview: PreviewProvider {
-    struct ContentView: View {
-        @State private var option: FeeOption = .market
+@available(iOS 17.0, *)
+#Preview("Light") {
+    @Previewable @State var option: FeeOption = .market
 
-        private var viewModels: [FeeRowViewModel] {
-            [
-                FeeRowViewModel(
-                    option: .slow,
-                    components: .success(.init(cryptoFee: "0.359817123123123123123 MATIC", fiatFee: "123123123123120.22 $")),
-                    style: .selectable(isSelected: .init(get: { option == .slow }, set: { _ in option = .slow }))
-                ),
-                FeeRowViewModel(
-                    option: .market,
-                    components: .success(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
-                    style: .selectable(isSelected: .init(get: { option == .market }, set: { _ in option = .market }))
-                ),
-                FeeRowViewModel(
-                    option: .fast,
-                    components: .success(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
-                    style: .selectable(isSelected: .init(get: { option == .fast }, set: { _ in option = .fast }))
-                ),
-            ]
-        }
-
-        var body: some View {
-            GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 14)) {
-                GroupedSection(viewModels) {
-                    FeeRowView(viewModel: $0)
-                }
-            }
-            .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        }
+    func makeExpressFeeRowPreviewViewModels(option: Binding<FeeOption>) -> [FeeRowViewModel] {
+        [
+            FeeRowViewModel(
+                option: .slow,
+                components: .success(.init(cryptoFee: "0.359817123123123123123 MATIC", fiatFee: "123123123123120.22 $")),
+                style: .selectable(isSelected: .init(get: { option.wrappedValue == .slow }, set: { _ in option.wrappedValue = .slow }))
+            ),
+            FeeRowViewModel(
+                option: .market,
+                components: .success(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
+                style: .selectable(isSelected: .init(get: { option.wrappedValue == .market }, set: { _ in option.wrappedValue = .market }))
+            ),
+            FeeRowViewModel(
+                option: .fast,
+                components: .success(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
+                style: .selectable(isSelected: .init(get: { option.wrappedValue == .fast }, set: { _ in option.wrappedValue = .fast }))
+            ),
+        ]
     }
 
-    static var previews: some View {
-        ContentView()
-            .preferredColorScheme(.light)
-
-        ContentView()
-            .preferredColorScheme(.dark)
+    return GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 14)) {
+        GroupedSection(makeExpressFeeRowPreviewViewModels(option: $option)) {
+            FeeRowView(viewModel: $0)
+        }
     }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .preferredColorScheme(.light)
+}
+
+@available(iOS 17.0, *)
+#Preview("Dark") {
+    @Previewable @State var option: FeeOption = .market
+
+    func makeExpressFeeRowPreviewViewModels(option: Binding<FeeOption>) -> [FeeRowViewModel] {
+        [
+            FeeRowViewModel(
+                option: .slow,
+                components: .success(.init(cryptoFee: "0.359817123123123123123 MATIC", fiatFee: "123123123123120.22 $")),
+                style: .selectable(isSelected: .init(get: { option.wrappedValue == .slow }, set: { _ in option.wrappedValue = .slow }))
+            ),
+            FeeRowViewModel(
+                option: .market,
+                components: .success(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
+                style: .selectable(isSelected: .init(get: { option.wrappedValue == .market }, set: { _ in option.wrappedValue = .market }))
+            ),
+            FeeRowViewModel(
+                option: .fast,
+                components: .success(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
+                style: .selectable(isSelected: .init(get: { option.wrappedValue == .fast }, set: { _ in option.wrappedValue = .fast }))
+            ),
+        ]
+    }
+
+    return GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 14)) {
+        GroupedSection(makeExpressFeeRowPreviewViewModels(option: $option)) {
+            FeeRowView(viewModel: $0)
+        }
+    }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .preferredColorScheme(.dark)
 }

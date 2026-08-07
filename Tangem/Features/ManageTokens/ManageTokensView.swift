@@ -93,10 +93,11 @@ struct ManageTokensView: View {
                 )
                 .padding(.bottom, 10)
                 .padding(.horizontal, 16)
-                .background(
-                    ListFooterOverlayShadowView()
-                        .padding(.top, -30)
-                )
+                .background(alignment: .bottom) {
+                    TangemFade(position: .bottom)
+                        .variant(.hard)
+                        .ignoresSafeArea(edges: .bottom)
+                }
                 .hidden(viewModel.isPendingListEmpty)
                 .animation(.default, value: viewModel.isPendingListEmpty)
             }
@@ -133,12 +134,15 @@ struct ManageTokensView: View {
             )
             .placeholder(text: Localization.commonSearch)
             .cornerStyle(.capsule)
+            .configure(disablesAutocorrection: true)
+            .textFieldAccessibilityIdentifier(ManageTokensAccessibilityIdentifiers.searchField)
             .frame(height: Constants.redesignSearchFieldHeight)
         } else {
             CustomSearchBar(
                 searchText: $viewModel.searchText,
                 placeholder: Localization.commonSearch,
                 style: style.searchBarStyle,
+                accessibilityIdentifier: ManageTokensAccessibilityIdentifiers.searchField,
                 cancelButtonAction: nil
             )
         }
@@ -237,7 +241,7 @@ extension ManageTokensView {
 private extension ManageTokensView {
     enum Constants {
         static let cardCornerRadius: CGFloat = 14
-        static let redesignCardCornerRadius: CGFloat = .unit(.x5)
+        static let redesignCardCornerRadius: CGFloat = 24
         static let redesignSearchFieldHeight: CGFloat = .unit(.x11)
     }
 }

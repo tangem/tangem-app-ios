@@ -88,11 +88,14 @@ private extension CommonTokenFeeProvidersManagerProvider {
         let sourceTokenChainId = walletModel.tokenItem.blockchain.chainId
         let availableTokenAddresses: Set<String?> = Set(availableTokens.map { $0.tokenAddress })
 
-        // Wallet models eligible for gasless fees: same chain as the source token, not in active Yield, and token address is supported
+        // Wallet models eligible for gasless fees: same chain as the source token, token address is supported,
+        // and active Yield Mode is included only for the dedicated gasless-yield flow.
         let gaslessFeeWalletModels: [any WalletModel] = currentAccountWalletModels.compactMap { model in
             guard availableTokenAddresses.contains(model.tokenItem.contractAddress) else { return nil }
             guard model.tokenItem.blockchain.chainId == sourceTokenChainId else { return nil }
-            guard !(model.yieldModuleManager?.state?.state.isEffectivelyActive ?? false) else { return nil }
+            if model.yieldModuleManager?.state?.state.isEffectivelyActive == true {
+                guard FeatureProvider.isAvailable(.gaslessYieldFee) else { return nil }
+            }
             return model
         }
 
@@ -106,7 +109,15 @@ private extension CommonTokenFeeProvidersManagerProvider {
                 return nil
             }
 
-            guard let tokenFeeLoader = walletModel.tokenFeeLoaderBuilder.makeGaslessTokenFeeLoader(feeToken: feeToken) else {
+            let yieldFeeContext = makeYieldFeeContext(
+                feeWalletModel: feeWalletModel,
+                feeTokenItemBalanceProvider: feeTokenItemBalanceProvider
+            )
+
+            guard let tokenFeeLoader = walletModel.tokenFeeLoaderBuilder.makeGaslessTokenFeeLoader(
+                feeToken: feeToken,
+                yieldFeeContext: yieldFeeContext
+            ) else {
                 assertionFailure("Try to create gasless TokenFeeProvider with invalid tokenItem")
                 return nil
             }
@@ -121,5 +132,22 @@ private extension CommonTokenFeeProvidersManagerProvider {
         }
 
         return gaslessTokenFeeProviders
+    }
+
+    func makeYieldFeeContext(
+        feeWalletModel: any WalletModel,
+        feeTokenItemBalanceProvider: TokenBalanceProvider
+    ) -> GaslessYieldFeeContext? {
+        guard FeatureProvider.isAvailable(.gaslessYieldFee),
+              let activeInfo = feeWalletModel.yieldModuleManager?.state?.state.activeInfo else {
+            return nil
+        }
+
+        return GaslessYieldFeeContext(
+            yieldContractAddress: activeInfo.yieldContractAddress,
+            yieldModuleBalance: activeInfo.yieldModuleBalanceValue,
+            feeTokenBalanceProvider: feeTokenItemBalanceProvider,
+            versionChecker: feeWalletModel.yieldModuleManager?.versionChecker
+        )
     }
 }

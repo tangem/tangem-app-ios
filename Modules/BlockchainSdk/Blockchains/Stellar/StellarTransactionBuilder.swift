@@ -1,5 +1,5 @@
 //
-//  Stellart=TransactionBuilder.swift
+//  StellarTransactionBuilder.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

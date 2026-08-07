@@ -15,7 +15,7 @@ struct SingleWalletMainContentRedesignedView: View {
     @ObservedObject var viewModel: SingleWalletMainContentViewModel
 
     var body: some View {
-        VStack(spacing: .unit(.x3)) {
+        VStack(spacing: 12) {
             if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
                 WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
             }
@@ -29,7 +29,7 @@ struct SingleWalletMainContentRedesignedView: View {
 
             tokenCard
         }
-        .padding(.horizontal, .unit(.x3))
+        .padding(.horizontal, 12)
         .bindAlert($viewModel.alert)
         .frame(maxHeight: .infinity, alignment: .top)
     }
@@ -60,14 +60,13 @@ struct SingleWalletMainContentRedesignedView: View {
 
 private extension SingleWalletMainContentRedesignedView {
     enum Constants {
-        static let cornerRadius: CGFloat = .unit(.x5)
-        static let tokenListBackgroundColor = Color.Tangem.Surface.level3
+        static let cornerRadius: CGFloat = 24
+        static let tokenListBackgroundColor = DesignSystem.Color.bgSecondary
     }
 }
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     let userWalletModel = FakeUserWalletModel.xrpNote
     let walletModel = userWalletModel
@@ -76,13 +75,21 @@ private extension SingleWalletMainContentRedesignedView {
         .walletModelsManager
         .walletModels[0]
 
+    let expressStatusPollingHelper = ExpressStatusPollingHelper(
+        exchangePoller: FakeExpressStatusPoller<ExchangeStatusPollIteration>(),
+        onrampPoller: FakeExpressStatusPoller<OnrampStatusPollIteration>(),
+        enricherFactory: { nil }
+    )
+
     SingleWalletMainContentRedesignedView(
         viewModel: SingleWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             promotionNotificationsManager: FakePromotionNotificationsManager(),
+            forceUpdateBannerNotificationManager: FakeUserWalletNotificationManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
+            expressStatusPollingHelper: expressStatusPollingHelper,
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenRouter: SingleTokenRoutableMock(),
@@ -92,4 +99,3 @@ private extension SingleWalletMainContentRedesignedView {
         )
     )
 }
-#endif

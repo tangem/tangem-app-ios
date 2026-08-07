@@ -66,6 +66,8 @@ enum NotificationButtonActionType: Identifiable {
     case openYieldBoostPromo(buttonTitle: String)
     case yieldBoostPromoLater
     case addFunds
+    case openAppStore
+    case removeTangemPayAccount
 
     var id: Int {
         switch self {
@@ -108,6 +110,8 @@ enum NotificationButtonActionType: Identifiable {
         case .openYieldBoostPromo(let buttonTitle): "openYieldBoostPromo\(buttonTitle)".hashValue
         case .yieldBoostPromoLater: "yieldBoostPromoLater".hashValue
         case .addFunds: "addFunds".hashValue
+        case .openAppStore: "openAppStore".hashValue
+        case .removeTangemPayAccount: "removeTangemPayAccount".hashValue
         }
     }
 
@@ -187,6 +191,10 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonLater
         case .addFunds:
             return Localization.commonAddFunds
+        case .openAppStore:
+            return Localization.forceUpdateButton
+        case .removeTangemPayAccount:
+            return Localization.tangempayRemoveAccount
         }
     }
 
@@ -231,8 +239,10 @@ enum NotificationButtonActionType: Identifiable {
              .openDynamicAddressesEnter,
              .openManageTokensAfterWalletSuccessImport,
              .openYieldBoostPromo,
+             .addFunds,
+             .openAppStore,
              .yieldBoostPromoLater,
-             .addFunds:
+             .removeTangemPayAccount:
             return nil
         }
     }
@@ -272,11 +282,13 @@ enum NotificationButtonActionType: Identifiable {
              .openCloreMigration,
              .openDynamicAddressesEnter,
              .closeMobileUpgrade,
-             .closeGetTangemPay,
-             .yieldBoostPromoLater,
              .openManageTokensAfterWalletSuccessImport,
+             .openAppStore,
+             .yieldBoostPromoLater,
+             .closeGetTangemPay,
              .backupErrorSupport,
-             .addFunds:
+             .addFunds,
+             .removeTangemPayAccount:
             return .secondary
         case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary

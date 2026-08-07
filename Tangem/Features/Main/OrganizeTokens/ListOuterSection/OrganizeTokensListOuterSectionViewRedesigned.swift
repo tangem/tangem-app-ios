@@ -18,15 +18,17 @@ struct OrganizeTokensListOuterSectionViewRedesigned: View {
     let outerSectionIndex: Int
     let accountId: AnyHashable
 
-    @ScaledMetric private var horizontalPadding: CGFloat = .unit(.x4)
-    @ScaledMetric private var verticalPadding: CGFloat = .unit(.x2)
+    @ScaledMetric private var horizontalPadding: CGFloat = 12
+    @ScaledMetric private var topPadding: CGFloat = 14
+    @ScaledMetric private var bottomPadding: CGFloat = 8
 
     var body: some View {
         AccountIconWithContentView(iconData: iconData, name: title)
             .iconSettings(.smallSized)
-            .nameStyle(font: Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+            .nameStyle(font: DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
             .padding(.horizontal, horizontalPadding)
-            .padding(.vertical, verticalPadding)
+            .padding(.top, topPadding)
+            .padding(.bottom, bottomPadding)
             .accessibilityIdentifier(
                 OrganizeTokensAccessibilityIdentifiers.accountHeader(
                     outerSection: outerSectionIndex,

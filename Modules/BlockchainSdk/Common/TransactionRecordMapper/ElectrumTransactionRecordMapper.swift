@@ -1,6 +1,6 @@
 //
 //  ElectrumTransactionRecordMapper.swift
-//  TangemApp
+//  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -31,7 +31,7 @@ extension ElectrumTransactionRecordMapper: TransactionRecordMapper {
         }
 
         let fee: Decimal = sources.reduce(0) { $0 + $1.amount } - destinations.reduce(0) { $0 + $1.amount }
-        let date = transaction.transaction.time.map { Date(timeIntervalSince1970: TimeInterval($0)) } ?? Date()
+        let date = transaction.transaction.time.map { Date(timeIntervalSince1970: TimeInterval($0)) }
         let isConfirmed: Bool = (transaction.transaction.confirmations ?? 0) > 0
 
         return TransactionRecord(
@@ -44,7 +44,8 @@ extension ElectrumTransactionRecordMapper: TransactionRecordMapper {
             isOutgoing: isOutgoing,
             type: .transfer,
             date: date,
-            tokenTransfers: nil
+            tokenTransfers: [],
+            nonce: nil
         )
     }
 }

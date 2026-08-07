@@ -9,16 +9,17 @@
 import Foundation
 import Combine
 import UIKit
-import TangemFoundation
 
-final class SendDestinationCompactViewModel: ObservableObject, Identifiable {
+class SendDestinationCompactViewModel: ObservableObject, Identifiable {
     typealias AdditionalField = (SendDestinationAdditionalFieldType, String)
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     let suiTextViewModel: SUITextViewModel
-    @Published var address: String = .empty
-    @Published private(set) var addressIconViewModel = AddressIconViewModel(address: .empty)
+    @Published var address: String = ""
     @Published var resolved: String?
     @Published var additionalField: String?
+    @Published var addressIconType: AddressIconProviderViewType?
 
     private var inputSubscription: AnyCancellable?
 
@@ -30,7 +31,7 @@ final class SendDestinationCompactViewModel: ObservableObject, Identifiable {
 
     func bind(input: SendDestinationInput) {
         inputSubscription = Publishers
-            .CombineLatest(input.destinationPublisher, input.additionalFieldPublisher)
+            .CombineLatest3(input.destinationPublisher, input.additionalFieldPublisher, addressBooksChangePublisher)
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, args in
@@ -38,13 +39,23 @@ final class SendDestinationCompactViewModel: ObservableObject, Identifiable {
             }
     }
 
-    private func updateView(address: SendDestination?, additionalField: SendDestinationAdditionalField) {
-        let newAddress = address?.value.typedAddress ?? .empty
-        if newAddress != self.address {
-            self.address = newAddress
-            addressIconViewModel = AddressIconViewModel(address: newAddress)
+    private var addressBooksChangePublisher: AnyPublisher<Void, Never> {
+        guard FeatureProvider.isAvailable(.addressBook) else {
+            return .just(output: ())
         }
 
+        let publishers = userWalletRepository.models
+            .filter { !$0.isUserWalletLocked }
+            .map { $0.addressBookManager.contactsPublisher.mapToVoid() }
+
+        return Publishers.MergeMany(publishers)
+            .prepend(())
+            .eraseToAnyPublisher()
+    }
+
+    private func updateView(address: SendDestination?, additionalField: SendDestinationAdditionalField) {
+        self.address = address?.value.typedAddress ?? ""
+        addressIconType = AddressIconProvider.makeViewType(address: self.address)
         resolved = address?.value.showableResolved
 
         switch additionalField {

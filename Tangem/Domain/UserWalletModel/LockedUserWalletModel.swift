@@ -86,8 +86,16 @@ final class LockedUserWalletModel: UserWalletModel {
         )
     }
 
+    var priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider {
+        CommonPriceAlertsSubscriptionsProvider(walletId: userWalletId.stringValue)
+    }
+
     var accountModelsManager: AccountModelsManager {
         DummyCommonAccountModelsManager()
+    }
+
+    var addressBookManager: AddressBookManager {
+        NoopAddressBookManager()
     }
 
     var refcodeProvider: RefcodeProvider? {

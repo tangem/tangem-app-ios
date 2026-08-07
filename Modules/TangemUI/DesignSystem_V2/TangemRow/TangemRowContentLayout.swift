@@ -10,6 +10,8 @@ import SwiftUI
 
 struct TangemRowContentLayout: Layout {
     let contentLead: TangemRowContentLead
+    let minOppositeWidth: CGFloat
+    let verticalAlignment: TangemRowVerticalAlignment
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) -> CGSize {
         let split = resolveSplit(proposal: proposal, subviews: subviews)
@@ -20,22 +22,22 @@ struct TangemRowContentLayout: Layout {
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) {
         let split = resolveSplit(proposal: proposal, subviews: subviews)
+        let isTop = verticalAlignment == .top
+        let y = isTop ? bounds.minY : bounds.midY
 
         subviews[0].place(
-            at: CGPoint(x: bounds.minX, y: bounds.midY),
-            anchor: .leading,
+            at: CGPoint(x: bounds.minX, y: y),
+            anchor: isTop ? .topLeading : .leading,
             proposal: ProposedViewSize(width: split.titleWidth, height: nil)
         )
         subviews[1].place(
-            at: CGPoint(x: bounds.maxX, y: bounds.midY),
-            anchor: .trailing,
+            at: CGPoint(x: bounds.maxX, y: y),
+            anchor: isTop ? .topTrailing : .trailing,
             proposal: ProposedViewSize(width: split.valueWidth, height: nil)
         )
     }
 
     // MARK: - Width sharing
-
-    private static let maxHugFraction: CGFloat = 0.84
 
     private struct Split {
         let rowWidth: CGFloat
@@ -60,8 +62,6 @@ struct TangemRowContentLayout: Layout {
 
         let available = rowWidth - columnSpacing
 
-        let maxHug = available * Self.maxHugFraction
-
         let titleWidth: CGFloat
         let valueWidth: CGFloat
         switch contentLead {
@@ -79,14 +79,21 @@ struct TangemRowContentLayout: Layout {
             }
 
         case .start:
-            titleWidth = min(titleIdeal.width, maxHug)
+            let cap = leadingCap(available: available, hasOpposite: hasRight)
+            titleWidth = min(titleIdeal.width, cap)
             valueWidth = available - titleWidth
 
         case .end:
-            valueWidth = min(valueIdeal.width, maxHug)
+            let cap = leadingCap(available: available, hasOpposite: hasLeft)
+            valueWidth = min(valueIdeal.width, cap)
             titleWidth = available - valueWidth
         }
 
         return Split(rowWidth: rowWidth, titleWidth: titleWidth, valueWidth: valueWidth)
+    }
+
+    private func leadingCap(available: CGFloat, hasOpposite: Bool) -> CGFloat {
+        guard hasOpposite else { return available }
+        return available > minOppositeWidth ? available - minOppositeWidth : available / 2
     }
 }

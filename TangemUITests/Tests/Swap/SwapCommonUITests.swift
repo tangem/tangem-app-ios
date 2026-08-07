@@ -74,7 +74,7 @@ final class SwapCommonUITests: BaseTestCase {
 
         mainScreen
             .tapToken("Salam")
-            .tapSwapButtonWhenUnavailable()
+            .tapUnavailableSwapButton()
 
         waitAndDismissErrorAlert(actionName: "Swap", expectedMessage: "custom tokens")
     }

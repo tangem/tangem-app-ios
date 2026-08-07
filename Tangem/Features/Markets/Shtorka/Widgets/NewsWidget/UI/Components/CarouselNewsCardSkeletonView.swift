@@ -78,7 +78,6 @@ struct CarouselNewsCardSkeletonView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     HStack(spacing: .unit(.x3)) {
         CarouselNewsCardSkeletonView()
@@ -86,4 +85,3 @@ struct CarouselNewsCardSkeletonView: View {
     }
     .padding()
 }
-#endif // DEBUG

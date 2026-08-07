@@ -47,7 +47,6 @@ struct AmountSummaryView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 14)) {
         GroupedSection(
@@ -90,4 +89,3 @@ struct AmountSummaryView: View {
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
-#endif // DEBUG

@@ -43,12 +43,10 @@ struct Checkmark: View {
     }
 }
 
-struct CircledCheckmarkView_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Color.gray
-            CircledCheckmarkView(filled: true)
-                .frame(size: CGSize(width: 60, height: 60))
-        }
+#Preview {
+    ZStack {
+        Color.gray
+        CircledCheckmarkView(filled: true)
+            .frame(size: CGSize(width: 60, height: 60))
     }
 }

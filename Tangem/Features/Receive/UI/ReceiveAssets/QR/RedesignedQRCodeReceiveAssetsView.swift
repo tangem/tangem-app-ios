@@ -96,21 +96,21 @@ struct RedesignedQRCodeReceiveAssetsView: View {
     private var actionsButtons: some View {
         HStack(spacing: 8) {
             TangemButtonV2(
-                label: AttributedString(Localization.commonCopy),
-                iconStart: DesignSystem.Icons.Copy.regular24,
+                label: Localization.commonCopy,
                 accessibilityLabel: Localization.commonCopy,
                 action: viewModel.copyToClipboard
             )
+            .iconStart(DesignSystem.Icons.Copy.regular24)
             .size(.x12)
             .styleType(.secondary)
             .horizontalLayout(.infinity)
 
             TangemButtonV2(
-                label: AttributedString(Localization.commonShare),
-                iconStart: DesignSystem.Icons.ShareIos.regular24,
+                label: Localization.commonShare,
                 accessibilityLabel: Localization.commonShare,
                 action: viewModel.share
             )
+            .iconStart(DesignSystem.Icons.ShareIos.regular24)
             .size(.x12)
             .styleType(.secondary)
             .horizontalLayout(.infinity)

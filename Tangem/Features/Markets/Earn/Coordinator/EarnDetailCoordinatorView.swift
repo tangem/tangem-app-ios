@@ -17,24 +17,8 @@ struct EarnDetailCoordinatorView: CoordinatorView {
     var body: some View {
         ZStack {
             if let viewModel = coordinator.rootViewModel {
-                if coordinator.isRedesignEnabled {
-                    EarnDetailViewRedesign(viewModel: viewModel)
-                } else {
-                    EarnDetailView(viewModel: viewModel)
-                }
+                EarnDetailViewRedesign(viewModel: viewModel)
             }
-
-            NavHolder()
-                .sheet(item: $coordinator.networkFilterBottomSheetViewModel) {
-                    EarnNetworkFilterBottomSheetView(viewModel: $0)
-                        .presentationDragIndicator(.visible)
-                }
-                .bottomSheet(
-                    item: $coordinator.typeFilterBottomSheetViewModel,
-                    backgroundColor: Colors.Background.tertiary
-                ) {
-                    EarnTypeFilterBottomSheetView(viewModel: $0)
-                }
         }
         .bindAlert($coordinator.error)
     }

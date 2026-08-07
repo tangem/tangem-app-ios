@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemNetworkUtils
 import Moya
 
@@ -43,6 +44,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/\(cardId)/pin"
         case .getTransactionHistory:
             "customer/transactions"
+        case .getTransaction(let transactionId):
+            "customer/transactions/\(transactionId)"
         case .getWithdrawSignableData:
             "customer/card/withdraw/data"
         case .sendWithdrawTransaction:
@@ -51,10 +54,18 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "order"
         case .getOrder(let orderId):
             "order/\(orderId)"
+        case .cancelOrder(let orderId):
+            "order/\(orderId)/cancel"
         case .getCustomerOffers:
             "customer/offers"
         case .getBankCredentials(let productInstanceId):
             "account/bank-credentials/\(productInstanceId)"
+        case .getTariffPlanTransitions:
+            "customer/tariff-plan/transitions"
+        case .requestTariffPlanPendingTransition:
+            "customer/tariff-plan/pending-transition"
+        case .cancelTariffPlanPendingTransition:
+            "customer/tariff-plan/pending-transition/cancel"
         case .cancelKYC:
             "customer/pay-enabled"
         case .updateCardDisplayNameLegacy, .setCardLimitLegacy:
@@ -75,8 +86,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getOrder,
              .findOrders,
              .getCustomerOffers,
+             .getTariffPlanTransitions,
              .getBalance,
              .getTransactionHistory,
+             .getTransaction,
              .getPinLegacy,
              .getPin,
              .getFee,
@@ -85,6 +98,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
         case .placeOrderLegacy,
              .placeOrder,
+             .cancelOrder,
              .getCardDetailsLegacy,
              .getCardDetails,
              .freeze,
@@ -92,7 +106,9 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .closeCard,
              .getWithdrawSignableData,
              .sendWithdrawTransaction,
-             .reissueCard:
+             .reissueCard,
+             .requestTariffPlanPendingTransition,
+             .cancelTariffPlanPendingTransition:
             .post
 
         case .cancelKYC,
@@ -112,12 +128,16 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .getCustomerInfo,
              .getKYCAccessToken,
              .getOrder,
+             .cancelOrder,
              .getCustomerOffers,
+             .getTariffPlanTransitions,
+             .cancelTariffPlanPendingTransition,
              .getBalance,
              .getPinLegacy,
              .getPin,
              .getFee,
-             .getBankCredentials:
+             .getBankCredentials,
+             .getTransaction:
             return .requestPlain
 
         case .cancelKYC:
@@ -192,6 +212,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
             let requestData = TangemPayReissueCardRequest(cardId: cardId)
             return .requestJSONEncodable(requestData)
 
+        case .requestTariffPlanPendingTransition(let pendingTariffPlanId):
+            let requestData = TangemPayTariffPlanPendingTransitionRequest(pendingTariffPlanId: pendingTariffPlanId)
+            return .requestJSONEncodable(requestData)
+
         case .setCardLimitLegacy(let amount):
             let requestData = TangemPayUpdateCardLimitRequest(cardLimit: .init(amount: amount))
             return .requestCustomJSONEncodable(requestData, encoder: encoder)
@@ -210,6 +234,11 @@ struct CustomerInfoManagementAPITarget: TargetType {
             ["X-Session-Id": "\(sessionId)"]
         case .placeOrder(_, let idempotencyKey):
             ["Idempotency-Key": idempotencyKey]
+        case .getCustomerInfo, .getTariffPlanTransitions:
+            [
+                TangemPayNetworkingConstants.Header.Key.xDeviceScale: TangemPayNetworkingConstants.Header.Value.deviceScale,
+                TangemPayNetworkingConstants.Header.Key.acceptLanguage: Locale.appLanguageCode,
+            ]
         default:
             nil
         }
@@ -247,14 +276,20 @@ extension CustomerInfoManagementAPITarget {
         case freeze(cardId: String)
         case unfreeze(cardId: String)
         case getTransactionHistory(limit: Int, cursor: String?)
+        case getTransaction(transactionId: String)
 
         case getWithdrawSignableData(TangemPayWithdraw.SignableData.Request)
         case sendWithdrawTransaction(TangemPayWithdraw.Transaction.Request)
 
         case getOrder(orderId: String)
+        case cancelOrder(orderId: String)
         case findOrders(orderTypes: [String], orderStatuses: [TangemPayOrderResponse.Status])
 
         case getCustomerOffers
+
+        case getTariffPlanTransitions
+        case requestTariffPlanPendingTransition(pendingTariffPlanId: String)
+        case cancelTariffPlanPendingTransition
 
         case getFee(type: TangemPayFeeType)
         case reissueCard(cardId: String)

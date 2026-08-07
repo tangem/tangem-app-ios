@@ -28,7 +28,6 @@ struct ExpressCurrencyErrorHeaderView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Insufficient Funds") {
     ExpressCurrencyErrorHeaderView(errorState: .insufficientFunds)
 }
@@ -36,4 +35,3 @@ struct ExpressCurrencyErrorHeaderView: View {
 #Preview("Generic Error") {
     ExpressCurrencyErrorHeaderView(errorState: .error("Something went wrong"))
 }
-#endif // DEBUG

@@ -106,16 +106,14 @@ struct BackupStoryPage: View {
     }
 }
 
-struct BackupStoryPage_Previews: PreviewProvider {
-    static var previews: some View {
-        BackupStoryPage(
-            progress: 1,
-            isScanning: false,
-            createWallet: {},
-            scanCard: {},
-            orderCard: {},
-            scanTroubleshootingDialog: .constant(nil)
-        )
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
-    }
+#Preview {
+    BackupStoryPage(
+        progress: 1,
+        isScanning: false,
+        createWallet: {},
+        scanCard: {},
+        orderCard: {},
+        scanTroubleshootingDialog: .constant(nil)
+    )
+    .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
 }

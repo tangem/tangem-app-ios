@@ -16,17 +16,20 @@ public struct PriceChangeView: View {
     private let showIconForNeutral: Bool
     /// [REDACTED_INFO]: Remove this flag and legacy colors when the redesign feature toggle is deleted
     private let useRedesignColors: Bool
+    private let shimmerAppearance: LoadingShimmerAppearance
 
     public init(
         state: State,
         showSkeletonWhenLoading: Bool = true,
         showIconForNeutral: Bool = true,
-        useRedesignColors: Bool = false
+        useRedesignColors: Bool = false,
+        shimmerAppearance: LoadingShimmerAppearance = .skeleton
     ) {
         self.state = state
         self.showSkeletonWhenLoading = showSkeletonWhenLoading
         self.showIconForNeutral = showIconForNeutral
         self.useRedesignColors = useRedesignColors
+        self.shimmerAppearance = shimmerAppearance
     }
 
     public var body: some View {
@@ -50,7 +53,7 @@ public struct PriceChangeView: View {
             changeContent(changeType: changeType, text: text)
         case .loadingCached(let changeType, let text):
             changeContent(changeType: changeType, text: text)
-                .shimmer()
+                .loadingShimmer(shimmerAppearance)
                 .environment(\.isShimmerActive, true)
         }
     }
@@ -69,7 +72,19 @@ public struct PriceChangeView: View {
 
     @ViewBuilder
     private var skeleton: some View {
-        let base = SkeletonView().frame(width: 40, height: 12)
+        switch shimmerAppearance {
+        case .skeleton:
+            legacySkeleton
+
+        case .tangemShimmer:
+            TangemShimmer()
+                .variant(.custom(width: Constants.skeletonSize.width, height: Constants.skeletonSize.height))
+        }
+    }
+
+    @ViewBuilder
+    private var legacySkeleton: some View {
+        let base = SkeletonView().frame(width: Constants.skeletonSize.width, height: Constants.skeletonSize.height)
         if useRedesignColors {
             base.clipShape(.capsule)
         } else {
@@ -111,6 +126,14 @@ public struct PriceChangeView: View {
             }
         }
         .lineLimit(1)
+    }
+}
+
+// MARK: - Constants
+
+private extension PriceChangeView {
+    enum Constants {
+        static let skeletonSize = CGSize(width: 40, height: 12)
     }
 }
 
@@ -203,20 +226,16 @@ public extension PriceChangeView {
 
 // MARK: - Previews
 
-#if DEBUG
-struct PriceChangeView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 16) {
-            PriceChangeView(state: .initialized)
-            PriceChangeView(state: .noData)
-            PriceChangeView(state: .loading)
-            PriceChangeView(state: .loading, showSkeletonWhenLoading: false)
-            PriceChangeView(state: .loaded(changeType: .positive, text: "+2.34%"))
-            PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"))
-            PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"), showIconForNeutral: false)
-            PriceChangeView(state: .loaded(changeType: .negative, text: "-1.23%"))
-        }
-        .padding()
+#Preview {
+    VStack(spacing: 16) {
+        PriceChangeView(state: .initialized)
+        PriceChangeView(state: .noData)
+        PriceChangeView(state: .loading)
+        PriceChangeView(state: .loading, showSkeletonWhenLoading: false)
+        PriceChangeView(state: .loaded(changeType: .positive, text: "+2.34%"))
+        PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"))
+        PriceChangeView(state: .loaded(changeType: .neutral, text: "0.00%"), showIconForNeutral: false)
+        PriceChangeView(state: .loaded(changeType: .negative, text: "-1.23%"))
     }
+    .padding()
 }
-#endif // DEBUG

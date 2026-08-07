@@ -21,8 +21,11 @@ struct CommonDeepLinkValidator {
         areParamsValid(params, keys: \.tokenId, \.networkId)
     }
 
+    /// `tangem://yield` never requires parameters: any link that can't reach the Yield-mode
+    /// screen (empty, partial, invalid values, opportunity not found) silently falls back to
+    /// the Earn screen at the routing layer. The validator only rejects malformed characters.
     private func hasEnoughYieldParams(params: DeeplinkNavigationAction.Params) -> Bool {
-        areParamsValid(params, keys: \.tokenId, \.networkId)
+        paramsHaveOnlyValidCharacters([params.tokenId, params.networkId].compactMap { $0 })
     }
 
     private func hasEnoughOnboardVisaParams(params: DeeplinkNavigationAction.Params) -> Bool {

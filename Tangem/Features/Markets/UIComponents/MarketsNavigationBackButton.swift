@@ -16,11 +16,7 @@ struct MarketsNavigationBackButton: View {
     let action: () -> Void
 
     var body: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            redesignBody
-        } else {
-            legacyBody
-        }
+        redesignBody
     }
 
     // MARK: - Redesign
@@ -44,25 +40,6 @@ struct MarketsNavigationBackButton: View {
         .frame(width: 44, height: 44)
         .background(Color.Tangem.Button.backgroundSecondary, in: Circle())
         .padding(.leading, .unit(.x4))
-    }
-
-    // MARK: - Legacy
-
-    @ViewBuilder
-    private var legacyBody: some View {
-        switch presentSource {
-        case .navigation:
-            BackButton(
-                height: 44.0,
-                isVisible: true,
-                isEnabled: true,
-                hPadding: 10.0,
-                action: action
-            )
-        case .deeplink:
-            CloseTextButton(action: action)
-                .padding(.leading, 16.0)
-        }
     }
 }
 

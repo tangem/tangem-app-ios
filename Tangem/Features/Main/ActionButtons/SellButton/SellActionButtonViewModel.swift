@@ -63,8 +63,7 @@ final class SellActionButtonViewModel: ActionButtonViewModel {
         case .idle:
             let tokenSelectorViewModel = TokenSelectorViewModel.common(
                 walletsProvider: .standardAccountsOnly(),
-                availabilityProvider: FeatureProvider.isAvailable(.redesign)
-                    ? .always() : .sell(),
+                availabilityProvider: .always(),
                 preferredWalletId: userWalletModel.userWalletId
             )
             coordinator?.openSell(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
@@ -171,8 +170,7 @@ private extension SellActionButtonViewModel {
 
         let tokenSelectorViewModel = TokenSelectorViewModel.common(
             walletsProvider: .standardAccountsOnly(),
-            availabilityProvider: FeatureProvider.isAvailable(.redesign)
-                ? .always() : .sell(),
+            availabilityProvider: .always(),
             preferredWalletId: userWalletModel.userWalletId
         )
         coordinator?.openSell(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)

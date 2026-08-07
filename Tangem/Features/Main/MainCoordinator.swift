@@ -61,6 +61,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsBuyCoordinator: ActionButtonsBuyCoordinator? = nil
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
+    @Published var tangemPaySelectPlanCoordinator: TangemPaySelectPlanCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
@@ -87,6 +88,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     private var safariHandle: SafariHandle?
     private var deeplinkDestinationSubscription: AnyCancellable?
     private var tangemPayMainDeeplinkSubscription: AnyCancellable?
+    private var tangemPayMainDismissSubscription: AnyCancellable?
     private var yieldDeeplinkRouter: YieldDeeplinkRouter?
     required init(
         coordinatorFactory: MainCoordinatorChildFactory,
@@ -103,21 +105,15 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     }
 
     func start(with options: Options) {
-        let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper? = FeatureProvider.isAvailable(.redesign)
-            ? nil
-            : WalletSwipeDiscoveryHelper()
-
         let factory = PushNotificationsHelpersFactory()
         let pushNotificationsAvailabilityProvider = factory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)
         let viewModel = MainViewModel(
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
-            swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self),
             pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
         )
 
-        swipeDiscoveryHelper?.delegate = viewModel
         mainViewModel = viewModel
 
         let userWalletModel = options.userWalletModel
@@ -197,7 +193,16 @@ extension MainCoordinator: MainRoutable {
     func openDeepLink(_ deepLink: DeepLinkDestination) {
         switch deepLink {
         case .externalLink(let url):
-            safariManager.openURL(url)
+            if safariHandle?.isMatching(startingURL: url) == true {
+                return
+            }
+
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.safariHandle = nil },
+                onSuccess: { [weak self] _ in self?.safariHandle = nil }
+            )
         case .tangemPayMain(let customerWalletId):
             openTangemPayMainFromDeeplink(customerWalletId: customerWalletId)
         case .yield(let walletModel, let userWalletModel):
@@ -503,6 +508,52 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             )
         )
         tangemPayMainCoordinator = coordinator
+
+        tangemPayMainDismissSubscription = $tangemPayMainCoordinator
+            .filter { $0 == nil }
+            .first()
+            .sink { _ in
+                runTask {
+                    await tangemPayAccount.loadCustomerInfo()
+                }
+            }
+    }
+
+    func openTangemPaySelectPlan(
+        tariffPlanSelector: any TangemPayTariffPlanSelector,
+        userWalletModel: any UserWalletModel
+    ) {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = TangemPaySelectPlanCoordinator(
+            dismissAction: { [weak self] reason in
+                self?.tangemPaySelectPlanCoordinator = nil
+
+                switch reason {
+                case .planUpgraded:
+                    self?.openTangemPayMainViewAfterPlanActivation(userWalletModel: userWalletModel)
+                case .planDowngraded, .closed:
+                    break
+                }
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(tariffPlanSelector: tariffPlanSelector, mode: .onboarding))
+        tangemPaySelectPlanCoordinator = coordinator
+    }
+
+    private func openTangemPayMainViewAfterPlanActivation(userWalletModel: any UserWalletModel) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tangemPayPlanActivationNavigationDelay) { [weak self] in
+            guard let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount else {
+                return
+            }
+
+            self?.openTangemPayMainView(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                tangemPayAccount: tangemPayAccount,
+                userWalletModel: userWalletModel
+            )
+        }
     }
 
     private func openTangemPayMainFromDeeplink(customerWalletId: String) {
@@ -921,6 +972,7 @@ extension MainCoordinator {
         static let tooltipTemporaryHideDuration: Double = 0.1
         static let tooltipAnimationDelay: Double = 1.5
         static let tangemPayMainDeeplinkTimeout: TimeInterval = 10
+        static let tangemPayPlanActivationNavigationDelay: TimeInterval = 0.6
     }
 }
 

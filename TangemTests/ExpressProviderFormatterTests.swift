@@ -89,7 +89,7 @@ struct ExpressProviderFormatterBadgeTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isApproveWithSwapEnabled: false, isChooseBestDEXEnabled: false)
+            featureFlags: ExpressFeatureFlags()
         )
 
         let available = ExpressAvailableProvider(
@@ -304,7 +304,7 @@ struct ExpressAvailableProviderBestDEXTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isApproveWithSwapEnabled: false, isChooseBestDEXEnabled: true)
+            featureFlags: ExpressFeatureFlags()
         )
 
         return ExpressAvailableProvider(context: context, manager: StubExpressProviderManager(state: state))

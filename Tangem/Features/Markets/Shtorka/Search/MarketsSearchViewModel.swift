@@ -96,9 +96,7 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
 
-        if FeatureProvider.isAvailable(.redesign) {
-            searchFocusBind()
-        }
+        searchFocusBind()
     }
 
     deinit {

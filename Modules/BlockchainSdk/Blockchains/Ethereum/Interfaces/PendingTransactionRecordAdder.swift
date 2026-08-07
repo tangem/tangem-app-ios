@@ -1,5 +1,5 @@
 //
-//  PendingTransactionRecordAdding.swift
+//  PendingTransactionRecordAdder.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]

@@ -71,9 +71,7 @@ struct TrendingCardNewsSkeletonView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     TrendingCardNewsSkeletonView()
         .padding()
 }
-#endif // DEBUG
