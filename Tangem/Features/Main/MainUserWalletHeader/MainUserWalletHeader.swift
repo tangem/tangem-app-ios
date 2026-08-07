@@ -19,7 +19,7 @@ struct MainUserWalletHeader: View {
     let showPagingIndicatorStub: Bool
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
-    @ScaledMetric private var height: CGFloat = .unit(.x12)
+    @ScaledMetric private var height: CGFloat = 48
     @ScaledMetric private var thumbnailSize: CGFloat = 24
 
     var body: some View {
@@ -34,8 +34,8 @@ struct MainUserWalletHeader: View {
 
             if let actionButtonsViewModel {
                 RedesignActionButtonsView(viewModel: actionButtonsViewModel)
-                    .padding(.top, .unit(.x11))
-                    .padding(.bottom, .unit(.x6))
+                    .padding(.top, 44)
+                    .padding(.bottom, 24)
             }
         }
         .frame(maxWidth: .infinity)
@@ -53,20 +53,22 @@ struct MainUserWalletHeader: View {
 
     private var lockedBalance: some View {
         Capsule()
-            .fill(Color.Tangem.Field.backgroundDefault)
+            .fill(DesignSystem.Color.bgOpaqueSecondary)
             .frame(size: Sizes.balanceSkeletonSize * scaleFactor)
     }
 
     private var loadableBalance: some View {
         LoadableBalanceView(
             state: headerViewModel.balance,
-            style: .init(
-                font: Font.Tangem.Title44.semibold,
-                textColor: Color.Tangem.Text.Neutral.primary
+            style: LoadableBalanceView.Style(
+                font: DesignSystem.Font.displayMediumToken,
+                textColor: DesignSystem.Color.textPrimary
             ),
-            loader: .init(
-                size: Sizes.balanceSkeletonSize * scaleFactor,
-                cornerRadiusStyle: .capsule
+            loader: LoadableBalanceView.LoaderStyle(
+                // Unscaled on purpose — the DS3 shimmer block applies Dynamic Type scaling itself.
+                size: Sizes.balanceSkeletonSize,
+                cornerRadiusStyle: .capsule,
+                appearance: .tangemShimmer
             ),
             accessibilityIdentifier: MainAccessibilityIdentifiers.totalBalance
         )
@@ -95,9 +97,9 @@ struct MainUserWalletHeader: View {
     }
 
     private var walletNameWithThumbnail: some View {
-        HStack(spacing: SizeUnit.x1.value) {
+        HStack(spacing: 4) {
             Text(headerViewModel.userWalletName)
-                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
 
             if let walletThumbnailType = headerViewModel.walletThumbnailType {
                 MiniatureWalletView(type: walletThumbnailType)
@@ -128,7 +130,7 @@ private extension MainUserWalletHeader {
         let progress: Int
 
         var body: some View {
-            HStack(spacing: SizeUnit.x1.value) {
+            HStack(spacing: 4) {
                 SmoothProgressText(progress: progress)
 
                 RotatingSyncIcon()
@@ -146,7 +148,7 @@ private extension MainUserWalletHeader {
         var body: some View {
             Text(Localization.initialWalletSyncRestoreProgress(displayedProgress))
                 .monospacedDigit()
-                .style(Font.Tangem.Caption13.regular, color: Color.Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .onAppear {
                     displayedProgress = progress
                 }
@@ -205,7 +207,7 @@ private extension MainUserWalletHeader {
                     width: ProgressChipConstants.iconSize,
                     height: ProgressChipConstants.iconSize
                 )
-                .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .rotationEffect(.degrees(isRotating ? 360 : 0))
                 .onAppear {
                     isRotating = false
@@ -227,19 +229,18 @@ extension MainUserWalletHeader {
     }
 
     enum Paddings {
-        static let balanceBottom = CGFloat.unit(.x3)
-        static let subtitleBottom = CGFloat.unit(.x2)
+        static let balanceBottom = CGFloat(12)
+        static let subtitleBottom = CGFloat(8)
     }
 
     enum Sizes {
-        static let pagingIndicatorHeight = CGFloat.unit(.x8)
-        static let balanceSkeletonSize = CGSize(width: 222, height: .unit(.x12))
+        static let pagingIndicatorHeight = CGFloat(32)
+        static let balanceSkeletonSize = CGSize(width: 222, height: 48)
     }
 }
 
 // MARK: - Previews
 
-#if DEBUG
 @available(iOS 17, *)
 #Preview {
     @Previewable @State var provider = FakeCardHeaderPreviewProvider()
@@ -259,4 +260,3 @@ extension MainUserWalletHeader {
     }
     .padding()
 }
-#endif // DEBUG

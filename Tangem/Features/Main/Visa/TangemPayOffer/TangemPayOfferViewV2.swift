@@ -11,6 +11,7 @@ import TangemUI
 import TangemUIUtils
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayOfferViewV2: View {
     @ObservedObject var viewModel: TangemPayOfferViewModel
@@ -66,11 +67,11 @@ struct TangemPayOfferViewV2: View {
     private var textSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(Localization.tangempayNewonboardTitle)
-                .font(DesignSystem.Font.headingMediumToken)
+                .font(token: DesignSystem.Font.headingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Text(Localization.tangempayNewonboardBody)
-                .font(DesignSystem.Font.subheadingMediumToken)
+                .font(token: DesignSystem.Font.subheadingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
@@ -109,7 +110,7 @@ struct TangemPayOfferViewV2: View {
                 + Text("\n" + secondary)
                 .foregroundColor(DesignSystem.Color.textSecondary)
         )
-        .font(DesignSystem.Font.captionMediumToken)
+        .font(token: DesignSystem.Font.captionMediumToken)
 
         return VStack(alignment: .leading, spacing: 28) {
             icon.image
@@ -161,12 +162,12 @@ struct TangemPayOfferViewV2: View {
             }
 
             Text(question)
-                .font(DesignSystem.Font.headingSmallToken)
+                .font(token: DesignSystem.Font.headingSmallToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(answer)
-                .font(DesignSystem.Font.subheadingMediumToken)
+                .font(token: DesignSystem.Font.subheadingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -176,18 +177,19 @@ struct TangemPayOfferViewV2: View {
 
     private var footer: some View {
         TangemButtonV2(
-            label: .init(Localization.tangempayOnboardingGetCardButtonText),
-            iconEnd: DesignSystem.Icons.LogoTangem.regular24,
+            label: Localization.tangempayOnboardingGetCardButtonText,
             accessibilityLabel: nil
         ) {
             viewModel.getCard()
         }
+        .iconEnd(DesignSystem.Icons.LogoTangem.regular24)
         .styleType(.default)
         .horizontalLayout(.infinity)
         .isLoading(viewModel.isLoading)
         .size(.x12)
         .padding(.horizontal, 16)
         .padding(.bottom, 12)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.onboardingGetCardButton)
     }
 }
 

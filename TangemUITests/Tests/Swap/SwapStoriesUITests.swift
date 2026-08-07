@@ -157,7 +157,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .tapSeeAll()
             .openTokenDetails(ethereumTokenName)
             .tapAddFunds()
-            .expandPortfolioToken(ethereumTokenName)
             .tapSwap()
             .assertStoriesDisplayed()
 
@@ -181,7 +180,6 @@ final class SwapStoriesUITests: BaseTestCase {
         // Step 4: Open swap again → stories should not show
         MarketsTokenDetailsScreen(app)
             .tapAddFunds()
-            .expandPortfolioToken(ethereumTokenName)
             .tapSwap()
             .assertStoriesNotDisplayed()
 
@@ -257,7 +255,6 @@ final class SwapStoriesUITests: BaseTestCase {
 
         marketsTokenDetailsScreen
             .tapAddFunds()
-            .expandPortfolioToken(ethereumTokenName)
             .tapSwap()
             .assertStoriesNotDisplayed()
             .closeStoriesIfNeeded()
@@ -277,7 +274,6 @@ final class SwapStoriesUITests: BaseTestCase {
 
         marketsTokenDetailsScreenAfterRestart
             .tapAddFunds()
-            .expandPortfolioToken(ethereumTokenName)
             .tapSwap()
             .assertStoriesDisplayed()
             .closeStoriesIfNeeded()

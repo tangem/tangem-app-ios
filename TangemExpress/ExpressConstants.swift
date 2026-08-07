@@ -23,4 +23,13 @@ public enum ExpressConstants {
         "okx-on-chain",
         "changelly",
     ]
+
+    public static let yieldModuleDEXProviderIds: Set<ExpressProvider.Id> = [
+        "1inch",
+        "li-fi",
+        "okx-cross-chain",
+        "okx-on-chain",
+    ]
+
+    public static let swapProviderTypes: [ExpressProviderType] = [.dex, .cex, .dexBridge]
 }

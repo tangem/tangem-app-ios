@@ -9,8 +9,8 @@
 import Foundation
 
 /// See https://nomicon.io/DataStructures/Account#account-id-rules for information about implicit/named account IDs.
-enum NEARAddressUtil {
-    static func isImplicitAccount(accountId: String) -> Bool {
+public enum NEARAddressUtil {
+    public static func isImplicitAccount(accountId: String) -> Bool {
         guard accountId.count == Constants.implicitAccountIdLength else {
             return false
         }
