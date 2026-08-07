@@ -295,19 +295,8 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
 extension UserWalletSettingsCoordinator: UserSettingsAccountsRoutable {
     func addNewAccount(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         accountFormViewModel = AccountFormViewModel(
-            accountModelsManager: accountModelsManager,
-            // Mikhail Andreev - in future we will support multiple types of accounts and their creation process
-            // will vary
-            flowType: .create(.crypto),
-            closeAction: { [weak self] result, createdAccount in
-                guard let self else {
-                    return
-                }
-
-                rootViewModel?.accountsViewModel?.handleAccountOperationResult(result)
-                rootViewModel?.accountsViewModel?.handleCreatedAccount(createdAccount)
-                accountFormViewModel = nil
-            }
+            flowType: .create(creator: CryptoAccountFormViewCreator(accountModelsManager: accountModelsManager)),
+            coordinator: self
         )
     }
 
@@ -379,6 +368,19 @@ extension UserWalletSettingsCoordinator: UserSettingsAccountsRoutable {
         accountPendingNavigationSteps.append(
             .tokensRedistribution(sourceAccountName: sourceAccountName, targetAccountName: targetAccountName)
         )
+    }
+}
+
+// MARK: - AccountFormViewModelRoutable
+
+extension UserWalletSettingsCoordinator: AccountFormViewModelRoutable {
+    func closeAccountForm(outcome: AccountFormOutcome) {
+        if case .completed(.crypto(let result, let createdAccount)) = outcome {
+            rootViewModel?.accountsViewModel?.handleAccountOperationResult(result)
+            rootViewModel?.accountsViewModel?.handleCreatedAccount(createdAccount)
+        }
+
+        accountFormViewModel = nil
     }
 }
 
