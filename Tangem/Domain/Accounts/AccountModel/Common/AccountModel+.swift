@@ -15,7 +15,7 @@ extension AccountModel {
         switch self {
         case .standard(let cryptoAccounts):
             return cryptoAccounts.cryptoAccount(with: identifier)
-        case .tangemPay:
+        case .tangemPay, .polymarket:
             return nil
         }
     }
@@ -68,7 +68,7 @@ extension Array where Element == AccountModel {
                 return count + 1
             case .standard(.multiple(let cryptoAccountModels)):
                 return count + cryptoAccountModels.count
-            case .tangemPay:
+            case .tangemPay, .polymarket:
                 return count
             }
         }

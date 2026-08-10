@@ -510,7 +510,7 @@ extension CommonAccountModelsManager: DisposableEntity {
                 cryptoAccountModel.dispose()
             case .standard(.multiple(let cryptoAccountModels)):
                 cryptoAccountModels.forEach { $0.dispose() }
-            case .tangemPay:
+            case .tangemPay, .polymarket:
                 break
             }
         }
