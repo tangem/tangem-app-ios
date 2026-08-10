@@ -94,7 +94,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .stakingFlowV2: return .unspecified
         case .forYou: return .unspecified
         case .priceAlertsSubscription: return .unspecified
-        case .solanaRentExemptionPreflight: return .unspecified
+        case .solanaRentExemptionPreflight: return .version("6.2")
         case .mainPushNotificationDoubleAsk: return .version("6.2")
         case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
@@ -104,7 +104,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .chooseTokenPulseAnimation: return .unspecified
         case .hotWalletDexRatesUntilDeposit: return .unspecified
         case .gaslessBridgeFeeRestriction: return .unspecified
-        case .tronDexSwap: return .unspecified
+        case .tronDexSwap: return .version("6.2")
         case .polymarket: return .unspecified
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
