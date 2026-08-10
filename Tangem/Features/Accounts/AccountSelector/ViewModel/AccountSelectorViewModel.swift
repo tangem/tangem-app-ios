@@ -216,8 +216,8 @@ final class AccountSelectorViewModel: ObservableObject {
                 accountAvailability: accountAvailability
             )
 
-        case .tangemPay:
-            // Currently it's not possible to add tokens to TangemPay account
+        case .tangemPay, .polymarket:
+            // Currently it's not possible to add tokens to TangemPay or Polymarket accounts
             return nil
         }
     }
@@ -275,8 +275,8 @@ final class AccountSelectorViewModel: ObservableObject {
                 }
             )
 
-        case .tangemPay:
-            // Currently it's not possible to add tokens to TangemPay account
+        case .tangemPay, .polymarket:
+            // Currently it's not possible to add tokens to TangemPay or Polymarket accounts
             return nil
         }
     }
