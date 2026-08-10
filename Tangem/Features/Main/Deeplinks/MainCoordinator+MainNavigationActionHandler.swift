@@ -84,7 +84,7 @@ extension MainCoordinator {
                 return routeLinkAction(params: navigationAction.params)
 
             case .swap:
-                return routeSwapAction(userWalletId: navigationAction.params.userWalletId)
+                return routeSwapAction(params: navigationAction.params)
 
             case .onboardVisa, .payApp:
                 return routeOnboardVisaAction(
@@ -261,13 +261,22 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeSwapAction(userWalletId: String?) -> Bool {
+        private func routeSwapAction(params: DeeplinkNavigationAction.Params) -> Bool {
             guard
-                let userWalletModel = findUserWalletModel(userWalletModelId: userWalletId),
+                let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
                 isFeatureSupported(feature: .swapping, userWalletModel: userWalletModel)
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
+            }
+
+            if let parameters = DeeplinkSwapParametersResolver().resolve(
+                params: params,
+                accountModelsManager: userWalletModel.accountModelsManager,
+                userWalletInfo: userWalletModel.userWalletInfo
+            ) {
+                coordinator?.openDeepLink(.swap(parameters: parameters))
+                return true
             }
 
             let walletModels = AccountWalletModelsAggregator.walletModels(
