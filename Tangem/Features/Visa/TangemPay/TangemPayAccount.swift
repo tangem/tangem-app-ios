@@ -551,7 +551,12 @@ private extension TangemPayAccount {
             return nil
         }
 
+        let fee = plan.fees
+            .first { $0.type == .recurring }
+            .map { BalanceFormatter().formatFiatBalance($0.amount, currencyCode: $0.currency) }
+
         return TangemPayAwaitingDepositInfo(
+            fee: fee,
             planName: plan.name,
             fallbackPlanName: fallbackPlan.name
         )
