@@ -21,11 +21,11 @@ struct CommonSendSwapableToken: SendSwapableToken {
     let transactionCreator: any SendTransactionCreator
     let sendYieldModuleHelper: SendYieldModuleHelper?
 
-    let balanceProvider: any TangemExpress.BalanceProvider
-    let analyticsLogger: any TangemExpress.AnalyticsLogger
-    let providerTransactionValidator: any TangemExpress.ExpressProviderTransactionValidator
-    let operationType: TangemExpress.ExpressOperationType
-    let supportedProvidersFilter: TangemExpress.SupportedProvidersFilter
+    let balanceProvider: any BalanceProvider
+    let analyticsLogger: any AnalyticsLogger
+    let providerTransactionValidator: any ExpressProviderTransactionValidator
+    let operationType: ExpressOperationType
+    let supportedProvidersFilter: SupportedProvidersFilter
 
     // MARK: - SendSourceToken proxy properties
 
