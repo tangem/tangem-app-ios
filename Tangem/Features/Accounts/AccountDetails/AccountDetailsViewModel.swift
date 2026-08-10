@@ -242,5 +242,10 @@ private extension AccountDetailsViewModel {
         func resolve(accountModel: any TangemPayAccountModel) -> Task<Void, Never> {
             Task {}
         }
+
+        /// Polymarket does not support archiving
+        func resolve(accountModel: any PolymarketAccountModel) -> Task<Void, Never> {
+            Task {}
+        }
     }
 }

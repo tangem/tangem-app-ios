@@ -414,5 +414,10 @@ private extension AccountFormViewModel {
         func resolve(accountModel: any TangemPayAccountModel) -> String? {
             nil
         }
+
+        /// Polymarket accounts don't have an editable description
+        func resolve(accountModel: any PolymarketAccountModel) -> String? {
+            nil
+        }
     }
 }

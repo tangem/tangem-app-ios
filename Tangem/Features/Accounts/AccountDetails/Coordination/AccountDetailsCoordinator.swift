@@ -105,6 +105,9 @@ private extension AccountDetailsCoordinator {
 
         /// TangemPay does not support editing
         func resolve(accountModel: any TangemPayAccountModel) {}
+
+        /// Polymarket does not support editing
+        func resolve(accountModel: any PolymarketAccountModel) {}
     }
 }
 
@@ -141,5 +144,8 @@ private extension AccountDetailsCoordinator {
 
         /// TangemPay does not support token management
         func resolve(accountModel: any TangemPayAccountModel) {}
+
+        /// Polymarket does not support token management
+        func resolve(accountModel: any PolymarketAccountModel) {}
     }
 }
