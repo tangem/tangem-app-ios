@@ -10,11 +10,11 @@ import TangemExpress
 import BlockchainSdk
 
 struct ExpressAnalyticsLoggerMock: ExpressAnalyticsLogger {
-    func bestProviderSelected(_ provider: TangemExpress.ExpressAvailableProvider) {}
+    func bestProviderSelected(_ provider: ExpressAvailableProvider) {}
 
     func logGasEstimationOverrideError(_ error: any Error) {}
 
-    func logAppError(_ error: any Error, provider: TangemExpress.ExpressProvider) {}
+    func logAppError(_ error: any Error, provider: ExpressProvider) {}
 
     func logExpressAPIError(_ error: ExpressAPIError, provider: ExpressProvider, paymentMethod: OnrampPaymentMethod) {}
 }
