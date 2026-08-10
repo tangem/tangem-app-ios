@@ -96,6 +96,11 @@ struct TangemPayMainView: View {
                 TangemPayIssuingCardBannerRedesigned()
             }
 
+            if let fee = viewModel.awaitingDepositInfo?.fee {
+                awaitingDepositTopUpBanner(fee: fee)
+                    .onAppear(perform: viewModel.onTopupBannerAppear)
+            }
+
             if let bannerType = viewModel.systemDowngradeBanner {
                 NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
                     .onAppear(perform: viewModel.onSystemDowngradeBannerAppear)
@@ -147,6 +152,21 @@ struct TangemPayMainView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 32)
+    }
+
+    private func awaitingDepositTopUpBanner(fee: String) -> some View {
+        MessageBanner(
+            title: Localization.tangempayCardDetailsAwaitingDepositTitle(fee),
+            description: Localization.tangempayCardDetailsAwaitingDepositSubtitle
+        )
+        .variant(.error)
+        .slotEnd {
+            Assets.DesignSystem.warning.image
+                .renderingMode(.template)
+                .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+        }
+        .primaryButton(viewModel.awaitingDepositAddFundsButton)
+        .showGlowRing(false)
     }
 
     private var inactiveBadge: some View {
