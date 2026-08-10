@@ -423,8 +423,8 @@ private final class SwapableTokenStub: SendSwapableToken {
     var tokenFeeProvidersManager: any TokenFeeProvidersManager { fatalError("Unused in tests") }
     var transactionValidator: any SendTransactionValidator { fatalError("Unused in tests") }
     var transactionCreator: any SendTransactionCreator { fatalError("Unused in tests") }
-    var balanceProvider: any TangemExpress.BalanceProvider { fatalError("Unused in tests") }
-    var analyticsLogger: any TangemExpress.AnalyticsLogger { fatalError("Unused in tests") }
+    var balanceProvider: any BalanceProvider { fatalError("Unused in tests") }
+    var analyticsLogger: any AnalyticsLogger { fatalError("Unused in tests") }
     var providerTransactionValidator: any ExpressProviderTransactionValidator { fatalError("Unused in tests") }
 }
 
