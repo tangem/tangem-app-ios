@@ -18,9 +18,7 @@ struct StandaloneMarketingBannerView: View {
             .showGlowRing(false)
             .slotStart { leadingIcon }
             .slotEnd { trailingContent }
-            .primaryButton(viewModel.action.map { action in
-                .init(title: Localization.commonLearnMore, action: action)
-            })
+            .onTap(viewModel.action)
     }
 
     @ViewBuilder
