@@ -112,6 +112,15 @@ final class TangemPayMainViewModel: ObservableObject {
         )
     }
 
+    var awaitingDepositAddFundsButton: MessageBannerButton {
+        MessageBannerButton(
+            title: Localization.tangempayCardDetailsAddFunds,
+            action: { [weak self] in
+                self?.addFunds()
+            }
+        )
+    }
+
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
@@ -368,6 +377,10 @@ final class TangemPayMainViewModel: ObservableObject {
         coordinator?.openCurrentPlan()
     }
 
+    func onTopupBannerAppear() {
+        Analytics.log(.visaTiersTopupBannerForPlusShowed, contextParams: .userWallet(userWalletInfo.id))
+    }
+
     func onSystemDowngradeBannerAppear() {
         Analytics.log(.visaTiersPlusCardsClosureWarningBannerShowed, contextParams: .userWallet(userWalletInfo.id))
     }
@@ -391,8 +404,8 @@ final class TangemPayMainViewModel: ObservableObject {
         let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
-            recipient: EmailConfig.visaDefault(subject: .default).recipient,
-            emailType: .visaFeedback(subject: .default)
+            recipient: EmailConfig.visaDefault(subject: .generalHelp).recipient,
+            emailType: .visaFeedback(subject: .generalHelp)
         )
 
         Task { @MainActor in
