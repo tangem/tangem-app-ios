@@ -177,36 +177,20 @@ extension DEXProviderFlowHelper {
                 quoteId: quote.quoteId
             )
 
-            let data = try await expressAPIProvider.exchangeData(item: dataItem)
+            var data = try await expressAPIProvider.exchangeData(item: dataItem)
             try Task.checkCancellation()
 
-            let yieldModuleData = try await makeYieldModuleDEXSwapDataIfNeeded(data: data, quote: quote)
+            data = try await updateDataIfNeeded(data: data, quote: quote)
 
             return try await proceed(
                 sourceAmount: sourceAmount,
                 request: request,
                 quote: quote,
-                data: yieldModuleData
+                data: data
             )
         } catch {
             return mapError(error, quote: quote, amountType: request.amountType)
         }
-    }
-
-    func makeYieldModuleDEXSwapDataIfNeeded(data: ExpressTransactionData, quote: ExpressQuote) async throws -> ExpressTransactionData {
-        guard isYieldModuleDEXSwap else {
-            return data
-        }
-
-        guard let spender = quote.allowanceContract else {
-            throw ExpressProviderError.yieldModuleSwapUnavailable(.spenderNotFound)
-        }
-
-        guard let yieldModuleTransactionHelper else {
-            return data
-        }
-
-        return try await yieldModuleTransactionHelper.yieldModuleDEXSwapData(data: data, provider: provider, spender: spender)
     }
 
     func proceed(
@@ -292,6 +276,30 @@ extension DEXProviderFlowHelper {
     }
 }
 
+// MARK: - Yield module data
+
+private extension DEXProviderFlowHelper {
+    func updateDataIfNeeded(data: ExpressTransactionData, quote: ExpressQuote) async throws -> ExpressTransactionData {
+        guard isYieldModuleDEXSwap, let yieldModuleTransactionHelper else {
+            return data
+        }
+
+        return try await makeYieldModuleTransactionData(data: data, quote: quote, helper: yieldModuleTransactionHelper)
+    }
+
+    func makeYieldModuleTransactionData(
+        data: ExpressTransactionData,
+        quote: ExpressQuote,
+        helper: YieldModuleTransactionHelper
+    ) async throws -> ExpressTransactionData {
+        try await helper.yieldModuleTransactionData(
+            data: data,
+            provider: provider,
+            spender: quote.allowanceContract
+        )
+    }
+}
+
 // MARK: - Approve & swap flow
 
 extension DEXProviderFlowHelper {
@@ -312,16 +320,16 @@ extension DEXProviderFlowHelper {
                 quoteId: quote.quoteId
             )
 
-            let data = try await expressAPIProvider.exchangeData(item: dataItem)
+            var data = try await expressAPIProvider.exchangeData(item: dataItem)
             try Task.checkCancellation()
 
-            let yieldModuleData = try await makeYieldModuleDEXSwapDataIfNeeded(data: data, quote: quote)
+            data = try await updateDataIfNeeded(data: data, quote: quote)
 
             return try await proceedWithApprove(
                 sourceAmount: sourceAmount,
                 request: request,
                 quote: quote,
-                data: yieldModuleData,
+                data: data,
                 approveData: approveData
             )
         } catch {
