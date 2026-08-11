@@ -90,7 +90,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .mobileWalletMultiCreation: return .unspecified
-        case .stakingTransactionValidation: return .unspecified
+        case .stakingTransactionValidation: return .version("6.2")
         case .stakingFlowV2: return .unspecified
         case .forYou: return .unspecified
         case .priceAlertsSubscription: return .unspecified
