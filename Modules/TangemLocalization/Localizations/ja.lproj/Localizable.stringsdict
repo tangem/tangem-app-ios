@@ -403,10 +403,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>It will take up to %li business day for delivery</string>
         <key>other</key>
-        <string>It will take up to %li business days for delivery</string>
+        <string>お届けまで最大%li営業日かかります。</string>
       </dict>
     </dict>
     <key>tangempay_order_type_delivery_eta</key>
