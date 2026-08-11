@@ -336,7 +336,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
     nonisolated var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
         cryptoAccountsRepository
             .auxiliaryDataPublisher
-            .map(\.totalAccountsCount)
+            .map(\.totalCryptoAccountsCount)
             .eraseToAnyPublisher()
     }
 
@@ -377,7 +377,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         }
 
         let newAccountConfig = CryptoAccountPersistentConfig(
-            derivationIndex: remoteState.nextDerivationIndex,
+            derivationIndex: remoteState.nextCryptoDerivationIndex,
             name: name,
             icon: icon
         )
