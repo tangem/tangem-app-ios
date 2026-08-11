@@ -15,7 +15,6 @@ struct StandaloneMarketingBannerView: View {
 
     var body: some View {
         MessageBanner(title: viewModel.title)
-            .showGlowRing(false)
             .slotStart { leadingIcon }
             .slotEnd { trailingContent }
             .onTap(viewModel.action)

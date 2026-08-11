@@ -49,11 +49,11 @@ struct TangemMessageBannerDemoView: View {
                         description: "Tap me — whole banner is the button"
                     )
                     .variant(variant)
+                    .glowRing(demoRing(for: variant))
                     .onTap {}
                 }
 
                 MessageBanner(title: "Tappable, no glow ring", description: "Tap me")
-                    .showGlowRing(false)
                     .onTap {}
 
                 MessageBanner(title: "Closable + tappable", description: "Tap body → onTap; ✕ → close")
@@ -65,6 +65,16 @@ struct TangemMessageBannerDemoView: View {
                     .primaryButton(.init(title: "Invite") {})
             }
             .padding()
+        }
+    }
+
+    private func demoRing(for variant: MessageBannerVariant) -> GlowRingAppearance {
+        switch variant {
+        case .default, .solid: .magic
+        case .success: .success
+        case .error: .error
+        case .warning: .warning
+        case .info: .info
         }
     }
 }
