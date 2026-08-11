@@ -180,7 +180,7 @@ extension DEXProviderFlowHelper {
             var data = try await expressAPIProvider.exchangeData(item: dataItem)
             try Task.checkCancellation()
 
-            data = try await updateDataIfNeeded(data: data, quote: quote)
+            data = try await makeYieldModuleTransactionDataIfNeeded(data: data, quote: quote)
 
             return try await proceed(
                 sourceAmount: sourceAmount,
@@ -279,20 +279,12 @@ extension DEXProviderFlowHelper {
 // MARK: - Yield module data
 
 private extension DEXProviderFlowHelper {
-    func updateDataIfNeeded(data: ExpressTransactionData, quote: ExpressQuote) async throws -> ExpressTransactionData {
+    func makeYieldModuleTransactionDataIfNeeded(data: ExpressTransactionData, quote: ExpressQuote) async throws -> ExpressTransactionData {
         guard isYieldModuleDEXSwap, let yieldModuleTransactionHelper else {
             return data
         }
 
-        return try await makeYieldModuleTransactionData(data: data, quote: quote, helper: yieldModuleTransactionHelper)
-    }
-
-    func makeYieldModuleTransactionData(
-        data: ExpressTransactionData,
-        quote: ExpressQuote,
-        helper: YieldModuleTransactionHelper
-    ) async throws -> ExpressTransactionData {
-        try await helper.yieldModuleTransactionData(
+        return try await yieldModuleTransactionHelper.yieldModuleTransactionData(
             data: data,
             provider: provider,
             spender: quote.allowanceContract
@@ -323,7 +315,7 @@ extension DEXProviderFlowHelper {
             var data = try await expressAPIProvider.exchangeData(item: dataItem)
             try Task.checkCancellation()
 
-            data = try await updateDataIfNeeded(data: data, quote: quote)
+            data = try await makeYieldModuleTransactionDataIfNeeded(data: data, quote: quote)
 
             return try await proceedWithApprove(
                 sourceAmount: sourceAmount,
