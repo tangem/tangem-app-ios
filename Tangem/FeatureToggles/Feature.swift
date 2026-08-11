@@ -103,7 +103,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .onrampPaymentMethodThemedImages: return .unspecified
         case .chooseTokenPulseAnimation: return .unspecified
         case .hotWalletDexRatesUntilDeposit: return .unspecified
-        case .gaslessBridgeFeeRestriction: return .unspecified
+        case .gaslessBridgeFeeRestriction: return .version("6.2")
         case .tronDexSwap: return .version("6.2")
         case .polymarket: return .unspecified
         case .walletCardsBackupReport: return .unspecified
