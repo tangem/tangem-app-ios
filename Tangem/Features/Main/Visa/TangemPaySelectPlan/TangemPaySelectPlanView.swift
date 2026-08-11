@@ -142,7 +142,7 @@ struct TangemPaySelectPlanView: View {
     private func planCard(_ plan: TangemPaySelectPlanViewModel.Plan) -> some View {
         KFImage(plan.imageURL.flatMap { URL(string: $0) })
             .placeholder {
-                Assets.Visa.cardPlatinum.image
+                Assets.Visa.cardGhost.image
                     .resizable()
             }
             .resizable()
