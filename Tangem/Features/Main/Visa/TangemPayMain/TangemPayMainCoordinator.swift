@@ -309,7 +309,8 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         visaBenefitsViewModel = .init(
             url: url,
             title: "",
-            withCloseButton: true
+            withCloseButton: true,
+            allowsJavaScript: true
         )
     }
 }
