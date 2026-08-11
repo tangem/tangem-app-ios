@@ -21,17 +21,13 @@ protocol PendingExpressTransactionsManager: AnyObject {
 class CommonPendingExpressTransactionsManager {
     @Injected(\.expressPendingTransactionsRepository) private var expressPendingTransactionsRepository: ExpressPendingTransactionRepository
 
-    private let walletModelUpdater: WalletModelUpdater?
     private let poller: any ExpressStatusPolling<ExchangeStatusPollIteration>
 
+    private let balanceUpdater = ExpressTransactionBalanceUpdater()
     private let transactionsInProgressSubject = CurrentValueSubject<[PendingExpressTransaction], Never>([])
     private var pollingSubscription: Cancellable?
 
-    init(
-        walletModelUpdater: WalletModelUpdater?,
-        poller: any ExpressStatusPolling<ExchangeStatusPollIteration>
-    ) {
-        self.walletModelUpdater = walletModelUpdater
+    init(poller: any ExpressStatusPolling<ExchangeStatusPollIteration>) {
         self.poller = poller
 
         bind()
@@ -56,9 +52,8 @@ class CommonPendingExpressTransactionsManager {
             }
 
             // A transaction transitioning to a done state means we have to refresh the balance
-            for record in iteration.changed where record.transactionStatus.isDone {
-                walletModelUpdater?.startUpdateTask(silent: true)
-            }
+            let doneRecords = iteration.changed.filter(\.transactionStatus.isDone)
+            balanceUpdater.updateBalances(for: doneRecords)
         }
     }
 }
