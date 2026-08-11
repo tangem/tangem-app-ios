@@ -281,16 +281,36 @@ enum TransactionDetailsFactory {
         record: TransactionRecord?,
         context: TransactionDetailsContext
     ) -> TransactionDetailsGenericOperationViewData {
-        let label = transaction.isOutgoing ? Localization.sendRecipient : Localization.commonFrom
-
         return .init(
             tokens: tokensBlock(for: transaction, isFailed: isFailed(transaction, record: record), context: context),
             statusBanner: nil,
             principalAmount: nil,
-            counterparty: counterparty(for: transaction, label: label),
-            info: transaction.isOutgoing ? networkFeeInfo(from: record) : nil,
+            counterparty: counterparty(for: transaction, label: counterpartyLabel(for: transaction)),
+            info: showsNetworkFee(for: transaction) ? networkFeeInfo(from: record) : nil,
             action: nil
         )
+    }
+
+    /// Incoming rows label the counterparty by kind (wallet / account / address); outgoing stays "Recipient".
+    private static func counterpartyLabel(for transaction: TransactionViewModel) -> String {
+        guard !transaction.isOutgoing else {
+            return Localization.sendRecipient
+        }
+
+        switch transaction.subtitleOwner {
+        case .wallet:
+            return Localization.commonFromWallet
+        case .accountInCurrentWallet, .accountInOtherWallet:
+            return Localization.commonFromAccount
+        case .unresolved, .none:
+            return Localization.commonFromAddress
+        }
+    }
+
+    /// Fee is hidden only for a received transaction (incoming from an external address). Sends and
+    /// own-wallet transfers — including the incoming side of a transfer — keep it.
+    private static func showsNetworkFee(for transaction: TransactionViewModel) -> Bool {
+        transaction.isOutgoing || transaction.subtitleOwner?.isOwnWallet == true
     }
 
     // MARK: - Shared building blocks
@@ -571,11 +591,11 @@ enum TransactionDetailsFactory {
         case .accountInCurrentWallet(let name, let icon):
             return .init(label: label, actor: .account(name: name, icon: icon))
 
-        case .accountInOtherWallet(let accountName, let accountIcon, let walletName):
-            return .init(label: label, actor: .accountInWallet(accountName: accountName, accountIcon: accountIcon, walletName: walletName))
+        case .accountInOtherWallet(let accountName, let accountIcon):
+            return .init(label: label, actor: .account(name: accountName, icon: accountIcon))
 
-        case .wallet(let name):
-            return .init(label: label, actor: .wallet(name: name))
+        case .wallet(let name, let imageProvider, _):
+            return .init(label: label, actor: .wallet(name: name), walletImageProvider: imageProvider)
 
         case .unresolved(let short, let fullAddress, let blockiesImage):
             return .init(
