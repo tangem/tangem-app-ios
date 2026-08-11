@@ -19,6 +19,9 @@ final class ForYouAddFundsTokenSelectorViewModel: ObservableObject {
 
     // MARK: - Properties
 
+    let title: String
+    let subtitle: String
+
     private let holdings: [Holding]
     private let selectionAction: SelectionAction
     private let closeAction: () -> Void
@@ -30,10 +33,14 @@ final class ForYouAddFundsTokenSelectorViewModel: ObservableObject {
     // MARK: - Init
 
     init(
+        title: String,
+        subtitle: String,
         holdings: [Holding],
         selectionAction: @escaping SelectionAction,
         closeAction: @escaping () -> Void
     ) {
+        self.title = title
+        self.subtitle = subtitle
         self.holdings = holdings
         self.selectionAction = selectionAction
         self.closeAction = closeAction
