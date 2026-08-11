@@ -184,8 +184,10 @@ struct TokenDetailsView: View {
     private var redesignNotificationBanners: some View {
         VStack(spacing: .unit(.x2)) {
             ForEach(viewModel.notifications) { notification in
-                NotificationBanner(
+                NotificationMessageBanner(
                     bannerType: notification.bannerType,
+                    variant: notification.variant,
+                    ring: notification.ring,
                     accessibilityIdentifier: notification.accessibilityIdentifier
                 )
             }

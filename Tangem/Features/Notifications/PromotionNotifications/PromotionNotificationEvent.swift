@@ -18,7 +18,7 @@ struct PromotionNotificationEvent: NotificationEvent {
     var description: String? { promotion.subtitle }
     var icon: NotificationView.MessageIcon {
         if let iconUrl = promotion.iconUrl {
-            return .init(iconType: .loadableIcon(url: iconUrl))
+            return .init(iconType: .loadableIcon(url: iconUrl), size: Constants.iconSize)
         }
         return .init(iconType: .placeholder)
     }
@@ -36,4 +36,10 @@ struct PromotionNotificationEvent: NotificationEvent {
     }
 
     var isOneShotAnalyticsEvent: Bool { false }
+}
+
+private extension PromotionNotificationEvent {
+    enum Constants {
+        static let iconSize = CGSize(width: 24, height: 24)
+    }
 }
