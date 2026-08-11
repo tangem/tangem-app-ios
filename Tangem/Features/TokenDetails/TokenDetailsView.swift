@@ -336,10 +336,7 @@ private extension TokenDetailsView {
         cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
-    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
-        walletModelUpdater: walletModel,
-        poller: exchangeStatusPoller
-    )
+    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(poller: exchangeStatusPoller)
     let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
     let onrampStatusPoller = OnrampStatusPoller(
         userWalletId: userWalletModel.userWalletId,
