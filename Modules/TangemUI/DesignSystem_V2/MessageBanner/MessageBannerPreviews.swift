@@ -105,7 +105,7 @@ public struct MessageBannerShowcase: View {
             }
             .variant(variant)
             .contentAlign(contentAlign)
-            .showGlowRing(hasGlowRing)
+            .glowRing(hasGlowRing ? .magic : nil)
             .titleLineLimit(titleLineLimit)
             .descriptionLineLimit(descriptionLineLimit)
             .secondaryButton(!isTappable && hasSecondaryButton ? .init(title: "Yes", action: {}) : nil)
