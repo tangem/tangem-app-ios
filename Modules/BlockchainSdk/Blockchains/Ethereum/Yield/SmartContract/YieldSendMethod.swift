@@ -13,6 +13,12 @@ public struct YieldSendMethod {
     let tokenContractAddress: String
     let destination: String
     let amount: BigUInt
+
+    public init(tokenContractAddress: String, destination: String, amount: BigUInt) {
+        self.tokenContractAddress = tokenContractAddress
+        self.destination = destination
+        self.amount = amount
+    }
 }
 
 extension YieldSendMethod: SmartContractMethod {
