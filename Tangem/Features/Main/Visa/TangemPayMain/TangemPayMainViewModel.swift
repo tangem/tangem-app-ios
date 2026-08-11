@@ -192,8 +192,6 @@ final class TangemPayMainViewModel: ObservableObject {
         let expressStatusTracking = ExpressStatusTrackingFactory(
             userWalletInfo: userWalletInfo,
             tokenItem: TangemPayUtilities.usdcTokenItem,
-            // We don't handle update after transaction is done here yet.
-            walletModelUpdater: nil,
             transactionHistoryEnricherFactory: { nil } // [REDACTED_TODO_COMMENT]
         )
         .makeExpressStatusTracking()
