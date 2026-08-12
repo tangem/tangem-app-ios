@@ -93,10 +93,34 @@ struct NewsItemView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        // [DS3] Trending background flattened from the decorative `trendingNewsBackground` image to a flat
-        // surface, matching the sibling Shtorka widget cards (Surface.level3 → bgSecondary). Flag for design.
-        .background(DesignSystem.Color.bgSecondary)
+        .background(content: TrendingNewsGlowBackground.init)
         .cornerRadiusContinuous(20)
         .opacity(viewModel.isRead ? 0.6 : 1.0)
+    }
+}
+
+// MARK: - TrendingNewsGlowBackground
+
+private struct TrendingNewsGlowBackground: View {
+    var body: some View {
+        Ellipse()
+            .fill(Color(hex: Constants.hex).opacity(Constants.opacity))
+            .frame(height: Constants.height)
+            .padding(.horizontal, -Constants.horizontalOverflow)
+            .blur(radius: Constants.blur)
+            .offset(y: Constants.height / 2 + Constants.bottomInset)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .background(DesignSystem.Color.bgSecondary)
+    }
+}
+
+private extension TrendingNewsGlowBackground {
+    enum Constants {
+        static let hex = "7C16F1"
+        static let opacity: Double = 0.27
+        static let height: CGFloat = 170
+        static let horizontalOverflow: CGFloat = 75
+        static let blur: CGFloat = 66
+        static let bottomInset: CGFloat = 48
     }
 }
