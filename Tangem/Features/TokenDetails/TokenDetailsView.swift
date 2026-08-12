@@ -34,8 +34,10 @@ struct TokenDetailsView: View {
 
                 marketingBanner
 
-                ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
-                    PendingExpressTransactionView(info: transactionInfo)
+                if viewModel.showsPendingExpressTransactionsBlock {
+                    ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
+                        PendingExpressTransactionView(info: transactionInfo)
+                    }
                 }
 
                 PendingTransactionsListView(
