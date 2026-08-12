@@ -49,7 +49,7 @@ public final class TangemPayOrderStatusPollingService {
                     case .canceled:
                         onCanceled()
                         return
-                    case .failed, .undefined:
+                    case .undefined:
                         onFailed(TangemPayOrderStatusPollingError.terminalStatus(order.status))
                         return
                     }

@@ -486,6 +486,25 @@ extension TangemPayAccount {
             throw error
         }
     }
+
+    func checkFailedToIssueState() async {
+        guard activeCards.isEmpty else { return }
+
+        let orders: [TangemPayOrderResponse]
+        do {
+            orders = try await customerService.findOrders(
+                types: TangemPayOrderType.cardIssueFamily,
+                statuses: []
+            )
+        } catch {
+            VisaLogger.error("Failed to check card-issue order history", error: error)
+            return
+        }
+
+        guard orders.isNotEmpty, orders.allConforms({ $0.status == .canceled }) else { return }
+
+        firstCardIssueFailedSubject.send(())
+    }
 }
 
 // MARK: - TangemPayAwaitingDepositCanceller
@@ -716,10 +735,14 @@ private extension TangemPayAccount {
 
     private func handleIssueOrderFailure(orderId: String) {
         activeIssueOrderEventsSubject.send(.remove(id: orderId))
-        if activeCards.isEmpty {
-            firstCardIssueFailedSubject.send(())
-        } else {
+
+        guard activeCards.isEmpty else {
             cardIssueFailureSubject.send(())
+            return
+        }
+
+        runTask { [weak self] in
+            await self?.checkFailedToIssueState()
         }
     }
 
