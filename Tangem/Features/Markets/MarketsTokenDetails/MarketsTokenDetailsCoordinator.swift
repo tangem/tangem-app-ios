@@ -612,6 +612,8 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     private func presentAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider) {
         let portfolioViewModel = MarketsPortfolioTokenListViewModel(
             walletModels: walletModels,
+            barTitle: Localization.commonAddFunds,
+            barSubtitle: Localization.commonChooseToken,
             onSelect: { [weak self] walletModel in
                 Task { @MainActor in
                     // Reached through the token/wallet picker, so the Get screen offers a back button
