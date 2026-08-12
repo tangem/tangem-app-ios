@@ -88,6 +88,10 @@ struct TangemPayMainView: View {
                 )
             }
 
+            if let contactSupportButton = viewModel.contactSupportMessageBannerButton {
+                failedToIssueCardBanner(contactSupportButton: contactSupportButton)
+            }
+
             if viewModel.shouldDisplayAddToApplePayGuide {
                 redesignedAddToApplePayBanner
             }
@@ -166,6 +170,21 @@ struct TangemPayMainView: View {
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
         }
         .primaryButton(viewModel.awaitingDepositAddFundsButton)
+        .showGlowRing(false)
+    }
+
+    private func failedToIssueCardBanner(contactSupportButton: MessageBannerButton) -> some View {
+        MessageBanner(
+            title: Localization.tangempayFailedToIssueCard,
+            description: Localization.tangempayFailedToIssueCardSupportDescription
+        )
+        .variant(.error)
+        .slotStart {
+            DesignSystem.Icons.Error.regular20.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
+        }
+        .primaryButton(contactSupportButton)
         .showGlowRing(false)
     }
 
