@@ -57,6 +57,8 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var systemDowngradeBanner: NotificationBanner.BannerType?
 
+    @Published private(set) var contactSupportMessageBannerButton: MessageBannerButton?
+
     @Published private(set) var currentPlanState: CurrentPlanState = .unknown
 
     @Published private(set) var isVisaBenefitsAvailable = false
@@ -413,6 +415,24 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
+    private func contactSupportForFailedCardIssue() {
+        let dataCollector = TangemPaySupportDataCollector(
+            source: .failedToIssueCardSheet,
+            userWalletId: userWalletInfo.id.stringValue,
+            customerId: tangemPayAccount.customerId
+        )
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.visaDefault(subject: .failedToIssueCard).recipient,
+            emailType: .visaFeedback(subject: .failedToIssueCard)
+        )
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+
     func promptRemoveAccount() {
         alert = AlertBinder(alert: Alert(
             title: Text(Localization.tangempayRemoveAccountAlertTitle),
@@ -557,6 +577,8 @@ private extension TangemPayMainViewModel {
 
         bindInlineNotifications()
 
+        bindFailedToIssueCardBanner()
+
         bindMultiCard()
     }
 
@@ -647,6 +669,27 @@ private extension TangemPayMainViewModel {
                 return [viewModel.makeInlineNotification(for: event)]
             }
             .assign(to: &$inlineNotifications)
+    }
+
+    func bindFailedToIssueCardBanner() {
+        guard let accountModel = tangemPayAccount.account else { return }
+
+        accountModel.statePublisher
+            .map { $0.isFailedToIssueCard }
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isFailedToIssueCard in
+                if isFailedToIssueCard {
+                    viewModel.contactSupportMessageBannerButton = .init(
+                        title: Localization.commonContactSupport,
+                        action: { [weak viewModel] in viewModel?.contactSupportForFailedCardIssue() }
+                    )
+                } else {
+                    viewModel.contactSupportMessageBannerButton = nil
+                }
+            }
+            .store(in: &bag)
     }
 
     func makeInlineNotification(for event: TangemPayNotificationEvent) -> NotificationViewInput {
