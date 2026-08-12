@@ -111,7 +111,6 @@ private extension PolymarketMarketCard.Outcome.Style {
         switch self {
         case .affirmative: DesignSystem.Color.bgStatusInfoSubtle
         case .negative: DesignSystem.Color.bgStatusErrorSubtle
-        case .neutral: DesignSystem.Color.bgOpaquePrimary
         }
     }
 
@@ -119,7 +118,6 @@ private extension PolymarketMarketCard.Outcome.Style {
         switch self {
         case .affirmative: DesignSystem.Color.textBrand
         case .negative: DesignSystem.Color.textStatusError
-        case .neutral: DesignSystem.Color.textPrimary
         }
     }
 }
