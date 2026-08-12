@@ -10,4 +10,5 @@ import Foundation
 
 protocol MarketsMainRoutable: AnyObject, MarketsRoutable, TopMarketWidgetRoutable, PulseMarketWidgetRoutable, NewsWidgetRoutable, EarnWidgetRoutable, MarketsTokenSearchRoutable {
     func openForYou()
+    func openPolymarket()
 }
