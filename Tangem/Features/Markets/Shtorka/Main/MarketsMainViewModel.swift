@@ -162,6 +162,10 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     func onForYouBannerTap() {
         coordinator?.openForYou()
     }
+
+    func onPolymarketEntranceTap() {
+        coordinator?.openPolymarket()
+    }
 }
 
 // MARK: - Private Implementation
