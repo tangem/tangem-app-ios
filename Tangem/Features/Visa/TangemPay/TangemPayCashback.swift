@@ -31,8 +31,8 @@ extension TangemPayCashback {
     struct Period: Equatable {
         let year: Int
         let month: Int
-        let payoutStartDate: Date
-        let payoutEndDate: Date
+        let payoutStartDate: Date?
+        let payoutEndDate: Date?
     }
 }
 
@@ -62,7 +62,7 @@ private extension TangemPayCashback.Summary {
     init?(_ response: TangemPayCashbackSummaryResponse) {
         guard let confirmedAmount = Decimal(stringValue: response.confirmedAmount),
               let currency = response.currency,
-              let period = response.period.flatMap({ TangemPayCashback.Period($0) })
+              let period = response.period.map(TangemPayCashback.Period.init)
         else {
             return nil
         }
@@ -77,18 +77,12 @@ private extension TangemPayCashback.Summary {
 }
 
 private extension TangemPayCashback.Period {
-    init?(_ period: TangemPayCashbackSummaryResponse.Period) {
-        guard let payoutStartDate = Self.payoutDateFormatter.date(from: period.payoutStartDate),
-              let payoutEndDate = Self.payoutDateFormatter.date(from: period.payoutEndDate)
-        else {
-            return nil
-        }
-
+    init(_ period: TangemPayCashbackSummaryResponse.Period) {
         self.init(
             year: period.year,
             month: period.month,
-            payoutStartDate: payoutStartDate,
-            payoutEndDate: payoutEndDate
+            payoutStartDate: period.payoutStartDate.flatMap(Self.payoutDateFormatter.date(from:)),
+            payoutEndDate: period.payoutEndDate.flatMap(Self.payoutDateFormatter.date(from:))
         )
     }
 
