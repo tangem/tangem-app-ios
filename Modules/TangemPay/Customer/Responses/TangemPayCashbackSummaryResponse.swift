@@ -60,9 +60,9 @@ public extension TangemPayCashbackSummaryResponse {
         public let month: Int
 
         /// 2nd of next calendar month, UTC. BFF hardcode
-        public let payoutStartDate: String
+        public let payoutStartDate: String?
 
         /// 5th of next calendar month, UTC. BFF hardcode
-        public let payoutEndDate: String
+        public let payoutEndDate: String?
     }
 }
