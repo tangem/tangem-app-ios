@@ -80,6 +80,9 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.forYouCoordinator) {
                 ForYouCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.polymarketCoordinator) {
+                PolymarketCoordinatorView(coordinator: $0)
+            }
     }
 
     private var newsPagerTokenDetailsLink: some View {
