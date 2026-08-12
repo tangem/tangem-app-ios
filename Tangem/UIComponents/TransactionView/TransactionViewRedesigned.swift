@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Kingfisher
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
@@ -97,12 +96,13 @@ struct TransactionViewRedesigned: View {
     @ViewBuilder
     private var iconContent: some View {
         if case .tangemPay(.spend(_, let iconURL?, _, _)) = viewModel.transactionType {
-            KFImage(iconURL)
-                .resizable()
-                .placeholder { glyphImage }
-                .aspectRatio(contentMode: .fit)
-                .frame(width: iconContainerSide, height: iconContainerSide)
-                .clipShape(Circle())
+            IconView(
+                url: iconURL,
+                size: CGSize(bothDimensions: iconContainerSide),
+                cornerRadius: iconContainerSide / 2
+            ) {
+                glyphImage
+            }
         } else {
             glyphImage
         }
