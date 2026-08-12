@@ -70,8 +70,15 @@ private extension MarketsPortfolioTokenListView {
 
     var navigationBar: some View {
         ZStack {
-            Text(viewModel.barTitle)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            VStack(spacing: 0) {
+                Text(viewModel.barTitle)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+                viewModel.barSubtitle.map {
+                    Text($0)
+                        .style(Font.Tangem.Body15.regular, color: DesignSystem.Color.textSecondary)
+                }
+            }
 
             TangemButton(
                 content: .icon(Assets.DesignSystem.close),
