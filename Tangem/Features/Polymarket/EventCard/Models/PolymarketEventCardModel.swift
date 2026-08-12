@@ -1,5 +1,5 @@
 //
-//  PolymarketEventCard+Model.swift
+//  PolymarketEventCardModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -64,7 +64,7 @@ extension PolymarketEventCard.Model {
         let variant: PolymarketEventCard.Variant = event.totalMarketsCount > 1 ? .multiMarket : .singleMarket
 
         let rows = event.markets.prefix(MappingConstants.maxDisplayedMarkets).map { market in
-            makeRow(market: market, variant: variant, onSelectOutcome: onSelectOutcome)
+            makeRow(market: market, onSelectOutcome: onSelectOutcome)
         }
 
         return PolymarketEventCard.Model(
@@ -82,23 +82,19 @@ extension PolymarketEventCard.Model {
 
     private static func makeRow(
         market: PolymarketMarket,
-        variant: PolymarketEventCard.Variant,
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> PolymarketEventCard.Row {
-        let title = variant == .singleMarket
-            ? MappingConstants.singleMarketRowTitle
-            : (market.groupItemTitle ?? market.title)
+        let title = market.groupItemTitle ?? market.title
 
-        let affirmative = market.outcomes.first { $0.title.caseInsensitiveCompare(MappingConstants.affirmativeOutcomeTitle) == .orderedSame }
-        let probability = (affirmative ?? market.outcomes.first)?.probability
+        let probability = market.outcomes.first?.probability
         let subtitle = probability.map(formatProbability) ?? ""
 
-        let outcomes = market.outcomes.map { outcome in
-            let isAffirmative = outcome.title.caseInsensitiveCompare(MappingConstants.affirmativeOutcomeTitle) == .orderedSame
-            return PolymarketEventCard.Outcome(
+        // Upstream labels are not always "Yes"/"No", so the affirmative outcome is the first one by position
+        let outcomes = market.outcomes.enumerated().map { index, outcome in
+            PolymarketEventCard.Outcome(
                 id: outcome.assetId,
                 title: outcome.title,
-                style: isAffirmative ? .affirmative : .negative,
+                style: index == 0 ? .affirmative : .negative,
                 onSelect: { onSelectOutcome(market, outcome) }
             )
         }
@@ -117,14 +113,9 @@ private extension PolymarketEventCard.Model {
     enum MappingConstants {
         static let maxDisplayedMarkets = 2
 
-        // [REDACTED_TODO_COMMENT]
-        static let singleMarketRowTitle = "Probability"
-
-        static let affirmativeOutcomeTitle = "Yes"
-
         static let volumeFormatter = MarketCapFormatter(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
-            baseCurrencyCode: "USD",
+            baseCurrencyCode: AppConstants.usdCurrencyCode,
             notationFormatter: DefaultAmountNotationFormatter()
         )
 
