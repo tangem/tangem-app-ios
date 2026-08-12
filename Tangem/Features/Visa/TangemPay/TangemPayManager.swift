@@ -314,6 +314,10 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         runTask {
             await account.resumeActiveIssueOrderPolling()
         }
+        runTask {
+            await account.checkFailedToIssueState()
+        }
+
         return account
     }
 
@@ -348,10 +352,23 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
 
         stateSubject
             .compactMap(\.?.tangemPayAccount)
-            .flatMapLatest(\.firstCardIssueFailedSignalPublisher)
+            .flatMapLatest { account in
+                account.firstCardIssueFailedSignalPublisher.mapToValue(account)
+            }
             .withWeakCaptureOf(self)
-            .sink { manager, _ in
-                manager.stateSubject.value = .failedToIssueCard
+            .sink { manager, account in
+                manager.stateSubject.value = .failedToIssueCard(account)
+            }
+            .store(in: &bag)
+
+        stateSubject
+            .compactMap(\.?.tangemPayAccount)
+            .flatMapLatest { account in
+                account.cardIssueCompletedSignal.mapToValue(account)
+            }
+            .withWeakCaptureOf(self)
+            .sink { manager, account in
+                manager.stateSubject.value = .tangemPayAccount(account)
             }
             .store(in: &bag)
 
