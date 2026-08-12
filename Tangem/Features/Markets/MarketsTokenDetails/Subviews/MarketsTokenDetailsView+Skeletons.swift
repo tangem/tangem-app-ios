@@ -216,16 +216,10 @@ extension MarketsTokenDetailsView {
 
         // MARK: - Helpers
 
-        @ViewBuilder
         private func skeletonView(width: CGFloat, height: CGFloat) -> some View {
-            if width == .infinity {
-                Shimmer()
-                    .variant(.custom(height: height))
-                    .frame(maxWidth: .infinity)
-            } else {
-                Shimmer()
-                    .variant(.custom(width: width, height: height))
-            }
+            Shimmer()
+                .variant(.custom(height: height))
+                .frame(idealWidth: width == .infinity ? nil : width, maxWidth: width)
         }
     }
 }
