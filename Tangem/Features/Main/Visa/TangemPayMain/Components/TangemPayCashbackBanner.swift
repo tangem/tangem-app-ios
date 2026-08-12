@@ -54,11 +54,11 @@ private extension TangemPayCashbackBanner {
     var subtitle: String? {
         switch state {
         case .content(let summary):
-            guard summary.confirmedAmount > 0 else {
+            guard summary.confirmedAmount > 0, let payoutWindow = payoutWindow(for: summary) else {
                 return nil
             }
 
-            return Localization.tangempayCashbackDepositedOn(payoutWindow(for: summary))
+            return Localization.tangempayCashbackDepositedOn(payoutWindow)
 
         case .failed:
             return Localization.tangempayCashbackWidgetErrorDescription
@@ -78,12 +78,12 @@ private extension TangemPayCashbackBanner {
         return formatter
     }()
 
-    func payoutWindow(for summary: TangemPayCashback.Summary) -> String {
-        let start = summary.period.payoutStartDate
-        let end = summary.period.payoutEndDate
-        let interval = DateInterval(start: start, end: end)
+    func payoutWindow(for summary: TangemPayCashback.Summary) -> String? {
+        guard let start = summary.period.payoutStartDate, let end = summary.period.payoutEndDate else {
+            return nil
+        }
 
-        return Self.payoutWindowFormatter.string(from: interval) ?? ""
+        return Self.payoutWindowFormatter.string(from: DateInterval(start: start, end: end))
     }
 }
 
