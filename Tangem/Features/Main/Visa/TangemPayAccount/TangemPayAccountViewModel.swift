@@ -254,7 +254,9 @@ extension TangemPayAccountViewModel {
             switch self {
             case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined, .cardDeactivated, .replacingCard, .planSelectNeeded:
                 true
-            case .syncNeeded, .unavailable, .rootedDevice:
+            case .syncNeeded(let cached), .unavailable(let cached):
+                cached != nil
+            case .rootedDevice:
                 false
             }
         }
