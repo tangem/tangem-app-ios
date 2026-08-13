@@ -36,7 +36,7 @@ extension MarketsTokenDetailsLinkSection {
 
 struct MarketsTokenDetailsLinkChipsData: Identifiable {
     let text: String
-    let icon: MarketsTokenDetailsLinkChipsView.Icon?
+    let icon: MarketsTokenDetailsLinkIcon?
     let link: String
     let action: () -> Void
 

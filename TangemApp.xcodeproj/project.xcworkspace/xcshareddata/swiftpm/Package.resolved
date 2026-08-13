@@ -1,5 +1,5 @@
 {
-  "originHash" : "c2cc2335fa78bec441d7cb37c15ee42be9148e4c7b6d3f84f70783cdca60c350",
+  "originHash" : "6b33e7d66c6957c0151e53b6324e8b43f649b680a4a0fadca2c53a9fb02fd89f",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -245,6 +245,15 @@
       }
     },
     {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/groue/GRDB.swift.git",
+      "state" : {
+        "revision" : "b83108d10f42680d78f23fe4d4d80fc88dab3212",
+        "version" : "7.11.1"
+      }
+    },
+    {
       "identity" : "grpc-binary",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/grpc-binary.git",
@@ -427,9 +436,10 @@
     {
       "identity" : "reown-swift",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:tangem-developments/reown-swift.git",
+      "location" : "https://github.com/reown-com/reown-swift.git",
       "state" : {
-        "revision" : "62114d209ec942ea7ce6eb7c154980212f980bb0"
+        "revision" : "968a82d440e51c4de18857928b60a03d36af7a2a",
+        "version" : "2.3.1"
       }
     },
     {
@@ -761,8 +771,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "e171dc3b7ccd9b721e2ba95b7f082b3376318261",
-        "version" : "4.1.2"
+        "revision" : "ce535dd9896fb0d6e865be716f9fb90cc6951c85",
+        "version" : "5.1.0"
       }
     },
     {
@@ -815,8 +825,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/yttrium",
       "state" : {
-        "revision" : "c670309e6593875ba8211b9722d465b92d7ea2cf",
-        "version" : "0.10.50"
+        "revision" : "e2175fd8456599f18acc7e9a7bf29d5d534f7232",
+        "version" : "0.10.57"
       }
     },
     {

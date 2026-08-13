@@ -40,15 +40,18 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
 
     private let pinValidator = VisaPinValidator()
     private let card: TangemPayCard
+    private let pinReader: TangemPayPinReader
     private let userWalletId: UserWalletId
     private weak var coordinator: TangemPayPinCheckRoutable?
 
     init(
         card: TangemPayCard,
+        pinReader: TangemPayPinReader,
         userWalletId: UserWalletId,
         coordinator: TangemPayPinCheckRoutable
     ) {
         self.card = card
+        self.pinReader = pinReader
         self.userWalletId = userWalletId
         self.coordinator = coordinator
 
@@ -70,7 +73,7 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
     private func revealPin() {
         runTask(in: self) { viewModel in
             do {
-                let pin = try await viewModel.card.getPin()
+                let pin = try await viewModel.pinReader.getPin()
                 Task { @MainActor in
                     viewModel.state = .loaded(PIN: pin)
                 }

@@ -22,7 +22,7 @@ struct AuthWalletView: View {
     }
 
     var body: some View {
-        Button(action: viewModel.onTap) {
+        SwiftUI.Button(action: viewModel.onTap) {
             HStack(spacing: 12) {
                 icon
                 info.frame(maxWidth: .infinity, alignment: .leading)

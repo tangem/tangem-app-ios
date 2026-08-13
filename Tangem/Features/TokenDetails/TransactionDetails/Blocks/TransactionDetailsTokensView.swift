@@ -26,12 +26,14 @@ struct TransactionDetailsTokensViewData: Equatable {
     init(
         tokenIconInfo: TokenIconInfo,
         amountText: String,
-        fiatText: String? = nil
+        fiatText: String? = nil,
+        isAmountStrikethrough: Bool = false
     ) {
         content = .single(Single(
             tokenIconInfo: tokenIconInfo,
             amountText: amountText,
-            fiatText: fiatText
+            fiatText: fiatText,
+            isAmountStrikethrough: isAmountStrikethrough
         ))
     }
 
@@ -44,6 +46,7 @@ struct TransactionDetailsTokensViewData: Equatable {
         let tokenIconInfo: TokenIconInfo
         let amountText: String
         let fiatText: String?
+        let isAmountStrikethrough: Bool
     }
 
     struct Leg: Equatable {
@@ -106,7 +109,11 @@ struct TransactionDetailsTokensView: View {
 
             VStack(spacing: 2) {
                 Text(single.amountText)
-                    .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                    .style(
+                        DesignSystem.Font.headingMediumToken,
+                        color: single.isAmountStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
+                    )
+                    .strikethrough(single.isAmountStrikethrough)
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
@@ -125,7 +132,7 @@ struct TransactionDetailsTokensView: View {
     // MARK: - Pair
 
     private func pairCard(from: TransactionDetailsTokensViewData.Leg, to: TransactionDetailsTokensViewData.Leg) -> some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 2) {
             legRow(from)
 
             DashedDivider(color: DesignSystem.Color.borderSecondary)
@@ -217,7 +224,7 @@ struct TransactionDetailsTokensView: View {
             IconView(url: url, size: CGSize(bothDimensions: legTokenSide))
                 .clipShape(.circle)
         case .loading:
-            TangemShimmer()
+            Shimmer()
                 .frame(size: CGSize(bothDimensions: legTokenSide))
                 .clipShape(.circle)
         }
@@ -262,6 +269,9 @@ private struct DashedDivider: View {
     VStack(spacing: 32) {
         // Single (transfer / stake)
         TransactionDetailsTokensView(data: TransactionDetailsPreviewFactory.tokensSingle())
+
+        // Single, failed — struck-through amount
+        TransactionDetailsTokensView(data: TransactionDetailsPreviewFactory.tokensSingleFailed())
 
         // Pair (swap / onramp)
         TransactionDetailsTokensView(data: TransactionDetailsPreviewFactory.tokensPair())

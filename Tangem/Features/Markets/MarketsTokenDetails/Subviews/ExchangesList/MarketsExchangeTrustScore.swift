@@ -6,9 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
 import TangemLocalization
-import TangemAssets
 
 enum MarketsExchangeTrustScore: Int, Decodable {
     case risky = 0
@@ -39,22 +37,6 @@ enum MarketsExchangeTrustScore: Int, Decodable {
         case .risky: Localization.marketsTokenDetailsExchangeTrustScoreRisky
         case .caution: Localization.marketsTokenDetailsExchangeTrustScoreCaution
         case .trusted: Localization.marketsTokenDetailsExchangeTrustScoreTrusted
-        }
-    }
-
-    var textColor: Color {
-        switch self {
-        case .risky: Colors.Text.warning
-        case .caution: Colors.Text.attention
-        case .trusted: Colors.Text.accent
-        }
-    }
-
-    var backgroundColor: Color {
-        switch self {
-        case .risky: Colors.Icon.warning.opacity(0.1)
-        case .caution: Colors.Icon.attention.opacity(0.1)
-        case .trusted: Colors.Icon.accent.opacity(0.1)
         }
     }
 }

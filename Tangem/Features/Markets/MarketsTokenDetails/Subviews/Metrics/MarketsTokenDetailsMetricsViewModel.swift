@@ -10,7 +10,7 @@ import Foundation
 import TangemLocalization
 
 struct MarketsTokenDetailsMetricsViewModel {
-    let records: [MarketsTokenDetailsMetricsView.RecordInfo]
+    let records: [MarketsTokenDetailsMetricsRecordInfo]
 
     /// Pre-computed state for the redesigned metrics view.
     /// Groups all data that the redesign needs beyond `records`.
@@ -98,7 +98,7 @@ struct MarketsTokenDetailsMetricsViewModel {
         )
     }
 
-    func record(for type: MarketsTokenDetailsMetricsView.RecordType) -> MarketsTokenDetailsMetricsView.RecordInfo? {
+    func record(for type: MarketsTokenDetailsMetricsRecordType) -> MarketsTokenDetailsMetricsRecordInfo? {
         records.first { $0.type == type }
     }
 

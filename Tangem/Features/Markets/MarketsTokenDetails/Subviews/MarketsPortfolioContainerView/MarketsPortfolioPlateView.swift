@@ -9,25 +9,23 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsPortfolioPlateView<Trailing: View>: View {
     let iconURL: URL
     let title: AttributedString
-    var titleColor: Color = .Tangem.Text.Neutral.tertiary
+    var titleColor: Color = DesignSystem.Color.textSecondary
     @ViewBuilder let trailing: Trailing
-
-    @ScaledMetric private var iconSize: CGFloat = 40
 
     var body: some View {
         HStack(spacing: 12) {
-            IconView(
-                url: iconURL,
-                size: CGSize(bothDimensions: iconSize),
-                forceKingfisher: true
+            TokenIconV2(
+                tokenIconInfo: .remote(name: "", imageURL: iconURL),
+                size: .size40
             )
 
             Text(title)
-                .style(Font.Tangem.Caption12.medium, color: titleColor)
+                .style(DesignSystem.Font.captionMediumToken, color: titleColor)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -39,7 +37,7 @@ struct MarketsPortfolioPlateView<Trailing: View>: View {
         .frame(minHeight: 60)
         .background(
             Capsule()
-                .fill(Color.Tangem.Surface.level3)
+                .fill(DesignSystem.Color.bgSecondary)
         )
     }
 }
