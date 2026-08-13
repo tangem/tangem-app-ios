@@ -5,37 +5,35 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import Combine
 import TangemFoundation
+import TangemLocalization
 import TangemUI
 
 @MainActor
 extension ForYouCoordinator {
     func openTokenSummary(tokenItem: TokenItem, period: TokenSummaryPeriod) {
-        let canGoToSwapPublisher = userWalletRepository.selectedModel
-            .map { makeCanGoToSwapPublisher(of: tokenItem, in: $0) } ?? Just(false).eraseToAnyPublisher()
-
-        let primaryActionPublisher: AnyPublisher<TokenSummaryPrimaryAction?, Never> = canGoToSwapPublisher
-            .map { .goToSwap(isEnabled: $0) }
-            .eraseToAnyPublisher()
+        let holdings = TokenSummaryPrimaryActionProvider.coinHoldings(of: tokenItem, in: userWalletRepository.models)
 
         tokenSummaryViewModel = TokenSummaryViewModel(
             tokenItem: tokenItem,
             period: period,
-            primaryActionPublisher: primaryActionPublisher,
+            primaryActionPublisher: TokenSummaryPrimaryActionProvider.makePublisher(
+                balanceProviders: holdings.map(\.availableBalanceProvider)
+            ),
             analyticsLogger: CommonTokenSummaryAnalyticsLogger(tokenItem: tokenItem),
-            onPrimaryAction: { [weak self] _ in self?.goToSwap(with: tokenItem) },
+            onPrimaryAction: { [weak self] kind in self?.handleTokenSummaryAction(kind, tokenItem: tokenItem) },
             onClose: { [weak self] in self?.tokenSummaryViewModel = nil }
         )
     }
 
-    func runPendingSwapAction() {
-        guard let action = pendingSwapAction else {
+    func tokenSummaryDidDismiss() {
+        let action = tokenSummaryFollowUpAction
+        tokenSummaryFollowUpAction = nil
+
+        guard let action else {
             return
         }
 
-        pendingSwapAction = nil
         Task { @MainActor in action() }
     }
 
@@ -52,74 +50,90 @@ extension ForYouCoordinator {
     }
 }
 
+// MARK: - Token summary primary action
+
+private extension ForYouCoordinator {
+    func handleTokenSummaryAction(_ kind: TokenSummaryPrimaryAction.Kind, tokenItem: TokenItem) {
+        switch kind {
+        case .goToSwap:
+            goToSwap(with: tokenItem)
+        case .addFunds:
+            addFunds(with: tokenItem)
+        }
+    }
+}
+
+// MARK: - Go to swap
+
 private extension ForYouCoordinator {
     func goToSwap(with tokenItem: TokenItem) {
-        guard let userWalletModel = userWalletRepository.selectedModel else {
-            return
-        }
-
-        let holdings = swapAvailableHoldings(of: tokenItem, in: userWalletModel)
+        let holdings = TokenSummaryPrimaryActionProvider.fundedHoldings(of: tokenItem, in: userWalletRepository.models)
 
         switch holdings.count {
         case 0:
             return
         case 1:
             let walletModel = holdings[0]
-            let userWalletInfo = userWalletModel.userWalletInfo
-            pendingSwapAction = { [weak self] in
-                self?.openSwap(walletModel: walletModel, userWalletInfo: userWalletInfo)
-            }
+            tokenSummaryFollowUpAction = { [weak self] in self?.openSwapFromTokenSummary(walletModel: walletModel) }
         default:
-            pendingSwapAction = { [weak self] in
-                self?.presentSwapTokenSelector(with: tokenItem)
-            }
+            tokenSummaryFollowUpAction = { [weak self] in self?.presentSwapTokenSelector(with: tokenItem) }
         }
 
-        // Dismissing the summary sheet fires the deferred action from its `onDismiss`.
+        // The follow-up fires from the summary sheet's `onDismiss`, so it runs only after the sheet is fully gone.
         tokenSummaryViewModel = nil
     }
 
-    /// A `nil` `currencyId` identifies no coin — matching on it would lump together every unmapped custom token.
-    func coinHoldings(of tokenItem: TokenItem, in userWalletModel: any UserWalletModel) -> [any WalletModel] {
+    /// Kept in the coordinator rather than the view model: it decides whether the swap can happen at all, and the
+    /// unavailability alert it raises needs the presenter.
+    @MainActor
+    func openSwapFromTokenSummary(walletModel: any WalletModel) {
+        guard let userWalletModel = userWalletRepository.models[walletModel.userWalletId] else {
+            return
+        }
+
+        let userWalletInfo = userWalletModel.userWalletInfo
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
+
+        guard availabilityProvider.isSwapAvailable else {
+            if let alert = TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapAvailability) {
+                alertPresenter.present(alert: alert)
+            }
+            return
+        }
+
+        openSwap(walletModel: walletModel, userWalletInfo: userWalletInfo)
+    }
+
+    @MainActor
+    func presentSwapTokenSelector(with tokenItem: TokenItem) {
         guard let currencyId = tokenItem.currencyId else {
-            return []
+            return
         }
 
-        return AccountWalletModelsAggregator
-            .walletModels(from: userWalletModel.accountModelsManager)
-            .filter { $0.tokenItem.currencyId == currencyId }
-    }
+        let holdings = EarnAddFundsHoldingsAggregator.aggregate(
+            currencyId: currencyId,
+            in: userWalletRepository.models
+        )
 
-    func swapAvailableHoldings(of tokenItem: TokenItem, in userWalletModel: any UserWalletModel) -> [any WalletModel] {
-        let userWalletInfo = userWalletModel.userWalletInfo
+        let viewModel = ForYouAddFundsTokenSelectorViewModel(
+            title: Localization.tokenSummaryGoToSwapButton,
+            subtitle: Localization.commonChooseToken,
+            holdings: holdings,
+            selectionAction: { [weak self] walletModel, userWalletModel in
+                guard let self else { return }
+                floatingSheetPresenter.removeActiveSheet()
 
-        return coinHoldings(of: tokenItem, in: userWalletModel)
-            .filter { TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: $0).isSwapAvailable }
-    }
+                // Mirrors Markets: a funded holding goes to swap, an empty one offers a top up.
+                if walletModel.availableBalanceProvider.isFunded {
+                    openSwapFromTokenSummary(walletModel: walletModel)
+                } else {
+                    presentAddFunds(walletModel: walletModel, userWalletModel: userWalletModel)
+                }
+            },
+            closeAction: { [weak self] in self?.floatingSheetPresenter.removeActiveSheet() }
+        )
 
-    func makeCanGoToSwapPublisher(of tokenItem: TokenItem, in userWalletModel: any UserWalletModel) -> AnyPublisher<Bool, Never> {
-        let userWalletInfo = userWalletModel.userWalletInfo
-        let holdings = coinHoldings(of: tokenItem, in: userWalletModel)
-
-        let isAnySwapAvailable = {
-            holdings.contains { TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: $0).isSwapAvailable }
-        }
-
-        // `actionsUpdatePublisher` covers balance, staking, yield and the Express availability *cache*, but not
-        // the Express update state, which `isSwapAvailable` also reads. The cache is published before the state
-        // flips to `.updated`, so without the second source a token that came back unavailable-or-unlisted would
-        // stay stuck on `.expressLoading` and leave the button disabled after the load finished.
-        let expressStateUpdates = expressAvailabilityProvider.expressAvailabilityUpdateState
-            .mapToVoid()
-            .eraseToAnyPublisher()
-
-        let updates: [AnyPublisher<Void, Never>] = holdings.map(\.actionsUpdatePublisher) + [expressStateUpdates]
-
-        return Publishers.MergeMany(updates)
-            .map { _ in isAnySwapAvailable() }
-            .prepend(isAnySwapAvailable())
-            .removeDuplicates()
-            .eraseToAnyPublisher()
+        floatingSheetPresenter.enqueue(sheet: viewModel)
     }
 
     @MainActor
@@ -139,23 +153,26 @@ private extension ForYouCoordinator {
             }
         )
     }
+}
 
-    func presentSwapTokenSelector(with tokenItem: TokenItem) {
-        guard let userWalletModel = userWalletRepository.selectedModel else {
+// MARK: - Add funds
+
+private extension ForYouCoordinator {
+    func addFunds(with tokenItem: TokenItem) {
+        guard let currencyId = tokenItem.currencyId else {
             return
         }
 
-        swapTokenSelectorViewModel = ForYouSwapTokenSelectorViewModel(
-            coin: tokenItem,
-            walletId: userWalletModel.userWalletId,
-            onSelect: { [weak self] walletModel, userWalletInfo in
-                guard let self else { return }
-                pendingSwapAction = { [weak self] in
-                    self?.openSwap(walletModel: walletModel, userWalletInfo: userWalletInfo)
-                }
-                swapTokenSelectorViewModel = nil
-            },
-            onClose: { [weak self] in self?.swapTokenSelectorViewModel = nil }
+        let holdings = EarnAddFundsHoldingsAggregator.aggregate(
+            currencyId: currencyId,
+            in: userWalletRepository.models
         )
+
+        guard holdings.isNotEmpty else {
+            return
+        }
+
+        tokenSummaryFollowUpAction = { [weak self] in self?.openEarnAddFunds(holdings: holdings) }
+        tokenSummaryViewModel = nil
     }
 }

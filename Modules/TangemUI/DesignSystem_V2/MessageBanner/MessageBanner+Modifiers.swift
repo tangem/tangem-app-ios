@@ -48,6 +48,7 @@ public struct MessageBannerButton {
     public var isEnabled: Bool
     public var isLoading: Bool
     public var accessibilityLabel: String?
+    public var accessibilityIdentifier: String?
 
     public init(
         title: String,
@@ -56,6 +57,7 @@ public struct MessageBannerButton {
         isEnabled: Bool = true,
         isLoading: Bool = false,
         accessibilityLabel: String? = nil,
+        accessibilityIdentifier: String? = nil,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -64,6 +66,7 @@ public struct MessageBannerButton {
         self.isEnabled = isEnabled
         self.isLoading = isLoading
         self.accessibilityLabel = accessibilityLabel
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.action = action
     }
 }
@@ -71,9 +74,9 @@ public struct MessageBannerButton {
 struct MessageBannerConfiguration {
     var variant: MessageBannerVariant = .default
     var contentAlign: MessageBannerContentAlign = .start
-    var showsGlowRing: Bool = true
-    var titleLineLimit: Int = 3
-    var descriptionLineLimit: Int = 3
+    var glowRing: GlowRingAppearance?
+    var titleLineLimit: Int?
+    var descriptionLineLimit: Int?
     var secondaryButton: MessageBannerButton?
     var primaryButton: MessageBannerButton?
     var onTap: (() -> Void)?
@@ -124,15 +127,20 @@ public extension MessageBanner {
         map { $0.config.contentAlign = contentAlign }
     }
 
-    func showGlowRing(_ show: Bool = true) -> Self {
-        map { $0.config.showsGlowRing = show }
+    func glowRing(_ appearance: GlowRingAppearance?) -> Self {
+        map { $0.config.glowRing = appearance }
     }
 
-    func titleLineLimit(_ limit: Int) -> Self {
+    /// Exact match — otherwise a chain-terminal non-optional call silently resolves to the fully-defaulted `View.glowRing`.
+    func glowRing(_ appearance: GlowRingAppearance) -> Self {
+        glowRing(appearance as GlowRingAppearance?)
+    }
+
+    func titleLineLimit(_ limit: Int?) -> Self {
         map { $0.config.titleLineLimit = limit }
     }
 
-    func descriptionLineLimit(_ limit: Int) -> Self {
+    func descriptionLineLimit(_ limit: Int?) -> Self {
         map { $0.config.descriptionLineLimit = limit }
     }
 

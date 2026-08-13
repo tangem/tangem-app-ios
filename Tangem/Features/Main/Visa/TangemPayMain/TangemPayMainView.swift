@@ -79,35 +79,39 @@ struct TangemPayMainView: View {
         VStack(spacing: 28) {
             redesignedHeader
 
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+            VStack(spacing: 8) {
+                PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
 
-            if !viewModel.notificationBannerItems.isEmpty {
-                NotificationBannerContainer(
-                    items: viewModel.notificationBannerItems,
-                    stackingType: .carousel
-                )
-            }
+                if !viewModel.notificationBannerItems.isEmpty {
+                    NotificationBannerContainer(
+                        items: viewModel.notificationBannerItems,
+                        stackingType: .carousel
+                    )
+                }
 
-            if let contactSupportButton = viewModel.contactSupportMessageBannerButton {
-                failedToIssueCardBanner(contactSupportButton: contactSupportButton)
-            }
+                if viewModel.shouldDisplayAddToApplePayGuide {
+                    redesignedAddToApplePayBanner
+                }
 
-            if viewModel.shouldDisplayAddToApplePayGuide {
-                redesignedAddToApplePayBanner
-            }
+                if let contactSupportButton = viewModel.contactSupportMessageBannerButton {
+                    failedToIssueCardBanner(contactSupportButton: contactSupportButton)
+                }
 
-            if viewModel.hasIssuingEntry, !viewModel.isAwaitingDeposit {
-                TangemPayIssuingCardBannerRedesigned()
-            }
+                if viewModel.hasIssuingEntry, !viewModel.isAwaitingDeposit {
+                    TangemPayIssuingCardBannerRedesigned()
+                }
 
-            if let fee = viewModel.awaitingDepositInfo?.fee {
-                awaitingDepositTopUpBanner(fee: fee)
-                    .onAppear(perform: viewModel.onTopupBannerAppear)
-            }
+                if let bannerType = viewModel.systemDowngradeBanner {
+                    NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
+                        .onAppear(perform: viewModel.onSystemDowngradeBannerAppear)
+                }
 
-            if let bannerType = viewModel.systemDowngradeBanner {
-                NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
-                    .onAppear(perform: viewModel.onSystemDowngradeBannerAppear)
+                if let fee = viewModel.awaitingDepositInfo?.fee {
+                    awaitingDepositTopUpBanner(fee: fee)
+                        .onAppear(perform: viewModel.onTopupBannerAppear)
+                }
+
+                cashbackSection
             }
         }
         .padding(.bottom, 8)
@@ -286,6 +290,20 @@ struct TangemPayMainView: View {
 
                 Divider()
 
+                if let cashbackMenuState = viewModel.cashbackMenuState {
+                    SwiftUI.Button(action: viewModel.onCashbackTap) {
+                        Text(cashbackMenuState.menuTitle)
+
+                        if let menuSubtitle = cashbackMenuState.menuSubtitle {
+                            Text(menuSubtitle)
+                        }
+
+                        DesignSystem.Icons.PercentBackward.regular20.image
+                            .renderingMode(.template)
+                    }
+                    .menuActionDismissBehavior(.disabled)
+                }
+
                 if viewModel.isVisaBenefitsAvailable {
                     SwiftUI.Button(action: viewModel.visaBenefits) {
                         Label {
@@ -315,6 +333,15 @@ struct TangemPayMainView: View {
                     .accessibilityLabel(Localization.commonMore)
             }
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.moreActionsButton)
+        }
+    }
+
+    @ViewBuilder
+    private var cashbackSection: some View {
+        if let cashbackBannerState = viewModel.cashbackBannerState {
+            TangemPayCashbackBanner(state: cashbackBannerState, action: viewModel.onCashbackTap)
+        } else if viewModel.shouldDisplayCashbackBlockedBanner {
+            TangemPayCashbackBlockedBanner(action: viewModel.dismissCashbackBlockedBanner)
         }
     }
 }

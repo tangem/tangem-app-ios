@@ -20,14 +20,16 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     var expressPendingTransactionRepository: ExpressPendingTransactionRepository
 
     let userWalletInfo: UserWalletInfo
+    private let preferredProviderId: ExpressProvider.Id?
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
     private(set) lazy var expressManager = makeExpressManager()
     private(set) lazy var expressAPIProvider = makeExpressAPIProvider()
     private(set) lazy var onrampRepository = makeOnrampRepository()
 
-    init(userWalletInfo: UserWalletInfo) {
+    init(userWalletInfo: UserWalletInfo, preferredProviderId: ExpressProvider.Id? = nil) {
         self.userWalletInfo = userWalletInfo
+        self.preferredProviderId = preferredProviderId
     }
 }
 
@@ -38,7 +40,8 @@ private extension CommonExpressDependenciesFactory {
         return TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: swapRepository,
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(),
+            preferredProviderId: preferredProviderId
         )
     }
 

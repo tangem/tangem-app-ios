@@ -59,9 +59,21 @@ extension PredefinedSendParameters {
 }
 
 enum PredefinedSwapParameters {
-    case from(_ source: SendSwapableToken, receive: SendReceiveToken? = nil)
+    case from(_ source: SendSwapableToken, receive: SendReceiveToken? = nil, extras: Extras? = nil)
     case to(_ receive: SendSwapableToken)
     case deferredPairResolution(source: SendSwapableToken, resolver: MainSwapPairResolver)
+
+    /// Optional preselections carried by a `tangem://swap` deeplink on top of the resolved pair: an initial
+    /// FROM amount to prefill and a provider to auto-select once the pair's providers arrive.
+    struct Extras {
+        let sourceAmount: Decimal?
+        let providerId: ExpressProvider.Id?
+
+        init(sourceAmount: Decimal? = nil, providerId: ExpressProvider.Id? = nil) {
+            self.sourceAmount = sourceAmount
+            self.providerId = providerId
+        }
+    }
 }
 
 /// Swap direction for a token-details entry point. `automatic` defers to the balance-based pair
