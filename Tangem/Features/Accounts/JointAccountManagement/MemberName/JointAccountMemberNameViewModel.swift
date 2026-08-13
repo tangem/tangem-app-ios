@@ -50,7 +50,7 @@ final class JointAccountMemberNameViewModel: ObservableObject {
 
     func onCreateTap() {
         creationContext.update(creatorName: name)
-        coordinator?.createJointAccount()
+        coordinator?.openInviteMembers(creationContext: creationContext)
     }
 
     func onCloseTap() {

@@ -21,6 +21,14 @@ final class JointAccountCreationContext {
         CommonTangemIconProvider(config: userWalletConfig)
     }
 
+    var membersCount: Int? {
+        state.withLock { $0.membersData?.membersCount }
+    }
+
+    var creatorName: String? {
+        state.withLock { $0.creatorName }
+    }
+
     private let userWalletConfig: UserWalletConfig
     private let state = OSAllocatedUnfairLock(initialState: State())
 

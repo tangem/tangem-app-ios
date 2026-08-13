@@ -12,6 +12,7 @@ import TangemAssets
 /// One member slot of the joint account composition, in one of the three states the design defines.
 struct JointAccountMemberCircle: View {
     let state: State
+    var diameter: CGFloat = Constants.diameter
 
     var body: some View {
         ZStack {
@@ -22,12 +23,12 @@ struct JointAccountMemberCircle: View {
 
             glyph
         }
-        .frame(width: Constants.diameter, height: Constants.diameter)
+        .frame(width: diameter, height: diameter)
     }
 
     private var border: some View {
         Circle()
-            .strokeBorder(state.borderColor, style: state.borderStyle)
+            .strokeBorder(state.borderColor, style: state.borderStyle(diameter: diameter))
     }
 
     @ViewBuilder
@@ -65,14 +66,14 @@ private extension JointAccountMemberCircle.State {
         }
     }
 
-    var borderStyle: StrokeStyle {
+    func borderStyle(diameter: CGFloat) -> StrokeStyle {
         switch self {
         case .active, .filled:
             StrokeStyle(lineWidth: JointAccountMemberCircle.Constants.borderWidth)
         case .empty:
             StrokeStyle(
                 lineWidth: JointAccountMemberCircle.Constants.borderWidth,
-                dash: [JointAccountMemberCircle.Constants.borderDash]
+                dash: [diameter * JointAccountMemberCircle.Constants.borderDashFraction]
             )
         }
     }
@@ -95,6 +96,6 @@ private extension JointAccountMemberCircle {
 
         /// The design keeps the dash at 3/28 of the diameter, which is its 5.142857 for a 48pt circle.
         /// A single-element pattern means the gaps between the dashes measure the same.
-        static let borderDash: CGFloat = diameter * 3 / 28
+        static let borderDashFraction: CGFloat = 3 / 28
     }
 }
