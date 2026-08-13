@@ -7,6 +7,7 @@
 //
 
 enum SwipeAttempts: Int {
+    case single = 1
     case standard = 5
     case lazy = 10
 }

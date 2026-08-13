@@ -21,7 +21,7 @@ struct EmptyContentAccountItemRedesignedView: View {
                 .textColor(Color.Tangem.Text.Neutral.tertiary)
                 .spacing(.unit(.x5))
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: Localization.commonAddTokens,
                 accessibilityLabel: nil,
                 action: onManageTokensTap

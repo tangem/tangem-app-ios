@@ -35,8 +35,13 @@ struct WebViewContainer: View {
         }
         .sheet(item: $popupUrl) { popupUrl in
             NavigationStack {
-                WebView(url: popupUrl, popupUrl: .constant(nil), isLoading: .constant(false))
-                    .navigationBarTitle("", displayMode: .inline)
+                WebView(
+                    url: popupUrl,
+                    popupUrl: .constant(nil),
+                    isLoading: .constant(false),
+                    allowsJavaScript: viewModel.allowsJavaScript
+                )
+                .navigationBarTitle("", displayMode: .inline)
             }
         }
     }
@@ -48,7 +53,8 @@ struct WebViewContainer: View {
             urlActions: viewModel.urlActions,
             isLoading: $isLoading,
             contentInset: viewModel.contentInset,
-            timeoutSettings: viewModel.timeoutSettings
+            timeoutSettings: viewModel.timeoutSettings,
+            allowsJavaScript: viewModel.allowsJavaScript
         )
     }
 

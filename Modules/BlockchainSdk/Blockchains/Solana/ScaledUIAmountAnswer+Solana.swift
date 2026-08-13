@@ -14,7 +14,7 @@ extension ScaledUIAmount.Answer {
     /// Anything short of a parsed answer is `unknown` rather than `noScaling`: a response the mint account is missing
     /// from, a declared extension without a state, a multiplier that does not parse. Saying `noScaling` for those
     /// would skip the division on a mint that does declare a multiplier, which is what inflates the signed transfer.
-    init(accountInfo: SolanaScaledUiAmountDTO.GetAccountInfoResult, transactionDate: Date) {
+    init(accountInfo: SolanaScaledUIAmountDTO.GetAccountInfoResult, transactionDate: Date) {
         guard let extensions = accountInfo.value?.data?.parsed?.info?.extensions else {
             self = .unknown
             return
