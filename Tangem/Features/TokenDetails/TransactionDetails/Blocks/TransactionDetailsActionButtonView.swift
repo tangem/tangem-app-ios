@@ -11,9 +11,22 @@ import TangemUI
 import TangemFoundation
 
 struct TransactionDetailsActionButtonViewData: Equatable {
+    enum Style: Equatable {
+        case `default`
+        case secondary
+    }
+
     let title: String
     let icon: ImageType?
+    let style: Style
     @IgnoredEquatable var handler: () -> Void
+
+    init(title: String, icon: ImageType?, style: Style = .default, handler: @escaping () -> Void) {
+        self.title = title
+        self.icon = icon
+        self.style = style
+        self.handler = handler
+    }
 }
 
 struct TransactionDetailsActionButtonView: View {
@@ -26,9 +39,16 @@ struct TransactionDetailsActionButtonView: View {
             action: data.handler
         )
         .iconEnd(data.icon)
-        .styleType(.default)
+        .styleType(styleType)
         .size(.x12)
         .horizontalLayout(.infinity)
+    }
+
+    private var styleType: TangemUI.Button.StyleType {
+        switch data.style {
+        case .default: .default
+        case .secondary: .secondary
+        }
     }
 }
 
