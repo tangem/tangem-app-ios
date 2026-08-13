@@ -19,19 +19,19 @@ struct MobileOnboardingView: View {
         StepsFlowConfiguration(
             hasProgressBar: viewModel.flowBuilder.hasProgressBar,
             navigationBarHeight: OnboardingLayoutConstants.navbarSize.height,
+            navigationBarTopPadding: navigationBarTopPadding,
             progressBarHeight: OnboardingLayoutConstants.progressBarHeight,
             progressBarPadding: OnboardingLayoutConstants.progressBarPadding
         )
     }
 
-    private var stepsFlowTopPadding: CGFloat {
+    private var navigationBarTopPadding: CGFloat {
         isModallyPresented ? .unit(.x4) : 0
     }
 
     var body: some View {
         ZStack {
             StepsFlowView(builder: viewModel.flowBuilder, configuration: configuration)
-                .padding(.top, stepsFlowTopPadding)
                 .id(viewModel.flowId)
 
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
