@@ -18,7 +18,7 @@ enum TangemPayLocalState {
 
     case kycRequired(TangemPayKYCInteractor)
     case kycDeclined(TangemPayKYCInteractor)
-    case failedToIssueCard
+    case failedToIssueCard(TangemPayAccount)
 
     case tangemPayAccount(TangemPayAccount)
     case cardDeactivated(TangemPayAccount)
@@ -63,6 +63,13 @@ extension TangemPayLocalState {
         return false
     }
 
+    var isFailedToIssueCard: Bool {
+        if case .failedToIssueCard = self {
+            return true
+        }
+        return false
+    }
+
     var indicatesStaleData: Bool {
         switch self {
         case .unavailable, .syncNeeded:
@@ -76,7 +83,7 @@ extension TangemPayLocalState {
 
     var tangemPayAccount: TangemPayAccount? {
         switch self {
-        case .tangemPayAccount(let account), .cardDeactivated(let account):
+        case .tangemPayAccount(let account), .cardDeactivated(let account), .failedToIssueCard(let account):
             return account
         default:
             return nil

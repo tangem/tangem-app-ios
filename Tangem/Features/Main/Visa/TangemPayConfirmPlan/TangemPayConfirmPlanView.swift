@@ -57,7 +57,7 @@ struct TangemPayConfirmPlanView: View {
     private var card: some View {
         KFImage(viewModel.cardImageURL.flatMap { URL(string: $0) })
             .placeholder {
-                Assets.Visa.cardPlatinum.image
+                Assets.Visa.cardGhost.image
                     .resizable()
             }
             .resizable()

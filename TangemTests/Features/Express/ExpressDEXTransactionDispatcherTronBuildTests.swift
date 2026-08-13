@@ -101,21 +101,31 @@ final class ExpressDEXTransactionDispatcherTronBuildTests: LeakTrackingTestSuite
         }
     }
 
-    @Test("the Tron DEX send path stays gated behind the feature toggle")
-    func send_toggleDisabled_throwsDexNotSupported() async {
+    @Test("a Tron DEX send hands the built contract call to the transfer dispatcher and returns its result")
+    func sendForwardsBuiltTronTransactionToTransferDispatcher() async throws {
         let env = makeEnvironment()
         let data = makeExpressTransactionData(txData: "0x" + TronDEXFixtures.liFiRawTransactionHex)
         let fee = Fee(Amount(with: .tron(testnet: false), value: 1))
 
-        do {
-            _ = try await env.dispatcher.send(transaction: .dex(data: data, fee: fee))
-            Issue.record("Expected send to throw dexNotSupported")
-        } catch DEXTransactionDispatcherError.dexNotSupported {
-        } catch {
-            Issue.record("Unexpected error: \(error)")
+        let result = try await env.dispatcher.send(transaction: .dex(data: data, fee: fee))
+
+        #expect(result.hash == TransferTransactionDispatcherSpy.hash)
+        #expect(env.transferDispatcher.sentTransactions.count == 1)
+
+        let sent = try #require(env.transferDispatcher.sentTransactions.first)
+        guard case .transfer(let transaction) = sent else {
+            Issue.record("Expected a .transfer transaction, got \(sent)")
+            return
         }
 
-        #expect(env.transferDispatcher.sentTransactions.isEmpty)
+        #expect(transaction.destinationAddress == "TU3ymitEKCWQFtASkEeHaPb8NfZcJtCHLt")
+        #expect(transaction.fee.amount.value == 1)
+
+        let params = try #require(transaction.params as? TronTransactionParams)
+        guard case .contractCall = params.transactionType else {
+            Issue.record("Expected .contractCall params, got \(params.transactionType)")
+            return
+        }
     }
 }
 
@@ -183,13 +193,15 @@ private extension ExpressDEXTransactionDispatcherTronBuildTests {
 // MARK: - Recording doubles
 
 private final class TransferTransactionDispatcherSpy: TransactionDispatcher {
+    static let hash = "hash"
+
     private(set) var sentTransactions: [TransactionDispatcherTransactionType] = []
 
     var hasNFCInteraction: Bool { false }
 
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         sentTransactions.append(transaction)
-        return TransactionDispatcherResult(hash: "hash", url: nil, signerType: "stub", currentHost: "host")
+        return TransactionDispatcherResult(hash: Self.hash, url: nil, signerType: "stub", currentHost: "host")
     }
 }
 
