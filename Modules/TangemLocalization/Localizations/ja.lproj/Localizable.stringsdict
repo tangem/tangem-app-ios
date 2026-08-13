@@ -393,6 +393,20 @@
         <string>%li枚のカード</string>
       </dict>
     </dict>
+    <key>tangempay_order_success_delivery_eta</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>other</key>
+        <string>お届けまで最大%li営業日かかります。</string>
+      </dict>
+    </dict>
     <key>tangempay_order_type_delivery_eta</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
