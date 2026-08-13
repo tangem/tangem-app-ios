@@ -52,7 +52,12 @@ struct OnrampProviderItemViewModelBuilder {
 
         let paymentMethod = providerItem.paymentMethod
         return OnrampProviderItemViewModel(
-            paymentMethod: .init(id: paymentMethod.id, name: paymentMethod.name, iconURL: paymentMethod.image),
+            paymentMethod: .init(
+                id: paymentMethod.id,
+                name: paymentMethod.name,
+                lightIconURL: paymentMethod.themedImageURL(isDark: false),
+                darkIconURL: paymentMethod.themedImageURL(isDark: true)
+            ),
             amountType: amountType,
             providersInfo: providersInfo,
             action: tapAction

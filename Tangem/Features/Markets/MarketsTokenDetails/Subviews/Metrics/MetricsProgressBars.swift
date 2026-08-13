@@ -17,7 +17,7 @@ struct MetricsCardContainer<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
-        Button(
+        SwiftUI.Button(
             action: action,
             label: label
         )
@@ -31,11 +31,11 @@ struct MetricsCardContainer<Content: View>: View {
                 minHeight: 72,
                 alignment: .leading
             )
-            .padding(.unit(.x4))
+            .padding(16)
             .background(
                 backgroundColor
             )
-            .cornerRadiusContinuous(.unit(.x6))
+            .cornerRadiusContinuous(24)
     }
 }
 
@@ -59,7 +59,7 @@ struct MetricsProgressBar: View {
                         .frame(width: fillWidth)
                 }
         }
-        .frame(height: .unit(.x1_5))
+        .frame(height: 6)
     }
 }
 
@@ -80,14 +80,14 @@ struct MetricsProgressBarWithDot: View {
                     ZStack(alignment: .trailing) {
                         Rectangle()
                             .fill(Color.clear)
-                            .frame(width: max(fillWidth, .unit(.x1_5)))
+                            .frame(width: max(fillWidth, 6))
 
                         Circle()
                             .fill(dotColor)
-                            .frame(width: .unit(.x1_5), height: .unit(.x1_5))
+                            .frame(width: 6, height: 6)
                     }
                 }
         }
-        .frame(height: .unit(.x1_5))
+        .frame(height: 6)
     }
 }

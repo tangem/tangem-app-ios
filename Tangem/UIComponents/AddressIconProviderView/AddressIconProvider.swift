@@ -41,10 +41,6 @@ enum AddressIconProvider {
     }
 
     static func makeAddressBookContactNameIconData(address: String) -> AddressBookContactNameIconViewData? {
-        guard FeatureProvider.isAvailable(.addressBook) else {
-            return nil
-        }
-
         guard !address.isEmpty else {
             return nil
         }
