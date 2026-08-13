@@ -12,12 +12,14 @@ struct StepsFlowContent: View {
     @State private var title: String?
     @State private var leadingItem: StepsFlowNavBarItem?
     @State private var trailingItem: StepsFlowNavBarItem?
+    @State private var backgroundColor: Color?
     @State private var isLoading: Bool = false
 
     let step: StepsFlowStep
     let onTitle: (String?) -> Void
     let onLeadingItem: (StepsFlowNavBarItem?) -> Void
     let onTrailingItem: (StepsFlowNavBarItem?) -> Void
+    let onBackgroundColor: (Color?) -> Void
     let onLoading: (Bool) -> Void
 
     var body: some View {
@@ -37,6 +39,10 @@ struct StepsFlowContent: View {
             .onPreferenceChange(StepsFlowNavTrailingItemPreferenceKey.self) { trailingItem in
                 self.trailingItem = trailingItem
                 onTrailingItem(trailingItem)
+            }
+            .onPreferenceChange(StepsFlowNavBackgroundColorPreferenceKey.self) { backgroundColor in
+                self.backgroundColor = backgroundColor
+                onBackgroundColor(backgroundColor)
             }
             .onPreferenceChange(StepsFlowLoadingPreferenceKey.self) { isLoading in
                 self.isLoading = isLoading

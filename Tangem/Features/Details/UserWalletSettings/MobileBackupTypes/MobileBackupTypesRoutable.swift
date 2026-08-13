@@ -8,6 +8,7 @@
 
 import Foundation
 
+@MainActor
 protocol MobileBackupTypesRoutable: AnyObject {
     func openMobileUpgrade(userWalletModel: UserWalletModel)
     func openMobileOnboarding(input: MobileOnboardingInput)
