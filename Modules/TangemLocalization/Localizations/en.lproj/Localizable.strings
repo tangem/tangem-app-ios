@@ -774,7 +774,7 @@
 "hw_cloud_backup_strength_hint_number" = "Try adding a number";
 "hw_cloud_backup_strength_hint_ok" = "Nice work! That would take a long time to crack";
 "hw_cloud_backup_strength_hint_symbol" = "Add a symbol like ! or @ to strengthen it";
-"hw_cloud_backup_strength_hint_uppercase" = "Mix in a uppercase letter";
+"hw_cloud_backup_strength_hint_uppercase" = "Mix in an uppercase letter";
 "hw_cloud_backup_strength_medium" = "Average password";
 "hw_cloud_backup_strength_none" = "Password strength";
 "hw_cloud_backup_strength_strong" = "Strong password";
@@ -1811,7 +1811,7 @@
 "tangempay_bank_transfer_show_details" = "Show details";
 "tangempay_bank_transfer_success_subtitle" = "This may take a little time";
 "tangempay_bank_transfer_success_title" = "Preparing your banking details";
-"tangempay_bank_transfer_swift_warning" = "Deposit via ACH or FedWire only. SWIFT transfers will be returned.";
+"tangempay_bank_transfer_swift_warning" = "SWIFT transfers are not accepted and will be returned";
 "tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "Hide KYC from main screen";
 "tangempay_card_activation_attempts_exceeded_description" = "Please contact support";
@@ -2125,7 +2125,7 @@
 "tangempay_tangem_visa_card" = "Use USDC for everyday payments";
 "tangempay_temporarily_unavailable" = "Connection issues";
 "tangempay_title" = "Tangem Pay";
-"tangempay_topup_bank_transfer_body" = "Receive fiat USD via ACH/FedWire";
+"tangempay_topup_bank_transfer_body" = "Receive fiat USD via ACH";
 "tangempay_topup_bank_transfer_title" = "Bank transfer";
 "tangempay_topup_receive_body_multichain" = "Send USDC or USDT to your account’s address";
 "tangempay_topup_receive_body" = "Send USDC Polygon to your account’s address ";
