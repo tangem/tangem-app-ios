@@ -142,9 +142,11 @@ private extension NotificationBannerShowcase {
             ShowcaseItem(
                 id: ids[5],
                 bannerType: .informational(
-                    .init(
-                        title: "Backup your wallet",
-                        subtitle: "Protect your assets by creating a backup of your wallet seed phrase."
+                    .text(
+                        .init(
+                            title: "Backup your wallet",
+                            subtitle: "Protect your assets by creating a backup of your wallet seed phrase."
+                        )
                     ),
                     .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[5]),

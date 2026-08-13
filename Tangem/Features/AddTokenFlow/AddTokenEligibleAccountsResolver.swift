@@ -31,7 +31,7 @@ enum AddTokenEligibleAccountsResolver {
             return model
         case .standard(.multiple(let models)):
             return models.first(where: { $0.isMainAccount }) ?? models.first
-        case .tangemPay:
+        case .tangemPay, .polymarket:
             return nil
         }
     }

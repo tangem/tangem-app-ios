@@ -18,6 +18,10 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayMainViewModel: ObservableObject {
+    private var cashbackEnabled: Bool {
+        FeatureProvider.isAvailable(.tangemPayCashback)
+    }
+
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
 
@@ -31,7 +35,8 @@ final class TangemPayMainViewModel: ObservableObject {
             async let customerInfoUpdate: Void = tangemPayAccount.loadCustomerInfo()
             async let offersUpdate: Void = tangemPayAccount.loadOffers()
             async let resumePolling: Void = tangemPayAccount.resumeActiveIssueOrderPolling()
-            _ = await (stateRefresh, promotionsUpdate, transactionsUpdate, customerInfoUpdate, offersUpdate, resumePolling)
+            async let cashbackUpdate: Void = loadCashbackSummaryIfEnabled()
+            _ = await (stateRefresh, promotionsUpdate, transactionsUpdate, customerInfoUpdate, offersUpdate, resumePolling, cashbackUpdate)
         } else {
             async let balanceUpdate: Void = tangemPayAccount.loadBalance()
             _ = await (stateRefresh, promotionsUpdate, balanceUpdate)
@@ -52,6 +57,10 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var isAddCardLoading: Bool = false
 
     @Published private(set) var awaitingDepositInfo: TangemPayAwaitingDepositInfo?
+    @Published private(set) var cashback: TangemPayCashback?
+    @Published private(set) var shouldDisplayCashbackBlockedBanner = false
+    @Published private var didCashbackLoadFail = false
+    @Published private var isCashbackReloading = false
 
     @Published private(set) var isBalanceNegative: Bool = false
 
@@ -101,6 +110,37 @@ final class TangemPayMainViewModel: ObservableObject {
 
     var isAwaitingDeposit: Bool {
         awaitingDepositInfo != nil
+    }
+
+    var cashbackBannerState: TangemPayCashbackState? {
+        cashbackDisplayMode == .full ? cashbackState : nil
+    }
+
+    var cashbackMenuState: TangemPayCashbackState? {
+        cashbackDisplayMode == .alternative ? cashbackState : nil
+    }
+
+    private var cashbackState: TangemPayCashbackState? {
+        if didCashbackLoadFail {
+            return .failed(isReloading: isCashbackReloading)
+        }
+
+        guard case .available(let summary) = cashback else {
+            return nil
+        }
+
+        return .content(summary)
+    }
+
+    /// A failed load carries no summary, so routing falls back to the retained one — which survives a
+    /// failed refresh, since the subject only emits on success — and to `.full` before any load has
+    /// succeeded, `.alternative` being the EU exception.
+    private var cashbackDisplayMode: TangemPayCashback.DisplayMode {
+        guard case .available(let summary) = cashback else {
+            return .full
+        }
+
+        return summary.displayMode
     }
 
     var addCardDisabled: Bool {
@@ -163,8 +203,6 @@ final class TangemPayMainViewModel: ObservableObject {
         let expressStatusTracking = ExpressStatusTrackingFactory(
             userWalletInfo: userWalletInfo,
             tokenItem: TangemPayUtilities.usdcTokenItem,
-            // We don't handle update after transaction is done here yet.
-            walletModelUpdater: nil,
             transactionHistoryEnricherFactory: { nil } // [REDACTED_TODO_COMMENT]
         )
         .makeExpressStatusTracking()
@@ -231,7 +269,8 @@ final class TangemPayMainViewModel: ObservableObject {
                     userWalletInfo: userWalletInfo,
                     address: depositAddress,
                     swapableToken: swapableToken,
-                    isBankTransferAvailable: isBankTransferAvailable
+                    isBankTransferAvailable: isBankTransferAvailable,
+                    networks: tangemPayAccount.networks
                 )
             )
         }
@@ -329,6 +368,27 @@ final class TangemPayMainViewModel: ObservableObject {
         AppSettings.shared.tangemPayShowAddToApplePayGuide = false
     }
 
+    func onCashbackTap() {
+        switch cashbackState {
+        case .content:
+            openCashbackDetails()
+
+        case .failed(let isReloading):
+            guard !isReloading else { return }
+
+            runTask { [weak self] in
+                await self?.reloadCashback()
+            }
+
+        case nil:
+            break
+        }
+    }
+
+    func dismissCashbackBlockedBanner() {
+        AppSettings.shared.tangemPayCashbackBlockedBannerDismissedForCustomerWalletId[userWalletInfo.id.stringValue] = true
+    }
+
     func withdraw() {
         Analytics.log(.visaScreenWithdrawClicked, contextParams: .userWallet(userWalletInfo.id))
         guard let swapableToken = makeSendSwapableToken() else {
@@ -357,10 +417,11 @@ final class TangemPayMainViewModel: ObservableObject {
     func onAppear() {
         Analytics.log(.visaScreenVisaMainScreenOpened, contextParams: .userWallet(userWalletInfo.id))
 
-        runTask { [tangemPayAccount] in
+        runTask { [weak self, tangemPayAccount] in
             await tangemPayAccount.loadCustomerInfo()
             await tangemPayAccount.loadOffers()
             await tangemPayAccount.resumeActiveIssueOrderPolling()
+            await self?.loadCashbackSummaryIfEnabled()
         }
 
         runTask { [promotionNotificationsManager] in
@@ -654,6 +715,25 @@ private extension TangemPayMainViewModel {
         tangemPayAccount.awaitingDepositInfoPublisher
             .receiveOnMain()
             .assign(to: &$awaitingDepositInfo)
+
+        if cashbackEnabled {
+            tangemPayAccount.cashbackPublisher
+                .receiveOnMain()
+                .assign(to: &$cashback)
+
+            let customerWalletId = userWalletInfo.id.stringValue
+
+            Publishers.CombineLatest(
+                tangemPayAccount.cashbackPublisher,
+                AppSettings.shared.$tangemPayCashbackBlockedBannerDismissedForCustomerWalletId
+            )
+            .map { cashback, dismissedByCustomerWalletId in
+                cashback == .blocked && !dismissedByCustomerWalletId[customerWalletId, default: false]
+            }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$shouldDisplayCashbackBlockedBanner)
+        }
     }
 
     func bindInlineNotifications() {
@@ -690,6 +770,31 @@ private extension TangemPayMainViewModel {
                 }
             }
             .store(in: &bag)
+    }
+
+    @MainActor
+    func loadCashbackSummaryIfEnabled() async {
+        guard cashbackEnabled else { return }
+
+        do {
+            try await tangemPayAccount.loadCashbackSummary()
+            didCashbackLoadFail = false
+        } catch {
+            VisaLogger.error("Failed to load TangemPay cashback summary", error: error)
+            didCashbackLoadFail = true
+        }
+    }
+
+    @MainActor
+    func reloadCashback() async {
+        isCashbackReloading = true
+        await loadCashbackSummaryIfEnabled()
+        isCashbackReloading = false
+    }
+
+    func openCashbackDetails() {
+        // [REDACTED_TODO_COMMENT]
+        // or `TangemPayMainRoutable` method has been built yet.
     }
 
     func makeInlineNotification(for event: TangemPayNotificationEvent) -> NotificationViewInput {
