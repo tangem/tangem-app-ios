@@ -2228,6 +2228,7 @@
 "tx_history_onramp_status_refunding" = "Reembolso";
 "tx_history_onramp_top_up" = "Recarregar";
 "tx_history_onramp_topped_up" = "Recarregado";
+"tx_history_transaction_paused_notification_title" = "Your transaction has been paused by the provider.";
 "tx_history_you_paid" = "Você pagou";
 "unexpected_error_description" = "Por favor, tente novamente mais tarde. Se o problema persistir, entre em contato com o suporte.";
 "unexpected_error_title" = "Algo deu errado!";
