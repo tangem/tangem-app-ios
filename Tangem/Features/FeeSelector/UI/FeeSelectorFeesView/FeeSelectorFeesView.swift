@@ -36,20 +36,16 @@ struct FeeSelectorFeesView: View {
     }
 
     var content: some View {
-        ScrollView {
-            SelectableSection(viewModel.rowViewModels) { data in
-                FeeSelectorFeesRowView(
-                    viewModel: data,
-                    isSelected: viewModel.isSelected(data.fee).asBinding
-                )
-            }
-            // Should start where title starts (14 + 36 + 12)
-            .separatorPadding(.init(leading: 62, trailing: 14))
-            .enableSeparators(false)
-            .padding(.horizontal, 14)
+        SelectableSection(viewModel.rowViewModels) { data in
+            FeeSelectorFeesRowView(
+                viewModel: data,
+                isSelected: viewModel.isSelected(data.fee).asBinding
+            )
         }
-        .scrollBounceBehavior(.basedOnSize)
-        .scrollIndicators(.hidden)
+        // Should start where title starts (14 + 36 + 12)
+        .separatorPadding(.init(leading: 62, trailing: 14))
+        .enableSeparators(false)
+        .padding(.horizontal, 14)
         .padding(.bottom, 16)
     }
 

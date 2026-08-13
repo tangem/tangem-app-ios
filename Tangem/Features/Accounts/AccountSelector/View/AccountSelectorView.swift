@@ -178,8 +178,9 @@ private extension AccountSelectorView {
     @ViewBuilder
     var bottomFade: some View {
         if showsBottomFade {
-            TangemFade(position: .bottom)
+            Fade(position: .bottom)
                 .variant(.hard)
+                .frame(height: 96)
                 .hidden(!hasContentBelowViewport)
                 .animation(.easeInOut(duration: 0.25), value: hasContentBelowViewport)
         }

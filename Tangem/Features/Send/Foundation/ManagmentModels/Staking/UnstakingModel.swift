@@ -40,6 +40,7 @@ class UnstakingModel {
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let initialAction: Action
     private let validationHandler: StakingValidationHandler?
+    private let preflightValidator: StakingPreflightValidator?
 
     private var transactionValidator: SendTransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
@@ -52,12 +53,14 @@ class UnstakingModel {
         sendSourceToken: SendStakingableToken,
         analyticsLogger: StakingSendAnalyticsLogger,
         action: Action,
-        validationHandler: StakingValidationHandler?
+        validationHandler: StakingValidationHandler?,
+        preflightValidator: StakingPreflightValidator?
     ) {
         self.stakingManager = stakingManager
         self.sendSourceToken = sendSourceToken
         self.analyticsLogger = analyticsLogger
         self.validationHandler = validationHandler
+        self.preflightValidator = preflightValidator
         initialAction = action
 
         let fiat = sendSourceToken.tokenItem.currencyId.flatMap {
@@ -105,12 +108,23 @@ private extension UnstakingModel {
         estimatedFeeTask = runTask(in: self) { model in
             do {
                 model.update(state: .loading)
+
+                let preflightFailure = await model.preflightValidator?.validate()
+                try Task.checkCancellation()
+
+                if let preflightFailure {
+                    model.update(state: .validationError(preflightFailure.validationError, fee: preflightFailure.estimatedFee))
+                    return
+                }
+
                 let estimateFee = try await model.stakingManager.estimateFee(action: model.stakingAction)
                 let state = model.makeState(amount: amount, fee: estimateFee)
                 model.update(state: state)
             } catch _ as CancellationError {
                 // Do nothing
             } catch {
+                guard !Task.isCancelled else { return }
+
                 StakingLogger.error(error: error)
                 model.update(state: .networkError(error))
             }

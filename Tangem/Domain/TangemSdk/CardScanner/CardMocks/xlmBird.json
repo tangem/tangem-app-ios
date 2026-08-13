@@ -17,6 +17,7 @@
         "isSettingAccessCodeAllowed" : false,
         "isHDWalletAllowed" : false,
         "isKeysImportAllowed" : false,
+        "isBackupRequired" : false,
         "isSettingPasscodeAllowed" : true,
         "isOverwritingIssuerExtraDataRestricted": true,
         "isIssuerDataProtectedAgainstReplay": true,
@@ -66,10 +67,13 @@
             "settings" : {
                 "isPermanent" : false
             },
-            "index" : 0
+            "index" : 0,
+            "status" : 2
         }
     ],
     "userSettings" : {
-        "isUserCodeRecoveryAllowed" : false
+        "isUserCodeRecoveryAllowed" : false,
+        "isPINRequired" : false,
+        "isNDEFDisabled" : false
     }
 }
