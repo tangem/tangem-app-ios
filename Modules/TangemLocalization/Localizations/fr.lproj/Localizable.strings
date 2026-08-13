@@ -774,7 +774,7 @@
 "hw_cloud_backup_strength_hint_number" = "Try adding a number";
 "hw_cloud_backup_strength_hint_ok" = "Nice work! That would take a long time to crack";
 "hw_cloud_backup_strength_hint_symbol" = "Add a symbol like ! or @ to strengthen it";
-"hw_cloud_backup_strength_hint_uppercase" = "Mix in a uppercase letter";
+"hw_cloud_backup_strength_hint_uppercase" = "Mix in an uppercase letter";
 "hw_cloud_backup_strength_medium" = "Average password";
 "hw_cloud_backup_strength_none" = "Password strength";
 "hw_cloud_backup_strength_strong" = "Strong password";
@@ -1811,7 +1811,7 @@
 "tangempay_bank_transfer_show_details" = "Afficher les détails";
 "tangempay_bank_transfer_success_subtitle" = "Cela peut prendre un moment";
 "tangempay_bank_transfer_success_title" = "Préparation de vos coordonnées bancaires";
-"tangempay_bank_transfer_swift_warning" = "Dépôt uniquement via ACH ou FedWire. Les virements SWIFT seront retournés.";
+"tangempay_bank_transfer_swift_warning" = "Les virements SWIFT ne sont pas acceptés et seront retournés";
 "tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "Masquer la vérification de l'écran";
 "tangempay_card_activation_attempts_exceeded_description" = "Please contact support";
@@ -2125,7 +2125,7 @@
 "tangempay_tangem_visa_card" = "Utilisez USDC pour les paiements quotidiens";
 "tangempay_temporarily_unavailable" = "Tangem Pay est temporairement indisponible";
 "tangempay_title" = "Tangem Pay";
-"tangempay_topup_bank_transfer_body" = "Recevez des USD via ACH/FedWire";
+"tangempay_topup_bank_transfer_body" = "Recevez des USD via ACH";
 "tangempay_topup_bank_transfer_title" = "Virement bancaire";
 "tangempay_topup_receive_body_multichain" = "Envoyez des USDC ou USDT à l'adresse de votre compte";
 "tangempay_topup_receive_body" = "Envoyez USDC Polygon à l'adresse de votre compte";

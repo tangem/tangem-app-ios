@@ -774,7 +774,7 @@
 "hw_cloud_backup_strength_hint_number" = "Try adding a number";
 "hw_cloud_backup_strength_hint_ok" = "Nice work! That would take a long time to crack";
 "hw_cloud_backup_strength_hint_symbol" = "Add a symbol like ! or @ to strengthen it";
-"hw_cloud_backup_strength_hint_uppercase" = "Mix in a uppercase letter";
+"hw_cloud_backup_strength_hint_uppercase" = "Mix in an uppercase letter";
 "hw_cloud_backup_strength_medium" = "Average password";
 "hw_cloud_backup_strength_none" = "Password strength";
 "hw_cloud_backup_strength_strong" = "Strong password";
@@ -1292,8 +1292,8 @@
 "promo_campaign_not_active_subtitle" = "This campaign no longer exists or has expired";
 "promo_campaign_not_active_title" = "Campaign not active";
 "promo_campaign_reactivation_summary_description" = "Earn 0.5%% cashback on every swap over $500, on any pair except stable to stable. Max payout $50 per swap.\n\nComplete five qualifying swaps and unlock an extra $10 bonus.\n\nRewards are paid weekly in USDT or USDC on the address selected.";
-"promo_campaign_select_cashback_account" = "Select cashback account";
-"promo_campaign_select_token" = "Select cashback token";
+"promo_campaign_select_cashback_account" = "Seleziona il token di cashback";
+"promo_campaign_select_token" = "Seleziona il token di cashback";
 "promo_campaign_summary_title" = "Enroll in %1$@";
 "promo_campaign_terms_agreement_android" = "I agree with";
 "promo_campaign_terms_agreement" = "I agree with %1$@";
@@ -1811,7 +1811,7 @@
 "tangempay_bank_transfer_show_details" = "Mostra dettagli";
 "tangempay_bank_transfer_success_subtitle" = "Potrebbe richiedere un po' di tempo";
 "tangempay_bank_transfer_success_title" = "Preparazione dati bancari";
-"tangempay_bank_transfer_swift_warning" = "Deposito solo tramite ACH o FedWire. I bonifici SWIFT saranno restituiti.";
+"tangempay_bank_transfer_swift_warning" = "I bonifici SWIFT non sono accettati e saranno restituiti";
 "tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "Nascondi verifica dalla schermata";
 "tangempay_card_activation_attempts_exceeded_description" = "Please contact support";
@@ -2125,7 +2125,7 @@
 "tangempay_tangem_visa_card" = "Usa USDC per i pagamenti quotidiani";
 "tangempay_temporarily_unavailable" = "Tangem Pay è temporaneamente non disponibile";
 "tangempay_title" = "Tangem Pay";
-"tangempay_topup_bank_transfer_body" = "Ricevi USD tramite ACH/FedWire";
+"tangempay_topup_bank_transfer_body" = "Ricevi USD tramite ACH";
 "tangempay_topup_bank_transfer_title" = "Bonifico bancario";
 "tangempay_topup_receive_body_multichain" = "Invia USDC o USDT all'indirizzo del tuo conto";
 "tangempay_topup_receive_body" = "Invia USDC Polygon all'indirizzo del tuo account";
