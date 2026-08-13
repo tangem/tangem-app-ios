@@ -28,7 +28,7 @@ struct JointAccountOnboardingView: View {
                 // Text a little bit above image
                 FixedSpacer(height: max(0, imageSize.height - 80))
 
-                textSection
+                content
             }
         }
         .ignoresSafeArea()
@@ -56,17 +56,15 @@ struct JointAccountOnboardingView: View {
             }
     }
 
-    private var textSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(Localization.commonJointAccount)
-                .font(token: DesignSystem.Font.headingMediumToken)
-                .foregroundStyle(DesignSystem.Color.textPrimary)
+    private var content: some View {
+        VStack(spacing: 16) {
+            JointAccountHeaderTitle(
+                title: Localization.commonJointAccount,
+                subtitle: Localization.jointAccountOnboardingSubtitle
+            )
 
-            Text(Localization.jointAccountOnboardingSubtitle)
-                .font(token: DesignSystem.Font.subheadingMediumToken)
-                .foregroundStyle(DesignSystem.Color.textSecondary)
+            Text("[REDACTED_TODO_COMMENT]")
         }
-        .infinityFrame(axis: .horizontal, alignment: .leading)
     }
 
     private var footer: some View {

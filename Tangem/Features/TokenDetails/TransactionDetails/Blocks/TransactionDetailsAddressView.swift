@@ -17,6 +17,7 @@ struct TransactionDetailsAddressViewData: Equatable {
     let label: String
     let actor: TransactionDetailsActor
     @IgnoredEquatable var onCopy: (() -> Void)? = nil
+    @IgnoredEquatable var walletImageProvider: (any WalletImageProviding)? = nil
 }
 
 struct TransactionDetailsAddressView: View {
@@ -44,10 +45,14 @@ struct TransactionDetailsAddressView: View {
             AddressBlockiesIconView(viewData: blockiesImage)
         case .contact(_, let icon):
             AddressBookContactNameIconView(viewData: icon)
-        case .account(_, let icon), .accountInWallet(_, let icon, _):
+        case .account(_, let icon):
             AccountIconView(data: icon, settings: .defaultSized)
         case .wallet:
-            EmptyView()
+            if let provider = data.walletImageProvider {
+                WalletCounterpartyIconView(imageProvider: provider)
+            } else {
+                EmptyView()
+            }
         }
     }
 
@@ -63,6 +68,56 @@ struct TransactionDetailsAddressView: View {
                     .background(Circle().fill(DesignSystem.Color.bgOpaquePrimary))
             }
             .buttonStyle(.plain)
+        }
+    }
+}
+
+// MARK: - Wallet icon
+
+private struct WalletCounterpartyIconView: View {
+    @StateObject private var viewModel: WalletCounterpartyIconViewModel
+
+    @ScaledMetric private var side: CGFloat = 36
+
+    init(imageProvider: any WalletImageProviding) {
+        _viewModel = StateObject(wrappedValue: WalletCounterpartyIconViewModel(imageProvider: imageProvider))
+    }
+
+    var body: some View {
+        let size = CGSize(bothDimensions: side)
+
+        iconImage
+            .frame(size: size)
+            .skeletonable(isShown: viewModel.icon.isLoading, size: size)
+            .onAppear { viewModel.loadImage() }
+    }
+
+    @ViewBuilder
+    private var iconImage: some View {
+        switch viewModel.icon {
+        case .loading:
+            Color.clear
+        case .success(let image):
+            image.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+        }
+    }
+}
+
+private final class WalletCounterpartyIconViewModel: ObservableObject {
+    @Published private(set) var icon: LoadingResult<ImageValue, Never> = .loading
+
+    private let imageProvider: any WalletImageProviding
+
+    init(imageProvider: any WalletImageProviding) {
+        self.imageProvider = imageProvider
+    }
+
+    func loadImage() {
+        runTask(in: self) { viewModel in
+            let image = await viewModel.imageProvider.loadSmallImage()
+            await runOnMain { viewModel.icon = .success(image) }
         }
     }
 }
@@ -86,11 +141,6 @@ struct TransactionDetailsAddressView: View {
         TransactionDetailsAddressView(data: .init(
             label: "To",
             actor: .account(name: "Family", icon: .composite(backgroundColor: .purple, nameMode: .letter("F")))
-        ))
-
-        TransactionDetailsAddressView(data: .init(
-            label: "To",
-            actor: .accountInWallet(accountName: "Main", accountIcon: .composite(backgroundColor: .green, nameMode: .letter("M")), walletName: "My Wallet")
         ))
 
         TransactionDetailsAddressView(data: .init(

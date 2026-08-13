@@ -11,6 +11,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - View extension
 
@@ -56,7 +57,9 @@ struct GlowRingModifier: ViewModifier {
                 }
                 .allowsHitTesting(false)
             }
-            .onAppear { isVisible = true }
+            .onGeometryChange(for: Bool.self, of: { proxy in
+                proxy.frame(in: .global).intersects(UIScreen.main.bounds)
+            }, action: { isVisible = $0 })
             .onDisappear { isVisible = false }
     }
 }

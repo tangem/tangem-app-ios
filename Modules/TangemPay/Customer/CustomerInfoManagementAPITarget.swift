@@ -78,6 +78,14 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "fees"
         case .reissueCard:
             "customer/card/reissue"
+        case .getCashbackSummary:
+            "customer/cashback/summary"
+        case .getCashbackHistory:
+            "customer/cashback/history"
+        case .getCashbackPromotions:
+            "customer/cashback/promotions"
+        case .getCashbackAccrualsDocs:
+            "customer/cashback/accruals/docs"
         }
     }
 
@@ -96,6 +104,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin,
              .getFee,
              .getFees,
+             .getCashbackSummary,
+             .getCashbackHistory,
+             .getCashbackPromotions,
+             .getCashbackAccrualsDocs,
              .getBankCredentials:
             .get
 
@@ -140,8 +152,17 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin,
              .getFee,
              .getBankCredentials,
-             .getTransaction:
+             .getTransaction,
+             .getCashbackSummary,
+             .getCashbackPromotions,
+             .getCashbackAccrualsDocs:
             return .requestPlain
+
+        case .getCashbackHistory(let months):
+            guard let months else {
+                return .requestPlain
+            }
+            return .requestParameters(parameters: ["months_number": months], encoding: URLEncoding.default)
 
         case .cancelKYC:
             let requestData = TangemPayCancelKYCRequest()
@@ -246,6 +267,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
                 TangemPayNetworkingConstants.Header.Key.xDeviceScale: TangemPayNetworkingConstants.Header.Value.deviceScale,
                 TangemPayNetworkingConstants.Header.Key.acceptLanguage: Locale.appLanguageCode,
             ]
+        case .getCashbackPromotions, .getCashbackAccrualsDocs:
+            [TangemPayNetworkingConstants.Header.Key.acceptLanguage: Locale.appLanguageCode]
         default:
             nil
         }
@@ -303,6 +326,11 @@ extension CustomerInfoManagementAPITarget {
         case reissueCard(cardId: String)
 
         case getBankCredentials(productInstanceId: String)
+
+        case getCashbackSummary
+        case getCashbackHistory(months: Int?)
+        case getCashbackPromotions
+        case getCashbackAccrualsDocs
     }
 }
 

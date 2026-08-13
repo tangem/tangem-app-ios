@@ -48,6 +48,13 @@
       }
     },
     {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemPolymarketTests",
+        "name" : "TangemPolymarketTests"
+      }
+    },
+    {
       "parallelizable" : false,
       "target" : {
         "containerPath" : "container:",
