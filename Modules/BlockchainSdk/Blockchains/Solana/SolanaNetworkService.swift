@@ -23,7 +23,7 @@ public final class SolanaNetworkService: MultiNetworkProvider {
 
     private let solanaSdk: Solana
     private let blockchain: Blockchain
-    private let networkProvider: TangemProvider<SolanaScaledUiAmountTarget>
+    private let networkProvider: TangemProvider<SolanaScaledUIAmountTarget>
 
     init(
         providers: [RPCEndpoint],
@@ -243,7 +243,7 @@ public final class SolanaNetworkService: MultiNetworkProvider {
     /// The multiplier divides the amount the card signs, so unlike every other read here it is not acted on as soon
     /// as one provider answers: every provider is asked at once and the value is used only once two of them report it
     /// identically, at which point the requests still in flight are cancelled.
-    func getScaledUiAmountMultiplier(
+    func getScaledUIAmountMultiplier(
         mintAddress: String,
         transactionDate: Date
     ) -> AnyPublisher<Decimal?, Error> {
@@ -401,12 +401,12 @@ public final class SolanaNetworkService: MultiNetworkProvider {
             let mint = info.mint
 
             let isToken2022 = $0.account.owner == PublicKey.token2022ProgramId.base58EncodedString
-            let shouldUseScaledUiAmount = isToken2022
+            let shouldUseScaledUIAmount = isToken2022
             let decimalCount = Int(info.tokenAmount.decimals)
             guard let amount = tokenBalance(
                 from: info.tokenAmount,
                 decimalCount: decimalCount,
-                useUiAmount: shouldUseScaledUiAmount
+                useUiAmount: shouldUseScaledUIAmount
             ) else {
                 return nil
             }
@@ -594,14 +594,14 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         mintAddress: String,
         transactionDate: Date
     ) -> AnyPublisher<ScaledUIAmount.Answer, Error> {
-        let target = SolanaScaledUiAmountTarget(
+        let target = SolanaScaledUIAmountTarget(
             endpoint: endpoint,
             request: .getAccountInfo(mintAddress: mintAddress)
         )
 
         return networkProvider.requestPublisher(target)
             .filterSuccessfulStatusAndRedirectCodes()
-            .map(JSONRPC.Response<SolanaScaledUiAmountDTO.GetAccountInfoResult, JSONRPC.APIError>.self)
+            .map(JSONRPC.Response<SolanaScaledUIAmountDTO.GetAccountInfoResult, JSONRPC.APIError>.self)
             .tryMap { response in
                 let accountInfo = try response.result.get()
                 return ScaledUIAmount.Answer(accountInfo: accountInfo, transactionDate: transactionDate)

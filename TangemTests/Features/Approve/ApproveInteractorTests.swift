@@ -124,27 +124,31 @@ struct ApproveInteractorTests {
 
     @Test("Rapid policy toggles: only the last request takes effect")
     func updateApprovePolicy_rapidToggle_cancelsInFlightRequest() async throws {
+        let firstData = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: "0xFirst")
         let secondData = ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: "0xSecond")
 
         let env = makeEnv()
-        env.allowanceService.allowanceStateResult = .success(
-            .permissionRequired(ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: "0xFirst"))
-        )
+        env.allowanceService.setAllowanceStateResult(.success(.permissionRequired(firstData)), for: ApprovePolicy.unlimited)
+        env.allowanceService.setAllowanceStateResult(.success(.permissionRequired(secondData)), for: ApprovePolicy.specified)
+        env.allowanceService.holdNextAllowanceStateCall()
 
         let sut = makeSUT(env: env)
         let feesCallsBefore = env.feeManager.updateFeesCalls
 
-        // First call — will be cancelled
+        // The first request suspends inside the mock until released
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
+        try await waitUntil { env.allowanceService.allowanceStateCalls.count == 1 }
 
-        // Immediately override with second call
-        env.allowanceService.allowanceStateResult = .success(.permissionRequired(secondData))
+        // The second request cancels the suspended first one before it can apply its result
         sut.updateApprovePolicy(policy: ApprovePolicy.specified)
+        env.allowanceService.releaseHeldAllowanceStateCalls()
 
         try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
 
+        #expect(env.allowanceService.allowanceStateCalls.count == 2)
         #expect(sut.testApproveData.txData == secondData.txData)
         #expect(sut.testApproveData.toContractAddress == secondData.toContractAddress)
+        #expect(env.feeManager.updateFeesCalls == feesCallsBefore + 1, "The cancelled request must not trigger a fee update")
     }
 
     // MARK: - sendApproveTransaction

@@ -21,14 +21,12 @@ struct CampaignView: View {
     var body: some View {
         FloatingSheetContainerView(
             state: viewModel.viewState,
-            showsButton: showsButton,
             maxHeightFraction: viewModel.viewState == .readyToEnroll ? 0.9 : nil,
             mainContentBottomPadding: viewModel.viewState == .readyToEnroll ? 12 : nil,
             button: { button },
             headerContent: { header },
             mainContent: { mainContent }
         )
-        .onAppear(perform: viewModel.onAppear)
         .sheet(item: $viewModel.tokenSelectorViewModel) { tokenSelectorViewModel in
             CampaignTokenSelectorView(viewModel: tokenSelectorViewModel)
         }
@@ -60,9 +58,37 @@ struct CampaignView: View {
     }
 
     private var loadingContent: some View {
-        TangemLoader()
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 50)
+        VStack(spacing: 32) {
+            SkeletonView()
+                .frame(width: Constants.circleDimension, height: Constants.circleDimension)
+                .clipShape(Circle())
+
+            VStack(alignment: .leading, spacing: 8) {
+                skeletonLine(width: 220, height: 20)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(0 ..< Constants.skeletonDescriptionLineCount, id: \.self) { index in
+                        skeletonLine(
+                            width: index == Constants.skeletonDescriptionLineCount - 1 ? 200 : nil,
+                            height: 12
+                        )
+                    }
+                }
+
+                skeletonLine(width: 96, height: 12)
+                    .padding(.top, 8)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 20)
+    }
+
+    private func skeletonLine(width: CGFloat? = nil, height: CGFloat) -> some View {
+        SkeletonView()
+            .frame(width: width, height: height)
+            .frame(maxWidth: width == nil ? .infinity : nil, alignment: .leading)
+            .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 
     private var statusContent: some View {
@@ -118,7 +144,7 @@ struct CampaignView: View {
                     .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Button(action: viewModel.openLearnMore) {
+                SwiftUI.Button(action: viewModel.openLearnMore) {
                     Text(Localization.commonLearnMore)
                         .style(Fonts.Bold.caption1, color: Colors.Text.primary1)
                 }
@@ -136,7 +162,7 @@ struct CampaignView: View {
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
             if let rowViewModel = viewModel.selectedTokenRowViewModel {
-                Button(action: viewModel.selectToken) {
+                SwiftUI.Button(action: viewModel.selectToken) {
                     VStack(alignment: .leading, spacing: 16) {
                         if let accountViewData = viewModel.selectedAccountViewData {
                             AccountInlineHeaderView(
@@ -206,14 +232,10 @@ struct CampaignView: View {
         case .readyToEnroll:
             MainButton(settings: MainButton.Settings(title: Localization.promoCampaignEnroll, isLoading: viewModel.isEnrolling, action: viewModel.enroll))
         case .idle, .loading:
-            EmptyView()
-        }
-    }
-
-    private var showsButton: Bool {
-        switch viewModel.viewState {
-        case .campaignNotActive, .alreadyActivated, .enrollSuccess, .summary, .readyToEnroll: true
-        case .idle, .loading: false
+            SkeletonView()
+                .frame(height: MainButton.Size.default.height)
+                .frame(maxWidth: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: MainButton.Style.primary.cornerRadius(for: .default)))
         }
     }
 }
@@ -224,6 +246,7 @@ private enum Constants {
     static let circleDimension: CGFloat = 80
     static let circleCornerRadius: CGFloat = circleDimension / 2
     static let statusIconDimension: CGFloat = 28
+    static let skeletonDescriptionLineCount = 8
 }
 
 // MARK: - Previews

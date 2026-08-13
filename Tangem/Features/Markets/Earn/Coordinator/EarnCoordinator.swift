@@ -78,12 +78,12 @@ extension EarnCoordinator {
     struct Options {
         let mostlyUsedTokens: [EarnTokenModel]?
         let deeplinkFilter: EarnDataFilter?
-        let presentSource: MarketsNavigationBackButton.PresentSource
+        let presentSource: MarketsNavigationPresentSource
 
         init(
             mostlyUsedTokens: [EarnTokenModel]?,
             deeplinkFilter: EarnDataFilter? = nil,
-            presentSource: MarketsNavigationBackButton.PresentSource = .navigation
+            presentSource: MarketsNavigationPresentSource = .navigation
         ) {
             self.mostlyUsedTokens = mostlyUsedTokens
             self.deeplinkFilter = deeplinkFilter
