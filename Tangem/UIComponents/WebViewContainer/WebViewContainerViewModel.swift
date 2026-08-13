@@ -18,4 +18,5 @@ struct WebViewContainerViewModel: Identifiable {
     var urlActions: [String: (String) -> Void] = [:]
     var contentInset: UIEdgeInsets?
     var timeoutSettings: WebViewTimeoutSettings?
+    var allowsJavaScript: Bool = false
 }
