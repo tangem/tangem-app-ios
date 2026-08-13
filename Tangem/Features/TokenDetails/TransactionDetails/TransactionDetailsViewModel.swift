@@ -156,6 +156,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 protocol TransactionDetailsRoutable: AnyObject {
     func openTransactionDetailsURL(_ url: URL)
     func shareFromTransactionDetails(_ text: String)
+    func openTokenFromTransactionDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel)
     #if INTERNAL || DEBUG
     func openTransactionDetailsDebug(_ info: TransactionDetailsDebugInfo)
     #endif
