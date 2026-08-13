@@ -2228,6 +2228,7 @@
 "tx_history_onramp_status_refunding" = "Refunding";
 "tx_history_onramp_top_up" = "Пополнение";
 "tx_history_onramp_topped_up" = "Пополнено";
+"tx_history_transaction_paused_notification_title" = "Your transaction has been paused by the provider.";
 "tx_history_you_paid" = "You paid";
 "unexpected_error_description" = "Пожалуйста, попробуйте позже. Если проблема сохранится, обратитесь в поддержку.";
 "unexpected_error_title" = "Что-то пошло не так";
