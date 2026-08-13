@@ -18,7 +18,8 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
 
     @Published var sections: [WalletSection] = []
 
-    let barTitle = Localization.marketsPortfolioBlockTitle
+    let barTitle: String
+    let barSubtitle: String?
     var addTokenFooter: AddTokenFooter?
 
     var hasWalletHeader: Bool {
@@ -38,9 +39,13 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
         underivedTokens: [UnderivedToken] = [],
         addTokenFooter: AddTokenFooter? = nil,
         dismissesOnSelect: Bool = true,
+        barTitle: String = Localization.marketsPortfolioBlockTitle,
+        barSubtitle: String? = nil,
         onSelect: @escaping (any WalletModel) -> Void,
         coordinator: MarketsPortfolioTokenListRoutable
     ) {
+        self.barTitle = barTitle
+        self.barSubtitle = barSubtitle
         self.onSelect = onSelect
         self.dismissesOnSelect = dismissesOnSelect
         self.coordinator = coordinator
