@@ -93,6 +93,10 @@ struct TangemPayMainView: View {
                     redesignedAddToApplePayBanner
                 }
 
+                if let contactSupportButton = viewModel.contactSupportMessageBannerButton {
+                    failedToIssueCardBanner(contactSupportButton: contactSupportButton)
+                }
+
                 if viewModel.hasIssuingEntry, !viewModel.isAwaitingDeposit {
                     TangemPayIssuingCardBannerRedesigned()
                 }
@@ -100,6 +104,11 @@ struct TangemPayMainView: View {
                 if let bannerType = viewModel.systemDowngradeBanner {
                     NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
                         .onAppear(perform: viewModel.onSystemDowngradeBannerAppear)
+                }
+
+                if let fee = viewModel.awaitingDepositInfo?.fee {
+                    awaitingDepositTopUpBanner(fee: fee)
+                        .onAppear(perform: viewModel.onTopupBannerAppear)
                 }
 
                 cashbackSection
@@ -151,6 +160,34 @@ struct TangemPayMainView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 32)
+    }
+
+    private func awaitingDepositTopUpBanner(fee: String) -> some View {
+        MessageBanner(
+            title: Localization.tangempayCardDetailsAwaitingDepositTitle(fee),
+            description: Localization.tangempayCardDetailsAwaitingDepositSubtitle
+        )
+        .variant(.error)
+        .slotEnd {
+            Assets.DesignSystem.warning.image
+                .renderingMode(.template)
+                .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+        }
+        .primaryButton(viewModel.awaitingDepositAddFundsButton)
+    }
+
+    private func failedToIssueCardBanner(contactSupportButton: MessageBannerButton) -> some View {
+        MessageBanner(
+            title: Localization.tangempayFailedToIssueCard,
+            description: Localization.tangempayFailedToIssueCardSupportDescription
+        )
+        .variant(.error)
+        .slotStart {
+            DesignSystem.Icons.Error.regular20.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
+        }
+        .primaryButton(contactSupportButton)
     }
 
     private var inactiveBadge: some View {

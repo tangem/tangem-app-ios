@@ -81,10 +81,6 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
         coordinator?.openSelectPlan()
     }
 
-    func onAwaitingDepositBannerAppear() {
-        Analytics.log(.visaTiersTopupBannerForPlusShowed, contextParams: .userWallet(userWalletId))
-    }
-
     func cancelTransition() {
         guard !isCancellingTransition, awaitingDepositBanner != nil else {
             return

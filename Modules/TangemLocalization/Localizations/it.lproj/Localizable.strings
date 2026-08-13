@@ -730,6 +730,7 @@
 "hw_cloud_backup_not_found_forget" = "Forget backup";
 "hw_cloud_backup_not_found_title" = "Backup not found";
 "hw_cloud_backup_password_hint" = "Password";
+"hw_cloud_backup_password_rule_v2" = "Use %li or more characters with uppercase, lowercase, number, and symbols.";
 "hw_cloud_backup_password_rule" = "Use 8 or more characters with uppercase, lowercase, number, and symbols.";
 "hw_cloud_backup_passwords_dont_match" = "Password doesn't match";
 "hw_cloud_backup_permissions_description" = "Some permissions are missing. Allow full access so we can save your wallet backup to Google Drive.";
@@ -744,6 +745,8 @@
 "hw_cloud_backup_restore_navtitle" = "Cloud backup";
 "hw_cloud_backup_restore_no_backup_description" = "We couldn't find a Google Drive backup for this account. You can import your wallet with a recovery phrase instead.";
 "hw_cloud_backup_restore_no_backup_title" = "No backup found";
+"hw_cloud_backup_restore_passphrase_description" = "Enter the exact passphrase for this wallet. It's case sensitive, so a different one opens a different set of addresses";
+"hw_cloud_backup_restore_passphrase_title" = "Enter passphrase";
 "hw_cloud_backup_restore_password_button" = "Restore";
 "hw_cloud_backup_restore_password_description" = "You're restoring “%1$@” from a %2$@ backup created on %3$@";
 "hw_cloud_backup_restore_password_navtitle" = "Restore wallet";
@@ -764,6 +767,7 @@
 "hw_cloud_backup_status_action_required" = "Action required";
 "hw_cloud_backup_status_network_error" = "Network error";
 "hw_cloud_backup_strength_hint_almost" = "Almost long enough — just a couple more characters";
+"hw_cloud_backup_strength_hint_keep_going_v2" = "Keep going, aim for at least %li characters";
 "hw_cloud_backup_strength_hint_keep_going" = "Keep going, aim for at least 8 characters";
 "hw_cloud_backup_strength_hint_lowercase" = "Mix in a lowercase letter";
 "hw_cloud_backup_strength_hint_number" = "Try adding a number";
@@ -1236,13 +1240,16 @@
 "organize_tokens_ungroup" = "Ungroup";
 "prediction_account_subtitle" = "Add funds & start predict";
 "prediction_account_title" = "Prediction account";
+"prediction_details_24h_change" = "24h change:";
 "prediction_details_closed_markets" = "Closed Markets";
+"prediction_details_market_opened" = "Market Opened";
 "prediction_details_market_volume" = "Volume:";
 "prediction_details_resolution_date" = "Resolution Date";
 "prediction_details_total_volume" = "Total volume";
 "prediction_event_probability" = "Probability";
 "prediction_event_total_volume" = "Total volume:";
 "prediction_main_empty_events" = "No events yet";
+"prediction_main_events_load_error" = "Failed to load events.\nTap to reload";
 "prediction_main_subtitle" = "USDC on Polygon network";
 "prediction_main_title" = "Predictions";
 "prediction_onboarding_benefit_custody_subtitle" = "Only your card can move money";
@@ -1276,7 +1283,7 @@
 "promo_campaign_not_active_title" = "Campaign not active";
 "promo_campaign_reactivation_summary_description" = "Earn 0.5%% cashback on every swap over $500, on any pair except stable to stable. Max payout $50 per swap.\n\nComplete five qualifying swaps and unlock an extra $10 bonus.\n\nRewards are paid weekly in USDT or USDC on the address selected.";
 "promo_campaign_select_cashback_account" = "Select cashback account";
-"promo_campaign_select_token" = "Select token";
+"promo_campaign_select_token" = "Select cashback token";
 "promo_campaign_summary_title" = "Enroll in %1$@";
 "promo_campaign_terms_agreement_android" = "I agree with";
 "promo_campaign_terms_agreement" = "I agree with %1$@";
@@ -1798,6 +1805,9 @@
 "tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "Nascondi verifica dalla schermata";
 "tangempay_card_default_name" = "Carta Tangem Pay 1";
+"tangempay_card_delivery_banner_description" = "Activate it when arrived";
+"tangempay_card_delivery_banner_title" = "Your card on it's way for delivery";
+"tangempay_card_details_activate" = "Activate card";
 "tangempay_card_details_add_funds_subtitle" = "Opzioni di ricarica";
 "tangempay_card_details_add_funds" = "Aggiungi fondi";
 "tangempay_card_details_add_to_wallet_button_text" = "Aggiungi a Google Wallet";
@@ -1809,11 +1819,13 @@
 "tangempay_card_details_change_pin_success_title" = "Codice PIN creato";
 "tangempay_card_details_change_pin" = "PIN Code";
 "tangempay_card_details_cvc" = "CVC";
+"tangempay_card_details_delivery_description" = "Your card on it's way for delivery. You will get email with updates from logistic company on %@";
 "tangempay_card_details_error_text" = "Impossibile caricare i dati. Riprova più tardi.";
 "tangempay_card_details_expiry" = "Scadenza";
 "tangempay_card_details_freeze_card" = "Blocca carta";
 "tangempay_card_details_hide_details" = "Nascondi dettagli";
 "tangempay_card_details_hide_text" = "Nascondi";
+"tangempay_card_details_name_on_card" = "Cardholder name";
 "tangempay_card_details_open_wallet_button" = "Apri Google Wallet";
 "tangempay_card_details_open_wallet_notification_subtitle_apple" = "Configura Tangem Pay in pochi tocchi e inizia a pagare con Apple Pay";
 "tangempay_card_details_open_wallet_notification_subtitle" = "Configura Tangem Pay in pochi tocchi e inizia a pagare con Google Pay.";
@@ -2201,6 +2213,7 @@
 "transaction_history_transaction_from_address" = "from: %@";
 "transaction_history_transaction_to_address" = "to: %@";
 "transaction_history_transaction_validator" = "validator: %@";
+"transaction_history_withdrawn" = "Withdrawn";
 "transaction_notifications_warning_description" = "Notifications are enabled but won't work until you allow notifications in your device settings.";
 "transaction_notifications_warning_title" = "Transaction Notifications";
 "transfer_in_progress_title" = "Transfer in progress";
