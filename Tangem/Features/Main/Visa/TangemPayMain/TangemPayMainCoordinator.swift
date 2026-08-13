@@ -11,6 +11,7 @@ import Combine
 import UIKit
 import TangemFoundation
 import TangemPay
+import TangemUI
 import TangemVisa
 
 class TangemPayMainCoordinator: CoordinatorObject {
@@ -416,6 +417,81 @@ extension TangemPayMainCoordinator: TangemPayPinRoutable {
     }
 }
 
+// MARK: - TangemPayChooseNetworkSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayChooseNetworkSheetRoutable {
+    func chooseNetworkSheetRequestReceive(input: TangemPayReceiveSheetViewModel.Input) {
+        replaceActiveSheet { TangemPayReceiveSheetViewModel(input: input, coordinator: self) }
+    }
+
+    func chooseNetworkSheetRequestOtherNetworks() {
+        replaceActiveSheet { TangemPayOtherNetworksSheetViewModel(coordinator: self) }
+    }
+
+    func closeChooseNetworkSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayReceiveSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayReceiveSheetRoutable {
+    func closeReceiveSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - TangemPayOtherNetworksSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayOtherNetworksSheetRoutable {
+    func closeOtherNetworksSheet() {
+        guard let networks = options?.tangemPayAccount.networks, !networks.isEmpty else {
+            Task { @MainActor in
+                floatingSheetPresenter.removeActiveSheet()
+            }
+            return
+        }
+
+        openChooseNetworkSheet(networks: networks)
+    }
+}
+
+// MARK: - Choose network
+
+private extension TangemPayMainCoordinator {
+    func openChooseNetworkSheet(networks: [TangemPayBalance.Network]) {
+        guard let tangemPayAccount = options?.tangemPayAccount else {
+            return
+        }
+
+        replaceActiveSheet {
+            TangemPayChooseNetworkSheetViewModel(
+                networks: networks,
+                makeOrderService: {
+                    TangemPayNetworkContractOrderService(customerService: tangemPayAccount.customerService)
+                },
+                refreshNetworks: {
+                    await tangemPayAccount.loadCustomerInfo()
+                    return tangemPayAccount.networks
+                },
+                coordinator: self
+            )
+        }
+    }
+
+    func replaceActiveSheet(with makeSheet: @escaping @MainActor () -> some FloatingSheetContentViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            floatingSheetPresenter.enqueue(sheet: makeSheet())
+        }
+    }
+}
+
 // MARK: - TangemPayAddFundsSheetRoutable
 
 extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
@@ -425,6 +501,10 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
             try? await Task.sleep(for: .seconds(0.2))
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+
+    func addFundsSheetRequestChooseNetwork(networks: [TangemPayBalance.Network]) {
+        openChooseNetworkSheet(networks: networks)
     }
 
     func addFundsSheetRequestSwap(input: PredefinedSwapParameters) {

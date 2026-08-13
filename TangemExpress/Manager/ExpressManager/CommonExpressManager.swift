@@ -26,6 +26,10 @@ actor CommonExpressManager {
     private var _amountType: ExpressAmountType?
     private var _approvePolicy: ApprovePolicy = .specified
 
+    /// A deeplink-preferred provider, selected over the "best" pick whenever it's among the current pair's
+    /// providers (surviving quote reloads). Cleared when the pair changes or the user picks a provider.
+    private var _preferredProviderId: ExpressProvider.Id?
+
     // MARK: - State
 
     private var currentState: ExpressManagerState = .idle
@@ -35,12 +39,14 @@ actor CommonExpressManager {
         expressAPIProvider: ExpressAPIProvider,
         expressProviderManagerFactory: ExpressProviderManagerFactory,
         expressRepository: ExpressRepository,
-        featureFlags: ExpressFeatureFlags
+        featureFlags: ExpressFeatureFlags,
+        preferredProviderId: ExpressProvider.Id? = nil
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
         self.expressRepository = expressRepository
         self.featureFlags = featureFlags
+        _preferredProviderId = preferredProviderId
     }
 }
 
@@ -56,6 +62,19 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState {
+        // Retire the deeplink provider preference the moment we leave the pair it was applied to — a real pair
+        // change or the pair being cleared — so it can't resurrect on a pair the user never requested. Quote
+        // reloads don't come through here, so the preference survives them.
+        if let previous = _pair {
+            let sameAsPrevious = pair.map {
+                previous.source.currency == $0.source.currency && previous.destination.currency == $0.destination.currency
+            } ?? false
+
+            if !sameAsPrevious {
+                _preferredProviderId = nil
+            }
+        }
+
         _pair = pair
 
         switch pair {
@@ -65,7 +84,7 @@ extension CommonExpressManager: ExpressManager {
 
         case .some(let pair):
             let providers = try await loadProviders(for: pair)
-            let selected = bestProvider(from: providers.availableProviders(rate: preferredRate(providers, requested: .float)))
+            let selected = selectedProvider(from: providers.availableProviders(rate: preferredRate(providers, requested: .float)))
             return update(state: .swap(selected: selected, providers: providers))
 
         case .none:
@@ -87,7 +106,7 @@ extension CommonExpressManager: ExpressManager {
         case .none:
             // Reset all providers to idle
             providers.all.forEach { $0.reset() }
-            let selected = bestProvider(from: providers.availableProviders(rate: preferredRate(providers, requested: .float)))
+            let selected = selectedProvider(from: providers.availableProviders(rate: preferredRate(providers, requested: .float)))
             return update(state: .swap(selected: selected, providers: providers))
 
         case .some(let amountType):
@@ -100,6 +119,9 @@ extension CommonExpressManager: ExpressManager {
         guard case .swap(_, let providers) = currentState else {
             return currentState
         }
+
+        // An explicit user choice overrides and retires the deeplink preference.
+        _preferredProviderId = nil
 
         return update(state: .swap(selected: provider, providers: providers))
     }
@@ -153,7 +175,7 @@ private extension CommonExpressManager {
         // Check that task is still relevant after await (pair might have changed)
         guard providersTask == task else { return }
 
-        let selected = bestProvider(from: providers.availableProviders(rate: preferredRate(providers, requested: .float)))
+        let selected = selectedProvider(from: providers.availableProviders(rate: preferredRate(providers, requested: .float)))
         update(state: .swap(selected: selected, providers: providers))
     }
 
@@ -228,6 +250,16 @@ private extension CommonExpressManager {
         providers.bestPreferringDEX()
     }
 
+    /// Honors a deeplink-preferred provider when it's among the candidates, otherwise falls back to the best one.
+    func selectedProvider(from providers: [ExpressAvailableProvider]) -> ExpressAvailableProvider? {
+        if let preferredProviderId = _preferredProviderId,
+           let preferred = providers.first(where: { $0.provider.id == preferredProviderId }) {
+            return preferred
+        }
+
+        return bestProvider(from: providers)
+    }
+
     func preferredRate(
         _ providers: ExpressManagerState.Providers,
         requested: ExpressProviderRateType
@@ -243,12 +275,12 @@ private extension CommonExpressManager {
             return currentState
         }
 
-        let best = bestProvider(from: candidates)
-        if let best, best !== previousSelected {
-            best.pair.source.analyticsLogger.bestProviderSelected(best)
+        let selected = selectedProvider(from: candidates)
+        if let selected, selected !== previousSelected {
+            selected.pair.source.analyticsLogger.bestProviderSelected(selected)
         }
 
-        return .swap(selected: best, providers: providers)
+        return .swap(selected: selected, providers: providers)
     }
 
     func makeRequest(tracker: ExpressQuotesLoadingPerformanceTracker? = .none) -> ExpressAvailableProviderUpdatingRequest {
