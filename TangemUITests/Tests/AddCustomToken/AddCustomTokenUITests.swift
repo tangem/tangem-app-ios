@@ -15,7 +15,7 @@ final class AddCustomTokenUITests: BaseTestCase {
 
     func testAddCustomToken_TokenAddedToMain() {
         setAllureId(772)
-        launchApp(tangemApiType: .mock, scenarios: [coinsScenario])
+        launchApp(tangemApiType: .mock, scenarios: [coinsScenario, tokenAddFlowScenario])
 
         openAddCustomToken()
             .selectNetwork("Ethereum")
@@ -32,7 +32,7 @@ final class AddCustomTokenUITests: BaseTestCase {
 
     func testAddCustomToken_CustomDerivationPathAccepted() {
         setAllureId(775)
-        launchApp(tangemApiType: .mock, scenarios: [coinsScenario])
+        launchApp(tangemApiType: .mock, scenarios: [coinsScenario, tokenAddFlowCustomDerivScenario])
 
         openAddCustomToken()
             .selectNetwork("Ethereum")
@@ -61,7 +61,7 @@ final class AddCustomTokenUITests: BaseTestCase {
 
     func testAddCustomToken_CustomDerivationIndicatorShownOnMain() {
         setAllureId(771)
-        launchApp(tangemApiType: .mock, scenarios: [coinsScenario])
+        launchApp(tangemApiType: .mock, scenarios: [coinsScenario, tokenAddFlowCustomDerivScenario])
 
         openAddCustomToken()
             .selectNetwork("Ethereum")
@@ -145,6 +145,14 @@ final class AddCustomTokenUITests: BaseTestCase {
 
     private var coinsScenario: ScenarioConfig {
         ScenarioConfig(name: "coins_api", initialState: "ManageTokensRich")
+    }
+
+    private var tokenAddFlowScenario: ScenarioConfig {
+        ScenarioConfig(name: "user_tokens_api", initialState: "AddCustomTokenFlow")
+    }
+
+    private var tokenAddFlowCustomDerivScenario: ScenarioConfig {
+        ScenarioConfig(name: "user_tokens_api", initialState: "AddCustomTokenFlowCustomDeriv")
     }
 
     private func openAddCustomToken(card: CardMockAccessibilityIdentifiers = .wallet2) -> AddCustomTokenScreen {

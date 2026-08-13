@@ -18,10 +18,6 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayMainViewModel: ObservableObject {
-    private var tiersEnabled: Bool {
-        FeatureProvider.isAvailable(.tangemPayTiers)
-    }
-
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
 
@@ -48,19 +44,21 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) var isWithdrawButtonLoading: Bool = false
     @Published private(set) var isWithdrawButtonDisabled: Bool = false
+    @Published private(set) var isAddFundsButtonDisabled: Bool = false
     @Published private(set) var inlineNotifications: [NotificationViewInput] = []
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
 
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var cardEntries: [TangemPayCardEntry] = []
     @Published private(set) var isAddCardLoading: Bool = false
-    @Published private(set) var isCancellingPaidTariffTransition: Bool = false
 
     @Published private(set) var awaitingDepositInfo: TangemPayAwaitingDepositInfo?
 
     @Published private(set) var isBalanceNegative: Bool = false
 
     @Published private(set) var systemDowngradeBanner: NotificationBanner.BannerType?
+
+    @Published private(set) var contactSupportMessageBannerButton: MessageBannerButton?
 
     @Published private(set) var currentPlanState: CurrentPlanState = .unknown
 
@@ -103,7 +101,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     var isAwaitingDeposit: Bool {
-        tiersEnabled && awaitingDepositInfo != nil
+        awaitingDepositInfo != nil
     }
 
     var addCardDisabled: Bool {
@@ -117,16 +115,11 @@ final class TangemPayMainViewModel: ObservableObject {
         )
     }
 
-    var awaitingDepositCancelButton: TangemMessageBannerButton? {
-        guard let info = awaitingDepositInfo else { return nil }
-
-        return TangemMessageBannerButton(
-            title: Localization.tangempayCardDetailsAwaitingDepositCancelButton(info.planName, info.fallbackPlanName),
-            isLoading: isCancellingPaidTariffTransition,
+    var awaitingDepositAddFundsButton: MessageBannerButton {
+        MessageBannerButton(
+            title: Localization.tangempayCardDetailsAddFunds,
             action: { [weak self] in
-                Task {
-                    await self?.cancelPaidTariffTransition()
-                }
+                self?.addFunds()
             }
         )
     }
@@ -215,7 +208,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     private var isBankTransferAvailable: Bool {
-        guard FeatureProvider.isAvailable(.tangemPayVirtualAccount), tangemPayAccount.isKYCApproved else {
+        guard tangemPayAccount.isKYCApproved else {
             return false
         }
 
@@ -232,27 +225,6 @@ final class TangemPayMainViewModel: ObservableObject {
             isEligibleForVirtualAccount = channels.contains(.visaVirtualAccount)
         } catch {
             VisaLogger.error("Failed to load virtual account eligibility", error: error)
-        }
-    }
-
-    @MainActor
-    func cancelPaidTariffTransition() async {
-        guard !isCancellingPaidTariffTransition, isAwaitingDeposit else { return }
-
-        Analytics.log(.visaTiersCancelPlusMoveToBasicClicked, contextParams: .userWallet(userWalletInfo.id))
-
-        isCancellingPaidTariffTransition = true
-
-        do {
-            try await tangemPayAccount.cancelAwaitingDepositOrder()
-
-            isCancellingPaidTariffTransition = false
-        } catch {
-            isCancellingPaidTariffTransition = false
-
-            showCardIssueFailureAlert()
-
-            await tangemPayAccount.loadCustomerInfo()
         }
     }
 
@@ -328,10 +300,6 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     private func isTariffPlanUpgradeAvailable() async -> Bool {
-        guard tiersEnabled else {
-            return false
-        }
-
         do {
             let transitions = try await tangemPayAccount.getTariffPlanTransitions()
             return transitions.contains { $0.type == .upgrade }
@@ -404,7 +372,6 @@ final class TangemPayMainViewModel: ObservableObject {
 
         runTask { [tangemPayAccount] in
             await tangemPayAccount.loadCustomerInfo()
-            await tangemPayAccount.loadBalance()
             await tangemPayAccount.loadOffers()
             await tangemPayAccount.resumeActiveIssueOrderPolling()
         }
@@ -416,6 +383,12 @@ final class TangemPayMainViewModel: ObservableObject {
         runTask { [promotionNotificationsManager] in
             await promotionNotificationsManager.loadPromotions()
         }
+
+        tangemPayAccount.startDepositAddressPolling()
+    }
+
+    func onDisappear() {
+        tangemPayAccount.stopDepositAddressPolling()
     }
 
     func openCurrentPlan() {
@@ -450,8 +423,26 @@ final class TangemPayMainViewModel: ObservableObject {
         let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
-            recipient: EmailConfig.visaDefault(subject: .default).recipient,
-            emailType: .visaFeedback(subject: .default)
+            recipient: EmailConfig.visaDefault(subject: .generalHelp).recipient,
+            emailType: .visaFeedback(subject: .generalHelp)
+        )
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+
+    private func contactSupportForFailedCardIssue() {
+        let dataCollector = TangemPaySupportDataCollector(
+            source: .failedToIssueCardSheet,
+            userWalletId: userWalletInfo.id.stringValue,
+            customerId: tangemPayAccount.customerId
+        )
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.visaDefault(subject: .failedToIssueCard).recipient,
+            emailType: .visaFeedback(subject: .failedToIssueCard)
         )
 
         Task { @MainActor in
@@ -589,6 +580,11 @@ private extension TangemPayMainViewModel {
             .receiveOnMain()
             .assign(to: &$isWithdrawButtonDisabled)
 
+        tangemPayAccount.depositAddressPublisher
+            .map { $0 == nil }
+            .receiveOnMain()
+            .assign(to: &$isAddFundsButtonDisabled)
+
         tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.balanceTypePublisher
             .map { balance in balance.value.map { $0 < 0 } ?? false }
             .receiveOnMain()
@@ -597,6 +593,8 @@ private extension TangemPayMainViewModel {
         bindCustomerTariffPlan()
 
         bindInlineNotifications()
+
+        bindFailedToIssueCardBanner()
 
         bindMultiCard()
     }
@@ -613,7 +611,7 @@ private extension TangemPayMainViewModel {
 
         tangemPayAccount.customerTariffPlanPublisher
             .map { plan in
-                guard FeatureProvider.isAvailable(.tangemPayTiers), let plan else {
+                guard let plan else {
                     return false
                 }
                 return plan.tariffPlan.type != TangemPayAccount.basicTariffPlanType
@@ -670,11 +668,9 @@ private extension TangemPayMainViewModel {
             }
             .store(in: &bag)
 
-        if tiersEnabled {
-            tangemPayAccount.awaitingDepositInfoPublisher
-                .receiveOnMain()
-                .assign(to: &$awaitingDepositInfo)
-        }
+        tangemPayAccount.awaitingDepositInfoPublisher
+            .receiveOnMain()
+            .assign(to: &$awaitingDepositInfo)
     }
 
     func bindInlineNotifications() {
@@ -690,6 +686,27 @@ private extension TangemPayMainViewModel {
                 return [viewModel.makeInlineNotification(for: event)]
             }
             .assign(to: &$inlineNotifications)
+    }
+
+    func bindFailedToIssueCardBanner() {
+        guard let accountModel = tangemPayAccount.account else { return }
+
+        accountModel.statePublisher
+            .map { $0.isFailedToIssueCard }
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isFailedToIssueCard in
+                if isFailedToIssueCard {
+                    viewModel.contactSupportMessageBannerButton = .init(
+                        title: Localization.commonContactSupport,
+                        action: { [weak viewModel] in viewModel?.contactSupportForFailedCardIssue() }
+                    )
+                } else {
+                    viewModel.contactSupportMessageBannerButton = nil
+                }
+            }
+            .store(in: &bag)
     }
 
     func makeInlineNotification(for event: TangemPayNotificationEvent) -> NotificationViewInput {

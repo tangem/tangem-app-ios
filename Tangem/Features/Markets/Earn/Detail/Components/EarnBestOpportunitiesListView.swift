@@ -22,7 +22,7 @@ struct EarnBestOpportunitiesListView: View {
     let clearFilterAction: (() -> Void)?
 
     private var backgroundColor: Color {
-        .Tangem.Surface.level3
+        DesignSystem.Color.bgSecondary
     }
 
     var body: some View {
@@ -31,7 +31,7 @@ struct EarnBestOpportunitiesListView: View {
                 with: backgroundColor,
                 verticalPadding: Layout.innerContentPadding,
                 horizontalPadding: Layout.innerContentPadding,
-                cornerRadius: .unit(.x6)
+                cornerRadius: 24
             )
             .padding(.horizontal, Layout.horizontalPadding)
     }
@@ -99,11 +99,11 @@ struct EarnBestOpportunitiesListView: View {
     private var emptyViewWithoutFilters: some View {
         VStack(spacing: Layout.emptyViewSpacing) {
             Assets.emptyTokenList.image
-                .foregroundColor(Colors.Icon.inactive)
+                .foregroundColor(DesignSystem.Color.iconTertiary)
 
             Text(Localization.earnEmpty)
                 .multilineTextAlignment(.center)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, Layout.emptyViewHorizontalPadding)
@@ -114,22 +114,16 @@ struct EarnBestOpportunitiesListView: View {
     private var emptyViewWithClearFilter: some View {
         VStack(spacing: Layout.emptyViewSpacing) {
             Text(Localization.earnNoResults)
-                .style(Font.Tangem.Body14.regular, color: .Tangem.Text.Neutral.tertiary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
 
             if let clearFilterAction {
-                Button(action: clearFilterAction) {
-                    Text(Localization.earnClearFilter)
-                        .style(
-                            Font.Tangem.Body16.semibold,
-                            color: .Tangem.Text.Neutral.primary
-                        )
-                }
-                .roundedBackground(
-                    with: Colors.Button.secondary,
-                    verticalPadding: Layout.ClearFilterButton.verticalPadding,
-                    horizontalPadding: Layout.ClearFilterButton.horizontalPadding,
-                    radius: Layout.ClearFilterButton.radius
+                TangemUI.Button(
+                    label: AttributedString(Localization.earnClearFilter),
+                    accessibilityLabel: Localization.earnClearFilter,
+                    action: clearFilterAction
                 )
+                .size(.x9)
+                .styleType(.secondary)
             }
         }
         .infinityFrame(axis: .horizontal, alignment: .center)
@@ -158,12 +152,6 @@ private extension EarnBestOpportunitiesListView {
         static let defaultMaxHeight: CGFloat = 180
         static let emptyViewSpacing: CGFloat = 16
         static let emptyViewHorizontalPadding: CGFloat = 48
-
-        enum ClearFilterButton {
-            static let verticalPadding: CGFloat = 8
-            static let horizontalPadding: CGFloat = 12
-            static let radius: CGFloat = 100
-        }
     }
 }
 

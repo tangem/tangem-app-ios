@@ -107,23 +107,9 @@ final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
         self.cashbackPromoService = cashbackPromoService
         self.analyticsLogger = analyticsLogger
         viewState = initialState
-    }
 
-    func onAppear() {
-        guard case .idle = viewState else {
-            return
-        }
-
-        viewState = .loading
-
-        campaignLoadTask = runTask(in: self) { viewModel in
-            let campaign = await viewModel.cashbackPromoService.campaign(id: viewModel.campaignId)
-
-            guard !Task.isCancelled else {
-                return
-            }
-
-            await viewModel.handle(campaign: campaign)
+        if case .idle = viewState {
+            loadCampaign()
         }
     }
 
@@ -214,6 +200,32 @@ final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
 // MARK: - Private
 
 private extension CampaignViewModel {
+    func loadCampaign() {
+        viewState = .loading
+
+        let loadingStartDate = Date()
+
+        campaignLoadTask = runTask(in: self) { viewModel in
+            let campaign = await viewModel.cashbackPromoService.campaign(id: viewModel.campaignId)
+
+            let elapsed = Date().timeIntervalSince(loadingStartDate)
+
+            if elapsed > Constants.skipLoadingStateThreshold {
+                let remainingDelay = Constants.minimumLoadingStateDuration - elapsed
+
+                if remainingDelay > 0 {
+                    try? await Task.sleep(for: .seconds(remainingDelay))
+                }
+            }
+
+            guard !Task.isCancelled else {
+                return
+            }
+
+            await viewModel.handle(campaign: campaign)
+        }
+    }
+
     var cashbackCampaign: CashbackCampaign? {
         CashbackCampaign(rawValue: campaignId)
     }
@@ -228,6 +240,10 @@ private extension CampaignViewModel {
 
     @MainActor
     func handle(campaign: CampaignBannerData?) {
+        guard case .loading = viewState else {
+            return
+        }
+
         let now = Date()
 
         guard
@@ -264,13 +280,23 @@ private extension CampaignViewModel {
         isEnrolling = false
         coordinator?.presentErrorToast(with: Localization.commonSomethingWentWrong)
     }
+}
 
+// MARK: - Token selection
+
+extension CampaignViewModel {
     func handleSelectedToken(_ item: TokenSelectorItem) {
         selectedToken = item
         selectedTokenRowViewModel = TokenSelectorItemViewModelBuilder(availabilityProvider: AvailableTokenSelectorItemAvailabilityProvider())
             .mapToTokenSelectorItemViewModel(item: item, action: {})
         tokenSelectorViewModel = nil
-        viewState = .readyToEnroll
+
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+
+        withTransaction(transaction) {
+            viewState = .readyToEnroll
+        }
     }
 }
 
@@ -280,6 +306,15 @@ extension CampaignViewModel {
     struct SelectedAccountViewData {
         let iconData: AccountIconView.ViewData
         let name: String
+    }
+}
+
+// MARK: - Constants
+
+private extension CampaignViewModel {
+    enum Constants {
+        static let skipLoadingStateThreshold: TimeInterval = 0.1
+        static let minimumLoadingStateDuration: TimeInterval = 0.5
     }
 }
 

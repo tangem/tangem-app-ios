@@ -57,6 +57,7 @@ struct TangemPayMainView: View {
         .onReceive(elasticContainerModel.heightRatioPublisher) { headerHeightRatio = $0 }
         .onReceive(viewModel.refreshScrollViewStateObject.scrollViewInteractor.$visibleBodyHeight) { visibleBodyHeight = $0 }
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { redesignedToolbar }
@@ -87,6 +88,10 @@ struct TangemPayMainView: View {
                 )
             }
 
+            if let contactSupportButton = viewModel.contactSupportMessageBannerButton {
+                failedToIssueCardBanner(contactSupportButton: contactSupportButton)
+            }
+
             if viewModel.shouldDisplayAddToApplePayGuide {
                 redesignedAddToApplePayBanner
             }
@@ -95,8 +100,8 @@ struct TangemPayMainView: View {
                 TangemPayIssuingCardBannerRedesigned()
             }
 
-            if let awaitingDepositInfo = viewModel.awaitingDepositInfo {
-                awaitingDepositCancelBanner(info: awaitingDepositInfo)
+            if let fee = viewModel.awaitingDepositInfo?.fee {
+                awaitingDepositTopUpBanner(fee: fee)
                     .onAppear(perform: viewModel.onTopupBannerAppear)
             }
 
@@ -115,7 +120,7 @@ struct TangemPayMainView: View {
                 state: viewModel.tangemPayTransactionHistoryState,
                 exploreAction: nil,
                 exploreConfirmationDialog: nil,
-                exploreTransactionAction: viewModel.openTransactionDetails,
+                openTransactionDetailsAction: { viewModel.openTransactionDetails(id: $0.hash) },
                 reloadButtonAction: viewModel.reloadHistory,
                 isReloadButtonBusy: false,
                 fetchMore: viewModel.fetchNextTransactionHistoryPage()
@@ -142,6 +147,7 @@ struct TangemPayMainView: View {
 
             TangemPayActionButtonsView(
                 actionButtonsDisabled: viewModel.actionButtonsDisabled,
+                isAddFundsDisabled: viewModel.isAddFundsButtonDisabled,
                 isWithdrawDisabled: viewModel.isWithdrawButtonDisabled,
                 addFundsAction: viewModel.addFunds,
                 withdrawAction: viewModel.withdraw
@@ -152,25 +158,38 @@ struct TangemPayMainView: View {
         .padding(.top, 32)
     }
 
-    private func awaitingDepositCancelBanner(info: TangemPayAwaitingDepositInfo) -> some View {
-        TangemMessageBanner(
-            title: Localization.tangempayCardDetailsAwaitingDepositTitle(info.fee),
+    private func awaitingDepositTopUpBanner(fee: String) -> some View {
+        MessageBanner(
+            title: Localization.tangempayCardDetailsAwaitingDepositTitle(fee),
             description: Localization.tangempayCardDetailsAwaitingDepositSubtitle
         )
         .variant(.error)
         .slotEnd {
             Assets.DesignSystem.warning.image
                 .renderingMode(.template)
-                .resizable()
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
-                .frame(width: 24, height: 24)
         }
-        .primaryButton(viewModel.awaitingDepositCancelButton)
+        .primaryButton(viewModel.awaitingDepositAddFundsButton)
+        .showGlowRing(false)
+    }
+
+    private func failedToIssueCardBanner(contactSupportButton: MessageBannerButton) -> some View {
+        MessageBanner(
+            title: Localization.tangempayFailedToIssueCard,
+            description: Localization.tangempayFailedToIssueCardSupportDescription
+        )
+        .variant(.error)
+        .slotStart {
+            DesignSystem.Icons.Error.regular20.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
+        }
+        .primaryButton(contactSupportButton)
         .showGlowRing(false)
     }
 
     private var inactiveBadge: some View {
-        TangemBadgeV2(label: Localization.tangempayStatusInactive, accessibilityLabel: nil)
+        Badge(label: Localization.tangempayStatusInactive, accessibilityLabel: nil)
             .size(.x6)
             .variant(.tinted)
             .appearance(.warning)
@@ -184,7 +203,7 @@ struct TangemPayMainView: View {
                     redesignedCardEntryButton(for: entry)
                 }
 
-                Button(action: viewModel.tapAddCard) {
+                SwiftUI.Button(action: viewModel.tapAddCard) {
                     TangemPayAddCardView()
                 }
                 .disabled(viewModel.addCardDisabled)
@@ -201,7 +220,7 @@ struct TangemPayMainView: View {
     private func redesignedCardEntryButton(for entry: TangemPayCardEntry) -> some View {
         switch entry {
         case .issued(let card):
-            Button {
+            SwiftUI.Button {
                 viewModel.openCardManagement(entry: entry)
             } label: {
                 TangemPaySmallCardViewRedesigned(
@@ -214,7 +233,7 @@ struct TangemPayMainView: View {
             .disabled(viewModel.isStale)
             .opacity(viewModel.isStale ? 0.6 : 1)
         case .issuing:
-            Button {
+            SwiftUI.Button {
                 viewModel.openCardManagement(entry: entry)
             } label: {
                 TangemPaySmallCardViewRedesigned(state: entry.isGhost ? .ghost : .issuing)
@@ -245,33 +264,30 @@ struct TangemPayMainView: View {
 
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
-                if FeatureProvider.isAvailable(.tangemPayTiers) {
-                    Button(action: viewModel.openCurrentPlan) {
-                        Text(Localization.tangempayCurrentPlanTitle)
+                SwiftUI.Button(action: viewModel.openCurrentPlan) {
+                    Text(Localization.tangempayCurrentPlanTitle)
 
-                        switch viewModel.currentPlanState {
-                        case .plan(let name):
-                            Text(name)
+                    switch viewModel.currentPlanState {
+                    case .plan(let name):
+                        Text(name)
 
-                            DesignSystem.Icons.Info.regular20.image
-                                .renderingMode(.template)
-                        case .changing:
-                            Text(Localization.tangempayChangingPlan)
+                        DesignSystem.Icons.Info.regular20.image
+                            .renderingMode(.template)
+                    case .changing:
+                        Text(Localization.tangempayChangingPlan)
 
-                            DesignSystem.Icons.ArrowRefresh.regular20.image
-                                .renderingMode(.template)
-                        case .unknown:
-                            DesignSystem.Icons.Info.regular20.image
-                                .renderingMode(.template)
-                        }
+                        DesignSystem.Icons.ArrowRefresh.regular20.image
+                            .renderingMode(.template)
+                    case .unknown:
+                        DesignSystem.Icons.Info.regular20.image
+                            .renderingMode(.template)
                     }
-                    .disabled(viewModel.currentPlanState == .changing)
-
-                    Divider()
                 }
 
+                Divider()
+
                 if viewModel.isVisaBenefitsAvailable {
-                    Button(action: viewModel.visaBenefits) {
+                    SwiftUI.Button(action: viewModel.visaBenefits) {
                         Label {
                             Text(Localization.tangempayVisaBenefits)
                         } icon: {
@@ -280,16 +296,16 @@ struct TangemPayMainView: View {
                     }
                 }
 
-                Button(action: viewModel.termsAndLimits) {
+                SwiftUI.Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }
 
-                Button(action: viewModel.contactSupport) {
+                SwiftUI.Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
                 }
 
                 if viewModel.isDeactivated {
-                    Button(role: .destructive, action: viewModel.promptRemoveAccount) {
+                    SwiftUI.Button(role: .destructive, action: viewModel.promptRemoveAccount) {
                         Label(Localization.tangempayRemoveAccount, systemImage: "trash")
                     }
                 }

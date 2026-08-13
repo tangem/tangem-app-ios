@@ -126,4 +126,5 @@ public enum SendAccessibilityIdentifiers {
     public static let finishTransactionTime = "sendFinishTransactionTime"
     public static let finishExploreButton = "sendFinishExploreButton"
     public static let finishShareButton = "sendFinishShareButton"
+    public static let finishAmountValue = "sendFinishAmountValue"
 }

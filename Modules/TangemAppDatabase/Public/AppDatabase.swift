@@ -1,0 +1,150 @@
+//
+//  AppDatabase.swift
+//  TangemAppDatabase
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import GRDB
+import TangemFoundation
+
+public final class AppDatabase {
+    /// - Note: Inherits `DatabaseReader` too.
+    public typealias DatabaseHandle = DatabaseWriter
+
+    public typealias DatabaseHandleFactory = (_ databaseFilePath: String) throws -> DatabaseHandle
+
+    public var databaseHandle: DatabaseHandle {
+        get throws {
+            return try protectedDatabaseHandle { handle in
+                if let existingHandle = handle {
+                    return existingHandle
+                }
+
+                let newHandle = try Self.makeDatabaseHandle(using: databaseHandleFactory)
+                handle = newHandle
+
+                return newHandle
+            }
+        }
+    }
+
+    private let databaseHandleFactory: DatabaseHandleFactory
+    private let protectedDatabaseHandle: OSAllocatedUnfairLock<DatabaseHandle?>
+
+    @available(iOS, deprecated: 100000.0, message: "For unit tests and DI only, use `@Injected(\\.appDatabase)` instead")
+    public init(databaseHandleFactory: @escaping DatabaseHandleFactory) {
+        self.databaseHandleFactory = databaseHandleFactory
+        protectedDatabaseHandle = OSAllocatedUnfairLock(initialState: nil)
+    }
+
+    // MARK: - Helpers
+
+    /// Call early to prepare & warm up the database and avoid heavy IO work on the first database access.
+    public func prepare() {
+        DispatchQueue.global(qos: .utility).async {
+            do {
+                _ = try self.databaseHandle
+            } catch {
+                AppDatabaseLogger.error("Failed to prepare & warm up database", error: error)
+            }
+        }
+    }
+
+    // MARK: - File system helpers
+
+    public static var databaseDirectoryURL: URL {
+        get throws {
+            let applicationSupportDirectoryURL = try FileManager.default.url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )
+
+            return applicationSupportDirectoryURL.appending(
+                path: Constants.databaseDirectoryName,
+                directoryHint: .isDirectory
+            )
+        }
+    }
+
+    /// Two deliberate policies, applied at the database directory level:
+    /// - The directory is *included* in backups: this storage is planned to hold user data
+    ///   in the future, not just throw-away caches.
+    /// - The directory is protected as *complete unless open*, and files created within it
+    ///   inherit this class: the database can only be opened while the device is unlocked,
+    ///   but once open it stays readable and writable after the device locks, so in-flight
+    ///   background work can finish.
+    private static func applyFileProtection(to url: inout URL) {
+        do {
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = false
+            try url.setResourceValues(values)
+        } catch {
+            AppDatabaseLogger.error("Failed to apply backup inclusion policy for app DB root folder at URL \(url)", error: error)
+        }
+
+        do {
+            let fileManager = FileManager.default
+            let path = url.path(percentEncoded: false)
+            try fileManager.setAttributes([.protectionKey: FileProtectionType.completeUnlessOpen], ofItemAtPath: path)
+        } catch {
+            AppDatabaseLogger.error("Failed to apply file protection attributes for app DB root folder at URL \(url)", error: error)
+        }
+    }
+
+    // MARK: - Factory methods
+
+    private static func makeDatabaseHandle(using databaseHandleFactory: DatabaseHandleFactory) throws -> DatabaseHandle {
+        let databaseFilePath = try makeDatabaseFilePath()
+        let migrator = makeDatabaseMigrator()
+        let databaseHandle = try databaseHandleFactory(databaseFilePath)
+        try migrator.migrate(databaseHandle)
+
+        return databaseHandle
+    }
+
+    private static func makeDatabaseFilePath() throws -> String {
+        var directoryURL = try databaseDirectoryURL
+
+        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        applyFileProtection(to: &directoryURL)
+
+        return directoryURL
+            .appending(path: Constants.databaseFileName, directoryHint: .notDirectory)
+            .path(percentEncoded: false)
+    }
+
+    private static func makeDatabaseMigrator() -> DatabaseMigrator {
+        var migrator = DatabaseMigrator()
+
+        #if DEBUG
+        // For app development only, see
+        // https://swiftpackageindex.com/groue/grdb.swift/master/documentation/grdb/databasemigrator/erasedatabaseonschemachange
+        // for details
+        migrator.eraseDatabaseOnSchemaChange = true
+        #endif // DEBUG
+
+        for version in AppDatabaseVersion.allCases {
+            migrator.registerMigration(version.id) { database in
+                for tableKind in AppDatabaseTableKind.allCases {
+                    try tableKind.table.registerForVersion(version, in: database)
+                }
+            }
+        }
+
+        return migrator
+    }
+}
+
+// MARK: - Constants
+
+private extension AppDatabase {
+    enum Constants {
+        static let databaseDirectoryName = "AppDatabase"
+        static let databaseFileName = "db.sqlite"
+    }
+}

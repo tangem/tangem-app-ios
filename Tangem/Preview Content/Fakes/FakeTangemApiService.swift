@@ -25,6 +25,7 @@ final class FakeTangemApiService: TangemApiService {
     var loadMarketingCampaignsHandler: ((MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response)?
     var loadPromotionCampaignsHandler: ((String) async throws -> [BannerPromotion.Response.Promotion])?
     var loadYieldBoostPromotionStatusHandler: ((String) async throws -> YieldBoostPromotionDTO.Response)?
+    var registerForPromotionCampaignHandler: ((PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response)?
 
     init(geoIpRegionCode: String = "us") {
         self.geoIpRegionCode = geoIpRegionCode
@@ -68,10 +69,6 @@ final class FakeTangemApiService: TangemApiService {
         .anyFail(error: .init(code: .notFound))
     }
 
-    func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
-        throw "Not implemented"
-    }
-
     func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
         throw "Not implemented"
     }
@@ -109,6 +106,10 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func registerForPromotionCampaign(request: PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response {
+        if let handler = registerForPromotionCampaignHandler {
+            return try await handler(request)
+        }
+
         throw "Not implemented"
     }
 
@@ -223,6 +224,16 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    // MARK: - Wallet Backup Status
+
+    func saveWalletCards(userWalletId: String, cards: WalletCardsDTO.Request) async throws {
+        throw "Not implemented"
+    }
+
+    func getWalletCards(userWalletId: String) async throws -> WalletCardsDTO.Response {
+        throw "Not implemented"
+    }
+
     func getUserAccounts(
         userWalletId: String
     ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
@@ -301,6 +312,10 @@ final class FakeTangemApiService: TangemApiService {
 
     func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response {
         throw "Not implemented"
+    }
+
+    func loadCoinIndicators(requestModel: CoinIndicatorsDTO.Request) async throws -> CoinIndicatorsDTO.Response {
+        CoinIndicatorsDTO.Response(assets: [])
     }
 }
 

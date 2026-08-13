@@ -61,14 +61,6 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     }
 
     func loadImage() {
-        guard icon.value == nil else {
-            return
-        }
-
-        reloadImage()
-    }
-
-    func reloadImage() {
         runTask(in: self) { viewModel in
             let image = await viewModel.walletImageProvider.loadSmallImage()
 
@@ -92,7 +84,7 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
                         let isUserWalletBackupNeeded = model.config.hasFeature(.mnemonicBackup) && model.config.hasFeature(.iCloudBackup)
                         viewModel.isUserWalletBackupNeeded = isUserWalletBackupNeeded
                         viewModel.walletImageProvider = model.walletImageProvider
-                        viewModel.reloadImage()
+                        viewModel.loadImage()
                     }
                 }
             }

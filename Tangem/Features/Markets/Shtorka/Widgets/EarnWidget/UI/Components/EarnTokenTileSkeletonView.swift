@@ -7,39 +7,32 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct EarnTokenTileSkeletonView: View {
-    @ScaledMetric private var iconSize: CGFloat = SizeUnit.x10.value
-    @ScaledMetric private var nameWidth: CGFloat = 95
-    @ScaledMetric private var nameHeight: CGFloat = 20
-    @ScaledMetric private var rateWidth: CGFloat = 50
-    @ScaledMetric private var rateHeight: CGFloat = 16
     @ScaledMetric private var tileWidth: CGFloat = 150
 
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            SkeletonView()
-                .frame(width: iconSize, height: iconSize)
-                .cornerRadius(iconSize / 2)
+            Shimmer()
+                .variant(.custom(width: 40, height: 40))
 
-            FixedSpacer(height: .unit(.x6))
+            FixedSpacer(height: 24)
 
-            SkeletonView()
-                .frame(width: nameWidth, height: nameHeight)
-                .cornerRadius(nameHeight / 2)
+            Shimmer()
+                .variant(.custom(width: 95, height: 20))
 
-            FixedSpacer(height: .unit(.x1))
+            FixedSpacer(height: 4)
 
-            SkeletonView()
-                .frame(width: rateWidth, height: rateHeight)
-                .cornerRadius(rateHeight / 2)
+            Shimmer()
+                .variant(.custom(width: 50, height: 16))
         }
         .frame(width: tileWidth, alignment: .topLeading)
-        .padding(.bottom, .unit(.x1))
+        .padding(.bottom, 4)
         .defaultRoundedBackground(
-            with: Color.Tangem.Surface.level3,
-            cornerRadius: .unit(.x6)
+            with: DesignSystem.Color.bgSecondary,
+            cornerRadius: 24
         )
         .allowsHitTesting(false)
     }
@@ -48,7 +41,7 @@ struct EarnTokenTileSkeletonView: View {
 // MARK: - Previews
 
 #Preview {
-    HStack(spacing: .unit(.x2)) {
+    HStack(spacing: 8) {
         EarnTokenTileSkeletonView()
         EarnTokenTileSkeletonView()
         EarnTokenTileSkeletonView()

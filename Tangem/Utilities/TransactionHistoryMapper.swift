@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemExpress
 import TangemFoundation
 
 protocol WalletModelTransactionHistoryAddressesProvider {
@@ -181,8 +182,65 @@ struct TransactionHistoryMapper {
             transactionType: transactionType(from: record),
             status: status(from: record),
             isFromYieldContract: record.isFromYieldContract,
-            subtitleOwner: subtitleOwnerResolver?.resolve(for: interaction)
+            subtitleOwner: subtitleOwnerResolver?.resolve(for: interaction),
+            warning: expressWarning(from: record)
         )
+    }
+
+    private func expressWarning(from record: TransactionRecord) -> TransactionViewModel.Warning? {
+        switch record.expressExtraInfo {
+        case .exchange(let info):
+            return warning(for: info.transaction.status)
+        case .onramp(let info):
+            return warning(for: info.onrampTransaction.status)
+        case nil:
+            return nil
+        }
+    }
+
+    private func warning(for status: ExpressTransactionStatus) -> TransactionViewModel.Warning? {
+        switch status {
+        case .verifying:
+            return .verifying
+        case .paused:
+            return .paused
+        case .unknown,
+             .preview,
+             .created,
+             .exchangeTxSent,
+             .waiting,
+             .waitingTxHash,
+             .expired,
+             .confirming,
+             .exchanging,
+             .sending,
+             .finished,
+             .failed,
+             .txFailed,
+             .refunded:
+            return nil
+        }
+    }
+
+    private func warning(for status: OnrampTransactionStatus) -> TransactionViewModel.Warning? {
+        switch status {
+        case .verifying:
+            return .verifying
+        case .paused:
+            return .paused
+        case .unknown,
+             .created,
+             .expired,
+             .waitingForPayment,
+             .paymentProcessing,
+             .failed,
+             .paid,
+             .sending,
+             .refunding,
+             .refunded,
+             .finished:
+            return nil
+        }
     }
 
     func mapSuggestedRecord(_ record: TransactionRecord) -> SendDestinationSuggestedTransactionRecord? {
@@ -325,6 +383,10 @@ private extension TransactionHistoryMapper {
     }
 
     func transactionType(from record: TransactionRecord) -> TransactionViewModel.TransactionType {
+        if case .exchange = record.expressExtraInfo {
+            return .swap
+        }
+
         switch record.type {
         case .transfer:
             return .transfer
@@ -374,16 +436,7 @@ private extension TransactionHistoryMapper {
     }
 
     func status(from record: TransactionRecord) -> TransactionViewModel.Status {
-        switch record.status {
-        case .confirmed:
-            return .confirmed
-        case .failed:
-            return .failed
-        case .unconfirmed:
-            return .inProgress
-        case .undefined:
-            return .undefined
-        }
+        TransactionOperationStatusMapper.viewStatus(for: record)
     }
 
     func formatted(amount: Decimal, isOutgoing: Bool, isFailed: Bool) -> FormattedAmount {

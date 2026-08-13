@@ -14,14 +14,21 @@ extension StakingValidationComposer {
         blockchain: Blockchain,
         accountAddress: String,
         verifier: StakingTransactionVerifier
-    ) -> StakingTransactionValidator {
-        StakingValidationComposer(
-            localValidator: makeLocalValidator(blockchain: blockchain),
-            remoteValidator: makeRemoteValidator(
-                blockchain: blockchain,
-                accountAddress: accountAddress,
-                verifier: verifier
-            )
+    ) -> StakingTransactionValidator? {
+        let localValidator = makeLocalValidator(blockchain: blockchain)
+        let remoteValidator = makeRemoteValidator(
+            blockchain: blockchain,
+            accountAddress: accountAddress,
+            verifier: verifier
+        )
+
+        guard localValidator != nil || remoteValidator != nil else {
+            return nil
+        }
+
+        return StakingValidationComposer(
+            localValidator: localValidator,
+            remoteValidator: remoteValidator
         )
     }
 }
@@ -30,7 +37,7 @@ extension StakingValidationComposer {
 
 private extension StakingValidationComposer {
     static func makeLocalValidator(blockchain: Blockchain) -> LocalStakingTransactionValidator? {
-        guard let network = LocalStakingSupportedNetwork(blockchain: blockchain) else {
+        guard let network = LocalStakingSupportedNetwork(blockchain: blockchain), !network.isEthPolValidationDisabled else {
             return nil
         }
 
@@ -51,5 +58,13 @@ private extension StakingValidationComposer {
             accountAddress: accountAddress,
             verifier: verifier
         )
+    }
+}
+
+// MARK: - Private helpers
+
+private extension LocalStakingSupportedNetwork {
+    var isEthPolValidationDisabled: Bool {
+        self == .ethereumPOL && !FeatureProvider.isAvailable(.ethPolLocalStakingValidation)
     }
 }

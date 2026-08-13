@@ -19,4 +19,19 @@ public enum StakingAccessibilityIdentifiers {
     public static let unbondingPeriodValue = "stakingUnbondingPeriodValue"
     public static let rewardClaimingValue = "stakingRewardClaimingValue"
     public static let rewardScheduleValue = "stakingRewardScheduleValue"
+
+    /// "Your stakes" section
+    public static let yourStakesHeader = "stakingYourStakesHeader"
+    public static let activeStakeRow = "stakingActiveStakeRow"
+    public static let unstakingStakeRow = "stakingUnstakingStakeRow"
+    public static let withdrawStakeRow = "stakingWithdrawStakeRow"
+
+    /// Rewards section
+    public static let rewardClaimBlock = "stakingRewardClaimBlock"
+    public static let noRewardsToClaim = "stakingNoRewardsToClaim"
+
+    /// Staking action notifications
+    public static let unstakeNotification = "stakingUnstakeNotification"
+    public static let withdrawNotification = "stakingWithdrawNotification"
+    public static let claimRewardsNotification = "stakingClaimRewardsNotification"
 }

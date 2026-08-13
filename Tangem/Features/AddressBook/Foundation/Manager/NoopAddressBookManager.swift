@@ -23,7 +23,6 @@ final class NoopAddressBookManager: AddressBookManager {
         Just(.synced).eraseToAnyPublisher()
     }
 
-    func configure(with userWalletModel: UserWalletModel) {}
     func load(silent: Bool) async {}
     func createContact(name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID { AddressBookContactID() }
     func reSignContact(id: AddressBookContactID, name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws {}

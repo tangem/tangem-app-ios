@@ -14,6 +14,7 @@ public enum TangemPayAccessibilityIdentifiers {
     // MARK: - Main screen entry
 
     public static let mainScreenTile = "\(prefix)MainScreenTile"
+    public static let mainScreenTileBalance = "\(prefix)MainScreenTileBalance"
     public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
     public static let getTangemPayBannerOpenButton = "\(prefix)GetTangemPayBannerOpenButton"
 
@@ -70,6 +71,13 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let cardDetailsCopyExpiration = "\(prefix)CardDetailsCopyExpiration"
     public static let cardDetailsCopyCvc = "\(prefix)CardDetailsCopyCvc"
 
+    // MARK: - Add to Apple/Google Pay guide
+
+    public static let addToApplePayGuideBanner = "\(prefix)AddToApplePayGuideBanner"
+    public static let addToApplePayGuideBannerCloseButton = "\(prefix)AddToApplePayGuideBannerCloseButton"
+    public static let addToApplePayGuideContainer = "\(prefix)AddToApplePayGuideContainer"
+    public static let addToApplePayGuideCloseButton = "\(prefix)AddToApplePayGuideCloseButton"
+
     // MARK: - Card management
 
     public static let changePinRow = "\(prefix)ChangePinRow"
@@ -77,6 +85,13 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let freezeCardRowStateFrozen = "\(prefix)FreezeCardRowStateFrozen"
     public static let freezeSheetConfirmButton = "\(prefix)FreezeSheetConfirmButton"
     public static let unfreezeSheetConfirmButton = "\(prefix)UnfreezeSheetConfirmButton"
+
+    // MARK: - Card rename
+
+    public static let cardNameEditButton = "\(prefix)CardNameEditButton"
+    public static let cardNameTextField = "\(prefix)CardNameTextField"
+    public static let cardRenameDoneButton = "\(prefix)CardRenameDoneButton"
+    public static let cardRenameCloseButton = "\(prefix)CardRenameCloseButton"
 
     // MARK: - Daily limit
 
@@ -101,7 +116,10 @@ public enum TangemPayAccessibilityIdentifiers {
     // MARK: - Transaction details
 
     public static let transactionDetailsTitle = "\(prefix)TransactionDetailsTitle"
+    public static let transactionDetailsDate = "\(prefix)TransactionDetailsDate"
+    public static let transactionDetailsIcon = "\(prefix)TransactionDetailsIcon"
     public static let transactionDetailsAmount = "\(prefix)TransactionDetailsAmount"
+    public static let transactionDetailsStatus = "\(prefix)TransactionDetailsStatus"
     public static let transactionDetailsMainButton = "\(prefix)TransactionDetailsMainButton"
 
     // MARK: - PIN setup screen
@@ -111,6 +129,13 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let pinInputField = "\(prefix)PinInputField"
     public static let pinSubmitButton = "\(prefix)PinSubmitButton"
     public static let pinErrorMessage = "\(prefix)PinErrorMessage"
+
+    // MARK: - PIN check sheet
+
+    public static let pinCheckTitle = "\(prefix)PinCheckTitle"
+    public static let pinCheckLoader = "\(prefix)PinCheckLoader"
+    public static let pinCheckValue = "\(prefix)PinCheckValue"
+    public static let pinCheckChangeButton = "\(prefix)PinCheckChangeButton"
 
     // MARK: - PIN success screen
 
