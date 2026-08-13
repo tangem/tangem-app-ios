@@ -15,6 +15,7 @@ final class PromotionDeeplinkHandler {
     private weak var coordinator: (any PromotionDeeplinkRoutable)?
     private let walletModel: any WalletModel
     private let userWalletInfo: UserWalletInfo
+    private let walletModelLocator = DeeplinkWalletModelLocator()
 
     init(
         coordinator: any PromotionDeeplinkRoutable,
@@ -42,7 +43,7 @@ private extension PromotionDeeplinkHandler {
 
         switch navigationAction.destination {
         case .swap:
-            return openSwap()
+            return openSwap(params: navigationAction.params)
 
         case .buy:
             return openOnramp()
@@ -65,16 +66,35 @@ private extension PromotionDeeplinkHandler {
         return true
     }
 
-    func openSwap() -> Bool {
-        guard let parameters = SwapPredefinedParametersHelper().makeParameters(
-            walletModel: walletModel,
-            userWalletInfo: userWalletInfo,
-            position: .automatic
+    func openSwap(params: DeeplinkNavigationAction.Params) -> Bool {
+        guard let userWalletModel = walletModelLocator.findUserWalletModel(userWalletModelId: userWalletInfo.id.stringValue) else {
+            return false
+        }
+
+        if let parameters = DeeplinkSwapParametersResolver().resolve(
+            params: params,
+            accountModelsManager: userWalletModel.accountModelsManager,
+            userWalletInfo: userWalletModel.userWalletInfo
+        ) {
+            coordinator?.openSwap(parameters: parameters)
+            return true
+        }
+
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+
+        guard let sourceToken = MainSwapPairResolver.makeBestEffortSourceToken(
+            from: walletModels,
+            userWalletInfo: userWalletModel.userWalletInfo
         ) else {
             return false
         }
 
-        coordinator?.openSwap(parameters: parameters)
+        let resolver = MainSwapPairResolver(
+            userWalletModel: userWalletModel,
+            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
+        )
+
+        coordinator?.openSwap(parameters: .deferredPairResolution(source: sourceToken, resolver: resolver))
         return true
     }
 

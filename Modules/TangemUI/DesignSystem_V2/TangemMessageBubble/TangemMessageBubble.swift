@@ -19,8 +19,6 @@ public struct TangemMessageBubble: View, Setupable {
     private var textLineLimit: Int? = Metrics.textLineLimit
     private var accessibilityIdentifier: String?
 
-    @Environment(\.layoutDirection) private var layoutDirection
-
     @ScaledMetric private var iconSize: CGFloat = Metrics.iconSize
     @ScaledMetric private var tipSize: CGFloat = Metrics.tipSize
     @ScaledMetric private var cornerRadius: CGFloat = Metrics.cornerRadius
@@ -85,13 +83,10 @@ public struct TangemMessageBubble: View, Setupable {
     }
 
     private var tip: some View {
-        let horizontalSign: CGFloat = layoutDirection == .rightToLeft ? -1 : 1
-
-        return TipShape()
+        TipShape()
             .fill(variant.palette.background)
             .frame(width: tipSize, height: tipSize)
-            .scaleEffect(x: horizontalSign, y: 1)
-            .offset(x: tipLeadingInset * horizontalSign, y: -tipSize)
+            .offset(x: tipLeadingInset, y: -tipSize)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
     }
@@ -115,6 +110,12 @@ public extension TangemMessageBubble {
     func accessibilityIdentifier(_ accessibilityIdentifier: String) -> Self {
         map { $0.accessibilityIdentifier = accessibilityIdentifier }
     }
+}
+
+// MARK: - Geometry
+
+extension TangemMessageBubble {
+    static let tipLeadingInset: CGFloat = Metrics.tipLeadingInset
 }
 
 // MARK: - Public Type

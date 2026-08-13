@@ -25,6 +25,17 @@ struct SwapPredefinedParametersHelper {
             return .to(token)
         }
     }
+
+    func makeParameters(
+        fromWalletModel: any WalletModel,
+        toWalletModel: (any WalletModel)?,
+        userWalletInfo: UserWalletInfo,
+        extras: PredefinedSwapParameters.Extras?
+    ) -> PredefinedSwapParameters {
+        let source = makeSwapableToken(walletModel: fromWalletModel, userWalletInfo: userWalletInfo)
+        let receive = toWalletModel.map { makeSwapableToken(walletModel: $0, userWalletInfo: userWalletInfo) }
+        return .from(source, receive: receive, extras: extras)
+    }
 }
 
 // MARK: - Private

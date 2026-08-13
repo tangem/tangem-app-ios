@@ -186,8 +186,8 @@ private extension SolanaUnstakingAmountValidatorTests {
             targets: [],
             preferredTargets: [],
             item: StakingTokenItem(network: .solana, name: "Solana", decimals: 9, symbol: "SOL"),
-            unbondingPeriod: .constant(days: 3),
-            warmupPeriod: .constant(days: 0),
+            unbondingPeriod: .days(3),
+            warmupPeriod: .days(0),
             rewardClaimingType: .auto,
             rewardScheduleType: .daily,
             maximumStakeAmount: nil

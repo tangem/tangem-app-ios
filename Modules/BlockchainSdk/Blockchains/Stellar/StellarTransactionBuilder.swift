@@ -14,7 +14,7 @@ import Combine
 class StellarTransactionBuilder {
     var useTimebounds = true
     /// for tests
-    var specificTxTime: TimeInterval?
+    var specificTxTime: UInt64?
 
     private let walletPublicKey: Data
     private let isTestnet: Bool
@@ -174,11 +174,12 @@ class StellarTransactionBuilder {
 
         // Extended the interval from 2 minutes to 5 to make sure the transaction lives longer
         // and has more chance of getting through when the network is under heavy load
-        let currentTime = specificTxTime ?? Date().timeIntervalSince1970
-        let minTime = currentTime - 2.5 * 60.0
-        let maxTime = currentTime + 2.5 * 60.0
+        let halfIntervalSeconds: UInt64 = 150
+        let currentTime = specificTxTime ?? UInt64(Date().timeIntervalSince1970)
+        let minTime = currentTime - halfIntervalSeconds
+        let maxTime = currentTime + halfIntervalSeconds
 
-        let cond: PreconditionsXDR = useTimebounds ? .time(TimeBoundsXDR(minTime: UInt64(minTime), maxTime: UInt64(maxTime))) : .none
+        let cond: PreconditionsXDR = useTimebounds ? .time(TimeBoundsXDR(minTime: minTime, maxTime: maxTime)) : .none
         let tx = TransactionXDR(
             sourceAccount: sourceKeyPair.publicKey,
             seqNum: sequence + 1,
