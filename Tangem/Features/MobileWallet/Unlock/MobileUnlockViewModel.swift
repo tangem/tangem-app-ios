@@ -12,7 +12,7 @@ import TangemFoundation
 import TangemAssets
 import TangemLocalization
 import TangemMobileWalletSdk
-import class TangemSdk.BiometricsUtil
+import TangemSdk
 
 final class MobileUnlockViewModel: ObservableObject {
     @Published var accessCode: String = .empty

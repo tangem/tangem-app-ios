@@ -3,67 +3,116 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
+import TangemUI
+import TangemUIUtils
 
 struct MarketsTokenDetailsSecurityScoreView: View {
     let viewModel: MarketsTokenDetailsSecurityScoreViewModel
 
+    @ScaledMetric private var starSize: CGFloat = 20
+    @ScaledMetric private var starsSpacing: CGFloat = 4
+    @ScaledMetric private var verticalSpacing: CGFloat = 8
+
     var body: some View {
-        HStack(spacing: .zero) {
-            VStack(alignment: .leading, spacing: Constants.defaultSpacing) {
-                title
+        VStack(spacing: verticalSpacing) {
+            topRow
 
-                subtitle
-            }
-            .foregroundStyle(Colors.Text.tertiary)
-            .padding(.vertical, Constants.defaultSpacing)
-
-            Spacer()
-
-            MarketsTokenDetailsSecurityScoreRatingView(viewData: viewModel.ratingViewData)
+            bottomRow
         }
-        .padding(.vertical, 12.0)
-        .defaultRoundedBackground(
-            with: Colors.Background.action,
-            verticalPadding: .zero
-        )
+        .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 16, radius: 24)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreBlock)
     }
 
-    @ViewBuilder
-    private var title: some View {
-        Button(action: viewModel.onInfoButtonTap) {
-            HStack(spacing: Constants.defaultSpacing) {
-                Text(viewModel.title)
-                    .font(Fonts.Bold.footnote.weight(.semibold))
+    private var topRow: some View {
+        HStack(alignment: .top) {
+            scoreValue
 
-                Assets.infoCircle16.image
+            Spacer()
+
+            starsView
+        }
+    }
+
+    private var bottomRow: some View {
+        HStack(alignment: .center) {
+            infoButton
+
+            Spacer()
+
+            subtitle
+        }
+    }
+}
+
+// MARK: - Subviews
+
+private extension MarketsTokenDetailsSecurityScoreView {
+    var scoreValue: some View {
+        Text(viewModel.ratingViewData.securityScore)
+            .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+            .lineLimit(1)
+            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreValue)
+    }
+
+    var starsView: some View {
+        HStack(spacing: starsSpacing) {
+            ForEach(viewModel.ratingViewData.ratingBullets.indexed(), id: \.0) { _, bullet in
+                starImage(for: bullet)
+                    .resizable()
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.informative)
+                    .foregroundStyle(DesignSystem.Color.iconAccentBlue)
+                    .frame(width: starSize, height: starSize)
+            }
+        }
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreRatingStars)
+    }
+
+    var infoButton: some View {
+        SwiftUI.Button(action: viewModel.onInfoButtonTap) {
+            HStack(spacing: 4) {
+                DesignSystem.Icons.Info.regular16.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+
+                Text(viewModel.title)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
             }
         }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreInfoButton)
     }
 
-    @ViewBuilder
-    private var subtitle: some View {
+    var subtitle: some View {
         Text(viewModel.subtitle)
-            .font(Fonts.Regular.caption1)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            .lineLimit(1)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreReviewsCount)
     }
-}
 
-// MARK: - Constants
+    func starImage(for bullet: MarketsTokenDetailsSecurityScoreRatingViewData.RatingBullet) -> Image {
+        let asset: ImageType
+        switch bullet.value {
+        case 0.75...:
+            asset = Assets.DesignSystem.starFilled
 
-private extension MarketsTokenDetailsSecurityScoreView {
-    enum Constants {
-        static let defaultSpacing = 4.0
+        case 0.5 ..< 0.75:
+            asset = Assets.DesignSystem.starHalfFilled
+
+        case Double.ulpOfOne ..< 0.5:
+            asset = Assets.DesignSystem.starAlmostFilled
+
+        default:
+            asset = Assets.DesignSystem.starEmpty
+        }
+
+        return asset.image
     }
 }
 
@@ -71,32 +120,27 @@ private extension MarketsTokenDetailsSecurityScoreView {
 
 #Preview {
     MarketsTokenDetailsSecurityScoreView(
-        viewModel: .init(
-            securityScoreValue: 3.3,
+        viewModel: MarketsTokenDetailsSecurityScoreViewModel(
+            securityScoreValue: 4.3,
             providers: [
-                .init(
+                MarketsTokenDetailsSecurityScore.Provider(
                     id: "provider1",
                     name: "Provider #1",
-                    securityScore: 2.5,
+                    securityScore: 4.5,
                     auditDate: Date(),
                     auditURL: URL(string: "https://www.certik.com")
                 ),
-                .init(
+                MarketsTokenDetailsSecurityScore.Provider(
                     id: "provider2",
                     name: "Provider #2",
-                    securityScore: 4.5,
+                    securityScore: 4.1,
                     auditDate: nil,
-                    auditURL: nil
-                ),
-                .init(
-                    id: "provider3",
-                    name: "Provider #3",
-                    securityScore: 3.5,
-                    auditDate: Date(),
                     auditURL: nil
                 ),
             ],
             routable: nil
         )
     )
+    .padding()
+    .background(DesignSystem.Color.bgPrimary)
 }

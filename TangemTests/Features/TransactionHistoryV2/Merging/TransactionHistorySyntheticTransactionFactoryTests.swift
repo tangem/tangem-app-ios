@@ -51,7 +51,7 @@ struct TransactionHistorySyntheticTransactionFactoryTests {
         #expect(record.singleSourceAddress == "0xOwner")
         #expect(record.singleDestinationAddress == "0xPayIn")
         #expect(record.singleDestinationAmount == 2)
-        #expect(record.hash == "0xPayInHash")
+        #expect(record.hash == "ExpressSyntheticTx_tx-1")
         #expect(record.type == .contractMethodName(name: "swap"))
         #expect(record.date == ExpressMergeTestDataFactory.baseDate)
         #expect(record.index == 0)
@@ -96,7 +96,7 @@ struct TransactionHistorySyntheticTransactionFactoryTests {
         #expect(record.singleSourceAddress == String.unknown)
         #expect(record.singleDestinationAddress == "0xPayOut")
         #expect(record.singleDestinationAmount == 3)
-        #expect(record.hash == "0xPayOutHash")
+        #expect(record.hash == "ExpressSyntheticTx_tx-2")
         #expect(record.exchangeInfo != nil)
     }
 
@@ -244,7 +244,7 @@ struct TransactionHistorySyntheticTransactionFactoryTests {
             updatedAt: ExpressMergeTestDataFactory.baseDate
         )
 
-        #expect(factory.makeSyntheticTransaction(from: exchange).hash == "tx-fallback")
+        #expect(factory.makeSyntheticTransaction(from: exchange).hash == "ExpressSyntheticTx_tx-fallback")
     }
 
     @Test("Exchange (outgoing): a nil from-address falls back to the owner address as the source")
@@ -398,7 +398,7 @@ struct TransactionHistorySyntheticTransactionFactoryTests {
         #expect(record.singleSourceAddress == String.unknown)
         #expect(record.singleDestinationAddress == "0xPayOut")
         #expect(record.singleDestinationAmount == targetAmount)
-        #expect(record.hash == "0xOnHash")
+        #expect(record.hash == "ExpressSyntheticTx_on-1")
         #expect(record.type == .contractMethodName(name: "onramp"))
         #expect(record.date == ExpressMergeTestDataFactory.baseDate)
         #expect(record.index == 0)
@@ -476,7 +476,7 @@ struct TransactionHistorySyntheticTransactionFactoryTests {
             updatedAt: ExpressMergeTestDataFactory.baseDate
         )
 
-        #expect(factory.makeSyntheticTransaction(from: onramp).hash == "on-fallback")
+        #expect(factory.makeSyntheticTransaction(from: onramp).hash == "ExpressSyntheticTx_on-fallback")
     }
 
     // MARK: - Onramp status mapping

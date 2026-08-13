@@ -66,8 +66,11 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
                 isToken: walletModel.tokenItem.isToken
             )
 
-        case .bitcoin:
+        case let blockchain where blockchain.isPsbtDexSwapSupported:
             return try await sendBitcoinPsbt(data: data)
+
+        case .tron:
+            return try await sendTron(data: data, fee: fee)
 
         case let blockchain:
             throw DEXTransactionDispatcherError.dexNotSupported(blockchain: blockchain.displayName)
@@ -104,6 +107,15 @@ private extension ExpressDEXTransactionDispatcher {
         return unsignedData
     }
 
+    func sendTron(data: ExpressTransactionData, fee: BSDKFee) async throws -> TransactionDispatcherResult {
+        guard FeatureProvider.isAvailable(.tronDexSwap) else {
+            throw DEXTransactionDispatcherError.dexNotSupported(blockchain: feeTokenItem.blockchain.displayName)
+        }
+
+        let transaction = try await buildTronTransaction(data: data, fee: fee)
+        return try await transferTransactionDispatcher.send(transaction: .transfer(transaction))
+    }
+
     func sendBitcoinPsbt(data: ExpressTransactionData) async throws -> TransactionDispatcherResult {
         guard let sender = walletModel.bitcoinPsbtSwapSender else {
             throw TransactionDispatcherResult.Error.actionNotSupported
@@ -126,6 +138,42 @@ private extension ExpressDEXTransactionDispatcher {
             signer: transactionSigner.latestSignerType,
             isToken: walletModel.tokenItem.isToken
         )
+    }
+}
+
+// MARK: - Tron transaction build
+
+extension ExpressDEXTransactionDispatcher {
+    func buildTronTransaction(data: ExpressTransactionData, fee: BSDKFee) async throws -> BSDKTransaction {
+        let blockchain = feeTokenItem.blockchain
+        let mapped = try TronDEXTransactionMapper(blockchain: blockchain)
+            .map(data: data, expectedOwner: walletModel.defaultAddressString)
+
+        switch mapped {
+        case .contractCall(let call):
+            return try await transactionCreator.createTransaction(
+                amount: BSDKAmount(with: blockchain, type: .coin, value: call.callValue),
+                fee: fee,
+                destinationAddress: call.contractAddress,
+                contractAddress: call.contractAddress,
+                params: TronTransactionParams(
+                    // `estimatedGasLimit` is not a fallback here: it's an EVM gas count, not a sun cap.
+                    transactionType: .contractCall(
+                        callData: call.callData,
+                        feeLimit: call.adjustedFeeLimit(covering: fee, blockchain: blockchain)
+                    ),
+                    memo: call.memo
+                )
+            )
+
+        case .transfer(let transfer):
+            return try await transactionCreator.createTransaction(
+                amount: BSDKAmount(with: blockchain, type: .coin, value: transfer.amount),
+                fee: fee,
+                destinationAddress: transfer.destinationAddress,
+                params: TronTransactionParams(transactionType: .transfer, memo: transfer.memo)
+            )
+        }
     }
 }
 

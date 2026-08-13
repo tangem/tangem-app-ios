@@ -28,6 +28,14 @@ final class FileEncryptionUtility {
         return decryptedData
     }
 
+    func clean() {
+        do {
+            try keychain.delete(keychainKey)
+        } catch {
+            AppLogger.error("Failed to clean file encryption key", error: error)
+        }
+    }
+
     private func storedSymmetricKey() throws -> SymmetricKey {
         if let key = try keychain.get(keychainKey) {
             let symmetricKey: SymmetricKey = .init(data: key)

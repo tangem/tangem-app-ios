@@ -101,15 +101,11 @@ struct PushNotificationsPermissionRequestView: View {
     }
 
     private var secondArgumentTitle: String {
-        FeatureProvider.isAvailable(.pushNotificationsSettings)
-            ? Localization.userPushNotificationAgreementArgumentTwoTitleV2
-            : Localization.userPushNotificationAgreementArgumentTwoTitle
+        Localization.userPushNotificationAgreementArgumentTwoTitleV2
     }
 
     private var secondArgumentDescription: String {
-        FeatureProvider.isAvailable(.pushNotificationsSettings)
-            ? Localization.userPushNotificationAgreementArgumentTwoSubtitleV2
-            : Localization.userPushNotificationAgreementArgumentTwoSubtitle
+        Localization.userPushNotificationAgreementArgumentTwoSubtitleV2
     }
 
     private var iconColor: Color {

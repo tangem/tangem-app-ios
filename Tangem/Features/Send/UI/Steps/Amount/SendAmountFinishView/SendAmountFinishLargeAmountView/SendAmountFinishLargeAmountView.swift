@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct SendAmountFinishLargeAmountView: View {
     let viewModel: SendAmountFinishLargeAmountViewModel
@@ -32,6 +33,7 @@ struct SendAmountFinishLargeAmountView: View {
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .lineLimit(1)
                     .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.finishAmountValue)
 
                 // Keep empty text so that the view maintains its place in the layout
                 Text(viewModel.alternativeAmount ?? " ")

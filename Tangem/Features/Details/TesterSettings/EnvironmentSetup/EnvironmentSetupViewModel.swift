@@ -204,6 +204,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "Silent Push Tester", action: { [weak self] in
                 self?.coordinator?.openSilentPushTester()
             }),
+            DefaultRowViewModel(title: "Drop app database", action: { [weak self] in
+                self?.showDropAppDatabaseAlert()
+            }),
         ]
 
         forcedDemoCardId = AppSettings.shared.forcedDemoCardId ?? ""
@@ -229,6 +232,17 @@ final class EnvironmentSetupViewModel: ObservableObject {
     func resetApplicationUID() {
         AppSettings.shared.applicationUid = ""
         updateApplicationUid()
+    }
+
+    func showDropAppDatabaseAlert() {
+        let alert = Alert(
+            title: Text("Drop the app database on the next launch?"),
+            primaryButton: .destructive(Text("Yes"), action: {
+                AppDatabaseDropUtil.scheduleDrop()
+            }),
+            secondaryButton: .cancel(Text("No"))
+        )
+        self.alert = AlertBinder(alert: alert)
     }
 
     func showExitAlert() {

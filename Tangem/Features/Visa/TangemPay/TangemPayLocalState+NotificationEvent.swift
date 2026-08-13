@@ -14,14 +14,14 @@ extension TangemPayLocalState {
         case .unavailable:
             return .unavailable
         case .syncNeeded:
-            return .sessionExpired(icon: icon)
+            return .sessionExpired(icon: icon, isRenewing: false)
+        case .syncInProgress:
+            return .sessionExpired(icon: icon, isRenewing: true)
         case .loading,
              .kycRequired,
              .kycDeclined,
-             .issuingCard,
              .failedToIssueCard,
              .tangemPayAccount,
-             .syncInProgress,
              .cardDeactivated,
              .planSelectNeeded:
             return nil

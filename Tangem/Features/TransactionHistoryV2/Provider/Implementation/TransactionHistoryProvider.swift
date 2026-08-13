@@ -8,9 +8,7 @@
 
 import Foundation
 import Combine
-import CombineExt
 import BlockchainSdk
-import CryptoSwift
 import TangemExpress
 import TangemFoundation
 
@@ -18,10 +16,13 @@ final actor TransactionHistoryProvider {
     @Injected(\.transactionHistoryAuxDataRepository) private nonisolated var auxDataRepository: TransactionHistoryAuxDataRepository
 
     private let repository: TransactionHistoryRepository
-    private let syncMetadataStorage: () async -> SyncMetadataStorage
-    private let tokenItem: TokenItem
+    private let syncMetadataStorage: TransactionHistorySyncMetadataStorage
+    private let key: TransactionHistoryProviderKey
     private let userWalletId: UserWalletId
-    private let address: String
+
+    private nonisolated var address: String {
+        key.address
+    }
 
     private nonisolated var maskedAddress: String {
         address.prefix(Constants.maskedAddressPrefixSuffixLength) + "••••" + address.suffix(Constants.maskedAddressPrefixSuffixLength)
@@ -36,87 +37,22 @@ final actor TransactionHistoryProvider {
     private var _hasCompletedInitialSync: Bool?
     private var lastSuccessfulPullToRefreshAt: Date?
 
-    /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
-    private nonisolated let exchangeUpdatesSubject = CurrentValueSubject<[ExchangeTransaction], Never>([])
-
-    /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
-    private nonisolated let onrampUpdatesSubject = CurrentValueSubject<[OnrampTransaction], Never>([])
-
-    /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
-    private nonisolated let auxDataUpdatesSubject = PassthroughSubject<Void, Never>()
-
     private nonisolated let mappingQueue = DispatchQueue(
         label: "com.tangem.TransactionHistoryProvider.mappingQueue",
         qos: .userInitiated,
         target: .global(qos: .userInitiated)
     )
 
-    /// - Note: Manual protection needed due to mutation from a non-isolated context, therefore the lock is used.
-    private nonisolated let bag = OSAllocatedUnfairLock(uncheckedState: Set<AnyCancellable>())
-
     init(
         repository: TransactionHistoryRepository,
+        syncMetadataStorage: TransactionHistorySyncMetadataStorage,
         userWalletId: UserWalletId,
-        tokenItem: TokenItem,
-        address: String
+        key: TransactionHistoryProviderKey
     ) {
         self.repository = repository
-        self.tokenItem = tokenItem
+        self.syncMetadataStorage = syncMetadataStorage
+        self.key = key
         self.userWalletId = userWalletId
-        self.address = address
-
-        syncMetadataStorage = { @MainActor in
-            SyncMetadataStorage(userWalletId: userWalletId, address: address)
-        }
-
-        subscribeToRepositoryUpdates()
-        subscribeToAuxDataUpdates()
-    }
-
-    private nonisolated func subscribeToRepositoryUpdates() {
-        let exchangeUpdatesSubscription = runTask { [weak self] in
-            guard let stream = self?.repository.exchangeHistoryUpdates else {
-                return
-            }
-
-            for await transactions in stream {
-                self?.exchangeUpdatesSubject.send(transactions)
-            }
-        }
-        .eraseToAnyCancellable()
-
-        let onrampUpdatesSubscription = runTask { [weak self] in
-            guard let stream = self?.repository.onrampHistoryUpdates else {
-                return
-            }
-
-            for await transactions in stream {
-                self?.onrampUpdatesSubject.send(transactions)
-            }
-        }
-        .eraseToAnyCancellable()
-
-        bag { bag in
-            bag.insert(exchangeUpdatesSubscription)
-            bag.insert(onrampUpdatesSubscription)
-        }
-    }
-
-    private nonisolated func subscribeToAuxDataUpdates() {
-        let auxDataSubscription = runTask { [weak self] in
-            guard let stream = self?.auxDataRepository.didLoadAuxData else {
-                return
-            }
-
-            for await _ in stream {
-                self?.auxDataUpdatesSubject.send(())
-            }
-        }
-        .eraseToAnyCancellable()
-
-        bag { bag in
-            _ = bag.insert(auxDataSubscription)
-        }
     }
 
     private func emit(_ newState: TransactionHistorySyncState) {
@@ -127,9 +63,12 @@ final actor TransactionHistoryProvider {
     private func markInitialSyncCompleted() {
         _hasCompletedInitialSync = true
         // Fire-and-forget, we don't need to await this because we have an actor-protected value
-        runTask { [syncMetadataStorage] in
-            let storage = await syncMetadataStorage()
-            await MainActor.run { storage.hasCompletedInitialSync = true }
+        runTask(in: self) { provider in
+            do {
+                try await provider.syncMetadataStorage.setIsInitialSyncDone(true)
+            } catch {
+                TransactionHistoryLogger.error(provider, "Failed to persist the initial sync flag", error: error)
+            }
         }
     }
 
@@ -139,7 +78,16 @@ final actor TransactionHistoryProvider {
             return cached
         }
 
-        let value = await syncMetadataStorage().hasCompletedInitialSync
+        let value: Bool
+
+        do {
+            value = try await syncMetadataStorage.isInitialSyncDone()
+        } catch {
+            // No caching on error, because we want to retry on the next call
+            TransactionHistoryLogger.error(self, "Failed to read the initial sync flag", error: error)
+
+            return false
+        }
 
         // Double-check required since there is a suspension point above on storage read
         if let cached = _hasCompletedInitialSync {
@@ -363,6 +311,7 @@ extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
 extension TransactionHistoryProvider: WalletModelTransactionHistoryEnriching {
     nonisolated func enrichedTransactionHistoryPublisher(
         from originalTransactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
+        tokenItem: TokenItem,
         feeTokenItem: TokenItem
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
         let merger = TransactionHistoryExpressDataMerger(
@@ -370,13 +319,21 @@ extension TransactionHistoryProvider: WalletModelTransactionHistoryEnriching {
             currentToken: tokenItem,
             feeTokenItem: feeTokenItem
         )
+        let currency = tokenItem.expressCurrency.asCurrency
 
         // [REDACTED_TODO_COMMENT]
         return originalTransactionHistoryPublisher
             .combineLatest(
-                exchangeUpdatesSubject,
-                onrampUpdatesSubject,
-                auxDataUpdatesSubject
+                Publishers.stream { [repository] in
+                    repository.exchangeHistoryUpdates(for: currency)
+                },
+                Publishers.stream { [repository] in
+                    repository.onrampHistoryUpdates(for: currency)
+                },
+                Publishers
+                    .stream { [auxDataRepository] in
+                        auxDataRepository.didLoadAuxData
+                    }
                     .prepend(()) // Emit an initial value in case the aux data is already cached and no updates are coming
             )
             .receive(on: mappingQueue)
@@ -428,9 +385,9 @@ extension TransactionHistoryProvider: CustomStringConvertible {
         objectDescription(
             self,
             userInfo: [
-                "name": tokenItem.name,
-                "type": tokenItem.isToken ? "Token" : "Coin",
-                "derivation": tokenItem.blockchainNetwork.derivationPath?.rawPath ?? "nil",
+                "name": key.tokenItem.name,
+                "type": key.tokenItem.isToken ? "Token" : "Coin",
+                "derivation": key.tokenItem.blockchainNetwork.derivationPath?.rawPath ?? "nil",
                 "address": maskedAddress,
             ]
         )
@@ -444,38 +401,5 @@ private extension TransactionHistoryProvider {
         static let pullToRefreshThrottle: TimeInterval = 10
         static let postBroadcastDelay: Duration = .seconds(5)
         static let maskedAddressPrefixSuffixLength = 4
-    }
-}
-
-// MARK: - Auxiliary types
-
-private extension TransactionHistoryProvider {
-    // [REDACTED_TODO_COMMENT]
-    /// A dummy wrapper to allow initialization of a MainActor-isolated `AppStorageCompat` instance inside
-    /// the synchronous and implicitly isolated init of the `TransactionHistoryProvider` actor.
-    /// Without it, we either would have to make that init async or silence the compiler warning
-    /// `Call to main actor-isolated initializer 'init...' in a synchronous actor-isolated context`.
-    final class SyncMetadataStorage {
-        @AppStorageCompat<SyncMetadataStorageKey, Bool>
-        var hasCompletedInitialSync: Bool
-
-        init(
-            userWalletId: UserWalletId,
-            address: String
-        ) {
-            _hasCompletedInitialSync = .init(wrappedValue: false, .makeKey(userWalletId: userWalletId, address: address))
-        }
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    struct SyncMetadataStorageKey: RawRepresentable {
-        let rawValue: String
-
-        static func makeKey(
-            userWalletId: UserWalletId,
-            address: String
-        ) -> Self {
-            Self(rawValue: "TransactionHistoryV2InitialSyncCompleted_\(userWalletId.stringValue)_\(address.sha256())")
-        }
     }
 }
