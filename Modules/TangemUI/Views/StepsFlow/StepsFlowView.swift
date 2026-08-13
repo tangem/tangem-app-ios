@@ -13,6 +13,15 @@ public struct StepsFlowView: View {
 
     private let configuration: StepsFlowConfiguration
 
+    private var flowBarEdgeInsets: EdgeInsets {
+        EdgeInsets(
+            top: configuration.navigationBarTopPadding,
+            leading: 16,
+            bottom: 16,
+            trailing: 16
+        )
+    }
+
     public init(
         builder: StepsFlowBuilder,
         configuration: StepsFlowConfiguration
@@ -24,7 +33,8 @@ public struct StepsFlowView: View {
     public var body: some View {
         VStack(spacing: 0) {
             flowBar
-                .padding(.horizontal, .unit(.x4))
+                .padding(flowBarEdgeInsets)
+                .background(viewModel.currentBackgroundColor)
 
             stepsContent
         }
@@ -89,6 +99,7 @@ private extension StepsFlowView {
             onTitle: { viewModel.update(stepId: step.id, title: $0) },
             onLeadingItem: { viewModel.update(stepId: step.id, leadingItem: $0) },
             onTrailingItem: { viewModel.update(stepId: step.id, trailingItem: $0) },
+            onBackgroundColor: { viewModel.update(stepId: step.id, backgroundColor: $0) },
             onLoading: { viewModel.update(stepId: step.id, isLoading: $0) }
         )
         .frame(maxHeight: .infinity, alignment: .top)

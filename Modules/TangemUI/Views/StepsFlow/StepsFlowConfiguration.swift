@@ -11,17 +11,20 @@ import Foundation
 public struct StepsFlowConfiguration {
     let hasProgressBar: Bool
     let navigationBarHeight: CGFloat
+    let navigationBarTopPadding: CGFloat
     let progressBarHeight: CGFloat
     let progressBarPadding: CGFloat
 
     public init(
         hasProgressBar: Bool,
         navigationBarHeight: CGFloat,
+        navigationBarTopPadding: CGFloat,
         progressBarHeight: CGFloat,
         progressBarPadding: CGFloat
     ) {
         self.hasProgressBar = hasProgressBar
         self.navigationBarHeight = navigationBarHeight
+        self.navigationBarTopPadding = navigationBarTopPadding
         self.progressBarHeight = progressBarHeight
         self.progressBarPadding = progressBarPadding
     }
