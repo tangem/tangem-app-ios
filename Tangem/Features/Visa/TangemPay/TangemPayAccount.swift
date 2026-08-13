@@ -511,6 +511,22 @@ extension TangemPayAccount {
 
 extension TangemPayAccount: TangemPayAwaitingDepositCanceller {}
 
+// MARK: - TangemPayCashbackDataProviding
+
+extension TangemPayAccount: TangemPayCashbackDataProviding {
+    func getCashbackHistory(months: Int) async throws(TangemPayAPIServiceError) -> TangemPayCashbackHistoryResponse {
+        try await customerService.getCashbackHistory(months: months)
+    }
+
+    func getCashbackPromotions() async throws(TangemPayAPIServiceError) -> TangemPayCashbackPromotionsResponse {
+        try await customerService.getCashbackPromotions()
+    }
+
+    func getCashbackAccrualsDocs() async throws(TangemPayAPIServiceError) -> TangemPayCashbackAccrualsDocsResponse {
+        try await customerService.getCashbackAccrualsDocs()
+    }
+}
+
 // MARK: - TangemPayTariffPlanSelector
 
 extension TangemPayAccount: TangemPayTariffPlanSelector {
