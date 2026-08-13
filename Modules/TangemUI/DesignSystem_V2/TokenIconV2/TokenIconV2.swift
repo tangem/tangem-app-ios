@@ -195,7 +195,7 @@ private extension TokenIconV2 {
     }
 
     var clampedScale: CGFloat {
-        min(max(scale, Constants.minDynamicTypeMultiplier), Constants.maxDynamicTypeMultiplier)
+        TokenIconV2.clampedScale(scale)
     }
 
     var metrics: Metrics {
@@ -230,6 +230,10 @@ extension TokenIconV2 {
         static let grayscaleOpacity: CGFloat = 0.4
         static let minDynamicTypeMultiplier: CGFloat = 1
         static let maxDynamicTypeMultiplier: CGFloat = 1.5
+    }
+
+    static func clampedScale(_ scale: CGFloat) -> CGFloat {
+        min(max(scale, Constants.minDynamicTypeMultiplier), Constants.maxDynamicTypeMultiplier)
     }
 }
 

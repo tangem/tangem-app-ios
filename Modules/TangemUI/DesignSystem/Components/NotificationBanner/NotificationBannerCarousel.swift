@@ -156,17 +156,3 @@ extension NotificationBannerCarousel: Setupable {
         map { $0.currentIndexHasChanged = changed }
     }
 }
-
-// MARK: - NotificationBanner implementation
-
-public extension NotificationBannerCarousel where Item: NotificationBannerContainerItem, BannerView == NotificationBanner {
-    init(items: [Item]) {
-        self.items = items
-        bannerView = { item in
-            NotificationBanner(
-                bannerType: item.bannerType,
-                accessibilityIdentifier: item.accessibilityIdentifier
-            )
-        }
-    }
-}

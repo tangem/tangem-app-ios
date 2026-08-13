@@ -15,13 +15,13 @@ public extension NotificationBanner {
         case critical(Content, BannerAction, CloseAction? = nil)
         case warning(Content, BannerAction, CloseAction? = nil)
         case promo(Content, BannerAction, CloseAction?, Effect, BannerTextAlignment = .center)
-        case survey(TextOnly, BannerAction, CloseAction?)
-        case informational(TextOnly, BannerAction, CloseAction?, BannerTextAlignment = .center)
+        case survey(Content, BannerAction, CloseAction?)
+        case informational(Content, BannerAction, CloseAction?, BannerTextAlignment = .center)
 
         var content: Content {
             switch self {
-            case .status(let c, _, _), .critical(let c, _, _), .warning(let c, _, _), .promo(let c, _, _, _, _): c
-            case .survey(let text, _, _), .informational(let text, _, _, _): .text(text)
+            case .status(let c, _, _), .critical(let c, _, _), .warning(let c, _, _),
+                 .promo(let c, _, _, _, _), .survey(let c, _, _), .informational(let c, _, _, _): c
             }
         }
 
@@ -236,6 +236,13 @@ public extension NotificationBanner {
 
 public extension NotificationBanner {
     typealias Effect = GlowBorderEffect
+
+    enum Ring: Equatable, Sendable {
+        case off
+        case magic
+        case warning
+        case error
+    }
 }
 
 public extension NotificationBanner {

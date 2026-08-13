@@ -15,7 +15,8 @@ class CommonExpressAvailabilityProvider {
     fileprivate typealias Availability = [ExpressCurrency: AvailabilityState]
     fileprivate typealias CurrenciesSet = Set<ExpressWalletCurrency>
 
-    private let storage = CachesDirectoryStorage(file: .cachedExpressAvailability)
+    private let storage: CachesDirectoryStorage
+    private let apiProviderFactory: (_ userWalletId: String) -> ExpressAPIProvider
     private let _state: CurrentValueSubject<ExpressAvailabilityUpdateState, Never> = .init(.updating)
     private lazy var _cache: CurrentValueSubject<Availability, Never> = .init(loadFromDiskStorage())
 
@@ -24,7 +25,15 @@ class CommonExpressAvailabilityProvider {
     private var bag: Set<AnyCancellable> = []
     private var apiProvider: ExpressAPIProvider?
 
-    init() {
+    init(
+        storage: CachesDirectoryStorage = CachesDirectoryStorage(file: .cachedExpressAvailability),
+        apiProviderFactory: @escaping (_ userWalletId: String) -> ExpressAPIProvider = { userWalletId in
+            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: nil)
+        }
+    ) {
+        self.storage = storage
+        self.apiProviderFactory = apiProviderFactory
+
         bind()
     }
 }
@@ -114,7 +123,9 @@ private extension CommonExpressAvailabilityProvider {
                 ExpressLogger.error("Failed to load availability states", error: error)
                 Analytics.error(error: error)
 
-                provider._state.send(.failed(error: error))
+                // `.failed` takes Swap and Buy down for every token in the wallet, so a rejected batch must not
+                // discard the availability we already hold. Report the failure only on a never-loaded cache.
+                provider._state.send(provider.hasCache ? .updated : .failed(error: error))
             }
         }
     }
@@ -186,16 +197,11 @@ private extension CommonExpressAvailabilityProvider {
     }
 
     func makeApiProviderIfNeeded(userWalletId: String) {
-        guard self.apiProvider == nil else {
+        guard apiProvider == nil else {
             return
         }
 
-        let apiProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
-            userId: userWalletId,
-            refcode: nil
-        )
-
-        self.apiProvider = apiProvider
+        apiProvider = apiProviderFactory(userWalletId)
     }
 }
 

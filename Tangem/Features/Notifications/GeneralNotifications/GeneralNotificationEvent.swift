@@ -49,11 +49,14 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .failedToVerifyCard, .demoCard, .devCard, .testnetCard, .legacyDerivation:
             return .status
 
-        case .backupErrors, .missingBackup, .lowSignatures, .mobileFinishActivation, .numberOfSignedHashesIncorrect:
+        case .backupErrors, .missingBackup, .lowSignatures, .numberOfSignedHashesIncorrect:
             return .critical
 
         case .missingDerivation, .walletLocked, .forceUpdateAvailable:
             return .warning
+
+        case .mobileFinishActivation(let hasPositiveBalance, _):
+            return hasPositiveBalance ? .critical : .warning
 
         case .rateApp:
             return .survey
@@ -67,6 +70,32 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .initialWalletTokenSyncCompleted:
             return .informational(.leading)
 
+        default:
+            return nil
+        }
+    }
+
+    var bannerVariant: MessageBannerVariant? {
+        switch self {
+        case .missingDerivation, .walletLocked, .forceUpdateAvailable:
+            return .default
+        case .failedToVerifyCard:
+            return .error
+        case .lowSignatures:
+            return .warning
+        default:
+            return nil
+        }
+    }
+
+    var bannerRing: NotificationBanner.Ring? {
+        switch self {
+        case .walletLocked, .missingDerivation:
+            return .magic
+        case .forceUpdateAvailable:
+            return .warning
+        case .failedToVerifyCard:
+            return .off
         default:
             return nil
         }
@@ -237,27 +266,37 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
             return .init(iconType: .image(Assets.blueCircleWarning))
         case .rateApp:
-            return .init(iconType: .image(Assets.star))
+            return .init(iconType: .image(Assets.tangemIcon))
         case .walletLocked:
-            return .init(iconType: .image(Assets.lock), color: Colors.Icon.primary1)
+            return .init(
+                iconType: .image(Assets.lock),
+                renderingMode: .template,
+                color: .Tangem.Graphic.Neutral.primary
+            )
         case .mobileFinishActivation(let hasPositiveBalance, _):
             let imageType = hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
             return .init(iconType: .image(imageType), size: CGSize(width: 16, height: 18))
         case .mobileUpgrade:
             return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), isLeading: false, size: CGSize(width: 54, height: 54))
         case .pushNotificationsPermissionRequest:
-            return .init(iconType: .image(Assets.pushNotifyBannerIcon), size: CGSize(width: 54, height: 54))
+            return .init(
+                iconType: .image(DesignSystem.Icons.Bell.regular20),
+                renderingMode: .template,
+                color: .Tangem.Graphic.Neutral.primary
+            )
         case .initialWalletTokenSyncCompleted:
-            return .init(iconType: .image(Assets.blueCircleWarning))
+            return .init(
+                iconType: .image(DesignSystem.Icons.Success.regular20),
+                renderingMode: .template,
+                color: .Tangem.Graphic.Status.accent
+            )
         case .forceUpdateAvailable:
-            return .init(iconType: .image(Assets.warningIcon))
+            return .init(iconType: .image(Assets.warningIcon), isLeading: false)
         case .addFunds:
             return .init(
-                iconType: .image(Assets.coinsSwap),
+                iconType: .image(DesignSystem.Icons.ArrowDown.regular20),
                 renderingMode: .template,
-                color: .Tangem.Text.Neutral.primary,
-                isLeading: false,
-                size: CGSize(width: 24, height: 24)
+                color: .Tangem.Text.Neutral.primary
             )
         }
     }
@@ -265,15 +304,14 @@ extension GeneralNotificationEvent: NotificationEvent {
     var redesignedBannerContent: RedesignedBannerContent? {
         switch self {
         case .missingDerivation:
-            return RedesignedBannerContent(icon: nil)
-        case .mobileFinishActivation:
+            return RedesignedBannerContent(icon: NotificationView.MessageIcon(iconType: .image(Assets.infoCircle20)))
+        case .missingBackup:
+            return RedesignedBannerContent(icon: NotificationView.MessageIcon(iconType: .image(Assets.attention)))
+        case .mobileFinishActivation(let hasPositiveBalance, _):
             return RedesignedBannerContent(
                 title: .string(Localization.hwActivationNeedTitle),
                 icon: NotificationView.MessageIcon(
-                    iconType: .image(Assets.DesignSystem.flashShield),
-                    renderingMode: .template,
-                    color: .Tangem.Graphic.Neutral.primary,
-                    isLeading: false
+                    iconType: .image(hasPositiveBalance ? Assets.redCircleWarning : Assets.attention)
                 )
             )
         default:

@@ -158,7 +158,6 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                 .renderingMode(.template)
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
-        .showGlowRing(false)
         .onTap(viewModel.reloadFees)
     }
 

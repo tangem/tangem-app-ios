@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-public typealias ExpressAnalyticsLogger = TangemExpress.AnalyticsLogger
+public typealias ExpressAnalyticsLogger = AnalyticsLogger
 
 public protocol AnalyticsLogger {
     /// Swap

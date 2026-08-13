@@ -46,6 +46,10 @@ public struct TangemPayPlaceOrderRequest: Encodable {
             customerWalletAddress: customerWalletAddress
         )
     }
+
+    public init(networkContractChainId: Int) {
+        data = Data(networkContractChainId: networkContractChainId)
+    }
 }
 
 public extension TangemPayPlaceOrderRequest {
@@ -56,6 +60,7 @@ public extension TangemPayPlaceOrderRequest {
         public let depositAddress: String?
         public let targetTariffPlanId: String?
         public let tariffPlanTransitionType: String?
+        public let chainId: Int?
 
         enum CodingKeys: String, CodingKey {
             case type
@@ -64,6 +69,7 @@ public extension TangemPayPlaceOrderRequest {
             case depositAddress = "deposit_address"
             case targetTariffPlanId = "target_tariff_plan_id"
             case tariffPlanTransitionType = "tariff_plan_transition_type"
+            case chainId = "chain_id"
         }
 
         init(customerWalletAddress: String) {
@@ -73,6 +79,7 @@ public extension TangemPayPlaceOrderRequest {
             depositAddress = nil
             targetTariffPlanId = nil
             tariffPlanTransitionType = nil
+            chainId = nil
         }
 
         init(type: String, specificationName: String, customerWalletAddress: String) {
@@ -82,6 +89,7 @@ public extension TangemPayPlaceOrderRequest {
             depositAddress = nil
             targetTariffPlanId = nil
             tariffPlanTransitionType = nil
+            chainId = nil
         }
 
         init(type: String, specificationName: String, depositAddress: String) {
@@ -91,6 +99,7 @@ public extension TangemPayPlaceOrderRequest {
             self.depositAddress = depositAddress
             targetTariffPlanId = nil
             tariffPlanTransitionType = nil
+            chainId = nil
         }
 
         init(targetTariffPlanId: String, transitionType: String, customerWalletAddress: String) {
@@ -100,6 +109,17 @@ public extension TangemPayPlaceOrderRequest {
             depositAddress = nil
             self.targetTariffPlanId = targetTariffPlanId
             tariffPlanTransitionType = transitionType
+            chainId = nil
+        }
+
+        init(networkContractChainId: Int) {
+            type = TangemPayOrderType.smartContractIssueRain.rawValue
+            specificationName = nil
+            customerWalletAddress = nil
+            depositAddress = nil
+            targetTariffPlanId = nil
+            tariffPlanTransitionType = nil
+            chainId = networkContractChainId
         }
     }
 }
