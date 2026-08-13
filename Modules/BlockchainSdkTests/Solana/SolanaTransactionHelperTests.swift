@@ -40,4 +40,197 @@ struct SolanaTransactionHelperTests {
         let dataToSend = try helper.addSignature(dummySignature, transaction: unsignedData)
         #expect(dataToSend == Data(hexString: estimateDataToSend).base64EncodedString())
     }
+
+    // MARK: - putSignature
+
+    @Test
+    func putSignaturePlacesSignatureInWalletSlotPreservingOtherSlots() throws {
+        let coSignerSignature = Data(repeating: 0x11, count: MultiSigner.signatureLength)
+        let ourSignature = Data(repeating: 0x77, count: MultiSigner.signatureLength)
+        let transaction = MultiSigner.transaction(
+            firstSlot: coSignerSignature,
+            secondSlot: Data(repeating: 0x00, count: MultiSigner.signatureLength)
+        )
+
+        let signed = try helper.putSignature(ourSignature, publicKey: MultiSigner.ourKey, transaction: transaction)
+
+        // Our signature spliced into slot 1; the co-signer's slot, the count byte and the message stay byte-identical.
+        let expected = MultiSigner.transaction(firstSlot: coSignerSignature, secondSlot: ourSignature)
+        #expect(signed == expected)
+    }
+
+    @Test
+    func putSignatureSignsFeePayerSlotWhenWalletIsSignerIndexZero() throws {
+        let feePayerSignature = Data(repeating: 0x55, count: MultiSigner.signatureLength)
+        let untouchedSlot = Data(repeating: 0x00, count: MultiSigner.signatureLength)
+        let transaction = MultiSigner.transaction(firstSlot: untouchedSlot, secondSlot: untouchedSlot)
+
+        let signed = try helper.putSignature(feePayerSignature, publicKey: MultiSigner.feePayerKey, transaction: transaction)
+
+        let expected = MultiSigner.transaction(firstSlot: feePayerSignature, secondSlot: untouchedSlot)
+        #expect(signed == expected)
+    }
+
+    @Test
+    func putSignatureFailsWhenPublicKeyIsNotRequiredSigner() throws {
+        let strangerKey = Data(repeating: 0xEE, count: MultiSigner.publicKeyLength)
+        let transaction = MultiSigner.transaction(
+            firstSlot: Data(repeating: 0x00, count: MultiSigner.signatureLength),
+            secondSlot: Data(repeating: 0x00, count: MultiSigner.signatureLength)
+        )
+
+        do {
+            _ = try helper.putSignature(
+                Data(repeating: 0x77, count: MultiSigner.signatureLength),
+                publicKey: strangerKey,
+                transaction: transaction
+            )
+            Issue.record("Expected SolanaBSDKError.signerPublicKeyNotFound")
+        } catch SolanaBSDKError.signerPublicKeyNotFound {
+            // Expected
+        }
+    }
+
+    @Test
+    func putSignatureFailsWhenAccountIsPresentButNotSigner() throws {
+        let transaction = MultiSigner.transaction(
+            firstSlot: Data(repeating: 0x00, count: MultiSigner.signatureLength),
+            secondSlot: Data(repeating: 0x00, count: MultiSigner.signatureLength)
+        )
+
+        do {
+            _ = try helper.putSignature(
+                Data(repeating: 0x77, count: MultiSigner.signatureLength),
+                publicKey: MultiSigner.programKey,
+                transaction: transaction
+            )
+            Issue.record("Expected SolanaBSDKError.signerPublicKeyNotFound")
+        } catch SolanaBSDKError.signerPublicKeyNotFound {
+            // Expected
+        }
+    }
+
+    @Test
+    func putSignatureFailsForWrongSignatureLength() throws {
+        let transaction = MultiSigner.transaction(
+            firstSlot: Data(repeating: 0x00, count: MultiSigner.signatureLength),
+            secondSlot: Data(repeating: 0x00, count: MultiSigner.signatureLength)
+        )
+
+        do {
+            _ = try helper.putSignature(
+                Data(repeating: 0x77, count: MultiSigner.signatureLength - 1),
+                publicKey: MultiSigner.ourKey,
+                transaction: transaction
+            )
+            Issue.record("Expected SolanaBSDKError.invalidSignatureLength")
+        } catch SolanaBSDKError.invalidSignatureLength {
+            // Expected
+        }
+    }
+
+    @Test
+    func putSignatureDoesNotResolveSlotBeyondRealSignatureBlock() throws {
+        // The header claims two required signers, but only one signature slot exists. ourKey is signer index 1
+        // per the header — it must not resolve to a slot that lies inside the message.
+        do {
+            _ = try helper.putSignature(
+                Data(repeating: 0x77, count: MultiSigner.signatureLength),
+                publicKey: MultiSigner.ourKey,
+                transaction: MultiSigner.oneSlotButTwoRequiredSigners
+            )
+            Issue.record("Expected SolanaBSDKError.signerPublicKeyNotFound")
+        } catch SolanaBSDKError.signerPublicKeyNotFound {
+            // Expected
+        }
+    }
+
+    @Test
+    func putSignatureThrowsInsteadOfCrashingOnTruncatedMessage() throws {
+        // One signature slot followed by a one-byte message: the signer-key read runs out of bytes. It must throw,
+        // not trap the process.
+        var truncated = Data()
+        truncated.append(0x01) // signature count = 1
+        truncated.append(Data(repeating: 0x00, count: MultiSigner.signatureLength))
+        truncated.append(0x02) // message = single header byte, nothing after it
+
+        #expect(throws: (any Error).self) {
+            _ = try helper.putSignature(
+                Data(repeating: 0x77, count: MultiSigner.signatureLength),
+                publicKey: MultiSigner.ourKey,
+                transaction: truncated
+            )
+        }
+    }
+
+    @Test
+    func putSignatureThrowsWhenSignatureBlockExceedsData() throws {
+        // Declares 3 signature slots but only one slot's worth of bytes follows the count. Reading the block must
+        // fail with an error rather than let the slot index run into the message or past the buffer.
+        var overDeclared = Data()
+        overDeclared.append(0x03)
+        overDeclared.append(Data(repeating: 0x00, count: MultiSigner.signatureLength))
+
+        #expect(throws: (any Error).self) {
+            _ = try helper.putSignature(
+                Data(repeating: 0x77, count: MultiSigner.signatureLength),
+                publicKey: MultiSigner.ourKey,
+                transaction: overDeclared
+            )
+        }
+    }
+}
+
+private enum MultiSigner {
+    static let signatureLength = 64
+    static let publicKeyLength = 32
+
+    static let feePayerKey = Data(repeating: 0xA0, count: publicKeyLength)
+    static let ourKey = Data(repeating: 0xB1, count: publicKeyLength)
+    static let programKey = Data(repeating: 0xC2, count: publicKeyLength)
+    static let blockhash = Data(repeating: 0xD3, count: publicKeyLength)
+
+    /// A well-formed legacy message with 2 required signers and 3 static accounts (fee-payer, our wallet, program),
+    /// a blockhash and a single instruction referencing accounts 0 and 1.
+    static let message: Data = {
+        var data = Data()
+        data.append(contentsOf: [0x02, 0x00, 0x01]) // header: 2 required signatures, 0 readonly signed, 1 readonly unsigned
+        data.append(0x03) // account count
+        data.append(feePayerKey)
+        data.append(ourKey)
+        data.append(programKey)
+        data.append(blockhash)
+        data.append(0x01) // instruction count
+        data.append(0x02) // program id index -> program key
+        data.append(contentsOf: [0x02, 0x00, 0x01]) // 2 account indices -> [0, 1]
+        data.append(0x00) // data length
+        return data
+    }()
+
+    static func transaction(firstSlot: Data, secondSlot: Data) -> Data {
+        var data = Data()
+        data.append(0x02) // signature count
+        data.append(firstSlot)
+        data.append(secondSlot)
+        data.append(message)
+        return data
+    }
+
+    /// A malformed transaction: the transaction-level signature count is 1 (a single slot), while the message
+    /// header claims 2 required signers (fee-payer and our wallet).
+    static let oneSlotButTwoRequiredSigners: Data = {
+        var message = Data()
+        message.append(contentsOf: [0x02, 0x00, 0x00]) // header claims 2 required signers
+        message.append(0x02) // account count = 2
+        message.append(feePayerKey)
+        message.append(ourKey)
+        message.append(blockhash)
+        message.append(0x00) // instruction count = 0
+
+        var data = Data()
+        data.append(0x01) // signature count = 1 — only one real slot
+        data.append(Data(repeating: 0x00, count: signatureLength))
+        data.append(message)
+        return data
+    }()
 }

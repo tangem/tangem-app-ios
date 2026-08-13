@@ -25,7 +25,7 @@ extension UserWalletInfoProvider where Self: UserWalletModel {
             config: config,
             backupState: backupState,
             refcode: refcodeProvider?.getRefcode(),
-            signer: signer,
+            signerFactory: TangemSignerFactory(userWalletModel: self),
             emailDataProvider: emailDataProvider
         )
     }

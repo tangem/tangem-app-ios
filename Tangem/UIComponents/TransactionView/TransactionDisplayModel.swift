@@ -93,7 +93,7 @@ extension TransactionDisplayModel {
         }
     }
 
-    private static func title(
+    static func title(
         transactionType: TransactionViewModel.TransactionType,
         status: TransactionViewModel.Status,
         isOutgoing: Bool,

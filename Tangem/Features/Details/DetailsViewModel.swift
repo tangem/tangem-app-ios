@@ -15,7 +15,7 @@ import TangemLocalization
 import TangemUI
 import TangemMacro
 import TangemAccessibilityIdentifiers
-import class TangemSdk.BiometricsUtil
+import TangemSdk
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
@@ -216,11 +216,6 @@ private extension DetailsViewModel {
     }
 
     func openSupportTypeSelection(userWalletModels: [UserWalletModel]) {
-        guard FeatureProvider.isAvailable(.supportChat) else {
-            openTangemSupport(models: userWalletModels)
-            return
-        }
-
         coordinator?.openSupportTypeSelection(
             emailAction: { [weak self] in
                 self?.openTangemSupport(models: userWalletModels)
@@ -359,11 +354,6 @@ private extension DetailsViewModel {
     }
 
     func setupAddressBookRowViewModel() {
-        guard FeatureProvider.isAvailable(.addressBook) else {
-            addressBookRowViewModel = nil
-            return
-        }
-
         addressBookRowViewModel = AddressBookRowViewModel { [weak self] in
             self?.openAddressBook()
         }

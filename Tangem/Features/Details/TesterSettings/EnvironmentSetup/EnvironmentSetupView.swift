@@ -116,7 +116,7 @@ struct EnvironmentSetupView: View {
                         .font(.footnote)
                 }
 
-                Button("Reset application UID", action: viewModel.resetApplicationUID)
+                SwiftUI.Button("Reset application UID", action: viewModel.resetApplicationUID)
                     .foregroundColor(Color.red)
             }
         }
@@ -133,7 +133,7 @@ struct EnvironmentSetupView: View {
                     Text("FCM token: \(viewModel.fcmToken)")
                         .font(.footnote)
 
-                    Button {
+                    SwiftUI.Button {
                         viewModel.copyField(\.fcmToken)
                     } label: {
                         Image(systemName: "doc.on.doc")
@@ -146,7 +146,7 @@ struct EnvironmentSetupView: View {
     }
 
     private var exitButton: some View {
-        Button("Exit", action: viewModel.showExitAlert)
+        SwiftUI.Button("Exit", action: viewModel.showExitAlert)
             .disableAnimations()
     }
 }

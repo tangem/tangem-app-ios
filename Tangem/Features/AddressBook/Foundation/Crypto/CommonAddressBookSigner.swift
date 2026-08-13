@@ -11,7 +11,7 @@ import BlockchainSdk
 import TangemFoundation
 
 struct CommonAddressBookSigner: AddressBookSigning {
-    let signer: TransactionSigner
+    let signerFactory: TangemSignerFactory
 
     func sign(digests: [Data], walletPublicKey: Data) async throws -> [Data] {
         guard !digests.isEmpty else {
@@ -20,7 +20,8 @@ struct CommonAddressBookSigner: AddressBookSigning {
 
         let publicKey = Wallet.PublicKey(seedKey: walletPublicKey, derivationType: nil)
 
-        let signatures = try await signer
+        let signatures = try await signerFactory
+            .makeSigner()
             .sign(hashes: digests, walletPublicKey: publicKey)
             .async()
 

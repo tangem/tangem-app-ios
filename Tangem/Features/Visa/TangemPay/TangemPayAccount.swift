@@ -110,7 +110,13 @@ final class TangemPayAccount {
     }
 
     var depositAddress: String? {
-        customerInfoSubject.value.depositAddress
+        customerInfoSubject.value.depositAddress?.nilIfEmpty
+    }
+
+    var depositAddressPublisher: some Publisher<String?, Never> {
+        customerInfoSubject
+            .map(\.depositAddress?.nilIfEmpty)
+            .removeDuplicates()
     }
 
     var customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan? {
@@ -204,6 +210,11 @@ final class TangemPayAccount {
         customerService: customerService
     )
 
+    /// Polls `customer/me` until a deposit address is available.
+    private lazy var depositAddressPollingService = TangemPayDepositAddressPollingService(
+        customerService: customerService
+    )
+
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -249,6 +260,20 @@ final class TangemPayAccount {
         await loadCustomerInfoNew()
     }
 
+    func startDepositAddressPolling() {
+        if depositAddress == nil {
+            depositAddressPollingService.startPolling { [weak self] customerInfo in
+                self?.customerInfoSubject.send(customerInfo)
+            }
+        } else {
+            stopDepositAddressPolling()
+        }
+    }
+
+    func stopDepositAddressPolling() {
+        depositAddressPollingService.cancel()
+    }
+
     func removeAccount(onFinish: @escaping (Bool) -> Void) {
         guard let accountRemover else {
             onFinish(false)
@@ -270,6 +295,7 @@ enum TangemPayAccountError: Error {
     case missingPaymentAccountAddress
     case missingDepositAddress
     case missingCardIssueOffer
+    case missingOnrampFees
 }
 
 extension TangemPayAccount {
@@ -326,6 +352,14 @@ extension TangemPayAccount {
                 self?.placedVirtualAccountOrderId = nil
             }
         )
+    }
+}
+
+// MARK: - Fees
+
+extension TangemPayAccount {
+    func loadOnrampFees() async throws -> [TangemPayFeeResponse] {
+        try await customerService.getFees(groups: [.onramp])
     }
 }
 
@@ -448,10 +482,34 @@ extension TangemPayAccount {
             try await customerService.cancelOrder(orderId: orderId)
         } catch {
             pendingTransitionCancellation = nil
+            await loadCustomerInfo()
             throw error
         }
     }
+
+    func checkFailedToIssueState() async {
+        guard activeCards.isEmpty else { return }
+
+        let orders: [TangemPayOrderResponse]
+        do {
+            orders = try await customerService.findOrders(
+                types: TangemPayOrderType.cardIssueFamily,
+                statuses: []
+            )
+        } catch {
+            VisaLogger.error("Failed to check card-issue order history", error: error)
+            return
+        }
+
+        guard orders.isNotEmpty, orders.allConforms({ $0.status == .canceled }) else { return }
+
+        firstCardIssueFailedSubject.send(())
+    }
 }
+
+// MARK: - TangemPayAwaitingDepositCanceller
+
+extension TangemPayAccount: TangemPayAwaitingDepositCanceller {}
 
 // MARK: - TangemPayTariffPlanSelector
 
@@ -501,8 +559,7 @@ extension TangemPayAccount: TangemPayTariffPlanSelector {
 private extension TangemPayAccount {
     func makeAwaitingDepositInfo(targetPlanId: String) async -> TangemPayAwaitingDepositInfo? {
         guard let transitions = try? await customerService.getTariffPlanTransitions(),
-              let plan = transitions.first(where: { $0.tariffPlan.id == targetPlanId })?.tariffPlan,
-              let recurringFee = plan.fees.first(where: { $0.type == .recurring }) else {
+              let plan = transitions.first(where: { $0.tariffPlan.id == targetPlanId })?.tariffPlan else {
             return nil
         }
 
@@ -513,8 +570,12 @@ private extension TangemPayAccount {
             return nil
         }
 
+        let fee = plan.fees
+            .first { $0.type == .recurring }
+            .map { BalanceFormatter().formatFiatBalance($0.amount, currencyCode: $0.currency) }
+
         return TangemPayAwaitingDepositInfo(
-            fee: BalanceFormatter().formatFiatBalance(recurringFee.amount, currencyCode: recurringFee.currency),
+            fee: fee,
             planName: plan.name,
             fallbackPlanName: fallbackPlan.name
         )
@@ -674,10 +735,14 @@ private extension TangemPayAccount {
 
     private func handleIssueOrderFailure(orderId: String) {
         activeIssueOrderEventsSubject.send(.remove(id: orderId))
-        if activeCards.isEmpty {
-            firstCardIssueFailedSubject.send(())
-        } else {
+
+        guard activeCards.isEmpty else {
             cardIssueFailureSubject.send(())
+            return
+        }
+
+        runTask { [weak self] in
+            await self?.checkFailedToIssueState()
         }
     }
 
