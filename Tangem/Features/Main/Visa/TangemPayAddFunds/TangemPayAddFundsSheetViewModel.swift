@@ -17,6 +17,7 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
     private let userWalletInfo: UserWalletInfo
     private let address: String
     private let swapableToken: SendSwapableToken
+    private let networks: [TangemPayBalance.Network]
 
     private weak var coordinator: TangemPayAddFundsSheetRoutable?
 
@@ -24,6 +25,7 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
         userWalletInfo = input.userWalletInfo
         address = input.address
         swapableToken = input.swapableToken
+        networks = input.networks
 
         options = [.swap, .receive] + (input.isBankTransferAvailable ? [.bankTransfer] : [])
 
@@ -42,7 +44,11 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
 
         case .receive:
             Analytics.log(.visaScreenButtonVisaReceive, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
-            openReceiveSheet()
+            if FeatureProvider.isAvailable(.tangemPayMultichain), !TangemPayNetworkRowResolver.resolve(networks).isEmpty {
+                openChooseNetworkSheet()
+            } else {
+                openReceiveSheet()
+            }
 
         case .bankTransfer:
             Analytics.log(.visaVATopupButtonClicked, contextParams: .userWallet(userWalletInfo.id))
@@ -61,6 +67,7 @@ extension TangemPayAddFundsSheetViewModel {
         let address: String
         let swapableToken: SendSwapableToken
         let isBankTransferAvailable: Bool
+        let networks: [TangemPayBalance.Network]
     }
 }
 
@@ -79,6 +86,10 @@ extension TangemPayAddFundsSheetViewModel {
         )
         receiveViewModel.start()
         coordinator?.addFundsSheetRequestReceive(viewModel: receiveViewModel)
+    }
+
+    func openChooseNetworkSheet() {
+        coordinator?.addFundsSheetRequestChooseNetwork(networks: networks)
     }
 
     func openSwap() {
