@@ -62,6 +62,27 @@
 	<string>This app includes a third-party library with optional location features, which are not used</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To Scan QR Code or share with support chat</string>
+	<key>NSUbiquitousContainers</key>
+	<dict>
+		<key>iCloud.com.tangem.Tangem</key>
+		<dict>
+			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
+			<true/>
+			<key>NSUbiquitousContainerName</key>
+			<string>Tangem</string>
+			<key>NSUbiquitousContainerSupportedFolderLevels</key>
+			<string>None</string>
+		</dict>
+		<key>iCloud.com.tangem.TangemInternal</key>
+		<dict>
+			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
+			<true/>
+			<key>NSUbiquitousContainerName</key>
+			<string>Tangem Internal</string>
+			<key>NSUbiquitousContainerSupportedFolderLevels</key>
+			<string>None</string>
+		</dict>
+	</dict>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>ScanTangemCardIntent</string>

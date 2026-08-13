@@ -11,6 +11,14 @@
 		<string>applinks:tangem.onelink.me</string>
 		<string>applinks:join.tangem.com</string>
 	</array>
+	<key>com.apple.developer.icloud-container-identifiers</key>
+	<array>
+		<string>iCloud.com.tangem.TangemInternal</string>
+	</array>
+	<key>com.apple.developer.icloud-services</key>
+	<array>
+		<string>CloudDocuments</string>
+	</array>
 	<key>com.apple.developer.in-app-payments</key>
 	<array>
 		<string>merchant.sandbox.mercuryo.com.tangem.tangem</string>
@@ -19,6 +27,10 @@
 	<key>com.apple.developer.nfc.readersession.formats</key>
 	<array>
 		<string>TAG</string>
+	</array>
+	<key>com.apple.developer.ubiquity-container-identifiers</key>
+	<array>
+		<string>iCloud.com.tangem.TangemInternal</string>
 	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>
