@@ -774,7 +774,7 @@
 "hw_cloud_backup_strength_hint_number" = "Try adding a number";
 "hw_cloud_backup_strength_hint_ok" = "Nice work! That would take a long time to crack";
 "hw_cloud_backup_strength_hint_symbol" = "Add a symbol like ! or @ to strengthen it";
-"hw_cloud_backup_strength_hint_uppercase" = "Mix in a uppercase letter";
+"hw_cloud_backup_strength_hint_uppercase" = "Mix in an uppercase letter";
 "hw_cloud_backup_strength_medium" = "Average password";
 "hw_cloud_backup_strength_none" = "Password strength";
 "hw_cloud_backup_strength_strong" = "Strong password";
@@ -1811,7 +1811,7 @@
 "tangempay_bank_transfer_show_details" = "詳細を表示";
 "tangempay_bank_transfer_success_subtitle" = "少々お時間がかかる場合があります";
 "tangempay_bank_transfer_success_title" = "銀行情報を準備しています";
-"tangempay_bank_transfer_swift_warning" = "入金はACHまたはFedWireのみご利用いただけます。SWIFT送金は返却されます。";
+"tangempay_bank_transfer_swift_warning" = "SWIFT送金は受け付けておらず、返金されます";
 "tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "メイン画面からKYCを非表示にする";
 "tangempay_card_activation_attempts_exceeded_description" = "Please contact support";
@@ -2125,7 +2125,7 @@
 "tangempay_tangem_visa_card" = "日常の支払いにUSDCを利用";
 "tangempay_temporarily_unavailable" = "Tangem Payは一時的に利用できません";
 "tangempay_title" = "Tangem Pay";
-"tangempay_topup_bank_transfer_body" = "ACH/FedWireで米ドル（フィアット）を受け取る";
+"tangempay_topup_bank_transfer_body" = "ACHで米ドル（フィアット）を受け取る";
 "tangempay_topup_bank_transfer_title" = "銀行振込";
 "tangempay_topup_receive_body_multichain" = "USDCまたはUSDTをアカウントのアドレスに送金してください";
 "tangempay_topup_receive_body" = "USDC Polygon をアカウントのアドレスに送信";

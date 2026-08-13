@@ -1293,7 +1293,7 @@
 "promo_campaign_not_active_title" = "Kampagne nicht aktiv";
 "promo_campaign_reactivation_summary_description" = "Erhalten Sie bei jedem Swap über 500 $ ein Cashback von 0,5%% , und zwar für alle Währungspaare außer „Stablecoin zu Stablecoin“. Die maximale Auszahlung beträgt 50 $ pro Swap.\n\nFühren Sie fünf qualifizierende Swaps durch und sichern Sie sich einen zusätzlichen Bonus von 10 $.\n\nDie Prämien werden wöchentlich in USDT oder USDC an die ausgewählte Adresse ausgezahlt.";
 "promo_campaign_select_cashback_account" = "Cashback-Konto auswählen";
-"promo_campaign_select_token" = "Token auswählen";
+"promo_campaign_select_token" = "Cashback-Token auswählen";
 "promo_campaign_summary_title" = "Melden Sie sich an %1$@";
 "promo_campaign_terms_agreement_android" = "Ich stimme zu, dass";
 "promo_campaign_terms_agreement" = "Ich stimme zu, dass %1$@";
@@ -1811,7 +1811,7 @@
 "tangempay_bank_transfer_show_details" = "Details anzeigen";
 "tangempay_bank_transfer_success_subtitle" = "Dies kann etwas Zeit in Anspruch nehmen.";
 "tangempay_bank_transfer_success_title" = "Vorbereitung Ihrer Bankdaten";
-"tangempay_bank_transfer_swift_warning" = "Einzahlungen sind ausschließlich per ACH oder FedWire möglich. SWIFT-Überweisungen werden zurückgebucht.";
+"tangempay_bank_transfer_swift_warning" = "SWIFT-Überweisungen werden nicht akzeptiert und zurückgesendet";
 "tangempay_bank_transfer_terms_of_use" = "Nutzungsbedingungen";
 "tangempay_cancel_kyc" = "KYC vom Hauptbildschirm ausblenden";
 "tangempay_card_activation_attempts_exceeded_description" = "Bitte wenden Sie sich an den Support.";
@@ -2125,7 +2125,7 @@
 "tangempay_tangem_visa_card" = "Nutzen Sie USDC für alltägliche Zahlungen";
 "tangempay_temporarily_unavailable" = "Tangem Pay ist vorübergehend nicht erreichbar.";
 "tangempay_title" = "Tangem Pay";
-"tangempay_topup_bank_transfer_body" = "Empfangen Sie Fiat-USD per ACH/FedWire";
+"tangempay_topup_bank_transfer_body" = "Empfangen Sie Fiat-USD per ACH";
 "tangempay_topup_bank_transfer_title" = "Banküberweisung";
 "tangempay_topup_receive_body_multichain" = "USDC oder USDT an Ihre Kontoadresse senden";
 "tangempay_topup_receive_body" = "Senden Sie USDC Polygon an die Adresse Ihres Kontos";
