@@ -37,6 +37,7 @@ enum Feature: String, Hashable, CaseIterable {
     case gaslessBridgeFeeRestriction
     case tronDexSwap
     case polymarket
+    case mobileWalletBackup
     case swapDeeplinkParameters
     case walletCardsBackupReport
     case jointAccounts
@@ -76,6 +77,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .gaslessBridgeFeeRestriction: return "[REDACTED_INFO]_gasless_bridge_fee_restriction"
         case .tronDexSwap: return "[REDACTED_INFO]_tron_dex_swap"
         case .polymarket: return "TWI-1576_polymarket"
+        case .mobileWalletBackup: return "[REDACTED_INFO]_mobile_wallet_backup"
         case .swapDeeplinkParameters: return "[REDACTED_INFO]_swap_deeplink_parameters"
         case .walletCardsBackupReport: return "[REDACTED_INFO]_cardlinked_status_update_stage2"
         case .jointAccounts: return "TWI-1611_joint_accounts"
@@ -115,6 +117,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .gaslessBridgeFeeRestriction: return .unspecified
         case .tronDexSwap: return .unspecified
         case .polymarket: return .unspecified
+        case .mobileWalletBackup: return .unspecified
         case .swapDeeplinkParameters: return .unspecified
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
