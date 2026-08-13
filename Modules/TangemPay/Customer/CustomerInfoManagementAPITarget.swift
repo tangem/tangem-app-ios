@@ -74,6 +74,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/\(cardId)"
         case .getFee(let type):
             "fees/\(type.rawValue)"
+        case .getFees:
+            "fees"
         case .reissueCard:
             "customer/card/reissue"
         case .getEligibility:
@@ -95,6 +97,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPinLegacy,
              .getPin,
              .getFee,
+             .getFees,
              .getBankCredentials,
              .getEligibility:
             .get
@@ -163,6 +166,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .setPin(_, let pin, let sessionId, let iv):
             let requestData = TangemPaySetPinRequest(pin: pin, sessionId: sessionId, iv: iv)
             return .requestJSONEncodable(requestData)
+
+        case .getFees(let groups):
+            let requestParams = ["groups": groups.map(\.rawValue).joined(separator: ",")]
+            return .requestParameters(parameters: requestParams, encoding: URLEncoding.default)
 
         case .getTransactionHistory(let limit, let cursor):
             var requestParams = [
@@ -296,6 +303,7 @@ extension CustomerInfoManagementAPITarget {
         case cancelTariffPlanPendingTransition
 
         case getFee(type: TangemPayFeeType)
+        case getFees(groups: [TangemPayFeeGroup])
         case reissueCard(cardId: String)
 
         case getBankCredentials(productInstanceId: String)
