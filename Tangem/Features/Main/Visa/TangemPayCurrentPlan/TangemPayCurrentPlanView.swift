@@ -46,7 +46,6 @@ struct TangemPayCurrentPlanView: View {
                             action: viewModel.cancelTransition
                         )
                     )
-                    .onAppear(perform: viewModel.onAwaitingDepositBannerAppear)
                 }
 
                 if let banner = viewModel.downgradeBanner {

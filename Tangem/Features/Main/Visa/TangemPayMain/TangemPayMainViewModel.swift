@@ -66,6 +66,8 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var systemDowngradeBanner: NotificationBanner.BannerType?
 
+    @Published private(set) var contactSupportMessageBannerButton: MessageBannerButton?
+
     @Published private(set) var currentPlanState: CurrentPlanState = .unknown
 
     @Published private(set) var isVisaBenefitsAvailable = false
@@ -149,6 +151,15 @@ final class TangemPayMainViewModel: ObservableObject {
         MultiWalletNotificationBannerMapper().mapItems(
             inlineNotifications,
             cardDeactivatedNotificationInput.map { [$0] } ?? []
+        )
+    }
+
+    var awaitingDepositAddFundsButton: MessageBannerButton {
+        MessageBannerButton(
+            title: Localization.tangempayCardDetailsAddFunds,
+            action: { [weak self] in
+                self?.addFunds()
+            }
         )
     }
 
@@ -429,6 +440,10 @@ final class TangemPayMainViewModel: ObservableObject {
         coordinator?.openCurrentPlan()
     }
 
+    func onTopupBannerAppear() {
+        Analytics.log(.visaTiersTopupBannerForPlusShowed, contextParams: .userWallet(userWalletInfo.id))
+    }
+
     func onSystemDowngradeBannerAppear() {
         Analytics.log(.visaTiersPlusCardsClosureWarningBannerShowed, contextParams: .userWallet(userWalletInfo.id))
     }
@@ -452,8 +467,26 @@ final class TangemPayMainViewModel: ObservableObject {
         let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
-            recipient: EmailConfig.visaDefault(subject: .default).recipient,
-            emailType: .visaFeedback(subject: .default)
+            recipient: EmailConfig.visaDefault(subject: .generalHelp).recipient,
+            emailType: .visaFeedback(subject: .generalHelp)
+        )
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+
+    private func contactSupportForFailedCardIssue() {
+        let dataCollector = TangemPaySupportDataCollector(
+            source: .failedToIssueCardSheet,
+            userWalletId: userWalletInfo.id.stringValue,
+            customerId: tangemPayAccount.customerId
+        )
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.visaDefault(subject: .failedToIssueCard).recipient,
+            emailType: .visaFeedback(subject: .failedToIssueCard)
         )
 
         Task { @MainActor in
@@ -605,6 +638,8 @@ private extension TangemPayMainViewModel {
 
         bindInlineNotifications()
 
+        bindFailedToIssueCardBanner()
+
         bindMultiCard()
     }
 
@@ -714,6 +749,27 @@ private extension TangemPayMainViewModel {
                 return [viewModel.makeInlineNotification(for: event)]
             }
             .assign(to: &$inlineNotifications)
+    }
+
+    func bindFailedToIssueCardBanner() {
+        guard let accountModel = tangemPayAccount.account else { return }
+
+        accountModel.statePublisher
+            .map { $0.isFailedToIssueCard }
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isFailedToIssueCard in
+                if isFailedToIssueCard {
+                    viewModel.contactSupportMessageBannerButton = .init(
+                        title: Localization.commonContactSupport,
+                        action: { [weak viewModel] in viewModel?.contactSupportForFailedCardIssue() }
+                    )
+                } else {
+                    viewModel.contactSupportMessageBannerButton = nil
+                }
+            }
+            .store(in: &bag)
     }
 
     @MainActor
