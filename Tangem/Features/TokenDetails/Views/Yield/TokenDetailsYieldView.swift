@@ -64,7 +64,7 @@ struct TokenDetailsYieldView: View {
 
 private extension TokenDetailsYieldView {
     func availableView(item: TokenDetailsYieldState.AvailableItem) -> some View {
-        Button(action: item.action.closure) {
+        SwiftUI.Button(action: item.action.closure) {
             // [REDACTED_TODO_COMMENT]
             HStack(spacing: horizontalSpacing) {
                 shadowedIcon(
@@ -196,7 +196,7 @@ private extension TokenDetailsYieldView {
     }
 
     func activeView(item: TokenDetailsYieldState.ActiveItem) -> some View {
-        Button(action: item.action.closure) {
+        SwiftUI.Button(action: item.action.closure) {
             HStack(spacing: horizontalSpacing) {
                 shadowedIcon(
                     Assets.YieldModule.yieldFilledEucalyptus.image,

@@ -120,6 +120,13 @@ public extension AttributedString {
         container.tracking = style.tracking
         mergeAttributes(container)
     }
+
+    mutating func setFontStyle(_ token: TangemTypographyToken) {
+        var container = AttributeContainer()
+        container.font = token.font
+        container.tracking = token.tracking
+        mergeAttributes(container)
+    }
 }
 
 // MARK: - Tangem fonts ([REDACTED_INFO]: weights collapsed; each tier carries design tracking)

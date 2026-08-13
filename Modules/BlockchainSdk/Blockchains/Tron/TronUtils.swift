@@ -57,4 +57,9 @@ struct TronUtils {
 
         return amountData
     }
+
+    func convertAmountToMinimalUnits(_ amount: Amount) -> Int64 {
+        let decimalAmount = amount.value * pow(Decimal(10), amount.decimals)
+        return (decimalAmount.rounded() as NSDecimalNumber).int64Value
+    }
 }
