@@ -2228,6 +2228,7 @@
 "tx_history_onramp_status_refunding" = "Refunding";
 "tx_history_onramp_top_up" = "チャージ";
 "tx_history_onramp_topped_up" = "チャージ済み";
+"tx_history_transaction_paused_notification_title" = "Your transaction has been paused by the provider.";
 "tx_history_you_paid" = "支払額";
 "unexpected_error_description" = "しばらくしてからもう一度お試しください。問題が解決しない場合は、サポートにお問い合わせください。";
 "unexpected_error_title" = "問題が発生しました。";

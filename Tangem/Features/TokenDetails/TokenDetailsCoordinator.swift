@@ -380,6 +380,13 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
             floatingSheetPresenter.removeActiveSheet()
         }
     }
+
+    func openTokenFromTransactionDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            openRefundCurrency(walletModel: walletModel, userWalletModel: userWalletModel)
+        }
+    }
 }
 
 extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
