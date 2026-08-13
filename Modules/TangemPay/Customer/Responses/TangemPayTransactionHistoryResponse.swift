@@ -99,6 +99,7 @@ public extension TangemPayTransactionHistoryResponse {
         public let declinedReason: String?
         public let authorizedAt: Date
         public let postedAt: Date?
+        public let cashback: Cashback?
 
         public var isDeclined: Bool {
             status == .declined
@@ -127,6 +128,24 @@ public extension TangemPayTransactionHistoryResponse {
         public let walletAddress: String?
         public let transactionHash: String?
         public let postedAt: Date
+    }
+
+    struct Cashback: Codable, Equatable {
+        public let status: Status
+        public let amount: String?
+
+        public enum Status: String, Codable, Equatable {
+            case estimated
+            case confirmed
+            case excluded
+            case awaitingCalculation = "awaiting_calculation"
+            case undefined
+
+            public init(from decoder: Decoder) throws {
+                let rawValue = try decoder.singleValueContainer().decode(String.self)
+                self = Self(rawValue: rawValue) ?? .undefined
+            }
+        }
     }
 
     enum PaymentStatus: String, Codable, Equatable {
