@@ -52,6 +52,7 @@ extension PreviewTransactionHistoryService {
 final class NoopTransactionDetailsRoutable: TransactionDetailsRoutable {
     func openTransactionDetailsURL(_ url: URL) {}
     func shareFromTransactionDetails(_ text: String) {}
+    func openTokenFromTransactionDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel) {}
     #if INTERNAL || DEBUG
     func openTransactionDetailsDebug(_ info: TransactionDetailsDebugInfo) {}
     #endif

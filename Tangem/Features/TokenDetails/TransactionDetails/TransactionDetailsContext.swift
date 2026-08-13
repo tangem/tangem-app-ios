@@ -83,4 +83,34 @@ struct TransactionDetailsContext {
     func exploreTransactionURL(for hash: String) -> URL? {
         walletModel.exploreTransactionURL(for: hash)
     }
+
+    /// A "go to token" action for an Express refund token. Prefers the exact token in the account that actually
+    /// received the refund (resolved via `refundAddress`); otherwise opens any held match, adding the token to
+    /// this account first when it isn't imported yet.
+    func refundTokenNavigation(for tokenItem: TokenItem, refundAddress: String?) -> () -> Void {
+        { [weak routable, walletModel = walletModel, userWalletId = userWalletInfo.id] in
+            Task { @MainActor in
+                if let address = refundAddress?.nilIfEmpty,
+                   let received = try? WalletModelFinder.findWalletModel(
+                       address: address,
+                       networkId: tokenItem.blockchain.networkId,
+                       isTestnet: tokenItem.blockchain.isTestnet,
+                       shallowMatchingTokenItem: tokenItem
+                   ) {
+                    routable?.openTokenFromTransactionDetails(walletModel: received.walletModel, userWalletModel: received.userWalletModel)
+                    return
+                }
+
+                if (try? WalletModelFinder.findWalletModel(userWalletId: userWalletId, shallowMatchingTokenItem: tokenItem)) == nil {
+                    _ = try? await walletModel.account?.userTokensManager.add(tokenItem)
+                }
+
+                guard let result = try? WalletModelFinder.findWalletModel(userWalletId: userWalletId, shallowMatchingTokenItem: tokenItem) else {
+                    return
+                }
+
+                routable?.openTokenFromTransactionDetails(walletModel: result.walletModel, userWalletModel: result.userWalletModel)
+            }
+        }
+    }
 }
