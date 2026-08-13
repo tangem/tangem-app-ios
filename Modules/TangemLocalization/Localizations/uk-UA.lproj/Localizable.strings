@@ -774,7 +774,7 @@
 "hw_cloud_backup_strength_hint_number" = "Try adding a number";
 "hw_cloud_backup_strength_hint_ok" = "Nice work! That would take a long time to crack";
 "hw_cloud_backup_strength_hint_symbol" = "Add a symbol like ! or @ to strengthen it";
-"hw_cloud_backup_strength_hint_uppercase" = "Mix in a uppercase letter";
+"hw_cloud_backup_strength_hint_uppercase" = "Mix in an uppercase letter";
 "hw_cloud_backup_strength_medium" = "Average password";
 "hw_cloud_backup_strength_none" = "Password strength";
 "hw_cloud_backup_strength_strong" = "Strong password";
@@ -1811,7 +1811,7 @@
 "tangempay_bank_transfer_show_details" = "Показати деталі";
 "tangempay_bank_transfer_success_subtitle" = "Це може зайняти певний час";
 "tangempay_bank_transfer_success_title" = "Підготовка ваших банківських реквізитів";
-"tangempay_bank_transfer_swift_warning" = "Поповнення тільки через ACH або FedWire. Перекази SWIFT повертатимуться.";
+"tangempay_bank_transfer_swift_warning" = "SWIFT-перекази не приймаються, кошти буде повернено";
 "tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "Приховати KYC з головного екрана";
 "tangempay_card_activation_attempts_exceeded_description" = "Please contact support";
@@ -2125,7 +2125,7 @@
 "tangempay_tangem_visa_card" = "Використовуйте USDC для щоденних платежів";
 "tangempay_temporarily_unavailable" = "Tangem Pay тимчасово недоступний";
 "tangempay_title" = "Tangem Pay";
-"tangempay_topup_bank_transfer_body" = "Отримуйте фіатні USD через ACH/FedWire";
+"tangempay_topup_bank_transfer_body" = "Отримуйте фіатні USD через ACH";
 "tangempay_topup_bank_transfer_title" = "Банківський переказ";
 "tangempay_topup_receive_body_multichain" = "Надішліть USDC або USDT на адресу вашого рахунку";
 "tangempay_topup_receive_body" = "Надішліть USDC Polygon на адресу вашого акаунту";

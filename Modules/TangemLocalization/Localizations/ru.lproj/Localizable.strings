@@ -774,7 +774,7 @@
 "hw_cloud_backup_strength_hint_number" = "Try adding a number";
 "hw_cloud_backup_strength_hint_ok" = "Nice work! That would take a long time to crack";
 "hw_cloud_backup_strength_hint_symbol" = "Add a symbol like ! or @ to strengthen it";
-"hw_cloud_backup_strength_hint_uppercase" = "Mix in a uppercase letter";
+"hw_cloud_backup_strength_hint_uppercase" = "Mix in an uppercase letter";
 "hw_cloud_backup_strength_medium" = "Average password";
 "hw_cloud_backup_strength_none" = "Password strength";
 "hw_cloud_backup_strength_strong" = "Strong password";
@@ -1811,7 +1811,7 @@
 "tangempay_bank_transfer_show_details" = "Показать детали";
 "tangempay_bank_transfer_success_subtitle" = "Это может занять некоторое время";
 "tangempay_bank_transfer_success_title" = "Подготовка ваших банковских реквизитов";
-"tangempay_bank_transfer_swift_warning" = "Пополнение только через ACH или FedWire. Переводы SWIFT будут возвращены.";
+"tangempay_bank_transfer_swift_warning" = "SWIFT-переводы не принимаются и будут возвращены";
 "tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "Скрыть KYC с главной";
 "tangempay_card_activation_attempts_exceeded_description" = "Please contact support";
@@ -2125,7 +2125,7 @@
 "tangempay_tangem_visa_card" = "Оплачивайте ежедневные покупки в USDC";
 "tangempay_temporarily_unavailable" = "Проблема с соединением";
 "tangempay_title" = "Tangem Pay";
-"tangempay_topup_bank_transfer_body" = "Получайте фиатные USD через ACH/FedWire";
+"tangempay_topup_bank_transfer_body" = "Получайте фиатные USD через ACH";
 "tangempay_topup_bank_transfer_title" = "Банковский перевод";
 "tangempay_topup_receive_body_multichain" = "Отправьте USDC или USDT на адрес вашего счёта";
 "tangempay_topup_receive_body" = "Отправьте USDC Polygon на адрес вашего аккаунта";
