@@ -56,6 +56,7 @@ extension JointAccountManagementCoordinator {
         case accountForm(viewModel: AccountFormViewModel)
         case membersCount(viewModel: JointAccountMembersCountViewModel)
         case memberName(viewModel: JointAccountMemberNameViewModel)
+        case inviteMembers(viewModel: JointAccountInviteMembersViewModel)
     }
 }
 
@@ -66,6 +67,7 @@ extension JointAccountManagementCoordinator.Step: Hashable {
         case (.accountForm(let lhs), .accountForm(let rhs)): lhs === rhs
         case (.membersCount(let lhs), .membersCount(let rhs)): lhs === rhs
         case (.memberName(let lhs), .memberName(let rhs)): lhs === rhs
+        case (.inviteMembers(let lhs), .inviteMembers(let rhs)): lhs === rhs
         default: false
         }
     }
@@ -75,6 +77,7 @@ extension JointAccountManagementCoordinator.Step: Hashable {
         case .accountForm(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
         case .membersCount(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
         case .memberName(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
+        case .inviteMembers(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
         }
     }
 }
@@ -141,7 +144,29 @@ extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
         dismiss()
     }
 
-    func createJointAccount() {
+    func openInviteMembers(creationContext: JointAccountCreationContext) {
+        // [REDACTED_TODO_COMMENT]
+        let viewModel = JointAccountInviteMembersViewModel(creationContext: creationContext, coordinator: self)
+        path.append(.inviteMembers(viewModel: viewModel))
+    }
+}
+
+// MARK: - JointAccountInviteMembersRoutable
+
+extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
+    func closeInviteMembers() {
+        dismiss()
+    }
+
+    func shareInvite() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openInviteSafety() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openMemberDetails() {
         // [REDACTED_TODO_COMMENT]
     }
 }
