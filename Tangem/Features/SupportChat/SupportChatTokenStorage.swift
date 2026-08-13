@@ -25,7 +25,7 @@ struct SupportChatTokenStorage {
             let entry = try JSONDecoder().decode(Entry.self, from: data)
 
             guard Date().timeIntervalSince(entry.lastAccess) <= Constants.lifetime else {
-                clear()
+                clean()
                 return nil
             }
 
@@ -47,7 +47,7 @@ struct SupportChatTokenStorage {
         }
     }
 
-    func clear() {
+    func clean() {
         do {
             try secureStorage.delete(Constants.key)
         } catch {

@@ -22,7 +22,7 @@ final class HideTokenUITests: BaseTestCase {
 
     func testHideTokenViaManageTokens_TokenNotDisplayedOnMain() {
         setAllureId(3627)
-        let scenario = ScenarioConfig(name: "user_tokens_api", initialState: "USDT")
+        let scenario = ScenarioConfig(name: "user_tokens_api", initialState: "HideTetherFlow")
         launchApp(tangemApiType: .mock, scenarios: [scenario])
 
         CreateWalletSelectorScreen(app)
@@ -44,7 +44,8 @@ final class HideTokenUITests: BaseTestCase {
 
     func testHideMainCoinViaManageTokens_CoinNotDisplayedOnMain() {
         setAllureId(3626)
-        launchApp(tangemApiType: .mock)
+        let scenario = ScenarioConfig(name: "user_tokens_api", initialState: "HidePolygonFlow")
+        launchApp(tangemApiType: .mock, scenarios: [scenario])
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)

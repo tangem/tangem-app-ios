@@ -19,9 +19,19 @@ struct MainNavigationBalanceView: View {
         case .loading(.some(let text)), .loaded(let text):
             SensitiveText(text)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(Constants.minimumScaleFactor)
 
         case .loading(.none), .empty:
             EmptyView()
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension MainNavigationBalanceView {
+    enum Constants {
+        static let minimumScaleFactor: CGFloat = 0.7
     }
 }

@@ -40,10 +40,6 @@ class SendDestinationCompactViewModel: ObservableObject, Identifiable {
     }
 
     private var addressBooksChangePublisher: AnyPublisher<Void, Never> {
-        guard FeatureProvider.isAvailable(.addressBook) else {
-            return .just(output: ())
-        }
-
         let publishers = userWalletRepository.models
             .filter { !$0.isUserWalletLocked }
             .map { $0.addressBookManager.contactsPublisher.mapToVoid() }

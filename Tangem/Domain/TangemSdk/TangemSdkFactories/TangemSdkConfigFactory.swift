@@ -35,6 +35,7 @@ struct TangemSdkConfigFactory {
         config.style.colors.tint = Colors.Text.accent
         config.style.colors.tintUIColor = UIColor.textAccent
         Config.useDevApi = FeatureStorage.instance.tangemAPIType != .prod
+        Config.extendedBackup = FeatureProvider.isAvailable(.backup4cards)
         return config
     }
 }

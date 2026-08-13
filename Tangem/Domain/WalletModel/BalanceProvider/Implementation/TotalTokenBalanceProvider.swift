@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
 import TangemFoundation
 import TangemStaking
@@ -96,6 +97,14 @@ private extension TotalTokenBalanceProvider {
             let cached = combineBalances(available: available.balance, staked: staking.balance)
             return .loading(.init(balance: cached, date: available.date))
 
+        // Staking is loading without cache -> don't block the total, keep the loaded available as cache
+        case (.loaded(let available), .loading(.none)):
+            return .loading(.init(balance: available, date: .now))
+
+        // Staking is loading without cache -> don't block the total, keep the available cache
+        case (.loading(.some(let available)), .loading(.none)), (.failure(.some(let available)), .loading(.none)):
+            return .loading(.init(balance: available.balance, date: available.date))
+
         // There is one of them is loading without cached -> loading without cache
         case (.loading(.none), _), (_, .loading(.none)):
             return .loading(.none)
@@ -116,6 +125,10 @@ private extension TotalTokenBalanceProvider {
         // Staking provider is down -> don't block the total on its (possibly stale) cache, show available only
         case (.loaded(let available), .failure):
             return .loaded(available)
+
+        // Staking is failure without cache -> keep the available cache
+        case (.failure(.some(let available)), .failure(.none)):
+            return .failure(.init(balance: available.balance, date: available.date))
 
         // There is one of them is failure without cached -> show error
         case (.failure(.none), _), (_, .failure(.none)):

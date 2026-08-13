@@ -12,9 +12,9 @@ import Foundation
 enum UserTokenListExternalParametersHelper {
     static func provideTokenListAddresses(
         with walletModels: [any WalletModel],
-        tokenListNotifyStatusValue: Bool
+        shouldIncludeAddresses: Bool
     ) -> [WalletModelId: [String]]? {
-        guard tokenListNotifyStatusValue else {
+        guard shouldIncludeAddresses else {
             return nil
         }
 
@@ -22,11 +22,5 @@ enum UserTokenListExternalParametersHelper {
             .reduce(into: [:]) { partialResult, walletModel in
                 partialResult[walletModel.id] = walletModel.addressesString
             }
-    }
-
-    static func provideTokenListNotifyStatusValue(
-        with userTokensPushNotificationsManager: UserTokensPushNotificationsManager
-    ) -> Bool {
-        return userTokensPushNotificationsManager.status.isActive
     }
 }

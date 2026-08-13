@@ -49,7 +49,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
 
     private var qrCodeButton: some View {
         // [REDACTED_TODO_COMMENT]
-        TangemButtonV2(
+        TangemUI.Button(
             label: Localization.tokenReceiveShowQrCodeTitle,
             accessibilityLabel: Localization.tokenReceiveShowQrCodeTitle,
             action: viewModel.qrCodeButtonDidTap
@@ -63,7 +63,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
 
     private var actionsButtons: some View {
         HStack(spacing: 8) {
-            TangemButtonV2(
+            TangemUI.Button(
                 label: Localization.commonCopy,
                 accessibilityLabel: Localization.commonCopy,
                 action: viewModel.copyAddressButtonDidTap
@@ -72,7 +72,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
             .size(.x12)
             .styleType(.secondary)
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: Localization.commonShare,
                 accessibilityLabel: Localization.commonShare,
                 action: viewModel.shareButtonDidTap
@@ -106,7 +106,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
     }
 
     private var dynamicAddressesBadgeView: some View {
-        TangemBadgeV2(label: Localization.dynamicAddressesReceiveBadge, accessibilityLabel: nil)
+        Badge(label: Localization.dynamicAddressesReceiveBadge, accessibilityLabel: nil)
             .size(.x6)
             .variant(.tinted)
             .appearance(.info)

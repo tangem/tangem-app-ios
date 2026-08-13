@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 import TangemLocalization
 
@@ -23,10 +24,10 @@ struct EarnFilterBottomSheetLayout<Content: View>: View {
     @State private var showBottomFade = false
     @State private var frames = ScrollFrames()
 
-    @ScaledMetric private var contentHorizontalPadding: CGFloat = .unit(.x4)
-    @ScaledMetric private var contentTopSpacing: CGFloat = .unit(.x4)
-    @ScaledMetric private var cancelPadding: CGFloat = .unit(.x4)
-    @ScaledMetric private var bottomFadeHeight: CGFloat = .unit(.x10)
+    @ScaledMetric private var contentHorizontalPadding: CGFloat = 16
+    @ScaledMetric private var contentTopSpacing: CGFloat = 16
+    @ScaledMetric private var cancelPadding: CGFloat = 16
+    @ScaledMetric private var bottomFadeHeight: CGFloat = 40
 
     init(
         title: String,
@@ -50,7 +51,7 @@ struct EarnFilterBottomSheetLayout<Content: View>: View {
             cancelButton
                 .padding(cancelPadding)
         }
-        .background(Color.Tangem.Surface.level2)
+        .background(DesignSystem.Color.bgPrimary)
     }
 
     private func updateBottomFade() {
@@ -88,7 +89,7 @@ private extension EarnFilterBottomSheetLayout {
         }
         .overlay(alignment: .bottom) {
             LinearGradient(
-                colors: [Color.Tangem.Surface.level2.opacity(0), Color.Tangem.Surface.level2],
+                colors: [DesignSystem.Color.bgPrimary.opacity(0), DesignSystem.Color.bgPrimary],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -104,7 +105,7 @@ private extension EarnFilterBottomSheetLayout {
             leadingContent: { EmptyView() },
             principalContent: {
                 Text(title)
-                    .style(Font.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             },
             trailingContent: { closeButton }
         )
@@ -112,21 +113,23 @@ private extension EarnFilterBottomSheetLayout {
     }
 
     var closeButton: some View {
-        TangemButton(
-            content: .icon(Assets.Glyphs.cross20ButtonNew),
+        TangemUI.Button(
+            icon: DesignSystem.Icons.Cross.regular20,
+            accessibilityLabel: Localization.commonClose,
             action: onClose
         )
-        .setStyleType(.secondary)
-        .setSize(.x9)
+        .size(.x9)
+        .styleType(.secondary)
     }
 
     var cancelButton: some View {
-        TangemButton(
-            content: .text(AttributedString(Localization.commonCancel)),
+        TangemUI.Button(
+            label: AttributedString(Localization.commonCancel),
+            accessibilityLabel: Localization.commonCancel,
             action: onCancel
         )
-        .setStyleType(.secondary)
-        .setHorizontalLayout(.infinity)
-        .setSize(.x12)
+        .size(.x12)
+        .styleType(.secondary)
+        .horizontalLayout(.infinity)
     }
 }
