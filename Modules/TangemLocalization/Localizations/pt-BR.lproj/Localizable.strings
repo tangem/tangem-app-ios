@@ -774,7 +774,7 @@
 "hw_cloud_backup_strength_hint_number" = "Try adding a number";
 "hw_cloud_backup_strength_hint_ok" = "Nice work! That would take a long time to crack";
 "hw_cloud_backup_strength_hint_symbol" = "Add a symbol like ! or @ to strengthen it";
-"hw_cloud_backup_strength_hint_uppercase" = "Mix in a uppercase letter";
+"hw_cloud_backup_strength_hint_uppercase" = "Mix in an uppercase letter";
 "hw_cloud_backup_strength_medium" = "Average password";
 "hw_cloud_backup_strength_none" = "Password strength";
 "hw_cloud_backup_strength_strong" = "Strong password";
@@ -1292,8 +1292,8 @@
 "promo_campaign_not_active_subtitle" = "Esta campanha não existe ou expirou.";
 "promo_campaign_not_active_title" = "Campanha inativa";
 "promo_campaign_reactivation_summary_description" = "Ganhe 0,5%% Cashback em todas as trocas acima de US$ 500, em qualquer par, exceto entre pares estáveis. Pagamento máximo de US$ 50 por troca.\n\nComplete cinco trocas qualificadas e desbloqueie um bônus extra de US$ 10.\n\nAs recompensas são pagas semanalmente em USDT ou USDC no endereço selecionado.";
-"promo_campaign_select_cashback_account" = "Selecione a conta de cashback";
-"promo_campaign_select_token" = "Selecionar token";
+"promo_campaign_select_cashback_account" = "Selecionar token de cashback";
+"promo_campaign_select_token" = "Selecionar token de cashback";
 "promo_campaign_summary_title" = "Inscreva-se em %1$@";
 "promo_campaign_terms_agreement_android" = "Concordo com";
 "promo_campaign_terms_agreement" = "Concordo com %1$@";
@@ -1811,7 +1811,7 @@
 "tangempay_bank_transfer_show_details" = "Mostrar detalhes";
 "tangempay_bank_transfer_success_subtitle" = "Isso pode levar um pouco de tempo.";
 "tangempay_bank_transfer_success_title" = "Preparando seus dados bancários";
-"tangempay_bank_transfer_swift_warning" = "Depósito somente via ACH ou FedWire. Transferências SWIFT serão devolvidas.";
+"tangempay_bank_transfer_swift_warning" = "Transferências SWIFT não são aceitas e serão devolvidas";
 "tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "Ocultar KYC da tela principal";
 "tangempay_card_activation_attempts_exceeded_description" = "Please contact support";
@@ -2125,7 +2125,7 @@
 "tangempay_tangem_visa_card" = "Use USDC para pagamentos do dia a dia.";
 "tangempay_temporarily_unavailable" = "O serviço Tangem Pay está temporariamente inacessível.";
 "tangempay_title" = "Tangem Pay";
-"tangempay_topup_bank_transfer_body" = "Receba USD fiduciário via ACH/FedWire";
+"tangempay_topup_bank_transfer_body" = "Receba USD fiduciário via ACH";
 "tangempay_topup_bank_transfer_title" = "Transferência bancária";
 "tangempay_topup_receive_body_multichain" = "Envie USDC ou USDT para o endereço da sua conta.";
 "tangempay_topup_receive_body" = "Envie USDC Polygon para o endereço da sua conta";
