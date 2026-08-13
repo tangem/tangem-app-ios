@@ -8,5 +8,5 @@
 
 protocol JointAccountMemberNameRoutable: AnyObject {
     func closeMemberName()
-    func createJointAccount()
+    func openInviteMembers(creationContext: JointAccountCreationContext)
 }
