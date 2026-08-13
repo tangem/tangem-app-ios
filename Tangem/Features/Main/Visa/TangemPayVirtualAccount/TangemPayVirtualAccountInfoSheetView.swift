@@ -120,16 +120,19 @@ struct TangemPayVirtualAccountInfoSheetView: View {
     private var feeSection: some View {
         switch viewModel.state {
         case .loading:
-            feeList(achFee: nil, fedwireFee: nil)
+            feeList(achFee: nil, fedwireFee: nil, isLoading: true)
         case .loaded(let achFee, let fedwireFee):
-            feeList(achFee: achFee, fedwireFee: fedwireFee)
+            feeList(achFee: achFee, fedwireFee: fedwireFee, isLoading: false)
         case .failed:
             feeErrorBanner
         }
     }
 
-    private func feeList(achFee: String?, fedwireFee: String?) -> some View {
-        VStack(spacing: 12) {
+    private func feeList(achFee: String?, fedwireFee: String?, isLoading: Bool) -> some View {
+        let showsAch = isLoading || achFee != nil
+        let showsFedwire = isLoading || fedwireFee != nil
+
+        return VStack(spacing: 12) {
             HStack(spacing: 0) {
                 Text(Localization.tangempayBankTransferFeeHeader)
                     .font(token: DesignSystem.Font.subheadingMediumToken)
@@ -138,12 +141,18 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                 Spacer(minLength: 0)
             }
 
-            feeRow(title: Localization.tangempayBankTransferFeeAch, value: achFee)
+            if showsAch {
+                feeRow(title: Localization.tangempayBankTransferFeeAch, value: achFee)
+            }
 
-            DesignSystem.Color.borderSecondary
-                .frame(height: 2)
+            if showsAch, showsFedwire {
+                DesignSystem.Color.borderSecondary
+                    .frame(height: 2)
+            }
 
-            feeRow(title: Localization.tangempayBankTransferFeeFedwire, value: fedwireFee)
+            if showsFedwire {
+                feeRow(title: Localization.tangempayBankTransferFeeFedwire, value: fedwireFee)
+            }
         }
     }
 
