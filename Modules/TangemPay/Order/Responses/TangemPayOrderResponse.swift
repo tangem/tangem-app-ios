@@ -26,7 +26,6 @@ public extension TangemPayOrderResponse {
         case processing = "PROCESSING"
         case completed = "COMPLETED"
         case canceled = "CANCELED"
-        case failed = "FAILED"
         case undefined = "UNDEFINED"
 
         public init(from decoder: Decoder) throws {
