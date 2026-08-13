@@ -59,7 +59,10 @@ extension MobileOnboardingViewModel {
                 return
             }
 
-        default:
+        case .iCloudBackup:
+            alert = makeICloudBackupDismissAlert()
+
+        case .walletImport, .seedPhraseReveal:
             break
         }
     }
@@ -85,6 +88,8 @@ private extension MobileOnboardingViewModel {
             MobileOnboardingBackupSeedPhraseFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
         case .seedPhraseReveal(let context):
             MobileOnboardingRevealSeedPhraseFlowBuilder(context: context, coordinator: self)
+        case .iCloudBackup(let userWalletModel, let source):
+            MobileOnboardingBackupICloudFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
         }
     }
 }
@@ -139,6 +144,18 @@ private extension MobileOnboardingViewModel {
             primaryButton: .cancel(Text(Localization.commonClose)),
             secondaryButton: .destructive(
                 Text(Localization.commonYes),
+                action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupCreationAlertClose)
+            )
+        )
+    }
+
+    func makeICloudBackupDismissAlert() -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: "Cancel backup setup?",
+            message: "Your wallet won't be backed up to iCloud. You can set this up later in wallet settings.",
+            primaryButton: .cancel(Text("Continue backup")),
+            secondaryButton: .destructive(
+                Text("Cancel backup"),
                 action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupCreationAlertClose)
             )
         )
