@@ -62,9 +62,9 @@ final class TangemPayAccountViewModel: ObservableObject {
             router?.openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
         case .kycDeclined(let tangemPayKYCInteractor):
             router?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
-        case .failedToIssueCard:
-            router?.openTangemPayFailedToIssueCardPopup()
-        case .tangemPayAccount(let tangemPayAccount), .cardDeactivated(let tangemPayAccount):
+        case .failedToIssueCard(let tangemPayAccount),
+             .tangemPayAccount(let tangemPayAccount),
+             .cardDeactivated(let tangemPayAccount):
             router?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
         case .planSelectNeeded(let tariffPlanSelector):
             router?.openTangemPaySelectPlan(tariffPlanSelector: tariffPlanSelector)
@@ -254,7 +254,9 @@ extension TangemPayAccountViewModel {
             switch self {
             case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined, .cardDeactivated, .replacingCard, .planSelectNeeded:
                 true
-            case .syncNeeded, .unavailable, .rootedDevice:
+            case .syncNeeded(let cached), .unavailable(let cached):
+                cached != nil
+            case .rootedDevice:
                 false
             }
         }
