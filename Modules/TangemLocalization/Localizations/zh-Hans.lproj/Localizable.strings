@@ -2228,6 +2228,7 @@
 "tx_history_onramp_status_refunding" = "Refunding";
 "tx_history_onramp_top_up" = "充值";
 "tx_history_onramp_topped_up" = "已充值";
+"tx_history_transaction_paused_notification_title" = "Your transaction has been paused by the provider.";
 "tx_history_you_paid" = "您已支付";
 "unexpected_error_description" = "请稍后再试。如果问题仍然存在，请联系客服。";
 "unexpected_error_title" = "出问题了！";
