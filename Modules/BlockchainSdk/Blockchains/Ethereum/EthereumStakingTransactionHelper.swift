@@ -63,17 +63,18 @@ struct EthereumStakingTransactionHelper {
             throw EthereumTransactionBuilderError.feeParametersNotFound
         }
 
-        let baseFee = compiledTransaction.maxFeePerGas ?? .zero
-        let priorityFee = compiledTransaction.maxPriorityFeePerGas ?? .zero
+        let maxFeePerGas = compiledTransaction.maxFeePerGas ?? .zero
+        let maxPriorityFeePerGas = compiledTransaction.maxPriorityFeePerGas ?? .zero
         let gasPrice = compiledTransaction.gasPrice ?? .zero
 
         let feeParameters: FeeParameters
 
-        if baseFee > 0, priorityFee > 0 {
+        // A tip of zero is legal in a type-2 transaction, so `maxFeePerGas` alone decides the fee type.
+        if maxFeePerGas > 0 {
             feeParameters = EthereumEIP1559FeeParameters(
                 gasLimit: compiledTransaction.gasLimit,
-                baseFee: baseFee,
-                priorityFee: priorityFee
+                maxFeePerGas: maxFeePerGas,
+                priorityFee: maxPriorityFeePerGas
             )
         } else if gasPrice > 0 {
             feeParameters = EthereumLegacyFeeParameters(gasLimit: compiledTransaction.gasLimit, gasPrice: gasPrice)
