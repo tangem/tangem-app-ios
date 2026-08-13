@@ -36,8 +36,11 @@ struct StatusBannerDemoView: View {
         VStack(spacing: 8) {
             SwiftUI.Button("▶︎ Play swap flow", action: playFlow)
             SwiftUI.Button("In progress") { set(.init(kind: .inProgress, title: "Awaiting funds")) }
+            SwiftUI.Button("Refunding") { set(.init(kind: .refunding, title: "Refunding")) }
             SwiftUI.Button("Success (auto-hide)") { showSuccess() }
-            SwiftUI.Button("Failed") { set(.init(kind: .warning, title: "Failed", subtitle: "Visit provider's website to refund your money")) }
+            SwiftUI.Button("Failed") { set(.init(kind: .failed, title: "Failed", subtitle: "Visit provider's website to refund your money")) }
+            SwiftUI.Button("Expired") { set(.init(kind: .expired, title: "Expired")) }
+            SwiftUI.Button("Refunded") { set(.init(kind: .refunded, title: "Refunded")) }
             SwiftUI.Button("Verification required") { set(.init(kind: .attention, title: "Verification required", subtitle: "Visit provider's website to refund your money")) }
             SwiftUI.Button("Hide") { set(nil) }
         }

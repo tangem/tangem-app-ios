@@ -12,14 +12,22 @@ import TangemUIUtils
 
 struct TransactionDetailsStatusBannerViewData: Equatable {
     enum Kind: Equatable {
-        /// Blue, spinning loader (e.g. "Awaiting funds", "Deposit confirmed").
+        /// Blue, spinning loader (e.g. "In progress", "Awaiting funds", "Deposit confirmed").
         case inProgress
+        /// Yellow, spinning loader ("Refunding"). Stays.
+        case refunding
         /// Green checkmark (e.g. "Funds received"). The caller auto-dismisses it after a delay.
         case success
-        /// Red cross (e.g. "Failed"). Stays.
-        case warning
-        /// Yellow exclamation (e.g. "Verification required"). Stays.
+        /// Red error glyph ("Failed"). Stays.
+        case failed
+        /// Red clock ("Expired"). Stays.
+        case expired
+        /// Red error glyph ("Refunded"). Stays.
+        case refunded
+        /// Yellow exclamation (e.g. "Verification required", "Paused"). Stays.
         case attention
+        /// Red error — the "Refunded in [TOKEN]" plaque.
+        case refundInfo
     }
 
     let kind: Kind
@@ -70,41 +78,40 @@ struct TransactionDetailsStatusBannerView: View {
     private var indicator: some View {
         switch data.kind {
         case .inProgress:
-            Loader()
-                .loaderSize(.size20)
-                .loaderColor(DesignSystem.Color.iconStatusInfo)
+            loader(color: DesignSystem.Color.iconStatusInfo)
+        case .refunding:
+            loader(color: DesignSystem.Color.iconStatusWarning)
         case .success:
-            badge(color: DesignSystem.Color.iconStatusSuccess, glyph: DesignSystem.Icons.Checkmark.regular20)
-        case .warning:
-            badge(color: DesignSystem.Color.iconStatusError, glyph: DesignSystem.Icons.Cross.regular20)
+            glyph(DesignSystem.Icons.Success.filled20, color: DesignSystem.Color.iconStatusSuccess)
+        case .failed, .refunded, .refundInfo:
+            glyph(DesignSystem.Icons.Error.filled20, color: DesignSystem.Color.iconStatusError)
+        case .expired:
+            glyph(DesignSystem.Icons.Clock.regular20, color: DesignSystem.Color.iconStatusError)
         case .attention:
-            DesignSystem.Icons.Warning.filled20.image
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(DesignSystem.Color.iconStatusWarning)
+            glyph(DesignSystem.Icons.Warning.filled20, color: DesignSystem.Color.iconStatusWarning)
         }
     }
 
-    private func badge(color: Color, glyph: ImageType) -> some View {
-        Circle()
-            .fill(color)
-            .overlay {
-                glyph.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(size: CGSize(bothDimensions: indicatorSide * 0.6))
-                    .foregroundStyle(DesignSystem.Color.iconStaticLight)
-            }
+    private func loader(color: Color) -> some View {
+        Loader()
+            .loaderSize(.size20)
+            .loaderColor(color)
+    }
+
+    private func glyph(_ image: ImageType, color: Color) -> some View {
+        image.image
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .foregroundStyle(color)
     }
 
     private var titleColor: Color {
         switch data.kind {
         case .inProgress: DesignSystem.Color.textStatusInfo
         case .success: DesignSystem.Color.textStatusSuccess
-        case .warning: DesignSystem.Color.textStatusError
-        case .attention: DesignSystem.Color.textStatusWarning
+        case .failed, .expired, .refunded, .refundInfo: DesignSystem.Color.textStatusError
+        case .refunding, .attention: DesignSystem.Color.textStatusWarning
         }
     }
 
@@ -116,8 +123,8 @@ struct TransactionDetailsStatusBannerView: View {
         switch data.kind {
         case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
         case .success: DesignSystem.Color.bgStatusSuccessSubtle
-        case .warning: DesignSystem.Color.bgStatusErrorSubtle
-        case .attention: DesignSystem.Color.bgStatusWarningSubtle
+        case .failed, .expired, .refunded, .refundInfo: DesignSystem.Color.bgStatusErrorSubtle
+        case .refunding, .attention: DesignSystem.Color.bgStatusWarningSubtle
         }
     }
 }
@@ -130,9 +137,17 @@ struct TransactionDetailsStatusBannerView: View {
 
 #Preview("Status states") {
     VStack(spacing: 12) {
-        TransactionDetailsStatusBannerView(data: .init(kind: .inProgress, title: "Awaiting funds"))
+        TransactionDetailsStatusBannerView(data: .init(kind: .inProgress, title: "In progress"))
+        TransactionDetailsStatusBannerView(data: .init(kind: .refunding, title: "Refunding"))
         TransactionDetailsStatusBannerView(data: .init(kind: .success, title: "Funds received"))
-        TransactionDetailsStatusBannerView(data: .init(kind: .warning, title: "Failed", subtitle: "Visit provider's website to refund your money"))
+        TransactionDetailsStatusBannerView(data: .init(kind: .failed, title: "Failed", subtitle: "Visit provider's website to refund your money"))
+        TransactionDetailsStatusBannerView(data: .init(kind: .expired, title: "Expired"))
+        TransactionDetailsStatusBannerView(data: .init(kind: .refunded, title: "Refunded"))
+        TransactionDetailsStatusBannerView(data: .init(
+            kind: .refundInfo,
+            title: "Refunded in WBTC",
+            subtitle: "Your funds have been refunded in WBTC to your wallet on the Polygon network, in accordance with OKX exchange rules."
+        ))
         TransactionDetailsStatusBannerView(data: .init(kind: .attention, title: "Verification required", subtitle: "Visit provider's website to refund your money"))
     }
     .padding(16)
