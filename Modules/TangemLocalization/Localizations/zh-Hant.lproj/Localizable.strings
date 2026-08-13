@@ -774,7 +774,7 @@
 "hw_cloud_backup_strength_hint_number" = "Try adding a number";
 "hw_cloud_backup_strength_hint_ok" = "Nice work! That would take a long time to crack";
 "hw_cloud_backup_strength_hint_symbol" = "Add a symbol like ! or @ to strengthen it";
-"hw_cloud_backup_strength_hint_uppercase" = "Mix in a uppercase letter";
+"hw_cloud_backup_strength_hint_uppercase" = "Mix in an uppercase letter";
 "hw_cloud_backup_strength_medium" = "Average password";
 "hw_cloud_backup_strength_none" = "Password strength";
 "hw_cloud_backup_strength_strong" = "Strong password";
@@ -1811,7 +1811,7 @@
 "tangempay_bank_transfer_show_details" = "顯示詳情";
 "tangempay_bank_transfer_success_subtitle" = "這可能需要一些時間";
 "tangempay_bank_transfer_success_title" = "正在準備您的銀行資訊";
-"tangempay_bank_transfer_swift_warning" = "僅支援透過 ACH 或 FedWire 存款。SWIFT 轉帳將被退回。";
+"tangempay_bank_transfer_swift_warning" = "不接受 SWIFT 轉帳，款項將退回";
 "tangempay_bank_transfer_terms_of_use" = "Terms of Service";
 "tangempay_cancel_kyc" = "在主畫面隱藏身份驗證";
 "tangempay_card_activation_attempts_exceeded_description" = "Please contact support";
@@ -2125,7 +2125,7 @@
 "tangempay_tangem_visa_card" = "使用 USDC 進行日常支付";
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时不可用";
 "tangempay_title" = "Tangem Pay";
-"tangempay_topup_bank_transfer_body" = "透過 ACH/FedWire 接收法定美元";
+"tangempay_topup_bank_transfer_body" = "透過 ACH 接收法定美元";
 "tangempay_topup_bank_transfer_title" = "銀行轉帳";
 "tangempay_topup_receive_body_multichain" = "將 USDC 或 USDT 傳送至您帳戶的地址";
 "tangempay_topup_receive_body" = "将 USDC Polygon 发送至您账户地址";
