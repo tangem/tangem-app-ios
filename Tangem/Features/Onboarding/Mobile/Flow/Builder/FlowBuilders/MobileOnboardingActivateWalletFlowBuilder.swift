@@ -97,7 +97,7 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
         append(step: seedPhraseValidationStep)
 
         let doneStep = MobileOnboardingSuccessStep(
-            type: .seedPhaseBackupContinue,
+            type: .backupContinue,
             navigationTitle: Localization.commonBackup,
             onAppear: { [weak self] in
                 self?.logBackupCompletedScreenOpenedAnalytics()
