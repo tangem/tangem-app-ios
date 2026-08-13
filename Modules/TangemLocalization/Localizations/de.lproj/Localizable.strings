@@ -2228,6 +2228,7 @@
 "tx_history_onramp_status_refunding" = "Rückerstattung";
 "tx_history_onramp_top_up" = "Aufladen";
 "tx_history_onramp_topped_up" = "Aufgeladen";
+"tx_history_transaction_paused_notification_title" = "Your transaction has been paused by the provider.";
 "tx_history_you_paid" = "Du hast bezahlt";
 "unexpected_error_description" = "Bitte versuche es später noch einmal. Sollte das Problem weiterhin bestehen, wende Dich bitte an den Support.";
 "unexpected_error_title" = "Etwas ist schiefgelaufen!";
