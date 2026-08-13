@@ -43,7 +43,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .aspectRatio(Constants.plasticCardStandardWidthToHeightRatio, contentMode: .fit)
         .background(
-            Color.Tangem.Visa.cardDetailBackground,
+            DesignSystem.Color.bgPrimary,
             in: RoundedRectangle(cornerRadius: 20, style: .continuous)
         )
         .overlay {
@@ -183,10 +183,6 @@ struct TangemPayCardDetailsViewRedesigned: View {
         .padding(16)
         .background {
             KFImage(viewModel.cardBackgroundImageURL)
-                .placeholder {
-                    Assets.Visa.cardCredentials.image
-                        .resizable()
-                }
                 .resizable()
         }
         .screenCaptureProtection()
@@ -236,7 +232,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
     private var cardArtBackground: some View {
         KFImage(viewModel.cardImageURL)
             .placeholder {
-                Assets.Visa.cardPlatinum.image
+                Assets.Visa.cardGhost.image
                     .resizable()
             }
             .resizable()
