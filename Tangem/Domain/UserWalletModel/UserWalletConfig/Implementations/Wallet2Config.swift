@@ -64,7 +64,15 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var isWalletsCreated: Bool {
-        return !card.wallets.isEmpty
+        if card.wallets.isEmpty {
+            return false
+        }
+
+        if card.firmwareVersion >= .v8, card.hasMasterSecret == false {
+            return false
+        }
+
+        return true
     }
 
     var canImportKeys: Bool {
@@ -854,7 +862,11 @@ extension Wallet2Config: UserWalletConfig {
         case .nfcInteraction:
             return .available
         case .transactionPayloadLimit:
-            return .available
+            if card.firmwareVersion >= .v8 {
+                return .hidden
+            } else {
+                return .available
+            }
         case .tangemPay:
             return card.settings.isHDWalletAllowed ? .available : .hidden
         case .walletAssetsDiscovery:
@@ -904,11 +916,5 @@ private extension Card.BackupStatus {
         }
 
         return nil
-    }
-}
-
-private extension CardDTO {
-    var hasImportedWallets: Bool {
-        wallets.contains(where: { $0.isImported == true })
     }
 }

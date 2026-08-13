@@ -8,7 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		0A40A8802E2FCB28006411E5 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0A40A87F2E2FCB28006411E5 /* Lottie */; };
+		168398FC0B2E0B938E326B00 /* ios_cio_config.json in Resources */ = {isa = PBXBuildFile; fileRef = 2F184EBAB4A0E9D2286980C2 /* ios_cio_config.json */; };
+		2D15536F2FEC18DB00BF1F88 /* TangemNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2D1553682FEC18DB00BF1F88 /* TangemNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2D67256B2EB0A6490035A4BC /* Experiment in Frameworks */ = {isa = PBXBuildFile; productRef = 2D67256A2EB0A6490035A4BC /* Experiment */; };
+		2DDEAD000000000000000003 /* MessagingPushFCM in Frameworks */ = {isa = PBXBuildFile; productRef = 2DDEAD000000000000000001 /* MessagingPushFCM */; };
 		2DF2B17430233C29009B888D /* ios_cio_config.json in Resources */ = {isa = PBXBuildFile; fileRef = 2F184EBAB4A0E9D2286980C2 /* ios_cio_config.json */; };
 		3075F0D02DCA6B430094B4C7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 3075F0CF2DCA6B430094B4C7 /* Kingfisher */; };
 		5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DAC08832513917F00B73E8B /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -19,8 +22,11 @@
 		B099338B2B5517EC00240CDB /* TangemVisa.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B09933772B5517E300240CDB /* TangemVisa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B0B11A082C787FE70018A2A6 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0B11A072C787FE70018A2A6 /* MarkdownUI */; };
 		B0D70D482CE5FB6800A8A0F1 /* JWTDecode in Frameworks */ = {isa = PBXBuildFile; productRef = B0D70D472CE5FB6800A8A0F1 /* JWTDecode */; };
+		B605DFA13012E35F00366B0D /* TangemFirebaseDynamicShim in Frameworks */ = {isa = PBXBuildFile; productRef = B605DFA03012E35F00366B0D /* TangemFirebaseDynamicShim */; };
+		B605DFA23012E37400366B0D /* TangemFirebaseDynamicShim in Embed Frameworks */ = {isa = PBXBuildFile; productRef = B605DFA03012E35F00366B0D /* TangemFirebaseDynamicShim */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		B608020F2ECEA1E600CC5F4E /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B608020E2ECEA1E600CC5F4E /* AnyCodable */; };
 		B61B905A2F912D950081CC13 /* BlockchainSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B61B90592F912D950081CC13 /* BlockchainSdk */; };
+		B625C4A530137E6F00B25A74 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = B625C4A430137E6F00B25A74 /* GRDB */; };
 		B62C16792CBE095A00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C16782CBE095A00522683 /* Alamofire */; };
 		B62C167B2CBE0A1E00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167A2CBE0A1E00522683 /* Alamofire */; };
 		B62C167D2CBE0A3D00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167C2CBE0A3D00522683 /* Alamofire */; };
@@ -48,8 +54,6 @@
 		B6DDDE812CF39C69008DEA94 /* AnalyticsConnector in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE802CF39C69008DEA94 /* AnalyticsConnector */; };
 		B6E27FA52DFD1CAC00B29813 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B6E27FA42DFD1CAC00B29813 /* TangemModules */; };
 		B6EF56652FAD132F000E1C6A /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B6EF56642FAD132F000E1C6A /* TangemModules */; };
-		B6FBA5E0000000000000000B /* TangemFirebaseDynamicShim in Frameworks */ = {isa = PBXBuildFile; productRef = B6FBA5E0000000000000000A /* TangemFirebaseDynamicShim */; };
-		B6FBA5E0000000000000000C /* TangemFirebaseDynamicShim in Embed Frameworks */ = {isa = PBXBuildFile; productRef = B6FBA5E0000000000000000A /* TangemFirebaseDynamicShim */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B6FDC0AB2F902F280061FD2B /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B6FDC0AA2F902F280061FD2B /* BigInt */; };
 		B6FF157E2F8F2A6E000C63B6 /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B6FF157D2F8F2A6E000C63B6 /* BigInt */; };
 		C21C40CA2F7D778F00CF1555 /* GoogleService-Info-Production.plist in Resources */ = {isa = PBXBuildFile; fileRef = C21C40A62F7D778F00CF1555 /* GoogleService-Info-Production.plist */; };
@@ -85,6 +89,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2D15536D2FEC18DB00BF1F88 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2D1553672FEC18DB00BF1F88;
+			remoteInfo = TangemNotificationServiceExtension;
+		};
 		5D3F77D924BF56DC00E8695B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
@@ -171,6 +182,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				2D15536F2FEC18DB00BF1F88 /* TangemNotificationServiceExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -191,10 +203,10 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				B605DFA23012E37400366B0D /* TangemFirebaseDynamicShim in Embed Frameworks */,
 				EFEE239E2BFF62D60099917E /* TangemStaking.framework in Embed Frameworks */,
 				EF9E29A92B4F0C9900418559 /* TangemExpress.framework in Embed Frameworks */,
 				B099338B2B5517EC00240CDB /* TangemVisa.framework in Embed Frameworks */,
-				B6FBA5E0000000000000000C /* TangemFirebaseDynamicShim in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -202,6 +214,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2D1553682FEC18DB00BF1F88 /* TangemNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TangemNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F184EBAB4A0E9D2286980C2 /* ios_cio_config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ios_cio_config.json; sourceTree = "<group>"; };
 		5D3F77C224BF56D800E8695B /* Tangem.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tangem.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77D824BF56DC00E8695B /* TangemTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -239,6 +252,24 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2D5C48362FEC209B00A41A24 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Config/NotificationServiceExtension.xcconfig,
+				Config/NotificationServiceExtensionInternal.xcconfig,
+				Config/NotificationServiceExtensionProduction.xcconfig,
+				Info.plist,
+			);
+			target = 2D1553672FEC18DB00BF1F88 /* TangemNotificationServiceExtension */;
+		};
+		2D5C483A2FEC214200A41A24 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Features/Analytics/Customer.io/CustomerIOConfigProvider.swift,
+				Features/Analytics/Customer.io/CustomerIOSharedConfiguration.swift,
+			);
+			target = 2D1553672FEC18DB00BF1F88 /* TangemNotificationServiceExtension */;
+		};
 		C21C3A8E2F7D6CD400CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -287,6 +318,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		2D1553692FEC18DB00BF1F88 /* TangemNotificationServiceExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (2D5C48362FEC209B00A41A24 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TangemNotificationServiceExtension; sourceTree = "<group>"; };
 		C21C3A3E2F7D6CD300CF1555 /* TangemTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21C3A8E2F7D6CD400CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TangemTests; sourceTree = "<group>"; };
 		C21C3C852F7D6D8300CF1555 /* TangemUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemUITests; sourceTree = "<group>"; };
 		C21C3DA02F7D6E4A00CF1555 /* TangemExpress */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21C3DFF2F7D6E4B00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TangemExpress; sourceTree = "<group>"; };
@@ -295,11 +327,19 @@
 		C21C3EC02F7D6EE200CF1555 /* TangemStakingTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemStakingTests; sourceTree = "<group>"; };
 		C21C3FD12F7D735A00CF1555 /* TangemVisa */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21C40182F7D735B00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TangemVisa; sourceTree = "<group>"; };
 		C21C401B2F7D736000CF1555 /* TangemVisaTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemVisaTests; sourceTree = "<group>"; };
-		C21CA0CD2F7EB69D00CF1555 /* Tangem */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21CAD382F7EB69E00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Tangem; sourceTree = "<group>"; };
+		C21CA0CD2F7EB69D00CF1555 /* Tangem */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21CAD382F7EB69E00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 2D5C483A2FEC214200A41A24 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Tangem; sourceTree = "<group>"; };
 		C21CAD4C2F7ECF2E00CF1555 /* BlockchainSdkExample */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21CCB2D2F7ED3C500CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BlockchainSdkExample; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2D1553652FEC18DB00BF1F88 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2DDEAD000000000000000003 /* MessagingPushFCM in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5D3F77BF24BF56D800E8695B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -312,7 +352,9 @@
 				B69FC9092CF67D9300A5C51D /* GDPerformanceView-Swift in Frameworks */,
 				B67E38C12CC71A2C00D660EB /* TangemSdk in Frameworks */,
 				B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */,
+				B625C4A530137E6F00B25A74 /* GRDB in Frameworks */,
 				C24656702F575ACD00270AA7 /* MessagingPushFCM in Frameworks */,
+				B605DFA13012E35F00366B0D /* TangemFirebaseDynamicShim in Frameworks */,
 				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
 				B0776C372DA69090004A8765 /* Lottie in Frameworks */,
 				C28E016B2E79A6FA00B47571 /* AppsFlyerLib-Strict in Frameworks */,
@@ -332,7 +374,6 @@
 				DCED46532EF04FD20021AC0D /* CryptoSwift in Frameworks */,
 				B608020F2ECEA1E600CC5F4E /* AnyCodable in Frameworks */,
 				B6457BD02F9120CA00C91066 /* TangemMacro in Frameworks */,
-				B6FBA5E0000000000000000B /* TangemFirebaseDynamicShim in Frameworks */,
 				DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -458,6 +499,7 @@
 				C21C3EC02F7D6EE200CF1555 /* TangemStakingTests */,
 				C21CAD4C2F7ECF2E00CF1555 /* BlockchainSdkExample */,
 				C21C40B12F7D778F00CF1555 /* tangem-app-config */,
+				2D1553692FEC18DB00BF1F88 /* TangemNotificationServiceExtension */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
 			);
@@ -476,6 +518,7 @@
 				EFEE23882BFF62D50099917E /* TangemStaking.framework */,
 				EFEE23912BFF62D60099917E /* TangemStakingTests.xctest */,
 				B62D43782CBC7EC700C2460E /* BlockchainSdkExample.app */,
+				2D1553682FEC18DB00BF1F88 /* TangemNotificationServiceExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -546,6 +589,29 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		2D1553672FEC18DB00BF1F88 /* TangemNotificationServiceExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D1553782FEC18DB00BF1F88 /* Build configuration list for PBXNativeTarget "TangemNotificationServiceExtension" */;
+			buildPhases = (
+				2D1553642FEC18DB00BF1F88 /* Sources */,
+				2D1553652FEC18DB00BF1F88 /* Frameworks */,
+				2D1553662FEC18DB00BF1F88 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2D1553692FEC18DB00BF1F88 /* TangemNotificationServiceExtension */,
+			);
+			name = TangemNotificationServiceExtension;
+			packageProductDependencies = (
+				2DDEAD000000000000000001 /* MessagingPushFCM */,
+			);
+			productName = TangemNotificationServiceExtension;
+			productReference = 2D1553682FEC18DB00BF1F88 /* TangemNotificationServiceExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		5D3F77C124BF56D800E8695B /* Tangem */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5D3F77EC24BF56DC00E8695B /* Build configuration list for PBXNativeTarget "Tangem" */;
@@ -563,6 +629,7 @@
 				EF9E297D2B4F0C4900418559 /* PBXTargetDependency */,
 				B09933892B5517EC00240CDB /* PBXTargetDependency */,
 				EFEE239C2BFF62D60099917E /* PBXTargetDependency */,
+				2D15536E2FEC18DB00BF1F88 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				C21CA0CD2F7EB69D00CF1555 /* Tangem */,
@@ -593,8 +660,9 @@
 				C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */,
 				B6FF157D2F8F2A6E000C63B6 /* BigInt */,
 				B6457BCF2F9120CA00C91066 /* TangemMacro */,
-				B6FBA5E0000000000000000A /* TangemFirebaseDynamicShim */,
 				B6DBDE492F97790F00885068 /* Hiero */,
+				B605DFA03012E35F00366B0D /* TangemFirebaseDynamicShim */,
+				B625C4A430137E6F00B25A74 /* GRDB */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -831,10 +899,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1540;
+				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 1500;
 				ORGANIZATIONNAME = "Tangem AG";
 				TargetAttributes = {
+					2D1553672FEC18DB00BF1F88 = {
+						CreatedOnToolsVersion = 26.5;
+					};
 					5D3F77C124BF56D800E8695B = {
 						CreatedOnToolsVersion = 11.5;
 						LastSwiftMigration = 1430;
@@ -918,8 +989,9 @@
 				C2B5B4D82F59D93B00C89C89 /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */,
 				B6FF157C2F8F2A6E000C63B6 /* XCRemoteSwiftPackageReference "BigInt" */,
 				B6457BCE2F9120CA00C91066 /* XCLocalSwiftPackageReference "TangemMacro" */,
-				B6FBA5E0000000000000000D /* XCLocalSwiftPackageReference "TangemFirebaseDynamicShim" */,
 				B6DBDE482F97790F00885068 /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */,
+				B605DF9F3012E35F00366B0D /* XCLocalSwiftPackageReference "TangemFirebaseDynamicShim" */,
+				B625C4A330137E6F00B25A74 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -935,11 +1007,20 @@
 				EFEE23872BFF62D50099917E /* TangemStaking */,
 				EFEE23902BFF62D60099917E /* TangemStakingTests */,
 				B62D43772CBC7EC700C2460E /* BlockchainSdkExample */,
+				2D1553672FEC18DB00BF1F88 /* TangemNotificationServiceExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2D1553662FEC18DB00BF1F88 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				168398FC0B2E0B938E326B00 /* ios_cio_config.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5D3F77C024BF56D800E8695B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1017,6 +1098,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2D1553642FEC18DB00BF1F88 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5D3F77BE24BF56D800E8695B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1091,6 +1179,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2D15536E2FEC18DB00BF1F88 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2D1553672FEC18DB00BF1F88 /* TangemNotificationServiceExtension */;
+			targetProxy = 2D15536D2FEC18DB00BF1F88 /* PBXContainerItemProxy */;
+		};
 		5D3F77DA24BF56DC00E8695B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5D3F77C124BF56D800E8695B /* Tangem */;
@@ -1335,6 +1428,63 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_TARGET_NAME = Tangem;
+			};
+			name = "Release(internal)";
+		};
+		2D1553702FEC18DB00BF1F88 /* Debug(production) */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 2D1553692FEC18DB00BF1F88 /* TangemNotificationServiceExtension */;
+			baseConfigurationReferenceRelativePath = Config/NotificationServiceExtensionProduction.xcconfig;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = TangemNotificationServiceExtension/Info.plist;
+				MARKETING_VERSION = 1.0;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+			};
+			name = "Debug(production)";
+		};
+		2D1553732FEC18DB00BF1F88 /* Debug(internal) */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 2D1553692FEC18DB00BF1F88 /* TangemNotificationServiceExtension */;
+			baseConfigurationReferenceRelativePath = Config/NotificationServiceExtensionInternal.xcconfig;
+			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = TangemNotificationServiceExtension/Info.plist;
+				MARKETING_VERSION = 1.0;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+			};
+			name = "Debug(internal)";
+		};
+		2D1553742FEC18DB00BF1F88 /* Release(production) */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 2D1553692FEC18DB00BF1F88 /* TangemNotificationServiceExtension */;
+			baseConfigurationReferenceRelativePath = Config/NotificationServiceExtensionProduction.xcconfig;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = TangemNotificationServiceExtension/Info.plist;
+				MARKETING_VERSION = 1.0;
+			};
+			name = "Release(production)";
+		};
+		2D1553772FEC18DB00BF1F88 /* Release(internal) */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 2D1553692FEC18DB00BF1F88 /* TangemNotificationServiceExtension */;
+			baseConfigurationReferenceRelativePath = Config/NotificationServiceExtensionInternal.xcconfig;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = TangemNotificationServiceExtension/Info.plist;
+				MARKETING_VERSION = 1.0;
 			};
 			name = "Release(internal)";
 		};
@@ -1936,7 +2086,21 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				EXCLUDED_SOURCE_FILE_NAMES = "GDPerformance*";
+				EXCLUDED_SOURCE_FILE_NAMES = (
+					"GDPerformance*",
+					config_dev.json,
+					README.md,
+					"*/CardMocks/*",
+					coinsListResponse.json,
+					coinsResponse.json,
+					earnNetworks.json,
+					earnTokens.json,
+					trendingNews.json,
+					walletUserWalletList.json,
+					notReferralMock.json,
+					referralMock.json,
+					visaSingleTransaction.json,
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -4196,6 +4360,17 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2D1553782FEC18DB00BF1F88 /* Build configuration list for PBXNativeTarget "TangemNotificationServiceExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D1553702FEC18DB00BF1F88 /* Debug(production) */,
+				2D1553732FEC18DB00BF1F88 /* Debug(internal) */,
+				2D1553742FEC18DB00BF1F88 /* Release(production) */,
+				2D1553772FEC18DB00BF1F88 /* Release(internal) */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Release(production)";
+		};
 		5D3F77BD24BF56D800E8695B /* Build configuration list for PBXProject "TangemApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -4320,13 +4495,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		B605DF9F3012E35F00366B0D /* XCLocalSwiftPackageReference "TangemFirebaseDynamicShim" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = TangemFirebaseDynamicShim;
+		};
 		B6457BCE2F9120CA00C91066 /* XCLocalSwiftPackageReference "TangemMacro" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = TangemMacro;
-		};
-		B6FBA5E0000000000000000D /* XCLocalSwiftPackageReference "TangemFirebaseDynamicShim" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = TangemFirebaseDynamicShim;
 		};
 		C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */ = {
 			isa = XCLocalSwiftPackageReference;
@@ -4379,6 +4554,14 @@
 				minimumVersion = 2.4.1;
 			};
 		};
+		B625C4A330137E6F00B25A74 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.11.1;
+			};
+		};
 		B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
@@ -4400,7 +4583,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 4.1.2;
+				version = 5.1.0;
 			};
 		};
 		B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */ = {
@@ -4501,10 +4684,10 @@
 		};
 		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/reown-swift.git";
+			repositoryURL = "https://github.com/reown-com/reown-swift.git";
 			requirement = {
-				kind = revision;
-				revision = 62114d209ec942ea7ce6eb7c154980212f980bb0;
+				kind = exactVersion;
+				version = 2.3.1;
 			};
 		};
 		DCED46512EF04FBC0021AC0D /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
@@ -4527,6 +4710,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2D26855E2EB09D3A000E472A /* XCRemoteSwiftPackageReference "experiment-ios-client" */;
 			productName = Experiment;
+		};
+		2DDEAD000000000000000001 /* MessagingPushFCM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C24285412F55E085004F0348 /* XCRemoteSwiftPackageReference "customerio-ios" */;
+			productName = MessagingPushFCM;
 		};
 		3075F0CF2DCA6B430094B4C7 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -4553,6 +4741,10 @@
 			package = B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode" */;
 			productName = JWTDecode;
 		};
+		B605DFA03012E35F00366B0D /* TangemFirebaseDynamicShim */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TangemFirebaseDynamicShim;
+		};
 		B608020E2ECEA1E600CC5F4E /* AnyCodable */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B62D344E2CBC67D500C2460E /* XCRemoteSwiftPackageReference "AnyCodable" */;
@@ -4562,6 +4754,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */;
 			productName = BlockchainSdk;
+		};
+		B625C4A430137E6F00B25A74 /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B625C4A330137E6F00B25A74 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			productName = GRDB;
 		};
 		B62C16782CBE095A00522683 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -4690,10 +4887,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */;
 			productName = TangemModules;
-		};
-		B6FBA5E0000000000000000A /* TangemFirebaseDynamicShim */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = TangemFirebaseDynamicShim;
 		};
 		B6FDC0AA2F902F280061FD2B /* BigInt */ = {
 			isa = XCSwiftPackageProductDependency;

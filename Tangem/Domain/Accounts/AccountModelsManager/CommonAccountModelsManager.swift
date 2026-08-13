@@ -443,8 +443,13 @@ extension CommonAccountModelsManager: AccountModelsManager {
         }
     }
 
-    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {
-        await tangemPayManager.authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor)
+    func acceptTangemPayOffer(
+        authorizingInteractor: any TangemPayAuthorizing
+    ) async throws(TangemPayAuthorizationError) {
+        try await tangemPayManager.authorizeWithCustomerWallet(
+            authorizingInteractor: authorizingInteractor,
+            showSyncInProgress: false
+        )
         guard case .kycRequired = tangemPayManager.state else {
             return
         }

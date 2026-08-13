@@ -25,6 +25,8 @@ struct CardDTO: Codable {
     public internal(set) var backupStatus: Card.BackupStatus?
     public internal(set) var wallets: [Wallet] = []
     public internal(set) var attestation: Attestation = .empty
+    public internal(set) var hasMasterSecret: Bool?
+    public internal(set) var isBackupVerified: Bool?
 
     init(card: Card) {
         cardId = card.cardId
@@ -42,6 +44,8 @@ struct CardDTO: Codable {
         backupStatus = card.backupStatus
         wallets = mapWallets(card.wallets)
         attestation = card.attestation
+        hasMasterSecret = card.masterSecret != nil
+        isBackupVerified = card.isBackupVerified
     }
 
     init(cardDTOv4: CardDTOv4) {
@@ -78,7 +82,7 @@ struct CardDTO: Codable {
 
     private func mapWallets(_ cardWallets: [Card.Wallet]) -> [CardDTO.Wallet] {
         return cardWallets.map {
-            .init(
+            return CardDTO.Wallet(
                 publicKey: $0.publicKey,
                 chainCode: $0.chainCode,
                 curve: $0.curve,
@@ -143,7 +147,7 @@ extension CardDTO {
     /// Describing wallets created on card
     struct Wallet: Codable {
         /// Wallet's public key.  For `secp256k1`, the key can be compressed or uncompressed. Use `Secp256k1Key` for any conversions.
-        public let publicKey: Data
+        public let publicKey: Data?
         /// Optional chain code for BIP32 derivation.
         public let chainCode: Data?
         /// Elliptic curve used for all wallet key operations.
