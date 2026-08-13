@@ -216,16 +216,18 @@ struct TangemPayVirtualAccountInfoSheetView: View {
             .isLoading(viewModel.isLoading)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountShowDetailsButton)
 
-            Text(viewModel.agreementText)
-                .environment(\.openURL, OpenURLAction { url in
-                    viewModel.openURL(url)
-                    return .handled
-                })
-                .font(token: DesignSystem.Font.captionMediumToken)
-                .foregroundStyle(DesignSystem.Color.textSecondary)
-                .tint(DesignSystem.Color.textPrimary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, SizeUnit.x3.value)
+            if let agreementText = viewModel.agreementText {
+                Text(agreementText)
+                    .environment(\.openURL, OpenURLAction { url in
+                        viewModel.openURL(url)
+                        return .handled
+                    })
+                    .font(token: DesignSystem.Font.captionMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textSecondary)
+                    .tint(DesignSystem.Color.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, SizeUnit.x3.value)
+            }
         }
         .padding(.top, 24)
     }
