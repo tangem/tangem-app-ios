@@ -37,6 +37,8 @@ struct TransactionViewModel: Hashable, Identifiable {
     /// Optional warning surfaced under the row. The concrete copy is resolved by the view.
     let warning: Warning?
 
+    let cashback: Cashback?
+
     var inProgress: Bool {
         status == .inProgress
     }
@@ -138,7 +140,8 @@ struct TransactionViewModel: Hashable, Identifiable {
         isFromYieldContract: Bool,
         subtitleOwner: SubtitleOwner? = nil,
         cardName: String? = nil,
-        warning: Warning? = nil
+        warning: Warning? = nil,
+        cashback: Cashback? = nil
     ) {
         id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
@@ -161,6 +164,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         self.subtitleOwner = subtitleOwner
         self.cardName = cardName
         self.warning = warning
+        self.cashback = cashback
 
         display = TransactionDisplayModel.make(
             transactionType: transactionType,
@@ -345,6 +349,16 @@ extension TransactionViewModel {
     enum Warning: Hashable {
         case verifying
         case paused
+    }
+
+    struct Cashback: Hashable {
+        let formattedAmount: String
+        let style: Style
+
+        enum Style: Hashable {
+            case estimated
+            case confirmed
+        }
     }
 
     /// Counterparty rendered alongside the direction prefix in the redesigned subtitle.
