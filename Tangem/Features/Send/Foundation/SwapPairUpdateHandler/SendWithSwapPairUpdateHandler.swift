@@ -46,7 +46,7 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
     }
 
     func updatePair(source: any SendSwapableToken, destination: any SendReceiveToken) async throws -> ExpressManagerState {
-        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+        let pair = try await makePair(source: source, destination: destination)
         let pairResult = try await expressManager.update(pair: pair)
 
         guard let amountType = await expressManager.getAmountType() else {

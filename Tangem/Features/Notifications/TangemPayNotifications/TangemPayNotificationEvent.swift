@@ -14,7 +14,7 @@ import TangemUI
 
 enum TangemPayNotificationEvent: Equatable, Hashable {
     case unavailable
-    case sessionExpired(icon: MainButton.Icon?)
+    case sessionExpired(icon: MainButton.Icon?, isRenewing: Bool)
     case tangemPayIsNowBeta
 
     static func == (lhs: TangemPayNotificationEvent, rhs: TangemPayNotificationEvent) -> Bool {
@@ -95,8 +95,8 @@ extension TangemPayNotificationEvent: NotificationEvent {
 
     var buttonAction: NotificationButtonAction? {
         switch self {
-        case .sessionExpired(let icon):
-            return .init(.renewTangemPaySession(icon: icon), withLoader: true)
+        case .sessionExpired(let icon, let isRenewing):
+            return .init(.renewTangemPaySession(icon: icon), withLoader: true, isLoading: isRenewing)
         case .unavailable, .tangemPayIsNowBeta:
             return nil
         }

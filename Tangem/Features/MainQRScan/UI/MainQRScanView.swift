@@ -70,7 +70,7 @@ struct MainQRScanView: View {
 
     private var navigationBar: some View {
         HStack(spacing: 14) {
-            Button(action: viewModel.onCloseTapped) {
+            SwiftUI.Button(action: viewModel.onCloseTapped) {
                 Image(systemName: "xmark")
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundColor(Colors.Text.constantWhite)
@@ -80,7 +80,7 @@ struct MainQRScanView: View {
 
             Spacer()
 
-            Button(action: viewModel.toggleFlash) {
+            SwiftUI.Button(action: viewModel.toggleFlash) {
                 (viewModel.isFlashActive ? Assets.flashDisabled.image : Assets.flash.image)
                     .foregroundColor(Colors.Text.constantWhite)
             }

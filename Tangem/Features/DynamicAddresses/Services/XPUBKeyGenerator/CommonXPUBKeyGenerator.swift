@@ -12,7 +12,7 @@ import TangemSdk
 
 struct CommonXPUBKeyGenerator {
     let keysRepository: KeysRepository
-    let keysDerivingInteractor: KeysDeriving
+    let keysDerivingInteractorFactory: KeysDerivingInteractorFactory
     let tokenItem: TokenItem
 }
 
@@ -42,8 +42,12 @@ extension CommonXPUBKeyGenerator: XPUBKeyGenerator {
         let masterKey = try masterKey()
         let paths = try xpubDerivationPaths()
 
-        let derivationResult = try await keysDerivingInteractor.deriveKeys(
-            derivations: [masterKey.publicKey: [paths.child, paths.parent]]
+        guard let masterKeyPublicKey = masterKey.publicKey else {
+            throw Error.failedToCreateXPUBKey
+        }
+
+        let derivationResult = try await keysDerivingInteractorFactory.makeInteractor().deriveKeys(
+            derivations: [masterKeyPublicKey: [paths.child, paths.parent]]
         )
 
         keysRepository.update(derivations: derivationResult)
