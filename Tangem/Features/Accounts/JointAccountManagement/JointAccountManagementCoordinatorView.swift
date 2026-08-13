@@ -32,6 +32,8 @@ struct JointAccountManagementCoordinatorView: View {
             JointAccountMembersCountView(viewModel: viewModel)
         case .memberName(let viewModel):
             JointAccountMemberNameView(viewModel: viewModel)
+        case .inviteMembers(let viewModel):
+            JointAccountInviteMembersView(viewModel: viewModel)
         }
     }
 }
