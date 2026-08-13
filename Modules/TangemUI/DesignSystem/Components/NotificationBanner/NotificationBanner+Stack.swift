@@ -11,7 +11,7 @@ import TangemUIUtils
 
 public struct NotificationBannerStack<Item: Identifiable, Content: View>: View {
     let items: [Item]
-    @ViewBuilder let content: (Item) -> Content
+    @ViewBuilder let content: (Item, _ isTop: Bool) -> Content
 
     private let maxVisible: Int
     private let scaleStep: CGFloat = 0.05
@@ -30,7 +30,7 @@ public struct NotificationBannerStack<Item: Identifiable, Content: View>: View {
     public init(
         items: [Item],
         maxVisibleItems: Int = 3,
-        @ViewBuilder content: @escaping (Item) -> Content
+        @ViewBuilder content: @escaping (Item, _ isTop: Bool) -> Content
     ) {
         self.items = items
         maxVisible = maxVisibleItems
@@ -73,7 +73,7 @@ public struct NotificationBannerStack<Item: Identifiable, Content: View>: View {
     }
 
     private func cardView(for item: Item, position: Int, isTop: Bool) -> some View {
-        content(item)
+        content(item, isTop)
             .onGeometryChange(for: CGSize.self, of: { $0.size }) { size in
                 let size = size.roundedToDeviceScale()
                 if isTop { cardSize = size }

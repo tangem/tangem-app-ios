@@ -14,4 +14,5 @@ enum MobileOnboardingFlow {
     case accessCode(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource, context: MobileWalletContext)
     case seedPhraseBackup(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource)
     case seedPhraseReveal(context: MobileWalletContext)
+    case iCloudBackup(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource)
 }
