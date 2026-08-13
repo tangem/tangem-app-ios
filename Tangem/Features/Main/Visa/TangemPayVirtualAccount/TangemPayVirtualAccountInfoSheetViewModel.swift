@@ -19,7 +19,11 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
     @Published private(set) var isLoading = false
     @Published var alert: AlertBinder?
 
-    var agreementText: AttributedString {
+    var agreementText: AttributedString? {
+        if case .active = tangemPayAccount.virtualAccountEntry {
+            return nil
+        }
+
         let terms = Localization.tangempayBankTransferTermsOfUse
 
         var attributedString = AttributedString(Localization.tangempayBankTransferLegal(terms))
