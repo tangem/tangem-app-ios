@@ -174,7 +174,6 @@ struct TangemPayMainView: View {
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
         }
         .primaryButton(viewModel.awaitingDepositAddFundsButton)
-        .showGlowRing(false)
     }
 
     private func failedToIssueCardBanner(contactSupportButton: MessageBannerButton) -> some View {
@@ -189,7 +188,6 @@ struct TangemPayMainView: View {
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
         }
         .primaryButton(contactSupportButton)
-        .showGlowRing(false)
     }
 
     private var inactiveBadge: some View {
