@@ -30,7 +30,7 @@ enum EmailType {
         case .failedToPushTx: return Localization.feedbackSubjectTxPushFailed
         case .attestationFailed: return "Card attestation failed"
         case .visaFeedback(let subject):
-            return "\(subject.prefix) \(Localization.feedbackSubjectSupport)"
+            return "\(subject.prefix) \(subject.message)"
         case .walletConnectUntypedError:
             return Localization.emailSubjectWcError
         case .paeraSupport(subject: let subject):

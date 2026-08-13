@@ -23,7 +23,7 @@ public struct ArrowBack: View {
     }
 
     public var body: some View {
-        Button(action: action, label: {
+        SwiftUI.Button(action: action, label: {
             Image(systemName: "chevron.left")
                 .frame(width: height, height: height)
                 .font(.system(size: 20, weight: .medium))
@@ -84,7 +84,7 @@ public struct BackButton: View {
     }
 
     public var body: some View {
-        Button(action: action, label: {
+        SwiftUI.Button(action: action, label: {
             HStack(spacing: 5) {
                 Image(systemName: "chevron.left")
                     .padding(-1) // remove default? extra padding
@@ -128,7 +128,7 @@ public struct SupportButton: View {
     }
 
     public var body: some View {
-        Button(action: action, label: {
+        SwiftUI.Button(action: action, label: {
             Text(title)
                 .font(.system(size: 17, weight: .regular))
         })
@@ -165,7 +165,7 @@ public struct SearchButton: View {
     }
 
     public var body: some View {
-        Button(action: action, label: {
+        SwiftUI.Button(action: action, label: {
             Assets.search.image
                 .renderingMode(.template)
                 .resizable()

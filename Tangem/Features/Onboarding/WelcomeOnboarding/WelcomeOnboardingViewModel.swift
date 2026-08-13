@@ -115,8 +115,7 @@ extension WelcomeOnboardingViewModel: PushNotificationsPermissionRequestDelegate
 
 extension WelcomeOnboardingViewModel {
     private var isWarningSheetAvailable: Bool {
-        FeatureProvider.isAvailable(.onboardingPushNotificationDoubleAsk)
-            && experimentService.isOn(.onboardingPushNotificationDoubleAsk, variant: .treatment)
+        experimentService.isOn(.onboardingPushNotificationDoubleAsk, variant: .treatment)
     }
 
     func dismissWarningSheet() {

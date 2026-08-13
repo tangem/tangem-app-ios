@@ -29,7 +29,8 @@ struct TransactionDetailsInfoSectionViewData: Equatable {
 
         struct Link: Equatable {
             let text: String
-            let iconURL: URL?
+            /// Optional trailing detail (e.g. the CEX/DEX provider type)
+            let secondaryText: String?
             @IgnoredEquatable var handler: (() -> Void)?
         }
     }
@@ -50,14 +51,15 @@ struct TransactionDetailsInfoSectionView: View {
     private func rowView(_ row: TransactionDetailsInfoSectionViewData.Row, showsDivider: Bool) -> some View {
         switch row.content {
         case .text(let value):
-            TangemRow(title: row.title, value: value)
+            TangemUI.Row(title: row.title, value: value)
                 .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
-                .contentLead(.end)
+                .contentLead(.start)
                 .valueLineLimit(1)
                 .showDivider(showsDivider)
         case .link(let link):
-            TangemRow(title: row.title)
+            TangemUI.Row(title: row.title)
                 .valueAccessory { linkValue(link) }
+                .contentLead(.end)
                 .showDivider(showsDivider)
                 .ifLet(link.handler) { view, handler in view.onTap(handler) }
         }
@@ -65,17 +67,21 @@ struct TransactionDetailsInfoSectionView: View {
 
     private func linkValue(_ link: TransactionDetailsInfoSectionViewData.Row.Link) -> some View {
         HStack(spacing: 4) {
-            if let iconURL = link.iconURL {
-                IconView(url: iconURL, size: CGSize(bothDimensions: 20))
-            }
-
             Text(link.text)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
+                .truncationMode(.tail)
+
+            if let secondaryText = link.secondaryText {
+                Text("\(AppConstants.dotSign) \(secondaryText)")
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
+                    .layoutPriority(1)
+                    .fixedSize(horizontal: true, vertical: false)
+            }
 
             if link.handler != nil {
-                // [REDACTED_TODO_COMMENT]
-                Assets.arrowRightUpMini.image
+                DesignSystem.Icons.ArrowTopRight.regular20.image
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
@@ -90,8 +96,8 @@ struct TransactionDetailsInfoSectionView: View {
 
 #Preview("Info section") {
     TransactionDetailsInfoSectionView(data: .init(rows: [
-        .init(id: "provider", title: "Provider", content: .link(.init(text: "DEX • Mercuryo", iconURL: nil, handler: {}))),
-        .init(id: "rate", title: "Rate", content: .text("1 POL ≈ 0.36 USDT")),
+        .init(id: "provider", title: "Provider", content: .link(.init(text: "Mercuryo", secondaryText: "DEX", handler: {}))),
+        .init(id: "rate", title: "Rate", content: .text("1,00 POL ≈ 0,07703936 USDT")),
         .init(id: "networkFee", title: "Network fee", content: .text("0.00056 ETH")),
     ]))
     .padding(16)

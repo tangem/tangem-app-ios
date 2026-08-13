@@ -62,6 +62,7 @@ struct SendReceiveTokensListView: View {
         }
         .animation(.default, value: viewModel.onboardNotification == nil)
         .background(Colors.Background.tertiary)
+        .onAppear(perform: viewModel.onAppear)
         .onReceive(viewModel.$isFocused) { isFocused in
             self.isFocused = isFocused
         }

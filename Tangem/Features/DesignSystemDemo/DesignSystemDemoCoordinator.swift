@@ -32,7 +32,14 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemSnackbarDemo()
     func openTangemShimmerDemo()
     func openGlowRingDemo()
+    func openTabNavigationDemo()
+    func openTangemTopNavigationDemo()
     func openTangemFadeDemo()
+    func openTangemMessageBubbleDemo()
+    func openTokenIconV2Demo()
+    func openUtilGraphDemo()
+    func openUtilPriceChangeDemo()
+    func openUtilBalanceDemo()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -63,7 +70,14 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemSnackbarDemoViewModel: TangemSnackbarDemoViewModel?
     @Published var tangemShimmerDemoViewModel: TangemShimmerDemoViewModel?
     @Published var glowRingDemoViewModel: GlowRingDemoViewModel?
+    @Published var tabNavigationDemoViewModel: TabNavigationDemoViewModel?
+    @Published var tangemTopNavigationDemoViewModel: TangemTopNavigationDemoViewModel?
     @Published var tangemFadeDemoViewModel: TangemFadeDemoViewModel?
+    @Published var tangemMessageBubbleDemoViewModel: TangemMessageBubbleDemoViewModel?
+    @Published var tokenIconV2DemoViewModel: TokenIconV2DemoViewModel?
+    @Published var utilGraphDemoViewModel: UtilGraphDemoViewModel?
+    @Published var utilPriceChangeDemoViewModel: UtilPriceChangeDemoViewModel?
+    @Published var utilBalanceDemoViewModel: UtilBalanceDemoViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -171,8 +185,36 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
         glowRingDemoViewModel = .init()
     }
 
+    func openTabNavigationDemo() {
+        tabNavigationDemoViewModel = TabNavigationDemoViewModel()
+    }
+
+    func openTangemTopNavigationDemo() {
+        tangemTopNavigationDemoViewModel = .init()
+    }
+
     func openTangemFadeDemo() {
         tangemFadeDemoViewModel = .init()
+    }
+
+    func openTangemMessageBubbleDemo() {
+        tangemMessageBubbleDemoViewModel = .init()
+    }
+
+    func openTokenIconV2Demo() {
+        tokenIconV2DemoViewModel = .init()
+    }
+
+    func openUtilGraphDemo() {
+        utilGraphDemoViewModel = .init()
+    }
+
+    func openUtilPriceChangeDemo() {
+        utilPriceChangeDemoViewModel = .init()
+    }
+
+    func openUtilBalanceDemo() {
+        utilBalanceDemoViewModel = .init()
     }
 }
 

@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import Combine
+import TangemFoundation
 import TangemNetworkUtils
 
 /// https://www.blockcypher.com/dev/bitcoin/#blockchain-api
