@@ -94,7 +94,7 @@ extension JointAccountManagementCoordinator: JointAccountOnboardingRoutable {
             return
         }
 
-        let creationContext = JointAccountCreationContext(userWalletConfig: options.userWalletConfig)
+        let creationContext = JointAccountCreationHelper(userWalletConfig: options.userWalletConfig)
         let creator = JointAccountFormViewCreator(
             accountModelsManager: options.accountModelsManager,
             creationContext: creationContext
@@ -131,7 +131,7 @@ extension JointAccountManagementCoordinator: JointAccountMembersCountRoutable {
         dismiss()
     }
 
-    func continueMembersCount(creationContext: JointAccountCreationContext) {
+    func continueMembersCount(creationContext: JointAccountCreationHelper) {
         let viewModel = JointAccountMemberNameViewModel(creationContext: creationContext, coordinator: self)
         path.append(.memberName(viewModel: viewModel))
     }
@@ -144,7 +144,7 @@ extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
         dismiss()
     }
 
-    func openInviteMembers(creationContext: JointAccountCreationContext) {
+    func openInviteMembers(creationContext: JointAccountCreationHelper) {
         // [REDACTED_TODO_COMMENT]
         let viewModel = JointAccountInviteMembersViewModel(creationContext: creationContext, coordinator: self)
         path.append(.inviteMembers(viewModel: viewModel))

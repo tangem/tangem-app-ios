@@ -23,5 +23,5 @@ protocol AccountFormViewCreator {
 
 enum AccountFormOperationResult {
     case crypto(operationResult: AccountOperationResult, createdAccount: (any CryptoAccountModel)?)
-    case joint(JointAccountCreationContext)
+    case joint(JointAccountCreationHelper)
 }
