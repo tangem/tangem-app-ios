@@ -10,5 +10,6 @@ import Foundation
 
 struct CryptoAccountsAuxiliaryData {
     let archivedAccountsCount: Int
-    let totalAccountsCount: Int
+    /// - Note: Crypto accounts alone, since that is the counter the next derivation index of a new one comes from.
+    let totalCryptoAccountsCount: Int
 }

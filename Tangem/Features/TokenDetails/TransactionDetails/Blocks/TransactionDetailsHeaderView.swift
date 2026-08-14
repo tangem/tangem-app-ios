@@ -13,9 +13,24 @@ import TangemUIUtils
 import TangemFoundation
 
 struct TransactionDetailsHeaderViewData: Equatable {
+    enum TitleStyle: Equatable {
+        /// Active / in-progress.
+        case active
+        /// Verification required / paused.
+        case attention
+        /// Successful terminal status.
+        case neutral
+        /// Failed / refunded terminal status.
+        case failed
+        /// Expired terminal status.
+        case expired
+    }
+
     let title: String
+    let titleStyle: TitleStyle
     let date: String
     let operationIcon: TransactionViewIconViewData
+    let iconGlyph: ImageType?
     let menuActions: [MenuAction]
     @IgnoredEquatable var onClose: () -> Void
 
@@ -37,6 +52,8 @@ struct TransactionDetailsHeaderView: View {
         HStack(spacing: 12) {
             TransactionDetailsOperationIconView(
                 data: data.operationIcon,
+                titleStyle: data.titleStyle,
+                glyphOverride: data.iconGlyph,
                 containerSize: iconSide,
                 glyphSize: glyphSide
             )
@@ -74,10 +91,12 @@ struct TransactionDetailsHeaderView: View {
     }
 
     private var titleColor: Color {
-        switch data.operationIcon.status {
-        case .inProgress: DesignSystem.Color.textBrand
-        case .failed, .undefined: DesignSystem.Color.textStatusError
-        case .confirmed: DesignSystem.Color.textPrimary
+        switch data.titleStyle {
+        case .active: DesignSystem.Color.textBrand
+        case .attention: DesignSystem.Color.textStatusWarning
+        case .neutral: DesignSystem.Color.textPrimary
+        case .failed: DesignSystem.Color.textStatusError
+        case .expired: DesignSystem.Color.textTertiary
         }
     }
 
@@ -120,15 +139,15 @@ struct TransactionDetailsHeaderView: View {
     return VStack(spacing: 32) {
         // In progress — brand (blue) title, with menu.
         TransactionDetailsHeaderView(
-            data: .init(title: "Receiving", date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .inProgress, isOutgoing: false), menuActions: menu, onClose: {})
+            data: .init(title: "Receiving", titleStyle: .active, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .inProgress, isOutgoing: false), iconGlyph: nil, menuActions: menu, onClose: {})
         )
         // Confirmed — primary title, with menu.
         TransactionDetailsHeaderView(
-            data: .init(title: "Received", date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false), menuActions: menu, onClose: {})
+            data: .init(title: "Received", titleStyle: .neutral, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false), iconGlyph: nil, menuActions: menu, onClose: {})
         )
-        // Failed — primary title, no menu (close only).
+        // Failed — red title, no menu (close only).
         TransactionDetailsHeaderView(
-            data: .init(title: "Sending failed", date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), menuActions: [], onClose: {})
+            data: .init(title: "Sending failed", titleStyle: .failed, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), iconGlyph: nil, menuActions: [], onClose: {})
         )
     }
     .background(DesignSystem.Color.bgSecondary)

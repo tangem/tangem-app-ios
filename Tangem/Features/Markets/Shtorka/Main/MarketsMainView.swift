@@ -223,6 +223,15 @@ struct MarketsMainView: View {
                             .padding(.bottom, Layout.Widgets.verticalContentSpacing)
                         }
 
+                        if FeatureProvider.isAvailable(.polymarket) {
+                            SwiftUI.Button(action: viewModel.onPolymarketEntranceTap) {
+                                Text("Polymarket")
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, Layout.Widgets.verticalContentSpacing)
+                        }
+
                         if case .present(let widgetItems) = viewModel.widgetsViewState {
                             VStack(alignment: .leading, spacing: Layout.Widgets.verticalContentSpacing) {
                                 ForEach(widgetItems, id: \.id) { item in

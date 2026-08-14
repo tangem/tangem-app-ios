@@ -47,7 +47,7 @@ extension AccountModelsManager {
                     return [cryptoAccountModel]
                 case .standard(.multiple(let cryptoAccountModels)):
                     return cryptoAccountModels
-                case .tangemPay:
+                case .tangemPay, .polymarket:
                     return []
                 }
             }
@@ -60,7 +60,7 @@ extension AccountModelsManager {
                 switch accountModel {
                 case .standard(.single(let cryptoAccountModel)): [cryptoAccountModel]
                 case .standard(.multiple(let cryptoAccountModels)): cryptoAccountModels
-                case .tangemPay: []
+                case .tangemPay, .polymarket: []
                 }
             }
         }
@@ -85,7 +85,7 @@ extension AccountModelsManager {
                 let tangemPayAccountModels = accountModels
                     .compactMap { accountModel -> (any TangemPayAccountModel)? in
                         switch accountModel {
-                        case .standard:
+                        case .standard, .polymarket:
                             nil
                         case .tangemPay(let model):
                             model

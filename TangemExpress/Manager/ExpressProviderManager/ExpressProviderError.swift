@@ -39,4 +39,8 @@ public enum YieldModuleSwapUnavailableReason: String {
     case spenderNotAllowed = "spender_not_allowed"
     case targetNotAllowed = "target_not_allowed"
     case amountInInvalid = "amount_in_invalid"
+    case transferCalldataMalformed = "transfer_calldata_malformed"
+    case transferAndSwapIndicatorsConflict = "transfer_swap_indicators_conflict"
+    case transferAmountMismatch = "transfer_amount_mismatch"
+    case transferToZeroAddress = "transfer_to_zero_address"
 }
