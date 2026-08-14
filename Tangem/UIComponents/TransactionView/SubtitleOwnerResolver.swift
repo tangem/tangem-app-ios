@@ -24,6 +24,10 @@ struct SubtitleOwnerResolver {
             return nil
         }
 
+        return resolve(address: address, blockchain: blockchain)
+    }
+
+    func resolve(address: String, blockchain: Blockchain) -> TransactionViewModel.SubtitleOwner? {
         guard let match = try? WalletModelFinder.findMainWalletModel(
             address: address,
             networkId: blockchain.networkId,

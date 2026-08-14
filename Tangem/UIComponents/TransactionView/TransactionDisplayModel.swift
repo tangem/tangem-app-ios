@@ -6,7 +6,9 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemLocalization
+import TangemUI
 
 /// View-decision payload for a redesigned transaction row/chip.
 ///
@@ -28,11 +30,39 @@ struct TransactionDisplayModel: Hashable {
         case text(String)
         /// Direction prefix + structured owner — view picks punctuation and avatar layout.
         case owner(direction: Direction, owner: TransactionViewModel.SubtitleOwner)
+        /// Express (swap / onramp) counterparty: direction prefix + counterparty currency icon/symbol,
+        /// and an optional "in [account/wallet]" segment when the counterparty leg lives elsewhere.
+        case express(ExpressSubtitle)
+    }
+
+    /// Counterparty descriptor for an Express row subtitle (e.g. `to: POL in Family`).
+    struct ExpressSubtitle: Hashable {
+        enum Leading: Hashable {
+            /// Crypto counterparty (swap) — the other token's icon.
+            case token(TokenIconInfo)
+            /// Fiat counterparty (onramp) — the paid currency's flag.
+            case fiat(url: URL?)
+        }
+
+        let direction: Direction
+        let leading: Leading
+        let symbol: String
+        let owner: TransactionViewModel.SubtitleOwner?
     }
 
     enum Direction: Hashable {
         case incoming
         case outgoing
+
+        /// Localised `from:` / `to:` prefix, recovered from the address templates by formatting them with an
+        /// empty value and stripping trailing whitespace — keeps the punctuation locale-correct without new keys.
+        var localizedPrefix: String {
+            let template = switch self {
+            case .incoming: Localization.transactionHistoryTransactionFromAddress("")
+            case .outgoing: Localization.transactionHistoryTransactionToAddress("")
+            }
+            return template.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
     }
 }
 
@@ -45,7 +75,8 @@ extension TransactionDisplayModel {
         legacyName: String,
         amount: String,
         addressDestination: String?,
-        subtitleOwner: TransactionViewModel.SubtitleOwner?
+        subtitleOwner: TransactionViewModel.SubtitleOwner?,
+        expressSubtitle: ExpressSubtitle?
     ) -> TransactionDisplayModel {
         TransactionDisplayModel(
             title: title(
@@ -62,7 +93,8 @@ extension TransactionDisplayModel {
                 isFromYieldContract: isFromYieldContract,
                 amount: amount,
                 addressDestination: addressDestination,
-                subtitleOwner: subtitleOwner
+                subtitleOwner: subtitleOwner,
+                expressSubtitle: expressSubtitle
             ),
             style: isChipStyle(
                 transactionType: transactionType,
@@ -87,7 +119,7 @@ extension TransactionDisplayModel {
             return true
         case .yieldSend:
             return !transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract)
-        case .transfer, .swap, .claimRewards, .operation, .unknownOperation,
+        case .transfer, .swap, .onramp, .claimRewards, .operation, .unknownOperation,
              .gaslessTransactionFee, .gaslessTransfer, .tangemPay:
             return false
         }
@@ -108,6 +140,8 @@ extension TransactionDisplayModel {
             return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
         case .swap:
             return statusTitle(status: status, progress: Localization.commonSwapping, done: Localization.commonSwapped)
+        case .onramp:
+            return statusTitle(status: status, progress: Localization.txHistoryOnrampTopUp, done: Localization.txHistoryOnrampToppedUp)
         case .approve:
             return statusTitle(status: status, progress: Localization.commonApproving, done: Localization.commonApproved)
         case .stake:
@@ -125,8 +159,13 @@ extension TransactionDisplayModel {
         isFromYieldContract: Bool,
         amount: String,
         addressDestination: String?,
-        subtitleOwner: TransactionViewModel.SubtitleOwner?
+        subtitleOwner: TransactionViewModel.SubtitleOwner?,
+        expressSubtitle: ExpressSubtitle?
     ) -> Subtitle? {
+        if let expressSubtitle {
+            return .express(expressSubtitle)
+        }
+
         if let yieldText = yieldModeSubtitleText(
             transactionType: transactionType,
             isFromYieldContract: isFromYieldContract,
