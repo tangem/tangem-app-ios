@@ -56,16 +56,23 @@ public enum ENSResponseConverter {
 
         let dataHex = hexString.substring(from: dataStart, to: dataEnd)
         let addressHex = String(dataHex.suffix(Constants.suffix))
+        let address = addressHex.addHexPrefix()
 
-        return addressHex.addHexPrefix()
+        // The inner EIP-137 `addr(node)` call returns the zero address for an unset record instead of reverting.
+        guard addressHex.count == Constants.suffix, !EVMAddressUtils.isBurnAddress(address) else {
+            throw ParseError.noAddressRecord
+        }
+
+        return address
     }
 }
 
 extension ENSResponseConverter {
-    enum ParseError: Error {
+    enum ParseError: Error, Equatable {
         case invalidResult(String)
         case invalidOffset
         case invalidLength
+        case noAddressRecord
     }
 
     enum Constants {
