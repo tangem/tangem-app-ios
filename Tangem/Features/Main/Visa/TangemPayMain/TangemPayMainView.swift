@@ -101,8 +101,13 @@ struct TangemPayMainView: View {
                     TangemPayIssuingCardBannerRedesigned()
                 }
 
-                if let bannerType = viewModel.systemDowngradeBanner {
-                    NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
+                if let banner = viewModel.systemDowngradeBanner {
+                    MessageBanner(title: banner.title, description: banner.subtitle)
+                        .variant(.error)
+                        .glowRing(.error)
+                        .primaryButton(
+                            .init(title: Localization.tangempayCardDetailsAddFunds, action: viewModel.addFunds)
+                        )
                         .onAppear(perform: viewModel.onSystemDowngradeBannerAppear)
                 }
 

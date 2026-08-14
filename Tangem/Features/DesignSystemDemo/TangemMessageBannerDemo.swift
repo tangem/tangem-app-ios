@@ -19,6 +19,7 @@ struct TangemMessageBannerDemoView: View {
     private enum DemoSection: String, CaseIterable {
         case showcase = "Showcase"
         case tappable = "Tappable"
+        case notifications = "Notifications"
     }
 
     var body: some View {
@@ -35,6 +36,8 @@ struct TangemMessageBannerDemoView: View {
                 MessageBannerShowcase()
             case .tappable:
                 tappableVariants
+            case .notifications:
+                NotificationBannerCatalogView()
             }
         }
         .navigationBarTitle(Text("MessageBanner"))
