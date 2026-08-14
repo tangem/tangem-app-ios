@@ -75,7 +75,7 @@ struct EthereumAddressTests {
     @Test(arguments: Constants.defaultBlockchainArgs)
     func ethChecksum(blockchain: BlockchainSdk.Blockchain) throws {
         let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
-        let chesksummed = EthereumAddressUtils.toChecksumAddress("0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359")
+        let chesksummed = EVMAddressUtils.toChecksumAddress("0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359")
         #expect(chesksummed == "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359")
 
         let testCases = [
@@ -90,7 +90,7 @@ struct EthereumAddressTests {
         ]
 
         _ = testCases.map {
-            let checksummed = EthereumAddressUtils.toChecksumAddress($0)
+            let checksummed = EVMAddressUtils.toChecksumAddress($0)
             #expect(checksummed != nil)
             #expect(addressService.validate($0))
             #expect(addressService.validate(checksummed!))
