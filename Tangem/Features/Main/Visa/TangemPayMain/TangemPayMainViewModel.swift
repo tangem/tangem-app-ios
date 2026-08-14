@@ -780,8 +780,11 @@ private extension TangemPayMainViewModel {
     }
 
     func openCashbackDetails() {
-        // [REDACTED_TODO_COMMENT]
-        // or `TangemPayMainRoutable` method has been built yet.
+        guard case .content(let summary) = cashbackState else {
+            return
+        }
+
+        coordinator?.openCashbackDetail(summary: summary)
     }
 
     func makeInlineNotification(for event: TangemPayNotificationEvent) -> NotificationViewInput {
