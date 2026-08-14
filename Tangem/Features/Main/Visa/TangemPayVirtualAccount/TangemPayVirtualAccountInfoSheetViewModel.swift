@@ -78,15 +78,16 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
             do {
                 let fees = try await viewModel.tangemPayAccount.loadOnrampFees()
 
-                guard let ach = fees.first(where: { $0.type == TangemPayFeeType.achOnramp.rawValue }),
-                      let fedwire = fees.first(where: { $0.type == TangemPayFeeType.fedwireOnramp.rawValue })
-                else {
+                let ach = fees.first { $0.type == TangemPayFeeType.achOnramp.rawValue }
+                let fedwire = fees.first { $0.type == TangemPayFeeType.fedwireOnramp.rawValue }
+
+                guard ach != nil || fedwire != nil else {
                     throw TangemPayAccountError.missingOnrampFees
                 }
 
                 viewModel.state = .loaded(
-                    achFee: Self.format(fee: ach),
-                    fedwireFee: Self.format(fee: fedwire)
+                    achFee: ach.map { Self.format(fee: $0) },
+                    fedwireFee: fedwire.map { Self.format(fee: $0) }
                 )
             } catch {
                 VisaLogger.error("Failed to load virtual account onramp fees", error: error)
@@ -148,7 +149,7 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
 extension TangemPayVirtualAccountInfoSheetViewModel {
     enum State: Hashable {
         case loading
-        case loaded(achFee: String, fedwireFee: String)
+        case loaded(achFee: String?, fedwireFee: String?)
         case failed
     }
 }
