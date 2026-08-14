@@ -37,11 +37,11 @@ final class JointAccountMemberNameViewModel: ObservableObject {
     }
 
     private let nameValidator = JointAccountMemberNameValidator()
-    private let creationContext: JointAccountCreationContext
+    private let creationContext: JointAccountCreationHelper
     private weak var coordinator: JointAccountMemberNameRoutable?
 
     init(
-        creationContext: JointAccountCreationContext,
+        creationContext: JointAccountCreationHelper,
         coordinator: JointAccountMemberNameRoutable?
     ) {
         self.creationContext = creationContext
