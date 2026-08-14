@@ -218,8 +218,6 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @MainActor
     private func loadVirtualAccountEligibility() async {
-        guard FeatureProvider.isAvailable(.tangemPayVirtualAccount) else { return }
-
         do {
             let channels = try await tangemPayAccount.customerService.loadEligibility().channels
             isEligibleForVirtualAccount = channels.contains(.visaVirtualAccount)
