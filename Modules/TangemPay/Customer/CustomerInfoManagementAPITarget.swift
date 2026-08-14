@@ -113,7 +113,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCashbackPromotions,
              .getCashbackAccrualsDocs,
              .getCashbackTransactionDetails,
-             .getBankCredentials:
+             .getBankCredentials,
              .getEligibility:
             .get
 
@@ -162,7 +162,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCashbackSummary,
              .getCashbackPromotions,
              .getCashbackAccrualsDocs,
-             .getCashbackTransactionDetails:
+             .getCashbackTransactionDetails,
              .getEligibility:
             return .requestPlain
 
