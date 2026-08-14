@@ -192,7 +192,7 @@ struct TransactionHistoryMapper {
         case .exchange(let info):
             return warning(for: info.transaction.status)
         case .onramp(let info):
-            return warning(for: info.onrampTransaction.status)
+            return warning(for: info.transaction.status)
         case nil:
             return nil
         }

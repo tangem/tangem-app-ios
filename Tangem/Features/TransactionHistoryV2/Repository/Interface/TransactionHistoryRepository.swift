@@ -10,12 +10,10 @@ import Foundation
 import TangemExpress
 
 protocol TransactionHistoryRepository: Sendable {
-    func exchangeHistoryUpdates(for currency: ExpressCurrency) -> AsyncStream<[ExchangeTransaction]>
-    func onrampHistoryUpdates(for currency: ExpressCurrency) -> AsyncStream<[OnrampTransaction]>
-
+    func historyUpdates(for currency: ExpressCurrency) -> AsyncStream<[TransactionHistoryExpressExtraInfo]>
     func syncInitial() async throws
     func syncDelta() async throws
-
+    func fetchNextPage() async throws
     func add(_ transaction: ExchangeTransaction) async throws
     func add(_ transaction: OnrampTransaction) async throws
 }
