@@ -208,7 +208,7 @@ struct TransactionDetailsTokensView: View {
             AddressBlockiesIconView(viewData: blockiesImage, size: captionIconSide)
         case .contact(_, let icon):
             AddressBookContactNameIconView(viewData: icon, size: captionIconSide)
-        case .account(_, let icon), .accountInWallet(_, let icon, _):
+        case .account(_, let icon):
             AccountIconView(data: icon, settings: .smallSized)
         case .wallet:
             EmptyView()

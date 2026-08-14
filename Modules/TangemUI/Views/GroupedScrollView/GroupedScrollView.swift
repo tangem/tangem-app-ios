@@ -14,6 +14,7 @@ public struct GroupedScrollView<Content: View>: View {
     private let contentType: ContentType
     private let content: () -> Content
 
+    private var horizontalPadding: CGFloat = 16
     private var interContentPadding: CGFloat = 0
     private var scrollIndicatorsHidden: Bool = true
 
@@ -28,7 +29,7 @@ public struct GroupedScrollView<Content: View>: View {
     public var body: some View {
         ScrollView {
             contentView
-                .padding(.horizontal, 16)
+                .padding(.horizontal, horizontalPadding)
                 .padding(.vertical, interContentPadding)
         }
         .scrollIndicators(scrollIndicatorsHidden ? .hidden : .automatic)
@@ -55,6 +56,10 @@ public extension GroupedScrollView {
 // MARK: - Setupable
 
 extension GroupedScrollView: Setupable {
+    public func horizontalPadding(_ padding: CGFloat) -> Self {
+        map { $0.horizontalPadding = padding }
+    }
+
     public func interContentPadding(_ padding: CGFloat) -> Self {
         map { $0.interContentPadding = padding }
     }
