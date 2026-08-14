@@ -36,7 +36,7 @@ let package = Package(
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/groue/GRDB.swift.git", .upToNextMajor(from: "7.1.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.1.0"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.1.1"),
         // When a Swift macro target (`TangemMacro`) is used in the same package (`TangemModules`) in which it is defined,
         // and that package contains a test target (`BlockchainSdkTests`) that uses macros from that macro target,
         // this causes linker to incorrectly link the macros target plugin (build for macOS) into the iOS test binary,
