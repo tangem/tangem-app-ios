@@ -86,6 +86,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/cashback/promotions"
         case .getCashbackAccrualsDocs:
             "customer/cashback/accruals/docs"
+        case .getCashbackTransactionDetails(let transactionId):
+            "customer/cashback/\(transactionId)/details"
         }
     }
 
@@ -108,6 +110,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCashbackHistory,
              .getCashbackPromotions,
              .getCashbackAccrualsDocs,
+             .getCashbackTransactionDetails,
              .getBankCredentials:
             .get
 
@@ -155,7 +158,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getTransaction,
              .getCashbackSummary,
              .getCashbackPromotions,
-             .getCashbackAccrualsDocs:
+             .getCashbackAccrualsDocs,
+             .getCashbackTransactionDetails:
             return .requestPlain
 
         case .getCashbackHistory(let months):
@@ -331,6 +335,7 @@ extension CustomerInfoManagementAPITarget {
         case getCashbackHistory(months: Int?)
         case getCashbackPromotions
         case getCashbackAccrualsDocs
+        case getCashbackTransactionDetails(transactionId: String)
     }
 }
 
