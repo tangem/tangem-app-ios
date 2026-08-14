@@ -120,7 +120,7 @@ struct TransactionHistoryExpressDataMerger {
             let fiatCurrency = auxDataRepository.fiatCurrency(for: onrampTransaction.from)
             let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: onrampTransaction.expressCurrencies)
             let info = OnrampTransactionInfo(
-                onrampTransaction: onrampTransaction,
+                transaction: onrampTransaction,
                 provider: provider,
                 fiatCurrency: fiatCurrency,
                 cryptoCurrencies: cryptoCurrencies
@@ -439,7 +439,7 @@ struct TransactionHistoryExpressDataMerger {
 
     @inline(__always)
     private func lowerCasedAddressStringIfNeeded(_ address: String) -> String {
-        return isEvm ? address.lowercased() : address
+        return TransactionHistoryAddressNormalizer.normalize(address, isEvm: isEvm)
     }
 }
 
