@@ -9,13 +9,10 @@
 import SwiftUI
 import TangemAccounts
 import TangemAssets
-import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
 /// Renders the redesigned subtitle line: direction prefix (`to:` / `from:`) + structured owner.
-/// View owns the punctuation localisation so the resolver/mapper layer doesn't need locale-aware
-/// glue (avoids the `commonTo + ":"` concat-locale hazard).
 struct TransactionSubtitleView: View {
     let direction: TransactionDisplayModel.Direction
     let owner: TransactionViewModel.SubtitleOwner
@@ -32,7 +29,7 @@ struct TransactionSubtitleView: View {
     }
 
     private var prefixView: some View {
-        Text(directionPrefix)
+        Text(direction.localizedPrefix)
             .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
     }
 
@@ -88,16 +85,5 @@ struct TransactionSubtitleView: View {
                 .fill(Color.Tangem.Surface.level3)
                 .frame(width: glyphSize, height: glyphSize)
         }
-    }
-
-    /// Recovered from the `"from: %@"` / `"to: %@"` localised templates by formatting them with
-    /// an empty value and stripping trailing whitespace — keeps the punctuation locale-correct
-    /// without adding new string keys.
-    private var directionPrefix: String {
-        let template = switch direction {
-        case .incoming: Localization.transactionHistoryTransactionFromAddress("")
-        case .outgoing: Localization.transactionHistoryTransactionToAddress("")
-        }
-        return template.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

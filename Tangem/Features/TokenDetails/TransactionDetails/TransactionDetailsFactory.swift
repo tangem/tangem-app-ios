@@ -75,7 +75,7 @@ enum TransactionDetailsFactory {
         case .gaslessTransactionFee, .operation, .unknownOperation:
             return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: nil))
 
-        case .transfer, .gaslessTransfer, .swap, .tangemPay:
+        case .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:
             return .generic(sendReceiveContent(for: transaction, record: record, context: context))
         }
     }
@@ -136,7 +136,7 @@ enum TransactionDetailsFactory {
             return Localization.yieldModuleTransactionSupplied
         case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake,
              .approve, .gaslessTransactionFee, .operation, .unknownOperation,
-             .transfer, .gaslessTransfer, .swap, .tangemPay:
+             .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:
             return nil
         }
     }
