@@ -62,7 +62,7 @@ extension MobileOnboardingViewModel {
         case .iCloudBackup:
             alert = makeICloudBackupDismissAlert()
 
-        case .walletImport, .seedPhraseReveal:
+        case .walletImport, .seedPhraseReveal, .iCloudBackupImport:
             break
         }
     }
@@ -90,6 +90,8 @@ private extension MobileOnboardingViewModel {
             MobileOnboardingRevealSeedPhraseFlowBuilder(context: context, coordinator: self)
         case .iCloudBackup(let userWalletModel, let source):
             MobileOnboardingBackupICloudFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
+        case .iCloudBackupImport(let backups, let source):
+            MobileOnboardingImportICloudBackupFlowBuilder(backups: backups, source: source, coordinator: self)
         }
     }
 }
