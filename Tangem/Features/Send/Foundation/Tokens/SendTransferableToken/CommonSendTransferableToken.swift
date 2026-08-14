@@ -19,8 +19,8 @@ struct CommonSendTransferableToken: SendTransferableToken {
     let tokenItem: TokenItem
     let fiatItem: FiatItem
 
-    let currency: TangemExpress.ExpressWalletCurrency
-    let coinCurrency: TangemExpress.ExpressWalletCurrency
+    let currency: ExpressWalletCurrency
+    let coinCurrency: ExpressWalletCurrency
     let address: String?
     let extraId: String?
 

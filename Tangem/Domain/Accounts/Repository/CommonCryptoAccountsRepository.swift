@@ -88,7 +88,7 @@ final class CommonCryptoAccountsRepository {
 
     private func initializeStorage(with initialAccount: StoredCryptoAccount) {
         persistentStorage.replace(with: [initialAccount])
-        auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalAccountsCount: 1)
+        auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalCryptoAccountsCount: 1)
     }
 
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
@@ -439,7 +439,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             .map { repository, _ in
                 CryptoAccountsAuxiliaryData(
                     archivedAccountsCount: repository.auxiliaryDataStorage.archivedAccountsCount,
-                    totalAccountsCount: repository.auxiliaryDataStorage.totalAccountsCount,
+                    totalCryptoAccountsCount: repository.auxiliaryDataStorage.totalCryptoAccountsCount,
                 )
             }
             .eraseToAnyPublisher()
@@ -487,7 +487,8 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         try Task.checkCancellation()
 
         return CryptoAccountsRemoteState(
-            nextDerivationIndex: cryptoAccounts.counters.total,
+            nextCryptoDerivationIndex: cryptoAccounts.counters.crypto,
+            nextJointDerivationIndex: cryptoAccounts.counters.joint,
             accounts: cryptoAccounts.accounts
         )
     }
