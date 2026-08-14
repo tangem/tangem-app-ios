@@ -11,6 +11,7 @@ import Combine
 import BlockchainSdk
 import BigInt
 import TangemFoundation
+import TangemNetworkUtils
 
 protocol YieldModuleNetworkManager {
     var markets: [YieldModuleMarketInfo] { get }
@@ -246,6 +247,7 @@ private struct YieldModuleNetworkManagerKey: InjectionKey {
                 provider: .init(
                     configuration: .ephemeralConfiguration,
                     additionalPlugins: [
+                        DeviceInfoPlugin(),
                         YieldModuleAuthorizationPlugin(),
                     ]
                 ),
