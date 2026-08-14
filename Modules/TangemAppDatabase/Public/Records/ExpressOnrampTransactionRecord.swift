@@ -82,7 +82,7 @@ public struct ExpressOnrampTransactionRecord {
 
 // MARK: - Fetching helpers
 
-extension ExpressOnrampTransactionRecord {
+public extension ExpressOnrampTransactionRecord {
     static let provider = belongsTo(
         ExpressProviderRecord.self,
         key: "provider",
