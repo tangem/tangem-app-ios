@@ -156,6 +156,9 @@ struct TransactionViewRedesigned: View {
                 .truncationMode(viewModel.transactionDescriptionTruncationMode)
                 .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey))
 
+        case .express(let model):
+            TransactionExpressSubtitleView(model: model)
+
         case .none:
             EmptyView()
         }
