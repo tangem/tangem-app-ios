@@ -806,7 +806,7 @@ private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNe
     }
 
     func updateAvailableTokens() {}
-    func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String { "" }
+    func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String { "" }
     func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String { "" }
     func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse {
         throw CancellationError()

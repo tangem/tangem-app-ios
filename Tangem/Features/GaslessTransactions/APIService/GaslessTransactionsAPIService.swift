@@ -9,6 +9,7 @@
 import Foundation
 import TangemFoundation
 import TangemNetworkUtils
+import enum BlockchainSdk.GaslessExecutorVersion
 
 protocol GaslessTransactionsAPIService {
     typealias FeeToken = GaslessTransactionsDTO.Response.FeeToken
@@ -23,8 +24,11 @@ protocol GaslessTransactionsAPIService {
 
     func getAvailableTokens() async throws -> [FeeToken]
     func getAvailableTronTokens() async throws -> [TronFeeToken]
-    // Sends a constructed transaction to the backend, which submits it and returns the transaction hash
-    func sendGaslessTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessTransaction) async throws -> String
+    /// Sends a constructed transaction to the backend, which submits it and returns the transaction hash
+    func sendGaslessTransaction(
+        _ transaction: GaslessTransactionsDTO.Request.GaslessTransaction,
+        executorVersion: GaslessExecutorVersion
+    ) async throws -> String
     func sendGaslessBatchTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction) async throws -> String
     func getFeeRecipientAddress() async throws -> String
     func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse
@@ -58,8 +62,10 @@ extension CommonGaslessTransactionAPIService: GaslessTransactionsAPIService {
         return response.tokens
     }
 
-    func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String {
-        let response: GaslessTransactionsDTO.Response.SendResponse = try await request(for: .sendGaslessTransaction(transaction: transaction))
+    func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String {
+        let response: GaslessTransactionsDTO.Response.SendResponse = try await request(
+            for: .sendGaslessTransaction(transaction: transaction, apiVersion: apiVersion(for: executorVersion))
+        )
         return response.txHash
     }
 
@@ -83,6 +89,15 @@ extension CommonGaslessTransactionAPIService: GaslessTransactionsAPIService {
 }
 
 private extension CommonGaslessTransactionAPIService {
+    /// Each API version accepts only the authorization and the signed payload of the matching executor generation,
+    /// so the endpoint has to follow the executor the transaction was built and signed for.
+    func apiVersion(for executorVersion: GaslessExecutorVersion) -> GaslessTransactionsAPITarget.APIVersion {
+        switch executorVersion {
+        case .legacy: .v1
+        case .batchCapable: .v2
+        }
+    }
+
     func request<T: Decodable>(for target: GaslessTransactionsAPITarget.TargetType) async throws -> T {
         let request = GaslessTransactionsAPITarget(apiType: apiType, target: target)
         let response = try await provider.asyncRequest(request)
