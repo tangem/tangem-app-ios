@@ -15,8 +15,20 @@ struct TangemPayCashbackInfoCard: View {
     let icon: ImageType
     let title: String
     let subtitle: String?
+    let action: () -> Void
 
     var body: some View {
+        SwiftUI.Button(action: action) {
+            content
+        }
+        .buttonStyle(.defaultScaled)
+    }
+}
+
+// MARK: - Subviews
+
+private extension TangemPayCashbackInfoCard {
+    var content: some View {
         VStack(alignment: .leading, spacing: .zero) {
             iconView
 
@@ -38,11 +50,7 @@ struct TangemPayCashbackInfoCard: View {
         .background(DesignSystem.Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
-}
 
-// MARK: - Subviews
-
-private extension TangemPayCashbackInfoCard {
     var iconView: some View {
         ZStack {
             Circle()
@@ -63,13 +71,15 @@ private extension TangemPayCashbackInfoCard {
         TangemPayCashbackInfoCard(
             icon: DesignSystem.Icons.PercentBackward.regular20,
             title: "Cashback 1%",
-            subtitle: "With your Basic plan"
+            subtitle: "With your Basic plan",
+            action: {}
         )
 
         TangemPayCashbackInfoCard(
             icon: DesignSystem.Icons.Info.regular20,
             title: "Accruals",
-            subtitle: "Limits and exceptions"
+            subtitle: "Limits and exceptions",
+            action: {}
         )
     }
     .padding(16)

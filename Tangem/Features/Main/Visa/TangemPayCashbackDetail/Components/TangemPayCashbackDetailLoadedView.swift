@@ -14,6 +14,8 @@ import TangemLocalization
 
 struct TangemPayCashbackDetailLoadedView: View {
     let data: TangemPayCashbackDetailViewData
+    let rateCardAction: () -> Void
+    let accrualsCardAction: () -> Void
 
     var body: some View {
         ScrollView {
@@ -81,14 +83,16 @@ private extension TangemPayCashbackDetailLoadedView {
                 TangemPayCashbackInfoCard(
                     icon: DesignSystem.Icons.PercentBackward.regular20,
                     title: rateCard.title,
-                    subtitle: rateCard.subtitle
+                    subtitle: rateCard.subtitle,
+                    action: rateCardAction
                 )
             }
 
             TangemPayCashbackInfoCard(
                 icon: DesignSystem.Icons.Info.regular20,
                 title: Localization.tangempayCashbackAccrualsTitle,
-                subtitle: Localization.tangempayCashbackAccrualsSubtitle
+                subtitle: Localization.tangempayCashbackAccrualsSubtitle,
+                action: accrualsCardAction
             )
         }
         .padding(.bottom, 16)
@@ -117,7 +121,7 @@ private extension TangemPayCashbackDetailLoadedView {
 #if DEBUG
 #Preview("Single tier") {
     ScrollView {
-        TangemPayCashbackDetailLoadedView(data: .preview)
+        TangemPayCashbackDetailLoadedView(data: .preview, rateCardAction: {}, accrualsCardAction: {})
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
@@ -125,7 +129,7 @@ private extension TangemPayCashbackDetailLoadedView {
 
 #Preview("Multiple tiers") {
     ScrollView {
-        TangemPayCashbackDetailLoadedView(data: .previewMultipleTiers)
+        TangemPayCashbackDetailLoadedView(data: .previewMultipleTiers, rateCardAction: {}, accrualsCardAction: {})
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
@@ -133,7 +137,7 @@ private extension TangemPayCashbackDetailLoadedView {
 
 #Preview("No promotions") {
     ScrollView {
-        TangemPayCashbackDetailLoadedView(data: .previewWithoutPromotions)
+        TangemPayCashbackDetailLoadedView(data: .previewWithoutPromotions, rateCardAction: {}, accrualsCardAction: {})
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
@@ -141,7 +145,7 @@ private extension TangemPayCashbackDetailLoadedView {
 
 #Preview("Refund") {
     ScrollView {
-        TangemPayCashbackDetailLoadedView(data: .previewWithRefund)
+        TangemPayCashbackDetailLoadedView(data: .previewWithRefund, rateCardAction: {}, accrualsCardAction: {})
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
@@ -149,7 +153,7 @@ private extension TangemPayCashbackDetailLoadedView {
 
 #Preview("Zero total") {
     ScrollView {
-        TangemPayCashbackDetailLoadedView(data: .previewEmpty)
+        TangemPayCashbackDetailLoadedView(data: .previewEmpty, rateCardAction: {}, accrualsCardAction: {})
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
