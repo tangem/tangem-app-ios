@@ -14,6 +14,8 @@ import TangemLocalization
 struct TangemPayCashbackDetailContentView: View {
     let state: TangemPayCashbackDetailState
     let reloadAction: () -> Void
+    let rateCardAction: () -> Void
+    let accrualsCardAction: () -> Void
 
     var body: some View {
         ZStack {
@@ -29,8 +31,12 @@ struct TangemPayCashbackDetailContentView: View {
                 TangemPayCashbackDetailSkeletonView()
                     .transition(.opacity)
             case .loaded(let data):
-                TangemPayCashbackDetailLoadedView(data: data)
-                    .transition(.opacity)
+                TangemPayCashbackDetailLoadedView(
+                    data: data,
+                    rateCardAction: rateCardAction,
+                    accrualsCardAction: accrualsCardAction
+                )
+                .transition(.opacity)
             case .failed:
                 failedView
                     .transition(.opacity)
@@ -74,28 +80,36 @@ private extension TangemPayCashbackDetailContentView {
 #Preview("Cashback Loaded") {
     TangemPayCashbackDetailContentView(
         state: .loaded(.preview),
-        reloadAction: {}
+        reloadAction: {},
+        rateCardAction: {},
+        accrualsCardAction: {}
     )
 }
 
 #Preview("Cashback Empty") {
     TangemPayCashbackDetailContentView(
         state: .loaded(.previewEmpty),
-        reloadAction: {}
+        reloadAction: {},
+        rateCardAction: {},
+        accrualsCardAction: {}
     )
 }
 
 #Preview("Cashback Loading") {
     TangemPayCashbackDetailContentView(
         state: .loading,
-        reloadAction: {}
+        reloadAction: {},
+        rateCardAction: {},
+        accrualsCardAction: {}
     )
 }
 
 #Preview("Cashback Failed") {
     TangemPayCashbackDetailContentView(
         state: .failed,
-        reloadAction: {}
+        reloadAction: {},
+        rateCardAction: {},
+        accrualsCardAction: {}
     )
 }
 #endif
