@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 import TangemExpress
 import TangemFoundation
+import TangemUI
 
 protocol WalletModelTransactionHistoryAddressesProvider {
     var walletAddresses: [String] { get }
@@ -169,6 +170,7 @@ struct TransactionHistoryMapper {
 
         let formattedAmount = transferAmount(from: record)
         let interaction = interactionAddress(from: record)
+        let expressSubtitle = expressSubtitle(from: record, resolver: subtitleOwnerResolver)
 
         return TransactionViewModel(
             hash: record.hash,
@@ -182,9 +184,103 @@ struct TransactionHistoryMapper {
             transactionType: transactionType(from: record),
             status: status(from: record),
             isFromYieldContract: record.isFromYieldContract,
-            subtitleOwner: subtitleOwnerResolver?.resolve(for: interaction),
+            subtitleOwner: expressSubtitle == nil ? subtitleOwnerResolver?.resolve(for: interaction) : nil,
+            expressSubtitle: expressSubtitle,
             warning: expressWarning(from: record)
         )
+    }
+
+    /// Builds the Express (swap / onramp) row subtitle: the counterparty currency (icon + symbol) with a
+    /// `to:`/`from:` prefix, plus an optional " in [account/wallet]" segment when the counterparty leg lives
+    /// in a different account/wallet than the viewed one. `nil` for non-Express records or when the
+    /// counterparty currency can't be resolved (falls back to the default subtitle).
+    private func expressSubtitle(
+        from record: TransactionRecord,
+        resolver: SubtitleOwnerResolver?
+    ) -> TransactionDisplayModel.ExpressSubtitle? {
+        switch record.expressExtraInfo {
+        case .exchange(let info):
+            return swapSubtitle(info: info, isOutgoing: record.isOutgoing, resolver: resolver)
+        case .onramp(let info):
+            return onrampSubtitle(info: info)
+        case nil:
+            return nil
+        }
+    }
+
+    private func swapSubtitle(
+        info: ExchangeTransactionInfo,
+        isOutgoing: Bool,
+        resolver: SubtitleOwnerResolver?
+    ) -> TransactionDisplayModel.ExpressSubtitle? {
+        let exchange = info.transaction
+
+        let counterpartyCurrency: ExpressCurrency
+        let counterpartyAddress: String?
+        let currentLegAddress: String?
+        let direction: TransactionDisplayModel.Direction
+
+        if isOutgoing {
+            counterpartyCurrency = exchange.to.currency
+            counterpartyAddress = exchange.payOut.address
+            currentLegAddress = exchange.fromAddress
+            direction = .outgoing
+        } else {
+            counterpartyCurrency = exchange.from.currency
+            counterpartyAddress = exchange.fromAddress
+            currentLegAddress = exchange.payOut.address
+            direction = .incoming
+        }
+
+        guard let counterpartyToken = info.cryptoCurrencies[counterpartyCurrency] else {
+            return nil
+        }
+
+        let owner = counterpartyOwner(
+            counterpartyAddress: counterpartyAddress,
+            counterpartyBlockchain: counterpartyToken.blockchain,
+            currentLegAddress: currentLegAddress,
+            resolver: resolver
+        )
+
+        return TransactionDisplayModel.ExpressSubtitle(
+            direction: direction,
+            leading: .token(TokenIconInfoBuilder().build(from: counterpartyToken, isCustom: counterpartyToken.token?.isCustom ?? false)),
+            symbol: counterpartyToken.currencySymbol,
+            owner: owner
+        )
+    }
+
+    private func onrampSubtitle(info: OnrampTransactionInfo) -> TransactionDisplayModel.ExpressSubtitle {
+        let onramp = info.transaction
+        let flagURL = info.fiatCurrency?.identity.image ?? IconURLBuilder().fiatIconURL(currencyCode: onramp.from.currencyCode)
+
+        return TransactionDisplayModel.ExpressSubtitle(
+            direction: .incoming,
+            leading: .fiat(url: flagURL),
+            symbol: onramp.from.currencyCode,
+            owner: nil
+        )
+    }
+
+    private func counterpartyOwner(
+        counterpartyAddress: String?,
+        counterpartyBlockchain: Blockchain,
+        currentLegAddress: String?,
+        resolver: SubtitleOwnerResolver?
+    ) -> TransactionViewModel.SubtitleOwner? {
+        guard let resolver, let counterpartyAddress else {
+            return nil
+        }
+
+        guard let counterpartyOwner = resolver.resolve(address: counterpartyAddress, blockchain: counterpartyBlockchain),
+              counterpartyOwner.isOwnWallet
+        else {
+            return nil
+        }
+
+        let currentOwner = currentLegAddress.flatMap { resolver.resolve(address: $0, blockchain: resolver.blockchain) }
+        return counterpartyOwner == currentOwner ? nil : counterpartyOwner
     }
 
     private func expressWarning(from record: TransactionRecord) -> TransactionViewModel.Warning? {
@@ -383,8 +479,13 @@ private extension TransactionHistoryMapper {
     }
 
     func transactionType(from record: TransactionRecord) -> TransactionViewModel.TransactionType {
-        if case .exchange = record.expressExtraInfo {
+        switch record.expressExtraInfo {
+        case .exchange:
             return .swap
+        case .onramp:
+            return .onramp
+        case nil:
+            break
         }
 
         switch record.type {
@@ -481,6 +582,15 @@ extension TransactionHistoryMapper {
 
 private extension TransactionHistoryMapper {
     func getFormattedAmount(amount: Decimal, record: TransactionRecord) -> FormattedAmount {
+        if case .onramp(let info) = record.expressExtraInfo {
+            let isEstimated = info.transaction.to.actualAmount == nil || status(from: record) == .inProgress
+            let prefix = isEstimated ? "\(AppConstants.tildeSign) " : ""
+            return FormattedAmount(
+                legacy: prefix + balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                redesigned: prefix + balanceFormatter.formatDecimal(amount)
+            )
+        }
+
         switch transactionType(from: record) {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             return FormattedAmount(

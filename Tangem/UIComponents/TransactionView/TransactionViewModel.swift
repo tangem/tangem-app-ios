@@ -139,6 +139,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         status: TransactionViewModel.Status,
         isFromYieldContract: Bool,
         subtitleOwner: SubtitleOwner? = nil,
+        expressSubtitle: TransactionDisplayModel.ExpressSubtitle? = nil,
         cardName: String? = nil,
         warning: Warning? = nil,
         cashback: Cashback? = nil
@@ -178,7 +179,8 @@ struct TransactionViewModel: Hashable, Identifiable {
                 transactionType: transactionType,
                 isOutgoing: isOutgoing
             ),
-            subtitleOwner: subtitleOwner
+            subtitleOwner: subtitleOwner,
+            expressSubtitle: expressSubtitle
         )
     }
 
@@ -193,6 +195,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .yieldSend where transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract): Localization.commonTransfer
         case .transfer: Localization.commonTransfer
         case .swap: Localization.commonSwap
+        case .onramp: Localization.txHistoryOnrampTopUp
         case .approve: Localization.commonApproval
         case .unknownOperation: Localization.transactionHistoryOperation
         case .operation(name: let name): name
@@ -266,6 +269,7 @@ extension TransactionViewModel {
     enum TransactionType: Hashable {
         case transfer
         case swap
+        case onramp
         case stake
         case approve
         case unstake
@@ -295,6 +299,7 @@ extension TransactionViewModel {
             switch self {
             case .transfer: "transfer"
             case .swap: "swap"
+            case .onramp: "onramp"
             case .stake: "stake"
             case .approve: "approve"
             case .unstake: "unstake"
