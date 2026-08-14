@@ -119,6 +119,10 @@ final class LockedUserWalletModel: UserWalletModel {
         DummyTangemPayAuthorizer()
     }
 
+    var jointAccountDerivationInteractor: JointAccountDerivationInteractor {
+        UnavailableJointAccountDerivationInteractor()
+    }
+
     var name: String { userWallet.name }
     let backupInput: OnboardingInput? = nil
     var userWallet: StoredUserWallet
