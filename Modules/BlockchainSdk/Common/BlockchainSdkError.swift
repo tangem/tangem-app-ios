@@ -37,6 +37,8 @@ public enum BlockchainSdkError: LocalizedError {
     case networkUnavailable
     case twMakeAddressFailed
     case noTrustlineAtDestination
+    case scaledUIAmountMultiplierMismatch
+    case scaledUIAmountMultiplierNotCorroborated
 
     public var errorDescription: String? {
         switch self {
