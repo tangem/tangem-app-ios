@@ -22,7 +22,7 @@ public struct UtilGraph: View, Setupable {
     public var body: some View {
         if isLoading {
             Shimmer()
-                .variant(.custom(height: Metrics.loadingHeight))
+                .variant(.custom(height: Metrics.loadingHeight, cornerRadius: Metrics.loadingCornerRadius))
                 .frame(maxHeight: .infinity, alignment: .center)
         } else {
             curve
@@ -32,7 +32,7 @@ public struct UtilGraph: View, Setupable {
     private var curve: some View {
         GeometryReader { geometry in
             linePath(for: geometry.size)
-                .stroke(direction.lineColor, lineWidth: Metrics.lineWidth)
+                .stroke(direction.lineColor, style: StrokeStyle(lineWidth: Metrics.lineWidth, lineCap: .round))
                 .background {
                     LinearGradient(
                         colors: [direction.lineColor.opacity(Metrics.fillOpacity), .clear],
@@ -134,8 +134,10 @@ private extension UtilGraph.Direction {
 private extension UtilGraph {
     enum Metrics {
         static let lineWidth: CGFloat = 1
-        static let fillOpacity: CGFloat = 0.22
+        static let fillOpacity: CGFloat = 0.2
         static let loadingHeight: CGFloat = 16
+        /// A graph placeholder is not text, so it keeps a rectangle's radius instead of a capsule's.
+        static let loadingCornerRadius: CGFloat = 4
         static let minimumPointCount = 2
     }
 }

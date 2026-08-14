@@ -141,7 +141,7 @@ private extension TransactionHistoryMapperWarningTests {
 
     func onrampInfo(status: OnrampTransactionStatus) -> OnrampTransactionInfo {
         OnrampTransactionInfo(
-            onrampTransaction: ExpressMergeTestDataFactory.onrampTransaction(
+            transaction: ExpressMergeTestDataFactory.onrampTransaction(
                 txId: "tx",
                 status: status,
                 payOutAddress: "0xOut",

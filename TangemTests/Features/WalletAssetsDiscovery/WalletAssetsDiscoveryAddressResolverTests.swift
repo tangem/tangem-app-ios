@@ -20,7 +20,14 @@ class WalletAssetsDiscoveryAddressResolverTests {
 
     private func walletInfo() async throws -> MobileWalletInfo {
         let mnemonic = try Mnemonic(with: Self.testMnemonic)
-        return try await MobileWalletInitializer().initializeWallet(mnemonic: mnemonic, passphrase: nil)
+        return try await MobileWalletInitializer().initializeWallet(
+            parameters: WalletInitializerParameters(
+                mnemonic: mnemonic,
+                passphrase: nil,
+                hasMnemonicBackup: true,
+                hasICloudBackup: false
+            )
+        )
     }
 
     private let walletAddressResolver = WalletAddressResolver()
