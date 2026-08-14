@@ -112,6 +112,31 @@ struct TangemPayTransactionDetailsRedesignedMapper {
         )
     }
 
+    func map(cashback: TangemPayTransactionCashback) -> TangemPayTransactionDetailsDisplayModel.CashbackRow {
+        switch cashback {
+        case .earned(let amount, let currency):
+            return .init(
+                value: .amount(format(amount: amount, currencyCode: currency, prefix: amount > 0 ? .plusSign : .empty)),
+                subvalue: amount < 0 ? Localization.tangemPayTransactionDetailsCashbackRefund : nil
+            )
+
+        case .excluded(let reason):
+            return .init(
+                value: .text(Localization.tangemPayTransactionDetailsCashbackNone),
+                subvalue: reason.flatMap(Self.description)
+            )
+        }
+    }
+
+    private static func description(for reason: TangemPayTransactionCashback.ExclusionReason) -> String? {
+        switch reason {
+        case .merchantCountry: Localization.tangemPayTransactionDetailsCashbackRegionExcluded
+        case .mcc: Localization.tangemPayTransactionDetailsCashbackMccExcluded
+        case .monthlyCap: Localization.tangemPayTransactionDetailsCashbackCapReached
+        case .belowMin: nil
+        }
+    }
+
     private func status(
         for status: TangemPaySpendDisplayInput.Status,
         declinedReason: String?
