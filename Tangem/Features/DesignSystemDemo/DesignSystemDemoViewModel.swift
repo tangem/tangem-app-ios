@@ -55,10 +55,6 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openTangemMainActionButtonDemo()
     }
 
-    func openNotificationBannerDemo() {
-        coordinator?.openNotificationBannerDemo()
-    }
-
     func openTypographyDemo() {
         coordinator?.openTypographyDemo()
     }
@@ -125,6 +121,14 @@ final class DesignSystemDemoViewModel: ObservableObject {
 
     func openTokenIconV2Demo() {
         coordinator?.openTokenIconV2Demo()
+    }
+
+    func openTokenRowV2Demo() {
+        coordinator?.openTokenRowV2Demo()
+    }
+
+    func openTokenRowMarketDemo() {
+        coordinator?.openTokenRowMarketDemo()
     }
 
     func openUtilGraphDemo() {

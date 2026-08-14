@@ -16,6 +16,7 @@ public struct TangemMessageBubbleShowcase: View {
     @State private var text: String = "Description"
     @State private var hasIcon = true
     @State private var isDarkMode = false
+    @State private var isRightToLeft = false
     @State private var frameWidth: CGFloat = 200
     @State private var dynamicTypeIndex: Int = Self.dynamicTypeAllCases.firstIndex(of: .large) ?? 0
 
@@ -31,6 +32,7 @@ public struct TangemMessageBubbleShowcase: View {
         VStack(spacing: 0) {
             previewArea
                 .environment(\.colorScheme, isDarkMode ? .dark : .light)
+                .environment(\.layoutDirection, isRightToLeft ? .rightToLeft : .leftToRight)
 
             controls
         }
@@ -75,6 +77,7 @@ public struct TangemMessageBubbleShowcase: View {
 
                 Toggle("Icon", isOn: $hasIcon)
                 Toggle("Dark mode", isOn: $isDarkMode)
+                Toggle("Right-to-left", isOn: $isRightToLeft)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Frame width: \(Int(frameWidth))").font(.caption)

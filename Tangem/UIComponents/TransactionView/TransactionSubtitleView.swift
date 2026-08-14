@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAccounts
 import TangemAssets
 import TangemLocalization
+import TangemUI
 import TangemUIUtils
 
 /// Renders the redesigned subtitle line: direction prefix (`to:` / `from:`) + structured owner.
@@ -38,7 +39,8 @@ struct TransactionSubtitleView: View {
     @ViewBuilder
     private var ownerView: some View {
         switch owner {
-        case .accountInCurrentWallet(let name, let icon):
+        case .accountInCurrentWallet(let name, let icon),
+             .accountInOtherWallet(let name, let icon):
             HStack(spacing: .unit(.x1)) {
                 AccountIconView(data: icon)
                     .settings(.smallSized)
@@ -48,25 +50,17 @@ struct TransactionSubtitleView: View {
                     .accessibilityIdentifier(accessibilityIdentifier)
             }
 
-        case .wallet(let name):
-            Text(name)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
-                .lineLimit(1)
-                .accessibilityIdentifier(accessibilityIdentifier)
-
-        case .accountInOtherWallet(let accountName, let accountIcon, let walletName):
+        case .wallet(let name, _, let thumbnailType):
             HStack(spacing: .unit(.x1)) {
-                AccountIconView(data: accountIcon)
-                    .settings(.smallSized)
-                Text(accountName)
+                Text(name)
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
                     .accessibilityIdentifier(accessibilityIdentifier)
-                Text(Localization.commonIn)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
-                Text(walletName)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
-                    .lineLimit(1)
+
+                if let thumbnailType {
+                    MiniatureWalletView(type: thumbnailType)
+                        .frame(width: glyphSize, height: glyphSize)
+                }
             }
 
         case .unresolved(let short, _, let blockiesImage):

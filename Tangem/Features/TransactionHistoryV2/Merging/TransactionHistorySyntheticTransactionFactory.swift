@@ -79,7 +79,7 @@ struct TransactionHistorySyntheticTransactionFactory {
         let fiatCurrency = auxDataRepository.fiatCurrency(for: onrampTransaction.from)
         let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: onrampTransaction.expressCurrencies)
         let info = OnrampTransactionInfo(
-            onrampTransaction: onrampTransaction,
+            transaction: onrampTransaction,
             provider: provider,
             fiatCurrency: fiatCurrency,
             cryptoCurrencies: cryptoCurrencies
@@ -207,7 +207,7 @@ extension TransactionRecord {
     var expressTxId: String? {
         switch expressExtraInfo {
         case .exchange(let info): info.transaction.txId
-        case .onramp(let info): info.onrampTransaction.txId
+        case .onramp(let info): info.transaction.txId
         case nil: nil
         }
     }

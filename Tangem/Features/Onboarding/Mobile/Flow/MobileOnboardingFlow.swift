@@ -7,6 +7,7 @@
 //
 
 import TangemMobileWalletSdk
+import TangemMobileWalletBackup
 
 enum MobileOnboardingFlow {
     case walletImport(source: MobileOnboardingFlowSource)
@@ -14,4 +15,6 @@ enum MobileOnboardingFlow {
     case accessCode(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource, context: MobileWalletContext)
     case seedPhraseBackup(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource)
     case seedPhraseReveal(context: MobileWalletContext)
+    case iCloudBackup(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource)
+    case iCloudBackupImport(backups: [MobileWalletBackup], source: MobileOnboardingFlowSource)
 }

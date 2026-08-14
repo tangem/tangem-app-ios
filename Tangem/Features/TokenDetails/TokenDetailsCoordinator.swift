@@ -63,7 +63,6 @@ final class TokenDetailsCoordinator: CoordinatorObject {
         let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: options.userWalletInfo,
             tokenItem: options.walletModel.tokenItem,
-            walletModelUpdater: options.walletModel,
             transactionHistoryEnricherFactory: { [weak walletModel = options.walletModel] in
                 try? await walletModel?
                     .featuresPublisher
@@ -379,6 +378,13 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
     func closeTransactionDetails() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openTokenFromTransactionDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            openRefundCurrency(walletModel: walletModel, userWalletModel: userWalletModel)
         }
     }
 }
