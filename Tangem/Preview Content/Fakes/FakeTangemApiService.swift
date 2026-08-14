@@ -250,6 +250,16 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.List.Response {
+        throw "Not implemented"
+    }
+
+    func createJointAccount(
+        walletId: String, body: JointAccountsDTO.Create.Request
+    ) async throws -> JointAccountsDTO.Create.Response {
+        throw "Not implemented"
+    }
+
     func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {
         throw "Not implemented"
     }

@@ -32,11 +32,11 @@ final class JointAccountInviteMembersViewModel: ObservableObject {
         )
     }
 
-    private let creationContext: JointAccountCreationContext
+    private let creationContext: JointAccountCreationHelper
     private weak var coordinator: JointAccountInviteMembersRoutable?
 
     init(
-        creationContext: JointAccountCreationContext,
+        creationContext: JointAccountCreationHelper,
         coordinator: JointAccountInviteMembersRoutable?
     ) {
         self.creationContext = creationContext
