@@ -52,13 +52,20 @@ extension TokenBalanceType {
         }
     }
 
-    var hasNoFunds: Bool {
+    var mayHaveFunds: Bool {
+        guard let value = spendableValue else { return true }
+        return value > 0
+    }
+
+    /// `value`, except that an unfunded account counts as zero.
+    /// Chains with account-creation reserves (XRP, Stellar, Aptos, …) report `noAccount`
+    /// instead of `.loaded(0)`; spend-vs-balance checks should see `0` there, not an unknown balance.
+    var spendableValue: Decimal? {
         if case .empty(.noAccount) = self {
-            return true
+            return 0
         }
 
-        guard let value else { return false }
-        return value <= 0
+        return value
     }
 }
 
