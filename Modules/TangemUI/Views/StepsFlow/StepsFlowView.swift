@@ -34,7 +34,7 @@ public struct StepsFlowView: View {
         VStack(spacing: 0) {
             flowBar
                 .padding(flowBarEdgeInsets)
-                .background(viewModel.currentBackgroundColor)
+                .background(viewModel.currentBackgroundColor?.ignoresSafeArea())
 
             stepsContent
         }
