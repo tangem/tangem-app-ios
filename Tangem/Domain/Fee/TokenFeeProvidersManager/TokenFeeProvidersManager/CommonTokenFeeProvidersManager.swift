@@ -125,7 +125,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
     }
 
     func feeCurrencyBalance() throws -> Decimal {
-        guard let balance = selectedFeeProvider.balanceFeeTokenState.value else {
+        guard let balance = selectedFeeProvider.balanceFeeTokenState.spendableValue else {
             throw ExpressBalanceProviderError.balanceNotFound
         }
 
