@@ -50,7 +50,8 @@ struct OwnWalletTransferTitleTests {
             legacyName: "Transfer",
             amount: "1",
             addressDestination: nil,
-            subtitleOwner: owner
+            subtitleOwner: owner,
+            expressSubtitle: nil
         ).title
     }
 }
