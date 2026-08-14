@@ -167,6 +167,19 @@ var serviceModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
+            name: "TangemMobileWalletBackup",
+            dependencies: [
+                .product(name: "Sodium", package: "swift-sodium"),
+                "TangemFoundation",
+                "TangemLogger",
+                "TangemMobileWalletSdk",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
             name: "TangemMobileWalletSdk",
             path: "TangemMobileWalletSdk/Sources/swift",
             dependencies: [

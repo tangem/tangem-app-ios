@@ -71,7 +71,7 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
     func editAccount() {
         guard let options else { return }
 
-        options.account.resolve(using: EditAccountResolver(coordinator: self, options: options))
+        options.account.resolve(using: EditAccountResolver(coordinator: self))
     }
 
     func manageTokens() {
@@ -81,25 +81,33 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
     }
 }
 
+// MARK: - AccountFormViewModelRoutable
+
+extension AccountDetailsCoordinator: AccountFormViewModelRoutable {
+    /// The editing flow neither redistributes tokens nor creates accounts, so there is nothing to act on in the outcome.
+    func closeAccountForm(outcome: AccountFormOutcome) {
+        editAccountViewModel = nil
+    }
+}
+
 // MARK: - EditAccountResolver
 
 private extension AccountDetailsCoordinator {
     struct EditAccountResolver: AccountModelResolving {
         let coordinator: AccountDetailsCoordinator
-        let options: Options
 
         func resolve(accountModel: any CryptoAccountModel) {
             coordinator.editAccountViewModel = AccountFormViewModel(
-                accountModelsManager: options.accountModelsManager,
                 flowType: .edit(account: accountModel),
-                closeAction: { [weak coordinator] _, _ in
-                    coordinator?.editAccountViewModel = nil
-                }
+                coordinator: coordinator
             )
         }
 
         /// TangemPay does not support editing
         func resolve(accountModel: any TangemPayAccountModel) {}
+
+        /// Polymarket does not support editing
+        func resolve(accountModel: any PolymarketAccountModel) {}
     }
 }
 
@@ -136,5 +144,8 @@ private extension AccountDetailsCoordinator {
 
         /// TangemPay does not support token management
         func resolve(accountModel: any TangemPayAccountModel) {}
+
+        /// Polymarket does not support token management
+        func resolve(accountModel: any PolymarketAccountModel) {}
     }
 }

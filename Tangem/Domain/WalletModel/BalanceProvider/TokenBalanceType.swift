@@ -52,8 +52,11 @@ extension TokenBalanceType {
         }
     }
 
-    /// Unknown balances (`.empty`, or `.loading`/`.failure` without a cached value) are not treated as zero.
-    var isZeroBalance: Bool {
+    var hasNoFunds: Bool {
+        if case .empty(.noAccount) = self {
+            return true
+        }
+
         guard let value else { return false }
         return value <= 0
     }

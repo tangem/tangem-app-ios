@@ -38,7 +38,7 @@ class CommonOnrampRedirectingInteractor {
 // MARK: - OnrampRedirectingInteractor
 
 extension CommonOnrampRedirectingInteractor: OnrampRedirectingInteractor {
-    var onrampProvider: TangemExpress.OnrampProvider? {
+    var onrampProvider: OnrampProvider? {
         input?.selectedOnrampProvider
     }
 

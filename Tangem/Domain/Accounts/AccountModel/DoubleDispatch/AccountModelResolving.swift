@@ -19,4 +19,6 @@ protocol AccountModelResolving {
     #endif // false
 
     func resolve(accountModel: any TangemPayAccountModel) -> Result
+
+    func resolve(accountModel: any PolymarketAccountModel) -> Result
 }

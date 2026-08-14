@@ -191,7 +191,11 @@ private extension MobileBackupTypesViewModel {
     func onICloudTap() {
         logICloudTapAnalytics()
         runTask(in: self) { viewModel in
-            await viewModel.showICloudFakedoorAlert()
+            if FeatureProvider.isAvailable(.mobileWalletBackup) {
+                await viewModel.openICloudBackup()
+            } else {
+                await viewModel.showICloudFakedoorAlert()
+            }
         }
     }
 }
@@ -227,6 +231,14 @@ private extension MobileBackupTypesViewModel {
 private extension MobileBackupTypesViewModel {
     func openUpgrade() {
         coordinator?.openMobileUpgrade(userWalletModel: userWalletModel)
+    }
+
+    func openICloudBackup() {
+        let input = MobileOnboardingInput(flow: .iCloudBackup(
+            userWalletModel: userWalletModel,
+            source: .backup(action: .backup)
+        ))
+        coordinator?.openMobileOnboarding(input: input)
     }
 
     func openActivation() {

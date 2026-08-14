@@ -14,18 +14,27 @@ import BlockchainSdk
 protocol WalletInitializer {
     associatedtype Wallet
 
-    func initializeWallet(mnemonic: Mnemonic?, passphrase: String?) async throws -> Wallet
+    func initializeWallet(parameters: WalletInitializerParameters) async throws -> Wallet
+}
+
+struct WalletInitializerParameters {
+    let mnemonic: Mnemonic?
+    let passphrase: String?
+    /// Whether the user already holds the recovery phrase of the wallet being initialized.
+    let hasMnemonicBackup: Bool
+    /// Whether a backup of the wallet being initialized already exists in iCloud.
+    let hasICloudBackup: Bool
 }
 
 final class MobileWalletInitializer: WalletInitializer {
     typealias Wallet = MobileWalletInfo
 
-    func initializeWallet(mnemonic: Mnemonic?, passphrase: String?) async throws -> MobileWalletInfo {
+    func initializeWallet(parameters: WalletInitializerParameters) async throws -> MobileWalletInfo {
         let sdk = CommonMobileWalletSdk()
 
-        let userWalletId = switch mnemonic {
+        let userWalletId = switch parameters.mnemonic {
         case .some(let mnemonic):
-            try sdk.importWallet(entropy: mnemonic.getEntropy(), passphrase: passphrase ?? "")
+            try sdk.importWallet(entropy: mnemonic.getEntropy(), passphrase: parameters.passphrase ?? "")
         case .none:
             try sdk.generateWallet()
         }
@@ -39,8 +48,8 @@ final class MobileWalletInitializer: WalletInitializer {
         }
 
         var mobileWalletInfo = MobileWalletInfo(
-            hasMnemonicBackup: mnemonic != nil,
-            hasICloudBackup: false,
+            hasMnemonicBackup: parameters.hasMnemonicBackup,
+            hasICloudBackup: parameters.hasICloudBackup,
             accessCodeStatus: .none,
             keys: []
         )
@@ -70,7 +79,7 @@ final class MobileWalletInitializer: WalletInitializer {
                     publicKey: wallet.publicKey,
                     chainCode: wallet.chainCode,
                     curve: wallet.curve,
-                    isImported: mnemonic != nil,
+                    isImported: parameters.mnemonic != nil,
                     derivedKeys: derivedKeys.derivedKeys
                 )
             )
