@@ -78,6 +78,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "fees"
         case .reissueCard:
             "customer/card/reissue"
+        case .getEligibility:
+            "eligibility/channels"
         }
     }
 
@@ -96,7 +98,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin,
              .getFee,
              .getFees,
-             .getBankCredentials:
+             .getBankCredentials,
+             .getEligibility:
             .get
 
         case .placeOrderLegacy,
@@ -140,7 +143,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin,
              .getFee,
              .getBankCredentials,
-             .getTransaction:
+             .getTransaction,
+             .getEligibility:
             return .requestPlain
 
         case .cancelKYC:
@@ -303,6 +307,8 @@ extension CustomerInfoManagementAPITarget {
         case reissueCard(cardId: String)
 
         case getBankCredentials(productInstanceId: String)
+
+        case getEligibility
     }
 }
 
