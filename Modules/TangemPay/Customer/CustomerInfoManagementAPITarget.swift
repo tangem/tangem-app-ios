@@ -78,6 +78,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "fees"
         case .reissueCard:
             "customer/card/reissue"
+        case .getEligibility:
+            "eligibility/channels"
         case .getCashbackSummary:
             "customer/cashback/summary"
         case .getCashbackHistory:
@@ -111,7 +113,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCashbackPromotions,
              .getCashbackAccrualsDocs,
              .getCashbackTransactionDetails,
-             .getBankCredentials:
+             .getBankCredentials,
+             .getEligibility:
             .get
 
         case .placeOrderLegacy,
@@ -159,7 +162,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCashbackSummary,
              .getCashbackPromotions,
              .getCashbackAccrualsDocs,
-             .getCashbackTransactionDetails:
+             .getCashbackTransactionDetails,
+             .getEligibility:
             return .requestPlain
 
         case .getCashbackHistory(let months):
@@ -331,6 +335,7 @@ extension CustomerInfoManagementAPITarget {
 
         case getBankCredentials(productInstanceId: String)
 
+        case getEligibility
         case getCashbackSummary
         case getCashbackHistory(months: Int?)
         case getCashbackPromotions
