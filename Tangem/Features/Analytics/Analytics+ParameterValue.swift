@@ -307,6 +307,7 @@ extension Analytics {
         case hardwareWallet = "Hardware Wallet"
         case notStarted = "Not Started"
         case unfinished = "Unfinished"
+        case incomplete = "Incomplete"
         case createWalletIntro = "Create Wallet Intro"
         case addNewWallet = "Add New Wallet"
 

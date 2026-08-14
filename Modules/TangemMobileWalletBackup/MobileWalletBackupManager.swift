@@ -38,6 +38,12 @@ public protocol MobileWalletBackupManager {
     /// Throws `WalletBackupCryptoError.invalidPassword` when the password is wrong or the
     /// file was tampered with — the two are indistinguishable for an AEAD cipher.
     func importBackup(_ backup: MobileWalletBackup, password: String) async throws -> any WalletBackupPayload
+
+    /// Deletes every backup file of the given `UserWalletId`, stopping at the first failure.
+    ///
+    /// Throws `WalletBackupStorageError.fileNotFound` when there is nothing to delete —
+    /// e.g. the backup was removed from another device.
+    func deleteBackups(walletId: UserWalletId) async throws
 }
 
 public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
@@ -112,8 +118,7 @@ public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
             throw WalletBackupStorageError.storageUnavailable
         }
 
-        let backupFiles = try await storage.files()
-            .filter { $0.name.hasSuffix(Constants.fileNameSuffix) }
+        let backupFiles = try await loadBackupFiles()
 
         var backups: [MobileWalletBackup] = []
         for file in backupFiles {
@@ -122,7 +127,7 @@ public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
             }
         }
 
-        return backups.sorted { ($0.metadata.createdAt ?? .distantPast) > ($1.metadata.createdAt ?? .distantPast) }
+        return backups
     }
 
     public func importBackup(_ backup: MobileWalletBackup, password: String) async throws -> any WalletBackupPayload {
@@ -133,11 +138,46 @@ public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
         let format = version.resolve(backupResolver)
         return try format.payload(from: backup.fileData, password: password)
     }
+
+    public func deleteBackups(walletId: UserWalletId) async throws {
+        guard storage.isAvailable else {
+            throw WalletBackupStorageError.storageUnavailable
+        }
+
+        let backupFiles = try await loadBackupFiles()
+
+        guard backupFiles.isNotEmpty else {
+            throw WalletBackupStorageError.fileNotFound
+        }
+
+        var foundWalletBackup = false
+
+        for file in backupFiles {
+            guard
+                let backup = await loadBackup(file: file),
+                backup.metadata.walletId == walletId.stringValue
+            else {
+                continue
+            }
+
+            try await storage.delete(file: file)
+            foundWalletBackup = true
+        }
+
+        guard foundWalletBackup else {
+            throw WalletBackupStorageError.fileNotFound
+        }
+    }
 }
 
 // MARK: - Private implementation
 
 private extension CommonMobileWalletBackupManager {
+    func loadBackupFiles() async throws -> [WalletBackupStorageFile] {
+        try await storage.files()
+            .filter { $0.name.hasSuffix(Constants.fileNameSuffix) }
+    }
+
     func loadBackup(file: WalletBackupStorageFile) async -> MobileWalletBackup? {
         do {
             let fileData = try await storage.read(file: file)
