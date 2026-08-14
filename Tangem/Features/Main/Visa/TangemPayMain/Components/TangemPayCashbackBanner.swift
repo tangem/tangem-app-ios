@@ -66,11 +66,10 @@ private extension TangemPayCashbackBanner {
     }
 
     func formattedAmount(for summary: TangemPayCashback.Summary) -> String {
-        BalanceFormatter().formatFiatBalance(
-            summary.confirmedAmount,
-            currencyCode: summary.currency
-        )
+        Self.amountFormatter.format(summary.confirmedAmount, currencyCode: summary.currency)
     }
+
+    static let amountFormatter = TangemPayFiatAmountFormatter()
 
     static let payoutWindowFormatter: DateIntervalFormatter = {
         let formatter = DateIntervalFormatter()
