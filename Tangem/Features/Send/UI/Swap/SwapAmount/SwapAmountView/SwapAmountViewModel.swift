@@ -179,6 +179,20 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         router?.userDidTapChangeSourceTokenButton(receiveToken: receiveToken)
     }
 
+    /// The whole FROM area works as the `Choose token` button while no source token is selected.
+    var isWholeSourceAreaTapEnabled: Bool {
+        FeatureProvider.isAvailable(.swapChooseTokenWholeAreaTap)
+            && sourceExpressCurrencyViewModel.state.tokenIconState == .tokenSelectionRequired
+    }
+
+    func userDidTapSourceArea() {
+        guard isWholeSourceAreaTapEnabled else {
+            return
+        }
+
+        userDidTapChangeSourceTokenButton()
+    }
+
     func userDidTapSwapSourceAndReceiveTokensButton() {
         Analytics.log(.swapButtonSwipe)
         router?.userDidTapSwapSourceAndReceiveTokensButton()
