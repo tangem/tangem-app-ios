@@ -296,6 +296,12 @@ final class TangemPayAccount {
         try await customerService.getTransaction(transactionId: transactionId)
     }
 
+    func getCashbackTransactionDetails(
+        transactionId: String
+    ) async throws(TangemPayAPIServiceError) -> TangemPayCashbackTransactionDetailsResponse {
+        try await customerService.getCashbackTransactionDetails(transactionId: transactionId)
+    }
+
     func card(cardId: String) -> TangemPayCard? {
         cards.first { $0.cardId == cardId }
     }

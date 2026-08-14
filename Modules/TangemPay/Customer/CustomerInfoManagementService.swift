@@ -92,6 +92,10 @@ public protocol CustomerInfoManagementService: AnyObject {
     func getCashbackPromotions() async throws(TangemPayAPIServiceError) -> TangemPayCashbackPromotionsResponse
     func getCashbackAccrualsDocs() async throws(TangemPayAPIServiceError) -> TangemPayCashbackAccrualsDocsResponse
 
+    func getCashbackTransactionDetails(
+        transactionId: String
+    ) async throws(TangemPayAPIServiceError) -> TangemPayCashbackTransactionDetailsResponse
+
     @discardableResult
     func cancelKYC() async throws(TangemPayAPIServiceError) -> TangemPayCancelKYCResponse
 }
@@ -315,5 +319,11 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
 
     public func getCashbackAccrualsDocs() async throws(TangemPayAPIServiceError) -> TangemPayCashbackAccrualsDocsResponse {
         try await request(for: .getCashbackAccrualsDocs)
+    }
+
+    public func getCashbackTransactionDetails(
+        transactionId: String
+    ) async throws(TangemPayAPIServiceError) -> TangemPayCashbackTransactionDetailsResponse {
+        try await request(for: .getCashbackTransactionDetails(transactionId: transactionId))
     }
 }

@@ -131,21 +131,8 @@ public extension TangemPayTransactionHistoryResponse {
     }
 
     struct Cashback: Codable, Equatable {
-        public let status: Status
+        public let status: TangemPayCashbackStatus
         public let amount: String?
-
-        public enum Status: String, Codable, Equatable {
-            case estimated
-            case confirmed
-            case excluded
-            case awaitingCalculation = "awaiting_calculation"
-            case undefined
-
-            public init(from decoder: Decoder) throws {
-                let rawValue = try decoder.singleValueContainer().decode(String.self)
-                self = Self(rawValue: rawValue) ?? .undefined
-            }
-        }
     }
 
     enum PaymentStatus: String, Codable, Equatable {
