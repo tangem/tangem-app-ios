@@ -64,7 +64,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var isBalanceNegative: Bool = false
 
-    @Published private(set) var systemDowngradeBanner: NotificationBanner.BannerType?
+    @Published private(set) var systemDowngradeBanner: SystemDowngradeBanner?
 
     @Published private(set) var contactSupportMessageBannerButton: MessageBannerButton?
 
@@ -556,6 +556,13 @@ private extension TangemPayMainViewModel {
 
 // MARK: - SystemDowngradeBanner
 
+extension TangemPayMainViewModel {
+    struct SystemDowngradeBanner: Equatable {
+        let title: String
+        let subtitle: String
+    }
+}
+
 private extension TangemPayMainViewModel {
     static let systemDowngradeDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -563,32 +570,16 @@ private extension TangemPayMainViewModel {
         return formatter
     }()
 
-    static func makeSystemDowngradeBanner(
-        from plan: VisaCustomerInfoResponse.CustomerTariffPlan,
-        addFundsAction: @Sendable @escaping () -> Void
-    ) -> NotificationBanner.BannerType? {
+    static func makeSystemDowngradeBanner(from plan: VisaCustomerInfoResponse.CustomerTariffPlan) -> SystemDowngradeBanner? {
         guard plan.status == .systemDowngradePending, let nextBillingAt = plan.nextBillingAt else {
             return nil
         }
 
         let date = systemDowngradeDateFormatter.string(from: nextBillingAt)
-        let title = AttributedString(Localization.tangempayCardDetailsSystemDowngradeTitle)
-        let subtitle = AttributedString(Localization.tangempayCardDetailsSystemDowngradeSubtitle(plan.tariffPlan.name, date))
 
-        return .critical(
-            .textWithIcon(.init(
-                text: .init(title: title, subtitle: subtitle),
-                icon: .init(imageType: Assets.clear, width: .zero, height: .zero)
-            )),
-            .buttons(.one(
-                .init(
-                    content: .text(AttributedString(Localization.tangempayCardDetailsAddFunds)),
-                    styleType: .primary,
-                    cornerStyle: .rounded,
-                    action: addFundsAction
-                ),
-                accessibilityIdentifier: nil
-            ))
+        return SystemDowngradeBanner(
+            title: Localization.tangempayCardDetailsSystemDowngradeTitle,
+            subtitle: Localization.tangempayCardDetailsSystemDowngradeSubtitle(plan.tariffPlan.name, date)
         )
     }
 }
@@ -666,11 +657,7 @@ private extension TangemPayMainViewModel {
 
         tangemPayAccount.customerTariffPlanPublisher
             .map { plan in
-                plan.flatMap {
-                    Self.makeSystemDowngradeBanner(from: $0) { [weak self] in
-                        Task { @MainActor in self?.addFunds() }
-                    }
-                }
+                plan.flatMap { Self.makeSystemDowngradeBanner(from: $0) }
             }
             .removeDuplicates()
             .receiveOnMain()
