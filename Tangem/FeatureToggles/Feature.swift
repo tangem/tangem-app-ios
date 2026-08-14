@@ -44,6 +44,7 @@ enum Feature: String, Hashable, CaseIterable {
     case ethPolLocalStakingValidation
     case yieldDexTransferDetection
     case tangemPayCashback
+    case swapChooseTokenWholeAreaTap
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -84,6 +85,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .ethPolLocalStakingValidation: return "[REDACTED_INFO]_eth_pol_local_staking_validation"
         case .yieldDexTransferDetection: return "[REDACTED_INFO]_yield_dex_transfer_detection"
         case .tangemPayCashback: return "TWI-1192_tangem_pay_cashback"
+        case .swapChooseTokenWholeAreaTap: return "[REDACTED_INFO]_choose_token_whole_area_tap"
         }
     }
 
@@ -124,6 +126,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .ethPolLocalStakingValidation: return .unspecified
         case .yieldDexTransferDetection: return .unspecified
         case .tangemPayCashback: return .unspecified
+        case .swapChooseTokenWholeAreaTap: return .unspecified
         }
     }
 }
