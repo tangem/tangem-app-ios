@@ -18,6 +18,7 @@ import TangemPay
 class FakeUserWalletModel: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
+    var jointAccountDerivationInteractor: JointAccountDerivationInteractor { UnavailableJointAccountDerivationInteractor() }
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
 
     var keysRepository: KeysRepository {
