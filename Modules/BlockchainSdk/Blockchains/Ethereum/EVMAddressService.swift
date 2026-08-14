@@ -24,7 +24,7 @@ extension EVMAddressService: AddressProvider {
         let addressBytes = keccak[12...]
         let address = addressBytes.hex().addHexPrefix()
 
-        guard let checksumAddress = EthereumAddressUtils.toChecksumAddress(address) else {
+        guard let checksumAddress = EVMAddressUtils.toChecksumAddress(address) else {
             throw EVMAddressServiceError.failedToGetChecksumAddress
         }
 
@@ -36,7 +36,7 @@ extension EVMAddressService: AddressProvider {
 
 extension EVMAddressService: AddressValidator {
     public func validate(_ address: String) -> Bool {
-        EthereumAddressUtils.isValidAddressHex(value: address)
+        EVMAddressUtils.isValidAddressHex(value: address) && !EVMAddressUtils.isBurnAddress(address)
     }
 }
 
