@@ -183,6 +183,7 @@ private extension NotificationMessageBanner {
         case .magic: .magic
         case .warning: .warning
         case .error: .error
+        case .info: .info
         }
     }
 
@@ -219,6 +220,7 @@ private extension NotificationMessageBanner {
             title: title,
             iconStart: iconStart,
             iconEnd: iconEnd,
+            isLoading: model.isLoading,
             accessibilityIdentifier: accessibilityIdentifier,
             action: model.action
         )

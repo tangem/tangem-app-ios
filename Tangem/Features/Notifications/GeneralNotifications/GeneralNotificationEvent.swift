@@ -65,7 +65,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .informational()
 
         case .mobileUpgrade, .addFunds:
-            return .promo(.magic)
+            return .promo
 
         case .initialWalletTokenSyncCompleted:
             return .informational(.leading)

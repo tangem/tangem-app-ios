@@ -117,8 +117,8 @@ private extension MultiWalletNotificationBannerMapper {
             return .warning(content, bannerAction, closeAction)
         case .informational(let alignment):
             return .informational(content, bannerAction, closeAction, mapTextAlignment(alignment))
-        case .promo(let effect):
-            return .promo(content, bannerAction, closeAction, mapEffect(effect))
+        case .promo:
+            return .promo(content, bannerAction, closeAction)
         case .survey:
             return .survey(content, bannerAction, closeAction)
         }
@@ -128,14 +128,6 @@ private extension MultiWalletNotificationBannerMapper {
         switch alignment {
         case .leading: .leading
         case .center: .center
-        }
-    }
-
-    func mapEffect(_ effect: NotificationBannerKind.Effect) -> NotificationBanner.Effect {
-        switch effect {
-        case .plain: .none
-        case .card: .bannerCard
-        case .magic: .bannerMagic
         }
     }
 
@@ -169,29 +161,18 @@ private extension MultiWalletNotificationBannerMapper {
             return .text(textOnly)
         }
 
-        // Redesign overrides can pin alignment explicitly; otherwise status pills center the trailing icon
-        // against the text (per design) while other kinds keep top alignment.
-        let iconAlignment: NotificationBanner.Icon.Alignment = {
-            if let explicit = messageIcon.alignment { return explicit }
-            if case .status = bannerKind { return .center }
-            return .top
-        }()
-
         switch messageIcon.iconType {
         case .image(let imageType):
             let icon = makeImageIcon(
                 imageType: imageType,
                 messageIcon: messageIcon,
                 bannerKind: bannerKind,
-                alignment: iconAlignment,
                 isRedesignOverride: input.settings.event.redesignedBannerContent != nil
             )
             return .textWithIcon(.init(text: textOnly, icon: icon))
         case .loadableIcon(let url):
-            let loadableAlignment: SwiftUI.Alignment = iconAlignment == .center ? .leading : .topLeading
             let icon = NotificationBanner.LoadableIcon(
                 url: url,
-                alignment: loadableAlignment,
                 width: mapSizeUnit(from: messageIcon.size.width),
                 height: mapSizeUnit(from: messageIcon.size.height)
             )
@@ -213,7 +194,6 @@ private extension MultiWalletNotificationBannerMapper {
         imageType: ImageType,
         messageIcon: NotificationView.MessageIcon,
         bannerKind: NotificationBannerKind,
-        alignment: NotificationBanner.Icon.Alignment,
         isRedesignOverride: Bool
     ) -> NotificationBanner.Icon {
         let swapsLegacyGlyphs = switch bannerKind {
@@ -224,7 +204,6 @@ private extension MultiWalletNotificationBannerMapper {
         guard swapsLegacyGlyphs, Self.legacyWarningGlyphs.contains(imageType) else {
             return NotificationBanner.Icon(
                 imageType: imageType,
-                alignment: alignment,
                 width: mapSizeUnit(from: messageIcon.size.width),
                 height: mapSizeUnit(from: messageIcon.size.height),
                 renderingMode: messageIcon.renderingMode,
@@ -236,7 +215,6 @@ private extension MultiWalletNotificationBannerMapper {
         if case .critical = bannerKind {
             return NotificationBanner.Icon(
                 imageType: Assets.redCircleWarning,
-                alignment: alignment,
                 width: .x5,
                 height: .x5,
                 isLeading: messageIcon.isLeading
@@ -245,7 +223,6 @@ private extension MultiWalletNotificationBannerMapper {
 
         return NotificationBanner.Icon(
             imageType: Assets.DesignSystem.attention,
-            alignment: alignment,
             width: .x5,
             height: .x5,
             renderingMode: .template,
