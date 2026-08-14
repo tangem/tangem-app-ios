@@ -46,6 +46,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var visaBenefitsViewModel: WebViewContainerViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
     @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
+    @Published var cashbackDetailViewModel: TangemPayCashbackDetailViewModel?
 
     private var options: Options?
     private var safariHandle: SafariHandle?
@@ -313,6 +314,22 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             withCloseButton: true,
             allowsJavaScript: true
         )
+    }
+
+    func openCashbackDetail(summary: TangemPayCashback.Summary) {
+        guard let tangemPayAccount = options?.tangemPayAccount else {
+            return
+        }
+
+        Task { @MainActor in
+            cashbackDetailViewModel = TangemPayCashbackDetailFactory.makeViewModel(
+                summary: summary,
+                dataProvider: tangemPayAccount,
+                dismiss: { [weak self] in
+                    self?.cashbackDetailViewModel = nil
+                }
+            )
+        }
     }
 }
 
