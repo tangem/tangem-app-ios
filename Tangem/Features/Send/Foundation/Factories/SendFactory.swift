@@ -23,8 +23,8 @@ struct SendFactory {
                 coordinatorSource: options.source
             )
 
-        case .swap(.from(let sourceToken, let receiveToken)):
-            return SwapFlowFactory(sourceToken: sourceToken, receiveToken: receiveToken)
+        case .swap(.from(let sourceToken, let receiveToken, let extras)):
+            return SwapFlowFactory(sourceToken: sourceToken, receiveToken: receiveToken, extras: extras)
 
         case .swap(.to(let receiveToken)):
             return SwapFlowFactory(receiveToken: receiveToken)
