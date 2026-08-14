@@ -13,6 +13,7 @@ import TangemLocalization
 import TangemAssets
 import TangemFoundation
 import TangemMacro
+import TangemUI
 
 struct TransactionViewModel: Hashable, Identifiable {
     let id: ViewModelId
@@ -35,6 +36,8 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     /// Optional warning surfaced under the row. The concrete copy is resolved by the view.
     let warning: Warning?
+
+    let cashback: Cashback?
 
     var inProgress: Bool {
         status == .inProgress
@@ -137,7 +140,8 @@ struct TransactionViewModel: Hashable, Identifiable {
         isFromYieldContract: Bool,
         subtitleOwner: SubtitleOwner? = nil,
         cardName: String? = nil,
-        warning: Warning? = nil
+        warning: Warning? = nil,
+        cashback: Cashback? = nil
     ) {
         id = ViewModelId(id: TransactionRecord.ID(hash: hash, index: index), statusRawValue: status.rawValue)
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
@@ -160,6 +164,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         self.subtitleOwner = subtitleOwner
         self.cardName = cardName
         self.warning = warning
+        self.cashback = cashback
 
         display = TransactionDisplayModel.make(
             transactionType: transactionType,
@@ -346,14 +351,24 @@ extension TransactionViewModel {
         case paused
     }
 
+    struct Cashback: Hashable {
+        let formattedAmount: String
+        let style: Style
+
+        enum Style: Hashable {
+            case estimated
+            case confirmed
+        }
+    }
+
     /// Counterparty rendered alongside the direction prefix in the redesigned subtitle.
-    /// One of: a named account inside the current wallet, a named wallet (single-account mode),
-    /// an account + wallet pair (cross-wallet transfer in accounts-mode), or an unresolved
-    /// external address that falls back to blockies + truncated hex.
+    /// One of: a named account (inside the current wallet or another of the user's wallets),
+    /// a named wallet (single-account mode), or an unresolved external address that falls back
+    /// to blockies + truncated hex.
     enum SubtitleOwner: Hashable {
         case accountInCurrentWallet(name: String, icon: AccountIconView.ViewData)
-        case wallet(name: String)
-        case accountInOtherWallet(accountName: String, accountIcon: AccountIconView.ViewData, walletName: String)
+        case wallet(name: String, imageProvider: (any WalletImageProviding)?, thumbnailType: ThumbnailWalletViewType?)
+        case accountInOtherWallet(accountName: String, accountIcon: AccountIconView.ViewData)
         /// Pre-rendered blockies are carried alongside the address so the SwiftUI body doesn't
         /// regenerate the blockies image on every recomputation (long lists scroll-allocate).
         case unresolved(short: String, fullAddress: String, blockiesImage: UIImage?)
@@ -366,17 +381,19 @@ extension TransactionViewModel {
         }
 
         static func == (lhs: SubtitleOwner, rhs: SubtitleOwner) -> Bool {
-            switch (lhs, rhs) {
-            case (.accountInCurrentWallet(let lName, let lIcon), .accountInCurrentWallet(let rName, let rIcon)):
+            switch lhs {
+            case .accountInCurrentWallet(let lName, let lIcon):
+                guard case .accountInCurrentWallet(let rName, let rIcon) = rhs else { return false }
                 return lName == rName && lIcon == rIcon
-            case (.wallet(let lName), .wallet(let rName)):
-                return lName == rName
-            case (.accountInOtherWallet(let lAcc, let lIcon, let lWallet), .accountInOtherWallet(let rAcc, let rIcon, let rWallet)):
-                return lAcc == rAcc && lIcon == rIcon && lWallet == rWallet
-            case (.unresolved(let lShort, let lAddress, _), .unresolved(let rShort, let rAddress, _)):
+            case .wallet(let lName, _, let lThumbnail):
+                guard case .wallet(let rName, _, let rThumbnail) = rhs else { return false }
+                return lName == rName && lThumbnail == rThumbnail
+            case .accountInOtherWallet(let lAcc, let lIcon):
+                guard case .accountInOtherWallet(let rAcc, let rIcon) = rhs else { return false }
+                return lAcc == rAcc && lIcon == rIcon
+            case .unresolved(let lShort, let lAddress, _):
+                guard case .unresolved(let rShort, let rAddress, _) = rhs else { return false }
                 return lShort == rShort && lAddress == rAddress
-            default:
-                return false
             }
         }
 
@@ -386,14 +403,13 @@ extension TransactionViewModel {
                 hasher.combine(0)
                 hasher.combine(name)
                 hasher.combine(icon)
-            case .wallet(let name):
+            case .wallet(let name, _, _):
                 hasher.combine(1)
                 hasher.combine(name)
-            case .accountInOtherWallet(let accountName, let accountIcon, let walletName):
+            case .accountInOtherWallet(let accountName, let accountIcon):
                 hasher.combine(2)
                 hasher.combine(accountName)
                 hasher.combine(accountIcon)
-                hasher.combine(walletName)
             case .unresolved(let short, let fullAddress, _):
                 hasher.combine(3)
                 hasher.combine(short)

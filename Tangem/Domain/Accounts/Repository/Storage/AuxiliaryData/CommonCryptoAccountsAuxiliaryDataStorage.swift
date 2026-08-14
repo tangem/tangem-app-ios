@@ -29,9 +29,9 @@ final class CommonCryptoAccountsAuxiliaryDataStorage {
         }
     }
 
-    @Storage private var innerTotalAccountsCount: Int {
+    @Storage private var innerTotalCryptoAccountsCount: Int {
         didSet {
-            if oldValue != innerTotalAccountsCount {
+            if oldValue != innerTotalCryptoAccountsCount {
                 didChangeSubject.send()
             }
         }
@@ -49,8 +49,8 @@ final class CommonCryptoAccountsAuxiliaryDataStorage {
         _innerArchivedAccountsCount = .init(
             wrappedValue: 0, .init(forArchivedAccountsCountWithWithStorageIdentifier: storageIdentifier)
         )
-        _innerTotalAccountsCount = .init(
-            wrappedValue: 0, .init(forTotalAccountsCountWithStorageIdentifier: storageIdentifier)
+        _innerTotalCryptoAccountsCount = .init(
+            wrappedValue: 0, .init(forTotalCryptoAccountsCountWithStorageIdentifier: storageIdentifier)
         )
     }
 }
@@ -75,9 +75,9 @@ extension CommonCryptoAccountsAuxiliaryDataStorage: CryptoAccountsAuxiliaryDataS
         set { innerArchivedAccountsCount = newValue }
     }
 
-    var totalAccountsCount: Int {
-        get { innerTotalAccountsCount }
-        set { innerTotalAccountsCount = newValue }
+    var totalCryptoAccountsCount: Int {
+        get { innerTotalCryptoAccountsCount }
+        set { innerTotalCryptoAccountsCount = newValue }
     }
 }
 
@@ -94,7 +94,9 @@ private struct Key: RawRepresentable {
         rawValue = "CommonCryptoAccountsAuxiliaryDataStorage_archivedAccountsCount_\(storageIdentifier)"
     }
 
-    init(forTotalAccountsCountWithStorageIdentifier storageIdentifier: String) {
+    /// - Warning: The key keeps the name it was stored under: the count it holds only narrowed to crypto accounts,
+    /// which is what it already held, so renaming the key would drop the value instead of migrating it.
+    init(forTotalCryptoAccountsCountWithStorageIdentifier storageIdentifier: String) {
         rawValue = "CommonCryptoAccountsAuxiliaryDataStorage_totalAccountsCount_\(storageIdentifier)"
     }
 
