@@ -17,28 +17,16 @@ struct TangemPayAddToApplePayBannerRedesigned: View {
     let closeAction: () -> Void
 
     var body: some View {
-        NotificationBanner(
-            bannerType: bannerType,
-            accessibilityIdentifier: TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner,
-            closeAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton
+        MessageBanner(
+            title: Localization.tangempayCardDetailsOpenWalletNotificationTitleApple,
+            description: Localization.tangempayCardDetailsOpenWalletNotificationSubtitleApple
         )
-        .overlay {
-            RoundedRectangle(cornerRadius: 24)
-                .strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: 1)
-                .allowsHitTesting(false)
+        .glowRing(.magic)
+        .slotEnd {
+            MessageBannerCloseButton(accessibilityLabel: Localization.commonClose, action: closeAction)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton)
         }
-    }
-
-    private var bannerType: NotificationBanner.BannerType {
-        .promo(
-            .text(.init(
-                title: AttributedString(Localization.tangempayCardDetailsOpenWalletNotificationTitleApple),
-                subtitle: AttributedString(Localization.tangempayCardDetailsOpenWalletNotificationSubtitleApple)
-            )),
-            .tappable(NotificationBanner.Action { [openAction] in openAction() }),
-            NotificationBanner.CloseAction { [closeAction] in closeAction() },
-            .bannerMagic,
-            .leading
-        )
+        .onTap(openAction)
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner)
     }
 }

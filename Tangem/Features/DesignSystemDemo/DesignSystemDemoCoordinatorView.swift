@@ -53,9 +53,6 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemMainActionButtonDemoViewModel) {
                 TangemMainActionButtonDemoView(viewModel: $0)
             }
-            .navigation(item: $coordinator.notificationBannerDemoViewModel) {
-                NotificationBannerDemoView(viewModel: $0)
-            }
             .navigation(item: $coordinator.tangemSegmentedPickerDemoViewModel) {
                 TangemSegmentedPickerDemo(viewModel: $0)
             }
@@ -214,7 +211,6 @@ struct DesignSystemDemoView: View {
             DemoItem(title: "TangemTabs", open: viewModel.openTangemTabsDemo),
             DemoItem(title: "TangemSearchField", open: viewModel.openTangemSearchFieldDemo),
             DemoItem(title: "MainActionButton", open: viewModel.openTangemMainActionButtonDemo),
-            DemoItem(title: "NotificationBanner", open: viewModel.openNotificationBannerDemo),
             DemoItem(title: "TangemDropDown", open: viewModel.openTangemDropDownDemo),
             DemoItem(title: "TangemTokenRow", open: viewModel.openTangemTokenRowDemo),
             DemoItem(title: "TangemSnackbar", open: viewModel.openTangemSnackbarDemo),
