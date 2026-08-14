@@ -55,10 +55,6 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openTangemMainActionButtonDemo()
     }
 
-    func openNotificationBannerDemo() {
-        coordinator?.openNotificationBannerDemo()
-    }
-
     func openTypographyDemo() {
         coordinator?.openTypographyDemo()
     }

@@ -11,11 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-final class NotificationBannerDemoViewModel: ObservableObject, Identifiable {}
-
-struct NotificationBannerDemoView: View {
-    @ObservedObject var viewModel: NotificationBannerDemoViewModel
-
+struct NotificationBannerCatalogView: View {
     @State private var stackingType: NotificaitonBannerContainerStackingType = .stack
 
     var body: some View {
@@ -34,7 +30,6 @@ struct NotificationBannerDemoView: View {
             }
         }
         .background(DesignSystem.Color.bgSecondary.ignoresSafeArea())
-        .navigationBarTitle(Text("NotificationBanner"))
     }
 
     /// Real notification events rendered through `MultiWalletNotificationBannerMapper` — the exact
@@ -46,7 +41,7 @@ struct NotificationBannerDemoView: View {
 
 // MARK: - Inputs
 
-private extension NotificationBannerDemoView {
+private extension NotificationBannerCatalogView {
     static var mainScreenInputs: [NotificationViewInput] {
         let factory = NotificationsFactory()
 
@@ -237,7 +232,7 @@ private extension NotificationBannerDemoView {
 
 #Preview {
     NavigationStack {
-        NotificationBannerDemoView(viewModel: NotificationBannerDemoViewModel())
+        NotificationBannerCatalogView()
     }
     .preferredColorScheme(.dark)
 }
