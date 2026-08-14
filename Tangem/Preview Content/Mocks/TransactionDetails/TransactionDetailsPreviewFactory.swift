@@ -306,7 +306,7 @@ private extension TransactionDetailsPreviewFactory {
         )
 
         return .onramp(OnrampTransactionInfo(
-            onrampTransaction: transaction,
+            transaction: transaction,
             provider: nil,
             fiatCurrency: nil,
             cryptoCurrencies: [toCurrency: ethTokenItem]

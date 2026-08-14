@@ -15,6 +15,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     let initialTokenItem: TokenItem
     let expressDependenciesFactory: ExpressDependenciesFactory
     private let swapTokenPairResolver: MainSwapPairResolver?
+    private let extras: PredefinedSwapParameters.Extras?
 
     var tokenItem: TokenItem { initialTokenItem }
 
@@ -39,15 +40,18 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     init(
         sourceToken: SendSwapableToken,
         receiveToken: SendReceiveToken?,
-        swapTokenPairResolver: MainSwapPairResolver? = nil
+        swapTokenPairResolver: MainSwapPairResolver? = nil,
+        extras: PredefinedSwapParameters.Extras? = nil
     ) {
         self.sourceToken = sourceToken
         self.receiveToken = receiveToken
         self.swapTokenPairResolver = swapTokenPairResolver
+        self.extras = extras
         initialTokenItem = sourceToken.tokenItem
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
-            userWalletInfo: sourceToken.userWalletInfo
+            userWalletInfo: sourceToken.userWalletInfo,
+            preferredProviderId: extras?.providerId
         )
     }
 
@@ -58,6 +62,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         sourceToken = nil
         self.receiveToken = receiveToken
         self.swapTokenPairResolver = swapTokenPairResolver
+        extras = nil
         initialTokenItem = receiveToken.tokenItem
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
@@ -129,6 +134,12 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         swapModel.router = viewModel
         swapModel.alertPresenter = viewModel
         swapModel.externalAmountUpdater = amount.amountUpdater
+
+        // A deeplink can carry a FROM amount to prefill — push it into the amount field via the same
+        // path a user's keystroke uses, so validation and the "insufficient funds" state kick in normally.
+        if let sourceAmount = extras?.sourceAmount {
+            amount.amountUpdater.externalUpdate(cryptoAmount: sourceAmount)
+        }
 
         coordinatorStateProvider.setup(autoupdatingTimer: autoupdatingTimer)
 

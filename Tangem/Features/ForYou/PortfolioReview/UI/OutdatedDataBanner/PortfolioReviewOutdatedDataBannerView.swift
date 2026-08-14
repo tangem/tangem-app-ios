@@ -29,7 +29,6 @@ private struct OutdatedDataBanner: View {
     var body: some View {
         MessageBanner(title: Localization.warningSomeTokenBalancesNotUpdated)
             .variant(.warning)
-            .showGlowRing(false)
             .titleLineLimit(2)
             .slotEnd { icon }
     }

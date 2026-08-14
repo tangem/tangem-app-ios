@@ -84,7 +84,8 @@ struct TangemPayTransactionHistoryMapper {
             transactionType: mapper.type(),
             status: mapper.status(),
             isFromYieldContract: false,
-            cardName: cardName
+            cardName: cardName,
+            cashback: mapper.cashback()
         )
     }
 }

@@ -23,6 +23,7 @@ enum Feature: String, Hashable, CaseIterable {
     case stakingTransactionValidation
     case stakingFlowV2
     case forYou
+    case tangemPayMultichain
     case priceAlertsSubscription
     case solanaRentExemptionPreflight
     case backup4cards
@@ -36,9 +37,13 @@ enum Feature: String, Hashable, CaseIterable {
     case gaslessBridgeFeeRestriction
     case tronDexSwap
     case polymarket
+    case mobileWalletBackup
+    case swapDeeplinkParameters
     case walletCardsBackupReport
     case jointAccounts
     case ethPolLocalStakingValidation
+    case yieldDexTransferDetection
+    case tangemPayCashback
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -61,6 +66,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
         case .solanaRentExemptionPreflight: return "[REDACTED_INFO]_solana_rent_exemption_preflight"
+        case .tangemPayMultichain: return "TWI-1684_tangem_pay_multichain"
         case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
         case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
         case .swapHideZeroBalanceSource: return "[REDACTED_INFO]_hide_zero_balance_tokens_in_swap_source"
@@ -71,9 +77,13 @@ enum Feature: String, Hashable, CaseIterable {
         case .gaslessBridgeFeeRestriction: return "[REDACTED_INFO]_gasless_bridge_fee_restriction"
         case .tronDexSwap: return "[REDACTED_INFO]_tron_dex_swap"
         case .polymarket: return "TWI-1576_polymarket"
+        case .mobileWalletBackup: return "[REDACTED_INFO]_mobile_wallet_backup"
+        case .swapDeeplinkParameters: return "[REDACTED_INFO]_swap_deeplink_parameters"
         case .walletCardsBackupReport: return "[REDACTED_INFO]_cardlinked_status_update_stage2"
         case .jointAccounts: return "TWI-1611_joint_accounts"
         case .ethPolLocalStakingValidation: return "[REDACTED_INFO]_eth_pol_local_staking_validation"
+        case .yieldDexTransferDetection: return "[REDACTED_INFO]_yield_dex_transfer_detection"
+        case .tangemPayCashback: return "TWI-1192_tangem_pay_cashback"
         }
     }
 
@@ -95,6 +105,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .forYou: return .unspecified
         case .priceAlertsSubscription: return .unspecified
         case .solanaRentExemptionPreflight: return .version("6.2")
+        case .tangemPayMultichain: return .version("6.3")
         case .mainPushNotificationDoubleAsk: return .version("6.2")
         case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
@@ -106,9 +117,13 @@ enum Feature: String, Hashable, CaseIterable {
         case .gaslessBridgeFeeRestriction: return .version("6.2")
         case .tronDexSwap: return .version("6.2")
         case .polymarket: return .unspecified
+        case .mobileWalletBackup: return .unspecified
+        case .swapDeeplinkParameters: return .unspecified
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
+        case .yieldDexTransferDetection: return .unspecified
+        case .tangemPayCashback: return .unspecified
         }
     }
 }

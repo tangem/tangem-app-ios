@@ -272,9 +272,9 @@ final class ReferralViewModel: ObservableObject {
         case (nil, .standard(let cryptoAccounts)):
             mapReadyToBecomeState(cryptoAccounts: cryptoAccounts)
 
-        case (_, .tangemPay):
-            // Currently TangemPay works only with USDC in Polygon
-            // Therefore it's impossible to get reward (USDT in Tron)
+        case (_, .tangemPay), (_, .polymarket):
+            // The reward is USDT in Tron, and neither account type can hold it:
+            // TangemPay works only with USDC in Polygon, Polymarket only with its collateral there
             break
         }
     }

@@ -42,7 +42,7 @@ struct P2PMapper {
             preferredTargets: vaults.filter { $0.status != .full },
             item: item,
             unbondingPeriod: .variable(minDays: 1, maxDays: 4),
-            warmupPeriod: .constant(days: 0),
+            warmupPeriod: .days(0),
             rewardClaimingType: .auto,
             rewardScheduleType: .daily,
             maximumStakeAmount: maximumStakeAmount

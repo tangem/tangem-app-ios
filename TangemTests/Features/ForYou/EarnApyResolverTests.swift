@@ -255,8 +255,8 @@ private extension EarnApyResolverTests {
             targets: [],
             preferredTargets: [],
             item: StakingTokenItem(network: .tron, contractAddress: nil, name: "", decimals: 0, symbol: ""),
-            unbondingPeriod: .constant(days: 0),
-            warmupPeriod: .constant(days: 0),
+            unbondingPeriod: .days(0),
+            warmupPeriod: .days(0),
             rewardClaimingType: .manual,
             rewardScheduleType: .daily,
             maximumStakeAmount: nil
