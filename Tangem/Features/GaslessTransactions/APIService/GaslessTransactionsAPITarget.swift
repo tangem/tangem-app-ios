@@ -31,9 +31,17 @@ struct GaslessTransactionsAPITarget: TargetType {
     let apiType: GaslessTransactionsAPIType
     let target: TargetType
 
+    enum APIVersion: String {
+        case v1
+        case v2
+    }
+
     enum TargetType: Equatable {
         case availableTokens
-        case sendGaslessTransaction(transaction: GaslessTransactionsDTO.Request.GaslessTransaction)
+        case sendGaslessTransaction(
+            transaction: GaslessTransactionsDTO.Request.GaslessTransaction,
+            apiVersion: APIVersion
+        )
         case sendGaslessBatchTransaction(transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction)
         case feeRecipient
         case tronTokens
@@ -55,15 +63,18 @@ struct GaslessTransactionsAPITarget: TargetType {
             baseUrl = GaslessApiTargetConstants.mockBaseURL
         }
 
-        let versionPath: String
-        switch target {
-        case .sendGaslessBatchTransaction:
-            versionPath = "v2"
-        case .availableTokens, .sendGaslessTransaction, .feeRecipient, .tronTokens, .tronEstimate, .tronSubmit:
-            versionPath = "v1"
-        }
-
         return baseUrl.appendingPathComponent("api").appendingPathComponent(versionPath)
+    }
+
+    private var versionPath: String {
+        switch target {
+        case .sendGaslessTransaction(_, let apiVersion):
+            return apiVersion.rawValue
+        case .sendGaslessBatchTransaction:
+            return APIVersion.v2.rawValue
+        case .availableTokens, .feeRecipient, .tronTokens, .tronEstimate, .tronSubmit:
+            return APIVersion.v1.rawValue
+        }
     }
 
     var path: String {
@@ -96,7 +107,7 @@ struct GaslessTransactionsAPITarget: TargetType {
 
     var task: Moya.Task {
         switch target {
-        case .sendGaslessTransaction(let transaction):
+        case .sendGaslessTransaction(let transaction, _):
             return .requestJSONEncodable(transaction)
         case .sendGaslessBatchTransaction(let transaction):
             return .requestJSONEncodable(transaction)
