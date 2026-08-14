@@ -162,7 +162,7 @@ struct TangemPayTransactionRecordMapper {
 }
 
 private extension TransactionViewModel.Cashback.Style {
-    init?(_ status: TangemPayTransactionHistoryResponse.Cashback.Status) {
+    init?(_ status: TangemPayCashbackStatus) {
         switch status {
         case .estimated:
             self = .estimated
