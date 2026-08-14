@@ -274,14 +274,14 @@ private extension CommonEthereumTransactionBuilder {
     ) throws -> SmartContractMethod {
         switch token.metadata.kind {
         case .fungible where token.metadata.yieldSupply != nil:
-            return YieldSendMethod(
+            return try YieldSendMethod(
                 tokenContractAddress: token.contractAddress,
                 destination: destination,
                 amount: amount
             )
 
         case .fungible:
-            return TransferERC20TokenMethod(destination: destination, amount: amount)
+            return try TransferERC20TokenMethod(destination: destination, amount: amount)
 
         case .nonFungible(let assetIdentifier, .erc721):
             let source = sourceAddress.value

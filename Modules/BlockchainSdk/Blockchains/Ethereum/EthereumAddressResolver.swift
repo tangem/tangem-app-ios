@@ -31,14 +31,14 @@ extension EthereumAddressResolver: AddressResolver {
     }
 
     func requiresResolution(address: String) -> Bool {
-        !EthereumAddressUtils.isValidAddressHex(value: address)
+        !EVMAddressUtils.isValidAddressHex(value: address)
     }
 }
 
 extension EthereumAddressResolver: DomainNameAddressResolver {
     func resolveDomainName(_ address: String) async throws -> String {
         // Reverse ENS: input is a hex address, output is a domain name
-        guard EthereumAddressUtils.isValidAddressHex(value: address) else {
+        guard EVMAddressUtils.isValidAddressHex(value: address) else {
             throw ETHError.invalidSourceAddress
         }
 

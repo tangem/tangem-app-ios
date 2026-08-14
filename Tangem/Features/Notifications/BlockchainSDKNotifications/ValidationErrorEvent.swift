@@ -35,6 +35,7 @@ enum ValidationErrorEvent: Hashable {
 
     case destinationMemoRequired
     case noTrustlineAtDestination
+    case destinationIsBurnAddress
 }
 
 extension ValidationErrorEvent {
@@ -57,6 +58,7 @@ extension ValidationErrorEvent {
         case .sendingAmountIsLessThanRentExemption: "sendingAmountIsLessThanRentExemption".hashValue
         case .destinationMemoRequired: "destinationMemoRequired".hashValue
         case .noTrustlineAtDestination: "noTrustlineAtDestination".hashValue
+        case .destinationIsBurnAddress: "destinationIsBurnAddress".hashValue
         }
     }
 
@@ -91,6 +93,8 @@ extension ValidationErrorEvent {
         case .destinationMemoRequired:
             return .string(Localization.sendValidationDestinationTagRequiredTitle)
         case .noTrustlineAtDestination:
+            return .string(Localization.commonError)
+        case .destinationIsBurnAddress:
             return .string(Localization.commonError)
         }
     }
@@ -137,6 +141,8 @@ extension ValidationErrorEvent {
             return Localization.sendValidationDestinationTagRequiredDescription
         case .noTrustlineAtDestination:
             return Localization.noTrustlineXlmAsset
+        case .destinationIsBurnAddress:
+            return Localization.sendRecipientAddressError
         }
     }
 
@@ -168,7 +174,8 @@ extension ValidationErrorEvent {
              .sendingAmountIsLessThanRentExemption,
              .minimumRestrictAmount,
              .destinationMemoRequired,
-             .noTrustlineAtDestination:
+             .noTrustlineAtDestination,
+             .destinationIsBurnAddress:
             return .init(iconType: .image(Assets.redCircleWarning))
         }
     }
@@ -191,7 +198,8 @@ extension ValidationErrorEvent {
              .sendingAmountIsLessThanRentExemption,
              .minimumRestrictAmount,
              .destinationMemoRequired,
-             .noTrustlineAtDestination:
+             .noTrustlineAtDestination,
+             .destinationIsBurnAddress:
             return .critical
         }
     }
@@ -226,7 +234,8 @@ extension ValidationErrorEvent {
              .sendingAmountIsLessThanRentExemption,
              .minimumRestrictAmount,
              .destinationMemoRequired,
-             .noTrustlineAtDestination:
+             .noTrustlineAtDestination,
+             .destinationIsBurnAddress:
             return nil
         }
     }
