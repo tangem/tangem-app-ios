@@ -10,15 +10,11 @@ import Foundation
 import TangemFoundation
 
 /// Lays out what creating a joint account is asked with.
-struct JointAccountCreationPayloadBuilder {
+struct JointAccountCreationPayloadBuilder: JointAccountPayloadBuilder {
     let userWalletId: UserWalletId
-    let config: JointAccountCreationConfig
+    let creationContext: JointAccountCreationContext
 
-    /// - Parameter address: Only exists once the creator's key is derived, which is why it arrives apart from
-    /// everything else the payload is made of.
-    func makePayload(address: String) -> JointAccountCreationPayload {
-        let creationContext = config.creationContext
-
+    func makePayload(address: String, derivationIndex: Int) -> JointAccountCreationPayload {
         return JointAccountCreationPayload(
             config: JointAccountCreationPayload.Config(
                 name: creationContext.name,
@@ -31,7 +27,7 @@ struct JointAccountCreationPayloadBuilder {
                 walletId: userWalletId.stringValue,
                 name: creationContext.creatorName,
                 address: address,
-                derivation: config.derivationIndex
+                derivation: derivationIndex
             )
         )
     }
