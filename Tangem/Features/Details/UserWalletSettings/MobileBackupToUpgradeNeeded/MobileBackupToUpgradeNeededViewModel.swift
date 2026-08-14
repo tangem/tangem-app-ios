@@ -12,9 +12,9 @@ import TangemLocalization
 import protocol TangemUI.FloatingSheetContentViewModel
 
 final class MobileBackupToUpgradeNeededViewModel {
-    let title = Localization.hwBackupNeedTitle
-    let description = Localization.hwBackupToUpgradeDescription
-    let actionTitle = Localization.hwBackupNeedAction
+    let title: String
+    let description: String
+    let actionTitle: String
 
     private let userWalletModel: UserWalletModel
     private let source: MobileOnboardingFlowSource
@@ -31,6 +31,16 @@ final class MobileBackupToUpgradeNeededViewModel {
         self.source = source
         self.onBackupFinished = onBackupFinished
         self.coordinator = coordinator
+
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            title = "Save your seed phrase before upgrading"
+            description = "After the upgrade, you won’t be able to view it again. Your mobile wallet and cloud backup will be deleted, so write it down now as a backup recovery method."
+            actionTitle = "Save seed phrase"
+        } else {
+            title = Localization.hwBackupNeedTitle
+            description = Localization.hwBackupToUpgradeDescription
+            actionTitle = Localization.hwBackupNeedAction
+        }
     }
 }
 
