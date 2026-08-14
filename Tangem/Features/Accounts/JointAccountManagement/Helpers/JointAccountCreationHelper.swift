@@ -1,5 +1,5 @@
 //
-//  JointAccountCreationContext.swift
+//  JointAccountCreationHelper.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemFoundation
 /// Accumulates the input collected by the joint account creation flow, which spans several screens,
 /// until there is enough of it to actually create the account.
 /// - Note: Created by [REDACTED_AUTHOR]
-final class JointAccountCreationContext {
+final class JointAccountCreationHelper {
     /// Anything gathered so far is lost when the flow is left, since the account is only created by [REDACTED_AUTHOR]
     var hasUnsavedChanges: Bool {
         state.withLock { $0.formData != nil || $0.membersData != nil || $0.creatorName != nil }
@@ -52,7 +52,7 @@ final class JointAccountCreationContext {
 
 // MARK: - Auxiliary types
 
-private extension JointAccountCreationContext {
+private extension JointAccountCreationHelper {
     struct State {
         var formData: FormData?
         var membersData: MembersData?
