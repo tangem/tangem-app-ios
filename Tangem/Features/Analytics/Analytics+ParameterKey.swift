@@ -153,7 +153,7 @@ extension Analytics {
         // MARK: - Backup
 
         case backupManual = "Manual Backup"
-        case backupICloud = "Icloud Backup"
+        case backupCloud = "Cloud Backup"
 
         // MARK: - News
 
