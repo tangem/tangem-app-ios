@@ -11,9 +11,9 @@ import TangemLocalization
 
 struct JointAccountFormViewCreator {
     private let accountModelsManager: AccountModelsManager
-    private let creationContext: JointAccountCreationContext
+    private let creationContext: JointAccountCreationHelper
 
-    init(accountModelsManager: AccountModelsManager, creationContext: JointAccountCreationContext) {
+    init(accountModelsManager: AccountModelsManager, creationContext: JointAccountCreationHelper) {
         self.accountModelsManager = accountModelsManager
         self.creationContext = creationContext
     }
