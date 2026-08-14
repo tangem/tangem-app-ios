@@ -24,11 +24,11 @@ final class JointAccountMembersCountViewModel: ObservableObject {
     var membersCountRange: ClosedRange<Int> { Constants.membersCountRange }
     var signersCountRange: ClosedRange<Int> { Constants.minimumSignersCount ... membersCount }
 
-    private let creationContext: JointAccountCreationContext
+    private let creationContext: JointAccountCreationHelper
     private weak var coordinator: JointAccountMembersCountRoutable?
 
     init(
-        creationContext: JointAccountCreationContext,
+        creationContext: JointAccountCreationHelper,
         coordinator: JointAccountMembersCountRoutable?
     ) {
         self.creationContext = creationContext
