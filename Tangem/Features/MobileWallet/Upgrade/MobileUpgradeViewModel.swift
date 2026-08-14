@@ -95,7 +95,9 @@ extension MobileUpgradeViewModel {
         let securityTrait = TraitItem(
             icon: Assets.lock24,
             title: Localization.hwUpgradeGeneralSecurityTitle,
-            subtitle: Localization.hwUpgradeGeneralSecurityDescription
+            subtitle: FeatureProvider.isAvailable(.mobileWalletBackup)
+                ? "After upgrading, your mobile wallet and iCloud backup are removed and stored on your Tangem hardware wallet. Your recovery phrase stays with you."
+                : Localization.hwUpgradeGeneralSecurityDescription
         )
 
         return InfoItem(
