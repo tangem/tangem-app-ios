@@ -266,7 +266,7 @@ enum TransactionDetailsFactory {
         _ info: OnrampTransactionInfo,
         context: TransactionDetailsContext
     ) -> TransactionDetailsOnrampViewData {
-        let onramp = info.onrampTransaction
+        let onramp = info.transaction
         let receivedAmount = onramp.to.normalizedAmount
 
         let paid = TransactionDetailsOnrampViewData.PaidLeg(
@@ -585,7 +585,7 @@ enum TransactionDetailsFactory {
         case .exchange(let info):
             return swapTitle(status: info.transaction.status)
         case .onramp(let info):
-            return onrampTitle(status: info.onrampTransaction.status)
+            return onrampTitle(status: info.transaction.status)
         case nil:
             let text = TransactionDisplayModel.title(
                 transactionType: transaction.transactionType,
@@ -616,7 +616,7 @@ enum TransactionDetailsFactory {
         case .exchange(let info):
             value = info.transaction.txId
         case .onramp(let info):
-            value = info.onrampTransaction.txId
+            value = info.transaction.txId
         case nil:
             value = transaction.hash
         }
@@ -756,7 +756,7 @@ enum TransactionDetailsFactory {
     }
 
     private static func onrampShareText(_ info: OnrampTransactionInfo, context: TransactionDetailsContext) -> String {
-        let onramp = info.onrampTransaction
+        let onramp = info.transaction
         let to = amountWithSymbol(onramp.to.normalizedAmount, context.tokenSymbol)
 
         var lines = ["tangem", ""]

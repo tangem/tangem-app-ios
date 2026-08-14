@@ -112,7 +112,7 @@ public struct ExpressExchangeTransactionRecord {
 
 // MARK: - Fetching helpers
 
-extension ExpressExchangeTransactionRecord {
+public extension ExpressExchangeTransactionRecord {
     static let provider = belongsTo(
         ExpressProviderRecord.self,
         key: "provider",
