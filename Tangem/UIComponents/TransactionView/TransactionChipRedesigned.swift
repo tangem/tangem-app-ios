@@ -66,7 +66,7 @@ struct TransactionChipRedesigned: View {
         case .owner(let direction, let owner):
             TransactionSubtitleView(direction: direction, owner: owner)
 
-        case .text, .none:
+        case .text, .express, .none:
             EmptyView()
         }
     }
