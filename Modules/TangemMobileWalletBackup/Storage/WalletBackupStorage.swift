@@ -18,6 +18,8 @@ protocol WalletBackupStorage {
     func read(file: WalletBackupStorageFile) async throws -> Data
 
     func write(_ data: Data, fileName: String) async throws
+
+    func delete(file: WalletBackupStorageFile) async throws
 }
 
 /// Stores backup files in the `Documents` folder of the app's ubiquity container.
@@ -65,6 +67,19 @@ final class ICloudBackupStorage: WalletBackupStorage, Sendable {
             queue.async {
                 do {
                     try self.writeData(data, fileName: fileName)
+                    continuation.resume()
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
+    func delete(file: WalletBackupStorageFile) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            queue.async {
+                do {
+                    try self.delete(file: file)
                     continuation.resume()
                 } catch {
                     continuation.resume(throwing: error)
@@ -130,6 +145,26 @@ private extension ICloudBackupStorage {
             return try readResult.get()
         } catch {
             throw WalletBackupStorageError.readFailed(error)
+        }
+    }
+
+    func delete(file: WalletBackupStorageFile) throws {
+        let fileManager = FileManager()
+
+        var coordinationError: NSError?
+        var deleteError: Error?
+        let coordinator = NSFileCoordinator()
+
+        coordinator.coordinate(writingItemAt: file.url, options: .forDeleting, error: &coordinationError) { url in
+            do {
+                try fileManager.removeItem(at: url)
+            } catch {
+                deleteError = error
+            }
+        }
+
+        if let error = coordinationError ?? deleteError {
+            throw WalletBackupStorageError.deleteFailed(error)
         }
     }
 

@@ -24,8 +24,12 @@ final class HardwareBackupTypesViewModel: ObservableObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
 
-    private var isBackupNeeded: Bool {
-        userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+    private var isSeedBackupNeeded: Bool {
+        userWalletModel.config.hasFeature(.mnemonicBackup)
+    }
+
+    private var isICloudBackupNeeded: Bool {
+        userWalletModel.config.hasFeature(.iCloudBackup)
     }
 
     private var analyticsContextParams: Analytics.ContextParams {
@@ -103,7 +107,7 @@ private extension HardwareBackupTypesViewModel {
         logUpgradeCurrentWalletTapAnalytics()
 
         runTask(in: self) { viewModel in
-            if viewModel.isBackupNeeded {
+            if viewModel.isSeedBackupNeeded {
                 await viewModel.openMobileBackupToUpgradeNeeded()
             } else {
                 await viewModel.upgradeMobileWallet()
@@ -229,11 +233,16 @@ private extension HardwareBackupTypesViewModel {
     }
 
     func logBackupToUpgradeNeededAnalytics() {
+        let backupManual: Analytics.ParameterValue = .affirmativeOrNegative(for: isSeedBackupNeeded)
+        let backupCloud: Analytics.ParameterValue = isICloudBackupNeeded ? .incomplete : .done
+
         Analytics.log(
             .walletSettingsNoticeBackupFirst,
             params: [
                 .source: .hardwareWallet,
                 .action: .upgrade,
+                .backupManual: backupManual,
+                .backupCloud: backupCloud,
             ],
             contextParams: analyticsContextParams
         )

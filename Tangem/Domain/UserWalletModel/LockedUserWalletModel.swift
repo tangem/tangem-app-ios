@@ -14,7 +14,6 @@ import TangemNFT
 import BlockchainSdk
 import TangemVisa
 import TangemFoundation
-import TangemMobileWalletSdk
 import TangemPay
 import struct TangemSdk.SignData
 import struct TangemSdk.DerivationPath
@@ -140,7 +139,8 @@ final class LockedUserWalletModel: UserWalletModel {
     func update(type: UpdateRequest) {
         switch type {
         case .backupCompleted(let card, let associatedCardIds):
-            if case .mobileWallet = userWallet.walletInfo {
+            if case .mobileWallet(let mobileWalletInfo) = userWallet.walletInfo {
+                MobileCleanupUtil.cleanBackupIfNeeded(walletId: userWalletId, mobileWalletInfo: mobileWalletInfo)
                 syncRemoteAfterUpgrade()
             }
 
@@ -203,7 +203,7 @@ final class LockedUserWalletModel: UserWalletModel {
             encryptionKey: encryptionKey
         )
 
-        cleanMobileWallet()
+        MobileCleanupUtil.cleanMobileWallet(walletId: userWalletId)
     }
 
     private func syncRemoteAfterUpgrade() {
@@ -269,17 +269,6 @@ extension LockedUserWalletModel: AssociatedCardIdsProvider {
 extension LockedUserWalletModel: DisposableEntity {
     func dispose() {
         accountModelsManager.dispose()
-    }
-}
-
-private extension LockedUserWalletModel {
-    func cleanMobileWallet() {
-        let mobileSdk = CommonMobileWalletSdk()
-        do {
-            try mobileSdk.delete(walletIDs: [userWalletId])
-        } catch {
-            AppLogger.error("Failed to delete mobile wallet after upgrade:", error: error)
-        }
     }
 }
 

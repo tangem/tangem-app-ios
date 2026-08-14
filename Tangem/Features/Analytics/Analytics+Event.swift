@@ -258,6 +258,8 @@ extension Analytics {
         case walletSettingsArchivedAccountsScreenOpened = "[Settings / Wallet Settings] Archived Accounts Screen Opened"
         case walletSettingsButtonRecoverAccount = "[Settings / Wallet Settings] Button - Recover Account"
         case walletSettingsWalletUpgraded = "[Settings / Wallet Settings] Wallet Upgraded"
+        case cloudBackupDeleted = "[Cloud Backup] Backup Deleted"
+        case cloudBackupDeletionError = "[Cloud Backup] Backup Deletion Error"
 
         // MARK: - Account Settings
 

@@ -15,6 +15,8 @@ public enum WalletBackupStorageError: Error {
     case storageUnavailable
     case writeFailed(Error)
     case readFailed(Error)
+    case deleteFailed(Error)
+    case fileNotFound
 }
 
 // MARK: - UniversalError
@@ -29,6 +31,10 @@ extension WalletBackupStorageError: UniversalError {
             110003001
         case .readFailed:
             110003002
+        case .deleteFailed:
+            110003003
+        case .fileNotFound:
+            110003004
         }
     }
 }
