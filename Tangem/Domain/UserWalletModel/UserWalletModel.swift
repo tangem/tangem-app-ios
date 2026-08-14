@@ -23,6 +23,7 @@ protocol UserWalletModel:
     WCUserWalletInfoProvider,
     KeysDerivingProvider,
     TangemPayAuthorizingProvider,
+    JointAccountDerivationInteractorProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
     UserWalletInfoProvider,

@@ -15,6 +15,7 @@ import TangemSdk
 import TangemNFT
 import TangemFoundation
 import TangemPay
+import TangemMobileWalletSdk
 
 class CommonUserWalletModel {
     // MARK: Services
@@ -348,6 +349,22 @@ extension CommonUserWalletModel: TangemPayAuthorizingProvider {
             return TangemPayAuthorizingMobileWalletInteractor(
                 userWalletId: userWalletId,
                 userWalletConfig: config
+            )
+        }
+    }
+}
+
+extension CommonUserWalletModel: JointAccountDerivationInteractorProvider {
+    var jointAccountDerivationInteractor: JointAccountDerivationInteractor {
+        switch walletInfo {
+        case .cardWallet:
+            return JointAccountCardDerivationInteractor(config: config, keysRepository: keysRepository)
+        case .mobileWallet:
+            return JointAccountMobileWalletDerivationInteractor(
+                userWalletId: userWalletId,
+                userWalletConfig: config,
+                keysRepository: keysRepository,
+                mobileWalletSdk: CommonMobileWalletSdk()
             )
         }
     }
