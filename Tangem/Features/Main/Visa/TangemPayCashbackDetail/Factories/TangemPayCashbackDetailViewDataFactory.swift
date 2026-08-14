@@ -26,6 +26,21 @@ struct TangemPayCashbackDetailViewDataFactory {
             additionalPromotions: details.additionalPromotions.map(makePromotion)
         )
     }
+
+    func makeTiersViewData(
+        cashbackOnCards: TangemPayCashbackDetails.CashbackOnCards
+    ) -> TangemPayCashbackTiersViewData {
+        TangemPayCashbackTiersViewData(
+            title: rateTitle(for: cashbackOnCards) ?? Localization.tangempayCashbackTitle,
+            rows: makeTiersRows(cashbackOnCards: cashbackOnCards)
+        )
+    }
+
+    func makeAccrualsViewData(docs: [TangemPayCashbackDetails.AccrualsDoc]) -> TangemPayCashbackAccrualsViewData {
+        TangemPayCashbackAccrualsViewData(
+            docs: docs.map { TangemPayCashbackAccrualsViewData.Doc(id: $0.id, title: $0.title, url: $0.url) }
+        )
+    }
 }
 
 // MARK: - Sections
@@ -92,6 +107,60 @@ private extension TangemPayCashbackDetailViewDataFactory {
 
     func topTier(of cashbackOnCards: TangemPayCashbackDetails.CashbackOnCards) -> TangemPayCashbackDetails.CashbackOnCards.Tier? {
         cashbackOnCards.tiers.max { $0.rate < $1.rate }
+    }
+
+    func makeTiersRows(
+        cashbackOnCards: TangemPayCashbackDetails.CashbackOnCards
+    ) -> [TangemPayCashbackTiersViewData.Row] {
+        var rows = cashbackOnCards.tiers
+            .sorted { $0.rate < $1.rate }
+            .compactMap { tier -> TangemPayCashbackTiersViewData.Row? in
+                guard let planName = tier.kind.planName, let minTransactionAmount = tier.minTransactionAmount else {
+                    return nil
+                }
+
+                return TangemPayCashbackTiersViewData.Row(
+                    id: tier.promotionId,
+                    text: Localization.tangempayCashbackDetailsTier(
+                        formattedRate(tier.rate),
+                        planName,
+                        formattedFiat(minTransactionAmount, currency: TangemPayCashbackDetails.currency)
+                    )
+                )
+            }
+
+        rows.append(
+            TangemPayCashbackTiersViewData.Row(
+                id: Constants.euExcludedRowId,
+                text: Localization.tangempayCashbackDetailsEuExcluded
+            )
+        )
+
+        rows.append(
+            TangemPayCashbackTiersViewData.Row(
+                id: Constants.paidInRowId,
+                text: Localization.tangempayCashbackDetailsPaidIn(TangemPayUtilities.usdcTokenItem.currencySymbol)
+            )
+        )
+
+        if let accountMonthlyCap = cashbackOnCards.accountMonthlyCap, accountMonthlyCap > 0 {
+            rows.append(
+                TangemPayCashbackTiersViewData.Row(
+                    id: Constants.capRowId,
+                    text: Localization.tangempayCashbackDetailsCap(
+                        formattedFiat(accountMonthlyCap, currency: TangemPayCashbackDetails.currency)
+                    )
+                )
+            )
+        }
+
+        return rows
+    }
+
+    enum Constants {
+        static let euExcludedRowId = "eu-excluded"
+        static let paidInRowId = "paid-in"
+        static let capRowId = "cap"
     }
 
     func makeChart(

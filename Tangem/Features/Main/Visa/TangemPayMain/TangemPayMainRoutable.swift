@@ -39,4 +39,6 @@ protocol TangemPayMainRoutable: AnyObject {
         tokenItem: TokenItem,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
+
+    func openCashbackDetail(summary: TangemPayCashback.Summary)
 }
