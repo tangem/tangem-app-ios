@@ -151,7 +151,10 @@ private struct GaslessTransactionsNetworkManagerKey: InjectionKey {
                 logOptions: .verbose,
                 urlSessionConfiguration: .gaslessConfiguration
             ),
-            additionalPlugins: [GaslessTransactionsAuthorizationPlugin()]
+            additionalPlugins: [
+                DeviceInfoPlugin(),
+                GaslessTransactionsAuthorizationPlugin(),
+            ]
         )
 
         let manager = CommonGaslessTransactionsNetworkManager(
