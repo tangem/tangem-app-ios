@@ -194,6 +194,16 @@ protocol TangemApiService: AnyObject {
     /// - Returns: The list of archived accounts.
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts
 
+    // MARK: - Joint accounts
+
+    /// - Returns: Every joint account the wallet takes part in
+    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.List.Response
+
+    /// - Returns: The account, in `pending` with the caller as its creator, and one invite per free slot.
+    func createJointAccount(
+        walletId: String, body: JointAccountsDTO.Create.Request
+    ) async throws -> JointAccountsDTO.Create.Response
+
     // MARK: - Address Book
 
     /// Fetches the encrypted books of the requested wallets, skipping any whose sent etag still matches.
