@@ -35,8 +35,18 @@ final class TangemPayMainViewModel: ObservableObject {
             async let customerInfoUpdate: Void = tangemPayAccount.loadCustomerInfo()
             async let offersUpdate: Void = tangemPayAccount.loadOffers()
             async let resumePolling: Void = tangemPayAccount.resumeActiveIssueOrderPolling()
+            async let eligibilityUpdate: Void = loadVirtualAccountEligibility()
             async let cashbackUpdate: Void = loadCashbackSummaryIfEnabled()
-            _ = await (stateRefresh, promotionsUpdate, transactionsUpdate, customerInfoUpdate, offersUpdate, resumePolling, cashbackUpdate)
+            _ = await (
+                stateRefresh,
+                promotionsUpdate,
+                transactionsUpdate,
+                customerInfoUpdate,
+                offersUpdate,
+                resumePolling,
+                eligibilityUpdate,
+                cashbackUpdate
+            )
         } else {
             async let balanceUpdate: Void = tangemPayAccount.loadBalance()
             _ = await (stateRefresh, promotionsUpdate, balanceUpdate)
@@ -165,7 +175,6 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
-    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -175,6 +184,8 @@ final class TangemPayMainViewModel: ObservableObject {
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
     private let expressStatusPollingHelper: ExpressStatusPollingHelper
     private let promotionNotificationsManager: PromotionNotificationsManager
+
+    private var isEligibleForVirtualAccount = false
 
     private var nextViewOpeningTask: Task<Void, Error>?
     private var bag = Set<AnyCancellable>()
@@ -249,8 +260,17 @@ final class TangemPayMainViewModel: ObservableObject {
         }
 
         // Eligibility only gates issuing a brand-new VA. An already-issued one stays reachable.
-        return tangemPayAccount.hasVirtualAccount
-            || tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
+        return tangemPayAccount.hasVirtualAccount || isEligibleForVirtualAccount
+    }
+
+    @MainActor
+    private func loadVirtualAccountEligibility() async {
+        do {
+            let channels = try await tangemPayAccount.customerService.loadEligibility().channels
+            isEligibleForVirtualAccount = channels.contains(.visaVirtualAccount)
+        } catch {
+            VisaLogger.error("Failed to load virtual account eligibility", error: error)
+        }
     }
 
     func addFunds() {
@@ -422,6 +442,10 @@ final class TangemPayMainViewModel: ObservableObject {
             await tangemPayAccount.loadOffers()
             await tangemPayAccount.resumeActiveIssueOrderPolling()
             await self?.loadCashbackSummaryIfEnabled()
+        }
+
+        runTask { [self] in
+            await loadVirtualAccountEligibility()
         }
 
         runTask { [promotionNotificationsManager] in
