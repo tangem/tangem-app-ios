@@ -67,6 +67,10 @@ extension FeeCurrencyNavigating {
     }
 
     func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        pushFeeCurrencyTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+    }
+
+    func pushFeeCurrencyTokenDetails(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
