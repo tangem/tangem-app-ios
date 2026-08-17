@@ -294,7 +294,7 @@ struct TangemPayMainView: View {
                 Divider()
 
                 if let cashbackMenuState = viewModel.cashbackMenuState {
-                    SwiftUI.Button(action: viewModel.onCashbackTap) {
+                    SwiftUI.Button(action: viewModel.onCashbackMenuItemTap) {
                         Text(cashbackMenuState.menuTitle)
 
                         if let menuSubtitle = cashbackMenuState.menuSubtitle {
@@ -306,6 +306,10 @@ struct TangemPayMainView: View {
                     }
                     .menuActionDismissBehavior(.disabled)
                     .disabled(cashbackMenuState.isReloading)
+                    .onAppear(perform: viewModel.logCashbackMenuItemImpression)
+                    .onChange(of: viewModel.cashbackMenuItemImpression) { _ in
+                        viewModel.logCashbackMenuItemImpression()
+                    }
                 }
 
                 if viewModel.isVisaBenefitsAvailable {
@@ -343,9 +347,14 @@ struct TangemPayMainView: View {
     @ViewBuilder
     private var cashbackSection: some View {
         if let cashbackBannerState = viewModel.cashbackBannerState {
-            TangemPayCashbackBanner(state: cashbackBannerState, action: viewModel.onCashbackTap)
+            TangemPayCashbackBanner(state: cashbackBannerState, action: viewModel.onCashbackBannerTap)
+                .onAppear(perform: viewModel.logCashbackBannerImpression)
+                .onChange(of: viewModel.cashbackBannerImpression) { _ in
+                    viewModel.logCashbackBannerImpression()
+                }
         } else if viewModel.shouldDisplayCashbackBlockedBanner {
             TangemPayCashbackBlockedBanner(action: viewModel.dismissCashbackBlockedBanner)
+                .onAppear(perform: viewModel.onCashbackBlockedBannerAppear)
         }
     }
 }
