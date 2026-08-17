@@ -25,8 +25,6 @@ protocol AddressBookManager: AnyObject {
     var contacts: [AddressBookContact] { get }
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { get }
 
-    func configure(with userWalletModel: UserWalletModel)
-
     func load(silent: Bool) async
 
     @discardableResult
