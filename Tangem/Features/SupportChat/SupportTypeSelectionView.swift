@@ -26,7 +26,7 @@ struct SupportTypeSelectionView: View {
 
             Divider()
 
-            Button(action: model.emailAction) {
+            SwiftUI.Button(action: model.emailAction) {
                 Text(Localization.supportSelectorViewEmailButton)
                     .style(Fonts.Regular.body, color: Colors.Text.accent)
                     .frame(maxWidth: .infinity)
@@ -36,7 +36,7 @@ struct SupportTypeSelectionView: View {
 
             Divider()
 
-            Button(action: model.chatAction) {
+            SwiftUI.Button(action: model.chatAction) {
                 Text(Localization.supportSelectorViewChatButton)
                     .style(Fonts.Regular.body, color: Colors.Text.accent)
                     .frame(maxWidth: .infinity)

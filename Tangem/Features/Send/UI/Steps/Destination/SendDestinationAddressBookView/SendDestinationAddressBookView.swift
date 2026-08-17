@@ -21,7 +21,7 @@ struct SendDestinationAddressBookView: View {
             DefaultHeaderView(Localization.addressBookTitle)
                 .infinityFrame(axis: .horizontal, alignment: .leading)
                 .overlay(alignment: .trailing) {
-                    Button(action: viewModel.viewAllAction) {
+                    SwiftUI.Button(action: viewModel.viewAllAction) {
                         Text(Localization.commonViewAll)
                             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textBrand)
                     }

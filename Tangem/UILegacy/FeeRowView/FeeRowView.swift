@@ -26,7 +26,7 @@ struct FeeRowView: View {
         case .plain:
             content
         case .selectable(let isSelected):
-            Button(action: isSelected.toggle) {
+            SwiftUI.Button(action: isSelected.toggle) {
                 content
             }
         }

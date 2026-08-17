@@ -152,7 +152,6 @@ final class YieldModeUITests: BaseTestCase {
             expressApiType: .mock,
             yieldApiType: .mock,
             clearStorage: true,
-            features: [.yieldModuleUpdate: true],
             scenarios: [
                 ScenarioConfig(name: Constants.portfolioScenario, initialState: portfolio),
                 ScenarioConfig(name: Constants.balancesScenario, initialState: balances),

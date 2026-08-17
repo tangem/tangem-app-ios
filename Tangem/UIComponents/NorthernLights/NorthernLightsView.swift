@@ -9,10 +9,10 @@ struct NorthernLightsView: UIViewRepresentable {
     @Environment(\.colorScheme) private var colorScheme
 
     func makeUIView(context: Context) -> MTKView {
-        let mtkView = MTKView(frame: .zero, device: renderer.device)
+        let mtkView = DownscaledMTKView(frame: .zero, device: renderer.device)
         mtkView.colorPixelFormat = .bgra8Unorm
         mtkView.delegate = renderer
-        mtkView.contentScaleFactor = 0.5
+        mtkView.autoResizeDrawable = false
         mtkView.preferredFramesPerSecond = 30
         mtkView.isPaused = isPaused
 
@@ -23,6 +23,29 @@ struct NorthernLightsView: UIViewRepresentable {
         renderer.backgroundRGB = UIColor(backgroundColor).resolvedRGB(in: mtkView.traitCollection)
         renderer.updateColors(isDarkMode: colorScheme == .dark)
         mtkView.isPaused = isPaused
+    }
+}
+
+private final class DownscaledMTKView: MTKView {
+    static let renderScale: CGFloat = 0.5
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        let nativeScale = traitCollection.displayScale
+        guard nativeScale > 0 else { return }
+
+        // Fraction of the screen's native resolution, so the amount of upscaling is the same on @2x
+        // and @3x screens.
+        let drawableScale = nativeScale * Self.renderScale
+        let size = CGSize(
+            width: max(1, (bounds.width * drawableScale).rounded()),
+            height: max(1, (bounds.height * drawableScale).rounded())
+        )
+
+        if drawableSize != size {
+            drawableSize = size
+        }
     }
 }
 

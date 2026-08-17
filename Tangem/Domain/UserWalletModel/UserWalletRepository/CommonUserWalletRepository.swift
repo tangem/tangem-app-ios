@@ -63,7 +63,6 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let stateLock = OSAllocatedUnfairLock(initialState: State())
     private let userWalletDataStorage = UserWalletDataStorage()
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
-    private let accessCodeRepository = AccessCodeRepository()
     private let supportChatTokenStorage = SupportChatTokenStorage()
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
@@ -165,11 +164,12 @@ final class CommonUserWalletRepository: UserWalletRepository {
             }
             // Biometrics on protected mobile wallets could be enabled only after the user has unlocked the wallet via passcode
         } else {
-            accessCodeRepository.clear()
+            AccessCodeRepository().clear()
+            CardAccessTokensRepository().clear()
 
             let allUserWalletIds = models.map { $0.userWalletId }
             userWalletEncryptionKeyStorage.clear(userWalletIds: allUserWalletIds)
-            visaRefreshTokenRepository.clearPersistent()
+            visaRefreshTokenRepository.clean()
             mobileWalletSdk.clearBiometrics(walletIDs: allUserWalletIds)
         }
     }
@@ -188,10 +188,11 @@ final class CommonUserWalletRepository: UserWalletRepository {
         } else {
             let selectedModel = selectedModel
 
-            accessCodeRepository.clear()
-            visaRefreshTokenRepository.clearPersistent()
+            AccessCodeRepository().clear()
+            CardAccessTokensRepository().clear()
+            visaRefreshTokenRepository.clean()
             let userWalletIds = models.map { $0.userWalletId }
-            userWalletDataStorage.clear()
+            userWalletDataStorage.clean()
             userWalletEncryptionKeyStorage.clear(userWalletIds: userWalletIds)
 
             let modelsToDelete = userWalletIds.filter { $0 != selectedModel?.userWalletId }
@@ -241,7 +242,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
         userWalletEncryptionKeyStorage.clear(userWalletIds: [userWalletId])
 
         let associatedCardIds = models[currentIndex].associatedCardIds
-        try? accessCodeRepository.deleteAccessCode(for: Array(associatedCardIds))
+        try? AccessCodeRepository().deleteAccessCode(for: Array(associatedCardIds))
+        try? CardAccessTokensRepository().deleteTokens(for: Array(associatedCardIds))
         associatedCardIds.forEach {
             try? visaRefreshTokenRepository.deleteToken(visaRefreshTokenId: .cardId($0))
         }
@@ -256,7 +258,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         sendEvent(.deleted(userWalletIds: [userWalletId], isRepositoryEmpty: models.isEmpty))
 
         if models.isEmpty {
-            supportChatTokenStorage.clear()
+            supportChatTokenStorage.clean()
             lockInternal()
         } else {
             let newModel = models[nextSelectionIndex]
@@ -318,6 +320,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         if sensitiveInfos.isEmpty {
             // clean to prevent double tap
             AccessCodeRepository().clear()
+            CardAccessTokensRepository().clear()
             Analytics.log(.signInErrorBiometricUpdated, contextParams: .empty)
             throw UserWalletRepositoryError.biometricsChanged
         }

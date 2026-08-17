@@ -13,9 +13,11 @@ import Combine
 import CombineExt
 import TangemAssets
 import TangemUI
+import BlockchainSdk
+import TangemSdk
 
 class OnboardingAddTokensViewModel: ObservableObject {
-    var manageTokensListViewModel: ManageTokensListViewModel!
+    @Published private(set) var manageTokensListViewModel: ManageTokensListViewModel?
 
     // We need to use @Published here, because our CustomSearchField doesn't work properly
     // with bindings created from CurrentValueSubject
@@ -31,7 +33,7 @@ class OnboardingAddTokensViewModel: ObservableObject {
                 style: .secondary,
                 size: .default,
                 isLoading: false,
-                action: weakify(self, forFunction: OnboardingAddTokensViewModel.saveChanges)
+                action: weakify(self, forFunction: OnboardingAddTokensViewModel.skipAddTokens)
             )
         }
 
@@ -47,23 +49,21 @@ class OnboardingAddTokensViewModel: ObservableObject {
 
     private weak var delegate: OnboardingAddTokensDelegate?
 
-    private let adapter: ManageTokensAdapter
+    private var adapter: ManageTokensAdapter?
     private var bag = Set<AnyCancellable>()
 
-    init(adapter: ManageTokensAdapter, delegate: OnboardingAddTokensDelegate?) {
-        self.adapter = adapter
+    init(input: Input, delegate: OnboardingAddTokensDelegate?) {
         self.delegate = delegate
-        manageTokensListViewModel = .init(loader: self, listItemsViewModelsPublisher: adapter.listItemsViewModelsPublisher)
-
-        bind()
+        bindMainAccount(input: input)
     }
 
     func saveChanges() {
-        isSavingChanges = true
-
-        if isPendingListsEmpty {
-            Analytics.log(.manageTokensButtonLater)
+        guard let adapter else {
+            delegate?.goToNextStep()
+            return
         }
+
+        isSavingChanges = true
 
         adapter.saveChanges { [weak self] result in
             self?.isSavingChanges = false
@@ -81,10 +81,46 @@ class OnboardingAddTokensViewModel: ObservableObject {
     }
 
     func skipAddTokens() {
+        Analytics.log(.manageTokensButtonLater)
         delegate?.goToNextStep()
     }
 
-    private func bind() {
+    private func bindMainAccount(input: Input) {
+        input.accountModelsManager
+            .cryptoAccountModelsPublisher
+            .compactMap { $0.first(where: { $0.isMainAccount }) }
+            .first()
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, mainAccount in
+                let context = CommonManageTokensContext(
+                    accountModelsManager: input.accountModelsManager,
+                    currentAccount: mainAccount
+                )
+
+                let adapter = ManageTokensAdapter(
+                    settings: .init(
+                        existingCurves: input.existingCurves,
+                        supportedBlockchains: input.supportedBlockchains,
+                        hardwareLimitationUtil: input.hardwareLimitationUtil,
+                        analyticsSourceRawValue: input.analyticsSourceRawValue,
+                        context: context
+                    )
+                )
+
+                viewModel.setup(adapter: adapter)
+            }
+            .store(in: &bag)
+    }
+
+    private func setup(adapter: ManageTokensAdapter) {
+        self.adapter = adapter
+        manageTokensListViewModel = .init(loader: self, listItemsViewModelsPublisher: adapter.listItemsViewModelsPublisher)
+
+        bind(adapter: adapter)
+    }
+
+    private func bind(adapter: ManageTokensAdapter) {
         adapter.isPendingListsEmptyPublisher
             .assign(to: \.isPendingListsEmpty, on: self, ownership: .weak)
             .store(in: &bag)
@@ -115,7 +151,7 @@ class OnboardingAddTokensViewModel: ObservableObject {
                     Analytics.log(.manageTokensSearched)
                 }
 
-                viewModel.adapter.fetch(searchText)
+                viewModel.adapter?.fetch(searchText)
             }
             .store(in: &bag)
     }
@@ -123,10 +159,22 @@ class OnboardingAddTokensViewModel: ObservableObject {
 
 extension OnboardingAddTokensViewModel: ManageTokensListLoader {
     var hasNextPage: Bool {
-        adapter.hasNextPage
+        adapter?.hasNextPage ?? false
     }
 
     func fetch() {
-        adapter.fetch(searchText)
+        adapter?.fetch(searchText)
+    }
+}
+
+// MARK: - Input
+
+extension OnboardingAddTokensViewModel {
+    struct Input {
+        let accountModelsManager: AccountModelsManager
+        let existingCurves: [EllipticCurve]
+        let supportedBlockchains: Set<Blockchain>
+        let hardwareLimitationUtil: HardwareLimitationsUtil
+        let analyticsSourceRawValue: String
     }
 }

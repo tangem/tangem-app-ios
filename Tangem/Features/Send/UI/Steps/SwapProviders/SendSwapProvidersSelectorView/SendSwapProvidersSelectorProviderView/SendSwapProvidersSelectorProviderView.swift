@@ -17,7 +17,7 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
     @Binding var isSelected: Bool
 
     var body: some View {
-        Button(action: { isSelected = true }) {
+        SwiftUI.Button(action: { isSelected = true }) {
             HStack(spacing: 12) {
                 IconView(
                     url: data.providerIcon,
