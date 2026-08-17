@@ -50,7 +50,7 @@ private extension TangemPayCashbackDetailViewDataFactory {
         details: TangemPayCashbackDetails,
         summary: TangemPayCashback.Summary
     ) -> TangemPayCashbackDetailViewData.Header {
-        guard details.totalEarned != .zero else {
+        guard summary.totalEarnedAmount != .zero else {
             return .empty
         }
 
@@ -62,19 +62,31 @@ private extension TangemPayCashbackDetailViewDataFactory {
     }
 
     func makeBanner(summary: TangemPayCashback.Summary) -> TangemPayCashbackDetailViewData.Banner? {
-        if summary.confirmedAmount > 0 {
-            guard let payoutEndDate = summary.period.payoutEndDate else {
-                return nil
-            }
-
-            return .deposit(
-                formattedAmount: formattedFiat(summary.confirmedAmount, currency: summary.currency),
-                monthName: TangemPayCashbackState.monthName(summary.period.month),
-                payoutDate: Self.payoutDateFormatter.string(from: payoutEndDate)
-            )
+        if summary.confirmedAmount < 0 {
+            return .refund
         }
 
-        return summary.confirmedAmount < 0 ? .refund : nil
+        guard let previousPayout = summary.previousPayout,
+              let earnedMonth = month(precedingPayoutDate: previousPayout.endDate)
+        else {
+            return nil
+        }
+
+        return .deposit(
+            formattedAmount: formattedFiat(previousPayout.amount, currency: summary.currency),
+            monthName: TangemPayCashbackState.monthName(earnedMonth),
+            payoutDate: Self.payoutDateFormatter.string(from: previousPayout.endDate)
+        )
+    }
+
+    func month(precedingPayoutDate date: Date) -> Int? {
+        let calendar = Self.utcCalendar
+
+        guard let earnedMonthDate = calendar.date(byAdding: .month, value: -1, to: date) else {
+            return nil
+        }
+
+        return calendar.component(.month, from: earnedMonthDate)
     }
 
     func makeRateCard(
@@ -82,48 +94,48 @@ private extension TangemPayCashbackDetailViewDataFactory {
     ) -> TangemPayCashbackDetailViewData.RateCard? {
         guard let cashbackOnCards,
               let title = rateTitle(for: cashbackOnCards),
-              let topTier = topTier(of: cashbackOnCards)
+              let topCard = topCard(of: cashbackOnCards)
         else {
             return nil
         }
 
         return TangemPayCashbackDetailViewData.RateCard(
             title: title,
-            subtitle: topTier.kind.planName.map(Localization.tangempayCashbackRateSubtitle)
+            subtitle: Localization.tangempayCashbackRateSubtitle(topCard.title)
         )
     }
 
     func rateTitle(for cashbackOnCards: TangemPayCashbackDetails.CashbackOnCards) -> String? {
-        guard let topTier = topTier(of: cashbackOnCards) else {
+        guard let topCard = topCard(of: cashbackOnCards) else {
             return nil
         }
 
-        let rate = formattedRate(topTier.rate)
+        let rate = formattedRate(topCard.rate)
 
-        return cashbackOnCards.tiers.count == 1
+        return cashbackOnCards.cards.count == 1
             ? Localization.tangempayCashbackRateTitle(rate)
             : Localization.tangempayCashbackRateTitleUpTo(rate)
     }
 
-    func topTier(of cashbackOnCards: TangemPayCashbackDetails.CashbackOnCards) -> TangemPayCashbackDetails.CashbackOnCards.Tier? {
-        cashbackOnCards.tiers.max { $0.rate < $1.rate }
+    func topCard(of cashbackOnCards: TangemPayCashbackDetails.CashbackOnCards) -> TangemPayCashbackDetails.CashbackOnCards.Card? {
+        cashbackOnCards.cards.max { $0.rate < $1.rate }
     }
 
     func makeTiersRows(
         cashbackOnCards: TangemPayCashbackDetails.CashbackOnCards
     ) -> [TangemPayCashbackTiersViewData.Row] {
-        var rows = cashbackOnCards.tiers
+        var rows = cashbackOnCards.cards
             .sorted { $0.rate < $1.rate }
-            .compactMap { tier -> TangemPayCashbackTiersViewData.Row? in
-                guard let planName = tier.kind.planName, let minTransactionAmount = tier.minTransactionAmount else {
+            .compactMap { card -> TangemPayCashbackTiersViewData.Row? in
+                guard let minTransactionAmount = card.minTransactionAmount else {
                     return nil
                 }
 
                 return TangemPayCashbackTiersViewData.Row(
-                    id: tier.promotionId,
+                    id: card.promotionId,
                     text: Localization.tangempayCashbackDetailsTier(
-                        formattedRate(tier.rate),
-                        planName,
+                        formattedRate(card.rate),
+                        card.title,
                         formattedFiat(minTransactionAmount, currency: TangemPayCashbackDetails.currency)
                     )
                 )
@@ -177,7 +189,7 @@ private extension TangemPayCashbackDetailViewDataFactory {
         }
 
         return TangemPayCashbackDetailViewData.Chart(
-            formattedTotal: formattedFiat(details.totalEarned, currency: TangemPayCashbackDetails.currency),
+            formattedTotal: formattedFiat(summary.totalEarnedAmount, currency: summary.currency),
             items: items
         )
     }
@@ -222,19 +234,6 @@ private extension TangemPayCashbackDetailViewDataFactory {
         let separator = description.hasSuffix(".") ? " " : ". "
 
         return description + separator + capSentence
-    }
-}
-
-// MARK: - Tier naming
-
-private extension TangemPayCashbackDetails.TierKind {
-    var planName: String? {
-        switch self {
-        case .basic: "Basic"
-        case .plus: "Plus"
-        case .plusFF: "Plus FF"
-        case .unknown: nil
-        }
     }
 }
 
@@ -290,5 +289,11 @@ private extension TangemPayCashbackDetailViewDataFactory {
         formatter.dateStyle = .short
         formatter.timeStyle = .none
         return formatter
+    }()
+
+    static let utcCalendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? calendar.timeZone
+        return calendar
     }()
 }

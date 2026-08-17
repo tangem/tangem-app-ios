@@ -20,23 +20,25 @@ public struct TangemPayCashbackPromotionsResponse: Decodable {
 public extension TangemPayCashbackPromotionsResponse {
     struct CashbackOnCards: Decodable {
         @DefaultIfMissing
-        public var tiers: [Tier]
+        public var cards: [Card]
 
         public let accountMonthlyCapAmount: String?
         public let accountMonthlyCapCurrency: String?
 
-        public struct Tier: Codable {
-            public let tier: TangemPayCashbackTier
-            public let tierCashbackRate: String
+        public struct Card: Codable {
+            public let cardType: TangemPayCashbackCardType
+            public let title: String
+            public let cardCashbackRate: String
             public let minTransactionAmount: String?
-            public let tierMonthlyCapAmount: String?
             public let promotionId: String
         }
     }
 
     struct AdditionalCashback: Codable {
         public let id: String
-        public let tier: TangemPayCashbackTier
+        public let cardType: TangemPayCashbackCardType?
+        public let title: String?
+
         public let name: String
         public let description: String?
         public let endDate: String?
@@ -61,9 +63,9 @@ public extension TangemPayCashbackPromotionsResponse {
     }
 }
 
-// MARK: - TangemPayCashbackTier
+// MARK: - TangemPayCashbackCardType
 
-public enum TangemPayCashbackTier: String, Codable {
+public enum TangemPayCashbackCardType: String, Codable {
     case basic
     case plus
     case plusFF = "plus_ff"
