@@ -130,6 +130,14 @@ final class TangemPayMainViewModel: ObservableObject {
         cashbackDisplayMode == .alternative ? cashbackState : nil
     }
 
+    var cashbackBannerImpression: CashbackImpression? {
+        cashbackBannerState.map(CashbackImpression.init)
+    }
+
+    var cashbackMenuItemImpression: CashbackImpression? {
+        cashbackMenuState.map(CashbackImpression.init)
+    }
+
     private var cashbackState: TangemPayCashbackState? {
         if didCashbackLoadFail {
             return .failed(isReloading: isCashbackReloading)
@@ -388,24 +396,44 @@ final class TangemPayMainViewModel: ObservableObject {
         AppSettings.shared.tangemPayShowAddToApplePayGuide = false
     }
 
-    func onCashbackTap() {
-        switch cashbackState {
+    func logCashbackBannerImpression() {
+        switch cashbackBannerImpression {
         case .content:
-            openCashbackDetails()
-
-        case .failed(let isReloading):
-            guard !isReloading else { return }
-
-            runTask { [weak self] in
-                await self?.reloadCashback()
-            }
-
+            Analytics.log(.visaCashbackBannerShowed, contextParams: .userWallet(userWalletInfo.id))
+        case .error:
+            Analytics.log(.visaCashbackBannerErrorStateShowed, contextParams: .userWallet(userWalletInfo.id))
         case nil:
             break
         }
     }
 
+    func logCashbackMenuItemImpression() {
+        switch cashbackMenuItemImpression {
+        case .content:
+            Analytics.log(.visaCashbackButtonInSettingsShowed, contextParams: .userWallet(userWalletInfo.id))
+        case .error:
+            Analytics.log(.visaCashbackButtonErrorStateShowed, contextParams: .userWallet(userWalletInfo.id))
+        case nil:
+            break
+        }
+    }
+
+    func onCashbackBannerTap() {
+        Analytics.log(.visaCashbackBannerClicked, contextParams: .userWallet(userWalletInfo.id))
+        handleCashbackTap()
+    }
+
+    func onCashbackMenuItemTap() {
+        Analytics.log(.visaCashbackButtonInSettingsClicked, contextParams: .userWallet(userWalletInfo.id))
+        handleCashbackTap()
+    }
+
+    func onCashbackBlockedBannerAppear() {
+        Analytics.log(.visaCashbackDeactivationBannerShowed, contextParams: .userWallet(userWalletInfo.id))
+    }
+
     func dismissCashbackBlockedBanner() {
+        Analytics.log(.visaCashbackDeactivationBannerGotItClicked, contextParams: .userWallet(userWalletInfo.id))
         AppSettings.shared.tangemPayCashbackBlockedBannerDismissedForCustomerWalletId[userWalletInfo.id.stringValue] = true
     }
 
@@ -548,6 +576,22 @@ final class TangemPayMainViewModel: ObservableObject {
             userWalletId: userWalletInfo.id,
             customerId: tangemPayAccount.customerId
         )
+    }
+}
+
+// MARK: - CashbackImpression
+
+extension TangemPayMainViewModel {
+    enum CashbackImpression: Equatable {
+        case content
+        case error
+
+        init(_ state: TangemPayCashbackState) {
+            switch state {
+            case .content: self = .content
+            case .failed: self = .error
+            }
+        }
     }
 }
 
@@ -801,6 +845,23 @@ private extension TangemPayMainViewModel {
         isCashbackReloading = true
         await loadCashbackSummaryIfEnabled()
         isCashbackReloading = false
+    }
+
+    func handleCashbackTap() {
+        switch cashbackState {
+        case .content:
+            openCashbackDetails()
+
+        case .failed(let isReloading):
+            guard !isReloading else { return }
+
+            runTask { [weak self] in
+                await self?.reloadCashback()
+            }
+
+        case nil:
+            break
+        }
     }
 
     func openCashbackDetails() {

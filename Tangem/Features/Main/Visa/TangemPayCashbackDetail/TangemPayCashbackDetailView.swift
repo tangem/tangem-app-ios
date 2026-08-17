@@ -38,7 +38,7 @@ struct TangemPayCashbackDetailView: View {
                 }
             }
             .task {
-                viewModel.loadDetails()
+                viewModel.onAppear()
             }
             .sheet(item: $viewModel.tiersViewData) { data in
                 TangemPayCashbackTiersView(data: data, onClose: viewModel.closeTiersInfo)
