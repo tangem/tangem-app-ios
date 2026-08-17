@@ -39,7 +39,7 @@ struct MarketsTokenSummaryView: View {
             VStack(alignment: .leading, spacing: CardLayout.trackSpacing) {
                 header(for: gaugeState)
 
-                TokenSummaryTrackView(score: gaugeState.score, showsTicks: false)
+                TokenSummaryTrackView(score: gaugeState.score)
             }
             .cardBackground()
         }
