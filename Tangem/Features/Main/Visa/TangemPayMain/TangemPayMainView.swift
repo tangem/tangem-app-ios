@@ -305,6 +305,7 @@ struct TangemPayMainView: View {
                             .renderingMode(.template)
                     }
                     .menuActionDismissBehavior(.disabled)
+                    .disabled(cashbackMenuState.isReloading)
                 }
 
                 if viewModel.isVisaBenefitsAvailable {
