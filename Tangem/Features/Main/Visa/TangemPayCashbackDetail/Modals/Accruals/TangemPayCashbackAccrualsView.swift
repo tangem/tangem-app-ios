@@ -14,7 +14,7 @@ import TangemLocalization
 
 struct TangemPayCashbackAccrualsView: View {
     let data: TangemPayCashbackAccrualsViewData
-    let onDocTap: (URL) -> Void
+    let onDocTap: (TangemPayCashbackAccrualsViewData.Doc) -> Void
     let onClose: () -> Void
 
     var body: some View {
@@ -69,7 +69,7 @@ private extension TangemPayCashbackAccrualsView {
                         .titleLineLimit(nil)
                         .verticalAlignment(.top)
                         .showDivider(doc.id != data.docs.last?.id)
-                        .onTap { onDocTap(doc.url) }
+                        .onTap { onDocTap(doc) }
                         .start { icon(DesignSystem.Icons.Document.regular20) }
                         .end { icon(DesignSystem.Icons.ChevronRight.regular20) }
                 }
