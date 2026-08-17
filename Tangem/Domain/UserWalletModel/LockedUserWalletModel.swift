@@ -144,7 +144,7 @@ final class LockedUserWalletModel: UserWalletModel {
         switch type {
         case .backupCompleted(let card, let associatedCardIds):
             if case .mobileWallet(let mobileWalletInfo) = userWallet.walletInfo {
-                MobileCleanupUtil.cleanBackupIfNeeded(walletId: userWalletId, mobileWalletInfo: mobileWalletInfo)
+                MobileCleanupUtil.cleanBackup(walletId: userWalletId, mobileWalletInfo: mobileWalletInfo)
                 syncRemoteAfterUpgrade()
             }
 
@@ -165,6 +165,7 @@ final class LockedUserWalletModel: UserWalletModel {
              .accessCodeDidSet,
              .accessCodeDidSkip,
              .iCloudBackupCompleted,
+             .iCloudBackupDeleted,
              .mnemonicBackupCompleted:
             break
         }
