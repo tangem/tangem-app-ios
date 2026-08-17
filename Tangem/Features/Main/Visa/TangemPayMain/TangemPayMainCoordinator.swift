@@ -317,14 +317,15 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openCashbackDetail(summary: TangemPayCashback.Summary) {
-        guard let tangemPayAccount = options?.tangemPayAccount else {
+        guard let options else {
             return
         }
 
         Task { @MainActor in
             cashbackDetailViewModel = TangemPayCashbackDetailFactory.makeViewModel(
                 summary: summary,
-                dataProvider: tangemPayAccount,
+                userWalletId: options.userWalletInfo.id,
+                dataProvider: options.tangemPayAccount,
                 dismiss: { [weak self] in
                     self?.cashbackDetailViewModel = nil
                 }

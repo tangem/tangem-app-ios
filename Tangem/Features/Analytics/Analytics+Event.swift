@@ -838,6 +838,25 @@ extension Analytics {
         case visaVATopupShareDetailsButtonClicked = "[Visa VA Topup] Share Details Button Clicked"
         case visaVATopupCopyFieldClicked = "[Visa VA Topup] Copy Field Clicked"
 
+        // Cashback
+
+        case visaCashbackBannerShowed = "[Visa Cashback] Cashback Banner Showed"
+        case visaCashbackButtonInSettingsShowed = "[Visa Cashback] Cashback Button In Settings Showed"
+        case visaCashbackDeactivationBannerShowed = "[Visa Cashback] Cashback Deactivation Banner Showed"
+        case visaCashbackBannerErrorStateShowed = "[Visa Cashback] Cashback Banner Error State Showed"
+        case visaCashbackButtonErrorStateShowed = "[Visa Cashback] Cashback Button Error State Showed"
+        case visaCashbackBannerClicked = "[Visa Cashback] Cashback Banner Clicked"
+        case visaCashbackButtonInSettingsClicked = "[Visa Cashback] Cashback Button In Settings Clicked"
+        case visaCashbackDeactivationBannerGotItClicked = "[Visa Cashback] Cashback Deactivation Banner Got It Clicked"
+        case visaCashbackDetailsScreenOpened = "[Visa Cashback] Cashback Details Screen Opened"
+        case visaCashbackConditionsTileClicked = "[Visa Cashback] Cashback Conditions Tile Clicked"
+        case visaCashbackAccrualsTileClicked = "[Visa Cashback] Cashback Accruals Tile Clicked"
+        case visaCashbackCategoriesWithoutCashbackDocClicked = "[Visa Cashback] Cashback Categories Without Cashback Doc Clicked"
+        case visaCashbackFullTermsDocClicked = "[Visa Cashback] Cashback Full Terms Doc Clicked"
+        case visaCashbackUpcomingAccrualBannerShowed = "[Visa Cashback] Cashback Upcoming Accrual Banner Showed"
+        case visaCashbackNegativeBannerShowed = "[Visa Cashback] Cashback Negative Banner Showed"
+        case visaCashbackLoadingErrorShowed = "[Visa Cashback] Cashback Loading Error Showed"
+
         // MARK: - NFT
 
         case nftAssetReadMore = "[NFT] Button - Read More"

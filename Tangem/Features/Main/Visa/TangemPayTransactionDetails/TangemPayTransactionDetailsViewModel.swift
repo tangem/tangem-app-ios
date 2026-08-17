@@ -222,6 +222,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
             cashbackRow = TangemPayTransactionCashback(response).map { .loaded(redesignedMapper.map(cashback: $0)) }
         } catch {
             cashbackRow = .failed
+            Analytics.log(.visaCashbackLoadingErrorShowed, contextParams: .userWallet(userWalletId))
         }
     }
 }
