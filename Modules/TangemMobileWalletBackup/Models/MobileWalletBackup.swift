@@ -12,6 +12,10 @@ import Foundation
 /// but still encrypted — the payload stays sealed until the backup is imported
 /// with the user's password.
 public struct MobileWalletBackup: Sendable {
+    /// The backup's own identifier from the file contents, unique per created backup —
+    /// unlike the file name or the wallet id, which recreated backups can share.
+    let id: String
+
     /// User-visible metadata for the restore UI list.
     public let metadata: WalletBackupMetadata
 
