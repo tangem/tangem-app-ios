@@ -11,6 +11,9 @@ import BlockchainSdk
 public typealias ExpressAllowanceProvider = AllowanceProvider
 
 public protocol AllowanceProvider {
+    /// One-tap approve+swap needs fee estimation with an allowance state override — currently EVM-only.
+    var supportsOneTapApprove: Bool { get }
+
     func allowanceState(request: ExpressManagerSwappingPairRequest, contractAddress: String, spender: String) async throws -> AllowanceState
     func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData
 }

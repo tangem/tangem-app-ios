@@ -139,7 +139,7 @@ public struct EntitySummaryView: View {
     private var titleInfoView: some View {
         if case .content(let contentState) = viewState,
            let titleInfoConfig = contentState.titleInfoConfig {
-            Button(action: titleInfoConfig.onTap) {
+            SwiftUI.Button(action: titleInfoConfig.onTap) {
                 titleInfoConfig.imageType.image
                     .resizable()
                     .frame(width: 20, height: 20)

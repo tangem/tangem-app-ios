@@ -53,7 +53,6 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     private let networks: [TokenItem]
     private let coin: CoinModel
     private let userWalletInfo: UserWalletInfo
-    private let isAvailabilityCheckEnabled: Bool
     private let analyticsLogger: SendReceiveTokensListAnalyticsLogger
 
     private weak var router: SendReceiveTokenNetworkSelectorViewRoutable?
@@ -66,7 +65,6 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         networks: [TokenItem],
         coin: CoinModel,
         userWalletInfo: UserWalletInfo,
-        isAvailabilityCheckEnabled: Bool,
         analyticsLogger: SendReceiveTokensListAnalyticsLogger,
         router: SendReceiveTokenNetworkSelectorViewRoutable
     ) {
@@ -75,7 +73,6 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         self.networks = networks
         self.coin = coin
         self.userWalletInfo = userWalletInfo
-        self.isAvailabilityCheckEnabled = isAvailabilityCheckEnabled
         self.analyticsLogger = analyticsLogger
         self.router = router
 
@@ -170,11 +167,6 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
 
         guard !networksWithProviders.isEmpty else {
             return nil
-        }
-
-        // Without the availability check, any network with a pair is selectable (legacy behavior)
-        guard isAvailabilityCheckEnabled else {
-            return .sendWithSwap(networksWithProviders.map { mapToSendReceiveTokenNetworkSelectorNetworkViewData(tokenItem: $0.item) })
         }
 
         guard let swapableSourceToken = sourceToken as? SendWithSwapToken else {
