@@ -260,6 +260,8 @@ extension Analytics {
         case walletSettingsWalletUpgraded = "[Settings / Wallet Settings] Wallet Upgraded"
         case cloudBackupDeleted = "[Cloud Backup] Backup Deleted"
         case cloudBackupDeletionError = "[Cloud Backup] Backup Deletion Error"
+        case cloudBackupDetailsScreenOpened = "[Cloud Backup] Details Screen Opened"
+        case cloudBackupDeletionRequest = "[Cloud Backup] Backup Deletion Request"
 
         // MARK: - Account Settings
 

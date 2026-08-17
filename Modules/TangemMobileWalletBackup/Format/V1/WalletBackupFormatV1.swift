@@ -55,14 +55,20 @@ struct WalletBackupFormatV1: WalletBackupFormat {
         )
     }
 
-    func metadata(from fileData: Data, fileName: String) throws -> WalletBackupMetadata {
+    func backup(from fileData: Data, fileName: String) throws -> MobileWalletBackup {
         let file = try decodeFile(fileData)
 
-        return WalletBackupMetadata(
+        let metadata = WalletBackupMetadata(
             fileName: fileName,
             walletName: file.name,
             walletId: file.walletId,
             createdAt: Self.iso8601Formatter.date(from: file.createdAt)
+        )
+
+        return MobileWalletBackup(
+            id: file.id,
+            metadata: metadata,
+            fileData: fileData
         )
     }
 

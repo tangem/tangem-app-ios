@@ -277,6 +277,16 @@ extension CommonUserWalletModel: UserWalletModel {
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
 
+        case .iCloudBackupDeleted:
+            switch walletInfo {
+            case .cardWallet:
+                break
+            case .mobileWallet(let info):
+                var mutableInfo = info
+                mutableInfo.hasICloudBackup = false
+                updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
+            }
+
         case .mnemonicBackupCompleted:
             switch walletInfo {
             case .cardWallet:
