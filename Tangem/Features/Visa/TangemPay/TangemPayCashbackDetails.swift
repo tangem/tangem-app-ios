@@ -13,7 +13,6 @@ struct TangemPayCashbackDetails: Equatable {
     static let currency = TangemPayUtilities.fiatItem.currencyCode
 
     let history: [MonthlyEarning]
-    let totalEarned: Decimal
     let cashbackOnCards: CashbackOnCards?
     let additionalPromotions: [AdditionalPromotion]
     let accrualsDocs: [AccrualsDoc]
@@ -27,21 +26,19 @@ extension TangemPayCashbackDetails {
     }
 
     struct CashbackOnCards: Equatable {
-        let tiers: [Tier]
+        let cards: [Card]
         let accountMonthlyCap: Decimal?
 
-        struct Tier: Equatable {
+        struct Card: Equatable {
             let promotionId: String
-            let kind: TierKind
+            let title: String
             let rate: Decimal
             let minTransactionAmount: Decimal?
-            let monthlyCap: Decimal?
         }
     }
 
     struct AdditionalPromotion: Equatable, Identifiable {
         let id: String
-        let kind: TierKind
         let name: String
         let description: String?
         let endDate: Date?
@@ -64,13 +61,6 @@ extension TangemPayCashbackDetails {
         let title: String
         let url: URL
     }
-
-    enum TierKind: Equatable {
-        case basic
-        case plus
-        case plusFF
-        case unknown
-    }
 }
 
 // MARK: - Mapping
@@ -86,11 +76,8 @@ extension TangemPayCashbackDetails {
         months: Int,
         referenceDate: Date
     ) {
-        let earnings = Self.makeHistory(from: history, months: months, referenceDate: referenceDate)
-
         self.init(
-            history: earnings,
-            totalEarned: earnings.reduce(.zero) { $0 + $1.amount },
+            history: Self.makeHistory(from: history, months: months, referenceDate: referenceDate),
             cashbackOnCards: promotions.cashbackOnCards.map(CashbackOnCards.init),
             additionalPromotions: promotions.additionalCashback.map(AdditionalPromotion.init),
             accrualsDocs: accrualsDocs.docs.compactMap(AccrualsDoc.init)
@@ -172,20 +159,19 @@ private extension TangemPayCashbackDetails {
 private extension TangemPayCashbackDetails.CashbackOnCards {
     init(_ response: TangemPayCashbackPromotionsResponse.CashbackOnCards) {
         self.init(
-            tiers: response.tiers.map(Tier.init),
+            cards: response.cards.map(Card.init),
             accountMonthlyCap: TangemPayCashbackDetails.optionalDecimal(response.accountMonthlyCapAmount)
         )
     }
 }
 
-private extension TangemPayCashbackDetails.CashbackOnCards.Tier {
-    init(_ response: TangemPayCashbackPromotionsResponse.CashbackOnCards.Tier) {
+private extension TangemPayCashbackDetails.CashbackOnCards.Card {
+    init(_ response: TangemPayCashbackPromotionsResponse.CashbackOnCards.Card) {
         self.init(
             promotionId: response.promotionId,
-            kind: TangemPayCashbackDetails.TierKind(response.tier),
-            rate: TangemPayCashbackDetails.decimal(response.tierCashbackRate),
-            minTransactionAmount: TangemPayCashbackDetails.optionalDecimal(response.minTransactionAmount),
-            monthlyCap: TangemPayCashbackDetails.optionalDecimal(response.tierMonthlyCapAmount)
+            title: response.title,
+            rate: TangemPayCashbackDetails.decimal(response.cardCashbackRate),
+            minTransactionAmount: TangemPayCashbackDetails.optionalDecimal(response.minTransactionAmount)
         )
     }
 }
@@ -194,7 +180,6 @@ private extension TangemPayCashbackDetails.AdditionalPromotion {
     init(_ response: TangemPayCashbackPromotionsResponse.AdditionalCashback) {
         self.init(
             id: response.id,
-            kind: TangemPayCashbackDetails.TierKind(response.tier),
             name: response.name,
             description: response.description,
             endDate: response.endDate.flatMap(Self.date(from:)),
@@ -256,16 +241,5 @@ private extension TangemPayCashbackDetails.AccrualsDoc {
         }
 
         self.init(id: response.id, title: response.title, url: url)
-    }
-}
-
-private extension TangemPayCashbackDetails.TierKind {
-    init(_ tier: TangemPayCashbackTier) {
-        self = switch tier {
-        case .basic: .basic
-        case .plus: .plus
-        case .plusFF: .plusFF
-        case .undefined: .unknown
-        }
     }
 }
