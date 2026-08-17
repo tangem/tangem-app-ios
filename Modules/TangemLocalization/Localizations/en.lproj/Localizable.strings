@@ -315,6 +315,7 @@
 "common_in" = "in";
 "common_insufficient_balance" = "Insufficient balance";
 "common_joint_account" = "Joint account";
+"common_joint" = "Joint";
 "common_later" = "Later";
 "common_learn_and_earn" = "Learn & Earn";
 "common_learn_more" = "Learn more";
@@ -847,6 +848,7 @@
 "jailbreak_warning_title" = "Jailbreak detected";
 "joint_account_invite_members_creator" = "Creator";
 "joint_account_invite_members_invite" = "Invite";
+"joint_account_invite_members_member_info" = "Member info";
 "joint_account_invite_members_new_member" = "New member";
 "joint_account_invite_members_not_invited" = "Not invited";
 "joint_account_invite_members_other_members" = "Other members";
@@ -1779,7 +1781,7 @@
 "tangem_pay_terms_fees_limits" = "Terms, Fees & Limits";
 "tangem_pay_terms_limits" = "Terms and fees";
 "tangem_pay_transaction_declined_notification_text" = "The bank rejected this transaction request.";
-"tangem_pay_transaction_details_cashback_below_min" = "Min trx amount is %1$@";
+"tangem_pay_transaction_details_cashback_below_min" = "Below min trx amount";
 "tangem_pay_transaction_details_cashback_cap_reached" = "Monthly cap reached";
 "tangem_pay_transaction_details_cashback_mcc_excluded" = "MCC excluded";
 "tangem_pay_transaction_details_cashback_none" = "No cashback";
@@ -1928,11 +1930,12 @@
 "tangempay_cashback_total_earned" = "%1$@ earned in total";
 "tangempay_cashback_widget_error_description" = "Tap to reload";
 "tangempay_cashback_widget_error_title" = "Cashback unavailable";
+"tangempay_cashback_widget_refund_description" = "Reduced due to return of purchases";
 "tangempay_cashback_widget_title" = "%1$@ cashback in %2$@";
 "tangempay_change_pin_code" = "Change PIN-code";
 "tangempay_changing_plan" = "Changing your plan";
-"tangempay_choose_network_fast_way" = "Fast way";
-"tangempay_choose_network_other_ways" = "Other ways";
+"tangempay_choose_network_fast_way" = "Fast options";
+"tangempay_choose_network_other_ways" = "Other options";
 "tangempay_choose_network_row_error" = "Failed to get address, please try again";
 "tangempay_choose_network_row_loading" = "Preparing address…";
 "tangempay_come_back_if_forget_pin" = "Come back to the app if you forget it.";
@@ -2012,11 +2015,12 @@
 "tangempay_maximum_cards_issued_for_plan_title" = "Cards limit reached for this plan";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "Upgrade plan";
 "tangempay_maximum_cards_issued_title" = "Maximum Cards Issued";
+"tangempay_multinetwork" = "Multinetwork";
 "tangempay_newonboard_body" = "Spend crypto anywhere — no banks, no middlemen, no exchanges. The power of self-custody meets everyday payments.";
 "tangempay_newonboard_bottomleft_body" = "Buy online and via Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "Accepted worldwide";
-"tangempay_newonboard_bottomright_body" = "Use anywhere in the world";
-"tangempay_newonboard_bottomright_title" = "FX fee is just 1%%";
+"tangempay_newonboard_bottomright_body" = "USD to USDC 1:1; flat $1 fee";
+"tangempay_newonboard_bottomright_title" = "Recieve ACH transfers";
 "tangempay_newonboard_Q1_body" = "Yes – to operate a regulated Visa card, identity verification is mandatory. KYC is handled by Sumsub (compliance partner).";
 "tangempay_newonboard_Q1_title" = "Do I have to share my docs?";
 "tangempay_newonboard_Q2_body" = "No. KYC applies only to the Tangem Pay account. Your Tangem Wallet itself remains a separate, self-custodial, non-KYC environment.";

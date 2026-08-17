@@ -11,27 +11,53 @@ import TangemAssets
 import TangemUIUtils
 
 public struct NewsRatingViewRedesign: View {
+    private enum RatingFont {
+        case legacy(TangemFontStyle)
+        case token(TangemTypographyToken)
+    }
+
     private let rating: String
     private let isHighlighted: Bool
     private let spacing: CGFloat
-    private let font: TangemFontStyle
+    private let font: RatingFont
 
     public init(rating: String, isHighlighted: Bool, spacing: CGFloat = 3.0, font: TangemFontStyle = Font.Tangem.Caption12.semibold) {
         self.rating = rating
         self.isHighlighted = isHighlighted
         self.spacing = spacing
-        self.font = font
+        self.font = .legacy(font)
+    }
+
+    public init(rating: String, isHighlighted: Bool, spacing: CGFloat = 3.0, font: TangemTypographyToken) {
+        self.rating = rating
+        self.isHighlighted = isHighlighted
+        self.spacing = spacing
+        self.font = .token(font)
     }
 
     public var body: some View {
         HStack(spacing: spacing) {
             starIcon
-            Text(rating)
-                .style(
-                    font,
-                    color: isHighlighted ? .Tangem.Text.Status.attention : .Tangem.Text.Neutral.secondary
-                )
+            ratingText
         }
+    }
+
+    @ViewBuilder
+    private var ratingText: some View {
+        switch font {
+        case .legacy(let style):
+            Text(rating).style(style, color: legacyTextColor)
+        case .token(let token):
+            Text(rating).style(token, color: tokenTextColor)
+        }
+    }
+
+    private var legacyTextColor: Color {
+        isHighlighted ? .Tangem.Text.Status.attention : .Tangem.Text.Neutral.secondary
+    }
+
+    private var tokenTextColor: Color {
+        isHighlighted ? DesignSystem.Color.textAccentYellow : DesignSystem.Color.textSecondary
     }
 
     private var starIcon: some View {
@@ -39,11 +65,20 @@ public struct NewsRatingViewRedesign: View {
             .renderingMode(.template)
             .resizable()
             .frame(size: .init(bothDimensions: Layout.iconSize))
-            .foregroundStyle(isHighlighted ? Color.Tangem.Graphic.Status.attention : .Tangem.Graphic.Neutral.tertiary)
+            .foregroundStyle(iconColor)
+    }
+
+    private var iconColor: Color {
+        switch font {
+        case .legacy:
+            isHighlighted ? Color.Tangem.Graphic.Status.attention : .Tangem.Graphic.Neutral.tertiary
+        case .token:
+            isHighlighted ? DesignSystem.Color.iconAccentYellow : DesignSystem.Color.iconSecondary
+        }
     }
 
     private enum Layout {
-        static let iconSize: CGFloat = .unit(.x4)
+        static let iconSize: CGFloat = 16
     }
 }
 

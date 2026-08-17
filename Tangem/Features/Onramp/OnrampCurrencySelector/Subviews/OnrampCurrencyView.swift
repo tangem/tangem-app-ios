@@ -15,7 +15,7 @@ struct OnrampCurrencyView: View {
     let data: OnrampCurrencyViewData
 
     var body: some View {
-        Button(action: data.action) {
+        SwiftUI.Button(action: data.action) {
             labelView
         }
         .accessibilityIdentifier(OnrampAccessibilityIdentifiers.currencyItem(code: data.code))

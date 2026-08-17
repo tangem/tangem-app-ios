@@ -67,7 +67,7 @@ struct GetTokenView: View {
 
 private extension GetTokenActionRowView {
     func asTappableRow(action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             self
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)

@@ -161,7 +161,10 @@ class SingleCardOnboardingViewModel: OnboardingViewModel<SingleCardOnboardingSte
 
             switch result {
             case .success(let result):
-                initializeUserWallet(from: result, walletCreationType: .privateKey)
+                var params = WalletOnboardingViewModel.WalletCreationType.privateKey.params
+                params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+                logAnalytics(event: .walletCreatedSuccessfully, params: params, analyticsSystems: .all)
+                initializeUserWallet(from: result)
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.goToNextStep()

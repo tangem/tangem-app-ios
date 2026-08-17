@@ -40,7 +40,7 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
         auxiliaryCursorStorage: TransactionHistoryCursorStorage?,
         handleRecordsPage: @Sendable ([Record]) async -> TransactionHistoryNextPageAction
     ) async throws {
-        var cursor = await primaryCursorStorage.cursor // Updated inside the loop after each page is processed, therefore `var`
+        var cursor = await primaryCursorStorage.cursor() // Updated inside the loop after each page is processed, therefore `var`
 
         while !Task.isCancelled {
             let page = try await pageFetcher(apiProvider, cursor)

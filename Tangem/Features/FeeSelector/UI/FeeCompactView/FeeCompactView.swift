@@ -18,7 +18,7 @@ struct FeeCompactView: View {
 
     var body: some View {
         if let tapAction, viewModel.canEditFee {
-            Button(action: tapAction) { content }
+            SwiftUI.Button(action: tapAction) { content }
         } else {
             content
         }
