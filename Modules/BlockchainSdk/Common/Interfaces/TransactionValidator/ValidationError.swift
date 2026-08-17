@@ -36,4 +36,6 @@ public enum ValidationError: Error, Equatable {
     case destinationMemoRequired
 
     case noTrustlineAtDestination
+
+    case destinationIsBurnAddress
 }
