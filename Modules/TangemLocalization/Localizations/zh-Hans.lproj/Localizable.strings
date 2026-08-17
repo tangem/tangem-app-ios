@@ -315,6 +315,7 @@
 "common_in" = "在";
 "common_insufficient_balance" = "余额不足";
 "common_joint_account" = "Joint account";
+"common_joint" = "Joint";
 "common_later" = "稍后";
 "common_learn_and_earn" = "边学边赚";
 "common_learn_more" = "了解更多";
@@ -847,6 +848,7 @@
 "jailbreak_warning_title" = "检测到越狱";
 "joint_account_invite_members_creator" = "Creator";
 "joint_account_invite_members_invite" = "Invite";
+"joint_account_invite_members_member_info" = "Member info";
 "joint_account_invite_members_new_member" = "New member";
 "joint_account_invite_members_not_invited" = "Not invited";
 "joint_account_invite_members_other_members" = "Other members";
@@ -1779,7 +1781,7 @@
 "tangem_pay_terms_fees_limits" = "条款、费用和限制";
 "tangem_pay_terms_limits" = "条款和限制";
 "tangem_pay_transaction_declined_notification_text" = "银行拒绝了这项交易请求。";
-"tangem_pay_transaction_details_cashback_below_min" = "最低交易金额为 %1$@";
+"tangem_pay_transaction_details_cashback_below_min" = "最低交易金额为";
 "tangem_pay_transaction_details_cashback_cap_reached" = "已达月度上限";
 "tangem_pay_transaction_details_cashback_mcc_excluded" = "MCC 已排除";
 "tangem_pay_transaction_details_cashback_none" = "无返现";
@@ -1928,6 +1930,7 @@
 "tangempay_cashback_total_earned" = "累计赚取 %1$@";
 "tangempay_cashback_widget_error_description" = "Tap to reload";
 "tangempay_cashback_widget_error_title" = "Cashback unavailable";
+"tangempay_cashback_widget_refund_description" = "Reduced due to return of purchases";
 "tangempay_cashback_widget_title" = "%2$@ 中的 %1$@ 返现";
 "tangempay_change_pin_code" = "更改PIN码";
 "tangempay_changing_plan" = "正在更改您的套餐";
@@ -2012,11 +2015,12 @@
 "tangempay_maximum_cards_issued_for_plan_title" = "该套餐的卡片数量已达上限";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "升级套餐";
 "tangempay_maximum_cards_issued_title" = "最大发卡量";
+"tangempay_multinetwork" = "Multinetwork";
 "tangempay_newonboard_body" = "随时随地花加密资产——无需银行、无需中介、无需交易所。自托管的自由，结合日常支付体验。";
 "tangempay_newonboard_bottomleft_body" = "可在线支付，也支持 Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "全球受理";
-"tangempay_newonboard_bottomright_body" = "全球都能用";
-"tangempay_newonboard_bottomright_title" = "汇兑费仅 1%%";
+"tangempay_newonboard_bottomright_body" = "美元 1:1 兑换 USDC；固定费用 1 美元";
+"tangempay_newonboard_bottomright_title" = "接收 ACH 转账";
 "tangempay_newonboard_Q1_body" = "需要。使用合规监管的 Visa 卡，必须完成身份验证。KYC 由 Sumsub（的合规合作伙伴）处理。";
 "tangempay_newonboard_Q1_title" = "我需要提供证件吗？";
 "tangempay_newonboard_Q2_body" = "不会。KYC 仅适用于 Tangem Pay 账户。你的 Tangem Wallet 仍是独立的、自托管、无需 KYC 的环境。";

@@ -30,6 +30,26 @@ public extension Sequence {
         }
     }
 
+    /// Creates a new dictionary whose keys are computed by the given closure and whose values
+    /// are the first elements of the sequence that have these keys.
+    func keyedFirst<T>(by key: (Element) -> T) -> [T: Element] where T: Hashable {
+        return reduce(into: [:]) { result, element in
+            let elementKey = key(element)
+
+            if result[elementKey] == nil {
+                result[elementKey] = element
+            }
+        }
+    }
+
+    /// Creates a new dictionary whose keys are computed by the given closure and whose values
+    /// are the last elements of the sequence that have these keys.
+    func keyedLast<T>(by key: (Element) -> T) -> [T: Element] where T: Hashable {
+        return reduce(into: [:]) { result, element in
+            result[key(element)] = element
+        }
+    }
+
     /// Just a shim for `Dictionary(grouping:by:)`.
     func grouped<T>(by keyPath: KeyPath<Element, T>) -> [T: [Element]] where T: Hashable {
         return Dictionary(grouping: self) { element in

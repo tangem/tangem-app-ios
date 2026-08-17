@@ -167,23 +167,6 @@ final class SendReceiveTokenNetworkSelectorViewModelTests {
         }
         #expect(items.count == 1)
     }
-
-    @Test("With the feature off, any network with a pair is selectable and no manual swap is suggested")
-    func featureOffKeepsLegacyBehavior() async throws {
-        // Single-address-only provider would be a manual-swap case with the feature on
-        let repository = SwapRepositoryConfigurableStub(
-            pairs: [makePair(to: polygonItem, providerIds: ["singleAddressDex"])],
-            providers: [makeProvider(id: "singleAddressDex", type: .dex, exchangeOnlyWithinSingleAddress: true)]
-        )
-
-        let state = try await loadedState(repository: repository, networks: [polygonItem], featureEnabled: false)
-
-        guard case .networks(let items) = state else {
-            Issue.record("Expected .networks, got \(state)")
-            return
-        }
-        #expect(items.count == 1)
-    }
 }
 
 // MARK: - Helpers
@@ -195,7 +178,6 @@ private extension SendReceiveTokenNetworkSelectorViewModelTests {
         networks: [TokenItem],
         supportedProvidersFilter: SupportedProvidersFilter = .byDifferentAddressExchangeSupport,
         isSwapAvailable: Bool = true,
-        featureEnabled: Bool = true,
         timeout: TimeInterval = 10
     ) async throws -> SendReceiveTokenNetworkSelectorViewModel.ViewState {
         let previousRepository = InjectedValues[\.swapRepository]
@@ -219,7 +201,6 @@ private extension SendReceiveTokenNetworkSelectorViewModelTests {
             networks: networks,
             coin: coin,
             userWalletInfo: sourceToken.userWalletInfo,
-            isAvailabilityCheckEnabled: featureEnabled,
             analyticsLogger: SendReceiveTokensListAnalyticsLoggerDummy(),
             router: router
         )
@@ -355,6 +336,7 @@ private final class SendSwapableTokenStub: SendSwapableToken {
     var fiatAvailableBalanceProvider: TokenBalanceProvider { inner.fiatAvailableBalanceProvider }
     var allowanceService: (any AllowanceService)? { inner.allowanceService }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { inner.withdrawalNotificationProvider }
+    var scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver? { inner.scaledUIAmountMultiplierResolver }
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { inner.emailDataCollectorBuilder }
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { await inner.transactionHistoryEnricher } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { inner.transactionDispatcherProvider }

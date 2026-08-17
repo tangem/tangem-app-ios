@@ -175,7 +175,7 @@ struct P2PMapper {
 
         let feeParameters = EthereumEIP1559FeeParameters(
             gasLimit: gasLimit,
-            baseFee: maxFeePerGas,
+            maxFeePerGas: maxFeePerGas,
             priorityFee: maxPriorityFeePerGas
         )
 

@@ -8,17 +8,24 @@
 
 import Foundation
 
-struct TronTransactionParams: TransactionParams {
-    let transactionType: TransactionType
+public struct TronTransactionParams: TransactionParams {
+    /// In sun.
+    public static let defaultSmartContractFeeLimit: Int64 = 100_000_000
 
-    init(transactionType: TransactionType) {
+    public let transactionType: TransactionType
+    /// Written to the transaction-level `raw.data` field (e.g. a THORChain swap memo).
+    public let memo: String?
+
+    public init(transactionType: TransactionType, memo: String? = nil) {
         self.transactionType = transactionType
+        self.memo = memo
     }
 }
 
-extension TronTransactionParams {
+public extension TronTransactionParams {
     enum TransactionType {
         case transfer
-        case approval(data: Data)
+        /// `feeLimit` is in sun; `nil` falls back to `defaultSmartContractFeeLimit`.
+        case contractCall(callData: Data, feeLimit: Int64?)
     }
 }

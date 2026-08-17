@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemStaking
 import TangemStories
 import TangemFoundation
+import TangemAppDatabase
 import TangemFirebaseDynamicShim
 
 private struct ServicesManagerKey: InjectionKey {
@@ -39,7 +40,7 @@ final class CommonServicesManager {
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
-    @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
+    @Injected(\.userWalletPushNotificationsService) private var userWalletPushNotificationsService: UserWalletPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.eTagStorage) private var eTagStorage: ETagStorage
@@ -52,6 +53,8 @@ final class CommonServicesManager {
     @Injected(\.stakingTargetAmountLimitProvider) private var stakingTargetAmountLimitProvider: CommonStakingTargetAmountLimitProvider
     @Injected(\.silentPushHandlersStorage) private var silentPushHandlersStorage: SilentPushHandlersStorage
     @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
+    @Injected(\.appDatabase) private var appDatabase: AppDatabase
+    @Injected(\.walletCardsBackupReportService) private var walletCardsBackupReportService: WalletCardsBackupReportService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -194,7 +197,7 @@ extension CommonServicesManager: ServicesManager {
 
         sellService.initialize()
         apiListProvider.initialize()
-        userTokensPushNotificationsService.initialize()
+        userWalletPushNotificationsService.initialize()
         pushNotificationsInteractor.initialize()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
@@ -211,8 +214,10 @@ extension CommonServicesManager: ServicesManager {
         referralService.retryBindingIfNeeded()
         mobileUpgradeBannerStorageManager.initialize()
         stakingTargetAmountLimitProvider.initialize()
+        walletCardsBackupReportService.initialize()
         // Refresh the cached app-versions DTO once per session. Applied on the next launch.
         forceUpdateService.refreshCache()
+        appDatabase.initialize()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating

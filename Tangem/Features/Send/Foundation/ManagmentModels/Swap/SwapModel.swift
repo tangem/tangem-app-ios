@@ -54,7 +54,7 @@ final class SwapModel {
     private let analyticsLogger: any SendAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
     private let pairUpdateHandler: SwapPairUpdateHandler
-    private let balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker
+    private let balanceRestrictionHandler: SwapBalanceRestrictionHandler
     private let swapTokenPairResolver: MainSwapPairResolver?
 
     private let balanceConverter = BalanceConverter()
@@ -85,7 +85,7 @@ final class SwapModel {
         self.autoupdatingTimer = autoupdatingTimer
         self.pairUpdateHandler = pairUpdateHandler
         self.swapTokenPairResolver = swapTokenPairResolver
-        self.balanceRestrictionFeatureChecker = balanceRestrictionFeatureChecker
+        balanceRestrictionHandler = SwapBalanceRestrictionHandler(checker: balanceRestrictionFeatureChecker)
 
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
@@ -207,11 +207,14 @@ extension SwapModel {
             await manager.getCurrentPair()?.isTransfer == true ? .fee : .rates
         }
 
-        updateTask(loadingType: loadingType) { expressManager in
+        updateTask(loadingType: loadingType) { [weak self] expressManager in
             if amount != nil {
                 // Add some debounce
                 try await Task.sleep(for: .seconds(1))
             }
+
+            try await self?.ensurePairSynchronized()
+            try Task.checkCancellation()
 
             return try await expressManager.update(amountType: amount)
         }
@@ -257,6 +260,27 @@ private extension SwapModel {
         }
     }
 
+    func ensurePairSynchronized() async throws {
+        guard let source = _sourceToken.value.value,
+              let destination = _receiveToken.value.value else {
+            return
+        }
+
+        if let currentPair = await expressManager.getCurrentPair(),
+           currentPair.source.currency == source.currency,
+           currentPair.source.address == source.address,
+           currentPair.destination.currency == destination.currency,
+           currentPair.destination.address == destination.address {
+            return
+        }
+
+        if let type = await pairUpdateHandler.updatePairLoadingType(source: source, destination: destination) {
+            update(providersState: .loading(type))
+        }
+
+        _ = try await pairUpdateHandler.updatePair(source: source, destination: destination)
+    }
+
     func updateTask(
         loadingType: LoadingType,
         block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerState
@@ -281,6 +305,10 @@ private extension SwapModel {
 
                 let state = try await block(input.expressManager)
                 try Task.checkCancellation()
+
+                guard let state = input.balanceRestrictionHandler.dexOnlyAdjustedState(state) else {
+                    return await input.fallbackToLegacyBalanceRestriction()
+                }
 
                 let providersState = try await input.mapToLoadedProvidersState(state: state)
                 try Task.checkCancellation()
@@ -309,19 +337,39 @@ private extension SwapModel {
             return nil
         }
 
-        let hasRestriction = try await balanceRestrictionFeatureChecker
-            .hasSwapTotalBalanceRestriction(for: sourceToken)
-
-        guard hasRestriction else {
+        guard try await balanceRestrictionHandler.shouldHideProviders(for: sourceToken) else {
             return nil
         }
 
+        // For this kind of restriction we don't show any sign of providers.
+        return legacyBalanceRestrictionProvidersState()
+    }
+
+    private func legacyBalanceRestrictionProvidersState() -> ProvidersState {
         guard let sourceAmount = sourceAmount.value?.crypto, sourceAmount > 0 else {
             return .idle
         }
 
-        // For this kind of restriction we don't show any sign of providers.
         return .loaded(.swap(selected: .none, providers: .empty), state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
+    }
+
+    /// No usable DEX on the unfunded wallet — the legacy early exit: the insufficient-funds
+    /// error without providers UI or a leftover quote-derived amount.
+    private func fallbackToLegacyBalanceRestriction() async {
+        // Captured first — the clear may nil the source amount this state reads
+        let fallbackState = legacyBalanceRestrictionProvidersState()
+        await clearComplementaryAmount()
+        update(providersState: fallbackState)
+    }
+
+    /// Drops the amount derived from a quote that is no longer displayed
+    private func clearComplementaryAmount() async {
+        switch await expressManager.getAmountType() {
+        case .from, .none:
+            _receiveAmount.send(nil)
+        case .to:
+            _sourceAmount.send(nil)
+        }
     }
 
     /// A card-linked wallet must not receive funds, so a swap that would credit it is blocked up front
@@ -597,12 +645,9 @@ extension SwapModel {
         let amount = makeAmount(value: dexPreview.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: dexPreview.quote)
 
-        let isBitcoinDexSwap: Bool = {
-            guard case .bitcoin = source.tokenItem.blockchain else { return false }
-            return true
-        }()
+        let isPsbtDexSwap = source.tokenItem.blockchain.isPsbtDexSwapSupported
 
-        let restriction = try isBitcoinDexSwap
+        let restriction = try isPsbtDexSwap
             ? validate(amount: amount)
             : validate(amount: amount, fee: fee, quote: quote)
 
@@ -1033,6 +1078,8 @@ extension SwapModel {
         case (.success, _):
             let initialSourceTokenItem = _sourceToken.value.value?.tokenItem
 
+            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
+
             if let swapTokenPairResolver,
                let resolvedSource = await swapTokenPairResolver.resolve(),
                let currentSource = _sourceToken.value.value,
@@ -1041,8 +1088,6 @@ extension SwapModel {
                currentSource.tokenItem != resolvedSource.tokenItem {
                 update(source: resolvedSource)
             }
-
-            _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
 
         case (_, .success):
             _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
@@ -1305,6 +1350,10 @@ extension SwapModel: SendSwapProvidersInput {
             .filter { !$0.isLoading }
             .map(\.providers)
             .eraseToAnyPublisher()
+    }
+
+    var isDexOnlyProvidersMode: Bool {
+        balanceRestrictionHandler.isDexOnlyProvidersMode
     }
 
     var selectedExpressProvider: LoadingResult<ExpressAvailableProvider, any Error>? {

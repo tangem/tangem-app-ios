@@ -34,4 +34,16 @@ public struct TokenIconInfo: Hashable {
         self.customTokenColor = customTokenColor
         self.networkBorderColor = networkBorderColor
     }
+
+    /// A token backed only by a remote logo — no network badge and not a custom token.
+    /// Fits list/market surfaces that render a bare icon from a URL.
+    public static func remote(name: String, imageURL: URL?) -> TokenIconInfo {
+        TokenIconInfo(
+            name: name,
+            blockchainIconAsset: nil,
+            imageURL: imageURL,
+            isCustom: false,
+            customTokenColor: nil
+        )
+    }
 }

@@ -8,16 +8,15 @@
 
 import Foundation
 import TangemSdk
-import TangemFoundation
 
 class KeysDerivingCardInteractor {
     private let filter: SessionFilter
-    private let tangemSdk: ThreadSafeLazy<TangemSdk>
+    private let sdkFactory: TangemSdkFactory
 
     init(with cardInfo: CardInfo) {
         let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         filter = config.cardSessionFilter
-        tangemSdk = ThreadSafeLazy { config.makeTangemSdk() }
+        sdkFactory = config
     }
 }
 
@@ -28,8 +27,8 @@ extension KeysDerivingCardInteractor: KeysDeriving {
 
     func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, Error>) -> Void) {
         let task = DeriveMultipleWalletPublicKeysTask(derivations)
-
-        tangemSdk.value.startSession(
+        let tangemSdk = sdkFactory.makeTangemSdk()
+        tangemSdk.startSession(
             with: task,
             filter: filter
         ) { result in
@@ -44,6 +43,7 @@ extension KeysDerivingCardInteractor: KeysDeriving {
             }
 
             withExtendedLifetime(task) {}
+            withExtendedLifetime(tangemSdk) {}
         }
     }
 }

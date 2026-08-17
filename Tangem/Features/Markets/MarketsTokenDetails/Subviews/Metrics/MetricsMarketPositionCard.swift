@@ -10,11 +10,12 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct MetricsMarketPositionCard: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
 
-    @ScaledMetric private var trendImageSide = CGFloat.unit(.x3)
+    @ScaledMetric private var trendImageSide = CGFloat(12)
 
     private typealias RankType = MarketsTokenDetailsMetricsViewModel.MarketPositionState.RankType
     private typealias RatingChange = MarketsTokenDetailsMetricsViewModel.MarketPositionState.RatingChange
@@ -23,9 +24,9 @@ struct MetricsMarketPositionCard: View {
         let state = viewModel.redesign.marketPosition
         let color = rankColor(for: state.rankType)
 
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
+        MetricsCardContainer(backgroundColor: DesignSystem.Color.bgSecondary, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
-                HStack(spacing: .unit(.x1_5)) {
+                HStack(spacing: 6) {
                     marketPositionValue(state: state, rankColor: color)
 
                     ratingChangeIndicator(for: state.ratingChange)
@@ -33,18 +34,18 @@ struct MetricsMarketPositionCard: View {
 
                 Spacer()
 
-                VStack(alignment: .leading, spacing: .unit(.x2)) {
+                VStack(alignment: .leading, spacing: 8) {
                     if let progress = state.progress {
                         MetricsProgressBarWithDot(
                             progress: progress,
-                            dotColor: .Tangem.Fill.Neutral.primary,
-                            backgroundColor: Color.Tangem.Fill.Neutral.primary.opacity(0.1)
+                            dotColor: DesignSystem.Color.iconPrimary,
+                            backgroundColor: DesignSystem.Color.bgOpaqueSecondary
                         )
                     }
 
                     MetricsInfoLabel(
                         title: Localization.marketsTokenDetailsMarketRating,
-                        color: .Tangem.Text.Neutral.secondary,
+                        color: DesignSystem.Color.textSecondary,
                         action: action
                     )
                 }
@@ -63,7 +64,7 @@ struct MetricsMarketPositionCard: View {
                     .foregroundStyle(rankColor)
 
                 Text(ratingText)
-                    .style(Font.Tangem.Heading20.semibold, color: rankColor)
+                    .style(DesignSystem.Font.headingSmallToken, color: rankColor)
 
                 Assets.DesignSystem.oliveRight.image
                     .renderingMode(.template)
@@ -80,18 +81,18 @@ struct MetricsMarketPositionCard: View {
     private func ratingChangeIndicator(for change: RatingChange) -> some View {
         switch change {
         case .up(let value):
-            HStack(spacing: .unit(.half)) {
+            HStack(spacing: 2) {
                 Assets.DesignSystem.upDynamic.image
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: trendImageSide, height: trendImageSide)
-                    .foregroundStyle(Color.Tangem.Graphic.Status.accent)
+                    .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
                 Text("\(value)")
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.accent)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentBlue)
             }
         case .down(let value):
-            HStack(spacing: .unit(.half)) {
+            HStack(spacing: 2) {
                 // We don't have a separate icon for negative trend, so we reuse the positive one with rotation
                 // Yeah, ugly, but DS is in progress it will be fixed shortly
                 Assets.DesignSystem.upDynamic.image
@@ -99,10 +100,10 @@ struct MetricsMarketPositionCard: View {
                     .renderingMode(.template)
                     .frame(width: trendImageSide, height: trendImageSide)
                     .rotationEffect(.degrees(180))
-                    .foregroundStyle(Color.Tangem.Graphic.Status.warning)
+                    .foregroundStyle(DesignSystem.Color.iconAccentRed)
 
                 Text("\(value)")
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.warning)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textAccentRed)
             }
         case .none:
             EmptyView()
@@ -110,17 +111,18 @@ struct MetricsMarketPositionCard: View {
     }
 
     private func action() {
-        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketRating)
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsRecordType.marketRating)
     }
 
     // MARK: - Rank Colors
 
     private func rankColor(for rankType: RankType) -> Color {
         switch rankType {
+        // [REDACTED_TODO_COMMENT]
         case .gold: .Tangem.Market.textTop1
         case .silver: .Tangem.Market.textTop2
         case .bronze: .Tangem.Market.textTop3
-        case .other: .Tangem.Text.Neutral.primary
+        case .other: DesignSystem.Color.textPrimary
         }
     }
 }

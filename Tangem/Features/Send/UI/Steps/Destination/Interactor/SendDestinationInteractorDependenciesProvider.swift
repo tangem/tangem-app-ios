@@ -130,13 +130,9 @@ private extension SendDestinationInteractorDependenciesProvider {
         TransactionParamsBuilder(blockchain: tokenItem.blockchain)
     }
 
-    /// Vends address-book contacts scoped to the current destination network when the feature is enabled.
+    /// Vends address-book contacts scoped to the current destination network.
     private func makeAddressBooksProvider() -> (any AddressBooksProvider)? {
-        guard FeatureProvider.isAvailable(.addressBook) else {
-            return nil
-        }
-
-        return NetworkAddressBooksProvider(networkId: AddressBookNetworkID(tokenItem.blockchain.networkId))
+        NetworkAddressBooksProvider(networkId: AddressBookNetworkID(tokenItem.blockchain.networkId))
     }
 }
 

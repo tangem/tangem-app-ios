@@ -1,0 +1,276 @@
+//
+//  TopNavigationContent.swift
+//  TangemModules
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+import TangemAssets
+import TangemUIUtils
+
+// MARK: - Title content
+
+public struct TopNavigationTitleContent: View {
+    private let title: String
+    private let subtitle: String?
+    private let animatesSubtitleAppearance: Bool
+
+    @Environment(\.topNavigationContentAlignment) private var alignment
+    @ScaledMetric private var titleSubtitleSpacing = Metrics.titleSubtitleSpacing
+
+    public init(
+        title: String,
+        subtitle: String? = nil,
+        animatesSubtitleAppearance: Bool = true
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.animatesSubtitleAppearance = animatesSubtitleAppearance
+    }
+
+    public var body: some View {
+        VStack(alignment: alignment, spacing: titleSubtitleSpacing) {
+            Text(title)
+                .font(token: DesignSystem.Font.bodyMediumToken)
+                .foregroundStyle(DesignSystem.Color.textPrimary)
+                .lineLimit(1)
+
+            if let subtitle {
+                Text(subtitle)
+                    .font(token: DesignSystem.Font.captionMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: frameAlignment)
+                    .transition(.opacity)
+            } else {
+                Color.clear
+                    .frame(height: 0)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .animation(appearanceAnimation, value: subtitle != nil)
+    }
+
+    private var frameAlignment: Alignment {
+        alignment == .leading ? .leading : .center
+    }
+
+    private var appearanceAnimation: Animation? {
+        animatesSubtitleAppearance ? .default : nil
+    }
+}
+
+// MARK: - Actions
+
+/// The bar's trailing actions as a standalone view — native glass group on iOS 26, material pill below it — for
+/// screens that lay the bar out themselves and cannot pass `actions:` to the modifier.
+public struct TopNavigationActions: View {
+    private let actions: [TopNavigation.Action]
+    private let hasBackground: Bool
+
+    public init(actions: TopNavigation.Actions, hasBackground: Bool = true) {
+        self.actions = actions.values
+        self.hasBackground = hasBackground
+    }
+
+    public var body: some View {
+        if #available(iOS 26.0, *) {
+            TopNavigationNativeActionsGroup(actions: actions, hasBackground: hasBackground)
+        } else {
+            TopNavigationActionsPill(actions: actions, hasBackground: hasBackground)
+        }
+    }
+}
+
+// MARK: - Leading decoration
+
+/// Non-interactive leading content — no button chrome, no hit target. `size` scales with Dynamic Type.
+public struct TopNavigationDecoration: View {
+    private let image: ImageType
+
+    @ScaledMetric private var side: CGFloat
+
+    public init(image: ImageType, size: CGFloat) {
+        self.image = image
+        _side = ScaledMetric(wrappedValue: size)
+    }
+
+    public var body: some View {
+        image.image
+            .renderingMode(.template)
+            .resizable()
+            .frame(width: side, height: side)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
+    }
+}
+
+// MARK: - Actions pill
+
+struct TopNavigationActionsPill: View {
+    let actions: [TopNavigation.Action]
+    let hasBackground: Bool
+
+    var body: some View {
+        HStack(spacing: .zero) {
+            ForEach(actions.indices, id: \.self) { index in
+                TopNavigationActionButton(action: actions[index])
+            }
+        }
+        .background {
+            Color.clear
+                .tangemMaterialSurface(in: Capsule(), shadow: DesignSystem.Shadow.fallbackButton)
+                .opacity(hasBackground ? 1 : 0)
+                .animation(.default, value: hasBackground)
+        }
+    }
+}
+
+// MARK: - Native actions group (iOS 26)
+
+@available(iOS 26.0, *)
+struct TopNavigationNativeActionsGroup: View {
+    let actions: [TopNavigation.Action]
+    let hasBackground: Bool
+
+    @ScaledMetric private var iconSide = TopNavigationChromeMetrics.nativeActionIconSide
+
+    var body: some View {
+        HStack(spacing: .zero) {
+            ForEach(actions.indices, id: \.self) { index in
+                button(for: actions[index])
+            }
+        }
+        // The capsule hugs its content, so without this the glyphs sit flush against its ends.
+        .padding(.horizontal, Metrics.capsuleEndPadding)
+        .glassEffect(hasBackground ? .regular.interactive() : .identity, in: .capsule)
+        .glassEffectTransition(.materialize)
+        .animation(.default, value: hasBackground)
+    }
+
+    @ViewBuilder
+    private func button(for action: TopNavigation.Action) -> some View {
+        switch action.content {
+        case .icon:
+            TopNavigationNativeBarButton(action: action, iconSide: iconSide)
+                .frame(width: Metrics.actionSide, height: Metrics.actionSide)
+                .contentShape(.rect)
+        case .title:
+            TopNavigationNativeBarButton(action: action)
+        }
+    }
+}
+
+// MARK: - Circular chrome button
+
+struct TopNavigationCircleButton: View {
+    let action: TopNavigation.Action
+
+    var body: some View {
+        TopNavigationActionButton(action: action)
+            .tangemMaterialSurface(in: Circle(), interactive: true, shadow: DesignSystem.Shadow.fallbackButton)
+    }
+}
+
+// MARK: - Native bar button (iOS 26)
+
+@available(iOS 26.0, *)
+struct TopNavigationNativeBarButton: View {
+    let action: TopNavigation.Action
+    /// Icons are drawn at their asset's own size unless a side is given — the actions group sets one so its
+    /// glyphs match the bar that shipped, while leading and closing chrome keeps its asset size.
+    var iconSide: CGFloat?
+
+    var body: some View {
+        SwiftUI.Button(action: action.action) {
+            label
+        }
+        .tint(DesignSystem.Color.textPrimary)
+        .ifLet(action.accessibilityLabel) { view, label in
+            view.accessibilityLabel(Text(label))
+        }
+        .accessibilityIdentifier(action.accessibilityIdentifier)
+    }
+
+    @ViewBuilder
+    private var label: some View {
+        switch action.content {
+        case .icon(let icon):
+            if let iconSide {
+                icon.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: iconSide, height: iconSide)
+            } else {
+                icon.image.renderingMode(.template)
+            }
+        case .title(let title):
+            Text(title)
+        }
+    }
+}
+
+// MARK: - Action button
+
+struct TopNavigationActionButton: View {
+    let action: TopNavigation.Action
+
+    var body: some View {
+        button
+            .styleType(.ghost)
+            .size(Metrics.chipSize)
+            .accessibilityIdentifier(action.accessibilityIdentifier)
+    }
+
+    private var button: TangemUI.Button {
+        switch action.content {
+        case .icon(let icon):
+            TangemUI.Button(icon: icon, accessibilityLabel: action.accessibilityLabel, action: action.action)
+        case .title(let title):
+            TangemUI.Button(label: AttributedString(title), accessibilityLabel: action.accessibilityLabel, action: action.action)
+        }
+    }
+}
+
+// MARK: - Chrome metrics
+
+/// Shared so the bar can reason about the width its own items occupy, not just render them.
+enum TopNavigationChromeMetrics {
+    static let nativeActionSide = TangemUI.Button.Size.x11.height
+    static let nativeActionIconSide: CGFloat = .unit(.x7)
+    static let nativeCapsuleEndPadding: CGFloat = .unit(.x1)
+    static let legacyActionSize: TangemUI.Button.Size = .x9
+
+    /// Largest non-accessibility size: UIKit pins the inline bar height, and accessibility sizes outgrow it.
+    static let maxDynamicTypeSize: DynamicTypeSize = .xxxLarge
+}
+
+// MARK: - Content alignment
+
+extension EnvironmentValues {
+    @Entry var topNavigationContentAlignment: HorizontalAlignment = .center
+}
+
+// MARK: - Metrics
+
+private extension TopNavigationTitleContent {
+    enum Metrics {
+        static let titleSubtitleSpacing: CGFloat = 4
+    }
+}
+
+private extension TopNavigationActionButton {
+    enum Metrics {
+        static let chipSize = TopNavigationChromeMetrics.legacyActionSize
+    }
+}
+
+@available(iOS 26.0, *)
+private extension TopNavigationNativeActionsGroup {
+    enum Metrics {
+        static let actionSide = TopNavigationChromeMetrics.nativeActionSide
+        static let capsuleEndPadding = TopNavigationChromeMetrics.nativeCapsuleEndPadding
+    }
+}

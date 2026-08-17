@@ -12,7 +12,7 @@ import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 
 protocol TangemPayMobileOnboardingRoutable: AnyObject {
-    func openActivateWallet(userWalletModel: UserWalletModel)
+    func openMain(userWalletModel: UserWalletModel)
     func openTermsFeesAndLimits()
     func openTos()
 }
@@ -76,7 +76,11 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
 
                 try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
 
-                await viewModel.didCreateWallet(userWalletModel: newUserWalletModel)
+                try await newUserWalletModel.accountModelsManager.acceptTangemPayOffer(
+                    authorizingInteractor: newUserWalletModel.tangemPayAuthorizingInteractor
+                )
+
+                viewModel.coordinator?.openMain(userWalletModel: newUserWalletModel)
             } catch {
                 AppLogger.error("Failed to create wallet", error: error)
                 await viewModel.didFailToCreateWallet()
@@ -95,13 +99,14 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
 
 @MainActor
 private extension TangemPayMobileOnboardingViewModel {
-    func didCreateWallet(userWalletModel: UserWalletModel) {
-        isCreating = false
-        coordinator?.openActivateWallet(userWalletModel: userWalletModel)
-    }
-
     func didFailToCreateWallet() {
         isCreating = false
+
+        guard let userWalletModel = userWalletRepository.selectedModel else {
+            return
+        }
+
+        coordinator?.openMain(userWalletModel: userWalletModel)
     }
 }
 

@@ -119,7 +119,7 @@ struct OnboardingProgressCheckmarksView: View {
         )
         .padding(.horizontal, 40)
 
-        Button(action: {
+        SwiftUI.Button(action: {
             model.goToNextStep()
         }, label: {
             Text("Step number: \(model.currentStep)")

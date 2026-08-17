@@ -59,7 +59,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         let sut = CommonTokenFeeProvidersManager(
             feeProviders: [eth],
-            initialSelectedProvider: eth
+            initialSelectedProvider: eth,
+            ownerAddress: nil
         )
 
         await sut.updateFees().value
@@ -86,7 +87,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         let sut = CommonTokenFeeProvidersManager(
             feeProviders: [eth, usdt],
-            initialSelectedProvider: eth
+            initialSelectedProvider: eth,
+            ownerAddress: nil
         )
 
         await sut.updateFees().value
@@ -119,7 +121,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         let sut = CommonTokenFeeProvidersManager(
             feeProviders: [eth, usdt],
-            initialSelectedProvider: usdt
+            initialSelectedProvider: usdt,
+            ownerAddress: nil
         )
 
         // Step 1: usdt becomes .notSupported (e.g. triple+gasless+toggle off) → update() switches selected to eth.
@@ -160,7 +163,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         let sut = CommonTokenFeeProvidersManager(
             feeProviders: [eth, usdt],
-            initialSelectedProvider: usdt
+            initialSelectedProvider: usdt,
+            ownerAddress: nil
         )
 
         // Simulate post-`setup(.approve(.triple))` state: USDT is gasless-not-supported.
@@ -211,7 +215,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         let sut = CommonTokenFeeProvidersManager(
             feeProviders: [eth, usdt, usdc],
-            initialSelectedProvider: usdt
+            initialSelectedProvider: usdt,
+            ownerAddress: nil
         )
 
         usdt.set(state: .unavailable(.notSupported))
@@ -253,7 +258,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         let sut = CommonTokenFeeProvidersManager(
             feeProviders: [pol, usdt],
-            initialSelectedProvider: usdt
+            initialSelectedProvider: usdt,
+            ownerAddress: nil
         )
 
         let approveData = ApproveTransactionData(
@@ -299,7 +305,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         let sut = CommonTokenFeeProvidersManager(
             feeProviders: [eth, usdt],
-            initialSelectedProvider: eth
+            initialSelectedProvider: eth,
+            ownerAddress: nil
         )
 
         await sut.updateFees().value
@@ -328,7 +335,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         let sut = CommonTokenFeeProvidersManager(
             feeProviders: [eth, usdt],
-            initialSelectedProvider: eth
+            initialSelectedProvider: eth,
+            ownerAddress: nil
         )
 
         await sut.updateFees().value
@@ -357,7 +365,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         let sut = CommonTokenFeeProvidersManager(
             feeProviders: [eth, usdt],
-            initialSelectedProvider: usdt
+            initialSelectedProvider: usdt,
+            ownerAddress: nil
         )
 
         // Selected starts as USDT(noTokenBalance) — checkSelectedProviderIsSupported leaves it
@@ -655,7 +664,7 @@ private extension GaslessYieldFeeTests {
     }
 }
 
-private final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
+final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
     private let plainError: Error?
     private let plainFee: BSDKFee
     private let yieldFee: BSDKFee
@@ -784,6 +793,11 @@ private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNe
         Just([]).eraseToAnyPublisher()
     }
 
+    var availableTronFeeTokens: [TronFeeToken] { [] }
+    var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> {
+        Just([]).eraseToAnyPublisher()
+    }
+
     var currentHost: String { "test" }
     var feeRecipientAddress: String? { cachedFeeRecipientAddress }
 
@@ -794,6 +808,14 @@ private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNe
     func updateAvailableTokens() {}
     func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String { "" }
     func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String { "" }
+    func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse {
+        throw CancellationError()
+    }
+
+    func submitTronGaslessTransaction(_ request: TronSubmitRequest) async throws -> TronSubmitResponse {
+        throw CancellationError()
+    }
+
     func initialize() {}
     func preloadFeeRecipientAddress() {}
 }

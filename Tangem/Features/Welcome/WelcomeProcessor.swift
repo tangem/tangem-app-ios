@@ -39,19 +39,17 @@ final class WelcomeProcessor {
     private func bind(isIdle: AnyPublisher<Bool, Never>) {
         state = State(startupOnboarding: WelcomeOnboardingsHelper().getStartupOnboarding())
 
-        if FeatureProvider.isAvailable(.hideStoriesInMobileWallet) {
-            AppSettings.shared.$shouldShowMobilePromoWalletSelector
-                .filter { $0 }
-                .combineLatest(isIdle)
-                .filter { _, isIdle in isIdle }
-                .first()
-                .receiveOnMain()
-                .withWeakCaptureOf(self)
-                .sink { processor, _ in
-                    processor.setDeepLink(.promo)
-                }
-                .store(in: &bag)
-        }
+        AppSettings.shared.$shouldShowMobilePromoWalletSelector
+            .filter { $0 }
+            .combineLatest(isIdle)
+            .filter { _, isIdle in isIdle }
+            .first()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { processor, _ in
+                processor.setDeepLink(.promo)
+            }
+            .store(in: &bag)
 
         AppSettings.shared.$needsTangemPayMobileOnboarding
             .filter { $0 }

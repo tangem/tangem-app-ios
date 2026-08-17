@@ -315,6 +315,7 @@
 "common_in" = "in";
 "common_insufficient_balance" = "Unzureichende Mittel";
 "common_joint_account" = "Gemeinsames Konto";
+"common_joint" = "Joint";
 "common_later" = "Später";
 "common_learn_and_earn" = "Lernen und verdienen";
 "common_learn_more" = "Mehr erfahren";
@@ -847,6 +848,7 @@
 "jailbreak_warning_title" = "Jailbreak erkannt";
 "joint_account_invite_members_creator" = "Urheber";
 "joint_account_invite_members_invite" = "Einladen";
+"joint_account_invite_members_member_info" = "Member info";
 "joint_account_invite_members_new_member" = "Neues Mitglied";
 "joint_account_invite_members_not_invited" = "Nicht eingeladen";
 "joint_account_invite_members_other_members" = "Andere Mitglieder";
@@ -1779,7 +1781,7 @@
 "tangem_pay_terms_fees_limits" = "Bedingungen, Gebühren & Limits";
 "tangem_pay_terms_limits" = "Bedingungen und Einschränkungen";
 "tangem_pay_transaction_declined_notification_text" = "Die Bank hat diese Transaktionsanfrage abgelehnt.";
-"tangem_pay_transaction_details_cashback_below_min" = "Versand ab %1$@";
+"tangem_pay_transaction_details_cashback_below_min" = "Versand ab";
 "tangem_pay_transaction_details_cashback_cap_reached" = "Monatslimit erreicht";
 "tangem_pay_transaction_details_cashback_mcc_excluded" = "MCC ausgeschlossen";
 "tangem_pay_transaction_details_cashback_none" = "Kein Cashback";
@@ -1868,11 +1870,11 @@
 "tangempay_card_details_rename_card_invalid_title" = "Ungültige Zeichen";
 "tangempay_card_details_rename_card_placeholder" = "Kartenname";
 "tangempay_card_details_reveal_text" = "Aufdecken";
-"tangempay_card_details_show_details" = "Kartendetails";
+"tangempay_card_details_show_details" = "Details";
 "tangempay_card_details_swap_description" = "Tausche beliebige Vermögenswerte in Deinem Portfolio für deine Karte.";
 "tangempay_card_details_system_downgrade_subtitle" = "Sollte der Kontostand unter null bleiben, werden Ihre %1$@-Karten am %2$@";
 "tangempay_card_details_system_downgrade_title" = "Laden Sie Ihr Konto in Kürze auf.";
-"tangempay_card_details_title" = "Kartendetails";
+"tangempay_card_details_title" = "Details";
 "tangempay_card_details_unable_to_rename_card_description" = "Bitte versuche es später noch einmal.";
 "tangempay_card_details_unfreeze_card" = "Karte entsperren";
 "tangempay_card_details_view_pin_code_description" = "Komm zurück zur App, falls du es vergisst.";
@@ -1928,6 +1930,7 @@
 "tangempay_cashback_total_earned" = "%1$@ insgesamt verdient";
 "tangempay_cashback_widget_error_description" = "Zum Neuladen tippen";
 "tangempay_cashback_widget_error_title" = "Cashback nicht verfügbar";
+"tangempay_cashback_widget_refund_description" = "Reduced due to return of purchases";
 "tangempay_cashback_widget_title" = "%1$@ Cashback in %2$@";
 "tangempay_change_pin_code" = "PIN-Code ändern";
 "tangempay_changing_plan" = "Deinen Tarif ändern";
@@ -2012,11 +2015,12 @@
 "tangempay_maximum_cards_issued_for_plan_title" = "Das Kartenlimit für diesen Tarif wurde erreicht";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "Upgrade-Plan";
 "tangempay_maximum_cards_issued_title" = "Maximale Anzahl ausgegebener Karten";
+"tangempay_multinetwork" = "Multinetwork";
 "tangempay_newonboard_body" = "Gib Krypto überall aus — ohne Banken, ohne Mittelsmänner, ohne Börsen. Self-Custody trifft auf alltägliches Bezahlen.";
 "tangempay_newonboard_bottomleft_body" = "Online sowie mit Apple Pay bezahlen";
 "tangempay_newonboard_bottomleft_title" = "Weltweit akzeptiert";
-"tangempay_newonboard_bottomright_body" = "Weltweit nutzbar";
-"tangempay_newonboard_bottomright_title" = "Nur 1%% FX-Gebühr";
+"tangempay_newonboard_bottomright_body" = "USD → USDC 1:1; 1 $ Gebühr";
+"tangempay_newonboard_bottomright_title" = "ACH empfangen";
 "tangempay_newonboard_Q1_body" = "Ja — für die Nutzung einer regulierten Visa-Karte ist eine Identitätsprüfung Pflicht. Das KYC wird von Sumsub abgewickelt, dem Compliance-Partner.";
 "tangempay_newonboard_Q1_title" = "Muss ich meine Dokumente teilen?";
 "tangempay_newonboard_Q2_body" = "Nein. Das KYC gilt nur für das Tangem Pay Konto. Deine Tangem Wallet bleibt eine separate, self-custodial und KYC-freie Umgebung.";
@@ -2100,10 +2104,10 @@
 "tangempay_select_plan_confirm_downgrade_title" = "Ihr %1$@-Tarif und Ihre %2$@-Karten sind gültig bis %3$@";
 "tangempay_select_plan_confirm_point_cancel_till" = "Sie können diesen Übergang bis zum %1$@";
 "tangempay_select_plan_confirm_point_cards_closed" = "Dein %1$@ Die Karten werden geschlossen";
-"tangempay_select_plan_confirm_point_monthly_fee" = "%1$@ Die monatliche Gebühr wird von Ihrem Konto abgebucht.";
+"tangempay_select_plan_confirm_point_monthly_fee" = "%1$@ Die monatliche Gebühr wird von Ihrem Konto abgebucht";
 "tangempay_select_plan_confirm_point_move_on_date" = "Am %1$@ werden wir Sie auf den Tarif „ %2$@ “ umstellen.";
 "tangempay_select_plan_confirm_point_no_fee" = "Es fällt keine Gebühr an";
-"tangempay_select_plan_confirm_point_virtual_card" = "In wenigen Minuten erhalten Sie Ihre virtuelle „ %1$@ “.";
+"tangempay_select_plan_confirm_point_virtual_card" = "In wenigen Minuten erhalten Sie Ihre virtuelle %1$@";
 "tangempay_select_plan_confirm_switch_title" = "Sie wechseln zu %1$@";
 "tangempay_select_plan_confirm_title" = "Auswahl bestätigen";
 "tangempay_select_plan_confirm_upgrade_title" = "Wir stellen für Sie eine %1$@ aus";

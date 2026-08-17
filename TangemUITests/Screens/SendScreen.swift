@@ -29,7 +29,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var customFeeTooHighBanner = staticText(.customFeeTooHighBanner)
     private lazy var feeWillBeSubtractFromSendingAmountBanner = staticText(.feeWillBeSubtractFromSendingAmountBanner)
     private lazy var highFeeNotificationBanner = button(.highFeeNotificationBanner)
-    private lazy var existentialDepositWarningBanner = staticText(.existentialDepositWarningBanner)
+    private lazy var existentialDepositWarningBanner = otherElement(.existentialDepositWarningBanner)
     private lazy var reduceFeeButton = button(.reduceFeeButton)
     private lazy var leaveAmountButton = button(.leaveAmountButton)
     private lazy var fromWalletButton = button(.fromWalletButton)
@@ -632,11 +632,9 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func waitForAdditionalFieldValue(_ expectedValue: String) -> Self {
         XCTContext.runActivity(named: "Validate additional field value: \(expectedValue)") { _ in
             waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
-            let actualValue = additionalFieldTextField.getValue()
-            XCTAssertEqual(
-                actualValue,
-                expectedValue,
-                "Additional field value should be '\(expectedValue)' but was '\(actualValue)'"
+            XCTAssertTrue(
+                additionalFieldTextField.waitForValue(expectedValue),
+                "Additional field value should be '\(expectedValue)' but was '\(additionalFieldTextField.getValue())'"
             )
         }
         return self
@@ -660,7 +658,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         XCTContext.runActivity(named: "Validate additional field (destination tag) is enabled") { _ in
             waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
             XCTAssertTrue(
-                additionalFieldTextField.isEnabled,
+                additionalFieldTextField.waitForState(state: .enabled),
                 "Additional field (destination tag) should be enabled"
             )
         }
@@ -671,8 +669,8 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func waitForAdditionalFieldDisabled() -> Self {
         XCTContext.runActivity(named: "Validate additional field (destination tag) is disabled") { _ in
             waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
-            XCTAssertFalse(
-                additionalFieldTextField.isEnabled,
+            XCTAssertTrue(
+                additionalFieldTextField.waitForState(state: .disabled),
                 "Additional field (destination tag) should be disabled"
             )
         }
@@ -684,11 +682,12 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         XCTContext.runActivity(named: "Validate 'Already included in the entered address' text is displayed") { _ in
             waitAndAssertTrue(additionalFieldTextField, "Additional field text field should exist")
             let alreadyIncludedText = "Already included in the entered address"
-            let placeholderValue = additionalFieldTextField.placeholderValue
+            let predicate = NSPredicate(format: "placeholderValue == %@", alreadyIncludedText)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: additionalFieldTextField)
 
             XCTAssertEqual(
-                placeholderValue,
-                alreadyIncludedText,
+                XCTWaiter().wait(for: [expectation], timeout: .conditional),
+                .completed,
                 "Text 'Already included in the entered address' should be displayed in additional field"
             )
         }

@@ -58,8 +58,10 @@ struct DerivationConfigV1: DerivationConfig {
              .zkLinkNova,
              .hyperliquidEVM,
              .linea,
+             .igra,
              .arbitrumNova,
              .plasma,
+             .robinhood,
              .adi:
             return "m/44'/60'/0'/0/0"
         case .ethereumClassic:
