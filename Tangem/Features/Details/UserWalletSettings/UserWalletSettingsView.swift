@@ -34,8 +34,6 @@ struct UserWalletSettingsView: View {
 
             nftSection
 
-            pushNotifySection
-
             forgetSection
         }
         .interContentPadding(8)
@@ -70,7 +68,7 @@ struct UserWalletSettingsView: View {
 
     @ViewBuilder
     private var walletRenameSubsection: some View {
-        Button(action: viewModel.onTapNameField) {
+        SwiftUI.Button(action: viewModel.onTapNameField) {
             InfoRowWithAction(
                 icon: { walletIcon },
                 title: Localization.settingsWalletNameTitle,
@@ -132,13 +130,6 @@ struct UserWalletSettingsView: View {
     private var commonSection: some View {
         GroupedSection(viewModel.commonSectionModels) {
             DefaultRowView(viewModel: $0)
-        }
-    }
-
-    @ViewBuilder
-    private var pushNotifySection: some View {
-        if let pushNotificationsViewModel = viewModel.pushNotificationsViewModel {
-            TransactionNotificationsRowToggleView(viewModel: pushNotificationsViewModel)
         }
     }
 

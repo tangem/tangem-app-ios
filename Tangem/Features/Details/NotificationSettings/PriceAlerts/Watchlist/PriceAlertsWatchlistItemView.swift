@@ -11,7 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-/// Built on the design-system `TangemRow` (Content Lead = Equal, Start + End slots, no divider):
+/// Built on the design-system `Row` (Content Lead = Equal, Start + End slots, no divider):
 /// the coin icon fills the start slot and a Delete button the end slot, while name/ticker and
 /// price/change stack in the title/subtitle column.
 struct PriceAlertsWatchlistItemView: View {
@@ -21,7 +21,7 @@ struct PriceAlertsWatchlistItemView: View {
     @ScaledMetric private var iconSize: CGFloat = 36
 
     var body: some View {
-        TangemRow(title: viewModel.name, subtitle: viewModel.priceText)
+        Row(title: viewModel.name, subtitle: viewModel.priceText)
             .titleAccessory { symbolView }
             .subtitleAccessory { priceChangeView }
             .start { iconView }
@@ -49,7 +49,7 @@ struct PriceAlertsWatchlistItemView: View {
     }
 
     private var deleteButton: some View {
-        Button(action: onDelete) {
+        SwiftUI.Button(action: onDelete) {
             Text(Localization.commonDelete)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                 .padding(.horizontal, 14)
