@@ -10,9 +10,15 @@ import Foundation
 import BigInt
 
 public struct YieldSendMethod {
-    let tokenContractAddress: String
-    let destination: String
+    let tokenContractAddress: SmartContractAddress
+    let destination: SmartContractAddress
     let amount: BigUInt
+
+    public init(tokenContractAddress: String, destination: String, amount: BigUInt) throws {
+        self.tokenContractAddress = try SmartContractAddress(tokenContractAddress)
+        self.destination = try SmartContractAddress(destination)
+        self.amount = amount
+    }
 }
 
 extension YieldSendMethod: SmartContractMethod {
