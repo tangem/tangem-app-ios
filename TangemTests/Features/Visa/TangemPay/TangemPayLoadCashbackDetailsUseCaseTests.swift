@@ -13,8 +13,8 @@ import TangemPay
 
 @Suite("TangemPayCashbackDetails loaded by the use case")
 struct TangemPayLoadCashbackDetailsUseCaseTests {
-    @Test("every requested month is returned and totalled")
-    func requestedMonths_areReturnedInOrderAndTotalled() async throws {
+    @Test("every requested month is returned in chronological order")
+    func requestedMonths_areReturnedInOrder() async throws {
         let provider = makeProvider(
             history: historyResponse(months: [
                 (2026, 4, "38.52"),
@@ -31,7 +31,6 @@ struct TangemPayLoadCashbackDetailsUseCaseTests {
 
         #expect(provider.requestedMonths == [requestedMonths])
         #expect(details.history.map(\.month) == [2, 3, 4, 5, 6])
-        #expect(details.totalEarned == decimal("153.01"))
     }
 
     @Test("months missing from the response are filled with zeros")
@@ -48,7 +47,6 @@ struct TangemPayLoadCashbackDetailsUseCaseTests {
         let details = try await sut.loadCashbackDetails(months: requestedMonths)
 
         #expect(details.history.map(\.amount) == [.zero, decimal("44.22"), .zero, .zero, decimal("32.15")])
-        #expect(details.totalEarned == decimal("76.37"))
     }
 
     @Test("an empty response yields a zeroed window")
@@ -60,7 +58,6 @@ struct TangemPayLoadCashbackDetailsUseCaseTests {
 
         #expect(details.history.count == 5)
         #expect(details.history.allSatisfy { $0.amount == .zero })
-        #expect(details.totalEarned == .zero)
     }
 
     @Test("a failing request fails the use case")

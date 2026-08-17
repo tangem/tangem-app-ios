@@ -37,6 +37,13 @@ extension TangemPayCashbackState {
                 : Localization.tangempayCashbackWidgetErrorDescription
         }
     }
+
+    var isReloading: Bool {
+        switch self {
+        case .content: false
+        case .failed(let isReloading): isReloading
+        }
+    }
 }
 
 // MARK: - Formatting

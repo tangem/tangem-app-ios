@@ -23,12 +23,17 @@ struct TangemPayCashbackMappingTests {
                 TangemPayCashback.Summary(
                     displayMode: .full,
                     confirmedAmount: decimal("22.54"),
+                    totalEarnedAmount: decimal("153.01"),
                     currency: "USD",
                     period: TangemPayCashback.Period(
                         year: 2026,
                         month: 8,
                         payoutStartDate: utcDate(year: 2026, month: 9, day: 2),
                         payoutEndDate: utcDate(year: 2026, month: 9, day: 5)
+                    ),
+                    previousPayout: TangemPayCashback.PreviousPayout(
+                        amount: decimal("18.30"),
+                        endDate: utcDate(year: 2026, month: 8, day: 5)
                     )
                 )
             )
@@ -143,6 +148,9 @@ private extension TangemPayCashbackMappingTests {
     func enabledJSON(
         displayMode: String? = #""full""#,
         confirmedAmount: String? = #""22.54""#,
+        totalEarnedAmount: String? = #""153.01""#,
+        previousPayoutAmount: String? = #""18.30""#,
+        previousPayoutEndDate: String? = #""2026-08-05""#,
         period: String? = Self.periodJSON
     ) -> String {
         var members = [#""cashback_program_status": "enabled""#]
@@ -157,6 +165,18 @@ private extension TangemPayCashbackMappingTests {
 
         if let confirmedAmount {
             members.append(#""confirmed_amount": \#(confirmedAmount)"#)
+        }
+
+        if let totalEarnedAmount {
+            members.append(#""total_earned_amount": \#(totalEarnedAmount)"#)
+        }
+
+        if let previousPayoutEndDate {
+            members.append(#""previous_payout_end_date": \#(previousPayoutEndDate)"#)
+        }
+
+        if let previousPayoutAmount {
+            members.append(#""previous_payout_amount": \#(previousPayoutAmount)"#)
         }
 
         members.append(#""currency": "USD""#)

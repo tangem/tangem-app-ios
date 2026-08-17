@@ -14,11 +14,10 @@ public struct TangemPayCashbackSummaryResponse: Decodable {
     /// Every field below is omitted unless `cashbackProgramStatus` is `.enabled`.
     public let cashbackDisplayMode: Mode?
     public let period: Period?
-
-    /// Total confirmed cashback earned in the current period, in `currency`
     public let confirmedAmount: String?
-
-    /// Currency of amount fields. Always USD
+    public let totalEarnedAmount: String?
+    public let previousPayoutEndDate: String?
+    public let previousPayoutAmount: String?
     public let currency: String?
 }
 
