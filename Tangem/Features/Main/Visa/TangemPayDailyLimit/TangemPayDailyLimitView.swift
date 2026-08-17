@@ -69,7 +69,7 @@ private extension TangemPayDailyLimitView {
                 redesignedPresetsRow
                     .padding(.horizontal, 12)
 
-                TangemButtonV2(
+                TangemUI.Button(
                     label: AttributedString(Localization.tangempayDailyLimitSetButton),
                     accessibilityLabel: Localization.tangempayDailyLimitSetButton,
                     action: viewModel.submit
@@ -111,7 +111,7 @@ private extension TangemPayDailyLimitView {
     var redesignedPresetsRow: some View {
         HStack(spacing: 8) {
             ForEach(viewModel.presets, id: \.self) { preset in
-                Button {
+                SwiftUI.Button {
                     viewModel.selectPreset(preset)
                 } label: {
                     Text(preset)

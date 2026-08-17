@@ -37,6 +37,7 @@ struct CommonSendTransferableToken: SendTransferableToken {
     var fiatAvailableBalanceProvider: any TokenBalanceProvider { sourceToken.fiatAvailableBalanceProvider }
     var allowanceService: (any AllowanceService)? { sourceToken.allowanceService }
     var withdrawalNotificationProvider: (any BlockchainSdk.WithdrawalNotificationProvider)? { sourceToken.withdrawalNotificationProvider }
+    var scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver? { sourceToken.scaledUIAmountMultiplierResolver }
     var emailDataCollectorBuilder: any EmailDataCollectorBuilder { sourceToken.emailDataCollectorBuilder }
 
     var transactionDispatcherProvider: any TransactionDispatcherProvider { sourceToken.transactionDispatcherProvider }

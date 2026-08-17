@@ -15,7 +15,7 @@ struct TangemLoaderDemoView: View {
     @ObservedObject var viewModel: TangemLoaderDemoViewModel
 
     var body: some View {
-        TangemLoaderShowcase()
-            .navigationBarTitle(Text("TangemLoader"))
+        LoaderShowcase()
+            .navigationBarTitle(Text("Loader"))
     }
 }

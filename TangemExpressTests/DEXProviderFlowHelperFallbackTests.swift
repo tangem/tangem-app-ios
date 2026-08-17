@@ -10,7 +10,7 @@ import Testing
 import BlockchainSdk
 @testable import TangemExpress
 
-@Suite("DEXProviderFlowHelper — approve-with-swap fallback")
+@Suite("DEXProviderFlowHelper — fallbacks")
 struct DEXProviderFlowHelperFallbackTests {
     // MARK: - Gas-override fallback (readyToApproveAndSwap)
 
@@ -141,6 +141,29 @@ struct DEXProviderFlowHelperFallbackTests {
         #expect(permission.data.spender == "0xSpender")
     }
 
+    /// Tron can't fee-estimate with an allowance-state override, so a provider that doesn't support
+    /// one-tap approve must take the two-step flow even when the owner is resolvable.
+    @Test("provider without one-tap support falls back to legacy permissionRequired despite owner present")
+    func checkRestriction_oneTapUnsupported_fallsBackToLegacy() async {
+        let approveData = ApproveTransactionData(txData: Data([0xAB]), spender: "TSpender", toContractAddress: "TContract")
+        let fallbackFee = Fee(Amount(with: .tron(testnet: false), value: Decimal(string: "15")!))
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(combinedResult: .failure(StubError.notImplemented), approveFee: fallbackFee),
+            analyticsLogger: AnalyticsLoggerSpy(),
+            address: "TOwner",
+            allowanceProvider: AllowanceProviderStub(state: .permissionRequired(approveData), supportsOneTapApprove: false)
+        )
+
+        let result = await sut.checkRestriction(sourceAmount: 1, request: makeRequest(), quote: makeQuote(allowanceContract: "TSpender"))
+
+        guard case .terminalState(.some(.permissionRequired(let permission))) = result else {
+            Issue.record("Expected legacy .permissionRequired, got \(result)")
+            return
+        }
+        #expect(permission.fee == fallbackFee)
+        #expect(permission.data.spender == "TSpender")
+    }
+
     /// Revoke-required tokens (USDT-style) always use the legacy revoke→approve flow, never approve-with-swap — even with the flag on and a resolvable owner.
     @Test("revoke-required allowance always falls back to legacy revokeAndPermissionRequired")
     func checkRestriction_revokeRequired_fallsBackToLegacy() async {
@@ -166,6 +189,52 @@ struct DEXProviderFlowHelperFallbackTests {
             return
         }
         #expect(permission.fee == revokeTotal)
+    }
+
+    // MARK: - Insufficient-balance estimate (proceed)
+
+    /// Providers send `gas` for chains without a gas-based estimate too (e.g. Tron) —
+    /// those must get the plain insufficient-balance verdict, not an error state.
+    @Test("an unsupported gas-based estimate degrades to the plain insufficient-balance restriction")
+    func proceed_txValueOverBalance_gasEstimateUnsupported_degradesToInsufficientBalance() async throws {
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(
+                combinedResult: .failure(StubError.notImplemented),
+                approveFee: zeroFee(),
+                supportsGasBasedFeeEstimate: false
+            ),
+            analyticsLogger: AnalyticsLoggerSpy()
+        )
+
+        let state = try await sut.proceed(
+            sourceAmount: 1,
+            request: makeRequest(),
+            quote: makeQuote(),
+            data: makeData(txValue: 2_000_000, estimatedGasLimit: 150_000_000)
+        )
+
+        guard case .restriction(.insufficientBalance(let estimatedAmount), _) = state else {
+            Issue.record("Expected .restriction(.insufficientBalance), got \(state)")
+            return
+        }
+        #expect(estimatedAmount == 1)
+    }
+
+    @Test("a failed gas-based estimate propagates when the provider supports it")
+    func proceed_txValueOverBalance_supportedEstimateFails_throws() async {
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(combinedResult: .failure(StubError.notImplemented), approveFee: zeroFee()),
+            analyticsLogger: AnalyticsLoggerSpy()
+        )
+
+        await #expect(throws: StubError.self) {
+            _ = try await sut.proceed(
+                sourceAmount: 1,
+                request: makeRequest(),
+                quote: makeQuote(),
+                data: makeData(txValue: 2_000_000, estimatedGasLimit: 150_000_000)
+            )
+        }
     }
 }
 
@@ -220,7 +289,7 @@ private extension DEXProviderFlowHelperFallbackTests {
         ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: allowanceContract, quoteId: nil, txType: nil)
     }
 
-    func makeData() -> ExpressTransactionData {
+    func makeData(txValue: Decimal = .zero, estimatedGasLimit: Int? = nil) -> ExpressTransactionData {
         ExpressTransactionData(
             requestId: "",
             fromAmount: .zero,
@@ -230,10 +299,10 @@ private extension DEXProviderFlowHelperFallbackTests {
             sourceAddress: nil,
             destinationAddress: "0xDestination",
             extraDestinationId: nil,
-            txValue: .zero,
+            txValue: txValue,
             txData: "0xabcdef",
             otherNativeFee: nil,
-            estimatedGasLimit: nil,
+            estimatedGasLimit: estimatedGasLimit,
             externalTxId: nil,
             externalTxURL: nil,
             payInAddress: ""
@@ -267,6 +336,8 @@ private final class AnalyticsLoggerSpy: AnalyticsLogger {
 }
 
 private final class FeeProviderStub: ExpressFeeProvider {
+    let supportsGasBasedFeeEstimate: Bool
+
     private let combinedResult: Result<ApproveWithSwapFee, Error>
     private let approveFee: BSDKFee
     private let revokeAndApproveFee: RevokeAndApproveFee
@@ -277,11 +348,13 @@ private final class FeeProviderStub: ExpressFeeProvider {
         revokeAndApproveFee: RevokeAndApproveFee = RevokeAndApproveFee(
             unit: Fee(Amount(with: .ethereum(testnet: false), value: 0)),
             total: Fee(Amount(with: .ethereum(testnet: false), value: 0))
-        )
+        ),
+        supportsGasBasedFeeEstimate: Bool = true
     ) {
         self.combinedResult = combinedResult
         self.approveFee = approveFee
         self.revokeAndApproveFee = revokeAndApproveFee
+        self.supportsGasBasedFeeEstimate = supportsGasBasedFeeEstimate
     }
 
     func feeCurrency() -> ExpressWalletCurrency { makeCurrency() }
@@ -303,6 +376,7 @@ private final class FeeProviderStub: ExpressFeeProvider {
 
 private struct AllowanceProviderStub: AllowanceProvider {
     let state: AllowanceState
+    var supportsOneTapApprove: Bool = true
 
     func allowanceState(request: ExpressManagerSwappingPairRequest, contractAddress: String, spender: String) async throws -> AllowanceState {
         state
@@ -374,7 +448,7 @@ private final class SourceWalletStub: ExpressSourceWallet {
 private final class ExpressAPIProviderStub: ExpressAPIProvider {
     func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] { [] }
     func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] { [] }
-    func providers(branch: ExpressBranch) async throws -> [ExpressProvider] { [] }
+    func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { [] }
 
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote {
         ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: nil, quoteId: nil, txType: nil)

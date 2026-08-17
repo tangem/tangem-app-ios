@@ -28,10 +28,6 @@ extension OnrampMarketingBannerManager {
         amountInput: any OnrampAmountInput,
         providersInput: any OnrampProvidersInput
     ) {
-        guard FeatureProvider.isAvailable(.marketingBanners) else {
-            return
-        }
-
         let requests = amountInput.fiatCurrencyPublisher
             .map { fiatCurrency -> OnrampMarketingBannerRequest? in
                 OnrampMarketingBannerRequest(

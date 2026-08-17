@@ -315,6 +315,7 @@
 "common_in" = "em";
 "common_insufficient_balance" = "Saldo insuficiente";
 "common_joint_account" = "Joint account";
+"common_joint" = "Joint";
 "common_later" = "Mais tarde";
 "common_learn_and_earn" = "Aprenda e Ganhe";
 "common_learn_more" = "Saber mais";
@@ -847,6 +848,7 @@
 "jailbreak_warning_title" = "Detecção de violação";
 "joint_account_invite_members_creator" = "Creator";
 "joint_account_invite_members_invite" = "Invite";
+"joint_account_invite_members_member_info" = "Member info";
 "joint_account_invite_members_new_member" = "New member";
 "joint_account_invite_members_not_invited" = "Not invited";
 "joint_account_invite_members_other_members" = "Other members";
@@ -1779,7 +1781,7 @@
 "tangem_pay_terms_fees_limits" = "Termos, taxas e limites";
 "tangem_pay_terms_limits" = "Termos e Limites";
 "tangem_pay_transaction_declined_notification_text" = "O banco rejeitou esta solicitação de transação.";
-"tangem_pay_transaction_details_cashback_below_min" = "Transação mínima: %1$@";
+"tangem_pay_transaction_details_cashback_below_min" = "Transação mínima";
 "tangem_pay_transaction_details_cashback_cap_reached" = "O limite mensal foi atingido.";
 "tangem_pay_transaction_details_cashback_mcc_excluded" = "MCC excluído";
 "tangem_pay_transaction_details_cashback_none" = "Sem reembolso";
@@ -1928,6 +1930,7 @@
 "tangempay_cashback_total_earned" = "%1$@ ganhos no total";
 "tangempay_cashback_widget_error_description" = "Tap to reload";
 "tangempay_cashback_widget_error_title" = "Cashback unavailable";
+"tangempay_cashback_widget_refund_description" = "Reduced due to return of purchases";
 "tangempay_cashback_widget_title" = "%1$@ cashback em %2$@";
 "tangempay_change_pin_code" = "Alterar código PIN";
 "tangempay_changing_plan" = "Alterar seu plano";
@@ -2012,11 +2015,12 @@
 "tangempay_maximum_cards_issued_for_plan_title" = "O limite de cartões para este plano foi atingido.";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "Plano de atualização";
 "tangempay_maximum_cards_issued_title" = "Número máximo de cartões emitidos";
+"tangempay_multinetwork" = "Multinetwork";
 "tangempay_newonboard_body" = "Gaste cripto em qualquer lugar — sem bancos, sem intermediários, sem exchanges. A força da autocustódia nos pagamentos do dia a dia.";
 "tangempay_newonboard_bottomleft_body" = "Compre online e com Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "No mundo todo";
-"tangempay_newonboard_bottomright_body" = "Use no mundo todo";
-"tangempay_newonboard_bottomright_title" = "Taxa FX de só 1%%";
+"tangempay_newonboard_bottomright_body" = "USD→USDC 1:1; taxa US$ 1";
+"tangempay_newonboard_bottomright_title" = "Receba transferências ACH";
 "tangempay_newonboard_Q1_body" = "Sim — para usar um cartão Visa regulado, a verificação de identidade é obrigatória. O KYC é feito pela Sumsub, parceira de compliance.";
 "tangempay_newonboard_Q1_title" = "Preciso enviar meus documentos?";
 "tangempay_newonboard_Q2_body" = "Não. O KYC se aplica apenas à conta Tangem Pay. Sua Tangem Wallet continua sendo um ambiente separado, de autocustódia e sem KYC.";
@@ -2100,7 +2104,7 @@
 "tangempay_select_plan_confirm_downgrade_title" = "Seu %1$@ plano e %2$@ Os cartões ficarão ativos até %3$@";
 "tangempay_select_plan_confirm_point_cancel_till" = "Você pode cancelar essa transição até %1$@";
 "tangempay_select_plan_confirm_point_cards_closed" = "Seu %1$@ Os cartões serão fechados.";
-"tangempay_select_plan_confirm_point_monthly_fee" = "%1$@ A taxa mensal será debitada da sua conta.";
+"tangempay_select_plan_confirm_point_monthly_fee" = "%1$@ A taxa mensal será debitada da sua conta";
 "tangempay_select_plan_confirm_point_move_on_date" = "Sobre %1$@ nós o transferiremos para %2$@ plano";
 "tangempay_select_plan_confirm_point_no_fee" = "Nenhuma taxa será cobrada.";
 "tangempay_select_plan_confirm_point_virtual_card" = "Você receberá sua versão virtual %1$@ em minutos";
