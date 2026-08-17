@@ -17,9 +17,17 @@ final class MockTangemPayAssembly: TangemPayAssembly {
         MockTangemPayCardDetailsRepository(card: card)
     }
 
+    func makePinReader(for card: TangemPayCard) -> TangemPayPinReader {
+        MockTangemPayPinReader()
+    }
+
+    func makeBiometryAuthorizer() -> TangemPayBiometryAuthorizer {
+        MockTangemPayBiometryAuthorizer()
+    }
+
     func makeTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
-        hasNFCInteraction: Bool,
+        signerFactory: TangemSignerFactory,
         walletPublicKey: Wallet.PublicKey?
     ) -> TransactionDispatcher {
         MockTangemPayTransactionDispatcher()

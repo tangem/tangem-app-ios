@@ -14,6 +14,7 @@ final class StakingSendScreen: ScreenBase<StakingSendScreenElement> {
     private lazy var amountTextField = textField(.amountTextField)
     private lazy var nextButton = button(.nextButton)
     private lazy var balanceLabel = staticText(.balanceLabel)
+    private lazy var maxButton = button(.maxButton)
 
     @discardableResult
     func waitForDisplay() -> Self {
@@ -33,6 +34,14 @@ final class StakingSendScreen: ScreenBase<StakingSendScreenElement> {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in amount field") { _ in
             amountTextField.waitAndTap()
             amountTextField.typeText(amount)
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapMaxAmount() -> Self {
+        XCTContext.runActivity(named: "Tap Max to fill the full amount") { _ in
+            maxButton.waitAndTap()
         }
         return self
     }
@@ -58,6 +67,7 @@ enum StakingSendScreenElement: String, UIElement {
     case amountTextField
     case nextButton
     case balanceLabel
+    case maxButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -69,6 +79,8 @@ enum StakingSendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.sendViewNextButton
         case .balanceLabel:
             return SendAccessibilityIdentifiers.balanceLabel
+        case .maxButton:
+            return SendAccessibilityIdentifiers.maxAmountButton
         }
     }
 }

@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemFoundation
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsTokenNewsView: View {
     let items: [CarouselNewsItem]
@@ -28,7 +29,7 @@ struct MarketsTokenNewsView: View {
 
     private var header: some View {
         Text(Localization.newsSources)
-            .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
             .frame(maxWidth: .infinity, alignment: .leading)
             // Mirrors the widget header's 16pt outer + 8pt inner horizontal padding.
             .padding(.horizontal, Constants.horizontalPadding)

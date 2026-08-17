@@ -32,7 +32,7 @@ struct YieldIdentificationModifier: ViewModifier {
 
     @ViewBuilder
     private var infoButton: some View {
-        Button(action: { showInfoAction() }) {
+        SwiftUI.Button(action: { showInfoAction() }) {
             Assets.infoCircle16.image
                 .renderingMode(.template)
                 .foregroundStyle(Colors.Icon.informative)

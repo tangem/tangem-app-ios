@@ -32,7 +32,7 @@ public struct TangemMainActionButton: View {
 
     public var body: some View {
         VStack(spacing: SizeUnit.x2.value) {
-            TangemButtonV2(icon: icon, accessibilityLabel: nil, action: action)
+            Button(icon: icon, accessibilityLabel: nil, action: action)
                 .size(Size.buttonSize)
                 .styleType(.material(.glass))
 
@@ -63,7 +63,7 @@ public struct TangemMainActionButton: View {
 
 public extension TangemMainActionButton {
     enum Size {
-        static let buttonSize: TangemButtonV2.Size = .x14
+        static let buttonSize: Button.Size = .x14
         public static var buttonSide: CGFloat { buttonSize.height }
     }
 }
