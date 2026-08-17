@@ -487,6 +487,12 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openStaking(options: StakingDetailsCoordinator.Options) {
+        let options = StakingDetailsCoordinator.Options(
+            sendInput: options.sendInput,
+            manager: options.manager,
+            dismissesOnSameTokenFeeCurrency: true
+        )
+
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.stakingDetailsCoordinator = nil
         }

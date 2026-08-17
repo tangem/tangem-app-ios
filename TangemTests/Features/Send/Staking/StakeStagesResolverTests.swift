@@ -99,10 +99,11 @@ struct StakeStagesResolverTests {
     func finalizeEnterThatSpendsAmount() {
         let stages = makeStages(transactionValidator: SendTransactionValidatorMock(balance: 10))
 
-        guard case .failure(.transaction(.totalExceedsBalance, _)) = stages.finalize(amount: 10, fee: 1, target: nil, isAmountEditable: false, includesStakesCount: false, isEnter: true, enterSpendsAmount: true) else {
+        guard case .failure(.transaction(.totalExceedsBalance, _, let spendsAmount)) = stages.finalize(amount: 10, fee: 1, target: nil, isAmountEditable: false, includesStakesCount: false, isEnter: true, enterSpendsAmount: true) else {
             Issue.record("Expected total-exceeds-balance failure")
             return
         }
+        #expect(spendsAmount)
     }
 
     // MARK: - validate
@@ -112,14 +113,26 @@ struct StakeStagesResolverTests {
         #expect(makeStages().validate(amount: 10, fee: 1) == nil)
     }
 
-    @Test("Validate surfaces a transaction failure")
+    @Test("Validate surfaces a transaction failure stamped as spending the amount")
     func validateFails() {
         let validator = SendTransactionValidatorMock()
         validator.amountFeeError = ValidationError.totalExceedsBalance
-        guard case .failure(.transaction) = makeStages(transactionValidator: validator).validate(amount: 10, fee: 1) else {
+        guard case .failure(.transaction(_, _, let spendsAmount)) = makeStages(transactionValidator: validator).validate(amount: 10, fee: 1) else {
             Issue.record("Expected transaction failure")
             return
         }
+        #expect(spendsAmount)
+    }
+
+    @Test("A fee-only validation failure is stamped as not spending the amount")
+    func validateFailsFeeOnly() {
+        let validator = SendTransactionValidatorMock()
+        validator.amountFeeError = ValidationError.totalExceedsBalance
+        guard case .failure(.transaction(_, _, let spendsAmount)) = makeStages(transactionValidator: validator).validate(amount: .zero, fee: 1) else {
+            Issue.record("Expected transaction failure")
+            return
+        }
+        #expect(!spendsAmount)
     }
 
     // MARK: - accountInit
