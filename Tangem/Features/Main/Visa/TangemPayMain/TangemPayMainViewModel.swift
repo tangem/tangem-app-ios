@@ -35,7 +35,8 @@ final class TangemPayMainViewModel: ObservableObject {
             async let customerInfoUpdate: Void = tangemPayAccount.loadCustomerInfo()
             async let offersUpdate: Void = tangemPayAccount.loadOffers()
             async let resumePolling: Void = tangemPayAccount.resumeActiveIssueOrderPolling()
-            _ = await (stateRefresh, promotionsUpdate, transactionsUpdate, customerInfoUpdate, offersUpdate, resumePolling)
+            async let eligibilityUpdate: Void = loadVirtualAccountEligibility()
+            _ = await (stateRefresh, promotionsUpdate, transactionsUpdate, customerInfoUpdate, offersUpdate, resumePolling, eligibilityUpdate)
         } else {
             async let balanceUpdate: Void = tangemPayAccount.loadBalance()
             _ = await (stateRefresh, promotionsUpdate, balanceUpdate)
@@ -132,7 +133,6 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
-    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -142,6 +142,8 @@ final class TangemPayMainViewModel: ObservableObject {
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
     private let expressStatusPollingHelper: ExpressStatusPollingHelper
     private let promotionNotificationsManager: PromotionNotificationsManager
+
+    private var isEligibleForVirtualAccount = false
 
     private var nextViewOpeningTask: Task<Void, Error>?
     private var bag = Set<AnyCancellable>()
@@ -218,8 +220,19 @@ final class TangemPayMainViewModel: ObservableObject {
         }
 
         // Eligibility only gates issuing a brand-new VA. An already-issued one stays reachable.
-        return tangemPayAccount.hasVirtualAccount
-            || tangemPayAvailabilityRepository.isEligible(for: .visaVirtualAccount)
+        return tangemPayAccount.hasVirtualAccount || isEligibleForVirtualAccount
+    }
+
+    @MainActor
+    private func loadVirtualAccountEligibility() async {
+        guard FeatureProvider.isAvailable(.tangemPayVirtualAccount) else { return }
+
+        do {
+            let channels = try await tangemPayAccount.customerService.loadEligibility().channels
+            isEligibleForVirtualAccount = channels.contains(.visaVirtualAccount)
+        } catch {
+            VisaLogger.error("Failed to load virtual account eligibility", error: error)
+        }
     }
 
     @MainActor
@@ -394,6 +407,10 @@ final class TangemPayMainViewModel: ObservableObject {
             await tangemPayAccount.loadBalance()
             await tangemPayAccount.loadOffers()
             await tangemPayAccount.resumeActiveIssueOrderPolling()
+        }
+
+        runTask { [self] in
+            await loadVirtualAccountEligibility()
         }
 
         runTask { [promotionNotificationsManager] in
