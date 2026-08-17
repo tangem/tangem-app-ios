@@ -18,9 +18,8 @@ protocol WalletBackupFormat: Sendable {
     /// Builds the version-specific file with the payload encrypted under the password.
     func makeFile(payload: any WalletBackupPayload, walletName: String, walletId: String, password: String) throws -> File
 
-    /// User-visible metadata of an existing file. Available without a password by format
-    /// design: the restore UI lists found backups before the user enters anything.
-    func metadata(from fileData: Data, fileName: String) throws -> WalletBackupMetadata
+    /// Parses an existing file into a listed backup.
+    func backup(from fileData: Data, fileName: String) throws -> MobileWalletBackup
 
     /// Decrypts the file contents with the user's password.
     ///
