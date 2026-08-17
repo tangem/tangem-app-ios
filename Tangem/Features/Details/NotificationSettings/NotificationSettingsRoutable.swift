@@ -8,8 +8,9 @@
 
 import Foundation
 
-protocol NotificationSettingsRoutable: AnyObject, TransactionNotificationsRowToggleRoutable {
+protocol NotificationSettingsRoutable: AnyObject {
     func openAppSettings()
+    func openTransactionNotifications()
     func onAlertDismiss()
     func openPriceAlerts(with userWalletModel: UserWalletModel)
     func dismiss()

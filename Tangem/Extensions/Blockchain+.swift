@@ -8,6 +8,23 @@
 
 import BlockchainSdk
 
+// MARK: - PSBT DEX swap
+
+extension Blockchain {
+    /// Chains whose DEX swap goes through a provider-built PSBT (fee is embedded in the PSBT,
+    /// the wallet signs its own inputs and broadcasts).
+    var isPsbtDexSwapSupported: Bool {
+        switch self {
+        case .bitcoin:
+            return true
+        case .litecoin, .dogecoin, .dash, .bitcoinCash:
+            return FeatureProvider.isAvailable(.bitcoinLikePsbtSwap)
+        default:
+            return false
+        }
+    }
+}
+
 // MARK: - Blockchain ID
 
 extension Set<Blockchain> {

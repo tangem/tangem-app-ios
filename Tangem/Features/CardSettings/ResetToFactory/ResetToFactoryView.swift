@@ -77,7 +77,7 @@ struct ResetToFactoryView: View {
     }
 
     private func warningMessageView(warning: ResetToFactoryViewModel.Warning) -> some View {
-        Button(action: { viewModel.toggleWarning(warningType: warning.type) }) {
+        SwiftUI.Button(action: { viewModel.toggleWarning(warningType: warning.type) }) {
             HStack(alignment: .top, spacing: 16) {
                 SelectableIcon(isSelected: warning.isAccepted)
                     .padding(.top, 2)

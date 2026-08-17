@@ -17,14 +17,22 @@ final class CommonTangemPayAssembly: TangemPayAssembly {
         CommonTangemPayCardDetailsRepository(card: card)
     }
 
+    func makePinReader(for card: TangemPayCard) -> TangemPayPinReader {
+        CommonTangemPayPinReader(card: card)
+    }
+
+    func makeBiometryAuthorizer() -> TangemPayBiometryAuthorizer {
+        CommonTangemPayBiometryAuthorizer()
+    }
+
     func makeTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
-        hasNFCInteraction: Bool,
+        signerFactory: TangemSignerFactory,
         walletPublicKey: Wallet.PublicKey?
     ) -> TransactionDispatcher {
         TangemPayTransactionDispatcher(
             withdrawTransactionService: withdrawTransactionService,
-            hasNFCInteraction: hasNFCInteraction,
+            signerFactory: signerFactory,
             walletPublicKey: walletPublicKey
         )
     }

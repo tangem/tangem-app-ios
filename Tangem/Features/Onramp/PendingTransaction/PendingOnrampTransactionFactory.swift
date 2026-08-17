@@ -11,7 +11,7 @@ import TangemExpress
 
 struct PendingOnrampTransactionFactory {
     private let defaultStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .buying, .sendingToUser]
-    private let failedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .failed, .buying, .sendingToUser]
+    private let failedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .failed]
     private let refundingStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .refunding, .buying, .sendingToUser]
     private let refundedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .refunded, .buying, .sendingToUser]
     private let verifyingStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .verificationRequired, .sendingToUser]

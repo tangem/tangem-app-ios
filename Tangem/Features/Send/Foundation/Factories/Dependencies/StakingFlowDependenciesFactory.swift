@@ -52,6 +52,19 @@ extension StakingFlowDependenciesFactory {
         StakingSendSummaryTitleProvider(actionType: actionType.sendFlowActionType, tokenItem: tokenItem, walletName: userWalletInfo.name)
     }
 
+    func makeStakingPreflightValidator() -> StakingPreflightValidator? {
+        switch tokenItem.blockchain {
+        case .solana where FeatureProvider.isAvailable(.solanaRentExemptionPreflight):
+            return SolanaRentExemptionValidator(
+                tokenItem: tokenItem,
+                transactionValidator: stakingableToken.transactionValidator,
+                tokenFeeProvidersManager: stakingableToken.tokenFeeProvidersManager
+            )
+        default:
+            return nil
+        }
+    }
+
     func makeValidationHandler(
         stakingManager: StakingManager,
         blockaidAPIKey: String,
@@ -100,18 +113,13 @@ private extension StakingFlowDependenciesFactory {
             return nil
         }
 
-        let isLocalValidationEnabled = LocalStakingSupportedNetwork(blockchain: blockchain) != nil
-        let isRemoteValidationEnabled = RemoteValidationNetwork(blockchain: blockchain) != nil
-
-        guard isLocalValidationEnabled || isRemoteValidationEnabled else {
-            return nil
-        }
-
-        let validator = StakingValidationComposer.make(
+        guard let validator = StakingValidationComposer.make(
             blockchain: blockchain,
             accountAddress: stakingableToken.defaultAddressString,
             verifier: StakingTransactionVerifierFactory.make(apiKey: blockaidAPIKey)
-        )
+        ) else {
+            return nil
+        }
 
         return StakingValidationService(
             validator: validator,

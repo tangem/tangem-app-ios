@@ -57,7 +57,7 @@ struct TangemPayConfirmPlanView: View {
     private var card: some View {
         KFImage(viewModel.cardImageURL.flatMap { URL(string: $0) })
             .placeholder {
-                Assets.Visa.cardPlatinum.image
+                Assets.Visa.cardGhost.image
                     .resizable()
             }
             .resizable()
@@ -95,7 +95,7 @@ struct TangemPayConfirmPlanView: View {
 
     private var footer: some View {
         VStack(spacing: 8) {
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(Localization.commonCancel),
                 accessibilityLabel: Localization.commonCancel,
                 action: viewModel.cancel
@@ -105,7 +105,7 @@ struct TangemPayConfirmPlanView: View {
             .horizontalLayout(.infinity)
             .disabled(viewModel.isProcessing)
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(viewModel.confirmButtonTitle),
                 accessibilityLabel: viewModel.confirmButtonTitle,
                 action: viewModel.confirm

@@ -10,6 +10,17 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
+    /// Every Tangem Pay row shares this accessibility identifier key, see `TransactionViewModel.TransactionType`.
+    private static let tangemPayKey = "tangemPay"
+    private static let historyScrollAttempts = 12
+
+    private lazy var historyStateIcon = app.images[TxHistoryAccessibilityIdentifiers.statusStateIcon].firstMatch
+    private lazy var historyErrorMessage = app.staticTexts
+        .matching(NSPredicate(format: "label CONTAINS %@", "Failed to load transaction history"))
+        .firstMatch
+    private lazy var reloadHistoryButton = app.buttons
+        .matching(NSPredicate(format: "label CONTAINS %@", "Reload"))
+        .firstMatch
     private lazy var paymentAccountCardButton = app.buttons
         .matching(NSPredicate(format: "identifier BEGINSWITH %@", TangemPayAccessibilityIdentifiers.paymentAccountCardButtonPrefix))
         .firstMatch
@@ -19,6 +30,8 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var moreActionsButton = button(.moreActionsButton)
     private lazy var termsAndFeesMenuItem = button("Terms and fees")
     private lazy var backButton = app.navigationBars.buttons.element(boundBy: 0)
+    private lazy var applePayGuideBanner = app.descendants(matching: .any)[TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner].firstMatch
+    private lazy var applePayGuideBannerCloseButton = app.buttons[TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton].firstMatch
 
     @discardableResult
     func waitForScreen() -> Self {
@@ -84,9 +97,9 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
-    func tapAddFundsExpectingServiceUnavailable() -> TangemPayNoDepositAddressSheet {
-        XCTContext.runActivity(named: "Tap Add funds button expecting service unavailable sheet") { _ in
-            addFundsButton.waitAndTap()
+    func tapWithdrawExpectingServiceUnavailable() -> TangemPayNoDepositAddressSheet {
+        XCTContext.runActivity(named: "Tap Withdraw button expecting service unavailable sheet") { _ in
+            withdrawButton.waitAndTap()
             return TangemPayNoDepositAddressSheet(app)
         }
     }
@@ -109,13 +122,19 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
-    func verifyPendingExpressTransactionVisible() -> Self {
-        XCTContext.runActivity(named: "Verify pending express transaction row is visible") { _ in
-            let row = app.buttons[TokenAccessibilityIdentifiers.pendingExpressTransaction].firstMatch
-            XCTAssertTrue(
-                row.waitForExistence(timeout: .networkRequest),
-                "Pending express transaction row should be displayed"
-            )
+    func verifyWithdrawDisabled() -> Self {
+        XCTContext.runActivity(named: "Verify Withdraw button is disabled") { _ in
+            waitAndAssertTrue(withdrawButton, "Withdraw button should be displayed")
+            withdrawButton.waitForState(state: .disabled)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyAddFundsDisabled() -> Self {
+        XCTContext.runActivity(named: "Verify Add funds button is disabled") { _ in
+            waitAndAssertTrue(addFundsButton, "Add funds button should be displayed")
+            addFundsButton.waitForState(state: .disabled)
             return self
         }
     }
@@ -166,6 +185,140 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
             )
             return self
         }
+    }
+
+    @discardableResult
+    func verifyTransactionRow(name: String) -> Self {
+        XCTContext.runActivity(named: "Verify transaction row '\(name)' is displayed") { _ in
+            waitAndAssertTrue(
+                transactionRowElement(identifier: TxHistoryAccessibilityIdentifiers.transactionItem(key: Self.tangemPayKey), label: name),
+                timeout: .networkRequest,
+                "Transaction row '\(name)' should be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTransactionRow(name: String, amount: String, category: String) -> Self {
+        verifyTransactionRow(name: name)
+
+        return XCTContext.runActivity(named: "Verify amount '\(amount)' and category '\(category)' of row '\(name)'") { _ in
+            // All Tangem Pay rows share one identifier key, so amount and category are looked up inside this row only.
+            let row = transactionRowContainer(name: name)
+            waitAndAssertTrue(row, "Transaction row '\(name)' should exist")
+            waitAndAssertTrue(
+                rowText(in: row, identifier: TxHistoryAccessibilityIdentifiers.transactionAmount(key: Self.tangemPayKey), label: amount),
+                "Transaction row '\(name)' should show amount '\(amount)'"
+            )
+            waitAndAssertTrue(
+                rowText(in: row, identifier: TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: Self.tangemPayKey), label: category),
+                "Transaction row '\(name)' should show category '\(category)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifySectionHeader(_ header: String) -> Self {
+        XCTContext.runActivity(named: "Verify transaction section header '\(header)'") { _ in
+            waitAndAssertTrue(
+                app.staticTexts[header].firstMatch,
+                timeout: .networkRequest,
+                "Transaction section header '\(header)' should be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func scrollToTransaction(name: String) -> Self {
+        XCTContext.runActivity(named: "Scroll the history down to transaction '\(name)'") { _ in
+            let row = transactionRowElement(
+                identifier: TxHistoryAccessibilityIdentifiers.transactionItem(key: Self.tangemPayKey),
+                label: name
+            )
+            // Rows of the next page render only after the previous ones are scrolled past, so re-check after every swipe.
+            for _ in 0 ..< Self.historyScrollAttempts where !row.exists {
+                scrollToElement(row, attempts: .single)
+            }
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapTransaction(name: String) -> TangemPayTransactionDetailsScreen {
+        scrollToTransaction(name: name)
+        return tapTransactionRow(containing: name)
+    }
+
+    @discardableResult
+    func verifyHistoryErrorState() -> Self {
+        XCTContext.runActivity(named: "Verify transaction history error state") { _ in
+            waitAndAssertTrue(historyErrorMessage, timeout: .networkRequest, "History error message should be displayed")
+            waitAndAssertTrue(historyStateIcon, "History error icon should be displayed")
+            waitAndAssertTrue(reloadHistoryButton, "Reload button should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyApplePayGuideBannerVisible() -> Self {
+        XCTContext.runActivity(named: "Verify Apple/Google Pay banner is displayed on payment account") { _ in
+            waitAndAssertTrue(
+                applePayGuideBanner,
+                timeout: .networkRequest,
+                "Apple/Google Pay banner should be displayed on payment account screen"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyApplePayGuideBannerHidden() -> Self {
+        XCTContext.runActivity(named: "Verify Apple/Google Pay banner is not displayed on payment account") { _ in
+            XCTAssertTrue(
+                applePayGuideBanner.waitForNonExistence(timeout: .robustUIUpdate),
+                "Apple/Google Pay banner should not be displayed on payment account screen"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func closeApplePayGuideBanner() -> Self {
+        XCTContext.runActivity(named: "Close Apple/Google Pay banner") { _ in
+            applePayGuideBannerCloseButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapReloadHistory() -> Self {
+        XCTContext.runActivity(named: "Tap Reload in the transaction history error state") { _ in
+            reloadHistoryButton.waitAndTap()
+            return self
+        }
+    }
+
+    private func transactionRowElement(identifier: String, label: String) -> XCUIElement {
+        app.staticTexts
+            .matching(identifier: identifier)
+            .matching(NSPredicate(format: "label == %@", label))
+            .firstMatch
+    }
+
+    private func transactionRowContainer(name: String) -> XCUIElement {
+        app.buttons
+            .containing(NSPredicate(format: "label CONTAINS %@", name))
+            .firstMatch
+    }
+
+    private func rowText(in row: XCUIElement, identifier: String, label: String) -> XCUIElement {
+        row.staticTexts
+            .matching(identifier: identifier)
+            .matching(NSPredicate(format: "label == %@", label))
+            .firstMatch
     }
 }
 
