@@ -11,12 +11,12 @@ import BigInt
 
 /// https://eips.ethereum.org/EIPS/eip-20#transfer
 public struct TransferERC20TokenMethod {
-    let destination: String
+    let destination: SmartContractAddress
     let amount: BigUInt
 
-    public init(destination: String, amount: BigUInt) {
+    public init(destination: String, amount: BigUInt) throws {
         self.amount = amount
-        self.destination = destination
+        self.destination = try SmartContractAddress(destination)
     }
 }
 
@@ -27,7 +27,7 @@ extension TransferERC20TokenMethod: SmartContractMethod {
 
     public var data: Data {
         let prefixData = Data(hexString: methodId)
-        let addressData = Data(hexString: destination).leadingZeroPadding(toLength: 32)
+        let addressData = destination.encodedParameter
         let amountData = amount.serialize().leadingZeroPadding(toLength: 32)
         return prefixData + addressData + amountData
     }

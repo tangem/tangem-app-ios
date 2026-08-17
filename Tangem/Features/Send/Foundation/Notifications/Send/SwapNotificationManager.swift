@@ -403,7 +403,8 @@ private extension CommonSwapNotificationManager {
              .sendingAmountIsLessThanRentExemption,
              .koinosInsufficientBalanceToSendKoin,
              .destinationMemoRequired,
-             .noTrustlineAtDestination:
+             .noTrustlineAtDestination,
+             .destinationIsBurnAddress:
             return .validationErrorEvent(event: validationErrorEvent)
         }
     }
