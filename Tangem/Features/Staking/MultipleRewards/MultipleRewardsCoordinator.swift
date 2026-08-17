@@ -11,7 +11,7 @@ import Combine
 import TangemStaking
 
 class MultipleRewardsCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<FeeCurrencyNavigatingDismissOption?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
@@ -27,7 +27,7 @@ class MultipleRewardsCoordinator: CoordinatorObject {
     private var options: Options?
 
     required init(
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -51,6 +51,14 @@ extension MultipleRewardsCoordinator {
     typealias Options = StakingDetailsCoordinator.Options
 }
 
+// MARK: - Dismissal
+
+extension MultipleRewardsCoordinator {
+    func dismiss() {
+        dismiss(with: nil)
+    }
+}
+
 // MARK: - MultipleRewardsRoutable
 
 extension MultipleRewardsCoordinator: MultipleRewardsRoutable {
@@ -63,9 +71,14 @@ extension MultipleRewardsCoordinator: MultipleRewardsRoutable {
         )
         let sourceToken = sourceTokenFactory.makeTransferableToken()
 
-        let coordinator = SendCoordinator(dismissAction: { [weak self] _ in
+        let coordinator = SendCoordinator(dismissAction: { [weak self] option in
             self?.sendCoordinator = nil
-            self?.dismiss()
+
+            if case .openFeeCurrency(let feeCurrency) = option {
+                self?.dismiss(with: feeCurrency)
+            } else {
+                self?.dismiss(with: nil)
+            }
         })
 
         coordinator.start(with: .init(
