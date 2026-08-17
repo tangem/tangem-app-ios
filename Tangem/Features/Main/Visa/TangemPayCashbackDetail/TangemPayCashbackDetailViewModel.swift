@@ -19,6 +19,7 @@ final class TangemPayCashbackDetailViewModel: ObservableObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     private let cashbackSummary: TangemPayCashback.Summary
+    private let userWalletId: UserWalletId
     private var cashbackDetails: TangemPayCashbackDetails?
 
     private let cashbackDetailsUseCase: TangemPayLoadCashbackDetailsUseCase
@@ -28,10 +29,17 @@ final class TangemPayCashbackDetailViewModel: ObservableObject {
 
     init(
         summary: TangemPayCashback.Summary,
+        userWalletId: UserWalletId,
         cashbackDetailsUseCase: TangemPayLoadCashbackDetailsUseCase
     ) {
         cashbackSummary = summary
+        self.userWalletId = userWalletId
         self.cashbackDetailsUseCase = cashbackDetailsUseCase
+    }
+
+    func onAppear() {
+        Analytics.log(.visaCashbackDetailsScreenOpened, contextParams: .userWallet(userWalletId))
+        loadDetails()
     }
 
     func loadDetails() {
@@ -45,6 +53,7 @@ final class TangemPayCashbackDetailViewModel: ObservableObject {
             return
         }
 
+        Analytics.log(.visaCashbackConditionsTileClicked, contextParams: .userWallet(userWalletId))
         tiersViewData = viewDataFactory.makeTiersViewData(cashbackOnCards: cashbackOnCards)
     }
 
@@ -53,6 +62,7 @@ final class TangemPayCashbackDetailViewModel: ObservableObject {
     }
 
     func openAccrualsInfo() {
+        Analytics.log(.visaCashbackAccrualsTileClicked, contextParams: .userWallet(userWalletId))
         accrualsViewData = viewDataFactory.makeAccrualsViewData(docs: cashbackDetails?.accrualsDocs ?? [])
     }
 
@@ -60,8 +70,9 @@ final class TangemPayCashbackDetailViewModel: ObservableObject {
         accrualsViewData = nil
     }
 
-    func openDoc(_ url: URL) {
-        safariManager.openURL(url)
+    func openDoc(_ doc: TangemPayCashbackAccrualsViewData.Doc) {
+        logDocClick(doc)
+        safariManager.openURL(doc.url)
     }
 
     func close() {
@@ -83,6 +94,7 @@ private extension TangemPayCashbackDetailViewModel {
 
             state = .loaded(presentationData)
             cashbackDetails = details
+            logBannerIfNeeded(presentationData.banner)
         } catch {
             VisaLogger.error("Failed to load TangemPay cashback details", error: error)
             state = .failed
@@ -97,6 +109,36 @@ private extension TangemPayCashbackDetailViewModel {
                 summaryAmount: cashbackSummary.confirmedAmount,
                 historyAmount: historyAmount
             )
+        }
+    }
+}
+
+// MARK: - Analytics
+
+private extension TangemPayCashbackDetailViewModel {
+    func logBannerIfNeeded(_ banner: TangemPayCashbackDetailViewData.Banner?) {
+        switch banner {
+        case .deposit:
+            Analytics.log(.visaCashbackUpcomingAccrualBannerShowed, contextParams: .userWallet(userWalletId))
+        case .refund:
+            Analytics.log(.visaCashbackNegativeBannerShowed, contextParams: .userWallet(userWalletId))
+        case nil:
+            break
+        }
+    }
+
+    func logDocClick(_ doc: TangemPayCashbackAccrualsViewData.Doc) {
+        guard let index = accrualsViewData?.docs.firstIndex(where: { $0.id == doc.id }) else {
+            return
+        }
+
+        switch index {
+        case 0:
+            Analytics.log(.visaCashbackCategoriesWithoutCashbackDocClicked, contextParams: .userWallet(userWalletId))
+        case 1:
+            Analytics.log(.visaCashbackFullTermsDocClicked, contextParams: .userWallet(userWalletId))
+        default:
+            break
         }
     }
 }
