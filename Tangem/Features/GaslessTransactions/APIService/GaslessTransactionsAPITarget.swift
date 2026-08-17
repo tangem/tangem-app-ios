@@ -22,6 +22,9 @@ enum GaslessApiTargetConstants {
     static let signTransactionPath = "/transaction/sign"
     static let signBatchTransactionPath = "/transaction/batch-sign"
     static let feeRecipientPath = "/config/fee-recipient"
+    static let tronTokensPath = "/tron/tokens"
+    static let tronEstimatePath = "/tron/transaction/estimate"
+    static let tronSubmitPath = "/tron/transaction/submit"
 }
 
 struct GaslessTransactionsAPITarget: TargetType {
@@ -33,6 +36,9 @@ struct GaslessTransactionsAPITarget: TargetType {
         case sendGaslessTransaction(transaction: GaslessTransactionsDTO.Request.GaslessTransaction)
         case sendGaslessBatchTransaction(transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction)
         case feeRecipient
+        case tronTokens
+        case tronEstimate(request: GaslessTransactionsDTO.Request.TronEstimate)
+        case tronSubmit(request: GaslessTransactionsDTO.Request.TronSubmit)
     }
 
     var baseURL: URL {
@@ -53,7 +59,7 @@ struct GaslessTransactionsAPITarget: TargetType {
         switch target {
         case .sendGaslessBatchTransaction:
             versionPath = "v2"
-        case .availableTokens, .sendGaslessTransaction, .feeRecipient:
+        case .availableTokens, .sendGaslessTransaction, .feeRecipient, .tronTokens, .tronEstimate, .tronSubmit:
             versionPath = "v1"
         }
 
@@ -70,14 +76,20 @@ struct GaslessTransactionsAPITarget: TargetType {
             return GaslessApiTargetConstants.signBatchTransactionPath
         case .feeRecipient:
             return GaslessApiTargetConstants.feeRecipientPath
+        case .tronTokens:
+            return GaslessApiTargetConstants.tronTokensPath
+        case .tronEstimate:
+            return GaslessApiTargetConstants.tronEstimatePath
+        case .tronSubmit:
+            return GaslessApiTargetConstants.tronSubmitPath
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .availableTokens, .feeRecipient:
+        case .availableTokens, .feeRecipient, .tronTokens:
             return .get
-        case .sendGaslessTransaction, .sendGaslessBatchTransaction:
+        case .sendGaslessTransaction, .sendGaslessBatchTransaction, .tronEstimate, .tronSubmit:
             return .post
         }
     }
@@ -88,7 +100,11 @@ struct GaslessTransactionsAPITarget: TargetType {
             return .requestJSONEncodable(transaction)
         case .sendGaslessBatchTransaction(let transaction):
             return .requestJSONEncodable(transaction)
-        case .availableTokens, .feeRecipient:
+        case .tronEstimate(let request):
+            return .requestJSONEncodable(request)
+        case .tronSubmit(let request):
+            return .requestJSONEncodable(request)
+        case .availableTokens, .feeRecipient, .tronTokens:
             return .requestPlain
         }
     }

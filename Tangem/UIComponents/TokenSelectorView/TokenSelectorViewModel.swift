@@ -16,10 +16,13 @@ import TangemUI
 final class TokenSelectorViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var selectedChipId: String?
+    @Published var balanceFilter: TokenSelectorBalanceFilter
+
+    let showsBalanceFilter: Bool
 
     @Published private(set) var wallets: [TokenSelectorWalletItemViewModel]
     @Published private(set) var walletChips: [WalletChipData] = []
-    @Published private(set) var contentVisibility: ContentVisibility = .empty
+    @Published private(set) var contentVisibility: ContentVisibility = .empty(.noTokens)
     @Published private(set) var scrollToTopTrigger: UUID?
 
     private let walletsProvider: any TokenSelectorWalletsProvider
@@ -38,11 +41,14 @@ final class TokenSelectorViewModel: ObservableObject {
         currentWalletId: UserWalletId? = nil,
         initialSelectedItem: WalletTokenItem? = nil,
         initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
-        preferredWalletId: UserWalletId? = nil
+        preferredWalletId: UserWalletId? = nil,
+        showsBalanceFilter: Bool = false
     ) {
         self.walletsProvider = walletsProvider
         self.availabilityProvider = availabilityProvider
         self.tokenSelectorStateStorage = tokenSelectorStateStorage
+        self.showsBalanceFilter = showsBalanceFilter
+        balanceFilter = showsBalanceFilter ? .hideZero : .all
 
         viewModelsMapper = TokenSelectorViewModelsMapper(
             walletsProvider: walletsProvider,
@@ -56,9 +62,10 @@ final class TokenSelectorViewModel: ObservableObject {
         viewModelsMapper.setInitialSelectedItem(initialSelectedItem)
 
         wallets = viewModelsMapper.wallets
-        contentVisibility = wallets.isEmpty ? .empty : .loading
+        contentVisibility = wallets.isEmpty ? .empty(.noTokens) : .loading
 
         viewModelsMapper.setupSearchable(searchTextPublisher: $searchText.eraseToAnyPublisher())
+        viewModelsMapper.setupBalanceFilter(publisher: $balanceFilter.eraseToAnyPublisher())
         setupWalletFilter(currentWalletId: currentWalletId, preferredWalletId: preferredWalletId)
         bind()
     }
@@ -101,16 +108,61 @@ final class TokenSelectorViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        wallets
-            .map { $0.viewType.itemsCount }
-            .combineLatest()
+        contentVisibilityPublisher()
             .dropFirst()
-            .map { counts -> ContentVisibility in
-                let totalCount = counts.sum()
-                return totalCount == 0 ? .empty : .visible(itemsCount: totalCount)
-            }
             .removeDuplicates()
             .assign(to: &$contentVisibility)
+    }
+
+    private func contentVisibilityPublisher() -> AnyPublisher<ContentVisibility, Never> {
+        guard showsBalanceFilter else {
+            return wallets
+                .map { $0.viewType.itemsCount }
+                .combineLatest()
+                .map { $0.sum() }
+                .map { $0 == 0 ? .empty(.noTokens) : .visible(itemsCount: $0) }
+                .eraseToAnyPublisher()
+        }
+
+        let perWallet = wallets.map { wallet -> AnyPublisher<(count: Int, available: Int), Never> in
+            let available = viewModelsMapper.availableItemsCountByWalletId[wallet.walletId] ?? Just(0).eraseToAnyPublisher()
+
+            return Publishers
+                .CombineLatest3(wallet.viewType.itemsCount, available, wallet.$isFilteredOut)
+                .map { count, available, isFilteredOut in
+                    isFilteredOut ? (count: 0, available: 0) : (count: count, available: available)
+                }
+                .eraseToAnyPublisher()
+        }
+
+        return Publishers
+            .CombineLatest(
+                perWallet.combineLatest(),
+                $searchText.map { $0.trimmed() }.removeDuplicates()
+            )
+            .map { counts, searchText -> ContentVisibility in
+                let totalCount = counts.map(\.count).sum()
+                guard totalCount == 0 else {
+                    return .visible(itemsCount: totalCount)
+                }
+
+                let availableCount = counts.map(\.available).sum()
+                return .empty(Self.emptyReason(searchText: searchText, availableCount: availableCount))
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private static func emptyReason(searchText: String, availableCount: Int) -> TokenSelectorEmptyReason {
+        // While searching, don't offer the balance-filter CTA — it wouldn't affect the search results.
+        guard searchText.isEmpty else {
+            return .noTokens
+        }
+
+        return availableCount > 0 ? .filteredOut : .noTokens
+    }
+
+    func resetBalanceFilter() {
+        balanceFilter = .all
     }
 
     private func setupWalletFilter(currentWalletId: UserWalletId? = nil, preferredWalletId: UserWalletId? = nil) {
@@ -171,7 +223,7 @@ extension TokenSelectorViewModel {
     enum ContentVisibility: Equatable {
         case loading
         case visible(itemsCount: Int)
-        case empty
+        case empty(TokenSelectorEmptyReason)
     }
 }
 
@@ -214,7 +266,8 @@ extension TokenSelectorViewModel {
         availabilityProvider: any TokenSelectorItemAvailabilityProvider,
         initialSelectedItem: WalletTokenItem? = nil,
         initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
-        preferredWalletId: UserWalletId? = nil
+        preferredWalletId: UserWalletId? = nil,
+        showsBalanceFilter: Bool = false
     ) -> TokenSelectorViewModel {
         @Injected(\.tokenSelectorStateStorage)
         var stateStorage: TokenSelectorStateStorage
@@ -230,7 +283,8 @@ extension TokenSelectorViewModel {
             currentWalletId: userWalletRepository.selectedModel?.userWalletId,
             initialSelectedItem: initialSelectedItem,
             initiallyExpandedAccount: initiallyExpandedAccount,
-            preferredWalletId: preferredWalletId
+            preferredWalletId: preferredWalletId,
+            showsBalanceFilter: showsBalanceFilter
         )
     }
 
@@ -238,14 +292,16 @@ extension TokenSelectorViewModel {
         walletsProvider: any TokenSelectorWalletsProvider = .common(),
         initialSelectedItem: WalletTokenItem? = nil,
         initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
-        preferredWalletId: UserWalletId? = nil
+        preferredWalletId: UserWalletId? = nil,
+        showsBalanceFilter: Bool = false
     ) -> TokenSelectorViewModel {
         .common(
             walletsProvider: walletsProvider,
             availabilityProvider: .swap(),
             initialSelectedItem: initialSelectedItem,
             initiallyExpandedAccount: initiallyExpandedAccount,
-            preferredWalletId: preferredWalletId
+            preferredWalletId: preferredWalletId,
+            showsBalanceFilter: showsBalanceFilter
         )
     }
 }

@@ -21,11 +21,15 @@ struct TronChainParameters {
     let sunPerEnergyUnit: Int
     let dynamicEnergyMaxFactor: Int
     let dynamicEnergyIncreaseFactor: Int
+    /// Flat fee in sun charged for a transaction carrying a `raw.data` memo.
+    let memoFee: Int
 }
 
 struct TronEnergyFeeData {
     let energyFee: Int
     let sunPerEnergyUnit: Int
+    /// In sun.
+    let memoFee: Int
 }
 
 struct TronAccountInfo {
@@ -115,6 +119,14 @@ struct TronTriggerSmartContractRequest: Encodable {
     let function_selector: String
     var fee_limit: UInt64? = nil
     let parameter: String
+    let visible: Bool
+}
+
+struct TronTriggerSmartContractCallDataRequest: Encodable {
+    let owner_address: String
+    let contract_address: String
+    let data: String
+    let call_value: UInt64
     let visible: Bool
 }
 

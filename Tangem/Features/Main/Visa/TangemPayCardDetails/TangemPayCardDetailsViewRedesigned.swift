@@ -43,7 +43,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .aspectRatio(Constants.plasticCardStandardWidthToHeightRatio, contentMode: .fit)
         .background(
-            Color.Tangem.Visa.cardDetailBackground,
+            DesignSystem.Color.bgPrimary,
             in: RoundedRectangle(cornerRadius: 20, style: .continuous)
         )
         .overlay {
@@ -101,7 +101,11 @@ struct TangemPayCardDetailsViewRedesigned: View {
                     HStack(spacing: 6) {
                         Text("*" + viewModel.lastFourDigits)
                             .font(token: DesignSystem.Font.bodyMediumToken)
-                            .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
+                            .foregroundStyle(
+                                viewModel.cardNameDisplayMode == .editing
+                                    ? DesignSystem.Color.textStaticDarkSecondary
+                                    : DesignSystem.Color.textStaticDarkPrimary
+                            )
 
                         Group {
                             if isLoading {
@@ -179,10 +183,6 @@ struct TangemPayCardDetailsViewRedesigned: View {
         .padding(16)
         .background {
             KFImage(viewModel.cardBackgroundImageURL)
-                .placeholder {
-                    Assets.Visa.cardCredentials.image
-                        .resizable()
-                }
                 .resizable()
         }
         .screenCaptureProtection()
@@ -232,7 +232,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
     private var cardArtBackground: some View {
         KFImage(viewModel.cardImageURL)
             .placeholder {
-                Assets.Visa.cardPlatinum.image
+                Assets.Visa.cardGhost.image
                     .resizable()
             }
             .resizable()
@@ -259,6 +259,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
                         .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
                 }
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardNameEditButton)
         case .editing:
             TextField(
                 text: $viewModel.cardName,
@@ -271,6 +272,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
             .font(token: DesignSystem.Font.bodyMediumToken)
             .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
             .tint(DesignSystem.Color.textStaticDarkPrimary)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardNameTextField)
             .focused($isCardNameFocused)
             .disabled(viewModel.isCardNameEditingDisabled)
             .task {

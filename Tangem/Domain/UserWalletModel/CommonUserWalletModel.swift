@@ -25,10 +25,9 @@ class CommonUserWalletModel {
 
     let nftManager: NFTManager
     let keysRepository: KeysRepository
-    let keysDerivingInteractor: KeysDeriving
     let totalBalanceProvider: TotalBalanceProvider
 
-    let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
     let accountModelsManager: AccountModelsManager
     let addressBookManager: AddressBookManager
@@ -56,9 +55,8 @@ class CommonUserWalletModel {
         userWalletId: UserWalletId,
         nftManager: NFTManager,
         keysRepository: KeysRepository,
-        keysDerivingInteractor: KeysDeriving,
         totalBalanceProvider: TotalBalanceProvider,
-        userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
+        userWalletPushNotificationsManager: UserWalletPushNotificationsManager,
         priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider,
         accountModelsManager: AccountModelsManager,
         addressBookManager: AddressBookManager
@@ -69,9 +67,8 @@ class CommonUserWalletModel {
         self.name = name
         self.nftManager = nftManager
         self.keysRepository = keysRepository
-        self.keysDerivingInteractor = keysDerivingInteractor
         self.totalBalanceProvider = totalBalanceProvider
-        self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
+        self.userWalletPushNotificationsManager = userWalletPushNotificationsManager
         self.priceAlertsSubscriptionsProvider = priceAlertsSubscriptionsProvider
         self.accountModelsManager = accountModelsManager
         self.addressBookManager = addressBookManager
@@ -195,8 +192,8 @@ extension CommonUserWalletModel: UserWalletModel {
             case .cardWallet(let existingInfo):
                 var mutableCardInfo = existingInfo
                 for wallet in mutableCardInfo.card.wallets {
-                    if let derivedKeys = keyInfosKeyedByPublicKey[wallet.publicKey]?.derivedKeys {
-                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = derivedKeys
+                    if let walletPublicKey = wallet.publicKey, let derivedKeys = keyInfosKeyedByPublicKey[walletPublicKey]?.derivedKeys {
+                        mutableCardInfo.card.wallets[walletPublicKey]?.derivedKeys = derivedKeys
                     }
                 }
 
@@ -207,8 +204,8 @@ extension CommonUserWalletModel: UserWalletModel {
             case .mobileWallet(let existingInfo):
                 var mutableMobileWalletInfo = existingInfo
                 for wallet in mutableMobileWalletInfo.keys {
-                    if let derivedKeys = keyInfosKeyedByPublicKey[wallet.publicKey]?.derivedKeys {
-                        mutableMobileWalletInfo.keys[wallet.publicKey]?.derivedKeys = derivedKeys
+                    if let walletPublicKey = wallet.publicKey, let derivedKeys = keyInfosKeyedByPublicKey[walletPublicKey]?.derivedKeys {
+                        mutableMobileWalletInfo.keys[walletPublicKey]?.derivedKeys = derivedKeys
                     }
                 }
 
@@ -225,8 +222,8 @@ extension CommonUserWalletModel: UserWalletModel {
             switch walletInfo {
             case .cardWallet(let existingInfo):
                 for wallet in mutableCardInfo.card.wallets {
-                    if let existingDerivedKeys = existingInfo.card.wallets[wallet.publicKey]?.derivedKeys {
-                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                    if let walletPublicKey = wallet.publicKey, let existingDerivedKeys = existingInfo.card.wallets[walletPublicKey]?.derivedKeys {
+                        mutableCardInfo.card.wallets[walletPublicKey]?.derivedKeys = existingDerivedKeys
                     }
                 }
 
@@ -237,8 +234,8 @@ extension CommonUserWalletModel: UserWalletModel {
 
             case .mobileWallet(let existingInfo):
                 for wallet in mutableCardInfo.card.wallets {
-                    if let existingDerivedKeys = existingInfo.keys[wallet.publicKey]?.derivedKeys {
-                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                    if let walletPublicKey = wallet.publicKey, let existingDerivedKeys = existingInfo.keys[walletPublicKey]?.derivedKeys {
+                        mutableCardInfo.card.wallets[walletPublicKey]?.derivedKeys = existingDerivedKeys
                     }
                 }
 
@@ -332,7 +329,16 @@ extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     }
 }
 
-extension CommonUserWalletModel: KeysDerivingProvider {}
+extension CommonUserWalletModel: KeysDerivingProvider {
+    var keysDerivingInteractor: KeysDeriving {
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            return KeysDerivingCardInteractor(with: cardInfo)
+        case .mobileWallet:
+            return KeysDerivingMobileWalletInteractor(userWalletId: userWalletId, userWalletConfig: config)
+        }
+    }
+}
 
 extension CommonUserWalletModel: TangemPayAuthorizingProvider {
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing {

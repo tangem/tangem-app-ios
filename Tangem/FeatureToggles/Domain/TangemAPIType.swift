@@ -42,8 +42,8 @@ public enum TangemAPIType: String, CaseIterable, Codable {
     }
 
     /// `apiBaseUrl` carrying the `/api` gateway segment documented in the Notification Preferences
-    /// contract v1.3 (`/api/v1/...`). Kept separate from `apiBaseUrl` because only the
-    /// notification-preferences endpoint uses it; the rest of the v1 API does not.
+    /// contract v1.3 (`/api/v1/...`). Kept separate from `apiBaseUrl` because only some v1 endpoints are
+    /// served behind that segment.
     public var apiBaseUrlWithGatewaySegment: URL {
         insertingApiSegment(into: apiBaseUrl)
     }

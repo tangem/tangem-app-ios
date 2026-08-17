@@ -21,7 +21,7 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
     @Published private(set) var mostlyUsedViewModels: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
     @Published private(set) var listLoadingState: EarnBestOpportunitiesListView.LoadingState = .loading
     @Published private(set) var tokenViewModels: [EarnTokenItemViewModel] = []
-    let presentSource: MarketsNavigationBackButton.PresentSource
+    let presentSource: MarketsNavigationPresentSource
 
     // MARK: - Private Properties
 
@@ -44,7 +44,7 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
         filterProvider: EarnDataFilterProvider,
         coordinator: EarnDetailRoutable? = nil,
         analyticsProvider: EarnAnalyticsProvider,
-        presentSource: MarketsNavigationBackButton.PresentSource = .navigation
+        presentSource: MarketsNavigationPresentSource = .navigation
     ) {
         self.dataProvider = dataProvider
         self.filterProvider = filterProvider

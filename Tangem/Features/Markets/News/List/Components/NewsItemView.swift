@@ -19,8 +19,8 @@ struct NewsItemView: View {
 
     private var textColor: Color {
         viewModel.isRead
-            ? Color.Tangem.Text.Neutral.tertiary
-            : Color.Tangem.Text.Neutral.primary
+            ? DesignSystem.Color.textSecondary
+            : DesignSystem.Color.textPrimary
     }
 
     private var rating: String {
@@ -28,7 +28,7 @@ struct NewsItemView: View {
     }
 
     var body: some View {
-        Button(action: onTap) {
+        SwiftUI.Button(action: onTap) {
             redesignContent
         }
         .buttonStyle(.scaled())
@@ -47,60 +47,80 @@ struct NewsItemView: View {
 
     private var redesignRegularContent: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            NewsRatingViewRedesign(rating: rating, isHighlighted: false)
+            NewsRatingViewRedesign(rating: rating, isHighlighted: false, font: DesignSystem.Font.captionMediumToken)
 
-            FixedSpacer(height: .unit(.x2))
+            FixedSpacer(height: 8)
 
             Text(viewModel.title)
-                .style(Font.Tangem.Body16.regular, color: textColor)
+                .style(DesignSystem.Font.bodyMediumToken, color: textColor)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
-            FixedSpacer(height: .unit(.x8))
+            FixedSpacer(height: 32)
 
             InfoChipsRowView(chips: viewModel.chips, alignment: .leading, style: .redesign)
         }
-        .padding(.unit(.x4))
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background(Color.Tangem.Surface.level3)
-        .cornerRadiusContinuous(.unit(.x5))
+        .background(DesignSystem.Color.bgSecondary)
+        .cornerRadiusContinuous(20)
         .overlay(
-            RoundedRectangle(cornerRadius: .unit(.x5), style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .inset(by: 0.5)
-                .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: 1)
+                .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
         )
         .opacity(viewModel.isRead ? 0.6 : 1.0)
     }
 
     private var redesignTrendingContent: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            HStack(spacing: .unit(.x2)) {
-                NewsRatingViewRedesign(rating: rating, isHighlighted: true)
+            HStack(spacing: 8) {
+                NewsRatingViewRedesign(rating: rating, isHighlighted: true, font: DesignSystem.Font.captionMediumToken)
                 Text(Localization.feedTrendingNow)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
             }
 
-            FixedSpacer(height: .unit(.x2))
+            FixedSpacer(height: 8)
 
             Text(viewModel.title)
-                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
-            FixedSpacer(height: .unit(.x8))
+            FixedSpacer(height: 32)
 
             InfoChipsRowView(chips: viewModel.chips, alignment: .leading, style: .redesign)
         }
-        .padding(.unit(.x4))
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background {
-            Assets.Markets
-                .trendingNewsBackground
-                .image
-                .resizable()
-                .allowsHitTesting(false)
-        }
-        .cornerRadiusContinuous(.unit(.x5))
+        .background(content: TrendingNewsGlowBackground.init)
+        .cornerRadiusContinuous(20)
         .opacity(viewModel.isRead ? 0.6 : 1.0)
+    }
+}
+
+// MARK: - TrendingNewsGlowBackground
+
+private struct TrendingNewsGlowBackground: View {
+    var body: some View {
+        Ellipse()
+            .fill(Color(hex: Constants.hex).opacity(Constants.opacity))
+            .frame(height: Constants.height)
+            .padding(.horizontal, -Constants.horizontalOverflow)
+            .blur(radius: Constants.blur)
+            .offset(y: Constants.height / 2 + Constants.bottomInset)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .background(DesignSystem.Color.bgSecondary)
+    }
+}
+
+private extension TrendingNewsGlowBackground {
+    enum Constants {
+        static let hex = "7C16F1"
+        static let opacity: Double = 0.27
+        static let height: CGFloat = 170
+        static let horizontalOverflow: CGFloat = 75
+        static let blur: CGFloat = 66
+        static let bottomInset: CGFloat = 48
     }
 }

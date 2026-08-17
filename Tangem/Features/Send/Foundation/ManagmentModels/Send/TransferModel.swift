@@ -45,7 +45,8 @@ final class TransferModel {
     private let sendAlertBuilder: SendAlertBuilder
 
     private let balanceConverter = BalanceConverter()
-    private var bag: Set<AnyCancellable> = []
+    private var updateTransactionTask: Task<Void, Never>?
+    private var transactionInputsSubscription: AnyCancellable?
 
     // MARK: - Public interface
 
@@ -83,46 +84,78 @@ private extension TransferModel {
     private func bind() {
         setupCustomFeeProvidersIfNeeded()
 
-        Publishers
-            .CombineLatest4(
-                _amount.compactMap { $0?.crypto },
-                _destination.compactMap { $0?.value.transactionAddress },
-                _destinationAdditionalField,
-                _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher.compactMap { $0.value }
+        transactionInputsSubscription = Publishers.CombineLatest4(
+            _amount.compactMap { $0?.crypto },
+            _destination.compactMap { $0?.value.transactionAddress },
+            _destinationAdditionalField,
+            _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher.compactMap { $0.value }
+        )
+        .withWeakCaptureOf(self)
+        .sink { manager, args in
+            let (amount, destination, additionalField, fee) = args
+
+            manager.resolveTransaction(
+                amountValue: amount,
+                destination: destination,
+                additionalField: additionalField,
+                fee: fee
             )
-            .withWeakCaptureOf(self)
-            .asyncMap { manager, args -> Result<BSDKTransaction, Error>? in
-                let (amount, destination, additionalField, fee) = args
-
-                switch fee {
-                case .loading:
-                    return .none
-                case .success(let fee):
-                    do {
-                        let transaction = try await manager.makeTransaction(
-                            amountValue: amount,
-                            destination: destination,
-                            additionalField: additionalField,
-                            fee: fee
-                        )
-
-                        return .success(transaction)
-                    } catch {
-                        return .failure(error)
-                    }
-                case .failure(let error):
-                    return .failure(error)
-                }
-            }
-            .withWeakCaptureOf(self)
-            .sink { $0._transaction.send($1) }
-            .store(in: &bag)
+        }
     }
 
     func setupCustomFeeProvidersIfNeeded() {
         _sourceToken.tokenFeeProvidersManager.tokenFeeProviders
             .compactMap { ($0 as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider as? SendCustomFeeService }
             .forEach { $0.setup(input: self) }
+    }
+
+    private func resolveTransaction(
+        amountValue: Decimal,
+        destination: String,
+        additionalField: SendDestinationAdditionalField,
+        fee: LoadingResult<BSDKFee, any Error>
+    ) {
+        updateTransactionTask?.cancel()
+        updateTransactionTask = runTask(in: self) { manager in
+            do {
+                let validationResult = try await manager.validateTransaction(
+                    amountValue: amountValue,
+                    destination: destination,
+                    additionalField: additionalField,
+                    fee: fee
+                )
+                try Task.checkCancellation()
+                manager._transaction.send(validationResult)
+            } catch is CancellationError {
+                // Expected when inputs change and this validation is superseded; ignore so a cancelled
+                // validation doesn't overwrite newer transaction state with a spurious failure.
+            } catch {
+                manager._transaction.send(.failure(error))
+            }
+        }
+    }
+
+    private func validateTransaction(
+        amountValue: Decimal,
+        destination: String,
+        additionalField: SendDestinationAdditionalField,
+        fee: LoadingResult<BSDKFee, any Error>
+    ) async throws -> Result<BSDKTransaction, Error>? {
+        switch fee {
+        case .loading:
+            return .none
+        case .success(let fee):
+            let transaction = try await makeTransaction(
+                amountValue: amountValue,
+                destination: destination,
+                additionalField: additionalField,
+                fee: fee
+            )
+
+            return .success(transaction)
+        case .failure(let error):
+            return .failure(error)
+        }
     }
 
     private func makeTransaction(
@@ -198,6 +231,9 @@ private extension TransferModel {
     }
 
     private func simpleSend() async throws -> TransactionDispatcherResult {
+        // Await async network validation
+        _ = await updateTransactionTask?.value
+
         guard let transaction = _transaction.value?.value else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }

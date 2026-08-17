@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -16,7 +17,7 @@ struct TransactionsListViewRedesigned: View {
     let state: TransactionsListView.State
     let exploreAction: (() -> Void)?
     let exploreConfirmationDialog: Binding<ConfirmationDialogViewModel?>?
-    let exploreTransactionAction: (String) -> Void
+    let openTransactionDetailsAction: (TransactionViewModel) -> Void
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
     let fetchMore: FetchMore?
@@ -95,8 +96,8 @@ struct TransactionsListViewRedesigned: View {
 
     @ViewBuilder
     private func rowOrChip(for viewModel: TransactionViewModel) -> some View {
-        Button {
-            exploreTransactionAction(viewModel.hash)
+        SwiftUI.Button {
+            openTransactionDetailsAction(viewModel)
         } label: {
             switch viewModel.display.style {
             case .chip:
@@ -178,6 +179,7 @@ private struct StatusStateView: View {
             icon.image
                 .renderingMode(.template)
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.statusStateIcon)
 
             Text(message)
                 .multilineTextAlignment(.center)
@@ -234,7 +236,7 @@ private struct StatusStateView: View {
             state: .loaded(items),
             exploreAction: {},
             exploreConfirmationDialog: nil,
-            exploreTransactionAction: { _ in },
+            openTransactionDetailsAction: { _ in },
             reloadButtonAction: {},
             isReloadButtonBusy: false,
             fetchMore: nil
@@ -248,7 +250,7 @@ private struct StatusStateView: View {
         state: .error("oops"),
         exploreAction: {},
         exploreConfirmationDialog: nil,
-        exploreTransactionAction: { _ in },
+        openTransactionDetailsAction: { _ in },
         reloadButtonAction: {},
         isReloadButtonBusy: false,
         fetchMore: nil
@@ -261,7 +263,7 @@ private struct StatusStateView: View {
         state: .loaded([]),
         exploreAction: {},
         exploreConfirmationDialog: nil,
-        exploreTransactionAction: { _ in },
+        openTransactionDetailsAction: { _ in },
         reloadButtonAction: {},
         isReloadButtonBusy: false,
         fetchMore: nil

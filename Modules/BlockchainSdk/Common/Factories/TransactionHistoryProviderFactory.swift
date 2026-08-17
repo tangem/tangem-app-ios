@@ -123,6 +123,12 @@ public struct TransactionHistoryProviderFactory {
                 networkConfiguration: input.tangemProviderConfig,
                 targetConfiguration: .adi
             )
+        case .igra:
+            return EtherscanTransactionHistoryProvider(
+                mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
+                networkConfiguration: input.tangemProviderConfig,
+                targetConfiguration: .igra
+            )
         case .algorand(_, let isTestnet):
             let node: NodeInfo
             if isTestnet {
