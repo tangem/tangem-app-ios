@@ -14,7 +14,7 @@ import TangemMobileWalletSdk
 enum MobileCleanupUtil {
     static func clean(walletId: UserWalletId, mobileWalletInfo: MobileWalletInfo) {
         cleanMobileWallet(walletId: walletId)
-        cleanBackupIfNeeded(walletId: walletId, mobileWalletInfo: mobileWalletInfo)
+        cleanBackup(walletId: walletId, mobileWalletInfo: mobileWalletInfo)
     }
 
     static func cleanMobileWallet(walletId: UserWalletId) {
@@ -26,13 +26,8 @@ enum MobileCleanupUtil {
         }
     }
 
-    static func cleanBackupIfNeeded(walletId: UserWalletId, mobileWalletInfo: MobileWalletInfo) {
-        guard mobileWalletInfo.hasICloudBackup else {
-            return
-        }
-
+    static func cleanBackup(walletId: UserWalletId, mobileWalletInfo: MobileWalletInfo) {
         let analyticsContextData = mobileWalletInfo.analyticsContextData
-
         runTask(isDetached: true) {
             await deleteICloudBackups(
                 walletId: walletId,

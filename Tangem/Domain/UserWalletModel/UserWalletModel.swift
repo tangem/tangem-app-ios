@@ -56,6 +56,7 @@ enum UpdateRequest {
     case newName(_ name: String)
     case mnemonicBackupCompleted
     case iCloudBackupCompleted
+    case iCloudBackupDeleted
     case accessCodeDidSet
     case accessCodeDidSkip
 }

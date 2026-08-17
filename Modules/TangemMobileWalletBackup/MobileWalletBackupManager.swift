@@ -39,6 +39,12 @@ public protocol MobileWalletBackupManager {
     /// file was tampered with — the two are indistinguishable for an AEAD cipher.
     func importBackup(_ backup: MobileWalletBackup, password: String) async throws -> any WalletBackupPayload
 
+    /// Deletes a single backup previously returned by `loadBackups`.
+    ///
+    /// Throws `WalletBackupStorageError.fileNotFound` when the file no longer exists —
+    /// e.g. the backup was removed from another device.
+    func deleteBackup(_ backup: MobileWalletBackup) async throws
+
     /// Deletes every backup file of the given `UserWalletId`, stopping at the first failure.
     ///
     /// Throws `WalletBackupStorageError.fileNotFound` when there is nothing to delete —
@@ -103,21 +109,14 @@ public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
 
         let existingFileNames = try await storage.files().map(\.name)
         let fileName = makeFileName(walletName: walletName, existingFileNames: existingFileNames)
-
-        // Metadata is read back from the encoded bytes — the single source of truth —
-        // and before the write, so a failure cannot leave a file already stored.
-        let metadata = try format.metadata(from: fileData, fileName: fileName)
+        let backup = try format.backup(from: fileData, fileName: fileName)
 
         try await storage.write(fileData, fileName: fileName)
 
-        return MobileWalletBackup(metadata: metadata, fileData: fileData)
+        return backup
     }
 
     public func loadBackups() async throws -> [MobileWalletBackup] {
-        guard storage.isAvailable else {
-            throw WalletBackupStorageError.storageUnavailable
-        }
-
         let backupFiles = try await loadBackupFiles()
 
         var backups: [MobileWalletBackup] = []
@@ -139,11 +138,28 @@ public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
         return try format.payload(from: backup.fileData, password: password)
     }
 
-    public func deleteBackups(walletId: UserWalletId) async throws {
-        guard storage.isAvailable else {
-            throw WalletBackupStorageError.storageUnavailable
+    public func deleteBackup(_ backup: MobileWalletBackup) async throws {
+        let backupFiles = try await loadBackupFiles()
+
+        // The file name is not a stable identity: the file under it may have been replaced
+        // from another device after the backup was loaded. The backup's own id is verified
+        // in the file contents before anything is deleted.
+        for file in backupFiles {
+            guard
+                let candidate = await loadBackup(file: file),
+                candidate.id == backup.id
+            else {
+                continue
+            }
+
+            try await storage.delete(file: file)
+            return
         }
 
+        throw WalletBackupStorageError.fileNotFound
+    }
+
+    public func deleteBackups(walletId: UserWalletId) async throws {
         let backupFiles = try await loadBackupFiles()
 
         guard backupFiles.isNotEmpty else {
@@ -174,7 +190,11 @@ public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
 
 private extension CommonMobileWalletBackupManager {
     func loadBackupFiles() async throws -> [WalletBackupStorageFile] {
-        try await storage.files()
+        guard storage.isAvailable else {
+            throw WalletBackupStorageError.storageUnavailable
+        }
+
+        return try await storage.files()
             .filter { $0.name.hasSuffix(Constants.fileNameSuffix) }
     }
 
@@ -188,9 +208,7 @@ private extension CommonMobileWalletBackupManager {
             }
 
             let format = version.resolve(backupResolver)
-            let metadata = try format.metadata(from: fileData, fileName: file.name)
-
-            return MobileWalletBackup(metadata: metadata, fileData: fileData)
+            return try format.backup(from: fileData, fileName: file.name)
         } catch {
             WalletBackupLogger.error("Skipped an unreadable backup file", error: error)
             return nil
