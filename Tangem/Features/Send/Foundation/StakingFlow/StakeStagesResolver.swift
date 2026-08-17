@@ -160,7 +160,7 @@ struct StakeStagesResolver {
             try transactionValidator.validate(amount: makeAmount(amount), fee: makeFee(fee))
             return nil
         } catch let error as ValidationError {
-            return .failure(.transaction(error, fee: fee))
+            return .failure(.transaction(error, fee: fee, spendsAmount: amount > .zero))
         } catch CardanoError.feeParametersNotFound {
             return nil
         } catch {
