@@ -19,8 +19,10 @@ extension TangemPayCashback {
     struct Summary: Equatable {
         let displayMode: DisplayMode
         let confirmedAmount: Decimal
+        let totalEarnedAmount: Decimal
         let currency: String
         let period: Period
+        let previousPayout: PreviousPayout?
     }
 
     enum DisplayMode {
@@ -33,6 +35,11 @@ extension TangemPayCashback {
         let month: Int
         let payoutStartDate: Date?
         let payoutEndDate: Date?
+    }
+
+    struct PreviousPayout: Equatable {
+        let amount: Decimal
+        let endDate: Date
     }
 }
 
@@ -61,6 +68,7 @@ extension TangemPayCashback {
 private extension TangemPayCashback.Summary {
     init?(_ response: TangemPayCashbackSummaryResponse) {
         guard let confirmedAmount = Decimal(stringValue: response.confirmedAmount),
+              let totalEarnedAmount = Decimal(stringValue: response.totalEarnedAmount),
               let currency = response.currency,
               let period = response.period.map(TangemPayCashback.Period.init)
         else {
@@ -70,8 +78,10 @@ private extension TangemPayCashback.Summary {
         self.init(
             displayMode: TangemPayCashback.DisplayMode(response.cashbackDisplayMode),
             confirmedAmount: confirmedAmount,
+            totalEarnedAmount: totalEarnedAmount,
             currency: currency,
-            period: period
+            period: period,
+            previousPayout: TangemPayCashback.PreviousPayout(response)
         )
     }
 }
@@ -81,11 +91,25 @@ private extension TangemPayCashback.Period {
         self.init(
             year: period.year,
             month: period.month,
-            payoutStartDate: period.payoutStartDate.flatMap(Self.payoutDateFormatter.date(from:)),
-            payoutEndDate: period.payoutEndDate.flatMap(Self.payoutDateFormatter.date(from:))
+            payoutStartDate: period.payoutStartDate.flatMap(TangemPayCashback.payoutDateFormatter.date(from:)),
+            payoutEndDate: period.payoutEndDate.flatMap(TangemPayCashback.payoutDateFormatter.date(from:))
         )
     }
+}
 
+private extension TangemPayCashback.PreviousPayout {
+    init?(_ response: TangemPayCashbackSummaryResponse) {
+        guard let amount = Decimal(stringValue: response.previousPayoutAmount),
+              let endDate = response.previousPayoutEndDate.flatMap(TangemPayCashback.payoutDateFormatter.date(from:))
+        else {
+            return nil
+        }
+
+        self.init(amount: amount, endDate: endDate)
+    }
+}
+
+private extension TangemPayCashback {
     static let payoutDateFormatter: DateFormatter = {
         let formatter = DateFormatter(dateFormat: "yyyy-MM-dd")
         formatter.locale = .posixEnUS
