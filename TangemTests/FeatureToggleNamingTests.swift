@@ -30,19 +30,11 @@ struct FeatureToggleNamingTests {
         .visa,
         .exchangeOnlyWithinSingleAddress,
         .walletConnectBitcoin,
-        .surveySparrow,
         .usdtRevokeGaslessFee,
-        .yieldModuleUpdate,
         .xrplTransactionHistory,
-        .pushNotificationsSettings,
         .deeplinkPresentationWay,
         .transactionHistoryV2,
-        .supportChat,
-        .supportChatSwap,
         .mobileWalletMultiCreation,
-        .sendWithSwapAvailabilityCheck,
-        .swapFiatCalculation,
-        .hideStoriesInMobileWallet,
     ]
 
     private static var togglesToValidate: [Feature] {

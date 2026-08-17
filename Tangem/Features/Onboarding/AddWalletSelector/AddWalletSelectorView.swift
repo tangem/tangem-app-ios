@@ -65,7 +65,7 @@ private extension AddWalletSelectorView {
     }
 
     func walletItem(_ item: ViewModel.WalletItem) -> some View {
-        Button(action: item.action) {
+        SwiftUI.Button(action: item.action) {
             VStack(alignment: .leading, spacing: 12) {
                 walletDescription(item: item.description)
             }
@@ -123,7 +123,7 @@ private extension AddWalletSelectorView {
 
             Spacer(minLength: 22)
 
-            Button(action: item.buttonAction) {
+            SwiftUI.Button(action: item.buttonAction) {
                 Text(item.buttonTitle)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
                     .padding(.vertical, 8)

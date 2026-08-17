@@ -50,7 +50,7 @@ public final class VisaCardScanHandler: CardSessionRunnable {
             return
         }
 
-        guard let wallet = card.wallets.first(where: { $0.curve == VisaUtilities.mandatoryCurve }) else {
+        guard let walletPublicKey = card.wallets.first(where: { $0.curve == VisaUtilities.mandatoryCurve })?.publicKey else {
             // 1 flow
             let activationInput = VisaCardActivationInput(
                 cardId: card.cardId,
@@ -69,7 +69,7 @@ public final class VisaCardScanHandler: CardSessionRunnable {
                 let cardActivationState = try await handler.handleWalletAuthorizationWithFallbackToCardAuthorization(
                     session: session,
                     card: card,
-                    wallet: wallet
+                    walletPublicKey: walletPublicKey
                 )
                 completion(.success(cardActivationState))
             } catch let error as TangemSdkError {
@@ -85,18 +85,18 @@ public final class VisaCardScanHandler: CardSessionRunnable {
     private func handleWalletAuthorizationWithFallbackToCardAuthorization(
         session: CardSession,
         card: Card,
-        wallet: Card.Wallet
+        walletPublicKey: Data
     ) async throws -> VisaCardActivationLocalState {
         do {
             VisaLogger.info("Started handling authorization using Visa wallet")
             return try await handleWalletAuthorization(
                 session: session,
                 cardId: card.cardId,
-                walletPublicKey: wallet.publicKey
+                walletPublicKey: walletPublicKey
             )
         } catch {
             VisaLogger.info("Started handling visa card scan async")
-            let walletAddress = try VisaUtilities.makeAddress(walletPublicKey: wallet.publicKey, isTestnet: isTestnet).value
+            let walletAddress = try VisaUtilities.makeAddress(walletPublicKey: walletPublicKey, isTestnet: isTestnet).value
             return try await handleCardAuthorization(
                 session: session,
                 cardId: card.cardId,

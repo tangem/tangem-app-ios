@@ -15,6 +15,7 @@ enum LocalStakingSupportedNetwork: CaseIterable {
     case cosmos
     case bsc
     case cardano
+    case ethereumPOL
 
     init?(blockchain: Blockchain) {
         switch blockchain {
@@ -23,6 +24,7 @@ enum LocalStakingSupportedNetwork: CaseIterable {
         case .cosmos: self = .cosmos
         case .bsc: self = .bsc
         case .cardano: self = .cardano
+        case .ethereum: self = .ethereumPOL
         default: return nil
         }
     }

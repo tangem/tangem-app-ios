@@ -20,31 +20,26 @@ struct TangemPayPinStackView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            ZStack {
-                if !isDisabled {
-                    backgroundField.opacity(0)
+            HStack(spacing: 8) {
+                ForEach(0 ..< length, id: \.self) { index in
+                    box(at: index)
                 }
-
-                HStack(spacing: 8) {
-                    ForEach(0 ..< length, id: \.self) { index in
-                        box(at: index)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    isResponder = !isDisabled
-                }
+            }
+            .background {
+                backgroundField.opacity(0)
+                    .disabled(isDisabled)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                isResponder = !isDisabled
             }
 
             if let errorMessage {
                 Text(errorMessage)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
                     .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .screenCaptureProtection()
-        .fixedSize(horizontal: false, vertical: true)
         .onChange(of: isDisabled) { isResponder = !$0 }
         .onDidAppear { isResponder = !isDisabled }
         .onWillDisappear { isResponder = false }
