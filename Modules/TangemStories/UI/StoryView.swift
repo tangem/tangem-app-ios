@@ -105,7 +105,7 @@ public struct StoryView: View {
     }
 
     private var closeButton: some View {
-        Button {
+        SwiftUI.Button {
             viewModel.handle(viewEvent: .closeButtonTapped)
         } label: {
             Assets.close.image

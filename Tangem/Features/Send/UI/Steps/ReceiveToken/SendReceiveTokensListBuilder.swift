@@ -47,7 +47,6 @@ struct SendReceiveTokensListBuilder {
             networks: networks,
             coin: coin,
             userWalletInfo: userWalletInfo,
-            isAvailabilityCheckEnabled: FeatureProvider.isAvailable(.sendWithSwapAvailabilityCheck),
             analyticsLogger: analyticsLogger,
             router: router
         )
