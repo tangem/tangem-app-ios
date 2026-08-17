@@ -44,10 +44,6 @@ struct TokenSummaryScore: Equatable {
     var normalizedPosition: Double {
         Double(value + count) / Double(2 * count)
     }
-
-    var tickCount: Int {
-        2 * count + 1
-    }
 }
 
 enum TokenSummaryGaugeState: Equatable {
