@@ -106,7 +106,10 @@ final class VeChainNetworkService: MultiNetworkProvider {
             return .anyFail(error: BlockchainSdkError.failedToGetFee)
         }
 
-        let payload = TransferERC20TokenMethod(destination: destination, amount: bigUIntValue).encodedData
+        guard let payload = try? TransferERC20TokenMethod(destination: destination, amount: bigUIntValue).encodedData else {
+            return .anyFail(error: BlockchainSdkError.failedToGetFee)
+        }
+
         let clause = VeChainNetworkParams.ContractCall.Clause(
             to: token.contractAddress,
             value: Constants.contractCallValue,

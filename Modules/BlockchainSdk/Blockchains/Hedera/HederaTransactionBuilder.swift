@@ -163,7 +163,7 @@ final class HederaTransactionBuilder {
             }
 
             let contractId = try ContractId.fromSolidityAddressOrString(token.contractAddress)
-            let transferMethod = TransferERC20TokenMethod(
+            let transferMethod = try TransferERC20TokenMethod(
                 destination: erc20TransferConfiguration.recipientEVMAddress.removeHexPrefix(),
                 amount: amountValue
             )
