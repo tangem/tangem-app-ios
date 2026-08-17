@@ -35,7 +35,7 @@ struct TangemPayCashbackBanner: View {
         .padding(16)
         .background(DesignSystem.Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        .disabled(isReloading)
+        .disabled(state.isReloading)
         .onTapGesture(perform: action)
     }
 }
@@ -43,14 +43,6 @@ struct TangemPayCashbackBanner: View {
 // MARK: - Content
 
 private extension TangemPayCashbackBanner {
-    var isReloading: Bool {
-        guard case .failed(let isReloading) = state else {
-            return false
-        }
-
-        return isReloading
-    }
-
     var subtitle: String? {
         switch state {
         case .content(let summary):
@@ -197,12 +189,17 @@ private extension TangemPayCashback.Summary {
         Self(
             displayMode: .full,
             confirmedAmount: confirmedAmount,
+            totalEarnedAmount: 153.01,
             currency: "USD",
             period: TangemPayCashback.Period(
                 year: 2026,
                 month: 6,
                 payoutStartDate: .previewUTCDate(year: 2026, month: 7, day: 2),
                 payoutEndDate: .previewUTCDate(year: 2026, month: 7, day: 5)
+            ),
+            previousPayout: TangemPayCashback.PreviousPayout(
+                amount: 26.10,
+                endDate: .previewUTCDate(year: 2026, month: 6, day: 5)
             )
         )
     }
