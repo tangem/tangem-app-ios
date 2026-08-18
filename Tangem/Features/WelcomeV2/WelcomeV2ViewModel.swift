@@ -14,4 +14,12 @@ final class WelcomeV2ViewModel: ObservableObject {
     init(coordinator: WelcomeV2Routable) {
         self.coordinator = coordinator
     }
+
+    func onCreateWalletTap() {
+        coordinator?.openCreateWallet()
+    }
+
+    func onExistingWalletTap() {
+        coordinator?.openExistingWallet()
+    }
 }
