@@ -89,15 +89,17 @@ extension MainCoordinator.DeepLinkDestination: Identifiable {
 private extension PredefinedSwapParameters {
     var deeplinkIdentity: String {
         switch self {
-        case .from(let source, let receive, let extras):
-            let receiveId = receive.map { WalletModelId(tokenItem: $0.tokenItem).id } ?? "any"
+        case .from(let source, let pair, let extras, _):
+            let receiveId = switch pair {
+            case .fixed(let receive): WalletModelId(tokenItem: receive.tokenItem).id
+            case .deferred: "deferred"
+            case .userSelection: "any"
+            }
             let amountId = extras?.sourceAmount.map { "\($0)" } ?? "any"
             let providerId = extras?.providerId ?? "any"
             return "from_\(source.userWalletInfo.id.stringValue)_\(source.id.id)_\(receiveId)_\(amountId)_\(providerId)"
-        case .to(let receive):
+        case .to(let receive, _, _):
             return "to_\(receive.userWalletInfo.id.stringValue)_\(receive.id.id)"
-        case .deferredPairResolution(let source, _):
-            return "deferred_\(source.userWalletInfo.id.stringValue)_\(source.id.id)"
         }
     }
 }

@@ -41,6 +41,6 @@ struct SwapNavigatingDismissOption {
                 ).makeSwapableToken()
             }
 
-        return SendCoordinator.Options(type: .swap(.from(sourceToken, receive: receiveToken)), source: source)
+        return SendCoordinator.Options(type: .swap(.from(sourceToken, pair: .fixed(receiveOrUserSelection: receiveToken))), source: source)
     }
 }

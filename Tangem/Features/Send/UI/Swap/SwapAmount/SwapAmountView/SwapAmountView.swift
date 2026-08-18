@@ -24,7 +24,11 @@ struct SwapAmountView: View {
 
             receiveView
         }
-        .overlay(alignment: .center) { swappingButton }
+        .overlay(alignment: .center) {
+            if viewModel.isPairReversalEnabled {
+                swappingButton
+            }
+        }
     }
 
     private var sourceView: some View {

@@ -11,6 +11,9 @@ struct SwapTokenSelectorViewModelBuilder {
     private var userWalletRepository: UserWalletRepository
 
     weak var output: (SwapTokenSelectorOutput & SendSourceTokenInput & SendReceiveTokenInput)?
+    /// Replaces the default wallets provider for the *source* selector only (account funding
+    /// flows restrict what can fund or be withdrawn from the account).
+    var sourceWalletsProvider: (any TokenSelectorWalletsProvider)?
 
     func makeSwapTokenSelectorViewModel(
         direction: SwapTokenSelectorViewModel.SwapDirection,
@@ -35,10 +38,13 @@ struct SwapTokenSelectorViewModelBuilder {
         let preferredWalletId = tappedToken?.userWalletInfo.id
             ?? userWalletRepository.selectedModel?.userWalletId
 
+        // `.toDestination` = the user is picking the source token.
         let isSourceSelection = if case .toDestination = direction { true } else { false }
+        let restrictedWalletsProvider = isSourceSelection ? sourceWalletsProvider : nil
         let showsBalanceFilter = isSourceSelection && FeatureProvider.isAvailable(.swapHideZeroBalanceSource)
 
         let tokenSelectorViewModel = TokenSelectorViewModel.swap(
+            walletsProvider: restrictedWalletsProvider ?? .common(),
             initialSelectedItem: direction.tokenItem,
             initiallyExpandedAccount: initiallyExpandedAccount,
             preferredWalletId: preferredWalletId,
@@ -48,7 +54,7 @@ struct SwapTokenSelectorViewModelBuilder {
         return SwapTokenSelectorViewModel(
             swapDirection: direction,
             tokenSelectorViewModel: tokenSelectorViewModel,
-            marketsTokensViewModel: marketsTokensViewModel,
+            marketsTokensViewModel: restrictedWalletsProvider == nil ? marketsTokensViewModel : nil,
             output: output,
             tokenSelectorCoordinator: router,
             marketsTokenAdditionCoordinator: marketsTokenAdditionRouter

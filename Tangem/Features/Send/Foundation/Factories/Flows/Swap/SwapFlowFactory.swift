@@ -14,7 +14,9 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 
     let initialTokenItem: TokenItem
     let expressDependenciesFactory: ExpressDependenciesFactory
-    private let swapTokenPairResolver: MainSwapPairResolver?
+    private let sourceTokenResolver: (any SwapSourceTokenResolver)?
+    private let destinationTokenResolver: (any SwapDestinationTokenResolver)?
+    private let configuration: SwapFlowConfiguration
     private let extras: PredefinedSwapParameters.Extras?
 
     var tokenItem: TokenItem { initialTokenItem }
@@ -31,7 +33,8 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
             analyticsLogger: analyticsLogger
         ),
         shouldStartInitialLoading: true,
-        swapTokenPairResolver: swapTokenPairResolver
+        sourceTokenResolver: sourceTokenResolver,
+        destinationTokenResolver: destinationTokenResolver
     )
     lazy var notificationManager = makeSwapNotificationManager()
     lazy var marketingBannerManager = makeSwapMarketingBannerManager()
@@ -40,13 +43,16 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     init(
         sourceToken: SendSwapableToken,
         receiveToken: SendReceiveToken?,
-        swapTokenPairResolver: MainSwapPairResolver? = nil,
-        extras: PredefinedSwapParameters.Extras? = nil
+        extras: PredefinedSwapParameters.Extras? = nil,
+        sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
+        configuration: SwapFlowConfiguration = .default
     ) {
         self.sourceToken = sourceToken
         self.receiveToken = receiveToken
-        self.swapTokenPairResolver = swapTokenPairResolver
         self.extras = extras
+        self.sourceTokenResolver = sourceTokenResolver
+        destinationTokenResolver = nil
+        self.configuration = configuration
         initialTokenItem = sourceToken.tokenItem
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
@@ -57,11 +63,14 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 
     init(
         receiveToken: SendSwapableToken,
-        swapTokenPairResolver: MainSwapPairResolver? = nil
+        sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
+        configuration: SwapFlowConfiguration = .default
     ) {
         sourceToken = nil
         self.receiveToken = receiveToken
-        self.swapTokenPairResolver = swapTokenPairResolver
+        self.sourceTokenResolver = sourceTokenResolver
+        destinationTokenResolver = configuration.receiveTokenSelection.destinationResolver
+        self.configuration = configuration
         extras = nil
         initialTokenItem = receiveToken.tokenItem
 
@@ -116,7 +125,10 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         analyticsLogger.setup(sendReceiveTokenInput: swapModel)
         analyticsLogger.setup(sendSwapProvidersInput: swapModel)
 
-        let tokenSelectorBuilder = SwapTokenSelectorViewModelBuilder(output: swapModel)
+        let tokenSelectorBuilder = SwapTokenSelectorViewModelBuilder(
+            output: swapModel,
+            sourceWalletsProvider: configuration.sourceTokenSelection.restrictedWalletsProvider
+        )
 
         let stepsManager = CommonSwapStepsManager(
             summaryStep: summary,
@@ -124,7 +136,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             feeSelectorBuilder: fee.feeSelectorBuilder,
             providersSelector: providers.selector,
             tokenSelectorBuilder: tokenSelectorBuilder,
-            summaryTitleProvider: SwapSummaryTitleProvider(sourceTokenInput: swapModel, receiveTokenInput: swapModel),
+            summaryTitleProvider: makeSummaryTitleProvider(),
             router: router
         )
 
@@ -144,6 +156,14 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         coordinatorStateProvider.setup(autoupdatingTimer: autoupdatingTimer)
 
         return viewModel
+    }
+
+    private func makeSummaryTitleProvider() -> any SendSummaryTitleProvider {
+        if let summaryTitle = configuration.summaryTitle {
+            return FixedSendSummaryTitleProvider(title: summaryTitle)
+        }
+
+        return SwapSummaryTitleProvider(sourceTokenInput: swapModel, receiveTokenInput: swapModel)
     }
 }
 
@@ -196,7 +216,11 @@ extension SwapFlowFactory: SwapAmountStepBuildable {
     }
 
     var amountTypes: SwapAmountStepBuilder.Types {
-        .init(initialTokenItem: initialTokenItem)
+        .init(
+            initialTokenItem: initialTokenItem,
+            isPairReversalEnabled: configuration.isPairReversalEnabled,
+            isReceiveTokenSelectionEnabled: configuration.receiveTokenSelection.isSelectionEnabled
+        )
     }
 
     var amountDependencies: SwapAmountStepBuilder.Dependencies {

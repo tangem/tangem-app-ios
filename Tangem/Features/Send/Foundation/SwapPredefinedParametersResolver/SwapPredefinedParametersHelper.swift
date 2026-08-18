@@ -19,7 +19,7 @@ struct SwapPredefinedParametersHelper {
             return resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
         case .from:
             let token = makeSwapableToken(walletModel: walletModel, userWalletInfo: userWalletInfo)
-            return .from(token, receive: nil)
+            return .from(token)
         case .to:
             let token = makeSwapableToken(walletModel: walletModel, userWalletInfo: userWalletInfo)
             return .to(token)
@@ -34,7 +34,7 @@ struct SwapPredefinedParametersHelper {
     ) -> PredefinedSwapParameters {
         let source = makeSwapableToken(walletModel: fromWalletModel, userWalletInfo: userWalletInfo)
         let receive = toWalletModel.map { makeSwapableToken(walletModel: $0, userWalletInfo: userWalletInfo) }
-        return .from(source, receive: receive, extras: extras)
+        return .from(source, pair: .fixed(receiveOrUserSelection: receive), extras: extras)
     }
 }
 
@@ -64,7 +64,7 @@ private extension SwapPredefinedParametersHelper {
                 makeSwapableToken(walletModel: $0, userWalletInfo: userWalletInfo)
             }
 
-            return .from(sourceToken, receive: destinationToken)
+            return .from(sourceToken, pair: .fixed(receiveOrUserSelection: destinationToken))
         }
 
         if let destinationWalletModel = resolved.destination {

@@ -18,14 +18,14 @@ import TangemUI
 // MARK: - SendSourceToken
 
 class SendSourceTokenStub: SendSourceToken {
-    private let blockchain: Blockchain
+    let tokenItem: TokenItem
 
     init(blockchain: Blockchain = .ton(curve: .ed25519, testnet: false)) {
-        self.blockchain = blockchain
+        tokenItem = .blockchain(.init(blockchain, derivationPath: nil))
     }
 
-    var tokenItem: TokenItem {
-        .blockchain(.init(blockchain, derivationPath: nil))
+    init(tokenItem: TokenItem) {
+        self.tokenItem = tokenItem
     }
 
     var isCustom: Bool { false }
