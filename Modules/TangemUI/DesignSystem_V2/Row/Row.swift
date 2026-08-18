@@ -104,7 +104,11 @@ public struct Row<
             startContent
                 .opacity(contentOpacity)
 
-            RowContentLayout(contentLead: config.contentLead, minOppositeWidth: minOppositeWidth) {
+            RowContentLayout(
+                contentLead: config.contentLead,
+                minOppositeWidth: minOppositeWidth,
+                verticalAlignment: config.verticalAlignment
+            ) {
                 titleColumn
                 valueColumn
             }
