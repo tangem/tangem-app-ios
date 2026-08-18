@@ -23,14 +23,21 @@ struct SendFactory {
                 coordinatorSource: options.source
             )
 
-        case .swap(.from(let sourceToken, let receiveToken, let extras)):
-            return SwapFlowFactory(sourceToken: sourceToken, receiveToken: receiveToken, extras: extras)
+        case .swap(.from(let sourceToken, let pair, let extras, let configuration)):
+            return SwapFlowFactory(
+                sourceToken: sourceToken,
+                receiveToken: pair.receiveToken,
+                extras: extras,
+                sourceTokenResolver: pair.sourceResolver,
+                configuration: configuration
+            )
 
-        case .swap(.to(let receiveToken)):
-            return SwapFlowFactory(receiveToken: receiveToken)
-
-        case .swap(.deferredPairResolution(let source, let resolver)):
-            return SwapFlowFactory(sourceToken: source, receiveToken: nil, swapTokenPairResolver: resolver)
+        case .swap(.to(let receiveToken, let sourceResolver, let configuration)):
+            return SwapFlowFactory(
+                receiveToken: receiveToken,
+                sourceTokenResolver: sourceResolver,
+                configuration: configuration
+            )
 
         case .nft(let transferableToken, let parameters):
             return TransferNFTFlowFactory(

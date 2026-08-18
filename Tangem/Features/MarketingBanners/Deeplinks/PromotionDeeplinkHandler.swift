@@ -82,19 +82,19 @@ private extension PromotionDeeplinkHandler {
 
         let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
-        guard let sourceToken = MainSwapPairResolver.makeBestEffortSourceToken(
+        guard let sourceToken = MainSwapSourceResolver.makeBestEffortSourceToken(
             from: walletModels,
             userWalletInfo: userWalletModel.userWalletInfo
         ) else {
             return false
         }
 
-        let resolver = MainSwapPairResolver(
+        let resolver = MainSwapSourceResolver(
             userWalletModel: userWalletModel,
             swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
         )
 
-        coordinator?.openSwap(parameters: .deferredPairResolution(source: sourceToken, resolver: resolver))
+        coordinator?.openSwap(parameters: .from(sourceToken, pair: .deferred(sourceResolver: resolver)))
         return true
     }
 
