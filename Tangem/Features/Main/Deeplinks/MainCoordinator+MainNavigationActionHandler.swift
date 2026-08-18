@@ -425,10 +425,33 @@ extension MainCoordinator {
                 return false
             }
 
-            switch payload.body {
+            switch payload.rawType {
             case .cardReady:
-                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId))
-            case .transactionSpend, .declinedTopUp, .collateralWithdraw, .collateralDeposit:
+                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId, incomingAction: nil))
+            case .thresholdTopUp:
+                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId, incomingAction: .addFunds))
+            case .transactionSpend,
+                 .transactionSpendRefund,
+                 .declinedTopUp,
+                 .declinedReason1,
+                 .declinedReason2,
+                 .declinedReason3,
+                 .declinedReason4,
+                 .declinedReason5,
+                 .declinedReason6,
+                 .declinedReason7,
+                 .declinedReason8,
+                 .declinedReason9,
+                 .declinedReason10,
+                 .declinedReason11,
+                 .declinedReason12,
+                 .declinedReason13,
+                 .declinedReason14,
+                 .declinedReason15,
+                 .declinedReason16,
+                 .declinedReason17,
+                 .collateralWithdraw,
+                 .collateralDeposit:
                 coordinator.openDeepLink(.tangemPayTransactionDetails(payload: payload))
             }
             return true
