@@ -213,7 +213,7 @@ final class UserWalletNotificationManager {
         hideMobileActivationNotificationIfNeeded()
 
         let config = userWalletModel.config
-        let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
+        let needBackup = MobileBackupStatusUtil.isBackupNeeded(config: config)
         let needAccessCode = config.hasFeature(.userWalletAccessCode) && config.userWalletAccessCodeStatus == .none
 
         guard needBackup || needAccessCode else {

@@ -170,14 +170,13 @@ private extension MobileBackupTypesViewModel {
 
 private extension MobileBackupTypesViewModel {
     func logScreenOpenedAnalytics() {
-        let hasSeedPhraseBackup = !userWalletModel.config.hasFeature(.mnemonicBackup)
-        let hasICloudBackup = !userWalletModel.config.hasFeature(.iCloudBackup)
+        let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
 
         Analytics.log(
             .walletSettingsBackupScreenOpened,
             params: [
-                .backupManual: .affirmativeOrNegative(for: hasSeedPhraseBackup),
-                .backupCloud: hasICloudBackup ? .done : .incomplete,
+                .backupManual: .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup),
+                .backupCloud: statusUtil.hasICloudBackup ? .done : .incomplete,
             ],
             contextParams: analyticsContextParams
         )
