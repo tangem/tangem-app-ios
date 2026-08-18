@@ -42,4 +42,8 @@ extension WelcomeV2Coordinator {
 
 // MARK: - WelcomeV2Routable
 
-extension WelcomeV2Coordinator: WelcomeV2Routable {}
+extension WelcomeV2Coordinator: WelcomeV2Routable {
+    func openCreateWallet() {}
+
+    func openExistingWallet() {}
+}
