@@ -171,7 +171,7 @@ final class AccountDetailsViewModel: ObservableObject {
 
         Analytics.log(event: .accountSettingsAccountError, params: [
             .source: Analytics.ParameterValue.accountSourceArchive.rawValue,
-            .errorDescription: String(describing: error),
+            .error: String(describing: error),
         ])
 
         let title: String
