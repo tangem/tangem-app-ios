@@ -57,31 +57,44 @@ struct TangemPayPushPayloadTests {
 
     // MARK: - Body dispatch
 
-    private static let dispatchArguments: [(type: String, bodyFields: [String: String], expectedCase: String)] = [
-        (type: "card_ready", bodyFields: [:], expectedCase: "cardReady"),
-        (type: "transaction_spend", bodyFields: spendFields, expectedCase: "transactionSpend"),
-        (type: "declined_top_up", bodyFields: spendFields, expectedCase: "declinedTopUp"),
-        (type: "collateral_withdraw", bodyFields: collateralFields, expectedCase: "collateralWithdraw"),
-        (type: "collateral_deposit", bodyFields: collateralFields, expectedCase: "collateralDeposit"),
+    private static let dispatchArguments: [(type: String, bodyFields: [String: String])] = [
+        (type: "card_ready", bodyFields: [:]),
+        (type: "transaction_spend", bodyFields: spendFields),
+        (type: "transaction_spend_refund", bodyFields: spendFields),
+        (type: "declined_top_up", bodyFields: spendFields),
+        (type: "declined_reason1", bodyFields: spendFields),
+        (type: "declined_reason9", bodyFields: spendFields),
+        (type: "declined_reason17", bodyFields: spendFields),
+        (type: "collateral_withdraw", bodyFields: collateralFields),
+        (type: "collateral_deposit", bodyFields: collateralFields),
+        (type: "threshold1_top_up", bodyFields: [:]),
     ]
 
-    @Test("Parses each push type into the correct body case", arguments: dispatchArguments)
-    func bodyDispatch(type: String, bodyFields: [String: String], expectedCase: String) {
+    @Test("Parses each push type into the matching body case", arguments: dispatchArguments)
+    func bodyDispatch(type: String, bodyFields: [String: String]) {
         let payload = TangemPayPushPayload.parse(from: Self.makeUserInfo(type: type, bodyFields: bodyFields))
 
-        guard let body = payload?.body else {
+        guard let payload else {
             #expect(Bool(false), "Expected parse to succeed for type '\(type)'")
             return
         }
 
-        let actualCase = switch body {
-        case .cardReady: "cardReady"
-        case .transactionSpend: "transactionSpend"
-        case .declinedTopUp: "declinedTopUp"
-        case .collateralWithdraw: "collateralWithdraw"
-        case .collateralDeposit: "collateralDeposit"
-        }
-        #expect(actualCase == expectedCase)
+        // `rawType` derives from `body` case by case, so the round-trip checks the dispatch and
+        // guarantees the support-request JSON carries exactly the type that arrived.
+        #expect(payload.rawType.rawValue == type)
+    }
+
+    @Test(
+        "Rejects an unsupported declined reason type",
+        arguments: [
+            "declined_reason",
+            "declined_reason0",
+            "declined_reason07",
+            "declined_reason18",
+        ]
+    )
+    func rejectsUnsupportedDeclinedReasonType(type: String) {
+        #expect(TangemPayPushPayload.parse(from: Self.makeUserInfo(type: type, bodyFields: Self.spendFields)) == nil)
     }
 
     // MARK: - Value coercion
