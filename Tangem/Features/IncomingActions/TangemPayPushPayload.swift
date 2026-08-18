@@ -21,9 +21,28 @@ public extension TangemPayPushPayload {
     enum Body: Equatable {
         case cardReady
         case transactionSpend(Spend)
+        case transactionSpendRefund(Spend)
         case declinedTopUp(Spend)
+        case declinedReason1(Spend)
+        case declinedReason2(Spend)
+        case declinedReason3(Spend)
+        case declinedReason4(Spend)
+        case declinedReason5(Spend)
+        case declinedReason6(Spend)
+        case declinedReason7(Spend)
+        case declinedReason8(Spend)
+        case declinedReason9(Spend)
+        case declinedReason10(Spend)
+        case declinedReason11(Spend)
+        case declinedReason12(Spend)
+        case declinedReason13(Spend)
+        case declinedReason14(Spend)
+        case declinedReason15(Spend)
+        case declinedReason16(Spend)
+        case declinedReason17(Spend)
         case collateralWithdraw(Collateral)
         case collateralDeposit(Collateral)
+        case thresholdTopUp
     }
 
     struct Spend: Equatable, Encodable {
@@ -93,22 +112,60 @@ public extension TangemPayPushPayload {
 
 // MARK: - RawType
 
-private extension TangemPayPushPayload {
+extension TangemPayPushPayload {
     enum RawType: String {
         case cardReady = "card_ready"
         case transactionSpend = "transaction_spend"
+        case transactionSpendRefund = "transaction_spend_refund"
+        case declinedTopUp = "declined_top_up"
+        case declinedReason1 = "declined_reason1"
+        case declinedReason2 = "declined_reason2"
+        case declinedReason3 = "declined_reason3"
+        case declinedReason4 = "declined_reason4"
+        case declinedReason5 = "declined_reason5"
+        case declinedReason6 = "declined_reason6"
+        case declinedReason7 = "declined_reason7"
+        case declinedReason8 = "declined_reason8"
+        case declinedReason9 = "declined_reason9"
+        case declinedReason10 = "declined_reason10"
+        case declinedReason11 = "declined_reason11"
+        case declinedReason12 = "declined_reason12"
+        case declinedReason13 = "declined_reason13"
+        case declinedReason14 = "declined_reason14"
+        case declinedReason15 = "declined_reason15"
+        case declinedReason16 = "declined_reason16"
+        case declinedReason17 = "declined_reason17"
         case collateralWithdraw = "collateral_withdraw"
         case collateralDeposit = "collateral_deposit"
-        case declinedTopUp = "declined_top_up"
+        case thresholdTopUp = "threshold1_top_up"
     }
 
     var rawType: RawType {
         switch body {
         case .cardReady: .cardReady
         case .transactionSpend: .transactionSpend
+        case .transactionSpendRefund: .transactionSpendRefund
+        case .declinedTopUp: .declinedTopUp
+        case .declinedReason1: .declinedReason1
+        case .declinedReason2: .declinedReason2
+        case .declinedReason3: .declinedReason3
+        case .declinedReason4: .declinedReason4
+        case .declinedReason5: .declinedReason5
+        case .declinedReason6: .declinedReason6
+        case .declinedReason7: .declinedReason7
+        case .declinedReason8: .declinedReason8
+        case .declinedReason9: .declinedReason9
+        case .declinedReason10: .declinedReason10
+        case .declinedReason11: .declinedReason11
+        case .declinedReason12: .declinedReason12
+        case .declinedReason13: .declinedReason13
+        case .declinedReason14: .declinedReason14
+        case .declinedReason15: .declinedReason15
+        case .declinedReason16: .declinedReason16
+        case .declinedReason17: .declinedReason17
         case .collateralWithdraw: .collateralWithdraw
         case .collateralDeposit: .collateralDeposit
-        case .declinedTopUp: .declinedTopUp
+        case .thresholdTopUp: .thresholdTopUp
         }
     }
 }
@@ -129,9 +186,28 @@ public extension TangemPayPushPayload {
         try container.encode(rawType.rawValue, forKey: .type)
 
         switch body {
-        case .cardReady:
+        case .cardReady, .thresholdTopUp:
             break
-        case .transactionSpend(let spend), .declinedTopUp(let spend):
+        case .transactionSpend(let spend),
+             .transactionSpendRefund(let spend),
+             .declinedTopUp(let spend),
+             .declinedReason1(let spend),
+             .declinedReason2(let spend),
+             .declinedReason3(let spend),
+             .declinedReason4(let spend),
+             .declinedReason5(let spend),
+             .declinedReason6(let spend),
+             .declinedReason7(let spend),
+             .declinedReason8(let spend),
+             .declinedReason9(let spend),
+             .declinedReason10(let spend),
+             .declinedReason11(let spend),
+             .declinedReason12(let spend),
+             .declinedReason13(let spend),
+             .declinedReason14(let spend),
+             .declinedReason15(let spend),
+             .declinedReason16(let spend),
+             .declinedReason17(let spend):
             try spend.encode(to: encoder)
         case .collateralWithdraw(let collateral), .collateralDeposit(let collateral):
             try collateral.encode(to: encoder)
@@ -167,12 +243,50 @@ extension TangemPayPushPayload {
             return .cardReady
         case .transactionSpend:
             return parseSpend(userInfo: userInfo).map(Body.transactionSpend)
+        case .transactionSpendRefund:
+            return parseSpend(userInfo: userInfo).map(Body.transactionSpendRefund)
         case .declinedTopUp:
             return parseSpend(userInfo: userInfo).map(Body.declinedTopUp)
+        case .declinedReason1:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason1)
+        case .declinedReason2:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason2)
+        case .declinedReason3:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason3)
+        case .declinedReason4:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason4)
+        case .declinedReason5:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason5)
+        case .declinedReason6:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason6)
+        case .declinedReason7:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason7)
+        case .declinedReason8:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason8)
+        case .declinedReason9:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason9)
+        case .declinedReason10:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason10)
+        case .declinedReason11:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason11)
+        case .declinedReason12:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason12)
+        case .declinedReason13:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason13)
+        case .declinedReason14:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason14)
+        case .declinedReason15:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason15)
+        case .declinedReason16:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason16)
+        case .declinedReason17:
+            return parseSpend(userInfo: userInfo).map(Body.declinedReason17)
         case .collateralWithdraw:
             return parseCollateral(userInfo: userInfo).map(Body.collateralWithdraw)
         case .collateralDeposit:
             return parseCollateral(userInfo: userInfo).map(Body.collateralDeposit)
+        case .thresholdTopUp:
+            return .thresholdTopUp
         }
     }
 
