@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public final class PrivateInfo {
     private(set) var entropy: Data
@@ -18,7 +19,7 @@ public final class PrivateInfo {
     }
 
     func clear() {
-        secureErase(data: &entropy)
+        entropy.secureErase()
     }
 }
 

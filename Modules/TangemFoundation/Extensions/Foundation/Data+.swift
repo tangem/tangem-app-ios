@@ -18,4 +18,13 @@ public extension Data {
         let suffix = Data(repeating: UInt8(0), count: newLength - count)
         return self + suffix
     }
+
+    /// Zeroes the buffer in place; `memset_s` cannot be optimized away. Best effort by nature:
+    /// it covers this instance only, not copies made by COW, coders or the crypto layer.
+    mutating func secureErase() {
+        withUnsafeMutableBytes { bytes in
+            guard let baseAddress = bytes.baseAddress else { return }
+            _ = memset_s(baseAddress, bytes.count, 0, bytes.count)
+        }
+    }
 }
