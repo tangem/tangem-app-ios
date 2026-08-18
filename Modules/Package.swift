@@ -278,6 +278,7 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemPolymarket",
             dependencies: [
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
                 "Moya",
                 "TangemFoundation",
                 "TangemMacro",
