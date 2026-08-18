@@ -214,7 +214,7 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
             enterSpendsAmount: false
         )
 
-        stateSubject.send(.failure(.network(StakeKitHTTPError.insufficientGasReserve(shortfallAmount: 0.01, gasTokenSymbol: "SOL"))))
+        stateSubject.send(.failure(.network(try makeGasReserveFailure())))
 
         let events = stakingEvents(manager)
         let topUpEvent = try #require(events.first { $0.isInsufficientFundsForFee })
@@ -223,12 +223,12 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
     }
 
     @Test("V2 enter that spends the amount keeps the reduce-amount banner for a StakeKit gas-reserve failure")
-    func v2EnterGasReserveFailureKeepsReduceAmountBanner() {
+    func v2EnterGasReserveFailureKeepsReduceAmountBanner() throws {
         let (manager, stateSubject) = makeV2SUT(
             action: StakingAction(amount: 0.02, targetType: .empty, type: .stake)
         )
 
-        stateSubject.send(.failure(.network(StakeKitHTTPError.insufficientGasReserve(shortfallAmount: 0.01, gasTokenSymbol: "SOL"))))
+        stateSubject.send(.failure(.network(try makeGasReserveFailure())))
 
         let events = stakingEvents(manager)
         #expect(events.contains { $0.isInsufficientFundsForFeeReduceAmount })
@@ -257,6 +257,13 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
 // MARK: - Helpers
 
 private extension StakingNotificationManagerTests {
+    /// `StakeKitAPIError` only ever comes off the wire, so an empty body stands in for one here.
+    func makeGasReserveFailure(shortfall: Decimal = 0.01, gasTokenSymbol: String = "SOL") throws -> StakeKitHTTPError {
+        let apiError = try JSONDecoder().decode(StakeKitAPIError.self, from: Data("{}".utf8))
+
+        return .insufficientGasReserve(shortfallAmount: shortfall, gasTokenSymbol: gasTokenSymbol, apiError: apiError)
+    }
+
     func makeSUT(
         blockchain: Blockchain? = nil,
         tokenItem: TokenItem? = nil,
