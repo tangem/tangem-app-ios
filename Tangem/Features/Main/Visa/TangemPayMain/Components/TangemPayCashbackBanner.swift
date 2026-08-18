@@ -46,6 +46,10 @@ private extension TangemPayCashbackBanner {
     var subtitle: String? {
         switch state {
         case .content(let summary):
+            if summary.confirmedAmount < 0 {
+                return Localization.tangempayCashbackWidgetRefundDescription
+            }
+
             guard summary.confirmedAmount > 0, let payoutWindow = payoutWindow(for: summary) else {
                 return nil
             }
