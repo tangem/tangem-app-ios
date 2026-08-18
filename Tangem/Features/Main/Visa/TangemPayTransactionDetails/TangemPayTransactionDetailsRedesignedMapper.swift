@@ -112,7 +112,11 @@ struct TangemPayTransactionDetailsRedesignedMapper {
         )
     }
 
-    func map(cashback: TangemPayTransactionCashback) -> TangemPayTransactionDetailsDisplayModel.CashbackRow {
+    func map(cashback: TangemPayTransactionCashback?) -> TangemPayTransactionDetailsDisplayModel.CashbackRow {
+        guard let cashback else {
+            return .init(value: .text(Localization.tangemPayTransactionDetailsCashbackNone), subvalue: nil)
+        }
+
         switch cashback {
         case .earned(let amount, let currency):
             return .init(

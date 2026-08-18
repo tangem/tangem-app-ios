@@ -352,9 +352,23 @@ struct TangemPayMainView: View {
                 .onChange(of: viewModel.cashbackBannerImpression) { _ in
                     viewModel.logCashbackBannerImpression()
                 }
-        } else if viewModel.shouldDisplayCashbackBlockedBanner {
-            TangemPayCashbackBlockedBanner(action: viewModel.dismissCashbackBlockedBanner)
+        } else if let gotItButton = viewModel.cashbackBlockedBanner {
+            cashbackBlockedBanner(gotItButton: gotItButton)
                 .onAppear(perform: viewModel.onCashbackBlockedBannerAppear)
         }
+    }
+
+    private func cashbackBlockedBanner(gotItButton: MessageBannerButton) -> some View {
+        MessageBanner(
+            title: Localization.tangempayCashbackDeactivatedTitle,
+            description: Localization.tangempayCashbackDeactivatedDescription
+        )
+        .glowRing(.error)
+        .slotEnd {
+            DesignSystem.Icons.Error.regular20.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
+        }
+        .secondaryButton(gotItButton)
     }
 }
