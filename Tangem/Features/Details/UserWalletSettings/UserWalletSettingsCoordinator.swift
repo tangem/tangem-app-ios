@@ -398,6 +398,11 @@ extension UserWalletSettingsCoordinator: MobileBackupNeededRoutable {
         openOnboardingModal(options: .mobileInput(input), onSuccess: onBackupFinished)
     }
 
+    func openMobileBackupTypesFromMobileBackupNeeded(userWalletModel: UserWalletModel) {
+        dismissMobileBackupNeeded()
+        openMobileBackupTypes(userWalletModel: userWalletModel)
+    }
+
     func dismissMobileBackupNeeded() {
         floatingSheetPresenter.removeActiveSheet()
     }
@@ -417,6 +422,11 @@ extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable 
     func openMobileOnboardingFromRemoveWalletNotification(input: MobileOnboardingInput) {
         dismissMobileRemoveWalletNotification()
         openOnboardingModal(options: .mobileInput(input))
+    }
+
+    func openMobileBackupTypesFromRemoveWalletNotification(userWalletModel: UserWalletModel) {
+        dismissMobileRemoveWalletNotification()
+        openMobileBackupTypes(userWalletModel: userWalletModel)
     }
 
     func dismissMobileRemoveWalletNotification() {
