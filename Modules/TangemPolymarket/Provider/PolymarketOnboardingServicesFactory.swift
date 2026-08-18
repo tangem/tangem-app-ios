@@ -24,4 +24,22 @@ public struct PolymarketOnboardingServicesFactory {
 
         return CommonPolymarketWalletService(provider: provider, baseURL: baseURL)
     }
+
+    public func makeGeoblockService() -> PolymarketGeoblockService {
+        let provider = TangemProvider<PolymarketGeoblockTarget>(configuration: networkConfiguration)
+
+        return CommonPolymarketGeoblockService(provider: provider, baseURL: PolymarketHost.polymarket)
+    }
+
+    public func makeRelayerService() -> PolymarketRelayerService {
+        let provider = TangemProvider<PolymarketRelayerTarget>(configuration: networkConfiguration)
+
+        return CommonPolymarketRelayerService(provider: provider, baseURL: PolymarketHost.relayer)
+    }
+
+    public func makeCLOBService() -> PolymarketCLOBService {
+        let provider = TangemProvider<PolymarketCLOBTarget>(configuration: networkConfiguration)
+
+        return CommonPolymarketCLOBService(provider: provider, baseURL: PolymarketHost.clob)
+    }
 }
