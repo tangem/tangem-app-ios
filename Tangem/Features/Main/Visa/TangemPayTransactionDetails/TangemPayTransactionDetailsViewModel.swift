@@ -219,7 +219,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
         do {
             let response = try await tangemPayAccount.getCashbackTransactionDetails(transactionId: transactionId)
-            cashbackRow = TangemPayTransactionCashback(response).map { .loaded(redesignedMapper.map(cashback: $0)) }
+            cashbackRow = .loaded(redesignedMapper.map(cashback: TangemPayTransactionCashback(response)))
         } catch {
             cashbackRow = .failed
             Analytics.log(.visaCashbackLoadingErrorShowed, contextParams: .userWallet(userWalletId))

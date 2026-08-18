@@ -68,7 +68,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var awaitingDepositInfo: TangemPayAwaitingDepositInfo?
     @Published private(set) var cashback: TangemPayCashback?
-    @Published private(set) var shouldDisplayCashbackBlockedBanner = false
+    @Published private(set) var cashbackBlockedBanner: MessageBannerButton?
     @Published private var didCashbackLoadFail = false
     @Published private var isCashbackReloading = false
 
@@ -432,7 +432,7 @@ final class TangemPayMainViewModel: ObservableObject {
         Analytics.log(.visaCashbackDeactivationBannerShowed, contextParams: .userWallet(userWalletInfo.id))
     }
 
-    func dismissCashbackBlockedBanner() {
+    private func dismissCashbackBlockedBanner() {
         Analytics.log(.visaCashbackDeactivationBannerGotItClicked, contextParams: .userWallet(userWalletInfo.id))
         AppSettings.shared.tangemPayCashbackBlockedBannerDismissedForCustomerWalletId[userWalletInfo.id.stringValue] = true
     }
@@ -787,7 +787,18 @@ private extension TangemPayMainViewModel {
             }
             .removeDuplicates()
             .receiveOnMain()
-            .assign(to: &$shouldDisplayCashbackBlockedBanner)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isCashbackBlocked in
+                if isCashbackBlocked {
+                    viewModel.cashbackBlockedBanner = .init(
+                        title: Localization.commonGotIt,
+                        action: { [weak viewModel] in viewModel?.dismissCashbackBlockedBanner() }
+                    )
+                } else {
+                    viewModel.cashbackBlockedBanner = nil
+                }
+            }
+            .store(in: &bag)
         }
     }
 
