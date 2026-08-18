@@ -280,6 +280,7 @@ var featureModules: [PackageDescription.Target] {
             dependencies: [
                 "Moya",
                 "TangemFoundation",
+                "TangemMacro",
                 "TangemNetworkUtils",
             ],
             swiftSettings: [
