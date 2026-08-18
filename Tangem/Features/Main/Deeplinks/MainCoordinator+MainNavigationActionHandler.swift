@@ -283,7 +283,7 @@ extension MainCoordinator {
                 from: userWalletModel.accountModelsManager
             )
 
-            guard let sourceToken = MainSwapPairResolver.makeBestEffortSourceToken(
+            guard let sourceToken = MainSwapSourceResolver.makeBestEffortSourceToken(
                 from: walletModels,
                 userWalletInfo: userWalletModel.userWalletInfo
             ) else {
@@ -291,14 +291,14 @@ extension MainCoordinator {
                 return false
             }
 
-            let resolver = MainSwapPairResolver(
+            let resolver = MainSwapSourceResolver(
                 userWalletModel: userWalletModel,
                 swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
             )
 
             coordinator?.openDeepLink(
                 .swap(
-                    parameters: .deferredPairResolution(source: sourceToken, resolver: resolver)
+                    parameters: .from(sourceToken, pair: .deferred(sourceResolver: resolver))
                 )
             )
 
