@@ -23,6 +23,13 @@ final class SwapPreselectedTokenChangeAnalyticsLogger {
         self.analyticsLogger = analyticsLogger
     }
 
+    func updatePreselected(direction: Direction, tokenItem: TokenItem) {
+        switch direction {
+        case .source: preselectedSourceTokenItem = tokenItem
+        case .receive: preselectedReceiveTokenItem = tokenItem
+        }
+    }
+
     func logIfNeeded(direction: Direction, selected: TokenItem) {
         let preselected: TokenItem? = switch direction {
         case .source: preselectedSourceTokenItem
