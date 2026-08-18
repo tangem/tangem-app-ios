@@ -376,9 +376,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>+%li Outcome</string>
+        <string>EIN +%li Ergebnis</string>
         <key>other</key>
-        <string>+%li Outcomes</string>
+        <string>EIN +%li Ergebnis</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -445,6 +445,22 @@
         <string>%li Karten</string>
       </dict>
     </dict>
+    <key>tangempay_order_success_delivery_eta</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Die Lieferung dauert bis zu %li Werktage.</string>
+        <key>other</key>
+        <string>Die Lieferung dauert bis zu %li Werktage.</string>
+      </dict>
+    </dict>
     <key>tangempay_order_type_delivery_eta</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -456,9 +472,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Up to %li business day</string>
+        <string>Bis zu %li Werktage</string>
         <key>other</key>
-        <string>Up to %li business days</string>
+        <string>Bis zu %li Werktage</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
