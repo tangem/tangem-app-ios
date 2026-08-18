@@ -52,7 +52,7 @@ extension CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
             params: [
                 .token: tokenItem.currencySymbol,
                 .provider: provider.name,
-                .errorDescription: error.localizedDescription,
+                .error: error.localizedDescription,
             ]
         )
     }

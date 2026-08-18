@@ -318,7 +318,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
         Analytics.log(event: .accountSettingsAccountError, params: [
             .source: source.rawValue,
-            .errorDescription: String(describing: error),
+            .error: String(describing: error),
         ])
 
         let title: String
