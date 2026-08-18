@@ -100,7 +100,7 @@ private extension MobileOnboardingViewModel {
 
 private extension MobileOnboardingViewModel {
     func isBackupNeeded(for userWalletModel: UserWalletModel) -> Bool {
-        userWalletModel.config.hasFeature(.mnemonicBackup)
+        MobileBackupStatusUtil(userWalletModel: userWalletModel).isBackupNeeded
     }
 
     func isAccessCodeNeeded(for userWalletModel: UserWalletModel) -> Bool {

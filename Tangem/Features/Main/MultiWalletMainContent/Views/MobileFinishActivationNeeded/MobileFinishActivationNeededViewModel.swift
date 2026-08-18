@@ -30,15 +30,17 @@ final class MobileFinishActivationNeededViewModel {
     let backupTitle = Localization.hwActivationNeedBackup
 
     private var isBackupNeeded: Bool {
-        userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        backupStatusUtil.isBackupNeeded
     }
 
+    private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
     private weak var coordinator: MobileFinishActivationNeededRoutable?
 
     init(userWalletModel: UserWalletModel, coordinator: MobileFinishActivationNeededRoutable) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+        self.backupStatusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
     }
 }
 
