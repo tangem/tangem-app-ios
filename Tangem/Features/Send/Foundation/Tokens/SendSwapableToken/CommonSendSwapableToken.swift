@@ -27,6 +27,9 @@ struct CommonSendSwapableToken: SendSwapableToken {
     let operationType: ExpressOperationType
     let supportedProvidersFilter: SupportedProvidersFilter
 
+    /// Abstract receive-side presentation (account funding flows). `nil` keeps standard rendering.
+    var presentation: SendReceiveTokenPresentation?
+
     // MARK: - SendSourceToken proxy properties
 
     var userWalletInfo: UserWalletInfo { sourceToken.userWalletInfo }

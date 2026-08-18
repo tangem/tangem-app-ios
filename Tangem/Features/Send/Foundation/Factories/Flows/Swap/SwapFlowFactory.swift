@@ -15,7 +15,6 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
     let initialTokenItem: TokenItem
     let expressDependenciesFactory: ExpressDependenciesFactory
     private let sourceTokenResolver: (any SwapSourceTokenResolver)?
-    private let destinationTokenResolver: (any SwapDestinationTokenResolver)?
     private let configuration: SwapFlowConfiguration
     private let extras: PredefinedSwapParameters.Extras?
 
@@ -34,7 +33,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         ),
         shouldStartInitialLoading: true,
         sourceTokenResolver: sourceTokenResolver,
-        destinationTokenResolver: destinationTokenResolver
+        destinationTokenResolver: configuration.receiveTokenSelection.destinationResolver
     )
     lazy var notificationManager = makeSwapNotificationManager()
     lazy var marketingBannerManager = makeSwapMarketingBannerManager()
@@ -51,7 +50,6 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         self.receiveToken = receiveToken
         self.extras = extras
         self.sourceTokenResolver = sourceTokenResolver
-        destinationTokenResolver = nil
         self.configuration = configuration
         initialTokenItem = sourceToken.tokenItem
 
@@ -69,7 +67,6 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         sourceToken = nil
         self.receiveToken = receiveToken
         self.sourceTokenResolver = sourceTokenResolver
-        destinationTokenResolver = configuration.receiveTokenSelection.destinationResolver
         self.configuration = configuration
         extras = nil
         initialTokenItem = receiveToken.tokenItem
