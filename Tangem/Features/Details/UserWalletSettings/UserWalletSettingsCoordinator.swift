@@ -216,7 +216,13 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
     }
 
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel) {
-        let viewModel = MobileRemoveWalletNotificationViewModel(userWalletModel: userWalletModel, coordinator: self)
+        let removeManager = CommonMobileRemoveWalletManager(userWalletModel: userWalletModel)
+
+        let viewModel = MobileRemoveWalletNotificationViewModel(
+            userWalletModel: userWalletModel,
+            removeManager: removeManager,
+            coordinator: self
+        )
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -400,9 +406,12 @@ extension UserWalletSettingsCoordinator: MobileBackupNeededRoutable {
 // MARK: - MobileRemoveWalletNotificationRoutable
 
 extension UserWalletSettingsCoordinator: MobileRemoveWalletNotificationRoutable {
-    func openMobileRemoveWallet(userWalletId: UserWalletId) {
+    func openMobileRemoveWallet(removeManager: MobileRemoveWalletManager) {
         dismissMobileRemoveWalletNotification()
-        mobileRemoveWalletViewModel = MobileRemoveWalletViewModel(userWalletId: userWalletId, delegate: self)
+        mobileRemoveWalletViewModel = MobileRemoveWalletViewModel(
+            removeManager: removeManager,
+            delegate: self
+        )
     }
 
     func openMobileOnboardingFromRemoveWalletNotification(input: MobileOnboardingInput) {

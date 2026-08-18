@@ -11,7 +11,7 @@ import TangemFoundation
 
 @MainActor
 protocol MobileRemoveWalletNotificationRoutable: AnyObject {
-    func openMobileRemoveWallet(userWalletId: UserWalletId)
+    func openMobileRemoveWallet(removeManager: MobileRemoveWalletManager)
     func openMobileOnboardingFromRemoveWalletNotification(input: MobileOnboardingInput)
     func dismissMobileRemoveWalletNotification()
 }
