@@ -21,6 +21,9 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
     let transactionDispatcher: any TransactionDispatcher
     let transactionValidator: any SendTransactionValidator
     let operationType: ExpressOperationType
+    /// Abstract receive-side presentation when this token is used as the swap destination
+    /// (Add funds flow). Left `nil` when the token is used as the source (Withdraw flow).
+    var receiveTokenPresentation: SendReceiveTokenPresentation? = nil
 
     func makeSwapableToken() -> SendSwapableToken {
         let sourceTokenFactory = TangemPaySourceTokenFactory(
@@ -76,7 +79,8 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
             operationType: operationType,
 
             // TangemPay is limited to CEX providers — every operation type collapses to a CEX-style filter.
-            supportedProvidersFilter: .cex
+            supportedProvidersFilter: .cex,
+            presentation: receiveTokenPresentation
         )
     }
 }

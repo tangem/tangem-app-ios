@@ -11,7 +11,7 @@ import TangemPay
 enum TangemPayNetworkRowResolver {
     static func resolve(_ networks: [TangemPayBalance.Network]) -> [TangemPayNetworkRow] {
         networks.compactMap { network in
-            guard let blockchain = blockchain(name: network.name, isTestnet: network.isTestnet) else {
+            guard let blockchain = TangemPayUtilities.blockchain(name: network.name, isTestnet: network.isTestnet) else {
                 return nil
             }
 
@@ -30,7 +30,7 @@ enum TangemPayNetworkRowResolver {
         for network: TangemPayBalance.Network,
         depositAddress: String
     ) -> TangemPayReceiveSheetViewModel.Input? {
-        blockchain(name: network.name, isTestnet: network.isTestnet).map { blockchain in
+        TangemPayUtilities.blockchain(name: network.name, isTestnet: network.isTestnet).map { blockchain in
             receiveInput(for: network, blockchain: blockchain, depositAddress: depositAddress)
         }
     }
@@ -70,17 +70,5 @@ enum TangemPayNetworkRowResolver {
                 .init(symbol: $0.token, contractAddress: $0.tokenContractAddress)
             }
         )
-    }
-
-    private static func blockchain(name: String, isTestnet: Bool) -> Blockchain? {
-        switch name {
-        case Blockchain.ethereum(testnet: false).networkId: .ethereum(testnet: isTestnet)
-        case Blockchain.polygon(testnet: false).networkId: .polygon(testnet: isTestnet)
-        case Blockchain.bsc(testnet: false).networkId: .bsc(testnet: isTestnet)
-        case Blockchain.base(testnet: false).networkId: .base(testnet: isTestnet)
-        case Blockchain.arbitrum(testnet: false).networkId: .arbitrum(testnet: isTestnet)
-        case Blockchain.tron(testnet: false).networkId: .tron(testnet: isTestnet)
-        default: nil
-        }
     }
 }
