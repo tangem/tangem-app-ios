@@ -27,6 +27,15 @@ final class ScanCardUITests: BaseTestCase {
             .validate(cardType: .wallet2)
     }
 
+    func testScanWallet3Card_MainShowed() {
+        setAllureId(10835)
+        launchApp()
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet3)
+            .validate(cardType: .wallet3)
+    }
+
     func testScanWalletCard_MainShowed() {
         setAllureId(867)
         launchApp()
