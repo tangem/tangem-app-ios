@@ -46,7 +46,7 @@ private extension MobileMainHeaderSubtitleProvider {
             .withWeakCaptureOf(self)
             .sink { provider, event in
                 if case .configurationChanged(let model) = event {
-                    let isBackupNeeded = model.config.hasFeature(.mnemonicBackup) && model.config.hasFeature(.iCloudBackup)
+                    let isBackupNeeded = MobileBackupStatusUtil(userWalletModel: model).isBackupNeeded
                     provider.setupSubtitle(isBackupNeeded: isBackupNeeded)
                 }
             }
