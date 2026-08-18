@@ -82,13 +82,9 @@ private extension MobileBackupICloudTypeViewModel {
         await setupLoadingState()
 
         do {
-            let walletId = userWalletModel.userWalletId.stringValue
-            let backups = try await backupManager.loadBackups()
-
-            guard let backup = backups.first(where: { $0.metadata.walletId == walletId }) else {
+            guard let backup = try await backupManager.loadBackup(walletId: userWalletModel.userWalletId) else {
                 throw WalletBackupStorageError.fileNotFound
             }
-
             await setupLoadedState(backup: backup)
 
         } catch {

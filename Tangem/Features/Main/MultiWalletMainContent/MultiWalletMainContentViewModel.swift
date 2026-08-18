@@ -676,7 +676,7 @@ extension MultiWalletMainContentViewModel {
     private func openMobileFinishActivation() {
         Analytics.log(.mainButtonFinalizeActivation)
 
-        let isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        let isBackupNeeded = MobileBackupStatusUtil(userWalletModel: userWalletModel).isBackupNeeded
         if isBackupNeeded {
             coordinator?.openMobileBackup(userWalletModel: userWalletModel)
         } else {
