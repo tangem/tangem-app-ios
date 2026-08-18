@@ -36,6 +36,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var cardManagementViewModel: TangemPayCardManagementViewModel?
     @Published var currentPlanCoordinator: TangemPayCurrentPlanCoordinator?
     @Published var selectPlanCoordinator: TangemPaySelectPlanCoordinator?
+    @Published var orderCardTypeViewModel: TangemPayOrderCardTypeViewModel?
 
     // MARK: - Child view models (sheets)
 
@@ -240,6 +241,18 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+
+    func openOrderCardType(fee: TangemPayCustomerOffer.Fee) {
+        let virtualCardImageURL = options?.tangemPayAccount.customerTariffPlan?.tariffPlan.images
+            .first { $0.type == .main }
+            .flatMap { URL(string: $0.url) }
+
+        orderCardTypeViewModel = TangemPayOrderCardTypeViewModel(
+            issueFeeText: Self.formatFee(amount: fee.amount, currency: fee.currency),
+            virtualCardImageURL: virtualCardImageURL,
+            coordinator: self
+        )
     }
 
     func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel) {
@@ -895,17 +908,31 @@ extension TangemPayMainCoordinator: TangemPayDailyLimitRoutable {
     }
 }
 
+// MARK: - TangemPayOrderCardTypeRoutable
+
+extension TangemPayMainCoordinator: TangemPayOrderCardTypeRoutable {
+    func orderCardTypeDidSelectVirtual() {
+        rootViewModel?.orderCardTypeDidSelectVirtual()
+    }
+
+    func closeOrderCardType() {
+        orderCardTypeViewModel = nil
+    }
+}
+
 // MARK: - TangemPayIssueAdditionalCardCostPopupRoutable
 
 extension TangemPayMainCoordinator: TangemPayIssueAdditionalCardCostPopupRoutable {
     func issueCostPopupDidConfirm() {
         Task { @MainActor in
+            closeOrderCardType()
             floatingSheetPresenter.removeActiveSheet()
         }
     }
 
     func issueCostPopupDidRequestAddFunds() {
         Task { @MainActor in
+            closeOrderCardType()
             floatingSheetPresenter.removeActiveSheet()
             try? await Task.sleep(for: .seconds(0.2))
             rootViewModel?.addFunds()
@@ -914,6 +941,7 @@ extension TangemPayMainCoordinator: TangemPayIssueAdditionalCardCostPopupRoutabl
 
     func issueCostPopupDidFail(error: Error) {
         Task { @MainActor in
+            closeOrderCardType()
             floatingSheetPresenter.removeActiveSheet()
             try? await Task.sleep(for: .seconds(0.2))
             rootViewModel?.showCardIssueFailureAlert()
