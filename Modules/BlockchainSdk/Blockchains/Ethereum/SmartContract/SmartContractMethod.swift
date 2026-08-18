@@ -9,6 +9,7 @@
 import Foundation
 import BigInt
 
+/// - Warning: Always consider using `SmartContractAddress` wrapper instead of raw strings for addresses in concrete implementations of this protocol.
 public protocol SmartContractMethod {
     var methodId: String { get }
     var data: Data { get }
@@ -28,6 +29,8 @@ public extension SmartContractMethod {
 
         for child in mirror.children {
             switch child.value {
+            case let value as SmartContractAddress:
+                data.append(value.encodedParameter)
             case let value as String:
                 data.append(Data(hexString: value).leadingZeroPadding(toLength: 32))
             case let value as BigUInt:
