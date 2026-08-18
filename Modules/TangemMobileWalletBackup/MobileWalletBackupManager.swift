@@ -26,12 +26,15 @@ public protocol MobileWalletBackupManager {
         password: String
     ) async throws -> MobileWalletBackup
 
-    /// Backups available for import, newest first.
+    /// Backups available for import.
     ///
     /// Files that are not valid Tangem backups — no or unsupported `version`, schema
     /// mismatch, unreadable contents — are skipped with the reason logged: one foreign or
     /// corrupted file next to a valid backup must not fail the whole listing.
     func loadBackups() async throws -> [MobileWalletBackup]
+
+    /// Load backup for `UserWalletId`, or `nil` when the storage holds none.
+    func loadBackup(walletId: UserWalletId) async throws -> MobileWalletBackup?
 
     /// Decrypts the backup with the user's password and returns the secret payload.
     ///
@@ -127,6 +130,23 @@ public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
         }
 
         return backups
+    }
+
+    public func loadBackup(walletId: UserWalletId) async throws -> MobileWalletBackup? {
+        let backupFiles = try await loadBackupFiles()
+
+        for file in backupFiles {
+            guard
+                let backup = await loadBackup(file: file),
+                backup.metadata.walletId == walletId.stringValue
+            else {
+                continue
+            }
+
+            return backup
+        }
+
+        return nil
     }
 
     public func importBackup(_ backup: MobileWalletBackup, password: String) async throws -> any WalletBackupPayload {

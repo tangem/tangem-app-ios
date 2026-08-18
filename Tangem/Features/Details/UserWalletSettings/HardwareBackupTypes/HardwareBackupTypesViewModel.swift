@@ -25,23 +25,25 @@ final class HardwareBackupTypesViewModel: ObservableObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     private var isSeedBackupNeeded: Bool {
-        userWalletModel.config.hasFeature(.mnemonicBackup)
+        !backupStatusUtil.hasMnemonicBackup
     }
 
     private var isICloudBackupNeeded: Bool {
-        userWalletModel.config.hasFeature(.iCloudBackup)
+        !backupStatusUtil.hasICloudBackup
     }
 
     private var analyticsContextParams: Analytics.ContextParams {
         .custom(userWalletModel.analyticsContextData)
     }
 
+    private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
     private weak var coordinator: HardwareBackupTypesRoutable?
 
     init(userWalletModel: UserWalletModel, coordinator: HardwareBackupTypesRoutable) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+        backupStatusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
     }
 }
 

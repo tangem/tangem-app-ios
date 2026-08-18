@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct WalletBackupFormatV1: WalletBackupFormat {
     // The crypto suite is part of the format version's definition — v1 files are
@@ -23,10 +24,10 @@ struct WalletBackupFormatV1: WalletBackupFormat {
         let kdfParams = try keyDerivator.makeDefaultParams()
 
         var key = try keyDerivator.deriveKey(password: Self.canonicalPassword(password), params: kdfParams)
-        defer { secureErase(data: &key) }
+        defer { key.secureErase() }
 
         var plaintext = try encodePayload(payload)
-        defer { secureErase(data: &plaintext) }
+        defer { plaintext.secureErase() }
 
         let version = WalletBackupFormatVersion.v1
         let backupID = UUID().uuidString.lowercased()
@@ -105,12 +106,12 @@ struct WalletBackupFormatV1: WalletBackupFormat {
         )
 
         var key = try keyDerivator.deriveKey(password: Self.canonicalPassword(password), params: kdfParams)
-        defer { secureErase(data: &key) }
+        defer { key.secureErase() }
 
         let additionalData = Self.additionalData(version: file.version, backupID: file.id)
 
         var payloadData = try cryptor.decrypt(sealedBox, key: key, additionalData: additionalData)
-        defer { secureErase(data: &payloadData) }
+        defer { payloadData.secureErase() }
 
         return try decodePayload(payloadData)
     }

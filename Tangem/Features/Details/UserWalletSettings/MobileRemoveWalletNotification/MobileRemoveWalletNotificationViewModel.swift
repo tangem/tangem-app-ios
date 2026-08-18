@@ -228,11 +228,15 @@ private extension MobileRemoveWalletNotificationViewModel {
     }
 
     func openSeedPhraseBackup() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackup(
-            userWalletModel: userWalletModel,
-            source: .walletSettings(action: .remove)
-        ))
-        coordinator?.openMobileOnboardingFromRemoveWalletNotification(input: input)
+        if isICloudBackupFeatureAvailable {
+            coordinator?.openMobileBackupTypesFromRemoveWalletNotification(userWalletModel: userWalletModel)
+        } else {
+            let input = MobileOnboardingInput(flow: .seedPhraseBackup(
+                userWalletModel: userWalletModel,
+                source: .walletSettings(action: .remove)
+            ))
+            coordinator?.openMobileOnboardingFromRemoveWalletNotification(input: input)
+        }
     }
 
     func openSeedPhraseReveal(context: MobileWalletContext) {

@@ -54,13 +54,10 @@ extension CommonMobileRemoveWalletManager: MobileRemoveWalletManager {
 
 private extension CommonMobileRemoveWalletManager {
     static func makeBackupState(config: UserWalletConfig) -> MobileRemoveWalletBackupState {
-        let hasICloudBackup = !config.hasFeature(.iCloudBackup)
-
-        if FeatureProvider.isAvailable(.mobileWalletBackup), hasICloudBackup {
+        if MobileBackupStatusUtil.hasICloudBackup(config: config) {
             return .iCloudBackup
         }
 
-        let hasSeedBackup = !config.hasFeature(.mnemonicBackup)
-        return hasSeedBackup ? .seedBackup : .noBackup
+        return MobileBackupStatusUtil.hasMnemonicBackup(config: config) ? .seedBackup : .noBackup
     }
 }
