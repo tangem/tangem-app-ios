@@ -25,7 +25,9 @@ extension QuaiAddressService: AddressProvider {
 
 extension QuaiAddressService: AddressValidator {
     public func validate(_ address: String) -> Bool {
-        if EthereumAddressUtils.isValidAddressHex(value: address), isAddressZoneValid(address: address) {
+        if EVMAddressUtils.isValidAddressHex(value: address),
+           !EVMAddressUtils.isBurnAddress(address),
+           isAddressZoneValid(address: address) {
             return true
         }
 
