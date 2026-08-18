@@ -8,4 +8,7 @@
 
 import Foundation
 
-protocol WelcomeV2Routable: AnyObject {}
+protocol WelcomeV2Routable: AnyObject {
+    func openCreateWallet()
+    func openExistingWallet()
+}
