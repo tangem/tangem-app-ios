@@ -43,7 +43,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             switch cardType {
             case .twin, .xrpNote, .xlmBird:
                 XCTAssertTrue(actionButtonsList.waitForExistence(timeout: .robustUIUpdate), "Action buttons list should exist for twin cards")
-            case .wallet, .wallet2, .walletDemo, .wallet2Demo, .shiba, .four12, .v3seckp, .ring:
+            case .wallet, .wallet2, .wallet3, .walletDemo, .wallet2Demo, .shiba, .four12, .v3seckp, .ring:
                 XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
                 XCTAssertTrue(buyActionButton.waitForExistence(timeout: .robustUIUpdate), "Buy button should exist for wallet cards")
                 XCTAssertTrue(swapActionButton.exists, "Exchange button should exist for wallet cards")
