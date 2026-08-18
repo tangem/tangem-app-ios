@@ -18,19 +18,21 @@ final class MobileBackupSeedPhraseTypeViewModel: ObservableObject {
     @Published private(set) var item: Item?
 
     private var isBackupNeeded: Bool {
-        userWalletModel.config.hasFeature(.mnemonicBackup)
+        !backupStatusUtil.hasMnemonicBackup
     }
 
     private var analyticsContextParams: Analytics.ContextParams {
         .custom(userWalletModel.analyticsContextData)
     }
 
+    private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
     private weak var delegate: MobileBackupSeedPhraseTypeDelegate?
 
     init(userWalletModel: UserWalletModel, delegate: MobileBackupSeedPhraseTypeDelegate) {
         self.userWalletModel = userWalletModel
         self.delegate = delegate
+        backupStatusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
         item = makeItem()
         bind()
     }

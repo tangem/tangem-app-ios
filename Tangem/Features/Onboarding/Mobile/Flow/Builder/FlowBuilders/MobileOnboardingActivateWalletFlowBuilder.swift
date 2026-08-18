@@ -14,7 +14,7 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private var isBackupNeeded: Bool {
-        userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        backupStatusUtil.isBackupNeeded
     }
 
     private var isAccessCodeNeeded: Bool {
@@ -25,6 +25,7 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
         .custom(userWalletModel.analyticsContextData)
     }
 
+    private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
     private let source: MobileOnboardingFlowSource
     private weak var coordinator: MobileOnboardingFlowRoutable?
@@ -37,6 +38,7 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
         self.userWalletModel = userWalletModel
         self.source = source
         self.coordinator = coordinator
+        backupStatusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
         super.init(hasProgressBar: true)
     }
 
