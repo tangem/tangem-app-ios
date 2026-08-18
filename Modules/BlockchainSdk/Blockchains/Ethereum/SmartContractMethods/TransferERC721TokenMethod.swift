@@ -11,21 +11,21 @@ import BigInt
 
 /// https://eips.ethereum.org/EIPS/eip-721#rationale
 public struct TransferERC721TokenMethod {
-    let source: String
-    let destination: String
+    let source: SmartContractAddress
+    let destination: SmartContractAddress
     let assetIdentifier: BigUInt
 
     public init(
         source: String,
         destination: String,
         assetIdentifier: String
-    ) throws(TransferERC721TokenMethod.Error) {
+    ) throws {
         guard let assetIdentifier = BigUInt(assetIdentifier) else {
             throw TransferERC721TokenMethod.Error.invalidAssetIdentifier
         }
 
-        self.source = source
-        self.destination = destination
+        self.source = try SmartContractAddress(source)
+        self.destination = try SmartContractAddress(destination)
         self.assetIdentifier = assetIdentifier
     }
 }
@@ -54,8 +54,8 @@ extension TransferERC721TokenMethod: SmartContractMethod {
 
     public var data: Data {
         let prefixData = Data(hexString: methodId)
-        let sourceAddressData = Data(hexString: source).leadingZeroPadding(toLength: Constants.paddingLength)
-        let destinationAddressData = Data(hexString: destination).leadingZeroPadding(toLength: Constants.paddingLength)
+        let sourceAddressData = source.encodedParameter
+        let destinationAddressData = destination.encodedParameter
         let assetIdentifierData = assetIdentifier.serialize().leadingZeroPadding(toLength: Constants.paddingLength)
 
         let arguments = [

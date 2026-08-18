@@ -281,7 +281,7 @@ final class HederaNetworkService {
                 }
 
                 let sourceEVMAddress = try converter.convertFromHederaToEVM(sourceAccountId)
-                let method = TransferERC20TokenMethod(
+                let method = try TransferERC20TokenMethod(
                     destination: recipientEVMAddress.removeHexPrefix(),
                     amount: amountValue
                 )
