@@ -11,7 +11,9 @@ import TangemAssets
 import TangemUI
 
 struct MobileRemoveWalletNotificationView: View {
-    @ObservedObject var viewModel: MobileRemoveWalletNotificationViewModel
+    typealias ViewModel = MobileRemoveWalletNotificationViewModel
+
+    @ObservedObject var viewModel: ViewModel
 
     var body: some View {
         VStack(spacing: 0) {
@@ -22,11 +24,10 @@ struct MobileRemoveWalletNotificationView: View {
                 .padding(.horizontal, 16)
 
             footer
-                .padding(.top, 40)
+                .padding(.top, 48)
         }
         .padding(16)
-        .background(Colors.Background.primary)
-        .alert(item: $viewModel.alert) { $0.alert }
+        .background(DesignSystem.Color.bgSecondary)
         .floatingSheetConfiguration { configuration in
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
@@ -46,18 +47,39 @@ private extension MobileRemoveWalletNotificationView {
             warningIcon
 
             Text(viewModel.title)
-                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-                .padding(.top, 24)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                .padding(.top, 32)
 
             Text(viewModel.description)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 8)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
 
+    @ViewBuilder
     var warningIcon: some View {
+        if viewModel.isICloudBackupFeatureAvailable {
+            backupWarningIcon
+        } else {
+            seedWarningIcon
+        }
+    }
+
+    var backupWarningIcon: some View {
+        ZStack {
+            Circle()
+                .fill(DesignSystem.Color.bgStatusWarningSubtle)
+                .frame(width: 72, height: 72)
+
+            DesignSystem.Icons.Warning.filled28.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconStatusWarning)
+        }
+    }
+
+    var seedWarningIcon: some View {
         ZStack {
             Circle()
                 .fill(Colors.Text.warning.opacity(0.1))
@@ -77,18 +99,31 @@ private extension MobileRemoveWalletNotificationView {
     }
 
     var footer: some View {
-        VStack(spacing: 8) {
-            MainButton(
-                title: viewModel.removeAction.title,
-                style: .secondary,
-                action: viewModel.removeAction.handler
-            )
+        actions(
+            primary: viewModel.primaryAction,
+            secondary: viewModel.secondaryAction
+        )
+    }
 
-            MainButton(
-                title: viewModel.backupAction.title,
-                style: .primary,
-                action: viewModel.backupAction.handler
+    func actions(primary: ViewModel.Action, secondary: ViewModel.Action) -> some View {
+        VStack(spacing: 8) {
+            Button(
+                label: secondary.title,
+                accessibilityLabel: nil,
+                action: secondary.handler
             )
+            .styleType(.secondary)
+            .horizontalLayout(.infinity)
+            .size(.x12)
+
+            Button(
+                label: primary.title,
+                accessibilityLabel: nil,
+                action: primary.handler
+            )
+            .styleType(.default)
+            .horizontalLayout(.infinity)
+            .size(.x12)
         }
     }
 }
