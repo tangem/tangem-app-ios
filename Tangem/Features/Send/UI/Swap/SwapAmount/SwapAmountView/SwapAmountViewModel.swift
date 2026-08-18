@@ -31,6 +31,10 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     @Published private(set) var receiveExpressCurrencyViewModel: ExpressCurrencyViewModel
     @Published private(set) var receiveCryptoAmountState: LoadableTextView.State = .initialized
 
+    let isPairReversalEnabled: Bool
+
+    private let isReceiveTokenSelectionEnabled: Bool
+
     var sourceAmountInputPublisher: AnyPublisher<Decimal?, Never> {
         Publishers.Merge(
             sourceCryptoDecimalNumberTextFieldViewModel.valuePublisher(),
@@ -64,12 +68,16 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     init(
         initialTokenItem: TokenItem,
+        isPairReversalEnabled: Bool = true,
+        isReceiveTokenSelectionEnabled: Bool = true,
         interactor: SendAmountInteractor,
         stateProvider: SwapModelStateProvider,
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenInput: SendReceiveTokenInput?,
     ) {
         self.initialTokenItem = initialTokenItem
+        self.isPairReversalEnabled = isPairReversalEnabled
+        self.isReceiveTokenSelectionEnabled = isReceiveTokenSelectionEnabled
         self.interactor = interactor
         self.stateProvider = stateProvider
         self.sourceTokenInput = sourceTokenInput
@@ -94,7 +102,8 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         receiveExpressCurrencyViewModel = .init(
             viewType: .receive,
             headerType: .action(name: Localization.swappingToTitle),
-            canChangeCurrency: receiveTokenInput?.receiveToken.value?.tokenItem != initialTokenItem
+            canChangeCurrency: isReceiveTokenSelectionEnabled
+                && receiveTokenInput?.receiveToken.value?.tokenItem != initialTokenItem
         )
 
         receiveCryptoAmountState = .initialized
@@ -346,6 +355,10 @@ private extension SwapAmountViewModel {
         isApproximate: Bool
     ) {
         receiveExpressCurrencyViewModel.update(wallet: receiveToken.mapValue { $0 as SendGenericToken })
+
+        if !isReceiveTokenSelectionEnabled {
+            receiveExpressCurrencyViewModel.update(canChangeCurrency: false)
+        }
 
         switch (receiveToken, amount) {
         case (.loading, _), (_, .loading):
