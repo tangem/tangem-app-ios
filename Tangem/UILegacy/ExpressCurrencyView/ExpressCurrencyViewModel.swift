@@ -124,6 +124,10 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         state.isSwitchCurrencyAvailable = isSwitchCurrencyAvailable
     }
 
+    func update(canChangeCurrency: Bool) {
+        state.canChangeCurrency = canChangeCurrency
+    }
+
     /// Prevents an in-flight async conversion from overwriting
     /// the bottom row after the calculation type has changed.
     func cancelPendingFiatConversion() {
