@@ -323,7 +323,7 @@ final class TangemPayMainViewModel: ObservableObject {
         Analytics.log(.visaAddExtraCardClicked, contextParams: .userWallet(userWalletInfo.id))
 
         if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
-            openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
+            openAdditionalCardIssue(offer: offer, fee: fee)
             return
         }
 
@@ -341,7 +341,7 @@ final class TangemPayMainViewModel: ObservableObject {
                 await tangemPayAccount.loadOffers()
 
                 if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
-                    openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
+                    openAdditionalCardIssue(offer: offer, fee: fee)
                 } else if await isTariffPlanUpgradeAvailable() {
                     coordinator?.openCardsLimitReachedSheet()
                 } else {
@@ -361,6 +361,21 @@ final class TangemPayMainViewModel: ObservableObject {
             VisaLogger.error("Failed to load tariff plan transitions", error: error)
             return false
         }
+    }
+
+    private func openAdditionalCardIssue(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee) {
+        guard FeatureProvider.isAvailable(.tangemPayPlastic) else {
+            openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
+            return
+        }
+
+        coordinator?.openOrderCardType(fee: fee)
+    }
+
+    func orderCardTypeDidSelectVirtual() {
+        guard let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee else { return }
+
+        openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
     }
 
     private func openIssueAdditionalCardCostPopup(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee) {
