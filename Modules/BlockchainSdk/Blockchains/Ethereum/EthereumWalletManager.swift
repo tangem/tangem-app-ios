@@ -732,7 +732,10 @@ private extension EthereumWalletManager {
         let baseTokenAmount = EthereumFeeParametersConstants.gaslessMinTokenAmount
 
         // 1) Build calldata for transferring fixed fee token amount to Gasless collector
-        let tokenTransferData = TransferERC20TokenMethod(destination: convertedFeeRecipientAddress, amount: baseTokenAmount).encodedData
+        let tokenTransferData = try TransferERC20TokenMethod(
+            destination: convertedFeeRecipientAddress,
+            amount: baseTokenAmount
+        ).encodedData
 
         // 2) Estimate gas limit for fee token transfer
         let feeTransferGasLimit: BigUInt

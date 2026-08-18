@@ -28,6 +28,23 @@ struct EthereumNameServiceTests {
         #expect(convertedAddress == expectedData.lowercased())
     }
 
+    @Test(arguments: EVMAddressUtils.Constants.burnAddresses)
+    func testBurnAddressRecordIsNotResolved(address: String) {
+        // give
+        let addressWord = String(repeating: "0", count: 24) + address.dropFirst(2)
+        let toConvertHex = "0x" +
+            "0000000000000000000000000000000000000000000000000000000000000040" +
+            "000000000000000000000000231b0ee14048e9dccd1d247744d114a4eb5e8e63" +
+            "0000000000000000000000000000000000000000000000000000000000000020" +
+            addressWord
+
+        // then
+        #expect(throws: ENSResponseConverter.ParseError.noAddressRecord) {
+            // when
+            try ENSResponseConverter.convert(toConvertHex)
+        }
+    }
+
     @Test
     func testNamehashVitalikEth() throws {
         // give

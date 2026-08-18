@@ -240,3 +240,18 @@ extension TransactionValidator where Self: RentExtemptionRestrictable {
         try validateRentExemption(amount: amount, fee: fee.amount)
     }
 }
+
+// MARK: - EthereumWalletManager
+
+extension TransactionValidator where Self: EthereumWalletManager {
+    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
+        try validateAmounts(amount: amount, fee: fee)
+
+        switch destination {
+        case .address(let address, _):
+            if EVMAddressUtils.isBurnAddress(address, blockchain: wallet.blockchain) {
+                throw ValidationError.destinationIsBurnAddress
+            }
+        }
+    }
+}
