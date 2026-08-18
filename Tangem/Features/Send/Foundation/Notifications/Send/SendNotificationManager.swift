@@ -265,7 +265,8 @@ private extension CommonSendNotificationManager {
                  .insufficientAmountToReserveAtDestination,
                  .minimumRestrictAmount,
                  .destinationMemoRequired,
-                 .noTrustlineAtDestination:
+                 .noTrustlineAtDestination,
+                 .destinationIsBurnAddress:
                 show(notification: .validationErrorEvent(validationErrorEvent))
             case .invalidNumber:
                 hideAllValidationErrorEvent()
