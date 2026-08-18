@@ -315,6 +315,7 @@
 "common_in" = "en";
 "common_insufficient_balance" = "Fondos insuficientes";
 "common_joint_account" = "Joint account";
+"common_joint" = "Joint";
 "common_later" = "Más tarde";
 "common_learn_and_earn" = "Aprende y gane";
 "common_learn_more" = "Más información";
@@ -583,6 +584,9 @@
 "express_legal_two_placeholders" = "Al utilizar la función de intercambio, aceptas las condiciones de %1$@ y %2$@ del proveedor.";
 "express_more_providers_once_wallet_funded" = "More providers will be available once wallet is funded";
 "express_more_providers_soon" = "Pronto habrá más proveedores disponibles";
+"express_onramp_restrictions_amount_error" = "You can’t buy tokens by region restrictions";
+"express_onramp_restrictions_text" = "Some of the providers might be unavailable";
+"express_onramp_restrictions_title" = "Regional purchase restrictions";
 "express_provider_best_dex_rate" = "Mejor tasa DEX";
 "express_provider_best_rate" = "Mejor tarifa";
 "express_provider_fca_warning_list" = "Lista de advertencias de la FCA";
@@ -605,6 +609,8 @@
 "express_status_hide_dialog_title" = "¿Ocultar el estado de la transacción?";
 "express_swap_not_supported_text" = "Este token no es compatible. Por favor, elige un token diferente para intercambiar.";
 "express_swap_not_supported_title" = "%@ no está soportado";
+"express_swap_restrictions_text" = "Swap provider is restricted";
+"express_swap_restrictions_title" = "Regional swap restrictions";
 "express_token_list_empty_search" = "No se encontraron fichas. Por favor intenta con otra solicitud";
 "express_transaction_id_copied" = "ID de transacción copiado";
 "express_transaction_id" = "ID : %@";
@@ -1707,8 +1713,8 @@
 "swap_story_third_subtitle" = "Sencillo e intuitivo, permite cambiar tokens con solo unos cuantos toques";
 "swap_story_third_title_v2" = "90+ Blockchains\n16.000+ Activos";
 "swap_story_third_title" = "Simplemente cómodo";
-"swap_token_selector_empty_filtered_message" = "You don't have any funded tokens on this wallet. Explore other wallets or change the filter";
-"swap_token_selector_filter_hide_zero_balance" = "Hide 0 balance";
+"swap_token_selector_empty_filtered_message" = "No tienes ningún token con saldo en esta billetera. Explora otras billeteras o cambia el filtro.";
+"swap_token_selector_filter_hide_zero_balance" = "Ocultar saldo 0";
 "swap_via_provider" = "Intercambio a través del proveedor";
 "swap_your_assets_title" = "Sus activos";
 "swapping_alert_cex_description_with_slippage" = "El importe incluye:\n- comisión del proveedor de servicios\n- comisión de red por el envío de %1$@ desde el exchange de vuelta a la dirección del usuario. \n\nEl deslizamiento (slippage) del proveedor es de hasta %2$@";
@@ -2052,6 +2058,7 @@
 "tangempay_order_data_country" = "Country";
 "tangempay_order_data_email" = "Email";
 "tangempay_order_data_field_invalid" = "Invalid text";
+"tangempay_order_data_field_optional" = "Optional";
 "tangempay_order_data_field_required" = "Required field";
 "tangempay_order_data_first_name" = "First name";
 "tangempay_order_data_last_name" = "Last name";
@@ -2064,6 +2071,9 @@
 "tangempay_order_data_success_title" = "Card ordered";
 "tangempay_order_success_email_note" = "Within 3 business days you will receive an email from logistic company on %@";
 "tangempay_order_success_show_card" = "Show card";
+"tangempay_order_type_beta" = "Beta";
+"tangempay_order_type_country_of_residence" = "Country of residence";
+"tangempay_order_type_delivery_eta_range" = "%1$d–%2$d business days";
 "tangempay_order_type_delivery_fee" = "Delivery fee";
 "tangempay_order_type_delivery_time_instant" = "Instant";
 "tangempay_order_type_delivery_time" = "Delivery time";
@@ -2075,6 +2085,7 @@
 "tangempay_order_type_segment_virtual" = "Virtual";
 "tangempay_order_type_select" = "Select";
 "tangempay_order_type_title" = "Order new card";
+"tangempay_order_type_unavailable" = "Unavailable";
 "tangempay_other_networks_header" = "Otras redes";
 "tangempay_other_networks_subtitle" = "Luego cámbielo a la cuenta de pago a 1:1 sin comisiones";
 "tangempay_other_networks_title" = "Envíe USDT/USDC en cualquier red a su Tangem Wallet";
@@ -2226,6 +2237,21 @@
 "transaction_history_rewards_restaked" = "Recompensas reinvertidas";
 "transaction_history_rewards_restaking" = "Reinversión de recompensas";
 "transaction_history_staking_reward" = "Recompensa por staking";
+"transaction_history_status_approve_failed" = "Approve failed";
+"transaction_history_status_claiming_rewards" = "Claiming rewards";
+"transaction_history_status_receive_failed" = "Receive failed";
+"transaction_history_status_restaking_rewards" = "Restaking rewards";
+"transaction_history_status_rewards_claim_failed" = "Rewards claim failed";
+"transaction_history_status_rewards_claimed" = "Rewards claimed";
+"transaction_history_status_rewards_restake_failed" = "Rewards restake failed";
+"transaction_history_status_send_failed" = "Send failed";
+"transaction_history_status_stake_failed" = "Stake failed";
+"transaction_history_status_swap_failed" = "Swap failed";
+"transaction_history_status_top_up_failed" = "Top-up failed";
+"transaction_history_status_topping_up" = "Topping up";
+"transaction_history_status_transfer_failed" = "Transfer failed";
+"transaction_history_status_transferring" = "Transferring";
+"transaction_history_status_unstake_failed" = "Unstake failed";
 "transaction_history_to_inline_address" = "para: %%imagen%% %@";
 "transaction_history_transaction_for_address" = "para: %@";
 "transaction_history_transaction_from_address" = "desde: %@";
