@@ -7,9 +7,6 @@
 //
 
 import Foundation
-import Combine
-import CombineExt
-import TangemFoundation
 
 // MARK: - Result
 
@@ -35,7 +32,7 @@ final class TokenDetailsSwapPairResolver {
         }
 
         let isExchangeable = expressAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
-        let hasBalance = walletModel.fiatBalance > 0
+        let hasBalance = walletModel.fiatAvailableBalance > 0
 
         if hasBalance {
             return ResolvedSwapPair(source: walletModel, destination: nil)
@@ -80,7 +77,7 @@ private extension TokenDetailsSwapPairResolver {
             }
 
             let isExchangeable = expressAvailabilityProvider.canSwap(tokenItem: model.tokenItem)
-            let fiat = model.fiatBalance
+            let fiat = model.fiatAvailableBalance
             let hasBalance = fiat > 0
 
             if hasBalance, fiat > mostFundedFiat {
@@ -114,7 +111,7 @@ private extension TokenDetailsSwapPairResolver {
 
 // MARK: - Main Resolver
 
-final class MainSwapPairResolver {
+final class MainSwapSourceResolver {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
     private let swapAvailabilityChecker: SwapAvailabilityChecker
@@ -131,19 +128,8 @@ final class MainSwapPairResolver {
     }
 
     func resolve() async -> SendSwapableToken? {
-        do {
-            let walletModels = try await walletModelsProvider.walletModelsPublisher.async()
-            guard !walletModels.isEmpty else { return nil }
-
-            _ = try await walletModels
-                .map { $0.fiatAvailableBalanceProvider.balanceTypePublisher.first(where: { !$0.isLoading }) }
-                .combineLatest()
-                .async()
-
-            return resolveSourceToken(from: walletModels)
-        } catch {
-            return nil
-        }
+        let walletModels = await walletModelsProvider.settledWalletModels()
+        return resolveSourceToken(from: walletModels)
     }
 
     static func makeBestEffortSourceToken(
@@ -156,11 +142,8 @@ final class MainSwapPairResolver {
             expressAvailabilityProvider.swapState(for: walletModel.tokenItem) != .unavailable
         }
 
-        guard let chosenWalletModel = candidates.max(by: { lhs, rhs in
-            let l = lhs.fiatAvailableBalanceProvider.balanceType.value ?? 0
-            let r = rhs.fiatAvailableBalanceProvider.balanceType.value ?? 0
-            return l < r
-        }) else {
+        // Balances are usually still loading here, hence the fallback to the first candidate.
+        guard let chosenWalletModel = candidates.mostFiatFunded ?? candidates.first else {
             return nil
         }
 
@@ -172,24 +155,17 @@ final class MainSwapPairResolver {
     }
 }
 
+// MARK: - SwapSourceTokenResolver
+
+extension MainSwapSourceResolver: SwapSourceTokenResolver {}
+
 // MARK: - Private
 
-private extension MainSwapPairResolver {
+private extension MainSwapSourceResolver {
     func resolveSourceToken(from walletModels: [any WalletModel]) -> SendSwapableToken? {
         let candidates = walletModels.filter { swapAvailabilityChecker.isSwapAvailable(walletModel: $0) }
 
-        var mostFunded: (any WalletModel)?
-        var mostFundedFiat: Decimal = 0
-
-        for model in candidates {
-            let fiat = model.fiatBalance
-            if fiat > mostFundedFiat {
-                mostFundedFiat = fiat
-                mostFunded = model
-            }
-        }
-
-        guard let source = mostFunded ?? candidates.first else {
+        guard let source = candidates.mostFiatFunded ?? candidates.first else {
             return nil
         }
 
@@ -198,13 +174,5 @@ private extension MainSwapPairResolver {
             walletModel: source,
             operationType: .swap
         ).makeSwapableToken()
-    }
-}
-
-// MARK: - Helpers
-
-private extension WalletModel {
-    var fiatBalance: Decimal {
-        fiatAvailableBalanceProvider.balanceType.value ?? 0
     }
 }
