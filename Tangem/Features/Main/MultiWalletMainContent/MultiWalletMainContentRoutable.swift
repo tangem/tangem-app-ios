@@ -28,7 +28,8 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openTangemPayMainView(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
-        userWalletModel: UserWalletModel
+        userWalletModel: UserWalletModel,
+        incomingAction: TangemPayIncomingActions?
     )
     func openTangemPaySelectPlan(
         tariffPlanSelector: any TangemPayTariffPlanSelector,

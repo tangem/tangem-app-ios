@@ -66,6 +66,8 @@ class TangemPayMainCoordinator: CoordinatorObject {
             tangemPayAccount: options.tangemPayAccount,
             coordinator: self
         )
+
+        handleIncomingAction()
     }
 }
 
@@ -76,6 +78,7 @@ extension TangemPayMainCoordinator {
         let userWalletInfo: UserWalletInfo
         let tangemPayAccount: TangemPayAccount
         let userWalletModel: any UserWalletModel
+        let incomingAction: TangemPayIncomingActions?
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
@@ -84,6 +87,20 @@ extension TangemPayMainCoordinator {
 // MARK: - Private
 
 extension TangemPayMainCoordinator {
+    private func handleIncomingAction() {
+        guard let incomingAction = options?.incomingAction else {
+            return
+        }
+
+        switch incomingAction {
+        case .addFunds:
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.5))
+                rootViewModel?.addFunds()
+            }
+        }
+    }
+
     func openSwap(parameters: PredefinedSwapParameters) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] options in
             self?.sendCoordinator = nil
