@@ -315,6 +315,7 @@
 "common_in" = "em";
 "common_insufficient_balance" = "Saldo insuficiente";
 "common_joint_account" = "Joint account";
+"common_joint" = "Joint";
 "common_later" = "Mais tarde";
 "common_learn_and_earn" = "Aprenda e Ganhe";
 "common_learn_more" = "Saber mais";
@@ -583,6 +584,9 @@
 "express_legal_two_placeholders" = "Ao utilizar a funcionalidade de troca, você concorda com os termos do provedor. %1$@ e %2$@.";
 "express_more_providers_once_wallet_funded" = "Mais fornecedores estarão disponíveis assim que a carteira for financiada.";
 "express_more_providers_soon" = "Mais fornecedores estarão disponíveis em breve.";
+"express_onramp_restrictions_amount_error" = "You can’t buy tokens by region restrictions";
+"express_onramp_restrictions_text" = "Some of the providers might be unavailable";
+"express_onramp_restrictions_title" = "Regional purchase restrictions";
 "express_provider_best_dex_rate" = "Melhor taxa DEX";
 "express_provider_best_rate" = "Melhor tarifa";
 "express_provider_fca_warning_list" = "Lista de advertências da FCA";
@@ -605,6 +609,8 @@
 "express_status_hide_dialog_title" = "Ocultar o status da transação?";
 "express_swap_not_supported_text" = "Este token não é compatível. Por favor, escolha um token diferente para usar em substituição.";
 "express_swap_not_supported_title" = "%@ não é suportado";
+"express_swap_restrictions_text" = "Swap provider is restricted";
+"express_swap_restrictions_title" = "Regional swap restrictions";
 "express_token_list_empty_search" = "Nenhum token encontrado. Tente novamente.";
 "express_transaction_id_copied" = "ID da transação copiado";
 "express_transaction_id" = "ID: %@";
@@ -2052,6 +2058,7 @@
 "tangempay_order_data_country" = "Country";
 "tangempay_order_data_email" = "Email";
 "tangempay_order_data_field_invalid" = "Invalid text";
+"tangempay_order_data_field_optional" = "Optional";
 "tangempay_order_data_field_required" = "Required field";
 "tangempay_order_data_first_name" = "First name";
 "tangempay_order_data_last_name" = "Last name";
@@ -2064,6 +2071,9 @@
 "tangempay_order_data_success_title" = "Card ordered";
 "tangempay_order_success_email_note" = "Within 3 business days you will receive an email from logistic company on %@";
 "tangempay_order_success_show_card" = "Show card";
+"tangempay_order_type_beta" = "Beta";
+"tangempay_order_type_country_of_residence" = "Country of residence";
+"tangempay_order_type_delivery_eta_range" = "%1$d–%2$d business days";
 "tangempay_order_type_delivery_fee" = "Delivery fee";
 "tangempay_order_type_delivery_time_instant" = "Instant";
 "tangempay_order_type_delivery_time" = "Delivery time";
@@ -2075,6 +2085,7 @@
 "tangempay_order_type_segment_virtual" = "Virtual";
 "tangempay_order_type_select" = "Select";
 "tangempay_order_type_title" = "Order new card";
+"tangempay_order_type_unavailable" = "Unavailable";
 "tangempay_other_networks_header" = "Outras redes";
 "tangempay_other_networks_subtitle" = "Em seguida, transfira para uma conta de pagamento com taxa de câmbio de 1:1 e sem tarifas.";
 "tangempay_other_networks_title" = "Envie USDT/USDC de qualquer blockchain para sua carteira Tangem.";
@@ -2226,6 +2237,21 @@
 "transaction_history_rewards_restaked" = "Recompensas redefinidas";
 "transaction_history_rewards_restaking" = "Recompensas por reconfiguração";
 "transaction_history_staking_reward" = "Recompensa de staking";
+"transaction_history_status_approve_failed" = "Approve failed";
+"transaction_history_status_claiming_rewards" = "Claiming rewards";
+"transaction_history_status_receive_failed" = "Receive failed";
+"transaction_history_status_restaking_rewards" = "Restaking rewards";
+"transaction_history_status_rewards_claim_failed" = "Rewards claim failed";
+"transaction_history_status_rewards_claimed" = "Rewards claimed";
+"transaction_history_status_rewards_restake_failed" = "Rewards restake failed";
+"transaction_history_status_send_failed" = "Send failed";
+"transaction_history_status_stake_failed" = "Stake failed";
+"transaction_history_status_swap_failed" = "Swap failed";
+"transaction_history_status_top_up_failed" = "Top-up failed";
+"transaction_history_status_topping_up" = "Topping up";
+"transaction_history_status_transfer_failed" = "Transfer failed";
+"transaction_history_status_transferring" = "Transferring";
+"transaction_history_status_unstake_failed" = "Unstake failed";
 "transaction_history_to_inline_address" = "para: %%image%% %@";
 "transaction_history_transaction_for_address" = "para: %@";
 "transaction_history_transaction_from_address" = "de: %@";
