@@ -445,6 +445,22 @@
         <string>%li tarjetas</string>
       </dict>
     </dict>
+    <key>tangempay_order_success_delivery_eta</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>It will take up to %li business day for delivery</string>
+        <key>other</key>
+        <string>It will take up to %li business days for delivery</string>
+      </dict>
+    </dict>
     <key>tangempay_order_type_delivery_eta</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
