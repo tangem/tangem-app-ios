@@ -930,8 +930,7 @@ public extension Blockchain {
         case .base: true
         case .arbitrum: true
         case .polygon: true
-        case .xdc: true
-        case .optimism: true
+        case .tron: true
         default: false
         }
     }

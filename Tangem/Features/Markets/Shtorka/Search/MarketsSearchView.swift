@@ -37,15 +37,13 @@ struct MarketsSearchView: View {
         labelOffset: Constants.scrollViewContentTopInset + Constants.scrollViewVerticalPadding
     )
 
-    private var copyDefaultBackgroundColor: Color { Colors.Background.primary }
-
     private var overlayHeight: CGFloat { viewModel.isSearching ? searchResultListOverlayTotalHeight : defaultListOverlayTotalHeight }
 
     private var searchFieldInsets: EdgeInsets {
-        let inset: CGFloat = .unit(.x4)
+        let inset: CGFloat = 16
         return viewModel.isSearching
             ? EdgeInsets(inset: inset)
-            : EdgeInsets(top: inset, leading: .unit(.x2), bottom: inset, trailing: inset)
+            : EdgeInsets(top: inset, leading: 8, bottom: inset, trailing: inset)
     }
 
     var body: some View {
@@ -153,7 +151,7 @@ struct MarketsSearchView: View {
 
     private var defaultListOverlay: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            MarketsRatingHeaderViewRedesign(viewModel: viewModel.marketsRatingHeaderViewModel)
+            MarketsRatingHeaderView(viewModel: viewModel.marketsRatingHeaderViewModel)
                 .readGeometry(\.size.height, bindTo: $defaultListOverlayRatingHeaderHeight)
         }
         .infinityFrame(axis: .horizontal)
@@ -175,7 +173,7 @@ struct MarketsSearchView: View {
     }
 
     private var backgroundColor: Color {
-        return .Tangem.Surface.level2
+        return DesignSystem.Color.bgPrimary
     }
 
     @ViewBuilder
@@ -242,8 +240,8 @@ struct MarketsSearchView: View {
                 MarketsTokensUnderCapView(onShowUnderCapAction: viewModel.tokenListViewModel.onShowUnderCapAction)
             }
         }
-        .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x5))
-        .padding(.horizontal, .unit(.x4))
+        .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: .zero, radius: 20)
+        .padding(.horizontal, 16)
     }
 
     private func updateListOverlayAppearance(contentOffset: CGPoint) {

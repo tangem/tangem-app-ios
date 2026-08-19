@@ -39,6 +39,8 @@ extension ExpressDTO {
             let id: String
             let name: String
             let image: URL
+            let imageLight: URL?
+            let imageDark: URL?
         }
 
         // MARK: - Pairs

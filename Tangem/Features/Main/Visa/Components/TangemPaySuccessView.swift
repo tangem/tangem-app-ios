@@ -40,7 +40,7 @@ struct TangemPaySuccessView: View {
 
             Spacer()
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(model.buttonTitle),
                 accessibilityLabel: model.buttonTitle,
                 action: action

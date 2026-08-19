@@ -43,6 +43,23 @@ protocol BitcoinTokenFeeLoader: TokenFeeLoader {
     func getFee(psbtBase64: String) async throws -> [BSDKFee]
 }
 
+// MARK: - TronTokenFeeLoader
+
+struct TronFeeRequestData: Hashable {
+    let amount: BSDKAmount
+    let destination: String
+    /// Non-nil prices a smart-contract call (`amount` must be coin-typed — its value becomes the
+    /// TRX `call_value`); `nil` prices a plain transfer of `amount`.
+    let callData: Data?
+    /// Affects the fee: flat memo fee + extra bandwidth.
+    let memo: String?
+    let otherNativeFee: Decimal?
+}
+
+protocol TronTokenFeeLoader: TokenFeeLoader {
+    func getFee(request: TronFeeRequestData) async throws -> [BSDKFee]
+}
+
 // MARK: - TokenFeeLoader+
 
 extension TokenFeeLoader {
@@ -69,6 +86,14 @@ extension TokenFeeLoader {
 
         return bitcoinTokenFeeLoader
     }
+
+    func asTronTokenFeeLoader() throws -> TronTokenFeeLoader {
+        guard let tronTokenFeeLoader = self as? TronTokenFeeLoader else {
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+        }
+
+        return tronTokenFeeLoader
+    }
 }
 
 enum TokenFeeLoaderError: LocalizedError {
@@ -76,6 +101,9 @@ enum TokenFeeLoaderError: LocalizedError {
     case approveFeeNotFound
     case swapFeeParametersNotFound
     case gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
+    case gaslessTronTokenFeeSupportOnlyTokenTransactions
+    case gaslessTronTransactionAmountConversionFailed(Decimal)
+    case invalidGaslessTronCompensationAmount(String)
     case feeTokenIdNotFound
     case missingFeeRecipientAddress
     case notEnoughFeeBalance
@@ -89,6 +117,9 @@ enum TokenFeeLoaderError: LocalizedError {
         case .approveFeeNotFound: "Approve fee not found"
         case .swapFeeParametersNotFound: "Swap fee parameters are not EthereumFeeParameters"
         case .gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem: "GaslessEthereumTokenFeeLoader supports only token as fee token item"
+        case .gaslessTronTokenFeeSupportOnlyTokenTransactions: "GaslessTronTokenFeeLoader supports only token transactions"
+        case .gaslessTronTransactionAmountConversionFailed(let amount): "Failed to convert Tron gasless transaction amount to raw value: \(amount)"
+        case .invalidGaslessTronCompensationAmount(let amount): "Invalid compensation amount in Tron gasless quote: \(amount)"
         case .feeTokenIdNotFound: "Fee token id not found"
         case .missingFeeRecipientAddress: "Missing fee recipient address"
         case .notEnoughFeeBalance: "Not enough fee balance"

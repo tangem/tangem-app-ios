@@ -7,6 +7,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
@@ -29,17 +30,18 @@ struct TransactionDetailsHeaderViewData: Equatable {
 struct TransactionDetailsHeaderView: View {
     let data: TransactionDetailsHeaderViewData
 
-    @ScaledMetric private var iconSide: CGFloat = 36
+    @ScaledMetric private var iconSide: CGFloat = 44
+    @ScaledMetric private var glyphSide: CGFloat = 20
 
     var body: some View {
         HStack(spacing: 12) {
             TransactionDetailsOperationIconView(
                 data: data.operationIcon,
                 containerSize: iconSide,
-                glyphSize: iconSide * 0.5
+                glyphSize: glyphSide
             )
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(data.title)
                     .style(DesignSystem.Font.bodyMediumToken, color: titleColor)
                     .lineLimit(1)
@@ -58,12 +60,17 @@ struct TransactionDetailsHeaderView: View {
                     menuButton
                 }
 
-                CircleButton(image: DesignSystem.Icons.Cross.regular20, action: data.onClose)
-                    .size(.medium)
+                TangemUI.Button(
+                    icon: DesignSystem.Icons.Cross.regular20,
+                    accessibilityLabel: Localization.commonClose,
+                    action: data.onClose
+                )
+                .size(.x11)
+                .styleType(.material(.glass))
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 16)
     }
 
     private var titleColor: Color {
@@ -81,7 +88,7 @@ struct TransactionDetailsHeaderView: View {
                     if let icon = action.icon {
                         Label(
                             title: { Text(action.title) },
-                            icon: { icon.image }
+                            icon: { icon.image.renderingMode(.template) }
                         )
                     } else {
                         Text(action.title)
@@ -89,16 +96,16 @@ struct TransactionDetailsHeaderView: View {
                 }
             }
         } label: {
-            DesignSystem.Icons.DotsHorizontal.regular20.image
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(size: CGSize(bothDimensions: 20))
-                .foregroundStyle(DesignSystem.Color.iconSecondary)
-                .padding(8)
-                .background(Circle().fill(DesignSystem.Color.bgTertiary))
-                .contentShape(.circle)
+            TangemUI.Button(
+                icon: DesignSystem.Icons.DotsHorizontal.regular20,
+                accessibilityLabel: Localization.commonMore,
+                action: {}
+            )
+            .size(.x11)
+            .styleType(.material(.glass))
+            .allowsHitTesting(false)
         }
+        .buttonStyle(.plain)
     }
 }
 
