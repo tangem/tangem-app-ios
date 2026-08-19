@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemFoundation
 import TangemUI
+import TangemUIUtils
 
 struct NewsArticleContentView<AdditionalContent: View>: View {
     let article: NewsArticleModel
@@ -47,8 +48,8 @@ struct NewsArticleContentView<AdditionalContent: View>: View {
 
                 Text(article.content)
                     .style(
-                        Font.Tangem.Body16.medium,
-                        color: Color.Tangem.Text.Neutral.primary
+                        DesignSystem.Font.bodyMediumToken,
+                        color: DesignSystem.Color.textPrimary
                     )
                     .padding(.top, 16)
                     .padding(.horizontal, 16)

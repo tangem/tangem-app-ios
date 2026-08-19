@@ -78,7 +78,7 @@ public struct LoadableBalanceView: View {
                 .shimmer()
 
         case .tangemShimmer:
-            TangemShimmer()
+            Shimmer()
                 .variant(.custom(
                     width: loader.size.width,
                     height: loader.size.height,
@@ -209,7 +209,7 @@ public extension LoadableBalanceView.LoaderStyle {
         case rounded(CGFloat)
         case capsule
 
-        /// `nil` for a capsule, so `TangemShimmer` derives the radius from the block's height.
+        /// `nil` for a capsule, so `Shimmer` derives the radius from the block's height.
         var explicitCornerRadius: CGFloat? {
             switch self {
             case .rounded(let radius): radius

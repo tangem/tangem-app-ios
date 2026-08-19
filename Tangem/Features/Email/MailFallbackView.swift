@@ -38,7 +38,7 @@ struct MailFallbackView: View {
 
             Divider()
 
-            Button {
+            SwiftUI.Button {
                 dismiss()
                 openMailAction()
             } label: {
@@ -51,7 +51,7 @@ struct MailFallbackView: View {
 
             Divider()
 
-            Button {
+            SwiftUI.Button {
                 dismiss()
                 shareLogsAction()
             } label: {

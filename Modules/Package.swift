@@ -34,8 +34,9 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.20")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.6.0")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.9.0")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "4.1.2"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMajor(from: "1.9.0")),
+        .package(url: "https://github.com/groue/GRDB.swift.git", .upToNextMajor(from: "7.1.1")),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.1.1"),
         // When a Swift macro target (`TangemMacro`) is used in the same package (`TangemModules`) in which it is defined,
         // and that package contains a test target (`BlockchainSdkTests`) that uses macros from that macro target,
         // this causes linker to incorrectly link the macros target plugin (build for macOS) into the iOS test binary,
@@ -101,7 +102,7 @@ var serviceModules: [PackageDescription.Target] {
                 .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
                 "SwiftCBOR",
                 .product(name: "SwiftProtobuf", package: "swift-protobuf-binaries"),
-                .product(name: "TangemMacro", package: "TangemMacro"),
+                "TangemMacro",
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
                 .product(name: "TangemWalletCoreBinariesWrapper", package: "wallet-core-binaries-ios"),
                 .product(name: "TonSwift", package: "ton-swift"),
@@ -124,7 +125,7 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemAnalytics",
             dependencies: [
-                .product(name: "TangemFirebaseDynamicShim", package: "TangemFirebaseDynamicShim"),
+                "TangemFirebaseDynamicShim",
                 "TangemFoundation",
                 "TangemLogger",
             ],
@@ -204,7 +205,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAccessibilityIdentifiers",
                 "TangemLogger",
                 .product(name: "BlurSwiftUI", package: "BlurUIKit"),
-                .product(name: "TangemMacro", package: "TangemMacro"),
+                "TangemMacro",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -227,6 +228,18 @@ var serviceModules: [PackageDescription.Target] {
         ),
         .tangemTarget(
             name: "TangemUIUtilsObjC"
+        ),
+        .tangemTarget(
+            name: "TangemAppDatabase",
+            dependencies: [
+                "TangemFoundation",
+                "TangemLogger",
+                .product(name: "GRDB", package: "GRDB.swift"),
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
         ),
         // `TrezorCrypto` library is from WalletCore repo, commit 6e9567b5f9efc965e4fc1af00ecf485c4bf040a1
         .tangemTarget(
@@ -251,6 +264,18 @@ var serviceModules: [PackageDescription.Target] {
 /// Valid examples are `Onboarding`, `Auth`, `Catalog`, etc.
 var featureModules: [PackageDescription.Target] {
     [
+        .tangemTarget(
+            name: "TangemPolymarket",
+            dependencies: [
+                "Moya",
+                "TangemFoundation",
+                "TangemNetworkUtils",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
         .tangemTarget(
             name: "TangemAccounts",
             dependencies: [
@@ -383,6 +408,13 @@ var unitTestsModules: [PackageDescription.Target] {
             name: "TangemNFTTests",
             dependencies: [
                 "TangemNFT",
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemPolymarketTests",
+            dependencies: [
+                "TangemPolymarket",
+                "Moya",
             ]
         ),
     ]
