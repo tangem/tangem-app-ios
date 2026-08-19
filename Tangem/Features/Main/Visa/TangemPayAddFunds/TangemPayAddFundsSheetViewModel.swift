@@ -27,7 +27,7 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
         swapParameters = input.swapParameters
         networks = input.networks
 
-        options = [.swap, .receive] + (input.isBankTransferAvailable ? [.bankTransfer] : [])
+        options = (input.isBankTransferAvailable ? [.bankTransfer] : []) + [.swap, .receive]
 
         self.coordinator = coordinator
 
