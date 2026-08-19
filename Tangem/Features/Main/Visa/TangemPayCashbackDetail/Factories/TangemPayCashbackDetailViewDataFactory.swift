@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemPay
 import TangemVisa
 import TangemLocalization
 
@@ -148,10 +147,14 @@ private extension TangemPayCashbackDetailViewDataFactory {
             )
         )
 
+        guard let currency = cashbackOnCards.accountMonthlyCapCurrency else {
+            return rows
+        }
+
         rows.append(
             TangemPayCashbackTiersViewData.Row(
                 id: Constants.paidInRowId,
-                text: Localization.tangempayCashbackDetailsPaidIn(TangemPayUtilities.usdcTokenItem.currencySymbol)
+                text: Localization.tangempayCashbackDetailsPaidIn(currency)
             )
         )
 
@@ -160,7 +163,7 @@ private extension TangemPayCashbackDetailViewDataFactory {
                 TangemPayCashbackTiersViewData.Row(
                     id: Constants.capRowId,
                     text: Localization.tangempayCashbackDetailsCap(
-                        formattedFiat(accountMonthlyCap, currency: TangemPayCashbackDetails.currency)
+                        formattedFiat(accountMonthlyCap, currency: currency)
                     )
                 )
             )
