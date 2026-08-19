@@ -56,7 +56,6 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var balance: LoadableBalanceView.State
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
-    @Published private(set) var isWithdrawButtonLoading: Bool = false
     @Published private(set) var isWithdrawButtonDisabled: Bool = false
     @Published private(set) var isAddFundsButtonDisabled: Bool = false
     @Published private(set) var inlineNotifications: [NotificationViewInput] = []
@@ -186,6 +185,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
+    private let fundingFlowBuilder: TangemPayFundingFlowBuilder
     private weak var coordinator: TangemPayMainRoutable?
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
@@ -201,10 +201,12 @@ final class TangemPayMainViewModel: ObservableObject {
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
+        fundingFlowBuilder: TangemPayFundingFlowBuilder,
         coordinator: TangemPayMainRoutable
     ) {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
+        self.fundingFlowBuilder = fundingFlowBuilder
         self.coordinator = coordinator
 
         balance = tangemPayAccount.mainHeaderBalanceProvider.balance
@@ -285,9 +287,17 @@ final class TangemPayMainViewModel: ObservableObject {
         Analytics.log(.visaScreenButtonVisaAddFunds, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
 
         nextViewOpeningTask?.cancel()
-        nextViewOpeningTask = Task { @MainActor in
-            guard let depositAddress = tangemPayAccount.depositAddress,
-                  let swapableToken = makeSendSwapableToken() else {
+        nextViewOpeningTask = Task { @MainActor [weak self, fundingFlowBuilder, tangemPayAccount] in
+            guard let depositAddress = tangemPayAccount.depositAddress else {
+                self?.coordinator?.openTangemPayNoDepositAddressSheet()
+                return
+            }
+
+            let swapParameters = await fundingFlowBuilder.addFunds()
+
+            guard !Task.isCancelled, let self else { return }
+
+            guard let swapParameters else {
                 coordinator?.openTangemPayNoDepositAddressSheet()
                 return
             }
@@ -296,7 +306,7 @@ final class TangemPayMainViewModel: ObservableObject {
                 input: .init(
                     userWalletInfo: userWalletInfo,
                     address: depositAddress,
-                    swapableToken: swapableToken,
+                    swapParameters: swapParameters,
                     isBankTransferAvailable: isBankTransferAvailable,
                     networks: tangemPayAccount.networks
                 )
@@ -454,26 +464,25 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func withdraw() {
         Analytics.log(.visaScreenWithdrawClicked, contextParams: .userWallet(userWalletInfo.id))
-        guard let swapableToken = makeSendSwapableToken() else {
-            coordinator?.openTangemPayNoDepositAddressSheet()
-            return
-        }
 
         nextViewOpeningTask?.cancel()
-        nextViewOpeningTask = runWithDelayedLoading(onLongRunning: { @MainActor [weak self] in
-            self?.isWithdrawButtonLoading = true
-        }, onCancel: { [weak self] in
-            self?.isWithdrawButtonLoading = false
-        }) { @MainActor [weak self] in
+        nextViewOpeningTask = Task { @MainActor [weak self, fundingFlowBuilder] in
+            let swapParameters = await fundingFlowBuilder.withdraw()
+
+            guard !Task.isCancelled, let self else { return }
+
+            guard let swapParameters else {
+                coordinator?.openTangemPayNoDepositAddressSheet()
+                return
+            }
+
             do {
-                try await self?.openWithdraw(swapableToken: swapableToken)
+                try await openWithdraw(swapParameters: swapParameters)
             } catch is CancellationError {
                 // Do nothing
             } catch {
-                self?.alert = error.alertBinder
+                alert = error.alertBinder
             }
-
-            self?.isWithdrawButtonLoading = false
         }
     }
 
@@ -499,6 +508,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func onDisappear() {
+        nextViewOpeningTask?.cancel()
         tangemPayAccount.stopDepositAddressPolling()
     }
 
@@ -941,39 +951,20 @@ private extension TangemPayMainViewModel {
     var mainButtonIcon: MainButton.Icon? {
         CommonTangemIconProvider(config: userWalletInfo.config).getMainButtonIcon()
     }
-
-    func makeSendSwapableToken() -> (any SendSwapableToken)? {
-        guard let depositAddress = tangemPayAccount.depositAddress else {
-            return nil
-        }
-
-        return TangemPaySwapableTokenFactory(
-            userWalletInfo: userWalletInfo,
-            account: tangemPayAccount.account,
-            tokenItem: TangemPayUtilities.usdcTokenItem,
-            feeTokenItem: TangemPayUtilities.usdcTokenItem,
-            defaultAddressString: depositAddress,
-            availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-            fiatAvailableBalanceProvider: tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider,
-            transactionDispatcher: tangemPayAccount.transactionDispatcher,
-            transactionValidator: TangemPaySendTransactionValidator(
-                availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-            ),
-            operationType: .swap
-        ).makeSwapableToken()
-    }
 }
 
 // MARK: - Navigation
 
 private extension TangemPayMainViewModel {
     @MainActor
-    func openWithdraw(swapableToken: any SendSwapableToken) async throws {
+    func openWithdraw(swapParameters: PredefinedSwapParameters) async throws {
         let restriction = try await tangemPayAccount.withdrawAvailabilityProvider.restriction()
+
+        try Task.checkCancellation()
 
         switch restriction {
         case .none, .zeroWalletBalance:
-            coordinator?.openTangemPayWithdraw(input: .from(swapableToken))
+            coordinator?.openTangemPayWithdraw(input: swapParameters)
         case .hasPendingWithdrawOrder:
             coordinator?.openTangemWithdrawInProgressSheet()
         default:
