@@ -43,7 +43,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
     }
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
-    @Published var pushNotificationsViewModel: TransactionNotificationsRowToggleViewModel?
 
     @Published var forgetViewModel: DefaultRowViewModel?
 
@@ -216,7 +215,6 @@ private extension UserWalletSettingsViewModel {
         cardSettingsViewModel = nil
         referralViewModel = nil
         nftViewModel = nil
-        pushNotificationsViewModel = nil
         notificationSettingsViewModel = nil
         mobileAccessCodeViewModel = nil
         mobileUpgradeViewModel = nil
@@ -273,18 +271,10 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        if FeatureProvider.isAvailable(.pushNotificationsSettings) {
-            notificationSettingsViewModel = DefaultRowViewModel(
-                title: Localization.pushNotificationSettingsTitle,
-                action: weakify(self, forFunction: UserWalletSettingsViewModel.openNotificationSettings)
-            )
-        } else {
-            pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
-                userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
-                coordinator: coordinator,
-                showPushSettingsAlert: weakify(self, forFunction: UserWalletSettingsViewModel.displayEnablePushSettingsAlert)
-            )
-        }
+        notificationSettingsViewModel = DefaultRowViewModel(
+            title: Localization.pushNotificationSettingsTitle,
+            action: weakify(self, forFunction: UserWalletSettingsViewModel.openNotificationSettings)
+        )
 
         if userWalletModel.config.hasFeature(.userWalletBackup) {
             forgetViewModel = DefaultRowViewModel(
@@ -416,20 +406,6 @@ private extension UserWalletSettingsViewModel {
             title: Localization.mainManageTokens,
             accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.manageTokensButton,
             action: weakify(self, forFunction: UserWalletSettingsViewModel.openManageTokens)
-        )
-    }
-
-    func displayEnablePushSettingsAlert() {
-        alert = AlertBuilder.makeEnablePushSettingsAlert(
-            onCancel: { [weak self] in
-                self?.pushNotificationsViewModel?.isPushNotifyEnabled = false
-                self?.coordinator?.onAlertDismiss()
-            },
-            onOpenSettings: { [weak self] in
-                self?.pushNotificationsViewModel?.isPushNotifyEnabled = false
-                self?.coordinator?.openAppSettings()
-                self?.coordinator?.onAlertDismiss()
-            }
         )
     }
 }

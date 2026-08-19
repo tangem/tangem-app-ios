@@ -242,14 +242,12 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
         fiatSymbol: String
     ) {
         waitAndAssertTrue(option, "\(optionName) fee option should exist")
-        let label = option.label
-        XCTAssertTrue(
-            label.contains(cryptoSymbol),
-            "\(optionName) fee option should display \(cryptoSymbol) amount"
-        )
-        XCTAssertTrue(
-            label.contains(fiatSymbol),
-            "\(optionName) fee option should display \(fiatSymbol) amount"
+        let predicate = NSPredicate(format: "label CONTAINS[c] %@ AND label CONTAINS[c] %@", cryptoSymbol, fiatSymbol)
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: option)
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [expectation], timeout: .conditional),
+            .completed,
+            "\(optionName) fee option should display \(cryptoSymbol) and \(fiatSymbol) amounts"
         )
     }
 }

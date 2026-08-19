@@ -7,71 +7,59 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct CarouselNewsCardSkeletonView: View {
-    @ScaledMetric private var barHeight: CGFloat = 16
-    @ScaledMetric private var smallBarWidth: CGFloat = 50
-    @ScaledMetric private var tagHeight: CGFloat = 24
-    @ScaledMetric private var tagWidth1: CGFloat = 78
-    @ScaledMetric private var tagWidth2: CGFloat = 65
-    @ScaledMetric private var tagWidth3: CGFloat = 32
-
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             ratingSkeleton
 
-            FixedSpacer(height: .unit(.x2))
+            FixedSpacer(height: 8)
 
             titleSkeleton
 
-            FixedSpacer(height: .unit(.x11))
+            FixedSpacer(height: 44)
 
             timeAgoSkeleton
 
-            FixedSpacer(height: .unit(.x3))
+            FixedSpacer(height: 12)
 
             tagsSkeleton
         }
-        .padding(.all, .unit(.x4))
-        .background(Color.Tangem.Surface.level3)
-        .cornerRadiusContinuous(.unit(.x6))
+        .padding(.all, 16)
+        .background(DesignSystem.Color.bgSecondary)
+        .cornerRadiusContinuous(24)
     }
 
     // MARK: - Subviews
 
     private var ratingSkeleton: some View {
-        SkeletonView()
-            .frame(width: smallBarWidth, height: barHeight)
-            .cornerRadius(barHeight / 2)
+        Shimmer()
+            .variant(.custom(width: 50, height: 16))
     }
 
     private var titleSkeleton: some View {
-        SkeletonView()
+        Shimmer()
+            .variant(.custom(height: 16))
             .frame(maxWidth: .infinity)
-            .frame(height: barHeight)
-            .cornerRadius(barHeight / 2)
     }
 
     private var timeAgoSkeleton: some View {
-        SkeletonView()
-            .frame(width: smallBarWidth, height: barHeight)
-            .cornerRadius(barHeight / 2)
+        Shimmer()
+            .variant(.custom(width: 50, height: 16))
     }
 
     private var tagsSkeleton: some View {
-        HStack(spacing: .unit(.x2)) {
-            SkeletonView()
-                .frame(width: tagWidth1, height: tagHeight)
-                .cornerRadius(tagHeight / 2)
+        HStack(spacing: 8) {
+            Shimmer()
+                .variant(.custom(width: 78, height: 24))
 
-            SkeletonView()
-                .frame(width: tagWidth2, height: tagHeight)
-                .cornerRadius(tagHeight / 2)
+            Shimmer()
+                .variant(.custom(width: 65, height: 24))
 
-            SkeletonView()
-                .frame(width: tagWidth3, height: tagHeight)
-                .cornerRadius(tagHeight / 2)
+            Shimmer()
+                .variant(.custom(width: 32, height: 24))
         }
     }
 }
@@ -79,7 +67,7 @@ struct CarouselNewsCardSkeletonView: View {
 // MARK: - Previews
 
 #Preview {
-    HStack(spacing: .unit(.x3)) {
+    HStack(spacing: 12) {
         CarouselNewsCardSkeletonView()
         CarouselNewsCardSkeletonView()
     }
