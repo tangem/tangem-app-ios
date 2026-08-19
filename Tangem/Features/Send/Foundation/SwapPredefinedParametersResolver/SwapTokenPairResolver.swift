@@ -143,7 +143,7 @@ final class MainSwapSourceResolver {
         }
 
         // Balances are usually still loading here, hence the fallback to the first candidate.
-        guard let chosenWalletModel = candidates.mostFiatFunded ?? candidates.first else {
+        guard let chosenWalletModel = candidates.mostFiatFundedOrFirst else {
             return nil
         }
 
@@ -165,7 +165,7 @@ private extension MainSwapSourceResolver {
     func resolveSourceToken(from walletModels: [any WalletModel]) -> SendSwapableToken? {
         let candidates = walletModels.filter { swapAvailabilityChecker.isSwapAvailable(walletModel: $0) }
 
-        guard let source = candidates.mostFiatFunded ?? candidates.first else {
+        guard let source = candidates.mostFiatFundedOrFirst else {
             return nil
         }
 

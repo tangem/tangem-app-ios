@@ -44,6 +44,41 @@ struct TangemPayAccountTokensTests {
         #expect(pick?.availableForWithdrawal == 10)
     }
 
+    @Test("funding candidates order canonical-first, then by withdrawable funds — not by BFF order")
+    func fundingPriorityPutsCanonicalFirstThenLargestAmount() {
+        let tokens = [
+            makeToken(symbol: "USDT", contractAddress: "0xUSDT", availableForWithdrawal: 50),
+            makeToken(
+                symbol: "USDT",
+                contractAddress: "0xBASEUSDT",
+                availableForWithdrawal: 500,
+                blockchain: .base(testnet: false)
+            ),
+            makeToken(symbol: "USDC", contractAddress: Self.usdcContract, availableForWithdrawal: 3),
+        ]
+
+        let ordered = tokens.fundingPriorityOrdered
+
+        #expect(ordered.map(\.availableForWithdrawal) == [3, 500, 50])
+        #expect(ordered.first?.tokenItem.blockchain == .polygon(testnet: false))
+    }
+
+    @Test("equal withdrawable funds order the same whatever the BFF response order")
+    func fundingPriorityBreaksTiesDeterministically() {
+        let polygonUSDT = makeToken(symbol: "USDT", contractAddress: "0xUSDT", availableForWithdrawal: 50)
+        let baseUSDT = makeToken(
+            symbol: "USDT",
+            contractAddress: "0xBASEUSDT",
+            availableForWithdrawal: 50,
+            blockchain: .base(testnet: false)
+        )
+
+        let straight = [polygonUSDT, baseUSDT].fundingPriorityOrdered
+        let reversed = [baseUSDT, polygonUSDT].fundingPriorityOrdered
+
+        #expect(straight == reversed)
+    }
+
     // MARK: - Helpers
 
     /// The real Polygon USDC contract, checksummed — the hardcoded one is lowercase,
