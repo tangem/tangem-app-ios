@@ -10,6 +10,9 @@ import Foundation
 import SwiftUI
 
 final class WelcomeV2Coordinator: CoordinatorObject {
+    @Injected(\.welcomeV2BackgroundVideoProvider)
+    private var videoProvider: WelcomeV2BackgroundVideoProviding
+
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
@@ -28,7 +31,10 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = WelcomeV2ViewModel(coordinator: self)
+        rootViewModel = WelcomeV2ViewModel(
+            coordinator: self,
+            videoProvider: videoProvider
+        )
     }
 }
 
