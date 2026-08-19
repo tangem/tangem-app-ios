@@ -308,6 +308,8 @@ extension Analytics {
         case notStarted = "Not Started"
         case unfinished = "Unfinished"
         case incomplete = "Incomplete"
+        case backupTypeManual = "Manual"
+        case backupTypeCloud = "Cloud"
         case createWalletIntro = "Create Wallet Intro"
         case addNewWallet = "Add New Wallet"
 

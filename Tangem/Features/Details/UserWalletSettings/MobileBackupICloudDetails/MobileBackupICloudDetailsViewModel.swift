@@ -125,11 +125,11 @@ private extension MobileBackupICloudDetailsViewModel {
 
 private extension MobileBackupICloudDetailsViewModel {
     func logScreenOpenedAnalytics() {
-        Analytics.log(.cloudBackupDetailsScreenOpened, contextParams: analyticsContextParams)
+        Analytics.log(.walletSettingsCloudBackupDetailsScreen, contextParams: analyticsContextParams)
     }
 
     func logDeletionRequestAnalytics() {
-        Analytics.log(.cloudBackupDeletionRequest, contextParams: analyticsContextParams)
+        Analytics.log(.walletSettingsCloudBackupDeletionRequest, contextParams: analyticsContextParams)
     }
 }
 

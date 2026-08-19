@@ -34,17 +34,25 @@ struct SignInAnalyticsLogger {
         signInType: Analytics.SignInType,
         userWalletModel: UserWalletModel
     ) {
-        let hasSeedPhrase = userWalletModel.config.productType == .mobileWallet || userWalletModel.hasImportedWallets
+        let isMobileProductType = userWalletModel.config.productType == .mobileWallet
+        let hasSeedPhrase = isMobileProductType || userWalletModel.hasImportedWallets
         let walletType = Analytics.ParameterValue.seedState(for: hasSeedPhrase)
+
+        var params: [Analytics.ParameterKey: String] = [
+            .signInType: signInType.rawValue,
+            .walletsCount: String(walletsCount),
+            .walletType: walletType.rawValue,
+            .walletHasBackup: Analytics.ParameterValue.affirmativeOrNegative(for: userWalletModel.config.walletHasBackup).rawValue,
+        ]
+
+        if FeatureProvider.isAvailable(.mobileWalletBackup), isMobileProductType {
+            let backupParams = MobileBackupStatusUtil.completedBackupsAnalyticsParams(config: userWalletModel.config)
+            params.enrich(with: backupParams)
+        }
 
         Analytics.log(
             event: event,
-            params: [
-                .signInType: signInType.rawValue,
-                .walletsCount: String(walletsCount),
-                .walletType: walletType.rawValue,
-                .walletHasBackup: Analytics.ParameterValue.affirmativeOrNegative(for: userWalletModel.config.walletHasBackup).rawValue,
-            ],
+            params: params,
             contextParams: .custom(userWalletModel.analyticsContextData)
         )
     }

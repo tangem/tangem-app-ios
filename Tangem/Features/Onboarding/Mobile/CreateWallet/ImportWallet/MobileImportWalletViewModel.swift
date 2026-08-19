@@ -56,10 +56,12 @@ extension MobileImportWalletViewModel {
         runTask(in: self) { viewModel in
             await viewModel.setup(iCloudBackupState: .loading)
 
-            let state: ICloudBackupState = if needsPrefetch {
-                await viewModel.prefetchICloudBackupState()
+            let state: ICloudBackupState
+            if needsPrefetch {
+                state = await viewModel.prefetchICloudBackupState()
+                viewModel.logImportRequestAnalytics(state: state)
             } else {
-                await viewModel.fetchICloudBackupState()
+                state = await viewModel.fetchICloudBackupState()
             }
 
             await viewModel.setup(iCloudBackupState: state)
@@ -170,6 +172,23 @@ private extension MobileImportWalletViewModel {
 
     func closeImportWallet() {
         coordinator?.closeImportWallet()
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileImportWalletViewModel {
+    func logImportRequestAnalytics(state: ICloudBackupState) {
+        let backupCloud: Analytics.ParameterValue = switch state {
+        case .enabled: .available
+        case .loading, .notFound: .unavailable
+        }
+
+        Analytics.log(
+            .importWalletRequest,
+            params: [.backupCloud: backupCloud],
+            contextParams: .custom(.mobileWallet)
+        )
     }
 }
 

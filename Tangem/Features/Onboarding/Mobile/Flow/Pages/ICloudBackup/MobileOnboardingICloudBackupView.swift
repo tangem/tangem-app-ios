@@ -69,8 +69,10 @@ private extension MobileOnboardingICloudBackupView {
         switch viewModel.state {
         case .setPassword:
             setPasswordValidationView(viewModel.passwordStrength)
+                .onAppear(perform: viewModel.onSetPasswordAppear)
         case .confirmPassword:
             confirmPasswordValidationView(viewModel.passwordMatching)
+                .onAppear(perform: viewModel.onConfirmPasswordAppear)
         }
     }
 
