@@ -8,6 +8,7 @@
 
 import BlockchainSdk
 import TangemExpress
+import TangemPay
 
 /// Maybe put in init `TangemPayAccount` ?
 struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
@@ -82,5 +83,46 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
             supportedProvidersFilter: .cex,
             presentation: receiveTokenPresentation
         )
+    }
+}
+
+extension TangemPaySwapableTokenFactory {
+    /// The account carries all the plumbing — call sites only choose the token, address, and role.
+    init(
+        userWalletInfo: UserWalletInfo,
+        tangemPayAccount: TangemPayAccount,
+        account: (any TangemPayAccountModel)?,
+        tokenItem: TokenItem,
+        depositAddress: String,
+        operationType: ExpressOperationType,
+        receiveTokenPresentation: SendReceiveTokenPresentation?
+    ) {
+        self.init(
+            userWalletInfo: userWalletInfo,
+            account: account,
+            tokenItem: tokenItem,
+            feeTokenItem: tokenItem,
+            defaultAddressString: depositAddress,
+            availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
+            fiatAvailableBalanceProvider: tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider,
+            transactionDispatcher: tangemPayAccount.transactionDispatcher,
+            transactionValidator: TangemPaySendTransactionValidator(
+                availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider
+            ),
+            operationType: operationType,
+            receiveTokenPresentation: receiveTokenPresentation
+        )
+    }
+}
+
+extension SendReceiveTokenPresentation {
+    /// The payment account is always presented in USD, independent of the wallet's selected
+    /// fiat currency.
+    static var tangemPayAccount: SendReceiveTokenPresentation? {
+        guard FeatureProvider.isAvailable(.tangemPayAddFundsWithdrawRework) else {
+            return nil
+        }
+
+        return SendReceiveTokenPresentation(currencySymbol: TangemPayUtilities.fiatItem.currencyCode)
     }
 }
