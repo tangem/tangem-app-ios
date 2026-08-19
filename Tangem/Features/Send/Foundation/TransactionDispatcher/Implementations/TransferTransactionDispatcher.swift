@@ -15,15 +15,18 @@ class TransferTransactionDispatcher {
     private let walletModel: any WalletModel
     private let transactionSigner: TangemSigner
     private let gaslessTransactionSender: GaslessTransactionSender
+    private let tronGaslessTransactionSender: TronGaslessTransactionSender
 
     init(
         walletModel: any WalletModel,
         transactionSigner: TangemSigner,
-        gaslessTransactionSender: GaslessTransactionSender
+        gaslessTransactionSender: GaslessTransactionSender,
+        tronGaslessTransactionSender: TronGaslessTransactionSender
     ) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.gaslessTransactionSender = gaslessTransactionSender
+        self.tronGaslessTransactionSender = tronGaslessTransactionSender
     }
 }
 
@@ -69,6 +72,10 @@ extension TransferTransactionDispatcher: TransactionDispatcher {
     }
 
     private func send(transaction: BSDKTransaction) async throws -> TransactionDispatcherResult {
+        if case .tron = walletModel.tokenItem.blockchain, transaction.fee.amount.type.isToken {
+            return try await tronGaslessTransactionSender.send(transaction: transaction)
+        }
+
         if walletModel.tokenItem.blockchain.isGaslessTransactionSupported, transaction.fee.amount.type.isToken {
             return try await gaslessTransactionSender.send(transaction: transaction)
         }

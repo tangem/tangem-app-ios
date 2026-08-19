@@ -228,7 +228,7 @@ struct WCTransactionSimulationView: View {
     }
 
     private func editButton(onEdit: @escaping () -> Void) -> some View {
-        Button(
+        SwiftUI.Button(
             action: onEdit,
             label: {
                 HStack(spacing: 4) {

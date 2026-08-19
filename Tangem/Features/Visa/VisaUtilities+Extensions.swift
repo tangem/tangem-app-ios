@@ -17,12 +17,12 @@ extension VisaUtilities {
     }
 
     static func makeAddress(using list: [KeyInfo]) -> Address? {
-        guard let wallet = list.first(where: { $0.curve == VisaUtilities.mandatoryCurve }) else {
+        guard let walletPublicKey = list.first(where: { $0.curve == VisaUtilities.mandatoryCurve })?.publicKey else {
             return nil
         }
 
         return try? VisaUtilities.makeAddress(
-            walletPublicKey: wallet.publicKey,
+            walletPublicKey: walletPublicKey,
             isTestnet: FeatureStorage.instance.isTestnet
         )
     }

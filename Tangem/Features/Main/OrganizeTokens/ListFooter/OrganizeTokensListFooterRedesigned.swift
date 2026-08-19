@@ -18,7 +18,7 @@ struct OrganizeTokensListFooterRedesigned: View {
     let isTokenListFooterGradientHidden: Bool
     let contentInsets: EdgeInsets
 
-    private let buttonSize: TangemButtonV2.Size = .x12
+    private let buttonSize: TangemUI.Button.Size = .x12
 
     private var buttonsPadding: EdgeInsets {
         var contentInsets = contentInsets
@@ -28,7 +28,7 @@ struct OrganizeTokensListFooterRedesigned: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            TangemButtonV2(
+            TangemUI.Button(
                 label: Localization.commonCancel,
                 accessibilityLabel: nil,
                 action: actionsHandler.onCancelButtonTap
@@ -38,7 +38,7 @@ struct OrganizeTokensListFooterRedesigned: View {
             .horizontalLayout(.infinity)
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.cancelButton)
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: Localization.commonApply,
                 accessibilityLabel: nil,
                 action: actionsHandler.onApplyButtonTap
@@ -50,8 +50,9 @@ struct OrganizeTokensListFooterRedesigned: View {
         }
         .padding(buttonsPadding)
         .background(alignment: .bottom) {
-            TangemFade(position: .bottom)
+            Fade(position: .bottom)
                 .variant(.hard)
+                .frame(height: 96)
                 .ignoresSafeArea(edges: .bottom)
                 .hidden(isTokenListFooterGradientHidden)
         }

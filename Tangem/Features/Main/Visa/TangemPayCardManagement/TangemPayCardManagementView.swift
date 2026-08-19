@@ -211,10 +211,11 @@ struct TangemPayCardManagementView: View {
     private var redesignedToolbar: some ToolbarContent {
         if let renameVM = viewModel.cardRenameViewModel {
             NavigationToolbarButton.close(placement: .topBarTrailing, action: renameVM.close)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardRenameCloseButton)
         } else {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(action: viewModel.onReplaceButton) {
+                    SwiftUI.Button(action: viewModel.onReplaceButton) {
                         Label {
                             Text(Localization.tangempayCardDetailsReissueCard)
                         } icon: {
@@ -227,7 +228,7 @@ struct TangemPayCardManagementView: View {
                     if let closeCardRow = viewModel.closeCardRow {
                         Divider()
 
-                        Button {
+                        SwiftUI.Button {
                             closeCardRow.action?()
                         } label: {
                             Label {
