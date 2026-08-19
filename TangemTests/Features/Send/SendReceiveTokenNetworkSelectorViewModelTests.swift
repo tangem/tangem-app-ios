@@ -361,10 +361,6 @@ private final class SendSwapableTokenStub: SendSwapableToken {
     var providerTransactionValidator: any ExpressProviderTransactionValidator { fatalError("Unused in tests") }
 }
 
-private struct SwapAvailabilityProviderStub: SwapAvailabilityProvider {
-    let isSwapAvailable: Bool
-}
-
 private final class SendSourceTokenInputStub: SendSourceTokenInput {
     private let token: SendSourceToken
 
