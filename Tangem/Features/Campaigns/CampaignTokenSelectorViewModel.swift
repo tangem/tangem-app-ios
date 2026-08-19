@@ -34,7 +34,7 @@ final class CampaignTokenSelectorViewModel: ObservableObject, Identifiable {
 
         tokenSelectorViewModel = TokenSelectorViewModel.common(
             walletsProvider: EligibleTokensWalletsProvider(
-                base: .common(),
+                base: .standardAccountsOnly(),
                 isEligible: EligibleTokenMatcher.make(from: eligibleTokens)
             ),
             availabilityProvider: AvailableTokenSelectorItemAvailabilityProvider(),

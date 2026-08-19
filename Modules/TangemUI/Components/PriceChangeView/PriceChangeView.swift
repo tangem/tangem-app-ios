@@ -77,7 +77,7 @@ public struct PriceChangeView: View {
             legacySkeleton
 
         case .tangemShimmer:
-            TangemShimmer()
+            Shimmer()
                 .variant(.custom(width: Constants.skeletonSize.width, height: Constants.skeletonSize.height))
         }
     }

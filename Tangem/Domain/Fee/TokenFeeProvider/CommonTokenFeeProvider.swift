@@ -20,6 +20,8 @@ final class CommonTokenFeeProvider {
     let feeTokenItemBalanceProvider: TokenBalanceProvider
     let supportingOptions: TokenFeeProviderSupportingOptions
 
+    var isBridgeFeeRestrictionEnabled = FeatureProvider.isAvailable(.gaslessBridgeFeeRestriction)
+
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
 
@@ -234,9 +236,11 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .dex(.bitcoinPsbt(let psbtBase64)):
             return try await updateFees(psbtBase64: psbtBase64)
 
+        case .dex(.tron(let request)):
+            return try await updateFees(request: request)
+
         case .approve(let txData, let toContractAddress, let feeMultiplier):
-            let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
-            let allFees = try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
+            let allFees = try await updateApproveFees(txData: txData, toContractAddress: toContractAddress)
 
             // Approve flow never shows a speed selector — only market fee is needed.
             // [safe: 1] = market for EIP-1559 (3 fees), fallback to [safe: 0] for single-fee (gasless).
@@ -261,12 +265,10 @@ private extension CommonTokenFeeProvider {
             tokenFeeProvider: self
         )
 
-        let allowsZeroFeePaid = feeTokenItem.blockchain.allowsZeroFeePaid
-
         feeTokenItemBalanceStateCancellable = feeTokenItemBalanceProvider
             .balanceTypePublisher
-            .map { $0.value ?? 0 }
-            .map { allowsZeroFeePaid ? $0 >= 0 : $0 > 0 }
+            .withWeakCaptureOf(self)
+            .map { feeProvider, balanceType in feeProvider.hasFeeCurrency(balance: balanceType.value ?? 0) }
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { feeProvider, hasFeeCurrency in
@@ -281,6 +283,8 @@ private extension CommonTokenFeeProvider {
     }
 
     func updateSupportingState(input: TokenFeeProviderInputData?) {
+        updateBridgeFeeSupportingState(input: input)
+
         switch input {
         case .none:
             updateState(state: .unavailable(.inputDataNotSet))
@@ -297,22 +301,69 @@ private extension CommonTokenFeeProvider {
         case .dex(.bitcoinPsbt) where tokenFeeLoader is BitcoinTokenFeeLoader:
             // Is available. Do nothing
             break
+        case .dex(.tron) where tokenFeeLoader is TronTokenFeeLoader:
+            // Is available. Do nothing
+            break
         case .dex:
-            // DEX but tokenFeeLoader is not (EthereumTokenFeeLoader or SolanaTokenFeeLoader)
+            // DEX but tokenFeeLoader isn't one of the loaders supported above
             updateState(state: .unavailable(.notSupported))
         case .approve(_, _, let feeMultiplier) where tokenFeeLoader is CommonGaslessTokenFeeLoader && feeMultiplier == .triple && !FeatureProvider.isAvailable(.usdtRevokeGaslessFee):
             updateState(state: .unavailable(.notSupported))
         case .approve where tokenFeeLoader is EthereumTokenFeeLoader:
             // ERC-20 approve — available for Ethereum loaders (includes gasless)
             break
+        case .approve where tokenFeeLoader is TronTokenFeeLoader:
+            // Is available. Do nothing
+            break
         case .approve:
-            // Approve but tokenFeeLoader is not EthereumTokenFeeLoader
+            // Approve but tokenFeeLoader isn't one of the loaders supported above
             updateState(state: .unavailable(.notSupported))
         case .approveWithSwap where tokenFeeLoader is EthereumTokenFeeLoader:
             // One-tap approve+swap is EVM-only (allowance + state override)
             break
         case .approveWithSwap:
             updateState(state: .unavailable(.notSupported))
+        }
+    }
+
+    /// A bridge provider charges its own fee in the blockchain's coin and expects it as the transaction
+    /// value, which a gasless transaction can't carry: the relayer forwards no coin value.
+    ///
+    /// The same provider quotes with and without a bridge fee from one quote to the next, so the verdict
+    /// is withdrawn as well — while this provider stays unselected, nothing else would clear it.
+    /// The withdrawal restores the balance verdict rather than a plain `.idle`: for an unchanged
+    /// zero balance the balance publisher never re-emits, so nothing else would bring it back
+    func updateBridgeFeeSupportingState(input: TokenFeeProviderInputData?) {
+        guard isBridgeFeeRestrictionEnabled, tokenFeeLoader is CommonGaslessTokenFeeLoader else {
+            return
+        }
+
+        switch (bridgeFee(in: input) > 0, stateSubject.value) {
+        case (true, _):
+            updateState(state: .unavailable(.notSupported))
+        case (false, .unavailable(.notSupported)):
+            let balance = feeTokenItemBalanceProvider.balanceType.value ?? 0
+            updateState(state: hasFeeCurrency(balance: balance) ? .idle : .unavailable(.noTokenBalance))
+        case (false, _):
+            break
+        }
+    }
+
+    func hasFeeCurrency(balance: Decimal) -> Bool {
+        feeTokenItem.blockchain.allowsZeroFeePaid ? balance >= 0 : balance > 0
+    }
+
+    /// The fee a bridge provider charges in the blockchain's coin, carried by every input that can describe a swap
+    func bridgeFee(in input: TokenFeeProviderInputData?) -> Decimal {
+        switch input {
+        case .dex(.ethereum(_, _, _, let otherNativeFee)),
+             .dex(.ethereumEstimate(_, let otherNativeFee)),
+             .approveWithSwap(_, _, _, let otherNativeFee, _):
+            otherNativeFee ?? 0
+        case .dex(.tron(let request)):
+            request.otherNativeFee ?? 0
+        default:
+            0
         }
     }
 
@@ -447,6 +498,38 @@ private extension CommonTokenFeeProvider {
         let fees = try await tokenFeeLoader.asBitcoinTokenFeeLoader().getFee(psbtBase64: psbtBase64)
         try Task.checkCancellation()
         return fees
+    }
+
+    // MARK: - Tron
+
+    func updateFees(request: TronFeeRequestData) async throws -> [BSDKFee] {
+        let fees = try await tokenFeeLoader.asTronTokenFeeLoader().getFee(request: request)
+        try Task.checkCancellation()
+        return fees
+    }
+
+    // MARK: - Approve
+
+    /// Pricing an approve is chain-specific: `eth_estimateGas` on EVM, a `triggerconstantcontract` simulation on Tron.
+    func updateApproveFees(txData: Data, toContractAddress: String) async throws -> [BSDKFee] {
+        let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
+
+        switch tokenFeeLoader {
+        case is EthereumTokenFeeLoader:
+            return try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
+
+        case is TronTokenFeeLoader:
+            return try await updateFees(request: TronFeeRequestData(
+                amount: zeroAmount,
+                destination: toContractAddress,
+                callData: txData,
+                memo: nil,
+                otherNativeFee: nil
+            ))
+
+        default:
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+        }
     }
 }
 
