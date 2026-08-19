@@ -107,6 +107,8 @@ public extension Blockchain {
         case .scroll: break
         case .linea: break
         case .monad: break
+        case .igra: break
+        case .robinhood: break
         case .arbitrumNova: break
         case .plasma: break
         case .adi: break
@@ -209,6 +211,8 @@ public extension Blockchain {
             .scroll(testnet: false),
             .linea(testnet: false),
             .monad(testnet: false),
+            .igra(testnet: false),
+            .robinhood(testnet: false),
             .arbitrumNova,
             .plasma(testnet: false),
             .adi(testnet: false),
