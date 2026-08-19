@@ -65,6 +65,11 @@ class TangemPayMainCoordinator: CoordinatorObject {
         rootViewModel = TangemPayMainViewModel(
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
+            fundingFlowBuilder: TangemPayFundingFlowBuilder(
+                userWalletInfo: options.userWalletInfo,
+                userWalletModel: options.userWalletModel,
+                tangemPayAccount: options.tangemPayAccount
+            ),
             coordinator: self
         )
 

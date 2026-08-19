@@ -29,6 +29,7 @@ enum Feature: String, Hashable, CaseIterable {
     case backup4cards
     case mainPushNotificationDoubleAsk
     case backendAuthentication
+    case tangemPayAddFundsWithdrawRework
     case swapHideZeroBalanceSource
     case bitcoinLikePsbtSwap
     case onrampPaymentMethodThemedImages
@@ -72,6 +73,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayMultichain: return "TWI-1684_tangem_pay_multichain"
         case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
         case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
+        case .tangemPayAddFundsWithdrawRework: return "[REDACTED_INFO]_tangem_pay_add_funds_withdraw_rework"
         case .swapHideZeroBalanceSource: return "[REDACTED_INFO]_hide_zero_balance_tokens_in_swap_source"
         case .bitcoinLikePsbtSwap: return "TWI-1668_support_other_bitcoin_like_tokens_for_psbt_signature"
         case .onrampPaymentMethodThemedImages: return "[REDACTED_INFO]_two_payment_method_pictures"
@@ -115,6 +117,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mainPushNotificationDoubleAsk: return .version("6.2")
         case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
+        case .tangemPayAddFundsWithdrawRework: return .unspecified
         case .bitcoinLikePsbtSwap: return .version("6.2")
         case .swapHideZeroBalanceSource: return .unspecified
         case .onrampPaymentMethodThemedImages: return .unspecified
