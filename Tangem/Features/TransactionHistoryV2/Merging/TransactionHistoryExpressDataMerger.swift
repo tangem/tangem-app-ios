@@ -15,31 +15,6 @@ import TangemFoundation
 struct TransactionHistoryExpressDataMerger {
     @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
 
-    // MARK: - Active statuses
-
-    private static let activeExchangeTransactionStatuses: Set<ExpressTransactionStatus> = [
-        .preview,
-        .created,
-        .unknown,
-        .exchangeTxSent,
-        .waiting,
-        .waitingTxHash,
-        .confirming,
-        .exchanging,
-        .sending,
-        .verifying,
-        .failed,
-    ]
-
-    private static let activeOnrampTransactionStatuses: Set<OnrampTransactionStatus> = [
-        .created,
-        .waitingForPayment,
-        .paymentProcessing,
-        .verifying,
-        .paid,
-        .sending,
-    ]
-
     // MARK: - Dependencies
 
     private let currentToken: TokenItem
@@ -435,12 +410,31 @@ struct TransactionHistoryExpressDataMerger {
 
     @inline(__always)
     private func shouldAddSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> Bool {
-        Self.activeExchangeTransactionStatuses.contains(exchangeTransaction.status)
+        switch exchangeTransaction.status {
+        case .created:
+            return exchangeTransaction.payIn.hash != nil
+        case .unknown,
+             .preview,
+             .exchangeTxSent,
+             .waiting,
+             .waitingTxHash,
+             .expired,
+             .confirming,
+             .exchanging,
+             .sending,
+             .finished,
+             .failed,
+             .txFailed,
+             .refunded,
+             .verifying,
+             .paused:
+            return true
+        }
     }
 
     @inline(__always)
     private func shouldAddSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> Bool {
-        Self.activeOnrampTransactionStatuses.contains(onrampTransaction.status)
+        return true // Currently, there are no restrictions on onramp synthetic transactions creation
     }
 
     @inline(__always)

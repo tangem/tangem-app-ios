@@ -30,6 +30,16 @@ extension Screen {
         }
     }
 
+    /// Waits for a toast with the given text to appear.
+    @discardableResult
+    func verifyToastVisible(text: String) -> Self {
+        XCTContext.runActivity(named: "Verify toast '\(text)' is visible") { _ in
+            let toast = app.staticTexts[text].firstMatch
+            waitAndAssertTrue(toast, timeout: .conditional, "Toast with text '\(text)' should be displayed")
+            return self
+        }
+    }
+
     /// Waits for element existence and then asserts it exists
     /// - Parameters:
     ///   - element: The element to wait for and assert

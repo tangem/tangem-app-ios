@@ -75,15 +75,13 @@ final class CommonForceUpdateService {
     // MARK: - Private
 
     private func loadStateFromCache() {
-        guard FeatureProvider.isAvailable(.forceUpdate), let dto = cache.dto else {
+        guard let dto = cache.dto else {
             return
         }
         stateSubject.send(Self.mapState(from: dto, currentVersion: currentAppVersion, currentOSVersion: currentOSVersion))
     }
 
     private func runFetch(applyToState: Bool) {
-        guard FeatureProvider.isAvailable(.forceUpdate) else { return }
-
         checkCancellable = runTask(in: self) { service in
             do {
                 let dto = try await service.apiService.loadApplicationVersions()

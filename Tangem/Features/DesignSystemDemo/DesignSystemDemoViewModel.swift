@@ -107,7 +107,35 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openGlowRingDemo()
     }
 
+    func openTabNavigationDemo() {
+        coordinator?.openTabNavigationDemo()
+    }
+
+    func openTangemTopNavigationDemo() {
+        coordinator?.openTangemTopNavigationDemo()
+    }
+
     func openTangemFadeDemo() {
         coordinator?.openTangemFadeDemo()
+    }
+
+    func openTangemMessageBubbleDemo() {
+        coordinator?.openTangemMessageBubbleDemo()
+    }
+
+    func openTokenIconV2Demo() {
+        coordinator?.openTokenIconV2Demo()
+    }
+
+    func openUtilGraphDemo() {
+        coordinator?.openUtilGraphDemo()
+    }
+
+    func openUtilPriceChangeDemo() {
+        coordinator?.openUtilPriceChangeDemo()
+    }
+
+    func openUtilBalanceDemo() {
+        coordinator?.openUtilBalanceDemo()
     }
 }

@@ -31,6 +31,7 @@ final class MobileUpgradeViewModel: ObservableObject {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.walletCardsBackupReportService) private var reportService: WalletCardsBackupReportService
 
     private var analyticsContextParams: Analytics.ContextParams {
         .custom(userWalletModel.analyticsContextData)
@@ -106,11 +107,12 @@ extension MobileUpgradeViewModel {
 
     func makeOnboardingInput(cardInfo: CardInfo) -> OnboardingInput? {
         // Card for mobile backup must not have an access code set.
-        let backupFactory = GenericBackupServiceFactory(isAccessCodeSet: false)
+        let backupFactory = GenericBackupServiceFactory(isAccessCodeSet: false, defaultBlockchains: [])
         let backupService = backupFactory.makeBackupService()
 
         if let primaryCard = cardInfo.primaryCard {
             backupService.setPrimaryCard(primaryCard)
+            reportService.reportPrimaryCard(cardInfo: cardInfo)
         }
 
         let stepsBuilder = userWalletModel.config.makeOnboardingStepsBuilder(

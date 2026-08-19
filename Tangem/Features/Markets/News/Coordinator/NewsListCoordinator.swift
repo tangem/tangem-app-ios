@@ -112,7 +112,7 @@ extension NewsListCoordinator {
 extension NewsListCoordinator {
     struct Options {
         var initialCategoryId: Int?
-        var presentSource: MarketsNavigationBackButton.PresentSource = .navigation
+        var presentSource: MarketsNavigationPresentSource = .navigation
     }
 }
 

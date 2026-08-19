@@ -18,7 +18,7 @@ final class EarnWidgetViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published private(set) var isFirstLoading: Bool = true
-    @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderView.LoadingState = .first
+    @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderLoadingState = .first
     @Published private(set) var resultState: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
 
     /// `true` when widget has content to display (loading, non-empty list, or error). `false` when list is empty.

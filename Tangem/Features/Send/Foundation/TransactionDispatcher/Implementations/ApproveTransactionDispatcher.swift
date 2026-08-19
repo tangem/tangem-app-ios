@@ -105,12 +105,17 @@ extension ApproveTransactionDispatcher: TransactionDispatcher {
 private extension ApproveTransactionDispatcher {
     func buildTransaction(data: ApproveTransactionData, fee: BSDKFee) async throws -> BSDKTransaction {
         let amount = Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0)
+        let params: TransactionParams = switch feeTokenItem.blockchain {
+        case .tron: TronTransactionParams(transactionType: .contractCall(callData: data.txData, feeLimit: nil))
+        default: EthereumTransactionParams(data: data.txData)
+        }
+
         let transaction = try await transactionCreator.createTransaction(
             amount: amount,
             fee: fee,
             destinationAddress: data.toContractAddress,
             contractAddress: data.toContractAddress,
-            params: EthereumTransactionParams(data: data.txData)
+            params: params
         )
 
         return transaction

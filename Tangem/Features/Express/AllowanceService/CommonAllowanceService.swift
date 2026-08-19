@@ -11,11 +11,14 @@ import TangemExpress
 import BlockchainSdk
 
 actor CommonAllowanceService {
-    private let allowanceChecker: AllowanceChecker
+    nonisolated let supportsOneTapApprove: Bool
+
+    private let allowanceChecker: any AllowanceChecking
     private var spendersAwaitingApprove: Set<String> = []
 
-    init(allowanceChecker: AllowanceChecker) {
+    init(allowanceChecker: any AllowanceChecking) {
         self.allowanceChecker = allowanceChecker
+        supportsOneTapApprove = allowanceChecker.supportsOneTapApprove
     }
 }
 

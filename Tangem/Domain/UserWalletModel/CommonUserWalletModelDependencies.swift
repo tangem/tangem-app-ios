@@ -15,10 +15,9 @@ import TangemPay
 
 struct CommonUserWalletModelDependencies {
     let keysRepository: KeysRepository
-    let keysDerivingInteractor: KeysDeriving
     let totalBalanceProvider: TotalBalanceProvider
     let nftManager: NFTManager
-    let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
     let accountModelsManager: AccountModelsManager
     let addressBookManager: AddressBookManager
@@ -35,11 +34,8 @@ struct CommonUserWalletModelDependencies {
         let keysRepository = Self.makeKeysRepository(keys: keys)
         self.keysRepository = keysRepository
 
-        keysDerivingInteractor = Self.makeKeysDeriving(
-            walletInfo: walletInfo,
-            userWalletId: userWalletId,
-            config: config
-        )
+        let keysDerivingInteractorFactory = KeysDerivingInteractorFactory()
+        let tangemSignerFactory = TangemSignerFactory()
 
         let derivationManager = Self.makeDerivationManager(
             keysRepository: keysRepository,
@@ -49,7 +45,7 @@ struct CommonUserWalletModelDependencies {
         let tangemPayManager = TangemPayBuilder(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
-            signer: config.tangemSigner
+            signerFactory: tangemSignerFactory
         )
         .buildTangemPayManager()
 
@@ -65,7 +61,7 @@ struct CommonUserWalletModelDependencies {
             walletInfo: walletInfo,
             walletManagerFactory: walletManagerFactory,
             keysRepository: keysRepository,
-            keysDerivingInteractor: keysDerivingInteractor,
+            keysDerivingInteractorFactory: keysDerivingInteractorFactory,
             cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository,
             tangemPayManager: tangemPayManager,
             cryptoAccountsNetworkMapper: accountModelsManagerDependencies.networkMapper,
@@ -76,13 +72,13 @@ struct CommonUserWalletModelDependencies {
         )
         derivationManager?.configure(with: accountModelsManager)
 
-        let userTokensPushNotificationsManager = Self.makeUserTokensPushNotificationsManager(
+        let userWalletPushNotificationsManager = Self.makeUserWalletPushNotificationsManager(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
             remoteStatusSyncing: accountModelsManagerDependencies.cryptoAccountsRepository
         )
-        self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
-        accountModelsManagerDependencies.networkMapper.externalParametersProvider = userTokensPushNotificationsManager
+        self.userWalletPushNotificationsManager = userWalletPushNotificationsManager
+        accountModelsManagerDependencies.networkMapper.externalParametersProvider = userWalletPushNotificationsManager
 
         // [REDACTED_TODO_COMMENT]
         // once the backend subscriptions contract is finalized. Using the stub for now.
@@ -98,12 +94,18 @@ struct CommonUserWalletModelDependencies {
             accountModelsManager: accountModelsManager
         )
 
-        addressBookManager = Self.makeAddressBookManager(userWalletId: userWalletId, config: config)
+        addressBookManager = Self.makeAddressBookManager(
+            userWalletId: userWalletId,
+            config: config,
+            tangemSignerFactory: tangemSignerFactory
+        )
 
         userWalletModelConfigurableDependencies = UserWalletModelConfigurableDependencies(
             derivationManager: derivationManager,
             keysRepository: keysRepository,
-            cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository
+            cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository,
+            keysDerivingInteractorFactory: keysDerivingInteractorFactory,
+            tangemSignerFactory: tangemSignerFactory
         )
     }
 
@@ -111,7 +113,8 @@ struct CommonUserWalletModelDependencies {
         userWalletModelConfigurableDependencies.derivationManager?.configure(with: model)
         userWalletModelConfigurableDependencies.cryptoAccountsRepository.configure(with: model)
         userWalletModelConfigurableDependencies.keysRepository.configure(with: model)
-        addressBookManager.configure(with: model)
+        userWalletModelConfigurableDependencies.keysDerivingInteractorFactory.configure(with: model)
+        userWalletModelConfigurableDependencies.tangemSignerFactory.configure(with: model)
     }
 }
 
@@ -120,19 +123,6 @@ struct CommonUserWalletModelDependencies {
 private extension CommonUserWalletModelDependencies {
     static func makeKeysRepository(keys: WalletKeys) -> CommonKeysRepository {
         CommonKeysRepository(keys: keys)
-    }
-
-    static func makeKeysDeriving(
-        walletInfo: WalletInfo,
-        userWalletId: UserWalletId,
-        config: UserWalletConfig
-    ) -> KeysDeriving {
-        switch walletInfo {
-        case .cardWallet(let cardInfo):
-            return KeysDerivingCardInteractor(with: cardInfo)
-        case .mobileWallet:
-            return KeysDerivingMobileWalletInteractor(userWalletId: userWalletId, userWalletConfig: config)
-        }
     }
 
     static func makeDerivationManager(
@@ -194,7 +184,7 @@ private extension CommonUserWalletModelDependencies {
         walletInfo: WalletInfo,
         walletManagerFactory: AnyWalletManagerFactory,
         keysRepository: KeysRepository,
-        keysDerivingInteractor: KeysDeriving,
+        keysDerivingInteractorFactory: KeysDerivingInteractorFactory,
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
         tangemPayManager: TangemPayManager,
         cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper,
@@ -223,7 +213,7 @@ private extension CommonUserWalletModelDependencies {
             userWalletId: userWalletId,
             userWalletConfig: config,
             keysRepository: keysRepository,
-            keysDerivingInteractor: keysDerivingInteractor,
+            keysDerivingInteractorFactory: keysDerivingInteractorFactory,
             transactionHistoryProviderRegistry: transactionHistoryProviderRegistry ?? DummyTransactionHistoryProviderRegistry(),
             transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
         )
@@ -258,27 +248,19 @@ private extension CommonUserWalletModelDependencies {
         return accountModelsManager
     }
 
-    static func makeUserTokensPushNotificationsManager(
+    static func makeUserWalletPushNotificationsManager(
         userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
-        remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
-    ) -> (UserTokensPushNotificationsManager & UserTokenListExternalParametersProvider) {
-        if FeatureProvider.isAvailable(.pushNotificationsSettings) {
-            let notificationPreferencesProvider = CommonNotificationPreferencesProvider(userWalletId: userWalletId.stringValue)
+        remoteStatusSyncing: UserWalletPushNotificationsRemoteStatusSyncing
+    ) -> (UserWalletPushNotificationsManager & UserTokenListExternalParametersProvider) {
+        let notificationPreferencesProvider = CommonNotificationPreferencesProvider(userWalletId: userWalletId.stringValue)
 
-            return CommonUserWalletPushNotificationsManager(
-                userWalletId: userWalletId,
-                accountModelsManager: accountModelsManager,
-                remoteStatusSyncing: remoteStatusSyncing,
-                notificationPreferencesProvider: notificationPreferencesProvider
-            )
-        } else {
-            return CommonUserTokensPushNotificationsManager(
-                userWalletId: userWalletId,
-                accountModelsManager: accountModelsManager,
-                remoteStatusSyncing: remoteStatusSyncing
-            )
-        }
+        return CommonUserWalletPushNotificationsManager(
+            userWalletId: userWalletId,
+            accountModelsManager: accountModelsManager,
+            remoteStatusSyncing: remoteStatusSyncing,
+            notificationPreferencesProvider: notificationPreferencesProvider
+        )
     }
 
     static func makeTotalBalanceProvider(
@@ -314,7 +296,11 @@ private extension CommonUserWalletModelDependencies {
         )
     }
 
-    static func makeAddressBookManager(userWalletId: UserWalletId, config: UserWalletConfig) -> AddressBookManager {
+    static func makeAddressBookManager(
+        userWalletId: UserWalletId,
+        config: UserWalletConfig,
+        tangemSignerFactory: TangemSignerFactory
+    ) -> AddressBookManager {
         guard let walletPublicKeySeed = config.userWalletIdSeed else {
             return NoopAddressBookManager()
         }
@@ -333,7 +319,7 @@ private extension CommonUserWalletModelDependencies {
             walletId: userWalletId,
             walletPublicKey: walletPublicKeySeed,
             repository: repository,
-            signer: CommonAddressBookSigner(signer: config.tangemSigner),
+            signer: CommonAddressBookSigner(signerFactory: tangemSignerFactory),
             verifier: CommonAddressBookSignatureVerifier(),
             supportedBlockchains: config.supportedBlockchains
         )
@@ -349,6 +335,8 @@ private extension CommonUserWalletModelDependencies {
         let derivationManager: DerivationDependenciesConfigurable?
         let keysRepository: CommonKeysRepository
         let cryptoAccountsRepository: CommonCryptoAccountsRepository
+        let keysDerivingInteractorFactory: KeysDerivingInteractorFactory
+        let tangemSignerFactory: TangemSignerFactory
     }
 
     /// Represents dependencies related to crypto accounts models that are required for `AccountModelsManager` initialization,

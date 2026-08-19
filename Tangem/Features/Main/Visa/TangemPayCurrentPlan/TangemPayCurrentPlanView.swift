@@ -21,6 +21,7 @@ struct TangemPayCurrentPlanView: View {
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 changePlanButton
             }
+            .alert(item: $viewModel.alert) { $0.alert }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbar }
             .modifyView { view in
@@ -36,12 +37,29 @@ struct TangemPayCurrentPlanView: View {
     private var content: some View {
         ScrollView {
             VStack(spacing: 24) {
-                if let downgradeBanner = viewModel.downgradeBanner {
-                    downgradeBannerView(downgradeBanner)
+                if let banner = viewModel.awaitingDepositBanner {
+                    TangemPayCurrentPlanInfoBanner(
+                        title: banner.text,
+                        button: TangemPayCurrentPlanInfoBannerButton(
+                            title: banner.cancelButtonTitle,
+                            isLoading: viewModel.isCancellingTransition,
+                            action: viewModel.cancelTransition
+                        )
+                    )
+                }
+
+                if let banner = viewModel.downgradeBanner {
+                    TangemPayCurrentPlanInfoBanner(
+                        title: banner.text,
+                        button: TangemPayCurrentPlanInfoBannerButton(
+                            title: Localization.tangempayCurrentPlanStayButton(banner.planName),
+                            action: viewModel.stayOnPlus
+                        )
+                    )
                 }
 
                 if let feeChargedBannerText = viewModel.feeChargedBannerText {
-                    feeChargedBannerView(feeChargedBannerText)
+                    TangemPayCurrentPlanInfoBanner(title: feeChargedBannerText)
                 }
 
                 ForEach(viewModel.sections) { section in
@@ -54,55 +72,6 @@ struct TangemPayCurrentPlanView: View {
         }
     }
 
-    private func downgradeBannerView(_ banner: TangemPayCurrentPlanViewModel.DowngradeBanner) -> some View {
-        let stayTitle = Localization.tangempayCurrentPlanStayButton(banner.planName)
-
-        return VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top, spacing: 8) {
-                DesignSystem.Icons.Info.regular20.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(DesignSystem.Color.iconStatusInfo)
-
-                Text(banner.text)
-                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-
-            TangemButtonV2(
-                label: AttributedString(stayTitle),
-                accessibilityLabel: stayTitle,
-                action: viewModel.stayOnPlus
-            )
-            .size(.x8)
-            .styleType(.secondary)
-            .horizontalLayout(.infinity)
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 16)
-        .background(DesignSystem.Color.bgStatusInfoSubtle)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-
-    private func feeChargedBannerView(_ text: String) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            DesignSystem.Icons.Info.regular20.image
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: 20, height: 20)
-                .foregroundStyle(DesignSystem.Color.iconStatusInfo)
-
-            Text(text)
-                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 16)
-        .background(DesignSystem.Color.bgStatusInfoSubtle)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-
     private func sectionView(_ section: TangemPayCurrentPlanViewModel.Section) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(section.title)
@@ -112,7 +81,7 @@ struct TangemPayCurrentPlanView: View {
 
             VStack(spacing: 0) {
                 ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
-                    TangemRow(title: row.value, subtitle: row.label)
+                    Row(title: row.value, subtitle: row.label)
                         .lineOrder(.secondaryFirst)
                         .titleLineLimit(nil)
                         .showDivider(index < section.rows.count - 1)
@@ -124,19 +93,22 @@ struct TangemPayCurrentPlanView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    @ViewBuilder
     private var changePlanButton: some View {
-        TangemButtonV2(
-            label: AttributedString(viewModel.changePlanButtonTitle),
-            accessibilityLabel: viewModel.changePlanButtonTitle,
-            action: viewModel.changePlan
-        )
-        .size(.x12)
-        .styleType(.default)
-        .horizontalLayout(.infinity)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(alignment: .bottom) {
-            BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
+        if viewModel.isPlanChangeAvailable {
+            TangemUI.Button(
+                label: AttributedString(viewModel.changePlanButtonTitle),
+                accessibilityLabel: viewModel.changePlanButtonTitle,
+                action: viewModel.changePlan
+            )
+            .size(.x12)
+            .styleType(.default)
+            .horizontalLayout(.infinity)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(alignment: .bottom) {
+                BottomFadeWithBlur(backgroundColor: DesignSystem.Color.bgPrimary)
+            }
         }
     }
 

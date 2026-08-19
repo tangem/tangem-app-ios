@@ -27,7 +27,7 @@ struct DefaultRowView: View {
 
     var body: some View {
         if let action = viewModel.action {
-            Button(action: action) {
+            SwiftUI.Button(action: action) {
                 content
             }
             .buttonStyle(PlainButtonStyle())
@@ -64,7 +64,7 @@ struct DefaultRowView: View {
                 .style(appearance.font, color: appearance.textColor)
 
             if let secondaryAction = viewModel.secondaryAction {
-                Button(action: secondaryAction) {
+                SwiftUI.Button(action: secondaryAction) {
                     Assets.infoCircle16.image
                         .padding(.horizontal, 4)
                         .foregroundColor(Colors.Icon.informative)

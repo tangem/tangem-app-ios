@@ -78,11 +78,12 @@ final class LockedUserWalletModel: UserWalletModel {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
 
-    var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
-        CommonUserTokensPushNotificationsManager(
+    var userWalletPushNotificationsManager: UserWalletPushNotificationsManager {
+        CommonUserWalletPushNotificationsManager(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
-            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub()
+            remoteStatusSyncing: UserWalletPushNotificationsRemoteStatusSyncingStub(),
+            notificationPreferencesProvider: NotificationPreferencesProviderStub()
         )
     }
 
@@ -184,14 +185,14 @@ final class LockedUserWalletModel: UserWalletModel {
         switch existingInfo {
         case .cardWallet(let keys):
             for wallet in mutableCardInfo.card.wallets {
-                if let existingDerivedKeys = keys[wallet.publicKey]?.derivedKeys {
-                    mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                if let walletPublicKey = wallet.publicKey, let existingDerivedKeys = keys[walletPublicKey]?.derivedKeys {
+                    mutableCardInfo.card.wallets[walletPublicKey]?.derivedKeys = existingDerivedKeys
                 }
             }
         case .mobileWallet(let keys):
             for wallet in mutableCardInfo.card.wallets {
-                if let existingDerivedKeys = keys[wallet.publicKey]?.derivedKeys {
-                    mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                if let walletPublicKey = wallet.publicKey, let existingDerivedKeys = keys[walletPublicKey]?.derivedKeys {
+                    mutableCardInfo.card.wallets[walletPublicKey]?.derivedKeys = existingDerivedKeys
                 }
             }
         }

@@ -20,13 +20,21 @@ public struct VisaWalletPublicKeyUtility {
     public func findKeyWithoutDerivation(targetAddress: String, on card: Card) throws(SearchError) -> Data {
         let wallet = try findWalletOnVisaCurve(on: card)
 
-        try validatePublicKey(targetAddress: targetAddress, publicKey: wallet.publicKey)
+        guard let walletPublicKey = wallet.publicKey else {
+            throw .missingWalletOnTargetCurve
+        }
 
-        return wallet.publicKey
+        try validatePublicKey(targetAddress: targetAddress, walletPublicKey: walletPublicKey)
+
+        return walletPublicKey
     }
 
     public func findKeyWithDerivation(targetAddress: String, derivationPath: DerivationPath, on card: Card) throws(SearchError) -> Data {
         let wallet = try findWalletOnVisaCurve(on: card)
+
+        guard let walletPublicKey = wallet.publicKey else {
+            throw .missingWalletOnTargetCurve
+        }
 
         guard let extendedPublicKey = wallet.derivedKeys.keys[derivationPath] else {
             throw .missingDerivedKeys
@@ -34,13 +42,13 @@ public struct VisaWalletPublicKeyUtility {
 
         try validateExtendedPublicKey(targetAddress: targetAddress, extendedPublicKey: extendedPublicKey, derivationPath: derivationPath)
 
-        return wallet.publicKey
+        return walletPublicKey
     }
 
-    public func validatePublicKey(targetAddress: String, publicKey: Data) throws(SearchError) {
+    public func validatePublicKey(targetAddress: String, walletPublicKey: Data) throws(SearchError) {
         let createdAddress: Address
         do {
-            createdAddress = try VisaUtilities.makeAddress(walletPublicKey: publicKey, isTestnet: isTestnet)
+            createdAddress = try VisaUtilities.makeAddress(walletPublicKey: walletPublicKey, isTestnet: isTestnet)
         } catch {
             throw .failedToGenerateAddress(error)
         }

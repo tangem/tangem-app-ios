@@ -33,6 +33,7 @@ class SendReceiveTokensListViewModel: ObservableObject, Identifiable {
 
     private lazy var loader = TokensListDataLoader(supportedBlockchains: SupportedBlockchains.all)
     private var bag: Set<AnyCancellable> = []
+    private var focusTask: Task<Void, Error>?
 
     init(
         sourceTokenInput: SendSourceTokenInput,
@@ -47,7 +48,17 @@ class SendReceiveTokensListViewModel: ObservableObject, Identifiable {
         setupNotification()
     }
 
+    func onAppear() {
+        focusTask?.cancel()
+        // Let the sheet finish presenting before focusing, or SwiftUI won't raise the keyboard on older devices.
+        focusTask = Task { @MainActor [weak self] in
+            try await Task.sleep(for: .seconds(0.7))
+            self?.isFocused = true
+        }
+    }
+
     func dismiss() {
+        focusTask?.cancel()
         router?.closeTokensList()
     }
 
@@ -127,6 +138,7 @@ class SendReceiveTokensListViewModel: ObservableObject, Identifiable {
 
     private func openNetworkSelector(coin: CoinModel, items: [TokenItem]) {
         analyticsLogger.logTokenSearched(coin: coin, searchText: searchText.nilIfEmpty)
+        focusTask?.cancel()
         isFocused = false
         router?.openNetworkSelector(coin: coin, networks: items)
     }

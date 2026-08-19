@@ -8,8 +8,10 @@
 
 import Combine
 import Foundation
+import TangemFoundation
 import TangemLocalization
 import TangemPay
+import TangemUIUtils
 
 final class TangemPayCurrentPlanViewModel: ObservableObject {
     let planName: String
@@ -18,14 +20,24 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
 
     @Published private(set) var downgradeBanner: DowngradeBanner?
     @Published private(set) var feeChargedBannerText: String?
+    @Published private(set) var awaitingDepositBanner: AwaitingDepositBanner?
+    @Published private(set) var isPlanChangeAvailable: Bool
+    @Published private(set) var isCancellingTransition = false
+    @Published var alert: AlertBinder?
 
+    private let userWalletId: UserWalletId
+    private let awaitingDepositCanceller: any TangemPayAwaitingDepositCanceller
     private weak var coordinator: TangemPayCurrentPlanRoutable?
 
     init(
+        userWalletId: UserWalletId,
         customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan,
         customerTariffPlanPublisher: AnyPublisher<VisaCustomerInfoResponse.CustomerTariffPlan?, Never>,
+        awaitingDepositCanceller: any TangemPayAwaitingDepositCanceller,
         coordinator: TangemPayCurrentPlanRoutable? = nil
     ) {
+        self.userWalletId = userWalletId
+        self.awaitingDepositCanceller = awaitingDepositCanceller
         self.coordinator = coordinator
 
         let tariffPlan = customerTariffPlan.tariffPlan
@@ -33,6 +45,7 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
         sections = Self.makeSections(from: tariffPlan.descriptionItems)
         downgradeBanner = Self.makeDowngradeBanner(from: customerTariffPlan)
         feeChargedBannerText = Self.makeFeeChargedBannerText(from: customerTariffPlan)
+        isPlanChangeAvailable = customerTariffPlan.status != .transitioning
 
         changePlanButtonTitle = Localization.tangempayCurrentPlanChange
 
@@ -45,11 +58,52 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
             .map { $0.flatMap(Self.makeFeeChargedBannerText(from:)) }
             .receive(on: DispatchQueue.main)
             .assign(to: &$feeChargedBannerText)
+
+        awaitingDepositCanceller.awaitingDepositInfoPublisher
+            .map { $0.map(Self.makeAwaitingDepositBanner(from:)) }
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$awaitingDepositBanner)
+
+        Publishers.CombineLatest(
+            customerTariffPlanPublisher,
+            awaitingDepositCanceller.awaitingDepositInfoPublisher
+        )
+        .map { plan, awaitingDepositInfo in
+            awaitingDepositInfo == nil && plan?.status != .transitioning
+        }
+        .removeDuplicates()
+        .receive(on: DispatchQueue.main)
+        .assign(to: &$isPlanChangeAvailable)
     }
 
     func changePlan() {
         Analytics.log(.visaTiersChangePlanClicked)
         coordinator?.openSelectPlan()
+    }
+
+    func cancelTransition() {
+        guard !isCancellingTransition, awaitingDepositBanner != nil else {
+            return
+        }
+
+        Analytics.log(.visaTiersCancelPlusMoveToBasicClicked, contextParams: .userWallet(userWalletId))
+
+        isCancellingTransition = true
+
+        runTask(in: self) { @MainActor viewModel in
+            do {
+                try await viewModel.awaitingDepositCanceller.cancelAwaitingDepositOrder()
+
+                viewModel.isCancellingTransition = false
+            } catch {
+                viewModel.alert = AlertBinder(
+                    title: Localization.commonSomethingWentWrong,
+                    message: Localization.commonTryAgainLater
+                )
+
+                viewModel.isCancellingTransition = false
+            }
+        }
     }
 
     func stayOnPlus() {
@@ -100,6 +154,13 @@ private extension TangemPayCurrentPlanViewModel {
         )
 
         return DowngradeBanner(text: text, planName: planName, pendingPlanName: pendingPlan.name)
+    }
+
+    static func makeAwaitingDepositBanner(from info: TangemPayAwaitingDepositInfo) -> AwaitingDepositBanner {
+        AwaitingDepositBanner(
+            text: Localization.tangempayCurrentPlanAwaitingDepositNotification(info.planName),
+            cancelButtonTitle: Localization.tangempayCardDetailsAwaitingDepositCancelButton(info.planName, info.fallbackPlanName)
+        )
     }
 
     static func makeFeeChargedBannerText(
@@ -160,6 +221,11 @@ extension TangemPayCurrentPlanViewModel {
         let text: String
         let planName: String
         let pendingPlanName: String
+    }
+
+    struct AwaitingDepositBanner: Equatable {
+        let text: String
+        let cancelButtonTitle: String
     }
 
     struct Section: Identifiable {
