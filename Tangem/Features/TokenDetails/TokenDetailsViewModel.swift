@@ -542,7 +542,7 @@ private extension TokenDetailsViewModel {
                 walletModel.transactionHistoryPublisher
                     .compactMap { state -> TransactionRecord? in
                         guard case .loaded(let records) = state else { return nil }
-                        return records.first { $0.expressTxId == pendingTransactionDetails.id }
+                        return records.first { $0.expressExtraInfo?.txId == pendingTransactionDetails.id }
                     }
                     .prefix(1)
                     .receive(on: DispatchQueue.main)

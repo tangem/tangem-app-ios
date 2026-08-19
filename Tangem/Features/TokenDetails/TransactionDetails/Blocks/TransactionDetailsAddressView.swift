@@ -16,12 +16,13 @@ struct TransactionDetailsAddressViewData: Equatable {
     /// Row label (subtitle), e.g. "From address" / "Recipient" / "From" / "To".
     let label: String
     let actor: TransactionDetailsActor
-    @IgnoredEquatable var onCopy: (() -> Void)? = nil
-    @IgnoredEquatable var walletImageProvider: (any WalletImageProviding)? = nil
+    let copyAction: TransactionDetailsViewModel.ViewAction?
+    @IgnoredEquatable var walletImageProvider: (any WalletImageProviding)?
 }
 
 struct TransactionDetailsAddressView: View {
     let data: TransactionDetailsAddressViewData
+    let onAction: (TransactionDetailsViewModel.ViewAction) -> Void
 
     var body: some View {
         Row(title: title, subtitle: data.label)
@@ -58,8 +59,8 @@ struct TransactionDetailsAddressView: View {
 
     @ViewBuilder
     private var endAccessory: some View {
-        if let onCopy = data.onCopy {
-            SwiftUI.Button(action: onCopy) {
+        if let copyAction = data.copyAction {
+            SwiftUI.Button(action: { onAction(copyAction) }) {
                 DesignSystem.Icons.Copy.regular20.image
                     .renderingMode(.template)
                     .frame(size: CGSize(bothDimensions: 20))
@@ -126,27 +127,45 @@ private final class WalletCounterpartyIconViewModel: ObservableObject {
 
 #Preview("Counterparty actors") {
     VStack(spacing: 16) {
-        TransactionDetailsAddressView(data: .init(
-            label: "From address",
-            actor: .address(short: "33Bd321fS...ga21412B", blockiesImage: AddressBlockiesIconViewData(image: nil)),
-            onCopy: {}
-        ))
+        TransactionDetailsAddressView(
+            data: .init(
+                label: "From address",
+                actor: .address(short: "33Bd321fS...ga21412B", blockiesImage: AddressBlockiesIconViewData(image: nil)),
+                copyAction: .copy(value: "33Bd321fS...ga21412B", toast: "Copied"),
+                walletImageProvider: nil
+            ),
+            onAction: { _ in }
+        )
 
-        TransactionDetailsAddressView(data: .init(
-            label: "Recipient",
-            actor: .contact(name: "Alice", AddressBookContactNameIconViewData(letter: "A", color: .blue)),
-            onCopy: {}
-        ))
+        TransactionDetailsAddressView(
+            data: .init(
+                label: "Recipient",
+                actor: .contact(name: "Alice", AddressBookContactNameIconViewData(letter: "A", color: .blue)),
+                copyAction: .copy(value: "Alice", toast: "Copied"),
+                walletImageProvider: nil
+            ),
+            onAction: { _ in }
+        )
 
-        TransactionDetailsAddressView(data: .init(
-            label: "To",
-            actor: .account(name: "Family", icon: .composite(backgroundColor: .purple, nameMode: .letter("F")))
-        ))
+        TransactionDetailsAddressView(
+            data: .init(
+                label: "To",
+                actor: .account(name: "Family", icon: .composite(backgroundColor: .purple, nameMode: .letter("F"))),
+                copyAction: nil,
+                walletImageProvider: nil
+            ),
+            onAction: { _ in }
+        )
 
-        TransactionDetailsAddressView(data: .init(
-            label: "To",
-            actor: .wallet(name: "My Wallet")
-        ))
+        TransactionDetailsAddressView(
+            data: .init(
+                label: "To",
+                actor: .wallet(name: "My Wallet"),
+                copyAction: nil,
+                walletImageProvider: nil
+            ),
+            onAction: { _ in }
+        )
     }
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)

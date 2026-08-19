@@ -10,7 +10,6 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
-import TangemFoundation
 
 struct TransactionDetailsHeaderViewData: Equatable {
     enum TitleStyle: Equatable {
@@ -32,18 +31,18 @@ struct TransactionDetailsHeaderViewData: Equatable {
     let operationIcon: TransactionViewIconViewData
     let iconGlyph: ImageType?
     let menuActions: [MenuAction]
-    @IgnoredEquatable var onClose: () -> Void
 
     struct MenuAction: Identifiable, Equatable {
         let id: String
         let title: String
         let icon: ImageType?
-        @IgnoredEquatable var handler: () -> Void
+        let action: TransactionDetailsViewModel.ViewAction
     }
 }
 
 struct TransactionDetailsHeaderView: View {
     let data: TransactionDetailsHeaderViewData
+    let onAction: (TransactionDetailsViewModel.ViewAction) -> Void
 
     @ScaledMetric private var iconSide: CGFloat = 44
     @ScaledMetric private var glyphSide: CGFloat = 20
@@ -80,7 +79,7 @@ struct TransactionDetailsHeaderView: View {
                 TangemUI.Button(
                     icon: DesignSystem.Icons.Cross.regular20,
                     accessibilityLabel: Localization.commonClose,
-                    action: data.onClose
+                    action: { onAction(.close) }
                 )
                 .size(.x11)
                 .styleType(.material(.glass))
@@ -102,15 +101,15 @@ struct TransactionDetailsHeaderView: View {
 
     private var menuButton: some View {
         Menu {
-            ForEach(data.menuActions) { action in
-                Button(action: action.handler) {
-                    if let icon = action.icon {
+            ForEach(data.menuActions) { menuAction in
+                Button(action: { onAction(menuAction.action) }) {
+                    if let icon = menuAction.icon {
                         Label(
-                            title: { Text(action.title) },
+                            title: { Text(menuAction.title) },
                             icon: { icon.image.renderingMode(.template) }
                         )
                     } else {
-                        Text(action.title)
+                        Text(menuAction.title)
                     }
                 }
             }
@@ -133,21 +132,24 @@ struct TransactionDetailsHeaderView: View {
 #Preview("Header states") {
     let menu: [TransactionDetailsHeaderViewData.MenuAction] = [
         // [REDACTED_TODO_COMMENT]
-        .init(id: "explore", title: "Explore", icon: Assets.Glyphs.explore, handler: {}),
+        .init(id: "explore", title: "Explore", icon: Assets.Glyphs.explore, action: .close),
     ]
 
     return VStack(spacing: 32) {
         // In progress — brand (blue) title, with menu.
         TransactionDetailsHeaderView(
-            data: .init(title: "Receiving", titleStyle: .active, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .inProgress, isOutgoing: false), iconGlyph: nil, menuActions: menu, onClose: {})
+            data: .init(title: "Receiving", titleStyle: .active, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .inProgress, isOutgoing: false), iconGlyph: nil, menuActions: menu),
+            onAction: { _ in }
         )
         // Confirmed — primary title, with menu.
         TransactionDetailsHeaderView(
-            data: .init(title: "Received", titleStyle: .neutral, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false), iconGlyph: nil, menuActions: menu, onClose: {})
+            data: .init(title: "Received", titleStyle: .neutral, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false), iconGlyph: nil, menuActions: menu),
+            onAction: { _ in }
         )
         // Failed — red title, no menu (close only).
         TransactionDetailsHeaderView(
-            data: .init(title: "Sending failed", titleStyle: .failed, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), iconGlyph: nil, menuActions: [], onClose: {})
+            data: .init(title: "Sending failed", titleStyle: .failed, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), iconGlyph: nil, menuActions: []),
+            onAction: { _ in }
         )
     }
     .background(DesignSystem.Color.bgSecondary)
