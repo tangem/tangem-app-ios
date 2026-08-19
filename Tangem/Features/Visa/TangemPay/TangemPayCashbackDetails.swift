@@ -28,6 +28,7 @@ extension TangemPayCashbackDetails {
     struct CashbackOnCards: Equatable {
         let cards: [Card]
         let accountMonthlyCap: Decimal?
+        let accountMonthlyCapCurrency: String?
 
         struct Card: Equatable {
             let promotionId: String
@@ -160,7 +161,8 @@ private extension TangemPayCashbackDetails.CashbackOnCards {
     init(_ response: TangemPayCashbackPromotionsResponse.CashbackOnCards) {
         self.init(
             cards: response.cards.map(Card.init),
-            accountMonthlyCap: TangemPayCashbackDetails.optionalDecimal(response.accountMonthlyCapAmount)
+            accountMonthlyCap: TangemPayCashbackDetails.optionalDecimal(response.accountMonthlyCapAmount),
+            accountMonthlyCapCurrency: response.accountMonthlyCapCurrency?.nilIfEmpty
         )
     }
 }
