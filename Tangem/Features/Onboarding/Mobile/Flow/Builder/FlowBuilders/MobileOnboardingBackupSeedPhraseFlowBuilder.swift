@@ -166,17 +166,27 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder {
     }
 
     func logSeedPhraseValidatedAnalytics() {
+        var params: [Analytics.ParameterKey: String] = [.cardsCount: String(0)]
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            params[.backupType] = Analytics.ParameterValue.backupTypeManual.rawValue
+        }
+
         Analytics.log(
             event: .backupFinished,
-            params: [.cardsCount: String(0)],
+            params: params,
             contextParams: analyticsContextParams
         )
     }
 
     func logBackupCompletedScreenOpenedAnalytics() {
+        var params = source.analyticsParams
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            params[.backupType] = .backupTypeManual
+        }
+
         Analytics.log(
             .walletSettingsBackupCompleteScreen,
-            params: source.analyticsParams,
+            params: params,
             contextParams: analyticsContextParams
         )
     }

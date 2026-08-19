@@ -51,6 +51,16 @@ final class MobileOnboardingImportICloudBackupViewModel: ObservableObject {
         destination: .iCloud
     )
 
+    private var analyticsParams: [Analytics.ParameterKey: String] {
+        guard let backup else {
+            return [:]
+        }
+
+        let walletIdData = Data(hexString: backup.metadata.walletId)
+        let walletId = UserWalletId(value: walletIdData)
+        return [.userWalletId: walletId.hashedStringValue]
+    }
+
     private let creationUtil = MobileCreationUtil()
 
     private weak var dataSource: MobileOnboardingImportICloudBackupDataSource?
@@ -88,6 +98,7 @@ extension MobileOnboardingImportICloudBackupViewModel {
     func onAppear() {
         isPasswordResponder = true
         backup = dataSource?.getBackup()
+        logPasswordScreenAnalytics()
     }
 
     func onDisappear() {
@@ -176,13 +187,46 @@ private extension MobileOnboardingImportICloudBackupViewModel {
 
             switch error {
             case WalletBackupCryptoError.invalidPassword:
+                logWrongPasswordAnalytics()
                 sendPasswordNotMatched()
             default:
+                logImportErrorAnalytics(error)
                 await showErrorAlert()
             }
 
             AppLogger.error("Failed to import wallet from iCloud backup", error: error)
         }
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingImportICloudBackupViewModel {
+    func logPasswordScreenAnalytics() {
+        Analytics.log(
+            event: .enterCloudBackupPasswordScreen,
+            params: analyticsParams,
+            contextParams: .custom(.mobileWallet)
+        )
+    }
+
+    func logImportErrorAnalytics(_ error: Error) {
+        var params = MobileBackupStatusUtil.errorAnalyticsParams(error)
+        params.enrich(with: analyticsParams)
+
+        Analytics.log(
+            event: .importCloudBackupError,
+            params: params,
+            contextParams: .custom(.mobileWallet)
+        )
+    }
+
+    func logWrongPasswordAnalytics() {
+        Analytics.log(
+            event: .wrongCloudBackupPassword,
+            params: analyticsParams,
+            contextParams: .custom(.mobileWallet)
+        )
     }
 }
 

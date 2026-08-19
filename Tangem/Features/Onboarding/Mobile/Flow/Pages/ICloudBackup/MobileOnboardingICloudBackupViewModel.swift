@@ -78,6 +78,10 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
         passwordMatching == .matched
     }
 
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
     private lazy var authUtil = MobileAuthUtil(
         userWalletId: userWalletModel.userWalletId,
         config: userWalletModel.config,
@@ -117,6 +121,14 @@ extension MobileOnboardingICloudBackupViewModel {
         case .confirmPassword(let password):
             backup(password: password)
         }
+    }
+
+    func onSetPasswordAppear() {
+        logSetPasswordScreenAnalytics()
+    }
+
+    func onConfirmPasswordAppear() {
+        logConfirmPasswordScreenAnalytics()
     }
 
     func onDisappear() {
@@ -159,6 +171,7 @@ private extension MobileOnboardingICloudBackupViewModel {
             case .successful(let context):
                 await makeBackup(password: password, context: context)
             case .failed(let error):
+                logCreationErrorAnalytics(error)
                 await showErrorAlert(error)
             case .canceled:
                 break
@@ -176,9 +189,11 @@ private extension MobileOnboardingICloudBackupViewModel {
             )
 
             markBackupCompleted()
+            logBackupFinishedAnalytics()
             await onComplete()
 
         } catch {
+            logCreationErrorAnalytics(error)
             return await showErrorAlert(error)
         }
     }
@@ -304,7 +319,43 @@ private extension MobileOnboardingICloudBackupViewModel {
     }
 
     func onClose() {
+        logScreenClosedAnalytics()
         delegate?.onICloudBackupClose()
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingICloudBackupViewModel {
+    func logSetPasswordScreenAnalytics() {
+        Analytics.log(.walletSettingsSetCloudPasswordScreen, contextParams: analyticsContextParams)
+    }
+
+    func logConfirmPasswordScreenAnalytics() {
+        Analytics.log(.walletSettingsConfirmCloudPasswordScreen, contextParams: analyticsContextParams)
+    }
+
+    func logBackupFinishedAnalytics() {
+        Analytics.log(
+            event: .backupFinished,
+            params: [
+                .cardsCount: String(0),
+                .backupType: Analytics.ParameterValue.backupTypeCloud.rawValue,
+            ],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logCreationErrorAnalytics(_ error: Error) {
+        Analytics.log(
+            event: .walletSettingsCloudBackupCreationError,
+            params: MobileBackupStatusUtil.errorAnalyticsParams(error),
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScreenClosedAnalytics() {
+        Analytics.log(.walletSettingsCloudBackupScreenClosed, contextParams: analyticsContextParams)
     }
 }
 
