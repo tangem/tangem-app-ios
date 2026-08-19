@@ -157,6 +157,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
+    var scaledUIAmountProvider: (any ScaledUIAmountProvider)? {
+        nil
+    }
+
     var state: WalletModelState {
         tokenBalanceProvider.balanceType.value.map(WalletModelState.loaded) ?? .created
     }
@@ -240,6 +244,7 @@ extension NFTSendWalletModelProxy: WalletModel {
     var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
         TokenFeeLoaderBuilder(
             tokenItem: tokenItem,
+            sourceAddress: mainTokenWalletModel.defaultAddressString,
             dependenciesProvider: self,
             isDemo: mainTokenWalletModel.isDemo
         )
@@ -287,6 +292,18 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? {
         mainTokenWalletModel.bitcoinPsbtSwapSender
+    }
+
+    var tronTransactionFeeProvider: TronTransactionFeeProvider? {
+        mainTokenWalletModel.tronTransactionFeeProvider
+    }
+
+    var tronAllowanceProvider: TronAllowanceProvider? {
+        mainTokenWalletModel.tronAllowanceProvider
+    }
+
+    var tronTransactionDataBuilder: TronTransactionDataBuilder? {
+        mainTokenWalletModel.tronTransactionDataBuilder
     }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {
@@ -391,6 +408,10 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
         mainTokenWalletModel.ethereumGaslessTransactionFeeProvider
+    }
+
+    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? {
+        mainTokenWalletModel.tronGaslessTransactionsBuilder
     }
 
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
