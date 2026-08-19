@@ -28,35 +28,53 @@ struct SwapFlowConfiguration {
 extension SwapFlowConfiguration {
     enum SourceTokenSelection {
         case unrestricted
+        /// The full list minus items the predicate rejects; markets search stays available.
+        case filtered(isIncluded: (TokenSelectorItem) -> Bool)
         /// The source can only be picked from the given provider's content.
         case restricted(walletsProvider: any TokenSelectorWalletsProvider)
 
-        var restrictedWalletsProvider: (any TokenSelectorWalletsProvider)? {
+        var walletsProvider: (any TokenSelectorWalletsProvider)? {
             switch self {
             case .unrestricted: nil
+            case .filtered(let isIncluded): FilteredTokenSelectorWalletsProvider(base: .common(), isIncluded: isIncluded)
             case .restricted(let walletsProvider): walletsProvider
+            }
+        }
+
+        /// Markets search only makes sense while the list isn't pinned to a concrete provider.
+        var allowsMarketsTokens: Bool {
+            switch self {
+            case .unrestricted, .filtered: true
+            case .restricted: false
             }
         }
     }
 
     enum ReceiveTokenSelection {
         case unrestricted
-        /// Pinned to the initial token.
-        case locked
+        /// The full list minus items the predicate rejects.
+        case filtered(isIncluded: (TokenSelectorItem) -> Bool)
         /// Not user-selectable; re-derived from the source on every source change.
         case followsSource(any SwapDestinationTokenResolver)
 
         var isSelectionEnabled: Bool {
             switch self {
-            case .unrestricted: true
-            case .locked, .followsSource: false
+            case .unrestricted, .filtered: true
+            case .followsSource: false
+            }
+        }
+
+        var walletsProvider: (any TokenSelectorWalletsProvider)? {
+            switch self {
+            case .filtered(let isIncluded): FilteredTokenSelectorWalletsProvider(base: .common(), isIncluded: isIncluded)
+            case .unrestricted, .followsSource: nil
             }
         }
 
         var destinationResolver: (any SwapDestinationTokenResolver)? {
             switch self {
             case .followsSource(let resolver): resolver
-            case .unrestricted, .locked: nil
+            case .unrestricted, .filtered: nil
             }
         }
     }

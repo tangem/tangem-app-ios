@@ -258,24 +258,6 @@ final class SwapModelTests: LeakTrackingTestSuite {
     }
 }
 
-// MARK: - Token item helpers
-
-private extension TokenItem {
-    /// A payment-account-style token on Polygon.
-    static func accountToken(symbol: String, contract: String) -> TokenItem {
-        .token(
-            Token(
-                name: symbol,
-                symbol: symbol,
-                contractAddress: contract,
-                decimalCount: 6,
-                metadata: .fungibleTokenMetadata
-            ),
-            BlockchainNetwork(.polygon(testnet: false), derivationPath: nil)
-        )
-    }
-}
-
 // MARK: - Helpers
 
 private extension SwapModelTests {
@@ -533,67 +515,6 @@ private enum SwapPairHandlerError: Error {
     case failed
 }
 
-private final class SwapableTokenStub: SendSwapableToken {
-    private let inner: SendSourceTokenStub
-
-    init(blockchain: Blockchain) {
-        inner = SendSourceTokenStub(blockchain: blockchain)
-    }
-
-    init(tokenItem: TokenItem) {
-        inner = SendSourceTokenStub(tokenItem: tokenItem)
-    }
-
-    // MARK: - SendSourceToken proxy
-
-    var tokenItem: TokenItem { inner.tokenItem }
-    var isCustom: Bool { inner.isCustom }
-    var fiatItem: FiatItem { inner.fiatItem }
-    var userWalletInfo: UserWalletInfo { inner.userWalletInfo }
-    var id: WalletModelId { inner.id }
-    var header: TokenHeader { inner.header }
-    var feeTokenItem: TokenItem { inner.feeTokenItem }
-    var defaultAddressString: String { inner.defaultAddressString }
-    var availableBalanceProvider: TokenBalanceProvider { inner.availableBalanceProvider }
-    var fiatAvailableBalanceProvider: TokenBalanceProvider { inner.fiatAvailableBalanceProvider }
-    var allowanceService: (any AllowanceService)? { inner.allowanceService }
-    var withdrawalNotificationProvider: WithdrawalNotificationProvider? { inner.withdrawalNotificationProvider }
-    var scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver? { inner.scaledUIAmountMultiplierResolver }
-    var emailDataCollectorBuilder: EmailDataCollectorBuilder { inner.emailDataCollectorBuilder }
-    var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { await inner.transactionHistoryEnricher } }
-    var transactionDispatcherProvider: any TransactionDispatcherProvider { inner.transactionDispatcherProvider }
-    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }
-    var tangemIconProvider: any TangemIconProvider { inner.tangemIconProvider }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { inner.confirmTransactionPolicy }
-    var isTangemPayAccount: Bool { inner.isTangemPayAccount }
-
-    // MARK: - Swap members
-
-    var isExemptFee: Bool { false }
-    var swapAvailabilityProvider: any SwapAvailabilityProvider { SwapAvailabilityProviderStub(isSwapAvailable: true) }
-    var supportedProvidersFilter: SupportedProvidersFilter { .byDifferentAddressExchangeSupport }
-    var sendYieldModuleHelper: SendYieldModuleHelper? { nil }
-    var operationType: ExpressOperationType { .swapAndSend }
-    /// When the stub plays the destination, the pair-update task queries its restrictions from a
-    /// detached task — a `fatalError` here crashes the whole run intermittently.
-    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { NoReceivingRestrictionsStub() }
-
-    // MARK: - Unused in these tests
-
-    var sendingRestrictionsProvider: any SendingRestrictionsProvider { fatalError("Unused in tests") }
-    var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { fatalError("Unused in tests") }
-    var tokenFeeProvidersManager: any TokenFeeProvidersManager { fatalError("Unused in tests") }
-    var transactionValidator: any SendTransactionValidator { fatalError("Unused in tests") }
-    var transactionCreator: any SendTransactionCreator { fatalError("Unused in tests") }
-    var balanceProvider: any BalanceProvider { fatalError("Unused in tests") }
-    var analyticsLogger: any AnalyticsLogger { fatalError("Unused in tests") }
-    var providerTransactionValidator: any ExpressProviderTransactionValidator { fatalError("Unused in tests") }
-}
-
-private struct NoReceivingRestrictionsStub: ReceivingRestrictionsProvider {
-    func restriction(expectAmount: Decimal) -> ReceivedRestriction? { nil }
-}
-
 private final class ReceiveTokenStub: SendReceiveToken {
     let tokenItem: TokenItem
 
@@ -628,10 +549,6 @@ private final class SourceTokenResolverStub: SwapSourceTokenResolver {
     func resolve() async -> SendSwapableToken? {
         source
     }
-}
-
-private struct SwapAvailabilityProviderStub: SwapAvailabilityProvider {
-    let isSwapAvailable: Bool
 }
 
 // MARK: - External amount updater stubs

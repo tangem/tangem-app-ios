@@ -227,7 +227,7 @@ private extension SwapModelDexOnlyModeTests {
     func makeEnvironment(restriction: SwapBalanceRestriction) -> Environment {
         let expressManager = ConfigurableExpressManagerStub()
         let balanceRestrictionChecker = BalanceRestrictionCheckerStub(result: restriction)
-        let sourceToken = SwapableTokenStub()
+        let sourceToken = DexOnlySwapableTokenStub()
 
         let swapModel = SwapModel(
             sourceToken: sourceToken,
@@ -384,7 +384,7 @@ private final class ExpressProviderManagerStub: ExpressProviderManager {
     }
 }
 
-private final class SwapableTokenStub: SendSwapableToken {
+private final class DexOnlySwapableTokenStub: SendSwapableToken {
     private let inner = SendSourceTokenStub()
 
     // MARK: - SendSourceToken proxy

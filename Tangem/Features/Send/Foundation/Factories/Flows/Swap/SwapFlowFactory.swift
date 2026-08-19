@@ -124,7 +124,9 @@ extension SwapFlowFactory: SendGenericFlowFactory {
 
         let tokenSelectorBuilder = SwapTokenSelectorViewModelBuilder(
             output: swapModel,
-            sourceWalletsProvider: configuration.sourceTokenSelection.restrictedWalletsProvider
+            sourceWalletsProvider: configuration.sourceTokenSelection.walletsProvider,
+            receiveWalletsProvider: configuration.receiveTokenSelection.walletsProvider,
+            allowsMarketsTokens: configuration.sourceTokenSelection.allowsMarketsTokens
         )
 
         let stepsManager = CommonSwapStepsManager(
