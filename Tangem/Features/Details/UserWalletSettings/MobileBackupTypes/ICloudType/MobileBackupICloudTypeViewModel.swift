@@ -112,7 +112,7 @@ private extension MobileBackupICloudTypeViewModel {
 
         } catch {
             AppLogger.error("Failed to delete the cloud backup:", error: error)
-            logDeletionErrorAnalytics()
+            logDeletionErrorAnalytics(error)
 
             await loadingFlow()
         }
@@ -224,11 +224,15 @@ private extension MobileBackupICloudTypeViewModel {
     }
 
     func logBackupDeletedAnalytics() {
-        Analytics.log(.cloudBackupDeleted, contextParams: analyticsContextParams)
+        Analytics.log(.walletSettingsCloudBackupDeleted, contextParams: analyticsContextParams)
     }
 
-    func logDeletionErrorAnalytics() {
-        Analytics.log(.cloudBackupDeletionError, contextParams: analyticsContextParams)
+    func logDeletionErrorAnalytics(_ error: Error) {
+        Analytics.log(
+            event: .walletSettingsCloudBackupDeletionError,
+            params: MobileBackupStatusUtil.errorAnalyticsParams(error),
+            contextParams: analyticsContextParams
+        )
     }
 }
 
