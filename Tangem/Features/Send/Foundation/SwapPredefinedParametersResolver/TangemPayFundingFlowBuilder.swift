@@ -62,17 +62,43 @@ struct TangemPayFundingFlowBuilder {
         )
     }
 
+    /// Withdraw needs no account-wide address: multichain sources carry their per-network one,
+    /// so only the builder can tell why a withdrawal is unavailable.
+    enum WithdrawResolution {
+        case parameters(PredefinedSwapParameters)
+        case noDepositAddress
+        /// The account holds no token the withdraw API can move — it speaks only USDC on Polygon.
+        case noWithdrawableToken
+    }
+
     @MainActor
-    func withdraw() async -> PredefinedSwapParameters? {
-        guard let sourceToken = await makeWithdrawSourceToken() else {
-            return nil
-        }
-
+    func withdraw() async -> WithdrawResolution {
         guard FeatureProvider.isAvailable(.tangemPayAddFundsWithdrawRework) else {
-            return .from(sourceToken)
+            guard let sourceToken = makeSwapableToken(presentation: nil) else {
+                return .noDepositAddress
+            }
+
+            return .parameters(.from(sourceToken))
         }
 
-        return .from(
+        let accountTokens = await accountTokens()
+
+        // Empty means even the default token had no address to stand on.
+        guard !accountTokens.isEmpty else {
+            return .noDepositAddress
+        }
+
+        guard let mostFunded = accountTokens.withdrawStartingPoint else {
+            return .noWithdrawableToken
+        }
+
+        let sourceToken = makeSwapableToken(
+            tokenItem: mostFunded.tokenItem,
+            depositAddress: mostFunded.depositAddress,
+            presentation: nil
+        )
+
+        return .parameters(.from(
             sourceToken,
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
@@ -90,7 +116,7 @@ struct TangemPayFundingFlowBuilder {
                 receiveTokenSelection: .filtered(isIncluded: { !$0.isPayAccount }),
                 summaryTitle: Localization.tangempayCardDetailsWithdraw
             )
-        )
+        ))
     }
 }
 
@@ -127,25 +153,6 @@ private extension TangemPayFundingFlowBuilder {
                 availableForWithdrawal: nil
             ),
         ]
-    }
-
-    /// Starts from the token holding the most funds the withdraw API can actually move.
-    /// `nil` when no such token is active — the flow would offer a withdrawal the API can't execute.
-    @MainActor
-    func makeWithdrawSourceToken() async -> (any SendSwapableToken)? {
-        guard FeatureProvider.isAvailable(.tangemPayAddFundsWithdrawRework) else {
-            return makeSwapableToken(presentation: nil)
-        }
-
-        guard let mostFunded = await accountTokens().withdrawStartingPoint else {
-            return nil
-        }
-
-        return makeSwapableToken(
-            tokenItem: mostFunded.tokenItem,
-            depositAddress: mostFunded.depositAddress,
-            presentation: nil
-        )
     }
 
     @MainActor
