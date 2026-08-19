@@ -263,7 +263,7 @@ struct TangemPayMainView: View {
                     .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
 
-                Text(Localization.tangempayUsdcOnPolygonNetwork)
+                Text(viewModel.toolbarSubtitle)
                     .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textTertiary)
             }
