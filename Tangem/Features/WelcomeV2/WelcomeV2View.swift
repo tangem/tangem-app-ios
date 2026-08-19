@@ -15,7 +15,7 @@ struct WelcomeV2View: View {
 
     var body: some View {
         ZStack {
-            Color.black
+            WelcomeV2VideoBackgroundView(viewModel: viewModel.videoBackground)
                 .ignoresSafeArea()
 
             LinearGradient(
@@ -67,10 +67,10 @@ struct WelcomeV2View: View {
     private var titleBlock: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Store all your assets")
-                .style(Fonts.RegularStatic.title1, color: Colors.Text.primary1)
+                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
 
             Text("The only app you need\nto manage your finances")
-                .style(Fonts.RegularStatic.body, color: Colors.Text.secondary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
         }
     }
 
@@ -104,7 +104,7 @@ struct WelcomeV2View: View {
 
     private var footer: some View {
         Text("By continuing, you agree with Terms of service and Privacy Policy")
-            .style(Fonts.RegularStatic.caption1, color: Colors.Text.tertiary)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
             .multilineTextAlignment(.center)
     }
 }
@@ -112,5 +112,10 @@ struct WelcomeV2View: View {
 // MARK: - Previews
 
 #Preview {
-    WelcomeV2View(viewModel: WelcomeV2ViewModel(coordinator: WelcomeV2Coordinator()))
+    WelcomeV2View(
+        viewModel: WelcomeV2ViewModel(
+            coordinator: WelcomeV2Coordinator(),
+            videoProvider: CommonWelcomeV2BackgroundVideoProvider()
+        )
+    )
 }
