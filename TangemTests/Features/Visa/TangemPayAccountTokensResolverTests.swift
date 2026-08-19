@@ -170,6 +170,56 @@ struct TangemPayAccountTokensResolverTests {
         #expect(tokens.first?.availableForWithdrawal == 12.5)
     }
 
+    @Test("The canonical entry keeps the hardcoded token item even when the catalog also knows it")
+    func canonicalEntryPrefersHardcodedTokenItem() async throws {
+        let networks = try makeNetworks(
+            """
+            [
+              {
+                "name": "\(Blockchain.polygon(testnet: false).networkId)",
+                "isTestnet": false,
+                "chainId": 137,
+                "status": "ENABLED",
+                "depositAddress": "0xdeposit",
+                "tokens": [
+                  { "token": "USDC", "tokenContractAddress": "0x3C499c542cEF5E3811e1192ce70d8cC03d5c3359", "availableForWithdrawal": 12.5 }
+                ]
+              }
+            ]
+            """
+        )
+
+        let service = FakeTangemApiService()
+        service.loadCoinsHandler = { _ in
+            CoinsList.Response(
+                total: 1,
+                imageHost: nil,
+                coins: [
+                    CoinsList.Coin(
+                        id: "usd-coin",
+                        name: "USD Coin",
+                        symbol: "USDC",
+                        networks: [
+                            NetworkModel(
+                                networkId: Blockchain.polygon(testnet: false).networkId,
+                                contractAddress: "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+                                decimalCount: 6
+                            ),
+                        ]
+                    ),
+                ]
+            )
+        }
+
+        let tokens = await withInjectedTangemApiService(service) {
+            await TangemPayAccountTokensResolver().resolve(networks: networks)
+        }
+
+        // The Pay screen matches pending swaps by the full hardcoded item (with its derivation);
+        // a catalog copy without one would unhook them.
+        #expect(tokens.map(\.tokenItem) == [TangemPayUtilities.usdcTokenItem])
+    }
+
     @Test("A live coins API resolves a checksummed BFF contract against its lowercase catalog entry")
     func checksummedContractResolvesAgainstLowercaseCatalog() async throws {
         let networks = try makeNetworks(

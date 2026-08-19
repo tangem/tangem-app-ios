@@ -56,8 +56,19 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var balance: LoadableBalanceView.State
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
-    @Published private(set) var isWithdrawButtonDisabled: Bool = false
-    @Published private(set) var isAddFundsButtonDisabled: Bool = false
+    @Published private var isWithdrawUnavailable: Bool = false
+    @Published private var isAddFundsUnavailable: Bool = false
+    @Published private var isWithdrawLoading: Bool = false
+    @Published private var isAddFundsLoading: Bool = false
+
+    var isWithdrawButtonDisabled: Bool {
+        isWithdrawUnavailable || isWithdrawLoading
+    }
+
+    var isAddFundsButtonDisabled: Bool {
+        isAddFundsUnavailable || isAddFundsLoading
+    }
+
     @Published private(set) var inlineNotifications: [NotificationViewInput] = []
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
 
@@ -287,31 +298,41 @@ final class TangemPayMainViewModel: ObservableObject {
         Analytics.log(.visaScreenButtonVisaAddFunds, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
 
         nextViewOpeningTask?.cancel()
-        nextViewOpeningTask = Task { @MainActor [weak self, fundingFlowBuilder, tangemPayAccount] in
-            guard let depositAddress = tangemPayAccount.depositAddress else {
-                self?.coordinator?.openTangemPayNoDepositAddressSheet()
-                return
-            }
+        nextViewOpeningTask = runWithDelayedLoading(
+            onLongRunning: { @MainActor [weak self] in
+                self?.isAddFundsLoading = true
+            },
+            onCancel: { [weak self] in
+                self?.isAddFundsLoading = false
+            },
+            operation: { @MainActor [weak self, fundingFlowBuilder, tangemPayAccount] in
+                defer { self?.isAddFundsLoading = false }
 
-            let swapParameters = await fundingFlowBuilder.addFunds()
+                guard let depositAddress = tangemPayAccount.depositAddress else {
+                    self?.coordinator?.openTangemPayNoDepositAddressSheet()
+                    return
+                }
 
-            guard !Task.isCancelled, let self else { return }
+                let swapParameters = await fundingFlowBuilder.addFunds()
 
-            guard let swapParameters else {
-                coordinator?.openTangemPayNoDepositAddressSheet()
-                return
-            }
+                guard !Task.isCancelled, let self else { return }
 
-            coordinator?.openTangemPayAddFundsSheet(
-                input: .init(
-                    userWalletInfo: userWalletInfo,
-                    address: depositAddress,
-                    swapParameters: swapParameters,
-                    isBankTransferAvailable: isBankTransferAvailable,
-                    networks: tangemPayAccount.networks
+                guard let swapParameters else {
+                    coordinator?.openTangemPayNoDepositAddressSheet()
+                    return
+                }
+
+                coordinator?.openTangemPayAddFundsSheet(
+                    input: .init(
+                        userWalletInfo: userWalletInfo,
+                        address: depositAddress,
+                        swapParameters: swapParameters,
+                        isBankTransferAvailable: isBankTransferAvailable,
+                        networks: tangemPayAccount.networks
+                    )
                 )
-            )
-        }
+            }
+        )
     }
 
     // MARK: - Multi-card
@@ -466,24 +487,41 @@ final class TangemPayMainViewModel: ObservableObject {
         Analytics.log(.visaScreenWithdrawClicked, contextParams: .userWallet(userWalletInfo.id))
 
         nextViewOpeningTask?.cancel()
-        nextViewOpeningTask = Task { @MainActor [weak self, fundingFlowBuilder] in
-            let swapParameters = await fundingFlowBuilder.withdraw()
+        nextViewOpeningTask = runWithDelayedLoading(
+            onLongRunning: { @MainActor [weak self] in
+                self?.isWithdrawLoading = true
+            },
+            onCancel: { [weak self] in
+                self?.isWithdrawLoading = false
+            },
+            operation: { @MainActor [weak self, fundingFlowBuilder] in
+                defer { self?.isWithdrawLoading = false }
 
-            guard !Task.isCancelled, let self else { return }
+                let resolution = await fundingFlowBuilder.withdraw()
 
-            guard let swapParameters else {
-                coordinator?.openTangemPayNoDepositAddressSheet()
-                return
+                guard !Task.isCancelled, let self else { return }
+
+                switch resolution {
+                case .noDepositAddress:
+                    coordinator?.openTangemPayNoDepositAddressSheet()
+
+                case .noWithdrawableToken:
+                    alert = AlertBinder(
+                        title: Localization.commonSomethingWentWrong,
+                        message: Localization.commonTryAgainLater
+                    )
+
+                case .parameters(let swapParameters):
+                    do {
+                        try await openWithdraw(swapParameters: swapParameters)
+                    } catch is CancellationError {
+                        // Do nothing
+                    } catch {
+                        alert = error.alertBinder
+                    }
+                }
             }
-
-            do {
-                try await openWithdraw(swapParameters: swapParameters)
-            } catch is CancellationError {
-                // Do nothing
-            } catch {
-                alert = error.alertBinder
-            }
-        }
+        )
     }
 
     func onAppear() {
@@ -706,12 +744,12 @@ private extension TangemPayMainViewModel {
         tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.balanceTypePublisher
             .map { balance in balance.value.map { $0 <= 0 } ?? false }
             .receiveOnMain()
-            .assign(to: &$isWithdrawButtonDisabled)
+            .assign(to: &$isWithdrawUnavailable)
 
         tangemPayAccount.depositAddressPublisher
             .map { $0 == nil }
             .receiveOnMain()
-            .assign(to: &$isAddFundsButtonDisabled)
+            .assign(to: &$isAddFundsUnavailable)
 
         tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.balanceTypePublisher
             .map { balance in balance.value.map { $0 < 0 } ?? false }
