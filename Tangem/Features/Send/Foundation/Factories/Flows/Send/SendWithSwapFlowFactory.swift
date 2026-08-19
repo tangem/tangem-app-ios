@@ -107,11 +107,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     }
 
     private func makeAddContactViewModel(router: SendRoutable) -> SendAddContactFinishViewModel? {
-        guard FeatureProvider.isAvailable(.addressBook) else {
-            return nil
-        }
-
-        return SendAddContactFinishViewModel(
+        SendAddContactFinishViewModel(
             sourceToken: sourceToken,
             destinationInput: sendWithSwapModel,
             receiveTokenInput: sendWithSwapModel,
@@ -214,6 +210,7 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
             providersSelector: providers.selector,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendWithSwapModel),
             initialStep: predefinedInitialStep,
+            shouldStartFromTokenList: shouldStartFromTokenList,
             router: router
         )
 

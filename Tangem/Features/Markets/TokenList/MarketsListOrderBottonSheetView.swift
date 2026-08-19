@@ -23,7 +23,7 @@ struct MarketsListOrderBottomSheetView: View {
                 DefaultSelectableRowView(data: $0, selection: $viewModel.currentOrderType)
                     .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSortOption($0.id.rawValue))
             }
-            .settings(\.backgroundColor, Colors.Background.action)
+            .settings(\.backgroundColor, DesignSystem.Color.bgTertiary)
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 10)

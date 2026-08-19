@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Kingfisher
 import TangemLocalization
 import TangemFoundation
 
@@ -49,10 +48,6 @@ enum CashbackCampaign: String, CaseIterable {
 extension CashbackCampaign {
     var promoImageURL: URL {
         AppEnvironment.current.iconBaseUrl.appendingPathComponent("stories/\(promoImageFileName)")
-    }
-
-    static func prefetchPromoImages() {
-        ImagePrefetcher(urls: allCases.map(\.promoImageURL), options: [.cacheOriginalImage]).start()
     }
 
     private var promoImageFileName: String {

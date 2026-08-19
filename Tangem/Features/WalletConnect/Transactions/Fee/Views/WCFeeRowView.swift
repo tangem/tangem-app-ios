@@ -16,7 +16,7 @@ struct WCFeeRowView: View {
     let viewModel: WCFeeRowViewModel
 
     var body: some View {
-        Button(action: viewModel.onTap) {
+        SwiftUI.Button(action: viewModel.onTap) {
             HStack(spacing: 0) {
                 leadingView
 

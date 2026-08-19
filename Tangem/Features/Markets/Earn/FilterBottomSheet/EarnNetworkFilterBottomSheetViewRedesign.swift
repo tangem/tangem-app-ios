@@ -14,8 +14,8 @@ import TangemLocalization
 struct EarnNetworkFilterBottomSheetViewRedesign: View {
     @ObservedObject private var viewModel: EarnNetworkFilterBottomSheetViewModel
 
-    @ScaledMetric private var contentSpacing: CGFloat = .unit(.x3)
-    @ScaledMetric private var contentTitleTopPadding: CGFloat = .unit(.x4)
+    @ScaledMetric private var contentSpacing: CGFloat = 12
+    @ScaledMetric private var contentTitleTopPadding: CGFloat = 16
 
     init(viewModel: EarnNetworkFilterBottomSheetViewModel) {
         self.viewModel = viewModel
@@ -41,9 +41,9 @@ private extension EarnNetworkFilterBottomSheetViewRedesign {
                 EarnNetworkFilterSelectedRowView(data: data, selection: viewModel.selectionBinding)
             }
             .separatorStyle(.none)
-            .horizontalPadding(.unit(.x4))
-            .cornerRadius(.unit(.x6))
-            .settings(\.backgroundColor, Color.Tangem.Surface.level3)
+            .horizontalPadding(16)
+            .cornerRadius(24)
+            .settings(\.backgroundColor, DesignSystem.Color.bgSecondary)
 
             GroupedSection(
                 viewModel.networkRowInputs,
@@ -56,9 +56,9 @@ private extension EarnNetworkFilterBottomSheetViewRedesign {
                 }
             )
             .separatorStyle(.none)
-            .horizontalPadding(.unit(.x4))
-            .cornerRadius(.unit(.x6))
-            .settings(\.backgroundColor, Color.Tangem.Surface.level3)
+            .horizontalPadding(16)
+            .cornerRadius(24)
+            .settings(\.backgroundColor, DesignSystem.Color.bgSecondary)
         }
     }
 }

@@ -20,6 +20,7 @@
     "isFilesAllowed" : true,
     "isHDWalletAllowed" : true,
     "isKeysImportAllowed" : true,
+    "isBackupRequired" : false,
     "maxWalletsCount" : 20,
     "isSettingAccessCodeAllowed" : true,
     "isBackupAllowed" : true,
@@ -31,7 +32,9 @@
     "isSelectBlockchainAllowed" : true
   },
   "userSettings" : {
-    "isUserCodeRecoveryAllowed" : true
+    "isUserCodeRecoveryAllowed" : true,
+    "isPINRequired" : false,
+    "isNDEFDisabled" : false
   },
   "isPasscodeSet" : false,
   "batchId" : "CB00",

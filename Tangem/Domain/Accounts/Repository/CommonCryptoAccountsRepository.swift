@@ -538,9 +538,9 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     }
 }
 
-// MARK: - UserTokensPushNotificationsRemoteStatusSyncing protocol conformance
+// MARK: - UserWalletPushNotificationsRemoteStatusSyncing protocol conformance
 
-extension CommonCryptoAccountsRepository: UserTokensPushNotificationsRemoteStatusSyncing {
+extension CommonCryptoAccountsRepository: UserWalletPushNotificationsRemoteStatusSyncing {
     func syncRemoteStatus() {
         if auxiliaryDataStorage.hasSyncedWithRemote {
             updateAccountsOnServer(updateOptions: .tokens)

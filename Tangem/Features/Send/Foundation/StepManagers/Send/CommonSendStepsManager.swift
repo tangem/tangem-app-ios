@@ -20,6 +20,7 @@ class CommonSendStepsManager {
     private let providersSelector: SendSwapProvidersSelectorViewModel
     private let summaryTitleProvider: SendSummaryTitleProvider
     private let selectedInitialStep: InitialStep
+    private let shouldStartFromTokenList: Bool
 
     private var stack: [SendStep]
     private weak var router: SendRoutable?
@@ -39,6 +40,7 @@ class CommonSendStepsManager {
         providersSelector: SendSwapProvidersSelectorViewModel,
         summaryTitleProvider: SendSummaryTitleProvider,
         initialStep: InitialStep = .amount,
+        shouldStartFromTokenList: Bool = false,
         router: SendRoutable
     ) {
         self.amountStep = amountStep
@@ -50,6 +52,7 @@ class CommonSendStepsManager {
         self.providersSelector = providersSelector
         self.summaryTitleProvider = summaryTitleProvider
         selectedInitialStep = initialStep
+        self.shouldStartFromTokenList = shouldStartFromTokenList
         self.router = router
 
         switch initialStep {
@@ -107,7 +110,7 @@ class CommonSendStepsManager {
 // MARK: - SendStepsManager
 
 extension CommonSendStepsManager: SendStepsManager {
-    var initialKeyboardState: Bool { true }
+    var initialKeyboardState: Bool { !shouldStartFromTokenList }
     var initialFlowActionType: SendFlowActionType { .send }
     var initialStep: any SendStep { step(for: selectedInitialStep) }
 

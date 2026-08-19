@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-public enum OnrampTransactionStatus: String, Codable {
+public enum OnrampTransactionStatus: String, Codable, CaseIterable {
     case unknown
     case created
     case expired
@@ -17,10 +17,8 @@ public enum OnrampTransactionStatus: String, Codable {
     case paid
     case sending
     // [REDACTED_TODO_COMMENT]
-    @available(iOS, deprecated: 100000.0, message: "Not present in the Express API (`EOnrampStatus`); Investigate and remove if not used")
     case refunding = "refund-in-progress"
     // [REDACTED_TODO_COMMENT]
-    @available(iOS, deprecated: 100000.0, message: "Not present in the Express API (`EOnrampStatus`); Investigate and remove if not used")
     case refunded
     case finished
     case paused
@@ -29,10 +27,20 @@ public enum OnrampTransactionStatus: String, Codable {
 public extension OnrampTransactionStatus {
     var isFailureTerminal: Bool {
         switch self {
-        case .expired, .failed, .refunded:
+        case .expired,
+             .failed,
+             .refunded:
             return true
-        case .unknown, .created, .waitingForPayment, .paymentProcessing, .verifying,
-             .paid, .sending, .refunding, .finished, .paused:
+        case .unknown,
+             .created,
+             .waitingForPayment,
+             .paymentProcessing,
+             .verifying,
+             .paid,
+             .sending,
+             .refunding,
+             .finished,
+             .paused:
             return false
         }
     }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 struct CommonSendSourceTokenFactory {
     let userWalletInfo: UserWalletInfo
@@ -26,7 +27,7 @@ struct CommonSendSourceTokenFactory {
 
         let transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
             walletModel: walletModel,
-            signer: userWalletInfo.signer
+            signer: userWalletInfo.signerFactory.makeSigner()
         )
 
         let allowanceService = AllowanceServiceFactory(
@@ -37,6 +38,8 @@ struct CommonSendSourceTokenFactory {
             walletModel: walletModel,
             emailDataProvider: userWalletInfo.emailDataProvider
         )
+
+        let scaledUIAmountMultiplierResolver = makeScaledUIAmountMultiplierResolver()
 
         let availableBalanceProvider: TokenBalanceProvider
         let fiatAvailableBalanceProvider: TokenBalanceProvider
@@ -61,6 +64,7 @@ struct CommonSendSourceTokenFactory {
             fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
             allowanceService: allowanceService,
             withdrawalNotificationProvider: walletModel.withdrawalNotificationProvider,
+            scaledUIAmountMultiplierResolver: scaledUIAmountMultiplierResolver,
             emailDataCollectorBuilder: emailDataCollectorBuilder,
             transactionDispatcherProvider: transactionDispatcherProvider,
             accountModelAnalyticsProvider: walletModel.account,
@@ -78,6 +82,23 @@ struct CommonSendSourceTokenFactory {
                     .async()
                     .transactionHistoryProvider
             }
+        )
+    }
+}
+
+// MARK: - Private
+
+private extension CommonSendSourceTokenFactory {
+    func makeScaledUIAmountMultiplierResolver() -> ScaledUIAmountMultiplierResolver? {
+        // Scaling is declared by the mint, so only tokens can carry it — a coin has no contract address.
+        guard let scaledUIAmountProvider = walletModel.scaledUIAmountProvider,
+              let contractAddress = walletModel.tokenItem.contractAddress else {
+            return nil
+        }
+
+        return ScaledUIAmountMultiplierResolver(
+            provider: scaledUIAmountProvider,
+            contractAddress: contractAddress
         )
     }
 }
