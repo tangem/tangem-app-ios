@@ -16,7 +16,7 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
 
     private let userWalletInfo: UserWalletInfo
     private let address: String
-    private let swapableToken: SendSwapableToken
+    private let swapParameters: PredefinedSwapParameters
     private let networks: [TangemPayBalance.Network]
 
     private weak var coordinator: TangemPayAddFundsSheetRoutable?
@@ -24,7 +24,7 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
     init(input: Input, coordinator: TangemPayAddFundsSheetRoutable) {
         userWalletInfo = input.userWalletInfo
         address = input.address
-        swapableToken = input.swapableToken
+        swapParameters = input.swapParameters
         networks = input.networks
 
         options = [.swap, .receive] + (input.isBankTransferAvailable ? [.bankTransfer] : [])
@@ -65,7 +65,7 @@ extension TangemPayAddFundsSheetViewModel {
     struct Input {
         let userWalletInfo: UserWalletInfo
         let address: String
-        let swapableToken: SendSwapableToken
+        let swapParameters: PredefinedSwapParameters
         let isBankTransferAvailable: Bool
         let networks: [TangemPayBalance.Network]
     }
@@ -93,6 +93,6 @@ extension TangemPayAddFundsSheetViewModel {
     }
 
     func openSwap() {
-        coordinator?.addFundsSheetRequestSwap(input: .to(swapableToken))
+        coordinator?.addFundsSheetRequestSwap(input: swapParameters)
     }
 }
