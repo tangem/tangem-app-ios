@@ -7,7 +7,9 @@
 //
 
 import UIKit
+import Combine
 import TangemUI
+import TangemFoundation
 import TangemStaking
 import TangemLocalization
 import struct TangemUIUtils.AlertBinder
@@ -45,8 +47,12 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var newsPagerViewModel: NewsPagerViewModel? = nil
     @Published var newsRelatedTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
 
+    @Published var tokenSummaryViewModel: TokenSummaryViewModel? = nil
+
     /// AddFunds presented modally from a Markets token.
     @Published var addFundsViewModel: AddFundsViewModel? = nil
+
+    private var tokenSummaryFollowUpAction: (@MainActor () -> Void)?
 
     /// Navigation to run once the modal AddFunds cover has finished dismissing (set via `dismissAddFunds`).
     private var addFundsFollowUpAction: (@MainActor () -> Void)?
@@ -208,7 +214,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             return nil
         }
 
-        let factory = WalletModelTransactionDispatcherProvider(walletModel: input.walletModel, signer: input.userWalletInfo.signer)
+        let factory = WalletModelTransactionDispatcherProvider(walletModel: input.walletModel, signer: input.userWalletInfo.signerFactory.makeSigner())
         let dispatcher = factory.makeYieldModuleTransactionDispatcher()
 
         return CommonYieldModuleFlowFactory(
@@ -517,7 +523,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     func openMatchedTokenList(
         walletModels: [any WalletModel],
         underivedTokens: [MarketsPortfolioTokenListViewModel.UnderivedToken],
-        iconURL: URL,
+        isTokenAddedEverywhere: Bool,
         addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData,
         walletDataProvider: MarketsWalletDataProvider
     ) {
@@ -532,14 +538,12 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
 
         let flowViewModel = MarketsPortfolioFlowViewModel(portfolioViewModel: portfolioViewModel)
 
-        portfolioViewModel.addTokenPromo = .init(iconURL: iconURL) { [weak self, weak flowViewModel] in
-            guard let self, let flowViewModel else { return }
-            showAddTokenFlow(
-                in: flowViewModel,
-                inputData: addTokenInputData,
-                walletDataProvider: walletDataProvider
-            )
-        }
+        portfolioViewModel.addTokenFooter = makeAddTokenFooter(
+            isTokenAddedEverywhere: isTokenAddedEverywhere,
+            flowViewModel: flowViewModel,
+            addTokenInputData: addTokenInputData,
+            walletDataProvider: walletDataProvider
+        )
 
         floatingSheetPresenter.enqueue(sheet: flowViewModel)
     }
@@ -572,6 +576,27 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         flowViewModel.showAddToken(viewModel)
     }
 
+    @MainActor
+    private func makeAddTokenFooter(
+        isTokenAddedEverywhere: Bool,
+        flowViewModel: MarketsPortfolioFlowViewModel,
+        addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData,
+        walletDataProvider: MarketsWalletDataProvider
+    ) -> MarketsPortfolioTokenListViewModel.AddTokenFooter {
+        guard !isTokenAddedEverywhere else {
+            return .noMoreToAdd
+        }
+
+        return .add { [weak self, weak flowViewModel] in
+            guard let self, let flowViewModel else { return }
+            showAddTokenFlow(
+                in: flowViewModel,
+                inputData: addTokenInputData,
+                walletDataProvider: walletDataProvider
+            )
+        }
+    }
+
     func openAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider) {
         Task { @MainActor in
             // When the token lives in a single place, there's nothing to pick — present AddFunds right away.
@@ -587,6 +612,8 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     private func presentAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider) {
         let portfolioViewModel = MarketsPortfolioTokenListViewModel(
             walletModels: walletModels,
+            barTitle: Localization.commonAddFunds,
+            barSubtitle: Localization.commonChooseToken,
             onSelect: { [weak self] walletModel in
                 Task { @MainActor in
                     // Reached through the token/wallet picker, so the Get screen offers a back button
@@ -798,5 +825,153 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
 
         coordinator.start(with: .init(info: token, style: resolvePresentationStyleForInnerFlow(), isDeeplinkMode: isDeeplinkMode))
         newsRelatedTokenDetailsCoordinator = coordinator
+    }
+}
+
+// MARK: - Token Summary
+
+@MainActor
+extension MarketsTokenDetailsCoordinator {
+    func openTokenSummary(_ input: TokenSummaryInput, walletDataProvider: MarketsWalletDataProvider) {
+        tokenSummaryViewModel = TokenSummaryViewModel(
+            coinName: input.token.name,
+            symbol: input.token.symbol,
+            tokenIconInfo: TokenIconInfo(
+                name: input.token.name,
+                blockchainIconAsset: nil,
+                imageURL: input.iconURL,
+                isCustom: false,
+                customTokenColor: nil
+            ),
+            preloadedIndicators: input.indicators,
+            primaryActionPublisher: input.primaryActionPublisher,
+            analyticsLogger: CommonTokenSummaryAnalyticsLogger(symbol: input.token.symbol),
+            onPrimaryAction: { [weak self] kind in
+                self?.handleTokenSummaryAction(kind, input: input, walletDataProvider: walletDataProvider)
+            },
+            onClose: { [weak self] in self?.tokenSummaryViewModel = nil }
+        )
+    }
+
+    func tokenSummaryDidDismiss() {
+        let action = tokenSummaryFollowUpAction
+        tokenSummaryFollowUpAction = nil
+
+        guard let action else { return }
+
+        Task { @MainActor in action() }
+    }
+
+    private func handleTokenSummaryAction(
+        _ kind: TokenSummaryPrimaryAction.Kind,
+        input: TokenSummaryInput,
+        walletDataProvider: MarketsWalletDataProvider
+    ) {
+        switch kind {
+        case .goToSwap:
+            if input.swapCandidates.count == 1, let walletModel = input.swapCandidates.first {
+                tokenSummaryFollowUpAction = { [weak self] in self?.openSwapFromTokenSummary(walletModel: walletModel) }
+            } else {
+                tokenSummaryFollowUpAction = { [weak self] in
+                    self?.presentTokenSummaryTokenList(input: input, walletDataProvider: walletDataProvider)
+                }
+            }
+
+        case .addFunds:
+            if input.holdings.isNotEmpty {
+                tokenSummaryFollowUpAction = { [weak self] in
+                    self?.openAddFundsTokenList(walletModels: input.holdings, walletDataProvider: walletDataProvider)
+                }
+            } else {
+                tokenSummaryFollowUpAction = { [weak self] in
+                    self?.presentTokenSummaryAddTokenFlow(input: input, walletDataProvider: walletDataProvider)
+                }
+            }
+        }
+
+        tokenSummaryViewModel = nil
+    }
+
+    private func openSwapFromTokenSummary(walletModel: any WalletModel) {
+        guard let userWalletModel = userWalletRepository.models[walletModel.userWalletId] else {
+            return
+        }
+
+        let availabilityProvider = TokenActionAvailabilityProvider(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            walletModel: walletModel
+        )
+
+        // Kept here rather than in the view model: it only decides whether navigation can happen at all, and the
+        // alert it raises needs the presenter. Without it the tap is swallowed by `makeParameters` returning nil.
+        guard availabilityProvider.isSwapAvailable else {
+            if let alert = TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.swapAvailability) {
+                alertPresenter.present(alert: alert)
+            }
+            return
+        }
+
+        guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+            walletModel: walletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
+            position: .automatic
+        ) else {
+            return
+        }
+
+        openSwap(input: parameters, destination: walletModel.tokenItem)
+    }
+
+    private func presentTokenSummaryTokenList(input: TokenSummaryInput, walletDataProvider: MarketsWalletDataProvider) {
+        let portfolioViewModel = MarketsPortfolioTokenListViewModel(
+            walletModels: input.holdings,
+            underivedTokens: input.underivedTokens,
+            onSelect: { [weak self] walletModel in
+                self?.routeTokenSummarySelection(
+                    walletModel: walletModel,
+                    input: input,
+                    walletDataProvider: walletDataProvider
+                )
+            },
+            coordinator: self
+        )
+
+        let flowViewModel = MarketsPortfolioFlowViewModel(portfolioViewModel: portfolioViewModel)
+
+        portfolioViewModel.addTokenFooter = makeAddTokenFooter(
+            isTokenAddedEverywhere: input.isTokenAddedEverywhere,
+            flowViewModel: flowViewModel,
+            addTokenInputData: input.addTokenInputData,
+            walletDataProvider: walletDataProvider
+        )
+
+        floatingSheetPresenter.enqueue(sheet: flowViewModel)
+    }
+
+    private func routeTokenSummarySelection(
+        walletModel: any WalletModel,
+        input: TokenSummaryInput,
+        walletDataProvider: MarketsWalletDataProvider
+    ) {
+        closePortfolioTokenList()
+
+        if input.swapCandidates.contains(where: { $0.id == walletModel.id }) {
+            openSwapFromTokenSummary(walletModel: walletModel)
+        } else {
+            presentAddFunds(walletModel: walletModel, walletDataProvider: walletDataProvider, primaryAction: .hidden)
+        }
+    }
+
+    private func presentTokenSummaryAddTokenFlow(input: TokenSummaryInput, walletDataProvider: MarketsWalletDataProvider) {
+        let configuration = MarketsAddTokenFlowConfigurationFactory.make(
+            inputData: input.addTokenInputData,
+            coordinator: self
+        )
+
+        openRedesignedAddTokenFlow(
+            inputData: input.addTokenInputData,
+            configuration: configuration,
+            walletDataProvider: walletDataProvider
+        )
     }
 }

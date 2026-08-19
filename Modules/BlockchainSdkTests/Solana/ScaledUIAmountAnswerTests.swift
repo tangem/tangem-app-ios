@@ -92,7 +92,7 @@ struct ScaledUIAmountAnswerTests {
         transactionDate: Date = Date(timeIntervalSince1970: 0)
     ) throws -> ScaledUIAmount.Answer {
         let accountInfo = try JSONDecoder().decode(
-            SolanaScaledUiAmountDTO.GetAccountInfoResult.self,
+            SolanaScaledUIAmountDTO.GetAccountInfoResult.self,
             from: Data(json.utf8)
         )
 

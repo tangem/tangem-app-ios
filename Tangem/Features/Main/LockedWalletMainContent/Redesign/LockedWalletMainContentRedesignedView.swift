@@ -43,7 +43,7 @@ struct LockedWalletMainContentRedesignedView: View {
 
 private extension LockedWalletMainContentRedesignedView {
     var organizeButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: viewModel.organizeTokensButtonTitle,
             accessibilityLabel: viewModel.organizeTokensButtonTitle,
             action: {}

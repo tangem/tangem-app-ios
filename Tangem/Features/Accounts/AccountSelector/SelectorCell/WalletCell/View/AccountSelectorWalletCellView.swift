@@ -22,7 +22,7 @@ struct AccountSelectorWalletCellButtonView: View {
     }
 
     var body: some View {
-        Button(action: onTap) {
+        SwiftUI.Button(action: onTap) {
             content
                 .task { [weak viewModel] in
                     await viewModel?.loadWalletImage()

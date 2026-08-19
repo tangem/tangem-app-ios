@@ -1,0 +1,13 @@
+//
+//  NotificationServiceExtensionInternal.xcconfig
+//  TangemNotificationServiceExtension
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+#include "../../Tangem/App/AppEnvironmentConfig/Internal.xcconfig"
+#include "NotificationServiceExtension.xcconfig"
+
+// Override the host's `ENTITLEMENTS_PATH` (inherited from the app config above) with the extension's own.
+ENTITLEMENTS_PATH = TangemNotificationServiceExtension/Config/TangemNotificationServiceExtensionInternal.entitlements
