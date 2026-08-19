@@ -7,10 +7,12 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 import Combine
 import CombineExt
 import BlockchainSdk
 import TangemExpress
+import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemUI
@@ -177,7 +179,14 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     private func copy(_ value: String, toast text: String) {
         UIPasteboard.general.string = value
-        Toast(view: SuccessToast(text: text)).present(layout: .top(padding: 14), type: .temporary())
+        FeedbackGenerator.selectionChanged()
+
+        Toast(
+            view: TangemSnackbar(title: text)
+                .icon(DesignSystem.Icons.Checkmark.regular20)
+                .iconColor(Color.Tangem.Graphic.Status.accent)
+        )
+        .present(layout: .top(padding: 14), type: .temporary())
     }
 
     private func share() {
