@@ -45,10 +45,10 @@ private extension SupportedNetworkTests {
         (.cosmos(testnet: false), .cosmos),
         (.bsc(testnet: false), .bsc),
         (.cardano(extended: false), .cardano),
+        (.ethereum(testnet: false), .ethereumPOL),
     ]
 
     static let localUnsupportedBlockchains: [Blockchain] = [
-        .ethereum(testnet: false),
         .bitcoin(testnet: false),
         .polygon(testnet: false),
     ]

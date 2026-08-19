@@ -27,10 +27,6 @@ extension SwapMarketingBannerManager {
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput
     ) {
-        guard FeatureProvider.isAvailable(.marketingBanners) else {
-            return
-        }
-
         let requests = Publishers.CombineLatest(
             sourceTokenInput.sourceTokenPublisher,
             receiveTokenInput.receiveTokenPublisher

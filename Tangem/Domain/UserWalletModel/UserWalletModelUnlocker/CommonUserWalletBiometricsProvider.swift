@@ -9,7 +9,7 @@
 import Foundation
 import LocalAuthentication
 import TangemLocalization
-import class TangemSdk.BiometricsUtil
+import TangemSdk
 
 final class CommonUserWalletBiometricsProvider: UserWalletBiometricsProvider {
     func unlock() async throws -> LAContext {

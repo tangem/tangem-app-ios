@@ -146,7 +146,7 @@ final class TangemPayCard: Identifiable {
             refreshSignal.send(())
         case .new, .processing:
             startFreezeUnfreezeOrderPolling(orderId: response.orderId)
-        case .failed, .undefined:
+        case .undefined:
             inflightLifecycleOperationSubject.send(nil)
             throw TangemPayCardError.operationFailed
         }
@@ -173,7 +173,7 @@ final class TangemPayCard: Identifiable {
             refreshSignal.send(())
         case .new, .processing:
             startFreezeUnfreezeOrderPolling(orderId: response.orderId)
-        case .failed, .undefined:
+        case .undefined:
             inflightLifecycleOperationSubject.send(nil)
             throw TangemPayCardError.operationFailed
         }
@@ -237,7 +237,7 @@ final class TangemPayCard: Identifiable {
             refreshSignal.send(())
         case .new, .processing:
             startCloseCardOrderPolling(orderId: response.orderId)
-        case .failed, .undefined:
+        case .undefined:
             inflightLifecycleOperationSubject.send(nil)
             throw TangemPayCardError.operationFailed
         }

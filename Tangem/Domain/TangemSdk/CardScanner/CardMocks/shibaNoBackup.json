@@ -10,6 +10,7 @@
             "curve": "secp256k1",
             "publicKey": "027145A57C26832421FF8D7BB34F248DF1231462E9EA16D7643FB22DC041C86C50",
             "index": 0,
+            "status": 2,
             "totalSignedHashes": 0,
             "isImported": false,
             "hasBackup": false,
@@ -31,6 +32,7 @@
             "curve": "ed25519",
             "publicKey": "3B7DAC4F5E802639C0BE7BA2C91CBCD566C62311B0036030629052C0A9365335",
             "index": 1,
+            "status": 2,
             "totalSignedHashes": 0,
             "isImported": false,
             "hasBackup": false,
@@ -51,6 +53,7 @@
             },
             "publicKey": "B7A7D6964D7F1BCB3BB0613CAFC31B9AE1307F0DC90482EC7238F71850DEBD2CD17E5A96827DE40BA8896FE433ABAA83",
             "index": 2,
+            "status": 2,
             "totalSignedHashes": 0,
             "isImported": false,
             "hasBackup": false,
@@ -80,6 +83,7 @@
         "maxWalletsCount": 20,
         "isFilesAllowed": true,
         "isKeysImportAllowed": true,
+        "isBackupRequired": false,
         "securityDelay": 15000,
         "isLinkedTerminalEnabled": true,
         "isPermanentWallet": false,
@@ -114,7 +118,9 @@
         "publicKey": "0000"
     },
     "userSettings": {
-        "isUserCodeRecoveryAllowed": true
+        "isUserCodeRecoveryAllowed": true,
+        "isPINRequired": false,
+        "isNDEFDisabled": false
     },
     "backupStatus" : {
       "status" : "noBackup"
