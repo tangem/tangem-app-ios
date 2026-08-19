@@ -41,6 +41,8 @@ final class MobileBackupToUpgradeNeededViewModel {
             description = Localization.hwBackupToUpgradeDescription
             actionTitle = Localization.hwBackupNeedAction
         }
+
+        logScreenOpenedAnalytics()
     }
 }
 
@@ -71,6 +73,26 @@ private extension MobileBackupToUpgradeNeededViewModel {
 
     func close() {
         coordinator?.dismissMobileBackupToUpgradeNeeded()
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileBackupToUpgradeNeededViewModel {
+    func logScreenOpenedAnalytics() {
+        var params = source.analyticsParams
+
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
+            params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
+            params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
+        }
+
+        Analytics.log(
+            .walletSettingsNoticeBackupFirst,
+            params: params,
+            contextParams: .custom(userWalletModel.analyticsContextData)
+        )
     }
 }
 

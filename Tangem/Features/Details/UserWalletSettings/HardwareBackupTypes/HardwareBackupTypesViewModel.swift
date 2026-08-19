@@ -28,10 +28,6 @@ final class HardwareBackupTypesViewModel: ObservableObject {
         !backupStatusUtil.hasMnemonicBackup
     }
 
-    private var isICloudBackupNeeded: Bool {
-        !backupStatusUtil.hasICloudBackup
-    }
-
     private var analyticsContextParams: Analytics.ContextParams {
         .custom(userWalletModel.analyticsContextData)
     }
@@ -188,8 +184,6 @@ private extension HardwareBackupTypesViewModel {
     }
 
     func openMobileBackupToUpgradeNeeded() {
-        logBackupToUpgradeNeededAnalytics()
-
         coordinator?.openMobileBackupNeeded(
             userWalletModel: userWalletModel,
             source: .hardwareWallet(action: .upgrade),
@@ -232,22 +226,6 @@ private extension HardwareBackupTypesViewModel {
 
     func logUpgradeCurrentWalletTapAnalytics() {
         Analytics.log(.walletSettingsButtonUpgradeCurrent, contextParams: analyticsContextParams)
-    }
-
-    func logBackupToUpgradeNeededAnalytics() {
-        let backupManual: Analytics.ParameterValue = .affirmativeOrNegative(for: isSeedBackupNeeded)
-        let backupCloud: Analytics.ParameterValue = isICloudBackupNeeded ? .incomplete : .done
-
-        Analytics.log(
-            .walletSettingsNoticeBackupFirst,
-            params: [
-                .source: .hardwareWallet,
-                .action: .upgrade,
-                .backupManual: backupManual,
-                .backupCloud: backupCloud,
-            ],
-            contextParams: analyticsContextParams
-        )
     }
 }
 

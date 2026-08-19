@@ -455,9 +455,15 @@ final class MainViewModel: ObservableObject {
         params[.mobileWallet] = Analytics.ParameterValue.affirmativeOrNegative(for: hasMobileWallet).rawValue
 
         if let userWalletModel {
-            let hasSeedPhrase = userWalletModel.config.productType == .mobileWallet || userWalletModel.hasImportedWallets
+            let isMobileProductType = userWalletModel.config.productType == .mobileWallet
+            let hasSeedPhrase = isMobileProductType || userWalletModel.hasImportedWallets
             params[.walletType] = Analytics.ParameterValue.seedState(for: hasSeedPhrase).rawValue
             params[.walletHasBackup] = Analytics.ParameterValue.affirmativeOrNegative(for: userWalletModel.config.walletHasBackup).rawValue
+
+            if FeatureProvider.isAvailable(.mobileWalletBackup), isMobileProductType {
+                let backupParams = MobileBackupStatusUtil.completedBackupsAnalyticsParams(config: userWalletModel.config)
+                params.enrich(with: backupParams)
+            }
         }
 
         if let accountModels {
