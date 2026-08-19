@@ -344,10 +344,17 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
         }
     }
 
-    func shareFromTransactionDetails(_ text: String) {
+    func shareFromTransactionDetails(_ item: TransactionDetailsShareItem) {
         Task { @MainActor in
             floatingSheetPresenter.pauseSheetsDisplaying()
-            let controller = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+            let activityItem: Any
+            switch item {
+            case .text(let text):
+                activityItem = text
+            case .url(let url):
+                activityItem = url
+            }
+            let controller = UIActivityViewController(activityItems: [activityItem], applicationActivities: nil)
             controller.completionWithItemsHandler = { [weak self] _, _, _, _ in
                 self?.floatingSheetPresenter.resumeSheetsDisplaying()
             }
