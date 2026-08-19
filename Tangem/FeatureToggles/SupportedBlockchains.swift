@@ -170,6 +170,8 @@ struct SupportedBlockchains {
             .monad(testnet: false),
             .seiEvm(testnet: false),
             .adi(testnet: false),
+            .igra(testnet: false),
+            .robinhood(testnet: false),
         ]
     }
 
