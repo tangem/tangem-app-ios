@@ -8,7 +8,6 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
-import TangemFoundation
 
 struct TransactionDetailsActionButtonViewData: Equatable {
     enum Style: Equatable {
@@ -19,24 +18,18 @@ struct TransactionDetailsActionButtonViewData: Equatable {
     let title: String
     let icon: ImageType?
     let style: Style
-    @IgnoredEquatable var handler: () -> Void
-
-    init(title: String, icon: ImageType?, style: Style = .default, handler: @escaping () -> Void) {
-        self.title = title
-        self.icon = icon
-        self.style = style
-        self.handler = handler
-    }
+    let action: TransactionDetailsViewModel.ViewAction
 }
 
 struct TransactionDetailsActionButtonView: View {
     let data: TransactionDetailsActionButtonViewData
+    let onTap: () -> Void
 
     var body: some View {
         TangemUI.Button(
             label: data.title,
             accessibilityLabel: data.title,
-            action: data.handler
+            action: onTap
         )
         .iconEnd(data.icon)
         .styleType(styleType)
@@ -56,7 +49,10 @@ struct TransactionDetailsActionButtonView: View {
 
 #Preview("Action button") {
     VStack(spacing: 16) {
-        TransactionDetailsActionButtonView(data: .init(title: "Go to provider", icon: DesignSystem.Icons.ArrowTopRight.regular20, handler: {}))
+        TransactionDetailsActionButtonView(
+            data: .init(title: "Go to provider", icon: DesignSystem.Icons.ArrowTopRight.regular20, style: .default, action: .close),
+            onTap: {}
+        )
     }
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)
