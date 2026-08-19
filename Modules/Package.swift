@@ -52,6 +52,7 @@ let package = Package(
         .package(url: "https://github.com/bitcoindevkit/bdk-swift", .upToNextMajor(from: "2.3.1")),
         // CombineExt
         // CryptoSwift
+        .package(url: "git@github.com:tangem-developments/grpc-swift.git", exact: "1.26.2-tangem1"),
         .package(url: "git@github.com:tangem-developments/hiero-sdk-swift.git", exact: "0.49.0-tangem4"),
         .package(url: "git@github.com:tangem-developments/IcpKit.git", exact: "0.1.2-tangem5"),
         // Moya
@@ -87,6 +88,7 @@ var serviceModules: [PackageDescription.Target] {
                 .product(name: "BitcoinDevKit", package: "bdk-swift"),
                 "CombineExt",
                 "CryptoSwift",
+                .product(name: "GRPC", package: "grpc-swift"), // Not used directly, a transitive dependency of `hiero-sdk-swift`
                 .product(name: "Hiero", package: "hiero-sdk-swift"),
                 "IcpKit",
                 "Moya",
