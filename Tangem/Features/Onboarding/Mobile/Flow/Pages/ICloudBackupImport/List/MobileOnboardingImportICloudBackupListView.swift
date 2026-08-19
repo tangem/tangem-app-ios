@@ -21,6 +21,7 @@ struct MobileOnboardingImportICloudBackupListView: View {
             .stepsFlowNavBar(title: viewModel.navigationTitle)
             .stepsFlowNavBar(leading: { navigationBackButton })
             .stepsFlowNavBar(backgroundColor: Appearance.backgroundColor)
+            .onAppear(perform: viewModel.onAppear)
     }
 }
 
