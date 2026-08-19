@@ -22,7 +22,7 @@ struct QuickTopUpBannerView: View {
 
                 HStack(spacing: SizeUnit.x2.value) {
                     ForEach(viewModel.chips) { chip in
-                        Button {
+                        SwiftUI.Button {
                             viewModel.onChipSelected(chip.id)
                         } label: {
                             Text(chip.title)

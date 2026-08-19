@@ -31,7 +31,7 @@ protocol PushChannelToggleInteractorOutput: AnyObject {
 final class PushChannelToggleInteractor {
     @Injected(\.pushNotificationsPermission) private var pushNotificationsPermission: PushNotificationsPermissionService
 
-    private let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    private let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     private weak var output: PushChannelToggleInteractorOutput?
 
     /// Single source of truth for the iOS system permission flag. Owning screens observe
@@ -63,10 +63,10 @@ final class PushChannelToggleInteractor {
     }
 
     init(
-        userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
+        userWalletPushNotificationsManager: UserWalletPushNotificationsManager,
         output: PushChannelToggleInteractorOutput
     ) {
-        self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
+        self.userWalletPushNotificationsManager = userWalletPushNotificationsManager
         self.output = output
 
         bind()
@@ -107,7 +107,7 @@ final class PushChannelToggleInteractor {
             guard !Task.isCancelled else { return }
 
             do {
-                try await interactor.userTokensPushNotificationsManager.tryUpdateEnableState(value: value, for: channel)
+                try await interactor.userWalletPushNotificationsManager.tryUpdateEnableState(value: value, for: channel)
             } catch is CancellationError {
                 return
             } catch {
@@ -201,7 +201,7 @@ private extension PushChannelToggleInteractor {
         toggleTasks[channel]?.cancel()
         toggleTasks[channel] = runTask(in: self) { @MainActor interactor in
             do {
-                try await interactor.userTokensPushNotificationsManager.tryUpdateEnableState(value: true, for: channel)
+                try await interactor.userWalletPushNotificationsManager.tryUpdateEnableState(value: true, for: channel)
             } catch is CancellationError {
                 return
             } catch {

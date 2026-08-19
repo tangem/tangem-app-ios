@@ -56,7 +56,7 @@ struct RedesignedTokenAlertReceiveAssetsView: View {
     }
 
     private var gotItButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(Localization.commonGotIt),
             accessibilityLabel: Localization.commonGotIt,
             action: viewModel.onGotItTapAction

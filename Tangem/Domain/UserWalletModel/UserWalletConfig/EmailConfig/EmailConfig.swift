@@ -53,13 +53,29 @@ enum VisaEmailSubject {
     case `default`
     case dispute
     case activation
+    case generalHelp
+    case payment
+    case depositWithdrawal
+    case failedToIssueCard
 
     var prefix: String {
         let visaPrefix = "[Visa]"
         switch self {
-        case .default: return visaPrefix
+        case .default, .generalHelp, .depositWithdrawal, .failedToIssueCard: return visaPrefix
         case .dispute: return "\(visaPrefix) [DISPUTE]"
+        case .payment: return "\(visaPrefix) [PAYMENT]"
         case .activation: return "\(visaPrefix) [Activation]"
+        }
+    }
+
+    /// Support triages incoming mail by subject, so the newer messages stay in English regardless of the app language.
+    var message: String {
+        switch self {
+        case .default, .dispute, .activation: return Localization.feedbackSubjectSupport
+        case .payment: return "Help"
+        case .generalHelp: return "General help"
+        case .depositWithdrawal: return "Deposit/withdrawal"
+        case .failedToIssueCard: return "Failed to issue card"
         }
     }
 }
