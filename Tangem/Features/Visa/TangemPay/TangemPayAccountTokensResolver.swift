@@ -13,8 +13,10 @@ import TangemPay
 /// Turns the payment account's per-network tokens into `TangemPayAccountToken`s.
 ///
 /// The balance endpoint carries a symbol and a contract address but no decimals, so the token items are
-/// looked up in the coins API. A token that can't be resolved there is dropped, except the canonical
-/// USDC one: guessing decimals would silently misprice every quote made against it.
+/// looked up in the coins API. The canonical USDC entry always maps to the hardcoded item instead:
+/// the Pay screen tracks pending swaps by that exact item, and a coins API failure must not drop it.
+/// Any other token that can't be resolved is dropped — guessing decimals would silently misprice
+/// every quote made against it.
 struct TangemPayAccountTokensResolver {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
@@ -31,7 +33,7 @@ struct TangemPayAccountTokensResolver {
         )
 
         return entries.compactMap { entry -> TangemPayAccountToken? in
-            guard let tokenItem = tokenItems[entry.tokenItemKey] ?? canonicalTokenItem(for: entry) else {
+            guard let tokenItem = canonicalTokenItem(for: entry) ?? tokenItems[entry.tokenItemKey] else {
                 return nil
             }
 
