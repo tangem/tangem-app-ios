@@ -353,7 +353,7 @@ enum TransactionDetailsFactory {
             statusBanner: nil,
             principalAmount: nil,
             counterparty: counterparty(for: transaction, label: counterpartyLabel(for: transaction)),
-            info: showsNetworkFee(for: transaction) ? networkFeeInfo(from: record) : nil,
+            info: networkFeeInfo(from: record),
             action: nil
         )
     }
@@ -372,12 +372,6 @@ enum TransactionDetailsFactory {
         case .unresolved, .none:
             return Localization.commonFromAddress
         }
-    }
-
-    /// Fee is hidden only for a received transaction (incoming from an external address). Sends and
-    /// own-wallet transfers — including the incoming side of a transfer — keep it.
-    private static func showsNetworkFee(for transaction: TransactionViewModel) -> Bool {
-        transaction.isOutgoing || transaction.subtitleOwner?.isOwnWallet == true
     }
 
     // MARK: - Shared building blocks
@@ -500,11 +494,18 @@ enum TransactionDetailsFactory {
         return balanceFormatter.formatFiatBalance(fiat)
     }
 
+    /// The fee is shown only for outgoing operations.
     private static func networkFee(from record: TransactionRecord?) -> String? {
-        guard let amount = record?.fee.amount else {
+        guard
+            let record,
+            record.isOutgoing,
+            // Hide network fee for synthetic Express records
+            !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash)
+        else {
             return nil
         }
 
+        let amount = record.fee.amount
         return "\(balanceFormatter.formatDecimal(amount.value)) \(amount.currencySymbol)"
     }
 
