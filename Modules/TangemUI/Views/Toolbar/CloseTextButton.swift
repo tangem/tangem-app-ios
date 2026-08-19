@@ -21,7 +21,7 @@ public struct CloseTextButton: View {
     }
 
     public var body: some View {
-        Button(action: action) {
+        SwiftUI.Button(action: action) {
             Text(Localization.commonClose)
                 .style(Fonts.Regular.body, color: isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
         }

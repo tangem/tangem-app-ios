@@ -11,6 +11,8 @@ import Foundation
 public typealias ExpressFeeProvider = FeeProvider
 
 public protocol FeeProvider {
+    var supportsGasBasedFeeEstimate: Bool { get }
+
     func feeCurrency() -> ExpressWalletCurrency
     func feeCurrencyBalance() throws -> Decimal
 

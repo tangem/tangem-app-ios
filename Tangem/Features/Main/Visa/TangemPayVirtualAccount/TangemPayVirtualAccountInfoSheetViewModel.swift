@@ -10,25 +10,26 @@ import TangemUI
 import TangemUIUtils
 import TangemFoundation
 import TangemLocalization
+import TangemPay
 import TangemVisa
 
 @MainActor
 final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, FloatingSheetContentViewModel {
+    @Published private(set) var state: State = .loading
     @Published private(set) var isLoading = false
     @Published var alert: AlertBinder?
 
-    var agreementText: AttributedString {
-        let terms = Localization.commonTermsOfUse
-        let privacy = Localization.commonPrivacyPolicy
+    var agreementText: AttributedString? {
+        if case .active = tangemPayAccount.virtualAccountEntry {
+            return nil
+        }
+
+        let terms = Localization.tangempayBankTransferTermsOfUse
 
         var attributedString = AttributedString(Localization.tangempayBankTransferLegal(terms))
 
         if let range = attributedString.range(of: terms) {
             attributedString[range].link = AppConstants.tangemPayVirtualAccountTermsURL
-        }
-
-        if let range = attributedString.range(of: privacy) {
-            attributedString[range].link = AppConstants.tangemPayPrivacyPolicyURL
         }
 
         return attributedString
@@ -46,6 +47,8 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
         AppSettings.shared.tangemPayVirtualAccountConditionsShown = true
 
         Analytics.log(isFirstTimeConditions ? .visaVATopupConditionsPopupShowedFirstTime : .visaVATopupConditionsPopupShowed)
+
+        loadFees()
     }
 
     func showDetails() {
@@ -59,6 +62,37 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
             loadBankCredentials(productInstanceId: productInstanceId)
         case .none, .preparing:
             createVirtualAccountOrder()
+        }
+    }
+
+    func reloadFees() {
+        guard case .failed = state else { return }
+
+        state = .loading
+
+        loadFees()
+    }
+
+    private func loadFees() {
+        runTask(in: self) { @MainActor viewModel in
+            do {
+                let fees = try await viewModel.tangemPayAccount.loadOnrampFees()
+
+                let ach = fees.first { $0.type == TangemPayFeeType.achOnramp.rawValue }
+                let fedwire = fees.first { $0.type == TangemPayFeeType.fedwireOnramp.rawValue }
+
+                guard ach != nil || fedwire != nil else {
+                    throw TangemPayAccountError.missingOnrampFees
+                }
+
+                viewModel.state = .loaded(
+                    achFee: ach.map { Self.format(fee: $0) },
+                    fedwireFee: fedwire.map { Self.format(fee: $0) }
+                )
+            } catch {
+                VisaLogger.error("Failed to load virtual account onramp fees", error: error)
+                viewModel.state = .failed
+            }
         }
     }
 
@@ -99,5 +133,23 @@ final class TangemPayVirtualAccountInfoSheetViewModel: ObservableObject, Floatin
 
     func openURL(_ url: URL) {
         coordinator?.openVirtualAccountURL(url)
+    }
+
+    private static func format(fee: TangemPayFeeResponse) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.currencyCode = fee.currency
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 2
+        return formatter.string(from: fee.amount as NSDecimalNumber) ?? "\(fee.amount) \(fee.currency)"
+    }
+}
+
+extension TangemPayVirtualAccountInfoSheetViewModel {
+    enum State: Hashable {
+        case loading
+        case loaded(achFee: String?, fedwireFee: String?)
+        case failed
     }
 }

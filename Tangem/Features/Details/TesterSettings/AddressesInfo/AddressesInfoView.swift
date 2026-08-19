@@ -28,7 +28,7 @@ struct AddressesInfoView: View {
         .navigationTitle("Addresses info")
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button(action: viewModel.copyToClipboard) {
+                SwiftUI.Button(action: viewModel.copyToClipboard) {
                     Image(systemName: "doc.on.doc")
                 }
                 .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.addressesInfoCopyButton)
