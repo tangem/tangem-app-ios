@@ -45,7 +45,7 @@ struct AddressQrBottomSheetContent: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(Colors.Old.tangemGrayDark)
             HStack(spacing: 10) {
-                Button(action: {
+                SwiftUI.Button(action: {
                     showCheckmark = true
                     viewModel.logCopyAddress()
                     UIPasteboard.general.string = viewModel.address
@@ -81,7 +81,7 @@ struct AddressQrBottomSheetContent: View {
                     .background(Colors.Old.tangemBgGray)
                     .cornerRadius(20)
                 })
-                Button(action: { showShareSheet() }, label: {
+                SwiftUI.Button(action: { showShareSheet() }, label: {
                     Image(systemName: "arrowshape.turn.up.right")
                         .frame(height: 40)
                         .foregroundColor(Colors.Icon.accent)
@@ -109,7 +109,7 @@ struct AddressQrBottomSheetContent: View {
     @Previewable @State var isBottomSheetPresented: AddressQrBottomSheetPreviewTrigger?
 
     return ZStack {
-        Button(action: {
+        SwiftUI.Button(action: {
             isBottomSheetPresented = (isBottomSheetPresented == nil) ? AddressQrBottomSheetPreviewTrigger() : nil
         }, label: {
             Text("Show bottom sheet")

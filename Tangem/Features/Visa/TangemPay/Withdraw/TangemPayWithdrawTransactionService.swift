@@ -28,7 +28,7 @@ protocol TangemPayWithdrawTransactionService {
 actor CommonTangemPayWithdrawTransactionService {
     private let customerInfoManagementService: any CustomerInfoManagementService
     private let fiatItem: FiatItem
-    private let signer: any TangemSigner
+    private let signerFactory: TangemSignerFactory
 
     private var activeWithdrawOrderID: String?
     private var isWithdrawInProgress: Bool = false
@@ -38,11 +38,11 @@ actor CommonTangemPayWithdrawTransactionService {
     init(
         customerInfoManagementService: any CustomerInfoManagementService,
         fiatItem: FiatItem,
-        signer: any TangemSigner,
+        signerFactory: TangemSignerFactory,
     ) {
         self.customerInfoManagementService = customerInfoManagementService
         self.fiatItem = fiatItem
-        self.signer = signer
+        self.signerFactory = signerFactory
     }
 }
 
@@ -75,7 +75,8 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
 
         try verifyPreSignature(preSignature, against: request)
 
-        let signatureInfo = try await signer
+        let signatureInfo = try await signerFactory
+            .makeSigner()
             .sign(hash: preSignature.hash, walletPublicKey: walletPublicKey)
             .async()
 
@@ -111,7 +112,7 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
         switch order.status {
         case .new, .processing:
             return true
-        case .completed, .canceled, .failed, .undefined:
+        case .completed, .canceled, .undefined:
             if activeWithdrawOrderID == orderId {
                 activeWithdrawOrderID = nil
             }

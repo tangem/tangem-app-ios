@@ -176,13 +176,18 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var compiledTransactionFeeProvider: (any CompiledTransactionFeeProvider)? { nil }
     var compiledTransactionSender: (any CompiledTransactionSender)? { transactionDependency }
     var bitcoinPsbtSwapSender: (any BitcoinPsbtSwapSender)? { nil }
+    var tronTransactionFeeProvider: (any TronTransactionFeeProvider)? { nil }
+    var tronAllowanceProvider: (any TronAllowanceProvider)? { nil }
+    var tronTransactionDataBuilder: (any TronTransactionDataBuilder)? { nil }
     var ethereumTransactionDataBuilder: (any EthereumTransactionDataBuilder)? { nil }
     var ethereumNetworkProvider: (any EthereumNetworkProvider)? { nil }
     var ethereumTransactionSigner: (any EthereumTransactionSigner)? { nil }
     var bitcoinTransactionFeeCalculator: (any BitcoinTransactionFeeCalculator)? { nil }
     var accountInitializationService: (any BlockchainAccountInitializationService)? { nil }
     var minimalBalanceProvider: (any MinimalBalanceProvider)? { nil }
+    var scaledUIAmountProvider: (any ScaledUIAmountProvider)? { nil }
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
+    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { nil }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 }
 

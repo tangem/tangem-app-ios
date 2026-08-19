@@ -50,7 +50,7 @@ struct ChooseAddressView: View {
     }
 
     private var cancelButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: AttributedString(Localization.commonCancel),
             accessibilityLabel: Localization.commonCancel,
             action: viewModel.close

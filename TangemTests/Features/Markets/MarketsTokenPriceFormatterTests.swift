@@ -14,8 +14,7 @@ import Testing
 /// based on the magnitude of the price value. The scale formula for values < 1 is:
 /// `(number of leading zeroes in fractional part) + fractionalPartLengthAfterLeadingZeroes`.
 ///
-/// - Note: The formatter uses a shared static cache for computed scales. Tests are serialized
-///   to avoid data races on this static state.
+/// - Note: Tests are serialized because they override the shared `AppSettings.shared.selectedCurrencyCode`.
 @Suite("MarketsTokenPriceFormatter", .serialized)
 struct MarketsTokenPriceFormatterTests {
     private static let currencyCode = "USD"
@@ -64,24 +63,19 @@ struct MarketsTokenPriceFormatterTests {
         #expect(sut.formatPrice(testCase.value) == expected)
     }
 
-    // MARK: - Negative values
+    // MARK: - Non-positive values
 
-    /// Negative values are **not supported** by `MarketsTokenPriceFormatter`.
-    ///
-    /// Any negative value passes the `value < 1.0` guard and enters the scale calculation loop.
-    /// The `while threshold > value` condition is always `true` because `threshold` is always
-    /// positive (or zero after underflow), and a positive number (or zero) is always greater than
-    /// a negative number. This results in an infinite loop.
-    ///
-    /// This is acceptable because the formatter is designed exclusively for token prices,
-    /// which are always non-negative.
     @Test(
-        "Negative values are not supported",
-        .disabled("Causes an infinite loop: positive threshold is always > negative value")
+        "Non-positive values use default fiat formatting",
+        arguments: [
+            Decimal(0),
+            Decimal(stringValue: "-0.5")!,
+        ]
     )
-    func negativeValues() {
+    func nonPositiveValues(value: Decimal) {
         let sut = MarketsTokenPriceFormatter()
-        _ = sut.formatPrice(Decimal(stringValue: "-0.5")!)
+
+        #expect(sut.formatPrice(value) == Self.expectedPrice(value, scale: 2))
     }
 
     // MARK: - Boundary values

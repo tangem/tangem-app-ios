@@ -17,7 +17,10 @@ struct CommonBitcoinTokenFeeLoader {
 
 extension CommonBitcoinTokenFeeLoader: BitcoinTokenFeeLoader {
     func getFee(psbtBase64: String) async throws -> [BSDKFee] {
-        let satoshi = try BitcoinPsbtSigningBuilder.fee(psbtBase64: psbtBase64)
+        let satoshi = try BitcoinPsbtSigningBuilder.fee(
+            psbtBase64: psbtBase64,
+            feeRateLimit: PsbtFeeRateLimit(blockchain: tokenItem.blockchain)
+        )
         let value = Decimal(satoshi) / tokenItem.blockchain.decimalValue
         let amount = BSDKAmount(with: tokenItem.blockchain, type: .coin, value: value)
         return [BSDKFee(amount)]
