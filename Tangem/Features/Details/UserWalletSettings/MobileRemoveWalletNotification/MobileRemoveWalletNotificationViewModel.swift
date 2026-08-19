@@ -73,7 +73,10 @@ final class MobileRemoveWalletNotificationViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.removeManager = removeManager
         self.coordinator = coordinator
-        if backupState == .noBackup {
+
+        if isICloudBackupFeatureAvailable {
+            logForgetWalletRequestAnalytics()
+        } else if backupState == .noBackup {
             logMobileBackupNeededAnalytics()
         }
     }
@@ -207,6 +210,20 @@ private extension MobileRemoveWalletNotificationViewModel {
 // MARK: - Analytics
 
 private extension MobileRemoveWalletNotificationViewModel {
+    func logForgetWalletRequestAnalytics() {
+        let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
+
+        Analytics.log(
+            .walletSettingsForgetWalletRequest,
+            params: [
+                .source: .walletSettings,
+                .backupCloud: statusUtil.hasICloudBackup ? .done : .incomplete,
+                .backupManual: .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup),
+            ],
+            contextParams: analyticsContextParams
+        )
+    }
+
     func logMobileBackupNeededAnalytics() {
         Analytics.log(
             .walletSettingsNoticeBackupFirst,
