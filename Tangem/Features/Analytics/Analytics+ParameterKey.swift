@@ -154,6 +154,10 @@ extension Analytics {
 
         case backupManual = "Manual Backup"
         case backupCloud = "Cloud Backup"
+        case backupType = "Backup Type"
+        case backupsCount = "Backup Count"
+        case completedBackups = "Completed Backups"
+        case userWalletId = "User Wallet Id"
 
         // MARK: - News
 

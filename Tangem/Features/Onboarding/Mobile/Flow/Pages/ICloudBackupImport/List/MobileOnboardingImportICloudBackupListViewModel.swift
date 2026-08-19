@@ -40,6 +40,10 @@ extension MobileOnboardingImportICloudBackupListViewModel {
             await viewModel.close()
         }
     }
+
+    func onAppear() {
+        logScreenOpenedAnalytics()
+    }
 }
 
 // MARK: - Private methods
@@ -86,6 +90,18 @@ private extension MobileOnboardingImportICloudBackupListViewModel {
 
     func onBackupSelect(_ backup: MobileWalletBackup) {
         delegate?.onBackupSelect(backup)
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingImportICloudBackupListViewModel {
+    func logScreenOpenedAnalytics() {
+        Analytics.log(
+            event: .selectCloudBackupScreen,
+            params: [.backupsCount: "\(backups.count)"],
+            contextParams: .custom(.mobileWallet)
+        )
     }
 }
 

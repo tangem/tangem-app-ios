@@ -19,6 +19,25 @@ public enum WalletBackupStorageError: Error {
     case fileNotFound
 }
 
+// MARK: - LocalizedError
+
+extension WalletBackupStorageError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .storageUnavailable:
+            "The backup storage is unavailable"
+        case .writeFailed(let error):
+            "Failed to write the backup file: \(error.localizedDescription)"
+        case .readFailed(let error):
+            "Failed to read the backup file: \(error.localizedDescription)"
+        case .deleteFailed(let error):
+            "Failed to delete the backup file: \(error.localizedDescription)"
+        case .fileNotFound:
+            "The backup file was not found"
+        }
+    }
+}
+
 // MARK: - UniversalError
 
 /// Feature `110` (MobileWallet), subsystem `003` (cloud backup storage).

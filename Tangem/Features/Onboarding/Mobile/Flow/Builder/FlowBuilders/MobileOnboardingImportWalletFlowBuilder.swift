@@ -31,7 +31,9 @@ final class MobileOnboardingImportWalletFlowBuilder: MobileOnboardingFlowBuilder
         let importCompletedStep = MobileOnboardingSuccessStep(
             type: .walletImported,
             navigationTitle: Localization.walletImportTitle,
-            onAppear: {},
+            onAppear: { [weak self] in
+                self?.logImportCompletedScreenOpenedAnalytics()
+            },
             onComplete: weakify(self, forFunction: MobileOnboardingImportWalletFlowBuilder.openNext)
         )
         append(step: importCompletedStep)
@@ -62,6 +64,24 @@ final class MobileOnboardingImportWalletFlowBuilder: MobileOnboardingFlowBuilder
             onComplete: weakify(self, forFunction: MobileOnboardingImportWalletFlowBuilder.openMain)
         )
         append(step: doneStep)
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingImportWalletFlowBuilder {
+    func logImportCompletedScreenOpenedAnalytics() {
+        guard FeatureProvider.isAvailable(.mobileWalletBackup) else {
+            return
+        }
+
+        let contextData = userWalletModel?.analyticsContextData ?? .mobileWallet
+
+        Analytics.log(
+            event: .importCompletedScreenOpened,
+            params: [.backupType: Analytics.ParameterValue.backupTypeManual.rawValue],
+            contextParams: .custom(contextData)
+        )
     }
 }
 

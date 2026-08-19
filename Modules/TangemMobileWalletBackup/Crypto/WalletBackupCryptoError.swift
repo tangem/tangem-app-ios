@@ -20,6 +20,27 @@ public enum WalletBackupCryptoError: Error {
     case invalidPassword
 }
 
+// MARK: - LocalizedError
+
+extension WalletBackupCryptoError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .unsupportedKDFParams:
+            "Unsupported key derivation parameters"
+        case .randomGenerationFailed:
+            "Failed to generate random bytes"
+        case .keyDerivationFailed:
+            "Failed to derive the encryption key"
+        case .encryptionFailed(let error):
+            "Encryption failed: \(error.localizedDescription)"
+        case .decryptionFailed(let error):
+            "Decryption failed: \(error.localizedDescription)"
+        case .invalidPassword:
+            "Wrong password or a tampered backup file"
+        }
+    }
+}
+
 // MARK: - UniversalError
 
 /// Feature `110` (MobileWallet), subsystem `002` (cloud backup crypto).

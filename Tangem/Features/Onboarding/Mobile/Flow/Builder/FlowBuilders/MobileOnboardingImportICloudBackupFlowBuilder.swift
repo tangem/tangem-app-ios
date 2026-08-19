@@ -79,7 +79,9 @@ private extension MobileOnboardingImportICloudBackupFlowBuilder {
         MobileOnboardingSuccessStep(
             type: .walletImported,
             navigationTitle: Localization.walletImportTitle,
-            onAppear: {},
+            onAppear: { [weak self] in
+                self?.logImportCompletedScreenOpenedAnalytics()
+            },
             onComplete: weakify(self, forFunction: MobileOnboardingImportICloudBackupFlowBuilder.openNext)
         )
     }
@@ -113,6 +115,20 @@ private extension MobileOnboardingImportICloudBackupFlowBuilder {
             navigationTitle: Localization.commonDone,
             onAppear: weakify(self, forFunction: MobileOnboardingImportICloudBackupFlowBuilder.openConfetti),
             onComplete: weakify(self, forFunction: MobileOnboardingImportICloudBackupFlowBuilder.openMain)
+        )
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingImportICloudBackupFlowBuilder {
+    func logImportCompletedScreenOpenedAnalytics() {
+        let contextData = userWalletModel?.analyticsContextData ?? .mobileWallet
+
+        Analytics.log(
+            event: .importCompletedScreenOpened,
+            params: [.backupType: Analytics.ParameterValue.backupTypeCloud.rawValue],
+            contextParams: .custom(contextData)
         )
     }
 }

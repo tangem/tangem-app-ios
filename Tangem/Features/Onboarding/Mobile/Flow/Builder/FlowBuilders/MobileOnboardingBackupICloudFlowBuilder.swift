@@ -72,9 +72,7 @@ private extension MobileOnboardingBackupICloudFlowBuilder {
         MobileOnboardingSuccessStep(
             type: .backupContinue,
             navigationTitle: Localization.hwBackupIcloudTitle,
-            onAppear: { [weak self] in
-                self?.logBackupCompletedScreenOpenedAnalytics()
-            },
+            onAppear: {},
             onComplete: { [weak self] in
                 self?.logSettingAccessCodeAnalytics()
                 self?.openNext()
@@ -116,6 +114,7 @@ private extension MobileOnboardingBackupICloudFlowBuilder {
 
 extension MobileOnboardingBackupICloudFlowBuilder: MobileOnboardingICloudBackupDelegate {
     func onICloudBackupComplete() {
+        logBackupCompletedScreenOpenedAnalytics()
         openNext()
     }
 
@@ -142,9 +141,12 @@ extension MobileOnboardingBackupICloudFlowBuilder: MobileOnboardingAccessCodeDel
 
 private extension MobileOnboardingBackupICloudFlowBuilder {
     func logBackupCompletedScreenOpenedAnalytics() {
+        var params = source.analyticsParams
+        params[.backupType] = .backupTypeCloud
+
         Analytics.log(
             .walletSettingsBackupCompleteScreen,
-            params: source.analyticsParams,
+            params: params,
             contextParams: analyticsContextParams
         )
     }
