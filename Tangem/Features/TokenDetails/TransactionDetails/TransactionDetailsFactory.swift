@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 import BlockchainSdk
 import TangemExpress
 import TangemAccounts
@@ -154,7 +153,7 @@ enum TransactionDetailsFactory {
         let sourceAmount = exchange.from.normalizedAmount
         let destinationAmount = exchange.to.normalizedAmount
         let isLongRunning = isLongRunningSwap(exchange)
-        let refund = refundedIn(exchange: exchange, info: info, context: context)
+        let refund = refundedIn(exchange: exchange, info: info)
 
         return TransactionDetailsSwapViewData(
             stage: TransactionOperationStatusMapper.stage(for: exchange.status),
@@ -162,42 +161,58 @@ enum TransactionDetailsFactory {
             destination: leg(amount: destinationAmount, token: toToken),
             isDestinationEstimated: exchange.rateType == .float,
             statusBanner: refund?.banner ?? swapStatusBanner(exchange.status, isLongRunning: isLongRunning),
-            provider: provider(info.provider, fallbackId: exchange.providerId, externalURL: exchange.externalTx?.url, openURL: context.openURL),
+            provider: provider(info.provider, fallbackId: exchange.providerId, externalURL: exchange.externalTx?.url),
             rate: swapRate(fromAmount: sourceAmount, fromToken: fromToken, toAmount: destinationAmount, toToken: toToken),
             networkFee: networkFee(from: record),
-            action: refund?.action ?? action(for: exchange.status, isLongRunning: isLongRunning, externalURL: exchange.externalTx?.url, openURL: context.openURL)
+            action: refund?.action ?? action(for: exchange.status, isLongRunning: isLongRunning, externalURL: exchange.externalTx?.url)
         )
     }
 
     /// The "Refunded in [TOKEN]" plaque for a refunded deal whose refund token resolves, plus an optional "Go to token" action
     private static func refundedIn(
         exchange: ExchangeTransaction,
-        info: ExchangeTransactionInfo,
-        context: TransactionDetailsContext
+        info: ExchangeTransactionInfo
     ) -> (banner: TransactionDetailsStatusBannerViewData, action: TransactionDetailsActionButtonViewData?)? {
-        guard
-            exchange.status == .refunded,
-            let refundCurrency = exchange.refund?.currency,
-            let refundToken = info.cryptoCurrencies[refundCurrency]
-        else {
+        guard let target = refundTarget(exchange: exchange, info: info) else {
             return nil
         }
 
-        let symbol = refundToken.currencySymbol
+        let symbol = target.tokenItem.currencySymbol
 
         let banner = TransactionDetailsStatusBannerViewData(
             kind: .refundInfo,
             title: Localization.expressExchangeNotificationRefundedInTitle(symbol),
-            subtitle: Localization.expressExchangeNotificationRefundedInText(symbol, refundToken.networkName)
+            subtitle: Localization.expressExchangeNotificationRefundedInText(symbol, target.tokenItem.networkName)
         )
         // "Go to token" adds the refund token to the portfolio if needed, then opens it.
         let action = TransactionDetailsActionButtonViewData(
             title: Localization.commonGoToToken,
             icon: DesignSystem.Icons.ChevronRight.regular20,
             style: .secondary,
-            handler: context.refundTokenNavigation(for: refundToken, refundAddress: exchange.refund?.address)
+            action: .openRefundToken
         )
         return (banner, action)
+    }
+
+    static func refundTarget(for record: TransactionRecord?) -> RefundTarget? {
+        guard case .exchange(let info) = record?.expressExtraInfo else {
+            return nil
+        }
+
+        return refundTarget(exchange: info.transaction, info: info)
+    }
+
+    private static func refundTarget(exchange: ExchangeTransaction, info: ExchangeTransactionInfo) -> RefundTarget? {
+        guard
+            exchange.status == .refunded,
+            let refund = exchange.refund,
+            let refundCurrency = refund.currency,
+            let refundToken = info.cryptoCurrencies[refundCurrency]
+        else {
+            return nil
+        }
+
+        return RefundTarget(tokenItem: refundToken, address: refund.address)
     }
 
     /// "Long transaction time": an active swap stuck for more than 15 minutes since `createdAt`
@@ -295,9 +310,9 @@ enum TransactionDetailsFactory {
             received: received,
             isReceivedEstimated: onramp.to.actualAmount == nil,
             statusBanner: onrampStatusBanner(onramp.status),
-            provider: provider(info.provider, fallbackId: onramp.providerId, externalURL: onramp.externalTx?.url, openURL: context.openURL),
+            provider: provider(info.provider, fallbackId: onramp.providerId, externalURL: onramp.externalTx?.url),
             rate: fiatRate(cryptoAmount: receivedAmount, cryptoSymbol: context.tokenSymbol, fiatAmount: onramp.from.amount, fiatSymbol: onramp.from.currencyCode),
-            action: action(for: onramp.status, externalURL: onramp.externalTx?.url, openURL: context.openURL)
+            action: action(for: onramp.status, externalURL: onramp.externalTx?.url)
         )
     }
 
@@ -370,17 +385,12 @@ enum TransactionDetailsFactory {
     private static func provider(
         _ provider: ExpressProvider?,
         fallbackId: ExpressProvider.Id,
-        externalURL: URL?,
-        openURL: @escaping (URL) -> Void
+        externalURL: URL?
     ) -> TransactionDetailsProviderInfo {
-        let onTap: (() -> Void)? = externalURL.map { url in
-            { openURL(url) }
-        }
-
-        return TransactionDetailsProviderInfo(
+        TransactionDetailsProviderInfo(
             name: provider?.name ?? fallbackId,
             type: providerTypeTitle(provider?.type),
-            onTap: onTap
+            action: externalURL.map { .openURL($0) }
         )
     }
 
@@ -401,18 +411,17 @@ enum TransactionDetailsFactory {
     private static func action(
         for swapStatus: ExpressTransactionStatus,
         isLongRunning: Bool,
-        externalURL: URL?,
-        openURL: @escaping (URL) -> Void
+        externalURL: URL?
     ) -> TransactionDetailsActionButtonViewData? {
         if isLongRunning {
-            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL, openURL: openURL)
+            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL)
         }
 
         switch swapStatus {
         case .verifying:
-            return externalAction(title: Localization.commonGoToVerification, externalURL: externalURL, openURL: openURL)
+            return externalAction(title: Localization.commonGoToVerification, externalURL: externalURL)
         case .paused:
-            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL, openURL: openURL)
+            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL)
         case .unknown, .preview, .created, .exchangeTxSent, .waiting, .waitingTxHash,
              .confirming, .exchanging, .sending, .finished, .failed, .txFailed, .refunded, .expired:
             return nil
@@ -421,14 +430,13 @@ enum TransactionDetailsFactory {
 
     private static func action(
         for onrampStatus: OnrampTransactionStatus,
-        externalURL: URL?,
-        openURL: @escaping (URL) -> Void
+        externalURL: URL?
     ) -> TransactionDetailsActionButtonViewData? {
         switch onrampStatus {
         case .verifying:
-            return externalAction(title: Localization.commonGoToVerification, externalURL: externalURL, openURL: openURL)
+            return externalAction(title: Localization.commonGoToVerification, externalURL: externalURL)
         case .paused, .waitingForPayment:
-            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL, openURL: openURL)
+            return externalAction(title: Localization.commonGoToProvider, externalURL: externalURL)
         case .unknown, .created, .paymentProcessing, .paid, .sending, .refunding, .finished, .failed, .expired, .refunded:
             return nil
         }
@@ -436,14 +444,18 @@ enum TransactionDetailsFactory {
 
     private static func externalAction(
         title: String,
-        externalURL: URL?,
-        openURL: @escaping (URL) -> Void
+        externalURL: URL?
     ) -> TransactionDetailsActionButtonViewData? {
         guard let externalURL else {
             return nil
         }
 
-        return .init(title: title, icon: DesignSystem.Icons.ArrowTopRight.regular20, handler: { openURL(externalURL) })
+        return .init(
+            title: title,
+            icon: DesignSystem.Icons.ArrowTopRight.regular20,
+            style: .default,
+            action: .openURL(externalURL)
+        )
     }
 
     private static func swapRate(fromAmount: Decimal, fromToken: TokenItem?, toAmount: Decimal, toToken: TokenItem?) -> String? {
@@ -524,28 +536,28 @@ enum TransactionDetailsFactory {
                 id: "explore",
                 title: Localization.commonExplore,
                 icon: Assets.Glyphs.explore,
-                handler: { context.openURL(url) }
+                action: .openURL(url)
             ))
         }
 
         // Share is available for swap/onramp (the text is built from the Express `extraInfo`).
-        if let shareText = shareText(for: record, context: context) {
+        if isShareAvailable(for: record, context: context) {
             menuActions.append(.init(
                 id: "share",
                 title: Localization.commonShare,
                 icon: Assets.share,
-                handler: { context.share(shareText) }
+                action: .share
             ))
         }
 
         #if INTERNAL || DEBUG
         // Debug dump of the raw record
-        if let record {
+        if record != nil {
             menuActions.append(.init(
                 id: "debug",
                 title: "Debug",
                 icon: Assets.Glyphs.docNew,
-                handler: { context.openDebug(debugInfo(for: record)) }
+                action: .debug
             ))
         }
         #endif
@@ -563,8 +575,7 @@ enum TransactionDetailsFactory {
             date: dateText,
             operationIcon: TransactionViewIconViewData(type: transaction.transactionType, status: status, isOutgoing: transaction.isOutgoing),
             iconGlyph: headerIconGlyph(for: record),
-            menuActions: menuActions,
-            onClose: context.onClose
+            menuActions: menuActions
         )
     }
 
@@ -625,7 +636,7 @@ enum TransactionDetailsFactory {
             id: "transactionID",
             title: Localization.commonTransactionId,
             icon: Assets.Glyphs.copy,
-            handler: { copy(value, toast: Localization.expressTransactionIdCopied) }
+            action: .copy(value: value, toast: Localization.expressTransactionIdCopied)
         )
     }
 
@@ -673,19 +684,20 @@ enum TransactionDetailsFactory {
     private static func counterparty(for transaction: TransactionViewModel, label: String) -> TransactionDetailsAddressViewData? {
         switch transaction.subtitleOwner {
         case .accountInCurrentWallet(let name, let icon):
-            return .init(label: label, actor: .account(name: name, icon: icon))
+            return .init(label: label, actor: .account(name: name, icon: icon), copyAction: nil, walletImageProvider: nil)
 
         case .accountInOtherWallet(let accountName, let accountIcon):
-            return .init(label: label, actor: .account(name: accountName, icon: accountIcon))
+            return .init(label: label, actor: .account(name: accountName, icon: accountIcon), copyAction: nil, walletImageProvider: nil)
 
         case .wallet(let name, let imageProvider, _):
-            return .init(label: label, actor: .wallet(name: name), walletImageProvider: imageProvider)
+            return .init(label: label, actor: .wallet(name: name), copyAction: nil, walletImageProvider: imageProvider)
 
         case .unresolved(let short, let fullAddress, let blockiesImage):
             return .init(
                 label: label,
                 actor: .address(short: short, blockiesImage: .init(image: blockiesImage)),
-                onCopy: { copy(fullAddress, toast: Localization.walletNotificationAddressCopied) }
+                copyAction: .copy(value: fullAddress, toast: Localization.walletNotificationAddressCopied),
+                walletImageProvider: nil
             )
 
         case .none:
@@ -699,7 +711,8 @@ enum TransactionDetailsFactory {
                     short: AddressFormatter(address: address).truncated(),
                     blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: address)
                 ),
-                onCopy: { copy(address, toast: Localization.walletNotificationAddressCopied) }
+                copyAction: .copy(value: address, toast: Localization.walletNotificationAddressCopied),
+                walletImageProvider: nil
             )
         }
     }
@@ -719,19 +732,32 @@ enum TransactionDetailsFactory {
 
     // MARK: - Share
 
-    private static func shareText(for record: TransactionRecord?, context: TransactionDetailsContext) -> String? {
+    private static func isShareAvailable(for record: TransactionRecord?, context: TransactionDetailsContext) -> Bool {
+        guard let record else {
+            return false
+        }
+
+        switch record.expressExtraInfo {
+        case .exchange, .onramp:
+            return true
+        case nil:
+            return context.exploreTransactionURL(for: record.hash) != nil
+        }
+    }
+
+    static func shareItem(for record: TransactionRecord?, context: TransactionDetailsContext) -> TransactionDetailsShareItem? {
         switch record?.expressExtraInfo {
         case .exchange(let info):
-            return swapShareText(info)
+            return .text(swapShareText(info))
         case .onramp(let info):
-            return onrampShareText(info, context: context)
+            return .text(onrampShareText(info, context: context))
         case nil:
             // On-chain transactions have no Express deal to assemble — share the block-explorer link instead.
             guard let hash = record?.hash, let url = context.exploreTransactionURL(for: hash) else {
                 return nil
             }
 
-            return url.absoluteString
+            return .url(url)
         }
     }
 
@@ -740,40 +766,28 @@ enum TransactionDetailsFactory {
         let from = amountWithSymbol(exchange.from.normalizedAmount, info.cryptoCurrencies[exchange.from.currency]?.currencySymbol)
         let to = amountWithSymbol(exchange.to.normalizedAmount, info.cryptoCurrencies[exchange.to.currency]?.currencySymbol)
 
-        var lines = ["tangem", ""]
-        lines.append("\(Localization.commonSend) \(from)")
-        if let fromAddress = exchange.fromAddress {
-            lines.append("\(Localization.commonFrom): \(fromAddress)")
-        }
-        lines.append("")
-        lines.append("\(Localization.commonReceive) \(to)")
-        lines.append("\(Localization.commonTo): \(exchange.payOut.address)")
-        lines.append("")
-        lines.append(providerLine(info.provider, fallbackId: exchange.providerId))
-        lines.append(Localization.expressTransactionId(exchange.txId))
-
-        return lines.joined(separator: "\n")
+        return ExpressShareTextBuilder.build(
+            operation: .swap(send: from, from: exchange.fromAddress, receive: to, to: exchange.payOut.address),
+            providerInfo: providerInfo(info.provider, fallbackId: exchange.providerId),
+            transactionId: exchange.txId
+        )
     }
 
     private static func onrampShareText(_ info: OnrampTransactionInfo, context: TransactionDetailsContext) -> String {
         let onramp = info.transaction
         let to = amountWithSymbol(onramp.to.normalizedAmount, context.tokenSymbol)
 
-        var lines = ["tangem", ""]
-        lines.append("\(Localization.commonBuy) \(to)")
-        lines.append("\(Localization.commonTo): \(onramp.payOut.address)")
-        lines.append("")
-        lines.append(providerLine(info.provider, fallbackId: onramp.providerId))
-        lines.append(Localization.expressTransactionId(onramp.txId))
-
-        return lines.joined(separator: "\n")
+        return ExpressShareTextBuilder.build(
+            operation: .onramp(buy: to, to: onramp.payOut.address),
+            providerInfo: providerInfo(info.provider, fallbackId: onramp.providerId),
+            transactionId: onramp.txId
+        )
     }
 
-    private static func providerLine(_ provider: ExpressProvider?, fallbackId: ExpressProvider.Id) -> String {
+    private static func providerInfo(_ provider: ExpressProvider?, fallbackId: ExpressProvider.Id) -> String {
         let name = provider?.name ?? fallbackId
         let type = provider?.type.rawValue.uppercased()
-        let info = [name, type].compactMap { $0 }.joined(separator: " ")
-        return Localization.expressByProviderPlaceholder(info)
+        return [name, type].compactMap { $0 }.joined(separator: " ")
     }
 
     private static func amountWithSymbol(_ amount: Decimal?, _ symbol: String?) -> String {
@@ -784,7 +798,7 @@ enum TransactionDetailsFactory {
     // MARK: - Debug
 
     #if INTERNAL || DEBUG
-    private static func debugInfo(for record: TransactionRecord) -> TransactionDetailsDebugInfo {
+    static func debugInfo(for record: TransactionRecord) -> TransactionDetailsDebugInfo {
         let isSynthetic = ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash)
 
         let source: String
@@ -812,12 +826,14 @@ enum TransactionDetailsFactory {
         )
     }
     #endif
+}
 
-    // MARK: - Side effects
+// MARK: - Types
 
-    private static func copy(_ value: String, toast text: String) {
-        UIPasteboard.general.string = value
-        Toast(view: SuccessToast(text: text)).present(layout: .top(padding: 14), type: .temporary())
+extension TransactionDetailsFactory {
+    struct RefundTarget {
+        let tokenItem: TokenItem
+        let address: String
     }
 }
 
