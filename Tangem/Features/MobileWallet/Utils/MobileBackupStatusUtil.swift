@@ -52,3 +52,31 @@ extension MobileBackupStatusUtil {
         !hasBackup(config: config)
     }
 }
+
+// MARK: - Analytics
+
+extension MobileBackupStatusUtil {
+    static func completedBackupsAnalyticsParams(config: UserWalletConfig) -> [Analytics.ParameterKey: String] {
+        var paramValues: [Analytics.ParameterValue] = []
+
+        if hasMnemonicBackup(config: config) {
+            paramValues.append(.backupTypeManual)
+        }
+
+        if hasICloudBackup(config: config) {
+            paramValues.append(.backupTypeCloud)
+        }
+
+        guard paramValues.isNotEmpty else {
+            return [:]
+        }
+
+        let paramValue = paramValues.map(\.rawValue).joined(separator: ", ")
+
+        return [.completedBackups: paramValue]
+    }
+
+    static func errorAnalyticsParams(_ error: Error) -> [Analytics.ParameterKey: String] {
+        [.errorMessage: error.localizedDescription]
+    }
+}

@@ -43,10 +43,29 @@ private extension MobileCleanupUtil {
         do {
             let backupManager = CommonMobileWalletBackupManager(destination: .iCloud)
             try await backupManager.deleteBackups(walletId: walletId)
-            Analytics.log(.cloudBackupDeleted, contextParams: .custom(analyticsContextData))
+            logCloudBackupDeletedAnalytics(analyticsContextData: analyticsContextData)
         } catch {
             AppLogger.error("Failed to delete the cloud backup:", error: error)
-            Analytics.log(.cloudBackupDeletionError, contextParams: .custom(analyticsContextData))
+            logCloudBackupDeletionErrorAnalytics(error: error, analyticsContextData: analyticsContextData)
         }
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileCleanupUtil {
+    static func logCloudBackupDeletedAnalytics(analyticsContextData: AnalyticsContextData) {
+        Analytics.log(.walletSettingsCloudBackupDeleted, contextParams: .custom(analyticsContextData))
+    }
+
+    static func logCloudBackupDeletionErrorAnalytics(
+        error: Error,
+        analyticsContextData: AnalyticsContextData
+    ) {
+        Analytics.log(
+            event: .walletSettingsCloudBackupDeletionError,
+            params: MobileBackupStatusUtil.errorAnalyticsParams(error),
+            contextParams: .custom(analyticsContextData)
+        )
     }
 }

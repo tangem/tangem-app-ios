@@ -34,6 +34,10 @@ final class MobileRemoveWalletViewModel: ObservableObject {
         self.removeManager = removeManager
         self.delegate = delegate
         bind()
+
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            logScreenOpenedAnalytics()
+        }
     }
 }
 
@@ -79,6 +83,13 @@ private extension MobileRemoveWalletViewModel {
     func onConfirmForgetTap() {
         removeManager.removeWallet()
         delegate?.didRemoveMobileWallet()
+    }
+
+    func logScreenOpenedAnalytics() {
+        Analytics.log(
+            .walletSettingsForgetWalletScreen,
+            contextParams: .custom(removeManager.analyticsContextData)
+        )
     }
 }
 
