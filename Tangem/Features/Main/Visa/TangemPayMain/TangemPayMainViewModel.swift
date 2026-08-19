@@ -116,6 +116,12 @@ final class TangemPayMainViewModel: ObservableObject {
         tangemPayAccount.isDeactivated
     }
 
+    var toolbarSubtitle: String {
+        FeatureProvider.isAvailable(.tangemPayMultichain)
+            ? Localization.tangempayMultinetwork
+            : Localization.tangempayUsdcOnPolygonNetwork
+    }
+
     var actionButtonsDisabled: Bool {
         let allCardsBlocked = cardEntries.allConforms { cardEntry in
             cardEntry.card?.productInstance.status == .blocked
