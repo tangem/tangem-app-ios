@@ -134,7 +134,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldDexTransferDetection: return .unspecified
         case .tangemPayCashback: return .version("6.3")
         case .swapChooseTokenWholeAreaTap: return .unspecified
-        case .welcomeScreenV2: return .version("6.4")
+        case .welcomeScreenV2: return .unspecified
         case .tangemPayPlastic: return .unspecified
         }
     }
