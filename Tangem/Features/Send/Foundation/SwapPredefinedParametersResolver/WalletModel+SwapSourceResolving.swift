@@ -15,6 +15,12 @@ extension WalletModel {
 }
 
 extension Array where Element == any WalletModel {
+    /// The richest by fiat, else the first in UI order — a settled list with no positive fiat
+    /// (unknown rates or empty balances) still deserves a preselected source.
+    var mostFiatFundedOrFirst: (any WalletModel)? {
+        mostFiatFunded ?? first
+    }
+
     /// The first (in UI order) wallet model holding the largest positive fiat balance,
     /// or `nil` when nothing is funded.
     var mostFiatFunded: (any WalletModel)? {
