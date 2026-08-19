@@ -28,11 +28,11 @@ struct TransactionDetailsAddressView: View {
         Row(title: title, subtitle: data.label)
             .lineOrder(.secondaryFirst)
             .start { startIcon }
-            .end { endAccessory }
-            .background(
-                DesignSystem.Color.bgTertiary,
-                in: RoundedRectangle(cornerRadius: 24)
-            )
+            .ifLet(data.copyAction) { view, action in
+                view.onTap { onAction(action) }
+            }
+            .background(DesignSystem.Color.bgTertiary)
+            .clipShape(RoundedRectangle(cornerRadius: 24))
     }
 
     private var title: String {
@@ -54,21 +54,6 @@ struct TransactionDetailsAddressView: View {
             } else {
                 EmptyView()
             }
-        }
-    }
-
-    @ViewBuilder
-    private var endAccessory: some View {
-        if let copyAction = data.copyAction {
-            SwiftUI.Button(action: { onAction(copyAction) }) {
-                DesignSystem.Icons.Copy.regular20.image
-                    .renderingMode(.template)
-                    .frame(size: CGSize(bothDimensions: 20))
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
-                    .padding(8)
-                    .background(Circle().fill(DesignSystem.Color.bgOpaquePrimary))
-            }
-            .buttonStyle(.plain)
         }
     }
 }
