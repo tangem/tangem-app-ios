@@ -593,12 +593,20 @@ private extension UserWalletSettingsViewModel {
     }
 
     func logMobileBackupNeededAnalytics(action: Analytics.ParameterValue) {
+        var params: [Analytics.ParameterKey: Analytics.ParameterValue] = [
+            .source: .walletSettings,
+            .action: action,
+        ]
+
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
+            params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
+            params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
+        }
+
         Analytics.log(
             .walletSettingsNoticeBackupFirst,
-            params: [
-                .source: .walletSettings,
-                .action: action,
-            ],
+            params: params,
             contextParams: analyticsContextParams
         )
     }
