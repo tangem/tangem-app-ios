@@ -68,6 +68,7 @@ struct SupportedBlockchains {
         [
             .vanar(testnet: false),
             .zkLinkNova(testnet: false),
+            .electroneum(testnet: false),
         ]
     }
 
@@ -242,6 +243,7 @@ struct SupportedBlockchains {
             .robinhood(testnet: true),
             .plasma(testnet: true),
             .adi(testnet: true),
+            .electroneum(testnet: true),
             .seiEvm(testnet: true),
         ]
     }
