@@ -14,6 +14,22 @@ struct WelcomeV2ActionSheetView: View {
     @ObservedObject var viewModel: WelcomeV2ActionSheetViewModel
 
     var body: some View {
+        ZStack {
+            if let importViewModel = viewModel.pushedImportSheet {
+                WelcomeV2ImportSheetView(viewModel: importViewModel)
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
+            } else {
+                rootContent
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.28), value: viewModel.pushedImportSheet?.id)
+        .floatingSheetConfiguration { config in
+            config.backgroundInteractionBehavior = .tapToDismiss
+        }
+    }
+
+    private var rootContent: some View {
         FloatingSheetContentWithHeader(
             headerConfig: .init(
                 title: viewModel.title,
@@ -39,36 +55,19 @@ struct WelcomeV2ActionSheetView: View {
                 .padding(.bottom, 20)
             }
         }
-        .floatingSheetConfiguration { config in
-            config.backgroundInteractionBehavior = .tapToDismiss
-        }
     }
 
-    @ViewBuilder
     private func row(for item: WelcomeV2ActionSheetItem) -> some View {
         Row(title: item.title, subtitle: item.subtitle)
             .contentLead(.start)
             .start(icon: item.icon)
-            .end { endAccessory(for: item.state) }
+            .end {
+                DesignSystem.Icons.ChevronRight.regular16.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+            }
             .onTap(item.action)
-            .disabled(item.state != .enabled)
             .background(DesignSystem.Color.bgSecondary)
             .cornerRadiusContinuous(14)
-    }
-
-    @ViewBuilder
-    private func endAccessory(for state: WelcomeV2ActionSheetItem.State) -> some View {
-        switch state {
-        case .enabled:
-            DesignSystem.Icons.ChevronRight.regular16.image
-                .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Color.iconSecondary)
-        case .loading:
-            Loader()
-                .loaderSize(.size20)
-                .loaderColor(DesignSystem.Color.iconSecondary)
-        case .disabled:
-            EmptyView()
-        }
     }
 }

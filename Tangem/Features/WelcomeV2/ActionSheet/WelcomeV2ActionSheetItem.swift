@@ -14,12 +14,5 @@ struct WelcomeV2ActionSheetItem: Identifiable {
     let icon: ImageType?
     let title: String
     let subtitle: String?
-    let state: State
     let action: () -> Void
-
-    enum State {
-        case enabled
-        case loading
-        case disabled
-    }
 }

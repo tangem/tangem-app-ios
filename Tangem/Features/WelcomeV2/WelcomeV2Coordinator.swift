@@ -64,5 +64,50 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
         )
     }
 
-    func openExistingWallet() {}
+    func openExistingWallet() {
+        presentExistingWallet()
+    }
+}
+
+// MARK: - Sheet presentation
+
+private extension WelcomeV2Coordinator {
+    func presentExistingWallet() {
+        let dismiss: () -> Void = { [weak self] in
+            self?.actionSheetViewModel = nil
+        }
+
+        let openImport: () -> Void = { [weak self] in
+            self?.presentImportWallet()
+        }
+
+        actionSheetViewModel = WelcomeV2ExistingWalletActionFactory().make(
+            callbacks: .init(
+                onHardware: dismiss,
+                onImport: openImport,
+                onClose: dismiss
+            )
+        )
+    }
+
+    func presentImportWallet() {
+        guard let parent = actionSheetViewModel else { return }
+
+        let dismiss: () -> Void = { [weak self] in
+            self?.actionSheetViewModel = nil
+        }
+
+        let goBack: () -> Void = { [weak parent] in
+            parent?.pushedImportSheet = nil
+        }
+
+        parent.pushedImportSheet = WelcomeV2ImportWalletFactory().make(
+            callbacks: .init(
+                onRecoveryPhrase: dismiss,
+                onICloudBackup: dismiss,
+                onBack: goBack,
+                onClose: dismiss
+            )
+        )
+    }
 }
