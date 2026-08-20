@@ -15,6 +15,8 @@ import TangemMobileWalletSdk
 ///
 /// The Keychain is enumerated once here and the results are handed to each owner, which deletes only the
 /// items it recognizes by its own keys. The backup payload is preserved by `TangemSdkSecureStorageCleaner`.
+/// Biometry-protected items are absent from that enumeration, so `BlindKeychainCleaner` wipes them by
+/// class. It runs last: its sweep also takes the Secure Enclave keys the owners need.
 enum KeychainCleaner {
     static func cleanAllData() {
         TangemSdkSecureStorageCleaner().clean()
@@ -37,6 +39,8 @@ enum KeychainCleaner {
             genericPasswordAccounts: genericPasswordAccounts,
             secureEnclaveKeyTags: secureEnclaveKeyTags
         )
+
+        BlindKeychainCleaner().clean()
     }
 
     private static func allGenericPasswordAccounts() -> [String] {
@@ -52,6 +56,10 @@ enum KeychainCleaner {
             kSecClass as String: itemClass,
             kSecMatchLimit as String: kSecMatchLimitAll,
             kSecReturnAttributes as String: true,
+            // Runs on the main thread during scene setup: a biometric-ACL item would route the query into
+            // LocalAuthentication and stall the launch until the watchdog kills the app. Those items are
+            // left to `BlindKeychainCleaner`.
+            kSecUseAuthenticationUI as String: kSecUseAuthenticationUISkip,
         ]
 
         var result: CFTypeRef?

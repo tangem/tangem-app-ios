@@ -67,6 +67,8 @@ struct BlockchainSDKNotificationMapper {
             return .destinationMemoRequired
         case .noTrustlineAtDestination:
             return .noTrustlineAtDestination
+        case .destinationIsBurnAddress:
+            return .destinationIsBurnAddress
         }
     }
 
