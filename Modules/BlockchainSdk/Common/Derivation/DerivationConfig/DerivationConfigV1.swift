@@ -118,6 +118,8 @@ struct DerivationConfigV1: DerivationConfig {
             return "m/44'/1200'/0'/0/0"
         case .seiEvm:
             return "m/44'/19000118'/0'/0/0"
+        case .electroneum:
+            return "m/44'/415'/0'/0/0"
         case .terraV1, .terraV2:
             return "m/44'/330'/0'/0/0"
         case .cronos:
