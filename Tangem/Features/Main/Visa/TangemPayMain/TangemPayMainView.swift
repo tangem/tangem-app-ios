@@ -294,14 +294,17 @@ struct TangemPayMainView: View {
                 Divider()
 
                 if let cashbackMenuState = viewModel.cashbackMenuState {
-                    SwiftUI.Button(action: viewModel.onCashbackMenuItemTap) {
+                    SwiftUI.Button(
+                        role: cashbackMenuState.isMenuActionDestructive ? .destructive : nil,
+                        action: viewModel.onCashbackMenuItemTap
+                    ) {
                         Text(cashbackMenuState.menuTitle)
 
                         if let menuSubtitle = cashbackMenuState.menuSubtitle {
                             Text(menuSubtitle)
                         }
 
-                        DesignSystem.Icons.PercentBackward.regular20.image
+                        cashbackMenuState.menuIcon.image
                             .renderingMode(.template)
                     }
                     .menuActionDismissBehavior(.disabled)
