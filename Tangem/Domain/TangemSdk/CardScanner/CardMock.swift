@@ -37,7 +37,6 @@ enum CardMock: String, CaseIterable {
     case wallet2Imported
     case wallet2NoEd25519Slip0010
     case s2c
-    case wallet3
 
     var accessibilityIdentifier: String {
         switch self {
