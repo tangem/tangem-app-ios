@@ -24,8 +24,7 @@ enum TangemPayOrderCardType: TabNavigationItem, CaseIterable {
     var counter: String? {
         switch self {
         case .virtual: nil
-        // [REDACTED_TODO_COMMENT]
-        case .plastic: "Beta"
+        case .plastic: Localization.tangempayOrderTypeBeta
         }
     }
 }
