@@ -10,10 +10,10 @@ import Foundation
 import TangemFoundation
 
 /// Validation wrapper around raw `String` arguments, passed as addresses to smart contract calls.
-struct SmartContractAddress {
+public struct SmartContractAddress: Equatable {
     private let address: String
 
-    init(_ address: String) throws {
+    public init(_ address: String) throws {
         let address = address.addHexPrefix()
 
         guard address.isEvmAddress else {
@@ -27,14 +27,14 @@ struct SmartContractAddress {
         self.address = address
     }
 
-    var encodedParameter: Data {
+    public var encodedParameter: Data {
         Data(hexString: address.removeHexPrefix()).leadingZeroPadding(toLength: Constants.parameterLength)
     }
 }
 
 // MARK: - Auxiliary types
 
-extension SmartContractAddress {
+public extension SmartContractAddress {
     enum Error: Swift.Error, Equatable {
         case invalidAddress
         case burnAddress
