@@ -75,8 +75,9 @@ class UserWalletEncryptionKeyStorage {
         }
     }
 
-    /// Removes every stored encryption key. Matched by prefix because the wallet-id list
-    /// doesn't survive an app reinstall, so the keys can't be enumerated by id.
+    /// Removes every stored encryption key matching the prefix — the wallet-id list doesn't survive an app
+    /// reinstall, so the keys can't be enumerated by id. On the first launch after a reinstall the keys are
+    /// behind a biometric ACL and never reach this snapshot; `BlindKeychainCleaner` clears them.
     func clean(genericPasswordAccounts: [String]) {
         for account in genericPasswordAccounts where account.hasPrefix(Constants.encryptionKeyPrefix) {
             do {

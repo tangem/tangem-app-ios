@@ -13,12 +13,12 @@ import BigInt
 public struct TransferERC20TokenMethod {
     public static let methodId = "0xa9059cbb"
 
-    public let destination: String
+    public let destination: SmartContractAddress
     public let amount: BigUInt
 
-    public init(destination: String, amount: BigUInt) {
+    public init(destination: String, amount: BigUInt) throws {
         self.amount = amount
-        self.destination = destination
+        self.destination = try SmartContractAddress(destination)
     }
 
     public static func isEncodedCall(_ calldata: Data) -> Bool {
@@ -35,7 +35,8 @@ public struct TransferERC20TokenMethod {
 public extension TransferERC20TokenMethod {
     /// Recovers the arguments of a `transfer(address,uint256)` call.
     /// Returns `nil` for anything that is not exactly such a call, including a call carrying
-    /// a dirty address slot or a truncated or padded argument list.
+    /// a dirty address slot, a truncated or padded argument list or a destination that doesn't
+    /// pass the `SmartContractAddress` validation.
     init?(calldata: Data) {
         guard Self.isEncodedCall(calldata) else {
             return nil
@@ -56,7 +57,7 @@ public extension TransferERC20TokenMethod {
 
         let destinationBytes = Data(destinationSlot.suffix(Constants.addressLength))
 
-        self.init(destination: destinationBytes.hex().addHexPrefix(), amount: BigUInt(Data(amountSlot)))
+        try? self.init(destination: destinationBytes.hex().addHexPrefix(), amount: BigUInt(Data(amountSlot)))
     }
 }
 
@@ -67,7 +68,7 @@ extension TransferERC20TokenMethod: SmartContractMethod {
 
     public var data: Data {
         let prefixData = Data(hexString: methodId)
-        let addressData = Data(hexString: destination).leadingZeroPadding(toLength: Constants.slotLength)
+        let addressData = destination.encodedParameter
         let amountData = amount.serialize().leadingZeroPadding(toLength: Constants.slotLength)
         return prefixData + addressData + amountData
     }

@@ -94,7 +94,7 @@ struct GaslessYieldFeeTests {
 
         let payload = try await sut.buildTransactionPayload(transaction: Self.transferTransaction)
 
-        let expected = YieldSendMethod(
+        let expected = try YieldSendMethod(
             tokenContractAddress: Self.feeToken.contractAddress,
             destination: Self.destinationAddress,
             amount: Self.transferAmountInTokenUnits
@@ -138,13 +138,14 @@ struct GaslessYieldFeeTests {
         #expect(sut.gasLimitRequests.count == 4)
 
         let wrappedRequest = sut.gasLimitRequests[1]
+        let sendMethod = try YieldSendMethod(
+            tokenContractAddress: Self.feeToken.contractAddress,
+            destination: Self.destinationAddress,
+            amount: Self.transferAmountInTokenUnits
+        )
         let expectedData = UpgradeToAndCallMethod(
             newImplementation: Self.upgradeImplementation,
-            callData: YieldSendMethod(
-                tokenContractAddress: Self.feeToken.contractAddress,
-                destination: Self.destinationAddress,
-                amount: Self.transferAmountInTokenUnits
-            ).data
+            callData: sendMethod.data
         ).encodedData
 
         #expect(wrappedRequest.to == Self.upgradeYieldFeeOptions.yieldContractAddress)
@@ -184,7 +185,7 @@ struct GaslessYieldFeeTests {
 
         let payload = try await sut.buildTransactionPayload(transaction: Self.transferTransaction)
 
-        let expected = TransferERC20TokenMethod(
+        let expected = try TransferERC20TokenMethod(
             destination: Self.destinationAddress,
             amount: Self.transferAmountInTokenUnits
         )
