@@ -26,7 +26,9 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
     @Published var isPasswordWarningAccepted: Bool = false
 
     let navigationTitle = Localization.hwBackupIcloudTitle
-    let infoDescription = "A password is required to encrypt your secret phrase on iCloud."
+    let passwordTitle = Localization.hwCloudBackupPasswordHint
+    let passwordRuleDescription = Localization.hwCloudBackupPasswordRule
+    let passwordWarningTitle = Localization.hwCloudBackupConsent
 
     var leadingNavBarAction: MobileOnboardingFlowNavBarAction? {
         makeLeadingNavBarAction()
@@ -38,8 +40,15 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
 
     var infoTitle: String {
         switch state {
-        case .setPassword: "Set password"
-        case .confirmPassword: "Confirm password"
+        case .setPassword: Localization.hwCloudBackupSetPasswordTitle
+        case .confirmPassword: Localization.hwCloudBackupConfirmPasswordTitle
+        }
+    }
+
+    var infoDescription: String {
+        switch state {
+        case .setPassword: Localization.hwCloudBackupSetPasswordDescription(MobileBackupConstants.iCloudServiceName)
+        case .confirmPassword: Localization.hwCloudBackupConfirmPasswordDescription(MobileBackupConstants.iCloudServiceName)
         }
     }
 
@@ -60,8 +69,8 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
 
     var actionTitle: String {
         switch state {
-        case .setPassword: "Set password"
-        case .confirmPassword: "Confirm"
+        case .setPassword: Localization.hwCloudBackupSetPasswordButton
+        case .confirmPassword: Localization.commonConfirm
         }
     }
 
@@ -289,11 +298,11 @@ private extension MobileOnboardingICloudBackupViewModel {
 private extension MobileOnboardingICloudBackupViewModel {
     func showDismissAlert() {
         let alert = AlertBuilder.makeAlert(
-            title: "Cancel backup setup?",
-            message: "Your wallet won't be backed up to iCloud. You can set this up later in wallet settings.",
-            primaryButton: .cancel(Text("Continue backup")),
+            title: Localization.hwCloudBackupCancelSetupTitle,
+            message: Localization.hwCloudBackupCancelSetupDescription(MobileBackupConstants.iCloudServiceName),
+            primaryButton: .cancel(Text(Localization.hwCloudBackupCancelSetupContinue)),
             secondaryButton: .destructive(
-                Text("Cancel backup"),
+                Text(Localization.hwCloudBackupCancelSetupCancel),
                 action: weakify(self, forFunction: MobileOnboardingICloudBackupViewModel.onClose)
             )
         )
@@ -375,10 +384,10 @@ extension MobileOnboardingICloudBackupViewModel {
 
         var description: String {
             switch self {
-            case .none: "Password strength"
-            case .weak: "Weak password"
-            case .average: "Average password"
-            case .strong: "Strong password"
+            case .none: Localization.hwCloudBackupStrengthNone
+            case .weak: Localization.hwCloudBackupStrengthWeak
+            case .average: Localization.hwCloudBackupStrengthMedium
+            case .strong: Localization.hwCloudBackupStrengthStrong
             }
         }
 
@@ -409,7 +418,7 @@ extension MobileOnboardingICloudBackupViewModel {
         var description: String? {
             switch self {
             case .none, .matched: nil
-            case .notMatched: "Password doesn’t match"
+            case .notMatched: Localization.hwCloudBackupPasswordsDontMatch
             }
         }
 
