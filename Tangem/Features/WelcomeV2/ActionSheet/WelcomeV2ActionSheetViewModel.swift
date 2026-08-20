@@ -15,6 +15,7 @@ final class WelcomeV2ActionSheetViewModel: ObservableObject {
     let onClose: () -> Void
 
     @Published private(set) var items: [WelcomeV2ActionSheetItem]
+    @Published var pushedImportSheet: WelcomeV2ImportSheetViewModel?
 
     init(input: Input) {
         title = input.title
