@@ -828,6 +828,20 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func backupCard() {
+        // The ceremony is over and only the step is lagging behind. Advance it instead of asking the SDK to
+        // proceed: `proceedBackup` in this state can only fail with `backupServiceInvalidState`.
+        if backupServiceState == .finished {
+            goToNextStep()
+            return
+        }
+
+        // A card session outlives the chain that observes it, because the completion belongs to the SDK.
+        // Replacing `stepPublisher` here would cancel the only subscription that advances the step, while the
+        // ceremony keeps running to the end — leaving the step behind a finished backup for good.
+        guard stepPublisher == nil else {
+            return
+        }
+
         isMainButtonBusy = true
 
         let ringUtil = RingUtil()
@@ -893,6 +907,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                 }
             }
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
+            .delay(for: 0.1, scheduler: DispatchQueue.main)
             .first()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in

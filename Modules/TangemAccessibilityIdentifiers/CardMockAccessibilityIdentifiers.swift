@@ -10,6 +10,9 @@ import Foundation
 
 public enum CardMockAccessibilityIdentifiers: String {
     case wallet2 = "CardMockWallet2"
+    case wallet3 = "CardMockWallet3"
+    case wallet3NoBackup = "CardMockWallet3NoBackup"
+    case wallet3NoWallets = "CardMockWallet3NoWallets"
     case wallet = "CardMockWallet"
     case twin = "CardMockTwin"
     case nodl = "CardMockNodl"
@@ -32,5 +35,4 @@ public enum CardMockAccessibilityIdentifiers: String {
     case wallet2Imported = "CardMockWallet2Imported"
     case wallet2NoEd25519Slip0010 = "CardMockWallet2NoEd25519Slip0010"
     case s2c = "CardMockS2C"
-    case wallet3 = "CardMockWallet3"
 }

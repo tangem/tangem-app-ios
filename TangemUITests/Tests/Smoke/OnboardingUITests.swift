@@ -52,4 +52,26 @@ final class OnboardingUITests: BaseTestCase {
         CreateWalletScreen(app)
             .validateScreen(by: .wallet2NoWallets)
     }
+
+    func testScanWallet3NoBackupCard_ShowsCreateBackupScreen() {
+        setAllureId(10820)
+        launchApp()
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet3NoBackup)
+
+        CreateBackupScreen(app)
+            .validateScreen()
+    }
+
+    func testScanWallet3NoWalletsCard_ShowsCreateWalletScreenWithoutSkipButton() {
+        setAllureId(10816)
+        launchApp()
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet3NoWallets)
+
+        CreateWalletScreen(app)
+            .validateScreen(by: .wallet3NoWallets)
+    }
 }
