@@ -25,6 +25,7 @@ struct TangemPayCashbackMappingTests {
                     confirmedAmount: decimal("22.54"),
                     totalEarnedAmount: decimal("153.01"),
                     currency: "USD",
+                    payoutCurrency: "USDC",
                     period: TangemPayCashback.Period(
                         year: 2026,
                         month: 8,
@@ -100,6 +101,13 @@ struct TangemPayCashbackMappingTests {
         #expect(cashback == .unavailable)
     }
 
+    @Test("a missing payout currency degrades to unavailable")
+    func missingPayoutCurrency_degradesToUnavailable() throws {
+        let cashback = try makeCashback(enabledJSON(payoutCurrency: nil))
+
+        #expect(cashback == .unavailable)
+    }
+
     @Test("a missing period degrades to unavailable")
     func missingPeriod_degradesToUnavailable() throws {
         let cashback = try makeCashback(enabledJSON(period: nil))
@@ -151,7 +159,8 @@ private extension TangemPayCashbackMappingTests {
         totalEarnedAmount: String? = #""153.01""#,
         previousPayoutAmount: String? = #""18.30""#,
         previousPayoutEndDate: String? = #""2026-08-05""#,
-        period: String? = Self.periodJSON
+        period: String? = Self.periodJSON,
+        payoutCurrency: String? = #""USDC""#
     ) -> String {
         var members = [#""cashback_program_status": "enabled""#]
 
@@ -180,6 +189,10 @@ private extension TangemPayCashbackMappingTests {
         }
 
         members.append(#""currency": "USD""#)
+
+        if let payoutCurrency {
+            members.append(#""payout_currency": \#(payoutCurrency)"#)
+        }
 
         return "{ \(members.joined(separator: ", ")) }"
     }
