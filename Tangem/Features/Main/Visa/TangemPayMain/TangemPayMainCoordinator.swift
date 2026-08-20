@@ -36,7 +36,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var cardManagementViewModel: TangemPayCardManagementViewModel?
     @Published var currentPlanCoordinator: TangemPayCurrentPlanCoordinator?
     @Published var selectPlanCoordinator: TangemPaySelectPlanCoordinator?
-    @Published var orderCardTypeViewModel: TangemPayOrderCardTypeViewModel?
+    @Published var orderCardCoordinator: TangemPayOrderCardCoordinator?
 
     // MARK: - Child view models (sheets)
 
@@ -249,15 +249,31 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openOrderCardType(fee: TangemPayCustomerOffer.Fee) {
-        let virtualCardImageURL = options?.tangemPayAccount.customerTariffPlan?.tariffPlan.images
+        let tangemPayAccount = options?.tangemPayAccount
+
+        let virtualCardImageURL = tangemPayAccount?.customerTariffPlan?.tariffPlan.images
             .first { $0.type == .main }
             .flatMap { URL(string: $0.url) }
 
-        orderCardTypeViewModel = TangemPayOrderCardTypeViewModel(
+        let profile = tangemPayAccount?.profile
+        let countryName = profile?.country.flatMap { Locale.current.localizedString(forRegionCode: $0) }
+
+        let coordinator = TangemPayOrderCardCoordinator(
+            dismissAction: { [weak self] in
+                self?.orderCardCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(
             issueFeeText: Self.formatFee(amount: fee.amount, currency: fee.currency),
             virtualCardImageURL: virtualCardImageURL,
-            coordinator: self
-        )
+            nameOnCard: tangemPayAccount?.cards.first?.card.embossName,
+            countryName: countryName,
+            email: profile?.email,
+            phoneMask: profile?.phoneMask,
+            parentCoordinator: self
+        ))
+        orderCardCoordinator = coordinator
     }
 
     func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel) {
@@ -913,15 +929,11 @@ extension TangemPayMainCoordinator: TangemPayDailyLimitRoutable {
     }
 }
 
-// MARK: - TangemPayOrderCardTypeRoutable
+// MARK: - TangemPayOrderCardFlowRoutable
 
-extension TangemPayMainCoordinator: TangemPayOrderCardTypeRoutable {
-    func orderCardTypeDidSelectVirtual() {
+extension TangemPayMainCoordinator: TangemPayOrderCardFlowRoutable {
+    func orderCardFlowDidSelectVirtual() {
         rootViewModel?.orderCardTypeDidSelectVirtual()
-    }
-
-    func closeOrderCardType() {
-        orderCardTypeViewModel = nil
     }
 }
 
@@ -930,14 +942,14 @@ extension TangemPayMainCoordinator: TangemPayOrderCardTypeRoutable {
 extension TangemPayMainCoordinator: TangemPayIssueAdditionalCardCostPopupRoutable {
     func issueCostPopupDidConfirm() {
         Task { @MainActor in
-            closeOrderCardType()
+            orderCardCoordinator = nil
             floatingSheetPresenter.removeActiveSheet()
         }
     }
 
     func issueCostPopupDidRequestAddFunds() {
         Task { @MainActor in
-            closeOrderCardType()
+            orderCardCoordinator = nil
             floatingSheetPresenter.removeActiveSheet()
             try? await Task.sleep(for: .seconds(0.2))
             rootViewModel?.addFunds()
@@ -946,7 +958,7 @@ extension TangemPayMainCoordinator: TangemPayIssueAdditionalCardCostPopupRoutabl
 
     func issueCostPopupDidFail(error: Error) {
         Task { @MainActor in
-            closeOrderCardType()
+            orderCardCoordinator = nil
             floatingSheetPresenter.removeActiveSheet()
             try? await Task.sleep(for: .seconds(0.2))
             rootViewModel?.showCardIssueFailureAlert()
