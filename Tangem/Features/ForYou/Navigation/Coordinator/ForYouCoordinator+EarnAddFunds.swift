@@ -6,8 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import TangemFoundation
+import TangemLocalization
 import TangemUI
 
 @MainActor
@@ -29,13 +29,15 @@ extension ForYouCoordinator {
     }
 }
 
-private extension ForYouCoordinator {
-    // MARK: - Private logic
+extension ForYouCoordinator {
+    // MARK: - Add funds presentation
 
     @MainActor
     func presentAddFundsTokenSelector(holdings: [Holding]) {
         floatingSheetPresenter.enqueue(
             sheet: ForYouAddFundsTokenSelectorViewModel(
+                title: Localization.commonAddFunds,
+                subtitle: Localization.commonChooseToken,
                 holdings: holdings,
                 selectionAction: { [weak self] walletModel, userWalletModel in
                     guard let self else { return }

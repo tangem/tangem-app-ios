@@ -19,7 +19,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var moreButton = app.navigationBars.buttons["More"].firstMatch
     private lazy var hideTokenButton = button(.hideTokenButton)
     private lazy var topUpBanner = staticText(.topUpBanner)
-    private lazy var notEnoughFeeForTransactionBanner = otherElement(.notEnoughFeeForTransactionBanner)
+    private lazy var notEnoughFeeForTransactionBanner = staticText(.notEnoughFeeForTransactionBanner)
     private lazy var goToFeeCurrencyButton = button(.feeCurrencyNavigationButton)
     private lazy var tokenNameLabel = staticText(.tokenNameLabel)
 
@@ -315,25 +315,19 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
                 "'Not enough fee for transaction' notification banner should be displayed"
             )
 
+            let bannerLabel = notEnoughFeeForTransactionBanner.label
+
             let expectedTitle = "Insufficient \(feeCurrencyName) to cover network fee"
-            let title = notEnoughFeeForTransactionBanner.staticTexts.element(
-                matching: NSPredicate(
-                    format: "identifier == %@ AND label CONTAINS[c] %@",
-                    CommonUIAccessibilityIdentifiers.notificationTitle,
-                    expectedTitle
-                )
-            ).firstMatch
-            waitAndAssertTrue(title, "Notification title should be: \(expectedTitle)")
+            XCTAssertTrue(
+                bannerLabel.localizedCaseInsensitiveContains(expectedTitle),
+                "Notification should contain title: \(expectedTitle) but was '\(bannerLabel)'"
+            )
 
             let expectedMessage = "\(token) is an asset in the \(feeCurrencyName) network. To make a \(token) transaction, you must deposit some \(feeCurrencyName) (\(feeCurrencySymbol)) to cover the network fee."
-            let message = notEnoughFeeForTransactionBanner.staticTexts.element(
-                matching: NSPredicate(
-                    format: "identifier == %@ AND label CONTAINS[c] %@",
-                    CommonUIAccessibilityIdentifiers.notificationMessage,
-                    expectedMessage
-                )
-            ).firstMatch
-            waitAndAssertTrue(message, "Notification message should be: \(expectedMessage)")
+            XCTAssertTrue(
+                bannerLabel.localizedCaseInsensitiveContains(expectedMessage),
+                "Notification should contain message: \(expectedMessage) but was '\(bannerLabel)'"
+            )
 
             waitAndAssertTrue(goToFeeCurrencyButton, "'Go to fee currency' button should be displayed")
             return self
