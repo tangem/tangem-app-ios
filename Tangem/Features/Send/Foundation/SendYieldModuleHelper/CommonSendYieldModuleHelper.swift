@@ -138,7 +138,7 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
             throw ExpressProviderError.yieldModuleSwapUnavailable(.transferAmountMismatch)
         }
 
-        let method = YieldSendMethod(
+        let method = try YieldSendMethod(
             tokenContractAddress: currency.contractAddress,
             destination: transfer.destination,
             amount: transfer.amount
