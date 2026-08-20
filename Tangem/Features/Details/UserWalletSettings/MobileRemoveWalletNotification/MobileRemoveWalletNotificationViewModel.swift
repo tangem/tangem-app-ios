@@ -20,10 +20,10 @@ final class MobileRemoveWalletNotificationViewModel: ObservableObject {
     var title: String {
         switch backupState {
         case .iCloudBackup:
-            "Forget this wallet?"
+            Localization.hwRemoveWalletCloudBackupTitle
         case .seedBackup, .noBackup:
             isICloudBackupFeatureAvailable
-                ? "Forget this wallet?"
+                ? Localization.hwRemoveWalletNotificationTitleV2
                 : Localization.hwRemoveWalletNotificationTitle
         }
     }
@@ -31,10 +31,10 @@ final class MobileRemoveWalletNotificationViewModel: ObservableObject {
     var description: String {
         switch backupState {
         case .iCloudBackup:
-            "Wallet will be removed from this device. Your iCloud backup stays safe — you can restore this wallet anytime with your password."
+            Localization.hwRemoveWalletCloudBackupDescription(MobileBackupConstants.iCloudServiceName)
         case .seedBackup:
             isICloudBackupFeatureAvailable
-                ? "A backup for this wallet exists. Review it before forgetting to make sure you can recover later."
+                ? Localization.hwRemoveWalletNotificationDescriptionHasBackupV2
                 : Localization.hwRemoveWalletNotificationDescriptionHasBackup
         case .noBackup:
             Localization.hwRemoveWalletNotificationDescriptionWithoutBackup
@@ -107,7 +107,7 @@ private extension MobileRemoveWalletNotificationViewModel {
         case .seedBackup:
             Action(
                 title: isICloudBackupFeatureAvailable
-                    ? "View backup"
+                    ? Localization.hwRemoveWalletNotificationActionBackupViewV2
                     : Localization.hwRemoveWalletNotificationActionBackupView,
                 handler: weakify(self, forFunction: MobileRemoveWalletNotificationViewModel.revealHandler)
             )
@@ -123,7 +123,7 @@ private extension MobileRemoveWalletNotificationViewModel {
         switch backupState {
         case .iCloudBackup:
             Action(
-                title: "Forget and delete backup",
+                title: Localization.hwRemoveWalletForgetAndDeleteBackup,
                 handler: { [weak self] in
                     self?.removeHandler(deletesICloudBackup: true)
                 }
