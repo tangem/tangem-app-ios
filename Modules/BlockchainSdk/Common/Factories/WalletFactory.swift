@@ -29,6 +29,7 @@ struct WalletFactory {
         switch publicKey.derivationType {
         case .xpub(_, let xpubKey) where blockchain.isDynamicAddressesSupported:
             return DynamicAddressesProvider(
+                blockchain: blockchain,
                 seedKey: publicKey.seedKey,
                 xpubKey: xpubKey,
                 addressProvider: addressService,
