@@ -60,4 +60,22 @@ struct BlockchainCodingKeyTests {
         #expect(mainnetLinks.url(transaction: "hash")?.absoluteString == "https://explorer.igralabs.com/tx/hash")
         #expect(testnetLinks.url(address: "address", contractAddress: nil)?.absoluteString == "https://explorer.galleon-testnet.igralabs.com/address/address")
     }
+
+    @Test
+    func electroneumConfiguration() {
+        let mainnet = Blockchain.electroneum(testnet: false)
+        let testnet = Blockchain.electroneum(testnet: true)
+
+        #expect(mainnet.chainId == 52014)
+        #expect(testnet.chainId == 5201420)
+        #expect(mainnet.networkId == "electroneum")
+        #expect(mainnet.coinId == "electroneum")
+        #expect(mainnet.currencySymbol == "ETN")
+        #expect(mainnet.supportsEIP1559)
+
+        let mainnetLinks = ExternalLinkProviderFactory().makeProvider(for: mainnet)
+        let testnetLinks = ExternalLinkProviderFactory().makeProvider(for: testnet)
+        #expect(mainnetLinks.url(transaction: "hash")?.absoluteString == "https://blockexplorer.electroneum.com/tx/hash")
+        #expect(testnetLinks.url(address: "address", contractAddress: nil)?.absoluteString == "https://testnet-blockexplorer.electroneum.com/address/address")
+    }
 }
