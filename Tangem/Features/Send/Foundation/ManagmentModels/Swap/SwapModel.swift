@@ -55,7 +55,8 @@ final class SwapModel {
     private let autoupdatingTimer: AutoupdatingTimer
     private let pairUpdateHandler: SwapPairUpdateHandler
     private let balanceRestrictionHandler: SwapBalanceRestrictionHandler
-    private let swapTokenPairResolver: MainSwapPairResolver?
+    private let sourceTokenResolver: (any SwapSourceTokenResolver)?
+    private let destinationTokenResolver: (any SwapDestinationTokenResolver)?
 
     private let balanceConverter = BalanceConverter()
     private var bag: Set<AnyCancellable> = []
@@ -73,7 +74,8 @@ final class SwapModel {
         autoupdatingTimer: AutoupdatingTimer,
         pairUpdateHandler: SwapPairUpdateHandler,
         balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker,
-        swapTokenPairResolver: MainSwapPairResolver? = nil,
+        sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
+        destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
         shouldStartInitialLoading: Bool,
     ) {
         self.expressManager = expressManager
@@ -84,7 +86,8 @@ final class SwapModel {
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
         self.pairUpdateHandler = pairUpdateHandler
-        self.swapTokenPairResolver = swapTokenPairResolver
+        self.sourceTokenResolver = sourceTokenResolver
+        self.destinationTokenResolver = destinationTokenResolver
         balanceRestrictionHandler = SwapBalanceRestrictionHandler(checker: balanceRestrictionFeatureChecker)
 
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
@@ -223,6 +226,7 @@ extension SwapModel {
     func update(source wallet: SendSwapableToken) {
         ExpressLogger.info("Will update source to \(wallet.tokenItem)")
         _sourceToken.send(.success(wallet))
+        resolveDestinationTokenIfNeeded(for: wallet)
         swappingPairDidChange()
     }
 
@@ -236,6 +240,18 @@ extension SwapModel {
 // MARK: - Private
 
 private extension SwapModel {
+    func resolveDestinationTokenIfNeeded(for source: SendSwapableToken) {
+        guard let destinationTokenResolver else {
+            return
+        }
+
+        let destination = destinationTokenResolver.resolveDestination(for: source)
+
+        ExpressLogger.info("Destination re-resolved to \(destination.tokenItem)")
+        preselectedTokenChangeAnalyticsLogger.updatePreselected(direction: .receive, tokenItem: destination.tokenItem)
+        _receiveToken.send(.success(destination))
+    }
+
     func swappingPairDidChange() {
         let loadingType: (ExpressManager) async -> LoadingType? = { [weak self] _ in
             guard let self else {
@@ -1080,22 +1096,35 @@ extension SwapModel {
 
             _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
 
-            if let swapTokenPairResolver,
-               let resolvedSource = await swapTokenPairResolver.resolve(),
+            if let sourceTokenResolver,
+               let resolvedSource = await sourceTokenResolver.resolve(),
                let currentSource = _sourceToken.value.value,
                // if false that means the user has already changed the source and we respect its choice
                currentSource.tokenItem == initialSourceTokenItem,
                currentSource.tokenItem != resolvedSource.tokenItem {
-                update(source: resolvedSource)
+                installResolvedSource(resolvedSource)
             }
 
         case (_, .success):
+            // Show the "Choose token" placeholder immediately, then fill the source in once the
+            // wallet balances resolve. Respect a manual pick that lands while resolving.
             _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
+
+            if let sourceTokenResolver,
+               let resolvedSource = await sourceTokenResolver.resolve(),
+               case .failure(SwapModelError.tokenSelectionRequired) = _sourceToken.value {
+                installResolvedSource(resolvedSource)
+            }
 
         default:
             _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
             _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
         }
+    }
+
+    private func installResolvedSource(_ source: SendSwapableToken) {
+        preselectedTokenChangeAnalyticsLogger.updatePreselected(direction: .source, tokenItem: source.tokenItem)
+        update(source: source)
     }
 }
 

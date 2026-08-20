@@ -22,6 +22,9 @@ protocol StakingFlowProvider {
     var isAmountEditable: Bool { get }
     /// The amount staked in the position this flow acts on (the action's baked amount).
     var stakedBalance: Decimal { get }
+    /// False on chains that stake the balance in place (Cardano) — only the fee is spent on enter,
+    /// so the amount must not be validated against the balance.
+    var enterSpendsAmount: Bool { get }
     var statePublisher: AnyPublisher<StakingManagerState, Never> { get }
     func makeAction(amount: Decimal?, target: StakingTargetInfo?) -> StakingAction
     func buildTransaction(action: StakingAction) async throws -> StakingTransactionAction
@@ -30,6 +33,10 @@ protocol StakingFlowProvider {
     /// Re-derive the ready state for an already-known fee, skipping fee estimation. Used when the
     /// dispatcher reports a changed fee mid-send (P2P `feeIncreased`) and the flow must re-state.
     func finalize(amount: Decimal, fee: Decimal, target: StakingTargetInfo?) -> StakeFlowState
+}
+
+extension StakingFlowProvider {
+    var enterSpendsAmount: Bool { true }
 }
 
 /// The common pooled/validator staking flow, shared by every such network regardless of backend
@@ -42,15 +49,9 @@ protocol GenericStakingFlowProvider: StakingFlowProvider {
     var stages: StakeStagesResolver { get }
     var isStakeAmountEditable: Bool { get }
     var chainAllowsPartialUnstake: Bool { get }
-    /// Whether entering a position moves the staked amount out of the wallet. False on chains that stake
-    /// the balance in place (Cardano's delegation certificate), where only the fee and the chain's deposit
-    /// are actually spent — there the amount must not be validated against the balance.
-    var enterSpendsAmount: Bool { get }
 }
 
 extension GenericStakingFlowProvider {
-    var enterSpendsAmount: Bool { true }
-
     var actionType: StakingAction.ActionType { action.displayType }
     var isAmountEditable: Bool { stepPlan.amount.isEditable }
     var stakedBalance: Decimal { action.amount }

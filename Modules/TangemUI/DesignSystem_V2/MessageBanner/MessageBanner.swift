@@ -21,8 +21,6 @@ public struct MessageBanner<SlotStart: View, SlotEnd: View, ExtraBottom: View>: 
     var config: MessageBannerConfiguration
 
     @Environment(\.isFocused) private var isFocused
-    @State private var slotStartWidth: CGFloat = 0
-    @State private var slotEndWidth: CGFloat = 0
 
     init(
         title: AttributedString,
@@ -93,8 +91,8 @@ public struct MessageBanner<SlotStart: View, SlotEnd: View, ExtraBottom: View>: 
 
     @ViewBuilder
     private func applyGlowRing(to content: some View) -> some View {
-        if config.showsGlowRing {
-            content.glowRing(config.variant.glowAppearance, cornerRadius: cornerRadius)
+        if let appearance = config.glowRing {
+            content.glowRing(appearance, cornerRadius: cornerRadius)
         } else {
             content
         }
@@ -128,18 +126,14 @@ private extension MessageBanner {
             textColumn
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, centerContentInset)
-                .overlay(alignment: .topLeading) {
-                    slotStartContent.readGeometry(\.size.width, bindTo: $slotStartWidth)
-                }
-                .overlay(alignment: .topTrailing) {
-                    slotEndContent.readGeometry(\.size.width, bindTo: $slotEndWidth)
-                }
+                .overlay(alignment: .topLeading) { slotStartContent }
+                .overlay(alignment: .topTrailing) { slotEndContent }
         }
     }
 
     var centerContentInset: CGFloat {
-        let widestSlot = max(slotStartWidth, slotEndWidth)
-        return widestSlot > 0 ? widestSlot + MessageBannerMetrics.contentRowSpacing : 0
+        let hasSlot = SlotStart.self != EmptyView.self || SlotEnd.self != EmptyView.self
+        return hasSlot ? MessageBannerMetrics.centeredSlotInset : 0
     }
 
     var textColumn: some View {
@@ -200,6 +194,7 @@ private extension MessageBanner {
         .isLoading(model.isLoading)
         .disabled(!model.isEnabled)
         .frame(maxWidth: .infinity)
+        .accessibilityIdentifier(model.accessibilityIdentifier)
     }
 }
 
@@ -239,16 +234,6 @@ extension MessageBannerVariant {
         case .info: DesignSystem.Color.bgStatusInfoSubtle
         }
     }
-
-    var glowAppearance: GlowRingAppearance {
-        switch self {
-        case .default, .solid: .magic
-        case .success: .success
-        case .error: .error
-        case .warning: .warning
-        case .info: .info
-        }
-    }
 }
 
 // MARK: - Constants
@@ -259,6 +244,7 @@ enum MessageBannerMetrics {
     static let contentPadding: CGFloat = 16
     static let rootSpacing: CGFloat = 16
     static let contentRowSpacing: CGFloat = 12
+    static let centeredSlotInset: CGFloat = 32
     static let textColumnSpacing: CGFloat = 4
     static let extraBottomTopPadding: CGFloat = 8
     static let buttonRowSpacing: CGFloat = 8

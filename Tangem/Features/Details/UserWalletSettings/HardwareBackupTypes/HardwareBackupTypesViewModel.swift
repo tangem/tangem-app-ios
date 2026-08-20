@@ -24,20 +24,22 @@ final class HardwareBackupTypesViewModel: ObservableObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
 
-    private var isBackupNeeded: Bool {
-        userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+    private var isSeedBackupNeeded: Bool {
+        !backupStatusUtil.hasMnemonicBackup
     }
 
     private var analyticsContextParams: Analytics.ContextParams {
         .custom(userWalletModel.analyticsContextData)
     }
 
+    private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
     private weak var coordinator: HardwareBackupTypesRoutable?
 
     init(userWalletModel: UserWalletModel, coordinator: HardwareBackupTypesRoutable) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+        backupStatusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
     }
 }
 
@@ -103,7 +105,7 @@ private extension HardwareBackupTypesViewModel {
         logUpgradeCurrentWalletTapAnalytics()
 
         runTask(in: self) { viewModel in
-            if viewModel.isBackupNeeded {
+            if viewModel.isSeedBackupNeeded {
                 await viewModel.openMobileBackupToUpgradeNeeded()
             } else {
                 await viewModel.upgradeMobileWallet()
@@ -182,8 +184,6 @@ private extension HardwareBackupTypesViewModel {
     }
 
     func openMobileBackupToUpgradeNeeded() {
-        logBackupToUpgradeNeededAnalytics()
-
         coordinator?.openMobileBackupNeeded(
             userWalletModel: userWalletModel,
             source: .hardwareWallet(action: .upgrade),
@@ -226,17 +226,6 @@ private extension HardwareBackupTypesViewModel {
 
     func logUpgradeCurrentWalletTapAnalytics() {
         Analytics.log(.walletSettingsButtonUpgradeCurrent, contextParams: analyticsContextParams)
-    }
-
-    func logBackupToUpgradeNeededAnalytics() {
-        Analytics.log(
-            .walletSettingsNoticeBackupFirst,
-            params: [
-                .source: .hardwareWallet,
-                .action: .upgrade,
-            ],
-            contextParams: analyticsContextParams
-        )
     }
 }
 

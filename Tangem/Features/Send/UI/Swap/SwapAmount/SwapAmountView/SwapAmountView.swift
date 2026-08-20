@@ -24,7 +24,11 @@ struct SwapAmountView: View {
 
             receiveView
         }
-        .overlay(alignment: .center) { swappingButton }
+        .overlay(alignment: .center) {
+            if viewModel.isPairReversalEnabled {
+                swappingButton
+            }
+        }
     }
 
     private var sourceView: some View {
@@ -41,6 +45,8 @@ struct SwapAmountView: View {
         }
         .animation(SendAmountInputConstants.animation, value: viewModel.sourceCalculationType)
         .defaultRoundedBackground(with: Colors.Background.action)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: viewModel.userDidTapSourceArea)
         .accessibilityIdentifier(SwapAccessibilityIdentifiers.fromAmountTextField)
     }
 
@@ -80,6 +86,7 @@ struct SwapAmountView: View {
             .simultaneousGesture(TapGesture().onEnded {
                 viewModel.textFieldDidTap()
             })
+            .allowsHitTesting(!viewModel.isWholeSourceAreaTapEnabled)
             .onChange(of: viewModel.sourceExpressCurrencyViewModel.state.errorState) { errorState in
                 guard case .insufficientFunds = errorState else {
                     return

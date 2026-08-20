@@ -76,7 +76,7 @@ struct GaslessTransactionBuilder {
             )
         )
 
-        return .single(gaslessTransaction)
+        return .single(gaslessTransaction, executorVersion: eip7702Data.executorVersion)
     }
 
     private func buildGaslessBatchTransaction(
@@ -87,6 +87,10 @@ struct GaslessTransactionBuilder {
         yieldWithdraw: EthereumGaslessTransactionFeeParameters.YieldWithdraw,
         eip7702Data: EIP7702AuthorizationData
     ) async throws -> GaslessTransactionBuildResult {
+        guard eip7702Data.executorVersion == .batchCapable else {
+            throw GaslessTransactionBuilderError.batchUnsupportedByExecutorVersion
+        }
+
         let transaction = try await makeTransaction(
             from: bsdkTransaction,
             gasLimit: callGasLimit(parameters, executorVersion: eip7702Data.executorVersion)
@@ -414,7 +418,10 @@ struct GaslessTransactionBuilder {
 // MARK: - Approve & swap flow
 
 extension GaslessTransactionBuilder {
-    func buildGaslessTransactions(bsdkTransactions: [BSDKTransaction], feeRecipientAddress: String) async throws -> [GaslessTransaction] {
+    func buildGaslessTransactions(
+        bsdkTransactions: [BSDKTransaction],
+        feeRecipientAddress: String
+    ) async throws -> (transactions: [GaslessTransaction], executorVersion: GaslessExecutorVersion) {
         guard let chainId = walletModel.tokenItem.blockchain.chainId else {
             throw GaslessTransactionBuilderError.missingChainId
         }
@@ -472,7 +479,7 @@ extension GaslessTransactionBuilder {
             s: eip7702Unmarshalled.s.hexString.addHexPrefix()
         )
 
-        return try transactionsData.enumerated().map { index, transactionData in
+        let transactions = try transactionsData.enumerated().map { index, transactionData in
             let eip712Unmarshalled = try UnmarshalUtil.unmarshalSignature(
                 signatureInfo: signedHashes[index + 1],
                 publicKey: walletModel.publicKey.blockchainKey
@@ -486,12 +493,14 @@ extension GaslessTransactionBuilder {
                 eip7702auth: eip7702Auth
             )
         }
+
+        return (transactions, eip7702Data.executorVersion)
     }
 }
 
 extension GaslessTransactionBuilder {
     enum GaslessTransactionBuildResult {
-        case single(GaslessTransaction)
+        case single(GaslessTransaction, executorVersion: GaslessExecutorVersion)
         case batch(GaslessBatchTransaction)
     }
 
@@ -521,6 +530,7 @@ extension GaslessTransactionBuilder {
         // Building data
         case failedToBuildTransactionData
         case failedToPrepareTypedData
+        case batchUnsupportedByExecutorVersion
 
         // Fee related
         case invalidFeeParameters
