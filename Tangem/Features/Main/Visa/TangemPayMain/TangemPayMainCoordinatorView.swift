@@ -138,8 +138,8 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .fullScreenCover(item: $coordinator.cashbackDetailViewModel) {
                 TangemPayCashbackDetailView(viewModel: $0)
             }
-            .fullScreenCover(item: $coordinator.orderCardTypeViewModel) {
-                TangemPayOrderCardTypeView(viewModel: $0)
+            .fullScreenCover(item: $coordinator.orderCardCoordinator) {
+                TangemPayOrderCardCoordinatorView(coordinator: $0)
             }
     }
 }
