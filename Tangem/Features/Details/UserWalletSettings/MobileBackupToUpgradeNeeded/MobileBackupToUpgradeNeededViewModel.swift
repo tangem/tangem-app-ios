@@ -33,9 +33,9 @@ final class MobileBackupToUpgradeNeededViewModel {
         self.coordinator = coordinator
 
         if FeatureProvider.isAvailable(.mobileWalletBackup) {
-            title = "Save your seed phrase before upgrading"
-            description = "After the upgrade, you won’t be able to view it again. Your mobile wallet and cloud backup will be deleted, so write it down now as a backup recovery method."
-            actionTitle = "Save seed phrase"
+            title = Localization.hwUpgradeSaveSeedTitle
+            description = Localization.hwUpgradeSaveSeedDescription
+            actionTitle = Localization.hwUpgradeSaveSeedAction
         } else {
             title = Localization.hwBackupNeedTitle
             description = Localization.hwBackupToUpgradeDescription

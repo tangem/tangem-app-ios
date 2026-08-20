@@ -22,7 +22,7 @@ final class MobileBackupICloudDetailsViewModel: ObservableObject, FloatingSheetC
         makeDescription()
     }
 
-    let removeActionTitle = "Remove backup"
+    let removeActionTitle = Localization.hwCloudBackupSheetRemove
 
     private static let dateFormatter = DateFormatter(dateFormat: "MMMM d yyyy, h:mm a")
 
@@ -72,9 +72,9 @@ extension MobileBackupICloudDetailsViewModel {
 
 private extension MobileBackupICloudDetailsViewModel {
     func makeDescription() -> Description {
-        let title = "iCloud \(backup.metadata.walletName) backup"
+        let title = Localization.hwCloudBackupRemoveTitle(MobileBackupConstants.iCloudServiceName, backup.metadata.walletName)
         let formattedDate = backup.metadata.createdAt.map { Self.dateFormatter.string(from: $0) } ?? .empty
-        let subtitle = "Back up time: \(formattedDate)"
+        let subtitle = Localization.hwCloudBackupSheetBackupTime(formattedDate)
         return Description(
             title: title,
             subtitle: subtitle
@@ -96,10 +96,10 @@ private extension MobileBackupICloudDetailsViewModel {
     func showDeletionAlert() {
         logDeletionRequestAnalytics()
         let alert = AlertBuilder.makeAlert(
-            title: "Delete iCloud backup?",
-            message: "You won’t be able to restore this wallet from iCloud. You can create a new backup anytime.",
+            title: Localization.hwBackupCloudDeleteConfirmTitle(MobileBackupConstants.iCloudServiceName),
+            message: Localization.hwCloudBackupDeleteConfirmMessage(MobileBackupConstants.iCloudServiceName),
             primaryButton: .destructive(
-                Text("Delete"),
+                Text(Localization.commonDelete),
                 action: weakify(self, forFunction: MobileBackupICloudDetailsViewModel.onDeleteConfirm)
             ),
             secondaryButton: .cancel(Text(Localization.commonCancel))

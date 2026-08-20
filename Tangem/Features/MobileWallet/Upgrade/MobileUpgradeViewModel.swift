@@ -96,7 +96,7 @@ extension MobileUpgradeViewModel {
             icon: Assets.lock24,
             title: Localization.hwUpgradeGeneralSecurityTitle,
             subtitle: FeatureProvider.isAvailable(.mobileWalletBackup)
-                ? "After upgrading, your mobile wallet and iCloud backup are removed and stored on your Tangem hardware wallet. Your recovery phrase stays with you."
+                ? Localization.hwUpgradeGeneralSecurityDescriptionV2(MobileBackupConstants.iCloudServiceName)
                 : Localization.hwUpgradeGeneralSecurityDescription
         )
 
