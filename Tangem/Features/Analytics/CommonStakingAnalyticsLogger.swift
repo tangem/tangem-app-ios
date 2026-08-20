@@ -11,7 +11,7 @@ import TangemStaking
 
 struct CommonStakingAnalyticsLogger: StakingAnalyticsLogger {
     func logError(_ error: any Error, currencySymbol: String) {
-        guard let entry = StakingErrorAnalyticsMapper.map(error: error, currencySymbol: currencySymbol) else {
+        guard let entry = Mapper.map(error: error, currencySymbol: currencySymbol) else {
             return
         }
 
