@@ -42,5 +42,4 @@ public enum YieldModuleSwapUnavailableReason: String {
     case transferCalldataMalformed = "transfer_calldata_malformed"
     case transferAndSwapIndicatorsConflict = "transfer_swap_indicators_conflict"
     case transferAmountMismatch = "transfer_amount_mismatch"
-    case transferToZeroAddress = "transfer_to_zero_address"
 }
