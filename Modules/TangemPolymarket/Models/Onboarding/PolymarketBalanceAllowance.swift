@@ -10,7 +10,6 @@ import Foundation
 
 public struct PolymarketBalanceAllowance: Hashable, Sendable {
     public let balance: Decimal
-
     public let allowance: Decimal?
 
     public init(balance: Decimal, allowance: Decimal?) {
