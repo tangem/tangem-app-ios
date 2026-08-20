@@ -26,7 +26,6 @@ struct TangemPayCashbackAccrualsView: View {
 
             docRows
         }
-        .padding(.bottom, 16)
         .background(DesignSystem.Color.bgSecondary.ignoresSafeArea(edges: .bottom))
     }
 }

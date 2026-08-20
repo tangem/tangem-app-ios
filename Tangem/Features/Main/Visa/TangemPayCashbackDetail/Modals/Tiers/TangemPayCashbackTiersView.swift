@@ -22,7 +22,6 @@ struct TangemPayCashbackTiersView: View {
                 .padding(.horizontal, 16)
 
             rows
-                .padding(.bottom, 16)
         }
         .background(DesignSystem.Color.bgSecondary.ignoresSafeArea(edges: .bottom))
     }
