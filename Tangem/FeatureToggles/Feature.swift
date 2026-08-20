@@ -48,6 +48,7 @@ enum Feature: String, Hashable, CaseIterable {
     case swapChooseTokenWholeAreaTap
     case welcomeScreenV2
     case tangemPayPlastic
+    case gachaMachine
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -92,6 +93,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapChooseTokenWholeAreaTap: return "[REDACTED_INFO]_choose_token_whole_area_tap"
         case .welcomeScreenV2: return "TWI-1747_welcome_screen_v2"
         case .tangemPayPlastic: return "TWI-1157_tangem_pay_plastic"
+        case .gachaMachine: return "TWI-1640_gacha_machine"
         }
     }
 
@@ -136,6 +138,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapChooseTokenWholeAreaTap: return .unspecified
         case .welcomeScreenV2: return .unspecified
         case .tangemPayPlastic: return .unspecified
+        case .gachaMachine: return .unspecified
         }
     }
 }
