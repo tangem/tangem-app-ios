@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct WelcomeV2CoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeV2Coordinator
@@ -22,6 +23,30 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
             if let rootViewModel = coordinator.rootViewModel {
                 WelcomeV2View(viewModel: rootViewModel)
             }
+
+            sheetsContent
         }
+        .overlay(sheets)
+    }
+
+    /// Sheets are presented locally instead of via the global `FloatingSheetPresenter`:
+    /// this flow runs before the app reaches its main state, where `AppCoordinator` keeps
+    /// the global presenter paused, so an enqueued sheet would only pop up later on the main screen.
+    private var sheets: some View {
+        EmptyView()
+            .floatingSheet(
+                viewModel: coordinator.actionSheetViewModel,
+                dismissSheetAction: { [weak coordinator] in
+                    coordinator?.actionSheetViewModel = nil
+                }
+            )
+            .allowsHitTesting(coordinator.actionSheetViewModel != nil)
+    }
+
+    private var sheetsContent: some View {
+        NavHolder()
+            .floatingSheetContent(for: WelcomeV2ActionSheetViewModel.self) {
+                WelcomeV2ActionSheetView(viewModel: $0)
+            }
     }
 }
