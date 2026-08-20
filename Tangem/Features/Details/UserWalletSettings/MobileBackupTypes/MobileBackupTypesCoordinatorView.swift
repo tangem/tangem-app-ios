@@ -45,5 +45,8 @@ struct MobileBackupTypesCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
+            .floatingSheetContent(for: MobileBackupICloudDetailsViewModel.self) {
+                MobileBackupICloudDetailsView(viewModel: $0)
+            }
     }
 }

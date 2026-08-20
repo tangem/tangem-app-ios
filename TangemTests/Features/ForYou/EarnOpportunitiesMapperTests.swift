@@ -161,13 +161,13 @@ struct EarnOpportunitiesMapperTests {
         #expect(content.subtitle?.chip == expectedChip)
     }
 
-    @Test("Mapper leaves accounts collapsed; expansion is applied by the view model")
-    func mapperLeavesAccountsCollapsed() throws {
+    @Test("Mapper leaves accounts expanded; collapsing is applied by the view model")
+    func mapperLeavesAccountsExpanded() throws {
         let accounts = [makeAccount(id: "acc", holdings: [makeHolding()])]
         let state = map(accounts: accounts)
         let items = try content(of: state).accounts()
 
-        #expect(items.first?.isExpanded == false)
+        #expect(items.first?.isExpanded == true)
     }
 
     // MARK: - Suggestions loading and limits
