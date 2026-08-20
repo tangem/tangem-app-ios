@@ -36,7 +36,7 @@ final class TangemPayMainViewModel: ObservableObject {
             async let offersUpdate: Void = tangemPayAccount.loadOffers()
             async let resumePolling: Void = tangemPayAccount.resumeActiveIssueOrderPolling()
             async let eligibilityUpdate: Void = loadVirtualAccountEligibility()
-            async let cashbackUpdate: Void = loadCashbackSummaryIfEnabled()
+            async let cashbackUpdate: Void = loadCashbackSummaryIfAvailable()
             _ = await (
                 stateRefresh,
                 promotionsUpdate,
@@ -78,7 +78,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var awaitingDepositInfo: TangemPayAwaitingDepositInfo?
     @Published private(set) var cashback: TangemPayCashback?
-    @Published private(set) var cashbackBlockedBanner: MessageBannerButton?
+    @Published private var isCashbackBlocked = false
     @Published private var didCashbackLoadFail = false
     @Published private var isCashbackReloading = false
 
@@ -155,6 +155,10 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     private var cashbackState: TangemPayCashbackState? {
+        guard !isDeactivated else {
+            return nil
+        }
+
         if didCashbackLoadFail {
             return .failed(isReloading: isCashbackReloading)
         }
@@ -185,6 +189,19 @@ final class TangemPayMainViewModel: ObservableObject {
         MultiWalletNotificationBannerMapper().mapItems(
             inlineNotifications,
             cardDeactivatedNotificationInput.map { [$0] } ?? []
+        )
+    }
+
+    var cashbackBlockedBanner: MessageBannerButton? {
+        guard !isDeactivated, isCashbackBlocked else {
+            return nil
+        }
+
+        return MessageBannerButton(
+            title: Localization.commonGotIt,
+            action: { [weak self] in
+                self?.dismissCashbackBlockedBanner()
+            }
         )
     }
 
@@ -537,7 +554,7 @@ final class TangemPayMainViewModel: ObservableObject {
             await tangemPayAccount.loadCustomerInfo()
             await tangemPayAccount.loadOffers()
             await tangemPayAccount.resumeActiveIssueOrderPolling()
-            await self?.loadCashbackSummaryIfEnabled()
+            await self?.loadCashbackSummaryIfAvailable()
         }
 
         runTask { [self] in
@@ -856,18 +873,7 @@ private extension TangemPayMainViewModel {
             }
             .removeDuplicates()
             .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, isCashbackBlocked in
-                if isCashbackBlocked {
-                    viewModel.cashbackBlockedBanner = .init(
-                        title: Localization.commonGotIt,
-                        action: { [weak viewModel] in viewModel?.dismissCashbackBlockedBanner() }
-                    )
-                } else {
-                    viewModel.cashbackBlockedBanner = nil
-                }
-            }
-            .store(in: &bag)
+            .assign(to: &$isCashbackBlocked)
         }
     }
 
@@ -908,8 +914,9 @@ private extension TangemPayMainViewModel {
     }
 
     @MainActor
-    func loadCashbackSummaryIfEnabled() async {
+    func loadCashbackSummaryIfAvailable() async {
         guard cashbackEnabled else { return }
+        guard !isDeactivated else { return }
 
         do {
             try await tangemPayAccount.loadCashbackSummary()
@@ -923,7 +930,7 @@ private extension TangemPayMainViewModel {
     @MainActor
     func reloadCashback() async {
         isCashbackReloading = true
-        await loadCashbackSummaryIfEnabled()
+        await loadCashbackSummaryIfAvailable()
         isCashbackReloading = false
     }
 
