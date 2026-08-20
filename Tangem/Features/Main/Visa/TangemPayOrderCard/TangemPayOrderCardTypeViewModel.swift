@@ -29,18 +29,21 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
     }
 
     private let issueFeeText: String
+    private let countryName: String?
     private let plasticDeliveryState: TangemPayPlasticDeliveryState
     private weak var coordinator: TangemPayOrderCardTypeRoutable?
 
     init(
         issueFeeText: String,
         virtualCardImageURL: URL?,
+        countryName: String?,
         selectedCardType: TangemPayOrderCardType = .virtual,
         plasticDeliveryState: TangemPayPlasticDeliveryState = .available,
         coordinator: TangemPayOrderCardTypeRoutable?
     ) {
         self.issueFeeText = issueFeeText
         self.virtualCardImageURL = virtualCardImageURL
+        self.countryName = countryName
         self.selectedCardType = selectedCardType
         self.plasticDeliveryState = plasticDeliveryState
         self.coordinator = coordinator
@@ -51,7 +54,7 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
         case .virtual:
             coordinator?.orderCardTypeDidSelectVirtual()
         case .plastic:
-            break
+            coordinator?.orderCardTypeDidSelectPlastic()
         }
     }
 
@@ -86,9 +89,9 @@ private extension TangemPayOrderCardTypeViewModel {
         TangemPayOrderCardInfoRow(
             id: .deliverTo,
             title: Localization.tangempayOrderTypeDeliveryTo,
-            value: countryOfResidence,
-            subvalue: Constants.countryOfResidence,
-            badge: isCountryUnavailable ? .init(text: Constants.unavailableBadge, appearance: .warning) : nil
+            value: countryName ?? Constants.unknownValue,
+            subvalue: Localization.tangempayOrderTypeCountryOfResidence,
+            badge: isCountryUnavailable ? .init(text: Localization.tangempayOrderTypeUnavailable, appearance: .warning) : nil
         )
     }
 
@@ -107,9 +110,13 @@ private extension TangemPayOrderCardTypeViewModel {
         TangemPayOrderCardInfoRow(
             id: .deliveryTime,
             title: Localization.tangempayOrderTypeDeliveryTime,
-            value: isCountryUnavailable ? Constants.unknownValue : Constants.deliveryTime,
+            value: isCountryUnavailable ? Constants.unknownValue : deliveryTime,
             isDimmed: isCountryUnavailable
         )
+    }
+
+    var deliveryTime: String {
+        Localization.tangempayOrderTypeDeliveryEtaRange(Constants.minDeliveryDays, Constants.maxDeliveryDays)
     }
 
     var deliveryFeeBadge: TangemPayOrderCardInfoRow.Badge? {
@@ -126,17 +133,6 @@ private extension TangemPayOrderCardTypeViewModel {
     var isCountryUnavailable: Bool {
         plasticDeliveryState == .countryUnavailable
     }
-
-    // [REDACTED_TODO_COMMENT]
-    var countryOfResidence: String {
-        guard let region = Locale.current.region,
-              let name = Locale.current.localizedString(forRegionCode: region.identifier)
-        else {
-            return Constants.unknownValue
-        }
-
-        return name
-    }
 }
 
 // MARK: - Constants
@@ -147,11 +143,10 @@ private extension TangemPayOrderCardTypeViewModel {
 
         // [REDACTED_TODO_COMMENT]
         static let issueTimeTitle = "Issue time"
-        static let countryOfResidence = "Country of residence"
-        static let unavailableBadge = "Unavailable"
-        static let deliveryTime = "3–5 business days"
 
         // [REDACTED_TODO_COMMENT]
         static let deliveryFee = "$10"
+        static let minDeliveryDays = 3
+        static let maxDeliveryDays = 5
     }
 }
