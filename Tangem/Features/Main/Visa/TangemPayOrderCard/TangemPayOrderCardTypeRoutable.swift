@@ -7,5 +7,6 @@
 
 protocol TangemPayOrderCardTypeRoutable: AnyObject {
     func orderCardTypeDidSelectVirtual()
+    func orderCardTypeDidSelectPlastic()
     func closeOrderCardType()
 }
