@@ -14,23 +14,37 @@ import TangemPolymarket
 final class PolymarketEventCardModelTests: XCTestCase {
     // MARK: - Affirmative outcome
 
-    func testAffirmativeOutcomeResolvedByLabelNotByOrder() {
-        // Backend order is not guaranteed: "No" comes first, "Yes" second.
+    func testAffirmativeOutcomeResolvedByOrderNotByLabel() {
+        // Upstream labels are not always "Yes"/"No", so position decides — matching Android.
         let market = makeMarket(outcomes: [
-            makeOutcome(id: "no", title: "No", probability: 0.36),
-            makeOutcome(id: "yes", title: "Yes", probability: 0.64),
+            makeOutcome(id: "over", title: "Over", probability: 0.64),
+            makeOutcome(id: "under", title: "Under", probability: 0.36),
         ])
         let event = makeEvent(totalMarketsCount: 1, markets: [market])
 
         let model = PolymarketEventCard.Model.make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
 
         let subtitle = model.rows.first?.subtitle ?? ""
-        XCTAssertTrue(subtitle.contains("64"), "Expected the affirmative (Yes) probability, got \(subtitle)")
+        XCTAssertTrue(subtitle.contains("64"), "Expected the first outcome probability, got \(subtitle)")
         XCTAssertFalse(subtitle.contains("36"))
 
         let outcomes = model.rows.first?.outcomes
-        XCTAssertEqual(outcomes?.first(where: { $0.title == "Yes" })?.style, .affirmative)
-        XCTAssertEqual(outcomes?.first(where: { $0.title == "No" })?.style, .negative)
+        XCTAssertEqual(outcomes?.first?.style, .affirmative)
+        XCTAssertEqual(outcomes?.last?.style, .negative)
+    }
+
+    func testEveryOutcomeAfterTheFirstIsNegative() {
+        // A three-way market must not leave the tail unstyled.
+        let market = makeMarket(outcomes: [
+            makeOutcome(id: "yes", title: "Yes", probability: 0.5),
+            makeOutcome(id: "draw", title: "Draw", probability: 0.3),
+            makeOutcome(id: "no", title: "No", probability: 0.2),
+        ])
+        let event = makeEvent(totalMarketsCount: 1, markets: [market])
+
+        let model = PolymarketEventCard.Model.make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
+
+        XCTAssertEqual(model.rows.first?.outcomes.map(\.style), [.affirmative, .negative, .negative])
     }
 
     // MARK: - Row cap and chip

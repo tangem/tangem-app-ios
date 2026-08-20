@@ -22,7 +22,8 @@ extension StoredCryptoAccount {
             icon: .init(iconName: config.iconName, iconColor: config.iconColor),
             tokens: tokens,
             grouping: tokenListAppearance.grouping,
-            sorting: tokenListAppearance.sorting
+            sorting: tokenListAppearance.sorting,
+            type: .crypto
         )
     }
 
@@ -46,7 +47,8 @@ extension StoredCryptoAccount {
             icon: icon,
             tokens: newTokens,
             grouping: grouping,
-            sorting: sorting
+            sorting: sorting,
+            type: type
         )
     }
 
@@ -57,7 +59,8 @@ extension StoredCryptoAccount {
             icon: icon,
             tokens: tokens,
             grouping: grouping,
-            sorting: sorting
+            sorting: sorting,
+            type: type
         )
     }
 }

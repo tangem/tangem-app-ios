@@ -144,6 +144,7 @@ private extension TangemPayTransactionDetailsView {
 
                 VStack(spacing: 0) {
                     cardRowView
+                    cashbackRowView
                     redesignedRows(model.rows)
                 }
             }
@@ -246,10 +247,10 @@ private extension TangemPayTransactionDetailsView {
                 Row(title: Localization.tangempayCommonCard)
                     .verticalAlignment(.top)
                     .valueAccessory {
-                        cardShimmerLine(width: 157, token: DesignSystem.Font.bodyMediumToken)
+                        shimmerLine(width: 157, token: DesignSystem.Font.bodyMediumToken)
                     }
                     .subvalueAccessory {
-                        cardShimmerLine(width: 84, token: DesignSystem.Font.captionMediumToken)
+                        shimmerLine(width: 84, token: DesignSystem.Font.captionMediumToken)
                     }
                     .showDivider()
             case .loaded(let cardNumberEnd, let cardName):
@@ -264,24 +265,71 @@ private extension TangemPayTransactionDetailsView {
             case .failed:
                 Row(title: Localization.tangempayCommonCard)
                     .valueAccessory {
-                        Button(action: viewModel.retryCardLoad) {
-                            HStack(spacing: 4) {
-                                Text(Localization.tangempayCommonErrorLoading)
-                                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textStatusError)
-
-                                DesignSystem.Icons.ArrowRefresh.regular20.image
-                                    .renderingMode(.template)
-                                    .foregroundStyle(DesignSystem.Color.iconStatusError)
-                            }
-                        }
-                        .buttonStyle(.plain)
+                        errorLoadingAccessory(action: viewModel.retryCardLoad)
                     }
                     .showDivider()
             }
         }
     }
 
-    private func cardShimmerLine(width: CGFloat, token: TangemTypographyToken) -> some View {
+    @ViewBuilder
+    var cashbackRowView: some View {
+        if let cashbackRow = viewModel.cashbackRow {
+            switch cashbackRow {
+            case .loading:
+                Row(title: Localization.tangempayCashbackTitle)
+                    .valueAccessory {
+                        shimmerLine(width: 157, token: DesignSystem.Font.bodyMediumToken)
+                    }
+                    .showDivider()
+            case .loaded(let row):
+                cashbackLoadedRow(row)
+            case .failed:
+                Row(title: Localization.tangempayCashbackTitle)
+                    .valueAccessory {
+                        errorLoadingAccessory(action: viewModel.retryCashbackLoad)
+                    }
+                    .showDivider()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func cashbackLoadedRow(_ row: TangemPayTransactionDetailsDisplayModel.CashbackRow) -> some View {
+        let verticalAlignment: RowVerticalAlignment = row.subvalue == nil ? .center : .top
+
+        switch row.value {
+        case .amount(let amount):
+            Row(title: Localization.tangempayCashbackTitle, subvalue: row.subvalue)
+                .verticalAlignment(verticalAlignment)
+                .valueAccessory {
+                    SensitiveText(amount)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                }
+                .showDivider()
+        case .text(let text):
+            Row(title: Localization.tangempayCashbackTitle, value: text, subvalue: row.subvalue)
+                .verticalAlignment(verticalAlignment)
+                .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+                .showDivider()
+        }
+    }
+
+    private func errorLoadingAccessory(action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Text(Localization.tangempayCommonErrorLoading)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textStatusError)
+
+                DesignSystem.Icons.ArrowRefresh.regular20.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconStatusError)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func shimmerLine(width: CGFloat, token: TangemTypographyToken) -> some View {
         Text(" ")
             .style(token, color: .clear)
             .frame(width: width)
