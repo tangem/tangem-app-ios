@@ -19,11 +19,11 @@ final class MobileImportWalletViewModel: ObservableObject, FloatingSheetContentV
     @Published private(set) var iCloudBackupState: ICloudBackupState = .loading
 
     let description = Description(
-        title: "Import existing wallet",
-        subtitle: "Continue using a wallet you already own by importing or restoring"
+        title: Localization.hwImportExistingWallet,
+        subtitle: Localization.hwImportExistingWalletDescription
     )
 
-    let recoveryPhraseTitle = "Import recovery phrase"
+    let recoveryPhraseTitle = Localization.hwCloudBackupRestoreUseRecoveryPhrase
 
     private let backupManager: MobileWalletBackupManager
 
@@ -126,9 +126,9 @@ private extension MobileImportWalletViewModel {
     @MainActor
     func presentICloudBackupErrorAlert() {
         let alert = AlertBuilder.makeAlert(
-            title: "Something went wrong",
-            message: "Please try again later or import your recovery phrase.",
-            primaryButton: .default(Text("OK"))
+            title: Localization.hwCloudBackupRestoreErrorTitle,
+            message: Localization.hwCloudBackupRestoreErrorWithRecovery,
+            primaryButton: .default(Text(Localization.commonOk))
         )
         alertPresenter.present(alert: alert)
     }
@@ -215,8 +215,8 @@ extension MobileImportWalletViewModel {
 
         var title: String {
             switch self {
-            case .loading, .enabled: "Restore iCloud backup"
-            case .notFound: "iCloud backup not found"
+            case .loading, .enabled: Localization.hwImportRestoreCloudBackup(MobileBackupConstants.iCloudServiceName)
+            case .notFound: Localization.hwImportRestoreCloudBackupNotFound(MobileBackupConstants.iCloudServiceName)
             }
         }
 

@@ -44,7 +44,7 @@ private extension MobileOnboardingImportICloudBackupView {
                 )
 
                 PasswordView(
-                    title: "Password",
+                    title: viewModel.passwordTitle,
                     isSecured: viewModel.isPasswordSecured,
                     text: $viewModel.passwordText,
                     isResponder: $viewModel.isPasswordResponder,

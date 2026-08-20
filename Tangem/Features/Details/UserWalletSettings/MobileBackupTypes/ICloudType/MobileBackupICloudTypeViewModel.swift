@@ -18,8 +18,8 @@ final class MobileBackupICloudTypeViewModel: ObservableObject {
 
     @Published private(set) var state: State?
 
-    let title = "iCloud backup"
-    let description = "Save your wallet to iCloud for easy recovery. Data is securely encrypted."
+    let title = Localization.hwBackupIcloudTitle
+    let description = Localization.hwCloudBackupCellDescription(MobileBackupConstants.iCloudServiceName)
 
     private var analyticsContextParams: Analytics.ContextParams {
         .custom(userWalletModel.analyticsContextData)
