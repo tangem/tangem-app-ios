@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemAssets
 import TangemLocalization
 
 enum TangemPayCashbackState: Equatable {
@@ -35,6 +36,20 @@ extension TangemPayCashbackState {
             isReloading
                 ? Localization.tangempayCashbackMenuItemLoading
                 : Localization.tangempayCashbackWidgetErrorDescription
+        }
+    }
+
+    var menuIcon: ImageType {
+        switch self {
+        case .content, .failed(isReloading: true): DesignSystem.Icons.PercentBackward.regular20
+        case .failed(isReloading: false): DesignSystem.Icons.ArrowRefresh.regular20
+        }
+    }
+
+    var isMenuActionDestructive: Bool {
+        switch self {
+        case .content, .failed(isReloading: true): false
+        case .failed(isReloading: false): true
         }
     }
 
