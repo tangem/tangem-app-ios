@@ -11,8 +11,8 @@ import BigInt
 
 /// https://eips.ethereum.org/EIPS/eip-1155#specification
 public struct TransferERC1155TokenMethod {
-    let source: String
-    let destination: String
+    let source: SmartContractAddress
+    let destination: SmartContractAddress
     let assetIdentifier: BigUInt
     let assetAmount: BigUInt
 
@@ -21,13 +21,13 @@ public struct TransferERC1155TokenMethod {
         destination: String,
         assetIdentifier: String,
         assetAmount: BigUInt
-    ) throws(TransferERC1155TokenMethod.Error) {
+    ) throws {
         guard let assetIdentifier = BigUInt(assetIdentifier) else {
             throw TransferERC1155TokenMethod.Error.invalidAssetIdentifier
         }
 
-        self.source = source
-        self.destination = destination
+        self.source = try SmartContractAddress(source)
+        self.destination = try SmartContractAddress(destination)
         self.assetIdentifier = assetIdentifier
         self.assetAmount = assetAmount
     }
@@ -57,8 +57,8 @@ extension TransferERC1155TokenMethod: SmartContractMethod {
 
     public var data: Data {
         let prefixData = Data(hexString: methodId)
-        let sourceAddressData = Data(hexString: source).leadingZeroPadding(toLength: Constants.paddingLength)
-        let destinationAddressData = Data(hexString: destination).leadingZeroPadding(toLength: Constants.paddingLength)
+        let sourceAddressData = source.encodedParameter
+        let destinationAddressData = destination.encodedParameter
         let assetIdentifierData = assetIdentifier.serialize().leadingZeroPadding(toLength: Constants.paddingLength)
         let assetAmountData = assetAmount.serialize().leadingZeroPadding(toLength: Constants.paddingLength)
 
