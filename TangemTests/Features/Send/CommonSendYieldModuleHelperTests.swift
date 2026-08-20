@@ -248,8 +248,8 @@ final class CommonSendYieldModuleHelperTests: LeakTrackingTestSuite {
         }
     }
 
-    @Test("Rejects a transfer to the zero address")
-    func transferToZeroAddressThrows() async {
+    @Test("Rejects a transfer to a burn address")
+    func transferToBurnAddressThrows() async {
         let sut = makeSUT()
         let burnTransferCalldata = [
             "0xa9059cbb",
@@ -263,8 +263,8 @@ final class CommonSendYieldModuleHelperTests: LeakTrackingTestSuite {
                 provider: makeProvider(),
                 spender: nil
             )
-            Issue.record("Expected yieldModuleSwapUnavailable(.transferToZeroAddress)")
-        } catch ExpressProviderError.yieldModuleSwapUnavailable(.transferToZeroAddress) {
+            Issue.record("Expected yieldModuleSwapUnavailable(.transferCalldataMalformed)")
+        } catch ExpressProviderError.yieldModuleSwapUnavailable(.transferCalldataMalformed) {
         } catch {
             Issue.record("Unexpected error: \(error)")
         }
