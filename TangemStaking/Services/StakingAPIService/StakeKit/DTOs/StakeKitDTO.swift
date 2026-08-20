@@ -11,6 +11,7 @@ import Foundation
 public struct StakeKitAPIError: Decodable, LocalizedError {
     public let code: String?
     public let message: String?
+    public let path: String?
     public let details: Details?
     let level: String?
 
@@ -19,6 +20,7 @@ public struct StakeKitAPIError: Decodable, LocalizedError {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         message = try? container.decodeIfPresent(String.self, forKey: .message)
+        path = try? container.decodeIfPresent(String.self, forKey: .path)
         details = try? container.decodeIfPresent(Details.self, forKey: .details)
         level = try? container.decodeIfPresent(String.self, forKey: .level)
 
@@ -34,6 +36,7 @@ public struct StakeKitAPIError: Decodable, LocalizedError {
     private enum CodingKeys: String, CodingKey {
         case code
         case message
+        case path
         case details
         case level
     }

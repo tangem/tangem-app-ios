@@ -17,7 +17,8 @@ public struct TangemExpressFactory {
     public func makeExpressManager(
         expressAPIProvider: ExpressAPIProvider,
         expressRepository: ExpressRepository,
-        featureFlags: ExpressFeatureFlags
+        featureFlags: ExpressFeatureFlags,
+        preferredProviderId: ExpressProvider.Id? = nil
     ) -> ExpressManager {
         let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,
@@ -29,7 +30,8 @@ public struct TangemExpressFactory {
             expressAPIProvider: expressAPIProvider,
             expressProviderManagerFactory: factory,
             expressRepository: expressRepository,
-            featureFlags: featureFlags
+            featureFlags: featureFlags,
+            preferredProviderId: preferredProviderId
         )
     }
 

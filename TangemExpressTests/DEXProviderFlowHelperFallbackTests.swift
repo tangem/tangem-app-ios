@@ -440,7 +440,7 @@ private final class SourceWalletStub: ExpressSourceWallet {
 
     func prepareForYieldModuleDEXSwap(provider: ExpressProvider) async throws {}
 
-    func yieldModuleDEXSwapData(data: ExpressTransactionData, provider: ExpressProvider, spender: String) async throws -> ExpressTransactionData {
+    func yieldModuleTransactionData(data: ExpressTransactionData, provider: ExpressProvider, spender: String?) async throws -> ExpressTransactionData {
         throw StubError.notImplemented
     }
 }

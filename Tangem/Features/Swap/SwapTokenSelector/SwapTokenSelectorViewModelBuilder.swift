@@ -11,6 +11,10 @@ struct SwapTokenSelectorViewModelBuilder {
     private var userWalletRepository: UserWalletRepository
 
     weak var output: (SwapTokenSelectorOutput & SendSourceTokenInput & SendReceiveTokenInput)?
+    /// Flow-imposed limits on what each selector side offers; `nil` falls back to `.common()`.
+    var sourceWalletsProvider: (any TokenSelectorWalletsProvider)?
+    var receiveWalletsProvider: (any TokenSelectorWalletsProvider)?
+    var allowsMarketsTokens: Bool = true
 
     func makeSwapTokenSelectorViewModel(
         direction: SwapTokenSelectorViewModel.SwapDirection,
@@ -35,10 +39,14 @@ struct SwapTokenSelectorViewModelBuilder {
         let preferredWalletId = tappedToken?.userWalletInfo.id
             ?? userWalletRepository.selectedModel?.userWalletId
 
+        // `.toDestination` = the user is picking the source token.
         let isSourceSelection = if case .toDestination = direction { true } else { false }
+        let walletsProvider = isSourceSelection ? sourceWalletsProvider : receiveWalletsProvider
+        let suppressesMarketsTokens = isSourceSelection && !allowsMarketsTokens
         let showsBalanceFilter = isSourceSelection && FeatureProvider.isAvailable(.swapHideZeroBalanceSource)
 
         let tokenSelectorViewModel = TokenSelectorViewModel.swap(
+            walletsProvider: walletsProvider ?? .common(),
             initialSelectedItem: direction.tokenItem,
             initiallyExpandedAccount: initiallyExpandedAccount,
             preferredWalletId: preferredWalletId,
@@ -48,7 +56,7 @@ struct SwapTokenSelectorViewModelBuilder {
         return SwapTokenSelectorViewModel(
             swapDirection: direction,
             tokenSelectorViewModel: tokenSelectorViewModel,
-            marketsTokensViewModel: marketsTokensViewModel,
+            marketsTokensViewModel: suppressesMarketsTokens ? nil : marketsTokensViewModel,
             output: output,
             tokenSelectorCoordinator: router,
             marketsTokenAdditionCoordinator: marketsTokenAdditionRouter
