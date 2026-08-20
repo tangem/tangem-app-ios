@@ -19,7 +19,7 @@ struct SmartContractMethodTests {
         let amount = BigUInt("1000000")
 
         // when
-        let data = TransferERC20TokenMethod(destination: destination, amount: amount).data
+        let data = try TransferERC20TokenMethod(destination: destination, amount: amount).data
 
         // then
         let expectedData = [
@@ -29,6 +29,26 @@ struct SmartContractMethodTests {
         ]
 
         #expect(data.hex() == expectedData.joined().lowercased())
+    }
+
+    @Test(arguments: [
+        "",
+        "0x",
+        "0x90e4d59c8583e37426b37d1d7394b6008a987c6", // 39 characters
+        "0x90e4d59c8583e37426b37d1d7394b6008a987c677", // 41 characters
+        "0x90e4d59c8583e37426b37d1d7394b6008a987czz", // non-hex characters
+    ])
+    func transferERC20TokenMethodRejectsBrokenDestination(destination: String) {
+        #expect(throws: SmartContractAddress.Error.invalidAddress) {
+            _ = try TransferERC20TokenMethod(destination: destination, amount: BigUInt("1000000"))
+        }
+    }
+
+    @Test(arguments: EVMAddressUtils.Constants.burnAddresses)
+    func transferERC20TokenMethodRejectsBurnDestination(destination: String) {
+        #expect(throws: SmartContractAddress.Error.burnAddress) {
+            _ = try TransferERC20TokenMethod(destination: destination, amount: BigUInt("1000000"))
+        }
     }
 
     // MARK: - ERC20 transfer decoding
@@ -42,11 +62,13 @@ struct SmartContractMethodTests {
             "00000000000000000000000000000000000000000000000000000000000f4240",
         ].joined())
 
+        let expectedDestination = try SmartContractAddress("0x90e4d59c8583e37426b37d1d7394b6008a987c67")
+
         // when
         let method = TransferERC20TokenMethod(calldata: calldata)
 
         // then
-        #expect(method?.destination == "0x90e4d59c8583e37426b37d1d7394b6008a987c67")
+        #expect(method?.destination == expectedDestination)
         #expect(method?.amount == BigUInt("1000000"))
     }
 
@@ -55,13 +77,14 @@ struct SmartContractMethodTests {
         // give
         let destination = "0x1111111254eeb25477b68fb85ed929f73a960582"
         let amount = BigUInt("123456789012345678901234567890")
+        let expectedDestination = try SmartContractAddress(destination)
 
         // when
-        let encoded = TransferERC20TokenMethod(destination: destination, amount: amount).data
+        let encoded = try TransferERC20TokenMethod(destination: destination, amount: amount).data
         let decoded = TransferERC20TokenMethod(calldata: encoded)
 
         // then
-        #expect(decoded?.destination == destination)
+        #expect(decoded?.destination == expectedDestination)
         #expect(decoded?.amount == amount)
     }
 
@@ -69,13 +92,14 @@ struct SmartContractMethodTests {
     func transferERC20TokenMethodDecodingZeroAmount() throws {
         // give
         let destination = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
+        let expectedDestination = try SmartContractAddress(destination)
 
         // when
-        let encoded = TransferERC20TokenMethod(destination: destination, amount: .zero).data
+        let encoded = try TransferERC20TokenMethod(destination: destination, amount: .zero).data
         let decoded = TransferERC20TokenMethod(calldata: encoded)
 
         // then
-        #expect(decoded?.destination == destination)
+        #expect(decoded?.destination == expectedDestination)
         #expect(decoded?.amount == .zero)
     }
 
@@ -84,32 +108,16 @@ struct SmartContractMethodTests {
         // give
         let destination = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
         let amount = BigUInt(Data(repeating: 0xFF, count: 32))
+        let expectedDestination = try SmartContractAddress(destination)
 
         // when
-        let encoded = TransferERC20TokenMethod(destination: destination, amount: amount).data
+        let encoded = try TransferERC20TokenMethod(destination: destination, amount: amount).data
         let decoded = TransferERC20TokenMethod(calldata: encoded)
 
         // then
         #expect(encoded.count == 68)
-        #expect(decoded?.destination == destination)
+        #expect(decoded?.destination == expectedDestination)
         #expect(decoded?.amount == amount)
-    }
-
-    @Test("Decodes a transfer to the zero address")
-    func transferERC20TokenMethodDecodingZeroDestination() throws {
-        // give
-        let calldata = Data(hex: [
-            "a9059cbb",
-            "0000000000000000000000000000000000000000000000000000000000000000",
-            "00000000000000000000000000000000000000000000000000000000000f4240",
-        ].joined())
-
-        // when
-        let method = TransferERC20TokenMethod(calldata: calldata)
-
-        // then
-        #expect(method?.destination == "0x0000000000000000000000000000000000000000")
-        #expect(method?.amount == BigUInt("1000000"))
     }
 
     @Test("Recognizes a transfer call by its method id")
@@ -118,7 +126,7 @@ struct SmartContractMethodTests {
         let destination = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
         let amount = BigUInt("1000000")
 
-        let transferCalldata = TransferERC20TokenMethod(destination: destination, amount: amount).data
+        let transferCalldata = try TransferERC20TokenMethod(destination: destination, amount: amount).data
         let approveCalldata = ApproveERC20TokenMethod(spender: destination, amount: amount).data
 
         // then
@@ -134,6 +142,7 @@ struct SmartContractMethodTests {
         TransferERC20TokenMethodDecodingRejectionTestCase.truncatedArguments,
         TransferERC20TokenMethodDecodingRejectionTestCase.trailingBytes,
         TransferERC20TokenMethodDecodingRejectionTestCase.dirtyAddressSlot,
+        TransferERC20TokenMethodDecodingRejectionTestCase.burnAddressDestination,
     ])
     func transferERC20TokenMethodDecodingRejection(testCase: TransferERC20TokenMethodDecodingRejectionTestCase) throws {
         #expect(TransferERC20TokenMethod(calldata: testCase.calldata) == nil)

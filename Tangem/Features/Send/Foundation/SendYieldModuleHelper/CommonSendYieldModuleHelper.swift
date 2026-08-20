@@ -128,17 +128,13 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
             throw ExpressProviderError.yieldModuleSwapUnavailable(.transferCalldataMalformed)
         }
 
-        guard !transfer.destination.caseInsensitiveEquals(to: Constants.zeroAddress) else {
-            throw ExpressProviderError.yieldModuleSwapUnavailable(.transferToZeroAddress)
-        }
-
         let expectedAmount = try makeAmountInWEI(from: data)
 
         guard transfer.amount == expectedAmount else {
             throw ExpressProviderError.yieldModuleSwapUnavailable(.transferAmountMismatch)
         }
 
-        let method = YieldSendMethod(
+        let method = try YieldSendMethod(
             tokenContractAddress: currency.contractAddress,
             destination: transfer.destination,
             amount: transfer.amount
@@ -193,13 +189,5 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
         case .cex, .onramp, .unknown:
             return false
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension CommonSendYieldModuleHelper {
-    enum Constants {
-        static let zeroAddress = "0x" + String(repeating: "0", count: 40)
     }
 }
