@@ -83,6 +83,7 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.polymarketCoordinator) {
                 PolymarketCoordinatorView(coordinator: $0)
             }
+            .fullScreenCover(item: $coordinator.gachaCoordinator, content: GachaCoordinatorView.init)
     }
 
     private var newsPagerTokenDetailsLink: some View {
