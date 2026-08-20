@@ -87,6 +87,7 @@ extension PublicKeyType {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
              .seiEvm:
             self = PublicKeyType.secp256k1Extended
         case .stellar,
