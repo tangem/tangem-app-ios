@@ -88,6 +88,7 @@ struct DerivationConfigV3: DerivationConfig {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
              .seiEvm:
             return "m/44'/60'/0'/0/0"
         case .ethereumClassic:
