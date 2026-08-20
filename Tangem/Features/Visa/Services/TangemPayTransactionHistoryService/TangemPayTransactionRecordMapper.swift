@@ -93,6 +93,22 @@ struct TangemPayTransactionRecordMapper {
         }
     }
 
+    func cashback() -> TransactionViewModel.Cashback? {
+        guard case .spend(let spend) = transaction.record,
+              let cashback = spend.cashback,
+              let style = TransactionViewModel.Cashback.Style(cashback.status),
+              let amount = Decimal(stringValue: cashback.amount),
+              amount > 0
+        else {
+            return nil
+        }
+
+        return TransactionViewModel.Cashback(
+            formattedAmount: format(amount: amount, currencyCode: AppConstants.usdCurrencyCode, prefix: .plusSign),
+            style: style
+        )
+    }
+
     func cardId() -> String? {
         switch transaction.record {
         case .spend(let spend):
@@ -142,6 +158,19 @@ struct TangemPayTransactionRecordMapper {
         amountFormatter.currencySymbol = Locale.current.localizedCurrencySymbol(forCurrencyCode: currencyCode.uppercased())
         let formatted = amountFormatter.format(number: amount)
         return "\(prefix)\(formatted)"
+    }
+}
+
+private extension TransactionViewModel.Cashback.Style {
+    init?(_ status: TangemPayCashbackStatus) {
+        switch status {
+        case .estimated:
+            self = .estimated
+        case .confirmed:
+            self = .confirmed
+        case .excluded, .awaitingCalculation, .undefined:
+            return nil
+        }
     }
 }
 

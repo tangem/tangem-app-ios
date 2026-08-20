@@ -203,8 +203,8 @@ extension MainCoordinator: MainRoutable {
                 onDismiss: { [weak self] in self?.safariHandle = nil },
                 onSuccess: { [weak self] _ in self?.safariHandle = nil }
             )
-        case .tangemPayMain(let customerWalletId):
-            openTangemPayMainFromDeeplink(customerWalletId: customerWalletId)
+        case .tangemPayMain(let customerWalletId, let incomingAction):
+            openTangemPayMainFromDeeplink(customerWalletId: customerWalletId, incomingAction: incomingAction)
         case .yield(let walletModel, let userWalletModel):
             openYieldFromDeeplink(walletModel: walletModel, userWalletModel: userWalletModel)
         case .tangemPayTransactionDetails(let payload):
@@ -477,7 +477,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openTangemPayMainView(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
-        userWalletModel: any UserWalletModel
+        userWalletModel: any UserWalletModel,
+        incomingAction: TangemPayIncomingActions?
     ) {
         mainBottomSheetUIManager.hide()
 
@@ -495,7 +496,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             with: .init(
                 userWalletInfo: userWalletInfo,
                 tangemPayAccount: tangemPayAccount,
-                userWalletModel: userWalletModel
+                userWalletModel: userWalletModel,
+                incomingAction: incomingAction
             )
         )
         tangemPayMainCoordinator = coordinator
@@ -542,12 +544,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             self?.openTangemPayMainView(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 tangemPayAccount: tangemPayAccount,
-                userWalletModel: userWalletModel
+                userWalletModel: userWalletModel,
+                incomingAction: nil
             )
         }
     }
 
-    private func openTangemPayMainFromDeeplink(customerWalletId: String) {
+    private func openTangemPayMainFromDeeplink(customerWalletId: String, incomingAction: TangemPayIncomingActions?) {
         guard !RTCUtil.isRootedDevice else {
             incomingActionManager.discardIncomingAction()
             return
@@ -564,7 +567,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             openTangemPayMainView(
                 userWalletInfo: userWalletModel.userWalletInfo,
                 tangemPayAccount: tangemPayAccount,
-                userWalletModel: userWalletModel
+                userWalletModel: userWalletModel,
+                incomingAction: incomingAction
             )
             return
         }
@@ -587,7 +591,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                     self?.openTangemPayMainView(
                         userWalletInfo: userWalletModel.userWalletInfo,
                         tangemPayAccount: tangemPayAccount,
-                        userWalletModel: userWalletModel
+                        userWalletModel: userWalletModel,
+                        incomingAction: incomingAction
                     )
                 }
             )

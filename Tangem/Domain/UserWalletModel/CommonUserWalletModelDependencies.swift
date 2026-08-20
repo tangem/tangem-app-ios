@@ -290,7 +290,7 @@ private extension CommonUserWalletModelDependencies {
             },
             analytics: NFTAnalytics.Error(
                 logError: { errorCode, description in
-                    Analytics.log(event: .nftErrors, params: [.errorCode: errorCode, .errorDescription: description])
+                    Analytics.log(event: .nftErrors, params: [.errorCode: errorCode, .error: description])
                 }
             )
         )

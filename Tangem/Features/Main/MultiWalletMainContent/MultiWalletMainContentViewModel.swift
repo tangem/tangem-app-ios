@@ -95,6 +95,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
     private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable & TokensManagementFlowRoutable)?
     private let tokenItemPromoProvider: TokenItemPromoProvider
+    private let expressBalanceUpdater = ExpressTransactionBalanceUpdater()
 
     private var derivator: TokenEntriesDerivator?
 
@@ -179,6 +180,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
 
         yieldApyBoostBannerNotificationManager.refreshFromCache()
+
+        expressBalanceUpdater.updateUnfinishedDestinationBalances(userWalletId: userWalletModel.userWalletId)
     }
 
     func onWillDisappear() {
@@ -673,7 +676,7 @@ extension MultiWalletMainContentViewModel {
     private func openMobileFinishActivation() {
         Analytics.log(.mainButtonFinalizeActivation)
 
-        let isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        let isBackupNeeded = MobileBackupStatusUtil(userWalletModel: userWalletModel).isBackupNeeded
         if isBackupNeeded {
             coordinator?.openMobileBackup(userWalletModel: userWalletModel)
         } else {
@@ -716,7 +719,8 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
         coordinator?.openTangemPayMainView(
             userWalletInfo: userWalletModel.userWalletInfo,
             tangemPayAccount: tangemPayAccount,
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            incomingAction: nil
         )
     }
 

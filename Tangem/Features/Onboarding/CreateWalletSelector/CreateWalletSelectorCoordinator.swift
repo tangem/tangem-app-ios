@@ -42,6 +42,10 @@ class CreateWalletSelectorCoordinator: CoordinatorObject {
 // MARK: - CreateNewWalletSelectorRoutable
 
 extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
+    func openOnboarding(options: OnboardingCoordinator.Options) {
+        openOnboarding(inputOptions: options)
+    }
+
     func openMain(userWalletModel: UserWalletModel) {
         dismiss(with: .main(userWalletModel: userWalletModel))
     }
@@ -63,22 +67,6 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
 
     func closeCreateWalletSelector() {
         dismiss(with: .dismiss)
-    }
-}
-
-// MARK: - MobileCreateWalletRoutable
-
-extension CreateWalletSelectorCoordinator: MobileCreateWalletRoutable {
-    func openOnboarding(options: OnboardingCoordinator.Options) {
-        openOnboarding(inputOptions: options)
-    }
-
-    func closeMobileCreateWallet() {
-        mobileCreateWalletCoordinator = nil
-    }
-
-    func openTos(url: URL) {
-        safariManager.openURL(url)
     }
 }
 
