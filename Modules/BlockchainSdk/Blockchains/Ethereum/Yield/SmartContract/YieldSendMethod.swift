@@ -14,12 +14,26 @@ public struct YieldSendMethod {
     let destination: SmartContractAddress
     let amount: BigUInt
 
-    public init(tokenContractAddress: String, destination: String, amount: BigUInt) throws {
+    public init(tokenContractAddress: String, destination: SmartContractAddress, amount: BigUInt) throws {
         self.tokenContractAddress = try SmartContractAddress(tokenContractAddress)
-        self.destination = try SmartContractAddress(destination)
+        self.destination = destination
         self.amount = amount
     }
 }
+
+// MARK: - Convenience initializer
+
+public extension YieldSendMethod {
+    init(tokenContractAddress: String, destination: String, amount: BigUInt) throws {
+        try self.init(
+            tokenContractAddress: tokenContractAddress,
+            destination: SmartContractAddress(destination),
+            amount: amount
+        )
+    }
+}
+
+// MARK: - SmartContractMethod protocol conformance
 
 extension YieldSendMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `send(address yieldToken, address to, uint amount)` method.
