@@ -81,6 +81,10 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
         copyAction(copiedTextKeyPath: \.number, toastMessage: "Number copied")
     }
 
+    func copyCardholderName() {
+        copyAction(copiedTextKeyPath: \.cardholderName, toastMessage: "Cardholder name copied")
+    }
+
     func copyExpirationDate() {
         Analytics.log(.visaScreenCopyCardExpiryClicked, contextParams: .userWallet(userWalletId))
         copyAction(copiedTextKeyPath: \.expirationDate, toastMessage: "Expiration date copied")
