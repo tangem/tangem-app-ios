@@ -19,6 +19,7 @@ public struct TangemPayCashbackSummaryResponse: Decodable {
     public let previousPayoutEndDate: String?
     public let previousPayoutAmount: String?
     public let currency: String?
+    public let payoutCurrency: String?
 }
 
 // MARK: - Nested Types

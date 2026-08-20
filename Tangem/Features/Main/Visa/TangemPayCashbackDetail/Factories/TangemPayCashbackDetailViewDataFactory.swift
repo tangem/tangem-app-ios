@@ -27,11 +27,12 @@ struct TangemPayCashbackDetailViewDataFactory {
     }
 
     func makeTiersViewData(
-        cashbackOnCards: TangemPayCashbackDetails.CashbackOnCards
+        cashbackOnCards: TangemPayCashbackDetails.CashbackOnCards,
+        payoutCurrency: String
     ) -> TangemPayCashbackTiersViewData {
         TangemPayCashbackTiersViewData(
             title: rateTitle(for: cashbackOnCards) ?? Localization.tangempayCashbackTitle,
-            rows: makeTiersRows(cashbackOnCards: cashbackOnCards)
+            rows: makeTiersRows(cashbackOnCards: cashbackOnCards, payoutCurrency: payoutCurrency)
         )
     }
 
@@ -56,7 +57,7 @@ private extension TangemPayCashbackDetailViewDataFactory {
         return .earned(
             formattedAmount: formattedFiat(summary.confirmedAmount, currency: summary.currency),
             monthName: TangemPayCashbackState.monthName(summary.period.month),
-            payoutWindow: summary.confirmedAmount > 0 ? payoutWindow(for: summary) : nil
+            payoutWindow: summary.confirmedAmount < 0 ? nil : payoutWindow(for: summary)
         )
     }
 
@@ -121,7 +122,8 @@ private extension TangemPayCashbackDetailViewDataFactory {
     }
 
     func makeTiersRows(
-        cashbackOnCards: TangemPayCashbackDetails.CashbackOnCards
+        cashbackOnCards: TangemPayCashbackDetails.CashbackOnCards,
+        payoutCurrency: String
     ) -> [TangemPayCashbackTiersViewData.Row] {
         var rows = cashbackOnCards.cards
             .sorted { $0.rate < $1.rate }
@@ -135,7 +137,11 @@ private extension TangemPayCashbackDetailViewDataFactory {
                     text: Localization.tangempayCashbackDetailsTier(
                         formattedRate(card.rate),
                         card.title,
-                        formattedFiat(minTransactionAmount, currency: TangemPayCashbackDetails.currency)
+                        formattedFiat(
+                            minTransactionAmount,
+                            currency: TangemPayCashbackDetails.currency,
+                            hidesFractionForWholeAmounts: true
+                        )
                     )
                 )
             }
@@ -147,23 +153,21 @@ private extension TangemPayCashbackDetailViewDataFactory {
             )
         )
 
-        guard let currency = cashbackOnCards.accountMonthlyCapCurrency else {
-            return rows
-        }
-
         rows.append(
             TangemPayCashbackTiersViewData.Row(
                 id: Constants.paidInRowId,
-                text: Localization.tangempayCashbackDetailsPaidIn(currency)
+                text: Localization.tangempayCashbackDetailsPaidIn(payoutCurrency)
             )
         )
 
-        if let accountMonthlyCap = cashbackOnCards.accountMonthlyCap, accountMonthlyCap > 0 {
+        if let capCurrency = cashbackOnCards.accountMonthlyCapCurrency,
+           let accountMonthlyCap = cashbackOnCards.accountMonthlyCap,
+           accountMonthlyCap > 0 {
             rows.append(
                 TangemPayCashbackTiersViewData.Row(
                     id: Constants.capRowId,
                     text: Localization.tangempayCashbackDetailsCap(
-                        formattedFiat(accountMonthlyCap, currency: currency)
+                        formattedFiat(accountMonthlyCap, currency: capCurrency, hidesFractionForWholeAmounts: true)
                     )
                 )
             )
@@ -192,7 +196,11 @@ private extension TangemPayCashbackDetailViewDataFactory {
         }
 
         return TangemPayCashbackDetailViewData.Chart(
-            formattedTotal: formattedFiat(summary.totalEarnedAmount, currency: summary.currency),
+            formattedTotal: formattedFiat(
+                summary.totalEarnedAmount,
+                currency: summary.currency,
+                hidesFractionForWholeAmounts: true
+            ),
             items: items
         )
     }
@@ -227,7 +235,11 @@ private extension TangemPayCashbackDetailViewDataFactory {
         }
 
         let capSentence = Localization.tangempayCashbackDetailsCap(
-            formattedFiat(cap.amount, currency: TangemPayCashbackDetails.currency)
+            formattedFiat(
+                cap.amount,
+                currency: TangemPayCashbackDetails.currency,
+                hidesFractionForWholeAmounts: true
+            )
         )
 
         guard let description, !description.isEmpty else {
@@ -243,8 +255,12 @@ private extension TangemPayCashbackDetailViewDataFactory {
 // MARK: - Formatting
 
 private extension TangemPayCashbackDetailViewDataFactory {
-    func formattedFiat(_ amount: Decimal, currency: String) -> String {
-        amountFormatter.format(amount, currencyCode: currency)
+    func formattedFiat(_ amount: Decimal, currency: String, hidesFractionForWholeAmounts: Bool = false) -> String {
+        amountFormatter.format(
+            amount,
+            currencyCode: currency,
+            hidesFractionForWholeAmounts: hidesFractionForWholeAmounts
+        )
     }
 
     func formattedRate(_ rate: Decimal) -> String {
@@ -289,8 +305,8 @@ private extension TangemPayCashbackDetailViewDataFactory {
 
     static let endDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .none
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "dd.MM.yyyy"
         return formatter
     }()
 
