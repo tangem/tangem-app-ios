@@ -29,14 +29,15 @@ final class MobileOnboardingImportICloudBackupViewModel: ObservableObject {
 
     @Published private var backup: MobileWalletBackup?
 
-    let navigationTitle = "Enter password"
-    let infoTitle = "Restore wallet"
+    let navigationTitle = Localization.hwCloudBackupRestorePasswordNavtitle
+    let infoTitle = Localization.hwCloudBackupRestorePasswordTitle
+    let passwordTitle = Localization.hwCloudBackupPasswordHint
 
     var infoDescription: String {
         makeInfoDescription()
     }
 
-    let actionTitle = "Restore"
+    let actionTitle = Localization.hwCloudBackupRestorePasswordButton
 
     var isActionEnabled: Bool {
         passwordText.isNotEmpty
@@ -126,7 +127,7 @@ private extension MobileOnboardingImportICloudBackupViewModel {
     func makeInfoDescription() -> String {
         let walletName = backup?.metadata.walletName ?? .empty
         let backupDate = backup?.metadata.createdAt.map { dateFormatter().string(from: $0) } ?? .empty
-        return "You’re restoring “\(walletName)” from an iCloud backup created on \(backupDate). Enter the encryption password to continue."
+        return Localization.hwCloudBackupRestorePasswordDescription(walletName, MobileBackupConstants.iCloudServiceName, backupDate)
     }
 
     func sendPasswordNotMatched() {
@@ -236,9 +237,9 @@ private extension MobileOnboardingImportICloudBackupViewModel {
 private extension MobileOnboardingImportICloudBackupViewModel {
     func showErrorAlert() {
         let alert = AlertBuilder.makeAlert(
-            title: "Something went wrong",
-            message: "Please try again later or import your recovery phrase.",
-            primaryButton: .default(Text("OK"))
+            title: Localization.hwCloudBackupRestoreErrorTitle,
+            message: Localization.hwCloudBackupRestoreErrorWithRecovery,
+            primaryButton: .default(Text(Localization.commonOk))
         )
         showAlert(alert)
     }
@@ -272,7 +273,7 @@ extension MobileOnboardingImportICloudBackupViewModel {
         var description: String? {
             switch self {
             case .none, .notDetermined: nil
-            case .notMatched: "Wrong password"
+            case .notMatched: Localization.hwCloudBackupRestoreWrongPassword
             }
         }
 
