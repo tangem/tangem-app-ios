@@ -21,7 +21,8 @@ extension VisaCustomerInfoResponse {
             card: card?.sanitizedForDiskCache(),
             cards: cards.map { $0.sanitizedForDiskCache() },
             depositAddress: depositAddress,
-            customerTariffPlan: customerTariffPlan
+            customerTariffPlan: customerTariffPlan,
+            profile: nil
         )
     }
 }
