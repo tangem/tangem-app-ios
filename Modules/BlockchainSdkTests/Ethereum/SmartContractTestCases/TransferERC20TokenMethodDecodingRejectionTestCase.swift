@@ -59,6 +59,15 @@ extension SmartContractMethodTests {
                 "00000000000000000000000000000000000000000000000000000000000f4240",
             ]
         )
+
+        static let burnAddressDestination: Self = .init(
+            name: "transfer to a burn address",
+            hex: [
+                "a9059cbb",
+                "0000000000000000000000000000000000000000000000000000000000000000",
+                "00000000000000000000000000000000000000000000000000000000000f4240",
+            ]
+        )
     }
 }
 
