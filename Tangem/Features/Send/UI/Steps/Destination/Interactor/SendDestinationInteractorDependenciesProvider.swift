@@ -109,7 +109,8 @@ private extension SendDestinationInteractorDependenciesProvider {
         let validator = CommonSendDestinationValidator(
             walletAddresses: walletAddresses,
             addressService: addressService,
-            allowSameAddressTransaction: tokenItem.blockchain.supportsCompound || receivedToken != nil
+            allowSameAddressTransaction: tokenItem.blockchain.supportsCompound || receivedToken != nil,
+            blockchain: tokenItem.blockchain
         )
 
         return validator

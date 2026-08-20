@@ -20,15 +20,26 @@ class CommonSendDestinationValidator {
     private let walletAddresses: [String]
     private let addressService: AddressService
     private let allowSameAddressTransaction: Bool
+    private let blockchain: Blockchain
 
     init(
         walletAddresses: [String],
         addressService: AddressService,
-        allowSameAddressTransaction: Bool
+        allowSameAddressTransaction: Bool,
+        blockchain: Blockchain
     ) {
         self.walletAddresses = walletAddresses
         self.addressService = addressService
         self.allowSameAddressTransaction = allowSameAddressTransaction
+        self.blockchain = blockchain
+    }
+
+    private func isOwnAddress(_ address: String) -> Bool {
+        guard let canonicalAddress = EVMAddressUtils.canonicalAddress(address, blockchain: blockchain) else {
+            return walletAddresses.contains(address)
+        }
+
+        return walletAddresses.contains { EVMAddressUtils.canonicalAddress($0, blockchain: blockchain) == canonicalAddress }
     }
 }
 
@@ -40,7 +51,7 @@ extension CommonSendDestinationValidator: SendDestinationValidator {
 
         // e.g. XRP xAddress
         let resolvedAddress = addressService.resolveAddress(address)
-        if !allowSameAddressTransaction, walletAddresses.contains(resolvedAddress) {
+        if !allowSameAddressTransaction, isOwnAddress(resolvedAddress) {
             throw SendAddressServiceError.sameAsWalletAddress
         }
 
