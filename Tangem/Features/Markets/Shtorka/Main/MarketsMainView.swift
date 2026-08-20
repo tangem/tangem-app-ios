@@ -232,6 +232,16 @@ struct MarketsMainView: View {
                             .padding(.bottom, Layout.Widgets.verticalContentSpacing)
                         }
 
+                        if FeatureProvider.isAvailable(.gachaMachine) {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 8) {
+                                    GachaEntranceCardView.make(onOpenRequested: viewModel.openGacha)
+                                }
+                                .padding(.horizontal, 16)
+                            }
+                            .padding(.bottom, Layout.Widgets.verticalContentSpacing)
+                        }
+
                         if case .present(let widgetItems) = viewModel.widgetsViewState {
                             VStack(alignment: .leading, spacing: Layout.Widgets.verticalContentSpacing) {
                                 ForEach(widgetItems, id: \.id) { item in
