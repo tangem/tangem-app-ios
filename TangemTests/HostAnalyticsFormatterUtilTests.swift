@@ -602,6 +602,9 @@ final class HostAnalyticsFormatterUtilTests: XCTestCase {
             // plasma
             "https://rpc.plasma.to/",
             "https://plasma.drpc.org/",
+            // electroneum
+            "https://rpc.ankr.com/electroneum",
+            "https://rpc.electroneum.com/",
             // sei-v2
             "https://sei-evm-rpc.stakeme.pro/",
             "https://evm-rpc.sei-apis.com/",

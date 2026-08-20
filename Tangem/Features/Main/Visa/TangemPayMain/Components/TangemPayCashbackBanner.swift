@@ -50,7 +50,11 @@ private extension TangemPayCashbackBanner {
                 return Localization.tangempayCashbackWidgetRefundDescription
             }
 
-            guard summary.confirmedAmount > 0, let payoutWindow = payoutWindow(for: summary) else {
+            if summary.confirmedAmount == 0 {
+                return Localization.tangempayCashbackWidgetEmptyDescription
+            }
+
+            guard let payoutWindow = payoutWindow(for: summary) else {
                 return nil
             }
 

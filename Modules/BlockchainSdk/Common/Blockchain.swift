@@ -116,6 +116,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case arbitrumNova
     case plasma(testnet: Bool)
     case adi(testnet: Bool)
+    case electroneum(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -179,7 +180,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .igra(let testnet),
              .robinhood(let testnet),
              .plasma(let testnet),
-             .adi(let testnet):
+             .adi(let testnet),
+             .electroneum(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -368,6 +370,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
              .seiEvm:
             return 18
         case .cardano,
@@ -583,6 +586,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "XPL"
         case .adi:
             return "ADI"
+        case .electroneum:
+            return "ETN"
         }
     }
 
@@ -695,6 +700,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "Arbitrum Nova"
         case .adi:
             return "ADI" + testnetSuffix
+        case .electroneum:
+            return "Electroneum" + testnetSuffix
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
@@ -994,6 +1001,7 @@ public extension Blockchain {
         case .arbitrumNova: return 42170
         case .plasma: return isTestnet ? 9746 : 9745
         case .adi: return isTestnet ? 99999 : 36900
+        case .electroneum: return isTestnet ? 5201420 : 52014
         case .seiEvm: return isTestnet ? 1328 : 1329
         default:
             return nil
@@ -1088,6 +1096,7 @@ public extension Blockchain {
         case .arbitrumNova: return true
         case .plasma: return true
         case .adi: return false // eth_feeHistory respond without reward field, further logic produces error
+        case .electroneum: return true
         case .seiEvm: return true
         default:
             assertionFailure("Don't forget about evm here")
@@ -1261,6 +1270,7 @@ extension Blockchain: Codable {
         case .arbitrumNova: return "arbitrum-nova"
         case .plasma: return "plasma"
         case .adi: return "adi-token"
+        case .electroneum: return "electroneum"
         }
     }
 
@@ -1383,6 +1393,7 @@ extension Blockchain: Codable {
         case "arbitrum-nova": self = .arbitrumNova
         case "plasma": self = .plasma(testnet: isTestnet)
         case "adi-token": self = .adi(testnet: isTestnet)
+        case "electroneum": self = .electroneum(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1703,6 +1714,8 @@ private extension Blockchain {
             return "plasma"
         case .adi:
             return "adi-token"
+        case .electroneum:
+            return "electroneum"
         }
     }
 
@@ -1775,6 +1788,7 @@ extension Blockchain {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
              .seiEvm:
             return EthereumWalletAssembly()
         case .optimism,
