@@ -180,6 +180,7 @@ struct AccountDerivationPathHelper {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
              .seiEvm:
             return true
         case .chia:
