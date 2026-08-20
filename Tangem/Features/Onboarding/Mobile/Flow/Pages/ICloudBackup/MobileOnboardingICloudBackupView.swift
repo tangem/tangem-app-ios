@@ -43,7 +43,7 @@ private extension MobileOnboardingICloudBackupView {
                 )
 
                 PasswordView(
-                    title: "Password",
+                    title: viewModel.passwordTitle,
                     isSecured: viewModel.isPasswordSecured,
                     text: $viewModel.passwordText,
                     isResponder: $viewModel.isPasswordResponder,
@@ -79,7 +79,7 @@ private extension MobileOnboardingICloudBackupView {
     func setPasswordValidationView(_ strength: ViewModel.PasswordStrength) -> some View {
         PasswordStrengthView(
             title: strength.description,
-            description: "Use 8 or more characters with uppercase, lowercase, number, and symbols",
+            description: viewModel.passwordRuleDescription,
             progress: strength.progress,
             color: strength.color
         )
@@ -113,7 +113,7 @@ private extension MobileOnboardingICloudBackupView {
             TangemUI.Checkbox(isOn: $viewModel.isPasswordWarningAccepted)
                 .expandsHitArea(false)
 
-            Text("I understand that if I lose or forget this password I will lose access to my crypto")
+            Text(viewModel.passwordWarningTitle)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
