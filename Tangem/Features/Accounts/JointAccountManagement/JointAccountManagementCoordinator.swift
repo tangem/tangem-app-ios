@@ -18,6 +18,13 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: JointAccountOnboardingViewModel?
 
+    /// Steps pushed on top of the onboarding, which is the root of the flow's navigation stack.
+    @Published var path: [Step] = []
+
+    // MARK: - Dependencies
+
+    private var options: Options?
+
     init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -27,6 +34,8 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        self.options = options
+
         rootViewModel = JointAccountOnboardingViewModel(coordinator: self)
     }
 }
@@ -40,6 +49,39 @@ extension JointAccountManagementCoordinator {
     }
 }
 
+// MARK: - Steps
+
+extension JointAccountManagementCoordinator {
+    enum Step {
+        case accountForm(viewModel: AccountFormViewModel)
+        case membersCount(viewModel: JointAccountMembersCountViewModel)
+        case memberName(viewModel: JointAccountMemberNameViewModel)
+        case inviteMembers(viewModel: JointAccountInviteMembersViewModel)
+    }
+}
+
+/// The steps are identified by their view models, which live for as long as the step stays in the stack.
+extension JointAccountManagementCoordinator.Step: Hashable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
+        case (.accountForm(let lhs), .accountForm(let rhs)): lhs === rhs
+        case (.membersCount(let lhs), .membersCount(let rhs)): lhs === rhs
+        case (.memberName(let lhs), .memberName(let rhs)): lhs === rhs
+        case (.inviteMembers(let lhs), .inviteMembers(let rhs)): lhs === rhs
+        default: false
+        }
+    }
+
+    func hash(into hasher: inout Hasher) {
+        switch self {
+        case .accountForm(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
+        case .membersCount(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
+        case .memberName(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
+        case .inviteMembers(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
+        }
+    }
+}
+
 // MARK: - JointAccountOnboardingRoutable
 
 extension JointAccountManagementCoordinator: JointAccountOnboardingRoutable {
@@ -48,6 +90,83 @@ extension JointAccountManagementCoordinator: JointAccountOnboardingRoutable {
     }
 
     func continueOnboarding() {
+        guard let options else {
+            return
+        }
+
+        let creationContext = JointAccountCreationHelper(userWalletConfig: options.userWalletConfig)
+        let creator = JointAccountFormViewCreator(
+            accountModelsManager: options.accountModelsManager,
+            creationContext: creationContext
+        )
+
+        let viewModel = AccountFormViewModel(flowType: .create(creator: creator), coordinator: self)
+        path.append(.accountForm(viewModel: viewModel))
+    }
+}
+
+// MARK: - AccountFormViewModelRoutable
+
+extension JointAccountManagementCoordinator: AccountFormViewModelRoutable {
+    func closeAccountForm(outcome: AccountFormOutcome) {
+        switch outcome {
+        case .completed(.joint(let creationContext)):
+            let viewModel = JointAccountMembersCountViewModel(creationContext: creationContext, coordinator: self)
+            path.append(.membersCount(viewModel: viewModel))
+
+        case .completed(.crypto):
+            assertionFailure("Only the joint account form is presented by this flow")
+
+        case .cancelled:
+            // The close button of a step leaves the whole flow, the way back to the previous step is the back button
+            dismiss()
+        }
+    }
+}
+
+// MARK: - JointAccountMembersCountRoutable
+
+extension JointAccountManagementCoordinator: JointAccountMembersCountRoutable {
+    func closeMembersCount() {
+        dismiss()
+    }
+
+    func continueMembersCount(creationContext: JointAccountCreationHelper) {
+        let viewModel = JointAccountMemberNameViewModel(creationContext: creationContext, coordinator: self)
+        path.append(.memberName(viewModel: viewModel))
+    }
+}
+
+// MARK: - JointAccountMemberNameRoutable
+
+extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
+    func closeMemberName() {
+        dismiss()
+    }
+
+    func openInviteMembers(creationContext: JointAccountCreationHelper) {
+        // [REDACTED_TODO_COMMENT]
+        let viewModel = JointAccountInviteMembersViewModel(creationContext: creationContext, coordinator: self)
+        path.append(.inviteMembers(viewModel: viewModel))
+    }
+}
+
+// MARK: - JointAccountInviteMembersRoutable
+
+extension JointAccountManagementCoordinator: JointAccountInviteMembersRoutable {
+    func closeInviteMembers() {
+        dismiss()
+    }
+
+    func shareInvite() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openInviteSafety() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openMemberDetails() {
         // [REDACTED_TODO_COMMENT]
     }
 }

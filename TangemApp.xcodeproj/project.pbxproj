@@ -4710,8 +4710,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
 			requirement = {
-				kind = exactVersion;
-				version = 2.3.1;
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.1;
 			};
 		};
 		DCED46512EF04FBC0021AC0D /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
