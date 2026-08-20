@@ -59,7 +59,10 @@ extension MobileOnboardingViewModel {
                 return
             }
 
-        default:
+        case .iCloudBackup:
+            alert = makeICloudBackupDismissAlert()
+
+        case .walletImport, .seedPhraseReveal, .iCloudBackupImport:
             break
         }
     }
@@ -85,6 +88,10 @@ private extension MobileOnboardingViewModel {
             MobileOnboardingBackupSeedPhraseFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
         case .seedPhraseReveal(let context):
             MobileOnboardingRevealSeedPhraseFlowBuilder(context: context, coordinator: self)
+        case .iCloudBackup(let userWalletModel, let source):
+            MobileOnboardingBackupICloudFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
+        case .iCloudBackupImport(let backups, let source):
+            MobileOnboardingImportICloudBackupFlowBuilder(backups: backups, source: source, coordinator: self)
         }
     }
 }
@@ -93,7 +100,7 @@ private extension MobileOnboardingViewModel {
 
 private extension MobileOnboardingViewModel {
     func isBackupNeeded(for userWalletModel: UserWalletModel) -> Bool {
-        userWalletModel.config.hasFeature(.mnemonicBackup)
+        MobileBackupStatusUtil(userWalletModel: userWalletModel).isBackupNeeded
     }
 
     func isAccessCodeNeeded(for userWalletModel: UserWalletModel) -> Bool {
@@ -139,6 +146,18 @@ private extension MobileOnboardingViewModel {
             primaryButton: .cancel(Text(Localization.commonClose)),
             secondaryButton: .destructive(
                 Text(Localization.commonYes),
+                action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupCreationAlertClose)
+            )
+        )
+    }
+
+    func makeICloudBackupDismissAlert() -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: Localization.hwCloudBackupCancelSetupTitle,
+            message: Localization.hwCloudBackupCancelSetupDescription(MobileBackupConstants.iCloudServiceName),
+            primaryButton: .cancel(Text(Localization.hwCloudBackupCancelSetupContinue)),
+            secondaryButton: .destructive(
+                Text(Localization.hwCloudBackupCancelSetupCancel),
                 action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupCreationAlertClose)
             )
         )

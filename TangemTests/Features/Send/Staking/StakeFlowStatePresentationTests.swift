@@ -31,7 +31,7 @@ struct StakeFlowStatePresentationTests {
         expectFee(.prerequisite(.approve(.inProgress(stakingFee: 4))), equals: 4)
         // For account-init-required the *transaction* fee is shown, not the initialization fee.
         expectFee(.prerequisite(.accountInitialization(.required(initializationFee: fee(0.5), transactionFee: fee(5)))), equals: 5)
-        expectFee(.failure(.transaction(.totalExceedsBalance, fee: 6)), equals: 6)
+        expectFee(.failure(.transaction(.totalExceedsBalance, fee: 6, spendsAmount: true)), equals: 6)
     }
 
     @Test("Fee presentation shows failure for staking / network / init-in-progress")

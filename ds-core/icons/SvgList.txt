@@ -5,18 +5,24 @@ Arrow Down / 12, 16, 20, 24, 28, 32 / Regular
 Arrow Download / 16, 20, 24 / Regular
 Arrow Left / 12, 16, 20, 24, 28 / Regular
 Arrow Refresh / 12, 16, 20, 24, 28, 32 / Regular
+Arrow Right Left / 16, 20, 24, 28 / Regular
 Arrow Right / 12, 16, 20, 24, 28 / Regular
 Arrow Split Top / 16, 20, 24, 28 / Regular
 Arrow Swap Horizontal / 12, 16, 20, 24, 28, 32 / Regular
 Arrow Top Left / 12, 16, 20, 24, 28 / Regular
 Arrow Top Right / 12, 16, 20, 24, 28 / Regular
 Arrow Up / 12, 16, 20, 24, 28, 32 / Regular
+Banknote Arrow Down / 16, 20, 24, 28 / Regular
+Banknote Arrow Horizontal / 16, 20, 24, 28 / Regular
+Banknote Wave / 16, 20, 24, 28 / Regular
+Basketball / 16, 20, 24, 28 / Regular
 Bell Cross / 20, 24, 28 / Regular
 Bell / 20, 24, 28 / Regular
 Binoculars / 16, 20, 24, 28, 32 / Regular
 Calendar / 16, 20, 24, 28 / Regular
 Card Plus / 20, 24, 28, 32 / Regular
 Card / 12, 16, 20, 24 / Regular
+Cards Star / 16, 20, 24, 28 / Regular
 Chart Bar Vertical / 16, 20, 24, 28 / Regular
 Chart Line Vertical / 16, 20, 24, 28 / Regular
 Checkmark / 16, 20, 24 / Regular
@@ -30,6 +36,8 @@ Chevron Up / 12, 16, 20, 24, 28, 32 / Regular
 Clock / 12, 16, 20, 24, 28, 32 / Regular
 Cloud Exclamation / 12, 16, 20, 24, 28, 32 / Regular
 Cloud / 12, 16, 20, 24, 28, 32 / Filled & Regular
+Coin Token / 16, 20, 24, 28 / Regular
+Coins Stack Arrow Up / 16, 20, 24, 28 / Regular
 Contact Book / 16, 20, 24, 28, 32 / Filled
 Control Box / 20, 24 / Filled & Regular
 Control Checkmark / 20, 24 / Regular
@@ -42,13 +50,16 @@ Document / 12, 16, 20, 24 / Regular
 Dot / 12, 16, 20, 24, 28, 32 / Filled
 Dots Horizontal / 12, 16, 20, 24 / Regular
 Dots Vertical / 12, 16, 20, 24 / Regular
+Earth / 16, 20, 24, 28 / Regular
 Edit / 16, 20, 24 / Regular
 Error / 16, 20, 24, 28 / Filled & Regular
 Eye Cross / 16, 20, 24, 28 / Regular
 Eye / 16, 20, 24, 28 / Regular
 Filter / 12, 16, 20, 24, 28, 32 / Regular
+Gamepad / 16, 20, 24, 28 / Regular
 Gauge / 20, 24 / Regular
 Globe / 16, 20, 24, 28 / Regular
+Government / 16, 20, 24, 28 / Regular
 Grid Plus / 16, 20, 24, 28 / Regular
 Grid / 16, 20, 24, 28 / Regular
 Headphones Support / 12, 16, 20, 24 / Regular
@@ -58,12 +69,16 @@ Info / 16, 20, 24, 28, 32 / Regular
 Lightning / 20, 24, 28 / Regular
 Loading Spinner / 12, 16, 20, 24, 28, 32 / Regular
 Logo Tangem / 16, 20, 24 / Regular
+Magic Ball / 16, 20, 24, 28 / Regular
 Mail / 16, 20, 24 / Regular
 Percent Backward / 20, 24, 28 / Regular
 Percent / 16, 20, 24, 28 / Regular
+Perps / 16, 20, 24, 28 / Regular
 Pie Chart / 16, 20, 24, 28 / Regular
 Pincode / 16, 20, 24 / Regular
 QR / 16, 20, 24, 28 / Regular
+Rocket / 16, 20, 24, 28 / Regular
+Sack / 16, 20, 24, 28 / Regular
 Scan Face / 20, 24, 28 / Regular
 Scan Finger / 20, 24, 28 / Regular
 Scan QR / 20, 24 / Regular
@@ -80,8 +95,14 @@ Snowflake / 12, 16, 20, 24, 28 / Regular
 Stack / 16, 20, 24, 28 / Regular
 Success / 16, 20, 24, 28, 32 / Filled & Regular
 Sun / 16, 20, 24, 28 / Regular
+Theater / 16, 20, 24, 28 / Regular
 Trash Bin / 12, 16, 20, 24, 28 / Regular
 Triangle Down / 12, 16, 20, 24, 28, 32 / Regular
 Triangle Up / 12, 16, 20, 24, 28, 32 / Regular
+User Plus / 16, 20, 24, 28 / Regular
+User / 16, 20, 24, 28 / Regular
+Users / 16, 20, 24, 28 / Regular
+Wallet Checkmark / 16, 20, 24, 28 / Regular
 Wallet / 16, 20, 24, 28 / Regular
 Warning / 16, 20, 24, 28 / Filled & Regular
+Weather / 16, 20, 24, 28 / Regular

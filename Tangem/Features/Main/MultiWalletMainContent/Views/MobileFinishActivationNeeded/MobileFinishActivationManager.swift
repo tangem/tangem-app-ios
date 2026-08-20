@@ -36,7 +36,7 @@ final class MobileFinishActivationManager {
         guard isActivationNeeded else { return }
         observation = Observation(userWalletId: userWalletId, activation: onActivation)
 
-        let needBackup = userWalletConfig.hasFeature(.mnemonicBackup) && userWalletConfig.hasFeature(.iCloudBackup)
+        let needBackup = MobileBackupStatusUtil.isBackupNeeded(config: userWalletConfig)
         let needAccessCode = userWalletConfig.hasFeature(.userWalletAccessCode) && userWalletConfig.userWalletAccessCodeStatus == .none
 
         if !needBackup, !needAccessCode {

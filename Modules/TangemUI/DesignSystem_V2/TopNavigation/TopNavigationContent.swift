@@ -142,8 +142,9 @@ struct TopNavigationNativeActionsGroup: View {
                 button(for: actions[index])
             }
         }
-        // The capsule hugs its content, so without this the glyphs sit flush against its ends.
-        .padding(.horizontal, Metrics.capsuleEndPadding)
+        // The capsule hugs its content, so without this the glyphs of a multi-action bar sit flush against
+        // its ends. A single action stays a 1:1 square — the extra width would stretch its circle into an oval.
+        .padding(.horizontal, actions.count > 1 ? Metrics.capsuleEndPadding : .zero)
         .glassEffect(hasBackground ? .regular.interactive() : .identity, in: .capsule)
         .glassEffectTransition(.materialize)
         .animation(.default, value: hasBackground)
@@ -183,14 +184,28 @@ struct TopNavigationNativeBarButton: View {
     var iconSide: CGFloat?
 
     var body: some View {
-        SwiftUI.Button(action: action.action) {
-            label
+        control
+            .tint(DesignSystem.Color.textPrimary)
+            .ifLet(action.accessibilityLabel) { view, label in
+                view.accessibilityLabel(Text(label))
+            }
+            .accessibilityIdentifier(action.accessibilityIdentifier)
+    }
+
+    @ViewBuilder
+    private var control: some View {
+        switch action.trigger {
+        case .perform(let perform):
+            SwiftUI.Button(action: perform) {
+                label
+            }
+        case .menu(let items):
+            Menu {
+                TopNavigationMenuItems(items: items)
+            } label: {
+                label
+            }
         }
-        .tint(DesignSystem.Color.textPrimary)
-        .ifLet(action.accessibilityLabel) { view, label in
-            view.accessibilityLabel(Text(label))
-        }
-        .accessibilityIdentifier(action.accessibilityIdentifier)
     }
 
     @ViewBuilder
@@ -218,18 +233,51 @@ struct TopNavigationActionButton: View {
     let action: TopNavigation.Action
 
     var body: some View {
-        button
-            .styleType(.ghost)
-            .size(Metrics.chipSize)
+        switch action.trigger {
+        case .perform(let perform):
+            styledButton(perform: perform)
+                .accessibilityIdentifier(action.accessibilityIdentifier)
+        case .menu(let items):
+            Menu {
+                TopNavigationMenuItems(items: items)
+            } label: {
+                // The design-system button is only the menu's face, the menu owns the tap
+                styledButton(perform: {})
+                    .allowsHitTesting(false)
+            }
             .accessibilityIdentifier(action.accessibilityIdentifier)
+        }
     }
 
-    private var button: TangemUI.Button {
+    private func styledButton(perform: @escaping () -> Void) -> some View {
+        button(perform: perform)
+            .styleType(.ghost)
+            .size(Metrics.chipSize)
+    }
+
+    private func button(perform: @escaping () -> Void) -> TangemUI.Button {
         switch action.content {
         case .icon(let icon):
-            TangemUI.Button(icon: icon, accessibilityLabel: action.accessibilityLabel, action: action.action)
+            TangemUI.Button(icon: icon, accessibilityLabel: action.accessibilityLabel, action: perform)
         case .title(let title):
-            TangemUI.Button(label: AttributedString(title), accessibilityLabel: action.accessibilityLabel, action: action.action)
+            TangemUI.Button(label: AttributedString(title), accessibilityLabel: action.accessibilityLabel, action: perform)
+        }
+    }
+}
+
+// MARK: - Menu items
+
+struct TopNavigationMenuItems: View {
+    let items: [TopNavigation.MenuItem]
+
+    var body: some View {
+        ForEach(items.indices, id: \.self) { index in
+            let item = items[index]
+
+            SwiftUI.Button(role: item.role, action: item.action) {
+                Text(item.title)
+            }
+            .accessibilityIdentifier(item.accessibilityIdentifier)
         }
     }
 }
