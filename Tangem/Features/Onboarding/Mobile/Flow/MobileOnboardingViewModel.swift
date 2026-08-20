@@ -153,11 +153,11 @@ private extension MobileOnboardingViewModel {
 
     func makeICloudBackupDismissAlert() -> AlertBinder {
         AlertBuilder.makeAlert(
-            title: "Cancel backup setup?",
-            message: "Your wallet won't be backed up to iCloud. You can set this up later in wallet settings.",
-            primaryButton: .cancel(Text("Continue backup")),
+            title: Localization.hwCloudBackupCancelSetupTitle,
+            message: Localization.hwCloudBackupCancelSetupDescription(MobileBackupConstants.iCloudServiceName),
+            primaryButton: .cancel(Text(Localization.hwCloudBackupCancelSetupContinue)),
             secondaryButton: .destructive(
-                Text("Cancel backup"),
+                Text(Localization.hwCloudBackupCancelSetupCancel),
                 action: weakify(self, forFunction: MobileOnboardingViewModel.onBackupCreationAlertClose)
             )
         )
