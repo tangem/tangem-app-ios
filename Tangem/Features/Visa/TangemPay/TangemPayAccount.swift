@@ -137,6 +137,10 @@ final class TangemPayAccount {
             .eraseToAnyPublisher()
     }
 
+    var profile: VisaCustomerInfoResponse.Profile? {
+        customerInfoSubject.value.profile
+    }
+
     private var currentCustomerInfo: VisaCustomerInfoResponse {
         customerInfoSubject.value
     }
