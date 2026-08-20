@@ -18,16 +18,14 @@ struct TangemPayOrderCardTypeView: View {
     @State private var scrollID: TangemPayOrderCardType?
 
     var body: some View {
-        NavigationStack {
-            content
-                .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
-                .safeAreaInset(edge: .bottom, spacing: 0) { footer }
-                .topNavigation(
-                    title: Localization.tangempayOrderTypeTitle,
-                    leading: .none,
-                    onClose: viewModel.close
-                )
-        }
+        content
+            .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
+            .safeAreaInset(edge: .bottom, spacing: 0) { footer }
+            .topNavigation(
+                title: Localization.tangempayOrderTypeTitle,
+                leading: .none,
+                onClose: viewModel.close
+            )
     }
 
     private var content: some View {
