@@ -10,6 +10,7 @@ import SwiftUI
 import Kingfisher
 import TangemAssets
 import TangemLocalization
+import TangemUI
 import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
@@ -32,12 +33,21 @@ struct TangemPayCardDetailsViewRedesigned: View {
                 case .unrevealed(let data, let isLoading):
                     loadedStateContent(cardDetails: data, isLoading: isLoading)
                 }
-            case .hidden(let isFrozen):
-                hiddenStateContent(isFrozen: isFrozen, isLoading: false)
-            case .loading(let isFrozen):
-                hiddenStateContent(isFrozen: isFrozen, isLoading: true)
+            case .hidden:
+                hiddenStateContent(isLoading: false)
+            case .loading:
+                hiddenStateContent(isLoading: true)
             case .issuing:
                 issuingStateContent()
+            }
+        }
+        .padding(20)
+        .background(cardBackground)
+        .overlay {
+            if viewModel.state.isFrozen {
+                Assets.Visa.cardFrost.image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
@@ -84,11 +94,9 @@ struct TangemPayCardDetailsViewRedesigned: View {
             cardHeader
             Spacer()
         }
-        .padding(16)
-        .background(cardArtBackground)
     }
 
-    private func hiddenStateContent(isFrozen: Bool, isLoading: Bool) -> some View {
+    private func hiddenStateContent(isLoading: Bool) -> some View {
         VStack {
             cardHeader
 
@@ -123,23 +131,14 @@ struct TangemPayCardDetailsViewRedesigned: View {
                 }
             }
         }
-        .padding(16)
-        .background(cardArtBackground)
-        .overlay {
-            if isFrozen {
-                Assets.Visa.cardFrost.image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            }
-        }
     }
 
     private func loadedStateContent(
         cardDetails: TangemPayCardDetailsData,
         isLoading: Bool = false
     ) -> some View {
-        VStack {
-            VStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 12) {
                 cardDetailField(
                     label: Localization.tangempayCardDetailsCardNumber,
                     value: cardDetails.number,
@@ -148,22 +147,43 @@ struct TangemPayCardDetailsViewRedesigned: View {
                     copyAction: viewModel.copyNumber
                 )
 
+                fieldSeparator
+
+                if !cardDetails.cardholderName.isEmpty {
+                    cardDetailField(
+                        label: Localization.tangempayCardDetailsNameOnCard,
+                        value: cardDetails.cardholderName,
+                        valueAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsCardholderNameValue,
+                        copyAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsCopyCardholderName,
+                        copyAction: viewModel.copyCardholderName
+                    )
+
+                    fieldSeparator
+                }
+
                 HStack(spacing: 12) {
                     cardDetailField(
                         label: Localization.tangempayCardDetailsExpiry,
                         value: cardDetails.expirationDate,
+                        valueWidth: Constants.compactValueWidth,
                         valueAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsExpirationValue,
                         copyAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsCopyExpiration,
                         copyAction: viewModel.copyExpirationDate
                     )
 
+                    Divider()
+                        .overlay(Constants.separatorColor)
+
                     cardDetailField(
                         label: Localization.tangempayCardDetailsCvc,
                         value: cardDetails.cvc,
+                        valueWidth: Constants.compactValueWidth,
                         valueAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsCvcValue,
                         copyAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.cardDetailsCopyCvc,
                         copyAction: viewModel.copyCVC
                     )
+
+                    Spacer()
                 }
             }
 
@@ -180,12 +200,11 @@ struct TangemPayCardDetailsViewRedesigned: View {
                 closeButton
             }
         }
-        .padding(16)
-        .background {
-            KFImage(viewModel.cardBackgroundImageURL)
-                .resizable()
-        }
         .screenCaptureProtection()
+    }
+
+    private var fieldSeparator: some View {
+        Separator(color: Constants.separatorColor)
     }
 
     private var showDetailsButton: some View {
@@ -201,17 +220,15 @@ struct TangemPayCardDetailsViewRedesigned: View {
     }
 
     private var closeButton: some View {
-        Button(action: viewModel.toggleVisibility) {
-            DesignSystem.Icons.Cross.regular20.image
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: 20, height: 20)
-                .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
-                .padding(6)
-                .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
-        }
+        TangemUI.Button(
+            label: Localization.commonClose,
+            accessibilityLabel: Localization.tangempayCardDetailsHideDetails,
+            action: viewModel.toggleVisibility
+        )
+        .size(.x8)
+        .styleType(.secondary)
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardDetailsHideButton)
-        .accessibilityLabel(Text(Localization.tangempayCardDetailsHideDetails))
+        .environment(\.colorScheme, .dark)
     }
 
     private var cardHeader: some View {
@@ -226,16 +243,21 @@ struct TangemPayCardDetailsViewRedesigned: View {
 
             Spacer()
         }
-        .padding(.top, 4)
     }
 
-    private var cardArtBackground: some View {
-        KFImage(viewModel.cardImageURL)
-            .placeholder {
-                Assets.Visa.cardGhost.image
-                    .resizable()
-            }
-            .resizable()
+    private var cardBackground: some View {
+        switch viewModel.state {
+        case .loaded:
+            KFImage(viewModel.cardBackgroundImageURL)
+                .resizable()
+        case .hidden, .loading, .issuing:
+            KFImage(viewModel.cardImageURL)
+                .placeholder {
+                    Assets.Visa.cardGhost.image
+                        .resizable()
+                }
+                .resizable()
+        }
     }
 
     @ViewBuilder
@@ -285,43 +307,37 @@ struct TangemPayCardDetailsViewRedesigned: View {
     private func cardDetailField(
         label: String,
         value: String,
+        valueWidth: CGFloat? = nil,
         valueAccessibilityIdentifier: String,
         copyAccessibilityIdentifier: String,
         copyAction: @escaping () -> Void
     ) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 2) {
             Text(label)
-                .font(token: DesignSystem.Font.captionMediumToken)
-                .foregroundStyle(DesignSystem.Color.textStaticDarkTertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStaticDarkSecondary)
 
-            HStack {
+            HStack(spacing: 4) {
                 Text(value)
-                    .font(token: DesignSystem.Font.bodyMediumToken)
-                    .foregroundStyle(DesignSystem.Color.textStaticDarkPrimary)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textStaticDarkPrimary)
+                    .frame(minWidth: valueWidth, maxWidth: valueWidth ?? .infinity, alignment: .leading)
                     .accessibilityIdentifier(valueAccessibilityIdentifier)
 
-                Spacer()
-
                 Button(action: copyAction) {
-                    DesignSystem.Icons.Copy.regular20.image
+                    DesignSystem.Icons.Copy.regular16.image
                         .renderingMode(.template)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 20, height: 20)
-                        .foregroundStyle(DesignSystem.Color.textStaticDarkTertiary)
+                        .foregroundStyle(DesignSystem.Color.iconStaticDark)
                 }
                 .accessibilityIdentifier(copyAccessibilityIdentifier)
             }
         }
-        .padding(12)
-        .background(DesignSystem.Color.textStaticDarkPrimary.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
 private extension TangemPayCardDetailsViewRedesigned {
     enum Constants {
         static let plasticCardStandardWidthToHeightRatio = 1.586
+        static let separatorColor = Color.white.opacity(0.1)
+        static let compactValueWidth: CGFloat = 56
     }
 }
 
