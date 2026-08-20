@@ -9,7 +9,7 @@
 import Foundation
 import TangemExpress
 
-protocol TransactionHistoryAuxDataStorage {
+protocol TransactionHistoryAuxDataStorage: Sendable {
     // MARK: Express providers
 
     func providers() async throws -> [TransactionHistoryAuxDataCachedValue<ExpressProvider>]

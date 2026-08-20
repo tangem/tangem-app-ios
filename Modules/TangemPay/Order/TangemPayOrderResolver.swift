@@ -30,6 +30,16 @@ public struct TangemPayOrderResolver {
         return orders.mostRecentByUpdatedAt
     }
 
+    public func findActiveNetworkContractOrder(chainId: Int) async throws -> TangemPayOrderResponse? {
+        let orders = try await customerService.findOrders(
+            types: TangemPayOrderType.smartContractIssueFamily,
+            statuses: [.new, .processing]
+        )
+        return orders
+            .filter { $0.data?.chainId == chainId }
+            .mostRecentByUpdatedAt
+    }
+
     public func placeOrder(
         request: TangemPayPlaceOrderRequest,
         idempotencyKey: String

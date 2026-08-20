@@ -16,14 +16,8 @@ enum NotificationBannerKind {
     case critical
     case warning
     case informational(TextAlignment = .center)
-    case promo(Effect)
+    case promo
     case survey
-
-    enum Effect {
-        case plain
-        case card
-        case magic
-    }
 
     enum TextAlignment {
         case leading

@@ -72,9 +72,11 @@ extension P2PStakingManager: StakingManager {
                 } catch is CancellationError {
                     return
                 } catch let error where error.isStakingRegionUnavailable {
+                    logError(error)
                     updateRegionUnavailableState()
                     return
                 } catch {
+                    logError(error)
                     updateUnavailableState(error: error, yieldIsAvailable: yield.isAvailable)
                     return
                 }
@@ -86,10 +88,13 @@ extension P2PStakingManager: StakingManager {
             // Ignored intentionally
             return
         } catch let error where error.isStakingRegionUnavailable {
+            logError(error)
             updateRegionUnavailableState()
         } catch let error as StakingAvailabilityError {
+            logError(error)
             updateUnavailableState(error: error, yieldIsAvailable: false)
         } catch {
+            logError(error)
             updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
         }
     }
@@ -157,6 +162,19 @@ extension P2PStakingManager: CustomStringConvertible {
 }
 
 private extension P2PStakingManager {
+    func logError(_ error: any Error) {
+        analyticsLogger.logError(error, currencySymbol: wallet.item.symbol)
+    }
+
+    func execute<T>(_ request: @autoclosure () async throws -> T) async throws -> T {
+        do {
+            return try await request()
+        } catch {
+            logError(error)
+            throw error
+        }
+    }
+
     func updateState(_ state: StakingManagerState) {
         stateRepository.storeState(state)
         _state.send(state)
@@ -218,7 +236,9 @@ private extension P2PStakingManager {
 
     func transactionInfo(action: StakingAction) async throws -> StakingTransactionInfo {
         guard let vaultAddress = action.targetInfo?.address else {
-            throw P2PStakingError.invalidVault
+            let error = P2PStakingError.invalidVault
+            logError(error)
+            throw error
         }
 
         let result: StakingTransactionInfo
@@ -228,22 +248,28 @@ private extension P2PStakingManager {
             try await waitForLoadingCompletion()
             result = try await transactionInfo(action: action)
         case (.availableToStake, .stake), (.staked, .stake):
-            result = try await apiProvider.stakeTransaction(
-                walletAddress: wallet.address,
-                vault: vaultAddress,
-                amount: action.amount
+            result = try await execute(
+                try await apiProvider.stakeTransaction(
+                    walletAddress: wallet.address,
+                    vault: vaultAddress,
+                    amount: action.amount
+                )
             )
         case (.staked, .unstake):
-            result = try await apiProvider.unstakeTransaction(
-                walletAddress: wallet.address,
-                vault: vaultAddress,
-                amount: action.amount
+            result = try await execute(
+                try await apiProvider.unstakeTransaction(
+                    walletAddress: wallet.address,
+                    vault: vaultAddress,
+                    amount: action.amount
+                )
             )
         case (.staked, .pending):
-            result = try await apiProvider.withdrawTransaction(
-                walletAddress: wallet.address,
-                vault: vaultAddress,
-                amount: action.amount
+            result = try await execute(
+                try await apiProvider.withdrawTransaction(
+                    walletAddress: wallet.address,
+                    vault: vaultAddress,
+                    amount: action.amount
+                )
             )
         default:
             StakingLogger.info(self, "Invalid staking manager state: \(state), for action: \(action)")

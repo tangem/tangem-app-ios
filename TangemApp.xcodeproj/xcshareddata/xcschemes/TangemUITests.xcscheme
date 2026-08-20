@@ -18,18 +18,6 @@
             default = "YES">
          </TestPlanReference>
       </TestPlans>
-      <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5D3F77E224BF56DC00E8695B"
-               BuildableName = "TangemUITests.xctest"
-               BlueprintName = "TangemUITests"
-               ReferencedContainer = "container:TangemApp.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug(internal)"

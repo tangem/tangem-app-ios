@@ -36,6 +36,8 @@ final class MarketsCoordinator: CoordinatorObject {
     @Published var newsPagerTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var earnListCoordinator: EarnCoordinator?
     @Published var forYouCoordinator: ForYouCoordinator?
+    @Published var polymarketCoordinator: PolymarketCoordinator?
+    @Published var gachaCoordinator: GachaCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -110,6 +112,28 @@ extension MarketsCoordinator: MarketsMainRoutable {
         )
         coordinator.start(with: .init())
         forYouCoordinator = coordinator
+    }
+
+    func openPolymarket() {
+        let coordinator = PolymarketCoordinator(
+            dismissAction: { [weak self] in
+                self?.polymarketCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init())
+        polymarketCoordinator = coordinator
+    }
+
+    func openGacha(with options: GachaCoordinator.Options) {
+        let coordinator = GachaCoordinator(
+            dismissAction: { [weak self] in
+                self?.gachaCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: options)
+        gachaCoordinator = coordinator
     }
 
     func openSeeAllTopMarketWidget() {

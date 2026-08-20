@@ -23,11 +23,13 @@ enum Feature: String, Hashable, CaseIterable {
     case stakingTransactionValidation
     case stakingFlowV2
     case forYou
+    case tangemPayMultichain
     case priceAlertsSubscription
     case solanaRentExemptionPreflight
     case backup4cards
     case mainPushNotificationDoubleAsk
     case backendAuthentication
+    case tangemPayAddFundsWithdrawRework
     case swapHideZeroBalanceSource
     case bitcoinLikePsbtSwap
     case onrampPaymentMethodThemedImages
@@ -36,9 +38,17 @@ enum Feature: String, Hashable, CaseIterable {
     case gaslessBridgeFeeRestriction
     case tronDexSwap
     case polymarket
+    case mobileWalletBackup
+    case swapDeeplinkParameters
     case walletCardsBackupReport
     case jointAccounts
     case ethPolLocalStakingValidation
+    case yieldDexTransferDetection
+    case tangemPayCashback
+    case swapChooseTokenWholeAreaTap
+    case welcomeScreenV2
+    case tangemPayPlastic
+    case gachaMachine
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -61,8 +71,10 @@ enum Feature: String, Hashable, CaseIterable {
         case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
         case .solanaRentExemptionPreflight: return "[REDACTED_INFO]_solana_rent_exemption_preflight"
+        case .tangemPayMultichain: return "TWI-1684_tangem_pay_multichain"
         case .mainPushNotificationDoubleAsk: return "TWI-1403_main_push_notification_double_ask"
         case .backendAuthentication: return "[REDACTED_INFO]_backend_authentication"
+        case .tangemPayAddFundsWithdrawRework: return "[REDACTED_INFO]_tangem_pay_add_funds_withdraw_rework"
         case .swapHideZeroBalanceSource: return "[REDACTED_INFO]_hide_zero_balance_tokens_in_swap_source"
         case .bitcoinLikePsbtSwap: return "TWI-1668_support_other_bitcoin_like_tokens_for_psbt_signature"
         case .onrampPaymentMethodThemedImages: return "[REDACTED_INFO]_two_payment_method_pictures"
@@ -71,9 +83,17 @@ enum Feature: String, Hashable, CaseIterable {
         case .gaslessBridgeFeeRestriction: return "[REDACTED_INFO]_gasless_bridge_fee_restriction"
         case .tronDexSwap: return "[REDACTED_INFO]_tron_dex_swap"
         case .polymarket: return "TWI-1576_polymarket"
+        case .mobileWalletBackup: return "[REDACTED_INFO]_mobile_wallet_backup"
+        case .swapDeeplinkParameters: return "[REDACTED_INFO]_swap_deeplink_parameters"
         case .walletCardsBackupReport: return "[REDACTED_INFO]_cardlinked_status_update_stage2"
         case .jointAccounts: return "TWI-1611_joint_accounts"
         case .ethPolLocalStakingValidation: return "[REDACTED_INFO]_eth_pol_local_staking_validation"
+        case .yieldDexTransferDetection: return "[REDACTED_INFO]_yield_dex_transfer_detection"
+        case .tangemPayCashback: return "TWI-1192_tangem_pay_cashback"
+        case .swapChooseTokenWholeAreaTap: return "[REDACTED_INFO]_choose_token_whole_area_tap"
+        case .welcomeScreenV2: return "TWI-1747_welcome_screen_v2"
+        case .tangemPayPlastic: return "TWI-1157_tangem_pay_plastic"
+        case .gachaMachine: return "TWI-1640_gacha_machine"
         }
     }
 
@@ -95,9 +115,11 @@ enum Feature: String, Hashable, CaseIterable {
         case .forYou: return .unspecified
         case .priceAlertsSubscription: return .unspecified
         case .solanaRentExemptionPreflight: return .version("6.2")
+        case .tangemPayMultichain: return .version("6.3")
         case .mainPushNotificationDoubleAsk: return .version("6.2")
         case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
+        case .tangemPayAddFundsWithdrawRework: return .unspecified
         case .bitcoinLikePsbtSwap: return .version("6.2")
         case .swapHideZeroBalanceSource: return .unspecified
         case .onrampPaymentMethodThemedImages: return .unspecified
@@ -106,9 +128,17 @@ enum Feature: String, Hashable, CaseIterable {
         case .gaslessBridgeFeeRestriction: return .version("6.2")
         case .tronDexSwap: return .version("6.2")
         case .polymarket: return .unspecified
+        case .mobileWalletBackup: return .unspecified
+        case .swapDeeplinkParameters: return .unspecified
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
+        case .yieldDexTransferDetection: return .unspecified
+        case .tangemPayCashback: return .version("6.3")
+        case .swapChooseTokenWholeAreaTap: return .unspecified
+        case .welcomeScreenV2: return .unspecified
+        case .tangemPayPlastic: return .unspecified
+        case .gachaMachine: return .unspecified
         }
     }
 }
