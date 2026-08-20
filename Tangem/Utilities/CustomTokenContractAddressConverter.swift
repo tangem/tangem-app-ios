@@ -130,6 +130,7 @@ struct CustomTokenContractAddressConverter {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
              .seiEvm,
              .hedera:
             // Did you get a compilation error here? If so, check if the network supports multiple token contract address
