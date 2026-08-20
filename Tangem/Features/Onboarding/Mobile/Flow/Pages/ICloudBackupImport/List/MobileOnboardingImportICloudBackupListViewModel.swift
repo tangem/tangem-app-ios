@@ -9,10 +9,11 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemLocalization
 import TangemMobileWalletBackup
 
 final class MobileOnboardingImportICloudBackupListViewModel: ObservableObject {
-    let navigationTitle = "iCloud backup"
+    let navigationTitle = Localization.hwBackupIcloudTitle
 
     var items: [Item] {
         makeItems()
