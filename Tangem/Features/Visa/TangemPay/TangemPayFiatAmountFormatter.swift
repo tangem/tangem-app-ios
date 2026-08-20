@@ -20,12 +20,17 @@ struct TangemPayFiatAmountFormatter {
         return formatter
     }()
 
-    func format(_ amount: Decimal, currencyCode: String) -> String {
+    func format(_ amount: Decimal, currencyCode: String, hidesFractionForWholeAmounts: Bool = false) -> String {
         let currencyCode = currencyCode.uppercased()
         formatter.currencyCode = currencyCode
         formatter.currencySymbol = Self.symbol(forCurrencyCode: currencyCode)
+        formatter.minimumFractionDigits = hidesFractionForWholeAmounts && Self.isWhole(amount) ? 0 : 2
 
         return formatter.format(number: amount)
+    }
+
+    private static func isWhole(_ amount: Decimal) -> Bool {
+        amount == amount.rounded(scale: 0, roundingMode: .plain)
     }
 
     private static func symbol(forCurrencyCode currencyCode: String) -> String {

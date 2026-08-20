@@ -54,7 +54,10 @@ final class TangemPayCashbackDetailViewModel: ObservableObject {
         }
 
         Analytics.log(.visaCashbackConditionsTileClicked, contextParams: .userWallet(userWalletId))
-        tiersViewData = viewDataFactory.makeTiersViewData(cashbackOnCards: cashbackOnCards)
+        tiersViewData = viewDataFactory.makeTiersViewData(
+            cashbackOnCards: cashbackOnCards,
+            payoutCurrency: cashbackSummary.payoutCurrency
+        )
     }
 
     func closeTiersInfo() {
@@ -71,7 +74,11 @@ final class TangemPayCashbackDetailViewModel: ObservableObject {
     }
 
     func openDoc(_ doc: TangemPayCashbackAccrualsViewData.Doc) {
-        logDocClick(doc)
+        Analytics.log(
+            event: .visaCashbackTermsDocClicked,
+            params: [.title: doc.title],
+            contextParams: .userWallet(userWalletId)
+        )
         safariManager.openURL(doc.url)
     }
 
@@ -123,21 +130,6 @@ private extension TangemPayCashbackDetailViewModel {
         case .refund:
             Analytics.log(.visaCashbackNegativeBannerShowed, contextParams: .userWallet(userWalletId))
         case nil:
-            break
-        }
-    }
-
-    func logDocClick(_ doc: TangemPayCashbackAccrualsViewData.Doc) {
-        guard let index = accrualsViewData?.docs.firstIndex(where: { $0.id == doc.id }) else {
-            return
-        }
-
-        switch index {
-        case 0:
-            Analytics.log(.visaCashbackCategoriesWithoutCashbackDocClicked, contextParams: .userWallet(userWalletId))
-        case 1:
-            Analytics.log(.visaCashbackFullTermsDocClicked, contextParams: .userWallet(userWalletId))
-        default:
             break
         }
     }
