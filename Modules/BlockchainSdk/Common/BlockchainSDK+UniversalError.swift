@@ -534,6 +534,8 @@ extension ValidationError: UniversalError {
             102024019
         case .noTrustlineAtDestination:
             102024020
+        case .destinationIsBurnAddress:
+            102024021
         }
     }
 }
