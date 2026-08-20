@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 
 struct DynamicAddressesProvider {
+    private let blockchain: Blockchain
     private let seedKey: Data
     private let xpubKey: Wallet.PublicKey.XPUBKey
     private let addressProvider: AddressProvider
@@ -20,12 +21,14 @@ struct DynamicAddressesProvider {
     private var userAddresses: [UTXOUsedAddress: any Address] = [:]
 
     init(
+        blockchain: Blockchain,
         seedKey: Data,
         xpubKey: Wallet.PublicKey.XPUBKey,
         addressProvider: AddressProvider,
         supportedAddressTypes: [AddressType],
         defaultAddress: Address,
     ) {
+        self.blockchain = blockchain
         self.seedKey = seedKey
         self.xpubKey = xpubKey
         self.addressProvider = addressProvider
@@ -143,6 +146,12 @@ private extension DynamicAddressesProvider {
 
     func addressType(for scriptType: UTXOXpubScriptType) -> AddressType {
         switch scriptType {
+        // Bitcoin Cash locks p2pkh with its default (CashAddr) address; the legacy one is just a
+        // base58 encoding of the same script. Explorers report CashAddr, and `BitcoinWalletManager`
+        // looks the wallet's addresses up by value, so `.legacy` would leave the outputs of the
+        // used addresses without a spendable script.
+        case .p2pkh where blockchain == .bitcoinCash:
+            return .default
         case .p2pkh where supportedAddressTypes.contains(where: \.isLegacy):
             return .legacy
         case .p2pkh, .p2wpkh:
