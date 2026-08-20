@@ -62,7 +62,11 @@ private extension TangemPayCashbackBanner {
     }
 
     func formattedAmount(for summary: TangemPayCashback.Summary) -> String {
-        Self.amountFormatter.format(summary.confirmedAmount, currencyCode: summary.currency)
+        Self.amountFormatter.format(
+            summary.confirmedAmount,
+            currencyCode: summary.currency,
+            hidesFractionForWholeAmounts: true
+        )
     }
 
     static let amountFormatter = TangemPayFiatAmountFormatter()
@@ -177,6 +181,8 @@ private extension TangemPayCashbackBanner {
     VStack(spacing: 16) {
         TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: 32.15)), action: {})
 
+        TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: 123)), action: {})
+
         TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: 0)), action: {})
 
         TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: -3.12)), action: {})
@@ -195,6 +201,7 @@ private extension TangemPayCashback.Summary {
             confirmedAmount: confirmedAmount,
             totalEarnedAmount: 153.01,
             currency: "USD",
+            payoutCurrency: "USDC",
             period: TangemPayCashback.Period(
                 year: 2026,
                 month: 6,
