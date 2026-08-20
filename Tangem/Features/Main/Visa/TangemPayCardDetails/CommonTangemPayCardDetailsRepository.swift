@@ -82,6 +82,7 @@ final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository
 
         let details = TangemPayCardDetailsData(
             number: formattedPan,
+            cardholderName: cardDetails.embossName,
             expirationDate: formattedExpiryDate,
             cvc: decryptedCVV,
             isPinSet: cardDetails.isPinSet
