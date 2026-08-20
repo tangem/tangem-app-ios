@@ -1,5 +1,5 @@
 //
-//  WelcomeV2ActionSheetItem.swift
+//  WelcomeV2ImportSheetItem.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,12 +7,9 @@
 //
 
 import Foundation
-import TangemAssets
 
-struct WelcomeV2ActionSheetItem: Identifiable {
+struct WelcomeV2ImportSheetItem: Identifiable {
     let id: String
-    let icon: ImageType?
     let title: String
-    let subtitle: String?
     let action: () -> Void
 }
