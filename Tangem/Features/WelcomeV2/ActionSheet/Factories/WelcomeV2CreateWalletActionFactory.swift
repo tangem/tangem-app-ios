@@ -26,7 +26,6 @@ struct WelcomeV2CreateWalletActionFactory {
                         icon: Assets.welcomeTangemActionIcon,
                         title: "Tangem Card or Ring",
                         subtitle: "If you already have Tangem Wallet",
-                        state: .enabled,
                         action: callbacks.onHardware
                     ),
                     WelcomeV2ActionSheetItem(
@@ -34,7 +33,6 @@ struct WelcomeV2CreateWalletActionFactory {
                         icon: Assets.welcomeSeedActionIcon,
                         title: "Create seed phrase wallet",
                         subtitle: "Start without a hardware wallet",
-                        state: .enabled,
                         action: callbacks.onMobile
                     ),
                 ],
