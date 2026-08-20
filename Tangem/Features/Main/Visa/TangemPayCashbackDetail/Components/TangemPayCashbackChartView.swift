@@ -52,7 +52,6 @@ private extension TangemPayCashbackChartView {
                         SensitiveText(item.formattedValue)
                             .style(DesignSystem.Font.captionMediumToken, color: color(for: item))
                             .lineLimit(1)
-                            .minimumScaleFactor(0.8)
                     }
 
                     bar(for: item)
@@ -145,11 +144,11 @@ extension TangemPayCashbackChartView {
     TangemPayCashbackChartView(
         formattedTotal: "$132.15",
         items: [
-            .init(month: "Feb", value: 12.02, formattedValue: "$12.02", isSelected: false),
-            .init(month: "Mar", value: 44.22, formattedValue: "$44.22", isSelected: false),
-            .init(month: "Apr", value: 38.52, formattedValue: "$38.52", isSelected: false),
-            .init(month: "May", value: 26.10, formattedValue: "$26.10", isSelected: false),
-            .init(month: "Jun", value: 32.15, formattedValue: "$32.15", isSelected: true),
+            .init(month: "Feb", value: 12.02, formattedValue: "$67.02", isSelected: false),
+            .init(month: "Mar", value: 44.22, formattedValue: "$765.22", isSelected: false),
+            .init(month: "Apr", value: 38.52, formattedValue: "$567.52", isSelected: false),
+            .init(month: "May", value: 26.10, formattedValue: "$670.10", isSelected: false),
+            .init(month: "Jun", value: 32.15, formattedValue: "$0.15", isSelected: true),
         ],
         isZeroTotal: false
     )

@@ -21,6 +21,7 @@ extension TangemPayCashback {
         let confirmedAmount: Decimal
         let totalEarnedAmount: Decimal
         let currency: String
+        let payoutCurrency: String
         let period: Period
         let previousPayout: PreviousPayout?
     }
@@ -70,6 +71,7 @@ private extension TangemPayCashback.Summary {
         guard let confirmedAmount = Decimal(stringValue: response.confirmedAmount),
               let totalEarnedAmount = Decimal(stringValue: response.totalEarnedAmount),
               let currency = response.currency,
+              let payoutCurrency = response.payoutCurrency,
               let period = response.period.map(TangemPayCashback.Period.init)
         else {
             return nil
@@ -80,6 +82,7 @@ private extension TangemPayCashback.Summary {
             confirmedAmount: confirmedAmount,
             totalEarnedAmount: totalEarnedAmount,
             currency: currency,
+            payoutCurrency: payoutCurrency,
             period: period,
             previousPayout: TangemPayCashback.PreviousPayout(response)
         )

@@ -212,6 +212,10 @@ extension Analytics {
 
         case field = "Field"
 
+        // MARK: - Tangem Pay Cashback
+
+        case title = "Title"
+
         // MARK: - For You
 
         case info = "Info"
