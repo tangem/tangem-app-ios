@@ -166,6 +166,10 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     func onPolymarketEntranceTap() {
         coordinator?.openPolymarket()
     }
+
+    func openGacha(with options: GachaCoordinator.Options) {
+        coordinator?.openGacha(with: options)
+    }
 }
 
 // MARK: - Private Implementation
