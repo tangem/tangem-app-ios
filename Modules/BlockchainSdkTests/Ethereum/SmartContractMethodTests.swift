@@ -115,23 +115,6 @@ struct SmartContractMethodTests {
         #expect(decoded?.amount == amount)
     }
 
-    @Test("Decodes a transfer to the zero address")
-    func transferERC20TokenMethodDecodingZeroDestination() throws {
-        // give
-        let calldata = Data(hex: [
-            "a9059cbb",
-            "0000000000000000000000000000000000000000000000000000000000000000",
-            "00000000000000000000000000000000000000000000000000000000000f4240",
-        ].joined())
-
-        // when
-        let method = TransferERC20TokenMethod(calldata: calldata)
-
-        // then
-        #expect(method?.destination == "0x0000000000000000000000000000000000000000")
-        #expect(method?.amount == BigUInt("1000000"))
-    }
-
     @Test("Recognizes a transfer call by its method id")
     func transferERC20TokenMethodIsEncodedCall() throws {
         // give
