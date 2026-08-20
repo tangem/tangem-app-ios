@@ -17,6 +17,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     var popToRootAction: Action<PopToRootOptions>
 
     @Published var rootViewModel: WelcomeV2ViewModel?
+    @Published var actionSheetViewModel: WelcomeV2ActionSheetViewModel?
 
     required init(
         dismissAction: @escaping Action<OutputOptions>,
@@ -49,7 +50,19 @@ extension WelcomeV2Coordinator {
 // MARK: - WelcomeV2Routable
 
 extension WelcomeV2Coordinator: WelcomeV2Routable {
-    func openCreateWallet() {}
+    func openCreateWallet() {
+        let dismiss: () -> Void = { [weak self] in
+            self?.actionSheetViewModel = nil
+        }
+
+        actionSheetViewModel = WelcomeV2CreateWalletActionFactory().make(
+            callbacks: .init(
+                onHardware: dismiss,
+                onMobile: dismiss,
+                onClose: dismiss
+            )
+        )
+    }
 
     func openExistingWallet() {}
 }
