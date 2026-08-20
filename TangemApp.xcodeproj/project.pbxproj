@@ -40,6 +40,8 @@
 		B67E38C32CC71B5F00D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38C22CC71B5F00D660EB /* TangemSdk */; };
 		B67E38C72CC7259B00D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38C62CC7259B00D660EB /* TangemSdk */; };
 		B67EEDD22FE0E10F00635701 /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B608020E2ECEA1E600CC5F4E /* AnyCodable */; };
+		B6911ACC302D45550010A7FA /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = B6911ACB302D45550010A7FA /* SwiftProtobuf */; };
+		B6911ACF302D457E0010A7FA /* GRPC in Frameworks */ = {isa = PBXBuildFile; productRef = B6911ACE302D457E0010A7FA /* GRPC */; };
 		B69FC9092CF67D9300A5C51D /* GDPerformanceView-Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B69FC9082CF67D9300A5C51D /* GDPerformanceView-Swift */; };
 		B6A0FE812F91386800E28A09 /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B6A0FE802F91386800E28A09 /* BigInt */; };
 		B6AA1D7D2FDC7B1300560D64 /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B6AA1D7C2FDC7B1300560D64 /* AnyCodable */; };
@@ -355,6 +357,7 @@
 				B625C4A530137E6F00B25A74 /* GRDB in Frameworks */,
 				C24656702F575ACD00270AA7 /* MessagingPushFCM in Frameworks */,
 				B605DFA13012E35F00366B0D /* TangemFirebaseDynamicShim in Frameworks */,
+				B6911ACC302D45550010A7FA /* SwiftProtobuf in Frameworks */,
 				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
 				B0776C372DA69090004A8765 /* Lottie in Frameworks */,
 				C28E016B2E79A6FA00B47571 /* AppsFlyerLib-Strict in Frameworks */,
@@ -366,6 +369,7 @@
 				2D67256B2EB0A6490035A4BC /* Experiment in Frameworks */,
 				C24285662F55E35B004F0348 /* DataPipelines in Frameworks */,
 				B6C144072DFD1BF8008E9478 /* DGCharts in Frameworks */,
+				B6911ACF302D457E0010A7FA /* GRPC in Frameworks */,
 				B6E27FA52DFD1CAC00B29813 /* TangemModules in Frameworks */,
 				5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */,
 				B099338A2B5517EC00240CDB /* TangemVisa.framework in Frameworks */,
@@ -663,6 +667,8 @@
 				B6DBDE492F97790F00885068 /* Hiero */,
 				B605DFA03012E35F00366B0D /* TangemFirebaseDynamicShim */,
 				B625C4A430137E6F00B25A74 /* GRDB */,
+				B6911ACB302D45550010A7FA /* SwiftProtobuf */,
+				B6911ACE302D457E0010A7FA /* GRPC */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -992,6 +998,8 @@
 				B6DBDE482F97790F00885068 /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */,
 				B605DF9F3012E35F00366B0D /* XCLocalSwiftPackageReference "TangemFirebaseDynamicShim" */,
 				B625C4A330137E6F00B25A74 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+				B6911ACA302D45550010A7FA /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */,
+				B6911ACD302D457E0010A7FA /* XCRemoteSwiftPackageReference "grpc-swift" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -4586,6 +4594,22 @@
 				version = 5.1.1;
 			};
 		};
+		B6911ACA302D45550010A7FA /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:tangem-developments/swift-protobuf-binaries.git";
+			requirement = {
+				kind = exactVersion;
+				version = "1.29.0-tangem1";
+			};
+		};
+		B6911ACD302D457E0010A7FA /* XCRemoteSwiftPackageReference "grpc-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:tangem-developments/grpc-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = "1.26.2-tangem1";
+			};
+		};
 		B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/dani-gavrilov/GDPerformanceView-Swift.git";
@@ -4817,6 +4841,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */;
 			productName = TangemSdk;
+		};
+		B6911ACB302D45550010A7FA /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6911ACA302D45550010A7FA /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */;
+			productName = SwiftProtobuf;
+		};
+		B6911ACE302D457E0010A7FA /* GRPC */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6911ACD302D457E0010A7FA /* XCRemoteSwiftPackageReference "grpc-swift" */;
+			productName = GRPC;
 		};
 		B69FC9082CF67D9300A5C51D /* GDPerformanceView-Swift */ = {
 			isa = XCSwiftPackageProductDependency;
