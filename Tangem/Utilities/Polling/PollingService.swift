@@ -16,7 +16,7 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
     }
 
     var resultStream: AsyncStream<[Response]> {
-        AsyncStream<[Response]>.multicast(
+        .multicast(
             with: self,
             onSubscribe: { poller, id, continuation in
                 poller.subscribers.subscribe(id: id, continuation: continuation)

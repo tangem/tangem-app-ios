@@ -132,6 +132,16 @@ extension TokenSelectorItem {
 }
 
 extension TokenSelectorItem {
+    /// The item is the Tangem Pay payment account — the funding flows filter on this:
+    /// the account can be neither its own source nor its own destination.
+    var isPayAccount: Bool {
+        if case .tangemPay = kind {
+            return true
+        }
+
+        return false
+    }
+
     func makeSendSwapableTokenFactory(expressOperationType: ExpressOperationType) -> SendSwapableTokenFactory {
         switch kind {
         case .crypto(let walletModel, _):
@@ -144,17 +154,12 @@ extension TokenSelectorItem {
         case .tangemPay(let tangemPayAccount, let depositAddress, let account):
             TangemPaySwapableTokenFactory(
                 userWalletInfo: userWalletInfo,
+                tangemPayAccount: tangemPayAccount,
                 account: account,
                 tokenItem: TangemPayUtilities.usdcTokenItem,
-                feeTokenItem: TangemPayUtilities.usdcTokenItem,
-                defaultAddressString: depositAddress,
-                availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-                fiatAvailableBalanceProvider: tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider,
-                transactionDispatcher: tangemPayAccount.transactionDispatcher,
-                transactionValidator: TangemPaySendTransactionValidator(
-                    availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-                ),
-                operationType: expressOperationType
+                depositAddress: depositAddress,
+                operationType: expressOperationType,
+                receiveTokenPresentation: .tangemPayAccount
             )
         }
     }

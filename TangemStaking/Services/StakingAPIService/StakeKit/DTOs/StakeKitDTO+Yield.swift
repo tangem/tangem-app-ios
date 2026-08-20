@@ -121,6 +121,7 @@ extension StakeKitDTO {
 
                     struct Period: Decodable {
                         let days: Int
+                        let seconds: Int?
                     }
 
                     enum RewardClaiming: String, Decodable {

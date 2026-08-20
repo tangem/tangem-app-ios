@@ -555,10 +555,10 @@ private extension UserWalletSettingsViewModel {
                     walletModelsManager: cryptoAccountModels.first?.walletModelsManager,
                     userTokensManager: cryptoAccountModels.first?.userTokensManager
                 )
-            case .standard(.multiple), .tangemPay:
+            case .standard(.multiple), .tangemPay, .polymarket:
                 // In multiple accounts case we don't support managing tokens from this screen,
                 // instead users should manage tokens from respective account details screens.
-                // TangemPay currently doesn't support managing tokens at all
+                // TangemPay and Polymarket currently don't support managing tokens at all
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             case .none:
                 // Reachable case - the saved wallet has been deleted from the app
@@ -593,12 +593,20 @@ private extension UserWalletSettingsViewModel {
     }
 
     func logMobileBackupNeededAnalytics(action: Analytics.ParameterValue) {
+        var params: [Analytics.ParameterKey: Analytics.ParameterValue] = [
+            .source: .walletSettings,
+            .action: action,
+        ]
+
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
+            params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
+            params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
+        }
+
         Analytics.log(
             .walletSettingsNoticeBackupFirst,
-            params: [
-                .source: .walletSettings,
-                .action: action,
-            ],
+            params: params,
             contextParams: analyticsContextParams
         )
     }

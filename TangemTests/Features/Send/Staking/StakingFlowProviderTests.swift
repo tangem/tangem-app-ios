@@ -58,7 +58,7 @@ struct StakingFlowProviderTests {
             preflightValidator: preflight
         )
 
-        guard case .failure(.transaction(let error, let fee)) = try await provider.updateState(amount: 7, target: nil) else {
+        guard case .failure(.transaction(let error, let fee, _)) = try await provider.updateState(amount: 7, target: nil) else {
             Issue.record("Expected a transaction failure")
             return
         }
@@ -199,7 +199,7 @@ struct StakingFlowProviderTests {
 
         #expect(provider.enterSpendsAmount)
 
-        guard case .failure(.transaction(.totalExceedsBalance, _)) = try await provider.updateState(amount: balance, target: nil) else {
+        guard case .failure(.transaction(.totalExceedsBalance, _, _)) = try await provider.updateState(amount: balance, target: nil) else {
             Issue.record("Expected total-exceeds-balance failure")
             return
         }

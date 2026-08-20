@@ -73,7 +73,7 @@ enum StakePrerequisite {
 /// (the BlockchainSdk balance / dust / fee-coverage checks). `.staking` carries the yield's min/max
 /// amount rule and is evaluated *before* any fee exists; `.network` covers estimate / allowance lookups.
 enum StakeFlowError: Error {
-    case transaction(ValidationError, fee: Decimal)
+    case transaction(ValidationError, fee: Decimal, spendsAmount: Bool)
     case staking(StakingValidationError)
     case network(Error)
 }
@@ -113,7 +113,7 @@ extension StakeFlowState {
             .value(transactionFee.amount.value)
         case .prerequisite(.accountInitialization(.inProgress)):
             .failure(StakeModelError.accountIsNotInitialized)
-        case .failure(.transaction(_, let fee)):
+        case .failure(.transaction(_, let fee, _)):
             .value(fee)
         case .failure(.staking(let error)):
             .failure(error)

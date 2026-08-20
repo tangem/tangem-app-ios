@@ -13,8 +13,8 @@ extension Analytics {
         case blockchain = "Blockchain"
         case firmware = "Firmware"
         case action = "Action"
-        case errorDescription = "Error"
-        case swapErrorDescription = "Error Description"
+        case error = "Error"
+        case errorDescription = "Error Description"
         case errorCode = "Error Code"
         case errorMessage = "Error Message"
         case errorType = "Error Type"
@@ -153,7 +153,11 @@ extension Analytics {
         // MARK: - Backup
 
         case backupManual = "Manual Backup"
-        case backupICloud = "Icloud Backup"
+        case backupCloud = "Cloud Backup"
+        case backupType = "Backup Type"
+        case backupsCount = "Backup Count"
+        case completedBackups = "Completed Backups"
+        case userWalletId = "User Wallet Id"
 
         // MARK: - News
 
@@ -207,6 +211,10 @@ extension Analytics {
         // MARK: - Tangem Pay Virtual Account
 
         case field = "Field"
+
+        // MARK: - Tangem Pay Cashback
+
+        case title = "Title"
 
         // MARK: - For You
 

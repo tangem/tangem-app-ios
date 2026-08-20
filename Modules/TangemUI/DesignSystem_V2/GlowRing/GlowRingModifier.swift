@@ -11,6 +11,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - View extension
 
@@ -33,7 +34,8 @@ public extension View {
 struct GlowRingModifier: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var isVisible = false
+    @State private var isAppeared = false
+    @State private var isOnScreen = false
     /// Margin so the centered stroke's clipped outer half (and the blur falloff feeding
     /// inward) is fully rendered before the rounded-box clip cuts the outer half.
     private let margin: CGFloat = 64
@@ -56,8 +58,15 @@ struct GlowRingModifier: ViewModifier {
                 }
                 .allowsHitTesting(false)
             }
-            .onAppear { isVisible = true }
-            .onDisappear { isVisible = false }
+            .onGeometryChange(for: Bool.self, of: { proxy in
+                proxy.frame(in: .global).intersects(UIScreen.main.bounds)
+            }, action: { isOnScreen = $0 })
+            .onAppear { isAppeared = true }
+            .onDisappear { isAppeared = false }
+    }
+
+    private var isPaused: Bool {
+        !isAnimating || !isAppeared || !isOnScreen
     }
 }
 
@@ -73,7 +82,7 @@ private extension GlowRingModifier {
         } else {
             // Throttled: the rotation is slow (full turn ≈ 24s), so 30fps looks identical to the
             // default "as fast as possible" while drawing a fraction of the frames. Paused off-screen.
-            TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !isVisible || !isAnimating)) { timeline in
+            TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: isPaused)) { timeline in
                 let t = timeline.date.timeIntervalSinceReferenceDate
                 canvasContent(width: w, height: h, phase: phaseAngle(at: t), mix: morphMix(at: t))
             }

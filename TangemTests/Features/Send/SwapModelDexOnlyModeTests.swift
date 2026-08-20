@@ -227,7 +227,7 @@ private extension SwapModelDexOnlyModeTests {
     func makeEnvironment(restriction: SwapBalanceRestriction) -> Environment {
         let expressManager = ConfigurableExpressManagerStub()
         let balanceRestrictionChecker = BalanceRestrictionCheckerStub(result: restriction)
-        let sourceToken = SwapableTokenStub()
+        let sourceToken = DexOnlySwapableTokenStub()
 
         let swapModel = SwapModel(
             sourceToken: sourceToken,
@@ -384,7 +384,7 @@ private final class ExpressProviderManagerStub: ExpressProviderManager {
     }
 }
 
-private final class SwapableTokenStub: SendSwapableToken {
+private final class DexOnlySwapableTokenStub: SendSwapableToken {
     private let inner = SendSourceTokenStub()
 
     // MARK: - SendSourceToken proxy
@@ -423,8 +423,8 @@ private final class SwapableTokenStub: SendSwapableToken {
     var tokenFeeProvidersManager: any TokenFeeProvidersManager { fatalError("Unused in tests") }
     var transactionValidator: any SendTransactionValidator { fatalError("Unused in tests") }
     var transactionCreator: any SendTransactionCreator { fatalError("Unused in tests") }
-    var balanceProvider: any TangemExpress.BalanceProvider { fatalError("Unused in tests") }
-    var analyticsLogger: any TangemExpress.AnalyticsLogger { fatalError("Unused in tests") }
+    var balanceProvider: any BalanceProvider { fatalError("Unused in tests") }
+    var analyticsLogger: any AnalyticsLogger { fatalError("Unused in tests") }
     var providerTransactionValidator: any ExpressProviderTransactionValidator { fatalError("Unused in tests") }
 }
 

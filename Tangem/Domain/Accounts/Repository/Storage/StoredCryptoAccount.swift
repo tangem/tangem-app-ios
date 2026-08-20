@@ -33,6 +33,7 @@ struct StoredCryptoAccount: Codable, Equatable {
     let tokens: [Token]
     let grouping: Grouping
     let sorting: Sorting
+    let type: AccountType?
 }
 
 // MARK: - Inner types

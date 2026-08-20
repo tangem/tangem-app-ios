@@ -14,8 +14,8 @@ import TangemVisa
 import TangemSdk
 import TangemNFT
 import TangemFoundation
-import TangemMobileWalletSdk
 import TangemPay
+import TangemMobileWalletSdk
 
 class CommonUserWalletModel {
     // MARK: Services
@@ -242,7 +242,7 @@ extension CommonUserWalletModel: UserWalletModel {
                 _walletImageProvider = nil
                 updateConfiguration(walletInfo: .cardWallet(mutableCardInfo)) // Upgrading from mobile wallet to card wallet
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
-                cleanMobileWallet()
+                cleanMobileWallet(mobileWalletInfo: existingInfo)
                 syncRemoteAfterUpgrade()
                 logMobileWalletUpgradedAnalytics()
             }
@@ -274,6 +274,16 @@ extension CommonUserWalletModel: UserWalletModel {
             case .mobileWallet(let info):
                 var mutableInfo = info
                 mutableInfo.hasICloudBackup = true
+                updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
+            }
+
+        case .iCloudBackupDeleted:
+            switch walletInfo {
+            case .cardWallet:
+                break
+            case .mobileWallet(let info):
+                var mutableInfo = info
+                mutableInfo.hasICloudBackup = false
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
 
@@ -349,6 +359,22 @@ extension CommonUserWalletModel: TangemPayAuthorizingProvider {
             return TangemPayAuthorizingMobileWalletInteractor(
                 userWalletId: userWalletId,
                 userWalletConfig: config
+            )
+        }
+    }
+}
+
+extension CommonUserWalletModel: JointAccountDerivationInteractorProvider {
+    var jointAccountDerivationInteractor: JointAccountDerivationInteractor {
+        switch walletInfo {
+        case .cardWallet:
+            return JointAccountCardDerivationInteractor(config: config, keysRepository: keysRepository)
+        case .mobileWallet:
+            return JointAccountMobileWalletDerivationInteractor(
+                userWalletId: userWalletId,
+                userWalletConfig: config,
+                keysRepository: keysRepository,
+                mobileWalletSdk: CommonMobileWalletSdk()
             )
         }
     }
@@ -434,13 +460,8 @@ extension CommonUserWalletModel: DisposableEntity {
 // MARK: - Private methods
 
 private extension CommonUserWalletModel {
-    func cleanMobileWallet() {
-        let mobileSdk = CommonMobileWalletSdk()
-        do {
-            try mobileSdk.delete(walletIDs: [userWalletId])
-        } catch {
-            AppLogger.error("Failed to delete mobile wallet after upgrade:", error: error)
-        }
+    func cleanMobileWallet(mobileWalletInfo: MobileWalletInfo) {
+        MobileCleanupUtil.clean(walletId: userWalletId, mobileWalletInfo: mobileWalletInfo)
     }
 }
 

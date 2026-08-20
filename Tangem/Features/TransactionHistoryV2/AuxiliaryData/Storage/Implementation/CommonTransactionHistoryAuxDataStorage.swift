@@ -14,18 +14,6 @@ import TangemAppDatabase
 
 struct CommonTransactionHistoryAuxDataStorage {
     @Injected(\.appDatabase) private var appDatabase: AppDatabase
-
-    private func providerType(fromString string: String) -> ExpressProviderType {
-        do {
-            return try TransactionHistoryAuxDataMapper.mapToExpressProviderType(fromString: string)
-        } catch {
-            // An unknown provider type shouldn't prevent the provider itself from being mapped,
-            // therefore fall back to the `.unknown` type and only log the error w/o throwing it
-            TransactionHistoryLogger.warning("\(error)")
-
-            return .unknown
-        }
-    }
 }
 
 // MARK: - TransactionHistoryAuxDataStorage protocol conformance
@@ -39,8 +27,7 @@ extension CommonTransactionHistoryAuxDataStorage: TransactionHistoryAuxDataStora
                 .fetchAll(database)
                 .compactMap { record in
                     do {
-                        let providerType = providerType(fromString: record.type)
-                        let provider = try TransactionHistoryAuxDataMapper.mapToExpressProvider(record, providerType: providerType)
+                        let provider = try TransactionHistoryAuxDataMapper.mapToExpressProvider(record)
 
                         return TransactionHistoryAuxDataCachedValue(value: provider, updatedAt: record.updatedAt)
                     } catch {
@@ -161,7 +148,6 @@ extension CommonTransactionHistoryAuxDataStorage: TransactionHistoryAuxDataStora
                 }
 
             // [REDACTED_TODO_COMMENT]
-            // in the new list of token items. Come up with a better housekeeping strategy for crypto currencies ([REDACTED_INFO])
             for record in records {
                 try record.upsert(database)
             }

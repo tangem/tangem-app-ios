@@ -16,16 +16,18 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
 
     private let userWalletInfo: UserWalletInfo
     private let address: String
-    private let swapableToken: SendSwapableToken
+    private let swapParameters: PredefinedSwapParameters
+    private let networks: [TangemPayBalance.Network]
 
     private weak var coordinator: TangemPayAddFundsSheetRoutable?
 
     init(input: Input, coordinator: TangemPayAddFundsSheetRoutable) {
         userWalletInfo = input.userWalletInfo
         address = input.address
-        swapableToken = input.swapableToken
+        swapParameters = input.swapParameters
+        networks = input.networks
 
-        options = [.swap, .receive] + (input.isBankTransferAvailable ? [.bankTransfer] : [])
+        options = (input.isBankTransferAvailable ? [.bankTransfer] : []) + [.swap, .receive]
 
         self.coordinator = coordinator
 
@@ -42,7 +44,11 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
 
         case .receive:
             Analytics.log(.visaScreenButtonVisaReceive, analyticsSystems: .all, contextParams: .userWallet(userWalletInfo.id))
-            openReceiveSheet()
+            if FeatureProvider.isAvailable(.tangemPayMultichain), !TangemPayNetworkRowResolver.resolve(networks).isEmpty {
+                openChooseNetworkSheet()
+            } else {
+                openReceiveSheet()
+            }
 
         case .bankTransfer:
             Analytics.log(.visaVATopupButtonClicked, contextParams: .userWallet(userWalletInfo.id))
@@ -59,8 +65,9 @@ extension TangemPayAddFundsSheetViewModel {
     struct Input {
         let userWalletInfo: UserWalletInfo
         let address: String
-        let swapableToken: SendSwapableToken
+        let swapParameters: PredefinedSwapParameters
         let isBankTransferAvailable: Bool
+        let networks: [TangemPayBalance.Network]
     }
 }
 
@@ -81,7 +88,11 @@ extension TangemPayAddFundsSheetViewModel {
         coordinator?.addFundsSheetRequestReceive(viewModel: receiveViewModel)
     }
 
+    func openChooseNetworkSheet() {
+        coordinator?.addFundsSheetRequestChooseNetwork(networks: networks)
+    }
+
     func openSwap() {
-        coordinator?.addFundsSheetRequestSwap(input: .to(swapableToken))
+        coordinator?.addFundsSheetRequestSwap(input: swapParameters)
     }
 }

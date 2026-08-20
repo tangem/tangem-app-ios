@@ -7,8 +7,11 @@
 //
 
 import Foundation
+import TangemMobileWalletBackup
 
 class MobileBackupTypesCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -61,6 +64,31 @@ extension MobileBackupTypesCoordinator: MobileBackupTypesRoutable {
 
     func openMobileOnboarding(input: MobileOnboardingInput) {
         openOnboardingModal(with: .mobileInput(input))
+    }
+
+    func openMobileBackupICloudDetails(
+        backup: MobileWalletBackup,
+        userWalletModel: UserWalletModel,
+        onDelete: @escaping () -> Void
+    ) {
+        let viewModel = MobileBackupICloudDetailsViewModel(
+            backup: backup,
+            userWalletModel: userWalletModel,
+            coordinator: self,
+            onDelete: onDelete
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - MobileBackupICloudDetailsRoutable
+
+extension MobileBackupTypesCoordinator: MobileBackupICloudDetailsRoutable {
+    func closeMobileBackupICloudDetails() {
+        floatingSheetPresenter.removeActiveSheet()
     }
 }
 
