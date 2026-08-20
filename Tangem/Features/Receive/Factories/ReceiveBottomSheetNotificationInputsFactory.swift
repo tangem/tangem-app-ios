@@ -148,6 +148,7 @@ struct ReceiveBottomSheetNotificationInputsFactory {
              (_, .arbitrumNova),
              (_, .plasma),
              (_, .adi),
+             (_, .electroneum),
              (_, .seiEvm):
             // No additional notifications for these blockchains
             return baseNotificationInputs
