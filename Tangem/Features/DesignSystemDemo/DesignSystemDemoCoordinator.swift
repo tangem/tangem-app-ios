@@ -23,7 +23,6 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemSegmentedPickerDemo()
     func openTangemSearchFieldDemo()
     func openTangemSearchDemo()
-    func openNotificationBannerDemo()
     func openTypographyDemo()
     func openTypographyV2Demo()
     func openTangemDropDownDemo()
@@ -37,6 +36,8 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemFadeDemo()
     func openTangemMessageBubbleDemo()
     func openTokenIconV2Demo()
+    func openTokenRowV2Demo()
+    func openTokenRowMarketDemo()
     func openUtilGraphDemo()
     func openUtilPriceChangeDemo()
     func openUtilBalanceDemo()
@@ -59,7 +60,6 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemTabsDemoViewModel: TangemTabsDemoModel?
     @Published var tangemMainActionButtonDemoViewModel: TangemMainActionButtonDemoViewModel?
     @Published var tangemSegmentedPickerDemoViewModel: TangemSegmentedPickerDemoModel?
-    @Published var notificationBannerDemoViewModel: NotificationBannerDemoViewModel?
     @Published var typographyDemoViewModel: TypographyDemoViewModel?
     @Published var typographyV2DemoViewModel: TypographyV2DemoViewModel?
     @Published var tangemSearchFieldDemoViewModel: TangemSearchFieldDemoViewModel?
@@ -75,6 +75,8 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemFadeDemoViewModel: TangemFadeDemoViewModel?
     @Published var tangemMessageBubbleDemoViewModel: TangemMessageBubbleDemoViewModel?
     @Published var tokenIconV2DemoViewModel: TokenIconV2DemoViewModel?
+    @Published var tokenRowV2DemoViewModel: TokenRowV2DemoViewModel?
+    @Published var tokenRowMarketDemoViewModel: TokenRowMarketDemoViewModel?
     @Published var utilGraphDemoViewModel: UtilGraphDemoViewModel?
     @Published var utilPriceChangeDemoViewModel: UtilPriceChangeDemoViewModel?
     @Published var utilBalanceDemoViewModel: UtilBalanceDemoViewModel?
@@ -131,10 +133,6 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemMainActionButtonDemo() {
         tangemMainActionButtonDemoViewModel = .init()
-    }
-
-    func openNotificationBannerDemo() {
-        notificationBannerDemoViewModel = .init()
     }
 
     func openTypographyDemo() {
@@ -203,6 +201,14 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTokenIconV2Demo() {
         tokenIconV2DemoViewModel = .init()
+    }
+
+    func openTokenRowV2Demo() {
+        tokenRowV2DemoViewModel = .init()
+    }
+
+    func openTokenRowMarketDemo() {
+        tokenRowMarketDemoViewModel = .init()
     }
 
     func openUtilGraphDemo() {

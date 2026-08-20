@@ -15,33 +15,68 @@ import TangemMobileWalletSdk
 import protocol TangemUI.FloatingSheetContentViewModel
 
 final class MobileRemoveWalletNotificationViewModel: ObservableObject {
-    @Published var alert: AlertBinder?
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
-    let title = Localization.hwRemoveWalletNotificationTitle
+    var title: String {
+        switch backupState {
+        case .iCloudBackup:
+            Localization.hwRemoveWalletCloudBackupTitle
+        case .seedBackup, .noBackup:
+            isICloudBackupFeatureAvailable
+                ? Localization.hwRemoveWalletNotificationTitleV2
+                : Localization.hwRemoveWalletNotificationTitle
+        }
+    }
 
     var description: String {
-        isBackupNeeded ?
-            Localization.hwRemoveWalletNotificationDescriptionWithoutBackup :
-            Localization.hwRemoveWalletNotificationDescriptionHasBackup
+        switch backupState {
+        case .iCloudBackup:
+            Localization.hwRemoveWalletCloudBackupDescription(MobileBackupConstants.iCloudServiceName)
+        case .seedBackup:
+            isICloudBackupFeatureAvailable
+                ? Localization.hwRemoveWalletNotificationDescriptionHasBackupV2
+                : Localization.hwRemoveWalletNotificationDescriptionHasBackup
+        case .noBackup:
+            Localization.hwRemoveWalletNotificationDescriptionWithoutBackup
+        }
+    }
+
+    var primaryAction: Action {
+        makePrimaryAction()
+    }
+
+    var secondaryAction: Action {
+        makeSecondaryAction()
+    }
+
+    var isICloudBackupFeatureAvailable: Bool {
+        FeatureProvider.isAvailable(.mobileWalletBackup)
     }
 
     private var analyticsContextParams: Analytics.ContextParams {
         .custom(userWalletModel.analyticsContextData)
     }
 
-    lazy var removeAction: Action = makeRemoveAction()
-    lazy var backupAction: Action = makeBackupAction()
-
-    private let isBackupNeeded: Bool
+    private var backupState: MobileRemoveWalletBackupState {
+        removeManager.backupState
+    }
 
     private let userWalletModel: UserWalletModel
+    private let removeManager: MobileRemoveWalletManager
     private weak var coordinator: MobileRemoveWalletNotificationRoutable?
 
-    init(userWalletModel: UserWalletModel, coordinator: MobileRemoveWalletNotificationRoutable) {
+    init(
+        userWalletModel: UserWalletModel,
+        removeManager: MobileRemoveWalletManager,
+        coordinator: MobileRemoveWalletNotificationRoutable
+    ) {
         self.userWalletModel = userWalletModel
+        self.removeManager = removeManager
         self.coordinator = coordinator
-        isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
-        if isBackupNeeded {
+
+        if isICloudBackupFeatureAvailable {
+            logForgetWalletRequestAnalytics()
+        } else if backupState == .noBackup {
             logMobileBackupNeededAnalytics()
         }
     }
@@ -60,21 +95,58 @@ extension MobileRemoveWalletNotificationViewModel {
 // MARK: - Private methods
 
 private extension MobileRemoveWalletNotificationViewModel {
-    func makeRemoveAction() -> Action {
-        Action(
-            title: isBackupNeeded ? Localization.hwRemoveWalletNotificationActionForgetAnyway : Localization.hwRemoveWalletNotificationActionForget,
-            handler: weakify(self, forFunction: MobileRemoveWalletNotificationViewModel.removeHandler)
-        )
+    func makePrimaryAction() -> Action {
+        switch backupState {
+        case .iCloudBackup:
+            Action(
+                title: Localization.hwRemoveWalletNotificationActionForget,
+                handler: { [weak self] in
+                    self?.removeHandler(deletesICloudBackup: false)
+                }
+            )
+        case .seedBackup:
+            Action(
+                title: isICloudBackupFeatureAvailable
+                    ? Localization.hwRemoveWalletNotificationActionBackupViewV2
+                    : Localization.hwRemoveWalletNotificationActionBackupView,
+                handler: weakify(self, forFunction: MobileRemoveWalletNotificationViewModel.revealHandler)
+            )
+        case .noBackup:
+            Action(
+                title: Localization.hwRemoveWalletNotificationActionBackupGo,
+                handler: weakify(self, forFunction: MobileRemoveWalletNotificationViewModel.backupHandler)
+            )
+        }
     }
 
-    func makeBackupAction() -> Action {
-        Action(
-            title: isBackupNeeded ? Localization.hwRemoveWalletNotificationActionBackupGo : Localization.hwRemoveWalletNotificationActionBackupView,
-            handler: weakify(self, forFunction: MobileRemoveWalletNotificationViewModel.backupHandler)
-        )
+    func makeSecondaryAction() -> Action {
+        switch backupState {
+        case .iCloudBackup:
+            Action(
+                title: Localization.hwRemoveWalletForgetAndDeleteBackup,
+                handler: { [weak self] in
+                    self?.removeHandler(deletesICloudBackup: true)
+                }
+            )
+        case .seedBackup:
+            Action(
+                title: Localization.hwRemoveWalletNotificationActionForget,
+                handler: { [weak self] in
+                    self?.removeHandler(deletesICloudBackup: false)
+                }
+            )
+        case .noBackup:
+            Action(
+                title: Localization.hwRemoveWalletNotificationActionForgetAnyway,
+                handler: { [weak self] in
+                    self?.removeHandler(deletesICloudBackup: false)
+                }
+            )
+        }
     }
 
-    func removeHandler() {
+    func removeHandler(deletesICloudBackup: Bool) {
+        removeManager.deletesICloudBackup = deletesICloudBackup
         runTask(in: self) { viewModel in
             await viewModel.openRemoveWallet()
         }
@@ -82,11 +154,13 @@ private extension MobileRemoveWalletNotificationViewModel {
 
     func backupHandler() {
         runTask(in: self) { viewModel in
-            if viewModel.isBackupNeeded {
-                await viewModel.openSeedPhraseBackup()
-            } else {
-                await viewModel.seedPhraseReveal()
-            }
+            await viewModel.openSeedPhraseBackup()
+        }
+    }
+
+    func revealHandler() {
+        runTask(in: self) { viewModel in
+            await viewModel.seedPhraseReveal()
         }
     }
 
@@ -98,10 +172,13 @@ private extension MobileRemoveWalletNotificationViewModel {
             AppLogger.error("Unlock is canceled", error: error)
         } catch {
             AppLogger.error("Unlock failed:", error: error)
-            await runOnMain {
-                alert = error.alertBinder
-            }
+            await showAlert(error.alertBinder)
         }
+    }
+
+    @MainActor
+    func showAlert(_ alert: AlertBinder) {
+        alertPresenter.present(alert: alert)
     }
 }
 
@@ -133,6 +210,20 @@ private extension MobileRemoveWalletNotificationViewModel {
 // MARK: - Analytics
 
 private extension MobileRemoveWalletNotificationViewModel {
+    func logForgetWalletRequestAnalytics() {
+        let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
+
+        Analytics.log(
+            .walletSettingsForgetWalletRequest,
+            params: [
+                .source: .walletSettings,
+                .backupCloud: statusUtil.hasICloudBackup ? .done : .incomplete,
+                .backupManual: .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup),
+            ],
+            contextParams: analyticsContextParams
+        )
+    }
+
     func logMobileBackupNeededAnalytics() {
         Analytics.log(
             .walletSettingsNoticeBackupFirst,
@@ -150,15 +241,19 @@ private extension MobileRemoveWalletNotificationViewModel {
 @MainActor
 private extension MobileRemoveWalletNotificationViewModel {
     func openRemoveWallet() {
-        coordinator?.openMobileRemoveWallet(userWalletId: userWalletModel.userWalletId)
+        coordinator?.openMobileRemoveWallet(removeManager: removeManager)
     }
 
     func openSeedPhraseBackup() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackup(
-            userWalletModel: userWalletModel,
-            source: .walletSettings(action: .remove)
-        ))
-        coordinator?.openMobileOnboardingFromRemoveWalletNotification(input: input)
+        if isICloudBackupFeatureAvailable {
+            coordinator?.openMobileBackupTypesFromRemoveWalletNotification(userWalletModel: userWalletModel)
+        } else {
+            let input = MobileOnboardingInput(flow: .seedPhraseBackup(
+                userWalletModel: userWalletModel,
+                source: .walletSettings(action: .remove)
+            ))
+            coordinator?.openMobileOnboardingFromRemoveWalletNotification(input: input)
+        }
     }
 
     func openSeedPhraseReveal(context: MobileWalletContext) {

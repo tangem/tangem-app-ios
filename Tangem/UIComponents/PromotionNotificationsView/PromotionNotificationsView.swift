@@ -14,7 +14,16 @@ struct PromotionNotificationsView: View {
     @ObservedObject var viewModel: PromotionNotificationsViewModel
 
     var body: some View {
-        configured(NotificationBannerCarousel(items: viewModel.bannerItems))
+        configured(
+            NotificationBannerCarousel(items: viewModel.bannerItems) { item in
+                NotificationMessageBanner(
+                    bannerType: item.bannerType,
+                    variant: item.variant,
+                    ring: item.ring,
+                    accessibilityIdentifier: item.accessibilityIdentifier
+                )
+            }
+        )
     }
 
     private func configured<Item, BannerView: View>(

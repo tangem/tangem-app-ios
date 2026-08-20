@@ -216,6 +216,7 @@ final class CryptoAccountsNetworkMapper {
                 iconColor: accountDTO.iconColor
             )
             let tokens = map(tokens: accountDTO.tokens)
+            let type = mapAccountType(from: accountDTO)
 
             return StoredCryptoAccount(
                 derivationIndex: accountDTO.derivation,
@@ -223,7 +224,8 @@ final class CryptoAccountsNetworkMapper {
                 icon: icon,
                 tokens: tokens,
                 grouping: grouping,
-                sorting: sorting
+                sorting: sorting,
+                type: type
             )
         }
 
@@ -286,10 +288,27 @@ final class CryptoAccountsNetworkMapper {
             .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
     }
 
+    private func mapAccountType(from account: AccountsDTO.Response.Accounts.Account) -> AccountType {
+        guard let rawType = account.type else {
+            // The endpoint does not report types yet, and an account without one is a crypto account
+            return .crypto
+        }
+
+        guard let type = AccountType(rawValue: rawType) else {
+            AccountsLogger.warning("Mapping unknown account type '\(rawType)' to a default 'crypto' type")
+            return .crypto
+        }
+
+        return type
+    }
+
     private func mapCounters(from wallet: AccountsDTO.Response.Accounts.Wallet) -> RemoteCryptoAccountsInfo.Counters {
+        // Every account the endpoint counts today is a crypto one, so the whole total stands in for that counter until
+        // it tells the types apart. The joint one has nothing to stand in for it, hence no count rather than a wrong one
         return RemoteCryptoAccountsInfo.Counters(
             archived: wallet.totalArchivedAccounts,
-            total: wallet.totalAccounts
+            crypto: wallet.totalCryptoAccounts ?? wallet.totalAccounts,
+            joint: wallet.totalJointAccounts
         )
     }
 

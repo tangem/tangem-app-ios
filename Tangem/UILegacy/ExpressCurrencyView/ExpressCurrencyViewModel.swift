@@ -48,10 +48,16 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
     }
 
     func update(wallet: LoadingResult<any SendGenericToken, Error>) {
-        state.update(wallet: wallet, viewType: viewType)
+        let presentation = presentation(of: wallet)
+        state.update(wallet: wallet, presentation: presentation, viewType: viewType)
 
         if case .success(let wallet as SendSourceToken) = wallet {
-            balanceStateCancellable = wallet.availableBalanceProvider.formattedBalanceTypePublisher
+            // An abstractly presented account has no token to denominate its balance in.
+            let balanceProvider = presentation == nil
+                ? wallet.availableBalanceProvider
+                : wallet.fiatAvailableBalanceProvider
+
+            balanceStateCancellable = balanceProvider.formattedBalanceTypePublisher
                 .withWeakCaptureOf(self)
                 .map { $0.loadableBalanceViewStateBuilder.build(type: $1) }
                 .receiveOnMain()
@@ -61,6 +67,16 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         } else {
             balanceStateCancellable = nil
         }
+    }
+
+    /// Only the receive side is presented abstractly: the same token drives the send side of a
+    /// withdrawal, where it keeps its token rendering.
+    private func presentation(of wallet: LoadingResult<any SendGenericToken, Error>) -> SendReceiveTokenPresentation? {
+        guard viewType == .receive, case .success(let token) = wallet else {
+            return nil
+        }
+
+        return (token as? SendReceiveToken)?.presentation
     }
 
     func updateFiatValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
@@ -124,6 +140,10 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         state.isSwitchCurrencyAvailable = isSwitchCurrencyAvailable
     }
 
+    func update(canChangeCurrency: Bool) {
+        state.canChangeCurrency = canChangeCurrency
+    }
+
     /// Prevents an in-flight async conversion from overwriting
     /// the bottom row after the calculation type has changed.
     func cancelPendingFiatConversion() {
@@ -146,6 +166,7 @@ extension ExpressCurrencyViewModel {
 
         mutating func update(
             wallet: LoadingResult<any SendGenericToken, Error>,
+            presentation: SendReceiveTokenPresentation?,
             viewType: ExpressCurrencyViewType
         ) {
             canChangeCurrency = !wallet.isLoading
@@ -187,6 +208,13 @@ extension ExpressCurrencyViewModel {
                 symbolState = .noData
                 balanceState = .empty
             }
+
+            // Account funding flows render the receive side abstractly: fixed currency symbol
+            // (e.g. "USD") while keeping the account header and balance.
+            if let presentation {
+                symbolState = .loaded(text: presentation.currencySymbol)
+                tokenIconState = .tangemPay
+            }
         }
     }
 
@@ -212,5 +240,6 @@ extension ExpressCurrencyViewModel {
         case notAvailable
         case tokenSelectionRequired
         case icon(TokenIconInfo)
+        case tangemPay
     }
 }

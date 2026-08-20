@@ -186,8 +186,8 @@ final class P2PBatchBalancesServiceTests: XCTestCase {
             targets: [target],
             preferredTargets: [target],
             item: .ethereum,
-            unbondingPeriod: .constant(days: 0),
-            warmupPeriod: .constant(days: 0),
+            unbondingPeriod: .days(0),
+            warmupPeriod: .days(0),
             rewardClaimingType: .auto,
             rewardScheduleType: .daily,
             maximumStakeAmount: nil

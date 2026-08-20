@@ -12,7 +12,12 @@ import Foundation
 @testable import Tangem
 
 final class ExpressAPIProviderStub: ExpressAPIProvider {
-    func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] { [] }
+    var assetsHandler: (Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] = { _ in [] }
+
+    func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] {
+        try await assetsHandler(currencies)
+    }
+
     func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] { [] }
     func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { [] }
 

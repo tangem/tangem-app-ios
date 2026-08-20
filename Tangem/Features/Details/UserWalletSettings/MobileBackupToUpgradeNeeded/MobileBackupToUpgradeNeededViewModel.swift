@@ -12,9 +12,9 @@ import TangemLocalization
 import protocol TangemUI.FloatingSheetContentViewModel
 
 final class MobileBackupToUpgradeNeededViewModel {
-    let title = Localization.hwBackupNeedTitle
-    let description = Localization.hwBackupToUpgradeDescription
-    let actionTitle = Localization.hwBackupNeedAction
+    let title: String
+    let description: String
+    let actionTitle: String
 
     private let userWalletModel: UserWalletModel
     private let source: MobileOnboardingFlowSource
@@ -31,6 +31,18 @@ final class MobileBackupToUpgradeNeededViewModel {
         self.source = source
         self.onBackupFinished = onBackupFinished
         self.coordinator = coordinator
+
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            title = Localization.hwUpgradeSaveSeedTitle
+            description = Localization.hwUpgradeSaveSeedDescription
+            actionTitle = Localization.hwUpgradeSaveSeedAction
+        } else {
+            title = Localization.hwBackupNeedTitle
+            description = Localization.hwBackupToUpgradeDescription
+            actionTitle = Localization.hwBackupNeedAction
+        }
+
+        logScreenOpenedAnalytics()
     }
 }
 
@@ -61,6 +73,26 @@ private extension MobileBackupToUpgradeNeededViewModel {
 
     func close() {
         coordinator?.dismissMobileBackupToUpgradeNeeded()
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileBackupToUpgradeNeededViewModel {
+    func logScreenOpenedAnalytics() {
+        var params = source.analyticsParams
+
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            let statusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
+            params[.backupManual] = .affirmativeOrNegative(for: statusUtil.hasMnemonicBackup)
+            params[.backupCloud] = statusUtil.hasICloudBackup ? .done : .incomplete
+        }
+
+        Analytics.log(
+            .walletSettingsNoticeBackupFirst,
+            params: params,
+            contextParams: .custom(userWalletModel.analyticsContextData)
+        )
     }
 }
 
