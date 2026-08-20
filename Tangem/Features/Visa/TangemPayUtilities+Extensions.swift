@@ -45,6 +45,19 @@ extension TangemPayUtilities {
         .polygon(testnet: false)
     }
 
+    /// Maps a BFF network name onto the wallet's blockchain; `nil` for networks the wallet doesn't support.
+    static func blockchain(name: String, isTestnet: Bool) -> Blockchain? {
+        switch name {
+        case Blockchain.ethereum(testnet: false).networkId: .ethereum(testnet: isTestnet)
+        case Blockchain.polygon(testnet: false).networkId: .polygon(testnet: isTestnet)
+        case Blockchain.bsc(testnet: false).networkId: .bsc(testnet: isTestnet)
+        case Blockchain.base(testnet: false).networkId: .base(testnet: isTestnet)
+        case Blockchain.arbitrum(testnet: false).networkId: .arbitrum(testnet: isTestnet)
+        case Blockchain.tron(testnet: false).networkId: .tron(testnet: isTestnet)
+        default: nil
+        }
+    }
+
     static func makeAddress(using walletPublicKey: Wallet.PublicKey) throws -> String {
         try AddressServiceFactory(blockchain: TangemPayUtilities.blockchain)
             .makeAddressService()

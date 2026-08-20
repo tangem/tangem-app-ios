@@ -39,6 +39,7 @@ class BaseTestCase: XCTestCase {
         skipToS: Bool = true,
         clearStorage: Bool = false,
         keepWallets: Bool = false,
+        featureToggles: [String: Bool] = [:],
         scenarios: [ScenarioConfig] = [],
         mockCardBatchIdOverride: String? = nil,
         mockCardFirmwareOverride: String? = nil,
@@ -76,6 +77,13 @@ class BaseTestCase: XCTestCase {
 
         if keepWallets {
             arguments.append("-uitest-keep-wallets")
+        }
+
+        // Per-test overrides first, then run-wide CI/Allure overrides (UITEST_FEATURE_TOGGLES) win.
+        // Keys are Feature names (e.g. TWI-1259_tron_gasless); the app skips unknown ones.
+        let resolvedFeatureToggles = featureToggles.merging(FeatureToggleUITestsOverridesProvider.runOverrides) { _, runOverride in runOverride }
+        for (key, isEnabled) in resolvedFeatureToggles {
+            arguments.append("-uitest-feature-\(key)-\(isEnabled ? "on" : "off")")
         }
 
         // Pin locale/language so currency, number and date assertions don't depend on the simulator region.

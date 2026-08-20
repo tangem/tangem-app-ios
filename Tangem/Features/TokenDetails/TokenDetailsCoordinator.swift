@@ -63,7 +63,6 @@ final class TokenDetailsCoordinator: CoordinatorObject {
         let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: options.userWalletInfo,
             tokenItem: options.walletModel.tokenItem,
-            walletModelUpdater: options.walletModel,
             transactionHistoryEnricherFactory: { [weak walletModel = options.walletModel] in
                 try? await walletModel?
                     .featuresPublisher
@@ -345,10 +344,17 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
         }
     }
 
-    func shareFromTransactionDetails(_ text: String) {
+    func shareFromTransactionDetails(_ item: TransactionDetailsShareItem) {
         Task { @MainActor in
             floatingSheetPresenter.pauseSheetsDisplaying()
-            let controller = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+            let activityItem: Any
+            switch item {
+            case .text(let text):
+                activityItem = text
+            case .url(let url):
+                activityItem = url
+            }
+            let controller = UIActivityViewController(activityItems: [activityItem], applicationActivities: nil)
             controller.completionWithItemsHandler = { [weak self] _, _, _, _ in
                 self?.floatingSheetPresenter.resumeSheetsDisplaying()
             }
@@ -379,6 +385,13 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
     func closeTransactionDetails() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openTokenFromTransactionDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            openRefundCurrency(walletModel: walletModel, userWalletModel: userWalletModel)
         }
     }
 }
@@ -481,6 +494,12 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openStaking(options: StakingDetailsCoordinator.Options) {
+        let options = StakingDetailsCoordinator.Options(
+            sendInput: options.sendInput,
+            manager: options.manager,
+            dismissesOnSameTokenFeeCurrency: true
+        )
+
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.stakingDetailsCoordinator = nil
         }
