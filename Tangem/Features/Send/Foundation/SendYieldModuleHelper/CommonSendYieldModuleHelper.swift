@@ -128,10 +128,6 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
             throw ExpressProviderError.yieldModuleSwapUnavailable(.transferCalldataMalformed)
         }
 
-        guard !transfer.destination.caseInsensitiveEquals(to: Constants.zeroAddress) else {
-            throw ExpressProviderError.yieldModuleSwapUnavailable(.transferToZeroAddress)
-        }
-
         let expectedAmount = try makeAmountInWEI(from: data)
 
         guard transfer.amount == expectedAmount else {
@@ -193,13 +189,5 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
         case .cex, .onramp, .unknown:
             return false
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension CommonSendYieldModuleHelper {
-    enum Constants {
-        static let zeroAddress = "0x" + String(repeating: "0", count: 40)
     }
 }
