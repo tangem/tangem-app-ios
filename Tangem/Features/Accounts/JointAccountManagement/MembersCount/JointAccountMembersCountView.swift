@@ -97,7 +97,10 @@ struct JointAccountMembersCountView: View {
 #Preview {
     JointAccountMembersCountView(
         viewModel: JointAccountMembersCountViewModel(
-            creationContext: JointAccountCreationHelper(userWalletConfig: UserWalletConfigStubs.walletV2Stub),
+            creationHelper: JointAccountCreationHelper(
+                userWalletConfig: UserWalletConfigStubs.walletV2Stub,
+                accountModelsManager: AccountModelsManagerMock()
+            ),
             coordinator: nil
         )
     )
