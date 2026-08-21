@@ -30,7 +30,7 @@ final class MobileOnboardingBackupICloudFlowBuilder: MobileOnboardingFlowBuilder
         self.userWalletModel = userWalletModel
         self.source = source
         self.coordinator = coordinator
-        super.init(hasProgressBar: true)
+        super.init(hasProgressBar: false)
     }
 
     override func setupFlow() {
