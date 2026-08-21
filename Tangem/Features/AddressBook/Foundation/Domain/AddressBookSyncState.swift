@@ -12,6 +12,14 @@ enum AddressBookSyncState {
     case syncing
     case synced
     case failure(AddressBookSyncError)
+
+    var isSynced: Bool {
+        if case .synced = self {
+            return true
+        }
+
+        return false
+    }
 }
 
 enum AddressBookSyncError: LocalizedError {

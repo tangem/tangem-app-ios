@@ -53,6 +53,7 @@ final class NoopTransactionDetailsRoutable: TransactionDetailsRoutable {
     func openTransactionDetailsURL(_ url: URL) {}
     func shareFromTransactionDetails(text: String) {}
     func openTokenFromTransactionDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel) {}
+    func openAddContactFromTransactionDetails(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {}
     #if INTERNAL || DEBUG
     func openTransactionDetailsDebug(_ info: TransactionDetailsDebugInfo) {}
     #endif

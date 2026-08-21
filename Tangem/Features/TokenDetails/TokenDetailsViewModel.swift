@@ -70,6 +70,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
     private let userTokensManager: any UserTokensManager
+    private let addressBookManager: AddressBookManager
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -91,6 +92,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel: any WalletModel,
         notificationManager: NotificationManager,
         userTokensManager: any UserTokensManager,
+        addressBookManager: AddressBookManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         expressStatusPollingHelper: ExpressStatusPollingHelper,
         xpubGenerator: XPUBGenerator?,
@@ -106,6 +108,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
+        self.addressBookManager = addressBookManager
         self.deeplinkHandler = deeplinkHandler
         self.marketingBannerManager = marketingBannerManager
         self.notificationBannerMapper = notificationBannerMapper
@@ -144,7 +147,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
                 id: transaction.recordID,
                 walletModel: walletModel,
                 userWalletInfo: userWalletInfo,
-                isAccountsMode: isAccountsMode
+                isAccountsMode: isAccountsMode,
+                addressBookManager: addressBookManager
             )
         )
     }
@@ -157,7 +161,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
                 id: TransactionRecord.ID(hash: syntheticHash, index: 0),
                 walletModel: walletModel,
                 userWalletInfo: userWalletInfo,
-                isAccountsMode: isAccountsMode
+                isAccountsMode: isAccountsMode,
+                addressBookManager: addressBookManager
             )
         )
     }

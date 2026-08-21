@@ -34,10 +34,11 @@ enum TransactionDetailsFactory {
     static func reduce(
         transaction: TransactionViewModel,
         record: TransactionRecord,
-        context: TransactionDetailsContext
+        context: TransactionDetailsContext,
+        addContactHelper: TransactionDetailsAddContactHelper
     ) -> (header: TransactionDetailsHeaderViewData, content: TransactionDetailsViewModel.Content) {
         (
-            header(for: transaction, record: record, context: context),
+            header(for: transaction, record: record, context: context, addContactHelper: addContactHelper),
             content(for: transaction, record: record, context: context)
         )
     }
@@ -526,7 +527,8 @@ enum TransactionDetailsFactory {
     private static func header(
         for transaction: TransactionViewModel,
         record: TransactionRecord,
-        context: TransactionDetailsContext
+        context: TransactionDetailsContext,
+        addContactHelper: TransactionDetailsAddContactHelper
     ) -> TransactionDetailsHeaderViewData {
         let status = TransactionOperationStatusMapper.viewStatus(for: record)
         let title = headerTitle(for: transaction, record: record, status: status)
@@ -544,7 +546,11 @@ enum TransactionDetailsFactory {
             date: dateText,
             operationIcon: TransactionViewIconViewData(type: transaction.transactionType, status: status, isOutgoing: transaction.isOutgoing),
             iconGlyph: headerIconGlyph(for: record),
-            menuActions: TransactionDetailsMenuFactory.menuActions(for: record, context: context)
+            menuActions: TransactionDetailsMenuFactory.menuActions(
+                for: record,
+                context: context,
+                addContactHelper: addContactHelper
+            )
         )
     }
 

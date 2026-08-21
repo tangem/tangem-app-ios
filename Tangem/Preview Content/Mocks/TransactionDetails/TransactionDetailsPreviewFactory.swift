@@ -175,6 +175,8 @@ private extension TransactionDetailsPreviewFactory {
             walletModel: CommonWalletModel.previewWalletModel(history: [record]),
             userWalletInfo: userWalletModel.userWalletInfo,
             isAccountsMode: false,
+            addressBookManager: userWalletModel.addressBookManager,
+            addressBookAnalyticsLogger: CommonAddressBookAnalyticsLogger(),
             routable: noopRoutable
         )
     }

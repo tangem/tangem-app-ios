@@ -36,6 +36,7 @@ enum MarketsMainTokenDetailsCoordinatorFactory {
                 keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
                 walletModelsManager: account.walletModelsManager,
                 userTokensManager: account.userTokensManager,
+                addressBookManager: userWalletModel.addressBookManager,
                 walletModel: walletModel
             )
         )
