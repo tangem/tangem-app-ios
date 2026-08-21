@@ -6,13 +6,12 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemFoundation
 
-/// Accumulates the input collected by the joint account creation flow, which spans several screens,
-/// until there is enough of it to actually create the account.
 /// - Note: Created by [REDACTED_AUTHOR]
+/// create the account.
 final class JointAccountCreationHelper {
-    /// Anything gathered so far is lost when the flow is left, since the account is only created by [REDACTED_AUTHOR]
     var hasUnsavedChanges: Bool {
         state.withLock { $0.formData != nil || $0.membersData != nil || $0.creatorName != nil }
     }
@@ -30,10 +29,15 @@ final class JointAccountCreationHelper {
     }
 
     private let userWalletConfig: UserWalletConfig
+    private let accountModelsManager: AccountModelsManager
     private let state = OSAllocatedUnfairLock(initialState: State())
 
-    init(userWalletConfig: UserWalletConfig) {
+    init(
+        userWalletConfig: UserWalletConfig,
+        accountModelsManager: AccountModelsManager
+    ) {
         self.userWalletConfig = userWalletConfig
+        self.accountModelsManager = accountModelsManager
     }
 
     func update(name: String, icon: AccountModel.CompositeIcon) {
@@ -44,9 +48,56 @@ final class JointAccountCreationHelper {
         state.withLock { $0.membersData = MembersData(membersCount: membersCount, signersCount: signersCount) }
     }
 
-    /// The name is stored as it was typed, `JointAccountMemberNameValidator` is what decides whether it fits.
     func update(creatorName: String) {
         state.withLock { $0.creatorName = creatorName }
+    }
+
+    func createAccount() async throws(AccountEditError) {
+        guard let context = collectedContext() else {
+            let message = "A joint account is asked for before every step of the flow contributed its part"
+            AccountsLogger.warning(message)
+            assertionFailure(message)
+
+            throw .unknownError(Error.incompleteCreationContext)
+        }
+
+        try await accountModelsManager.addJointAccount(context: context)
+    }
+}
+
+// MARK: - Error
+
+extension JointAccountCreationHelper {
+    enum Error: String, LocalizedError {
+        case incompleteCreationContext
+
+        var errorDescription: String? {
+            switch self {
+            case .incompleteCreationContext: "A step of the creation flow has not contributed its part."
+            }
+        }
+    }
+}
+
+// MARK: - Private
+
+private extension JointAccountCreationHelper {
+    func collectedContext() -> JointAccountCreationContext? {
+        state.withLock { state in
+            guard let formData = state.formData,
+                  let membersData = state.membersData,
+                  let creatorName = state.creatorName else {
+                return nil
+            }
+
+            return JointAccountCreationContext(
+                name: formData.name,
+                icon: formData.icon,
+                membersCount: membersData.membersCount,
+                signersCount: membersData.signersCount,
+                creatorName: creatorName
+            )
+        }
     }
 }
 

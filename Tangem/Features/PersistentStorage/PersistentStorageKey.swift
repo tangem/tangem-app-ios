@@ -14,6 +14,8 @@ enum PersistentStorageKey {
     case wallets(cid: String)
     /// - Note: Supersedes `wallets(cid:)`.
     case accounts(cid: String)
+    /// Joint accounts are stored apart from `accounts(cid:)` – they come from their own endpoint
+    case jointAccounts(cid: String)
     case walletConnectSessions
     case pendingExpressTransactions
     case pendingOnrampTransactions
@@ -31,6 +33,8 @@ enum PersistentStorageKey {
             return "wallets_\(cid)"
         case .accounts(let cid):
             return "accounts_\(cid)"
+        case .jointAccounts(let cid):
+            return "joint_accounts_\(cid)"
         case .walletConnectSessions:
             return "wallet_connect_sessions"
         case .pendingExpressTransactions:
@@ -58,6 +62,10 @@ enum PersistentStorageKey {
     var shouldEnableCompleteFileProtection: Bool {
         switch self {
         case .accounts:
+            false
+        case .jointAccounts:
+            // Holds the names and addresses of the other members, but the blob is encrypted like every other
+            // per-wallet cache, and the accounts list has to be readable while the device is locked
             false
         case .onrampPreference:
             false
