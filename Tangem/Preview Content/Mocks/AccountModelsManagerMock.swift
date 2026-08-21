@@ -121,6 +121,8 @@ extension AccountModelsManagerMock: AccountModelsManager {
         return .none
     }
 
+    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {}
+
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
         try? await Task.sleep(for: .seconds(2)) // simulate network call
         try? Task.checkCancellation()
