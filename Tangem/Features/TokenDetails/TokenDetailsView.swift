@@ -371,6 +371,7 @@ private extension TokenDetailsView {
             walletModel: walletModel,
             notificationManager: notifManager,
             userTokensManager: cryptoAccountModel.userTokensManager,
+            addressBookManager: userWalletModel.addressBookManager,
             pendingExpressTransactionsManager: pendingTxsManager,
             expressStatusPollingHelper: expressStatusPollingHelper,
             xpubGenerator: nil,
