@@ -65,8 +65,6 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.available
         case .assetRequirement:
             return Analytics.ParameterValue.assetRequirement
-        case .incompleteBackup:
-            return Analytics.ParameterValue.unavailable
         }
     }
 
@@ -86,8 +84,6 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.demo
         case .missingAssetRequirement:
             return Analytics.ParameterValue.missingAssetRequirement
-        case .incompleteBackup:
-            return Analytics.ParameterValue.unavailable
         }
     }
 

@@ -626,28 +626,28 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             userWalletInfo: userWalletModel.userWalletInfo,
             walletModel: walletModel
         )
-        let availabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
 
         switch action {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
-            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.buyAvailablity) {
-                alertPresenter.present(alert: unavailableAlert)
-                return
-            }
-
-            coordinator.openOnramp(input: sendInput, parameters: .none)
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                presenter: alertPresenter,
+                buyStatus: availabilityProvider.buyAvailablity,
+                warning: availabilityProvider.availabilityWarningType,
+                action: {
+                    coordinator.openOnramp(input: sendInput, parameters: .none)
+                }
+            )
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
-            if let unavailableAlert = availabilityAlertBuilder.alert(
-                for: availabilityProvider.receiveAvailability,
-                blockchain: walletModel.tokenItem.blockchain
-            ) {
-                alertPresenter.present(alert: unavailableAlert)
-                return
-            }
-
-            coordinator.openReceive(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                presenter: alertPresenter,
+                receiveStatus: availabilityProvider.receiveAvailability,
+                warning: availabilityProvider.availabilityWarningType,
+                action: {
+                    coordinator.openReceive(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+                }
+            )
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
 

@@ -19,12 +19,15 @@ import TangemFoundation
 /// Otherwise, it operates in simple send mode using TransferModel.
 /// This provides clean separation of concerns between send and swap functionality.
 final class SendWithSwapModel {
+    // MARK: - Injections
+
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
+
     // MARK: - Dependencies
 
     var externalDestinationUpdater: SendDestinationExternalUpdater!
 
     weak var router: SendWithSwapModelRoutable?
-    weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Models
 
@@ -134,14 +137,14 @@ private extension SendWithSwapModel {
 
         case .some:
             // Switching to swap mode
-            alertPresenter?.showAlert(
-                sendAlertBuilder.makeChangeTokenFlowAlert(action: resetFlowAction, cancel: cancel)
+            alertPresenter.present(
+                alert: sendAlertBuilder.makeChangeTokenFlowAlert(action: resetFlowAction, cancel: cancel)
             )
 
         case .none:
             // Switching back to simple send
-            alertPresenter?.showAlert(
-                sendAlertBuilder.makeCancelConvertingFlowAlert(action: resetFlowAction, cancel: cancel)
+            alertPresenter.present(
+                alert: sendAlertBuilder.makeCancelConvertingFlowAlert(action: resetFlowAction, cancel: cancel)
             )
         }
     }

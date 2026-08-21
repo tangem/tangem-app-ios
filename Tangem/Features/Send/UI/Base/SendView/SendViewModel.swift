@@ -16,10 +16,6 @@ import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.AlertBinder
 
-protocol SendViewAlertPresenter: AnyObject {
-    func showAlert(_ alert: AlertBinder)
-}
-
 final class SendViewModel: ObservableObject {
     // MARK: - Injections
 
@@ -155,7 +151,7 @@ final class SendViewModel: ObservableObject {
             // We perform the back action with no save changes in new UI
             stepsManager.performBack()
         case _ where shouldShowDismissAlert:
-            showAlert(alertBuilder.makeDismissAlert { [weak self] in
+            alertPresenter.present(alert: alertBuilder.makeDismissAlert { [weak self] in
                 self?.coordinator?.dismiss(reason: .other)
             })
         case .none:
@@ -182,7 +178,7 @@ private extension SendViewModel {
             let factory = try approveViewModelInputDataBuilder.makeApproveFlowFactory()
             coordinator?.openApproveView(flowFactory: factory)
         } catch {
-            showAlert(error.alertBinder)
+            alertPresenter.present(alert: error.alertBinder)
         }
     }
 
@@ -204,10 +200,10 @@ private extension SendViewModel {
                 let message = validationErrorEvent.description ?? error.localizedDescription
                 let alertBinder = AlertBinder(title: Localization.commonError, message: message)
                 AppLogger.error(error: error)
-                await runOnMain { viewModel.showAlert(alertBinder) }
+                await runOnMain { viewModel.alertPresenter.present(alert: alertBinder) }
             } catch {
                 AppLogger.error(error: error)
-                await runOnMain { viewModel.showAlert(error.alertBinder) }
+                await runOnMain { viewModel.alertPresenter.present(alert: error.alertBinder) }
             }
         }
     }
@@ -223,21 +219,21 @@ private extension SendViewModel {
         case .userCancelled, .transactionNotFound, .feeNotFound, .actionNotSupported:
             break
         case .informationRelevanceServiceError:
-            showAlert(alertBuilder.makeFeeRetryAlert { [weak self] in
+            alertPresenter.present(alert: alertBuilder.makeFeeRetryAlert { [weak self] in
                 self?.interactor.actualizeInformation()
             })
         case .informationRelevanceServiceFeeWasIncreased:
-            showAlert(AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle))
+            alertPresenter.present(alert: AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle))
         case .sendTxError(let transaction, let sendTxError):
-            showAlert(alertBuilder.makeTransactionFailedAlert(sendTxError: sendTxError) { [weak self] in
+            alertPresenter.present(alert: alertBuilder.makeTransactionFailedAlert(sendTxError: sendTxError) { [weak self] in
                 self?.openMail(transaction: transaction, error: sendTxError)
             })
         case .loadTransactionInfo(let error):
-            showAlert(alertBuilder.makeTransactionFailedAlert(sendTxError: .init(error: error)) { [weak self] in
+            alertPresenter.present(alert: alertBuilder.makeTransactionFailedAlert(sendTxError: .init(error: error)) { [weak self] in
                 self?.openMail(error: error)
             })
         case .demoAlert:
-            showAlert(AlertBuilder.makeDemoAlert())
+            alertPresenter.present(alert: AlertBuilder.makeDemoAlert())
         }
     }
 
@@ -248,7 +244,7 @@ private extension SendViewModel {
             let mailData = try mailDataBuilder.makeSupportData(stakingRequestError: error)
             coordinator?.openMail(with: mailData.emailDataCollector, recipient: mailData.recipient)
         } catch {
-            showAlert(error.alertBinder)
+            alertPresenter.present(alert: error.alertBinder)
         }
     }
 
@@ -278,7 +274,7 @@ private extension SendViewModel {
                 )
             }
         } catch {
-            showAlert(error.alertBinder)
+            alertPresenter.present(alert: error.alertBinder)
         }
     }
 
@@ -315,7 +311,7 @@ extension SendViewModel: TransferModelRoutable {
             let feeCurrency = try feeCurrencyProviderDataBuilder.makeFeeCurrencyData()
             coordinator?.openFeeCurrency(feeCurrency: feeCurrency)
         } catch {
-            showAlert(error.alertBinder)
+            alertPresenter.present(alert: error.alertBinder)
         }
     }
 
@@ -349,18 +345,6 @@ extension SendViewModel: StakingModelRoutable {
 extension SendViewModel: SwapModelRoutable {
     func performSwapAction() {
         performAction()
-    }
-
-    func openBackupErrorSupport(userWalletInfo: UserWalletInfo) {
-        coordinator?.openBackupErrorSupport(userWalletInfo: userWalletInfo)
-    }
-}
-
-// MARK: - SendViewAlertPresenter
-
-extension SendViewModel: SendViewAlertPresenter {
-    func showAlert(_ alert: AlertBinder) {
-        alertPresenter.present(alert: alert)
     }
 }
 

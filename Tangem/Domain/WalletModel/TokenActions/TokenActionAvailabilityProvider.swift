@@ -62,12 +62,6 @@ extension TokenActionAvailabilityProvider {
     func isTokenInteractionAvailable() -> Bool {
         return hasAddressToInteract()
     }
-
-    /// Top-up operations (receive / onramp / swap-in) must be blocked on a card-linked wallet:
-    /// such a wallet must not receive new funds, while withdrawing from it stays allowed.
-    var isTopUpAvailable: Bool {
-        userWalletInfo.backupState.isValid
-    }
 }
 
 // MARK: - Buttons and Context Menu Builder
@@ -391,14 +385,11 @@ extension TokenActionAvailabilityProvider {
         case expressNotLoaded
         case demo(disabledLocalizedReason: String)
         case missingAssetRequirement
-        case incompleteBackup(UserWalletInfo)
     }
 
-    /// `.incompleteBackup` keeps the buy entry interactive (shown/enabled) so the tap shows the support alert;
-    /// only a genuine onramp/asset reason hides or disables it. Mirrors `isReceiveAvailable`.
     var isBuyAvailable: Bool {
         switch buyAvailablity {
-        case .available, .incompleteBackup:
+        case .available:
             return true
         case .unavailable, .expressUnreachable, .expressLoading, .expressNotLoaded, .demo, .missingAssetRequirement:
             return false
@@ -406,10 +397,6 @@ extension TokenActionAvailabilityProvider {
     }
 
     var buyAvailablity: BuyActionAvailabilityStatus {
-        if !isTopUpAvailable {
-            return .incompleteBackup(userWalletInfo)
-        }
-
         if case .assetRequirement = receiveAvailability {
             return .missingAssetRequirement
         }
@@ -438,15 +425,12 @@ extension TokenActionAvailabilityProvider {
 extension TokenActionAvailabilityProvider {
     enum ReceiveActionAvailabilityStatus {
         case available
-        case assetRequirement
-        case incompleteBackup(UserWalletInfo)
+        case assetRequirement(Blockchain)
     }
 
-    /// `.incompleteBackup` keeps the receive entry interactive (so the tap shows the support alert);
-    /// only a real token-level requirement (`.assetRequirement`) hides/disables it.
     var isReceiveAvailable: Bool {
         switch receiveAvailability {
-        case .available, .incompleteBackup:
+        case .available:
             return true
         case .assetRequirement:
             return false
@@ -454,18 +438,25 @@ extension TokenActionAvailabilityProvider {
     }
 
     var receiveAvailability: ReceiveActionAvailabilityStatus {
-        // Card-linked blocks any top-up and must dominate: an asset requirement on a blockchain the
-        // alert builder doesn't message (non xrp/stellar/hedera) would otherwise yield a nil alert and
-        // silently let a card-linked wallet receive. Mirrors the incompleteBackup-first order in buyAvailablity.
-        if !isTopUpAvailable {
-            return .incompleteBackup(userWalletInfo)
-        }
-
         if let _ = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType) {
-            return .assetRequirement
+            return .assetRequirement(walletModel.tokenItem.blockchain)
         }
 
         return .available
+    }
+}
+
+// MARK: - Warning
+
+extension TokenActionAvailabilityProvider {
+    /// Unlike the availability statuses, a warning doesn't block the action:
+    /// the user is alerted and can proceed with the action right from the alert.
+    enum TokenActionAvailabilityWarningType {
+        case incompleteBackup(UserWalletInfo)
+    }
+
+    var availabilityWarningType: TokenActionAvailabilityWarningType? {
+        userWalletInfo.backupState.isValid ? nil : .incompleteBackup(userWalletInfo)
     }
 }
 
