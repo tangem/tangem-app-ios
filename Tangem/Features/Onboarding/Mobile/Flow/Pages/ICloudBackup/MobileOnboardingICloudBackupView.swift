@@ -68,7 +68,7 @@ private extension MobileOnboardingICloudBackupView {
     var validationView: some View {
         switch viewModel.state {
         case .setPassword:
-            setPasswordValidationView(viewModel.passwordStrength)
+            setPasswordValidationView(viewModel.passwordStrengthInfo)
                 .onAppear(perform: viewModel.onSetPasswordAppear)
         case .confirmPassword:
             confirmPasswordValidationView(viewModel.passwordMatching)
@@ -76,12 +76,12 @@ private extension MobileOnboardingICloudBackupView {
         }
     }
 
-    func setPasswordValidationView(_ strength: ViewModel.PasswordStrength) -> some View {
+    func setPasswordValidationView(_ info: ViewModel.PasswordStrengthInfo) -> some View {
         PasswordStrengthView(
-            title: strength.description,
-            description: viewModel.passwordRuleDescription,
-            progress: strength.progress,
-            color: strength.color
+            title: info.title,
+            description: info.description,
+            progress: info.progress,
+            color: info.color
         )
     }
 
@@ -213,8 +213,10 @@ private struct PasswordView: View {
 private struct PasswordStrengthView: View {
     let title: String
     let description: String
-    let progress: Double?
+    let progress: Double
     let color: Color
+
+    private var needsProgress: Bool { progress > 0 }
 
     private let progressLineWidth: CGFloat = 2
 
@@ -227,14 +229,14 @@ private struct PasswordStrengthView: View {
             )
 
             HStack(spacing: 4) {
+                if needsProgress {
+                    progressView(progress)
+                        .frame(size: CGSize(bothDimensions: 14))
+                        .animation(.default, value: progress)
+                }
+
                 Text(title)
                     .style(DesignSystem.Font.subheadingMediumToken, color: color)
-
-                progress.map {
-                    progressView($0)
-                        .frame(size: CGSize(bothDimensions: 14))
-                        .animation(.default, value: $0)
-                }
             }
             .padding(.top, 12)
 
