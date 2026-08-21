@@ -18,6 +18,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
 
     @Published var rootViewModel: WelcomeV2ViewModel?
     @Published var actionSheetViewModel: WelcomeV2ActionSheetViewModel?
+    @Published var hardwareWalletViewModel: WelcomeHardwareWalletViewModel?
 
     required init(
         dismissAction: @escaping Action<OutputOptions>,
@@ -51,41 +52,53 @@ extension WelcomeV2Coordinator {
 
 extension WelcomeV2Coordinator: WelcomeV2Routable {
     func openCreateWallet() {
-        let dismiss: () -> Void = { [weak self] in
-            self?.actionSheetViewModel = nil
-        }
-
-        actionSheetViewModel = WelcomeV2CreateWalletActionFactory().make(
-            callbacks: .init(
-                onHardware: dismiss,
-                onMobile: dismiss,
-                onClose: dismiss
-            )
-        )
+        presentCreateWallet()
     }
 
     func openExistingWallet() {
         presentExistingWallet()
+    }
+
+    func openHardwareWallet() {
+        presentHardwareWallet()
+    }
+
+    func closeHardwareWallet() {
+        hardwareWalletViewModel = nil
+    }
+
+    func openMain(with userWalletModel: UserWalletModel) {
+        hardwareWalletViewModel = nil
+        dismiss(with: .main(userWalletModel))
+    }
+
+    func openOnboarding(with input: OnboardingInput) {
+        hardwareWalletViewModel = nil
+        dismiss(with: .onboarding(input))
     }
 }
 
 // MARK: - Sheet presentation
 
 private extension WelcomeV2Coordinator {
+    static let sheetTransitionDelay: TimeInterval = 0.35
+
+    func presentCreateWallet() {
+        actionSheetViewModel = WelcomeV2CreateWalletActionFactory().make(
+            callbacks: .init(
+                onHardware: dismissSheetThenPresentHardware,
+                onMobile: dismissSheet,
+                onClose: dismissSheet
+            )
+        )
+    }
+
     func presentExistingWallet() {
-        let dismiss: () -> Void = { [weak self] in
-            self?.actionSheetViewModel = nil
-        }
-
-        let openImport: () -> Void = { [weak self] in
-            self?.presentImportWallet()
-        }
-
         actionSheetViewModel = WelcomeV2ExistingWalletActionFactory().make(
             callbacks: .init(
-                onHardware: dismiss,
-                onImport: openImport,
-                onClose: dismiss
+                onHardware: dismissSheetThenPresentHardware,
+                onImport: { [weak self] in self?.presentImportWallet() },
+                onClose: dismissSheet
             )
         )
     }
@@ -93,21 +106,34 @@ private extension WelcomeV2Coordinator {
     func presentImportWallet() {
         guard let parent = actionSheetViewModel else { return }
 
-        let dismiss: () -> Void = { [weak self] in
-            self?.actionSheetViewModel = nil
-        }
-
         let goBack: () -> Void = { [weak parent] in
             parent?.pushedImportSheet = nil
         }
 
         parent.pushedImportSheet = WelcomeV2ImportWalletFactory().make(
             callbacks: .init(
-                onRecoveryPhrase: dismiss,
-                onICloudBackup: dismiss,
+                onRecoveryPhrase: dismissSheet,
+                onICloudBackup: dismissSheet,
                 onBack: goBack,
-                onClose: dismiss
+                onClose: dismissSheet
             )
         )
+    }
+
+    func presentHardwareWallet() {
+        hardwareWalletViewModel = WelcomeHardwareWalletViewModel(coordinator: self)
+    }
+
+    func dismissSheet() {
+        actionSheetViewModel = nil
+    }
+
+    /// SwiftUI cannot present a fullScreenCover or a navigation push while a sheet is up,
+    /// so we close the sheet first and wait for the dismiss animation before continuing.
+    func dismissSheetThenPresentHardware() {
+        actionSheetViewModel = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.sheetTransitionDelay) { [weak self] in
+            self?.presentHardwareWallet()
+        }
     }
 }
