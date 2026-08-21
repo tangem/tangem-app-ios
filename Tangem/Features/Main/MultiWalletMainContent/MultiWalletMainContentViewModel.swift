@@ -857,37 +857,43 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         }
 
         let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-        let availabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
 
         switch action {
         case .buy:
-            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.buyAvailablity) {
-                error = unavailableAlert
-                return
-            }
-
-            tokenRouter.openOnramp(walletModel: walletModel)
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                handler: &error,
+                buyStatus: availabilityProvider.buyAvailablity,
+                warning: availabilityProvider.availabilityWarningType,
+                action: { [weak self] in
+                    self?.tokenRouter.openOnramp(walletModel: walletModel)
+                }
+            )
         case .send:
             tokenRouter.openSend(walletModel: walletModel)
         case .receive:
-            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.receiveAvailability, blockchain: walletModel.tokenItem.blockchain) {
-                error = unavailableAlert
-                return
-            }
-
-            tokenRouter.openReceive(walletModel: walletModel)
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                handler: &error,
+                receiveStatus: availabilityProvider.receiveAvailability,
+                warning: availabilityProvider.availabilityWarningType,
+                action: { [weak self] in
+                    self?.tokenRouter.openReceive(walletModel: walletModel)
+                }
+            )
         case .sell:
             openSell(for: walletModel)
         case .copyAddress:
-            // Copying the receive address is the first step of topping up, so it must be blocked on a card-linked wallet.
-            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.receiveAvailability, blockchain: walletModel.tokenItem.blockchain) {
-                error = unavailableAlert
-                return
-            }
-
-            logContextTap(action: action, for: tokenItemViewModel)
-            UIPasteboard.general.string = walletModel.defaultAddressString
-            delegate?.displayAddressCopiedToast()
+            // Copying the receive address is the first step of topping up, so the incomplete backup warning applies.
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                handler: &error,
+                receiveStatus: availabilityProvider.receiveAvailability,
+                warning: availabilityProvider.availabilityWarningType,
+                action: { [weak self] in
+                    guard let self else { return }
+                    logContextTap(action: action, for: tokenItemViewModel)
+                    UIPasteboard.general.string = walletModel.defaultAddressString
+                    delegate?.displayAddressCopiedToast()
+                }
+            )
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
                 walletModel: walletModel,

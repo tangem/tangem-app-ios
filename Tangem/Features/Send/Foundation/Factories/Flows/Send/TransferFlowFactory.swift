@@ -89,7 +89,6 @@ extension TransferNFTFlowFactory: SendGenericFlowFactory {
         summary.set(router: stepsManager)
 
         sendModel.router = viewModel
-        sendModel.alertPresenter = viewModel
 
         return viewModel
     }

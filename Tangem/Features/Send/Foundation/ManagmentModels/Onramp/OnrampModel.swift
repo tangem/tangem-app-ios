@@ -34,8 +34,10 @@ class OnrampModel {
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
+    @Injected(\.alertPresenter)
+    private var alertPresenter: any AlertPresenter
+
     weak var router: OnrampModelRoutable?
-    weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
 
@@ -369,7 +371,7 @@ private extension OnrampModel {
                 // Do nothing
             } catch {
                 await runOnMain {
-                    model.alertPresenter?.showAlert(error.alertBinder)
+                    model.alertPresenter.present(alert: error.alertBinder)
                 }
             }
         }
@@ -634,7 +636,7 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
         case .finishStep:
             router?.openFinishStep()
         case .error(let error):
-            alertPresenter?.showAlert(error.alertBinder)
+            alertPresenter.present(alert: error.alertBinder)
         case .openKYC(let provider, let data):
             if let amount, let currencyCode = fiatCurrency?.identity.code {
                 analyticsLogger.logOnrampVerifyScreenOpened(amount: amount, currencyCode: currencyCode)
