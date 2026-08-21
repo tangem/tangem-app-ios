@@ -29,7 +29,8 @@ extension PendingExpressTxStatusBottomSheetViewModel {
         return ExpressShareTextBuilder.build(
             operation: operation,
             providerInfo: providerInfo,
-            transactionId: pendingTransaction.externalTxId ?? pendingTransaction.expressTransactionId
+            transactionId: pendingTransaction.externalTxId ?? pendingTransaction.expressTransactionId,
+            onChainHash: nil
         )
     }
 }

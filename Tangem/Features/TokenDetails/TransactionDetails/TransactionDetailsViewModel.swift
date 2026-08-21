@@ -190,11 +190,11 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     }
 
     private func share() {
-        guard let item = TransactionDetailsFactory.shareItem(for: record, context: context) else {
+        guard let record, let text = TransactionDetailsMenuFactory.shareText(for: record, context: context) else {
             return
         }
 
-        routable?.shareFromTransactionDetails(item)
+        routable?.shareFromTransactionDetails(text: text)
     }
 
     private func openRefundToken() {
@@ -212,7 +212,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     }
 
     private func findRefundTokenWalletModel() async throws -> WalletModelFinder.Result {
-        guard let target = TransactionDetailsFactory.refundTarget(for: record) else {
+        guard let record, let target = TransactionDetailsFactory.refundTarget(for: record) else {
             throw RefundTokenError.targetNotResolved
         }
 
@@ -241,7 +241,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     private func openDebug() {
         guard let record else { return }
 
-        routable?.openTransactionDetailsDebug(TransactionDetailsFactory.debugInfo(for: record))
+        routable?.openTransactionDetailsDebug(TransactionDetailsDebugInfoFactory.make(for: record))
     }
     #endif
 
@@ -284,17 +284,12 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
 protocol TransactionDetailsRoutable: AnyObject {
     func openTransactionDetailsURL(_ url: URL)
-    func shareFromTransactionDetails(_ item: TransactionDetailsShareItem)
+    func shareFromTransactionDetails(text: String)
     func openTokenFromTransactionDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel)
     #if INTERNAL || DEBUG
     func openTransactionDetailsDebug(_ info: TransactionDetailsDebugInfo)
     #endif
     func closeTransactionDetails()
-}
-
-enum TransactionDetailsShareItem: Equatable {
-    case text(String)
-    case url(URL)
 }
 
 enum TransactionDetailsBlock: Identifiable {
