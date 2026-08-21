@@ -604,6 +604,7 @@ private final class PendingAccountModelsManagerStub: AccountModelsManager {
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { Empty().eraseToAnyPublisher() }
 
     func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult { .none }
+    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {}
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] { [] }
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult { .none }
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
