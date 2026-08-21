@@ -16,6 +16,8 @@ import TangemLocalization
 import TangemUIUtils
 
 final class MobileOnboardingICloudBackupViewModel: ObservableObject {
+    fileprivate typealias Validator = MobileWalletBackupPasswordValidator
+
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     @Published private(set) var state: State = .setPassword
@@ -27,7 +29,6 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
 
     let navigationTitle = Localization.hwBackupIcloudTitle
     let passwordTitle = Localization.hwCloudBackupPasswordHint
-    let passwordRuleDescription = Localization.hwCloudBackupPasswordRule
     let passwordWarningTitle = Localization.hwCloudBackupConsent
 
     var leadingNavBarAction: MobileOnboardingFlowNavBarAction? {
@@ -52,8 +53,8 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
         }
     }
 
-    var passwordStrength: PasswordStrength {
-        calculatePasswordStrength()
+    var passwordStrengthInfo: PasswordStrengthInfo {
+        calculatePasswordStrengthInfo(validation: passwordValidation)
     }
 
     var passwordMatching: PasswordMatching {
@@ -77,10 +78,14 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
     var isActionEnabled: Bool {
         switch state {
         case .setPassword:
-            passwordStrength == .strong
+            passwordValidation.strength == .strong
         case .confirmPassword:
             isPasswordWarningAccepted && isPasswordMatched
         }
+    }
+
+    private var passwordValidation: Validator.Validation {
+        passwordValidator.validate(passwordText)
     }
 
     private var isPasswordMatched: Bool {
@@ -268,15 +273,59 @@ private extension MobileOnboardingICloudBackupViewModel {
 // MARK: - Helpers
 
 private extension MobileOnboardingICloudBackupViewModel {
-    func calculatePasswordStrength() -> PasswordStrength {
-        guard passwordText.isNotEmpty else {
-            return .none
+    func calculatePasswordStrengthInfo(validation: Validator.Validation) -> PasswordStrengthInfo {
+        let strength = validation.strength
+
+        let title = switch strength {
+        case .none: Localization.hwCloudBackupStrengthNone
+        case .weak: Localization.hwCloudBackupStrengthWeak
+        case .medium: Localization.hwCloudBackupStrengthMedium
+        case .strong: Localization.hwCloudBackupStrengthStrong
         }
 
-        switch passwordValidator.validate(passwordText).strength {
-        case .weak: return .weak
-        case .medium: return .average
-        case .strong: return .strong
+        let description = calculatePasswordHint(validation: validation)
+
+        let color = switch strength {
+        case .none: DesignSystem.Color.textSecondary
+        case .weak: DesignSystem.Color.textStatusError
+        case .medium: DesignSystem.Color.textStatusWarning
+        case .strong: DesignSystem.Color.textStatusInfo
+        }
+
+        let progress = switch strength {
+        case .none: 0.0
+        case .weak: 0.25
+        case .medium: 0.75
+        case .strong: 1.0
+        }
+
+        return PasswordStrengthInfo(
+            title: title,
+            description: description,
+            color: color,
+            progress: progress
+        )
+    }
+
+    func calculatePasswordHint(validation: Validator.Validation) -> String {
+        switch validation.sanitizedLength {
+        case ..<Constants.hintKeepGoingMinimumLength:
+            return Localization.hwCloudBackupPasswordRuleV2(Constants.hintCriteriaMinimumLength + 1)
+        case ..<Constants.hintCriteriaMinimumLength:
+            return Localization.hwCloudBackupStrengthHintKeepGoingV2(Constants.hintCriteriaMinimumLength + 1)
+        default:
+            return calculateMissingCriterionHint(criterion: validation.unsatisfiedCriterion)
+        }
+    }
+
+    func calculateMissingCriterionHint(criterion: Validator.Criterion?) -> String {
+        switch criterion {
+        case .minimumLength: Localization.hwCloudBackupStrengthHintAlmost
+        case .lowercaseLetter: Localization.hwCloudBackupStrengthHintLowercase
+        case .uppercaseLetter: Localization.hwCloudBackupStrengthHintUppercase
+        case .specialCharacter: Localization.hwCloudBackupStrengthHintSymbol
+        case .digit: Localization.hwCloudBackupStrengthHintNumber
+        case .none: Localization.hwCloudBackupStrengthHintOk
         }
     }
 
@@ -368,6 +417,15 @@ private extension MobileOnboardingICloudBackupViewModel {
     }
 }
 
+// MARK: - Constants
+
+private extension MobileOnboardingICloudBackupViewModel {
+    enum Constants {
+        static let hintKeepGoingMinimumLength = 4
+        static let hintCriteriaMinimumLength = 7
+    }
+}
+
 // MARK: - Types
 
 extension MobileOnboardingICloudBackupViewModel {
@@ -376,38 +434,11 @@ extension MobileOnboardingICloudBackupViewModel {
         case confirmPassword(String)
     }
 
-    enum PasswordStrength {
-        case none
-        case weak
-        case average
-        case strong
-
-        var description: String {
-            switch self {
-            case .none: Localization.hwCloudBackupStrengthNone
-            case .weak: Localization.hwCloudBackupStrengthWeak
-            case .average: Localization.hwCloudBackupStrengthMedium
-            case .strong: Localization.hwCloudBackupStrengthStrong
-            }
-        }
-
-        var color: Color {
-            switch self {
-            case .none: DesignSystem.Color.textSecondary
-            case .weak: DesignSystem.Color.textStatusError
-            case .average: DesignSystem.Color.textStatusWarning
-            case .strong: DesignSystem.Color.textStatusInfo
-            }
-        }
-
-        var progress: Double? {
-            switch self {
-            case .none: nil
-            case .weak: 0.25
-            case .average: 0.75
-            case .strong: 1
-            }
-        }
+    struct PasswordStrengthInfo {
+        let title: String
+        let description: String
+        let color: Color
+        let progress: Double
     }
 
     enum PasswordMatching {
