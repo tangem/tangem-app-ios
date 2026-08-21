@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 /// Password strength rules for the cloud backup.
 public struct MobileWalletBackupPasswordValidator {
@@ -14,23 +15,44 @@ public struct MobileWalletBackupPasswordValidator {
 
     public func validate(_ password: String) -> Validation {
         let sanitizedPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
+        let satisfiedCriteria = makeSatisfiedCriteria(password: sanitizedPassword)
+        let unsatisfiedCriterion = makeUnsatisfiedCriterion(satisfiedCriteria: satisfiedCriteria)
+        let strength = makeStrength(password: sanitizedPassword, satisfiedCriteria: satisfiedCriteria)
 
-        let satisfiedCriteria: Set<Criterion> = Set(Criterion.allCases.filter {
-            isSatisfied(password: sanitizedPassword, criterion: $0)
+        return Validation(
+            strength: strength,
+            satisfiedCriteria: satisfiedCriteria,
+            unsatisfiedCriterion: unsatisfiedCriterion,
+            sanitizedLength: sanitizedPassword.count
+        )
+    }
+
+    private func makeSatisfiedCriteria(password: String) -> Set<Criterion> {
+        Set(Criterion.allCases.filter {
+            isSatisfied(password: password, criterion: $0)
         })
+    }
 
-        let satisfiedCount = satisfiedCriteria.count
-
-        let strength: Strength
-        if satisfiedCount == Criterion.allCases.count {
-            strength = .strong
-        } else if satisfiedCriteria.contains(.minimumLength), satisfiedCount >= Constants.minimumCriteriaCountForMediumStrength {
-            strength = .medium
-        } else {
-            strength = .weak
+    private func makeStrength(password: String, satisfiedCriteria: Set<Criterion>) -> Strength {
+        guard password.isNotEmpty else {
+            return .none
         }
 
-        return Validation(strength: strength, satisfiedCriteria: satisfiedCriteria)
+        if satisfiedCriteria.count == Criterion.allCases.count {
+            return .strong
+        }
+
+        if
+            password.count >= Constants.mediumStrengthMinimumLength,
+            satisfiedCriteria.count >= Constants.mediumStrengthMinimumCriteriaCount {
+            return .medium
+        }
+
+        return .weak
+    }
+
+    private func makeUnsatisfiedCriterion(satisfiedCriteria: Set<Criterion>) -> Criterion? {
+        Criterion.allCases.first { !satisfiedCriteria.contains($0) }
     }
 
     private func isSatisfied(password: String, criterion: Criterion) -> Bool {
@@ -48,14 +70,15 @@ public struct MobileWalletBackupPasswordValidator {
 
 public extension MobileWalletBackupPasswordValidator {
     enum Criterion: CaseIterable {
-        case minimumLength
-        case uppercaseLetter
-        case lowercaseLetter
         case digit
         case specialCharacter
+        case uppercaseLetter
+        case lowercaseLetter
+        case minimumLength
     }
 
     enum Strength {
+        case none
         case weak
         case medium
         case strong
@@ -64,6 +87,8 @@ public extension MobileWalletBackupPasswordValidator {
     struct Validation {
         public let strength: Strength
         public let satisfiedCriteria: Set<Criterion>
+        public let unsatisfiedCriterion: Criterion?
+        public let sanitizedLength: Int
     }
 }
 
@@ -72,6 +97,7 @@ public extension MobileWalletBackupPasswordValidator {
 private extension MobileWalletBackupPasswordValidator {
     enum Constants {
         static let minimumLength = 8
-        static let minimumCriteriaCountForMediumStrength = 3
+        static let mediumStrengthMinimumLength = 6
+        static let mediumStrengthMinimumCriteriaCount = 2
     }
 }
