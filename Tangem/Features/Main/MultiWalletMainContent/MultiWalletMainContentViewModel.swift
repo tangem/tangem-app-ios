@@ -95,7 +95,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
     private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable & TokensManagementFlowRoutable)?
     private let tokenItemPromoProvider: TokenItemPromoProvider
-    private let expressBalanceUpdater = ExpressTransactionBalanceUpdater()
+    private let expressBalanceUpdater: any ExpressTransactionBalanceUpdater = CommonExpressTransactionBalanceUpdater()
 
     private var derivator: TokenEntriesDerivator?
 
