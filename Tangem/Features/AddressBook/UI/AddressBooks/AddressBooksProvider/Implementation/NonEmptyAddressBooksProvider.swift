@@ -58,14 +58,6 @@ private extension NonEmptyAddressBooksProvider {
     func makeAddressBooks() -> [AddressBookWallet] {
         userWalletRepository.models
             .filter { !$0.isUserWalletLocked }
-            .map { model in
-                let manager = model.addressBookManager
-                return AddressBookWallet(
-                    wallet: model.userWalletInfo,
-                    addressBookManager: manager,
-                    addressBookPublisher: manager.contactsPublisher,
-                    syncStatePublisher: manager.syncStatePublisher
-                )
-            }
+            .map(AddressBookWallet.init(userWalletModel:))
     }
 }
