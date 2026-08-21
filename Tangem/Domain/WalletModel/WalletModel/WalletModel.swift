@@ -113,7 +113,7 @@ protocol WalletModelUpdater {
     ) async
 
     func updateTransactionHistory() async
-    func updateAfterSendingTransaction()
+    func updateAfterSendingTransaction(silent: Bool)
 }
 
 extension WalletModelUpdater {
@@ -127,6 +127,10 @@ extension WalletModelUpdater {
     /// Overload for callers that share an `updateToken` but don't need the batched staking endpoint.
     func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async {
         await update(silent: silent, options: options, updateToken: updateToken, stakingUpdateSource: .single)
+    }
+
+    func updateAfterSendingTransaction() {
+        updateAfterSendingTransaction(silent: false)
     }
 
     /// Overload for the `Fire-and-forget` style call.
