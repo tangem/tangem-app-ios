@@ -201,6 +201,7 @@ private extension CommonDeeplinkPresenterV2 {
                 keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
                 walletModelsManager: account.walletModelsManager,
                 userTokensManager: account.userTokensManager,
+                addressBookManager: userWalletModel.addressBookManager,
                 walletModel: walletModel,
                 pendingTransactionDetails: pendingTransactionDetails
             )
