@@ -67,7 +67,7 @@ extension VisaWalletModel: WalletModelUpdater {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func updateAfterSendingTransaction() {
+    func updateAfterSendingTransaction(silent: Bool) {
         // [REDACTED_TODO_COMMENT]
     }
 }

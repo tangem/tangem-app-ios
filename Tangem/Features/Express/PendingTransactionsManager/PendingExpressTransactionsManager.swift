@@ -23,7 +23,7 @@ class CommonPendingExpressTransactionsManager {
 
     private let poller: any ExpressStatusPolling<ExchangeStatusPollIteration>
 
-    private let balanceUpdater = ExpressTransactionBalanceUpdater()
+    private let balanceUpdater: any ExpressTransactionBalanceUpdater = CommonExpressTransactionBalanceUpdater()
     private let transactionsInProgressSubject = CurrentValueSubject<[PendingExpressTransaction], Never>([])
     private var pollingSubscription: Cancellable?
 
