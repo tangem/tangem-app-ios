@@ -143,7 +143,6 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         summary.set(router: stepsManager)
 
         swapModel.router = viewModel
-        swapModel.alertPresenter = viewModel
         swapModel.externalAmountUpdater = amount.amountUpdater
 
         // A deeplink can carry a FROM amount to prefill — push it into the amount field via the same
