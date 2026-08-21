@@ -55,6 +55,13 @@
       }
     },
     {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemOpenTelemetryTests",
+        "name" : "TangemOpenTelemetryTests"
+      }
+    },
+    {
       "parallelizable" : false,
       "target" : {
         "containerPath" : "container:",
