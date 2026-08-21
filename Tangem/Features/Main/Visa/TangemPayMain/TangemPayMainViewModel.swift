@@ -80,7 +80,7 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var cashback: TangemPayCashback?
     @Published private var isCashbackBlocked = false
     @Published private var didCashbackLoadFail = false
-    @Published private var isCashbackReloading = false
+    @Published private var isCashbackLoading = false
 
     @Published private(set) var isBalanceNegative: Bool = false
 
@@ -160,14 +160,14 @@ final class TangemPayMainViewModel: ObservableObject {
         }
 
         if didCashbackLoadFail {
-            return .failed(isReloading: isCashbackReloading)
+            return .failed(isReloading: isCashbackLoading)
         }
 
         guard case .available(let summary) = cashback else {
             return nil
         }
 
-        return .content(summary)
+        return .content(summary, isReloading: isCashbackLoading)
     }
 
     /// A failed load carries no summary, so routing falls back to the retained one — which survives a
@@ -550,11 +550,14 @@ final class TangemPayMainViewModel: ObservableObject {
     func onAppear() {
         Analytics.log(.visaScreenVisaMainScreenOpened, contextParams: .userWallet(userWalletInfo.id))
 
-        runTask { [weak self, tangemPayAccount] in
+        runTask { [tangemPayAccount] in
             await tangemPayAccount.loadCustomerInfo()
             await tangemPayAccount.loadOffers()
             await tangemPayAccount.resumeActiveIssueOrderPolling()
-            await self?.loadCashbackSummaryIfAvailable()
+        }
+
+        runTask { [self] in
+            await loadCashbackSummaryIfAvailable()
         }
 
         runTask { [self] in
@@ -918,6 +921,9 @@ private extension TangemPayMainViewModel {
         guard cashbackEnabled else { return }
         guard !isDeactivated else { return }
 
+        isCashbackLoading = true
+        defer { isCashbackLoading = false }
+
         do {
             try await tangemPayAccount.loadCashbackSummary()
             didCashbackLoadFail = false
@@ -927,23 +933,18 @@ private extension TangemPayMainViewModel {
         }
     }
 
-    @MainActor
-    func reloadCashback() async {
-        isCashbackReloading = true
-        await loadCashbackSummaryIfAvailable()
-        isCashbackReloading = false
-    }
-
     func handleCashbackTap() {
         switch cashbackState {
-        case .content:
+        case .content(_, let isReloading):
+            guard !isReloading else { return }
+
             openCashbackDetails()
 
         case .failed(let isReloading):
             guard !isReloading else { return }
 
             runTask { [weak self] in
-                await self?.reloadCashback()
+                await self?.loadCashbackSummaryIfAvailable()
             }
 
         case nil:
@@ -952,7 +953,7 @@ private extension TangemPayMainViewModel {
     }
 
     func openCashbackDetails() {
-        guard case .content(let summary) = cashbackState else {
+        guard case .content(let summary, _) = cashbackState else {
             return
         }
 
