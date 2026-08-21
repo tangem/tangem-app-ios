@@ -145,6 +145,10 @@ final class TangemPayAccount {
         customerInfoSubject.value
     }
 
+    private var customerWalletId: String {
+        userWalletId.stringValue
+    }
+
     // MARK: - Virtual Account
 
     var isKYCApproved: Bool {
@@ -196,6 +200,7 @@ final class TangemPayAccount {
     private let balancesService: any TangemPayBalancesService
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
     private let orderResolver: TangemPayOrderResolver
+    private let cashbackCacheStorage: TangemPayCashbackCacheStorage
 
     private let customerInfoSubject: CurrentValueSubject<VisaCustomerInfoResponse, Never>
     private let cardsSubject = CurrentValueSubject<[TangemPayCard], Never>([])
@@ -243,6 +248,7 @@ final class TangemPayAccount {
         mainHeaderBalanceProvider: MainHeaderBalanceProvider,
         orderResolver: TangemPayOrderResolver,
         feeRepository: TangemPayFeeRepository,
+        cashbackCacheStorage: TangemPayCashbackCacheStorage,
         account: (any TangemPayAccountModel)?,
         accountRemover: (any TangemPayAccountRemoving)?
     ) {
@@ -257,6 +263,7 @@ final class TangemPayAccount {
         self.mainHeaderBalanceProvider = mainHeaderBalanceProvider
         self.orderResolver = orderResolver
         self.feeRepository = feeRepository
+        self.cashbackCacheStorage = cashbackCacheStorage
         self.account = account
         self.accountRemover = accountRemover
 
@@ -264,6 +271,7 @@ final class TangemPayAccount {
         bindAwaitingDepositInfo()
         cardsSubject.send(rebuildingCards(from: customerInfo, existing: []))
         observeCardRefreshSignals()
+        restoreCachedCashback()
     }
 
     func loadBalance() async {
@@ -422,7 +430,17 @@ extension TangemPayAccount {
             guard let self else { return }
 
             let response = try await customerService.getCashbackSummary()
-            cashbackSubject.send(TangemPayCashback(response))
+            let cashback = TangemPayCashback(response)
+
+            switch cashback {
+            case .available, .blocked:
+                cashbackCacheStorage.saveCachedCashbackSummary(response, customerWalletId: customerWalletId)
+
+            case .unavailable:
+                cashbackCacheStorage.clearCachedCashbackSummary(customerWalletId: customerWalletId)
+            }
+
+            cashbackSubject.send(cashback)
         }
     }
 
@@ -643,6 +661,22 @@ private extension TangemPayAccount {
             }
             VisaLogger.error("Failed to load customer info", error: error)
         }
+    }
+
+    func restoreCachedCashback() {
+        guard let cached = cashbackCacheStorage.cachedCashbackSummary(
+            customerWalletId: customerWalletId
+        ) else {
+            return
+        }
+
+        let cashback = TangemPayCashback(cached)
+
+        guard case .available = cashback else {
+            return
+        }
+
+        cashbackSubject.send(cashback)
     }
 
     func observeCardRefreshSignals() {

@@ -71,6 +71,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
     private let cachedStateStorage: TangemPayCachedStateStorage
     private let customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage
+    private let cashbackCacheStorage: TangemPayCashbackCacheStorage
     private let tangemPayAccountBuilder: TangemPayAccountBuilder
 
     private let stateSubject = CurrentValueSubject<TangemPayLocalState?, Never>(nil)
@@ -90,6 +91,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository,
         cachedStateStorage: TangemPayCachedStateStorage,
         customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage,
+        cashbackCacheStorage: TangemPayCashbackCacheStorage,
         tangemPayAccountBuilder: TangemPayAccountBuilder
     ) {
         self.userWalletId = userWalletId
@@ -104,6 +106,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         self.paeraCustomerFlagRepository = paeraCustomerFlagRepository
         self.cachedStateStorage = cachedStateStorage
         self.customerInfoCacheStorage = customerInfoCacheStorage
+        self.cashbackCacheStorage = cashbackCacheStorage
         self.tangemPayAccountBuilder = tangemPayAccountBuilder
 
         bind()
@@ -171,6 +174,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
                 paeraCustomerFlagRepository.setIsPaeraCustomer(false, for: customerWalletId)
                 paeraCustomerFlagRepository.setShouldShowGetBanner(false)
                 customerInfoCacheStorage.clearCachedCustomerInfo(customerWalletId: customerWalletId)
+                cashbackCacheStorage.clearCachedCashbackSummary(customerWalletId: customerWalletId)
                 stateSubject.value = nil
                 onFinish(true)
             } catch {

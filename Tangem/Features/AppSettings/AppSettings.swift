@@ -147,6 +147,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayCachedCustomerInfo)
     var tangemPayCachedCustomerInfo: [String: String] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayCachedCashbackSummary)
+    var tangemPayCachedCashbackSummary: [String: String] = [:]
+
     @AppStorageCompat(StorageType.jailbreakWarningWasShown)
     var jailbreakWarningWasShown: Bool = false
 
@@ -276,6 +279,32 @@ extension AppSettings: TangemPayCustomerInfoCacheStorage {
 
     func clearCachedCustomerInfo(customerWalletId: String) {
         tangemPayCachedCustomerInfo[customerWalletId] = nil
+    }
+}
+
+extension AppSettings: TangemPayCashbackCacheStorage {
+    func cachedCashbackSummary(customerWalletId: String) -> TangemPayCashbackSummaryResponse? {
+        guard let jsonString = tangemPayCachedCashbackSummary[customerWalletId],
+              let data = jsonString.data(using: .utf8)
+        else {
+            return nil
+        }
+
+        return try? JSONDecoder().decode(TangemPayCashbackSummaryResponse.self, from: data)
+    }
+
+    func saveCachedCashbackSummary(_ summary: TangemPayCashbackSummaryResponse, customerWalletId: String) {
+        guard let data = try? JSONEncoder().encode(summary),
+              let jsonString = String(data: data, encoding: .utf8)
+        else {
+            return
+        }
+
+        tangemPayCachedCashbackSummary[customerWalletId] = jsonString
+    }
+
+    func clearCachedCashbackSummary(customerWalletId: String) {
+        tangemPayCachedCashbackSummary[customerWalletId] = nil
     }
 }
 
