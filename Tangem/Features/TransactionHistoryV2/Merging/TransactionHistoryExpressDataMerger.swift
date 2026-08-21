@@ -177,7 +177,7 @@ struct TransactionHistoryExpressDataMerger {
             return nil
         }
 
-        let targetAmount = exchangeTransaction.from.actualAmount ?? exchangeTransaction.from.amount
+        let targetAmount = exchangeTransaction.from.normalizedAmount
 
         // Prevents division by zero
         guard targetAmount > 0 else {
@@ -233,7 +233,7 @@ struct TransactionHistoryExpressDataMerger {
             return nil
         }
 
-        let targetAmount = exchangeTransaction.to.actualAmount ?? exchangeTransaction.to.amount
+        let targetAmount = exchangeTransaction.to.normalizedAmount
 
         // Prevents division by zero
         guard targetAmount > 0 else {
@@ -289,7 +289,7 @@ struct TransactionHistoryExpressDataMerger {
             return nil
         }
 
-        let targetAmount = exchangeTransaction.from.actualAmount ?? exchangeTransaction.from.amount
+        let targetAmount = exchangeTransaction.from.normalizedAmount
 
         // Prevents division by zero
         guard targetAmount > 0 else {
@@ -320,7 +320,7 @@ struct TransactionHistoryExpressDataMerger {
     ) -> TransactionRecord? {
         guard
             onrampTransaction.to.currency == currentToken.expressCurrency.asCurrency,
-            let targetAmount = onrampTransaction.to.actualAmount ?? onrampTransaction.to.amount
+            let targetAmount = onrampTransaction.to.normalizedAmount
         else {
             return nil
         }

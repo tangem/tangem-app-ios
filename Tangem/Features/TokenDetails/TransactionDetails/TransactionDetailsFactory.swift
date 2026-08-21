@@ -17,6 +17,11 @@ import TangemUI
 /// because `reduce` runs on every record update; the formatters are shared statics (their `NumberFormatter`s
 /// are cached in `BalanceNumberFormatterCache`).
 enum TransactionDetailsFactory {
+    struct RefundTarget {
+        let tokenItem: TokenItem
+        let address: String
+    }
+
     private static let balanceFormatter = BalanceFormatter()
     private static let balanceConverter = BalanceConverter()
     private static let headerDateFormatter: DateFormatter = {
@@ -28,7 +33,7 @@ enum TransactionDetailsFactory {
 
     static func reduce(
         transaction: TransactionViewModel,
-        record: TransactionRecord?,
+        record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> (header: TransactionDetailsHeaderViewData, content: TransactionDetailsViewModel.Content) {
         (
@@ -39,10 +44,10 @@ enum TransactionDetailsFactory {
 
     private static func content(
         for transaction: TransactionViewModel,
-        record: TransactionRecord?,
+        record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsViewModel.Content {
-        switch record?.expressExtraInfo {
+        switch record.expressExtraInfo {
         case .exchange(let info):
             return .swap(swapContent(info, record: record, context: context))
         case .onramp(let info):
@@ -56,7 +61,7 @@ enum TransactionDetailsFactory {
 
     private static func onChainContent(
         for transaction: TransactionViewModel,
-        record: TransactionRecord?,
+        record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsViewModel.Content {
         switch transaction.transactionType {
@@ -87,18 +92,18 @@ enum TransactionDetailsFactory {
         )
     }
 
-    private static func isFailed(_ transaction: TransactionViewModel, record: TransactionRecord?) -> Bool {
-        headerStatus(for: record, fallback: transaction.status) == .failed
+    private static func isFailed(record: TransactionRecord) -> Bool {
+        TransactionOperationStatusMapper.viewStatus(for: record) == .failed
     }
 
     private static func genericOperationContent(
         for transaction: TransactionViewModel,
-        record: TransactionRecord?,
+        record: TransactionRecord,
         context: TransactionDetailsContext,
         counterpartyLabel: String?
     ) -> TransactionDetailsGenericOperationViewData {
         .init(
-            tokens: tokensBlock(for: transaction, isFailed: isFailed(transaction, record: record), context: context),
+            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), context: context),
             // On-chain operations don't get a live status banner (that's an Express-only transition)
             statusBanner: nil,
             // and the "for sending X" block
@@ -111,7 +116,7 @@ enum TransactionDetailsFactory {
 
     private static func yieldContent(
         for transaction: TransactionViewModel,
-        record: TransactionRecord?,
+        record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsYieldViewData {
         .init(
@@ -144,7 +149,7 @@ enum TransactionDetailsFactory {
 
     private static func swapContent(
         _ info: ExchangeTransactionInfo,
-        record: TransactionRecord?,
+        record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsSwapViewData {
         let exchange = info.transaction
@@ -194,8 +199,8 @@ enum TransactionDetailsFactory {
         return (banner, action)
     }
 
-    static func refundTarget(for record: TransactionRecord?) -> RefundTarget? {
-        guard case .exchange(let info) = record?.expressExtraInfo else {
+    static func refundTarget(for record: TransactionRecord) -> RefundTarget? {
+        guard case .exchange(let info) = record.expressExtraInfo else {
             return nil
         }
 
@@ -345,11 +350,11 @@ enum TransactionDetailsFactory {
 
     private static func sendReceiveContent(
         for transaction: TransactionViewModel,
-        record: TransactionRecord?,
+        record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsGenericOperationViewData {
         return .init(
-            tokens: tokensBlock(for: transaction, isFailed: isFailed(transaction, record: record), context: context),
+            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), context: context),
             statusBanner: nil,
             principalAmount: nil,
             counterparty: counterparty(for: transaction, label: counterpartyLabel(for: transaction)),
@@ -495,9 +500,8 @@ enum TransactionDetailsFactory {
     }
 
     /// The fee is shown only for outgoing operations.
-    private static func networkFee(from record: TransactionRecord?) -> String? {
+    private static func networkFee(from record: TransactionRecord) -> String? {
         guard
-            let record,
             record.isOutgoing,
             // Hide network fee for synthetic Express records
             !ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash)
@@ -509,7 +513,7 @@ enum TransactionDetailsFactory {
         return "\(balanceFormatter.formatDecimal(amount.value)) \(amount.currencySymbol)"
     }
 
-    private static func networkFeeInfo(from record: TransactionRecord?) -> TransactionDetailsInfoSectionViewData? {
+    private static func networkFeeInfo(from record: TransactionRecord) -> TransactionDetailsInfoSectionViewData? {
         guard let fee = networkFee(from: record) else {
             return nil
         }
@@ -521,50 +525,14 @@ enum TransactionDetailsFactory {
 
     private static func header(
         for transaction: TransactionViewModel,
-        record: TransactionRecord?,
+        record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsHeaderViewData {
-        let status = headerStatus(for: record, fallback: transaction.status)
+        let status = TransactionOperationStatusMapper.viewStatus(for: record)
         let title = headerTitle(for: transaction, record: record, status: status)
 
-        var menuActions: [TransactionDetailsHeaderViewData.MenuAction] = [
-            copyTransactionIdAction(for: transaction, record: record),
-        ]
-
-        // A synthetic id isn't a real on-chain hash, so it can't be explored.
-        if let hash = record?.hash, !ExpressSyntheticTxHelper.isSyntheticIdentifier(hash), let url = context.exploreTransactionURL(for: hash) {
-            menuActions.append(.init(
-                id: "explore",
-                title: Localization.commonExplore,
-                icon: Assets.Glyphs.explore,
-                action: .openURL(url)
-            ))
-        }
-
-        // Share is available for swap/onramp (the text is built from the Express `extraInfo`).
-        if isShareAvailable(for: record, context: context) {
-            menuActions.append(.init(
-                id: "share",
-                title: Localization.commonShare,
-                icon: Assets.share,
-                action: .share
-            ))
-        }
-
-        #if INTERNAL || DEBUG
-        // Debug dump of the raw record
-        if record != nil {
-            menuActions.append(.init(
-                id: "debug",
-                title: "Debug",
-                icon: Assets.Glyphs.docNew,
-                action: .debug
-            ))
-        }
-        #endif
-
         let dateText: String
-        if let date = record?.date {
+        if let date = record.date {
             dateText = headerDateFormatter.string(from: date)
         } else {
             dateText = transaction.subtitleText
@@ -576,12 +544,12 @@ enum TransactionDetailsFactory {
             date: dateText,
             operationIcon: TransactionViewIconViewData(type: transaction.transactionType, status: status, isOutgoing: transaction.isOutgoing),
             iconGlyph: headerIconGlyph(for: record),
-            menuActions: menuActions
+            menuActions: TransactionDetailsMenuFactory.menuActions(for: record, context: context)
         )
     }
 
-    private static func headerIconGlyph(for record: TransactionRecord?) -> ImageType? {
-        switch record?.expressExtraInfo {
+    private static func headerIconGlyph(for record: TransactionRecord) -> ImageType? {
+        switch record.expressExtraInfo {
         case .exchange: DesignSystem.Icons.ArrowSwapHorizontal.regular20
         case .onramp: DesignSystem.Icons.Card.regular20
         case nil: nil
@@ -590,10 +558,10 @@ enum TransactionDetailsFactory {
 
     private static func headerTitle(
         for transaction: TransactionViewModel,
-        record: TransactionRecord?,
+        record: TransactionRecord,
         status: TransactionViewModel.Status
     ) -> (text: String, style: TransactionDetailsHeaderViewData.TitleStyle) {
-        switch record?.expressExtraInfo {
+        switch record.expressExtraInfo {
         case .exchange(let info):
             return swapTitle(status: info.transaction.status)
         case .onramp(let info):
@@ -617,28 +585,6 @@ enum TransactionDetailsFactory {
         case .failed, .undefined: .failed
         case .confirmed: .neutral
         }
-    }
-
-    private static func copyTransactionIdAction(
-        for transaction: TransactionViewModel,
-        record: TransactionRecord?
-    ) -> TransactionDetailsHeaderViewData.MenuAction {
-        let value: String
-        switch record?.expressExtraInfo {
-        case .exchange(let info):
-            value = info.transaction.txId
-        case .onramp(let info):
-            value = info.transaction.txId
-        case nil:
-            value = transaction.hash
-        }
-
-        return .init(
-            id: "transactionID",
-            title: Localization.commonTransactionId,
-            icon: Assets.Glyphs.copy,
-            action: .copy(value: value, toast: Localization.expressTransactionIdCopied)
-        )
     }
 
     private static func swapTitle(status: ExpressTransactionStatus) -> (text: String, style: TransactionDetailsHeaderViewData.TitleStyle) {
@@ -670,14 +616,6 @@ enum TransactionDetailsFactory {
         case .expired:
             return (Localization.commonActionFailed(Localization.txHistoryOnrampTopUp), .expired)
         }
-    }
-
-    private static func headerStatus(for record: TransactionRecord?, fallback: TransactionViewModel.Status) -> TransactionViewModel.Status {
-        guard let record else {
-            return fallback
-        }
-
-        return TransactionOperationStatusMapper.viewStatus(for: record)
     }
 
     // MARK: - Counterparty (send / receive)
@@ -730,122 +668,4 @@ enum TransactionDetailsFactory {
             return nil
         }
     }
-
-    // MARK: - Share
-
-    private static func isShareAvailable(for record: TransactionRecord?, context: TransactionDetailsContext) -> Bool {
-        guard let record else {
-            return false
-        }
-
-        switch record.expressExtraInfo {
-        case .exchange, .onramp:
-            return true
-        case nil:
-            return context.exploreTransactionURL(for: record.hash) != nil
-        }
-    }
-
-    static func shareItem(for record: TransactionRecord?, context: TransactionDetailsContext) -> TransactionDetailsShareItem? {
-        switch record?.expressExtraInfo {
-        case .exchange(let info):
-            return .text(swapShareText(info))
-        case .onramp(let info):
-            return .text(onrampShareText(info, context: context))
-        case nil:
-            // On-chain transactions have no Express deal to assemble — share the block-explorer link instead.
-            guard let hash = record?.hash, let url = context.exploreTransactionURL(for: hash) else {
-                return nil
-            }
-
-            return .url(url)
-        }
-    }
-
-    private static func swapShareText(_ info: ExchangeTransactionInfo) -> String {
-        let exchange = info.transaction
-        let from = amountWithSymbol(exchange.from.normalizedAmount, info.cryptoCurrencies[exchange.from.currency]?.currencySymbol)
-        let to = amountWithSymbol(exchange.to.normalizedAmount, info.cryptoCurrencies[exchange.to.currency]?.currencySymbol)
-
-        return ExpressShareTextBuilder.build(
-            operation: .swap(send: from, from: exchange.fromAddress, receive: to, to: exchange.payOut.address),
-            providerInfo: providerInfo(info.provider, fallbackId: exchange.providerId),
-            transactionId: exchange.txId
-        )
-    }
-
-    private static func onrampShareText(_ info: OnrampTransactionInfo, context: TransactionDetailsContext) -> String {
-        let onramp = info.transaction
-        let to = amountWithSymbol(onramp.to.normalizedAmount, context.tokenSymbol)
-
-        return ExpressShareTextBuilder.build(
-            operation: .onramp(buy: to, to: onramp.payOut.address),
-            providerInfo: providerInfo(info.provider, fallbackId: onramp.providerId),
-            transactionId: onramp.txId
-        )
-    }
-
-    private static func providerInfo(_ provider: ExpressProvider?, fallbackId: ExpressProvider.Id) -> String {
-        let name = provider?.name ?? fallbackId
-        let type = provider?.type.rawValue.uppercased()
-        return [name, type].compactMap { $0 }.joined(separator: " ")
-    }
-
-    private static func amountWithSymbol(_ amount: Decimal?, _ symbol: String?) -> String {
-        let formattedAmount = amount.map { balanceFormatter.formatDecimal($0) }
-        return [formattedAmount, symbol].compactMap { $0 }.joined(separator: " ")
-    }
-
-    // MARK: - Debug
-
-    #if INTERNAL || DEBUG
-    static func debugInfo(for record: TransactionRecord) -> TransactionDetailsDebugInfo {
-        let isSynthetic = ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash)
-
-        let source: String
-        let operation: String
-
-        switch record.expressExtraInfo {
-        case .exchange:
-            operation = "Swap"
-            source = isSynthetic ? "Express (synthetic)" : "BSDK + Express (merged)"
-        case .onramp:
-            operation = "Onramp"
-            source = isSynthetic ? "Express (synthetic)" : "BSDK + Express (merged)"
-        case nil:
-            operation = "On-chain"
-            source = "BSDK (on-chain)"
-        }
-
-        return TransactionDetailsDebugInfo(
-            summary: [
-                .init(title: "Source", value: source),
-                .init(title: "Operation", value: operation),
-                .init(title: "Synthetic", value: isSynthetic ? "Yes" : "No"),
-            ],
-            dump: ReflectionDump.text(for: record)
-        )
-    }
-    #endif
-}
-
-// MARK: - Types
-
-extension TransactionDetailsFactory {
-    struct RefundTarget {
-        let tokenItem: TokenItem
-        let address: String
-    }
-}
-
-// MARK: - Express amount normalization
-
-private extension ExpressHistoryAsset {
-    /// Final delivered amount when known, otherwise the expected one — the value to show.
-    var normalizedAmount: Decimal { actualAmount ?? amount }
-}
-
-private extension OnrampHistoryCryptoAsset {
-    /// Final delivered amount when known, otherwise the expected one — the value to show.
-    var normalizedAmount: Decimal? { actualAmount ?? amount }
 }
