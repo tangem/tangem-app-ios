@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import Testing
 @testable import TangemPolymarket
 
@@ -32,7 +33,7 @@ struct PolymarketMapperTests {
         #expect(event.title == "Will it rain?")
         #expect(event.status == .active)
         #expect(event.rulesURL == URL(string: "https://polymarket.com/rules/1"))
-        #expect(event.volume == Decimal(string: "1000.5"))
+        #expect(event.volume == Decimal(stringValue: "1000.5"))
         #expect(event.startDate != nil)
         #expect(event.endDate != nil)
         #expect(event.totalMarketsCount == 3)
@@ -48,7 +49,7 @@ struct PolymarketMapperTests {
         let yes = try #require(market.outcomes.first)
         #expect(yes.assetId == "asset-yes")
         #expect(yes.title == "Yes")
-        #expect(yes.probability == Decimal(string: "0.62"))
+        #expect(yes.probability == Decimal(stringValue: "0.62"))
     }
 
     @Test("Unknown status value falls back instead of failing the page")
