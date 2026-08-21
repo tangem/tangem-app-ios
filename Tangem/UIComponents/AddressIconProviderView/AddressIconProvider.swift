@@ -48,7 +48,7 @@ enum AddressIconProvider {
         let userWalletRepository: UserWalletRepository = InjectedValues[\.userWalletRepository]
         let contacts = userWalletRepository.models.flatMap { $0.addressBookManager.contacts }
 
-        guard let contact = contacts.first(where: { $0.entries.caseInsensitiveContains(address: address) }) else {
+        guard let contact = contacts.first(where: { $0.entries.caseInsensitiveContains(address: address, networkId: nil) }) else {
             return nil
         }
 

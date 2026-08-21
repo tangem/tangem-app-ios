@@ -33,6 +33,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
+    @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -91,6 +92,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             walletModel: options.walletModel,
             notificationManager: notificationManager,
             userTokensManager: options.userTokensManager,
+            addressBookManager: options.addressBookManager,
             pendingExpressTransactionsManager: expressStatusTracking.manager,
             expressStatusPollingHelper: expressStatusTracking.pollingHelper,
             xpubGenerator: xpubGenerator,
@@ -113,6 +115,7 @@ extension TokenDetailsCoordinator {
         let keysDerivingInteractor: any KeysDeriving
         let walletModelsManager: any WalletModelsManager
         let userTokensManager: any UserTokensManager
+        let addressBookManager: AddressBookManager
         let walletModel: any WalletModel
         /// Initialized when a deeplink is received for an onramp or exchange (swap) status update related to a specific transaction
         let pendingTransactionDetails: PendingTransactionDetails?
@@ -123,6 +126,7 @@ extension TokenDetailsCoordinator {
             keysDerivingInteractor: any KeysDeriving,
             walletModelsManager: any WalletModelsManager,
             userTokensManager: any UserTokensManager,
+            addressBookManager: AddressBookManager,
             walletModel: any WalletModel,
             pendingTransactionDetails: PendingTransactionDetails? = nil,
             presentSource: TokenDetailsPresentSource = .navigation
@@ -131,6 +135,7 @@ extension TokenDetailsCoordinator {
             self.keysDerivingInteractor = keysDerivingInteractor
             self.walletModelsManager = walletModelsManager
             self.userTokensManager = userTokensManager
+            self.addressBookManager = addressBookManager
             self.walletModel = walletModel
             self.pendingTransactionDetails = pendingTransactionDetails
             self.presentSource = presentSource
@@ -148,6 +153,8 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
                 walletModel: data.walletModel,
                 userWalletInfo: data.userWalletInfo,
                 isAccountsMode: data.isAccountsMode,
+                addressBookManager: data.addressBookManager,
+                addressBookAnalyticsLogger: CommonAddressBookAnalyticsLogger(),
                 routable: self
             )
 
@@ -314,6 +321,7 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
                 keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
                 walletModelsManager: account.walletModelsManager,
                 userTokensManager: account.userTokensManager,
+                addressBookManager: userWalletModel.addressBookManager,
                 walletModel: walletModel
             )
         )
@@ -375,6 +383,13 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
     }
     #endif
 
+    func openAddContactFromTransactionDetails(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            openAddContact(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries)
+        }
+    }
+
     func closeTransactionDetails() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
@@ -385,6 +400,16 @@ extension TokenDetailsCoordinator: TransactionDetailsRoutable {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
             openRefundCurrency(walletModel: walletModel, userWalletModel: userWalletModel)
+        }
+    }
+}
+
+// MARK: - AddressBookContactNavigating
+
+extension TokenDetailsCoordinator: AddressBookContactNavigating {
+    func contactManagementDidDismiss() {
+        Task { @MainActor in
+            floatingSheetPresenter.resumeSheetsDisplaying()
         }
     }
 }

@@ -9,21 +9,6 @@
 import Foundation
 import TangemFoundation
 
-struct FeeCurrencyNavigatingDismissOption {
-    let userWalletId: UserWalletId
-    let tokenItem: TokenItem
-
-    init(walletModel: any WalletModel) {
-        userWalletId = walletModel.userWalletId
-        tokenItem = walletModel.feeTokenItem
-    }
-
-    init(userWalletId: UserWalletId, tokenItem: TokenItem) {
-        self.userWalletId = userWalletId
-        self.tokenItem = tokenItem
-    }
-}
-
 /// A helper that helps to perform the common navigation flow: open the `Token Details` screen for the fee currency.
 protocol FeeCurrencyNavigating where Self: AnyObject, Self: CoordinatorObject {
     static var feeCurrencyNavigationDelay: TimeInterval { get }
@@ -90,6 +75,7 @@ extension FeeCurrencyNavigating {
                 keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
                 walletModelsManager: account.walletModelsManager,
                 userTokensManager: account.userTokensManager,
+                addressBookManager: userWalletModel.addressBookManager,
                 walletModel: walletModel
             )
         )
