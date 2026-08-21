@@ -43,6 +43,13 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "TangemMobileWalletBackupTests",
+        "name" : "TangemMobileWalletBackupTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "TangemMobileWalletSdkTests",
         "name" : "TangemMobileWalletSdkTests"
       }
