@@ -443,6 +443,12 @@ var unitTestsModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTestTarget(
+            name: "TangemMobileWalletBackupTests",
+            dependencies: [
+                "TangemMobileWalletBackup",
+            ]
+        ),
+        .tangemTestTarget(
             name: "TangemMobileWalletSdkTests",
             path: "TangemMobileWalletSdk/Tests",
             dependencies: [
