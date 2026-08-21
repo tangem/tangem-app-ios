@@ -16,7 +16,6 @@ final class CommonDeeplinkPresenter {
     // MARK: - Properties
 
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
-    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     private let coordinatorFactory: MainCoordinatorChildFactory
 
@@ -203,12 +202,7 @@ private extension CommonDeeplinkPresenter {
         )
     }
 
-    private func constructBuyViewController(userWalletModel: UserWalletModel) -> UIViewController? {
-        if let backupAlert = UserWalletBackupStatusHelper().alert(for: userWalletModel.userWalletInfo) {
-            alertPresenter.present(alert: backupAlert)
-            return nil
-        }
-
+    private func constructBuyViewController(userWalletModel: UserWalletModel) -> UIViewController {
         let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { _ in UIApplication.dismissTop() })
 
         coordinator.start(
