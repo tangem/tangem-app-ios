@@ -159,6 +159,10 @@ extension SendCoordinator {
 
 extension SendCoordinator: SupportChatPresenting {}
 
+// MARK: - AddressBookContactNavigating
+
+extension SendCoordinator: AddressBookContactNavigating {}
+
 // MARK: - SendRoutable
 
 extension SendCoordinator: SendRoutable {
@@ -196,15 +200,6 @@ extension SendCoordinator: SendRoutable {
 
     func openShareSheet(url: URL) {
         AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
-    }
-
-    func openAddContact(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {
-        let coordinator = AddressBookContactManagementCoordinator(
-            dismissAction: { [weak self] _ in self?.contactManagementCoordinator = nil },
-            popToRootAction: popToRootAction
-        )
-        coordinator.start(with: .add(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries))
-        contactManagementCoordinator = coordinator
     }
 
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {

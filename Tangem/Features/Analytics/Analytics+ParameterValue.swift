@@ -335,6 +335,7 @@ extension Analytics {
         // MARK: - Address Book
 
         case addressBookSourceSendFlow = "Send Flow"
+        case addressBookSourceTransactionDetails = "Transaction Details"
         case addressBookModeCreate = "Create"
         case addressBookErrorServer = "Server"
         case addressBookErrorSigning = "Signing"
