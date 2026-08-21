@@ -10,7 +10,7 @@ import TangemAssets
 import TangemLocalization
 
 enum TangemPayCashbackState: Equatable {
-    case content(TangemPayCashback.Summary)
+    case content(TangemPayCashback.Summary, isReloading: Bool)
     case failed(isReloading: Bool)
 }
 
@@ -19,7 +19,7 @@ enum TangemPayCashbackState: Equatable {
 extension TangemPayCashbackState {
     var menuTitle: String {
         switch self {
-        case .content(let summary):
+        case .content(let summary, _):
             Localization.tangempayCashbackMenuItemTitle(Self.monthName(summary.period.month))
 
         case .failed:
@@ -55,8 +55,7 @@ extension TangemPayCashbackState {
 
     var isReloading: Bool {
         switch self {
-        case .content: false
-        case .failed(let isReloading): isReloading
+        case .content(_, let isReloading), .failed(let isReloading): isReloading
         }
     }
 }
