@@ -18,33 +18,42 @@ import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.AlertBinder
 
+@MainActor
 final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Injected(\.alertPresenter)
-    private var alertPresenter: any AlertPresenter
+    private var alertPresenter: AlertPresenter
 
     @Published private(set) var header: TransactionDetailsHeaderViewData?
     @Published private(set) var content: Content?
-
     @Published private var isSuccessBannerDismissed = false
 
-    private weak var routable: (any TransactionDetailsRoutable)?
     private let walletModel: any WalletModel
     private let userWalletId: UserWalletId
     private let context: TransactionDetailsContext
 
+    private let addressBookAnalyticsLogger: AddressBookAnalyticsLogger
+    private let addressBookWallet: AddressBookWallet
+
+    private weak var routable: TransactionDetailsRoutable?
+
     private var record: TransactionRecord?
-    private var bag = Set<AnyCancellable>()
+
+    private var bag: Set<AnyCancellable> = []
 
     init(
         id: TransactionRecord.ID,
         walletModel: any WalletModel,
         userWalletInfo: UserWalletInfo,
         isAccountsMode: Bool,
+        addressBookManager: AddressBookManager,
+        addressBookAnalyticsLogger: AddressBookAnalyticsLogger,
         routable: TransactionDetailsRoutable
     ) {
         self.routable = routable
         self.walletModel = walletModel
+        self.addressBookAnalyticsLogger = addressBookAnalyticsLogger
         userWalletId = userWalletInfo.id
+        addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
 
         let context = TransactionDetailsContext(
             walletModel: walletModel,
@@ -67,11 +76,15 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
         subscribe(
             id: id,
-            publisher: walletModel.transactionHistoryPublisher,
+            transactionHistoryPublisher: walletModel.transactionHistoryPublisher,
+            contactsPublisher: addressBookWallet.addressBookPublisher,
+            syncStatePublisher: addressBookWallet.syncStatePublisher,
             context: context,
             mapper: mapper,
             resolver: resolver
         )
+
+        loadAddressBook() // Address book should be loaded as early as possible since it is empty by default
     }
 
     var blocks: [TransactionDetailsBlock] {
@@ -86,12 +99,14 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     private func subscribe(
         id: TransactionRecord.ID,
-        publisher: AnyPublisher<WalletModelTransactionHistoryState, Never>,
+        transactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
+        contactsPublisher: some Publisher<[AddressBookContact], Never>,
+        syncStatePublisher: some Publisher<AddressBookSyncState, Never>,
         context: TransactionDetailsContext,
         mapper: TransactionHistoryMapper,
         resolver: SubtitleOwnerResolver
     ) {
-        let output = publisher
+        let recordPublisher = transactionHistoryPublisher
             .compactMap { state -> TransactionRecord? in
                 guard case .loaded(let items) = state else { return nil }
                 return items.first { record in
@@ -107,20 +122,35 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
                 }
             }
             .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .map { record in
-                (
+
+        let enrichedRecordPublisher = recordPublisher
+            .combineLatest(
+                contactsPublisher.removeDuplicates(),
+                syncStatePublisher.map(\.isSynced).removeDuplicates()
+            )
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .map { viewModel, args in
+                let (record, contacts, isAddressBookSynced) = args
+                let transaction = mapper.mapTransactionViewModel(record, subtitleOwnerResolver: resolver)
+
+                return (
                     record: record,
                     reduced: TransactionDetailsFactory.reduce(
-                        transaction: mapper.mapTransactionViewModel(record, subtitleOwnerResolver: resolver),
+                        transaction: transaction,
                         record: record,
-                        context: context
+                        context: context,
+                        addContactHelper: viewModel.makeAddContactHelper(
+                            for: transaction,
+                            contacts: contacts,
+                            isAddressBookSynced: isAddressBookSynced
+                        )
                     )
                 )
             }
             .share(replay: 1)
 
-        output
+        enrichedRecordPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, output in
                 viewModel.record = output.record
@@ -132,7 +162,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         // The success banner is only meaningful as a live transition: a transaction that's already finished when
         // the sheet opens must never flash it (previous == nil → dismiss with no delay), while one that finishes
         // while open shows it, then hides (a false → true transition → dismiss after a short delay).
-        output
+        enrichedRecordPublisher
             .map { output in
                 Self.rawBlocks(for: output.reduced.content).contains(where: Self.isSuccessBanner)
             }
@@ -170,6 +200,8 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
             copy(value, toast: toast)
         case .openRefundToken:
             openRefundToken()
+        case .addContact(let address):
+            addContact(address: address)
         #if INTERNAL || DEBUG
         case .debug:
             openDebug()
@@ -245,6 +277,38 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     }
     #endif
 
+    // MARK: - Address book support
+
+    private func loadAddressBook() {
+        runTask(in: self) { viewModel in
+            await viewModel.addressBookWallet.addressBookManager.load(silent: true)
+        }
+    }
+
+    private func makeAddContactHelper(
+        for transaction: TransactionViewModel,
+        contacts: [AddressBookContact],
+        isAddressBookSynced: Bool
+    ) -> TransactionDetailsAddContactHelper {
+        TransactionDetailsAddContactHelper(
+            networkId: AddressBookNetworkID(walletModel.tokenItem.blockchain.networkId),
+            contacts: contacts,
+            isAddressBookSynced: isAddressBookSynced,
+            transactionType: transaction.transactionType,
+            interactionAddress: transaction.interactionAddress
+        )
+    }
+
+    private func addContact(address: String) {
+        addressBookAnalyticsLogger.logAddContactTapped(userWalletId: userWalletId, source: .transactionDetails)
+
+        // BSDK transactions don't carry memo information, so we can't prefill it - hence `nil`
+        let entry = AddressBookEntryDraft(address: address, blockchain: walletModel.tokenItem.blockchain, memo: nil)
+        routable?.openAddContactFromTransactionDetails(addressBookWallet: addressBookWallet, prefilledEntries: [entry])
+    }
+
+    // MARK: - Blocks
+
     private static func rawBlocks(for content: Content) -> [TransactionDetailsBlock] {
         switch content {
         case .generic(let data): data.blocks
@@ -258,7 +322,11 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         guard case .statusBanner(let data) = block else { return false }
         return data.kind == .success
     }
+}
 
+// MARK: - Auxiliary types
+
+extension TransactionDetailsViewModel {
     enum Content {
         case generic(TransactionDetailsGenericOperationViewData)
         case swap(TransactionDetailsSwapViewData)
@@ -271,6 +339,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         case share
         case copy(value: String, toast: String)
         case openRefundToken
+        case addContact(address: String)
         case close
         #if INTERNAL || DEBUG
         case debug
@@ -279,37 +348,5 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     private enum RefundTokenError: Error {
         case targetNotResolved
-    }
-}
-
-protocol TransactionDetailsRoutable: AnyObject {
-    func openTransactionDetailsURL(_ url: URL)
-    func shareFromTransactionDetails(text: String)
-    func openTokenFromTransactionDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel)
-    #if INTERNAL || DEBUG
-    func openTransactionDetailsDebug(_ info: TransactionDetailsDebugInfo)
-    #endif
-    func closeTransactionDetails()
-}
-
-enum TransactionDetailsBlock: Identifiable {
-    case tokens(TransactionDetailsTokensViewData)
-    case yieldTokens(TransactionDetailsYieldTokensViewData)
-    case statusBanner(TransactionDetailsStatusBannerViewData)
-    case principalAmount(TransactionDetailsPrincipalAmountViewData)
-    case counterparty(TransactionDetailsAddressViewData)
-    case info(TransactionDetailsInfoSectionViewData)
-    case action(TransactionDetailsActionButtonViewData)
-
-    var id: String {
-        switch self {
-        case .tokens: "tokens"
-        case .yieldTokens: "yieldTokens"
-        case .statusBanner: "statusBanner"
-        case .principalAmount: "principalAmount"
-        case .counterparty: "counterparty"
-        case .info: "info"
-        case .action: "action"
-        }
     }
 }

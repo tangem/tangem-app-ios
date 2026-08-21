@@ -140,14 +140,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     private func didSelectWallet(_ userWalletModel: any UserWalletModel) {
         coordinator?.dismissWalletPicker()
 
-        let addressBookManager = userWalletModel.addressBookManager
-        let addressBookWallet = AddressBookWallet(
-            wallet: userWalletModel.userWalletInfo,
-            addressBookManager: addressBookManager,
-            addressBookPublisher: addressBookManager.contactsPublisher,
-            syncStatePublisher: addressBookManager.syncStatePublisher
-        )
-        interactor.update(addressBookWallet: addressBookWallet)
+        interactor.update(addressBookWallet: AddressBookWallet(userWalletModel: userWalletModel))
     }
 
     func userDidRequestDone() {

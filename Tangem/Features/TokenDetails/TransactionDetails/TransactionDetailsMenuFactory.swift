@@ -16,7 +16,8 @@ enum TransactionDetailsMenuFactory {
 
     static func menuActions(
         for record: TransactionRecord,
-        context: TransactionDetailsContext
+        context: TransactionDetailsContext,
+        addContactHelper: TransactionDetailsAddContactHelper
     ) -> [TransactionDetailsHeaderViewData.MenuAction] {
         var actions: [TransactionDetailsHeaderViewData.MenuAction] = []
 
@@ -37,6 +38,15 @@ enum TransactionDetailsMenuFactory {
                 title: Localization.commonExplore,
                 icon: Assets.Glyphs.explore,
                 action: .openURL(url)
+            ))
+        }
+
+        if let addressToSave = addContactHelper.addressToSave(for: record) {
+            actions.append(.init(
+                id: "addContact",
+                title: Localization.addressBookAddContact,
+                icon: DesignSystem.Icons.UserPlus.regular24,
+                action: .addContact(address: addressToSave)
             ))
         }
 
