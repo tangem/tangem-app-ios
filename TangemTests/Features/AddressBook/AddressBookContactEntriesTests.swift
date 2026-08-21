@@ -149,9 +149,41 @@ struct AddressBookContactEntriesTests {
     func caseInsensitiveContainsMatchesRegardlessOfCase() {
         let entries = makeEntries([draft(address: "0xAbCdEf", blockchain: btc)])
 
-        #expect(entries.caseInsensitiveContains(address: "0xabcdef"))
-        #expect(entries.caseInsensitiveContains(address: "0XABCDEF"))
-        #expect(!entries.caseInsensitiveContains(address: "0xdead"))
+        #expect(entries.caseInsensitiveContains(address: "0xabcdef", networkId: nil))
+        #expect(entries.caseInsensitiveContains(address: "0XABCDEF", networkId: nil))
+        #expect(!entries.caseInsensitiveContains(address: "0xdead", networkId: nil))
+    }
+
+    @Test
+    func caseInsensitiveContainsMatchesRegardlessOfCaseWhenNetworkScoped() {
+        let entries = makeEntries([draft(address: "0xAbCdEf", blockchain: eth)])
+
+        #expect(entries.caseInsensitiveContains(address: "0xabcdef", networkId: networkId(of: eth)))
+        #expect(entries.caseInsensitiveContains(address: "0XABCDEF", networkId: networkId(of: eth)))
+        #expect(!entries.caseInsensitiveContains(address: "0xdead", networkId: networkId(of: eth)))
+    }
+
+    @Test
+    func caseInsensitiveContainsMatchesEveryNetworkAnAddressIsSavedOn() {
+        let entries = makeEntries([
+            draft(address: "shared", blockchain: eth),
+            draft(address: "shared", blockchain: btc),
+            draft(address: "ethOnly", blockchain: eth),
+        ])
+
+        #expect(entries.caseInsensitiveContains(address: "shared", networkId: networkId(of: eth)))
+        #expect(entries.caseInsensitiveContains(address: "shared", networkId: networkId(of: btc)))
+        #expect(entries.caseInsensitiveContains(address: "ethOnly", networkId: networkId(of: eth)))
+        #expect(!entries.caseInsensitiveContains(address: "ethOnly", networkId: networkId(of: btc)))
+    }
+
+    /// A `nil` networkId keeps the any-network behaviour the send flow and `AddressIconProvider` rely on.
+    @Test
+    func caseInsensitiveContainsIgnoresTheNetworkWhenNoneIsGiven() {
+        let entries = makeEntries([draft(address: "ethOnly", blockchain: eth)])
+
+        #expect(entries.caseInsensitiveContains(address: "ethOnly", networkId: nil))
+        #expect(!entries.caseInsensitiveContains(address: "ethOnly", networkId: networkId(of: btc)))
     }
 
     // MARK: - Hashable / Equatable
@@ -200,5 +232,9 @@ struct AddressBookContactEntriesTests {
 
     private func distinctDrafts(count: Int, on blockchain: BSDKBlockchain) -> [AddressBookEntryDraft] {
         (0 ..< count).map { draft(address: "addr-\($0)", blockchain: blockchain) }
+    }
+
+    private func networkId(of blockchain: BSDKBlockchain) -> AddressBookNetworkID {
+        AddressBookNetworkID(blockchain.networkId)
     }
 }
