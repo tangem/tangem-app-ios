@@ -94,10 +94,13 @@ extension JointAccountManagementCoordinator: JointAccountOnboardingRoutable {
             return
         }
 
-        let creationContext = JointAccountCreationHelper(userWalletConfig: options.userWalletConfig)
+        let creationHelper = JointAccountCreationHelper(
+            userWalletConfig: options.userWalletConfig,
+            accountModelsManager: options.accountModelsManager
+        )
         let creator = JointAccountFormViewCreator(
             accountModelsManager: options.accountModelsManager,
-            creationContext: creationContext
+            creationHelper: creationHelper
         )
 
         let viewModel = AccountFormViewModel(flowType: .create(creator: creator), coordinator: self)
@@ -110,8 +113,8 @@ extension JointAccountManagementCoordinator: JointAccountOnboardingRoutable {
 extension JointAccountManagementCoordinator: AccountFormViewModelRoutable {
     func closeAccountForm(outcome: AccountFormOutcome) {
         switch outcome {
-        case .completed(.joint(let creationContext)):
-            let viewModel = JointAccountMembersCountViewModel(creationContext: creationContext, coordinator: self)
+        case .completed(.joint(let creationHelper)):
+            let viewModel = JointAccountMembersCountViewModel(creationHelper: creationHelper, coordinator: self)
             path.append(.membersCount(viewModel: viewModel))
 
         case .completed(.crypto):
@@ -131,8 +134,8 @@ extension JointAccountManagementCoordinator: JointAccountMembersCountRoutable {
         dismiss()
     }
 
-    func continueMembersCount(creationContext: JointAccountCreationHelper) {
-        let viewModel = JointAccountMemberNameViewModel(creationContext: creationContext, coordinator: self)
+    func continueMembersCount(creationHelper: JointAccountCreationHelper) {
+        let viewModel = JointAccountMemberNameViewModel(creationHelper: creationHelper, coordinator: self)
         path.append(.memberName(viewModel: viewModel))
     }
 }
@@ -144,9 +147,8 @@ extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
         dismiss()
     }
 
-    func openInviteMembers(creationContext: JointAccountCreationHelper) {
-        // [REDACTED_TODO_COMMENT]
-        let viewModel = JointAccountInviteMembersViewModel(creationContext: creationContext, coordinator: self)
+    func openInviteMembers(creationHelper: JointAccountCreationHelper) {
+        let viewModel = JointAccountInviteMembersViewModel(creationContext: creationHelper, coordinator: self)
         path.append(.inviteMembers(viewModel: viewModel))
     }
 }

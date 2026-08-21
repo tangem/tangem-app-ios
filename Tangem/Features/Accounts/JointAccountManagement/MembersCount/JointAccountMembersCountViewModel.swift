@@ -24,24 +24,24 @@ final class JointAccountMembersCountViewModel: ObservableObject {
     var membersCountRange: ClosedRange<Int> { Constants.membersCountRange }
     var signersCountRange: ClosedRange<Int> { Constants.minimumSignersCount ... membersCount }
 
-    private let creationContext: JointAccountCreationHelper
+    private let creationHelper: JointAccountCreationHelper
     private weak var coordinator: JointAccountMembersCountRoutable?
 
     init(
-        creationContext: JointAccountCreationHelper,
+        creationHelper: JointAccountCreationHelper,
         coordinator: JointAccountMembersCountRoutable?
     ) {
-        self.creationContext = creationContext
+        self.creationHelper = creationHelper
         self.coordinator = coordinator
     }
 
     func onContinueTap() {
-        creationContext.update(membersCount: membersCount, signersCount: signersCount)
-        coordinator?.continueMembersCount(creationContext: creationContext)
+        creationHelper.update(membersCount: membersCount, signersCount: signersCount)
+        coordinator?.continueMembersCount(creationHelper: creationHelper)
     }
 
     func onCloseTap() {
-        guard creationContext.hasUnsavedChanges else {
+        guard creationHelper.hasUnsavedChanges else {
             coordinator?.closeMembersCount()
             return
         }
