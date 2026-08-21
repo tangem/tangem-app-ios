@@ -46,6 +46,8 @@ let package = Package(
         .package(path: "../TangemFirebaseDynamicShim"),
         .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", .upToNextMajor(from: "1.44.0")),
         .package(url: "https://github.com/TimOliver/BlurUIKit.git", .upToNextMajor(from: "1.4.0")),
+        .package(url: "git@github.com:tangem-developments/opentelemetry-swift.git", exact: "2.5.0-tangem2"),
+        .package(url: "https://github.com/open-telemetry/opentelemetry-swift-core.git", .upToNextMajor(from: "2.5.1")),
         // BSDK only dependencies:
         // AnyCodable
         .package(url: "git@github.com:tangem-developments/SwiftBinanceChain.git", exact: "0.0.18"),
@@ -199,6 +201,21 @@ var serviceModules: [PackageDescription.Target] {
             dependencies: [
                 "Moya",
                 "Alamofire",
+                "TangemFoundation",
+                "TangemLogger",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
+            name: "TangemOpenTelemetry",
+            dependencies: [
+                .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
+                .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift-core"),
+                .product(name: "OpenTelemetryProtocolExporterHTTP", package: "opentelemetry-swift"),
+                .product(name: "PersistenceExporter", package: "opentelemetry-swift"),
                 "TangemFoundation",
                 "TangemLogger",
             ],
@@ -380,6 +397,19 @@ var unitTestsModules: [PackageDescription.Target] {
                 .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
                 .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
                 .product(name: "Hiero", package: "hiero-sdk-swift"),
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemOpenTelemetryTests",
+            dependencies: [
+                "TangemOpenTelemetry",
+                "TangemFoundation",
+                .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
+                .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift-core"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
