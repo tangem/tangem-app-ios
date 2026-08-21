@@ -124,6 +124,7 @@ struct TransactionDetailsHeaderView: View {
             .allowsHitTesting(false)
         }
         .buttonStyle(.plain)
+        .menuOrder(.fixed)
     }
 }
 
