@@ -8,7 +8,12 @@
 import Foundation
 import TangemFoundation
 
-final class ExpressTransactionBalanceUpdater {
+protocol ExpressTransactionBalanceUpdater {
+    func updateBalances(for records: [ExpressPendingTransactionRecord])
+    func updateUnfinishedDestinationBalances(userWalletId: UserWalletId)
+}
+
+final class CommonExpressTransactionBalanceUpdater {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
@@ -17,29 +22,10 @@ final class ExpressTransactionBalanceUpdater {
 
     private let refreshedTransactionIds = OSAllocatedUnfairLock(initialState: Set<String>())
 
-    func updateBalances(for records: [ExpressPendingTransactionRecord]) {
-        let tokens = records.flatMap { [$0.sourceTokenTxInfo, $0.destinationTokenTxInfo] }
-        update(tokens: tokens, options: .full)
-    }
-
-    func updateUnfinishedDestinationBalances(userWalletId: UserWalletId) {
-        let records = expressPendingTransactionsRepository.transactions.filter { record in
-            !record.isHidden
-                && record.provider.type.supportStatusTracking
-                && !record.transactionStatus.isTerminated(branch: .swap)
-                && record.destinationTokenTxInfo.userWalletId == userWalletId.stringValue
-        }
-
-        // An exchange that nothing polls keeps its non-terminal status indefinitely, so a record is
-        // refreshed on the first appearance only, the way the wallet content is fetched once on Android
-        let tokens = refreshedTransactionIds
-            .withLock { ids in records.filter { ids.insert($0.expressTransactionId).inserted } }
-            .map(\.destinationTokenTxInfo)
-
-        update(tokens: tokens, options: .balances)
-    }
-
-    private func update(tokens: [ExpressPendingTransactionRecord.TokenTxInfo], options: WalletModelUpdateOptions) {
+    private func withWalletModels(
+        for tokens: [ExpressPendingTransactionRecord.TokenTxInfo],
+        perform: @escaping ([any WalletModel]) -> Void
+    ) {
         guard tokens.isNotEmpty else {
             return
         }
@@ -53,12 +39,7 @@ final class ExpressTransactionBalanceUpdater {
                 .flatMap(walletModels(for:))
                 .filter { seen.insert(ObjectIdentifier($0)).inserted }
 
-            // Transaction history is loaded per wallet, a shared token keeps it to a single load
-            let updateToken = UUID()
-
-            for walletModel in walletModels {
-                walletModel.startUpdateTask(silent: true, options: options, updateToken: updateToken)
-            }
+            perform(walletModels)
         }
     }
 
@@ -85,5 +66,46 @@ final class ExpressTransactionBalanceUpdater {
         }
 
         return walletModels
+    }
+}
+
+// MARK: - ExpressTransactionBalanceUpdater protocol conformance
+
+extension CommonExpressTransactionBalanceUpdater: ExpressTransactionBalanceUpdater {
+    func updateBalances(for records: [ExpressPendingTransactionRecord]) {
+        let tokens = records.flatMap { [$0.sourceTokenTxInfo, $0.destinationTokenTxInfo] }
+
+        withWalletModels(for: tokens) { walletModels in
+            for walletModel in walletModels {
+                // A completed exchange affects the wallet the way an outgoing transaction does, and the
+                // shared post-transaction refresh both waits out the propagation of the exchange across
+                // the blockchain RPC nodes and resets the wallet manager update throttle before reading
+                walletModel.updateAfterSendingTransaction(silent: true)
+            }
+        }
+    }
+
+    func updateUnfinishedDestinationBalances(userWalletId: UserWalletId) {
+        let records = expressPendingTransactionsRepository.transactions.filter { record in
+            !record.isHidden
+                && record.provider.type.supportStatusTracking
+                && !record.transactionStatus.isTerminated(branch: .swap)
+                && record.destinationTokenTxInfo.userWalletId == userWalletId.stringValue
+        }
+
+        // An exchange that nothing polls keeps its non-terminal status indefinitely, so a record is
+        // refreshed on the first appearance only, the way the wallet content is fetched once on Android
+        let tokens = refreshedTransactionIds
+            .withLock { ids in records.filter { ids.insert($0.expressTransactionId).inserted } }
+            .map(\.destinationTokenTxInfo)
+
+        withWalletModels(for: tokens) { walletModels in
+            // Transaction history is loaded per wallet, a shared token keeps it to a single load
+            let updateToken = UUID()
+
+            for walletModel in walletModels {
+                walletModel.startUpdateTask(silent: true, options: .balances, updateToken: updateToken)
+            }
+        }
     }
 }
