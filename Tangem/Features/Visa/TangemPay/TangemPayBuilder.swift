@@ -94,6 +94,7 @@ final class TangemPayBuilder {
             paeraCustomerFlagRepository: AppSettings.shared,
             cachedStateStorage: AppSettings.shared,
             customerInfoCacheStorage: AppSettings.shared,
+            cashbackCacheStorage: AppSettings.shared,
             tangemPayAccountBuilder: self
         )
     }
@@ -117,6 +118,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             mainHeaderBalanceProvider: mainHeaderBalanceProvider,
             orderResolver: orderResolver,
             feeRepository: feeRepository,
+            cashbackCacheStorage: AppSettings.shared,
             account: account,
             accountRemover: accountRemover
         )
