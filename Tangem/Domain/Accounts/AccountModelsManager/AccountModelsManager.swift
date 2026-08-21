@@ -28,6 +28,8 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
     /// - Note: This method is also responsible for moving custom tokens into the newly created account if they have a matching derivation.
     func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult
 
+    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError)
+
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo]
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult
