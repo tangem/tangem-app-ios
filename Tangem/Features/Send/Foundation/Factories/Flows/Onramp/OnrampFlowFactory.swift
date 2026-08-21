@@ -143,8 +143,6 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
         onramp.set(router: stepsManager)
         onrampModel.router = stepsManager
 
-        onrampModel.alertPresenter = viewModel
-
         coordinatorStateProvider.setup(autoupdatingTimer: autoupdatingTimer)
 
         return viewModel
