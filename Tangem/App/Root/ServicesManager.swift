@@ -43,6 +43,7 @@ final class CommonServicesManager {
     @Injected(\.userWalletPushNotificationsService) private var userWalletPushNotificationsService: UserWalletPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
+    @Injected(\.openTelemetryWrapper) private var openTelemetryWrapper: OpenTelemetryWrapper
     @Injected(\.eTagStorage) private var eTagStorage: ETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
     @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
@@ -190,6 +191,7 @@ extension CommonServicesManager: ServicesManager {
         }
 
         AmplitudeWrapper.shared.configure()
+        openTelemetryWrapper.configure()
         experimentService.configure()
         AppsFlyerWrapper.shared.configure(delegate: delegate)
         customerIOWrapper.configure()
