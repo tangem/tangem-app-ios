@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct TangemPayCashbackSummaryResponse: Decodable {
+public struct TangemPayCashbackSummaryResponse: Codable {
     public let cashbackProgramStatus: Status
 
     /// Every field below is omitted unless `cashbackProgramStatus` is `.enabled`.
@@ -25,7 +25,7 @@ public struct TangemPayCashbackSummaryResponse: Decodable {
 // MARK: - Nested Types
 
 public extension TangemPayCashbackSummaryResponse {
-    enum Status: String, Decodable {
+    enum Status: String, Codable {
         case enabled
         case fraud
         case disabled
@@ -37,7 +37,7 @@ public extension TangemPayCashbackSummaryResponse {
         }
     }
 
-    enum Mode: String, Decodable {
+    enum Mode: String, Codable {
         /// Standard cashback UI block
         case full
 
@@ -53,7 +53,7 @@ public extension TangemPayCashbackSummaryResponse {
         }
     }
 
-    struct Period: Decodable {
+    struct Period: Codable {
         public let year: Int
 
         /// Range of 1-12

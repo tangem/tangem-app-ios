@@ -45,7 +45,7 @@ struct TangemPayCashbackBanner: View {
 private extension TangemPayCashbackBanner {
     var subtitle: String? {
         switch state {
-        case .content(let summary):
+        case .content(let summary, _):
             if summary.confirmedAmount < 0 {
                 return Localization.tangempayCashbackWidgetRefundDescription
             }
@@ -96,7 +96,7 @@ private extension TangemPayCashbackBanner {
     @ViewBuilder
     var titleView: some View {
         switch state {
-        case .content(let summary):
+        case .content(let summary, _):
             SensitiveText(
                 builder: { Localization.tangempayCashbackWidgetTitle($0, TangemPayCashbackState.monthName(summary.period.month)) },
                 sensitive: formattedAmount(for: summary)
@@ -160,7 +160,7 @@ private extension TangemPayCashbackBanner {
     }
 
     var iconBackgroundColor: Color {
-        if case .content(let summary) = state,
+        if case .content(let summary, _) = state,
            summary.confirmedAmount >= 0 {
             return DesignSystem.Color.bgStatusInfoSubtle
         }
@@ -169,7 +169,7 @@ private extension TangemPayCashbackBanner {
     }
 
     var iconForegroundColor: Color {
-        if case .content(let summary) = state,
+        if case .content(let summary, _) = state,
            summary.confirmedAmount >= 0 {
             return DesignSystem.Color.iconBrand
         }
@@ -183,13 +183,13 @@ private extension TangemPayCashbackBanner {
 #if DEBUG
 #Preview {
     VStack(spacing: 16) {
-        TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: 32.15)), action: {})
+        TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: 32.15), isReloading: false), action: {})
 
-        TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: 123)), action: {})
+        TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: 123), isReloading: true), action: {})
 
-        TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: 0)), action: {})
+        TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: 0), isReloading: false), action: {})
 
-        TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: -3.12)), action: {})
+        TangemPayCashbackBanner(state: .content(.preview(confirmedAmount: -3.12), isReloading: false), action: {})
 
         TangemPayCashbackBanner(state: .failed(isReloading: false), action: {})
 
