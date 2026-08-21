@@ -44,12 +44,12 @@ struct TransactionHistorySyntheticTransactionFactory {
 
         if outgoing {
             // Pay-in leg: the wallet sends the `from` asset to the provider deposit address.
-            let amount = exchangeTransaction.from.actualAmount ?? exchangeTransaction.from.amount
+            let amount = exchangeTransaction.from.normalizedAmount
             source = .single(.init(address: exchangeTransaction.fromAddress ?? ownerAddress, amount: amount))
             destination = .single(.init(address: .user(exchangeTransaction.payIn.address), amount: amount))
         } else {
             // Pay-out leg: the wallet receives the `to` asset at its payout address.
-            let amount = exchangeTransaction.to.actualAmount ?? exchangeTransaction.to.amount
+            let amount = exchangeTransaction.to.normalizedAmount
             // The source address of the pay-out leg is unknown at this point because there is no blockchain transaction yet
             source = .single(.init(address: .unknown, amount: amount))
             destination = .single(.init(address: .user(exchangeTransaction.payOut.address), amount: amount))
@@ -74,7 +74,7 @@ struct TransactionHistorySyntheticTransactionFactory {
 
     func makeSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> TransactionRecord {
         // Onramp only has a pay-out leg (fiat -> crypto), so the synthetic transactions for Onramp are always incoming
-        let amount = onrampTransaction.to.actualAmount ?? onrampTransaction.to.amount ?? 0
+        let amount = onrampTransaction.to.normalizedAmount ?? 0
         let provider = auxDataRepository.provider(id: onrampTransaction.providerId, branch: .onramp)
         let fiatCurrency = auxDataRepository.fiatCurrency(for: onrampTransaction.from)
         let cryptoCurrencies = auxDataRepository.cryptoCurrencies(for: onrampTransaction.expressCurrencies)
