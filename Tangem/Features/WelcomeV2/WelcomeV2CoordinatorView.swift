@@ -25,7 +25,14 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
             }
 
             sheetsContent
+
+            if let hardwareViewModel = coordinator.hardwareWalletViewModel {
+                WelcomeHardwareWalletView(viewModel: hardwareViewModel)
+                    .transition(.opacity)
+                    .zIndex(1)
+            }
         }
+        .animation(.easeInOut(duration: 0.35), value: coordinator.hardwareWalletViewModel != nil)
         .overlay(sheets)
     }
 
