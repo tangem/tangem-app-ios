@@ -241,15 +241,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.exploreConfirmationDialog = exploreConfirmationDialog
     }
 
-    override func copyDefaultAddress() {
-        if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
-            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
-        ) {
-            alert = unavailableAlert
-            return
-        }
-
-        super.copyDefaultAddress()
+    override func performCopyDefaultAddress() {
+        super.performCopyDefaultAddress()
         Analytics.log(
             event: .buttonCopyAddress,
             params: [
