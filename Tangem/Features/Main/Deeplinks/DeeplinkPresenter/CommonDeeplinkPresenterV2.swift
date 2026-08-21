@@ -17,7 +17,6 @@ final class CommonDeeplinkPresenterV2 {
 
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
     @Injected(\.overlayViewPresenter) private var overlayViewPresenter: OverlayViewPresenter
-    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     private let coordinatorFactory: MainCoordinatorChildFactory
 
@@ -228,12 +227,7 @@ private extension CommonDeeplinkPresenterV2 {
         )
     }
 
-    private func constructBuyView(userWalletModel: UserWalletModel) -> AnyView? {
-        if let backupAlert = UserWalletBackupStatusHelper().alert(for: userWalletModel.userWalletInfo) {
-            alertPresenter.present(alert: backupAlert)
-            return nil
-        }
-
+    private func constructBuyView(userWalletModel: UserWalletModel) -> AnyView {
         let presenter = overlayViewPresenter
         let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { _ in Task { @MainActor in presenter.dismiss() } })
 

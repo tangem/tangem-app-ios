@@ -219,8 +219,7 @@ private extension TokenDetailsActionsViewModel {
     func morphToReceive(in sheetViewModel: TokenDetailsActionsBottomSheetViewModel?) {
         Task { @MainActor in
             guard let receiveViewModel = actionsRoutable?.makeReceiveViewModel() else {
-                // Receive is unavailable: the routable set its support alert, which presents behind
-                // the sheet, so dismiss the sheet to let it surface.
+                // The routable set an alert instead, and it presents behind the sheet — dismiss to let it surface.
                 dismissSheet()
                 return
             }

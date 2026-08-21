@@ -11,6 +11,7 @@ import Foundation
 final class PromotionDeeplinkHandler {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     private weak var coordinator: (any PromotionDeeplinkRoutable)?
     private let walletModel: any WalletModel
@@ -100,7 +101,15 @@ private extension PromotionDeeplinkHandler {
 
     func openOnramp() -> Bool {
         let input = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
-        coordinator?.openOnramp(input: input, parameters: .none)
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
+
+        TokenActionAvailabilityAlertPresenter.presentOrProceed(
+            presenter: alertPresenter,
+            warning: availabilityProvider.availabilityWarningType,
+            action: { [weak self] in
+                self?.coordinator?.openOnramp(input: input, parameters: .none)
+            }
+        )
         return true
     }
 }
