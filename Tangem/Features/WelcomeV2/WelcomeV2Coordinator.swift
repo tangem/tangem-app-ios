@@ -13,12 +13,18 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Injected(\.welcomeV2BackgroundVideoProvider)
     private var videoProvider: WelcomeV2BackgroundVideoProviding
 
+    @Injected(\.alertPresenter)
+    private var alertPresenter: AlertPresenter
+
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
     @Published var rootViewModel: WelcomeV2ViewModel?
     @Published var actionSheetViewModel: WelcomeV2ActionSheetViewModel?
     @Published var hardwareWalletViewModel: WelcomeHardwareWalletViewModel?
+    @Published var mobileCreateWalletCoordinator: MobileCreateWalletCoordinator?
+
+    private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
     required init(
         dismissAction: @escaping Action<OutputOptions>,
@@ -69,11 +75,13 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
 
     func openMain(with userWalletModel: UserWalletModel) {
         hardwareWalletViewModel = nil
+        mobileCreateWalletCoordinator = nil
         dismiss(with: .main(userWalletModel))
     }
 
     func openOnboarding(with input: OnboardingInput) {
         hardwareWalletViewModel = nil
+        mobileCreateWalletCoordinator = nil
         dismiss(with: .onboarding(input))
     }
 }
@@ -87,7 +95,7 @@ private extension WelcomeV2Coordinator {
         actionSheetViewModel = WelcomeV2CreateWalletActionFactory().make(
             callbacks: .init(
                 onHardware: dismissSheetThenPresentHardware,
-                onMobile: dismissSheet,
+                onMobile: dismissSheetThenPresentMobile,
                 onClose: dismissSheet
             )
         )
@@ -132,8 +140,40 @@ private extension WelcomeV2Coordinator {
     /// so we close the sheet first and wait for the dismiss animation before continuing.
     func dismissSheetThenPresentHardware() {
         actionSheetViewModel = nil
-        DispatchQueue.main.asyncAfter(deadline: .now() + Self.sheetTransitionDelay) { [weak self] in
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
             self?.presentHardwareWallet()
         }
+    }
+
+    func dismissSheetThenPresentMobile() {
+        actionSheetViewModel = nil
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
+            self?.presentCreateMobileWallet()
+        }
+    }
+
+    func presentCreateMobileWallet() {
+        guard mobileWalletFeatureProvider.isAvailable else {
+            alertPresenter.present(alert: mobileWalletFeatureProvider.makeRestrictionAlert())
+            return
+        }
+
+        let dismissAction: Action<MobileCreateWalletCoordinator.OutputOptions> = { [weak self] options in
+            guard let self else { return }
+
+            switch options {
+            case .main(let userWalletModel):
+                mobileCreateWalletCoordinator = nil
+                dismiss(with: .main(userWalletModel))
+            case .dismiss:
+                mobileCreateWalletCoordinator = nil
+            }
+        }
+
+        let coordinator = MobileCreateWalletCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions(source: .createWalletIntro))
+        mobileCreateWalletCoordinator = coordinator
     }
 }
