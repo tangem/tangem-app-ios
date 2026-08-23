@@ -15,7 +15,16 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
     var body: some View {
         NavigationStack {
             content
+                .navigationLinks(links)
         }
+    }
+
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.mobileCreateWalletCoordinator) {
+                MobileCreateWalletCoordinatorView(coordinator: $0)
+                    .navigationBarHidden(true)
+            }
     }
 
     private var content: some View {
