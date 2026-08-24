@@ -122,8 +122,6 @@ struct TokenActionAvailabilityAlertBuilder {
             return AlertBuilder.makeDemoAlert(disabledLocalizedReason)
         case .missingAssetRequirement:
             return .init(title: "", message: Localization.warningReceiveBlockedTokenTrustlineRequiredMessage)
-        case .incompleteBackup(let userWalletInfo):
-            return UserWalletBackupStatusHelper().alert(for: userWalletInfo)
         }
     }
 
@@ -174,12 +172,12 @@ struct TokenActionAvailabilityAlertBuilder {
         }
     }
 
-    func alert(for status: TokenActionAvailabilityProvider.ReceiveActionAvailabilityStatus, blockchain: Blockchain) -> AlertBinder? {
+    func alert(for status: TokenActionAvailabilityProvider.ReceiveActionAvailabilityStatus) -> AlertBinder? {
         switch status {
         case .available:
             return nil
 
-        case .assetRequirement:
+        case .assetRequirement(let blockchain):
             switch blockchain {
             case .xrp, .stellar:
                 return .init(title: "", message: Localization.warningReceiveBlockedTokenTrustlineRequiredMessage)
@@ -188,9 +186,21 @@ struct TokenActionAvailabilityAlertBuilder {
             default:
                 return nil
             }
+        }
+    }
 
+    func alert(
+        for warning: TokenActionAvailabilityProvider.TokenActionAvailabilityWarningType,
+        continueAction: @escaping () -> Void,
+        cancelAction: (() -> Void)? = nil
+    ) -> AlertBinder? {
+        switch warning {
         case .incompleteBackup(let userWalletInfo):
-            return UserWalletBackupStatusHelper().alert(for: userWalletInfo)
+            return UserWalletBackupStatusHelper().alert(
+                for: userWalletInfo,
+                continueAction: continueAction,
+                cancelAction: cancelAction
+            )
         }
     }
 }

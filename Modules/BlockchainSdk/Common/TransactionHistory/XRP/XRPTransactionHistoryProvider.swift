@@ -40,6 +40,28 @@ final class XRPTransactionHistoryProvider: TransactionHistoryProvider {
         )
     }
 
+    func shouldBeIncludedInHistory(amountType: Amount.AmountType, record: TransactionRecord) -> Bool {
+        if case .contractMethodName(let name) = record.type, name == XRPTransaction.TransactionType.trustSet {
+            return true
+        }
+
+        switch amountType {
+        case .coin where record.type == .transfer:
+            break
+        case .coin, .reserve, .feeResource:
+            return true
+        case .token:
+            break
+        }
+
+        switch record.destination {
+        case .single(let destination):
+            return destination.amount != 0
+        case .multiple(let destinations):
+            return destinations.contains { $0.amount != 0 }
+        }
+    }
+
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
         guard case .address(let address) = request.key else {
             return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)

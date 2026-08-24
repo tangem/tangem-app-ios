@@ -84,7 +84,7 @@ extension MainCoordinator {
                 return routeLinkAction(params: navigationAction.params)
 
             case .swap:
-                return routeSwapAction(userWalletId: navigationAction.params.userWalletId)
+                return routeSwapAction(params: navigationAction.params)
 
             case .onboardVisa, .payApp:
                 return routeOnboardVisaAction(
@@ -261,20 +261,29 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeSwapAction(userWalletId: String?) -> Bool {
+        private func routeSwapAction(params: DeeplinkNavigationAction.Params) -> Bool {
             guard
-                let userWalletModel = findUserWalletModel(userWalletModelId: userWalletId),
+                let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
                 isFeatureSupported(feature: .swapping, userWalletModel: userWalletModel)
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
 
+            if let parameters = DeeplinkSwapParametersResolver().resolve(
+                params: params,
+                accountModelsManager: userWalletModel.accountModelsManager,
+                userWalletInfo: userWalletModel.userWalletInfo
+            ) {
+                coordinator?.openDeepLink(.swap(parameters: parameters))
+                return true
+            }
+
             let walletModels = AccountWalletModelsAggregator.walletModels(
                 from: userWalletModel.accountModelsManager
             )
 
-            guard let sourceToken = MainSwapPairResolver.makeBestEffortSourceToken(
+            guard let sourceToken = MainSwapSourceResolver.makeBestEffortSourceToken(
                 from: walletModels,
                 userWalletInfo: userWalletModel.userWalletInfo
             ) else {
@@ -282,14 +291,14 @@ extension MainCoordinator {
                 return false
             }
 
-            let resolver = MainSwapPairResolver(
+            let resolver = MainSwapSourceResolver(
                 userWalletModel: userWalletModel,
                 swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
             )
 
             coordinator?.openDeepLink(
                 .swap(
-                    parameters: .deferredPairResolution(source: sourceToken, resolver: resolver)
+                    parameters: .from(sourceToken, pair: .deferred(sourceResolver: resolver))
                 )
             )
 
@@ -416,10 +425,33 @@ extension MainCoordinator {
                 return false
             }
 
-            switch payload.body {
+            switch payload.rawType {
             case .cardReady:
-                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId))
-            case .transactionSpend, .declinedTopUp, .collateralWithdraw, .collateralDeposit:
+                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId, incomingAction: nil))
+            case .thresholdTopUp:
+                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId, incomingAction: .addFunds))
+            case .transactionSpend,
+                 .transactionSpendRefund,
+                 .declinedTopUp,
+                 .declinedReason1,
+                 .declinedReason2,
+                 .declinedReason3,
+                 .declinedReason4,
+                 .declinedReason5,
+                 .declinedReason6,
+                 .declinedReason7,
+                 .declinedReason8,
+                 .declinedReason9,
+                 .declinedReason10,
+                 .declinedReason11,
+                 .declinedReason12,
+                 .declinedReason13,
+                 .declinedReason14,
+                 .declinedReason15,
+                 .declinedReason16,
+                 .declinedReason17,
+                 .collateralWithdraw,
+                 .collateralDeposit:
                 coordinator.openDeepLink(.tangemPayTransactionDetails(payload: payload))
             }
             return true

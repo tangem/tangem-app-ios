@@ -51,6 +51,103 @@ struct SmartContractMethodTests {
         }
     }
 
+    // MARK: - ERC20 transfer decoding
+
+    @Test("Decodes the arguments of a transfer call")
+    func transferERC20TokenMethodDecoding() throws {
+        // give
+        let calldata = Data(hex: [
+            "a9059cbb",
+            "00000000000000000000000090e4d59c8583e37426b37d1d7394b6008a987c67",
+            "00000000000000000000000000000000000000000000000000000000000f4240",
+        ].joined())
+
+        let expectedDestination = try SmartContractAddress("0x90e4d59c8583e37426b37d1d7394b6008a987c67")
+
+        // when
+        let method = TransferERC20TokenMethod(calldata: calldata)
+
+        // then
+        #expect(method?.destination == expectedDestination)
+        #expect(method?.amount == BigUInt("1000000"))
+    }
+
+    @Test("Decoding an encoded transfer returns the original arguments")
+    func transferERC20TokenMethodDecodingRoundTrip() throws {
+        // give
+        let destination = "0x1111111254eeb25477b68fb85ed929f73a960582"
+        let amount = BigUInt("123456789012345678901234567890")
+        let expectedDestination = try SmartContractAddress(destination)
+
+        // when
+        let encoded = try TransferERC20TokenMethod(destination: destination, amount: amount).data
+        let decoded = TransferERC20TokenMethod(calldata: encoded)
+
+        // then
+        #expect(decoded?.destination == expectedDestination)
+        #expect(decoded?.amount == amount)
+    }
+
+    @Test("Decodes a transfer of a zero amount")
+    func transferERC20TokenMethodDecodingZeroAmount() throws {
+        // give
+        let destination = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
+        let expectedDestination = try SmartContractAddress(destination)
+
+        // when
+        let encoded = try TransferERC20TokenMethod(destination: destination, amount: .zero).data
+        let decoded = TransferERC20TokenMethod(calldata: encoded)
+
+        // then
+        #expect(decoded?.destination == expectedDestination)
+        #expect(decoded?.amount == .zero)
+    }
+
+    @Test("Decodes a transfer of the largest representable amount")
+    func transferERC20TokenMethodDecodingMaxAmount() throws {
+        // give
+        let destination = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
+        let amount = BigUInt(Data(repeating: 0xFF, count: 32))
+        let expectedDestination = try SmartContractAddress(destination)
+
+        // when
+        let encoded = try TransferERC20TokenMethod(destination: destination, amount: amount).data
+        let decoded = TransferERC20TokenMethod(calldata: encoded)
+
+        // then
+        #expect(encoded.count == 68)
+        #expect(decoded?.destination == expectedDestination)
+        #expect(decoded?.amount == amount)
+    }
+
+    @Test("Recognizes a transfer call by its method id")
+    func transferERC20TokenMethodIsEncodedCall() throws {
+        // give
+        let destination = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
+        let amount = BigUInt("1000000")
+
+        let transferCalldata = try TransferERC20TokenMethod(destination: destination, amount: amount).data
+        let approveCalldata = ApproveERC20TokenMethod(spender: destination, amount: amount).data
+
+        // then
+        #expect(TransferERC20TokenMethod.isEncodedCall(transferCalldata))
+        #expect(!TransferERC20TokenMethod.isEncodedCall(approveCalldata))
+        #expect(!TransferERC20TokenMethod.isEncodedCall(Data()))
+    }
+
+    @Test("Rejects calldata that is not a well-formed transfer call", arguments: [
+        TransferERC20TokenMethodDecodingRejectionTestCase.approveInsteadOfTransfer,
+        TransferERC20TokenMethodDecodingRejectionTestCase.empty,
+        TransferERC20TokenMethodDecodingRejectionTestCase.methodIdOnly,
+        TransferERC20TokenMethodDecodingRejectionTestCase.truncatedArguments,
+        TransferERC20TokenMethodDecodingRejectionTestCase.trailingBytes,
+        TransferERC20TokenMethodDecodingRejectionTestCase.dirtyAddressSlot,
+        TransferERC20TokenMethodDecodingRejectionTestCase.burnAddressDestination,
+    ])
+    func transferERC20TokenMethodDecodingRejection(testCase: TransferERC20TokenMethodDecodingRejectionTestCase) throws {
+        #expect(TransferERC20TokenMethod(calldata: testCase.calldata) == nil)
+    }
+
     @Test
     func approveERC20TokenMethod() throws {
         // give

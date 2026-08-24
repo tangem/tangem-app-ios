@@ -188,8 +188,8 @@ extension NFTSendWalletModelProxy: WalletModel {
         await mainTokenWalletModel.updateTransactionHistory()
     }
 
-    func updateAfterSendingTransaction() {
-        mainTokenWalletModel.updateAfterSendingTransaction()
+    func updateAfterSendingTransaction(silent: Bool) {
+        mainTokenWalletModel.updateAfterSendingTransaction(silent: silent)
     }
 
     var feeTokenItemBalanceProvider: any TokenBalanceProvider {

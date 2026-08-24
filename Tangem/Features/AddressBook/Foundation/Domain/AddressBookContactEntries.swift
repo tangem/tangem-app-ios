@@ -62,8 +62,11 @@ struct AddressBookContactEntries<Entry: AddressBookEntry>: Hashable {
         }
     }
 
-    func caseInsensitiveContains(address: String) -> Bool {
-        raw.contains { $0.address.caseInsensitiveEquals(to: address) }
+    /// Pass a `networkId` to match the address only on that network, or `nil` to perform a loose matching across all networks.
+    func caseInsensitiveContains(address: String, networkId: AddressBookNetworkID?) -> Bool {
+        raw.contains { entry in
+            entry.address.caseInsensitiveEquals(to: address) && (networkId == nil || entry.networkId == networkId)
+        }
     }
 
     /// Strict mutation-time validation, used by the editor before save: the max-count cap and
