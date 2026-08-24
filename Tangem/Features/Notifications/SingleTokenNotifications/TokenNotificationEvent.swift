@@ -33,12 +33,30 @@ enum TokenNotificationEvent: Hashable {
 extension TokenNotificationEvent: NotificationEvent {
     var bannerKind: NotificationBannerKind? {
         switch self {
-        case .noAccount:
-            return .warning
         case .staking, .manaLevel, .maticMigration, .cloreMigration, .existentialDepositWarning:
             return .status
+        case .noAccount:
+            return .warning
         case .rentFee:
             return .informational()
+        default:
+            return nil
+        }
+    }
+
+    var bannerVariant: MessageBannerVariant? {
+        switch self {
+        case .noAccount:
+            return .default
+        default:
+            return nil
+        }
+    }
+
+    var bannerRing: NotificationBanner.Ring? {
+        switch self {
+        case .cloreMigration:
+            return .warning
         default:
             return nil
         }
@@ -170,8 +188,10 @@ extension TokenNotificationEvent: NotificationEvent {
              .cloreMigration,
              .dynamicAddressesFundsFound:
             return .init(iconType: .image(Assets.attention))
-        case .rentFee, .noAccount, .existentialDepositWarning, .manaLevel:
+        case .rentFee, .existentialDepositWarning, .manaLevel:
             return .init(iconType: .image(Assets.blueCircleWarning))
+        case .noAccount:
+            return .init(iconType: .image(Assets.infoCircle20))
         case .notEnoughFeeForTransaction(let configuration):
             return .init(iconType: .icon(configuration.feeTokenIconInfo))
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _):

@@ -68,7 +68,7 @@ class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
 private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
     func makeContinueStep() -> Step {
         let step = MobileOnboardingSuccessStep(
-            type: .seedPhaseBackupContinue,
+            type: .backupContinue,
             navigationTitle: Localization.commonBackup,
             onAppear: { [weak self] in
                 self?.logBackupCompletedScreenOpenedAnalytics()
@@ -81,7 +81,7 @@ private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
     func makeDoneStep() -> Step {
         let successType: MobileOnboardingSuccessViewModel.SuccessType
         if case .walletSettings(let action) = source, action == .accessCode {
-            successType = .seedPhaseBackupContinue
+            successType = .backupContinue
         } else {
             successType = .seedPhaseBackupFinish
         }
@@ -166,17 +166,27 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder {
     }
 
     func logSeedPhraseValidatedAnalytics() {
+        var params: [Analytics.ParameterKey: String] = [.cardsCount: String(0)]
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            params[.backupType] = Analytics.ParameterValue.backupTypeManual.rawValue
+        }
+
         Analytics.log(
             event: .backupFinished,
-            params: [.cardsCount: String(0)],
+            params: params,
             contextParams: analyticsContextParams
         )
     }
 
     func logBackupCompletedScreenOpenedAnalytics() {
+        var params = source.analyticsParams
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            params[.backupType] = .backupTypeManual
+        }
+
         Analytics.log(
             .walletSettingsBackupCompleteScreen,
-            params: source.analyticsParams,
+            params: params,
             contextParams: analyticsContextParams
         )
     }

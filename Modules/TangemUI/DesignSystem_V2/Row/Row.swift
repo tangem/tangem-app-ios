@@ -80,14 +80,8 @@ public struct Row<
             )
     }
 
-    @ViewBuilder
     private var coreButton: some View {
-        if let onTap = config.onTap {
-            SwiftUI.Button(action: onTap) { paddedContent }
-                .buttonStyle(PressStyle())
-        } else {
-            paddedContent
-        }
+        PressableRow(onTap: config.onTap, label: paddedContent)
     }
 
     private var paddedContent: some View {
@@ -110,7 +104,11 @@ public struct Row<
             startContent
                 .opacity(contentOpacity)
 
-            RowContentLayout(contentLead: config.contentLead, minOppositeWidth: minOppositeWidth) {
+            RowContentLayout(
+                contentLead: config.contentLead,
+                minOppositeWidth: minOppositeWidth,
+                verticalAlignment: config.verticalAlignment
+            ) {
                 titleColumn
                 valueColumn
             }
@@ -213,20 +211,6 @@ public struct Row<
     }
 }
 
-// MARK: - Press style
-
-private extension Row {
-    struct PressStyle: ButtonStyle {
-        @Environment(\.isEnabled) private var isEnabled
-
-        func makeBody(configuration: Configuration) -> some View {
-            configuration.label
-                .background(configuration.isPressed && isEnabled ? DesignSystem.Color.interactionPressDefault : Color.clear)
-                .contentShape(Rectangle())
-        }
-    }
-}
-
 // MARK: - Role
 
 extension Row {
@@ -259,48 +243,20 @@ extension Row {
     }
 }
 
-// MARK: - Accessibility
-
-private extension View {
-    @ViewBuilder
-    func rowAccessibility(label: String?, hint: String?, isSelected: Bool) -> some View {
-        let traits: AccessibilityTraits = isSelected ? .isSelected : []
-
-        if let label {
-            accessibilityElement(children: .ignore)
-                .accessibilityLabel(label)
-                .rowAccessibilityHint(hint)
-                .accessibilityAddTraits(traits)
-        } else {
-            accessibilityElement(children: .combine)
-                .rowAccessibilityHint(hint)
-                .accessibilityAddTraits(traits)
-        }
-    }
-
-    @ViewBuilder
-    func rowAccessibilityHint(_ hint: String?) -> some View {
-        if let hint {
-            accessibilityHint(hint)
-        } else {
-            self
-        }
-    }
-}
-
 // MARK: - Constants
 
 enum RowMetrics {
+    static let innerPadding = RowGeometry.innerPadding
+    static let slotSpacing = RowGeometry.slotSpacing
+    static let minOppositeWidth = RowGeometry.minOppositeWidth
+    static let lineSpacing = RowGeometry.lineSpacing
+    static let inlineAccessorySpacing = RowGeometry.inlineAccessorySpacing
+    static let disabledOpacity = RowGeometry.dimmedOpacity
+
     static let rootSpacing: CGFloat = 8
-    static let innerPadding: CGFloat = 16
-    static let slotSpacing: CGFloat = 12
     static let columnSpacing: CGFloat = 12
-    static let minOppositeWidth: CGFloat = 96
-    static let lineSpacing: CGFloat = 2
-    static let inlineAccessorySpacing: CGFloat = 4
     static let dividerInset: CGFloat = 16
     static let dividerHeight: CGFloat = 1
-    static let disabledOpacity: CGFloat = 0.4
     static let focusRingWidth: CGFloat = 2
     static let focusRingCornerRadius: CGFloat = 16
     static let iconSize: CGFloat = 24

@@ -87,6 +87,10 @@ extension CommonKeysManager: KeysManager {
         }
     }
 
+    var otlpApiKey: String {
+        keys.otplApiKey
+    }
+
     var appsFlyerConfig: AppsFlyerConfig {
         keys.appsFlyer
     }
@@ -184,6 +188,8 @@ extension CommonKeysManager {
         let surveySparrow: SurveySparrowKeys
         let amplitudeApiKey: String
         let amplitudeApiKeyDev: String
+        // The property name mirrors the key spelling in tangem-app-config.
+        let otplApiKey: String
         let tronGridApiKey: String
         let hederaArkhiaKey: String
         let quiknodeApiKey: String

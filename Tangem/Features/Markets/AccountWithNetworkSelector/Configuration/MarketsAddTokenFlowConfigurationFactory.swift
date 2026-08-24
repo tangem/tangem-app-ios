@@ -130,11 +130,22 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
         let navigationTokenAction = { @MainActor in
             let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
+            let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
+
             switch action {
             case .buy:
                 analyticsLogger.logBuyTapped()
                 let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
-                coordinator.openOnramp(input: sendInput, parameters: .none)
+                // buyStatus is deliberately not checked here: for a freshly added token the express
+                // availability may still be loading, so onramp opens regardless and the onramp screen
+                // itself reports unsupported tokens.
+                TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                    presenter: InjectedValues[\.alertPresenter],
+                    warning: availabilityProvider.availabilityWarningType,
+                    action: {
+                        coordinator.openOnramp(input: sendInput, parameters: .none)
+                    }
+                )
 
             case .exchange:
                 analyticsLogger.logExchangeTapped()
@@ -152,7 +163,14 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
             case .receive:
                 analyticsLogger.logReceiveTapped()
-                coordinator.openReceive(userWalletInfo: userWalletInfo, walletModel: walletModel)
+                TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                    presenter: InjectedValues[\.alertPresenter],
+                    receiveStatus: availabilityProvider.receiveAvailability,
+                    warning: availabilityProvider.availabilityWarningType,
+                    action: {
+                        coordinator.openReceive(userWalletInfo: userWalletInfo, walletModel: walletModel)
+                    }
+                )
 
             default:
                 break
