@@ -11,24 +11,77 @@ import BigInt
 
 /// https://eips.ethereum.org/EIPS/eip-20#transfer
 public struct TransferERC20TokenMethod {
-    let destination: SmartContractAddress
-    let amount: BigUInt
+    public static let methodId = "0xa9059cbb"
+
+    public let destination: SmartContractAddress
+    public let amount: BigUInt
 
     public init(destination: String, amount: BigUInt) throws {
         self.amount = amount
         self.destination = try SmartContractAddress(destination)
+    }
+
+    public static func isEncodedCall(_ calldata: Data) -> Bool {
+        calldata.starts(with: Data(hexString: methodId))
+    }
+
+    public static func isEncodedCall(_ calldata: String) -> Bool {
+        isEncodedCall(Data(hexString: calldata))
+    }
+}
+
+// MARK: - Decoding
+
+public extension TransferERC20TokenMethod {
+    /// Recovers the arguments of a `transfer(address,uint256)` call.
+    /// Returns `nil` for anything that is not exactly such a call, including a call carrying
+    /// a dirty address slot, a truncated or padded argument list or a destination that doesn't
+    /// pass the `SmartContractAddress` validation.
+    init?(calldata: Data) {
+        guard Self.isEncodedCall(calldata) else {
+            return nil
+        }
+
+        let arguments = calldata.dropFirst(Constants.methodIdLength)
+
+        guard arguments.count == Constants.argumentsLength else {
+            return nil
+        }
+
+        let destinationSlot = arguments.prefix(Constants.slotLength)
+        let amountSlot = arguments.suffix(Constants.slotLength)
+
+        guard destinationSlot.prefix(Constants.addressPaddingLength).allSatisfy({ $0 == 0 }) else {
+            return nil
+        }
+
+        let destinationBytes = Data(destinationSlot.suffix(Constants.addressLength))
+
+        try? self.init(destination: destinationBytes.hex().addHexPrefix(), amount: BigUInt(Data(amountSlot)))
     }
 }
 
 // MARK: - SmartContractMethod
 
 extension TransferERC20TokenMethod: SmartContractMethod {
-    public var methodId: String { "0xa9059cbb" }
+    public var methodId: String { Self.methodId }
 
     public var data: Data {
         let prefixData = Data(hexString: methodId)
         let addressData = destination.encodedParameter
-        let amountData = amount.serialize().leadingZeroPadding(toLength: 32)
+        let amountData = amount.serialize().leadingZeroPadding(toLength: Constants.slotLength)
         return prefixData + addressData + amountData
+    }
+}
+
+// MARK: - Constants
+
+private extension TransferERC20TokenMethod {
+    enum Constants {
+        static let methodIdLength = 4
+        static let slotLength = 32
+        static let addressLength = 20
+        static let addressPaddingLength = slotLength - addressLength
+        static let argumentsLength = slotLength * 2
     }
 }

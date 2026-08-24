@@ -11,11 +11,11 @@ import Foundation
 import UIKit
 import TangemUI
 
-struct TransactionDetailsDebugInfo {
+struct TransactionDetailsDebugInfo: Equatable {
     let summary: [SummaryRow]
     let dump: String
 
-    struct SummaryRow: Identifiable {
+    struct SummaryRow: Identifiable, Equatable {
         let title: String
         let value: String
 

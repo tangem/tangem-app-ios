@@ -13,47 +13,18 @@ struct TransactionDetailsContext {
     private let walletModel: any WalletModel
     private let userWalletInfo: UserWalletInfo
     private let isAccountsMode: Bool
-    weak var routable: (any TransactionDetailsRoutable)?
 
     let tokenIconInfo: TokenIconInfo
 
     init(
         walletModel: any WalletModel,
         userWalletInfo: UserWalletInfo,
-        isAccountsMode: Bool,
-        routable: TransactionDetailsRoutable
+        isAccountsMode: Bool
     ) {
         self.walletModel = walletModel
         self.userWalletInfo = userWalletInfo
         self.isAccountsMode = isAccountsMode
-        self.routable = routable
         tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
-    }
-
-    var openURL: (URL) -> Void {
-        { [weak routable] url in
-            routable?.openTransactionDetailsURL(url)
-        }
-    }
-
-    var share: (String) -> Void {
-        { [weak routable] text in
-            routable?.shareFromTransactionDetails(text)
-        }
-    }
-
-    #if INTERNAL || DEBUG
-    var openDebug: (TransactionDetailsDebugInfo) -> Void {
-        { [weak routable] info in
-            routable?.openTransactionDetailsDebug(info)
-        }
-    }
-    #endif
-
-    var onClose: () -> Void {
-        { [weak routable] in
-            routable?.closeTransactionDetails()
-        }
     }
 
     var tokenSymbol: String {

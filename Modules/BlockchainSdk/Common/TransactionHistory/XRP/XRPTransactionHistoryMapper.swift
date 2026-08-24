@@ -41,10 +41,15 @@ private extension XRPTransactionHistoryMapper {
         walletAddress: String,
         amountType: Amount.AmountType
     ) -> TransactionRecord? {
+        let isTrustSet = item.tx.transactionType == Constants.trustSetTransactionType
         let transactionAmount: Decimal
 
         switch amountType {
         case .coin, .reserve:
+            guard !isTrustSet else {
+                return nil
+            }
+
             guard
                 let dropsAmountString = item.tx.amount?.dropsValue,
                 let amountInDrops = Decimal(stringValue: dropsAmountString)
@@ -54,14 +59,19 @@ private extension XRPTransactionHistoryMapper {
 
             transactionAmount = amountInDrops / blockchain.decimalValue
         case .token(let token):
-            guard
-                let tokenAmount = extractTokenAmount(from: item, token: token),
-                tokenAmount != 0
-            else {
+            guard let tokenAmount = extractTokenAmount(from: item, token: token) else {
                 return nil
             }
 
-            transactionAmount = tokenAmount
+            if isTrustSet {
+                transactionAmount = 0
+            } else {
+                guard tokenAmount != 0 else {
+                    return nil
+                }
+
+                transactionAmount = tokenAmount
+            }
         case .feeResource:
             return nil
         }
@@ -83,8 +93,7 @@ private extension XRPTransactionHistoryMapper {
                 return destination
             }
 
-            if item.tx.transactionType == Constants.trustSetTransactionType,
-               let trustlineIssuer = item.tx.limitAmount?.issuer {
+            if isTrustSet, let trustlineIssuer = item.tx.limitAmount?.issuer {
                 return trustlineIssuer
             }
 

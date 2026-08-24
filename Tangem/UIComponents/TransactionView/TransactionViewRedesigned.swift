@@ -156,18 +156,52 @@ struct TransactionViewRedesigned: View {
                 .truncationMode(viewModel.transactionDescriptionTruncationMode)
                 .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionSubtitle(key: transactionKey))
 
+        case .express(let model):
+            TransactionExpressSubtitleView(model: model)
+
         case .none:
             EmptyView()
         }
     }
 
-    @ViewBuilder
     private var secondaryTrailingView: some View {
-        if let text = viewModel.secondaryTrailingText {
-            Text(text)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
-                .lineLimit(1)
-                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionCurrency(key: transactionKey))
+        HStack(spacing: 4) {
+            if FeatureProvider.isAvailable(.tangemPayCashback), let cashback = viewModel.cashback {
+                TransactionCashbackBadge(cashback: cashback)
+            }
+
+            if let text = viewModel.secondaryTrailingText {
+                Text(text)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                    .lineLimit(1)
+                    .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionCurrency(key: transactionKey))
+            }
+        }
+    }
+}
+
+// MARK: - Cashback badge
+
+private struct TransactionCashbackBadge: View {
+    let cashback: TransactionViewModel.Cashback
+
+    @ObservedObject private var visibilityState: SensitiveTextVisibilityState = .shared
+
+    var body: some View {
+        Badge(label: label, accessibilityLabel: nil)
+            .size(.x4)
+            .variant(.tinted)
+            .appearance(appearance)
+    }
+
+    private var label: String {
+        visibilityState.isHidden ? visibilityState.maskedBalanceString : cashback.formattedAmount
+    }
+
+    private var appearance: BadgeAppearance {
+        switch cashback.style {
+        case .estimated: .neutral
+        case .confirmed: .info
         }
     }
 }
@@ -326,6 +360,40 @@ private extension TransactionViewRedesigned {
                 status: .inProgress,
                 isFromYieldContract: false,
                 warning: .verifying
+            )
+        )
+
+        TransactionViewRedesigned(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .custom(message: "Restaurants"),
+                timeFormatted: "10:45",
+                amount: "−$12.34",
+                value: "−$12.34",
+                currencyCode: "",
+                isOutgoing: true,
+                transactionType: .tangemPay(.spend(name: "Tangem Coffee", icon: nil, isDeclined: false, isNegativeAmount: false)),
+                status: .confirmed,
+                isFromYieldContract: false,
+                cashback: TransactionViewModel.Cashback(formattedAmount: "+$5.00", style: .estimated)
+            )
+        )
+
+        TransactionViewRedesigned(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .custom(message: "Restaurants"),
+                timeFormatted: "10:45",
+                amount: "−$12.34",
+                value: "−$12.34",
+                currencyCode: "",
+                isOutgoing: true,
+                transactionType: .tangemPay(.spend(name: "Tangem Coffee", icon: nil, isDeclined: false, isNegativeAmount: false)),
+                status: .confirmed,
+                isFromYieldContract: false,
+                cashback: TransactionViewModel.Cashback(formattedAmount: "+$5.00", style: .confirmed)
             )
         )
     }
