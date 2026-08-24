@@ -58,7 +58,7 @@ final class StakeModel {
     private let analyticsLogger: StakeModelAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
 
-    private var estimatedFeeTask: Task<Void, Never>?
+    private let estimatedFeeTask = OSAllocatedUnfairLock(initialState: Task<Void, Never>?.none)
     private var bag: Set<AnyCancellable> = []
 
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
@@ -100,7 +100,7 @@ private extension StakeModel {
         _amount
             .dropFirst()
             .withWeakCaptureOf(self)
-            .sink { model, _ in model.updateState() }
+            .sink { model, _ in model.updateState(debounced: true) }
             .store(in: &bag)
 
         _selectedTarget
@@ -110,7 +110,17 @@ private extension StakeModel {
             .store(in: &bag)
     }
 
-    func updateState() {
+    func updateState(debounced: Bool = false) {
+        // Cancelled ahead of the guard: an estimate left flying lands as a `.ready` built from the old amount.
+        // Cancelled outside the lock too: `Task.cancel()` runs the task's cancellation handlers inline, and
+        // one of them touching this state would deadlock on the held lock.
+        let supersededEstimate = estimatedFeeTask.withLock { task -> Task<Void, Never>? in
+            defer { task = nil }
+            return task
+        }
+
+        supersededEstimate?.cancel()
+
         guard sendSourceToken.canCoverStakingFee else {
             update(state: .failure(.network(StakingPreflightError.insufficientFundsForFee)))
             return
@@ -119,19 +129,31 @@ private extension StakeModel {
         let enteredAmount = _amount.value?.crypto
         let target = _selectedTarget.value.value
 
-        estimatedFeeTask?.cancel()
-        estimatedFeeTask = runTask(in: self) { model in
+        update(state: .loading)
+
+        let task = runTask(in: self) { model in
             do {
-                model.update(state: .loading)
+                if debounced {
+                    // The amount arrives keystroke by keystroke, and a cancelled sleep never reaches the network.
+                    try await Task.sleep(for: .seconds(1))
+                }
+
                 let state = try await model.provider.updateState(amount: enteredAmount, target: target)
                 try Task.checkCancellation()
                 model.update(state: state)
             } catch is CancellationError {
                 // Do nothing
             } catch {
+                // A cancelled network request surfaces as a plain error, not a `CancellationError`.
+                guard !Task.isCancelled else {
+                    return
+                }
+
                 model.update(state: .failure(.network(error)))
             }
         }
+
+        estimatedFeeTask.withLock { $0 = task }
     }
 
     func update(state: StakeFlowState) {
@@ -202,6 +224,10 @@ private extension StakeModel {
     }
 
     func send() async throws -> TransactionDispatcherResult {
+        await awaitSettled { estimatedFeeTask.withLock { $0 } }
+        // The wait outlives cancellation of this send, so a superseded one stops before the dispatcher.
+        try Task.checkCancellation()
+
         guard case .ready(let ready) = _state.value else {
             throw StakeModelError.notReady
         }
