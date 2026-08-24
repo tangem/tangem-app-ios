@@ -42,6 +42,11 @@ final class SendWithSwapModel {
     private var receiveTokenUpdatingTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
 
+    /// Locks the screen for the whole swap action, which starts before `SwapModel` raises its own flag:
+    /// the impact gate first waits for the quote to settle, and until then the main button would stay
+    /// live and unspinnered, so a second tap would start a second send.
+    private let _isSwapActionInProcessing = CurrentValueSubject<Bool, Never>(false)
+
     init(
         transferModel: TransferModel,
         swapModel: SwapModel,
@@ -157,6 +162,14 @@ private extension SendWithSwapModel {
             try Task.checkCancellation()
             self?.updateReceiveTokenIfNeeded()
         }
+    }
+
+    /// Within the debounce window the swap side still holds the previous destination and memo.
+    @MainActor
+    func flushPendingReceiveTokenUpdate() {
+        receiveTokenUpdatingTask?.cancel()
+        receiveTokenUpdatingTask = nil
+        updateReceiveTokenIfNeeded()
     }
 
     func updateReceiveTokenIfNeeded() {
@@ -566,25 +579,39 @@ extension SendWithSwapModel: SendFinishInput {
 
 extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
     var actionInProcessing: AnyPublisher<Bool, Never> {
-        isSwapModePublisher
+        let modelActionInProcessing = isSwapModePublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { model, isSwap in
                 isSwap ? model.swapModel.actionInProcessing : model.transferModel.actionInProcessing
             }
             .eraseToAnyPublisher()
+
+        return Publishers.CombineLatest(modelActionInProcessing, _isSwapActionInProcessing)
+            .map { $0 || $1 }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     func actualizeInformation() {
-        if !isSwapMode {
+        if isSwapMode {
+            swapModel.actualizeInformation()
+        } else {
             transferModel.actualizeInformation()
         }
-        // SwapModel handles this differently
     }
 
     func performAction() async throws -> TransactionDispatcherResult {
+        await MainActor.run { flushPendingReceiveTokenUpdate() }
+
         if isSwapMode {
+            _isSwapActionInProcessing.send(true)
+            defer { _isSwapActionInProcessing.send(false) }
+
             // Swap mode - check high price impact
-            let highPriceImpactResult = try await swapModel.highPriceImpactPublisher.first().async()
+            let highPriceImpactResult = await swapModel.settledHighPriceImpact()
+            // A tap that superseded this one leaves the wait early, so nothing here reaches the dispatcher.
+            try Task.checkCancellation()
+
             let source = try swapModel.sourceToken.get()
 
             if let highPriceImpact = highPriceImpactResult, !highPriceImpact.level.isNegligible {
@@ -593,6 +620,11 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
                     tangemIconProvider: source.tangemIconProvider
                 )
                 router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
+
+                // The sheet owns the screen from here, and the send it runs raises the flag in `SwapModel`
+                // again. Holding it here would leave the screen locked for good when the sheet is dismissed
+                // by a tap outside it, which resumes nothing.
+                _isSwapActionInProcessing.send(false)
 
                 return try await viewModel.process(send: { try await self.swapModel.performAction() })
             }
