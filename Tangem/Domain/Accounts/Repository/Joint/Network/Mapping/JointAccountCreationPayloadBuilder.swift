@@ -16,14 +16,14 @@ struct JointAccountCreationPayloadBuilder: JointAccountPayloadBuilder {
 
     func makePayload(address: String, derivationIndex: Int) -> JointAccountCreationPayload {
         return JointAccountCreationPayload(
-            config: JointAccountCreationPayload.Config(
+            config: JointAccountSignedConfig(
                 name: creationContext.name,
                 icon: creationContext.icon.name.rawValue,
                 iconColor: creationContext.icon.color.rawValue,
                 membersCount: creationContext.membersCount,
                 threshold: creationContext.signersCount
             ),
-            creator: JointAccountCreationPayload.Creator(
+            creator: JointAccountSignedMember(
                 walletId: userWalletId.stringValue,
                 name: creationContext.creatorName,
                 address: address,

@@ -8,29 +8,24 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
 struct JointAccountsNetworkServiceMock: JointAccountsNetworkService {
     func createJointAccount(blob: JointAccountCreationBlob) async throws -> JointAccountCreationResult {
-        let config = blob.payload.config
-        let creator = blob.payload.creator
-
-        let account = StoredJointAccount(
-            cryptoAccountId: UUID().uuidString,
-            membersCount: config.membersCount,
-            threshold: config.threshold,
-            address: nil,
-            status: .pending,
-            members: [
-                StoredJointAccount.Member(name: creator.name, address: creator.address, role: .creator),
-            ]
-        )
-
-        let invites = (1 ..< config.membersCount).map { _ in JointAccountInvite(id: Self.makeInviteId()) }
-
-        return JointAccountCreationResult(account: account, invites: invites)
+        throw "Not implemented"
     }
 
-    private static func makeInviteId() -> String {
-        (UUID().uuidString + UUID().uuidString).replacingOccurrences(of: "-", with: "")
+    func getJointAccounts() async throws -> [StoredJointAccount] {
+        throw "Not implemented"
+    }
+
+    func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {
+        throw "Not implemented"
+    }
+
+    func joinJointAccount(blob: JointAccountJoinBlob) async throws -> StoredJointAccount {
+        throw "Not implemented"
+    }
+
+    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> StoredJointAccount {
+        throw "Not implemented"
     }
 }

@@ -46,6 +46,22 @@ struct TangemApiTarget: TargetType {
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
         case .getWalletCards, .saveWalletCards:
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
+        case .getUserAccounts where FeatureProvider.isAvailable(.jointAccounts),
+             .saveUserAccounts where FeatureProvider.isAvailable(.jointAccounts),
+             .getArchivedUserAccounts where FeatureProvider.isAvailable(.jointAccounts):
+            // Only v2 tells the kinds of account apart: it answers with the kind of each one and counts them by kind,
+            // which is what a wallet with joint accounts is made of. Without the feature there is nothing to tell
+            // apart, so the request goes where it always went — the DTOs read either answer.
+            // Served as `/api/v2/wallets/{walletId}/accounts`, unlike the v1 it replaces
+            AppEnvironment.current.apiBaseUrlv2WithGatewaySegment
+        case .getJointAccounts,
+             .createJointAccount,
+             .getJointAccountInvite,
+             .joinJointAccount,
+             .activateJointAccount:
+            // The joint accounts contract documents these as `/api/v1/wallets/{walletId}/joint-accounts...`, unlike
+            // the plain `/v1/wallets/{walletId}/accounts` it describes beside them, so only these carry the segment
+            AppEnvironment.current.apiBaseUrlWithGatewaySegment
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -172,6 +188,12 @@ struct TangemApiTarget: TargetType {
         case .getJointAccounts(let walletId),
              .createJointAccount(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts"
+        case .getJointAccountInvite(let walletId, let inviteId):
+            return "/wallets/\(walletId)/joint-accounts/invites/\(inviteId)"
+        case .joinJointAccount(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/join"
+        case .activateJointAccount(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/activate"
 
         // MARK: - Address Book
         case .syncAddressBooks:
@@ -225,6 +247,7 @@ struct TangemApiTarget: TargetType {
              .getUserAccounts,
              .getArchivedUserAccounts,
              .getJointAccounts,
+             .getJointAccountInvite,
              .getUserWallets,
              .getUserWallet,
              .getWalletCards,
@@ -245,6 +268,8 @@ struct TangemApiTarget: TargetType {
         case .participateInReferralProgram,
              .createAccount,
              .createJointAccount,
+             .joinJointAccount,
+             .activateJointAccount,
              .createUserWalletsApplication,
              .activatePromoCode,
              .createWallet,
@@ -375,9 +400,13 @@ struct TangemApiTarget: TargetType {
             return .requestPlain
 
         // MARK: - Joint accounts
-        case .getJointAccounts:
+        case .getJointAccounts, .getJointAccountInvite:
             return .requestPlain
         case .createJointAccount(_, let body):
+            return .requestJSONEncodable(body)
+        case .joinJointAccount(_, let body):
+            return .requestJSONEncodable(body)
+        case .activateJointAccount(_, let body):
             return .requestJSONEncodable(body)
 
         // MARK: - Address Book
@@ -469,6 +498,9 @@ struct TangemApiTarget: TargetType {
              .getArchivedUserAccounts,
              .getJointAccounts,
              .createJointAccount,
+             .getJointAccountInvite,
+             .joinJointAccount,
+             .activateJointAccount,
              .createWallet,
              .getNotificationPreferences,
              .updateNotificationPreferences,
@@ -579,6 +611,9 @@ extension TangemApiTarget {
         // Joint accounts
         case getJointAccounts(walletId: String)
         case createJointAccount(walletId: String, body: JointAccountsDTO.Create.Request)
+        case getJointAccountInvite(walletId: String, inviteId: String)
+        case joinJointAccount(walletId: String, body: JointAccountsDTO.Join.Request)
+        case activateJointAccount(walletId: String, body: JointAccountsDTO.Activate.Request)
 
         // Address Book
         case syncAddressBooks(_ request: AddressBookDTO.SyncRequest)
@@ -597,7 +632,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -649,7 +684,9 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .bindWalletsByCode,
              // The answer carries the account's invites, the only secret that grants access to it. Keeps them out of
              // production logs — a non-production build logs every body regardless, see `TangemNetworkLoggerPlugin`
-             .createJointAccount:
+             .createJointAccount,
+             // Same secret, this time in the request the invite is spent by
+             .joinJointAccount:
             return false
         case .geo,
              .features,
@@ -668,6 +705,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .saveUserAccounts,
              .getArchivedUserAccounts,
              .getJointAccounts,
+             .getJointAccountInvite,
+             .activateJointAccount,
              .syncAddressBooks,
              .updateAddressBook,
              .activatePromoCode,

@@ -17,6 +17,8 @@ extension AccountsDTO.Request {
             let icon: String
             let iconColor: String
             let derivation: Int
+            /// Nil, for a record stored before the kind was.
+            let type: AccountType?
         }
 
         let accounts: [Account]
@@ -40,6 +42,7 @@ extension AccountsDTO.Request.Accounts.Account: Encodable {
         try container.encode(icon, forKey: .icon)
         try container.encode(iconColor, forKey: .iconColor)
         try container.encode(derivation, forKey: .derivation)
+        try container.encodeIfPresent(type, forKey: .type)
     }
 }
 
@@ -52,5 +55,6 @@ private extension AccountsDTO.Request.Accounts.Account {
         case icon
         case iconColor
         case derivation
+        case type
     }
 }
