@@ -15,6 +15,7 @@ final class TangemPaySelectPlanCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Root view model
 
@@ -118,6 +119,10 @@ extension TangemPaySelectPlanCoordinator: TangemPaySelectPlanRoutable {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+
+    func openURL(_ url: URL) {
+        safariManager.openURL(url)
     }
 }
 

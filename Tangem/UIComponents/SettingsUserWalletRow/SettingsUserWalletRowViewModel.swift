@@ -30,7 +30,7 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         self.init(
             name: userWallet.name,
             cardSetLabel: userWallet.config.cardSetLabel,
-            isUserWalletBackupNeeded: userWallet.config.hasFeature(.mnemonicBackup) && userWallet.config.hasFeature(.iCloudBackup),
+            isUserWalletBackupNeeded: MobileBackupStatusUtil(userWalletModel: userWallet).isBackupNeeded,
             isUserWalletLocked: userWallet.isUserWalletLocked,
             userWalletUpdatePublisher: userWallet.updatePublisher,
             totalBalancePublisher: userWallet.totalBalancePublisher,
@@ -81,8 +81,7 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
                 case .configurationChanged(let model):
                     viewModel.cardSetLabel = model.config.cardSetLabel
                     if case .configurationChanged(let model) = event {
-                        let isUserWalletBackupNeeded = model.config.hasFeature(.mnemonicBackup) && model.config.hasFeature(.iCloudBackup)
-                        viewModel.isUserWalletBackupNeeded = isUserWalletBackupNeeded
+                        viewModel.isUserWalletBackupNeeded = MobileBackupStatusUtil(userWalletModel: model).isBackupNeeded
                         viewModel.walletImageProvider = model.walletImageProvider
                         viewModel.loadImage()
                     }

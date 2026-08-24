@@ -16,7 +16,7 @@ final class ForYouCoordinator: CoordinatorObject {
 
     @Injected(\.userWalletRepository) var userWalletRepository: UserWalletRepository
     @Injected(\.tangemStoriesPresenter) var tangemStoriesPresenter: any TangemStoriesPresenter
-    @Injected(\.expressAvailabilityProvider) var expressAvailabilityProvider: ExpressAvailabilityProvider
+    @Injected(\.alertPresenter) var alertPresenter: AlertPresenter
 
     let floatingSheetPresenter: FloatingSheetPresenter
     let selectedAccountsProvider: ForYouSelectedAccountsProvider
@@ -44,12 +44,11 @@ final class ForYouCoordinator: CoordinatorObject {
     // MARK: - Child ViewModels
 
     @Published var tokenSummaryViewModel: TokenSummaryViewModel?
-    @Published var swapTokenSelectorViewModel: ForYouSwapTokenSelectorViewModel?
-
-    /// Deferred until the presenting sheet finishes dismissing, avoiding a sheet-over-sheet race.
-    var pendingSwapAction: (@MainActor () -> Void)?
 
     // MARK: - Properties
+
+    /// Deferred until the summary sheet finishes dismissing, avoiding a sheet-over-sheet race (mirrors Markets).
+    var tokenSummaryFollowUpAction: (@MainActor () -> Void)?
 
     /// Held during yield handling.
     var yieldDeeplinkRouter: YieldDeeplinkRouter?

@@ -43,8 +43,29 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "TangemMobileWalletBackupTests",
+        "name" : "TangemMobileWalletBackupTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "TangemMobileWalletSdkTests",
         "name" : "TangemMobileWalletSdkTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemPolymarketTests",
+        "name" : "TangemPolymarketTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemOpenTelemetryTests",
+        "name" : "TangemOpenTelemetryTests"
       }
     },
     {

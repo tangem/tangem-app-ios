@@ -9,12 +9,10 @@
 import SwiftUI
 import TangemAccounts
 import TangemAssets
-import TangemLocalization
+import TangemUI
 import TangemUIUtils
 
 /// Renders the redesigned subtitle line: direction prefix (`to:` / `from:`) + structured owner.
-/// View owns the punctuation localisation so the resolver/mapper layer doesn't need locale-aware
-/// glue (avoids the `commonTo + ":"` concat-locale hazard).
 struct TransactionSubtitleView: View {
     let direction: TransactionDisplayModel.Direction
     let owner: TransactionViewModel.SubtitleOwner
@@ -31,14 +29,15 @@ struct TransactionSubtitleView: View {
     }
 
     private var prefixView: some View {
-        Text(directionPrefix)
+        Text(direction.localizedPrefix)
             .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
     }
 
     @ViewBuilder
     private var ownerView: some View {
         switch owner {
-        case .accountInCurrentWallet(let name, let icon):
+        case .accountInCurrentWallet(let name, let icon),
+             .accountInOtherWallet(let name, let icon):
             HStack(spacing: .unit(.x1)) {
                 AccountIconView(data: icon)
                     .settings(.smallSized)
@@ -48,25 +47,17 @@ struct TransactionSubtitleView: View {
                     .accessibilityIdentifier(accessibilityIdentifier)
             }
 
-        case .wallet(let name):
-            Text(name)
-                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
-                .lineLimit(1)
-                .accessibilityIdentifier(accessibilityIdentifier)
-
-        case .accountInOtherWallet(let accountName, let accountIcon, let walletName):
+        case .wallet(let name, _, let thumbnailType):
             HStack(spacing: .unit(.x1)) {
-                AccountIconView(data: accountIcon)
-                    .settings(.smallSized)
-                Text(accountName)
+                Text(name)
                     .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
                     .accessibilityIdentifier(accessibilityIdentifier)
-                Text(Localization.commonIn)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
-                Text(walletName)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
-                    .lineLimit(1)
+
+                if let thumbnailType {
+                    MiniatureWalletView(type: thumbnailType)
+                        .frame(width: glyphSize, height: glyphSize)
+                }
             }
 
         case .unresolved(let short, _, let blockiesImage):
@@ -94,16 +85,5 @@ struct TransactionSubtitleView: View {
                 .fill(Color.Tangem.Surface.level3)
                 .frame(width: glyphSize, height: glyphSize)
         }
-    }
-
-    /// Recovered from the `"from: %@"` / `"to: %@"` localised templates by formatting them with
-    /// an empty value and stripping trailing whitespace — keeps the punctuation locale-correct
-    /// without adding new string keys.
-    private var directionPrefix: String {
-        let template = switch direction {
-        case .incoming: Localization.transactionHistoryTransactionFromAddress("")
-        case .outgoing: Localization.transactionHistoryTransactionToAddress("")
-        }
-        return template.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

@@ -9,8 +9,6 @@
 import Foundation
 import Combine
 
-// MARK: - Async operation bridging
-
 public extension Future where Failure == Error {
     static func async(
         _ operation: @escaping @Sendable () async throws -> Output
@@ -49,30 +47,5 @@ public extension Future where Failure == Never {
         }.handleEvents(receiveCancel: {
             cancellableWrapper.cancel()
         })
-    }
-}
-
-// MARK: - Async stream bridging
-
-public extension Publishers {
-    static func stream<Element>(
-        _ makeStream: @escaping @Sendable () -> AsyncStream<Element>
-    ) -> some Publisher<Element, Never> {
-        Deferred {
-            let subject = CurrentValueSubject<Element?, Never>(nil)
-            let task = Task {
-                for await element in makeStream() {
-                    subject.send(element)
-                }
-
-                subject.send(completion: .finished)
-            }
-
-            return subject
-                .compactMap(\.self)
-                .handleEvents(receiveCancel: {
-                    task.cancel()
-                })
-        }
     }
 }

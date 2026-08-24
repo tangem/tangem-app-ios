@@ -1,5 +1,5 @@
 {
-  "originHash" : "082e8f4001346ad62445b966c71c12ea42b267f0481f04251c7800afb8eeb71c",
+  "originHash" : "33f375bdf0469439fefec07fdc95abdd84d3d5afb7140d1632cb49c9c0a0431a",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -386,6 +386,24 @@
       "state" : {
         "revision" : "2849f5323265386e200484b0d0f896e73c3411b9",
         "version" : "6.0.1"
+      }
+    },
+    {
+      "identity" : "opentelemetry-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:tangem-developments/opentelemetry-swift.git",
+      "state" : {
+        "revision" : "5acee9c246476d3bf35fae8d951bcd5901818ba6",
+        "version" : "2.5.0-tangem2"
+      }
+    },
+    {
+      "identity" : "opentelemetry-swift-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/open-telemetry/opentelemetry-swift-core.git",
+      "state" : {
+        "revision" : "06f8a460a66f813758d22f09025d85df45450a63",
+        "version" : "2.5.1"
       }
     },
     {

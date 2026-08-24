@@ -1,0 +1,106 @@
+//
+//  CommonCryptoAccountsAuxiliaryDataStorage.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import Combine
+import TangemFoundation
+
+final class CommonCryptoAccountsAuxiliaryDataStorage {
+    private typealias Storage<T> = AppStorageCompat<Key, T>
+
+    @Storage private var innerHasSyncedWithRemote: Bool {
+        didSet {
+            if oldValue != innerHasSyncedWithRemote {
+                didChangeSubject.send()
+            }
+        }
+    }
+
+    @Storage private var innerArchivedAccountsCount: Int {
+        didSet {
+            if oldValue != innerArchivedAccountsCount {
+                didChangeSubject.send()
+            }
+        }
+    }
+
+    @Storage private var innerTotalCryptoAccountsCount: Int {
+        didSet {
+            if oldValue != innerTotalCryptoAccountsCount {
+                didChangeSubject.send()
+            }
+        }
+    }
+
+    private let didChangeSubject = PassthroughSubject<Void, Never>()
+
+    init(
+        storageIdentifier: String,
+        hasTokenSynchronization: Bool
+    ) {
+        _innerHasSyncedWithRemote = .init(
+            wrappedValue: !hasTokenSynchronization, .init(forHasSyncedWithRemoteWithStorageIdentifier: storageIdentifier)
+        )
+        _innerArchivedAccountsCount = .init(
+            wrappedValue: 0, .init(forArchivedAccountsCountWithWithStorageIdentifier: storageIdentifier)
+        )
+        _innerTotalCryptoAccountsCount = .init(
+            wrappedValue: 0, .init(forTotalCryptoAccountsCountWithStorageIdentifier: storageIdentifier)
+        )
+    }
+}
+
+// MARK: - CryptoAccountsAuxiliaryDataStorage protocol conformance
+
+extension CommonCryptoAccountsAuxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage {
+    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
+    var didChangePublisher: AnyPublisher<Void, Never> {
+        didChangeSubject
+            .prepend(())
+            .eraseToAnyPublisher()
+    }
+
+    var hasSyncedWithRemote: Bool {
+        get { innerHasSyncedWithRemote }
+        set { innerHasSyncedWithRemote = newValue }
+    }
+
+    var archivedAccountsCount: Int {
+        get { innerArchivedAccountsCount }
+        set { innerArchivedAccountsCount = newValue }
+    }
+
+    var totalCryptoAccountsCount: Int {
+        get { innerTotalCryptoAccountsCount }
+        set { innerTotalCryptoAccountsCount = newValue }
+    }
+}
+
+// MARK: - Auxiliary types
+
+private struct Key: RawRepresentable {
+    let rawValue: String
+
+    init(forHasSyncedWithRemoteWithStorageIdentifier storageIdentifier: String) {
+        rawValue = "CommonCryptoAccountsAuxiliaryDataStorage_hasSyncedWithRemote_\(storageIdentifier)"
+    }
+
+    init(forArchivedAccountsCountWithWithStorageIdentifier storageIdentifier: String) {
+        rawValue = "CommonCryptoAccountsAuxiliaryDataStorage_archivedAccountsCount_\(storageIdentifier)"
+    }
+
+    /// - Warning: The key keeps the name it was stored under: the count it holds only narrowed to crypto accounts,
+    /// which is what it already held, so renaming the key would drop the value instead of migrating it.
+    init(forTotalCryptoAccountsCountWithStorageIdentifier storageIdentifier: String) {
+        rawValue = "CommonCryptoAccountsAuxiliaryDataStorage_totalAccountsCount_\(storageIdentifier)"
+    }
+
+    init?(rawValue: String) {
+        self.rawValue = rawValue
+    }
+}

@@ -22,6 +22,7 @@ public struct VisaCustomerInfoResponse: Codable {
     public let cards: [Card]
     public let depositAddress: String?
     public let customerTariffPlan: CustomerTariffPlan?
+    public let profile: Profile?
 
     public init(
         id: String,
@@ -34,7 +35,8 @@ public struct VisaCustomerInfoResponse: Codable {
         card: Card? = nil,
         cards: [Card],
         depositAddress: String?,
-        customerTariffPlan: CustomerTariffPlan? = nil
+        customerTariffPlan: CustomerTariffPlan? = nil,
+        profile: Profile? = nil
     ) {
         self.id = id
         self.state = state
@@ -47,6 +49,7 @@ public struct VisaCustomerInfoResponse: Codable {
         self.cards = cards
         self.depositAddress = depositAddress
         self.customerTariffPlan = customerTariffPlan
+        self.profile = profile
     }
 
     public init(from decoder: Decoder) throws {
@@ -63,6 +66,7 @@ public struct VisaCustomerInfoResponse: Codable {
         cards = try container.decodeIfPresent([Card].self, forKey: .cards) ?? []
         depositAddress = try container.decodeIfPresent(String.self, forKey: .depositAddress)
         customerTariffPlan = try container.decodeIfPresent(CustomerTariffPlan.self, forKey: .customerTariffPlan)
+        profile = try container.decodeIfPresent(Profile.self, forKey: .profile)
     }
 }
 
@@ -161,6 +165,13 @@ public extension VisaCustomerInfoResponse {
         public let id: String
         public let customerWalletAddress: String
         public let address: String?
+    }
+
+    struct Profile: Codable {
+        public let country: String?
+        public let email: String?
+        /// Format hint like `+1 ###-###-####`, not a number — the BFF exposes no phone value.
+        public let phoneMask: String?
     }
 
     struct KYCInfo: Codable, Identifiable, Equatable {
