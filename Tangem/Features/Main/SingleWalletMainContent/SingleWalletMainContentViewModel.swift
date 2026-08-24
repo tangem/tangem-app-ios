@@ -173,15 +173,8 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         self.exploreConfirmationDialog = exploreConfirmationDialog
     }
 
-    override func copyDefaultAddress() {
-        if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
-            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
-        ) {
-            alert = unavailableAlert
-            return
-        }
-
-        super.copyDefaultAddress()
+    override func performCopyDefaultAddress() {
+        super.performCopyDefaultAddress()
         Analytics.log(
             event: .buttonCopyAddress,
             params: [
@@ -292,21 +285,27 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
     func didTapContextAction(_ action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {
         switch action {
         case .buy:
-            if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.buyAvailablity) {
-                alert = unavailableAlert
-                return
-            }
-
-            contextActionTokenRouter.openOnramp(walletModel: walletModel)
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                handler: &alert,
+                buyStatus: tokenActionAvailabilityProvider.buyAvailablity,
+                warning: tokenActionAvailabilityProvider.availabilityWarningType,
+                action: { [weak self] in
+                    guard let self else { return }
+                    contextActionTokenRouter.openOnramp(walletModel: walletModel)
+                }
+            )
         case .send:
             contextActionTokenRouter.openSend(walletModel: walletModel)
         case .receive:
-            if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain) {
-                alert = unavailableAlert
-                return
-            }
-
-            contextActionTokenRouter.openReceive(walletModel: walletModel)
+            TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                handler: &alert,
+                receiveStatus: tokenActionAvailabilityProvider.receiveAvailability,
+                warning: tokenActionAvailabilityProvider.availabilityWarningType,
+                action: { [weak self] in
+                    guard let self else { return }
+                    contextActionTokenRouter.openReceive(walletModel: walletModel)
+                }
+            )
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
                 walletModel: walletModel,
@@ -324,7 +323,6 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .yield:
             contextActionTokenRouter.openYieldModule(walletModel: walletModel)
         case .copyAddress:
-            // Gated inside copyDefaultAddress() via receiveAvailability.
             copyDefaultAddress()
         case .marketsDetails:
             openMarketsTokenDetails()

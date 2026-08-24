@@ -104,7 +104,7 @@ private extension SendAddContactFinishViewModel {
 
     func isSaved(address: String, contacts: [AddressBookContact]) -> Bool {
         contacts.contains { contact in
-            contact.entries.caseInsensitiveContains(address: address)
+            contact.entries.caseInsensitiveContains(address: address, networkId: nil)
         }
     }
 
@@ -112,16 +112,6 @@ private extension SendAddContactFinishViewModel {
         let model = userWalletRepository.models
             .first { !$0.isUserWalletLocked && $0.userWalletInfo.id == sourceToken.userWalletInfo.id }
 
-        guard let model else {
-            return nil
-        }
-
-        let manager = model.addressBookManager
-        return AddressBookWallet(
-            wallet: model.userWalletInfo,
-            addressBookManager: manager,
-            addressBookPublisher: manager.contactsPublisher,
-            syncStatePublisher: manager.syncStatePublisher
-        )
+        return model.map(AddressBookWallet.init(userWalletModel:))
     }
 }

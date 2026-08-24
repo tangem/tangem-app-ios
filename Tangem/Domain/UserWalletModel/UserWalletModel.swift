@@ -23,6 +23,7 @@ protocol UserWalletModel:
     WCUserWalletInfoProvider,
     KeysDerivingProvider,
     TangemPayAuthorizingProvider,
+    JointAccountDerivationInteractorProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
     UserWalletInfoProvider,
@@ -55,6 +56,7 @@ enum UpdateRequest {
     case newName(_ name: String)
     case mnemonicBackupCompleted
     case iCloudBackupCompleted
+    case iCloudBackupDeleted
     case accessCodeDidSet
     case accessCodeDidSkip
 }

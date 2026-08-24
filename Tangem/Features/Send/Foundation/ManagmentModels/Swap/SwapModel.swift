@@ -13,12 +13,17 @@ import TangemExpress
 import TangemMacro
 import TangemFoundation
 import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 protocol SwapModelStateProvider: AnyObject {
     var statePublisher: AnyPublisher<SwapModel.ProvidersState, Never> { get }
 }
 
 final class SwapModel {
+    // MARK: - Injected
+
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
+
     // MARK: - Data
 
     private let _sourceToken: CurrentValueSubject<LoadingResult<SendSwapableToken, any Error>, Never>
@@ -40,9 +45,7 @@ final class SwapModel {
     // MARK: - Dependencies
 
     var externalAmountUpdater: SendAmountExternalUpdater!
-
     weak var router: SwapModelRoutable?
-    weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
 
@@ -55,7 +58,8 @@ final class SwapModel {
     private let autoupdatingTimer: AutoupdatingTimer
     private let pairUpdateHandler: SwapPairUpdateHandler
     private let balanceRestrictionHandler: SwapBalanceRestrictionHandler
-    private let swapTokenPairResolver: MainSwapPairResolver?
+    private let sourceTokenResolver: (any SwapSourceTokenResolver)?
+    private let destinationTokenResolver: (any SwapDestinationTokenResolver)?
 
     private let balanceConverter = BalanceConverter()
     private var bag: Set<AnyCancellable> = []
@@ -73,7 +77,8 @@ final class SwapModel {
         autoupdatingTimer: AutoupdatingTimer,
         pairUpdateHandler: SwapPairUpdateHandler,
         balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker,
-        swapTokenPairResolver: MainSwapPairResolver? = nil,
+        sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
+        destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
         shouldStartInitialLoading: Bool,
     ) {
         self.expressManager = expressManager
@@ -84,7 +89,8 @@ final class SwapModel {
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
         self.pairUpdateHandler = pairUpdateHandler
-        self.swapTokenPairResolver = swapTokenPairResolver
+        self.sourceTokenResolver = sourceTokenResolver
+        self.destinationTokenResolver = destinationTokenResolver
         balanceRestrictionHandler = SwapBalanceRestrictionHandler(checker: balanceRestrictionFeatureChecker)
 
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
@@ -223,6 +229,7 @@ extension SwapModel {
     func update(source wallet: SendSwapableToken) {
         ExpressLogger.info("Will update source to \(wallet.tokenItem)")
         _sourceToken.send(.success(wallet))
+        resolveDestinationTokenIfNeeded(for: wallet)
         swappingPairDidChange()
     }
 
@@ -236,6 +243,18 @@ extension SwapModel {
 // MARK: - Private
 
 private extension SwapModel {
+    func resolveDestinationTokenIfNeeded(for source: SendSwapableToken) {
+        guard let destinationTokenResolver else {
+            return
+        }
+
+        let destination = destinationTokenResolver.resolveDestination(for: source)
+
+        ExpressLogger.info("Destination re-resolved to \(destination.tokenItem)")
+        preselectedTokenChangeAnalyticsLogger.updatePreselected(direction: .receive, tokenItem: destination.tokenItem)
+        _receiveToken.send(.success(destination))
+    }
+
     func swappingPairDidChange() {
         let loadingType: (ExpressManager) async -> LoadingType? = { [weak self] _ in
             guard let self else {
@@ -372,17 +391,6 @@ private extension SwapModel {
         }
     }
 
-    /// A card-linked wallet must not receive funds, so a swap that would credit it is blocked up front
-    /// (no providers shown) — even if it was somehow chosen as the destination.
-    private func incompleteBackupReceiveTokenRestrictionProvidersState() -> ProvidersState? {
-        guard let destination = receiveToken.value as? SendSwapableToken,
-              case .incompleteBackup = destination.receivingRestrictionsProvider.restriction(expectAmount: .zero) else {
-            return nil
-        }
-
-        return .loaded(.swap(selected: .none, providers: .empty), state: .restriction(.incompleteBackup, quote: .none))
-    }
-
     private func logErrorIfNeeded(providersState: ProvidersState) {
         // The screen name is derived from the in-flight LoadingType, which only lives on the
         // outgoing `.loading` state. If we're not transitioning from `.loading`, there's nothing to log.
@@ -410,7 +418,7 @@ private extension SwapModel {
                 analyticsLogger.logSwapErrorMaxAmount(screen: screen)
             case .notEnoughBalanceForSwapping, .notEnoughAmountForFee, .notEnoughAmountForTxValue, .validationError:
                 analyticsLogger.logSwapErrorInsufficientBalance(screen: screen)
-            case .hasPendingTransaction, .hasPendingApproveTransaction, .incompleteBackup:
+            case .hasPendingTransaction, .hasPendingApproveTransaction:
                 break
             }
         default:
@@ -423,10 +431,6 @@ private extension SwapModel {
 
 extension SwapModel {
     func mapToLoadedProvidersState(state: ExpressManagerState) async throws -> ProvidersState {
-        if let restrictionProvidersState = incompleteBackupReceiveTokenRestrictionProvidersState() {
-            return restrictionProvidersState
-        }
-
         switch state {
         case .idle:
             return .idle
@@ -801,11 +805,11 @@ extension SwapModel {
         case .none:
             // All good
             return nil
+        case .incompleteBackup:
+            // Ignored here — the incomplete backup is confirmed when the user taps the `Swap` button.
+            return nil
         case .notEnoughReceivedAmount(let minAmount):
             return .notEnoughReceivedAmount(minAmount: minAmount, tokenSymbol: destination.tokenItem.currencySymbol)
-        case .incompleteBackup:
-            // Defensive: a card-linked destination is normally short-circuited in mapToLoadedProvidersState.
-            return .incompleteBackup
         }
     }
 
@@ -885,6 +889,28 @@ extension SwapModel {
 // MARK: - Send transaction
 
 extension SwapModel {
+    func checkIncompleteBackupReceivingRestriction() async throws {
+        guard let receive = try receiveToken.get() as? SendSwapableToken else {
+            return
+        }
+
+        let restriction = receive.receivingRestrictionsProvider.restriction(expectAmount: .zero)
+        switch restriction {
+        case .incompleteBackup(let userWalletInfo):
+            // Leaving for support drops the current attempt: `SendViewModel` ignores the cancellation silently.
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                TokenActionAvailabilityAlertPresenter.presentOrProceed(
+                    presenter: alertPresenter,
+                    warning: .incompleteBackup(userWalletInfo),
+                    action: { continuation.resume() },
+                    cancelAction: { continuation.resume(throwing: CancellationError()) }
+                )
+            }
+        default:
+            return
+        }
+    }
+
     func send() async throws -> TransactionDispatcherResult {
         let source = try _sourceToken.value.get()
         let receive = try receiveToken.get()
@@ -1080,22 +1106,35 @@ extension SwapModel {
 
             _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
 
-            if let swapTokenPairResolver,
-               let resolvedSource = await swapTokenPairResolver.resolve(),
+            if let sourceTokenResolver,
+               let resolvedSource = await sourceTokenResolver.resolve(),
                let currentSource = _sourceToken.value.value,
                // if false that means the user has already changed the source and we respect its choice
                currentSource.tokenItem == initialSourceTokenItem,
                currentSource.tokenItem != resolvedSource.tokenItem {
-                update(source: resolvedSource)
+                installResolvedSource(resolvedSource)
             }
 
         case (_, .success):
+            // Show the "Choose token" placeholder immediately, then fill the source in once the
+            // wallet balances resolve. Respect a manual pick that lands while resolving.
             _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
+
+            if let sourceTokenResolver,
+               let resolvedSource = await sourceTokenResolver.resolve(),
+               case .failure(SwapModelError.tokenSelectionRequired) = _sourceToken.value {
+                installResolvedSource(resolvedSource)
+            }
 
         default:
             _sourceToken.send(.failure(SwapModelError.tokenSelectionRequired))
             _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
         }
+    }
+
+    private func installResolvedSource(_ source: SendSwapableToken) {
+        preselectedTokenChangeAnalyticsLogger.updatePreselected(direction: .source, tokenItem: source.tokenItem)
+        update(source: source)
     }
 }
 
@@ -1766,6 +1805,8 @@ extension SwapModel: SendBaseInput, SendBaseOutput {
     }
 
     func performAction() async throws -> TransactionDispatcherResult {
+        try await checkIncompleteBackupReceivingRestriction()
+
         _isSending.send(true)
         defer { _isSending.send(false) }
 
@@ -1862,12 +1903,9 @@ extension SwapModel: NotificationTapDelegate {
             reloadRates()
         case .givePermission:
             router?.openApproveSheet()
-        case .backupErrorSupport:
-            if let userWalletInfo = (receiveToken.value as? SendSwapableToken)?.userWalletInfo {
-                router?.openBackupErrorSupport(userWalletInfo: userWalletInfo)
-            }
         case .generateAddresses,
              .backupCard,
+             .backupErrorSupport,
              .goToProvider,
              .addHederaTokenAssociation,
              .retryKaspaTokenTransaction,
@@ -2071,7 +2109,6 @@ extension SwapModel {
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
         case validationError(error: ValidationError)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
-        case incompleteBackup
     }
 
     struct PermissionRequiredState {

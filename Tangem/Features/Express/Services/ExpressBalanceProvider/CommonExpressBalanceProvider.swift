@@ -25,7 +25,7 @@ struct CommonExpressBalanceProvider {
 
 extension CommonExpressBalanceProvider: ExpressBalanceProvider {
     func getBalance() throws -> Decimal {
-        guard let balanceValue = availableBalanceProvider.balanceType.value else {
+        guard let balanceValue = availableBalanceProvider.balanceType.spendableValue else {
             throw ExpressBalanceProviderError.balanceNotFound
         }
 
@@ -33,7 +33,7 @@ extension CommonExpressBalanceProvider: ExpressBalanceProvider {
     }
 
     func getCoinBalance() throws -> Decimal {
-        guard let balanceValue = feeBalanceProvider.balanceType.value else {
+        guard let balanceValue = feeBalanceProvider.balanceType.spendableValue else {
             throw ExpressBalanceProviderError.balanceNotFound
         }
 

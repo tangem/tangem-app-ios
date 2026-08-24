@@ -233,13 +233,13 @@ class CommonWalletModel {
 
     // MARK: - Timer
 
-    private func startUpdatingTimer() {
+    private func startUpdatingTimer(silent: Bool) {
         Task { [weak self] in
             AppLogger.info(self, "⏰ Starting updating timer")
             try await Task.sleep(for: .seconds(10))
 
             self?.walletManager.setNeedsUpdate()
-            await self?.update(silent: false, options: .full)
+            await self?.update(silent: silent, options: .full)
         }
     }
 }
@@ -416,10 +416,10 @@ extension CommonWalletModel: WalletModelUpdater {
         logger.info(self, "Update with token '\(updateToken)' finished with state '\(walletManager.state)'")
     }
 
-    func updateAfterSendingTransaction() {
+    func updateAfterSendingTransaction(silent: Bool) {
         // Force update transactions history to take a new pending transaction from the local storage
         transactionHistoryUpdateTrigger.send(())
-        startUpdatingTimer()
+        startUpdatingTimer(silent: silent)
     }
 
     func updateTransactionHistory() async {

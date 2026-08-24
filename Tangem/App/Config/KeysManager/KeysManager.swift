@@ -29,6 +29,7 @@ protocol KeysManager {
     var tangemApiKeyDev: String { get }
     var tangemApiKeyStage: String { get }
     var amplitudeApiKey: String { get }
+    var otlpApiKey: String { get }
     var appsFlyerConfig: AppsFlyerConfig { get }
     var yieldModuleApiKey: String { get }
     var yieldModuleApiKeyDev: String { get }

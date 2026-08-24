@@ -34,7 +34,6 @@ final class TransferModel {
     var informationRelevanceService: InformationRelevanceService!
 
     weak var router: TransferModelRoutable?
-    weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
 

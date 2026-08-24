@@ -47,7 +47,7 @@ extension MobileOnboardingSuccessViewModel {
             return OnboardingAccessibilityIdentifiers.seedImportSuccessContinueButton
         case .walletReady:
             return OnboardingAccessibilityIdentifiers.seedImportSuccessFinishButton
-        case .seedPhaseBackupContinue, .seedPhaseBackupFinish:
+        case .backupContinue, .seedPhaseBackupFinish:
             return OnboardingAccessibilityIdentifiers.seedImportSuccessContinueButton
         }
     }
@@ -60,7 +60,7 @@ private extension MobileOnboardingSuccessViewModel {
         let title = switch type {
         case .walletImported:
             Localization.walletImportSuccessTitle
-        case .seedPhaseBackupContinue, .seedPhaseBackupFinish:
+        case .backupContinue, .seedPhaseBackupFinish:
             Localization.backupCompleteTitle
         case .walletReady:
             Localization.onboardingDoneHeader
@@ -69,7 +69,7 @@ private extension MobileOnboardingSuccessViewModel {
         let description = switch type {
         case .walletImported:
             Localization.walletImportSuccessDescription
-        case .seedPhaseBackupContinue:
+        case .backupContinue:
             Localization.backupCompleteDescription
         case .seedPhaseBackupFinish:
             Localization.backupCompleteSeedDescription
@@ -86,7 +86,7 @@ private extension MobileOnboardingSuccessViewModel {
 
     func makeActionItem() -> ActionItem {
         let title = switch type {
-        case .walletImported, .seedPhaseBackupContinue:
+        case .walletImported, .backupContinue:
             Localization.commonContinue
         case .walletReady, .seedPhaseBackupFinish:
             Localization.commonFinish
@@ -109,7 +109,7 @@ private extension MobileOnboardingSuccessViewModel {
 
 extension MobileOnboardingSuccessViewModel {
     enum SuccessType {
-        case seedPhaseBackupContinue
+        case backupContinue
         case seedPhaseBackupFinish
         case walletImported
         case walletReady
