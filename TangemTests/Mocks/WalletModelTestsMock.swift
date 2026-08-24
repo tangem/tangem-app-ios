@@ -28,7 +28,12 @@ final class WalletModelTestsMock: WalletModel {
     var multipleTransactionsSenderMock: MultipleTransactionsSender?
     var stakingManagerMock: StakingManager?
     var yieldModuleManagerMock: (any YieldModuleManager)?
-    private(set) var updateAfterSendingTransactionCallCount = 0
+    private let _updateAfterSendingTransactionCalls = OSAllocatedUnfairLock(initialState: [Bool]())
+    var updateAfterSendingTransactionSilentFlags: [Bool] { _updateAfterSendingTransactionCalls.withLock { $0 } }
+    var updateAfterSendingTransactionCallCount: Int { updateAfterSendingTransactionSilentFlags.count }
+
+    private let _updateCallCount = OSAllocatedUnfairLock(initialState: 0)
+    var updateCallCount: Int { _updateCallCount.withLock { $0 } }
 
     init(fiatBalance: Decimal, priceChange24h: Decimal?) {
         _fiatBalance = fiatBalance
@@ -129,11 +134,13 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelUpdater
 
-    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable, stakingUpdateSource: StakingUpdateSource) async {}
+    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable, stakingUpdateSource: StakingUpdateSource) async {
+        _updateCallCount.withLock { $0 += 1 }
+    }
 
     func updateTransactionHistory() async {}
 
-    func updateAfterSendingTransaction() { updateAfterSendingTransactionCallCount += 1 }
+    func updateAfterSendingTransaction(silent: Bool) { _updateAfterSendingTransactionCalls.withLock { $0.append(silent) } }
 
     // MARK: - WalletModelRentProvider
 

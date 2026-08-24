@@ -43,6 +43,7 @@ final class CommonServicesManager {
     @Injected(\.userWalletPushNotificationsService) private var userWalletPushNotificationsService: UserWalletPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
+    @Injected(\.openTelemetryWrapper) private var openTelemetryWrapper: OpenTelemetryWrapper
     @Injected(\.eTagStorage) private var eTagStorage: ETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
     @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
@@ -142,19 +143,22 @@ final class CommonServicesManager {
 
         // Feature toggle overrides — reset previous overrides for deterministic UI test runs
         FeatureStorage.instance.availableFeatures = [:]
-
-        for feature in Feature.allCases {
-            let onFlag = "-uitest-feature-\(feature.rawValue)-on"
-            let offFlag = "-uitest-feature-\(feature.rawValue)-off"
-
-            if arguments.contains(onFlag) {
-                FeatureStorage.instance.availableFeatures[feature] = .on
-            } else if arguments.contains(offFlag) {
-                FeatureStorage.instance.availableFeatures[feature] = .off
-            }
-        }
+        applyFeatureToggleOverrides(from: arguments)
 
         UIView.setAnimationsEnabled(false)
+    }
+
+    /// Applies `-uitest-feature-<name>-on` / `-off` launch arguments to `FeatureStorage`, matching `<name>`
+    /// against `Feature.name` exactly (what Allure/CI passes, e.g. `TWI-1259_tron_gasless`); a name that
+    /// matches nothing is ignored — toggle names follow a strict documented format, so a miss means a
+    /// mistyped name, not something to guess at.
+    private func applyFeatureToggleOverrides(from arguments: [String]) {
+        for feature in Feature.allCases {
+            for state in [FeatureState.off, .on]
+                where arguments.contains("-uitest-feature-\(feature.name)-\(state.rawValue)") {
+                FeatureStorage.instance.availableFeatures[feature] = state
+            }
+        }
     }
 }
 
@@ -187,6 +191,7 @@ extension CommonServicesManager: ServicesManager {
         }
 
         AmplitudeWrapper.shared.configure()
+        openTelemetryWrapper.configure()
         experimentService.configure()
         AppsFlyerWrapper.shared.configure(delegate: delegate)
         customerIOWrapper.configure()

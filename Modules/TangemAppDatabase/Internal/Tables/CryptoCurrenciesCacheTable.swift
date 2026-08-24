@@ -38,11 +38,9 @@ private extension CryptoCurrenciesCacheTable {
                 table.column(Columns.networkID, .text).notNull()
                 table.column("name", .text).notNull()
                 table.column("symbol", .text).notNull()
-                // 1. Can't be optional since it's part of the primary key (and NULLs are distinct in SQLite).
+                // Can't be optional since it's part of the primary key (and NULLs are distinct in SQLite).
                 // `ExpressConstants.coinContractAddress` is used for coins that don't have a contract address.
-                // 2. Collation is used to make the contract address case-insensitive.
-                // This matches the current `BlockchainSdk.Token` equality implementation.
-                table.column(Columns.contractAddress, .text).notNull().collate(.nocase)
+                table.column(Columns.contractAddress, .text).notNull()
                 table.column("decimalCount", .integer).notNull()
                 table.column("updatedAt", .datetime).notNull()
             }

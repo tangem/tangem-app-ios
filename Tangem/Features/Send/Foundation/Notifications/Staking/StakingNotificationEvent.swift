@@ -10,8 +10,11 @@ import Foundation
 import TangemLocalization
 import TangemAssets
 import TangemStaking
+import TangemMacro
 import BlockchainSdk
+import struct TangemUI.TokenIconInfo
 
+@CaseFlagable
 enum StakingNotificationEvent {
     case approveTransactionInProgress
     case unstake(description: String)
@@ -23,12 +26,7 @@ enum StakingNotificationEvent {
     case unlock(periodFormatted: String)
     case validationErrorEvent(ValidationErrorEvent)
     case networkUnreachable
-    case insufficientFundsForFee(
-        transactionAmountTypeName: String,
-        networkName: String,
-        feeAmountTypeName: String,
-        feeAmountTypeCurrencySymbol: String
-    )
+    case insufficientFundsForFee(configuration: FeeTopUpConfiguration)
     case insufficientFundsForFeeReduceAmount(feeAmountTypeName: String)
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case stakesWillMoveToNewValidator(blockchain: String)
@@ -41,6 +39,18 @@ enum StakingNotificationEvent {
     case tonAccountInitialization
     case validationWarning(tokenName: String)
     case validationBlocked(tokenName: String)
+}
+
+extension StakingNotificationEvent {
+    struct FeeTopUpConfiguration {
+        /// The staked asset is the network coin itself — render the "top up the coin" copy.
+        let isFeeCurrency: Bool
+        let transactionAmountTypeName: String
+        let networkName: String
+        let feeAmountTypeName: String
+        let feeAmountTypeCurrencySymbol: String
+        let feeTokenIconInfo: TokenIconInfo
+    }
 }
 
 extension StakingNotificationEvent: NotificationEvent {
@@ -86,8 +96,10 @@ extension StakingNotificationEvent: NotificationEvent {
         case .unlock: .string(Localization.stakingUnlockedLocked)
         case .validationErrorEvent(let event): event.title
         case .networkUnreachable: .string(Localization.sendFeeUnreachableErrorTitle)
-        case .insufficientFundsForFee(_, _, let feeAmountTypeName, _):
-            .string(Localization.warningSendBlockedFundsForFeeTitle(feeAmountTypeName))
+        case .insufficientFundsForFee(let configuration):
+            configuration.isFeeCurrency
+                ? .string(Localization.warningBlockedFundsForFeeTitle)
+                : .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.feeAmountTypeName))
         case .insufficientFundsForFeeReduceAmount(let feeAmountTypeName):
             .string(Localization.warningSendBlockedFundsForFeeTitle(feeAmountTypeName))
         case .stakesWillMoveToNewValidator: .string(Localization.stakingRevote)
@@ -129,14 +141,16 @@ extension StakingNotificationEvent: NotificationEvent {
             event.description
         case .networkUnreachable:
             Localization.sendFeeUnreachableErrorText
-        case .insufficientFundsForFee(let transactionAmountTypeName, let networkName, let feeAmountTypeName, let feeAmountTypeCurrencySymbol):
-            Localization.warningSendBlockedFundsForFeeMessage(
-                transactionAmountTypeName,
-                networkName,
-                transactionAmountTypeName,
-                feeAmountTypeName,
-                feeAmountTypeCurrencySymbol
-            )
+        case .insufficientFundsForFee(let configuration):
+            configuration.isFeeCurrency
+                ? Localization.warningBlockedFundsForFeeMessage(configuration.feeAmountTypeName)
+                : Localization.warningSendBlockedFundsForFeeMessage(
+                    configuration.transactionAmountTypeName,
+                    configuration.networkName,
+                    configuration.transactionAmountTypeName,
+                    configuration.feeAmountTypeName,
+                    configuration.feeAmountTypeCurrencySymbol
+                )
         case .insufficientFundsForFeeReduceAmount:
             Localization.stakingNotificationStakeEntireBalanceText
         case .stakesWillMoveToNewValidator(let blockchain):
@@ -170,12 +184,13 @@ extension StakingNotificationEvent: NotificationEvent {
         switch self {
         case .approveTransactionInProgress, .feeWillBeSubtractFromSendingAmount,
              .stakesWillMoveToNewValidator, .lowStakedBalance, .amountRequirementError,
-             .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount,
+             .insufficientFundsForFeeReduceAmount,
              .validationWarning, .validationBlocked:
             .secondary
         case .unstake, .networkUnreachable, .withdraw, .claimRewards,
              .restakeRewards, .restake, .unlock, .revote, .maxAmountStaking,
-             .cardanoAdditionalDeposit, .tonUnstaking, .tonExtraReserveInfo, .tonAccountInitialization:
+             .cardanoAdditionalDeposit, .tonUnstaking, .tonExtraReserveInfo, .tonAccountInitialization,
+             .insufficientFundsForFee:
             .action
         case .validationErrorEvent(let event): event.colorScheme
         }
@@ -184,9 +199,11 @@ extension StakingNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .networkUnreachable, .feeWillBeSubtractFromSendingAmount, .lowStakedBalance,
-             .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount,
+             .insufficientFundsForFeeReduceAmount,
              .validationWarning:
             .init(iconType: .image(Assets.attention))
+        case .insufficientFundsForFee(let configuration):
+            .init(iconType: .icon(configuration.feeTokenIconInfo))
         case .approveTransactionInProgress:
             .init(iconType: .progressView)
         case .unstake, .withdraw, .claimRewards, .restakeRewards, .restake,
@@ -252,11 +269,12 @@ extension StakingNotificationEvent: NotificationEvent {
              .tonExtraReserveInfo,
              .tonUnstaking,
              .stakesWillMoveToNewValidator,
-             .insufficientFundsForFee,
              .insufficientFundsForFeeReduceAmount,
              .validationWarning,
              .validationBlocked:
             return nil
+        case .insufficientFundsForFee(let configuration):
+            return .init(.openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol))
         case .tonAccountInitialization:
             return .init(.activate)
         case .maxAmountStaking(let reduceAmount, let reduceAmountFormatted):
