@@ -420,6 +420,7 @@ private extension Blockchain {
         case .arbitrumNova: return nil
         case .plasma: return "plasma"
         case .adi: return nil
+        case .electroneum: return nil
         case .seiEvm: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
@@ -526,6 +527,7 @@ private extension Blockchain {
         case .arbitrumNova: return nil
         case .plasma: return "xpl_plasma"
         case .adi: return nil
+        case .electroneum: return nil
         case .seiEvm: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }

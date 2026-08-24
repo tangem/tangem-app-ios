@@ -42,25 +42,19 @@ private extension ExpressExchangeTransactionsTable {
                 table.column(Columns.payInHash, .text)
                 table.column(Columns.payOutHash, .text)
                 table.column(Columns.fromNetwork, .text).notNull()
-                // Collation is used to make the contract address case-insensitive.
-                // This matches the current `BlockchainSdk.Token` equality implementation.
-                table.column(Columns.fromContract, .text).notNull().collate(.nocase)
+                table.column(Columns.fromContract, .text).notNull()
                 table.column("fromAmount", .text).notNull()
                 table.column("fromDecimals", .integer).notNull()
                 table.column("fromActualAmount", .text)
                 table.column(Columns.toNetwork, .text).notNull()
-                // Collation is used to make the contract address case-insensitive.
-                // This matches the current `BlockchainSdk.Token` equality implementation.
-                table.column(Columns.toContract, .text).notNull().collate(.nocase)
+                table.column(Columns.toContract, .text).notNull()
                 table.column("toAmount", .text).notNull()
                 table.column("toDecimals", .integer).notNull()
                 table.column("toActualAmount", .text)
                 table.column(Columns.refundAddress, .text)
                 table.column("refundExtraId", .text)
                 table.column(Columns.refundNetwork, .text)
-                // Collation is used to make the contract address case-insensitive.
-                // This matches the current `BlockchainSdk.Token` equality implementation.
-                table.column(Columns.refundContractAddress, .text).collate(.nocase)
+                table.column(Columns.refundContractAddress, .text)
                 table.column(Columns.createdAt, .datetime).notNull()
                 table.column("updatedAt", .datetime).notNull()
             }

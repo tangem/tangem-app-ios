@@ -17,7 +17,7 @@ final class AccountModelsManagerMock {
     private let userTokensManager: UserTokensManager
 
     private let accountModelsSubject = CurrentValueSubject<[AccountModel], Never>([])
-    private let totalAccountsCountSubject = CurrentValueSubject<Int, Never>(0)
+    private let totalCryptoAccountsCountSubject = CurrentValueSubject<Int, Never>(0)
     private let hasArchivedCryptoAccountsSubject = CurrentValueSubject<Bool, Never>(false)
 
     private var cryptoAccountModels: [CryptoAccountModelMock] = [] {
@@ -25,7 +25,7 @@ final class AccountModelsManagerMock {
             let cryptoAccountsBuilder = CryptoAccountsBuilder(globalState: .single)
             let cryptoAccounts = cryptoAccountsBuilder.build(from: cryptoAccountModels)
             accountModelsSubject.send([.standard(cryptoAccounts)])
-            totalAccountsCountSubject.send(cryptoAccountModels.count)
+            totalCryptoAccountsCountSubject.send(cryptoAccountModels.count)
         }
     }
 
@@ -97,7 +97,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
-        totalAccountsCountSubject.eraseToAnyPublisher()
+        totalCryptoAccountsCountSubject.eraseToAnyPublisher()
     }
 
     var accountModels: [AccountModel] {
@@ -120,6 +120,8 @@ extension AccountModelsManagerMock: AccountModelsManager {
 
         return .none
     }
+
+    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {}
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
         try? await Task.sleep(for: .seconds(2)) // simulate network call

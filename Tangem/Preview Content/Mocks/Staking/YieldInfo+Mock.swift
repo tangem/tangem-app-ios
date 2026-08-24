@@ -62,8 +62,8 @@ extension StakingYieldInfo {
             ),
         ],
         item: .init(network: .tron, contractAddress: nil, name: "", decimals: 0, symbol: ""),
-        unbondingPeriod: .constant(days: 14),
-        warmupPeriod: .constant(days: 0),
+        unbondingPeriod: .days(14),
+        warmupPeriod: .days(0),
         rewardClaimingType: .manual,
         rewardScheduleType: .daily,
         maximumStakeAmount: nil

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemFoundation
 
 final class MainScreenUIOrderedWalletModelsProvider {
     private let userWalletModel: UserWalletModel
@@ -59,5 +60,27 @@ final class MainScreenUIOrderedWalletModelsProvider {
         )
         adapters[key] = adapter
         return adapter
+    }
+}
+
+// MARK: - Settled models
+
+extension MainScreenUIOrderedWalletModelsProvider {
+    /// Wallet models with their fiat balances settled (no longer loading) — a most-funded pick
+    /// made before balances land would be arbitrary. Empty on failure.
+    func settledWalletModels() async -> [any WalletModel] {
+        do {
+            let walletModels = try await walletModelsPublisher.async()
+            guard !walletModels.isEmpty else { return [] }
+
+            _ = try await walletModels
+                .map { $0.fiatAvailableBalanceProvider.balanceTypePublisher.first(where: { !$0.isLoading }) }
+                .combineLatest()
+                .async()
+
+            return walletModels
+        } catch {
+            return []
+        }
     }
 }

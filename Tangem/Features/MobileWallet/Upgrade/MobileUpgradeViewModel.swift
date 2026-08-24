@@ -95,7 +95,9 @@ extension MobileUpgradeViewModel {
         let securityTrait = TraitItem(
             icon: Assets.lock24,
             title: Localization.hwUpgradeGeneralSecurityTitle,
-            subtitle: Localization.hwUpgradeGeneralSecurityDescription
+            subtitle: FeatureProvider.isAvailable(.mobileWalletBackup)
+                ? Localization.hwUpgradeGeneralSecurityDescriptionV2(MobileBackupConstants.iCloudServiceName)
+                : Localization.hwUpgradeGeneralSecurityDescription
         )
 
         return InfoItem(

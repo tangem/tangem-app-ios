@@ -75,7 +75,7 @@ private extension NotificationBannerShowcase {
                             title: "Security alert",
                             subtitle: "It seems that the card or ring activation was not completed correctly. This could be due to an issue with your device's NFC module or incorrect tapping of the card or ring to your device. Please contact our Support team for assistance."
                         ),
-                        icon: .init(imageType: Assets.notificationBell, alignment: .center)
+                        icon: .init(imageType: Assets.notificationBell)
                     )),
                     .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[0]),
@@ -117,7 +117,7 @@ private extension NotificationBannerShowcase {
                             title: "Don't miss a transaction",
                             subtitle: "Enable push notifications to receive alerts when funds arrive in your wallet."
                         ),
-                        icon: .init(imageType: Assets.notificationBell, alignment: .center)
+                        icon: .init(imageType: Assets.notificationBell)
                     )),
                     .buttons(.two(
                         left: button("Settings", style: .secondary, itemId: ids[3]),
@@ -135,16 +135,17 @@ private extension NotificationBannerShowcase {
                         subtitle: "Join the waitlist and get a payment card unlike any other"
                     )),
                     .buttons(.one(button("Got it", style: .primary, itemId: ids[4]), accessibilityIdentifier: nil)),
-                    closeAction(itemId: ids[4]),
-                    .bannerMagic
+                    closeAction(itemId: ids[4])
                 )
             ),
             ShowcaseItem(
                 id: ids[5],
                 bannerType: .informational(
-                    .init(
-                        title: "Backup your wallet",
-                        subtitle: "Protect your assets by creating a backup of your wallet seed phrase."
+                    .text(
+                        .init(
+                            title: "Backup your wallet",
+                            subtitle: "Protect your assets by creating a backup of your wallet seed phrase."
+                        )
                     ),
                     .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[5]),
@@ -168,8 +169,7 @@ private extension NotificationBannerShowcase {
                         leftAccessibilityIdentifier: nil,
                         rightAccessibilityIdentifier: nil
                     )),
-                    closeAction(itemId: ids[6]),
-                    .bannerCard
+                    closeAction(itemId: ids[6])
                 )
             ),
         ]
