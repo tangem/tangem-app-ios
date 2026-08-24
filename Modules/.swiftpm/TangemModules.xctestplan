@@ -22,6 +22,13 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "TangemAppDatabaseTests",
+        "name" : "TangemAppDatabaseTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "TangemFoundationTests",
         "name" : "TangemFoundationTests"
       }

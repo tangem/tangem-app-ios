@@ -427,6 +427,18 @@ var unitTestsModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTestTarget(
+            name: "TangemAppDatabaseTests",
+            dependencies: [
+                "TangemAppDatabase",
+                "TangemFoundation",
+                .product(name: "GRDB", package: "GRDB.swift"),
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTestTarget(
             name: "TangemFoundationTests",
             dependencies: [
                 "TangemFoundation",
