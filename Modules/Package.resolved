@@ -573,8 +573,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "913665f3a629d3483a3c77ecb6026f7814689547",
-        "version" : "5.1.2"
+        "revision" : "67e2c57d1239eb57699bd7d62c253da1a5706ff9",
+        "version" : "5.1.3"
       }
     },
     {
