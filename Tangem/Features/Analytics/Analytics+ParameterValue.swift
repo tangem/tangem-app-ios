@@ -292,6 +292,12 @@ extension Analytics {
         case walletConnectTransactionEmulationStatusEmulated = "Emulated"
         case walletConnectTransactionEmulationStatusCantEmulate = "Can`t Emulate"
 
+        // MARK: - Wallets Type
+
+        case walletsTypeMobile = "Mobile"
+        case walletsTypeCold = "Cold"
+        case walletsTypeMultiple = "Multiple"
+
         // MARK: - NFT
 
         case nft = "NFT"
