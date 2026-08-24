@@ -21,6 +21,7 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var notificationButtonIsLoading: Bool = false
     @Published private(set) var isLoading: Bool = false
+    @Published private(set) var actionIsAvailable: Bool = false
     @Published private(set) var mainButtonIcon: MainButton.Icon? = .trailing(Assets.tangemIcon)
     @Published private(set) var needsHoldToConfirm: Bool = false
 
@@ -123,6 +124,10 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
         transferModel.actionInProcessing
             .receiveOnMain()
             .assign(to: &$isLoading)
+
+        transferModel.isReadyToSendPublisher
+            .receiveOnMain()
+            .assign(to: &$actionIsAvailable)
 
         transferModel.sourceTokenPublisher
             .compactMap { $0.value }
