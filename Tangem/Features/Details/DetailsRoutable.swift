@@ -15,6 +15,7 @@ protocol DetailsRoutable: AnyObject {
 
     func openOnboardingModal(with input: OnboardingInput)
     func openAddWallet()
+    func openAddWalletTypeSelector(output: AddWalletTypeSelectorSheetOutput)
 
     func openAppSettings()
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
