@@ -618,6 +618,7 @@
 "express_swap_restrictions_text" = "Der Swap-Anbieter ist eingeschränkt";
 "express_swap_restrictions_title" = "Regionale Tauschbeschränkungen";
 "express_token_list_empty_search" = "Keine Token gefunden. Bitte versuche eine andere Anfrage";
+"express_transaction_hash" = "Hash: %1$@";
 "express_transaction_id_copied" = "Transaktions-ID kopiert";
 "express_transaction_id" = "ID: %@";
 "fee_selector_choose_speed_description" = "Eine höhere Geschwindigkeit bedeutet eine schnellere Bestätigung und eine höhere Netzgebühr. %@";
@@ -845,6 +846,10 @@
 "initial_wallet_sync_banner_description" = "Deine Wallet ist eingerichtet und einsatzbereit!";
 "initial_wallet_sync_banner_title" = "Wallet erfolgreich importiert";
 "initial_wallet_sync_restore_progress" = "Wiederherstellung %li%%";
+"introduction_button_create_wallet" = "Create wallet";
+"introduction_button_i_have_a_wallet" = "I have a wallet";
+"introduction_legal" = "By continuing, you agree with %1$@ and %2$@";
+"introduction_terms_of_service" = "Terms of service";
 "jailbreak_warning_message" = "Geräte mit Jailbreak gelten als weniger sicher. Deine Daten können zusätzlichen Risiken ausgesetzt sein.";
 "jailbreak_warning_title" = "Jailbreak erkannt";
 "joint_account_activation_account_button_title" = "Konto aktivieren";
@@ -1268,6 +1273,7 @@
 "prediction_details_total_volume" = "Gesamtvolumen";
 "prediction_event_probability" = "Wahrscheinlichkeit";
 "prediction_event_total_volume" = "Gesamtertrag";
+"prediction_main_data_outdated" = "Data may be outdated.";
 "prediction_main_empty_events" = "Noch keine Veranstaltungen";
 "prediction_main_events_load_error" = "Ereignisse konnten nicht geladen werden.\nZum Neuladen tippen";
 "prediction_main_subtitle" = "USDC im Polygon-Netzwerk";
@@ -2069,6 +2075,7 @@
 "tangempay_maximum_cards_issued_for_plan_title" = "Das Kartenlimit für diesen Tarif wurde erreicht";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "Upgrade-Plan";
 "tangempay_maximum_cards_issued_title" = "Maximale Anzahl ausgegebener Karten";
+"tangempay_multichain_show_qr" = "Show QR";
 "tangempay_multinetwork" = "Multinetwork";
 "tangempay_newonboard_body" = "Gib Krypto überall aus — ohne Banken, ohne Mittelsmänner, ohne Börsen. Self-Custody trifft auf alltägliches Bezahlen.";
 "tangempay_newonboard_bottomleft_body" = "Online sowie mit Apple Pay bezahlen";
