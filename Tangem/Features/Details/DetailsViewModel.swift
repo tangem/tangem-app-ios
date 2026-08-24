@@ -26,6 +26,7 @@ final class DetailsViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
 
     // MARK: - View State
 
@@ -254,7 +255,7 @@ private extension DetailsViewModel {
 
     func tryAgain() {
         Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .settings])
-        addOrScanNewUserWallet()
+        scanNewUserWallet()
     }
 
     func openScanCardManual() {
@@ -458,14 +459,14 @@ private extension DetailsViewModel {
     }
 
     func addOrScanNewUserWallet() {
-        Analytics.log(
-            .buttonAddWallet,
-            params: [.source: .settings],
-            contextParams: .empty
-        )
+        var params = [Analytics.ParameterKey.source: Analytics.ParameterValue.settings.rawValue]
+        params[.productType] = selectedUserWalletModel?.config.productType.rawValue
+        Analytics.log(event: .buttonAddWallet, params: params, contextParams: .empty)
 
         if FeatureProvider.isAvailable(.mobileWalletMultiCreation) {
             addNewUserWallet()
+        } else if FeatureProvider.isAvailable(.addMobileWalletFakeDoor) {
+            openAddWalletTypeSelector()
         } else {
             scanNewUserWallet()
         }
@@ -473,6 +474,10 @@ private extension DetailsViewModel {
 
     func addNewUserWallet() {
         coordinator?.openAddWallet()
+    }
+
+    func openAddWalletTypeSelector() {
+        coordinator?.openAddWalletTypeSelector(output: self)
     }
 
     func scanNewUserWallet() {
@@ -561,6 +566,23 @@ private extension DetailsViewModel {
                 }
             }
         }
+    }
+}
+
+// MARK: - AddWalletTypeSelectorSheetOutput
+
+extension DetailsViewModel: AddWalletTypeSelectorSheetOutput {
+    func addWalletTypeSelectorDidRequestHardwareWallet() {
+        scanNewUserWallet()
+    }
+
+    func addWalletTypeSelectorDidRequestMobileWallet() {
+        let alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
+            title: Localization.commonComingSoon,
+            message: Localization.userWalletComingSoonDialogDescription,
+            buttonText: Localization.commonOk
+        )
+        alertPresenter.present(alert: alert)
     }
 }
 
