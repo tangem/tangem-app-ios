@@ -40,7 +40,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
             expressManager: manager,
             pairUpdateHandler: handler
         )
-        let recorder = StateRecorder(sut)
+        let recorder = SwapProvidersStateRecorder(sut)
 
         let baseline = recorder.count
         sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
@@ -61,7 +61,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
             expressManager: manager,
             pairUpdateHandler: handler
         )
-        let recorder = StateRecorder(sut)
+        let recorder = SwapProvidersStateRecorder(sut)
 
         let baseline = recorder.count
         // Pick a receive token (starts a pair load) and immediately tap MAX (cancels that pair load).
@@ -83,7 +83,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
             expressManager: manager,
             pairUpdateHandler: handler
         )
-        let recorder = StateRecorder(sut)
+        let recorder = SwapProvidersStateRecorder(sut)
 
         var baseline = recorder.count
         sut.update(receive: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)))
@@ -106,7 +106,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
             expressManager: manager,
             pairUpdateHandler: handler
         )
-        let recorder = StateRecorder(sut)
+        let recorder = SwapProvidersStateRecorder(sut)
 
         var baseline = recorder.count
         sut.update(receive: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)))
@@ -131,7 +131,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
             pairUpdateHandler: handler,
             balanceRestrictionChecker: restriction
         )
-        let recorder = StateRecorder(sut)
+        let recorder = SwapProvidersStateRecorder(sut)
 
         var baseline = recorder.count
         sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
@@ -174,6 +174,104 @@ final class SwapModelTests: LeakTrackingTestSuite {
         await #expect(throws: CancellationError.self) { try await task.value }
         // The receive amount stays empty: the late quote never reaches the finish screen.
         #expect(sut.receiveAmount.value == nil)
+    }
+
+    // MARK: - [REDACTED_INFO]: stale-input dispatch
+
+    @Test("A send is refused when the settled update never described the current inputs", .timeLimit(.minutes(1)))
+    func sendIsRefusedAfterSupersededUpdate() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: 0) { $0.isLoaded }
+
+        // The recalculation for the new amount ends as cancelled, so no state is marked as built from it.
+        await manager.failNextAmountUpdate(with: CancellationError())
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 2, fiat: nil)))
+
+        await #expect(throws: TransactionDispatcherResult.Error.self) {
+            try await sut.send()
+        }
+    }
+
+    @Test("The high price impact gate waits for the pending update to settle", .timeLimit(.minutes(1)))
+    func impactGateWaitsForPendingUpdate() async throws {
+        let manager = ExpressManagerStub()
+        let sut = makeSUT(
+            sourceToken: SwapableTokenStub(blockchain: .ethereum(testnet: false)),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: 0) { $0.isLoaded }
+
+        await manager.holdNextAmountUpdate()
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 2, fiat: nil)))
+
+        let hasReturned = OSAllocatedUnfairLock(initialState: false)
+        let gate = Task { [weak sut] in
+            _ = await sut?.settledHighPriceImpact()
+            hasReturned.withLock { $0 = true }
+        }
+
+        // A quote still in flight must not read as "no impact": the gate keeps waiting instead of waving
+        // the send through. The wait outlasts the 1s debounce on the amount path.
+        try await Task.sleep(for: .milliseconds(1500))
+        #expect(hasReturned.withLock { $0 } == false)
+
+        await manager.releaseHeldAmountUpdate()
+        await gate.value
+        #expect(recorder.latest?.isLoaded == true)
+    }
+
+    @Test("An autoupdate tick queued by a previous arming is ignored", .timeLimit(.minutes(1)))
+    func staleAutoupdateTickIsIgnored() async throws {
+        let manager = ExpressManagerStub()
+        await manager.setSelectedProvider(ExpressAvailableProviderFixture.make(state: .error(StubError(), quote: .none)))
+        let timer = ManualAutoupdatingTimer()
+        let sut = makeSUT(
+            // The pending transaction restriction is one of the states that arm autoupdating.
+            sourceToken: SwapableTokenStub(
+                blockchain: .ethereum(testnet: false),
+                sendingRestriction: .hasPendingTransaction(blockchain: .ethereum(testnet: false))
+            ),
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            expressManager: manager,
+            pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager),
+            autoupdatingTimer: timer
+        )
+        let recorder = SwapProvidersStateRecorder(sut)
+
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: 0) { $0.isLoaded }
+        let staleArming = try #require(timer.armings.first)
+
+        // The next update re-arms the timer, so the tick captured above belongs to a superseded arming.
+        var baseline = recorder.count
+        sut.update(sourceAmount: SendAmount(type: .typical(crypto: 2, fiat: nil)))
+        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoaded }
+        #expect(timer.armings.count > 1)
+
+        baseline = recorder.count
+        staleArming()
+        await MainActor.run {}
+        #expect(recorder.count == baseline)
+
+        // The tick from the current arming still refreshes, so the guard isn't rejecting everything.
+        let currentArming = try #require(timer.armings.last)
+        currentArming()
+        // The autoupdate transition is silent for the UI, so any new publish is the signal here.
+        _ = try await waitForNewState(recorder, since: baseline) { _ in true }
     }
 
     // MARK: - [REDACTED_INFO]: account funding flows
@@ -267,6 +365,7 @@ private extension SwapModelTests {
         expressManager: ExpressManager = ExpressManagerStub(),
         pairUpdateHandler: SwapPairUpdateHandler = SwapPairUpdateHandlerStub(),
         balanceRestrictionChecker: SwapBalanceRestrictionFeatureChecker = SwapBalanceRestrictionFeatureCheckerStub(),
+        autoupdatingTimer: any AutoupdatingTimerSetup = AutoupdatingTimer(),
         sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
         destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
         shouldStartInitialLoading: Bool = false
@@ -280,7 +379,7 @@ private extension SwapModelTests {
             expressAPIProvider: ExpressAPIProviderStub(),
             expressUserWalletId: UserWalletId(value: Data()),
             analyticsLogger: SendAnalyticsLoggerStub(),
-            autoupdatingTimer: AutoupdatingTimer(),
+            autoupdatingTimer: autoupdatingTimer,
             pairUpdateHandler: pairUpdateHandler,
             balanceRestrictionFeatureChecker: balanceRestrictionChecker,
             sourceTokenResolver: sourceTokenResolver,
@@ -303,7 +402,7 @@ private extension SwapModelTests {
     /// count before the triggering action makes the wait robust for back-to-back tasks, where the
     /// `CurrentValueSubject` already holds a stale terminal state from the previous task.
     func waitForNewState(
-        _ recorder: StateRecorder,
+        _ recorder: SwapProvidersStateRecorder,
         since baseline: Int,
         where predicate: @escaping (SwapModel.ProvidersState) -> Bool
     ) async throws -> SwapModel.ProvidersState {
@@ -339,30 +438,33 @@ private extension SwapModelTests {
     }
 
     struct TimeoutError: Error {}
-}
-
-// MARK: - StateRecorder
-
-private final class StateRecorder {
-    private let states = OSAllocatedUnfairLock(initialState: [SwapModel.ProvidersState]())
-    private var bag: AnyCancellable?
-
-    init(_ model: SwapModel) {
-        bag = model.statePublisher.sink { [states] state in
-            states.withLock { $0.append(state) }
-        }
-    }
-
-    var count: Int { states.withLock { $0.count } }
-    var latest: SwapModel.ProvidersState? { states.withLock { $0.last } }
+    struct StubError: Error {}
 }
 
 // MARK: - Stubs
 
+/// Records every arming so a test can fire a tick that a later arming has already superseded.
+private final class ManualAutoupdatingTimer: AutoupdatingTimerSetup {
+    private let state = OSAllocatedUnfairLock(initialState: [() -> Void]())
+
+    var armings: [() -> Void] { state.withLock { $0 } }
+
+    func setup(refresh: (() -> Void)?) {
+        guard let refresh else { return }
+        state.withLock { $0.append(refresh) }
+    }
+}
+
 private actor ExpressManagerStub: ExpressManager {
     private(set) var currentPair: ExpressManagerSwappingPair?
+    private var selectedProvider: ExpressAvailableProvider?
     private var amountType: ExpressAmountType?
     private(set) var updateAmountTypeCallCount = 0
+
+    private var errorOnNextAmountUpdate: Error?
+    private var isHoldingNextAmountUpdate = false
+    private var isHeldUpdateReleased = false
+    private var heldContinuation: CheckedContinuation<Void, Never>?
 
     func getCurrentPair() -> ExpressManagerSwappingPair? { currentPair }
     func getAmountType() -> ExpressAmountType? { amountType }
@@ -375,8 +477,39 @@ private actor ExpressManagerStub: ExpressManager {
 
     func update(amountType: ExpressAmountType?) async throws -> ExpressManagerState {
         updateAmountTypeCallCount += 1
+
+        if isHoldingNextAmountUpdate {
+            isHoldingNextAmountUpdate = false
+
+            if !isHeldUpdateReleased {
+                await withCheckedContinuation { heldContinuation = $0 }
+            }
+        }
+
+        if let errorOnNextAmountUpdate {
+            self.errorOnNextAmountUpdate = nil
+            throw errorOnNextAmountUpdate
+        }
+
         self.amountType = amountType
         return state()
+    }
+
+    // MARK: - Test mutators
+
+    func failNextAmountUpdate(with error: Error) {
+        errorOnNextAmountUpdate = error
+    }
+
+    func holdNextAmountUpdate() {
+        isHoldingNextAmountUpdate = true
+        isHeldUpdateReleased = false
+    }
+
+    func releaseHeldAmountUpdate() {
+        isHeldUpdateReleased = true
+        heldContinuation?.resume()
+        heldContinuation = nil
     }
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState {
@@ -394,7 +527,11 @@ private actor ExpressManagerStub: ExpressManager {
     /// Mirrors the real manager: no pair ⇒ `.idle` (the degenerate state behind the bug),
     /// a set pair ⇒ a loadable `.swap` state that `SwapModel` maps to `.loaded`.
     private func state() -> ExpressManagerState {
-        currentPair == nil ? .idle : .swap(selected: .none, providers: .empty)
+        currentPair == nil ? .idle : .swap(selected: selectedProvider, providers: .empty)
+    }
+
+    func setSelectedProvider(_ provider: ExpressAvailableProvider?) {
+        selectedProvider = provider
     }
 
     func requestData() async throws -> ExpressTransactionData {
@@ -416,27 +553,6 @@ private actor ExpressManagerStub: ExpressManager {
             payInAddress: ""
         )
     }
-}
-
-private final class SwapRepositoryStub: SwapRepository {
-    func updatePairs(from wallet: ExpressWalletCurrency, to currencies: [ExpressWalletCurrency], userWalletInfo: UserWalletInfo) async throws {}
-    func updatePairs(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async throws {}
-    func getAvailableProvidersIds(for pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType?) async -> [ExpressProvider.Id] { [] }
-    func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] { [] }
-    func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] { [] }
-    func providers(userWalletInfo: UserWalletInfo) async throws -> [ExpressProvider] { [] }
-
-    // ExpressRepository
-    func updateProvidersIds(for pair: ExpressManagerSwappingPair) async throws {}
-    func providers(for pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider] { [] }
-}
-
-private final class ExpressPendingTransactionRepositoryStub: ExpressPendingTransactionRepository {
-    var transactions: [ExpressPendingTransactionRecord] { [] }
-    var transactionsPublisher: AnyPublisher<[ExpressPendingTransactionRecord], Never> { .just(output: []) }
-    func updateItems(_ items: [ExpressPendingTransactionRecord]) {}
-    func swapTransactionDidSend(_ transaction: SentSwapTransactionData) {}
-    func hideSwapTransaction(with id: String) {}
 }
 
 private final class SwapPairUpdateHandlerStub: SwapPairUpdateHandler {
