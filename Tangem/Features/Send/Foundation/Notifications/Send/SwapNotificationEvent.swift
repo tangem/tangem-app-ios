@@ -30,10 +30,6 @@ enum SwapNotificationEvent: Hashable {
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case notEnoughReceivedAmountForReserve(amountFormatted: String)
 
-    /// The destination (receive) wallet is card-linked and must not be topped up.
-    /// Mirrors the main-screen backup-error notification.
-    case incompleteBackup
-
     // Generic notifications is received from BSDK
     case withdrawalNotificationEvent(WithdrawalNotificationEvent)
     case validationErrorEvent(event: ValidationErrorEvent)
@@ -89,8 +85,6 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationTransactionDelayTitle)
         case .notEnoughReceivedAmountForReserve(let amountFormatted):
             return .string(Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted))
-        case .incompleteBackup:
-            return .string(Localization.warningIncompleteBackupNotificationTitle)
         case .withdrawalNotificationEvent(let event):
             return event.title
         case .validationErrorEvent(let event):
@@ -132,8 +126,6 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.warningExpressWrongAmountDescription
         case .notEnoughReceivedAmountForReserve:
             return Localization.sendNotificationInvalidReserveAmountText
-        case .incompleteBackup:
-            return Localization.warningIncompleteBackupNotificationMessage
         case .unsupportedPair:
             return Localization.warningExpressUnsupportedPairDescription
         case .verificationRequired:
@@ -201,8 +193,6 @@ extension SwapNotificationEvent: NotificationEvent {
             return event.colorScheme
         case .validationErrorEvent(let event):
             return event.colorScheme
-        case .incompleteBackup:
-            return .critical
         }
     }
 
@@ -233,13 +223,6 @@ extension SwapNotificationEvent: NotificationEvent {
              .notEnoughReceivedAmountForReserve,
              .notEnoughBalanceForSwapping:
             return .init(iconType: .image(Assets.redCircleWarning))
-        case .incompleteBackup:
-            return .init(
-                iconType: .image(Assets.DesignSystem.attention),
-                renderingMode: .template,
-                color: .Tangem.Text.Neutral.primary,
-                size: .init(bothDimensions: 28)
-            )
         case .withdrawalNotificationEvent(let event):
             return event.icon
         case .validationErrorEvent(let event):
@@ -275,8 +258,7 @@ extension SwapNotificationEvent: NotificationEvent {
              .highPriceImpactWarning(.highLossHighAmount, _):
             return .critical
         case .refreshRequired,
-             .cexOperationFailed,
-             .incompleteBackup:
+             .cexOperationFailed:
             return .critical
         case .withdrawalNotificationEvent(let event):
             return event.severity
@@ -301,8 +283,6 @@ extension SwapNotificationEvent: NotificationEvent {
             return .init(.openCurrency)
         case .permissionNeeded:
             return .init(.givePermission)
-        case .incompleteBackup:
-            return .init(.backupErrorSupport)
         default:
             return nil
         }
@@ -319,7 +299,7 @@ extension SwapNotificationEvent: NotificationEvent {
 
     var removingOnFullLoadingState: Bool {
         switch self {
-        case .unsupportedPair, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration, .incompleteBackup:
+        case .unsupportedPair, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration:
             return false
         case .permissionNeeded,
              .hasPendingTransaction,

@@ -20,6 +20,8 @@ protocol StakeModelStateProvider {
     var stakingAction: StakingAction { get }
     /// The amount staked in the position this flow acts on (the action's initial amount).
     var stakedBalance: Decimal { get }
+    /// False on networks that delegate in place (Cardano), whose enter validates the fee only, like exits.
+    var enterSpendsAmount: Bool { get }
 }
 
 /// The narrow analytics surface `StakeModel` needs. `StakingSendAnalyticsLogger` refines it, so the
@@ -271,6 +273,8 @@ extension StakeModel: StakeModelStateProvider {
     }
 
     var stakedBalance: Decimal { provider.stakedBalance }
+
+    var enterSpendsAmount: Bool { provider.enterSpendsAmount }
 
     /// Drives the summary bottom-button label: `.approve` only while an approval is actually required,
     /// otherwise the action's natural type (an in-progress approval keeps showing the action, matching

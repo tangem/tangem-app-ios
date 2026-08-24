@@ -58,6 +58,9 @@ struct AppCoordinatorView: CoordinatorView {
             case .welcome(let welcomeCoordinator):
                 WelcomeCoordinatorView(coordinator: welcomeCoordinator)
                     .transition(.opacity.animation(.easeIn))
+            case .welcomeV2(let welcomeV2Coordinator):
+                WelcomeV2CoordinatorView(coordinator: welcomeV2Coordinator)
+                    .transition(.opacity.animation(.easeIn))
             case .uncompleteBackup(let uncompletedBackupCoordinator):
                 UncompletedBackupCoordinatorView(coordinator: uncompletedBackupCoordinator)
                     .transition(.opacity.animation(.easeIn))

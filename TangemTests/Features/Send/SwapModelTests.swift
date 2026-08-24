@@ -176,12 +176,32 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(sut.receiveAmount.value == nil)
     }
 
+    // MARK: - [REDACTED_INFO]: account funding flows
+
+    @Test("Add funds auto-resolves the source token when the destination is fixed")
+    func addFundsResolvesSourceToken() async throws {
+        let resolvedSource = SwapableTokenStub(blockchain: .ethereum(testnet: false))
+        let sut = makeSUT(
+            receiveToken: ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false)),
+            sourceTokenResolver: SourceTokenResolverStub(source: resolvedSource),
+            shouldStartInitialLoading: true
+        )
+
+        // initialLoading runs on a detached task; wait for the resolved source to land.
+        for _ in 0 ..< 500 {
+            if case .success = sut.sourceToken { break }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+
+        #expect(sut.sourceToken.value?.tokenItem == resolvedSource.tokenItem)
+    }
+
     // MARK: - [REDACTED_INFO]: deferred pair resolution
 
     @Test("Receive selector unblocks while deferred pair resolution is still in flight ([REDACTED_INFO])")
     func receiveSelectorUnblocksDuringDeferredPairResolution() async throws {
         let sourceToken = SwapableTokenStub(blockchain: .ethereum(testnet: false))
-        let resolver = MainSwapPairResolver(
+        let resolver = MainSwapSourceResolver(
             userWalletModel: PendingResolutionUserWalletModelStub(),
             swapAvailabilityChecker: SwapAvailabilityCheckerStub()
         )
@@ -189,7 +209,7 @@ final class SwapModelTests: LeakTrackingTestSuite {
         // task (and therefore the model) alive until the stub's publishers would emit.
         let sut = makeSUT(
             sourceToken: sourceToken,
-            swapTokenPairResolver: resolver,
+            sourceTokenResolver: resolver,
             shouldStartInitialLoading: true
         )
 
@@ -197,6 +217,44 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(error as? SwapModel.SwapModelError == .tokenSelectionRequired)
         // The resolver never resumed, so the pre-selected source must stay intact.
         #expect(sut.sourceToken.value?.tokenItem == sourceToken.tokenItem)
+    }
+
+    // MARK: - Destination re-resolution
+
+    @Test("A source change re-resolves the destination")
+    func sourceChangeReresolvesDestination() {
+        let usdcDestination = SwapableTokenStub(tokenItem: .accountToken(symbol: "USDC", contract: "0xUSDC"))
+        let usdtDestination = SwapableTokenStub(tokenItem: .accountToken(symbol: "USDT", contract: "0xUSDT"))
+        let resolver = DestinationTokenResolverStub(destination: usdtDestination)
+        let sut = makeSUT(receiveToken: usdcDestination, destinationTokenResolver: resolver)
+
+        sut.update(source: SwapableTokenStub(tokenItem: .accountToken(symbol: "USDT", contract: "0xUSDT")))
+
+        #expect(sut.receiveToken.value?.tokenItem == usdtDestination.tokenItem)
+    }
+
+    @Test("The resolved destination replaces the installed one even when it carries the same asset")
+    func destinationIsReplacedWhenResolvedTokenIsSameAsset() {
+        let installedDestination = SwapableTokenStub(tokenItem: .accountToken(symbol: "USDC", contract: "0xUSDC"))
+        // Same asset, different token: only the object identity tells them apart, exactly as two
+        // account tokens sharing a currency but sending to different addresses would.
+        let resolvedDestination = SwapableTokenStub(tokenItem: .accountToken(symbol: "USDC", contract: "0xUSDC"))
+        let resolver = DestinationTokenResolverStub(destination: resolvedDestination)
+        let sut = makeSUT(receiveToken: installedDestination, destinationTokenResolver: resolver)
+
+        sut.update(source: SwapableTokenStub(blockchain: .ethereum(testnet: false)))
+
+        #expect(sut.receiveToken.value as AnyObject === resolvedDestination)
+    }
+
+    @Test("Without a destination resolver a source change leaves the destination untouched")
+    func sourceChangeWithoutResolverKeepsDestination() {
+        let receive = ReceiveTokenStub(blockchain: .ton(curve: .ed25519, testnet: false))
+        let sut = makeSUT(receiveToken: receive)
+
+        sut.update(source: SwapableTokenStub(blockchain: .ethereum(testnet: false)))
+
+        #expect(sut.receiveToken.value?.tokenItem == receive.tokenItem)
     }
 }
 
@@ -209,10 +267,11 @@ private extension SwapModelTests {
         expressManager: ExpressManager = ExpressManagerStub(),
         pairUpdateHandler: SwapPairUpdateHandler = SwapPairUpdateHandlerStub(),
         balanceRestrictionChecker: SwapBalanceRestrictionFeatureChecker = SwapBalanceRestrictionFeatureCheckerStub(),
-        swapTokenPairResolver: MainSwapPairResolver? = nil,
+        sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
+        destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil,
         shouldStartInitialLoading: Bool = false
     ) -> SwapModel {
-        SwapModel(
+        let model = SwapModel(
             sourceToken: sourceToken,
             receiveToken: receiveToken,
             expressManager: expressManager,
@@ -224,9 +283,20 @@ private extension SwapModelTests {
             autoupdatingTimer: AutoupdatingTimer(),
             pairUpdateHandler: pairUpdateHandler,
             balanceRestrictionFeatureChecker: balanceRestrictionChecker,
-            swapTokenPairResolver: swapTokenPairResolver,
+            sourceTokenResolver: sourceTokenResolver,
+            destinationTokenResolver: destinationTokenResolver,
             shouldStartInitialLoading: shouldStartInitialLoading
         )
+
+        // The production factory always injects the updater; the model unwraps it implicitly
+        // (e.g. on pair reversal), so tests must too. The updater keeps weak references — its
+        // no-op behavior here is exactly what these tests want.
+        model.externalAmountUpdater = SendAmountExternalUpdater(
+            viewModel: ExternalUpdatableViewModelStub(),
+            interactor: SendAmountInteractorStub()
+        )
+
+        return model
     }
 
     /// Waits for a state published *after* `baseline` that satisfies `predicate`. Capturing the baseline
@@ -445,57 +515,6 @@ private enum SwapPairHandlerError: Error {
     case failed
 }
 
-private final class SwapableTokenStub: SendSwapableToken {
-    private let inner: SendSourceTokenStub
-
-    init(blockchain: Blockchain) {
-        inner = SendSourceTokenStub(blockchain: blockchain)
-    }
-
-    // MARK: - SendSourceToken proxy
-
-    var tokenItem: TokenItem { inner.tokenItem }
-    var isCustom: Bool { inner.isCustom }
-    var fiatItem: FiatItem { inner.fiatItem }
-    var userWalletInfo: UserWalletInfo { inner.userWalletInfo }
-    var id: WalletModelId { inner.id }
-    var header: TokenHeader { inner.header }
-    var feeTokenItem: TokenItem { inner.feeTokenItem }
-    var defaultAddressString: String { inner.defaultAddressString }
-    var availableBalanceProvider: TokenBalanceProvider { inner.availableBalanceProvider }
-    var fiatAvailableBalanceProvider: TokenBalanceProvider { inner.fiatAvailableBalanceProvider }
-    var allowanceService: (any AllowanceService)? { inner.allowanceService }
-    var withdrawalNotificationProvider: WithdrawalNotificationProvider? { inner.withdrawalNotificationProvider }
-    var scaledUIAmountMultiplierResolver: ScaledUIAmountMultiplierResolver? { inner.scaledUIAmountMultiplierResolver }
-    var emailDataCollectorBuilder: EmailDataCollectorBuilder { inner.emailDataCollectorBuilder }
-    var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { await inner.transactionHistoryEnricher } }
-    var transactionDispatcherProvider: any TransactionDispatcherProvider { inner.transactionDispatcherProvider }
-    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }
-    var tangemIconProvider: any TangemIconProvider { inner.tangemIconProvider }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { inner.confirmTransactionPolicy }
-    var isTangemPayAccount: Bool { inner.isTangemPayAccount }
-
-    // MARK: - Swap members
-
-    var isExemptFee: Bool { false }
-    var swapAvailabilityProvider: any SwapAvailabilityProvider { SwapAvailabilityProviderStub(isSwapAvailable: true) }
-    var supportedProvidersFilter: SupportedProvidersFilter { .byDifferentAddressExchangeSupport }
-    var sendYieldModuleHelper: SendYieldModuleHelper? { nil }
-    var operationType: ExpressOperationType { .swapAndSend }
-
-    // MARK: - Unused in these tests
-
-    var sendingRestrictionsProvider: any SendingRestrictionsProvider { fatalError("Unused in tests") }
-    var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { fatalError("Unused in tests") }
-    var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { fatalError("Unused in tests") }
-    var tokenFeeProvidersManager: any TokenFeeProvidersManager { fatalError("Unused in tests") }
-    var transactionValidator: any SendTransactionValidator { fatalError("Unused in tests") }
-    var transactionCreator: any SendTransactionCreator { fatalError("Unused in tests") }
-    var balanceProvider: any TangemExpress.BalanceProvider { fatalError("Unused in tests") }
-    var analyticsLogger: any TangemExpress.AnalyticsLogger { fatalError("Unused in tests") }
-    var providerTransactionValidator: any ExpressProviderTransactionValidator { fatalError("Unused in tests") }
-}
-
 private final class ReceiveTokenStub: SendReceiveToken {
     let tokenItem: TokenItem
 
@@ -508,8 +527,56 @@ private final class ReceiveTokenStub: SendReceiveToken {
     var destination: SendReceiveTokenDestination? { nil }
 }
 
-private struct SwapAvailabilityProviderStub: SwapAvailabilityProvider {
-    let isSwapAvailable: Bool
+private final class DestinationTokenResolverStub: SwapDestinationTokenResolver {
+    private let destination: SendReceiveToken
+
+    init(destination: SendReceiveToken) {
+        self.destination = destination
+    }
+
+    func resolveDestination(for source: SendSwapableToken) -> SendReceiveToken {
+        destination
+    }
+}
+
+private final class SourceTokenResolverStub: SwapSourceTokenResolver {
+    private let source: SendSwapableToken?
+
+    init(source: SendSwapableToken?) {
+        self.source = source
+    }
+
+    func resolve() async -> SendSwapableToken? {
+        source
+    }
+}
+
+// MARK: - External amount updater stubs
+
+private final class ExternalUpdatableViewModelStub: SendAmountExternalUpdatableViewModel {
+    func externalUpdate(amount: SendAmount?) {}
+}
+
+private final class SendAmountInteractorStub: SendAmountInteractor {
+    var isReceiveTokenSelectionAvailable: Bool { false }
+    var sourceFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { .just(output: nil) }
+    var receiveFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { .just(output: nil) }
+    var isValidPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
+    var sourceTokenPublisher: AnyPublisher<LoadingResult<any SendSourceToken, any Error>, Never> { .empty }
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { .empty }
+    var receivedTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> { .empty }
+    var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { .empty }
+    var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { .just(output: nil) }
+    var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> { .just(output: false) }
+
+    func update(sourceAmount: Decimal?) throws -> SendAmount? { nil }
+    func update(sourceCryptoAmount: Decimal?) throws -> SendAmount? { nil }
+    func update(sourceType: SendAmountCalculationType) throws -> SendAmount? { nil }
+    func updateToMaxAmount() throws -> SendAmount { SendAmount(type: .typical(crypto: 0, fiat: 0)) }
+    func update(receiveAmount: Decimal?) -> SendAmount? { nil }
+    func update(receiveType: SendAmountCalculationType) {}
+    func validateExternalSourceAmount(_ amount: SendAmount?) {}
+    func userDidRequestClearReceiveToken() {}
 }
 
 // MARK: - Deferred pair resolution stubs
@@ -518,7 +585,7 @@ private struct SwapAvailabilityCheckerStub: SwapAvailabilityChecker {
     func isSwapAvailable(walletModel: any WalletModel) -> Bool { true }
 }
 
-/// A wallet whose account models never arrive, keeping `MainSwapPairResolver.resolve()`
+/// A wallet whose account models never arrive, keeping `MainSwapSourceResolver.resolve()`
 /// suspended — the unit-test analogue of balances that never finish loading ([REDACTED_INFO]).
 private final class PendingResolutionUserWalletModelStub: UserWalletModelMock {
     private let pendingAccountModelsManager = PendingAccountModelsManagerStub()
@@ -537,6 +604,7 @@ private final class PendingAccountModelsManagerStub: AccountModelsManager {
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { Empty().eraseToAnyPublisher() }
 
     func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult { .none }
+    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {}
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] { [] }
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult { .none }
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
