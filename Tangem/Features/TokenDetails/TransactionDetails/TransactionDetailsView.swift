@@ -17,7 +17,7 @@ struct TransactionDetailsView: View {
     var body: some View {
         VStack(spacing: .zero) {
             if let header = viewModel.header {
-                TransactionDetailsHeaderView(data: header)
+                TransactionDetailsHeaderView(data: header, onAction: viewModel.handleViewAction)
             }
 
             VStack(spacing: blocksSpacing) {
@@ -51,11 +51,11 @@ struct TransactionDetailsView: View {
         case .principalAmount(let data):
             TransactionDetailsPrincipalAmountView(data: data)
         case .counterparty(let data):
-            TransactionDetailsAddressView(data: data)
+            TransactionDetailsAddressView(data: data, onAction: viewModel.handleViewAction)
         case .info(let data):
-            TransactionDetailsInfoSectionView(data: data)
+            TransactionDetailsInfoSectionView(data: data, onAction: viewModel.handleViewAction)
         case .action(let data):
-            TransactionDetailsActionButtonView(data: data)
+            TransactionDetailsActionButtonView(data: data, onTap: { viewModel.handleViewAction(data.action) })
         }
     }
 }

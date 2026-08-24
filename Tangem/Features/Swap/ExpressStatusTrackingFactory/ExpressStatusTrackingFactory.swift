@@ -11,7 +11,6 @@ import TangemExpress
 struct ExpressStatusTrackingFactory {
     let userWalletInfo: UserWalletInfo
     let tokenItem: TokenItem
-    let walletModelUpdater: (any WalletModelUpdater)?
     let transactionHistoryEnricherFactory: TransactionHistoryExpressDataEnriching.Factory
 
     func makeExpressStatusTracking() -> ExpressStatusTracking {
@@ -65,10 +64,7 @@ struct ExpressStatusTrackingFactory {
         onrampStatusPoller: OnrampStatusPoller,
         cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
     ) -> PendingExpressTransactionsManager {
-        let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
-            walletModelUpdater: walletModelUpdater,
-            poller: exchangeStatusPoller
-        )
+        let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(poller: exchangeStatusPoller)
 
         let pendingOnrampTransactionsManager = makePendingOnrampTransactionsManager(
             poller: onrampStatusPoller,

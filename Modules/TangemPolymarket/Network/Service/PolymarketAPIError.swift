@@ -13,12 +13,18 @@ public enum PolymarketAPIError: Error, LocalizedError {
 
     case connection(underlying: Error)
 
+    /// A field arrived in a shape the client cannot read. Reported rather than defaulted: a wrong amount is
+    /// worse than a failed request.
+    case decoding(field: String, value: String)
+
     public var errorDescription: String? {
         switch self {
         case .http(let statusCode, let problemDetail):
             return problemDetail?.detail ?? problemDetail?.title ?? "Polymarket API error \(statusCode)"
         case .connection(let underlying):
             return underlying.localizedDescription
+        case .decoding(let field, let value):
+            return "Polymarket API returned an unreadable \(field): \(value)"
         }
     }
 }

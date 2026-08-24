@@ -65,9 +65,11 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let cardDetailsShowButton = "\(prefix)CardDetailsShowButton"
     public static let cardDetailsHideButton = "\(prefix)CardDetailsHideButton"
     public static let cardDetailsNumberValue = "\(prefix)CardDetailsNumberValue"
+    public static let cardDetailsCardholderNameValue = "\(prefix)CardDetailsCardholderNameValue"
     public static let cardDetailsExpirationValue = "\(prefix)CardDetailsExpirationValue"
     public static let cardDetailsCvcValue = "\(prefix)CardDetailsCvcValue"
     public static let cardDetailsCopyNumber = "\(prefix)CardDetailsCopyNumber"
+    public static let cardDetailsCopyCardholderName = "\(prefix)CardDetailsCopyCardholderName"
     public static let cardDetailsCopyExpiration = "\(prefix)CardDetailsCopyExpiration"
     public static let cardDetailsCopyCvc = "\(prefix)CardDetailsCopyCvc"
 

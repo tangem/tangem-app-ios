@@ -80,6 +80,16 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/reissue"
         case .getEligibility:
             "eligibility/channels"
+        case .getCashbackSummary:
+            "customer/cashback/summary"
+        case .getCashbackHistory:
+            "customer/cashback/history"
+        case .getCashbackPromotions:
+            "customer/cashback/promotions"
+        case .getCashbackAccrualsDocs:
+            "customer/cashback/accruals/docs"
+        case .getCashbackTransactionDetails(let transactionId):
+            "customer/cashback/\(transactionId)/details"
         }
     }
 
@@ -98,6 +108,11 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin,
              .getFee,
              .getFees,
+             .getCashbackSummary,
+             .getCashbackHistory,
+             .getCashbackPromotions,
+             .getCashbackAccrualsDocs,
+             .getCashbackTransactionDetails,
              .getBankCredentials,
              .getEligibility:
             .get
@@ -144,8 +159,18 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getFee,
              .getBankCredentials,
              .getTransaction,
+             .getCashbackSummary,
+             .getCashbackPromotions,
+             .getCashbackAccrualsDocs,
+             .getCashbackTransactionDetails,
              .getEligibility:
             return .requestPlain
+
+        case .getCashbackHistory(let months):
+            guard let months else {
+                return .requestPlain
+            }
+            return .requestParameters(parameters: ["months_number": months], encoding: URLEncoding.default)
 
         case .cancelKYC:
             let requestData = TangemPayCancelKYCRequest()
@@ -250,6 +275,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
                 TangemPayNetworkingConstants.Header.Key.xDeviceScale: TangemPayNetworkingConstants.Header.Value.deviceScale,
                 TangemPayNetworkingConstants.Header.Key.acceptLanguage: Locale.appLanguageCode,
             ]
+        case .getCashbackPromotions, .getCashbackAccrualsDocs:
+            [TangemPayNetworkingConstants.Header.Key.acceptLanguage: Locale.appLanguageCode]
         default:
             nil
         }
@@ -309,6 +336,11 @@ extension CustomerInfoManagementAPITarget {
         case getBankCredentials(productInstanceId: String)
 
         case getEligibility
+        case getCashbackSummary
+        case getCashbackHistory(months: Int?)
+        case getCashbackPromotions
+        case getCashbackAccrualsDocs
+        case getCashbackTransactionDetails(transactionId: String)
     }
 }
 

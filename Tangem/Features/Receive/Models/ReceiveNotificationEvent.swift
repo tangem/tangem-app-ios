@@ -9,6 +9,7 @@
 import Foundation
 import TangemAssets
 import TangemLocalization
+import SwiftUI
 import TangemUI
 
 enum ReceiveNotificationEvent {
@@ -64,17 +65,28 @@ extension ReceiveNotificationEvent: NotificationEvent {
         }
     }
 
-    var redesignedBannerContent: RedesignedBannerContent? {
+    var bannerRing: NotificationBanner.Ring? {
         switch self {
         case .irreversibleLossNotification:
+            return .info
+        case .unsupportedTokenWarning:
+            return nil
+        }
+    }
+
+    var redesignedBannerContent: RedesignedBannerContent? {
+        switch self {
+        case .irreversibleLossNotification(let assetSymbol, let networkName):
+            var title = AttributedString(Localization.receiveBottomSheetWarningTitle(assetSymbol, networkName))
+            title.font = .system(size: 14, weight: .medium)
+
             return RedesignedBannerContent(
+                title: .attributed(title),
                 icon: NotificationView.MessageIcon(
                     iconType: .image(DesignSystem.Icons.Info.regular24),
                     renderingMode: .template,
                     color: DesignSystem.Color.iconBrand,
                     isLeading: false,
-                    alignment: .top,
-                    usesExactSize: true,
                     size: CGSize(bothDimensions: 24)
                 )
             )

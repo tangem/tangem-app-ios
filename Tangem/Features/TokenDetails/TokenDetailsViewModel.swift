@@ -60,12 +60,17 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel.tokenItem.token?.customTokenColor
     }
 
+    var showsPendingExpressTransactionsBlock: Bool {
+        !FeatureProvider.isAvailable(.transactionHistoryV2)
+    }
+
     let presentSource: TokenDetailsPresentSource
 
     private weak var coordinator: (any TokenDetailsRoutable)?
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
     private let userTokensManager: any UserTokensManager
+    private let addressBookManager: AddressBookManager
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -87,6 +92,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel: any WalletModel,
         notificationManager: NotificationManager,
         userTokensManager: any UserTokensManager,
+        addressBookManager: AddressBookManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         expressStatusPollingHelper: ExpressStatusPollingHelper,
         xpubGenerator: XPUBGenerator?,
@@ -102,6 +108,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
+        self.addressBookManager = addressBookManager
         self.deeplinkHandler = deeplinkHandler
         self.marketingBannerManager = marketingBannerManager
         self.notificationBannerMapper = notificationBannerMapper
@@ -140,7 +147,22 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
                 id: transaction.recordID,
                 walletModel: walletModel,
                 userWalletInfo: userWalletInfo,
-                isAccountsMode: isAccountsMode
+                isAccountsMode: isAccountsMode,
+                addressBookManager: addressBookManager
+            )
+        )
+    }
+
+    private func openExpressTransactionDetails(expressTransactionId id: String) {
+        let syntheticHash = ExpressSyntheticTxHelper(txId: id).makeSyntheticTxIdentifier()
+
+        coordinator?.openTransactionDetails(
+            TransactionDetailsRouteData(
+                id: TransactionRecord.ID(hash: syntheticHash, index: 0),
+                walletModel: walletModel,
+                userWalletInfo: userWalletInfo,
+                isAccountsMode: isAccountsMode,
+                addressBookManager: addressBookManager
             )
         )
     }
@@ -224,15 +246,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.exploreConfirmationDialog = exploreConfirmationDialog
     }
 
-    override func copyDefaultAddress() {
-        if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
-            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
-        ) {
-            alert = unavailableAlert
-            return
-        }
-
-        super.copyDefaultAddress()
+    override func performCopyDefaultAddress() {
+        super.performCopyDefaultAddress()
         Analytics.log(
             event: .buttonCopyAddress,
             params: [
@@ -520,23 +535,34 @@ private extension TokenDetailsViewModel {
             }
             .store(in: &bag)
 
-        // If a pending transaction was provided for deeplink-based presentation,
-        // wait for the first non-empty list of pending transactions,
-        // and if it contains a transaction matching the provided ID, present its status.
         if let pendingTransactionDetails {
-            $pendingExpressTransactions
-                .filter { !$0.isEmpty }
-                .prefix(1)
-                .sink { [weak self] pendingTransactions in
-                    guard let self,
-                          let matchingTransaction = pendingTransactions.first(where: { $0.id == pendingTransactionDetails.id })
-                    else {
-                        return
+            if FeatureProvider.isAvailable(.transactionHistoryV2) {
+                walletModel.transactionHistoryPublisher
+                    .compactMap { state -> TransactionRecord? in
+                        guard case .loaded(let records) = state else { return nil }
+                        return records.first { $0.expressExtraInfo?.txId == pendingTransactionDetails.id }
                     }
+                    .prefix(1)
+                    .receive(on: DispatchQueue.main)
+                    .sink { [weak self] _ in
+                        self?.openExpressTransactionDetails(expressTransactionId: pendingTransactionDetails.id)
+                    }
+                    .store(in: &bag)
+            } else {
+                $pendingExpressTransactions
+                    .filter { !$0.isEmpty }
+                    .prefix(1)
+                    .sink { [weak self] pendingTransactions in
+                        guard let self,
+                              let matchingTransaction = pendingTransactions.first(where: { $0.id == pendingTransactionDetails.id })
+                        else {
+                            return
+                        }
 
-                    didTapPendingExpressTransaction(id: matchingTransaction.id)
-                }
-                .store(in: &bag)
+                        didTapPendingExpressTransaction(id: matchingTransaction.id)
+                    }
+                    .store(in: &bag)
+            }
         }
 
         walletModel.stakingManagerStatePublisher

@@ -22,7 +22,8 @@ extension SwapFlowBaseDependenciesFactory {
         autoupdatingTimer: AutoupdatingTimer,
         pairUpdateHandler: SwapPairUpdateHandler,
         shouldStartInitialLoading: Bool,
-        swapTokenPairResolver: MainSwapPairResolver? = nil
+        sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
+        destinationTokenResolver: (any SwapDestinationTokenResolver)? = nil
     ) -> SwapModel {
         SwapModel(
             sourceToken: sourceToken,
@@ -36,7 +37,8 @@ extension SwapFlowBaseDependenciesFactory {
             autoupdatingTimer: autoupdatingTimer,
             pairUpdateHandler: pairUpdateHandler,
             balanceRestrictionFeatureChecker: makeSwapBalanceRestrictionFeatureChecker(),
-            swapTokenPairResolver: swapTokenPairResolver,
+            sourceTokenResolver: sourceTokenResolver,
+            destinationTokenResolver: destinationTokenResolver,
             shouldStartInitialLoading: shouldStartInitialLoading,
         )
     }

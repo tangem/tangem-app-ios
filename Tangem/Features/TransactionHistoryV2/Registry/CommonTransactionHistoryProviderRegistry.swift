@@ -56,15 +56,7 @@ actor CommonTransactionHistoryProviderRegistry {
             refcode: walletInfo.refcodeProvider?.getRefcode()
         )
 
-        let dataStorage = UserDefaultsBlockchainDataStorage()
-        let exchangeStorage = UserDefaultsTransactionHistoryRecordsStorage<ExchangeTransaction>(
-            dataStorage: dataStorage,
-            ownerAddress: key.address
-        )
-        let onrampStorage = UserDefaultsTransactionHistoryRecordsStorage<OnrampTransaction>(
-            dataStorage: dataStorage,
-            ownerAddress: key.address
-        )
+        let storage = CommonTransactionHistoryRecordsStorage(ownerAddress: key.address)
         let syncMetadataStorage = CommonTransactionHistorySyncMetadataStorage(ownerAddress: key.address)
 
         let exchangeNetworkService = TransactionHistoryNetworkServiceFactory.makeExchangeService(
@@ -81,8 +73,7 @@ actor CommonTransactionHistoryProviderRegistry {
         )
 
         let repository = CommonTransactionHistoryRepository(
-            exchangeStorage: exchangeStorage,
-            onrampStorage: onrampStorage,
+            storage: storage,
             exchangeNetworkService: exchangeNetworkService,
             onrampNetworkService: onrampNetworkService
         )

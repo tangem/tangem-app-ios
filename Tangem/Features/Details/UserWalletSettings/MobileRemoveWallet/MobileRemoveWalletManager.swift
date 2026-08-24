@@ -1,0 +1,76 @@
+//
+//  MobileRemoveWalletManager.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+protocol MobileRemoveWalletManager: AnyObject {
+    var backupState: MobileRemoveWalletBackupState { get }
+    var deletesICloudBackup: Bool { get set }
+    var analyticsContextData: AnalyticsContextData { get }
+    func removeWallet()
+}
+
+enum MobileRemoveWalletBackupState {
+    case iCloudBackup
+    case seedBackup
+    case noBackup
+}
+
+final class CommonMobileRemoveWalletManager {
+    var deletesICloudBackup = false
+
+    let backupState: MobileRemoveWalletBackupState
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    private let userWalletModel: UserWalletModel
+
+    init(userWalletModel: UserWalletModel) {
+        self.userWalletModel = userWalletModel
+        backupState = Self.makeBackupState(config: userWalletModel.config)
+    }
+}
+
+// MARK: - MobileRemoveWalletManager
+
+extension CommonMobileRemoveWalletManager: MobileRemoveWalletManager {
+    var analyticsContextData: AnalyticsContextData {
+        userWalletModel.analyticsContextData
+    }
+
+    func removeWallet() {
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            logWalletForgottenAnalytics()
+        }
+
+        if deletesICloudBackup {
+            MobileCleanupUtil.cleanBackup(
+                walletId: userWalletModel.userWalletId,
+                analyticsContextData: analyticsContextData
+            )
+        }
+
+        userWalletRepository.delete(userWalletId: userWalletModel.userWalletId)
+    }
+}
+
+// MARK: - Private methods
+
+private extension CommonMobileRemoveWalletManager {
+    func logWalletForgottenAnalytics() {
+        Analytics.log(.walletSettingsWalletForgotten, contextParams: .custom(analyticsContextData))
+    }
+
+    static func makeBackupState(config: UserWalletConfig) -> MobileRemoveWalletBackupState {
+        if MobileBackupStatusUtil.hasICloudBackup(config: config) {
+            return .iCloudBackup
+        }
+
+        return MobileBackupStatusUtil.hasMnemonicBackup(config: config) ? .seedBackup : .noBackup
+    }
+}

@@ -50,6 +50,10 @@ final class TangemPayAccount {
         offersSubject.value.first { $0.type.isAdditionalCardIssue }
     }
 
+    var cashbackPublisher: AnyPublisher<TangemPayCashback?, Never> {
+        cashbackSubject.eraseToAnyPublisher()
+    }
+
     var statePublisher: AnyPublisher<VisaCustomerInfoResponse.CustomerState, Never> {
         customerInfoSubject
             .map(\.state)
@@ -119,6 +123,10 @@ final class TangemPayAccount {
             .removeDuplicates()
     }
 
+    var networks: [TangemPayBalance.Network] {
+        balancesService.networks
+    }
+
     var customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan? {
         customerInfoSubject.value.customerTariffPlan
     }
@@ -129,8 +137,16 @@ final class TangemPayAccount {
             .eraseToAnyPublisher()
     }
 
+    var profile: VisaCustomerInfoResponse.Profile? {
+        customerInfoSubject.value.profile
+    }
+
     private var currentCustomerInfo: VisaCustomerInfoResponse {
         customerInfoSubject.value
+    }
+
+    private var customerWalletId: String {
+        userWalletId.stringValue
     }
 
     // MARK: - Virtual Account
@@ -184,6 +200,7 @@ final class TangemPayAccount {
     private let balancesService: any TangemPayBalancesService
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
     private let orderResolver: TangemPayOrderResolver
+    private let cashbackCacheStorage: TangemPayCashbackCacheStorage
 
     private let customerInfoSubject: CurrentValueSubject<VisaCustomerInfoResponse, Never>
     private let cardsSubject = CurrentValueSubject<[TangemPayCard], Never>([])
@@ -191,8 +208,10 @@ final class TangemPayAccount {
     private let activeIssueOrdersSubject = CurrentValueSubject<[TangemPayOrderResponse], Never>([])
     private let activeIssueOrderEventsSubject = PassthroughSubject<ActiveIssueOrderEvent, Never>()
     private let awaitingDepositInfoSubject = CurrentValueSubject<TangemPayAwaitingDepositInfo?, Never>(nil)
+    private let cashbackSubject = CurrentValueSubject<TangemPayCashback?, Never>(nil)
 
     private let loadOffersProcessor = SingleTaskProcessor<Void, Never>()
+    private let loadCashbackSummaryProcessor = SingleTaskProcessor<Void, TangemPayAPIServiceError>()
     private let resumeIssuePollingProcessor = SingleTaskProcessor<Void, Never>()
     private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
     private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
@@ -229,6 +248,7 @@ final class TangemPayAccount {
         mainHeaderBalanceProvider: MainHeaderBalanceProvider,
         orderResolver: TangemPayOrderResolver,
         feeRepository: TangemPayFeeRepository,
+        cashbackCacheStorage: TangemPayCashbackCacheStorage,
         account: (any TangemPayAccountModel)?,
         accountRemover: (any TangemPayAccountRemoving)?
     ) {
@@ -243,6 +263,7 @@ final class TangemPayAccount {
         self.mainHeaderBalanceProvider = mainHeaderBalanceProvider
         self.orderResolver = orderResolver
         self.feeRepository = feeRepository
+        self.cashbackCacheStorage = cashbackCacheStorage
         self.account = account
         self.accountRemover = accountRemover
 
@@ -250,6 +271,7 @@ final class TangemPayAccount {
         bindAwaitingDepositInfo()
         cardsSubject.send(rebuildingCards(from: customerInfo, existing: []))
         observeCardRefreshSignals()
+        restoreCachedCashback()
     }
 
     func loadBalance() async {
@@ -284,6 +306,12 @@ final class TangemPayAccount {
 
     func getTransaction(transactionId: String) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse.Transaction {
         try await customerService.getTransaction(transactionId: transactionId)
+    }
+
+    func getCashbackTransactionDetails(
+        transactionId: String
+    ) async throws(TangemPayAPIServiceError) -> TangemPayCashbackTransactionDetailsResponse {
+        try await customerService.getCashbackTransactionDetails(transactionId: transactionId)
     }
 
     func card(cardId: String) -> TangemPayCard? {
@@ -394,6 +422,25 @@ extension TangemPayAccount {
             } catch {
                 VisaLogger.error("Failed to load TangemPay offers", error: error)
             }
+        }
+    }
+
+    func loadCashbackSummary() async throws(TangemPayAPIServiceError) {
+        try await loadCashbackSummaryProcessor.execute { @MainActor [weak self] () async throws(TangemPayAPIServiceError) in
+            guard let self else { return }
+
+            let response = try await customerService.getCashbackSummary()
+            let cashback = TangemPayCashback(response)
+
+            switch cashback {
+            case .available, .blocked:
+                cashbackCacheStorage.saveCachedCashbackSummary(response, customerWalletId: customerWalletId)
+
+            case .unavailable:
+                cashbackCacheStorage.clearCachedCashbackSummary(customerWalletId: customerWalletId)
+            }
+
+            cashbackSubject.send(cashback)
         }
     }
 
@@ -511,6 +558,22 @@ extension TangemPayAccount {
 
 extension TangemPayAccount: TangemPayAwaitingDepositCanceller {}
 
+// MARK: - TangemPayCashbackDataProviding
+
+extension TangemPayAccount: TangemPayCashbackDataProviding {
+    func getCashbackHistory(months: Int) async throws(TangemPayAPIServiceError) -> TangemPayCashbackHistoryResponse {
+        try await customerService.getCashbackHistory(months: months)
+    }
+
+    func getCashbackPromotions() async throws(TangemPayAPIServiceError) -> TangemPayCashbackPromotionsResponse {
+        try await customerService.getCashbackPromotions()
+    }
+
+    func getCashbackAccrualsDocs() async throws(TangemPayAPIServiceError) -> TangemPayCashbackAccrualsDocsResponse {
+        try await customerService.getCashbackAccrualsDocs()
+    }
+}
+
 // MARK: - TangemPayTariffPlanSelector
 
 extension TangemPayAccount: TangemPayTariffPlanSelector {
@@ -598,6 +661,22 @@ private extension TangemPayAccount {
             }
             VisaLogger.error("Failed to load customer info", error: error)
         }
+    }
+
+    func restoreCachedCashback() {
+        guard let cached = cashbackCacheStorage.cachedCashbackSummary(
+            customerWalletId: customerWalletId
+        ) else {
+            return
+        }
+
+        let cashback = TangemPayCashback(cached)
+
+        guard case .available = cashback else {
+            return
+        }
+
+        cashbackSubject.send(cashback)
     }
 
     func observeCardRefreshSignals() {

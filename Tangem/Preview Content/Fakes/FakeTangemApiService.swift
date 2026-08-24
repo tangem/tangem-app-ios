@@ -20,6 +20,10 @@ final class FakeTangemApiService: TangemApiService {
     var loadNewsCategoriesHandler: (() async throws -> NewsDTO.Categories.Response)?
     var loadTrendingNewsHandler: ((Int?, String?) async throws -> TrendingNewsResponse)?
 
+    // MARK: - Coins Handlers (Tests/Previews)
+
+    var loadCoinsHandler: ((CoinsList.Request) async throws -> CoinsList.Response)?
+
     // MARK: - Campaigns Handlers (Tests/Previews)
 
     var loadMarketingCampaignsHandler: ((MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response)?
@@ -49,6 +53,10 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadCoins(requestModel: CoinsList.Request) async throws -> CoinsList.Response {
+        if let loadCoinsHandler {
+            return try await loadCoinsHandler(requestModel)
+        }
+
         let provider = FakeCoinListProvider()
         return try provider.parseCoinResponse()
     }
@@ -247,6 +255,16 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts {
+        throw "Not implemented"
+    }
+
+    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.List.Response {
+        throw "Not implemented"
+    }
+
+    func createJointAccount(
+        walletId: String, body: JointAccountsDTO.Create.Request
+    ) async throws -> JointAccountsDTO.Create.Response {
         throw "Not implemented"
     }
 

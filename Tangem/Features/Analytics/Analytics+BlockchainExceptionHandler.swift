@@ -23,7 +23,7 @@ extension Analytics {
                 params: [
                     .exceptionHost: formattedCurrentHost,
                     .selectedHost: formattedNextHost,
-                    .errorDescription: message,
+                    .error: message,
                     .blockchain: blockchainName,
                 ]
             )

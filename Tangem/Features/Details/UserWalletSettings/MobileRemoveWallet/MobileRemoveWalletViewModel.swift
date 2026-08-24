@@ -24,15 +24,20 @@ final class MobileRemoveWalletViewModel: ObservableObject {
     lazy var attentionItem: AttentionItem = makeAttentionItem()
     lazy var actionItem: ActionItem = makeActionItem()
 
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
-    private let userWalletId: UserWalletId
+    private let removeManager: MobileRemoveWalletManager
     private weak var delegate: MobileRemoveWalletDelegate?
 
-    init(userWalletId: UserWalletId, delegate: MobileRemoveWalletDelegate?) {
-        self.userWalletId = userWalletId
+    init(
+        removeManager: MobileRemoveWalletManager,
+        delegate: MobileRemoveWalletDelegate
+    ) {
+        self.removeManager = removeManager
         self.delegate = delegate
         bind()
+
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            logScreenOpenedAnalytics()
+        }
     }
 }
 
@@ -76,8 +81,15 @@ private extension MobileRemoveWalletViewModel {
     }
 
     func onConfirmForgetTap() {
-        userWalletRepository.delete(userWalletId: userWalletId)
+        removeManager.removeWallet()
         delegate?.didRemoveMobileWallet()
+    }
+
+    func logScreenOpenedAnalytics() {
+        Analytics.log(
+            .walletSettingsForgetWalletScreen,
+            contextParams: .custom(removeManager.analyticsContextData)
+        )
     }
 }
 

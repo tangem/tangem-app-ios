@@ -14,7 +14,7 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private var isBackupNeeded: Bool {
-        userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        backupStatusUtil.isBackupNeeded
     }
 
     private var isAccessCodeNeeded: Bool {
@@ -25,6 +25,7 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
         .custom(userWalletModel.analyticsContextData)
     }
 
+    private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
     private let source: MobileOnboardingFlowSource
     private weak var coordinator: MobileOnboardingFlowRoutable?
@@ -37,6 +38,7 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
         self.userWalletModel = userWalletModel
         self.source = source
         self.coordinator = coordinator
+        backupStatusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
         super.init(hasProgressBar: true)
     }
 
@@ -97,7 +99,7 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
         append(step: seedPhraseValidationStep)
 
         let doneStep = MobileOnboardingSuccessStep(
-            type: .seedPhaseBackupContinue,
+            type: .backupContinue,
             navigationTitle: Localization.commonBackup,
             onAppear: { [weak self] in
                 self?.logBackupCompletedScreenOpenedAnalytics()
@@ -209,17 +211,27 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
     }
 
     func logSeedPhraseValidatedAnalytics() {
+        var params: [Analytics.ParameterKey: String] = [.cardsCount: String(0)]
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            params[.backupType] = Analytics.ParameterValue.backupTypeManual.rawValue
+        }
+
         Analytics.log(
             event: .backupFinished,
-            params: [.cardsCount: String(0)],
+            params: params,
             contextParams: analyticsContextParams
         )
     }
 
     func logBackupCompletedScreenOpenedAnalytics() {
+        var params = source.analyticsParams
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            params[.backupType] = .backupTypeManual
+        }
+
         Analytics.log(
             .walletSettingsBackupCompleteScreen,
-            params: source.analyticsParams,
+            params: params,
             contextParams: analyticsContextParams
         )
     }

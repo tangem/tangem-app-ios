@@ -757,8 +757,8 @@ private extension EthereumWalletManager {
             feeTransferGasLimit = EthereumFeeParametersConstants.gaslessYieldFallbackFeeTransferGasLimit
         }
 
-        // 3) Add 10% buffer to fee token transfer gas limit (multiply by 1.1 using integer math)
-        let feeTransferGasLimitBuffered = feeTransferGasLimit * BigUInt(11) / BigUInt(10)
+        // 3) Add 40% buffer to fee token transfer gas limit (multiply by 1.4 using integer math)
+        let feeTransferGasLimitBuffered = feeTransferGasLimit * BigUInt(14) / BigUInt(10)
 
         let yieldWithdraw = try await makeYieldWithdraw(
             feeToken: feeToken,

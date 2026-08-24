@@ -14,7 +14,12 @@ struct RedesignedReceiveNotificationsView: View {
 
     var body: some View {
         ForEach(items) { item in
-            NotificationBanner(bannerType: item.bannerType, accessibilityIdentifier: item.accessibilityIdentifier)
+            NotificationMessageBanner(
+                bannerType: item.bannerType,
+                variant: item.variant,
+                ring: item.ring,
+                accessibilityIdentifier: item.accessibilityIdentifier
+            )
         }
     }
 
