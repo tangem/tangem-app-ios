@@ -103,9 +103,35 @@ struct WelcomeV2View: View {
     }
 
     private var footer: some View {
-        Text("By continuing, you agree with Terms of service and Privacy Policy")
-            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
+        Text(footerAttributedString)
             .multilineTextAlignment(.center)
+            .environment(\.openURL, OpenURLAction { url in
+                viewModel.onLegalLinkTap(url)
+                return .handled
+            })
+    }
+
+    private var footerAttributedString: AttributedString {
+        let terms = "Terms of service"
+        let privacy = "Privacy Policy"
+        var string = AttributedString("By continuing, you agree with \(terms) and \(privacy)")
+        string.foregroundColor = Colors.Text.tertiary
+        string.font = Fonts.RegularStatic.caption1
+
+        if let range = string.range(of: terms) {
+            string[range].foregroundColor = Colors.Text.primary1
+            string[range].font = Fonts.BoldStatic.caption1
+            string[range].link = AppConstants.tosURL
+        }
+
+        if let range = string.range(of: privacy) {
+            string[range].foregroundColor = Colors.Text.primary1
+            string[range].font = Fonts.BoldStatic.caption1
+            // [REDACTED_TODO_COMMENT]
+            string[range].link = URL(string: "about:blank")
+        }
+
+        return string
     }
 }
 
