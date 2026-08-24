@@ -32,7 +32,7 @@ struct DynamicAddressesCompoundTransactionView: View {
                 HoldToConfirmButton(
                     title: Localization.commonConfirm,
                     isLoading: viewModel.isLoading,
-                    isDisabled: false,
+                    isDisabled: !viewModel.actionIsAvailable,
                     action: viewModel.confirm
                 )
             } else {
@@ -40,6 +40,7 @@ struct DynamicAddressesCompoundTransactionView: View {
                     title: Localization.commonConfirm,
                     icon: viewModel.mainButtonIcon,
                     isLoading: viewModel.isLoading,
+                    isDisabled: !viewModel.actionIsAvailable,
                     action: viewModel.confirm
                 )
             }
