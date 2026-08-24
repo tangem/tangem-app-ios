@@ -268,7 +268,7 @@ private extension TangemPayCashbackDetailViewDataFactory {
     }
 
     func shortMonthName(_ month: Int) -> String {
-        let symbols = Self.shortMonthSymbols
+        let symbols = Self.shortStandaloneMonthSymbols
 
         return symbols.indices.contains(month - 1) ? symbols[month - 1] : ""
     }
@@ -281,7 +281,7 @@ private extension TangemPayCashbackDetailViewDataFactory {
         return Self.payoutWindowFormatter.string(from: DateInterval(start: start, end: end))
     }
 
-    static let shortMonthSymbols = DateFormatter().shortMonthSymbols ?? []
+    static let shortStandaloneMonthSymbols = DateFormatter().shortStandaloneMonthSymbols ?? []
 
     static let rateFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
