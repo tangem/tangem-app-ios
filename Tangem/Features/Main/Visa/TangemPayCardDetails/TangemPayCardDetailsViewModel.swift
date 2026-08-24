@@ -82,7 +82,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     }
 
     func copyCardholderName() {
-        copyAction(copiedTextKeyPath: \.cardholderName, toastMessage: "Cardholder name copied")
+        copyAction(copiedTextKeyPath: \.cardholderName, toastMessage: "Cardholder name copied", removingFormatting: false)
     }
 
     func copyExpirationDate() {
@@ -116,11 +116,22 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
         isFlipped = state.isFlipped
     }
 
-    private func copyAction(copiedTextKeyPath: KeyPath<TangemPayCardDetailsData, String>, toastMessage: String) {
+    private func copyAction(
+        copiedTextKeyPath: KeyPath<TangemPayCardDetailsData, String>,
+        toastMessage: String,
+        removingFormatting: Bool = true
+    ) {
         guard let cardDetailsData = state.details else { return }
-        UIPasteboard.general.string = cardDetailsData[keyPath: copiedTextKeyPath]
-            .replacingOccurrences(of: " ", with: "")
-            .replacingOccurrences(of: "/", with: "")
+
+        let copiedText = cardDetailsData[keyPath: copiedTextKeyPath]
+
+        if removingFormatting {
+            UIPasteboard.general.string = copiedText
+                .replacingOccurrences(of: " ", with: "")
+                .replacingOccurrences(of: "/", with: "")
+        } else {
+            UIPasteboard.general.string = copiedText
+        }
 
         Toast(view: SuccessToast(text: toastMessage))
             .present(
