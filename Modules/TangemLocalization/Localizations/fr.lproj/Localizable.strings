@@ -618,6 +618,7 @@
 "express_swap_restrictions_text" = "Swap provider is restricted";
 "express_swap_restrictions_title" = "Regional swap restrictions";
 "express_token_list_empty_search" = "Aucun jeton trouvé. Veuillez essayer une autre demande";
+"express_transaction_hash" = "Hash: %1$@";
 "express_transaction_id_copied" = "ID de transaction copié";
 "express_transaction_id" = "ID : %@";
 "fee_selector_choose_speed_description" = "Une vitesse plus élevée signifie une confirmation plus rapide et des frais de réseau plus élevés. %@";
@@ -845,6 +846,10 @@
 "initial_wallet_sync_banner_description" = "Votre wallet est synchronisé et prêt.\nDes tokens sont manquants ?";
 "initial_wallet_sync_banner_title" = "Wallet importé avec succès";
 "initial_wallet_sync_restore_progress" = "Restauration %li%%";
+"introduction_button_create_wallet" = "Create wallet";
+"introduction_button_i_have_a_wallet" = "I have a wallet";
+"introduction_legal" = "By continuing, you agree with %1$@ and %2$@";
+"introduction_terms_of_service" = "Terms of service";
 "jailbreak_warning_message" = "Les appareils jailbreakés sont considérés comme moins sécurisés. Vos données peuvent être exposées à des risques supplémentaires.";
 "jailbreak_warning_title" = "Jailbreak détecté";
 "joint_account_activation_account_button_title" = "Activate account";
@@ -1268,6 +1273,7 @@
 "prediction_details_total_volume" = "Total volume";
 "prediction_event_probability" = "Probability";
 "prediction_event_total_volume" = "Total volume:";
+"prediction_main_data_outdated" = "Data may be outdated.";
 "prediction_main_empty_events" = "No events yet";
 "prediction_main_events_load_error" = "Failed to load events.\nTap to reload";
 "prediction_main_subtitle" = "USDC on Polygon network";
@@ -2069,6 +2075,7 @@
 "tangempay_maximum_cards_issued_for_plan_title" = "Limite de cartes atteinte pour ce forfait";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "Forfait supérieur";
 "tangempay_maximum_cards_issued_title" = "Nombre maximum de cartes émises";
+"tangempay_multichain_show_qr" = "Show QR";
 "tangempay_multinetwork" = "Multinetwork";
 "tangempay_newonboard_body" = "Dépensez vos cryptos partout — sans banque, sans intermédiaire, sans exchange. La self-custody au service des paiements du quotidien.";
 "tangempay_newonboard_bottomleft_body" = "Paiement en ligne et via Apple Pay";

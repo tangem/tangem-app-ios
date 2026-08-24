@@ -618,6 +618,7 @@
 "express_swap_restrictions_text" = "Swap provider is restricted";
 "express_swap_restrictions_title" = "Regional swap restrictions";
 "express_token_list_empty_search" = "トークンが見つかりません。別のリクエストをお試しください。";
+"express_transaction_hash" = "Hash: %1$@";
 "express_transaction_id_copied" = "取引IDをコピーしました";
 "express_transaction_id" = "ID: %@";
 "fee_selector_choose_speed_description" = "速度を上げるほど承認は速くなりますが、\nネットワーク手数料も高くなります。%@";
@@ -845,6 +846,10 @@
 "initial_wallet_sync_banner_description" = "ウォレットは同期され、準備ができています。\n一部のトークンが見つかりませんか？";
 "initial_wallet_sync_banner_title" = "ウォレットのインポートが完了しました";
 "initial_wallet_sync_restore_progress" = "%li%%を復元中";
+"introduction_button_create_wallet" = "Create wallet";
+"introduction_button_i_have_a_wallet" = "I have a wallet";
+"introduction_legal" = "By continuing, you agree with %1$@ and %2$@";
+"introduction_terms_of_service" = "Terms of service";
 "jailbreak_warning_message" = "ジェイルブレイクされた端末はセキュリティが低いと判断されます。データが追加のリスクにさらされる可能性があります。";
 "jailbreak_warning_title" = "ジェイルブレイクが検出されました";
 "joint_account_activation_account_button_title" = "Activate account";
@@ -1268,6 +1273,7 @@
 "prediction_details_total_volume" = "Total volume";
 "prediction_event_probability" = "Probability";
 "prediction_event_total_volume" = "Total volume:";
+"prediction_main_data_outdated" = "Data may be outdated.";
 "prediction_main_empty_events" = "まだイベントはありません";
 "prediction_main_events_load_error" = "イベントを読み込めませんでした。\nタップして再読み込みしてください。";
 "prediction_main_subtitle" = "USDC on Polygon network";
@@ -2069,6 +2075,7 @@
 "tangempay_maximum_cards_issued_for_plan_title" = "このプランのカード発行枚数の上限に達しました";
 "tangempay_maximum_cards_issued_for_plan_upgrade_btn" = "プランをアップグレード";
 "tangempay_maximum_cards_issued_title" = "カード発行枚数の上限に達しました";
+"tangempay_multichain_show_qr" = "Show QR";
 "tangempay_multinetwork" = "複数ネットワーク対応";
 "tangempay_newonboard_body" = "銀行なし、中間業者なし、取引所なしで、どこでも暗号資産を使えます。セルフカストディの力を、日常の支払いに。";
 "tangempay_newonboard_bottomleft_body" = "オンライン決済や Apple Pay に対応";
