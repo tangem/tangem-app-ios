@@ -204,6 +204,21 @@ protocol TangemApiService: AnyObject {
         walletId: String, body: JointAccountsDTO.Create.Request
     ) async throws -> JointAccountsDTO.Create.Response
 
+    /// - Returns: What the invited wallet is joining and who is inviting it.
+    /// - Note: The wallet in the path is the one the invite is being checked for, so a wallet that already holds a slot
+    /// is turned away here rather than after the card has been tapped.
+    func getJointAccountInvite(
+        walletId: String, inviteId: String
+    ) async throws -> JointAccountsDTO.InvitePreview.Response
+
+    func joinJointAccount(
+        walletId: String, body: JointAccountsDTO.Join.Request
+    ) async throws -> JointAccountsDTO.Join.Response
+
+    func activateJointAccount(
+        walletId: String, body: JointAccountsDTO.Activate.Request
+    ) async throws -> JointAccountsDTO.Activate.Response
+
     // MARK: - Address Book
 
     /// Fetches the encrypted books of the requested wallets, skipping any whose sent etag still matches.
