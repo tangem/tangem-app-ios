@@ -1,5 +1,5 @@
 //
-//  ExpressProviderTypeSyncTests.swift
+//  AppDatabaseExpressInteropTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,8 +11,8 @@ import TangemFoundation
 @testable import TangemExpress
 @testable import TangemAppDatabase
 
-@Suite("Express provider type DB literals stay in sync with the domain")
-struct ExpressProviderTypeSyncTests {
+@Suite("AppDatabase <-> Express contracts and interop")
+struct AppDatabaseExpressInteropTests {
     @Test(arguments: ExpressBranch.allCases)
     func databaseTypeValuesMatchDomain(branch: ExpressBranch) {
         // Do not add `default` here, we want exhaustive switch to handle all possible cases of `ExpressBranch`
@@ -24,5 +24,10 @@ struct ExpressProviderTypeSyncTests {
         }
 
         #expect(databaseValues.toSet() == branch.supportedProviderTypes.map(\.rawValue).toSet())
+    }
+
+    @Test("Coin contract address placeholder literal is pinned")
+    func coinContractAddressPlaceholderLiteralIsPinned() {
+        #expect(ExpressConstants.coinContractAddress == "0")
     }
 }
