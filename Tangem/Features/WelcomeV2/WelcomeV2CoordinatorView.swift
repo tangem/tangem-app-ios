@@ -43,6 +43,9 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
         }
         .animation(.easeInOut(duration: 0.35), value: coordinator.hardwareWalletViewModel != nil)
         .overlay(sheets)
+        .fullScreenCover(item: $coordinator.legalWebViewModel) { webViewModel in
+            WebViewContainer(viewModel: webViewModel)
+        }
     }
 
     /// Sheets are presented locally instead of via the global `FloatingSheetPresenter`:

@@ -28,4 +28,8 @@ final class WelcomeV2ViewModel: ObservableObject {
     func onExistingWalletTap() {
         coordinator?.openExistingWallet()
     }
+
+    func onLegalLinkTap(_ url: URL) {
+        coordinator?.openLegal(url: url)
+    }
 }

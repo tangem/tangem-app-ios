@@ -23,6 +23,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Published var actionSheetViewModel: WelcomeV2ActionSheetViewModel?
     @Published var hardwareWalletViewModel: WelcomeHardwareWalletViewModel?
     @Published var mobileCreateWalletCoordinator: MobileCreateWalletCoordinator?
+    @Published var legalWebViewModel: WebViewContainerViewModel?
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
@@ -71,6 +72,15 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
 
     func closeHardwareWallet() {
         hardwareWalletViewModel = nil
+    }
+
+    func openLegal(url: URL) {
+        legalWebViewModel = WebViewContainerViewModel(
+            url: url,
+            title: "",
+            withCloseButton: true,
+            withNavigationBar: false
+        )
     }
 
     func openMain(with userWalletModel: UserWalletModel) {
