@@ -20,6 +20,7 @@ final class CommonPolymarketAccountModel {
     private let walletService: PolymarketWalletService
     private let credentialsRepository: PolymarketCredentialsRepository
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
+    private let balanceService: PolymarketBalanceService
 
     private let stateSubject = CurrentValueSubject<PolymarketAccountState?, Never>(nil)
 
@@ -27,13 +28,15 @@ final class CommonPolymarketAccountModel {
         userWalletId: UserWalletId,
         walletService: PolymarketWalletService,
         credentialsRepository: PolymarketCredentialsRepository,
-        ownerAddressProvider: PolymarketOwnerAddressProviding
+        ownerAddressProvider: PolymarketOwnerAddressProviding,
+        balanceService: PolymarketBalanceService
     ) {
         id = PolymarketAccountId(userWalletId: userWalletId)
         self.userWalletId = userWalletId
         self.walletService = walletService
         self.credentialsRepository = credentialsRepository
         self.ownerAddressProvider = ownerAddressProvider
+        self.balanceService = balanceService
     }
 }
 
@@ -46,6 +49,10 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
 
     var statePublisher: AnyPublisher<PolymarketAccountState?, Never> {
         stateSubject.eraseToAnyPublisher()
+    }
+
+    var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
+        balanceService.fiatTotalTokenBalanceProvider
     }
 
     func refreshState() async {
@@ -110,8 +117,6 @@ private extension CommonPolymarketAccountModel {
         return .active(depositWalletAddress: depositWalletAddress)
     }
 
-    /// The BFF contract requires an unrecognized status to read as "not ready, keep polling", never as a
-    /// failure, so the last known state stands and only the value is reported.
     func makeUnrecognizedStatusState() -> PolymarketAccountState? {
         PolymarketLogger.warning("Unrecognized wallet status returned by the backend")
         return stateSubject.value
