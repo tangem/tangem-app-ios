@@ -65,5 +65,8 @@ struct DetailsCoordinatorView: CoordinatorView {
             .fullScreenCover(item: $coordinator.tangemPayOnboardingCoordinator) {
                 TangemPayOnboardingCoordinatorView(coordinator: $0)
             }
+            .floatingSheetContent(for: AddWalletTypeSelectorSheetViewModel.self) {
+                AddWalletTypeSelectorSheetView(viewModel: $0)
+            }
     }
 }
