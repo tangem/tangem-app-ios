@@ -4591,7 +4591,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 5.1.2;
+				version = 5.1.3;
 			};
 		};
 		B6911ACA302D45550010A7FA /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */ = {
