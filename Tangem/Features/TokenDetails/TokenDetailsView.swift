@@ -34,8 +34,10 @@ struct TokenDetailsView: View {
 
                 marketingBanner
 
-                ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
-                    PendingExpressTransactionView(info: transactionInfo)
+                if viewModel.showsPendingExpressTransactionsBlock {
+                    ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
+                        PendingExpressTransactionView(info: transactionInfo)
+                    }
                 }
 
                 PendingTransactionsListView(
@@ -184,8 +186,10 @@ struct TokenDetailsView: View {
     private var redesignNotificationBanners: some View {
         VStack(spacing: .unit(.x2)) {
             ForEach(viewModel.notifications) { notification in
-                NotificationBanner(
+                NotificationMessageBanner(
                     bannerType: notification.bannerType,
+                    variant: notification.variant,
+                    ring: notification.ring,
                     accessibilityIdentifier: notification.accessibilityIdentifier
                 )
             }
@@ -334,10 +338,7 @@ private extension TokenDetailsView {
         cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
-    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
-        walletModelUpdater: walletModel,
-        poller: exchangeStatusPoller
-    )
+    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(poller: exchangeStatusPoller)
     let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
     let onrampStatusPoller = OnrampStatusPoller(
         userWalletId: userWalletModel.userWalletId,
@@ -370,6 +371,7 @@ private extension TokenDetailsView {
             walletModel: walletModel,
             notificationManager: notifManager,
             userTokensManager: cryptoAccountModel.userTokensManager,
+            addressBookManager: userWalletModel.addressBookManager,
             pendingExpressTransactionsManager: pendingTxsManager,
             expressStatusPollingHelper: expressStatusPollingHelper,
             xpubGenerator: nil,

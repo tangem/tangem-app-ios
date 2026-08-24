@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 /// Enriches the wallet model's on-chain transaction history stream with the provider's Express/Onramp transaction history.
-protocol WalletModelTransactionHistoryEnriching {
+protocol WalletModelTransactionHistoryEnriching: Sendable {
     func enrichedTransactionHistoryPublisher(
         from originalTransactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
         tokenItem: TokenItem,

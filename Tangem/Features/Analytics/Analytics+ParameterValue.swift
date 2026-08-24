@@ -313,6 +313,9 @@ extension Analytics {
         case hardwareWallet = "Hardware Wallet"
         case notStarted = "Not Started"
         case unfinished = "Unfinished"
+        case incomplete = "Incomplete"
+        case backupTypeManual = "Manual"
+        case backupTypeCloud = "Cloud"
         case createWalletIntro = "Create Wallet Intro"
         case addNewWallet = "Add New Wallet"
 
@@ -338,6 +341,7 @@ extension Analytics {
         // MARK: - Address Book
 
         case addressBookSourceSendFlow = "Send Flow"
+        case addressBookSourceTransactionDetails = "Transaction Details"
         case addressBookModeCreate = "Create"
         case addressBookErrorServer = "Server"
         case addressBookErrorSigning = "Signing"
