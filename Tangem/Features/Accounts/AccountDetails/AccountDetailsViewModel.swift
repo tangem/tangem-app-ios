@@ -171,7 +171,7 @@ final class AccountDetailsViewModel: ObservableObject {
 
         Analytics.log(event: .accountSettingsAccountError, params: [
             .source: Analytics.ParameterValue.accountSourceArchive.rawValue,
-            .errorDescription: String(describing: error),
+            .error: String(describing: error),
         ])
 
         let title: String
@@ -240,6 +240,11 @@ private extension AccountDetailsViewModel {
 
         /// TangemPay does not support archiving
         func resolve(accountModel: any TangemPayAccountModel) -> Task<Void, Never> {
+            Task {}
+        }
+
+        /// Polymarket does not support archiving
+        func resolve(accountModel: any PolymarketAccountModel) -> Task<Void, Never> {
             Task {}
         }
     }

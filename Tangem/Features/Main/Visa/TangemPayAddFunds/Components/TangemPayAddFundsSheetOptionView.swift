@@ -79,7 +79,9 @@ extension TangemPayAddFundsSheetOptionView {
 
         var subtitle: String {
             switch self {
-            case .receive: Localization.tangempayTopupReceiveBody
+            case .receive: FeatureProvider.isAvailable(.tangemPayMultichain)
+                ? Localization.tangempayTopupReceiveBodyMultichain
+                : Localization.tangempayTopupReceiveBody
             case .swap: Localization.tangempayTopupSwapBody
             case .bankTransfer: Localization.tangempayTopupBankTransferBody
             }

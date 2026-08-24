@@ -163,7 +163,11 @@ struct TangemPaySelectPlanView: View {
                             .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
                         if let subtitle = point.subtitle {
-                            Text(subtitle)
+                            Text(LocalizedStringKey(subtitle))
+                                .environment(\.openURL, OpenURLAction { url in
+                                    viewModel.openURL(url)
+                                    return .handled
+                                })
                                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                         }
                     }

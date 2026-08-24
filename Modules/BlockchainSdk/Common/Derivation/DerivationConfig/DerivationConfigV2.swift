@@ -85,6 +85,7 @@ struct DerivationConfigV2: DerivationConfig {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
              .seiEvm:
             return "m/44'/60'/0'/0/0"
         case .binance:

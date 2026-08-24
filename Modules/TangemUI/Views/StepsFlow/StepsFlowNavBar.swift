@@ -37,6 +37,13 @@ public extension View {
         stepsFlowNavBar(leading: leading).stepsFlowNavBar(trailing: trailing)
     }
 
+    func stepsFlowNavBar(backgroundColor: Color) -> some View {
+        background { Color.clear.preference(
+            key: StepsFlowNavBackgroundColorPreferenceKey.self,
+            value: backgroundColor
+        ) }
+    }
+
     func stepsFlow(isLoading: Bool) -> some View {
         background { Color.clear.preference(
             key: StepsFlowLoadingPreferenceKey.self,
@@ -65,6 +72,15 @@ struct StepsFlowNavLeadingItemPreferenceKey: PreferenceKey {
 
 struct StepsFlowNavTrailingItemPreferenceKey: PreferenceKey {
     static var defaultValue: StepsFlowNavBarItem?
+
+    static func reduce(value: inout Value, nextValue: () -> Value) {
+        guard let nextValue = nextValue() else { return }
+        value = nextValue
+    }
+}
+
+struct StepsFlowNavBackgroundColorPreferenceKey: PreferenceKey {
+    static var defaultValue: Color?
 
     static func reduce(value: inout Value, nextValue: () -> Value) {
         guard let nextValue = nextValue() else { return }
