@@ -47,7 +47,8 @@ final class CryptoAccountsNetworkMapper {
                     name: account.name,
                     icon: account.icon.iconName,
                     iconColor: account.icon.iconColor,
-                    derivation: account.derivationIndex
+                    derivation: account.derivationIndex,
+                    type: account.type
                 )
             }
 
@@ -288,23 +289,25 @@ final class CryptoAccountsNetworkMapper {
             .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
     }
 
-    private func mapAccountType(from account: AccountsDTO.Response.Accounts.Account) -> AccountType {
+    /// - Returns: Nil when the endpoint says nothing about the kind, or says something this version cannot place.
+    /// Guessing at a kind here would put that guess in the next full save and overwrite what the endpoint knows, so a
+    /// record only ever claims a kind it was told or created with.
+    private func mapAccountType(from account: AccountsDTO.Response.Accounts.Account) -> AccountType? {
         guard let rawType = account.type else {
-            // The endpoint does not report types yet, and an account without one is a crypto account
-            return .crypto
+            return nil
         }
 
         guard let type = AccountType(rawValue: rawType) else {
-            AccountsLogger.warning("Mapping unknown account type '\(rawType)' to a default 'crypto' type")
-            return .crypto
+            AccountsLogger.warning("Leaving an account of unknown type '\(rawType)' without one")
+            return nil
         }
 
         return type
     }
 
     private func mapCounters(from wallet: AccountsDTO.Response.Accounts.Wallet) -> RemoteCryptoAccountsInfo.Counters {
-        // Every account the endpoint counts today is a crypto one, so the whole total stands in for that counter until
-        // it tells the types apart. The joint one has nothing to stand in for it, hence no count rather than a wrong one
+        // An answer from before the endpoint counted the types apart has only the whole total, which every account it
+        // counted was a crypto one of. The joint counter has nothing to stand in for it, hence no count over a wrong one
         return RemoteCryptoAccountsInfo.Counters(
             archived: wallet.totalArchivedAccounts,
             crypto: wallet.totalCryptoAccounts ?? wallet.totalAccounts,
