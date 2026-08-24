@@ -18,6 +18,7 @@ final class DetailsCoordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - Main view model
 
@@ -129,6 +130,11 @@ extension DetailsCoordinator: DetailsRoutable {
         addWalletSelectorCoordinator = coordinator
     }
 
+    func openAddWalletTypeSelector(output: AddWalletTypeSelectorSheetOutput) {
+        let viewModel = AddWalletTypeSelectorSheetViewModel(output: output, coordinator: self)
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
     func openAppSettings() {
         let coordinator = AppSettingsCoordinator(popToRootAction: popToRootAction)
         coordinator.start(with: .init())
@@ -187,5 +193,13 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openLogs() {
         logsViewModel = .init()
+    }
+}
+
+// MARK: - AddWalletTypeSelectorSheetRoutable
+
+extension DetailsCoordinator: AddWalletTypeSelectorSheetRoutable {
+    func closeAddWalletTypeSelectorSheet() {
+        floatingSheetPresenter.removeActiveSheet()
     }
 }
