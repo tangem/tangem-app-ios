@@ -120,6 +120,10 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
         coordinator?.openComparePlans(tariffPlans: tariffPlans)
     }
 
+    func openURL(_ url: URL) {
+        coordinator?.openURL(url)
+    }
+
     func close() {
         coordinator?.closeSelectPlanFlow()
     }
@@ -200,4 +204,5 @@ protocol TangemPaySelectPlanRoutable: AnyObject {
     func closeSelectPlanFlow()
     func planDidActivate()
     func openComparePlans(tariffPlans: [VisaCustomerInfoResponse.TariffPlan])
+    func openURL(_ url: URL)
 }

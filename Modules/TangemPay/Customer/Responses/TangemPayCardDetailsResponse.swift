@@ -14,6 +14,7 @@ public struct TangemPayCardDetailsResponse: Decodable {
 
     public let expirationMonth: String
     public let expirationYear: String
+    public let embossName: String
     public let pan: Secret
     public let cvv: Secret
 

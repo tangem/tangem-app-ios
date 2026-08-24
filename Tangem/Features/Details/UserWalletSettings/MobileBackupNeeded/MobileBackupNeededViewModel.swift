@@ -55,8 +55,12 @@ extension MobileBackupNeededViewModel {
 @MainActor
 private extension MobileBackupNeededViewModel {
     func openMobileBackup() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel, source: source))
-        coordinator?.openMobileOnboardingFromMobileBackupNeeded(input: input, onBackupFinished: onBackupFinished)
+        if FeatureProvider.isAvailable(.mobileWalletBackup) {
+            coordinator?.openMobileBackupTypesFromMobileBackupNeeded(userWalletModel: userWalletModel)
+        } else {
+            let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel, source: source))
+            coordinator?.openMobileOnboardingFromMobileBackupNeeded(input: input, onBackupFinished: onBackupFinished)
+        }
     }
 
     func close() {

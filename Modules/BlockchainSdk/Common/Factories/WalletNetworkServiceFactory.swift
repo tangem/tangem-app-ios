@@ -112,6 +112,7 @@ extension WalletNetworkServiceFactory {
              .arbitrumNova,
              .plasma,
              .adi,
+             .electroneum,
              .seiEvm,
              .decimal,
              .xdc,

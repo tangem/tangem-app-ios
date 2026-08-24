@@ -20,12 +20,21 @@ final class OnrampModelHandleApplePayAuthorizationTests {
     private let eventLog = EventLog()
     private let pendingTransactionRepositoryStub: StubOnrampPendingTransactionRepository
     private let unknownStatusRepositoryStub: StubOnrampUnknownStatusRepository
+    private var alertSubscription: AnyCancellable?
 
     init() {
         pendingTransactionRepositoryStub = StubOnrampPendingTransactionRepository(eventLog: eventLog)
         unknownStatusRepositoryStub = StubOnrampUnknownStatusRepository()
         InjectedValues[\.onrampPendingTransactionsRepository] = pendingTransactionRepositoryStub
         InjectedValues[\.onrampUnknownStatusRepository] = unknownStatusRepositoryStub
+
+        // The model presents alerts through the shared presenter, so the log is fed by observing it.
+        // `dropFirst` skips the value a previous test may have left behind.
+        alertSubscription = (InjectedValues[\.alertPresenter] as? AlertPresenterViewModel)?
+            .$alert
+            .dropFirst()
+            .compactMap { $0 }
+            .sink { [eventLog] _ in eventLog.append(.alertShown) }
     }
 
     @Test("Native payment success → result.succeed() once with .success status")
@@ -66,7 +75,7 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         #expect(eventLog.events == [.resultHandler])
         #expect(router.openKYCCallCount == 0)
 
-        await runOnMain { model.applePaySheetDidFinish() }
+        await finishApplePaySheet(on: model)
 
         #expect(eventLog.events == [.resultHandler, .kycSheetOpened])
         #expect(router.openKYCCallCount == 1)
@@ -80,7 +89,7 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         model.router = router
 
         _ = await runHandleAndAwaitResult(on: model)
-        await runOnMain { model.applePaySheetDidFinish() }
+        await finishApplePaySheet(on: model)
 
         await runOnMain { router.lastOnProceedToWidget?() }
 
@@ -138,22 +147,20 @@ final class OnrampModelHandleApplePayAuthorizationTests {
     func finishStepFiresOnDidFinish() async {
         let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
         let router = StubOnrampModelRoutable(eventLog: eventLog)
-        let alertPresenter = StubSendViewAlertPresenter(eventLog: eventLog)
         let model = makeModel(onrampManager: manager)
         model.router = router
-        model.alertPresenter = alertPresenter
 
         _ = await runHandleAndAwaitResult(on: model)
         // Sheet still up: nothing routed yet.
         #expect(!eventLog.events.contains(.finishStepOpened))
 
-        await runOnMain { model.applePaySheetDidFinish() }
+        await finishApplePaySheet(on: model)
 
         #expect(eventLog.events.filter { $0 == .finishStepOpened }.count == 1)
         #expect(!eventLog.events.contains(.alertShown))
 
         // Second dismiss must not re-trigger (pending state cleared).
-        await runOnMain { model.applePaySheetDidFinish() }
+        await finishApplePaySheet(on: model)
         #expect(eventLog.events.filter { $0 == .finishStepOpened }.count == 1)
     }
 
@@ -162,22 +169,20 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         let stubError = NSError(domain: "TestDomain", code: 7, userInfo: nil)
         let manager = StubOnrampManager(mode: .throwsError(stubError))
         let router = StubOnrampModelRoutable(eventLog: eventLog)
-        let alertPresenter = StubSendViewAlertPresenter(eventLog: eventLog)
         let model = makeModel(onrampManager: manager)
         model.router = router
-        model.alertPresenter = alertPresenter
 
         _ = await runHandleAndAwaitResult(on: model)
         // Sheet still up: alert not shown yet.
         #expect(!eventLog.events.contains(.alertShown))
 
-        await runOnMain { model.applePaySheetDidFinish() }
+        await finishApplePaySheet(on: model)
 
         #expect(eventLog.events.filter { $0 == .alertShown }.count == 1)
         #expect(!eventLog.events.contains(.finishStepOpened))
 
         // Second dismiss must not re-trigger.
-        await runOnMain { model.applePaySheetDidFinish() }
+        await finishApplePaySheet(on: model)
         #expect(eventLog.events.filter { $0 == .alertShown }.count == 1)
     }
 
@@ -190,13 +195,11 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         )
         let manager = StubOnrampManager(mode: .throwsError(passKitError))
         let router = StubOnrampModelRoutable(eventLog: eventLog)
-        let alertPresenter = StubSendViewAlertPresenter(eventLog: eventLog)
         let model = makeModel(onrampManager: manager)
         model.router = router
-        model.alertPresenter = alertPresenter
 
         _ = await runHandleAndAwaitResult(on: model)
-        await runOnMain { model.applePaySheetDidFinish() }
+        await finishApplePaySheet(on: model)
 
         #expect(!eventLog.events.contains(.alertShown))
         #expect(!eventLog.events.contains(.finishStepOpened))
@@ -206,12 +209,10 @@ final class OnrampModelHandleApplePayAuthorizationTests {
     func didFinishWithoutPendingCompletionDoesNothing() async {
         let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
         let router = StubOnrampModelRoutable(eventLog: eventLog)
-        let alertPresenter = StubSendViewAlertPresenter(eventLog: eventLog)
         let model = makeModel(onrampManager: manager)
         model.router = router
-        model.alertPresenter = alertPresenter
 
-        await runOnMain { model.applePaySheetDidFinish() }
+        await finishApplePaySheet(on: model)
 
         #expect(!eventLog.events.contains(.finishStepOpened))
         #expect(!eventLog.events.contains(.alertShown))
@@ -295,7 +296,19 @@ final class OnrampModelHandleApplePayAuthorizationTests {
             model.handleApplePayAuthorization(result)
         }
 
+        await drainMainQueue()
+
         return recorder.snapshot
+    }
+
+    private func finishApplePaySheet(on model: OnrampModel) async {
+        await runOnMain { model.applePaySheetDidFinish() }
+        await drainMainQueue()
+    }
+
+    /// The presenter publishes an alert through a `MainActor` hop, so let it land before asserting.
+    private func drainMainQueue() async {
+        await runOnMain {}
     }
 }
 
@@ -547,18 +560,6 @@ private final class StubOnrampModelRoutable: OnrampModelRoutable, Sendable {
             state.openKYCCallCount += 1
             state.lastOnProceedToWidget = onProceedToWidget
         }
-    }
-}
-
-private final class StubSendViewAlertPresenter: SendViewAlertPresenter {
-    private let eventLog: EventLog
-
-    init(eventLog: EventLog) {
-        self.eventLog = eventLog
-    }
-
-    func showAlert(_ alert: AlertBinder) {
-        eventLog.append(.alertShown)
     }
 }
 

@@ -196,7 +196,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: model.userWalletInfo,
             tokenItem: dependencies.walletModel.tokenItem,
-            walletModelUpdater: dependencies.walletModel,
             transactionHistoryEnricherFactory: { [weak walletModel = dependencies.walletModel] in
                 try? await walletModel?
                     .featuresPublisher

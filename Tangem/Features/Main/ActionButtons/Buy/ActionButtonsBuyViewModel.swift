@@ -141,7 +141,7 @@ extension ActionButtonsBuyViewModel: TokenSelectorViewModelOutput {
             return
         }
 
-        // Card-linked gating happens in AddFundsViewModel, so no extra gate is needed here.
+        // The incomplete-backup top-up warning is shown downstream in AddFundsViewModel, so no extra check is needed here.
         coordinator?.openAddFunds(userWalletInfo: item.userWalletInfo, walletModel: walletModel)
     }
 }

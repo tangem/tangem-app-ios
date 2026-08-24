@@ -30,7 +30,7 @@ extension EarnOpportunitiesMapper {
                     rewardText: plusPerYear(reward)
                 ),
                 tokens: account.holdings.map(makeTokenRow),
-                isExpanded: false
+                isExpanded: true
             )
         }
 

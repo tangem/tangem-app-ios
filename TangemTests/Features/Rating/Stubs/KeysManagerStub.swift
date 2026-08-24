@@ -30,6 +30,7 @@ struct KeysManagerStub: KeysManager {
     let tangemApiKeyDev: String = ""
     let tangemApiKeyStage: String = ""
     let amplitudeApiKey: String = ""
+    let otlpApiKey: String = ""
     let appsFlyerConfig: AppsFlyerConfig = .stub
     let yieldModuleApiKey: String = "stub"
     let yieldModuleApiKeyDev: String = "stub"
