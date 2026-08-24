@@ -12,13 +12,20 @@ import TangemExpress
 
 final class SwapableTokenStub: SendSwapableToken {
     private let inner: SendSourceTokenStub
+    private let sendingRestriction: SendingRestrictions?
 
-    init(blockchain: Blockchain) {
+    init(blockchain: Blockchain, sendingRestriction: SendingRestrictions? = nil) {
         inner = SendSourceTokenStub(blockchain: blockchain)
+        self.sendingRestriction = sendingRestriction
     }
 
-    init(tokenItem: TokenItem) {
+    init(tokenItem: TokenItem, sendingRestriction: SendingRestrictions? = nil) {
         inner = SendSourceTokenStub(tokenItem: tokenItem)
+        self.sendingRestriction = sendingRestriction
+    }
+
+    var sendingRestrictionsProvider: any SendingRestrictionsProvider {
+        SendingRestrictionsProviderStub(sendingRestrictions: sendingRestriction)
     }
 
     // MARK: - SendSourceToken proxy
@@ -57,7 +64,6 @@ final class SwapableTokenStub: SendSwapableToken {
 
     // MARK: - Unused in tests
 
-    var sendingRestrictionsProvider: any SendingRestrictionsProvider { fatalError("Unused in tests") }
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { fatalError("Unused in tests") }
     var tokenFeeProvidersManager: any TokenFeeProvidersManager { fatalError("Unused in tests") }
     var transactionValidator: any SendTransactionValidator { fatalError("Unused in tests") }
@@ -73,6 +79,10 @@ struct SwapAvailabilityProviderStub: SwapAvailabilityProvider {
 
 private struct NoReceivingRestrictionsStub: ReceivingRestrictionsProvider {
     func restriction(expectAmount: Decimal) -> ReceivedRestriction? { nil }
+}
+
+private struct SendingRestrictionsProviderStub: SendingRestrictionsProvider {
+    let sendingRestrictions: SendingRestrictions?
 }
 
 // MARK: - Token item helpers

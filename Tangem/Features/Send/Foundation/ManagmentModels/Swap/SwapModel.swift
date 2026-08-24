@@ -55,7 +55,7 @@ final class SwapModel {
     private let expressAPIProvider: ExpressAPIProvider
     private let expressUserWalletId: UserWalletId
     private let analyticsLogger: any SendAnalyticsLogger
-    private let autoupdatingTimer: AutoupdatingTimer
+    private let autoupdatingTimer: any AutoupdatingTimerSetup
     private let pairUpdateHandler: SwapPairUpdateHandler
     private let balanceRestrictionHandler: SwapBalanceRestrictionHandler
     private let sourceTokenResolver: (any SwapSourceTokenResolver)?
@@ -63,7 +63,7 @@ final class SwapModel {
 
     private let balanceConverter = BalanceConverter()
     private var bag: Set<AnyCancellable> = []
-    private var updateTask: Task<Void, Never>?
+    private let providersUpdate = OSAllocatedUnfairLock(initialState: ProvidersUpdate())
 
     init(
         sourceToken: SendSwapableToken?,
@@ -74,7 +74,7 @@ final class SwapModel {
         expressAPIProvider: ExpressAPIProvider,
         expressUserWalletId: UserWalletId,
         analyticsLogger: any SendAnalyticsLogger,
-        autoupdatingTimer: AutoupdatingTimer,
+        autoupdatingTimer: any AutoupdatingTimerSetup,
         pairUpdateHandler: SwapPairUpdateHandler,
         balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker,
         sourceTokenResolver: (any SwapSourceTokenResolver)? = nil,
@@ -113,7 +113,7 @@ final class SwapModel {
     }
 
     deinit {
-        updateTask?.cancel()
+        providersUpdate.withLock { $0.removeTask() }?.cancel()
         ExpressLogger.debug(self, "deinit")
     }
 }
@@ -121,7 +121,11 @@ final class SwapModel {
 // MARK: - Autoupdating
 
 private extension SwapModel {
-    func autoupdatingRates() {
+    func autoupdatingRates(generation: UInt64) {
+        guard providersUpdate.withLock({ $0.autoupdateGeneration == generation }) else {
+            return
+        }
+
         updateTask(loadingType: .autoupdate) { manager in
             await manager.update(type: .autoupdate)
         }
@@ -135,8 +139,7 @@ private extension SwapModel {
 
     func stopAutoupdating() {
         autoupdatingTimer.setup(refresh: .none)
-        updateTask?.cancel()
-        updateTask = nil
+        providersUpdate.withLock { $0.stopAutoupdating() }?.cancel()
     }
 
     func bind() {
@@ -166,6 +169,8 @@ private extension SwapModel {
     }
 
     func updateAutoupdatingTimer(state: ProvidersState) {
+        let generation = providersUpdate.withLock { $0.nextAutoupdateGeneration() }
+
         switch state {
         // Use timer to check pending transactions
         case .loaded(.swap(.some, _), .restriction(.hasPendingTransaction, _)),
@@ -174,8 +179,9 @@ private extension SwapModel {
              .loaded(.swap(.some, _), .readyToSwap),
              .loaded(.swap(.some, _), .readyToApproveAndSwap):
 
+            // The timer fires off the main thread, and the update publishes its loading state synchronously.
             autoupdatingTimer.setup { [weak self] in
-                self?.autoupdatingRates()
+                Task { @MainActor in self?.autoupdatingRates(generation: generation) }
             }
         default:
             autoupdatingTimer.setup(refresh: .none)
@@ -186,6 +192,11 @@ private extension SwapModel {
 // MARK: - Changes -> ExpressManager
 
 extension SwapModel {
+    /// Backs the retry offered when a send is refused as outdated: here it's the cached quote that went stale.
+    func actualizeInformation() {
+        reloadRates()
+    }
+
     func update(sourceAmount: SendAmount?) {
         ExpressLogger.info("Will update source amount to \(sourceAmount as Any)")
 
@@ -304,18 +315,28 @@ private extension SwapModel {
         loadingType: LoadingType,
         block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerState
     ) {
-        updateTask(loadingType: { _ in loadingType }, block: block)
+        // The type is known up front, so the loading transition happens synchronously and no second one is needed.
+        updateTask(loadingType: { _ in nil }, immediateLoadingType: loadingType, block: block)
     }
 
     func updateTask(
         loadingType: @escaping (ExpressManager) async -> LoadingType?,
+        immediateLoadingType: LoadingType? = nil,
         block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerState
     ) {
-        updateTask?.cancel()
-        updateTask = runTask(in: self) { @MainActor input in
+        // Invalidated before the loading transition and the first `await`: resolving the loading type reaches
+        // the express manager, and for transfer pairs it yields nothing, so the transition can't carry this.
+        let (revision, superseded) = providersUpdate.withLock { $0.invalidate() }
+        superseded?.cancel()
+
+        if let immediateLoadingType {
+            update(providersState: .loading(immediateLoadingType))
+        }
+
+        let task = runTask(in: self) { @MainActor input in
             do {
                 if let restrictionProvidersState = try await input.hasSwapBalanceRestrictionProvidersState() {
-                    return input.update(providersState: restrictionProvidersState)
+                    return input.update(providersState: restrictionProvidersState, builtFrom: revision)
                 }
 
                 if let type = await loadingType(input.expressManager) {
@@ -326,22 +347,34 @@ private extension SwapModel {
                 try Task.checkCancellation()
 
                 guard let state = input.balanceRestrictionHandler.dexOnlyAdjustedState(state) else {
-                    return await input.fallbackToLegacyBalanceRestriction()
+                    return await input.fallbackToLegacyBalanceRestriction(revision: revision)
                 }
 
                 let providersState = try await input.mapToLoadedProvidersState(state: state)
                 try Task.checkCancellation()
 
                 try await input.updateComplementaryAmount(state: providersState)
-                input.update(providersState: providersState)
+                input.update(providersState: providersState, builtFrom: revision)
 
             } catch is CancellationError {
                 ExpressLogger.info(input, "updateTask was cancelled")
                 // Do nothing
             } catch {
-                input.update(providersState: .failure(error))
+                // A cancelled network request surfaces as a plain error, not a `CancellationError`.
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                input.update(providersState: .failure(error), builtFrom: revision)
             }
         }
+
+        providersUpdate.withLock { $0.task = task }
+    }
+
+    private func update(providersState: ProvidersState, builtFrom revision: UInt64) {
+        update(providersState: providersState)
+        providersUpdate.withLock { $0.revision.markLoaded(revision: revision) }
     }
 
     private func update(providersState: ProvidersState) {
@@ -374,11 +407,11 @@ private extension SwapModel {
 
     /// No usable DEX on the unfunded wallet — the legacy early exit: the insufficient-funds
     /// error without providers UI or a leftover quote-derived amount.
-    private func fallbackToLegacyBalanceRestriction() async {
+    private func fallbackToLegacyBalanceRestriction(revision: UInt64) async {
         // Captured first — the clear may nil the source amount this state reads
         let fallbackState = legacyBalanceRestrictionProvidersState()
         await clearComplementaryAmount()
-        update(providersState: fallbackState)
+        update(providersState: fallbackState, builtFrom: revision)
     }
 
     /// Drops the amount derived from a quote that is no longer displayed
@@ -526,6 +559,9 @@ extension SwapModel {
         }
 
         do {
+            // The transfer pair is same-currency, so the destination's extra id belongs to the source blockchain
+            let params = try transferTransactionParams(source: source, receive: receive)
+
             // 1. Validate just amount before fee calculation
             let amount = makeAmount(value: amountValue, tokenItem: source.tokenItem)
             if let restriction = try validate(amount: amount) {
@@ -547,8 +583,7 @@ extension SwapModel {
             let quote = Quote(fromAmount: adjustedAmount.value, expectAmount: adjustedAmount.value, highPriceImpact: nil)
 
             // 2. Validate amount, fee and destination
-            // We don't have `extraId` on Tangem addresses
-            let destination = DestinationType.address(address, params: nil)
+            let destination = DestinationType.address(address, params: params)
             if let restriction = try await validate(amount: adjustedAmount, fee: fee, quote: quote, destination: destination) {
                 return .restriction(restriction, quote: quote)
             }
@@ -559,6 +594,7 @@ extension SwapModel {
                 fee: fee,
                 subtractFee: subtractFee,
                 destination: address,
+                params: params,
                 notification: notification
             )
             return .readyToTransfer(state)
@@ -567,6 +603,16 @@ extension SwapModel {
             let quote = Quote(fromAmount: amountValue, expectAmount: amountValue, highPriceImpact: nil)
             return .requiredRefresh(occurredError: error, quote: quote)
         }
+    }
+
+    /// In the transfer mode the swap module isn't involved in building the transaction, so the entered
+    /// extra id has to be carried into it here.
+    func transferTransactionParams(source: SendSwapableToken, receive: SendReceiveToken) throws -> TransactionParams? {
+        guard let extraId = receive.extraId, extraId.isNotEmpty else {
+            return nil
+        }
+
+        return try TransactionParamsBuilder(blockchain: source.tokenItem.blockchain).transactionParameters(value: extraId)
     }
 
     func map(provider: ExpressProvider, quote: ExpressQuote) async throws -> Quote {
@@ -889,6 +935,17 @@ extension SwapModel {
 // MARK: - Send transaction
 
 extension SwapModel {
+    /// A loading state carries no quote and reads as a negligible impact, so the update has to settle before
+    /// the warning gate can judge the quote that will actually be dispatched.
+    func settledHighPriceImpact() async -> HighPriceImpactCalculator.Result? {
+        await awaitSettledProvidersUpdate()
+        return mapToHighPriceImpactCalculatorResult(providersState: _providersState.value)
+    }
+
+    private func awaitSettledProvidersUpdate() async {
+        await awaitSettled { providersUpdate.withLock { $0.task } }
+    }
+
     func checkIncompleteBackupReceivingRestriction() async throws {
         guard let receive = try receiveToken.get() as? SendSwapableToken else {
             return
@@ -912,6 +969,20 @@ extension SwapModel {
     }
 
     func send() async throws -> TransactionDispatcherResult {
+        await awaitSettledProvidersUpdate()
+        // The wait outlives cancellation of this send, so a superseded one stops before the dispatcher.
+        try Task.checkCancellation()
+
+        // Don't rely on the awaited update being the newest one: dispatch only what the screen still shows.
+        guard providersUpdate.withLock({ $0.revision.isLoadedActual }) else {
+            throw TransactionDispatcherResult.Error.informationRelevanceServiceError
+        }
+
+        // The warning upstream judged the quote the screen showed, so one that turned blocking stops here.
+        guard mapToHighPriceImpactCalculatorResult(providersState: _providersState.value)?.isBlocked != true else {
+            throw TransactionDispatcherResult.Error.informationRelevanceServiceError
+        }
+
         let source = try _sourceToken.value.get()
         let receive = try receiveToken.get()
 
@@ -929,7 +1000,7 @@ extension SwapModel {
                     amount: amount,
                     fee: transferState.fee,
                     destinationAddress: transferState.destination,
-                    params: nil
+                    params: transferState.params
                 )
 
                 let dispatcher = source.transactionDispatcherProvider.makeTransferTransactionDispatcher()
@@ -2052,6 +2123,56 @@ extension SwapModel {
         }
     }
 
+    struct ProvidersUpdate {
+        var task: Task<Void, Never>?
+        var revision = InputsRevision()
+        /// Bumped whenever autoupdating is re-armed or stopped, so an already queued tick can be ignored.
+        private(set) var autoupdateGeneration: UInt64 = 0
+
+        /// Hands the superseded update back instead of cancelling it here: `Task.cancel()` runs the task's
+        /// cancellation handlers inline, and one of them touching this state would deadlock on the lock the
+        /// caller is holding.
+        mutating func removeTask() -> Task<Void, Never>? {
+            defer { task = nil }
+            return task
+        }
+
+        mutating func invalidate() -> (revision: UInt64, superseded: Task<Void, Never>?) {
+            (revision.invalidate(), removeTask())
+        }
+
+        mutating func nextAutoupdateGeneration() -> UInt64 {
+            autoupdateGeneration += 1
+            return autoupdateGeneration
+        }
+
+        mutating func stopAutoupdating() -> Task<Void, Never>? {
+            autoupdateGeneration += 1
+            return removeTask()
+        }
+    }
+
+    struct InputsRevision {
+        private var current: UInt64 = 0
+        private var loaded: UInt64?
+
+        var isLoadedActual: Bool { loaded == current }
+
+        mutating func invalidate() -> UInt64 {
+            current += 1
+            loaded = nil
+            return current
+        }
+
+        mutating func markLoaded(revision: UInt64) {
+            guard revision == current else {
+                return
+            }
+
+            loaded = revision
+        }
+    }
+
     enum LoadingType {
         case providers
         case provider
@@ -2123,6 +2244,7 @@ extension SwapModel {
         let fee: BSDKFee
         let subtractFee: SubtractFee
         let destination: String
+        let params: TransactionParams?
         let notification: WithdrawalNotification?
     }
 
