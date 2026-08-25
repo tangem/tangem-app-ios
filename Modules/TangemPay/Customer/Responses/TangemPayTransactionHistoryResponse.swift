@@ -99,7 +99,9 @@ public extension TangemPayTransactionHistoryResponse {
         public let declinedReason: String?
         public let authorizedAt: Date
         public let postedAt: Date?
-        public let cashback: Cashback?
+        public let cashback: Decimal?
+        public let cashbackStatus: TangemPayCashbackStatus?
+        public let cashbackCurrencyCode: String?
 
         public var isDeclined: Bool {
             status == .declined
@@ -130,16 +132,17 @@ public extension TangemPayTransactionHistoryResponse {
         public let postedAt: Date
     }
 
-    struct Cashback: Codable, Equatable {
-        public let status: TangemPayCashbackStatus
-        public let amount: String?
-    }
-
     enum PaymentStatus: String, Codable, Equatable {
         case pending
         case completed
         case declined
         case reversed
+        case undefined
+
+        public init(from decoder: Decoder) throws {
+            let rawValue = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: rawValue.lowercased()) ?? .undefined
+        }
     }
 
     struct Fee: Codable, Equatable {
