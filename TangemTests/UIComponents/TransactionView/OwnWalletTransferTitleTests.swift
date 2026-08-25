@@ -21,10 +21,13 @@ struct OwnWalletTransferTitleTests {
 
     @Test("Own-wallet transfer follows status for in-progress and failed")
     func ownWalletTransferStatuses() {
-        #expect(title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: true, status: .inProgress) == Localization.commonTransfer)
+        #expect(
+            title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: true, status: .inProgress)
+                == Localization.transactionHistoryStatusTransferring
+        )
         #expect(
             title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: true, status: .failed)
-                == Localization.commonActionFailed(Localization.commonTransfer)
+                == Localization.transactionHistoryStatusTransferFailed
         )
     }
 
