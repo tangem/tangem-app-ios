@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemMobileWalletBackup
 
 final class WelcomeV2Coordinator: CoordinatorObject {
     @Injected(\.welcomeV2BackgroundVideoProvider)
@@ -23,6 +24,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Published var actionSheetViewModel: WelcomeV2ActionSheetViewModel?
     @Published var hardwareWalletViewModel: WelcomeHardwareWalletViewModel?
     @Published var mobileCreateWalletCoordinator: MobileCreateWalletCoordinator?
+    @Published var importOnboardingCoordinator: OnboardingCoordinator?
     @Published var legalWebViewModel: WebViewContainerViewModel?
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
@@ -86,12 +88,14 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
     func openMain(with userWalletModel: UserWalletModel) {
         hardwareWalletViewModel = nil
         mobileCreateWalletCoordinator = nil
+        importOnboardingCoordinator = nil
         dismiss(with: .main(userWalletModel))
     }
 
     func openOnboarding(with input: OnboardingInput) {
         hardwareWalletViewModel = nil
         mobileCreateWalletCoordinator = nil
+        importOnboardingCoordinator = nil
         dismiss(with: .onboarding(input))
     }
 }
@@ -115,10 +119,34 @@ private extension WelcomeV2Coordinator {
         actionSheetViewModel = WelcomeV2ExistingWalletActionFactory().make(
             callbacks: .init(
                 onHardware: dismissSheetThenPresentHardware,
-                onImport: { [weak self] in self?.presentImportWallet() },
+                onImport: presentImportWalletIfAvailable,
                 onClose: dismissSheet
             )
         )
+    }
+
+    func presentImportWalletIfAvailable() {
+        guard mobileWalletFeatureProvider.isAvailable else {
+            actionSheetViewModel = nil
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
+                guard let self else { return }
+                alertPresenter.present(alert: mobileWalletFeatureProvider.makeRestrictionAlert())
+            }
+            return
+        }
+
+        guard FeatureProvider.isAvailable(.mobileWalletBackup) else {
+            actionSheetViewModel = nil
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
+                let input = MobileOnboardingInput(flow: .walletImport(source: .importWallet))
+                self?.presentImportOnboarding(options: .mobileInput(input))
+            }
+            return
+        }
+
+        presentImportWallet()
     }
 
     func presentImportWallet() {
@@ -128,10 +156,28 @@ private extension WelcomeV2Coordinator {
             parent?.pushedImportSheet = nil
         }
 
+        let openRecoveryPhrase: () -> Void = { [weak self] in
+            self?.actionSheetViewModel = nil
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
+                let input = MobileOnboardingInput(flow: .walletImport(source: .importWallet))
+                self?.presentImportOnboarding(options: .mobileInput(input))
+            }
+        }
+
+        let openICloudBackup: ([MobileWalletBackup]) -> Void = { [weak self] backups in
+            self?.actionSheetViewModel = nil
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(Self.sheetTransitionDelay))
+                let input = MobileOnboardingInput(flow: .iCloudBackupImport(backups: backups, source: .importWallet))
+                self?.presentImportOnboarding(options: .mobileInput(input))
+            }
+        }
+
         parent.pushedImportSheet = WelcomeV2ImportWalletFactory().make(
             callbacks: .init(
-                onRecoveryPhrase: dismissSheet,
-                onICloudBackup: dismissSheet,
+                onRecoveryPhrase: openRecoveryPhrase,
+                onICloudBackup: openICloudBackup,
                 onBack: goBack,
                 onClose: dismissSheet
             )
@@ -185,5 +231,23 @@ private extension WelcomeV2Coordinator {
         let coordinator = MobileCreateWalletCoordinator(dismissAction: dismissAction)
         coordinator.start(with: MobileCreateWalletCoordinator.InputOptions(source: .createWalletIntro))
         mobileCreateWalletCoordinator = coordinator
+    }
+
+    func presentImportOnboarding(options: OnboardingCoordinator.Options) {
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] outputOptions in
+            guard let self else { return }
+
+            switch outputOptions {
+            case .main(let userWalletModel):
+                importOnboardingCoordinator = nil
+                dismiss(with: .main(userWalletModel))
+            case .dismiss:
+                importOnboardingCoordinator = nil
+            }
+        }
+
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: options)
+        importOnboardingCoordinator = coordinator
     }
 }
