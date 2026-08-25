@@ -29,7 +29,9 @@ struct GachaWelcomeView: View {
                 .padding(.top, Metrics.closeTopPadding)
                 .padding(.trailing, Metrics.closeTrailingPadding)
         }
-        .safeAreaInset(edge: .bottom) { Footer(onCreateAccountTap: viewModel.onCreateAccountTap) }
+        .safeAreaInset(edge: .bottom) {
+            Footer(isLoading: viewModel.isOpeningStories, onCreateAccountTap: viewModel.onCreateAccountTap)
+        }
         .environment(\.isRedesign, true)
     }
 }
@@ -107,5 +109,5 @@ private extension GachaWelcomeView {
 // MARK: - Previews
 
 #Preview {
-    GachaWelcomeView(viewModel: GachaWelcomeViewModel(), onCloseButtonAction: {})
+    GachaWelcomeView(viewModel: GachaWelcomeViewModel(routable: nil), onCloseButtonAction: {})
 }
