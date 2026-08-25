@@ -12,6 +12,7 @@ import Foundation
 
 struct KeysManagerStub: KeysManager {
     let appsFlyer: AppsFlyerConfig = .stub
+    var authServiceKey: String = ""
     let surveySparrow: SurveySparrowKeys = .stub
     let moonPayKeys: MoonPayKeys = .stub
     let mercuryoWidgetId: String = ""
