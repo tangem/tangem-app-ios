@@ -106,6 +106,7 @@ final class CommonCustomerInfoManagementService {
     private let apiService: TangemPayAPIService<CustomerInfoManagementAPITarget>
 
     private let apiType: VisaAPIType
+    private let useNewTransactionsEndpoint: Bool
     private let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -114,10 +115,12 @@ final class CommonCustomerInfoManagementService {
 
     init(
         apiType: VisaAPIType,
+        useNewTransactionsEndpoint: Bool,
         authorizationTokenHandler: TangemPayAuthorizationTokensHandler,
         apiService: TangemPayAPIService<CustomerInfoManagementAPITarget>
     ) {
         self.apiType = apiType
+        self.useNewTransactionsEndpoint = useNewTransactionsEndpoint
         self.authorizationTokenHandler = authorizationTokenHandler
         self.apiService = apiService
     }
@@ -189,11 +192,19 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
     }
 
     public func getTransactionHistory(limit: Int, cursor: String?) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse {
-        try await request(for: .getTransactionHistory(limit: limit, cursor: cursor))
+        try await request(
+            for: useNewTransactionsEndpoint
+                ? .getTransactionHistory(limit: limit, cursor: cursor)
+                : .getTransactionHistoryLegacy(limit: limit, cursor: cursor)
+        )
     }
 
     public func getTransaction(transactionId: String) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse.Transaction {
-        try await request(for: .getTransaction(transactionId: transactionId))
+        try await request(
+            for: useNewTransactionsEndpoint
+                ? .getTransaction(transactionId: transactionId)
+                : .getTransactionLegacy(transactionId: transactionId)
+        )
     }
 
     public func getWithdrawPreSignatureInfo(request: TangemPayWithdrawRequest) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawPreSignature {
