@@ -43,7 +43,9 @@ struct TransactionHistoryMapperGroupingTests {
                 makeRecord(hash: "B1", date: dayB),
                 makeRecord(hash: "B2", date: calendar.date(byAdding: .hour, value: 6, to: dayB)!),
             ],
-            groupingStyle: .dayThenMonth
+            groupingStyle: .dayThenMonth,
+            dustFilter: TransactionHistoryDustFilter(usdRate: nil),
+            subtitleOwnerResolver: nil
         )
 
         #expect(items.count == 2)
@@ -62,7 +64,9 @@ struct TransactionHistoryMapperGroupingTests {
                 makeRecord(hash: "prev2", date: calendar.date(byAdding: .day, value: -2, to: prevMonthDate)!),
                 makeRecord(hash: "prevPrev", date: prevPrevMonthDate),
             ],
-            groupingStyle: .dayThenMonth
+            groupingStyle: .dayThenMonth,
+            dustFilter: TransactionHistoryDustFilter(usdRate: nil),
+            subtitleOwnerResolver: nil
         )
 
         #expect(items.count == 2)
@@ -82,7 +86,9 @@ struct TransactionHistoryMapperGroupingTests {
                 makeRecord(hash: "prev", date: prevMonthDate),
                 makeRecord(hash: "B", date: dayB),
             ],
-            groupingStyle: .dayThenMonth
+            groupingStyle: .dayThenMonth,
+            dustFilter: TransactionHistoryDustFilter(usdRate: nil),
+            subtitleOwnerResolver: nil
         )
 
         #expect(items.count == 4)
@@ -104,7 +110,9 @@ struct TransactionHistoryMapperGroupingTests {
 
         let items = mapper.mapTransactionListItem(
             from: dates.enumerated().map { makeRecord(hash: "\($0.offset)", date: $0.element) },
-            groupingStyle: .dayThenMonth
+            groupingStyle: .dayThenMonth,
+            dustFilter: TransactionHistoryDustFilter(usdRate: nil),
+            subtitleOwnerResolver: nil
         )
 
         #expect(items.isNotEmpty)
@@ -121,7 +129,9 @@ struct TransactionHistoryMapperGroupingTests {
                 makeRecord(hash: "A", date: today),
                 makeRecord(hash: "B", date: calendar.date(byAdding: .hour, value: 2, to: today)!),
             ],
-            groupingStyle: .day(format)
+            groupingStyle: .day(format),
+            dustFilter: TransactionHistoryDustFilter(usdRate: nil),
+            subtitleOwnerResolver: nil
         )
 
         #expect(items.count == 1)
@@ -134,7 +144,9 @@ struct TransactionHistoryMapperGroupingTests {
         let pastDate = calendar.date(byAdding: .day, value: -10, to: today)!
         let items = makeSUT().mapTransactionListItem(
             from: [makeRecord(hash: "A", date: pastDate)],
-            groupingStyle: .day(.short)
+            groupingStyle: .day(.short),
+            dustFilter: TransactionHistoryDustFilter(usdRate: nil),
+            subtitleOwnerResolver: nil
         )
 
         let formatter = DateFormatter()
@@ -150,7 +162,9 @@ struct TransactionHistoryMapperGroupingTests {
         let pastDate = calendar.date(byAdding: .day, value: -10, to: today)!
         let items = makeSUT().mapTransactionListItem(
             from: [makeRecord(hash: "A", date: pastDate)],
-            groupingStyle: .day(.long)
+            groupingStyle: .day(.long),
+            dustFilter: TransactionHistoryDustFilter(usdRate: nil),
+            subtitleOwnerResolver: nil
         )
 
         let formatter = DateFormatter()
@@ -169,7 +183,9 @@ struct TransactionHistoryMapperGroupingTests {
                 makeRecord(hash: "old", date: yesterday),
                 makeRecord(hash: "new", date: today),
             ],
-            groupingStyle: .day(format)
+            groupingStyle: .day(format),
+            dustFilter: TransactionHistoryDustFilter(usdRate: nil),
+            subtitleOwnerResolver: nil
         )
 
         #expect(items.count == 2)
