@@ -23,7 +23,6 @@ public struct DeviceSignature: Equatable, Sendable {
     /// encoded bytes: a `SEQUENCE` of two `INTEGER`s, `r` and `s`.
     ///
     /// Sent as the `signature` field of either request payload:
-    ///
     ///   | request             | endpoint                          |
     ///   | ---                 | ---                               |
     ///   | device registration | `POST /mobile/register`           |
@@ -41,6 +40,7 @@ public struct DeviceSignature: Equatable, Sendable {
     ///   | wallet registration | `POST /mobile/wallet/register`    |
     ///
     /// - Invariant: Exactly 64 bytes long: 32 bytes for `r` + 32 bytes for `s`.
+    /// - SeeAlso: ``DPoPProof``
     public let rawRepresentation: Data
 
     init(derRepresentation: Data, rawRepresentation: Data) throws(RawRepresentationFormatError) {

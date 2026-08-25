@@ -9,8 +9,7 @@
 public import struct Foundation.Data
 private import enum CryptoKit.P256
 
-/// Provides the device's P-256 (secp256r1) public key and signs data with its private counterpart,
-/// for backend authentication:
+/// Provides the device's P-256 (secp256r1) public key and signs data with its private counterpart, for backend authentication:
 /// - device registration
 /// - authentication
 /// - DPoP-proofed requests.
@@ -25,7 +24,7 @@ public actor DeviceKeyManager {
         self.privateKeyRepository = privateKeyRepository
         generateOrLoadPrivateKeyTask = Task { @concurrent in
             do throws(DevicePrivateKeyRepositoryError) {
-                return Result.success(try privateKeyRepository.privateKey)
+                return Result.success(try await privateKeyRepository.retrieve())
             } catch {
                 return Result.failure(error)
             }
@@ -84,7 +83,7 @@ public actor DeviceKeyManager {
             let privateKeyRepository = privateKeyRepository
             task = Task { @concurrent in
                 do throws(DevicePrivateKeyRepositoryError) {
-                    return Result.success(try privateKeyRepository.privateKey)
+                    return Result.success(try await privateKeyRepository.retrieve())
                 } catch {
                     return Result.failure(error)
                 }

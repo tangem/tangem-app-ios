@@ -15,11 +15,9 @@ public extension DeviceKeyManager {
         let keychainService = "com.tangem.backendAuthentication"
         let keychainAccount = "deviceKey"
 
-        let repository = SecureEnclaveDevicePrivateKeyRepository(
-            keychainService: keychainService,
-            keychainAccount: keychainAccount
-        )
+        let keychainRepository = SecurityKeychainRepository(keychainService: keychainService, keychainAccount: keychainAccount)
+        let devicePrivateKeyRepository = SecureEnclaveDevicePrivateKeyRepository(keychainRepository: keychainRepository)
 
-        return DeviceKeyManager(privateKeyRepository: repository)
+        return DeviceKeyManager(privateKeyRepository: devicePrivateKeyRepository)
     }()
 }

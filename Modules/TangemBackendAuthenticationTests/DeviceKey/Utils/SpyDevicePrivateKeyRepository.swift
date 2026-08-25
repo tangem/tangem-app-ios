@@ -14,9 +14,14 @@ private import os.lock
 final class SpyDevicePrivateKeyRepository: DevicePrivateKeyRepository {
     private let state: OSAllocatedUnfairLock<State>
 
-    var privateKeyResult: Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError> {
-        get { state.withLock(\.privateKeyResult) }
-        set { state.withLock { $0.privateKeyResult = newValue }}
+    var retrieveResult: Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError> {
+        get { state.withLock(\.retrieveResult) }
+        set { state.withLock { $0.retrieveResult = newValue }}
+    }
+
+    var deleteResult: Result<Void, DevicePrivateKeyRepositoryError> {
+        get { state.withLock(\.deleteResult) }
+        set { state.withLock { $0.deleteResult = newValue }}
     }
 
     var receivedMessages: [Message] {
@@ -24,39 +29,45 @@ final class SpyDevicePrivateKeyRepository: DevicePrivateKeyRepository {
     }
 
     init() {
-        let privateKeyResult: Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError>
+        let retrieveResult: Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError>
 
         do {
-            privateKeyResult = Result.success(
+            retrieveResult = Result.success(
                 try StubDevicePrivateKey(publicKeyResult: .success(.stub), signResult: .success(.stub))
             )
         } catch {
-            privateKeyResult = Result.failure(.keyGenerationFailed(underlying: error))
+            retrieveResult = Result.failure(.keyGenerationFailed(underlying: error))
         }
 
-        state = OSAllocatedUnfairLock(initialState: State(receivedMessages: [], privateKeyResult: privateKeyResult))
+        state = OSAllocatedUnfairLock(
+            initialState: State(
+                receivedMessages: [],
+                retrieveResult: retrieveResult,
+                deleteResult: .success(())
+            )
+        )
     }
 
-    var privateKey: StubDevicePrivateKey {
-        get throws(DevicePrivateKeyRepositoryError) {
-            state.withLock { $0.receivedMessages.append(.privateKey) }
-            return try state.withLock(\.privateKeyResult).get()
-        }
+    func retrieve() throws(DevicePrivateKeyRepositoryError) -> StubDevicePrivateKey {
+        state.withLock { $0.receivedMessages.append(.retrieve) }
+        return try state.withLock(\.retrieveResult).get()
     }
 
-    func removePrivateKey() {
-        state.withLock { $0.receivedMessages.append(.removePrivateKey) }
+    func delete() throws(DevicePrivateKeyRepositoryError) {
+        state.withLock { $0.receivedMessages.append(.delete) }
+        try state.withLock(\.deleteResult).get()
     }
 }
 
 extension SpyDevicePrivateKeyRepository {
     enum Message: Equatable {
-        case privateKey
-        case removePrivateKey
+        case retrieve
+        case delete
     }
 
     private struct State {
         var receivedMessages: [Message] = []
-        var privateKeyResult: Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError>
+        var retrieveResult: Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError>
+        var deleteResult: Result<Void, DevicePrivateKeyRepositoryError>
     }
 }

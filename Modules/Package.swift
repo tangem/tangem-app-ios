@@ -150,6 +150,9 @@ var serviceModules: [PackageDescription.Target] {
         ),
         .tangemTarget(
             name: "TangemBackendAuthentication",
+            dependencies: [
+                "TangemFoundation",
+            ],
             swiftSettings: .swift6StrictSettings
         ),
         .tangemTarget(
@@ -447,6 +450,7 @@ var unitTestsModules: [PackageDescription.Target] {
             name: "TangemBackendAuthenticationTests",
             dependencies: [
                 "TangemBackendAuthentication",
+                "TangemFoundation",
                 .product(name: "TangemTestKit", package: "TangemTestKit"),
             ],
             swiftSettings: .swift6StrictSettings
