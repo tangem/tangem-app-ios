@@ -65,10 +65,21 @@ struct WelcomeV2ImportSheetView: View {
     private func row(for item: WelcomeV2ImportSheetItem) -> some View {
         Button(action: item.action) {
             Text(item.title)
-                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                .style(
+                    DesignSystem.Font.subheadingMediumToken,
+                    color: item.isEnabled ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
+                )
                 .frame(maxWidth: .infinity, minHeight: 52)
+                .overlay(alignment: .trailing) {
+                    if item.isLoading {
+                        ProgressView()
+                            .controlSize(.small)
+                            .padding(.trailing, 16)
+                    }
+                }
                 .background(DesignSystem.Color.bgSecondary)
                 .cornerRadiusContinuous(14)
         }
+        .disabled(!item.isEnabled)
     }
 }
