@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import TangemLocalization
 @testable import Tangem
 @testable import TangemExpress
 
@@ -60,6 +61,21 @@ struct OnrampSuggestedOfferViewModelBuilderTests {
         )
 
         #expect(title == .fastest)
+    }
+
+    @Test("A region-restricted provider gets a plain title instead of a recommendation")
+    func restrictedProviderGetsPlainTitle() {
+        let provider = OnrampTestFixtures.makeProvider(
+            paymentMethodId: "apple-pay",
+            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "quote-id", isRestricted: true))
+        )
+        provider.update(globalAttractiveType: .best)
+
+        let title = builder.mapToRecommendedOnrampOfferViewModelTitle(
+            suggestedOfferType: .nativeApplePay(provider)
+        )
+
+        #expect(title == .text(Localization.onrampTitleYouGet))
     }
 
     fileprivate static let testTokenItem: TokenItem = .blockchain(.init(.ethereum(testnet: false), derivationPath: nil))

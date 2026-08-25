@@ -451,7 +451,7 @@ private extension SwapModel {
                 analyticsLogger.logSwapErrorMaxAmount(screen: screen)
             case .notEnoughBalanceForSwapping, .notEnoughAmountForFee, .notEnoughAmountForTxValue, .validationError:
                 analyticsLogger.logSwapErrorInsufficientBalance(screen: screen)
-            case .hasPendingTransaction, .hasPendingApproveTransaction:
+            case .hasPendingTransaction, .hasPendingApproveTransaction, .regionRestricted:
                 break
             }
         default:
@@ -664,6 +664,9 @@ extension SwapModel {
 
         case .feeCurrencyInsufficientBalanceForTxValue(let fee, let isFeeCurrency):
             return .notEnoughAmountForTxValue(fee, isFeeCurrency: isFeeCurrency)
+
+        case .regionRestricted:
+            return .regionRestricted
         }
     }
 
@@ -2230,6 +2233,7 @@ extension SwapModel {
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
         case validationError(error: ValidationError)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
+        case regionRestricted
     }
 
     struct PermissionRequiredState {
