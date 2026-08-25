@@ -154,6 +154,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
                 feeRow(title: Localization.tangempayBankTransferFeeFedwire, value: fedwireFee)
             }
         }
+        .padding(.horizontal, 16)
     }
 
     private var feeErrorBanner: some View {
