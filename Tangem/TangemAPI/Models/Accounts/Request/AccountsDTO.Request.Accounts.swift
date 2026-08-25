@@ -10,6 +10,9 @@ import Foundation
 
 extension AccountsDTO.Request {
     struct Accounts: Encodable {
+        /// - Warning: Deliberately says nothing about the account's kind: the v1 endpoint turns away a row that
+        /// mentions one ("property type should not exist"), and v1 is what a wallet without the joint accounts
+        /// feature asks.
         struct Account {
             let id: String
             /// Nil, if the account uses a localized name.
@@ -17,8 +20,6 @@ extension AccountsDTO.Request {
             let icon: String
             let iconColor: String
             let derivation: Int
-            /// Nil, for a record stored before the kind was.
-            let type: AccountType?
         }
 
         let accounts: [Account]
@@ -42,7 +43,6 @@ extension AccountsDTO.Request.Accounts.Account: Encodable {
         try container.encode(icon, forKey: .icon)
         try container.encode(iconColor, forKey: .iconColor)
         try container.encode(derivation, forKey: .derivation)
-        try container.encodeIfPresent(type, forKey: .type)
     }
 }
 
@@ -55,6 +55,5 @@ private extension AccountsDTO.Request.Accounts.Account {
         case icon
         case iconColor
         case derivation
-        case type
     }
 }
