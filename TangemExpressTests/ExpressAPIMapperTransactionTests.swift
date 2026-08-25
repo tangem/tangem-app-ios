@@ -14,7 +14,10 @@ import TangemFoundation
 
 @Suite("Express transaction mapping — exchange/onramp transactions and history pagination")
 struct ExpressAPIMapperTransactionTests {
-    private let mapper = ExpressAPIMapper(exchangeDataDecoder: StubExpressExchangeDataDecoder())
+    private let mapper = ExpressAPIMapper(
+        exchangeDataDecoder: StubExpressExchangeDataDecoder(),
+        featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
+    )
 
     // MARK: - Exchange
 

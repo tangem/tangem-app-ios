@@ -239,15 +239,21 @@ private extension SendSwapProvidersSelectorViewModel {
         )
 
         let providerBadge = expressProviderFormatter.mapToBadge(availableProvider: availableProvider, hasHighPriceImpactWarning: hasHighPriceImpactWarning)
-        let badge: SendSwapProvidersSelectorProviderViewData.Badge? = switch providerBadge {
-        case .none: .none
-        case .fcaWarning: .fcaWarning
-        case .permissionNeeded: nil
-        case .bestRate: .bestRate
-        case .bestDexRate: .bestDexRate
-        }
+        let badge: SendSwapProvidersSelectorProviderViewData.Badge? = {
+            guard !state.isRegionRestricted else {
+                return .notAvailable
+            }
 
-        if let percentSubtitle = makePercentSubtitle(selectedProvider: selectedProvider, provider: availableProvider) {
+            switch providerBadge {
+            case .none: return .none
+            case .fcaWarning: return .fcaWarning
+            case .permissionNeeded: return nil
+            case .bestRate: return .bestRate
+            case .bestDexRate: return .bestDexRate
+            }
+        }()
+
+        if !state.isRegionRestricted, let percentSubtitle = makePercentSubtitle(selectedProvider: selectedProvider, provider: availableProvider) {
             subtitles.append(percentSubtitle)
         }
 
@@ -258,7 +264,8 @@ private extension SendSwapProvidersSelectorViewModel {
             title: provider.name,
             providerIcon: provider.imageURL,
             providerType: provider.type.title,
-            isDisabled: state.quote == nil,
+            isDimmed: state.quote == nil || state.isRegionRestricted,
+            isSelectable: state.quote != nil,
             badge: badge,
             subtitles: subtitles,
             showTrailingSettingsButton: showsTrailingButton

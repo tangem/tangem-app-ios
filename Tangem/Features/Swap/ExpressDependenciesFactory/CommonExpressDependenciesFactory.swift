@@ -40,7 +40,7 @@ private extension CommonExpressDependenciesFactory {
         return TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: swapRepository,
-            featureFlags: ExpressFeatureFlags(),
+            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: FeatureProvider.isAvailable(.expressGeoRestrictions)),
             preferredProviderId: preferredProviderId
         )
     }

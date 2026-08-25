@@ -614,6 +614,11 @@ extension OnrampModel: OnrampRedirectingOutput {
 
 extension OnrampModel: OnrampSummaryOutput {
     func userDidRequestOnramp(provider: OnrampProvider) {
+        guard provider.isExecutable else {
+            log("The provider \(provider) can not be executed. Skip opening the redirecting screen")
+            return
+        }
+
         _selectedOnrampProvider.send(.success(provider))
         router?.openOnrampRedirecting()
     }
@@ -652,6 +657,13 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
 
     func handleApplePayAuthorization(_ result: ApplePayAuthorizationResult) {
         let provider = result.provider
+
+        guard provider.isExecutable else {
+            log("The provider \(provider) can not be executed. Reject the Apple Pay authorization")
+            result.fail()
+            return
+        }
+
         _selectedOnrampProvider.send(.success(provider))
 
         let applePayStartDate = Date()
