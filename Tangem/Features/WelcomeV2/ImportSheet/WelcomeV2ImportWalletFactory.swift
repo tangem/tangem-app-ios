@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import TangemMobileWalletBackup
 
 struct WelcomeV2ImportWalletFactory {
     struct Callbacks {
         let onRecoveryPhrase: () -> Void
-        let onICloudBackup: () -> Void
+        let onICloudBackup: ([MobileWalletBackup]) -> Void
         let onBack: () -> Void
         let onClose: () -> Void
     }
@@ -21,20 +22,11 @@ struct WelcomeV2ImportWalletFactory {
             input: .init(
                 title: "Import existing wallet",
                 subtitle: "Continue using a wallet you already own by importing or restoring",
-                items: [
-                    WelcomeV2ImportSheetItem(
-                        id: "recovery",
-                        title: "Import recovery phrase",
-                        action: callbacks.onRecoveryPhrase
-                    ),
-                    WelcomeV2ImportSheetItem(
-                        id: "icloud",
-                        title: "Restore iCloud backup",
-                        action: callbacks.onICloudBackup
-                    ),
-                ],
+                onRecoveryPhrase: callbacks.onRecoveryPhrase,
+                onICloudBackup: callbacks.onICloudBackup,
                 onBack: callbacks.onBack,
-                onClose: callbacks.onClose
+                onClose: callbacks.onClose,
+                backupManager: CommonMobileWalletBackupManager(destination: .iCloud)
             )
         )
     }

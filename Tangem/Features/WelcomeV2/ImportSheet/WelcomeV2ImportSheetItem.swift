@@ -10,6 +10,8 @@ import Foundation
 
 struct WelcomeV2ImportSheetItem: Identifiable {
     let id: String
-    let title: String
-    let action: () -> Void
+    var title: String
+    var isEnabled: Bool
+    var isLoading: Bool
+    var action: () -> Void
 }
