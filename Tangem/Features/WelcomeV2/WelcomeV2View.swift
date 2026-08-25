@@ -20,13 +20,15 @@ struct WelcomeV2View: View {
 
             LinearGradient(
                 stops: [
-                    Gradient.Stop(color: .clear, location: 0.0),
-                    Gradient.Stop(color: .black.opacity(0.35), location: 0.55),
-                    Gradient.Stop(color: .black.opacity(0.85), location: 1.0),
+                    Gradient.Stop(color: .clear, location: 0.5),
+                    Gradient.Stop(color: .black.opacity(0.4), location: 0.7),
+                    Gradient.Stop(color: .black.opacity(0.75), location: 0.85),
+                    Gradient.Stop(color: .black, location: 1.0),
                 ],
                 startPoint: .top,
                 endPoint: .bottom
             )
+            .frame(maxHeight: .infinity)
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -39,13 +41,14 @@ struct WelcomeV2View: View {
                 titleBlock
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
-
-                LinearGradient(
-                    colors: [.clear, .black],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 60)
+                    .padding(.vertical, 12)
+                    .background {
+                        LinearGradient(
+                            colors: [.clear, .black],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    }
 
                 bottomContainer
             }
@@ -67,10 +70,10 @@ struct WelcomeV2View: View {
     private var titleBlock: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Store all your assets")
-                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkPrimary)
 
             Text("The only app you need\nto manage your finances")
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textStaticDarkSecondary)
         }
     }
 
@@ -115,18 +118,18 @@ struct WelcomeV2View: View {
         let terms = "Terms of service"
         let privacy = "Privacy Policy"
         var string = AttributedString("By continuing, you agree with \(terms) and \(privacy)")
-        string.foregroundColor = Colors.Text.tertiary
-        string.font = Fonts.RegularStatic.caption1
+        string.setFontStyle(DesignSystem.Font.captionMediumToken)
+        string.foregroundColor = DesignSystem.Color.textStaticDarkSecondary
 
         if let range = string.range(of: terms) {
-            string[range].foregroundColor = Colors.Text.primary1
-            string[range].font = Fonts.BoldStatic.caption1
+            string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
+            string[range].font = Font.system(size: 12, weight: .semibold)
             string[range].link = AppConstants.tosURL
         }
 
         if let range = string.range(of: privacy) {
-            string[range].foregroundColor = Colors.Text.primary1
-            string[range].font = Fonts.BoldStatic.caption1
+            string[range].foregroundColor = DesignSystem.Color.textStaticDarkPrimary
+            string[range].font = Font.system(size: 12, weight: .semibold)
             // [REDACTED_TODO_COMMENT]
             string[range].link = URL(string: "about:blank")
         }
