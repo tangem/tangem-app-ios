@@ -10,10 +10,6 @@ import CryptoKit
 import struct Foundation.Data
 
 /// Wraps a real, hardware-backed `SecureEnclave.P256.Signing.PrivateKey`.
-/// Only usable when `SecureEnclave.isAvailable`, i.e. real devices, never the simulator.
-///
-/// - Note: SecureEnclave.P256.Signing.PrivateKey can not be constructed without the real Secure Enclave.
-/// This is the primary reason why DevicePrivateKey wrapper types exist.
 struct SecureEnclaveDevicePrivateKey: DevicePrivateKey {
     private let key: SecureEnclave.P256.Signing.PrivateKey
 
