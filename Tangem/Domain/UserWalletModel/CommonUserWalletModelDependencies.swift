@@ -241,9 +241,11 @@ private extension CommonUserWalletModelDependencies {
 
         let jointAccountsRepository = CommonJointAccountsRepository(
             userWalletId: userWalletId,
-            networkService: JointAccountsNetworkServiceMock(),
+            networkService: CommonJointAccountsNetworkService(userWalletId: userWalletId),
             derivationInteractorFactory: jointAccountDerivationInteractorFactory,
-            persistentStorage: CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
+            persistentStorage: CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue),
+            invitesPersistentStorage: CommonJointAccountsInvitesPersistentStorage(storageIdentifier: userWalletId.stringValue),
+            isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
         )
 
         let accountModelsManager = CommonAccountModelsManager(

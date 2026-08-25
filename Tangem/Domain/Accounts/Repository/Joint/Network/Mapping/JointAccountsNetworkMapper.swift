@@ -32,18 +32,18 @@ extension JointAccountsNetworkMapper {
         if invites.count != freeSlotsCount {
             // Neither reissued nor readable afterwards, so a slot that came back without an invite can never be
             // filled — worth seeing in the logs of a wallet whose creator turns out unable to invite anybody
-            AccountsLogger.warning("A joint account was created with \(invites.count) invites for \(freeSlotsCount) free slots")
+            JointAccountsLogger.warning("A joint account was created with \(invites.count) invites for \(freeSlotsCount) free slots")
         }
 
         return JointAccountCreationResult(account: mapToJointAccount(from: response), invites: invites)
     }
 
-    func mapToJointAccounts(from response: JointAccountsDTO.List.Response) -> [StoredJointAccount] {
+    func mapToJointAccounts(from response: JointAccountsDTO.List.Response) -> [RemoteJointAccount] {
         response.jointAccounts.map(mapToJointAccount(from:))
     }
 
-    func mapToJointAccount(from dto: JointAccountsDTO.JointAccount) -> StoredJointAccount {
-        StoredJointAccount(
+    func mapToJointAccount(from dto: JointAccountsDTO.JointAccount) -> RemoteJointAccount {
+        RemoteJointAccount(
             cryptoAccountId: dto.cryptoAccountId,
             membersCount: dto.membersCount,
             threshold: dto.threshold,

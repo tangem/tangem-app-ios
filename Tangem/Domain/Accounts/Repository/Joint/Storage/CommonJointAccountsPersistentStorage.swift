@@ -29,17 +29,13 @@ final class CommonJointAccountsPersistentStorage {
         )
     }
 
-    /// - Note: A record this version cannot read is dropped rather than failing the whole list — what a member can
-    /// still see is worth more than an all-or-nothing read.
     /// - Warning: `workingQueue` only.
     private func unsafeFetch() -> [StoredJointAccount] {
         do {
             let stored: LossyArray<StoredJointAccount>? = try persistentStorage.value(for: key)
-
             return stored?.wrappedValue ?? []
         } catch {
-            AccountsLogger.error("Unable to read the joint accounts of a wallet", error: error)
-
+            JointAccountsLogger.error("Unable to read the joint accounts of a wallet", error: error)
             return []
         }
     }
@@ -84,7 +80,7 @@ extension CommonJointAccountsPersistentStorage: JointAccountsPersistentStorage {
             var editedAccounts = currentAccounts
 
             // Updated in place, so that re-saving an unchanged account keeps the order and fails the dirty check
-            if let index = editedAccounts.firstIndex(where: { $0.cryptoAccountId == account.cryptoAccountId }) {
+            if let index = editedAccounts.firstIndex(where: { $0.cryptoAccountId.caseInsensitiveEquals(to: account.cryptoAccountId) }) {
                 editedAccounts[index] = account
             } else {
                 editedAccounts.append(account)
@@ -95,6 +91,16 @@ extension CommonJointAccountsPersistentStorage: JointAccountsPersistentStorage {
             }
 
             try unsafeSave(editedAccounts)
+        }
+    }
+
+    func replace(with accounts: [StoredJointAccount]) throws {
+        try workingQueue.sync(flags: .barrier) {
+            guard accounts != unsafeFetch() else {
+                return
+            }
+
+            try unsafeSave(accounts)
         }
     }
 }
