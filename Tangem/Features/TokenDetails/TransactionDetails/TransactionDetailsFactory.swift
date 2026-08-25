@@ -603,24 +603,24 @@ enum TransactionDetailsFactory {
         case .finished:
             return (Localization.commonSwapped, .neutral)
         case .failed, .txFailed, .refunded:
-            return (Localization.commonActionFailed(Localization.commonSwapping), .failed)
+            return (Localization.transactionHistoryStatusSwapFailed, .failed)
         case .expired:
-            return (Localization.commonActionFailed(Localization.commonSwapping), .expired)
+            return (Localization.transactionHistoryStatusSwapFailed, .expired)
         }
     }
 
     private static func onrampTitle(status: OnrampTransactionStatus) -> (text: String, style: TransactionDetailsHeaderViewData.TitleStyle) {
         switch status {
         case .created, .waitingForPayment, .paymentProcessing, .paid, .sending, .refunding, .unknown:
-            return (Localization.txHistoryOnrampTopUp, .active)
+            return (Localization.transactionHistoryStatusToppingUp, .active)
         case .verifying, .paused:
-            return (Localization.txHistoryOnrampTopUp, .attention)
+            return (Localization.transactionHistoryStatusToppingUp, .attention)
         case .finished:
             return (Localization.txHistoryOnrampToppedUp, .neutral)
         case .failed, .refunded:
-            return (Localization.commonActionFailed(Localization.txHistoryOnrampTopUp), .failed)
+            return (Localization.transactionHistoryStatusTopUpFailed, .failed)
         case .expired:
-            return (Localization.commonActionFailed(Localization.txHistoryOnrampTopUp), .expired)
+            return (Localization.transactionHistoryStatusTopUpFailed, .expired)
         }
     }
 
