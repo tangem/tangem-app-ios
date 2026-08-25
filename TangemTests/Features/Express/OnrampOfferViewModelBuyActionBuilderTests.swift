@@ -62,7 +62,7 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
 
     @Test("Returns .button when nativePaymentAvailable is false")
     func widgetWhenNativePaymentDisabled() {
-        let quote = OnrampQuote(expectedAmount: 100, nativePaymentAvailable: false, quoteId: "id")
+        let quote = OnrampQuote(expectedAmount: 100, nativePaymentAvailable: false, quoteId: "id", isRestricted: false)
         let builder = makeBuilder()
 
         let action = builder.make(
@@ -76,7 +76,7 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
 
     @Test("Returns .button when quoteId is nil")
     func widgetWhenQuoteIdIsNil() {
-        let quote = OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: nil)
+        let quote = OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: nil, isRestricted: false)
         let builder = makeBuilder()
 
         let action = builder.make(
