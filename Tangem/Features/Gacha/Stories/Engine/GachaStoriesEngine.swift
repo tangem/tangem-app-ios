@@ -13,7 +13,6 @@ import struct CoreGraphics.CGFloat
 protocol GachaStoriesEngine: AnyObject {
     var slideIndexPublisher: AnyPublisher<Int, Never> { get }
     var slideProgressPublisher: AnyPublisher<CGFloat, Never> { get }
-    var storiesFinishedPublisher: AnyPublisher<Void, Never> { get }
 
     func start()
     func showNextSlide()
@@ -30,12 +29,5 @@ extension GachaStoriesEngine {
 
     var slideProgressUpdates: AsyncStream<CGFloat> {
         get async { await slideProgressPublisher.removeDuplicates().values }
-    }
-
-    /// Suspends until the last slide finishes — by the timer or by a forward tap.
-    func storiesFinished() async {
-        for await _ in await storiesFinishedPublisher.values {
-            return
-        }
     }
 }
