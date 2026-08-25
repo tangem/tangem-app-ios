@@ -120,6 +120,8 @@ private extension OnrampAmountViewModel {
             error = Localization.onrampMinAmountRestriction(minAmount)
         case .failure(.tooBigAmount(let maxAmount)):
             error = Localization.onrampMaxAmountRestriction(maxAmount)
+        case .failure(.regionRestricted):
+            error = Localization.expressOnrampRestrictionsAmountError
         }
     }
 
