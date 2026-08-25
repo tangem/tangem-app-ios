@@ -47,8 +47,7 @@ final class CryptoAccountsNetworkMapper {
                     name: account.name,
                     icon: account.icon.iconName,
                     iconColor: account.icon.iconColor,
-                    derivation: account.derivationIndex,
-                    type: account.type
+                    derivation: account.derivationIndex
                 )
             }
 
@@ -289,9 +288,8 @@ final class CryptoAccountsNetworkMapper {
             .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
     }
 
-    /// - Returns: Nil when the endpoint says nothing about the kind, or says something this version cannot place.
-    /// Guessing at a kind here would put that guess in the next full save and overwrite what the endpoint knows, so a
-    /// record only ever claims a kind it was told or created with.
+    /// - Returns: Nil when the endpoint says nothing about the kind, or says something this version cannot place:
+    /// a record only ever claims a kind it was told or created with.
     private func mapAccountType(from account: AccountsDTO.Response.Accounts.Account) -> AccountType? {
         guard let rawType = account.type else {
             return nil

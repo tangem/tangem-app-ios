@@ -31,3 +31,18 @@ struct StoredJointAccount: Codable, Equatable {
     /// Only the slots that are taken, in the order they were taken, the creator first.
     let members: [Member]
 }
+
+// MARK: - Convenience
+
+extension StoredJointAccount {
+    init(remote: RemoteJointAccount) {
+        self.init(
+            cryptoAccountId: remote.cryptoAccountId,
+            membersCount: remote.membersCount,
+            threshold: remote.threshold,
+            address: remote.address,
+            status: remote.status,
+            members: remote.members
+        )
+    }
+}
