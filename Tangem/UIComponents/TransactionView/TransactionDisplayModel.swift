@@ -139,15 +139,54 @@ extension TransactionDisplayModel {
         case .yieldSend where transactionType.isTransferLikeYieldSend(isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract):
             return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
         case .swap:
-            return statusTitle(status: status, progress: Localization.commonSwapping, done: Localization.commonSwapped)
+            return statusTitle(
+                status: status,
+                progress: Localization.commonSwapping,
+                done: Localization.commonSwapped,
+                failed: Localization.transactionHistoryStatusSwapFailed
+            )
         case .onramp:
-            return statusTitle(status: status, progress: Localization.txHistoryOnrampTopUp, done: Localization.txHistoryOnrampToppedUp)
+            return statusTitle(
+                status: status,
+                progress: Localization.transactionHistoryStatusToppingUp,
+                done: Localization.txHistoryOnrampToppedUp,
+                failed: Localization.transactionHistoryStatusTopUpFailed
+            )
         case .approve:
-            return statusTitle(status: status, progress: Localization.commonApproving, done: Localization.commonApproved)
+            return statusTitle(
+                status: status,
+                progress: Localization.commonApproving,
+                done: Localization.commonApproved,
+                failed: Localization.transactionHistoryStatusApproveFailed
+            )
         case .stake:
-            return statusTitle(status: status, progress: Localization.commonStaking, done: Localization.commonStaked)
+            return statusTitle(
+                status: status,
+                progress: Localization.commonStaking,
+                done: Localization.commonStaked,
+                failed: Localization.transactionHistoryStatusStakeFailed
+            )
         case .unstake:
-            return statusTitle(status: status, progress: Localization.stakingUnstaking, done: Localization.stakingUnstaked)
+            return statusTitle(
+                status: status,
+                progress: Localization.stakingUnstaking,
+                done: Localization.stakingUnstaked,
+                failed: Localization.transactionHistoryStatusUnstakeFailed
+            )
+        case .restake:
+            return statusTitle(
+                status: status,
+                progress: Localization.transactionHistoryStatusRestakingRewards,
+                done: Localization.transactionHistoryRewardsRestaked,
+                failed: Localization.transactionHistoryStatusRewardsRestakeFailed
+            )
+        case .claimRewards:
+            return statusTitle(
+                status: status,
+                progress: Localization.transactionHistoryStatusClaimingRewards,
+                done: Localization.transactionHistoryStatusRewardsClaimed,
+                failed: Localization.transactionHistoryStatusRewardsClaimFailed
+            )
         default:
             return legacyName
         }
@@ -205,7 +244,12 @@ extension TransactionDisplayModel {
         subtitleOwner: TransactionViewModel.SubtitleOwner?
     ) -> String {
         if subtitleOwner?.isOwnWallet == true {
-            return statusTitle(status: status, progress: Localization.commonTransfer, done: Localization.commonTransferred)
+            return statusTitle(
+                status: status,
+                progress: Localization.transactionHistoryStatusTransferring,
+                done: Localization.commonTransferred,
+                failed: Localization.transactionHistoryStatusTransferFailed
+            )
         }
 
         return directionalTitle(isOutgoing: isOutgoing, status: status)
@@ -214,9 +258,9 @@ extension TransactionDisplayModel {
     private static func directionalTitle(isOutgoing: Bool, status: TransactionViewModel.Status) -> String {
         switch (isOutgoing, status) {
         case (true, .failed):
-            return Localization.commonActionFailed(Localization.commonSending)
+            return Localization.transactionHistoryStatusSendFailed
         case (false, .failed):
-            return Localization.commonActionFailed(Localization.commonReceiving)
+            return Localization.transactionHistoryStatusReceiveFailed
         case (true, .inProgress):
             return Localization.commonSending
         case (false, .inProgress):
@@ -228,9 +272,9 @@ extension TransactionDisplayModel {
         }
     }
 
-    private static func statusTitle(status: TransactionViewModel.Status, progress: String, done: String) -> String {
+    private static func statusTitle(status: TransactionViewModel.Status, progress: String, done: String, failed: String) -> String {
         switch status {
-        case .failed: Localization.commonActionFailed(progress)
+        case .failed: failed
         case .inProgress: progress
         case .confirmed, .undefined: done
         }
