@@ -14,13 +14,15 @@ import TangemUIUtils
 struct GachaMainView: View {
     @ObservedObject var viewModel: GachaMainViewModel
 
-    let onBackButtonAction: () -> Void
+    let onBack: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
             navigationBar
 
-            Spacer()
+            ScrollView(showsIndicators: false) {
+                GachaAccountView(viewModel: viewModel.accountViewModel)
+            }
         }
         .infinityFrame()
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
@@ -38,9 +40,8 @@ private extension GachaMainView {
                 height: Metrics.navBarHeight
             ),
             titleView: { titleView },
-            leftButtons: { NavigationBarButton.back(action: onBackButtonAction) },
-            // [REDACTED_TODO_COMMENT]
-            rightButtons: { NavigationBarButton.details {} }
+            leftButtons: { NavigationBarButton.back(action: onBack) },
+            rightButtons: { ActionsMenu(onSelect: viewModel.onActionSelected) }
         )
         .padding(.top, Metrics.navBarTopPadding)
         .environment(\.isRedesign, true)
@@ -65,5 +66,5 @@ private extension GachaMainView {
 // MARK: - Previews
 
 #Preview {
-    GachaMainView(viewModel: GachaMainViewModel(), onBackButtonAction: {})
+    GachaMainView(viewModel: GachaMainViewModel(), onBack: {})
 }

@@ -16,22 +16,14 @@ struct GachaCoordinatorView: CoordinatorView {
             Group {
                 switch state {
                 case .welcome(let viewModel):
-                    GachaWelcomeView(viewModel: viewModel, onCloseButtonAction: coordinator.dismiss)
+                    GachaWelcomeView(viewModel: viewModel, onClose: coordinator.dismiss)
                 case .stories(let viewModel):
                     GachaStoriesView(viewModel: viewModel)
                 case .main(let viewModel):
-                    GachaMainView(viewModel: viewModel, onBackButtonAction: coordinator.dismiss)
+                    GachaMainView(viewModel: viewModel, onBack: coordinator.dismiss)
                 }
             }
-            .transition(Constants.stateTransition)
+            .transition(.opacity.animation(.easeIn))
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension GachaCoordinatorView {
-    enum Constants {
-        static let stateTransition: AnyTransition = .opacity.animation(.easeIn)
     }
 }
