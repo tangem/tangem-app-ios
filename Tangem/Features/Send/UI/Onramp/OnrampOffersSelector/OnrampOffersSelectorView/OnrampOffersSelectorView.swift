@@ -50,6 +50,10 @@ struct OnrampOffersSelectorView: View {
                     StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
                 }
 
+                if let restrictedNotificationInput = viewModel.restrictedNotificationInput {
+                    NotificationView(input: restrictedNotificationInput)
+                }
+
                 content
             }
             .scrollBounceBehavior(.basedOnSize)

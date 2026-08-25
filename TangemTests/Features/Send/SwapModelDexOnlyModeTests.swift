@@ -299,7 +299,7 @@ private extension SwapModelDexOnlyModeTests {
             slippage: nil
         )
 
-        let quote = ExpressQuote(fromAmount: 10, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil)
+        let quote = ExpressQuote(fromAmount: 10, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
 
         let context = ExpressProviderFlowContext(
             provider: provider,
@@ -308,7 +308,7 @@ private extension SwapModelDexOnlyModeTests {
             expressFeeProvider: ExpressFeeProviderDummy(),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
         )
 
         return ExpressAvailableProvider(

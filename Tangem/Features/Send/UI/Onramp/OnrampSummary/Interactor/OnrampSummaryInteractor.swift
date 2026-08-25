@@ -25,6 +25,7 @@ enum OnrampSummaryInteractorBottomInfoError: Error {
     case noAvailableProviders
     case tooSmallAmount(_ minAmount: String)
     case tooBigAmount(_ maxAmount: String)
+    case regionRestricted
 }
 
 class CommonOnrampSummaryInteractor {
@@ -95,6 +96,8 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
                     return .success(0) // placeholder
                 case (.loading, _), (_, .loading):
                     return .loading
+                case (_, .loaded(let quote)) where quote.isRestricted:
+                    return .failure(.regionRestricted)
                 case (_, .loaded(let quote)):
                     return .success(quote.expectedAmount)
                 case (_, .failed), (_, .notSupported), (_, .none):

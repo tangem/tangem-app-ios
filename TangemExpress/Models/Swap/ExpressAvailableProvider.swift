@@ -171,7 +171,7 @@ public extension Array where Element == ExpressAvailableProvider {
         filter { provider in
             let state = provider.getState()
             switch state {
-            case .error, .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _):
+            case .error, .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _), .restriction(.regionRestricted, _):
                 return false
             default:
                 return state.quote != nil

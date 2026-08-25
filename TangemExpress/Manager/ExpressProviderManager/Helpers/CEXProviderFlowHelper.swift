@@ -28,6 +28,10 @@ struct CEXProviderFlowHelper {
     /// For `.from` flow: checks balance/fee, computes subtractFee. If subtraction needed, re-quotes with reduced amount.
     /// For `.to` flow: uses the provided quote directly.
     func processAfterQuote(quote: ExpressQuote, request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
+        if quote.isRestricted {
+            return .restriction(.regionRestricted, quote: quote)
+        }
+
         do {
             switch request.amountType {
             case .from:
@@ -106,6 +110,12 @@ private extension CEXProviderFlowHelper {
         if subtractFee > 0 {
             let previewDataRequest = try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
             let adjustedQuote = try await loadQuote(request: previewDataRequest)
+
+            // A separate call may answer differently, and this is the quote that ends up in the state
+            if adjustedQuote.isRestricted {
+                return .restriction(.regionRestricted, quote: adjustedQuote)
+            }
+
             return .cexPreview(.init(provider: provider, subtractFee: subtractFee, quote: adjustedQuote, fee: estimatedFee))
         }
 

@@ -68,6 +68,15 @@ public enum ExpressProviderManagerState {
         }
     }
 
+    public var isRegionRestricted: Bool {
+        switch self {
+        case .restriction(.regionRestricted, _):
+            return true
+        default:
+            return false
+        }
+    }
+
     public var isApproveWithSwapRequired: Bool {
         switch self {
         case .dexWithApprovePreview:

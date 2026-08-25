@@ -89,7 +89,7 @@ struct ExpressProviderFormatterBadgeTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
         )
 
         let available = ExpressAvailableProvider(
@@ -256,7 +256,7 @@ struct ExpressAvailableProviderBestDEXTests {
 
     private func makeProvider(id: String, type: ExpressProviderType, expectAmount: Decimal) -> ExpressAvailableProvider {
         let provider = expressProvider(id: id, type: type)
-        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil)
+        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
         let fee = Fee(Amount(type: .coin, currencySymbol: "ETH", value: 0, decimals: 18))
         let state = ExpressProviderManagerState.cexPreview(.init(provider: provider, subtractFee: 0, quote: quote, fee: fee))
         return availableProvider(provider: provider, state: state)
@@ -269,7 +269,7 @@ struct ExpressAvailableProviderBestDEXTests {
 
     private func makePermissionRequiredProvider(id: String, type: ExpressProviderType, expectAmount: Decimal) -> ExpressAvailableProvider {
         let provider = expressProvider(id: id, type: type)
-        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil)
+        let quote = ExpressQuote(fromAmount: 1, expectAmount: expectAmount, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false)
         let fee = Fee(Amount(type: .coin, currencySymbol: "ETH", value: 0, decimals: 18))
         let state = ExpressProviderManagerState.permissionRequired(.init(
             provider: provider,
@@ -304,7 +304,7 @@ struct ExpressAvailableProviderBestDEXTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isRegionRestrictionsEnabled: false)
         )
 
         return ExpressAvailableProvider(context: context, manager: StubExpressProviderManager(state: state))

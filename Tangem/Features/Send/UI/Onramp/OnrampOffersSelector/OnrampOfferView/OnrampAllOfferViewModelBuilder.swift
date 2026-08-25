@@ -25,7 +25,7 @@ struct OnrampAllOfferViewModelBuilder {
         let isNativeApplePay = buyAction.isNativeApplePay
 
         let title: OnrampOfferViewModel.Title = {
-            if isNativeApplePay {
+            if isNativeApplePay || provider.isRestricted {
                 return .text(Localization.onrampTitleYouGet)
             }
             switch provider.state {
@@ -49,7 +49,14 @@ struct OnrampAllOfferViewModelBuilder {
                 BalanceFormatter.defaultEmptyBalanceString
             }
 
-            let badge = isNativeApplePay ? nil : amountBadgeBuilder.mapToOnrampAmountBadge(provider: provider)
+            let badge: OnrampAmountBadge.Badge? = {
+                guard !isNativeApplePay else {
+                    return provider.isRestricted ? .restricted : nil
+                }
+
+                return amountBadgeBuilder.mapToOnrampAmountBadge(provider: provider)
+            }()
+
             return OnrampOfferViewModel.Amount(formatted: formattedAmount, badge: badge, infoAction: infoAction)
         }()
 
@@ -66,7 +73,7 @@ struct OnrampAllOfferViewModelBuilder {
             title: title,
             amount: amount,
             provider: offerProvider,
-            isAvailable: provider.isSuccessfullyLoaded,
+            isAvailable: provider.isExecutable,
             buyAction: buyAction,
             legalNotice: legalNotice,
             linkedBanner: linkedBanner

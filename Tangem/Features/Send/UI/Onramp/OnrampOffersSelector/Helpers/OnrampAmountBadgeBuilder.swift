@@ -12,6 +12,10 @@ struct OnrampAmountBadgeBuilder {
     private let percentFormatter: PercentFormatter = .init()
 
     func mapToOnrampAmountBadge(provider: OnrampProvider?) -> OnrampAmountBadge.Badge? {
+        if provider?.isRestricted == true {
+            return .restricted
+        }
+
         switch provider?.globalAttractiveType {
         case .best:
             return .best

@@ -59,8 +59,8 @@ public extension ProvidersList {
             return
         }
 
-        let greatProvider = select(for: .sepa)?.maxPriorityProvider()
-        let bestProvider: OnrampProvider? = providers.min()
+        let greatProvider = select(for: .sepa)?.maxPriorityUnrestrictedProvider()
+        let bestProvider: OnrampProvider? = providers.filter(\.isExecutable).min()
         let bestQuote: Decimal? = bestProvider?.quote?.expectedAmount
 
         providers.forEach { provider in
@@ -93,9 +93,9 @@ public extension ProvidersList {
         }
 
         let fastestProviderItem = min(by: \.paymentMethod.type.processingTime)
-        let successfullyLoadedProviders = fastestProviderItem?.providers.filter(\.isSuccessfullyLoaded)
-        let preferredProvider = successfullyLoadedProviders?.first(where: { $0.provider.id == preferredProviderId })
-        let fastestProvider = preferredProvider ?? successfullyLoadedProviders?.min()
+        let executableProviders = fastestProviderItem?.providers.filter(\.isExecutable)
+        let preferredProvider = executableProviders?.first(where: { $0.provider.id == preferredProviderId })
+        let fastestProvider = preferredProvider ?? executableProviders?.min()
 
         providers.forEach { provider in
             switch provider {
@@ -117,7 +117,7 @@ public extension ProvidersList {
 
     func fastest() -> OnrampProvider? {
         let providers = flatMap { $0.providers }
-        if let nativeApplePay = providers.nativeApplePay() {
+        if let nativeApplePay = providers.filter(\.isExecutable).nativeApplePay() {
             return nativeApplePay
         }
         return providers.first(where: { $0.processingTimeType == .fastest })
