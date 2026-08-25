@@ -14,11 +14,10 @@ import Foundation
 /// is each format version's own business.
 public protocol WalletBackupPayload: Sendable {
     var mnemonicWords: [String] { get }
-    /// Empty string means the wallet has no passphrase — for BIP-39 the two are equivalent.
-    var passphrase: String { get }
+    var requiresPassphrase: Bool { get }
 }
 
 public struct CommonWalletBackupPayload: WalletBackupPayload {
     public let mnemonicWords: [String]
-    public let passphrase: String
+    public let requiresPassphrase: Bool
 }
