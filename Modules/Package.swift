@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import Foundation
@@ -44,6 +44,7 @@ let package = Package(
         // The workaround for this issue is to place the Swift macros target (`TangemMacro`) in a separate local package (`TangemMacro`).
         .package(path: "../TangemMacro"),
         .package(path: "../TangemFirebaseDynamicShim"),
+        .package(path: "../TangemTestKit"),
         .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", .upToNextMajor(from: "1.44.0")),
         .package(url: "https://github.com/TimOliver/BlurUIKit.git", .upToNextMajor(from: "1.4.0")),
         .package(url: "git@github.com:tangem-developments/opentelemetry-swift.git", exact: "2.5.0-tangem2"),
@@ -146,6 +147,10 @@ var serviceModules: [PackageDescription.Target] {
                 .process("Assets"),
                 .process("LottieAnimations"),
             ]
+        ),
+        .tangemTarget(
+            name: "TangemBackendAuthentication",
+            swiftSettings: .swift6StrictSettings
         ),
         .tangemTarget(
             name: "TangemFoundation",
@@ -439,6 +444,14 @@ var unitTestsModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTestTarget(
+            name: "TangemBackendAuthenticationTests",
+            dependencies: [
+                "TangemBackendAuthentication",
+                .product(name: "TangemTestKit", package: "TangemTestKit"),
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTestTarget(
             name: "TangemFoundationTests",
             dependencies: [
                 "TangemFoundation",
@@ -598,6 +611,19 @@ private extension Array where Element == PackageDescription.Target {
     func asDependencies() -> [PackageDescription.Target.Dependency] {
         return map { .target(name: $0.name) }
     }
+}
+
+private extension [PackageDescription.SwiftSetting] {
+    // [REDACTED_TODO_COMMENT]
+    static let swift6StrictSettings: [PackageDescription.SwiftSetting] = [
+        .swiftLanguageMode(.v6),
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("InferIsolatedConformances"),
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableExperimentalFeature("AccessLevelOnImport"),
+    ]
 }
 
 // MARK: - Conditional complication flags
