@@ -20,27 +20,36 @@ final class MobileOnboardingImportICloudBackupViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
+    @Published private(set) var state: State = .password
     @Published private(set) var passwordMatching: PasswordMatching = .none
-    @Published private(set) var isPasswordSecured: Bool = true
-    @Published private(set) var isImporting: Bool = false
+    @Published private(set) var isInputSecured: Bool = true
+    @Published private(set) var isProcessing: Bool = false
 
-    @Published var passwordText: String = .empty
-    @Published var isPasswordResponder: Bool?
+    @Published var inputText: String = .empty
+    @Published var isInputResponder: Bool?
 
     @Published private var backup: MobileWalletBackup?
 
     let navigationTitle = Localization.hwCloudBackupRestorePasswordNavtitle
-    let infoTitle = Localization.hwCloudBackupRestorePasswordTitle
-    let passwordTitle = Localization.hwCloudBackupPasswordHint
 
-    var infoDescription: String {
-        makeInfoDescription()
+    var info: Info {
+        Info(
+            title: makeInfoTitle(),
+            description: makeInfoDescription()
+        )
+    }
+
+    var inputTitle: String {
+        switch state {
+        case .password: Localization.hwCloudBackupPasswordHint
+        case .passphrase: Localization.commonPassphrase
+        }
     }
 
     let actionTitle = Localization.hwCloudBackupRestorePasswordButton
 
     var isActionEnabled: Bool {
-        passwordText.isNotEmpty
+        inputText.isNotEmpty
     }
 
     private let passwordNotMatchedSubject = PassthroughSubject<Void, Never>()
@@ -80,13 +89,20 @@ final class MobileOnboardingImportICloudBackupViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension MobileOnboardingImportICloudBackupViewModel {
-    func onPasswordSecurityTap() {
-        isPasswordSecured.toggle()
+    func onInputSecurityTap() {
+        isInputSecured.toggle()
     }
 
     func onActionTap() {
         runTask(in: self) { viewModel in
-            await viewModel.importWallet()
+            let input = viewModel.inputText
+
+            switch viewModel.state {
+            case .password:
+                await viewModel.importFlow(password: input)
+            case .passphrase(let mnemonicWords):
+                await viewModel.createFlow(mnemonicWords: mnemonicWords, passphrase: input)
+            }
         }
     }
 
@@ -97,13 +113,13 @@ extension MobileOnboardingImportICloudBackupViewModel {
     }
 
     func onAppear() {
-        isPasswordResponder = true
-        backup = dataSource?.getBackup()
-        logPasswordScreenAnalytics()
+        initialSetup()
     }
 
     func onDisappear() {
-        initialSetup()
+        runTask(in: self) { viewModel in
+            await viewModel.eraseState()
+        }
     }
 }
 
@@ -111,7 +127,7 @@ extension MobileOnboardingImportICloudBackupViewModel {
 
 private extension MobileOnboardingImportICloudBackupViewModel {
     func bind() {
-        let passwordInputMatchingPublisher = $passwordText
+        let passwordInputMatchingPublisher = $inputText
             .map { password -> PasswordMatching in
                 password.isEmpty ? .none : .notDetermined
             }
@@ -124,19 +140,14 @@ private extension MobileOnboardingImportICloudBackupViewModel {
             .assign(to: &$passwordMatching)
     }
 
-    func makeInfoDescription() -> String {
-        let walletName = backup?.metadata.walletName ?? .empty
-        let backupDate = backup?.metadata.createdAt.map { dateFormatter().string(from: $0) } ?? .empty
-        return Localization.hwCloudBackupRestorePasswordDescription(walletName, MobileBackupConstants.iCloudServiceName, backupDate)
-    }
-
     func sendPasswordNotMatched() {
         passwordNotMatchedSubject.send()
     }
 
     func initialSetup() {
-        passwordText = .empty
-        isPasswordSecured = true
+        isInputResponder = true
+        backup = dataSource?.getBackup()
+        logPasswordScreenAnalytics()
     }
 
     func dateFormatter() -> DateFormatter {
@@ -148,43 +159,27 @@ private extension MobileOnboardingImportICloudBackupViewModel {
             return formatter
         }
     }
-
-    @MainActor
-    func setup(isImporting: Bool) {
-        self.isImporting = isImporting
-    }
 }
 
 // MARK: - Import flow
 
 private extension MobileOnboardingImportICloudBackupViewModel {
-    func importWallet() async {
-        guard let backup else {
-            await showErrorAlert()
-            return
-        }
-
+    func importFlow(password: String) async {
         do {
-            await setup(isImporting: true)
+            await setupIsProcessing(true)
+            let backupPayload = try await importWallet(password: password)
 
-            let backupPayload = try await backupManager.importBackup(backup, password: passwordText)
-            let mnemonic = try Mnemonic(with: backupPayload.mnemonicWords.joined(separator: " "))
+            let mnemonicWords = backupPayload.mnemonicWords
+            if backupPayload.requiresPassphrase {
+                await setupPassphraseState(mnemonicWords: mnemonicWords)
+            } else {
+                await createFlow(mnemonicWords: mnemonicWords, passphrase: .empty)
+            }
 
-            let userWalletModel = try await creationUtil.makeImportedModel(
-                mnemonic: mnemonic,
-                passphrase: backupPayload.passphrase,
-                hasMnemonicBackup: false,
-                hasICloudBackup: true
-            )
-
-            AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
-            try userWalletRepository.add(userWalletModel: userWalletModel)
-
-            await setup(isImporting: false)
-            await didImportBackup(userWalletModel: userWalletModel)
+            await setupIsProcessing(false)
 
         } catch {
-            await setup(isImporting: false)
+            await setupIsProcessing(false)
 
             switch error {
             case WalletBackupCryptoError.invalidPassword:
@@ -196,6 +191,92 @@ private extension MobileOnboardingImportICloudBackupViewModel {
             }
 
             AppLogger.error("Failed to import wallet from iCloud backup", error: error)
+        }
+    }
+
+    func createFlow(mnemonicWords: [String], passphrase: String) async {
+        do {
+            await setupIsProcessing(true)
+            let userWalletModel = try await createWallet(mnemonicWords: mnemonicWords, passphrase: passphrase)
+            try await addWallet(userWalletModel: userWalletModel)
+            await setupIsProcessing(false)
+
+            await didImportBackup(userWalletModel: userWalletModel)
+
+        } catch {
+            await setupIsProcessing(false)
+
+            logImportErrorAnalytics(error)
+            await showErrorAlert()
+
+            AppLogger.error("Failed to create wallet from iCloud backup", error: error)
+        }
+    }
+
+    func importWallet(password: String) async throws -> WalletBackupPayload {
+        guard let backup else {
+            throw ImportError.backupNotFound
+        }
+        return try await backupManager.importBackup(backup, password: password)
+    }
+
+    func createWallet(mnemonicWords: [String], passphrase: String) async throws -> UserWalletModel {
+        let mnemonic = try Mnemonic(with: mnemonicWords.joined(separator: " "))
+        return try await creationUtil.makeImportedModel(
+            mnemonic: mnemonic,
+            passphrase: passphrase,
+            hasMnemonicBackup: false,
+            hasICloudBackup: true
+        )
+    }
+
+    func addWallet(userWalletModel: UserWalletModel) async throws {
+        AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
+        try userWalletRepository.add(userWalletModel: userWalletModel)
+    }
+}
+
+// MARK: - States
+
+@MainActor
+private extension MobileOnboardingImportICloudBackupViewModel {
+    func setupPassphraseState(mnemonicWords: [String]) {
+        state = .passphrase(mnemonicWords: mnemonicWords)
+        eraseInput()
+    }
+
+    func setupIsProcessing(_ isProcessing: Bool) {
+        self.isProcessing = isProcessing
+    }
+
+    func eraseState() {
+        state = .password
+        eraseInput()
+    }
+
+    func eraseInput() {
+        inputText = .empty
+    }
+}
+
+// MARK: - Helpers
+
+private extension MobileOnboardingImportICloudBackupViewModel {
+    func makeInfoTitle() -> String {
+        switch state {
+        case .password: Localization.hwCloudBackupRestorePasswordTitle
+        case .passphrase: Localization.hwCloudBackupRestorePassphraseTitle
+        }
+    }
+
+    func makeInfoDescription() -> String {
+        switch state {
+        case .password:
+            let walletName = backup?.metadata.walletName ?? .empty
+            let backupDate = backup?.metadata.createdAt.map { dateFormatter().string(from: $0) } ?? .empty
+            return Localization.hwCloudBackupRestorePasswordDescription(walletName, MobileBackupConstants.iCloudServiceName, backupDate)
+        case .passphrase:
+            return Localization.hwCloudBackupRestorePassphraseDescription
         }
     }
 }
@@ -247,6 +328,10 @@ private extension MobileOnboardingImportICloudBackupViewModel {
     func showAlert(_ alert: AlertBinder) {
         alertPresenter.present(alert: alert)
     }
+
+    enum ImportError: Error {
+        case backupNotFound
+    }
 }
 
 // MARK: - Routing
@@ -265,6 +350,16 @@ private extension MobileOnboardingImportICloudBackupViewModel {
 // MARK: - Types
 
 extension MobileOnboardingImportICloudBackupViewModel {
+    enum State {
+        case password
+        case passphrase(mnemonicWords: [String])
+    }
+
+    struct Info {
+        let title: String
+        let description: String
+    }
+
     enum PasswordMatching {
         case none
         case notDetermined

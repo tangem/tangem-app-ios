@@ -18,7 +18,7 @@ struct MobileOnboardingImportICloudBackupView: View {
             .stepsFlowNavBar(title: viewModel.navigationTitle)
             .stepsFlowNavBar(leading: { navigationBackButton })
             .stepsFlowNavBar(backgroundColor: DesignSystem.Color.bgPrimary)
-            .stepsFlow(isLoading: viewModel.isImporting)
+            .stepsFlow(isLoading: viewModel.isProcessing)
             .background(Appearance.backgroundColor)
             .onAppear(perform: viewModel.onAppear)
             .onDisappear {
@@ -38,19 +38,10 @@ private extension MobileOnboardingImportICloudBackupView {
     var content: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: .zero) {
-                InfoView(
-                    title: viewModel.infoTitle,
-                    description: viewModel.infoDescription
-                )
+                infoView
 
-                PasswordView(
-                    title: viewModel.passwordTitle,
-                    isSecured: viewModel.isPasswordSecured,
-                    text: $viewModel.passwordText,
-                    isResponder: $viewModel.isPasswordResponder,
-                    onSecurityTap: viewModel.onPasswordSecurityTap
-                )
-                .padding(.top, Layout.passwordTopPadding)
+                inputView
+                    .padding(.top, Layout.passwordTopPadding)
 
                 validationView
                     .padding(.top, Layout.validationTopPadding)
@@ -65,6 +56,24 @@ private extension MobileOnboardingImportICloudBackupView {
         }
     }
 
+    var infoView: some View {
+        let info = viewModel.info
+        return InfoView(
+            title: info.title,
+            description: info.description
+        )
+    }
+
+    var inputView: some View {
+        InputView(
+            title: viewModel.inputTitle,
+            isSecured: viewModel.isInputSecured,
+            text: $viewModel.inputText,
+            isResponder: $viewModel.isInputResponder,
+            onSecurityTap: viewModel.onInputSecurityTap
+        )
+    }
+
     var validationView: some View {
         let matching = viewModel.passwordMatching
         return PasswordMatchingView(
@@ -76,7 +85,7 @@ private extension MobileOnboardingImportICloudBackupView {
     var actions: some View {
         ActionButton(
             title: viewModel.actionTitle,
-            isLoading: viewModel.isImporting,
+            isLoading: viewModel.isProcessing,
             enabled: viewModel.isActionEnabled,
             action: viewModel.onActionTap
         )
@@ -120,9 +129,9 @@ private struct InfoView: View {
     }
 }
 
-// MARK: - PasswordView
+// MARK: - InputView
 
-private struct PasswordView: View {
+private struct InputView: View {
     let title: String
     let isSecured: Bool
 
@@ -131,7 +140,7 @@ private struct PasswordView: View {
 
     let onSecurityTap: () -> Void
 
-    private var passwordSecurityImage: Image {
+    private var inputSecurityImage: Image {
         isSecured
             ? DesignSystem.Icons.EyeCross.regular20.image
             : DesignSystem.Icons.Eye.regular20.image
@@ -156,7 +165,7 @@ private struct PasswordView: View {
                 )
 
                 Button(action: onSecurityTap) {
-                    passwordSecurityImage
+                    inputSecurityImage
                         .renderingMode(.template)
                         .foregroundStyle(DesignSystem.Color.iconSecondary)
                 }
