@@ -21,7 +21,12 @@ struct GachaMainView: View {
             navigationBar
 
             ScrollView(showsIndicators: false) {
-                GachaAccountView(viewModel: viewModel.accountViewModel)
+                VStack(spacing: 0) {
+                    GachaAccountView(viewModel: viewModel.accountViewModel)
+
+                    GachaLoreTabsView(viewModel: viewModel.loreTabsViewModel)
+                        .padding(.top, Metrics.tabsTopPadding)
+                }
             }
         }
         .infinityFrame()
@@ -60,6 +65,7 @@ private extension GachaMainView {
         static let horizontalPadding: CGFloat = 16
         static let navBarHeight: CGFloat = 56
         static let navBarTopPadding: CGFloat = 8
+        static let tabsTopPadding: CGFloat = 40
     }
 }
 
