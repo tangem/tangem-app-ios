@@ -159,7 +159,7 @@ final class TangemPayMainViewModel: ObservableObject {
             return nil
         }
 
-        if didCashbackLoadFail {
+        if didCashbackLoadFail, cashback == nil {
             return .failed(isReloading: isCashbackLoading)
         }
 
@@ -170,9 +170,6 @@ final class TangemPayMainViewModel: ObservableObject {
         return .content(summary, isReloading: isCashbackLoading)
     }
 
-    /// A failed load carries no summary, so routing falls back to the retained one — which survives a
-    /// failed refresh, since the subject only emits on success — and to `.full` before any load has
-    /// succeeded, `.alternative` being the EU exception.
     private var cashbackDisplayMode: TangemPayCashback.DisplayMode {
         guard case .available(let summary) = cashback else {
             return .full
