@@ -95,16 +95,20 @@ struct TangemPayTransactionRecordMapper {
 
     func cashback() -> TransactionViewModel.Cashback? {
         guard case .spend(let spend) = transaction.record,
-              let cashback = spend.cashback,
-              let style = TransactionViewModel.Cashback.Style(cashback.status),
-              let amount = Decimal(stringValue: cashback.amount),
+              let status = spend.cashbackStatus,
+              let style = TransactionViewModel.Cashback.Style(status),
+              let amount = spend.cashback,
               amount > 0
         else {
             return nil
         }
 
         return TransactionViewModel.Cashback(
-            formattedAmount: format(amount: amount, currencyCode: AppConstants.usdCurrencyCode, prefix: .plusSign),
+            formattedAmount: format(
+                amount: amount,
+                currencyCode: spend.cashbackCurrencyCode ?? AppConstants.usdCurrencyCode,
+                prefix: .plusSign
+            ),
             style: style
         )
     }
