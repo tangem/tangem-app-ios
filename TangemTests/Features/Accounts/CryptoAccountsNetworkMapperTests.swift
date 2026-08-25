@@ -19,7 +19,7 @@ struct CryptoAccountsNetworkMapperTests {
         let info = try map(response: Fixtures.responseWithoutPerTypeCounters)
 
         #expect(info.accounts.map(\.derivationIndex) == [0, 1, 2])
-        // Guessing a kind for the first and the last would put that guess in the next save and overwrite the endpoint's
+        // A guessed kind for the first and the last would have the record claim what the endpoint never said
         #expect(info.accounts.map(\.type) == [nil, .joint, nil])
     }
 
@@ -39,15 +39,16 @@ struct CryptoAccountsNetworkMapperTests {
         #expect(info.counters.joint == 1)
     }
 
-    @Test("Every account tells the endpoint its kind, and one stored before the kind was says nothing")
-    func accountTypesAreWritten() throws {
-        let types = try map(request: [
+    @Test("No account tells the endpoint its kind, whatever it has stored: the v1 endpoint turns away a row that mentions one")
+    func accountTypesAreNotWritten() throws {
+        let rows = try map(request: [
             Fixtures.storedAccount(derivationIndex: 0, type: .crypto),
             Fixtures.storedAccount(derivationIndex: 1, type: .joint),
             Fixtures.storedAccount(derivationIndex: 2, type: nil),
         ])
 
-        #expect(types == ["crypto", "joint", nil])
+        #expect(rows.count == 3)
+        #expect(rows.allSatisfy { !$0.keys.contains("type") })
     }
 }
 
@@ -61,9 +62,9 @@ private extension CryptoAccountsNetworkMapperTests {
         return mapper.map(response: response)
     }
 
-    /// - Returns: The account kinds as they appear on the wire, an absent one included, which is what the hand-written
-    /// encoder decides.
-    func map(request accounts: [StoredCryptoAccount]) throws -> [String?] {
+    /// - Returns: The account rows as they appear on the wire, so a test can tell a key that is absent from one
+    /// encoded as `null` — which is what the hand-written encoder decides.
+    func map(request accounts: [StoredCryptoAccount]) throws -> [[String: Any]] {
         let externalParametersProvider = TokenListAddressesProviderStub()
         let mapper = CryptoAccountsNetworkMapper(
             supportedBlockchains: [],
@@ -75,7 +76,7 @@ private extension CryptoAccountsNetworkMapperTests {
         let request = withExtendedLifetime(externalParametersProvider) { mapper.map(request: accounts).accounts }
         let encoded = try JSONSerialization.jsonObject(with: JSONEncoder().encode(request)) as? [String: Any]
 
-        return (encoded?["accounts"] as? [[String: Any]])?.map { $0["type"] as? String } ?? []
+        return (encoded?["accounts"] as? [[String: Any]]) ?? []
     }
 }
 
