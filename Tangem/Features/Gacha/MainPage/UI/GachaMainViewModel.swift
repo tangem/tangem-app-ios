@@ -12,6 +12,7 @@ final class GachaMainViewModel: ObservableObject {
     // MARK: - Properties
 
     let accountViewModel = GachaAccountViewModel(provider: GachaAccountSummaryMockProvider())
+    let loreTabsViewModel = GachaLoreTabsViewModel(provider: GachaLoresMockProvider())
 
     // MARK: - Methods
 
