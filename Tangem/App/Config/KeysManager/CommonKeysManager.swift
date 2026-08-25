@@ -23,6 +23,10 @@ extension CommonKeysManager: KeysManager {
         keys.appsFlyer
     }
 
+    var authServiceKey: String {
+        keys.authServiceKey
+    }
+
     var surveySparrow: SurveySparrowKeys {
         keys.surveySparrow
     }
@@ -170,6 +174,7 @@ extension CommonKeysManager: KeysManager {
 
 extension CommonKeysManager {
     struct Keys: Decodable {
+        let authServiceKey: String
         let moonPayApiKey: String
         let moonPayApiSecretKey: String
         let mercuryoWidgetId: String
