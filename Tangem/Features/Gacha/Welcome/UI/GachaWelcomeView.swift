@@ -14,7 +14,7 @@ import TangemUIUtils
 struct GachaWelcomeView: View {
     @ObservedObject var viewModel: GachaWelcomeViewModel
 
-    let onCloseButtonAction: () -> Void
+    let onClose: () -> Void
 
     @State private var imagePlaceholderSize: CGSize = .zero
 
@@ -25,7 +25,7 @@ struct GachaWelcomeView: View {
             scrollableContent
                 .ignoresSafeArea(edges: .top)
 
-            NavigationBarButton.close(action: onCloseButtonAction)
+            NavigationBarButton.close(action: onClose)
                 .padding(.top, Metrics.closeTopPadding)
                 .padding(.trailing, Metrics.closeTrailingPadding)
         }
@@ -109,5 +109,5 @@ private extension GachaWelcomeView {
 // MARK: - Previews
 
 #Preview {
-    GachaWelcomeView(viewModel: GachaWelcomeViewModel(routable: nil), onCloseButtonAction: {})
+    GachaWelcomeView(viewModel: GachaWelcomeViewModel(routable: nil), onClose: {})
 }
