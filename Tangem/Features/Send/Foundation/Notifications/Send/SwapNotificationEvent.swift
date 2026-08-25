@@ -27,6 +27,7 @@ enum SwapNotificationEvent: Hashable {
     case tooSmallAmountToSwap(minimumAmountText: String)
     case tooBigAmountToSwap(maximumAmountText: String)
     case unsupportedPair(analyticsParams: [Analytics.ParameterKey: String])
+    case regionRestricted
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case notEnoughReceivedAmountForReserve(amountFormatted: String)
 
@@ -73,6 +74,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.warningExpressTooMaximumAmountTitle(maximumAmountText))
         case .unsupportedPair:
             return .string(Localization.warningExpressUnsupportedPairTitle)
+        case .regionRestricted:
+            return .string(Localization.expressSwapRestrictionsTitle)
         case .verificationRequired:
             return .string(Localization.expressExchangeNotificationVerificationTitle)
         case .cexOperationFailed:
@@ -128,6 +131,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.sendNotificationInvalidReserveAmountText
         case .unsupportedPair:
             return Localization.warningExpressUnsupportedPairDescription
+        case .regionRestricted:
+            return Localization.expressSwapRestrictionsText
         case .verificationRequired:
             return Localization.expressExchangeNotificationVerificationText
         case .cexOperationFailed:
@@ -193,6 +198,8 @@ extension SwapNotificationEvent: NotificationEvent {
             return event.colorScheme
         case .validationErrorEvent(let event):
             return event.colorScheme
+        case .regionRestricted:
+            return .critical
         }
     }
 
@@ -223,6 +230,13 @@ extension SwapNotificationEvent: NotificationEvent {
              .notEnoughReceivedAmountForReserve,
              .notEnoughBalanceForSwapping:
             return .init(iconType: .image(Assets.redCircleWarning))
+        case .regionRestricted:
+            return .init(
+                iconType: .image(Assets.DesignSystem.attention),
+                renderingMode: .template,
+                color: .Tangem.Text.Neutral.primary,
+                size: .init(bothDimensions: 28)
+            )
         case .withdrawalNotificationEvent(let event):
             return event.icon
         case .validationErrorEvent(let event):
@@ -258,7 +272,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .highPriceImpactWarning(.highLossHighAmount, _):
             return .critical
         case .refreshRequired,
-             .cexOperationFailed:
+             .cexOperationFailed,
+             .regionRestricted:
             return .critical
         case .withdrawalNotificationEvent(let event):
             return event.severity
@@ -299,7 +314,7 @@ extension SwapNotificationEvent: NotificationEvent {
 
     var removingOnFullLoadingState: Bool {
         switch self {
-        case .unsupportedPair, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration:
+        case .unsupportedPair, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration, .regionRestricted:
             return false
         case .permissionNeeded,
              .hasPendingTransaction,

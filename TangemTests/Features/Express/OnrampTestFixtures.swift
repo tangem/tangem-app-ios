@@ -13,7 +13,7 @@ enum OnrampTestFixtures {
         providerId: String = "mercuryo",
         paymentMethodId: String = "apple-pay",
         amount: Decimal? = 100,
-        state: OnrampProviderManagerState = .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "quote-id"))
+        state: OnrampProviderManagerState = .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "quote-id", isRestricted: false))
     ) -> OnrampProvider {
         let provider = ExpressProvider(
             id: providerId,

@@ -15,7 +15,8 @@ struct SendSwapProvidersSelectorProviderViewData: Identifiable {
     let title: String
     let providerIcon: URL?
     let providerType: String
-    let isDisabled: Bool
+    let isDimmed: Bool
+    let isSelectable: Bool
     let badge: Badge?
     let subtitles: [Subtitle]
     let showTrailingSettingsButton: Bool
@@ -30,6 +31,7 @@ extension SendSwapProvidersSelectorProviderViewData {
 
         static let permissionNeeded = Badge.plain(Localization.expressProviderPermissionNeeded)
         static let fcaWarning = Badge.plain(Localization.expressProviderFcaWarningList)
+        static let notAvailable = Badge.plain(Localization.commonNotAvailable)
         static let bestRate = Badge.accent(Localization.expressProviderBestRate, accessibilityIdentifier: SendAccessibilityIdentifiers.swapProviderBestRateBadge)
         static let bestDexRate = Badge.accent(Localization.expressProviderBestDexRate, accessibilityIdentifier: SendAccessibilityIdentifiers.swapProviderBestDexRateBadge)
     }

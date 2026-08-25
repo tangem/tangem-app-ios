@@ -141,6 +141,21 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         #expect(outcome.lastErrors.isEmpty)
     }
 
+    @Test("A region-restricted provider is rejected before the payment request leaves the app")
+    func regionRestrictedProviderIsRejected() async {
+        let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
+        let model = makeModel(onrampManager: manager)
+        let restricted = OnrampTestFixtures.makeProvider(
+            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "quote-id", isRestricted: true))
+        )
+
+        let outcome = await runHandleAndAwaitResult(on: model, provider: restricted)
+
+        #expect(outcome.callCount == 1)
+        #expect(outcome.lastStatus == .failure)
+        #expect(await manager.loadNativePaymentDataCallCount == 0)
+    }
+
     // MARK: - Deferred completion on applePaySheetDidFinish
 
     @Test("Native payment success defers openFinishStep() until applePaySheetDidFinish()")
@@ -283,10 +298,13 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         )
     }
 
-    private func runHandleAndAwaitResult(on model: OnrampModel) async -> ResultOutcome {
+    private func runHandleAndAwaitResult(
+        on model: OnrampModel,
+        provider: OnrampProvider = OnrampTestFixtures.makeProvider()
+    ) async -> ResultOutcome {
         let recorder = ResultHandlerRecorder(eventLog: eventLog)
         let result = ApplePayAuthorizationResult(
-            provider: OnrampTestFixtures.makeProvider(),
+            provider: provider,
             applePayResult: StubFixtures.makeApplePayResult(),
             resultHandler: { recorder.record($0) }
         )
@@ -403,6 +421,8 @@ private actor StubOnrampManager: OnrampManager {
     private let mode: Mode
     private let historyMode: HistoryMode
 
+    private(set) var loadNativePaymentDataCallCount = 0
+
     init(mode: Mode, historyMode: HistoryMode = .unused) {
         self.mode = mode
         self.historyMode = historyMode
@@ -429,6 +449,8 @@ private actor StubOnrampManager: OnrampManager {
         redirectSettings: OnrampRedirectSettings,
         applePayResult: OnrampApplePayResult
     ) async throws -> OnrampDataResult {
+        loadNativePaymentDataCallCount += 1
+
         switch mode {
         case .nativePayment(let data): return .nativePayment(data)
         case .widget(let data): return .widget(data)
