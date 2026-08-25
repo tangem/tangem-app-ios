@@ -90,14 +90,26 @@ struct TransactionHistoryMapper {
     // [REDACTED_INFO]: when the redesign toggle is removed, drop the `DayFormatStyle`.
     func mapTransactionListItem(
         from records: [TransactionRecord],
-        groupingStyle: GroupingStyle = .day(.short),
-        subtitleOwnerResolver: SubtitleOwnerResolver? = nil
+        groupingStyle: GroupingStyle,
+        dustFilter: TransactionHistoryDustFilter,
+        subtitleOwnerResolver: SubtitleOwnerResolver?
     ) -> [TransactionListItem] {
-        let mapRow = { mapTransactionViewModel($0, subtitleOwnerResolver: subtitleOwnerResolver) }
+        // Dust is dropped before grouping so that a fully filtered day doesn't leave an empty section behind.
+        let prepared = records
+            .map(prepare(_:))
+            .filter {
+                !dustFilter.isDust(
+                    amount: $0.amount,
+                    isOutgoing: $0.record.isOutgoing,
+                    transactionType: $0.transactionType
+                )
+            }
+
+        let mapRow = { makeTransactionViewModel(from: $0, subtitleOwnerResolver: subtitleOwnerResolver) }
 
         switch groupingStyle {
         case .day(let format):
-            let grouped = Dictionary(grouping: records, by: { Calendar.current.startOfDay(for: $0.date ?? Date()) })
+            let grouped = Dictionary(grouping: prepared, by: { Calendar.current.startOfDay(for: $0.record.date ?? Date()) })
 
             let dateFormatter = switch format {
             case .short: Self.dateFormatter
@@ -115,8 +127,8 @@ struct TransactionHistoryMapper {
             let calendar = Calendar.current
             let currentMonthStart = calendar.dateInterval(of: .month, for: Date())?.start ?? Date()
 
-            let grouped = Dictionary(grouping: records) { record -> GroupingKey in
-                let date = record.date ?? Date()
+            let grouped = Dictionary(grouping: prepared) { prepared -> GroupingKey in
+                let date = prepared.record.date ?? Date()
                 if date >= currentMonthStart {
                     return .day(calendar.startOfDay(for: date))
                 } else {
@@ -163,31 +175,7 @@ struct TransactionHistoryMapper {
         _ record: TransactionRecord,
         subtitleOwnerResolver: SubtitleOwnerResolver? = nil
     ) -> TransactionViewModel {
-        var timeFormatted: String?
-        if let date = record.date {
-            timeFormatted = Self.timeFormatter.string(from: date)
-        }
-
-        let formattedAmount = transferAmount(from: record)
-        let interaction = interactionAddress(from: record)
-        let expressSubtitle = expressSubtitle(from: record, resolver: subtitleOwnerResolver)
-
-        return TransactionViewModel(
-            hash: record.hash,
-            index: record.index,
-            interactionAddress: interaction,
-            timeFormatted: timeFormatted,
-            amount: formattedAmount.legacy,
-            value: formattedAmount.redesigned,
-            currencyCode: currencySymbol,
-            isOutgoing: record.isOutgoing,
-            transactionType: transactionType(from: record),
-            status: status(from: record),
-            isFromYieldContract: record.isFromYieldContract,
-            subtitleOwner: expressSubtitle == nil ? subtitleOwnerResolver?.resolve(for: interaction) : nil,
-            expressSubtitle: expressSubtitle,
-            warning: expressWarning(from: record)
-        )
+        makeTransactionViewModel(from: prepare(record), subtitleOwnerResolver: subtitleOwnerResolver)
     }
 
     /// Builds the Express (swap / onramp) row subtitle: the counterparty currency (icon + symbol) with a
@@ -379,7 +367,58 @@ private extension TransactionHistoryMapper {
         let redesigned: String
     }
 
+    struct PreparedRecord {
+        let record: TransactionRecord
+        let transactionType: TransactionViewModel.TransactionType
+        let amount: Decimal
+    }
+
+    func prepare(_ record: TransactionRecord) -> PreparedRecord {
+        PreparedRecord(
+            record: record,
+            transactionType: transactionType(from: record),
+            amount: transferAmountValue(from: record)
+        )
+    }
+
+    func makeTransactionViewModel(
+        from prepared: PreparedRecord,
+        subtitleOwnerResolver: SubtitleOwnerResolver?
+    ) -> TransactionViewModel {
+        let record = prepared.record
+
+        var timeFormatted: String?
+        if let date = record.date {
+            timeFormatted = Self.timeFormatter.string(from: date)
+        }
+
+        let formattedAmount = getFormattedAmount(for: prepared)
+        let interaction = interactionAddress(from: record)
+        let expressSubtitle = expressSubtitle(from: record, resolver: subtitleOwnerResolver)
+
+        return TransactionViewModel(
+            hash: record.hash,
+            index: record.index,
+            interactionAddress: interaction,
+            timeFormatted: timeFormatted,
+            amount: formattedAmount.legacy,
+            value: formattedAmount.redesigned,
+            currencyCode: currencySymbol,
+            isOutgoing: record.isOutgoing,
+            transactionType: prepared.transactionType,
+            status: status(from: record),
+            isFromYieldContract: record.isFromYieldContract,
+            subtitleOwner: expressSubtitle == nil ? subtitleOwnerResolver?.resolve(for: interaction) : nil,
+            expressSubtitle: expressSubtitle,
+            warning: expressWarning(from: record)
+        )
+    }
+
     func transferAmount(from record: TransactionRecord) -> FormattedAmount {
+        getFormattedAmount(for: prepare(record))
+    }
+
+    func transferAmountValue(from record: TransactionRecord) -> Decimal {
         if record.isOutgoing {
             let sent: Decimal = {
                 switch record.source {
@@ -399,20 +438,15 @@ private extension TransactionHistoryMapper {
                 }
             }()
 
-            let amount = sent - change
-            return getFormattedAmount(amount: amount, record: record)
+            return sent - change
 
         } else {
-            let received: Decimal = {
-                switch record.destination {
-                case .single(let destination):
-                    return destination.amount
-                case .multiple(let destinations):
-                    return destinations.sum(for: walletAddresses)
-                }
-            }()
-
-            return getFormattedAmount(amount: received, record: record)
+            switch record.destination {
+            case .single(let destination):
+                return destination.amount
+            case .multiple(let destinations):
+                return destinations.sum(for: walletAddresses)
+            }
         }
     }
 
@@ -581,7 +615,10 @@ extension TransactionHistoryMapper {
 }
 
 private extension TransactionHistoryMapper {
-    func getFormattedAmount(amount: Decimal, record: TransactionRecord) -> FormattedAmount {
+    func getFormattedAmount(for prepared: PreparedRecord) -> FormattedAmount {
+        let record = prepared.record
+        let amount = prepared.amount
+
         if case .onramp(let info) = record.expressExtraInfo {
             let isEstimated = info.transaction.to.actualAmount == nil || status(from: record) == .inProgress
             let prefix = isEstimated ? "\(AppConstants.tildeSign) " : ""
@@ -591,7 +628,7 @@ private extension TransactionHistoryMapper {
             )
         }
 
-        switch transactionType(from: record) {
+        switch prepared.transactionType {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             return FormattedAmount(
                 legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
