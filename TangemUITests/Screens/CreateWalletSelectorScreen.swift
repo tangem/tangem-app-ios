@@ -14,10 +14,15 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
     private lazy var getStartedButton = button(.getStartedButton)
     private lazy var startWithMobileWalletButton = button(.startWithMobileWalletButton)
 
+    private func tapGetStarted() {
+        getStartedButton.waitForStableFrame()
+        getStartedButton.waitAndTap()
+    }
+
     @discardableResult
     func scanMockWallet(name: CardMockAccessibilityIdentifiers) -> MainScreen {
         XCTContext.runActivity(named: "Scan Mock Wallet: \(name)") { _ in
-            getStartedButton.waitAndTap()
+            tapGetStarted()
             scanButton.waitAndTap()
 
             selectWalletFromList(name: name)
@@ -36,10 +41,6 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
         // Find the mock wallet button in the alert
         let walletButton = app.buttons[name.rawValue].firstMatch
 
-        if !walletButton.isHittable {
-            app.swipeUp()
-        }
-
         guard walletButton.waitForExistence(timeout: .robustUIUpdate) else {
             let availableButtons = app.buttons.allElementsBoundByIndex.map { $0.identifier }
             XCTFail(
@@ -47,6 +48,8 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
             )
             return self
         }
+
+        scrollToElement(walletButton, attempts: .lazy)
 
         guard walletButton.waitForState(state: .hittable) else {
             XCTFail("Mock wallet button '\(name.rawValue)' exists but is not hittable")
@@ -66,7 +69,7 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
 
     func skipStories() -> Self {
         XCTContext.runActivity(named: "Skip stories screen") { _ in
-            getStartedButton.waitAndTap()
+            tapGetStarted()
             return self
         }
     }
