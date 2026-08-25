@@ -149,7 +149,7 @@ struct TransactionDetailsHeaderView: View {
         )
         // Failed — red title, no menu (close only).
         TransactionDetailsHeaderView(
-            data: .init(title: "Sending failed", titleStyle: .failed, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), iconGlyph: nil, menuActions: []),
+            data: .init(title: "Send failed", titleStyle: .failed, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), iconGlyph: nil, menuActions: []),
             onAction: { _ in }
         )
     }
