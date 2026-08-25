@@ -51,34 +51,34 @@ final class DeviceKeyManagerTests: LeakTrackingTestSuite {
         _ = try await second
         _ = try await third
 
-        #expect(spyPrivateKeyProvider.receivedMessages == [.privateKey])
+        #expect(spyPrivateKeyProvider.receivedMessages == [.retrieve])
     }
 
     @Test
     func failedPrivateKeyRecoversAfterSuccessfulRetry() async throws {
         let repository = SpyDevicePrivateKeyRepository()
-        repository.privateKeyResult = .failure(.keychainItemCorrupted)
+        repository.retrieveResult = .failure(.keychainFailure(.itemCorrupted))
 
         let sut = makeSUT(privateKeyRepository: repository)
 
-        let firstError = await #expect(throws: DeviceKeyManagerError.self) {
+        let firstError = try await #require(throws: DeviceKeyManagerError.self) {
             _ = try await sut.publicKey
         }
 
-        guard case .privateKeyUnavailable(.keychainItemCorrupted) = firstError else {
-            Issue.record("Expected .privateKeyUnavailable(.keychainItemCorrupted), got \(firstError)")
+        guard case .privateKeyUnavailable(.keychainFailure(.itemCorrupted)) = firstError else {
+            Issue.record("Expected .privateKeyUnavailable(.keychainFailure(.itemCorrupted)), got \(firstError)")
             return
         }
 
-        #expect(repository.receivedMessages == [.privateKey])
+        #expect(repository.receivedMessages == [.retrieve])
 
         let expectedPrivateKey = try StubDevicePrivateKey(publicKeyResult: .success(.stub), signResult: .success(.stub))
-        repository.privateKeyResult = .success(expectedPrivateKey)
+        repository.retrieveResult = .success(expectedPrivateKey)
 
         let recoveredPublicKey = try await sut.publicKey
 
         #expect(try recoveredPublicKey == expectedPrivateKey.publicKey)
-        #expect(repository.receivedMessages == [.privateKey, .privateKey])
+        #expect(repository.receivedMessages == [.retrieve, .retrieve])
     }
 
     @Test
@@ -91,7 +91,7 @@ final class DeviceKeyManagerTests: LeakTrackingTestSuite {
 
         let sut = makeSUT(privateKeyRepository: StubDevicePrivateKeyRepository(result: .success(devicePrivateKey)))
 
-        let deviceKeyManagerError = await #expect(throws: DeviceKeyManagerError.self) {
+        let deviceKeyManagerError = try await #require(throws: DeviceKeyManagerError.self) {
             _ = try await sut.publicKey
         }
 
@@ -111,7 +111,7 @@ final class DeviceKeyManagerTests: LeakTrackingTestSuite {
         let sut = makeSUT(privateKeyRepository: StubDevicePrivateKeyRepository(result: .success(devicePrivateKey)))
         let anyData = Data()
 
-        let deviceKeyManagerError = await #expect(throws: DeviceKeyManagerError.self) {
+        let deviceKeyManagerError = try await #require(throws: DeviceKeyManagerError.self) {
             _ = try await sut.sign(data: anyData)
         }
 

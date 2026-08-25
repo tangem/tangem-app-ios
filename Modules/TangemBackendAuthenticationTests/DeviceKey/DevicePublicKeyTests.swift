@@ -59,11 +59,31 @@ struct DevicePublicKeyTests {
             try DevicePublicKey(derRepresentation: Self.anyDerRepresentation, rawPoint: invalidRawPoint)
         }
     }
+
+    @Test
+    func xReturnsTheBytesImmediatelyAfterTheUncompressedPrefix() throws {
+        let rawPoint = RawPointPrefix.Valid.uncompressed.bytes + Self.xCoordinateBytes + Self.yCoordinateBytes
+
+        let publicKey = try DevicePublicKey(derRepresentation: Self.anyDerRepresentation, rawPoint: rawPoint)
+
+        #expect(publicKey.x == Self.xCoordinateBytes)
+    }
+
+    @Test
+    func yReturnsTheLast32BytesOfRawPoint() throws {
+        let rawPoint = RawPointPrefix.Valid.uncompressed.bytes + Self.xCoordinateBytes + Self.yCoordinateBytes
+
+        let publicKey = try DevicePublicKey(derRepresentation: Self.anyDerRepresentation, rawPoint: rawPoint)
+
+        #expect(publicKey.y == Self.yCoordinateBytes)
+    }
 }
 
 extension DevicePublicKeyTests {
     private static let anyDerRepresentation = Data([0x01, 0x02, 0x03])
     private static let placeholderByte: UInt8 = 0xAB
+    private static let xCoordinateBytes = Data(repeating: 0x11, count: 32)
+    private static let yCoordinateBytes = Data(repeating: 0x22, count: 32)
 
     private enum RawPointPrefix {
         enum Valid: UInt8 {

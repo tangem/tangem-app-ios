@@ -27,4 +27,17 @@ public extension Data {
             _ = memset_s(baseAddress, bytes.count, 0, bytes.count)
         }
     }
+
+    /// Base64URL encoding per RFC 4648 §5: the standard Base64 alphabet with `+`/`/` replaced by `-`/`_`, unpadded.
+    @available(iOS, obsoleted: 26.4, renamed: "base64EncodedString(options:)")
+    var base64URLEncodedString: String {
+        if #available(iOS 26.4, *) {
+            return base64EncodedString(options: [.base64URLAlphabet, .omitPaddingCharacter])
+        }
+
+        return base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+    }
 }

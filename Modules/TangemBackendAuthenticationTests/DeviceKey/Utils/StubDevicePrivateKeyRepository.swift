@@ -13,19 +13,17 @@ import Foundation
 struct StubDevicePrivateKeyRepository: DevicePrivateKeyRepository {
     let result: Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError>
 
-    var privateKey: StubDevicePrivateKey {
-        get throws(DevicePrivateKeyRepositoryError) {
-            switch result {
-            case .success(let key):
-                return key
+    func retrieve() throws(DevicePrivateKeyRepositoryError) -> StubDevicePrivateKey {
+        switch result {
+        case .success(let key):
+            return key
 
-            case .failure(let error):
-                throw error
-            }
+        case .failure(let error):
+            throw error
         }
     }
 
-    func removePrivateKey() {}
+    func delete() throws(DevicePrivateKeyRepositoryError) {}
 }
 
 struct StubDevicePrivateKey: DevicePrivateKey {
