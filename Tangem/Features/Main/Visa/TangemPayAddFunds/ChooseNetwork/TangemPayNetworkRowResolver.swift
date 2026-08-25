@@ -18,7 +18,7 @@ enum TangemPayNetworkRowResolver {
             return TangemPayNetworkRow(
                 id: network.chainId,
                 title: blockchain.displayName,
-                subtitle: network.tokens.map(\.token).joined(separator: ", "),
+                subtitle: subtitle(for: network),
                 icon: NetworkImageProvider().provide(by: blockchain, filled: true),
                 status: network.status,
                 action: action(for: network, blockchain: blockchain)
@@ -33,6 +33,17 @@ enum TangemPayNetworkRowResolver {
         TangemPayUtilities.blockchain(name: network.name, isTestnet: network.isTestnet).map { blockchain in
             receiveInput(for: network, blockchain: blockchain, depositAddress: depositAddress)
         }
+    }
+
+    private static func subtitle(for network: TangemPayBalance.Network) -> String {
+        let symbols = switch network.status {
+        case .notIssued:
+            Constants.notIssuedTokenSymbols
+        case .enabled, .disabled, .undefined:
+            network.tokens.map(\.token)
+        }
+
+        return symbols.joined(separator: ", ")
     }
 
     private static func action(
@@ -70,5 +81,9 @@ enum TangemPayNetworkRowResolver {
                 .init(symbol: $0.token, contractAddress: $0.tokenContractAddress)
             }
         )
+    }
+
+    private enum Constants {
+        static let notIssuedTokenSymbols = ["USDT", "USDC"]
     }
 }
