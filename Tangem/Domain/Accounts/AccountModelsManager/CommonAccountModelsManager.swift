@@ -78,6 +78,7 @@ actor CommonAccountModelsManager {
 
     private nonisolated func initialize(forUserWalletWithId userWalletId: UserWalletId) {
         cryptoAccountsRepository.initialize(forUserWalletWithId: userWalletId)
+        jointAccountsRepository.initialize()
     }
 
     private func makeCryptoAccountModels(from storedCryptoAccounts: [StoredCryptoAccount]) -> [any CryptoAccountModel] {
@@ -389,8 +390,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
 
         do {
             let config = JointAccountCreationConfig(creationContext: context, derivationIndex: nextDerivationIndex)
-            // [REDACTED_TODO_COMMENT]
-            _ = try await jointAccountsRepository.addNewJointAccount(withConfig: config)
+            try await jointAccountsRepository.addNewJointAccount(withConfig: config)
         } catch {
             AccountsLogger.error("Failed to add new joint account for user wallet \(userWalletId)", error: error)
             throw .unknownError(error)

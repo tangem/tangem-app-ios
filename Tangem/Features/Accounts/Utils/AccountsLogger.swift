@@ -10,3 +10,4 @@ import TangemLogger
 import Foundation
 
 let AccountsLogger = Logger(category: OSLogCategory(name: "Accounts"))
+let JointAccountsLogger = AccountsLogger.tag("Joint")
