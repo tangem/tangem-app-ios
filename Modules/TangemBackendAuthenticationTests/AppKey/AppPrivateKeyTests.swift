@@ -27,7 +27,7 @@ struct AppPrivateKeyTests {
 
     @Test
     func initThrowsForNonBase64AppPrivateKey() throws {
-        let error = #expect(throws: AppPrivateKeyParsingError.self) {
+        let error = try #require(throws: AppPrivateKeyParsingError.self) {
             _ = try AppPrivateKey("any non-base64 string")
         }
 
@@ -39,7 +39,7 @@ struct AppPrivateKeyTests {
 
     @Test
     func initThrowsForMalformedAppPrivateKey() throws {
-        let error = #expect(throws: AppPrivateKeyParsingError.self) {
+        let error = try #require(throws: AppPrivateKeyParsingError.self) {
             _ = try AppPrivateKey(Data("any invalid key string".utf8).base64EncodedString())
         }
 

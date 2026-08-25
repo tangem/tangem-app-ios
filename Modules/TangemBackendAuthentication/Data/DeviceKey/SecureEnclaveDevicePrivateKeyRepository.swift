@@ -6,89 +6,70 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-private import CryptoKit
+private import enum CryptoKit.SecureEnclave
 private import Foundation
 private import Security
 
-/// Loads the device's Secure Enclave-backed private key from the Keychain,
-/// or generates and persists a new one if none exists yet.
 struct SecureEnclaveDevicePrivateKeyRepository: DevicePrivateKeyRepository {
-    private let keychainService: String
-    private let keychainAccount: String
+    private let keychainRepository: any KeychainRepository
 
-    init(keychainService: String, keychainAccount: String) {
+    init(keychainRepository: some KeychainRepository) {
         precondition(SecureEnclave.isAvailable)
-
-        self.keychainService = keychainService
-        self.keychainAccount = keychainAccount
+        self.keychainRepository = keychainRepository
     }
 
-    /// - Warning: Avoid calling from the main thread directly.
-    var privateKey: SecureEnclaveDevicePrivateKey {
-        get throws(DevicePrivateKeyRepositoryError) {
-            let privateKey: SecureEnclave.P256.Signing.PrivateKey
+    func retrieve() async throws(DevicePrivateKeyRepositoryError) -> SecureEnclaveDevicePrivateKey {
+        let privateKey: SecureEnclave.P256.Signing.PrivateKey
 
-            if let existingKey = try loadFromKeychain() {
-                privateKey = existingKey
-            } else {
-                privateKey = try generateAndStoreInKeychain()
-            }
+        if let existingKey = try await loadFromKeychain() {
+            privateKey = existingKey
+        } else {
+            privateKey = try await generateAndStoreInKeychain()
+        }
 
-            return SecureEnclaveDevicePrivateKey(key: privateKey)
+        return SecureEnclaveDevicePrivateKey(key: privateKey)
+    }
+
+    func delete() async throws(DevicePrivateKeyRepositoryError) {
+        do {
+            try await keychainRepository.delete()
+        } catch {
+            throw DevicePrivateKeyRepositoryError.keychainFailure(error)
         }
     }
 
-    func removePrivateKey() {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keychainAccount,
-            kSecUseDataProtectionKeychain as String: true,
-        ]
+    private func loadFromKeychain() async throws(DevicePrivateKeyRepositoryError) -> SecureEnclave.P256.Signing.PrivateKey? {
+        let privateKeyDataRepresentation: Data?
 
-        _ = SecItemDelete(query as CFDictionary)
-    }
+        do {
+            privateKeyDataRepresentation = try await keychainRepository.retrieve()
+        } catch {
+            throw DevicePrivateKeyRepositoryError.keychainFailure(error)
+        }
 
-    private func loadFromKeychain() throws(DevicePrivateKeyRepositoryError) -> SecureEnclave.P256.Signing.PrivateKey? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keychainAccount,
-            kSecReturnData as String: true,
-            kSecUseDataProtectionKeychain as String: true,
-        ]
+        guard let privateKeyDataRepresentation else { return nil }
 
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        switch status {
-        case errSecSuccess:
-            guard let data = result as? Data else {
-                throw DevicePrivateKeyRepositoryError.keychainItemCorrupted
-            }
-
-            do {
-                return try SecureEnclave.P256.Signing.PrivateKey(dataRepresentation: data)
-            } catch {
-                throw DevicePrivateKeyRepositoryError.keyRestorationFailed(underlying: error)
-            }
-
-        case errSecItemNotFound:
-            return nil
-
-        default:
-            throw DevicePrivateKeyRepositoryError.keychainQueryFailed(status: status)
+        do {
+            return try SecureEnclave.P256.Signing.PrivateKey(dataRepresentation: privateKeyDataRepresentation)
+        } catch {
+            throw DevicePrivateKeyRepositoryError.keyRestorationFailed(underlying: error)
         }
     }
 
-    private func generateAndStoreInKeychain() throws(DevicePrivateKeyRepositoryError) -> SecureEnclave.P256.Signing.PrivateKey {
-        let privateKey = try Self.generateKey()
-        try storeKeyInKeychain(privateKey)
+    private func generateAndStoreInKeychain() async throws(DevicePrivateKeyRepositoryError) -> SecureEnclave.P256.Signing.PrivateKey {
+        let privateKey: SecureEnclave.P256.Signing.PrivateKey = try await Self.generateKey()
+
+        do {
+            try await keychainRepository.insert(privateKey.dataRepresentation)
+        } catch {
+            throw DevicePrivateKeyRepositoryError.keychainFailure(error)
+        }
 
         return privateKey
     }
 
-    private static func generateKey() throws(DevicePrivateKeyRepositoryError) -> SecureEnclave.P256.Signing.PrivateKey {
+    @concurrent
+    private static func generateKey() async throws(DevicePrivateKeyRepositoryError) -> SecureEnclave.P256.Signing.PrivateKey {
         var accessControlError: Unmanaged<CFError>?
 
         guard let accessControl = SecAccessControlCreateWithFlags(
@@ -111,22 +92,5 @@ struct SecureEnclaveDevicePrivateKeyRepository: DevicePrivateKeyRepository {
         }
 
         return privateKey
-    }
-
-    private func storeKeyInKeychain(_ privateKey: SecureEnclave.P256.Signing.PrivateKey) throws(DevicePrivateKeyRepositoryError) {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keychainAccount,
-            kSecValueData as String: privateKey.dataRepresentation,
-            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-            kSecUseDataProtectionKeychain as String: true,
-        ]
-
-        let status = SecItemAdd(query as CFDictionary, nil)
-
-        guard status == errSecSuccess else {
-            throw DevicePrivateKeyRepositoryError.keychainSaveFailed(status: status)
-        }
     }
 }

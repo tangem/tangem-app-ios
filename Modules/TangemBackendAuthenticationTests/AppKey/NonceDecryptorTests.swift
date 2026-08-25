@@ -25,11 +25,11 @@ struct NonceDecryptorTests {
     }
 
     @Test
-    func decryptPropagatesAppPrivateKeyParsingFailure() {
+    func decryptPropagatesAppPrivateKeyParsingFailure() throws {
         let sut = NonceDecryptor(appPrivateKey: "any non-base64 string")
         let anyCipheredNonce = Data()
 
-        let error = #expect(throws: NonceDecryptorError.self) {
+        let error = try #require(throws: NonceDecryptorError.self) {
             _ = try sut.decrypt(cipheredNonce: anyCipheredNonce)
         }
 
@@ -44,7 +44,7 @@ struct NonceDecryptorTests {
         let sut = makeSUT(appPrivateKey: mismatchedKeyPair.privateKey)
         let mismatchedCipherText = try Self.encrypt(Data("mismatched key".utf8), with: mismatchedKeyPair.publicKey)
 
-        let error = #expect(throws: NonceDecryptorError.self) {
+        let error = try #require(throws: NonceDecryptorError.self) {
             _ = try sut.decrypt(cipheredNonce: mismatchedCipherText)
         }
 
@@ -55,10 +55,10 @@ struct NonceDecryptorTests {
     }
 
     @Test(arguments: Self.invalidCipheredNonces)
-    func decryptThrowsDecryptFailureForInvalidCipheredNonce(invalidCipheredNonce: Data) {
+    func decryptThrowsDecryptFailureForInvalidCipheredNonce(invalidCipheredNonce: Data) throws {
         let sut = makeSUT(appPrivateKey: KeyPair.pkcs1.privateKey)
 
-        let error = #expect(throws: NonceDecryptorError.self) {
+        let error = try #require(throws: NonceDecryptorError.self) {
             _ = try sut.decrypt(cipheredNonce: invalidCipheredNonce)
         }
 
