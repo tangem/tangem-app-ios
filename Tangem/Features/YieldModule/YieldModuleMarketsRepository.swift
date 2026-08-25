@@ -29,7 +29,9 @@ extension CommonYieldModuleMarketsRepository: YieldModuleMarketsRepository {
     }
 
     func marketInfo(for contractAddress: String) -> CachedYieldModuleMarket? {
-        markets()?.markets.first { $0.tokenContractAddress == contractAddress }
+        // The backend lowercases token addresses while the wallet stores them in EIP-55 checksum form —
+        // compare case-insensitively so the cached warm start matches the live state.
+        markets()?.markets.first { $0.tokenContractAddress.caseInsensitiveEquals(to: contractAddress) }
     }
 }
 
