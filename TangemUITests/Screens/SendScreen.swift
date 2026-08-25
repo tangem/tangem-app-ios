@@ -1290,7 +1290,9 @@ final class SendScreen: ScreenBase<SendScreenElement> {
             if !field.hasFocus {
                 field.tap()
             }
-            field.typeText(digits)
+            for character in digits {
+                field.typeText(String(character))
+            }
             if field.getValue().replacingOccurrences(of: ",", with: "") == digits {
                 return
             }
