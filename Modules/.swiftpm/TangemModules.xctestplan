@@ -27,6 +27,13 @@
       }
     },
     {
+    "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemBackendAuthenticationTests",
+        "name" : "TangemBackendAuthenticationTests"
+      }
+    },
+    {
       "target" : {
         "containerPath" : "container:",
         "identifier" : "TangemFoundationTests",
