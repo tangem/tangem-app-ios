@@ -88,6 +88,10 @@ extension DEXProviderFlowHelper {
         request: ExpressManagerSwappingPairRequest,
         quote: ExpressQuote
     ) async -> RestrictionCheckResult {
+        if quote.isRestricted {
+            return .terminalState(.restriction(.regionRestricted, quote: quote))
+        }
+
         do {
             let sourceBalance = try pair.source.balanceProvider.getBalance()
             let isNotEnoughBalanceForSwapping = sourceAmount > sourceBalance
@@ -248,7 +252,8 @@ extension DEXProviderFlowHelper {
             expectAmount: data.toAmount,
             allowanceContract: quote.allowanceContract,
             quoteId: quote.quoteId,
-            txType: quote.txType
+            txType: quote.txType,
+            isRestricted: quote.isRestricted
         )
 
         return .dexPreview(.init(provider: provider, data: data, fee: fee, quote: quoteData))
@@ -377,7 +382,8 @@ extension DEXProviderFlowHelper {
             expectAmount: data.toAmount,
             allowanceContract: quote.allowanceContract,
             quoteId: quote.quoteId,
-            txType: quote.txType
+            txType: quote.txType,
+            isRestricted: quote.isRestricted
         )
 
         let approveFlowData = ExpressProviderManagerState.DEXWithApprovePreview.DEXWithApproveFlowApproveData(

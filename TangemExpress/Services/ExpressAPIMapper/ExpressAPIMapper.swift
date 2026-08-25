@@ -12,6 +12,7 @@ import TangemLogger
 
 struct ExpressAPIMapper {
     let exchangeDataDecoder: ExpressExchangeDataDecoder
+    let featureFlags: ExpressFeatureFlags
 
     // MARK: - Map to DTO
 
@@ -79,7 +80,8 @@ struct ExpressAPIMapper {
             expectAmount: toAmount,
             allowanceContract: response.allowanceContract,
             quoteId: response.quoteId,
-            txType: response.txType.flatMap { ExpressTransactionType(rawValue: $0) }
+            txType: response.txType.flatMap { ExpressTransactionType(rawValue: $0) },
+            isRestricted: (response.isRestricted ?? false) && featureFlags.isRegionRestrictionsEnabled
         )
     }
 
@@ -221,7 +223,8 @@ struct ExpressAPIMapper {
         return OnrampQuote(
             expectedAmount: toAmount,
             nativePaymentAvailable: response.nativePaymentAvailable ?? false,
-            quoteId: response.quoteId
+            quoteId: response.quoteId,
+            isRestricted: (response.isRestricted ?? false) && featureFlags.isRegionRestrictionsEnabled
         )
     }
 
