@@ -98,8 +98,11 @@ public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
         }
 
         let mnemonicWords = try mobileWalletSdk.exportMnemonic(context: context)
-        let passphrase = try mobileWalletSdk.exportPassphrase(context: context)
-        let payload = CommonWalletBackupPayload(mnemonicWords: mnemonicWords, passphrase: passphrase)
+        let requiresPassphrase = try mobileWalletSdk.exportPassphrase(context: context).isNotEmpty
+        let payload = CommonWalletBackupPayload(
+            mnemonicWords: mnemonicWords,
+            requiresPassphrase: requiresPassphrase
+        )
 
         let format = WalletBackupFormatVersion.current.resolve(backupResolver)
         let file = try format.makeFile(
