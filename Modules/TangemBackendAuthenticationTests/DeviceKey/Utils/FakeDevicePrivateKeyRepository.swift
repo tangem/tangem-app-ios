@@ -11,11 +11,11 @@ import Foundation
 @testable import TangemBackendAuthentication
 
 struct FakeDevicePrivateKeyRepository: DevicePrivateKeyRepository {
-    var privateKey: FakeDevicePrivateKey {
+    func retrieve() throws(DevicePrivateKeyRepositoryError) -> FakeDevicePrivateKey {
         FakeDevicePrivateKey(key: P256.Signing.PrivateKey())
     }
 
-    func removePrivateKey() {}
+    func delete() throws(DevicePrivateKeyRepositoryError) {}
 }
 
 struct FakeDevicePrivateKey: DevicePrivateKey {
