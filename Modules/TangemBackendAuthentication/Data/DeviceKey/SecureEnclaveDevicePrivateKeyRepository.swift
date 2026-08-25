@@ -97,8 +97,9 @@ struct SecureEnclaveDevicePrivateKeyRepository: DevicePrivateKeyRepository {
             .privateKeyUsage,
             &accessControlError
         ) else {
-            let error = accessControlError?.takeRetainedValue()
-            throw DevicePrivateKeyRepositoryError.keyGenerationFailed(underlying: error)
+            throw DevicePrivateKeyRepositoryError.keyGenerationFailed(
+                underlying: accessControlError!.takeRetainedValue() as any Error
+            )
         }
 
         let privateKey: SecureEnclave.P256.Signing.PrivateKey
