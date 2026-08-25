@@ -140,13 +140,18 @@ private extension WalletBackupFormatV1 {
     /// future app versions — this schema must keep decoding forever.
     struct PayloadDTO: Codable {
         let mnemonic: String
-        let passphrase: String
+        let passphraseRequired: PassphraseRequirement
+    }
+
+    enum PassphraseRequirement: Int, Codable {
+        case notRequired = 0
+        case required = 1
     }
 
     func encodePayload(_ payload: any WalletBackupPayload) throws -> Data {
         let dto = PayloadDTO(
             mnemonic: payload.mnemonicWords.joined(separator: " "),
-            passphrase: payload.passphrase
+            passphraseRequired: payload.requiresPassphrase ? .required : .notRequired
         )
         do {
             return try WalletBackupJSONCodec.encode(dto)
@@ -161,7 +166,7 @@ private extension WalletBackupFormatV1 {
             let dto = try WalletBackupJSONCodec.decode(PayloadDTO.self, from: payloadData)
             return CommonWalletBackupPayload(
                 mnemonicWords: dto.mnemonic.split(separator: " ").map(String.init),
-                passphrase: dto.passphrase
+                requiresPassphrase: requiresPassphrase(from: dto)
             )
         } catch {
             // The underlying error is dropped on purpose — it can embed the plaintext.
@@ -178,6 +183,13 @@ private extension WalletBackupFormatV1 {
             return try WalletBackupJSONCodec.decode(File.self, from: fileData)
         } catch {
             throw WalletBackupDecodingError.decodingFailed(error)
+        }
+    }
+
+    func requiresPassphrase(from dto: PayloadDTO) -> Bool {
+        switch dto.passphraseRequired {
+        case .required: true
+        case .notRequired: false
         }
     }
 
