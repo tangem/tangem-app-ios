@@ -17,4 +17,6 @@ protocol JointAccountsPersistentStorage {
     func getList() -> [StoredJointAccount]
 
     func appendNewOrUpdateExisting(_ account: StoredJointAccount) throws
+
+    func replace(with accounts: [StoredJointAccount]) throws
 }
