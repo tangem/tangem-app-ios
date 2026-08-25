@@ -208,8 +208,8 @@ private extension TangemPayReceiveSheetView {
     var actionButtons: some View {
         HStack(spacing: 8) {
             TangemUI.Button(
-                label: AttributedString(Localization.tokenReceiveShowQrCodeTitle),
-                accessibilityLabel: Localization.tokenReceiveShowQrCodeTitle,
+                label: AttributedString(Localization.tangempayMultichainShowQr),
+                accessibilityLabel: Localization.tangempayMultichainShowQr,
                 action: viewModel.showQRCode
             )
             .iconEnd(DesignSystem.Icons.Qr.regular24)
