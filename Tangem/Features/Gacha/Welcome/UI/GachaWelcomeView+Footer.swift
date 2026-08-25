@@ -14,6 +14,7 @@ private typealias Footer = GachaWelcomeView.Footer
 
 extension GachaWelcomeView {
     struct Footer: View {
+        let isLoading: Bool
         let onCreateAccountTap: () -> Void
 
         var body: some View {
@@ -42,6 +43,7 @@ private extension Footer {
             .styleType(.default)
             .horizontalLayout(.infinity)
             .size(.x12)
+            .isLoading(isLoading)
     }
 
     var background: some View {
@@ -89,6 +91,6 @@ private extension Footer {
     ZStack(alignment: .bottom) {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
-        Footer(onCreateAccountTap: {})
+        Footer(isLoading: false, onCreateAccountTap: {})
     }
 }
