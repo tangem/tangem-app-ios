@@ -18,6 +18,10 @@ final class GachaStoriesViewModel: ObservableObject {
 
     private weak var routable: (any GachaStoriesRoutable)?
 
+    private var isOnLastSlide: Bool {
+        currentSlideIndex == slides.count - 1
+    }
+
     var currentSlide: GachaStoriesView.Slide {
         slides[currentSlideIndex]
     }
@@ -60,19 +64,12 @@ final class GachaStoriesViewModel: ObservableObject {
                     self?.currentSlideProgress = slideProgress
                 }
             }
-
-            group.addTask { @MainActor in
-                await engine.storiesFinished()
-
-                // A cancelled `storiesFinished()` returns like a finished one — don't take it for a finish.
-                guard !Task.isCancelled else { return }
-
-                self?.routable?.openMain()
-            }
         }
     }
 
     func onForwardTap() {
+        guard !isOnLastSlide else { return }
+
         engine.showNextSlide()
     }
 
@@ -85,7 +82,7 @@ final class GachaStoriesViewModel: ObservableObject {
     }
 
     func onContinueTap() {
-        guard currentSlideIndex < slides.count - 1 else {
+        guard !isOnLastSlide else {
             routable?.openMain()
             return
         }
@@ -102,7 +99,7 @@ extension GachaStoriesViewModel {
     convenience init(routable: (any GachaStoriesRoutable)?) {
         self.init(
             slides: GachaStoriesView.Slide.content,
-            engine: CommonGachaStoriesEngine.init,
+            engine: { StoryPlayerViewModel(story: $0, onFinished: { _, _ in }) },
             routable: routable
         )
     }
