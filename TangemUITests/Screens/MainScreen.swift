@@ -461,9 +461,12 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func selectMockCardFromScannerAlert(name: CardMockAccessibilityIdentifiers) -> Self {
         XCTContext.runActivity(named: "Select mock card from scanner alert: \(name.rawValue)") { _ in
             let walletButton = app.buttons[name.rawValue].firstMatch
-            if !walletButton.isHittable {
-                app.swipeUp()
+            guard walletButton.waitForExistence(timeout: .robustUIUpdate) else {
+                XCTFail("Mock card button '\(name.rawValue)' not found in scanner alert")
+                return self
             }
+
+            scrollToElement(walletButton, attempts: .lazy)
             walletButton.waitAndTap()
             return self
         }
