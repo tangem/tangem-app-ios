@@ -22,7 +22,7 @@ protocol JointAccountsNetworkService {
     /// - Returns: Every joint account the wallet takes part in, except the archived ones.
     /// - Note: Nothing caches this: the composition changes inside other people's wallets, which leaves no trace on
     /// this one, so the list is worth reading anew whenever it is shown.
-    func getJointAccounts() async throws -> [StoredJointAccount]
+    func getJointAccounts() async throws -> [RemoteJointAccount]
 
     /// - Throws: `.notFound` when there is no such invite, and `.conflict` when it has been spent or this wallet
     /// already holds a slot of the account it invites to.
@@ -30,16 +30,16 @@ protocol JointAccountsNetworkService {
 
     /// Spends an invite on a slot and, if it was the last one free, has the endpoint work out the account's address.
     /// - Throws: `.conflict`, which is the end of that invite unless it came of the address being registered already.
-    func joinJointAccount(blob: JointAccountJoinBlob) async throws -> StoredJointAccount
+    func joinJointAccount(blob: JointAccountJoinBlob) async throws -> RemoteJointAccount
 
     /// - Throws: `.forbidden` when this wallet's slot is not the creator's, and `.conflict` while a slot is still free
     /// or when what is being confirmed differs from what the account holds.
     /// - Note: Activating an account that is active already succeeds, so a lost answer costs a repeat and no more.
-    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> StoredJointAccount
+    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount
 }
 
 struct JointAccountCreationResult {
-    let account: StoredJointAccount
+    let account: RemoteJointAccount
     /// One per slot the creator left free, which is the only time they are ever handed out — see `JointAccountInvite`.
     let invites: [JointAccountInvite]
 }

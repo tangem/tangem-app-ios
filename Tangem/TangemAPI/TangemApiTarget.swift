@@ -642,7 +642,14 @@ extension TangemApiTarget: CachePolicyProvider {
 
 extension TangemApiTarget: TargetTypeLogConvertible {
     var requestDescription: String {
-        path
+        switch type {
+        case .getJointAccountInvite(_, let inviteId):
+            // An invite is the account's access secret, and the path is logged for every request — unlike the body,
+            // which this endpoint already withholds
+            return path.replacingOccurrences(of: inviteId, with: inviteId.masked())
+        default:
+            return path
+        }
     }
 
     var shouldLogResponseBody: Bool {
@@ -682,11 +689,11 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .trendingNews,
              .yieldBoostPromotionStatus,
              .bindWalletsByCode,
-             // The answer carries the account's invites, the only secret that grants access to it. Keeps them out of
-             // production logs — a non-production build logs every body regardless, see `TangemNetworkLoggerPlugin`
              .createJointAccount,
-             // Same secret, this time in the request the invite is spent by
-             .joinJointAccount:
+             .joinJointAccount,
+             .getJointAccountInvite,
+             .getJointAccounts,
+             .activateJointAccount:
             return false
         case .geo,
              .features,
@@ -704,9 +711,6 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getUserAccounts,
              .saveUserAccounts,
              .getArchivedUserAccounts,
-             .getJointAccounts,
-             .getJointAccountInvite,
-             .activateJointAccount,
              .syncAddressBooks,
              .updateAddressBook,
              .activatePromoCode,
