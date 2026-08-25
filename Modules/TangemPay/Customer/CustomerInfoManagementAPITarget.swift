@@ -42,10 +42,14 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/close"
         case .setPin(let cardId, _, _, _), .getPin(let cardId, _):
             "customer/card/\(cardId)/pin"
-        case .getTransactionHistory:
+        case .getTransactionHistoryLegacy:
             "customer/transactions"
-        case .getTransaction(let transactionId):
+        case .getTransactionLegacy(let transactionId):
             "customer/transactions/\(transactionId)"
+        case .getTransactionHistory:
+            "transactions"
+        case .getTransaction(let transactionId):
+            "transactions/\(transactionId)"
         case .getWithdrawSignableData:
             "customer/card/withdraw/data"
         case .sendWithdrawTransaction:
@@ -102,6 +106,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCustomerOffers,
              .getTariffPlanTransitions,
              .getBalance,
+             .getTransactionHistoryLegacy,
+             .getTransactionLegacy,
              .getTransactionHistory,
              .getTransaction,
              .getPinLegacy,
@@ -158,6 +164,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin,
              .getFee,
              .getBankCredentials,
+             .getTransactionLegacy,
              .getTransaction,
              .getCashbackSummary,
              .getCashbackPromotions,
@@ -196,7 +203,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
             let requestParams = ["groups": groups.map(\.rawValue).joined(separator: ",")]
             return .requestParameters(parameters: requestParams, encoding: URLEncoding.default)
 
-        case .getTransactionHistory(let limit, let cursor):
+        case .getTransactionHistoryLegacy(let limit, let cursor), .getTransactionHistory(let limit, let cursor):
             var requestParams = [
                 "limit": "\(limit)",
             ]
@@ -313,6 +320,9 @@ extension CustomerInfoManagementAPITarget {
 
         case freeze(cardId: String)
         case unfreeze(cardId: String)
+
+        case getTransactionHistoryLegacy(limit: Int, cursor: String?)
+        case getTransactionLegacy(transactionId: String)
         case getTransactionHistory(limit: Int, cursor: String?)
         case getTransaction(transactionId: String)
 
