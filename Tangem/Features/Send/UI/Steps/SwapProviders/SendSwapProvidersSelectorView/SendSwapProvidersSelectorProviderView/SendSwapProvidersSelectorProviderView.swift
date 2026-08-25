@@ -24,8 +24,8 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
                     size: CGSize(width: 36, height: 36),
                     forceKingfisher: true
                 )
-                .saturation(data.isDisabled ? 0 : 1)
-                .opacity(data.isDisabled ? 0.4 : 1)
+                .saturation(data.isDimmed ? 0 : 1)
+                .opacity(data.isDimmed ? 0.4 : 1)
 
                 VStack(alignment: .leading, spacing: 4) {
                     titleView
@@ -38,7 +38,7 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
             .padding(.horizontal, 14)
             .background(backgroundView)
         }
-        .disabled(data.isDisabled)
+        .disabled(!data.isSelectable)
         .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderSelectorRow(name: data.title))
     }
 
@@ -51,7 +51,7 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
         HStack(alignment: .center, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(data.title)
-                    .style(Fonts.Bold.footnote, color: data.isDisabled ? Colors.Text.secondary : Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: data.isDimmed ? Colors.Text.secondary : Colors.Text.tertiary)
 
                 Text(data.providerType)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
@@ -88,7 +88,7 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
             Text(text)
                 .style(
                     Fonts.Bold.caption2,
-                    color: data.isDisabled ? Colors.Icon.inactive : Colors.Icon.informative
+                    color: data.isDimmed ? Colors.Icon.inactive : Colors.Icon.informative
                 )
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)

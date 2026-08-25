@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 
 struct OnrampAmountBadge: View {
     let badge: Badge?
@@ -33,6 +34,17 @@ struct OnrampAmountBadge: View {
                     RoundedRectangle(cornerRadius: 4, style: .continuous)
                         .fill(signType.textColor.opacity(0.1))
                 )
+
+        case .restricted:
+            Text(Localization.commonNotAvailable)
+                .style(Fonts.Bold.caption2, color: Colors.Text.tertiary)
+                .lineLimit(1)
+                .padding(.vertical, 1)
+                .padding(.horizontal, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .fill(Colors.Text.tertiary.opacity(0.1))
+                )
         }
     }
 }
@@ -41,5 +53,6 @@ extension OnrampAmountBadge {
     enum Badge: Hashable {
         case best
         case loss(percent: String, signType: ChangeSignType)
+        case restricted
     }
 }
