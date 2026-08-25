@@ -118,39 +118,10 @@ private extension TangemPayTransactionDetailsView {
         VStack(spacing: 0) {
             redesignedHeader(title: model.headerTitle, subtitle: model.headerSubtitle)
 
-            VStack(spacing: 12) {
-                redesignedIcon(model.icon)
-                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsIcon)
-
-                VStack(spacing: 8) {
-                    SensitiveText(model.amount)
-                        .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsAmount)
-
-                    if let amountSubtitle = model.amountSubtitle {
-                        Text(amountSubtitle)
-                            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
-                            .multilineTextAlignment(.center)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-                .padding(.top, 12)
-                .padding(.bottom, 36)
-
-                if let status = model.status {
-                    TangemPayTransactionStatusView(model: status)
-                }
-
-                VStack(spacing: 0) {
-                    cardRowView
-                    cashbackRowView
-                    redesignedRows(model.rows)
-                }
+            ScrollView {
+                redesignedScrollableContent(model)
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 48)
-            .padding(.bottom, 8)
+            .scrollBounceBehavior(.basedOnSize)
 
             TangemUI.Button(
                 label: AttributedString(model.mainButtonAction.title),
@@ -164,9 +135,46 @@ private extension TangemPayTransactionDetailsView {
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsMainButton)
         }
         .floatingSheetConfiguration { configuration in
+            configuration.maxHeightFraction = Constants.maxHeightFraction
             configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
+    }
+
+    func redesignedScrollableContent(_ model: TangemPayTransactionDetailsDisplayModel) -> some View {
+        VStack(spacing: 12) {
+            redesignedIcon(model.icon)
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsIcon)
+
+            VStack(spacing: 8) {
+                SensitiveText(model.amount)
+                    .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsAmount)
+
+                if let amountSubtitle = model.amountSubtitle {
+                    Text(amountSubtitle)
+                        .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(.top, 12)
+            .padding(.bottom, 36)
+
+            if let status = model.status {
+                TangemPayTransactionStatusView(model: status)
+            }
+
+            VStack(spacing: 0) {
+                cardRowView
+                cashbackRowView
+                redesignedRows(model.rows)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 48)
+        .padding(.bottom, 8)
     }
 
     func redesignedHeader(title: String, subtitle: String) -> some View {
@@ -338,6 +346,12 @@ private extension TangemPayTransactionDetailsView {
                     .clipShape(Capsule())
                     .padding(.vertical, 2)
             }
+    }
+}
+
+private extension TangemPayTransactionDetailsView {
+    enum Constants {
+        static let maxHeightFraction: CGFloat = 0.9
     }
 }
 

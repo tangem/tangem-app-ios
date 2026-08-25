@@ -281,7 +281,7 @@ private extension TangemPaySpendDisplayInput.Status {
         self = switch status {
         case .completed: .completed
         case .declined: .declined
-        case .pending: .pending
+        case .pending, .undefined: .pending
         case .reversed: .reversed
         }
     }
