@@ -42,7 +42,6 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
     @Published var tangemPayDailyLimitViewModel: TangemPayDailyLimitViewModel?
     @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
-    @Published var visaBenefitsViewModel: WebViewContainerViewModel?
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
     @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
 
@@ -306,12 +305,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             return
         }
 
-        visaBenefitsViewModel = .init(
-            url: url,
-            title: "",
-            withCloseButton: true,
-            allowsJavaScript: true
-        )
+        safariManager.openURL(url)
     }
 }
 
