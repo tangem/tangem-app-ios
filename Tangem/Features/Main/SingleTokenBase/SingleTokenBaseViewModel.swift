@@ -92,6 +92,18 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         )
     }
 
+    private var usdRatePublisher: AnyPublisher<Decimal?, Never> {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            return .just(output: nil)
+        }
+
+        return walletModel.ratePublisher
+            .map { $0.quote?.priceUsd }
+            .prepend(nil)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     var isAccountsMode: Bool {
         userWalletRepository.models.contains {
             $0.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
@@ -374,10 +386,11 @@ extension SingleTokenBaseViewModel {
             .store(in: &bag)
 
         walletModel.transactionHistoryPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] newState in
+            .combineLatest(usdRatePublisher)
+            .receiveOnMain()
+            .sink { [weak self] newState, usdRate in
                 AppLogger.info(self, "New transaction history state: \(newState)")
-                self?.updateHistoryState(to: newState)
+                self?.updateHistoryState(to: newState, usdRate: usdRate)
             }
             .store(in: &bag)
 
@@ -509,7 +522,7 @@ extension SingleTokenBaseViewModel {
         })
     }
 
-    private func updateHistoryState(to newState: WalletModelTransactionHistoryState) {
+    private func updateHistoryState(to newState: WalletModelTransactionHistoryState, usdRate: Decimal?) {
         switch newState {
         case .notSupported:
             transactionHistoryState = .notSupported
@@ -525,6 +538,7 @@ extension SingleTokenBaseViewModel {
             let listItems = transactionHistoryMapper.mapTransactionListItem(
                 from: records,
                 groupingStyle: .day(.long),
+                dustFilter: TransactionHistoryDustFilter(usdRate: usdRate),
                 subtitleOwnerResolver: subtitleOwnerResolver
             )
             transactionHistoryState = .loaded(listItems)
