@@ -17,7 +17,6 @@ public struct DevicePublicKey: Equatable, Sendable {
     /// The public key as an X.509 SubjectPublicKeyInfo (SPKI) structure, DER (Distinguished Encoding Rules) encoded.
     ///
     /// Sent as the `devicePublicKey` field of either request payload:
-    ///
     ///   | request             | endpoint                                      |
     ///   | ---                 | ---                                           |
     ///   | device registration | `POST /mobile/register`                       |
@@ -33,12 +32,22 @@ public struct DevicePublicKey: Equatable, Sendable {
     ///  - Invariant: Exactly 65 bytes long: 1 byte prefix (0x04) + 32 bytes X coordinate + 32 bytes Y coordinate.
     public let rawPoint: Data
 
+    /// ``rawPoint``'s X coordinate: the 32 bytes immediately following the uncompressed-point prefix.
+    var x: Data {
+        rawPoint.dropFirst().prefix(Constants.coordinateByteCount)
+    }
+
+    /// ``rawPoint``'s Y coordinate: its last 32 bytes.
+    var y: Data {
+        rawPoint.suffix(Constants.coordinateByteCount)
+    }
+
     init(derRepresentation: Data, rawPoint: Data) throws(RawPointFormatError) {
-        guard rawPoint.count == Self.rawPointByteCount else {
+        guard rawPoint.count == Constants.rawPointByteCount else {
             throw RawPointFormatError.invalidLength(actual: rawPoint.count)
         }
 
-        guard rawPoint.first == Self.rawPointUncompressedPrefix else {
+        guard rawPoint.first == Constants.rawPointUncompressedPrefix else {
             throw RawPointFormatError.invalidPrefix(actual: rawPoint.first ?? 0)
         }
 
@@ -48,8 +57,11 @@ public struct DevicePublicKey: Equatable, Sendable {
 }
 
 extension DevicePublicKey {
-    private static let rawPointByteCount = 65
-    private static let rawPointUncompressedPrefix: UInt8 = 0x04
+    private enum Constants {
+        static let rawPointByteCount = 65
+        static let rawPointUncompressedPrefix: UInt8 = 0x04
+        static let coordinateByteCount = 32
+    }
 
     /// The specific way a raw elliptic curve point failed to match ``DevicePublicKey/rawPoint``'s expected format.
     public enum RawPointFormatError: Error, Equatable {
