@@ -25,6 +25,10 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
                 MobileCreateWalletCoordinatorView(coordinator: $0)
                     .navigationBarHidden(true)
             }
+            .navigation(item: $coordinator.importOnboardingCoordinator) {
+                OnboardingCoordinatorView(coordinator: $0)
+                    .navigationBarHidden(true)
+            }
     }
 
     private var content: some View {
