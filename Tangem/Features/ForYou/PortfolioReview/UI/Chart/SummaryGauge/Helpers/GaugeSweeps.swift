@@ -17,6 +17,7 @@ enum GaugeSweeps {
     static func visualSweepAngles(
         weights: [CGFloat],
         minFraction: CGFloat = Constants.minVisualSweepFraction,
+        minRemainderFraction: CGFloat = Constants.minRemainderFraction,
         capDeg: CGFloat = 0
     ) -> [CGFloat] {
         let base = weights.map { min(max($0, 0), 1) * Constants.fullCircleDeg }
@@ -27,21 +28,26 @@ enum GaugeSweeps {
         let n = activeIndices.count
 
         let filledSum = activeIndices.reduce(CGFloat.zero) { $0 + base[$1] }
+        let hasRemainder = filledSum < Constants.fullCircleDeg * (1 - Constants.remainderEpsilon)
+        let maxBudget = hasRemainder
+            ? Constants.fullCircleDeg * (1 - min(max(minRemainderFraction, 0), 1))
+            : Constants.fullCircleDeg
+        let cappedFilledSum = min(filledSum, maxBudget)
         // Never demand more than an equal share when the ring can't fit every floor.
-        let baseFloor = min(minFraction * Constants.fullCircleDeg, Constants.fullCircleDeg / CGFloat(n))
+        let baseFloor = min(minFraction * Constants.fullCircleDeg, maxBudget / CGFloat(n))
         // Compensation for the LAST segment only — on a full ring it's lapped over by a round cap at both
         // seams, so it loses ~capDeg of visible width. The loss shrinks with the unfilled track gap.
-        let gap = Constants.fullCircleDeg - filledSum
+        let gap = Constants.fullCircleDeg - cappedFilledSum
         let comp = max(capDeg * Constants.lastSegmentCapCompFactor - gap, 0)
         let floorOf: (Int) -> CGFloat = { index in
             index == lastActive
-                ? min(baseFloor + comp, Constants.fullCircleDeg / CGFloat(n))
+                ? min(baseFloor + comp, maxBudget / CGFloat(n))
                 : baseFloor
         }
 
         // Preserve the filled sweep when the floors fit; otherwise grow just enough to satisfy them.
         let floorsSum = activeIndices.reduce(CGFloat.zero) { $0 + floorOf($1) }
-        let budget = min(max(filledSum, floorsSum), Constants.fullCircleDeg)
+        let budget = min(max(cappedFilledSum, floorsSum), maxBudget)
 
         var result = Array(repeating: CGFloat.zero, count: weights.count)
         var pinned = Set<Int>()
@@ -84,6 +90,8 @@ extension GaugeSweeps {
     enum Constants {
         /// 7% of the full circle — the minimum visual share any non-zero segment is drawn at.
         static let minVisualSweepFraction: CGFloat = 0.07
+        static let minRemainderFraction: CGFloat = 0.1
+        static let remainderEpsilon: CGFloat = 1e-9
         static let fullCircleDeg: CGFloat = 360
         /// Share of the round-cap width the last segment is compensated for at its lapped-over seams.
         static let lastSegmentCapCompFactor: CGFloat = 0.75
