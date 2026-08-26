@@ -49,7 +49,6 @@ class EVMCustomFeeService {
     private var nonce: Int? { nonceTextField.value?.intValue() }
 
     private lazy var customFeeSubject: CurrentValueSubject<Fee, Never> = .init(feeTokenItem.zeroFee)
-    private var customFeeBeforeEditing: Fee?
     private var customMaxFeePerGasBeforeEditing: BigUInt?
     private var customPriorityFeeBeforeEditing: BigUInt?
     private var customMaxLimitBeforeEditing: BigUInt?
@@ -245,16 +244,13 @@ extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
             title: Localization.sendMaxFee,
             tooltip: Localization.sendCustomAmountFeeFooter,
             suffix: feeTokenItem.currencySymbol,
-            isEditable: true,
+            isEditable: false,
             textFieldViewModel: customFeeTextField,
             amountAlternativePublisher: customFeeSubject
                 .compactMap { $0 }
                 .withWeakCaptureOf(self)
                 .map { $0.formatToFiat(value: $1.amount.value) }
                 .eraseToAnyPublisher(),
-            onFocusChanged: { [weak self] focused in
-                self?.onCustomFeeChanged(focused)
-            },
             accessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeTotalAmountField,
             alternativeAmountAccessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeMaxFeeFiatValue
         )
@@ -338,16 +334,6 @@ extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
 // MARK: - Analytics
 
 private extension EVMCustomFeeService {
-    private func onCustomFeeChanged(_ focused: Bool) {
-        if focused {
-            customFeeBeforeEditing = customFeeSubject.value
-        } else {
-            if customFeeSubject.value != customFeeBeforeEditing {
-                Analytics.log(.sendCustomFeeInserted)
-            }
-        }
-    }
-
     private func onMaxFeePerGasChanged(_ focused: Bool) {
         if focused {
             customMaxFeePerGasBeforeEditing = maxFeePerGas
