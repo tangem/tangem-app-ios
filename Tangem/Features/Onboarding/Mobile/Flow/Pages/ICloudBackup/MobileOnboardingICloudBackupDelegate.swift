@@ -9,6 +9,6 @@
 import Foundation
 
 protocol MobileOnboardingICloudBackupDelegate: AnyObject {
-    func onICloudBackupComplete()
+    func onICloudBackupComplete(savedCredential: WebCredentialUtil.SavedCredential?)
     func onICloudBackupClose()
 }
