@@ -239,7 +239,7 @@ struct TangemPayMainView: View {
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton(cardId: card.cardId))
             .disabled(viewModel.isStale)
             .opacity(viewModel.isStale ? 0.6 : 1)
-        case .issuing:
+        case .issuing, .plastic:
             SwiftUI.Button {
                 viewModel.openCardManagement(entry: entry)
             } label: {

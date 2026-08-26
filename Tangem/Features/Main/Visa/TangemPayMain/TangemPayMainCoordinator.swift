@@ -47,6 +47,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
     @Published var virtualAccountSuccessViewModel: TangemPayVirtualAccountSuccessViewModel?
     @Published var cashbackDetailViewModel: TangemPayCashbackDetailViewModel?
+    @Published var activateCardViewModel: TangemPayActivateCardViewModel?
 
     private var options: Options?
     private var safariHandle: SafariHandle?
@@ -931,6 +932,14 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
         }
     }
 
+    func openPlasticCardActivation(card: TangemPayPlasticCardStub) {
+        activateCardViewModel = TangemPayActivateCardViewModel(card: card, coordinator: self)
+    }
+
+    func openSupport() {
+        rootViewModel?.contactSupport()
+    }
+
     func popToCardListScreen() {
         cardManagementViewModel = nil
     }
@@ -975,6 +984,23 @@ extension TangemPayMainCoordinator: TangemPayDailyLimitRoutable {
 extension TangemPayMainCoordinator: TangemPayOrderCardFlowRoutable {
     func orderCardFlowDidSelectVirtual() {
         rootViewModel?.orderCardTypeDidSelectVirtual()
+    }
+
+    func orderCardFlowDidOrderPlastic(email: String?) {
+        options?.tangemPayAccount.addOrderedPlasticCard(email: email)
+    }
+}
+
+// MARK: - TangemPayActivateCardRoutable
+
+extension TangemPayMainCoordinator: TangemPayActivateCardRoutable {
+    func activateCardDidFinish(cardId: String) {
+        options?.tangemPayAccount.markPlasticCardActivating(id: cardId)
+        activateCardViewModel = nil
+    }
+
+    func closeActivateCard() {
+        activateCardViewModel = nil
     }
 }
 
