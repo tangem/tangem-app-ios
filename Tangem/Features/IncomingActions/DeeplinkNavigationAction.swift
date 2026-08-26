@@ -49,6 +49,7 @@ extension DeeplinkNavigationAction {
         var interval: String?
         var earnType: String?
         var surveyToken: String?
+        var tangemPayScreen: String?
 
         static let empty = Params()
 
