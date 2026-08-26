@@ -56,6 +56,8 @@ public protocol MobileWalletBackupManager {
 }
 
 public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
+    private let fileNameSuffix = WalletBackupConstants.fileNameSuffix
+
     private let mobileWalletSdk: MobileWalletSdk
     private let storage: WalletBackupStorage
     private let backupResolver: WalletBackupFormatResolver
@@ -218,7 +220,7 @@ private extension CommonMobileWalletBackupManager {
         }
 
         return try await storage.files()
-            .filter { $0.name.hasSuffix(Constants.fileNameSuffix) }
+            .filter { $0.name.hasSuffix(fileNameSuffix) }
     }
 
     func loadBackup(file: WalletBackupStorageFile) async -> MobileWalletBackup? {
@@ -255,7 +257,7 @@ private extension CommonMobileWalletBackupManager {
         // as the same file, colliding on sync even though iOS distinguishes them locally.
         let takenNames = Set(existingFileNames.map { $0.lowercased() })
 
-        let preferredFileName = "\(baseName)\(Constants.fileNameSuffix)"
+        let preferredFileName = "\(baseName)\(fileNameSuffix)"
         guard takenNames.contains(preferredFileName.lowercased()) else {
             return preferredFileName
         }
@@ -277,7 +279,7 @@ private extension CommonMobileWalletBackupManager {
     /// so the search never goes past `count + 1`.
     func smallestNumberedFileName(baseName: String, takenNames: Set<String>) -> String {
         var copyNumber = Constants.firstFileCopyNumber
-        var candidate: String { "\(baseName) (\(copyNumber))\(Constants.fileNameSuffix)" }
+        var candidate: String { "\(baseName) (\(copyNumber))\(fileNameSuffix)" }
 
         while takenNames.contains(candidate.lowercased()) {
             copyNumber += 1
@@ -292,7 +294,6 @@ private extension CommonMobileWalletBackupManager {
 private extension CommonMobileWalletBackupManager {
     enum Constants {
         static let fallbackWalletName = "Wallet"
-        static let fileNameSuffix = ".backup.json"
         static let firstFileCopyNumber: Int = 1
 
         /// Characters invalid on at least one file system the backup file can reach:

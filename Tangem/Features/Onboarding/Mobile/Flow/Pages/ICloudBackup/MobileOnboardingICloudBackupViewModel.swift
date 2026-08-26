@@ -195,7 +195,7 @@ private extension MobileOnboardingICloudBackupViewModel {
 
     func makeBackup(password: String, context: MobileWalletContext) async {
         do {
-            try await backupManager.createBackup(
+            let backup = try await backupManager.createBackup(
                 context: context,
                 walletName: userWalletModel.name,
                 walletId: userWalletModel.userWalletId,
@@ -204,7 +204,19 @@ private extension MobileOnboardingICloudBackupViewModel {
 
             markBackupCompleted()
             logBackupFinishedAnalytics()
-            await onComplete()
+
+            let user = backup.metadata.fileNameWithoutSuffix
+
+            do {
+                let savedCredential = try WebCredentialUtil.SavedCredential(
+                    user: user,
+                    password: password
+                )
+                await onComplete(savedCredential: savedCredential)
+            } catch {
+                AppLogger.error("Failed to create web credential", error: error)
+                await onComplete(savedCredential: nil)
+            }
 
         } catch {
             logCreationErrorAnalytics(error)
@@ -372,8 +384,8 @@ private extension MobileOnboardingICloudBackupViewModel {
 
 @MainActor
 private extension MobileOnboardingICloudBackupViewModel {
-    func onComplete() {
-        delegate?.onICloudBackupComplete()
+    func onComplete(savedCredential: WebCredentialUtil.SavedCredential?) {
+        delegate?.onICloudBackupComplete(savedCredential: savedCredential)
     }
 
     func onClose() {

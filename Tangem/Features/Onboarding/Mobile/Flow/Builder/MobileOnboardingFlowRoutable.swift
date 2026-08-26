@@ -14,4 +14,5 @@ protocol MobileOnboardingFlowRoutable: AnyObject {
     func openConfetti()
     func completeOnboarding()
     func closeOnboarding()
+    func save(credential: WebCredentialUtil.SavedCredential)
 }
