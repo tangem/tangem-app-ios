@@ -357,6 +357,7 @@ public extension VisaCustomerInfoResponse {
                 case thumbnail = "THUMBNAIL"
                 case banner = "BANNER"
                 case background = "BACKGROUND"
+                case activation = "ACTIVATION"
                 case undefined = "UNDEFINED"
 
                 public init(from decoder: Decoder) throws {
