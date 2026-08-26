@@ -22,9 +22,9 @@ extension EarnAccountItemView {
             Row(
                 title: data.name,
                 subtitle: data.network,
-                value: data.rewardText,
                 subvalue: data.apyText
             )
+            .valueAccessory { EarnAccountItemView.RewardText(amount: data.rewardAmount) }
             .overrideTextColors(.init(subvalue: DesignSystem.Color.textAccentGreen))
             .start { icon }
             .contentShape(Rectangle())

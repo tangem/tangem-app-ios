@@ -98,18 +98,18 @@ extension PortfolioTokenItemView.RowView {
     }
 
     var fiatView: some View {
-        Text(fiatText)
+        PortfolioTokenItemView.BalanceText(value: fiat)
             .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
             .shimmer()
     }
 
-    var fiatText: String {
+    var fiat: String? {
         switch data.end {
         case .values(let fiat, _, _):
             return fiat
         case .unavailable:
-            return AppConstants.enDashSign
+            return nil
         }
     }
 }
@@ -132,7 +132,7 @@ extension PortfolioTokenItemView.RowView {
 
                 dotSeparator
 
-                Text(trailing)
+                PortfolioTokenItemView.BalanceText(value: trailing)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             }

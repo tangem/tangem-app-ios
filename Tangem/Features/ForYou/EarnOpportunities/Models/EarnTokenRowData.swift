@@ -14,6 +14,7 @@ struct EarnTokenRowData: Identifiable, Equatable {
     let tokenIconInfo: TokenIconInfo
     let name: String
     let network: String
-    let rewardText: String
+    /// Bare reward amount (the view adds "+ …/year" and masks it); `nil` (no fiat rate) renders as an unmasked dash.
+    let rewardAmount: String?
     let apyText: String
 }
