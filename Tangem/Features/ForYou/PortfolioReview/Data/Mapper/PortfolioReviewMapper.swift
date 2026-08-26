@@ -104,7 +104,8 @@ private extension PortfolioReviewMapper {
 
     func makeHolding(_ walletModel: any WalletModel) -> PortfolioReviewAggregator.TokenHolding {
         let tokenItem = walletModel.tokenItem
-        let fiatBalance = walletModel.fiatAvailableBalanceProvider.balanceType
+        // Total (available + staked), matching the main screen — available-only shrinks staked assets into "Other".
+        let fiatBalance = walletModel.fiatTotalTokenBalanceProvider.balanceType
         let availability = Self.availability(for: fiatBalance)
 
         return PortfolioReviewAggregator.TokenHolding(
@@ -116,7 +117,7 @@ private extension PortfolioReviewMapper {
             tokenItem: tokenItem,
             isCustom: walletModel.isCustom,
             // Crypto shows whenever known (incl. no-rate custom); fiat only when there's a value.
-            amountInCrypto: availability.showsCrypto ? walletModel.availableBalanceProvider.balanceType.value : nil,
+            amountInCrypto: availability.showsCrypto ? walletModel.totalTokenBalanceProvider.balanceType.value : nil,
             amountInFiat: Self.fiatAmount(for: fiatBalance, availability: availability),
             availability: availability
         )
