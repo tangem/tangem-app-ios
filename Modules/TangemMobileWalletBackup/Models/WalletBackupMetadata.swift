@@ -17,4 +17,14 @@ public struct WalletBackupMetadata: Sendable {
     /// `nil` when the file's `createdAt` is not a valid ISO 8601 date — bad metadata
     /// alone must not hide an otherwise restorable backup.
     public let createdAt: Date?
+
+    public var fileNameWithoutSuffix: String {
+        guard let suffixRange = fileName.range(
+            of: WalletBackupConstants.fileNameSuffix,
+            options: [.anchored, .backwards]
+        ) else {
+            return fileName
+        }
+        return String(fileName[..<suffixRange.lowerBound])
+    }
 }
