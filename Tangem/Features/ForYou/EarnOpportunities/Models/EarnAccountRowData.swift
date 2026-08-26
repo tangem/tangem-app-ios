@@ -14,5 +14,6 @@ struct EarnAccountRowData: Equatable {
     let glyph: ImageType
     let name: String
     let tokensCountText: String
-    let rewardText: String
+    /// Bare reward amount (the view adds "+ …/year" and masks it).
+    let rewardAmount: String
 }

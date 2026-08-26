@@ -68,7 +68,7 @@ struct SummaryGaugeView: View {
                 .padding(.horizontal, 36)
         } else {
             VStack(spacing: 2) {
-                Text(balanceFormatter.formatFiatBalance(totalValue))
+                SensitiveText(balanceFormatter.formatFiatBalance(totalValue))
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
