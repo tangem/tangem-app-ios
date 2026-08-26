@@ -107,12 +107,22 @@ private extension EarnOpportunitiesView {
             .lineLimit(lineLimit)
     }
 
-    func rewardChip(_ text: String) -> some View {
-        Text(text)
+    func rewardChip(_ chip: EarnRewardSubtitle.Chip) -> some View {
+        chipText(chip)
             .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
             .padding(.horizontal, 4)
             .background(DesignSystem.Color.iconBrand, in: RoundedRectangle(cornerRadius: 6))
+    }
+
+    @ViewBuilder
+    func chipText(_ chip: EarnRewardSubtitle.Chip) -> some View {
+        switch chip {
+        case .fiat(let amount):
+            SensitiveText(builder: Localization.forYouEarnPerYear, sensitive: amount)
+        case .rate(let text):
+            Text(text)
+        }
     }
 
     var subtitleShimmer: some View {

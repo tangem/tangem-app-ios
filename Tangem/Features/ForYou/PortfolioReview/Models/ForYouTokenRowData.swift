@@ -32,8 +32,8 @@ struct ForYouTokenRowData: Identifiable, Equatable {
 
     /// Trailing content of a row.
     enum End: Equatable {
-        /// Resolved balance: the fiat total, its portfolio share, and how current the value is.
-        case values(fiat: String, percent: String, freshness: Freshness)
+        /// Resolved balance; `nil` fiat (loading / no rate) renders as an unmasked dash.
+        case values(fiat: String?, percent: String, freshness: Freshness)
         /// Couldn't resolve — a warning label rendered in place of the share; fiat shows as a dash.
         case unavailable(label: String)
     }
@@ -63,10 +63,9 @@ struct ForYouTokenRowData: Identifiable, Equatable {
         }
     }
 
-    /// A plain phrase (aggregate / "Other" rows) or a "network · amount" pair rendered with a
-    /// vector dot separator (per-network rows).
+    /// Plain phrase (aggregate / "Other" rows) or a "network · amount" pair; `nil` amount renders as an unmasked dash.
     enum Subtitle: Equatable {
         case text(String)
-        case dotted(String, String)
+        case dotted(String, String?)
     }
 }
