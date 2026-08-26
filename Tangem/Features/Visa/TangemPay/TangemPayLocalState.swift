@@ -90,6 +90,13 @@ extension TangemPayLocalState {
         }
     }
 
+    var tariffPlanSelector: (any TangemPayTariffPlanSelector)? {
+        if case .planSelectNeeded(let tariffPlanSelector) = self {
+            return tariffPlanSelector
+        }
+        return nil
+    }
+
     var cachedLocalState: TangemPayCachedLocalState? {
         switch self {
         case .kycRequired:

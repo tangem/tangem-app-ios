@@ -37,7 +37,7 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
         issueFeeText: String,
         virtualCardImageURL: URL?,
         countryName: String?,
-        selectedCardType: TangemPayOrderCardType = .virtual,
+        selectedCardType: TangemPayOrderCardType,
         plasticDeliveryState: TangemPayPlasticDeliveryState = .available,
         coordinator: TangemPayOrderCardTypeRoutable?
     ) {

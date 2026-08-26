@@ -36,6 +36,10 @@ struct CommonDeepLinkValidator {
         areParamsValid(params, keys: \.id)
     }
 
+    private func hasEnoughTangemPayAccountParams(params: DeeplinkNavigationAction.Params) -> Bool {
+        paramsHaveOnlyValidCharacters([params.tangemPayScreen, params.userWalletId].compactMap { $0 })
+    }
+
     /// SurveySparrow tokens have no fixed format by contract — opaque vendor identifiers
     /// of arbitrary shape (e.g. `ntt-…`, `tt-…`, future base64-like values). We only
     /// check presence, not character set, to avoid rejecting valid tokens.
@@ -175,6 +179,9 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
 
         case .payApp:
             return hasEnoughPayAppParams(params: params)
+
+        case .tangemPayAccount:
+            return hasEnoughTangemPayAccountParams(params: params)
 
         case .news:
             return hasValidNewsParams(params: params)

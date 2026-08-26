@@ -92,6 +92,9 @@ extension MainCoordinator {
                     deeplinkString: navigationAction.deeplinkString
                 )
 
+            case .tangemPayAccount:
+                return routeTangemPayAccountAction(params: navigationAction.params)
+
             case .promo:
                 return routePromoAction(params: navigationAction.params)
 
@@ -415,6 +418,27 @@ extension MainCoordinator {
             let hasDeeplinkParams = params.entry != nil || params.id != nil
 
             coordinator.openDeepLink(.onboardVisa(deeplinkString: hasDeeplinkParams ? deeplinkString : nil))
+
+            return true
+        }
+
+        private func routeTangemPayAccountAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let coordinator,
+                  let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
+                  userWalletModel.accountModelsManager.tangemPayAccountModel != nil
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            let incomingAction = params.tangemPayScreen.flatMap { TangemPayIncomingActions(rawValue: $0) }
+
+            coordinator.openDeepLink(
+                .tangemPayMain(
+                    customerWalletId: userWalletModel.userWalletId.stringValue,
+                    incomingAction: incomingAction
+                )
+            )
 
             return true
         }
