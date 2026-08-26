@@ -224,7 +224,7 @@ final class TangemPayMainViewModel: ObservableObject {
     private let expressStatusPollingHelper: ExpressStatusPollingHelper
     private let promotionNotificationsManager: PromotionNotificationsManager
 
-    private var isEligibleForVirtualAccount = false
+    private let isEligibleForVirtualAccountSubject = CurrentValueSubject<Bool, Never>(false)
 
     private var nextViewOpeningTask: Task<Void, Error>?
     private var bag = Set<AnyCancellable>()
@@ -301,17 +301,35 @@ final class TangemPayMainViewModel: ObservableObject {
         }
 
         // Eligibility only gates issuing a brand-new VA. An already-issued one stays reachable.
-        return tangemPayAccount.hasVirtualAccount || isEligibleForVirtualAccount
+        return tangemPayAccount.hasVirtualAccount || isEligibleForVirtualAccountSubject.value
     }
 
     @MainActor
     private func loadVirtualAccountEligibility() async {
         do {
             let channels = try await tangemPayAccount.customerService.loadEligibility().channels
-            isEligibleForVirtualAccount = channels.contains(.visaVirtualAccount)
+            isEligibleForVirtualAccountSubject.send(channels.contains(.visaVirtualAccount))
         } catch {
             VisaLogger.error("Failed to load virtual account eligibility", error: error)
         }
+    }
+
+    @MainActor
+    func openVAOnramp() async {
+        if !tangemPayAccount.hasVirtualAccount {
+            let eligibilityTimeout: TimeInterval = 5
+
+            _ = try? await isEligibleForVirtualAccountSubject
+                .filter { $0 }
+                .timeout(.seconds(eligibilityTimeout), scheduler: DispatchQueue.main)
+                .async()
+        }
+
+        guard isBankTransferAvailable else {
+            return
+        }
+
+        coordinator?.openVAOnramp()
     }
 
     func addFunds() {
@@ -373,8 +391,12 @@ final class TangemPayMainViewModel: ObservableObject {
     func tapAddCard() {
         Analytics.log(.visaAddExtraCardClicked, contextParams: .userWallet(userWalletInfo.id))
 
+        addCard()
+    }
+
+    func addCard(cardType: TangemPayOrderCardType? = nil) {
         if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
-            openAdditionalCardIssue(offer: offer, fee: fee)
+            openAdditionalCardIssue(offer: offer, fee: fee, cardType: cardType)
             return
         }
 
@@ -392,7 +414,7 @@ final class TangemPayMainViewModel: ObservableObject {
                 await tangemPayAccount.loadOffers()
 
                 if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
-                    openAdditionalCardIssue(offer: offer, fee: fee)
+                    openAdditionalCardIssue(offer: offer, fee: fee, cardType: cardType)
                 } else if await isTariffPlanUpgradeAvailable() {
                     coordinator?.openCardsLimitReachedSheet()
                 } else {
@@ -414,13 +436,13 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
-    private func openAdditionalCardIssue(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee) {
+    private func openAdditionalCardIssue(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee, cardType: TangemPayOrderCardType?) {
         guard FeatureProvider.isAvailable(.tangemPayPlastic) else {
             openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
             return
         }
 
-        coordinator?.openOrderCardType(fee: fee)
+        coordinator?.openOrderCardType(fee: fee, cardType: cardType)
     }
 
     func orderCardTypeDidSelectVirtual() {
@@ -492,6 +514,26 @@ final class TangemPayMainViewModel: ObservableObject {
     func onCashbackMenuItemTap() {
         Analytics.log(.visaCashbackButtonInSettingsClicked, contextParams: .userWallet(userWalletInfo.id))
         handleCashbackTap()
+    }
+
+    @MainActor
+    func openCashback() async {
+        guard cashbackEnabled, !isDeactivated else {
+            return
+        }
+
+        let cashbackDeeplinkTimeout: TimeInterval = 5
+
+        let loadedCashback = try? await $cashback
+            .compactMap { $0 }
+            .timeout(.seconds(cashbackDeeplinkTimeout), scheduler: DispatchQueue.main)
+            .async()
+
+        guard loadedCashback != nil else {
+            return
+        }
+
+        openCashbackDetails()
     }
 
     func onCashbackBlockedBannerAppear() {
