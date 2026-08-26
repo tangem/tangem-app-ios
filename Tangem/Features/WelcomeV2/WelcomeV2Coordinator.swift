@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import SwiftUI
 import TangemMobileWalletBackup
@@ -26,8 +27,26 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Published var mobileCreateWalletCoordinator: MobileCreateWalletCoordinator?
     @Published var importOnboardingCoordinator: OnboardingCoordinator?
     @Published var legalWebViewModel: WebViewContainerViewModel?
+    @Published var tangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingCoordinator?
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
+
+    private lazy var processor = WelcomeProcessor(isIdle: isIdlePublisher)
+    private var bag: Set<AnyCancellable> = []
+
+    /// `true` while nothing the user navigated to themselves is on screen. The processor gates the promo /
+    /// Tangem Pay deep links on this, so they never present over such a screen.
+    private var isIdlePublisher: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest4(
+            $actionSheetViewModel.map { $0 == nil },
+            $hardwareWalletViewModel.map { $0 == nil },
+            $mobileCreateWalletCoordinator.map { $0 == nil },
+            $importOnboardingCoordinator.map { $0 == nil }
+        )
+        .map { $0 && $1 && $2 && $3 }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
+    }
 
     required init(
         dismissAction: @escaping Action<OutputOptions>,
@@ -46,6 +65,53 @@ final class WelcomeV2Coordinator: CoordinatorObject {
             coordinator: self,
             videoProvider: videoProvider
         )
+        bind()
+    }
+
+    private func bind() {
+        // Touching `processor` builds it and computes the real state, so the first emission is never a placeholder.
+        processor.statePublisher
+            .withWeakCaptureOf(self)
+            .sink { coordinator, state in
+                coordinator.render(state)
+            }
+            .store(in: &bag)
+    }
+
+    /// V2 renders only the processor's deep links; the legacy welcome-onboarding steps (TOS + push soft-ask)
+    /// are intentionally skipped — V2's design doesn't replicate the old modal onboarding on top of welcome.
+    private func render(_ state: WelcomeProcessor.State) {
+        switch state.deepLink {
+        case .tangemPay:
+            showTangemPayMobileOnboarding()
+        case .promo:
+            presentCreateWallet()
+        case .none:
+            break
+        }
+    }
+
+    private func showTangemPayMobileOnboarding() {
+        guard tangemPayMobileOnboardingCoordinator == nil else { return }
+
+        let dismissAction: Action<TangemPayMobileOnboardingCoordinator.OutputOptions> = { [weak self] options in
+            guard let self else { return }
+            switch options {
+            case .main(let userWalletModel):
+                openMain(with: userWalletModel)
+            }
+        }
+
+        let coordinator = TangemPayMobileOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: ())
+        tangemPayMobileOnboardingCoordinator = coordinator
+    }
+
+    private func resetChildCoordinators() {
+        hardwareWalletViewModel = nil
+        mobileCreateWalletCoordinator = nil
+        importOnboardingCoordinator = nil
+        tangemPayMobileOnboardingCoordinator = nil
     }
 }
 
@@ -86,16 +152,12 @@ extension WelcomeV2Coordinator: WelcomeV2Routable {
     }
 
     func openMain(with userWalletModel: UserWalletModel) {
-        hardwareWalletViewModel = nil
-        mobileCreateWalletCoordinator = nil
-        importOnboardingCoordinator = nil
+        resetChildCoordinators()
         dismiss(with: .main(userWalletModel))
     }
 
     func openOnboarding(with input: OnboardingInput) {
-        hardwareWalletViewModel = nil
-        mobileCreateWalletCoordinator = nil
-        importOnboardingCoordinator = nil
+        resetChildCoordinators()
         dismiss(with: .onboarding(input))
     }
 }
