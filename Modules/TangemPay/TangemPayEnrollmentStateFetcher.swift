@@ -25,14 +25,8 @@ public struct TangemPayEnrollmentStateFetcher {
         let customerInfo = try await customerService.loadCustomerInfo()
         let customerId = customerInfo.id
 
-        if let productInstance = customerInfo.productInstance,
-           customerInfo.state == .former {
-            return (
-                .cardDeactivated(
-                    customerInfo: customerInfo,
-                    productInstance: productInstance
-                ), customerId
-            )
+        if customerInfo.state == .former {
+            return (.cardDeactivated(customerInfo: customerInfo), customerId)
         }
 
         guard customerInfo.kyc?.status == .approved else {
@@ -42,24 +36,19 @@ public struct TangemPayEnrollmentStateFetcher {
             return (.kycRequired, customerId)
         }
 
-        if let productInstance = customerInfo.productInstance {
-            switch productInstance.status {
-            case .active, .blocked:
-                return (.enrolled(customerInfo: customerInfo, productInstance: productInstance), customerId)
+        let cardInstances = customerInfo.cardProductInstances
 
-            case .deactivated:
-                return (.cardDeactivated(
-                    customerInfo: customerInfo,
-                    productInstance: productInstance
-                ), customerId)
+        if cardInstances.contains(where: { $0.status == .active || $0.status == .blocked }) {
+            return (.enrolled(customerInfo: customerInfo), customerId)
+        }
 
-            default:
-                break
-            }
+        if !cardInstances.isEmpty,
+           cardInstances.allSatisfy({ $0.status == .deactivated || $0.status == .canceled }) {
+            return (.cardDeactivated(customerInfo: customerInfo), customerId)
         }
 
         if customerInfo.paymentAccount != nil {
-            return (.enrolled(customerInfo: customerInfo, productInstance: nil), customerId)
+            return (.enrolled(customerInfo: customerInfo), customerId)
         }
 
         let activeTransitionOrders = try await customerService.findOrders(
@@ -68,7 +57,7 @@ public struct TangemPayEnrollmentStateFetcher {
         )
 
         if !activeTransitionOrders.isEmpty {
-            return (.enrolled(customerInfo: customerInfo, productInstance: nil), customerId)
+            return (.enrolled(customerInfo: customerInfo), customerId)
         }
 
         return (.planSelectNeeded, customerId)
