@@ -89,7 +89,7 @@ private struct MainTopNavigationModifier<Balance: View>: ViewModifier {
     private var actions: TopNavigation.Actions {
         .two(
             TopNavigation.Action(
-                icon: DesignSystem.Icons.ScanQr.regular24,
+                icon: Assets.Glyphs.scanQrIcon,
                 accessibilityLabel: Localization.voiceOverOpenNewWalletConnectSession,
                 accessibilityIdentifier: MainAccessibilityIdentifiers.scanQrButton,
                 action: scanQRCodeAction
