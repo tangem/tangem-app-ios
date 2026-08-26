@@ -36,10 +36,6 @@ struct StepsFlowContent: View {
                 self.trailingItem = trailingItem
                 onTrailingItem(trailingItem)
             }
-            .onPreferenceChange(StepsFlowNavTrailingItemPreferenceKey.self) { trailingItem in
-                self.trailingItem = trailingItem
-                onTrailingItem(trailingItem)
-            }
             .onPreferenceChange(StepsFlowNavBackgroundColorPreferenceKey.self) { backgroundColor in
                 self.backgroundColor = backgroundColor
                 onBackgroundColor(backgroundColor)
