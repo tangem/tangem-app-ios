@@ -16,6 +16,13 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
         let tokenIconInfo: TokenIconInfo?
     }
 
+    struct RatingTransaction {
+        let transactionId: String
+        let providerId: String
+        let providerName: String?
+        let txUrl: String?
+    }
+
     let stage: TransactionDetailsOperationStage
     let source: Leg
     let destination: Leg
@@ -26,6 +33,7 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
     let networkFee: String?
     /// Footer button ("Go to provider" / "Go to verification"). Shown for verification / paused / long-running states
     let action: TransactionDetailsActionButtonViewData?
+    let ratingTransaction: RatingTransaction?
 
     var tokensData: TransactionDetailsTokensViewData {
         TransactionDetailsTokensViewData(
