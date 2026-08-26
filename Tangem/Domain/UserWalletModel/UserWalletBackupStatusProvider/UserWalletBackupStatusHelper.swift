@@ -45,8 +45,8 @@ struct UserWalletBackupStatusHelper {
         cancelAction: (() -> Void)?
     ) -> AlertBinder {
         let alert = Alert(
-            title: Text(Localization.warningBackupErrorAddFundsTitle),
-            message: Text(Localization.warningBackupErrorAddFundsMessage),
+            title: Text(Localization.warningBackupErrorAddFundsTitleV2),
+            message: Text(Localization.warningBackupErrorAddFundsMessageV2),
             primaryButton: .default(Text(Localization.commonContinue)) {
                 continueAction()
             },
