@@ -28,16 +28,12 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/kyc"
         case .getBalance:
             "customer/balance"
-        case .getCardDetailsLegacy:
-            "customer/card/details"
         case .getCardDetails(let cardId, _):
             "customer/card/\(cardId)/details"
         case .freeze:
             "customer/card/freeze"
         case .unfreeze:
             "customer/card/unfreeze"
-        case .getPinLegacy, .setPinLegacy:
-            "customer/card/pin"
         case .closeCard:
             "customer/card/close"
         case .setPin(let cardId, _, _, _), .getPin(let cardId, _):
@@ -54,7 +50,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/withdraw/data"
         case .sendWithdrawTransaction:
             "customer/card/withdraw"
-        case .placeOrderLegacy, .placeOrder, .findOrders:
+        case .placeOrder, .findOrders:
             "order"
         case .getOrder(let orderId):
             "order/\(orderId)"
@@ -72,8 +68,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/tariff-plan/pending-transition/cancel"
         case .cancelKYC:
             "customer/pay-enabled"
-        case .updateCardDisplayNameLegacy, .setCardLimitLegacy:
-            "customer/card"
         case .updateCardDisplayName(let cardId, _), .setCardLimit(let cardId, _):
             "customer/card/\(cardId)"
         case .getFee(let type):
@@ -110,7 +104,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getTransactionLegacy,
              .getTransactionHistory,
              .getTransaction,
-             .getPinLegacy,
              .getPin,
              .getFee,
              .getFees,
@@ -123,10 +116,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getEligibility:
             .get
 
-        case .placeOrderLegacy,
-             .placeOrder,
+        case .placeOrder,
              .cancelOrder,
-             .getCardDetailsLegacy,
              .getCardDetails,
              .freeze,
              .unfreeze,
@@ -139,13 +130,11 @@ struct CustomerInfoManagementAPITarget: TargetType {
             .post
 
         case .cancelKYC,
-             .updateCardDisplayNameLegacy,
              .updateCardDisplayName,
-             .setCardLimitLegacy,
              .setCardLimit:
             .patch
 
-        case .setPinLegacy, .setPin:
+        case .setPin:
             .put
         }
     }
@@ -160,7 +149,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getTariffPlanTransitions,
              .cancelTariffPlanPendingTransition,
              .getBalance,
-             .getPinLegacy,
              .getPin,
              .getFee,
              .getBankCredentials,
@@ -185,10 +173,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
         case .freeze(let cardId), .unfreeze(let cardId):
             let requestData = TangemPayFreezeUnfreezeRequest(cardId: cardId)
-            return .requestJSONEncodable(requestData)
-
-        case .setPinLegacy(let pin, let sessionId, let iv):
-            let requestData = TangemPaySetPinRequest(pin: pin, sessionId: sessionId, iv: iv)
             return .requestJSONEncodable(requestData)
 
         case .closeCard(let cardId):
@@ -228,24 +212,12 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .sendWithdrawTransaction(let request):
             return .requestCustomJSONEncodable(request, encoder: encoder)
 
-        case .getCardDetailsLegacy(let sessionId):
-            let requestData = TangemPayCardDetailsRequest(sessionId: sessionId)
-            return .requestJSONEncodable(requestData)
-
         case .getCardDetails(_, let sessionId):
             let requestData = TangemPayCardDetailsRequest(sessionId: sessionId)
             return .requestJSONEncodable(requestData)
 
-        case .placeOrderLegacy(let customerWalletAddress):
-            let requestData = TangemPayPlaceOrderRequest(customerWalletAddress: customerWalletAddress)
-            return .requestJSONEncodable(requestData)
-
         case .placeOrder(let request, _):
             return .requestCustomJSONEncodable(request, encoder: encoder)
-
-        case .updateCardDisplayNameLegacy(let displayName):
-            let requestData = TangemPayUpdateCardDisplayNameRequest(displayName: displayName)
-            return .requestCustomJSONEncodable(requestData, encoder: encoder)
 
         case .updateCardDisplayName(_, let displayName):
             let requestData = TangemPayUpdateCardDisplayNameRequest(displayName: displayName)
@@ -259,10 +231,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
             let requestData = TangemPayTariffPlanPendingTransitionRequest(pendingTariffPlanId: pendingTariffPlanId)
             return .requestJSONEncodable(requestData)
 
-        case .setCardLimitLegacy(let amount):
-            let requestData = TangemPayUpdateCardLimitRequest(cardLimit: .init(amount: amount))
-            return .requestCustomJSONEncodable(requestData, encoder: encoder)
-
         case .setCardLimit(_, let amount):
             let requestData = TangemPayUpdateCardLimitRequest(cardLimit: .init(amount: amount))
             return .requestCustomJSONEncodable(requestData, encoder: encoder)
@@ -271,8 +239,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
     var headers: [String: String]? {
         switch target {
-        case .getPinLegacy(let sessionId):
-            ["X-Session-Id": "\(sessionId)"]
         case .getPin(_, let sessionId):
             ["X-Session-Id": "\(sessionId)"]
         case .placeOrder(_, let idempotencyKey):
@@ -301,14 +267,6 @@ extension CustomerInfoManagementAPITarget {
 
         case cancelKYC
         case getBalance
-
-        // To be removed in following PRs after breaking changes.
-        case getCardDetailsLegacy(sessionId: String)
-        case getPinLegacy(sessionId: String)
-        case setPinLegacy(pin: String, sessionId: String, iv: String)
-        case placeOrderLegacy(customerWalletAddress: String)
-        case updateCardDisplayNameLegacy(displayName: String)
-        case setCardLimitLegacy(amount: Int)
 
         case getCardDetails(cardId: String, sessionId: String)
         case closeCard(cardId: String)
