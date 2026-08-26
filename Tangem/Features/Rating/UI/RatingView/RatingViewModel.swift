@@ -7,13 +7,14 @@
 //
 
 import Foundation
+import Combine
 import TangemUIUtils
 
 @MainActor
 final class RatingViewModel: ObservableObject {
     // MARK: - Dependencies
 
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    private weak var feedbackPresenter: (any RatingFeedbackPresenter)?
 
     // MARK: - Typealiases
 
@@ -22,6 +23,7 @@ final class RatingViewModel: ObservableObject {
     // MARK: - Properties
 
     private let model: RatingModel
+    private var loadTask: Task<Void, Never>?
 
     var displayRating: Int {
         switch state {
@@ -41,6 +43,20 @@ final class RatingViewModel: ObservableObject {
         }
     }
 
+    var isCardVisiblePublisher: AnyPublisher<Bool, Never> {
+        $state
+            .map { state in
+                switch state {
+                case .unrated:
+                    return true
+                case .loading, .submitting, .rated, .submitted:
+                    return false
+                }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Publishers
 
     @Published private(set) var state: State = .loading
@@ -48,13 +64,19 @@ final class RatingViewModel: ObservableObject {
 
     // MARK: - Init
 
-    nonisolated init(model: RatingModel) {
+    init(model: RatingModel, feedbackPresenter: any RatingFeedbackPresenter) {
         self.model = model
+        self.feedbackPresenter = feedbackPresenter
+        loadTask = Task { [weak self] in await self?.load() }
+    }
+
+    deinit {
+        loadTask?.cancel()
     }
 
     // MARK: - Public methods
 
-    func load() async {
+    private func load() async {
         guard state == .loading else { return }
 
         async let minimumDelay: () = Task.sleep(for: .milliseconds(300))
@@ -97,7 +119,7 @@ final class RatingViewModel: ObservableObject {
             } catch {
                 return
             }
-            self?.showFeedbackPopup(rating: rating)
+            self?.presentFeedback(rating: rating)
         }
     }
 
@@ -107,19 +129,23 @@ final class RatingViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private func showFeedbackPopup(rating: Rating) {
+    private func presentFeedback(rating: Rating) {
+        // Only an open (unrated) rating can present feedback — never when a rating is already set or a submit is in flight.
+        guard state == .unrated else { return }
+
         let feedbackViewModel = RatingFeedbackBottomSheetViewModel(
             rating: rating,
             onSubmit: { [weak self] rating, feedback in
                 try await self?.submitThrowing(rating: rating, feedback: feedback)
             },
             onDismiss: { [weak self] in
-                self?.floatingSheetPresenter.removeActiveSheet()
-                self?.resetSelection()
+                guard let self else { return }
+                feedbackPresenter?.dismiss()
+                resetSelection()
             }
         )
 
-        floatingSheetPresenter.enqueue(sheet: feedbackViewModel)
+        feedbackPresenter?.present(feedbackViewModel)
     }
 }
 
