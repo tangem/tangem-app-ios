@@ -18,6 +18,8 @@ final class MobileOnboardingBackupICloudFlowBuilder: MobileOnboardingFlowBuilder
         .custom(userWalletModel.analyticsContextData)
     }
 
+    private var savedCredential: WebCredentialUtil.SavedCredential?
+
     private let userWalletModel: UserWalletModel
     private let source: MobileOnboardingFlowSource
     private weak var coordinator: MobileOnboardingFlowRoutable?
@@ -103,6 +105,7 @@ private extension MobileOnboardingBackupICloudFlowBuilder {
 
     func completeOnboarding() {
         coordinator?.completeOnboarding()
+        saveCredentialIfNeeded()
     }
 
     func closeOnboarding() {
@@ -110,10 +113,22 @@ private extension MobileOnboardingBackupICloudFlowBuilder {
     }
 }
 
+// MARK: - Private methods
+
+private extension MobileOnboardingBackupICloudFlowBuilder {
+    func saveCredentialIfNeeded() {
+        if let savedCredential {
+            coordinator?.save(credential: savedCredential)
+            self.savedCredential = nil
+        }
+    }
+}
+
 // MARK: - MobileOnboardingICloudBackupDelegate
 
 extension MobileOnboardingBackupICloudFlowBuilder: MobileOnboardingICloudBackupDelegate {
-    func onICloudBackupComplete() {
+    func onICloudBackupComplete(savedCredential: WebCredentialUtil.SavedCredential?) {
+        self.savedCredential = savedCredential
         logBackupCompletedScreenOpenedAnalytics()
         openNext()
     }
