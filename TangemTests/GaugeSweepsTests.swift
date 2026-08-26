@@ -15,6 +15,7 @@ struct GaugeSweepsTests {
     private let capDeg: CGFloat = 12
     /// Derived from the production constant so the tests track it instead of hardcoding the angle.
     private var floorDeg: CGFloat { GaugeSweeps.Constants.minVisualSweepFraction * 360 }
+    private var remainderFloorDeg: CGFloat { GaugeSweeps.Constants.minRemainderFraction * 360 }
 
     @Test
     func emptyWeightsReturnEmpty() {
@@ -89,5 +90,35 @@ struct GaugeSweepsTests {
     func gapWiderThanCapLeavesTheLastSliceUnbumped() {
         let actual = GaugeSweeps.visualSweepAngles(weights: [0.4, 0.05], capDeg: capDeg)
         #expect(abs(actual[1] - floorDeg) < tolerance)
+    }
+
+    @Test
+    func nearlyFullWeightsStillLeaveTheRemainderVisible() {
+        let actual = GaugeSweeps.visualSweepAngles(weights: [0.5, 0.3, 0.1, 0.08], capDeg: capDeg)
+        #expect(abs(actual.reduce(0, +) - (360 - remainderFloorDeg)) < tolerance)
+        #expect(abs(actual[0] / actual[1] - 5 / 3) < tolerance)
+    }
+
+    @Test
+    func remainderReserveStillHonoursTheSegmentFloors() {
+        let actual = GaugeSweeps.visualSweepAngles(weights: [0.95, 0.02, 0.02])
+        #expect(abs(actual[1] - floorDeg) < tolerance)
+        #expect(abs(actual[2] - floorDeg) < tolerance)
+        #expect(abs(actual.reduce(0, +) - (360 - remainderFloorDeg)) < tolerance)
+    }
+
+    @Test
+    func remainderWiderThanTheReserveIsLeftAsIs() {
+        let weights: [CGFloat] = [0.5, 0.25, 0.05]
+        let filledSum = (0.5 + 0.25 + 0.05) * 360
+        let actual = GaugeSweeps.visualSweepAngles(weights: weights, capDeg: capDeg)
+        #expect(abs(actual.reduce(0, +) - filledSum) < tolerance)
+    }
+
+    @Test
+    func weightsSummingToOneWithinRoundingNoiseKeepFillingTheRing() {
+        let third: CGFloat = 1.0 / 3
+        let actual = GaugeSweeps.visualSweepAngles(weights: [third, third, third], capDeg: capDeg)
+        #expect(abs(actual.reduce(0, +) - 360) < tolerance)
     }
 }

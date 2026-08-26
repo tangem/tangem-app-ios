@@ -166,6 +166,7 @@ private extension SummaryGaugeView {
 
     let portfolios: [[SummaryGaugeAsset]] = [
         [asset("Ethereum", 5750), asset("Solana", 1800), asset("Bitcoin", 1300), asset("Polygon", 1150), asset("Avalanche", 1450), asset("Cardano", 1900)],
+        [asset("Ethereum", 5000), asset("Solana", 3000), asset("Bitcoin", 1000), asset("Polygon", 800), asset("Avalanche", 120), asset("Cardano", 80)],
         [asset("Ethereum", 5750), asset("Solana", 1800), asset("Bitcoin", 1300), asset("Polygon", 1150)],
         [asset("Ethereum", 5200), asset("Solana", 3800), asset("Bitcoin", 1000)],
         [asset("Ethereum", 5800), asset("Solana", 4200)],
