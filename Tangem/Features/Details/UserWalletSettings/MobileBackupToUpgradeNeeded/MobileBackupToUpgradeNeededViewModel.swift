@@ -9,12 +9,22 @@
 import Foundation
 import TangemFoundation
 import TangemLocalization
+import TangemMobileWalletSdk
+import TangemUIUtils
 import protocol TangemUI.FloatingSheetContentViewModel
 
 final class MobileBackupToUpgradeNeededViewModel {
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+
     let title: String
     let description: String
     let actionTitle: String
+
+    private lazy var authUtil = MobileAuthUtil(
+        userWalletId: userWalletModel.userWalletId,
+        config: userWalletModel.config,
+        biometricsProvider: CommonUserWalletBiometricsProvider()
+    )
 
     private let userWalletModel: UserWalletModel
     private let source: MobileOnboardingFlowSource
@@ -57,8 +67,69 @@ extension MobileBackupToUpgradeNeededViewModel {
 
     func onBackupTap() {
         runTask(in: self) { viewModel in
-            await viewModel.openMobileBackup()
+            await viewModel.handleMobileBackup()
         }
+    }
+}
+
+// MARK: - Private methods
+
+private extension MobileBackupToUpgradeNeededViewModel {
+    func handleMobileBackup() async {
+        switch await unlock() {
+        case .successful(let context):
+            await openMobileBackup(context: context)
+        case .failed(let error):
+            AppLogger.error("Unlock failed:", error: error)
+            await showErrorAlert(error)
+        case .canceled:
+            break
+        }
+    }
+}
+
+// MARK: - Unlocking
+
+private extension MobileBackupToUpgradeNeededViewModel {
+    func unlock() async -> UnlockResult {
+        do {
+            let result = try await authUtil.unlock()
+
+            switch result {
+            case .successful(let context):
+                return .successful(context: context)
+
+            case .canceled:
+                return .canceled
+
+            case .userWalletNeedsToDelete:
+                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
+                return .canceled
+            }
+
+        } catch {
+            return .failed(error: error)
+        }
+    }
+
+    enum UnlockResult {
+        case successful(context: MobileWalletContext)
+        case canceled
+        case failed(error: Error)
+    }
+}
+
+// MARK: - Alerts
+
+@MainActor
+private extension MobileBackupToUpgradeNeededViewModel {
+    func showErrorAlert(_ error: Error) {
+        let alert = error.alertBinder
+        showAlert(alert)
+    }
+
+    func showAlert(_ alert: AlertBinder) {
+        alertPresenter.present(alert: alert)
     }
 }
 
@@ -66,8 +137,12 @@ extension MobileBackupToUpgradeNeededViewModel {
 
 @MainActor
 private extension MobileBackupToUpgradeNeededViewModel {
-    func openMobileBackup() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel, source: source))
+    func openMobileBackup(context: MobileWalletContext) {
+        let input = MobileOnboardingInput(flow: .seedPhraseBackup(
+            userWalletModel: userWalletModel,
+            source: source,
+            context: context
+        ))
         coordinator?.openMobileOnboardingFromMobileBackupToUpgradeNeeded(input: input, onBackupFinished: onBackupFinished)
     }
 
