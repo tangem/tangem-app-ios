@@ -36,7 +36,7 @@ final class MobileOnboardingViewModel: ObservableObject {
 extension MobileOnboardingViewModel {
     func onDismissalAttempt() {
         switch input.flow {
-        case .walletActivate(let userWalletModel, _):
+        case .walletActivate(let userWalletModel, _, _):
             if isBackupNeeded(for: userWalletModel) {
                 alert = makeBackupNeedsAlert()
                 return
@@ -53,7 +53,7 @@ extension MobileOnboardingViewModel {
                 return
             }
 
-        case .seedPhraseBackup(let userWalletModel, _):
+        case .seedPhraseBackup(let userWalletModel, _, _):
             if isBackupNeeded(for: userWalletModel) {
                 alert = makeBackupNeedsAlert()
                 return
@@ -74,9 +74,17 @@ private extension MobileOnboardingViewModel {
     func makeFlowBuilder() -> MobileOnboardingFlowBuilder {
         switch input.flow {
         case .walletImport(let source):
-            MobileOnboardingImportWalletFlowBuilder(source: source, coordinator: self)
-        case .walletActivate(let userWalletModel, let source):
-            MobileOnboardingActivateWalletFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
+            MobileOnboardingImportWalletFlowBuilder(
+                source: source,
+                coordinator: self
+            )
+        case .walletActivate(let userWalletModel, let source, let context):
+            MobileOnboardingActivateWalletFlowBuilder(
+                userWalletModel: userWalletModel,
+                source: source,
+                context: context,
+                coordinator: self
+            )
         case .accessCode(let userWalletModel, let source, let context):
             MobileOnboardingAccessCodeFlowBuilder(
                 userWalletModel: userWalletModel,
@@ -84,14 +92,30 @@ private extension MobileOnboardingViewModel {
                 context: context,
                 coordinator: self
             )
-        case .seedPhraseBackup(let userWalletModel, let source):
-            MobileOnboardingBackupSeedPhraseFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
+        case .seedPhraseBackup(let userWalletModel, let source, let context):
+            MobileOnboardingBackupSeedPhraseFlowBuilder(
+                userWalletModel: userWalletModel,
+                source: source,
+                context: context,
+                coordinator: self
+            )
         case .seedPhraseReveal(let context):
-            MobileOnboardingRevealSeedPhraseFlowBuilder(context: context, coordinator: self)
+            MobileOnboardingRevealSeedPhraseFlowBuilder(
+                context: context,
+                coordinator: self
+            )
         case .iCloudBackup(let userWalletModel, let source):
-            MobileOnboardingBackupICloudFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
+            MobileOnboardingBackupICloudFlowBuilder(
+                userWalletModel: userWalletModel,
+                source: source,
+                coordinator: self
+            )
         case .iCloudBackupImport(let backups, let source):
-            MobileOnboardingImportICloudBackupFlowBuilder(backups: backups, source: source, coordinator: self)
+            MobileOnboardingImportICloudBackupFlowBuilder(
+                backups: backups,
+                source: source,
+                coordinator: self
+            )
         }
     }
 }

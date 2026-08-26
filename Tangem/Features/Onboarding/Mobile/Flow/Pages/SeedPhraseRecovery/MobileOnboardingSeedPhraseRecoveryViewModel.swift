@@ -37,13 +37,14 @@ final class MobileOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         source: MobileOnboardingFlowSource,
+        context: MobileWalletContext,
         delegate: MobileOnboardingSeedPhraseRecoveryDelegate
     ) {
         self.userWalletModel = userWalletModel
         self.source = source
         self.delegate = delegate
         bind()
-        setup()
+        setup(with: context)
     }
 }
 
@@ -74,10 +75,9 @@ private extension MobileOnboardingSeedPhraseRecoveryViewModel {
             .store(in: &bag)
     }
 
-    func setup() {
+    func setup(with context: MobileWalletContext) {
         runTask(in: self) { viewModel in
             do {
-                let context = try viewModel.mobileWalletSdk.validate(auth: .none, for: viewModel.userWalletModel.userWalletId)
                 let mnemonic = try viewModel.mobileWalletSdk.exportMnemonic(context: context)
                 await viewModel.setupState(mnemonic: mnemonic)
             } catch {

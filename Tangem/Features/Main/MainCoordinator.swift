@@ -1038,9 +1038,7 @@ extension MainCoordinator: WCTransactionRoutable {
 
 extension MainCoordinator: MobileFinishActivationNeededRoutable {
     func dismissMobileFinishActivationNeeded() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        floatingSheetPresenter.removeActiveSheet()
     }
 
     func openMobileBackup(userWalletModel: UserWalletModel) {
@@ -1059,14 +1057,13 @@ extension MainCoordinator: MobileFinishActivationNeededRoutable {
         mobileBackupTypesCoordinator = coordinator
     }
 
-    func openMobileBackupOnboarding(userWalletModel: UserWalletModel) {
-        Task { @MainActor in
-            let backupInput = MobileOnboardingInput(flow: .walletActivate(
-                userWalletModel: userWalletModel,
-                source: .main(action: .backup)
-            ))
-            openOnboardingModal(with: .mobileInput(backupInput))
-        }
+    func openMobileBackupOnboarding(userWalletModel: UserWalletModel, context: MobileWalletContext) {
+        let backupInput = MobileOnboardingInput(flow: .walletActivate(
+            userWalletModel: userWalletModel,
+            source: .main(action: .backup),
+            context: context
+        ))
+        openOnboardingModal(with: .mobileInput(backupInput))
     }
 }
 
