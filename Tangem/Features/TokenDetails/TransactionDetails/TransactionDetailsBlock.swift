@@ -18,4 +18,5 @@ enum TransactionDetailsBlock: Identifiable {
     case counterparty(TransactionDetailsAddressViewData)
     case info(TransactionDetailsInfoSectionViewData)
     case action(TransactionDetailsActionButtonViewData)
+    case rating(RatingViewModel)
 }

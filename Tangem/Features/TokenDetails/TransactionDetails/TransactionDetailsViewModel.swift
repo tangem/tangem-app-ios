@@ -23,12 +23,20 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     @Injected(\.alertPresenter)
     private var alertPresenter: AlertPresenter
 
+    @Injected(\.ratingProvider) private var ratingProvider: RatingProvider
+    @Injected(\.transactionHistoryAuxDataRepository) private var auxDataRepository: TransactionHistoryAuxDataRepository
+
     @Published private(set) var header: TransactionDetailsHeaderViewData?
     @Published private(set) var content: Content?
+    @Published private(set) var presentedFeedback: RatingFeedbackBottomSheetViewModel?
+
+    @Published private var ratingViewModel: RatingViewModel?
+    @Published private var isRatingCardVisible = false
     @Published private var isSuccessBannerDismissed = false
 
     private let walletModel: any WalletModel
     private let userWalletId: UserWalletId
+    private let userWalletIdHash: String
     private let context: TransactionDetailsContext
 
     private let addressBookAnalyticsLogger: AddressBookAnalyticsLogger
@@ -36,7 +44,10 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     private weak var routable: TransactionDetailsRoutable?
 
+    private let swapRatingAvailability = SwapRatingAvailability()
+
     private var record: TransactionRecord?
+    private var ratingSetupTask: Task<Void, Never>?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -53,6 +64,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         self.walletModel = walletModel
         self.addressBookAnalyticsLogger = addressBookAnalyticsLogger
         userWalletId = userWalletInfo.id
+        userWalletIdHash = userWalletInfo.id.hashedStringValue
         addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
 
         let context = TransactionDetailsContext(
@@ -87,14 +99,73 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         loadAddressBook() // Address book should be loaded as early as possible since it is empty by default
     }
 
+    deinit {
+        ratingSetupTask?.cancel()
+    }
+
     var blocks: [TransactionDetailsBlock] {
         guard isSuccessBannerDismissed else { return rawBlocks }
         return rawBlocks.filter { !Self.isSuccessBanner($0) }
     }
 
+    private func setupRatingViewModel(for content: Content?) {
+        guard
+            ratingSetupTask == nil,
+            case .swap(let data) = content,
+            let transaction = data.ratingTransaction,
+            swapRatingAvailability.isAvailable
+        else {
+            return
+        }
+
+        ratingSetupTask = Task { [weak self] in
+            await self?.makeRatingViewModel(for: transaction)
+        }
+    }
+
+    private func makeRatingViewModel(for transaction: TransactionDetailsSwapViewData.RatingTransaction) async {
+        var resolvedName = transaction.providerName
+
+        if resolvedName == nil {
+            resolvedName = await auxDataRepository.provider(id: transaction.providerId, branch: .swap)?.name
+        }
+
+        guard let providerName = resolvedName else {
+            ratingSetupTask = nil
+            return
+        }
+
+        let ratingViewModel = RatingViewModel(
+            model: RatingModel(
+                ratingProvider: ratingProvider,
+                transaction: RatingModel.Transaction(
+                    transactionId: transaction.transactionId,
+                    providerName: providerName,
+                    txUrl: transaction.txUrl
+                ),
+                userWalletIdHash: userWalletIdHash
+            ),
+            feedbackPresenter: self
+        )
+
+        ratingViewModel.isCardVisiblePublisher.assign(to: &$isRatingCardVisible)
+        self.ratingViewModel = ratingViewModel
+    }
+
     private var rawBlocks: [TransactionDetailsBlock] {
         guard let content else { return [] }
-        return Self.rawBlocks(for: content)
+
+        let blocks = Self.rawBlocks(for: content)
+
+        guard let ratingViewModel, isRatingCardVisible else { return blocks }
+
+        return blocks.flatMap { block in
+            if case .tokens = block {
+                [block, .rating(ratingViewModel)]
+            } else {
+                [block]
+            }
+        }
     }
 
     private func subscribe(
@@ -156,6 +227,7 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
                 viewModel.record = output.record
                 viewModel.header = output.reduced.header
                 viewModel.content = output.reduced.content
+                viewModel.setupRatingViewModel(for: output.reduced.content)
             }
             .store(in: &bag)
 
@@ -348,5 +420,17 @@ extension TransactionDetailsViewModel {
 
     private enum RefundTokenError: Error {
         case targetNotResolved
+    }
+}
+
+// MARK: - RatingFeedbackPresenter
+
+extension TransactionDetailsViewModel: RatingFeedbackPresenter {
+    func present(_ viewModel: RatingFeedbackBottomSheetViewModel) {
+        presentedFeedback = viewModel
+    }
+
+    func dismiss() {
+        presentedFeedback = nil
     }
 }
