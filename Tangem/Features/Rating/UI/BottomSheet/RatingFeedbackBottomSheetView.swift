@@ -42,6 +42,7 @@ struct RatingFeedbackBottomSheetView: View {
         .background(Colors.Background.tertiary)
         .floatingSheetConfiguration { config in
             config.backgroundInteractionBehavior = .tapToDismiss
+            config.sheetFrameUpdateAnimation = .contentFrameUpdate
         }
         .task(openKeyboard)
         .onDisappear {
@@ -137,6 +138,12 @@ private extension RatingFeedbackBottomSheetView {
             }
         }
     }
+}
+
+// MARK: - Content transition
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
 }
 
 // MARK: - Keyboard support for FloatingSheet

@@ -18,19 +18,16 @@ struct RatingView: View {
             switch viewModel.state {
             case .loading:
                 skeletonView
-            case .unrated, .submitting:
+            case .unrated:
                 CardView(
                     displayRating: viewModel.displayRating,
                     onRatingSelected: viewModel.onRatingSelected
                 )
-            case .rated(let rating), .submitted(let rating):
-                CardView(displayRating: rating)
+            case .submitting, .rated, .submitted:
+                CardView(displayRating: viewModel.displayRating)
             }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.state)
-        .task {
-            await viewModel.load()
-        }
     }
 }
 
@@ -61,7 +58,8 @@ private extension RatingView {
                 ratingProvider: RatingViewPreviewStub(),
                 transaction: .init(transactionId: "tx_123", providerName: "1inch", txUrl: nil),
                 userWalletIdHash: "hash"
-            )
+            ),
+            feedbackPresenter: FloatingSheetRatingFeedbackPresenter()
         )
     )
     .padding()
