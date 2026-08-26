@@ -108,6 +108,7 @@ private extension MobileBackupICloudTypeViewModel {
             logBackupDeletedAnalytics()
             userWalletModel.update(type: .iCloudBackupDeleted)
 
+            await delegate?.onICloudBackupDeleted()
             await loadingFlow()
 
         } catch {
