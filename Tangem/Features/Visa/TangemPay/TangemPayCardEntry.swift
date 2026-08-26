@@ -12,6 +12,8 @@ import TangemVisa
 enum TangemPayCardEntry: Identifiable {
     case issued(TangemPayCard)
     case issuing(Issuing)
+    // [REDACTED_TODO_COMMENT]
+    case plastic(TangemPayPlasticCardStub)
 
     enum Issuing {
         case card(TangemPayCard)
@@ -29,6 +31,8 @@ enum TangemPayCardEntry: Identifiable {
             pi.id
         case .issuing(.order(let order)):
             order.id
+        case .plastic(let plasticCard):
+            plasticCard.id
         }
     }
 
@@ -40,6 +44,8 @@ enum TangemPayCardEntry: Identifiable {
             pi.id
         case .issuing(.order(let order)):
             order.data?.productInstanceId
+        case .plastic:
+            nil
         }
     }
 
@@ -55,7 +61,7 @@ enum TangemPayCardEntry: Identifiable {
         switch self {
         case .issued(let card), .issuing(.card(let card)):
             card
-        case .issuing(.pendingProductInstance), .issuing(.order):
+        case .issuing(.pendingProductInstance), .issuing(.order), .plastic:
             nil
         }
     }
@@ -67,16 +73,23 @@ enum TangemPayCardEntry: Identifiable {
     var order: TangemPayOrderResponse? {
         if case .issuing(.order(let order)) = self { order } else { nil }
     }
+
+    var plasticCard: TangemPayPlasticCardStub? {
+        if case .plastic(let plasticCard) = self { plasticCard } else { nil }
+    }
 }
 
 extension TangemPayCardEntry {
     static func build(
         cards: [TangemPayCard],
         pendingProductInstances: [VisaCustomerInfoResponse.ProductInstance],
-        activeIssueOrders: [TangemPayOrderResponse]
+        activeIssueOrders: [TangemPayOrderResponse],
+        plasticCards: [TangemPayPlasticCardStub]
     ) -> [TangemPayCardEntry] {
         var entries: [TangemPayCardEntry] = []
-        entries.reserveCapacity(cards.count + pendingProductInstances.count + activeIssueOrders.count)
+        entries.reserveCapacity(
+            cards.count + pendingProductInstances.count + activeIssueOrders.count + plasticCards.count
+        )
 
         for card in cards {
             entries.append(card.isIssuing ? .issuing(.card(card)) : .issued(card))
@@ -94,6 +107,7 @@ extension TangemPayCardEntry {
             }
             entries.append(.issuing(.order(order)))
         }
+        entries.append(contentsOf: plasticCards.map(TangemPayCardEntry.plastic))
         return entries
     }
 }

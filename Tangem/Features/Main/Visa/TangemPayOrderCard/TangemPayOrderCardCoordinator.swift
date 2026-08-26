@@ -87,6 +87,8 @@ extension TangemPayOrderCardCoordinator: TangemPayOrderCardDataRoutable {
         // The order completes on a timer, so the form can be gone by the time it lands.
         guard orderCardDataViewModel != nil else { return }
 
+        options?.parentCoordinator?.orderCardFlowDidOrderPlastic(email: options?.email)
+
         orderCardSuccessViewModel = TangemPayOrderCardSuccessViewModel(
             email: options?.email ?? "",
             coordinator: self

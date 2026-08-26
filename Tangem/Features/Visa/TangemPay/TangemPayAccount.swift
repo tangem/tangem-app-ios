@@ -22,24 +22,32 @@ final class TangemPayAccount {
         cardsSubject.eraseToAnyPublisher()
     }
 
+    private let plasticCards = TangemPayPlasticCardStubStore()
+
     var cardEntries: [TangemPayCardEntry] {
         TangemPayCardEntry.build(
             cards: cardsSubject.value,
             pendingProductInstances: customerInfoSubject.value.cardProductInstances.filter { $0.cardId == nil },
-            activeIssueOrders: activeIssueOrdersSubject.value
+            activeIssueOrders: activeIssueOrdersSubject.value,
+            plasticCards: plasticCards.cards
         )
     }
 
     var cardEntriesPublisher: AnyPublisher<[TangemPayCardEntry], Never> {
-        Publishers.CombineLatest4(cardsSubject, customerInfoSubject, activeIssueOrdersSubject, anyCardReissuingPublisher)
-            .map { cards, info, orders, _ in
-                TangemPayCardEntry.build(
-                    cards: cards,
-                    pendingProductInstances: info.cardProductInstances.filter { $0.cardId == nil },
-                    activeIssueOrders: orders
-                )
-            }
-            .eraseToAnyPublisher()
+        Publishers.CombineLatest(
+            Publishers.CombineLatest4(cardsSubject, customerInfoSubject, activeIssueOrdersSubject, anyCardReissuingPublisher),
+            plasticCards.cardsPublisher
+        )
+        .map { bffState, plasticCards in
+            let (cards, info, orders, _) = bffState
+            return TangemPayCardEntry.build(
+                cards: cards,
+                pendingProductInstances: info.cardProductInstances.filter { $0.cardId == nil },
+                activeIssueOrders: orders,
+                plasticCards: plasticCards
+            )
+        }
+        .eraseToAnyPublisher()
     }
 
     var offersPublisher: AnyPublisher<[TangemPayCustomerOffer], Never> {
@@ -331,6 +339,24 @@ extension TangemPayAccount {
         case none
         case preparing
         case active(productInstanceId: String)
+    }
+}
+
+// MARK: - Plastic card flow
+
+// [REDACTED_TODO_COMMENT]
+extension TangemPayAccount {
+    /// The only way a plastic card comes into existence, so gating it here keeps every plastic surface —
+    /// the card row, card management and activation — behind the toggle. The card borrows `ACTIVATION` art
+    /// from an issued one: it is the same screen background whichever card it comes from.
+    func addOrderedPlasticCard(email: String?) {
+        guard FeatureProvider.isAvailable(.tangemPayPlastic) else { return }
+
+        plasticCards.add(email: email, activationImageURL: cards.first?.activationImageURL)
+    }
+
+    func markPlasticCardActivating(id: String) {
+        plasticCards.markActivating(id: id)
     }
 }
 

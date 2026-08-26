@@ -48,6 +48,7 @@ private extension TangemPayOrderCardSuccessViewModel {
         static let title = "Card successfully ordered"
 
         // [REDACTED_TODO_COMMENT]
+        // `CARD_ISSUE_PLASTIC_RAIN` offer as `data.delivery_eta_min_days` / `_max_days`.
         static let deliveryDays = 20
     }
 }
