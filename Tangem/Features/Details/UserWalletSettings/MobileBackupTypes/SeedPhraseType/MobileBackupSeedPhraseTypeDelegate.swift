@@ -10,6 +10,6 @@ import Foundation
 import TangemMobileWalletSdk
 
 protocol MobileBackupSeedPhraseTypeDelegate: AnyObject {
-    func onSeedPhraseBackup() async
+    func onSeedPhraseBackup(context: MobileWalletContext) async
     func onSeedPhraseReveal(context: MobileWalletContext) async
 }

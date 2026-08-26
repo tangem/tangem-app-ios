@@ -9,12 +9,21 @@
 import Foundation
 import TangemFoundation
 import TangemLocalization
+import TangemMobileWalletSdk
 
 final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuilder {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private var isBackupNeeded: Bool {
-        backupStatusUtil.isBackupNeeded
+        switch source {
+        case .main:
+            return backupStatusUtil.isBackupNeeded
+        case .backup:
+            return !backupStatusUtil.hasMnemonicBackup
+        case .importWallet, .hardwareWallet, .walletSettings:
+            assertionFailure("Unpredictable source for mobile activating flow: \(source)")
+            return false
+        }
     }
 
     private var isAccessCodeNeeded: Bool {
@@ -28,15 +37,18 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
     private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
     private let source: MobileOnboardingFlowSource
+    private let context: MobileWalletContext
     private weak var coordinator: MobileOnboardingFlowRoutable?
 
     init(
         userWalletModel: UserWalletModel,
         source: MobileOnboardingFlowSource,
+        context: MobileWalletContext,
         coordinator: MobileOnboardingFlowRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.source = source
+        self.context = context
         self.coordinator = coordinator
         backupStatusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
         super.init(hasProgressBar: true)
@@ -87,6 +99,7 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
         let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(
             userWalletModel: userWalletModel,
             source: source,
+            context: context,
             delegate: self
         )
         append(step: seedPhraseRecoveryStep)
@@ -94,6 +107,7 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
         let seedPhraseValidationStep = MobileOnboardingSeedPhraseValidationStep(
             userWalletModel: userWalletModel,
             source: source,
+            context: context,
             delegate: self
         )
         append(step: seedPhraseValidationStep)

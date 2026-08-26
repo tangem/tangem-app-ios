@@ -25,7 +25,11 @@ final class MobileBackupTypesViewModel: ObservableObject {
     private let mode: MobileBackupTypesMode
     private weak var coordinator: MobileBackupTypesRoutable?
 
-    init(userWalletModel: UserWalletModel, mode: MobileBackupTypesMode, coordinator: MobileBackupTypesRoutable) {
+    init(
+        userWalletModel: UserWalletModel,
+        mode: MobileBackupTypesMode,
+        coordinator: MobileBackupTypesRoutable
+    ) {
         self.userWalletModel = userWalletModel
         self.mode = mode
         self.coordinator = coordinator
@@ -99,8 +103,8 @@ private extension MobileBackupTypesViewModel {
 // MARK: - MobileBackupSeedPhraseTypeDelegate
 
 extension MobileBackupTypesViewModel: MobileBackupSeedPhraseTypeDelegate {
-    func onSeedPhraseBackup() async {
-        await openSeedPhraseBackup()
+    func onSeedPhraseBackup(context: MobileWalletContext) async {
+        await openSeedPhraseBackup(context: context)
     }
 
     func onSeedPhraseReveal(context: MobileWalletContext) async {
@@ -152,10 +156,11 @@ private extension MobileBackupTypesViewModel {
         )
     }
 
-    func openSeedPhraseBackup() {
+    func openSeedPhraseBackup(context: MobileWalletContext) {
         let input = MobileOnboardingInput(flow: .walletActivate(
             userWalletModel: userWalletModel,
-            source: .backup(action: .backup)
+            source: .backup(action: .backup),
+            context: context
         ))
         coordinator?.openMobileOnboarding(input: input)
     }
