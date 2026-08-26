@@ -95,33 +95,33 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return .unspecified
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
-        case .gaslessYieldFee: return .unspecified
+        case .gaslessYieldFee: return .version("6.3")
         case .usdtRevokeGaslessFee: return .unspecified
         case .tronGasless: return .unspecified
-        case .xrplTransactionHistory: return .unspecified
+        case .xrplTransactionHistory: return .version("6.3")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .mobileWalletMultiCreation: return .unspecified
         case .stakingFlowV2: return .unspecified
-        case .forYou: return .unspecified
+        case .forYou: return .version("6.3")
         case .priceAlertsSubscription: return .unspecified
         case .tangemPayMultichain: return .version("6.3")
         case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
         case .tangemPayAddFundsWithdrawRework: return .unspecified
-        case .swapHideZeroBalanceSource: return .unspecified
-        case .onrampPaymentMethodThemedImages: return .unspecified
-        case .chooseTokenPulseAnimation: return .unspecified
-        case .hotWalletDexRatesUntilDeposit: return .unspecified
+        case .swapHideZeroBalanceSource: return .version("6.3")
+        case .onrampPaymentMethodThemedImages: return .version("6.3")
+        case .chooseTokenPulseAnimation: return .version("6.3")
+        case .hotWalletDexRatesUntilDeposit: return .version("6.3")
         case .polymarket: return .unspecified
-        case .mobileWalletBackup: return .unspecified
-        case .swapDeeplinkParameters: return .unspecified
+        case .mobileWalletBackup: return .version("6.3")
+        case .swapDeeplinkParameters: return .version("6.3")
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
-        case .yieldDexTransferDetection: return .unspecified
+        case .yieldDexTransferDetection: return .version("6.3")
         case .tangemPayCashback: return .version("6.3")
-        case .swapChooseTokenWholeAreaTap: return .unspecified
+        case .swapChooseTokenWholeAreaTap: return .version("6.3")
         case .welcomeScreenV2: return .unspecified
         case .tangemPayPlastic: return .unspecified
         case .gachaMachine: return .unspecified
