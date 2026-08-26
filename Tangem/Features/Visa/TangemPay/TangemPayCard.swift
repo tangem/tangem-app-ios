@@ -25,6 +25,7 @@ final class TangemPayCard: Identifiable {
     var mainImageURL: URL? { imageURL(ofType: .main) }
     var thumbnailImageURL: URL? { imageURL(ofType: .thumbnail) }
     var backgroundImageURL: URL? { imageURL(ofType: .background) }
+    var activationImageURL: URL? { imageURL(ofType: .activation) }
 
     var snapshotPublisher: AnyPublisher<Snapshot, Never> {
         snapshotSubject.eraseToAnyPublisher()
