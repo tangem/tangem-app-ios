@@ -63,13 +63,6 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: \.isReissuing, on: self, ownership: .weak)
             .store(in: &bag)
-
-        NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
-                viewModel.cardDetailsExposureTask?.cancel()
-            }
-            .store(in: &bag)
     }
 
     func cardNameTapped() {
@@ -170,6 +163,6 @@ extension TangemPayCardDetailsViewModel {
 
 private extension TangemPayCardDetailsViewModel {
     enum Constants {
-        static let cardDetailsVisibilityPeriodInSeconds: TimeInterval = 30
+        static let cardDetailsVisibilityPeriodInSeconds: TimeInterval = 40
     }
 }
