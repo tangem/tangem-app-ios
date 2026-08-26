@@ -432,6 +432,129 @@ struct DefaultIncomingLinkParserTests {
         #expect(result == nil, "Expected \(url) to be rejected due to missing tokenId")
     }
 
+    // MARK: - Pay account host
+
+    @Test("Parses tangem://pay-account without params")
+    func parsesPayAccountWithoutParams() throws {
+        let url = try #require(URL(string: "tangem://pay-account"))
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .tangemPayAccount)
+        #expect(action.params.tangemPayScreen == nil)
+        #expect(action.params.userWalletId == nil)
+    }
+
+    @Test(
+        "Parses tangem://pay-account screen param",
+        arguments: [
+            "add_funds",
+            "va_onramp",
+            "va_onramp_details",
+            "select_plan",
+            "current_plan",
+            "change_plan",
+            "cashback",
+            "order_card",
+        ]
+    )
+    func parsesPayAccountScreen(screen: String) throws {
+        let url = try #require(URL(string: "tangem://pay-account?screen=\(screen)"))
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .tangemPayAccount)
+        #expect(action.params.tangemPayScreen == screen)
+    }
+
+    @Test("Lower-cases the pay-account screen query value")
+    func lowercasesPayAccountScreen() throws {
+        let url = try #require(URL(string: "tangem://pay-account?screen=ADD_FUNDS"))
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.params.tangemPayScreen == "add_funds")
+    }
+
+    @Test("Parses tangem://pay-account with user_wallet_id")
+    func parsesPayAccountWithUserWalletId() throws {
+        let url = try #require(URL(string: "tangem://pay-account?screen=cashback&user_wallet_id=7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00"))
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.params.tangemPayScreen == "cashback")
+        #expect(action.params.userWalletId == "7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00")
+    }
+
+    @Test("Accepts tangem://pay-account with an unknown screen value (falls back to the main screen at routing)")
+    func acceptsPayAccountWithUnknownScreen() throws {
+        let url = try #require(URL(string: "tangem://pay-account?screen=nonexistent"))
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .tangemPayAccount)
+        #expect(action.params.tangemPayScreen == "nonexistent")
+    }
+
+    @Test(
+        "Maps pay-account screen values to incoming actions",
+        arguments: [
+            ("add_funds", TangemPayIncomingActions.addFunds),
+            ("current_plan", TangemPayIncomingActions.currentPlan),
+            ("change_plan", TangemPayIncomingActions.changePlan),
+            ("order_card", TangemPayIncomingActions.orderCard),
+            ("cashback", TangemPayIncomingActions.cashback),
+            ("va_onramp", TangemPayIncomingActions.vaOnramp),
+            ("va_onramp_details", TangemPayIncomingActions.vaOnrampDetails),
+            ("select_plan", TangemPayIncomingActions.selectPlan),
+        ]
+    )
+    func mapsPayAccountScreenToIncomingAction(screen: String, expected: TangemPayIncomingActions) throws {
+        let url = try #require(URL(string: "tangem://pay-account?screen=\(screen)"))
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.params.tangemPayScreen.flatMap(TangemPayIncomingActions.init(rawValue:)) == expected)
+    }
+
+    @Test(
+        "Rejects tangem://pay-account with malformed characters",
+        arguments: [
+            "tangem://pay-account?screen=add$funds",
+            "tangem://pay-account?screen=cashback&user_wallet_id=7AFC37%23",
+        ]
+    )
+    func rejectsPayAccountWithInvalidChars(deeplink: String) throws {
+        let url = try #require(URL(string: deeplink))
+        let result = parser.parse(url)
+
+        #expect(result == nil, "Expected \(url) to be rejected")
+    }
+
     // MARK: - Markets host: order/interval tests
 
     @Test("Parses tangem://markets with order and interval")
