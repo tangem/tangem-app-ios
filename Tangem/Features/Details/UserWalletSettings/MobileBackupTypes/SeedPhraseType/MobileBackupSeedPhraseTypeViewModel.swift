@@ -25,6 +25,12 @@ final class MobileBackupSeedPhraseTypeViewModel: ObservableObject {
         .custom(userWalletModel.analyticsContextData)
     }
 
+    private lazy var authUtil = MobileAuthUtil(
+        userWalletId: userWalletModel.userWalletId,
+        config: userWalletModel.config,
+        biometricsProvider: CommonUserWalletBiometricsProvider()
+    )
+
     private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
     private weak var delegate: MobileBackupSeedPhraseTypeDelegate?
@@ -75,27 +81,27 @@ private extension MobileBackupSeedPhraseTypeViewModel {
         )
     }
 
-    func handleSeedPhraseReveal() async {
-        do {
-            let context = try await unlock()
-            await openRevealFlow(context: context)
-        } catch where error.isCancellationError {
-            AppLogger.error("Unlock is canceled", error: error)
-        } catch {
-            AppLogger.error("Unlock failed:", error: error)
-            await showRevealErrorAlert(error)
-        }
-    }
-
     func onItemTap() {
         logTapAnalytics()
 
         runTask(in: self) { viewModel in
             if viewModel.isBackupNeeded {
-                await viewModel.openBackupFlow()
+                await viewModel.handleSeedPhraseBackup()
             } else {
                 await viewModel.handleSeedPhraseReveal()
             }
+        }
+    }
+
+    func handleSeedPhraseBackup() async {
+        await unlock { [weak self] context in
+            await self?.openBackupFlow(context: context)
+        }
+    }
+
+    func handleSeedPhraseReveal() async {
+        await unlock { [weak self] context in
+            await self?.openRevealFlow(context: context)
         }
     }
 }
@@ -103,33 +109,51 @@ private extension MobileBackupSeedPhraseTypeViewModel {
 // MARK: - Unlocking
 
 private extension MobileBackupSeedPhraseTypeViewModel {
-    func unlock() async throws -> MobileWalletContext {
-        let authUtil = MobileAuthUtil(
-            userWalletId: userWalletModel.userWalletId,
-            config: userWalletModel.config,
-            biometricsProvider: CommonUserWalletBiometricsProvider()
-        )
-        let result = try await authUtil.unlock()
-
-        switch result {
+    func unlock(handler: @escaping (MobileWalletContext) async -> Void) async {
+        switch await unlock() {
         case .successful(let context):
-            return context
-
+            await handler(context)
+        case .failed(let error):
+            AppLogger.error("Unlock failed:", error: error)
+            await showErrorAlert(error)
         case .canceled:
-            throw CancellationError()
-
-        case .userWalletNeedsToDelete:
-            assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
-            throw CancellationError()
+            break
         }
+    }
+
+    func unlock() async -> UnlockResult {
+        do {
+            let result = try await authUtil.unlock()
+
+            switch result {
+            case .successful(let context):
+                return .successful(context: context)
+
+            case .canceled:
+                return .canceled
+
+            case .userWalletNeedsToDelete:
+                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
+                return .canceled
+            }
+
+        } catch {
+            return .failed(error: error)
+        }
+    }
+
+    enum UnlockResult {
+        case successful(context: MobileWalletContext)
+        case canceled
+        case failed(error: Error)
     }
 }
 
 // MARK: - Routing
 
 private extension MobileBackupSeedPhraseTypeViewModel {
-    func openBackupFlow() async {
-        await delegate?.onSeedPhraseBackup()
+    func openBackupFlow(context: MobileWalletContext) async {
+        await delegate?.onSeedPhraseBackup(context: context)
     }
 
     func openRevealFlow(context: MobileWalletContext) async {
@@ -141,7 +165,7 @@ private extension MobileBackupSeedPhraseTypeViewModel {
 
 @MainActor
 private extension MobileBackupSeedPhraseTypeViewModel {
-    func showRevealErrorAlert(_ error: Error) {
+    func showErrorAlert(_ error: Error) {
         let alert = error.alertBinder
         showAlert(alert)
     }
