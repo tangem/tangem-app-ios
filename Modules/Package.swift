@@ -474,7 +474,9 @@ var unitTestsModules: [PackageDescription.Target] {
         .tangemTestTarget(
             name: "TangemMobileWalletBackupTests",
             dependencies: [
+                "TangemFoundation",
                 "TangemMobileWalletBackup",
+                "TangemMobileWalletSdk",
             ]
         ),
         .tangemTestTarget(
