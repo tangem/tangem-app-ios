@@ -170,7 +170,13 @@ enum TransactionDetailsFactory {
             provider: provider(info.provider, fallbackId: exchange.providerId, externalURL: exchange.externalTx?.url),
             rate: swapRate(fromAmount: sourceAmount, fromToken: fromToken, toAmount: destinationAmount, toToken: toToken),
             networkFee: networkFee(from: record),
-            action: refund?.action ?? action(for: exchange.status, isLongRunning: isLongRunning, externalURL: exchange.externalTx?.url)
+            action: refund?.action ?? action(for: exchange.status, isLongRunning: isLongRunning, externalURL: exchange.externalTx?.url),
+            ratingTransaction: TransactionDetailsSwapViewData.RatingTransaction(
+                transactionId: exchange.txId,
+                providerId: exchange.providerId,
+                providerName: info.provider?.name,
+                txUrl: exchange.externalTx?.url?.absoluteString
+            )
         )
     }
 
