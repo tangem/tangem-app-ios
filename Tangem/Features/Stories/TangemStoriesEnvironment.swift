@@ -11,36 +11,43 @@ import TangemStories
 import Kingfisher
 
 private final class TangemStoriesEnvironment {
-    lazy var kingfisherCache: ImageCache = {
+    let kingfisherCache: ImageCache
+    let storyAvailabilityService: AppSettingsStoryAvailabilityService
+    let enrichStoryUseCase: EnrichStoryUseCase
+    let tangemStoriesViewModel: TangemStoriesViewModel
+
+    init() {
         let countLimit = 10
         let tenMinutesInSeconds: TimeInterval = 600
 
-        let cache = ImageCache(name: "com.tangem.stories")
-        cache.memoryStorage.config.countLimit = countLimit
-        cache.memoryStorage.config.expiration = .seconds(tenMinutesInSeconds)
-        cache.memoryStorage.config.keepWhenEnteringBackground = true
+        let kingfisherCache = ImageCache(name: "com.tangem.stories")
+        kingfisherCache.memoryStorage.config.countLimit = countLimit
+        kingfisherCache.memoryStorage.config.expiration = .seconds(tenMinutesInSeconds)
+        kingfisherCache.memoryStorage.config.keepWhenEnteringBackground = true
 
-        return cache
-    }()
+        let storyDataCache = InMemoryStoryDataCache(kingfisherCache: kingfisherCache)
+        let storyAvailabilityService = AppSettingsStoryAvailabilityService(appSettings: AppSettings.shared)
+        let storyAnalyticsService = StoryAnalyticsService()
 
-    lazy var storyDataCache = InMemoryStoryDataCache(kingfisherCache: kingfisherCache)
-    lazy var storyAvailabilityService = AppSettingsStoryAvailabilityService(appSettings: AppSettings.shared)
-    lazy var storyAnalyticsService = StoryAnalyticsService()
-
-    lazy var enrichStoryUseCase = EnrichStoryUseCase(
-        storyDataCache: storyDataCache,
-        storyDataService: CommonStoryDataService(
-            storyAvailabilityService: storyAvailabilityService,
-            storyAnalyticsService: storyAnalyticsService
+        let enrichStoryUseCase = EnrichStoryUseCase(
+            storyDataCache: storyDataCache,
+            storyDataService: CommonStoryDataService(
+                storyAvailabilityService: storyAvailabilityService,
+                storyAnalyticsService: storyAnalyticsService
+            )
         )
-    )
 
-    lazy var tangemStoriesViewModel = TangemStoriesViewModel(
-        checkStoryAvailabilityUseCase: CheckStoryAvailabilityUseCase(storyAvailabilityService: storyAvailabilityService),
-        enrichStoryUseCase: enrichStoryUseCase,
-        finalizeStoryUseCase: FinalizeStoryUseCase(storyAvailabilityService: storyAvailabilityService, storyDataCache: storyDataCache),
-        analyticsService: storyAnalyticsService
-    )
+        self.kingfisherCache = kingfisherCache
+        self.storyAvailabilityService = storyAvailabilityService
+        self.enrichStoryUseCase = enrichStoryUseCase
+
+        tangemStoriesViewModel = TangemStoriesViewModel(
+            checkStoryAvailabilityUseCase: CheckStoryAvailabilityUseCase(storyAvailabilityService: storyAvailabilityService),
+            enrichStoryUseCase: enrichStoryUseCase,
+            finalizeStoryUseCase: FinalizeStoryUseCase(storyAvailabilityService: storyAvailabilityService, storyDataCache: storyDataCache),
+            analyticsService: storyAnalyticsService
+        )
+    }
 }
 
 private struct TangemStoriesEnvironmentKey: InjectionKey {
