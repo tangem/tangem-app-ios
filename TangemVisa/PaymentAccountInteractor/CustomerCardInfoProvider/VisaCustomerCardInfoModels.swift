@@ -17,6 +17,5 @@ public struct VisaCustomerCardInfo {
 
 public enum VisaPaymentAccountAddressProviderError: LocalizedError {
     case bffIsNotAvailable
-    case missingProductInstanceForCardId
     case missingPaymentAccountForCard
 }
