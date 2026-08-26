@@ -74,9 +74,9 @@ struct EarnOpportunitiesMapperTests {
         let items = try content.accounts()
 
         #expect(items.count == 1)
-        // Positive reward badge carries the "+" prefix (fiat 100 × apy 0.05 = 5).
+        // Reward amount is fiat 100 × apy 0.05 = 5; the view adds the "+ …/year" template.
         let token = try #require(items.first?.tokens.first)
-        #expect(token.rewardText == "\(AppConstants.plusSign) \(Localization.forYouEarnPerYear(BalanceFormatter().formatFiatBalance(5)))")
+        #expect(token.rewardAmount == BalanceFormatter().formatFiatBalance(5))
         _ = try #require(content.subtitle?.chip)
         #expect(content.subtitle?.suffix == nil)
     }
@@ -113,8 +113,7 @@ struct EarnOpportunitiesMapperTests {
         #expect(items.map(\.id) == ["mixed"])
         #expect(items.first?.tokens.map(\.id) == ["idle"])
         // Sum counts only the idle token (5), not the active one (100).
-        let expectedChip = Localization.forYouEarnPerYear(BalanceFormatter().formatFiatBalance(5))
-        #expect(content.subtitle?.chip == expectedChip)
+        #expect(content.subtitle?.chip == .fiat(BalanceFormatter().formatFiatBalance(5)))
     }
 
     @Test("Tokens inside an account are sorted by potential reward, descending")
@@ -157,8 +156,7 @@ struct EarnOpportunitiesMapperTests {
         #expect(!items.map(\.id).contains("acc0"))
 
         // 100+200+...+700 = 2800, ×0.1 = 280 — includes the two accounts hidden by the cap.
-        let expectedChip = Localization.forYouEarnPerYear(BalanceFormatter().formatFiatBalance(280))
-        #expect(content.subtitle?.chip == expectedChip)
+        #expect(content.subtitle?.chip == .fiat(BalanceFormatter().formatFiatBalance(280)))
     }
 
     @Test("Mapper leaves accounts expanded; collapsing is applied by the view model")
@@ -258,14 +256,14 @@ struct EarnOpportunitiesMapperTests {
         #expect(rows.map(\.id) == ["atom_cosmos_Staking"])
     }
 
-    @Test("Eligible holding with crypto balance but no fiat rate shows a dash reward, APY stays")
-    func fiatlessHoldingShowsDashRewardWithApy() throws {
+    @Test("Eligible holding with crypto balance but no fiat rate carries no reward, APY stays")
+    func fiatlessHoldingHasNoRewardButKeepsApy() throws {
         let accounts = [makeAccount(holdings: [makeHolding(crypto: 5, fiat: nil, apy: 0.05, isActive: false)])]
         let state = map(accounts: accounts, suggestions: .loaded([makeSuggestion()]))
         let items = try content(of: state).accounts()
         let token = try #require(items.first?.tokens.first)
 
-        #expect(token.rewardText == BalanceFormatter.defaultEmptyBalanceString)
+        #expect(token.rewardAmount == nil)
         #expect(token.apyText == PercentFormatter().format(0.05, option: .staking))
     }
 
@@ -276,7 +274,7 @@ struct EarnOpportunitiesMapperTests {
         let content = try content(of: state)
         _ = try content.suggestions()
 
-        #expect(content.subtitle?.chip == "APY 14.00 %")
+        #expect(content.subtitle?.chip == .rate("APY 14.00 %"))
     }
 
     @Test("Best-rate subtitle takes the first (top) suggestion's rate, not another")
@@ -289,7 +287,7 @@ struct EarnOpportunitiesMapperTests {
         let content = try content(of: state)
         _ = try content.suggestions()
 
-        #expect(content.subtitle?.chip == "APY 20.00 %")
+        #expect(content.subtitle?.chip == .rate("APY 20.00 %"))
     }
 
     @Test("Suggestion API id differing from the holding's domain currencyId still matches after resolution")
