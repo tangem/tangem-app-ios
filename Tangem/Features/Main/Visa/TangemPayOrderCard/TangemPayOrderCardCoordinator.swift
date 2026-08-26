@@ -37,6 +37,7 @@ final class TangemPayOrderCardCoordinator: CoordinatorObject {
             issueFeeText: options.issueFeeText,
             virtualCardImageURL: options.virtualCardImageURL,
             countryName: options.countryName,
+            selectedCardType: options.selectedCardType ?? .virtual,
             coordinator: self
         )
     }
@@ -52,6 +53,7 @@ extension TangemPayOrderCardCoordinator {
         let countryName: String?
         let email: String?
         let phoneMask: String?
+        let selectedCardType: TangemPayOrderCardType?
         weak var parentCoordinator: (any TangemPayOrderCardFlowRoutable)?
     }
 }

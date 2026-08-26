@@ -97,11 +97,37 @@ extension TangemPayMainCoordinator {
             return
         }
 
-        switch incomingAction {
-        case .addFunds:
-            Task { @MainActor in
-                try? await Task.sleep(for: .seconds(0.5))
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(0.5))
+
+            switch incomingAction {
+            case .addFunds:
                 rootViewModel?.addFunds()
+
+            case .currentPlan:
+                openCurrentPlan()
+
+            case .changePlan:
+                openCurrentPlan()
+
+                try? await Task.sleep(for: .seconds(0.5))
+
+                currentPlanCoordinator?.openPlanChangeIfAvailable()
+
+            case .orderCard:
+                rootViewModel?.addCard(cardType: .plastic)
+
+            case .cashback:
+                await rootViewModel?.openCashback()
+
+            case .vaOnramp:
+                await rootViewModel?.openVAOnramp()
+
+            case .vaOnrampDetails:
+                await openVirtualAccountBankDetails()
+
+            case .selectPlan:
+                break
             }
         }
     }
@@ -247,7 +273,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         }
     }
 
-    func openOrderCardType(fee: TangemPayCustomerOffer.Fee) {
+    func openOrderCardType(fee: TangemPayCustomerOffer.Fee, cardType: TangemPayOrderCardType?) {
         let tangemPayAccount = options?.tangemPayAccount
 
         let virtualCardImageURL = tangemPayAccount?.customerTariffPlan?.tariffPlan.images
@@ -270,6 +296,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             countryName: countryName,
             email: profile?.email,
             phoneMask: profile?.phoneMask,
+            selectedCardType: cardType,
             parentCoordinator: self
         ))
         orderCardCoordinator = coordinator
@@ -287,6 +314,10 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+
+    func openVAOnramp() {
+        routeVirtualAccountEntry()
     }
 
     func openTangemPayWithdraw(input: PredefinedSwapParameters) {
@@ -608,6 +639,22 @@ private extension TangemPayMainCoordinator {
             openVirtualAccountInfoSheet()
         case .preparing:
             openVirtualAccountPreparingPopup()
+        }
+    }
+
+    @MainActor
+    func openVirtualAccountBankDetails() async {
+        if let tangemPayAccount = options?.tangemPayAccount,
+           case .active(let productInstanceId) = tangemPayAccount.virtualAccountEntry {
+            do {
+                let credentials = try await tangemPayAccount.loadBankCredentials(productInstanceId: productInstanceId)
+                virtualAccountDidLoadBankCredentials(credentials)
+            } catch {
+                VisaLogger.error("Failed to load virtual account bank credentials", error: error)
+                virtualAccountInfoSheetDidFailToLoadBankCredentials(productInstanceId: productInstanceId)
+            }
+        } else {
+            await rootViewModel?.openVAOnramp()
         }
     }
 

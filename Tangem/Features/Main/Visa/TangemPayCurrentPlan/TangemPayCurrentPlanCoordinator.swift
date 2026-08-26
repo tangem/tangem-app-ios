@@ -45,6 +45,14 @@ final class TangemPayCurrentPlanCoordinator: CoordinatorObject {
             coordinator: self
         )
     }
+
+    func openPlanChangeIfAvailable() {
+        guard currentPlanViewModel?.isPlanChangeAvailable == true else {
+            return
+        }
+
+        openSelectPlan()
+    }
 }
 
 // MARK: - Options
