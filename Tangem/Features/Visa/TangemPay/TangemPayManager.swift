@@ -225,7 +225,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         let weakReferenceHolder = TangemPayManagerWeakReferenceHolder(tangemPayManager: self)
 
         switch enrollmentState {
-        case .enrolled(let customerInfo, _):
+        case .enrolled(let customerInfo):
             let account = makePaymentAccount(customerInfo: customerInfo)
             customerInfoCacheStorage.saveCachedCustomerInfo(
                 customerInfo,
@@ -234,7 +234,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             stateSubject.value = .tangemPayAccount(account)
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
-        case .cardDeactivated(let customerInfo, _):
+        case .cardDeactivated(let customerInfo):
             let account = makePaymentAccount(customerInfo: customerInfo)
             stateSubject.value = .cardDeactivated(account)
 

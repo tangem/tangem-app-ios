@@ -12,13 +12,9 @@ public struct VisaCustomerInfoResponse: Codable {
     public let id: String
     public let state: CustomerState
     public let createdAt: Date
-    /// Legacy single-card field. Restored alongside `productInstances` so the legacy flow can read it directly.
-    public let productInstance: ProductInstance?
     public let productInstances: [ProductInstance]
     public let paymentAccount: PaymentAccount?
     public let kyc: KYCInfo?
-    /// Legacy single-card field. Restored alongside `cards` so the legacy flow can read it directly.
-    public let card: Card?
     public let cards: [Card]
     public let depositAddress: String?
     public let customerTariffPlan: CustomerTariffPlan?
@@ -28,11 +24,9 @@ public struct VisaCustomerInfoResponse: Codable {
         id: String,
         state: CustomerState,
         createdAt: Date,
-        productInstance: ProductInstance? = nil,
         productInstances: [ProductInstance],
         paymentAccount: PaymentAccount?,
         kyc: KYCInfo?,
-        card: Card? = nil,
         cards: [Card],
         depositAddress: String?,
         customerTariffPlan: CustomerTariffPlan? = nil,
@@ -41,11 +35,9 @@ public struct VisaCustomerInfoResponse: Codable {
         self.id = id
         self.state = state
         self.createdAt = createdAt
-        self.productInstance = productInstance
         self.productInstances = productInstances
         self.paymentAccount = paymentAccount
         self.kyc = kyc
-        self.card = card
         self.cards = cards
         self.depositAddress = depositAddress
         self.customerTariffPlan = customerTariffPlan
@@ -57,12 +49,9 @@ public struct VisaCustomerInfoResponse: Codable {
         id = try container.decode(String.self, forKey: .id)
         state = try container.decode(CustomerState.self, forKey: .state)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
-        productInstance = try container.decodeIfPresent(ProductInstance.self, forKey: .productInstance)
-        // Tolerate legacy-shaped responses that omit the arrays entirely.
         productInstances = try container.decodeIfPresent([ProductInstance].self, forKey: .productInstances) ?? []
         paymentAccount = try container.decodeIfPresent(PaymentAccount.self, forKey: .paymentAccount)
         kyc = try container.decodeIfPresent(KYCInfo.self, forKey: .kyc)
-        card = try container.decodeIfPresent(Card.self, forKey: .card)
         cards = try container.decodeIfPresent([Card].self, forKey: .cards) ?? []
         depositAddress = try container.decodeIfPresent(String.self, forKey: .depositAddress)
         customerTariffPlan = try container.decodeIfPresent(CustomerTariffPlan.self, forKey: .customerTariffPlan)
