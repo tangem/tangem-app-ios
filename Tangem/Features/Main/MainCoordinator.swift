@@ -562,25 +562,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             return
         }
 
-        let accountModel = userWalletModel.accountModelsManager.tangemPayAccountModel
-
-        if let tangemPayAccount = accountModel?.state?.tangemPayAccount {
-            openTangemPayMainView(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                tangemPayAccount: tangemPayAccount,
-                userWalletModel: userWalletModel,
-                incomingAction: incomingAction
-            )
-            return
-        }
-
-        guard let accountModel else {
+        guard let accountModel = userWalletModel.accountModelsManager.tangemPayAccountModel else {
             incomingActionManager.discardIncomingAction()
             return
         }
 
         tangemPayMainDeeplinkSubscription = accountModel.statePublisher
-            .compactMap(\.tangemPayAccount)
+            .filter { $0.tangemPayAccount != nil || $0.tariffPlanSelector != nil }
             .first()
             .timeout(.seconds(Constants.tangemPayMainDeeplinkTimeout), scheduler: DispatchQueue.main)
             .receiveOnMain()
@@ -588,13 +576,20 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                 receiveCompletion: { [weak self] _ in
                     self?.tangemPayMainDeeplinkSubscription = nil
                 },
-                receiveValue: { [weak self] tangemPayAccount in
-                    self?.openTangemPayMainView(
-                        userWalletInfo: userWalletModel.userWalletInfo,
-                        tangemPayAccount: tangemPayAccount,
-                        userWalletModel: userWalletModel,
-                        incomingAction: incomingAction
-                    )
+                receiveValue: { [weak self] state in
+                    if let tangemPayAccount = state.tangemPayAccount {
+                        self?.openTangemPayMainView(
+                            userWalletInfo: userWalletModel.userWalletInfo,
+                            tangemPayAccount: tangemPayAccount,
+                            userWalletModel: userWalletModel,
+                            incomingAction: incomingAction
+                        )
+                    } else if let tariffPlanSelector = state.tariffPlanSelector {
+                        self?.openTangemPaySelectPlan(
+                            tariffPlanSelector: tariffPlanSelector,
+                            userWalletModel: userWalletModel
+                        )
+                    }
                 }
             )
     }

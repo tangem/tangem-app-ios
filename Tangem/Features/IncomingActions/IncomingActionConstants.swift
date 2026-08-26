@@ -64,6 +64,7 @@ enum IncomingActionConstants {
         static let interval = "interval"
         static let earnType = "earn_type"
         static let surveyToken = "token"
+        static let tangemPayScreen = "screen"
     }
 
     enum DeeplinkDestination: String, CaseIterable {
@@ -81,6 +82,7 @@ enum IncomingActionConstants {
         case onboardVisa = "onboard-visa"
         case promo
         case payApp = "pay-app"
+        case tangemPayAccount = "pay-account"
         case news
         /// Universal link to a specific article: `https://tangem.com/news/{category}/{id}-{slug}`.
         /// Not resolvable from a `tangem://` host — produced only by `NewsIncomingLinkParser`.
