@@ -20,8 +20,6 @@ final class CommonTokenFeeProvider {
     let feeTokenItemBalanceProvider: TokenBalanceProvider
     let supportingOptions: TokenFeeProviderSupportingOptions
 
-    var isBridgeFeeRestrictionEnabled = FeatureProvider.isAvailable(.gaslessBridgeFeeRestriction)
-
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
 
@@ -334,7 +332,7 @@ private extension CommonTokenFeeProvider {
     /// The withdrawal restores the balance verdict rather than a plain `.idle`: for an unchanged
     /// zero balance the balance publisher never re-emits, so nothing else would bring it back
     func updateBridgeFeeSupportingState(input: TokenFeeProviderInputData?) {
-        guard isBridgeFeeRestrictionEnabled, tokenFeeLoader is CommonGaslessTokenFeeLoader else {
+        guard tokenFeeLoader is CommonGaslessTokenFeeLoader else {
             return
         }
 
