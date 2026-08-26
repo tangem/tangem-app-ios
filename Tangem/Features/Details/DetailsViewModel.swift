@@ -465,10 +465,8 @@ private extension DetailsViewModel {
 
         if FeatureProvider.isAvailable(.mobileWalletMultiCreation) {
             addNewUserWallet()
-        } else if FeatureProvider.isAvailable(.addMobileWalletFakeDoor) {
-            openAddWalletTypeSelector()
         } else {
-            scanNewUserWallet()
+            openAddWalletTypeSelector()
         }
     }
 

@@ -103,7 +103,7 @@ final class StakingValidationHandler: StakingValidationStateProvider {
 // MARK: - Optional + StakingValidationHandler
 
 /// Resolves transaction with validation if handler exists, or falls back to direct `stakingManager.transaction()`.
-/// This is the feature-toggle kill-switch: when `stakingTransactionValidation` is off, handler is nil.
+/// The handler is nil for networks out of validation scope.
 extension Optional where Wrapped == StakingValidationHandler {
     func resolveTransaction(
         action: StakingAction,
