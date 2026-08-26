@@ -14,7 +14,7 @@ extension EarnOpportunitiesViewModel.ViewState {
     static let preview: Self = .content(.init(
         subtitle: EarnRewardSubtitle(
             prefix: "Max potential rewards",
-            chip: "$455.83/year",
+            chip: .fiat("$455.83"),
             suffix: nil
         ),
         list: .accounts([mainAccount, familyAccount])
@@ -23,7 +23,7 @@ extension EarnOpportunitiesViewModel.ViewState {
     static let previewSuggestions: Self = .content(.init(
         subtitle: EarnRewardSubtitle(
             prefix: "Get up to APY",
-            chip: "14.20%",
+            chip: .rate("14.20%"),
             suffix: "annually"
         ),
         list: .suggestions([
@@ -40,12 +40,12 @@ extension EarnOpportunitiesViewModel.ViewState {
             glyph: Assets.Accounts.starAccounts,
             name: "Main Account",
             tokensCountText: Localization.commonTokensCount(7),
-            rewardText: "+ $394/year"
+            rewardAmount: "$394"
         ),
         tokens: [
-            EarnTokenRowData(id: "main_eth", tokenIconInfo: previewIcon("Ethereum"), name: "Ethereum", network: "Ethereum Network", rewardText: "+ $312.40/year", apyText: "APY 4.50%"),
-            EarnTokenRowData(id: "main_atom", tokenIconInfo: previewIcon("Cosmos"), name: "Cosmos", network: "Cosmos Network", rewardText: "+ $58.20/year", apyText: "APY 14.20%"),
-            EarnTokenRowData(id: "main_dot", tokenIconInfo: previewIcon("Polkadot"), name: "Polkadot", network: "Polkadot Network", rewardText: "+ $23.40/year", apyText: "APY 11.80%"),
+            EarnTokenRowData(id: "main_eth", tokenIconInfo: previewIcon("Ethereum"), name: "Ethereum", network: "Ethereum Network", rewardAmount: "$312.40", apyText: "APY 4.50%"),
+            EarnTokenRowData(id: "main_atom", tokenIconInfo: previewIcon("Cosmos"), name: "Cosmos", network: "Cosmos Network", rewardAmount: "$58.20", apyText: "APY 14.20%"),
+            EarnTokenRowData(id: "main_dot", tokenIconInfo: previewIcon("Polkadot"), name: "Polkadot", network: "Polkadot Network", rewardAmount: "$23.40", apyText: "APY 11.80%"),
         ],
         isExpanded: false
     )
@@ -57,11 +57,11 @@ extension EarnOpportunitiesViewModel.ViewState {
             glyph: Assets.Accounts.family,
             name: "Family Account",
             tokensCountText: Localization.commonTokensCount(2),
-            rewardText: "+ $61.83/year"
+            rewardAmount: "$61.83"
         ),
         tokens: [
-            EarnTokenRowData(id: "family_sol", tokenIconInfo: previewIcon("Solana"), name: "Solana", network: "Solana Network", rewardText: "+ $41.83/year", apyText: "APY 19.44%"),
-            EarnTokenRowData(id: "family_usdt", tokenIconInfo: previewIcon("Tether"), name: "Tether", network: "Solana Network", rewardText: "+ $20/year", apyText: "APY 3.44%"),
+            EarnTokenRowData(id: "family_sol", tokenIconInfo: previewIcon("Solana"), name: "Solana", network: "Solana Network", rewardAmount: "$41.83", apyText: "APY 19.44%"),
+            EarnTokenRowData(id: "family_usdt", tokenIconInfo: previewIcon("Tether"), name: "Tether", network: "Solana Network", rewardAmount: "$20", apyText: "APY 3.44%"),
         ],
         isExpanded: true
     )

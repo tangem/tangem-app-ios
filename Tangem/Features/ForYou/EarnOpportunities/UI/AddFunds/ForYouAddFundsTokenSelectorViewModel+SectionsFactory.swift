@@ -100,9 +100,18 @@ private extension Holding {
             tokenIconInfo: iconBuilder.build(from: tokenItem, isCustom: walletModel.isCustom),
             name: tokenItem.name,
             network: tokenItem.networkName,
-            fiat: walletModel.fiatTotalTokenBalanceProvider.formattedBalanceType.value,
-            crypto: walletModel.totalTokenBalanceProvider.formattedBalanceType.value,
+            fiat: displayableBalance(of: walletModel.fiatTotalTokenBalanceProvider),
+            crypto: displayableBalance(of: walletModel.totalTokenBalanceProvider),
             onTap: { onSelect(self) }
         )
+    }
+
+    /// `nil` = nothing to show; `spendableValue` so unfunded-account chains (XRP & co) keep their zero.
+    func displayableBalance(of provider: TokenBalanceProvider) -> String? {
+        guard provider.balanceType.spendableValue != nil else {
+            return nil
+        }
+
+        return provider.formattedBalanceType.value
     }
 }
