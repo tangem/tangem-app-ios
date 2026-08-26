@@ -215,7 +215,7 @@ private extension StakeModel {
 
 private extension StakeModel {
     /// Screens the transaction through the anti-blind-signing handler, or builds it directly when none is
-    /// wired (validation off or network out of scope).
+    /// wired (network out of scope).
     func resolveTransaction(action: StakingAction) async throws -> StakingTransactionAction {
         guard let validationHandler else {
             return try await provider.buildTransaction(action: action)
