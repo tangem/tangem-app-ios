@@ -163,11 +163,7 @@ struct TangemPaySelectPlanView: View {
                             .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
                         if let subtitle = point.subtitle {
-                            Text(LocalizedStringKey(subtitle))
-                                .environment(\.openURL, OpenURLAction { url in
-                                    viewModel.openURL(url)
-                                    return .handled
-                                })
+                            Text(subtitle)
                                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                         }
                     }
@@ -175,6 +171,10 @@ struct TangemPaySelectPlanView: View {
                 }
             }
         }
+        .environment(\.openURL, OpenURLAction { url in
+            viewModel.openURL(url)
+            return .handled
+        })
     }
 
     @ToolbarContentBuilder
