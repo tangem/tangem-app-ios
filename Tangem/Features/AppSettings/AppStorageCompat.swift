@@ -65,6 +65,11 @@ final class Storage<Value>: NSObject, ObservableObject {
         self.transform = transform
         super.init()
 
+        // `$publishedValue` builds its subject on the first access and rewrites the wrapper's storage to hold it.
+        // Subscribers arrive from several threads at once on a cold start, so that transition has to happen here,
+        // while the object is still private to this initializer, and not under the first concurrent `subscribe`.
+        _ = $publishedValue
+
         store.addObserver(self, forKeyPath: key, options: [.new], context: nil)
     }
 
