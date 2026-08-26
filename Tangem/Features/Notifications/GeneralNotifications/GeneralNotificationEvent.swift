@@ -306,12 +306,20 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .missingDerivation:
             return RedesignedBannerContent(icon: NotificationView.MessageIcon(iconType: .image(Assets.infoCircle20)))
         case .missingBackup:
-            return RedesignedBannerContent(icon: NotificationView.MessageIcon(iconType: .image(Assets.attention)))
+            return RedesignedBannerContent(
+                icon: NotificationView.MessageIcon(
+                    iconType: .image(Assets.DesignSystem.attention),
+                    renderingMode: .template,
+                    color: DesignSystem.Color.iconStatusWarning
+                )
+            )
         case .mobileFinishActivation(let hasPositiveBalance, _):
             return RedesignedBannerContent(
                 title: .string(Localization.hwActivationNeedTitle),
                 icon: NotificationView.MessageIcon(
-                    iconType: .image(hasPositiveBalance ? Assets.redCircleWarning : Assets.attention)
+                    iconType: .image(hasPositiveBalance ? DesignSystem.Icons.Error.filled20 : Assets.DesignSystem.attention),
+                    renderingMode: .template,
+                    color: hasPositiveBalance ? DesignSystem.Color.iconStatusError : DesignSystem.Color.iconStatusWarning
                 )
             )
         default:
