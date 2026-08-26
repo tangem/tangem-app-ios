@@ -44,8 +44,16 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
                     .transition(.opacity)
                     .zIndex(1)
             }
+
+            ZStack {
+                if let tangemPayMobileOnboardingCoordinator = coordinator.tangemPayMobileOnboardingCoordinator {
+                    TangemPayMobileOnboardingCoordinatorView(coordinator: tangemPayMobileOnboardingCoordinator)
+                        .transition(.opacity)
+                }
+            }
         }
         .animation(.easeInOut(duration: 0.35), value: coordinator.hardwareWalletViewModel != nil)
+        .animation(.easeInOut(duration: 0.35), value: coordinator.tangemPayMobileOnboardingCoordinator != nil)
         .overlay(sheets)
         .fullScreenCover(item: $coordinator.legalWebViewModel) { webViewModel in
             WebViewContainer(viewModel: webViewModel)
