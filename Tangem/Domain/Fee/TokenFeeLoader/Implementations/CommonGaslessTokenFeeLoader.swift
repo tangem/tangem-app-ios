@@ -248,6 +248,11 @@ private extension CommonGaslessTokenFeeLoader {
     ) async throws -> BSDKFee {
         let yieldFeeOptions = try await makeYieldFeeOptions(context: context)
         let yieldFee = try await buildYieldFee(yieldFeeOptions)
+
+        guard totalBalance(in: context) >= requiredBalance(fee: yieldFee, spentAmount: spentAmount) else {
+            throw TokenFeeLoaderError.notEnoughFeeBalance
+        }
+
         return yieldFee
     }
 
