@@ -18,7 +18,7 @@ extension Blockchain {
         case .bitcoin:
             return true
         case .litecoin, .dogecoin, .dash, .bitcoinCash:
-            return FeatureProvider.isAvailable(.bitcoinLikePsbtSwap)
+            return true
         default:
             return false
         }
