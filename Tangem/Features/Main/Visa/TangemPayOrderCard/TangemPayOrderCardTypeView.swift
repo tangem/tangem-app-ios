@@ -113,12 +113,9 @@ struct TangemPayOrderCardTypeView: View {
                 .scaledToFit()
                 .frame(width: Constants.cardWidth, height: Constants.cardHeight)
         case .plastic:
-            // [REDACTED_TODO_COMMENT]
-            Assets.Visa.cardEarlybirds.image
-                .resizable()
-                .frame(width: Constants.plasticArtWidth, height: Constants.plasticArtHeight)
-                .offset(y: Constants.plasticArtShadowOffset)
-                .frame(width: Constants.cardWidth, height: Constants.cardHeight)
+            TangemPayOrderCardPlasticArtStubView(
+                size: CGSize(width: Constants.cardWidth, height: Constants.cardHeight)
+            )
         }
     }
 
@@ -185,12 +182,6 @@ private extension TangemPayOrderCardTypeView {
         /// Fixed, so that the card and the switcher hold their place whatever the selected type's row count is.
         static let cardTopMargin: CGFloat = 112
         static let cardToTabsGap: CGFloat = 152
-
-        /// `card-earlybirds` bakes its drop shadow into the canvas, insetting the card body by 40pt
-        /// horizontally, 32pt from the top and 48pt from the bottom — hence the size and the downward offset.
-        static let plasticArtWidth: CGFloat = 346
-        static let plasticArtHeight: CGFloat = 252
-        static let plasticArtShadowOffset: CGFloat = 8
 
         static let tabsVerticalPadding: CGFloat = 8
         static let rowsHorizontalPadding: CGFloat = 8

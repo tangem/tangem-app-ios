@@ -145,6 +145,7 @@ private extension TangemPayOrderCardTypeViewModel {
         static let issueTimeTitle = "Issue time"
 
         // [REDACTED_TODO_COMMENT]
+        // offer as `fee.amount` and `data.delivery_eta_min_days` / `_max_days`.
         static let deliveryFee = "$10"
         static let minDeliveryDays = 3
         static let maxDeliveryDays = 5
