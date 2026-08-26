@@ -174,7 +174,8 @@ enum EmailCollectedDataType {
     }
 
     enum MobileWalletData: String {
-        case hasBackup = "Mobile Wallet is backed up"
+        case hasSeedPhraseBackup = "Mobile Wallet is backed up (seed phrase)"
+        case hasICloudBackup = "Mobile Wallet is backed up (cloud)"
         case hasAccessCode = "Mobile Wallet has access code"
     }
 
