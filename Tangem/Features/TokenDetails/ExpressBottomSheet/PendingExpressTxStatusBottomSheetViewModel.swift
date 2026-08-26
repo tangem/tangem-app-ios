@@ -47,6 +47,8 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     @Published private(set) var isHideButtonShowed = false
     @Published private(set) var ratingViewModel: RatingViewModel?
 
+    private var ratingFeedbackPresenter: (any RatingFeedbackPresenter)?
+
     private let expressProviderFormatter = ExpressProviderFormatter(balanceFormatter: .init())
     private weak var pendingTransactionsManager: (any PendingExpressTransactionsManager)?
 
@@ -509,17 +511,22 @@ private extension PendingExpressTxStatusBottomSheetViewModel {
     func setupRatingViewModel() {
         guard ratingViewModel == nil else { return }
 
-        let isConfigured = InjectedValues[\.keysManager].surveySparrow.isSwapRatingConfigured
+        let isConfigured = SwapRatingAvailability().isAvailable
         let transaction = RatingModel.Transaction(from: pendingTransaction)
 
         guard isConfigured, let transaction else { return }
 
-        ratingViewModel = RatingViewModel(
-            model: RatingModel(
-                ratingProvider: InjectedValues[\.ratingProvider],
-                transaction: transaction,
-                userWalletIdHash: userWalletInfo.id.hashedStringValue
+        MainActor.assumeIsolated {
+            let feedbackPresenter = FloatingSheetRatingFeedbackPresenter()
+            ratingFeedbackPresenter = feedbackPresenter
+            ratingViewModel = RatingViewModel(
+                model: RatingModel(
+                    ratingProvider: InjectedValues[\.ratingProvider],
+                    transaction: transaction,
+                    userWalletIdHash: userWalletInfo.id.hashedStringValue
+                ),
+                feedbackPresenter: feedbackPresenter
             )
-        )
+        }
     }
 }
