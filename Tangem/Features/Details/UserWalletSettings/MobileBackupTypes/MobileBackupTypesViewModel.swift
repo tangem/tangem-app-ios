@@ -11,6 +11,8 @@ import Combine
 import TangemLocalization
 import TangemMobileWalletSdk
 import TangemMobileWalletBackup
+import TangemUI
+import TangemAssets
 
 final class MobileBackupTypesViewModel: ObservableObject {
     @Published var sections: [Section] = []
@@ -122,6 +124,10 @@ extension MobileBackupTypesViewModel: MobileBackupICloudTypeDelegate {
     func onICloudBackupDetails(backup: MobileWalletBackup, onDelete: @escaping () -> Void) async {
         await openICloudBackupDetails(backup: backup, onDelete: onDelete)
     }
+
+    func onICloudBackupDeleted() async {
+        await presentICloudBackupDeletedToast()
+    }
 }
 
 // MARK: - MobileBackupUpgradeTypeDelegate
@@ -168,6 +174,13 @@ private extension MobileBackupTypesViewModel {
     func openSeedPhraseReveal(context: MobileWalletContext) {
         let input = MobileOnboardingInput(flow: .seedPhraseReveal(context: context))
         coordinator?.openMobileOnboarding(input: input)
+    }
+
+    func presentICloudBackupDeletedToast() {
+        let snackbar = TangemSnackbar(title: Localization.hwCloudBackupRemoved)
+            .icon(DesignSystem.Icons.TrashBin.regular20)
+            .iconColor(DesignSystem.Color.iconStatusError)
+        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
     }
 }
 

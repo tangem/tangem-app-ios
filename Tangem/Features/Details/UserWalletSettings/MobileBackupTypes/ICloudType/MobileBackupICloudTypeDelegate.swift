@@ -12,4 +12,5 @@ import TangemMobileWalletBackup
 protocol MobileBackupICloudTypeDelegate: AnyObject {
     func onICloudBackup() async
     func onICloudBackupDetails(backup: MobileWalletBackup, onDelete: @escaping () -> Void) async
+    func onICloudBackupDeleted() async
 }
