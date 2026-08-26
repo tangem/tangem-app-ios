@@ -24,13 +24,12 @@ struct MobileWalletBackupPasswordValidatorTests {
     }
 
     @Test(
-        "Password with at least 6 characters and at least 2 criteria is medium",
+        "Password with at least 6 characters and at least 2 character classes is medium",
         arguments: [
             "abc12x", // 6 characters, lowercase + digit
             "Abcdex", // 6 characters, uppercase + lowercase
-            "Abcdef1", // 7 characters, three criteria, not long enough
-            "abcdefgh", // 8 characters, minimum length + lowercase
-            "12345678", // 8 characters, minimum length + digit
+            "Abcdef1", // 7 characters, three character classes, not long enough
+            "Abcdefgh", // 8 characters, uppercase + lowercase
         ]
     )
     func mediumPasswords(password: String) {
@@ -38,64 +37,58 @@ struct MobileWalletBackupPasswordValidatorTests {
     }
 
     @Test(
-        "Password shorter than 6 characters or with less than 2 criteria is weak",
+        "Password shorter than 6 characters or with less than 2 character classes is weak",
         arguments: [
             "abc",
-            "aB1!x", // 5 characters, all character criteria but too short
+            "aB1!x", // 5 characters, all character classes but too short
             "abcdef", // 6 characters, lowercase only
             "1234567", // 7 characters, digit only
+            "abcdefgh", // 8 characters, lowercase only
+            "12345678", // 8 characters, digit only
+            "!!!!!!!!", // 8 characters, special only
+            "        ", // 8 characters, whitespace-only special
         ]
     )
     func weakPasswords(password: String) {
         #expect(validator.validate(password).strength == .weak)
     }
 
-    @Test(
-        "Empty password has no strength",
-        arguments: ["", "   "]
-    )
-    func emptyPasswords(password: String) {
-        #expect(validator.validate(password).strength == MobileWalletBackupPasswordValidator.Strength.none)
+    @Test("Empty password has no strength")
+    func emptyPassword() {
+        #expect(validator.validate("").strength == MobileWalletBackupPasswordValidator.Strength.none)
     }
 
-    @Test("Surrounding whitespace is ignored")
-    func whitespaceTrimming() {
-        #expect(validator.validate("  abc  ").strength == validator.validate("abc").strength)
-        #expect(validator.validate(" Abcdef1! ").strength == .strong)
+    @Test("Whitespace counts as a special character")
+    func whitespaceAsSpecialCharacter() {
+        #expect(validator.validate("Abcdef 1").strength == .strong)
+        #expect(validator.validate("Abcdefg\t1").hint == .allSatisfied)
     }
 
-    // MARK: - Criteria
+    // MARK: - Hint
 
-    @Test("Missing criteria are reported")
-    func satisfiedCriteria() {
-        #expect(validator.validate("Abcdef1!").satisfiedCriteria == Set(MobileWalletBackupPasswordValidator.Criterion.allCases))
-        #expect(validator.validate("Abcdefg1").satisfiedCriteria == [.minimumLength, .uppercaseLetter, .lowercaseLetter, .digit])
-        #expect(validator.validate("Abcde1!").satisfiedCriteria == [.uppercaseLetter, .lowercaseLetter, .digit, .specialCharacter])
-        #expect(validator.validate("").satisfiedCriteria.isEmpty)
+    @Test("Short passwords are hinted by length before criteria")
+    func hintLengthThresholds() {
+        #expect(validator.validate("").hint == .tooShort(minimumLength: 8))
+        #expect(validator.validate("aB1").hint == .tooShort(minimumLength: 8))
+        #expect(validator.validate("aB1!").hint == .keepGoing(minimumLength: 8))
+        #expect(validator.validate("aB1!aB").hint == .keepGoing(minimumLength: 8))
     }
 
-    // MARK: - Unsatisfied criterion
-
-    @Test("No criterion is unsatisfied when all criteria are satisfied")
-    func unsatisfiedCriterionAllSatisfied() {
-        #expect(validator.validate("Abcdef1!").unsatisfiedCriterion == nil)
-    }
-
-    @Test("The single missing criterion is reported as unsatisfied")
-    func unsatisfiedCriterionSingleMissing() {
-        #expect(validator.validate("Abcdefg1").unsatisfiedCriterion == .specialCharacter)
-        #expect(validator.validate("Abcdefg!").unsatisfiedCriterion == .digit)
-        #expect(validator.validate("abcdef1!").unsatisfiedCriterion == .uppercaseLetter)
-        #expect(validator.validate("ABCDEF1!").unsatisfiedCriterion == .lowercaseLetter)
-        #expect(validator.validate("Abcde1!").unsatisfiedCriterion == .minimumLength)
+    @Test("Long enough passwords are hinted by the missing criterion")
+    func hintMissingCriterion() {
+        #expect(validator.validate("Abcde1!").hint == .almostThere)
+        #expect(validator.validate("abcdef1!").hint == .addUppercaseLetter)
+        #expect(validator.validate("ABCDEF1!").hint == .addLowercaseLetter)
+        #expect(validator.validate("Abcdefg1").hint == .addSpecialCharacter)
+        #expect(validator.validate("Abcdefg!").hint == .addDigit)
+        #expect(validator.validate("Abcdef1!").hint == .allSatisfied)
     }
 
     @Test("The highest-priority missing criterion wins")
-    func unsatisfiedCriterionPriority() {
-        // digit > specialCharacter > uppercaseLetter > lowercaseLetter > minimumLength
-        #expect(validator.validate("Abcdefgh").unsatisfiedCriterion == .digit)
-        #expect(validator.validate("abcdefg1").unsatisfiedCriterion == .specialCharacter)
-        #expect(validator.validate("abcdef1!").unsatisfiedCriterion == .uppercaseLetter)
-        #expect(validator.validate("").unsatisfiedCriterion == .digit)
+    func hintPriority() {
+        // specialCharacter > digit > uppercaseLetter > lowercaseLetter > minimumLength
+        #expect(validator.validate("Abcdefgh").hint == .addSpecialCharacter)
+        #expect(validator.validate("abcdefg!").hint == .addDigit)
+        #expect(validator.validate("abcdef1!").hint == .addUppercaseLetter)
     }
 }

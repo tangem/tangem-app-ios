@@ -54,7 +54,7 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
     }
 
     var passwordStrengthInfo: PasswordStrengthInfo {
-        calculatePasswordStrengthInfo(validation: passwordValidation)
+        passwordStrengthInfo(validation: passwordValidation)
     }
 
     var passwordMatching: PasswordMatching {
@@ -106,7 +106,7 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
         destination: .iCloud
     )
 
-    private let passwordValidator = MobileWalletBackupPasswordValidator()
+    private let passwordValidator = Validator()
 
     private let userWalletModel: UserWalletModel
     private weak var delegate: MobileOnboardingICloudBackupDelegate?
@@ -285,7 +285,7 @@ private extension MobileOnboardingICloudBackupViewModel {
 // MARK: - Helpers
 
 private extension MobileOnboardingICloudBackupViewModel {
-    func calculatePasswordStrengthInfo(validation: Validator.Validation) -> PasswordStrengthInfo {
+    func passwordStrengthInfo(validation: Validator.Validation) -> PasswordStrengthInfo {
         let strength = validation.strength
 
         let title = switch strength {
@@ -295,7 +295,7 @@ private extension MobileOnboardingICloudBackupViewModel {
         case .strong: Localization.hwCloudBackupStrengthStrong
         }
 
-        let description = calculatePasswordHint(validation: validation)
+        let description = passwordHint(validation: validation)
 
         let color = switch strength {
         case .none: DesignSystem.Color.textSecondary
@@ -319,25 +319,16 @@ private extension MobileOnboardingICloudBackupViewModel {
         )
     }
 
-    func calculatePasswordHint(validation: Validator.Validation) -> String {
-        switch validation.sanitizedLength {
-        case ..<Constants.hintKeepGoingMinimumLength:
-            return Localization.hwCloudBackupPasswordRuleV2(Constants.hintCriteriaMinimumLength + 1)
-        case ..<Constants.hintCriteriaMinimumLength:
-            return Localization.hwCloudBackupStrengthHintKeepGoingV2(Constants.hintCriteriaMinimumLength + 1)
-        default:
-            return calculateMissingCriterionHint(criterion: validation.unsatisfiedCriterion)
-        }
-    }
-
-    func calculateMissingCriterionHint(criterion: Validator.Criterion?) -> String {
-        switch criterion {
-        case .minimumLength: Localization.hwCloudBackupStrengthHintAlmost
-        case .lowercaseLetter: Localization.hwCloudBackupStrengthHintLowercase
-        case .uppercaseLetter: Localization.hwCloudBackupStrengthHintUppercase
-        case .specialCharacter: Localization.hwCloudBackupStrengthHintSymbol
-        case .digit: Localization.hwCloudBackupStrengthHintNumber
-        case .none: Localization.hwCloudBackupStrengthHintOk
+    func passwordHint(validation: Validator.Validation) -> String {
+        switch validation.hint {
+        case .tooShort(let minimumLength): Localization.hwCloudBackupPasswordRuleV2(minimumLength)
+        case .keepGoing(let minimumLength): Localization.hwCloudBackupStrengthHintKeepGoingV2(minimumLength)
+        case .almostThere: Localization.hwCloudBackupStrengthHintAlmost
+        case .addLowercaseLetter: Localization.hwCloudBackupStrengthHintLowercase
+        case .addUppercaseLetter: Localization.hwCloudBackupStrengthHintUppercase
+        case .addSpecialCharacter: Localization.hwCloudBackupStrengthHintSymbol
+        case .addDigit: Localization.hwCloudBackupStrengthHintNumber
+        case .allSatisfied: Localization.hwCloudBackupStrengthHintOk
         }
     }
 
@@ -426,15 +417,6 @@ private extension MobileOnboardingICloudBackupViewModel {
 
     func logScreenClosedAnalytics() {
         Analytics.log(.walletSettingsCloudBackupScreenClosed, contextParams: analyticsContextParams)
-    }
-}
-
-// MARK: - Constants
-
-private extension MobileOnboardingICloudBackupViewModel {
-    enum Constants {
-        static let hintKeepGoingMinimumLength = 4
-        static let hintCriteriaMinimumLength = 7
     }
 }
 
