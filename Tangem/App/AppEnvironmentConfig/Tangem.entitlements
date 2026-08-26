@@ -10,6 +10,7 @@
 		<string>applinks:app.tangem.com</string>
 		<string>applinks:tangem.onelink.me</string>
 		<string>applinks:join.tangem.com</string>
+		<string>webcredentials:tangem.com</string>
 	</array>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>

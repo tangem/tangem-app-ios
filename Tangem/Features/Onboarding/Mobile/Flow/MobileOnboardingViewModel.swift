@@ -225,4 +225,14 @@ extension MobileOnboardingViewModel: MobileOnboardingFlowRoutable {
     func closeOnboarding() {
         coordinator?.closeOnboarding()
     }
+
+    func save(credential: WebCredentialUtil.SavedCredential) {
+        runTask {
+            do {
+                try await WebCredentialUtil.save(credential)
+            } catch {
+                AppLogger.error("Failed to save web credential", error: error)
+            }
+        }
+    }
 }
