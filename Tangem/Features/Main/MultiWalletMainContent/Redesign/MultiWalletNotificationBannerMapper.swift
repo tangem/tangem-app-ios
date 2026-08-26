@@ -214,9 +214,11 @@ private extension MultiWalletNotificationBannerMapper {
 
         if case .critical = bannerKind {
             return NotificationBanner.Icon(
-                imageType: Assets.redCircleWarning,
+                imageType: DesignSystem.Icons.Error.filled20,
                 width: .x5,
                 height: .x5,
+                renderingMode: .template,
+                color: DesignSystem.Color.iconStatusError,
                 isLeading: messageIcon.isLeading
             )
         }
@@ -226,7 +228,7 @@ private extension MultiWalletNotificationBannerMapper {
             width: .x5,
             height: .x5,
             renderingMode: .template,
-            color: .Tangem.Graphic.Status.attention,
+            color: DesignSystem.Color.iconStatusWarning,
             isLeading: messageIcon.isLeading
         )
     }
