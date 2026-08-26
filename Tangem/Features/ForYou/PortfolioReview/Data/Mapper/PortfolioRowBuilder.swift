@@ -115,7 +115,7 @@ private extension PortfolioRowBuilder {
                 freshness: freshness(for: availability)
             )
         case .loading, .noRate:
-            return .values(fiat: AppConstants.enDashSign, percent: "", freshness: .fresh)
+            return .values(fiat: nil, percent: "", freshness: .fresh)
         case .unreachable:
             return .unavailable(label: Localization.commonUnreachable)
         case .noAddress:
@@ -141,7 +141,7 @@ private extension PortfolioRowBuilder {
         case .unreachable:
             return .text(name)
         case .loading, .noAddress:
-            return .dotted(name, AppConstants.enDashSign)
+            return .dotted(name, nil)
         }
     }
 

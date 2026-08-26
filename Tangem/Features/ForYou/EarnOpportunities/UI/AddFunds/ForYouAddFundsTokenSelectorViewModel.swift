@@ -71,8 +71,9 @@ extension ForYouAddFundsTokenSelectorViewModel {
         let tokenIconInfo: TokenIconInfo
         let name: String
         let network: String
-        let fiat: String
-        let crypto: String
+        /// `nil` when there's no balance to show (no rate / not loaded) — rendered as a dash and never masked.
+        let fiat: String?
+        let crypto: String?
         let onTap: () -> Void
     }
 
