@@ -446,8 +446,7 @@ private extension CommonYieldModuleManager {
         nextExpectedState: NextExpectedState?
     ) -> YieldModuleManagerStateInfo {
         let marketInfo = marketsInfo.first {
-            // Addresses can differ in letter case (API lowercased vs EIP-55 checksum).
-            $0.tokenContractAddress.caseInsensitiveEquals(to: token.contractAddress) && $0.chainId == chainId
+            $0.tokenContractAddress == token.contractAddress && $0.chainId == chainId
         }
 
         let state: YieldModuleManagerState

@@ -6,8 +6,6 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import TangemFoundation
-
 struct CommonTokenFeeProvidersManagerProvider {
     @Injected(\.gaslessTransactionsNetworkManager)
     private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
@@ -107,15 +105,9 @@ private extension CommonTokenFeeProvidersManagerProvider {
         // Wallet models eligible for gasless fees: same chain as the source token, token address is supported,
         // and active Yield Mode is included only for the dedicated gasless-yield flow.
         let gaslessFeeWalletModels: [any WalletModel] = currentAccountWalletModels.compactMap { model in
-            // On EVM the service returns fee-token addresses lowercased while the wallet stores them in
-            // EIP-55 checksum form, so compare case-insensitively. TRON base58 addresses are case-sensitive
-            // and unaffected — a wrong-case variant simply fails the base58check and is filtered out.
-            guard
-                let contractAddress = model.tokenItem.contractAddress,
-                availableTokenAddresses.contains(where: { $0.caseInsensitiveEquals(to: contractAddress) }),
-                model.tokenItem.blockchain.chainId == sourceTokenChainId
-            else { return nil }
-
+            guard let contractAddress = model.tokenItem.contractAddress else { return nil }
+            guard availableTokenAddresses.contains(contractAddress) else { return nil }
+            guard model.tokenItem.blockchain.chainId == sourceTokenChainId else { return nil }
             if model.yieldModuleManager?.state?.state.isEffectivelyActive == true {
                 guard FeatureProvider.isAvailable(.gaslessYieldFee) else { return nil }
             }
