@@ -97,6 +97,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tokenItemPromoProvider: TokenItemPromoProvider
     private let expressBalanceUpdater: any ExpressTransactionBalanceUpdater = CommonExpressTransactionBalanceUpdater()
 
+    private lazy var authUtil = MobileAuthUtil(
+        userWalletId: userWalletModel.userWalletId,
+        config: userWalletModel.config,
+        biometricsProvider: CommonUserWalletBiometricsProvider()
+    )
+
     private var derivator: TokenEntriesDerivator?
 
     private var canManageTokens: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
@@ -680,8 +686,32 @@ extension MultiWalletMainContentViewModel {
         if isBackupNeeded {
             coordinator?.openMobileBackup(userWalletModel: userWalletModel)
         } else {
-            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+            runTask(in: self) { viewModel in
+                await viewModel.openMobileBackupOnboarding()
+            }
         }
+    }
+
+    private func openMobileBackupOnboarding() async {
+        switch await unlock() {
+        case .successful(let context):
+            await openMobileOnboarding(context: context)
+        case .failed(let error):
+            AppLogger.error("Unlock failed:", error: error)
+            await showUnlockingErrorAlert(error)
+        case .canceled:
+            break
+        }
+    }
+
+    @MainActor
+    private func openMobileOnboarding(context: MobileWalletContext) {
+        coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel, context: context)
+    }
+
+    @MainActor
+    private func showUnlockingErrorAlert(_ error: Error) {
+        self.error = error.alertBinder
     }
 
     private func openHardwareBackupTypes() {
@@ -951,6 +981,37 @@ private extension MultiWalletMainContentViewModel {
             userWalletModel: userWalletModel,
             swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
         )
+    }
+}
+
+// MARK: - Mobile wallet unlocking
+
+private extension MultiWalletMainContentViewModel {
+    func unlock() async -> UnlockResult {
+        do {
+            let result = try await authUtil.unlock()
+
+            switch result {
+            case .successful(let context):
+                return .successful(context: context)
+
+            case .canceled:
+                return .canceled
+
+            case .userWalletNeedsToDelete:
+                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
+                return .canceled
+            }
+
+        } catch {
+            return .failed(error: error)
+        }
+    }
+
+    enum UnlockResult {
+        case successful(context: MobileWalletContext)
+        case canceled
+        case failed(error: Error)
     }
 }
 

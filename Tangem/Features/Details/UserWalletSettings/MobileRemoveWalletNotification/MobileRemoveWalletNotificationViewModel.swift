@@ -61,6 +61,12 @@ final class MobileRemoveWalletNotificationViewModel: ObservableObject {
         removeManager.backupState
     }
 
+    private lazy var authUtil = MobileAuthUtil(
+        userWalletId: userWalletModel.userWalletId,
+        config: userWalletModel.config,
+        biometricsProvider: CommonUserWalletBiometricsProvider()
+    )
+
     private let userWalletModel: UserWalletModel
     private let removeManager: MobileRemoveWalletManager
     private weak var coordinator: MobileRemoveWalletNotificationRoutable?
@@ -154,7 +160,17 @@ private extension MobileRemoveWalletNotificationViewModel {
 
     func backupHandler() {
         runTask(in: self) { viewModel in
-            await viewModel.openSeedPhraseBackup()
+            await viewModel.handleSeedPhraseBackup()
+        }
+    }
+
+    func handleSeedPhraseBackup() async {
+        if isICloudBackupFeatureAvailable {
+            await openMobileBackupTypes()
+        } else {
+            await unlock { [weak self] context in
+                await self?.openSeedPhraseBackup(context: context)
+            }
         }
     }
 
@@ -165,45 +181,52 @@ private extension MobileRemoveWalletNotificationViewModel {
     }
 
     func seedPhraseReveal() async {
-        do {
-            let context = try await unlock()
-            await openSeedPhraseReveal(context: context)
-        } catch where error.isCancellationError {
-            AppLogger.error("Unlock is canceled", error: error)
-        } catch {
-            AppLogger.error("Unlock failed:", error: error)
-            await showAlert(error.alertBinder)
+        await unlock { [weak self] context in
+            await self?.openSeedPhraseReveal(context: context)
         }
-    }
-
-    @MainActor
-    func showAlert(_ alert: AlertBinder) {
-        alertPresenter.present(alert: alert)
     }
 }
 
 // MARK: - Unlocking
 
 private extension MobileRemoveWalletNotificationViewModel {
-    func unlock() async throws -> MobileWalletContext {
-        let authUtil = MobileAuthUtil(
-            userWalletId: userWalletModel.userWalletId,
-            config: userWalletModel.config,
-            biometricsProvider: CommonUserWalletBiometricsProvider()
-        )
-        let result = try await authUtil.unlock()
-
-        switch result {
+    func unlock(handler: @escaping (MobileWalletContext) async -> Void) async {
+        switch await unlock() {
         case .successful(let context):
-            return context
-
+            await handler(context)
+        case .failed(let error):
+            AppLogger.error("Unlock failed:", error: error)
+            await showErrorAlert(error)
         case .canceled:
-            throw CancellationError()
-
-        case .userWalletNeedsToDelete:
-            assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
-            throw CancellationError()
+            break
         }
+    }
+
+    func unlock() async -> UnlockResult {
+        do {
+            let result = try await authUtil.unlock()
+
+            switch result {
+            case .successful(let context):
+                return .successful(context: context)
+
+            case .canceled:
+                return .canceled
+
+            case .userWalletNeedsToDelete:
+                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
+                return .canceled
+            }
+
+        } catch {
+            return .failed(error: error)
+        }
+    }
+
+    enum UnlockResult {
+        case successful(context: MobileWalletContext)
+        case canceled
+        case failed(error: Error)
     }
 }
 
@@ -236,6 +259,20 @@ private extension MobileRemoveWalletNotificationViewModel {
     }
 }
 
+// MARK: - Alerts
+
+@MainActor
+private extension MobileRemoveWalletNotificationViewModel {
+    func showErrorAlert(_ error: Error) {
+        let alert = error.alertBinder
+        showAlert(alert)
+    }
+
+    func showAlert(_ alert: AlertBinder) {
+        alertPresenter.present(alert: alert)
+    }
+}
+
 // MARK: - Navigation
 
 @MainActor
@@ -244,16 +281,17 @@ private extension MobileRemoveWalletNotificationViewModel {
         coordinator?.openMobileRemoveWallet(removeManager: removeManager)
     }
 
-    func openSeedPhraseBackup() {
-        if isICloudBackupFeatureAvailable {
-            coordinator?.openMobileBackupTypesFromRemoveWalletNotification(userWalletModel: userWalletModel)
-        } else {
-            let input = MobileOnboardingInput(flow: .seedPhraseBackup(
-                userWalletModel: userWalletModel,
-                source: .walletSettings(action: .remove)
-            ))
-            coordinator?.openMobileOnboardingFromRemoveWalletNotification(input: input)
-        }
+    func openMobileBackupTypes() {
+        coordinator?.openMobileBackupTypesFromRemoveWalletNotification(userWalletModel: userWalletModel)
+    }
+
+    func openSeedPhraseBackup(context: MobileWalletContext) {
+        let input = MobileOnboardingInput(flow: .seedPhraseBackup(
+            userWalletModel: userWalletModel,
+            source: .walletSettings(action: .remove),
+            context: context
+        ))
+        coordinator?.openMobileOnboardingFromRemoveWalletNotification(input: input)
     }
 
     func openSeedPhraseReveal(context: MobileWalletContext) {

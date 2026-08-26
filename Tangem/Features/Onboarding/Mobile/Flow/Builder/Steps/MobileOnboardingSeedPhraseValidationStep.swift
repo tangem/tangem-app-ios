@@ -16,11 +16,13 @@ final class MobileOnboardingSeedPhraseValidationStep: MobileOnboardingFlowStep {
     init(
         userWalletModel: UserWalletModel,
         source: MobileOnboardingFlowSource,
+        context: MobileWalletContext,
         delegate: MobileOnboardingSeedPhraseValidationDelegate
     ) {
         viewModel = MobileOnboardingSeedPhraseValidationViewModel(
             userWalletModel: userWalletModel,
             source: source,
+            context: context,
             delegate: delegate
         )
     }
