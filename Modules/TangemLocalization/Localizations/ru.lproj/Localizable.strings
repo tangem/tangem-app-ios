@@ -29,6 +29,7 @@
 "account_details_archive_description" = "Вы архивируете свой аккаунт, но в любое время можете вернуть его обратно";
 "account_details_archive" = "Архивировать аккаунт";
 "account_details_archiving" = "Архивация...";
+"account_details_joint_pending_description" = "The account is still being populated with members.";
 "account_details_title" = "Аккаунт";
 "account_edit_success_message" = "Аккаунт сохранен";
 "account_for_rewards" = "Аккаунт для наград";
@@ -626,6 +627,8 @@
 "fee_selector_choose_token_description" = "Выберите какой токен будет использоваться для оплаты комиссии сети. %@";
 "fee_selector_choose_token_title" = "Выбрать токен";
 "feed_market_and_news" = "Рынок и Новости";
+"feed_search_recent_clear" = "Clear";
+"feed_search_recent_title" = "Recent";
 "feed_search_show_all_user_assets" = "Показать все";
 "feed_search_show_less_user_assets" = "Скрыть";
 "feed_tab_crypto" = "Crypto";
@@ -740,7 +743,7 @@
 "hw_cloud_backup_no_access_title" = "Can't access Google Drive";
 "hw_cloud_backup_no_backups_description" = "Пожалуйста, войдите в другой аккаунт или импортируйте фразу восстановления.";
 "hw_cloud_backup_not_found_create" = "Create backup";
-"hw_cloud_backup_not_found_description" = "This wallet was backed up earlier, but we couldn't find the backup file in your Google Drive.";
+"hw_cloud_backup_not_found_description" = "This wallet was backed up earlier, but we couldn't find the backup.";
 "hw_cloud_backup_not_found_forget" = "Forget backup";
 "hw_cloud_backup_not_found_title" = "Backup not found";
 "hw_cloud_backup_password_hint" = "Пароль";
@@ -748,7 +751,7 @@
 "hw_cloud_backup_passwords_dont_match" = "Пароли не совпадают";
 "hw_cloud_backup_permissions_description_v2" = "Some permissions are missing. Allow full access so we can save your wallet backup to %1$@.";
 "hw_cloud_backup_permissions_description" = "Нет необходимых разрешений. Предоставьте полный доступ, чтобы сохранить резервную копию кошелька в Google Drive.";
-"hw_cloud_backup_permissions_title_v2" = "Complete %1$@ access";
+"hw_cloud_backup_permissions_title_v2" = "Allow full %1$@ access";
 "hw_cloud_backup_permissions_title" = "Полный доступ к Google Drive";
 "hw_cloud_backup_remove_title" = "%1$@: резервная копия «%2$@»";
 "hw_cloud_backup_removed" = "Резервная копия удалена";
@@ -848,6 +851,12 @@
 "initial_wallet_sync_restore_progress" = "Восстановление %li%%";
 "introduction_button_create_wallet" = "Create wallet";
 "introduction_button_i_have_a_wallet" = "I have a wallet";
+"introduction_create_wallet_hardware_description" = "If you already have Tangem Wallet";
+"introduction_create_wallet_hardware_title" = "Tangem Card or Ring";
+"introduction_create_wallet_seed_phrase_description" = "Start without a hardware wallet";
+"introduction_create_wallet_seed_phrase_title" = "Create seed phrase wallet";
+"introduction_i_have_wallet_hardware_description" = "Use Tangem Wallet to enter the app";
+"introduction_i_have_wallet_sign_in_apple_title" = "Sign in with Apple";
 "introduction_legal" = "By continuing, you agree with %1$@ and %2$@";
 "introduction_terms_of_service" = "Terms of service";
 "jailbreak_warning_message" = "Устройства с джейлбрейком считаются менее безопасными. Ваши данные могут быть подвержены дополнительным рискам.";
@@ -1302,6 +1311,10 @@
 "prediction_place_button" = "Place predict";
 "prediction_place_error_description" = "We couldn't place the order. Please try again later.";
 "prediction_place_fee" = "Fee";
+"prediction_place_insufficient_balance_bet" = "Insufficient Balance – add fund to bet";
+"prediction_place_insufficient_balance_fees" = "Insufficient Balance – to cover fees";
+"prediction_place_notification_awaiting_funds_description" = "Your funds are in flight. Your balance updates itself every few seconds so you can stay on this screen.";
+"prediction_place_notification_awaiting_funds_title" = "Awaiting funds";
 "prediction_place_notification_market_closed_description" = "This market no longer accepts orders";
 "prediction_place_notification_market_closed_title" = "Market is closed";
 "prediction_place_notification_min_order_description" = "Increase the amount to place this prediction";
@@ -1833,7 +1846,7 @@
 "tangem_pay_status_pending" = "В процессе";
 "tangem_pay_status_reversed" = "Возврат";
 "tangem_pay_terms_fees_limits" = "Тарифы и полные условия";
-"tangem_pay_terms_limits" = "Тарифы и лимиты";
+"tangem_pay_terms_limits" = "Полные условия";
 "tangem_pay_transaction_declined_notification_text" = "Банк отклонил транзакцию";
 "tangem_pay_transaction_details_cashback_below_min" = "Ниже мин.суммы";
 "tangem_pay_transaction_details_cashback_cap_reached" = "Достигнут лимит";
@@ -1880,7 +1893,9 @@
 "tangempay_card_activation_error" = "Invalid last digits. Try again";
 "tangempay_card_activation_in_progress" = "Activating your card";
 "tangempay_card_default_name" = "Карта Tangem Pay 1";
+"tangempay_card_delivery_banner_description_many" = "Activate them when arrived";
 "tangempay_card_delivery_banner_description" = "Activate it when arrived";
+"tangempay_card_delivery_banner_title_many" = "Your cards on it's way for delivery";
 "tangempay_card_delivery_banner_title" = "Your card on it's way for delivery";
 "tangempay_card_details_activate" = "Activate card";
 "tangempay_card_details_add_funds_subtitle" = "Способы пополнения";
@@ -2151,7 +2166,7 @@
 "tangempay_other_networks_header" = "Другие сети";
 "tangempay_other_networks_subtitle" = "А затем обменяйте на платёжный счёт по курсу 1:1 без комиссии";
 "tangempay_other_networks_title" = "Отправьте USDT / USDC в любой сети на ваш Tangem Wallet";
-"tangempay_pay_support" = "Поддержка Pay";
+"tangempay_pay_support" = "Поддержка";
 "tangempay_payment_account_sync_needed" = "Tangem Pay · Cессия истекла";
 "tangempay_payment_account" = "Платежный аккаунт";
 "tangempay_pin_validation_error_message" = "Слабый ПИН: не используйте повторы или последовательности.";
