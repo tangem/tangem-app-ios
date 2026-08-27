@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemUIUtils
 import TangemUI
 import TangemFoundation
+import TangemAssets
 
 struct OnboardingAddTokensView: View {
     @ObservedObject var viewModel: OnboardingAddTokensViewModel
@@ -28,8 +29,14 @@ struct OnboardingAddTokensView: View {
                     Divider()
                 }
 
-                ManageTokensListView(viewModel: viewModel.manageTokensListViewModel)
-                    .addContentOffsetObserver($contentOffset)
+                if let manageTokensListViewModel = viewModel.manageTokensListViewModel {
+                    ManageTokensListView(viewModel: manageTokensListViewModel)
+                        .addContentOffsetObserver($contentOffset)
+                } else {
+                    Spacer()
+                    ActivityIndicatorView(style: .large, color: UIColor(Colors.Text.primary1))
+                    Spacer()
+                }
             }
 
             VStack {
@@ -53,18 +60,17 @@ struct OnboardingAddTokensView: View {
     let fakeModel = FakeUserWalletModel.wallet3Cards
     let fakeAPIService = FakeTangemApiService()
     InjectedValues[\.tangemApiService] = fakeAPIService
-    let adapter = ManageTokensAdapter(
-        settings: .init(
-            existingCurves: fakeModel.config.existingCurves,
-            supportedBlockchains: fakeModel.config.supportedBlockchains,
-            hardwareLimitationUtil: HardwareLimitationsUtil(config: fakeModel.config),
-            analyticsSourceRawValue: "preview",
-            context: LegacyManageTokensContext(
-                userTokensManager: UserTokensManagerMock(),
-                walletModelsManager: WalletModelsManagerMock()
-            )
+
+    return OnboardingAddTokensView(
+        viewModel: OnboardingAddTokensViewModel(
+            input: .init(
+                accountModelsManager: AccountModelsManagerMock(),
+                existingCurves: fakeModel.config.existingCurves,
+                supportedBlockchains: fakeModel.config.supportedBlockchains,
+                hardwareLimitationUtil: HardwareLimitationsUtil(config: fakeModel.config),
+                analyticsSourceRawValue: "preview"
+            ),
+            delegate: nil
         )
     )
-
-    return OnboardingAddTokensView(viewModel: OnboardingAddTokensViewModel(adapter: adapter, delegate: nil))
 }

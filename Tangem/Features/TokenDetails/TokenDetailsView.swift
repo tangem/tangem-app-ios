@@ -47,7 +47,7 @@ struct TokenDetailsView: View {
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
                     exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
-                    exploreTransactionAction: viewModel.openTransactionExplorer,
+                    openTransactionDetailsAction: viewModel.openTransactionDetails,
                     reloadButtonAction: viewModel.onButtonReloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
                     fetchMore: viewModel.fetchMoreHistory()
@@ -162,7 +162,7 @@ struct TokenDetailsView: View {
     @ViewBuilder
     private var redesignTrailingToolbarButton: some View {
         let menuItems = ForEach(viewModel.dotsMenuItems) { menuItem in
-            Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
+            SwiftUI.Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
                 .frame(width: .unit(.x11), height: .unit(.x11))
                 .accessibilityIdentifier(menuItem.type.accessibilityIdentifier)
         }

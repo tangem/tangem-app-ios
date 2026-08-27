@@ -319,7 +319,7 @@ private extension WCTransactionView {
     }
 
     var transactionRequest: some View {
-        Button(action: { viewModel.handleViewAction(.showRequestData) }) {
+        SwiftUI.Button(action: { viewModel.handleViewAction(.showRequestData) }) {
             HStack(alignment: .center, spacing: 8) {
                 Assets.Glyphs.docNew.image
                     .renderingMode(.template)

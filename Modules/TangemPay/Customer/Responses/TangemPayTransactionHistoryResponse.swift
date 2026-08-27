@@ -80,8 +80,8 @@ public extension TangemPayTransactionHistoryResponse {
         public let amount: Decimal
         public let currency: String
         public let localAmount: Decimal
-        public let localCurrency: String
-        public let authorizedAmount: Decimal
+        public let localCurrency: String?
+        public let authorizedAmount: Decimal?
         public let memo: String?
         public let receipt: Bool
         public let merchantName: String?

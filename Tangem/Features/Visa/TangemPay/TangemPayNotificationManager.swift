@@ -44,7 +44,10 @@ final class TangemPayNotificationManager {
                     .withWeakCaptureOf(manager)
                     .map { [weak accountModel] manager, state in
                         let hasCachedAccount = accountModel?.lastKnownTangemPayAccount != nil
-                        if hasCachedAccount, state.isSyncNeeded || state.isUnavailable {
+                        let shouldSuppressNotification = hasCachedAccount
+                            && (state.isSyncNeeded || state.isSyncInProgress || state.isUnavailable)
+
+                        if shouldSuppressNotification {
                             return []
                         }
                         if let event = state.errorNotificationEvent(icon: manager.mainButtonIcon) {

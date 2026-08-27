@@ -51,6 +51,7 @@ struct TangemPayOfferView: View {
         .sheet(item: $viewModel.termsFeesAndLimitsViewModel) {
             WebViewContainer(viewModel: $0)
         }
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     private var titleSection: some View {

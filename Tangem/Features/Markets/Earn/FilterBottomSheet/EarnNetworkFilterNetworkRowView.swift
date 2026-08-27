@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct EarnNetworkFilterNetworkRowInput: Identifiable {
     let id: String
@@ -35,11 +36,11 @@ struct EarnNetworkFilterNetworkRowView: View {
                 Text(input.networkName)
                     .lineLimit(1)
                     .layoutPriority(-1)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Text(input.currencySymbol)
                     .lineLimit(1)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
 
             Spacer(minLength: 0)
