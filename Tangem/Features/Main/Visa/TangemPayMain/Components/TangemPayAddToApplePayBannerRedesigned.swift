@@ -10,18 +10,23 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayAddToApplePayBannerRedesigned: View {
     let openAction: () -> Void
     let closeAction: () -> Void
 
     var body: some View {
-        NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
-            .overlay {
-                RoundedRectangle(cornerRadius: 24)
-                    .strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: 1)
-                    .allowsHitTesting(false)
-            }
+        NotificationBanner(
+            bannerType: bannerType,
+            accessibilityIdentifier: TangemPayAccessibilityIdentifiers.addToApplePayGuideBanner,
+            closeAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.addToApplePayGuideBannerCloseButton
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: 24)
+                .strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: 1)
+                .allowsHitTesting(false)
+        }
     }
 
     private var bannerType: NotificationBanner.BannerType {

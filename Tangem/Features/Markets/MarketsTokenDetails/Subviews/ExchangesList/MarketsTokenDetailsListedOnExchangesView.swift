@@ -3,12 +3,14 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
-import TangemLocalization
 import TangemAssets
+import TangemLocalization
+import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct MarketsTokenDetailsListedOnExchangesView: View {
@@ -20,58 +22,58 @@ struct MarketsTokenDetailsListedOnExchangesView: View {
     }
 
     var body: some View {
-        Group {
-            if isListedOnExchanges {
-                Button(
-                    action: buttonAction,
-                    label: {
-                        content
-                    }
-                )
-                .accessibilityIdentifier(
-                    MarketsAccessibilityIdentifiers.listedOnExchanges)
-            } else {
-                content
+        if isListedOnExchanges {
+            SwiftUI.Button(action: buttonAction) {
+                rowContent
             }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.listedOnExchanges)
+        } else {
+            rowContent
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
     }
 
-    private var content: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 8) {
+    private var rowContent: some View {
+        HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(Localization.marketsTokenDetailsListedOn)
-                    .style(Fonts.Bold.footnote.weight(.semibold), color: Colors.Text.tertiary)
-                    .accessibilityIdentifier(
-                        MarketsAccessibilityIdentifiers.listedOnExchangesTitle)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
+                    .accessibilityIdentifier(MarketsAccessibilityIdentifiers.listedOnExchangesTitle)
 
                 Group {
                     if isListedOnExchanges {
                         Text(Localization.marketsTokenDetailsAmountExchanges(exchangesCount))
                     } else {
                         Text(Localization.marketsTokenDetailsEmptyExchanges)
-                            .accessibilityIdentifier(
-                                MarketsAccessibilityIdentifiers.listedOnExchangesEmptyText)
+                            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.listedOnExchangesEmptyText)
                     }
                 }
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                .lineLimit(1)
             }
 
-            Spacer()
+            Spacer(minLength: .zero)
 
             if isListedOnExchanges {
-                Assets.chevronRightWithOffset24.image
+                DesignSystem.Icons.ChevronRight.regular24.image
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.informative)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
             }
         }
+        .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 16, radius: 24)
+        .contentShape(.rect)
     }
 }
 
+// MARK: - Previews
+
 #Preview {
-    VStack {
-        MarketsTokenDetailsListedOnExchangesView(exchangesCount: 10, buttonAction: {})
+    VStack(spacing: 20) {
+        MarketsTokenDetailsListedOnExchangesView(exchangesCount: 244, buttonAction: {})
 
         MarketsTokenDetailsListedOnExchangesView(exchangesCount: 0, buttonAction: {})
     }
+    .padding()
+    .background(DesignSystem.Color.bgPrimary)
 }

@@ -15,6 +15,7 @@ enum WalletModelTransactionHistoryPublisherFactory {
     static func makeTransactionHistoryPublisher(
         transactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
         featuresPublisher: some Publisher<[WalletModelFeature], Never>,
+        tokenItem: TokenItem,
         feeTokenItem: TokenItem
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
         guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
@@ -32,6 +33,7 @@ enum WalletModelTransactionHistoryPublisherFactory {
 
                 return provider.enrichedTransactionHistoryPublisher(
                     from: transactionHistoryPublisher,
+                    tokenItem: tokenItem,
                     feeTokenItem: feeTokenItem
                 )
             }
