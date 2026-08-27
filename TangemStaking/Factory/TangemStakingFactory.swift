@@ -37,8 +37,7 @@ public struct TangemStakingFactory {
         batchBalancesService: P2PBatchBalancesService,
         yieldInfoProvider: StakingYieldInfoProvider,
         stateRepository: StakingManagerStateRepository,
-        analyticsLogger: StakingAnalyticsLogger,
-        isRegionUnavailableHandlingEnabled: Bool
+        analyticsLogger: StakingAnalyticsLogger
     ) -> StakingManager {
         P2PStakingManager(
             integrationId: integrationId,
@@ -47,8 +46,7 @@ public struct TangemStakingFactory {
             batchBalancesService: batchBalancesService,
             yieldInfoProvider: yieldInfoProvider,
             stateRepository: stateRepository,
-            analyticsLogger: analyticsLogger,
-            isRegionUnavailableHandlingEnabled: isRegionUnavailableHandlingEnabled
+            analyticsLogger: analyticsLogger
         )
     }
 

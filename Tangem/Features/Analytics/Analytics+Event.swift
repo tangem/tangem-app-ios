@@ -213,6 +213,9 @@ extension Analytics {
         case buttonCreateBackup = "[Settings] Button - Create Backup"
         case buttonSocialNetwork = "[Settings] Button - Social Network"
         case buttonScanNewCardSettings = "[Settings] Button - Scan New Card"
+        case settingsButtonAddHardwareWallet = "[Settings] Button - Add Hardware Wallet"
+        case settingsButtonAddMobileWallet = "[Settings] Button - Add Mobile Wallet"
+        case settingsNoticeMoreMobileWallets = "[Settings] Notice - More Mobile Wallets"
         case buttonFactoryReset = "[Settings / Card Settings] Button - Factory Reset"
         case factoryResetFinished = "[Settings / Card Settings] Factory Reset Finished"
         case factoryResetCancelled = "[Settings / Card Settings] Factory Reset Cancelled"
@@ -921,5 +924,20 @@ extension Analytics {
         case addressBookContactSelected = "[Address Book] Contact Selected"
         case addressBookAddressSubstitutedInSend = "[Address Book] Address Substituted In Send"
         case addressBookSelectAllNetworksTapped = "[Address Book] Select All Networks Tapped"
+
+        // MARK: - For You
+
+        case forYouScreenOpened = "[For You] For You Screen Opened"
+        case forYouAccountFilterOpened = "[For You] Account Filter Opened"
+        case forYouApplySelected = "[For You] Apply Selected"
+        case forYouFilterInterval = "[For You] Filter Interval"
+        case forYouDiagramTap = "[For You] Diagram Tap"
+        case forYouTokenSummary = "[For You] Token Summary"
+        case forYouTokenSummaryInterval = "[For You] Token Summary Interval"
+        case forYouGoToSwap = "[For You] Go To Swap"
+        case forYouAddFunds = "[For You] Add Funds"
+        case forYouEarnTokenOpened = "[For You] Earn Token Opened"
+        case forYouExploreAllTokens = "[For You] Explore All Tokens"
+        case forYouIndicatorInfo = "[For You] Indicator Info"
     }
 }

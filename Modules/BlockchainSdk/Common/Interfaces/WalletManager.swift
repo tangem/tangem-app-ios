@@ -123,3 +123,13 @@ extension AssetRequirementsManager {
 public protocol MinimalBalanceProvider {
     func minimalBalance() -> Decimal
 }
+
+// MARK: - ScaledUIAmountProvider
+
+/// A Solana Token-2022 mint may declare a scaled UI amount configuration, in which case the balances
+/// the app shows are the on-chain amounts multiplied by an issuer-controlled factor. Such a displayed
+/// amount has to be unscaled before it can take part in a transaction.
+public protocol ScaledUIAmountProvider {
+    /// - Returns: The multiplier in force for the mint, or `nil` when it declares no scaling at all.
+    func fetchMultiplier(contractAddress: String) async throws -> Decimal?
+}

@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 import SwiftUI
-import class TangemSdk.BiometricsUtil
+import TangemSdk
 
 final class CommonAppLockController {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
