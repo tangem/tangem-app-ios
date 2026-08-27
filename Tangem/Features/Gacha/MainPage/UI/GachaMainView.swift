@@ -26,6 +26,9 @@ struct GachaMainView: View {
 
                     GachaLoreTabsView(viewModel: viewModel.loreTabsViewModel)
                         .padding(.top, Metrics.tabsTopPadding)
+
+                    GachaPacksView(viewModel: viewModel.packsViewModel)
+                        .padding(.top, Metrics.gridTopPadding)
                 }
             }
         }
@@ -66,6 +69,7 @@ private extension GachaMainView {
         static let navBarHeight: CGFloat = 56
         static let navBarTopPadding: CGFloat = 8
         static let tabsTopPadding: CGFloat = 40
+        static let gridTopPadding: CGFloat = 16
     }
 }
 
