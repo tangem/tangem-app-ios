@@ -382,6 +382,91 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
     }
 }
 
+@Suite("CommonTokenFeeProvidersManagerProvider — initial selection")
+struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
+    private let tronTokenItem: TokenItem = .token(
+        .init(
+            name: "Tether",
+            symbol: "USDT",
+            contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+            decimalCount: 6
+        ),
+        .init(.tron(testnet: false), derivationPath: nil)
+    )
+
+    @Test("Tron selects gasless token when both fee currencies have balance")
+    func tronWithNativeAndGaslessBalances_selectsGasless() {
+        let native = makeProvider(
+            tokenItem: .blockchain(.init(.tron(testnet: false), derivationPath: nil)),
+            balance: 10
+        )
+        let gasless = makeProvider(tokenItem: tronTokenItem, balance: 100)
+
+        let selected = makeSUT().prepareInitialTokenFeeProvider(main: native, all: [native, gasless])
+
+        #expect(selected.feeTokenItem == tronTokenItem)
+    }
+
+    @Test("Tron selects gasless token when native balance is zero")
+    func tronWithOnlyGaslessBalance_selectsGasless() {
+        let native = makeProvider(
+            tokenItem: .blockchain(.init(.tron(testnet: false), derivationPath: nil)),
+            balance: 0
+        )
+        let gasless = makeProvider(tokenItem: tronTokenItem, balance: 100)
+
+        let selected = makeSUT().prepareInitialTokenFeeProvider(main: native, all: [native, gasless])
+
+        #expect(selected.feeTokenItem == tronTokenItem)
+    }
+
+    @Test("Tron selects native token when gasless balance is zero")
+    func tronWithoutGaslessBalance_selectsNative() {
+        let nativeTokenItem = TokenItem.blockchain(.init(.tron(testnet: false), derivationPath: nil))
+        let native = makeProvider(tokenItem: nativeTokenItem, balance: 10)
+        let gasless = makeProvider(tokenItem: tronTokenItem, balance: 0)
+
+        let selected = makeSUT().prepareInitialTokenFeeProvider(main: native, all: [native, gasless])
+
+        #expect(selected.feeTokenItem == nativeTokenItem)
+    }
+
+    @Test("Tron selects native token when no gasless provider exists")
+    func tronWithoutGaslessProvider_selectsNative() {
+        let nativeTokenItem = TokenItem.blockchain(.init(.tron(testnet: false), derivationPath: nil))
+        let native = makeProvider(tokenItem: nativeTokenItem, balance: 10)
+
+        let selected = makeSUT().prepareInitialTokenFeeProvider(main: native, all: [native])
+
+        #expect(selected.feeTokenItem == nativeTokenItem)
+    }
+
+    @Test("Tron keeps native fallback when neither fee currency has balance")
+    func tronWithoutFeeCurrencyBalances_selectsNative() {
+        let nativeTokenItem = TokenItem.blockchain(.init(.tron(testnet: false), derivationPath: nil))
+        let native = makeProvider(tokenItem: nativeTokenItem, balance: 0)
+        let gasless = makeProvider(tokenItem: tronTokenItem, balance: 0)
+
+        let selected = makeSUT().prepareInitialTokenFeeProvider(main: native, all: [native, gasless])
+
+        #expect(selected.feeTokenItem == nativeTokenItem)
+    }
+
+    private func makeSUT() -> CommonTokenFeeProvidersManagerProvider {
+        CommonTokenFeeProvidersManagerProvider(
+            walletModel: WalletModelTestsMock(tokenItem: tronTokenItem, isEmpty: false)
+        )
+    }
+
+    private func makeProvider(tokenItem: TokenItem, balance: Decimal) -> ControllableTokenFeeProviderStub {
+        ControllableTokenFeeProviderStub(
+            feeTokenItem: tokenItem,
+            balance: .loaded(balance),
+            selectedTokenFee: TokenFee(option: .market, tokenItem: tokenItem, value: .loading)
+        )
+    }
+}
+
 @Suite("Gasless Yield Fee", .serialized)
 struct GaslessYieldFeeTests {
     @Test("WithdrawMethod encodes withdraw(address,uint256) selector and params")
