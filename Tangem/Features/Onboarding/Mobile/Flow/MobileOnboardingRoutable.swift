@@ -10,4 +10,5 @@ import Foundation
 
 protocol MobileOnboardingRoutable: OnboardingRoutable {
     func mobileOnboardingDidComplete()
+    func mobileBackupStorageUnavailable()
 }
