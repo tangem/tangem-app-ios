@@ -53,7 +53,6 @@ struct WelcomeV2View: View {
                 bottomContainer
             }
         }
-        .preferredColorScheme(.dark)
     }
 
     private var navigationBar: some View {
@@ -79,17 +78,23 @@ struct WelcomeV2View: View {
 
     private var bottomContainer: some View {
         VStack(spacing: 12) {
-            MainButton(
-                title: "Create wallet",
-                style: .primary,
+            TangemUI.Button(
+                label: "Create wallet",
+                accessibilityLabel: nil,
                 action: viewModel.onCreateWalletTap
             )
+            .styleType(.default)
+            .horizontalLayout(.infinity)
+            .size(.x14)
 
-            MainButton(
-                title: "I have a wallet",
-                style: .secondary,
+            TangemUI.Button(
+                label: "I have a wallet",
+                accessibilityLabel: nil,
                 action: viewModel.onExistingWalletTap
             )
+            .styleType(.secondary)
+            .horizontalLayout(.infinity)
+            .size(.x14)
 
             footer
                 .padding(.horizontal, 24)

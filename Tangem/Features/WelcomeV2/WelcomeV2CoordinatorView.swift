@@ -17,6 +17,7 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
             content
                 .navigationLinks(links)
         }
+        .environment(\.colorScheme, .dark)
     }
 
     private var links: some View {
@@ -57,6 +58,7 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
         .overlay(sheets)
         .fullScreenCover(item: $coordinator.legalWebViewModel) { webViewModel in
             WebViewContainer(viewModel: webViewModel)
+                .environment(\.colorScheme, .dark)
         }
     }
 
