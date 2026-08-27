@@ -239,6 +239,9 @@ private extension MobileOnboardingAccessCodeViewModel {
 
         switch state {
         case .accessCode:
+            if case .create = mode {
+                logSettingAccessCodeStartedAnalytics()
+            }
             logCreateAccessCodeAppearedAnalytics()
         case .confirmAccessCode:
             logConfirmAccessCodeAppearedAnalytics()
@@ -419,6 +422,13 @@ private extension MobileOnboardingAccessCodeViewModel {
 // MARK: - Analytics
 
 private extension MobileOnboardingAccessCodeViewModel {
+    func logSettingAccessCodeStartedAnalytics() {
+        Analytics.log(
+            .settingAccessCodeStarted,
+            contextParams: analyticsContextParams
+        )
+    }
+
     func logCreateAccessCodeAppearedAnalytics() {
         Analytics.log(
             .walletSettingsCreateAccessCode,
