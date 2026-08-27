@@ -44,7 +44,6 @@ extension AccountsDTO.Response {
             let icon: String
             let iconColor: String
             let derivation: Int
-            /// Which kind of account this is: `crypto` or `joint`.
             let type: String?
             let tokens: [Token]
         }
