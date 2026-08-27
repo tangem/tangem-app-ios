@@ -19,7 +19,7 @@ struct PendingExpressTransactionView: View {
     private let networkIconSize = CGSize(bothDimensions: 18)
 
     var body: some View {
-        Button {
+        SwiftUI.Button {
             info.action(info.id)
         } label: {
             content

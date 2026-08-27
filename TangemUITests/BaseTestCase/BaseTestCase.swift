@@ -39,10 +39,10 @@ class BaseTestCase: XCTestCase {
         skipToS: Bool = true,
         clearStorage: Bool = false,
         keepWallets: Bool = false,
-        features: [TestFeature: Bool] = [:],
         scenarios: [ScenarioConfig] = [],
         mockCardBatchIdOverride: String? = nil,
-        mockCardFirmwareOverride: String? = nil
+        mockCardFirmwareOverride: String? = nil,
+        extraLaunchEnvironment: [String: String] = [:]
     ) {
         var arguments: [String] = []
 
@@ -78,11 +78,6 @@ class BaseTestCase: XCTestCase {
             arguments.append("-uitest-keep-wallets")
         }
 
-        for (feature, isEnabled) in features {
-            let suffix = isEnabled ? "on" : "off"
-            arguments.append("-uitest-feature-\(feature.rawValue)-\(suffix)")
-        }
-
         // Pin locale/language so currency, number and date assertions don't depend on the simulator region.
         arguments.append(contentsOf: ["-AppleLocale", "en_US", "-AppleLanguages", "(en)"])
 
@@ -100,6 +95,7 @@ class BaseTestCase: XCTestCase {
         if let mockCardFirmwareOverride {
             launchEnvironment["UITEST_MOCK_CARD_FIRMWARE"] = mockCardFirmwareOverride
         }
+        launchEnvironment.merge(extraLaunchEnvironment) { _, new in new }
         app.launchEnvironment = launchEnvironment
 
         // Setup WireMock scenarios before launching the app
@@ -178,7 +174,8 @@ class BaseTestCase: XCTestCase {
         eligibilityState: String = "PaeraCustomer",
         accessCode: String? = nil,
         expressApiType: ExpressAPI? = nil,
-        scenarios: [ScenarioConfig] = []
+        scenarios: [ScenarioConfig] = [],
+        extraLaunchEnvironment: [String: String] = [:]
     ) -> MainScreen {
         let eligibilityScenario = ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState)
 
@@ -187,7 +184,8 @@ class BaseTestCase: XCTestCase {
             expressApiType: expressApiType,
             visaApiType: .mock,
             clearStorage: true,
-            scenarios: [eligibilityScenario] + scenarios
+            scenarios: [eligibilityScenario] + scenarios,
+            extraLaunchEnvironment: extraLaunchEnvironment
         )
 
         return importHotWallet(accessCode: accessCode)

@@ -56,7 +56,7 @@ private extension MobileBackupTypesView {
     }
 
     func sectionItem(model: ViewModel.SectionItem) -> some View {
-        Button(action: model.action) {
+        SwiftUI.Button(action: model.action) {
             HStack(spacing: 4) {
                 sectionInfoItem(model: model)
 

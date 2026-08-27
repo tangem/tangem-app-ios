@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct StakingDetailsStakeView: View {
     let data: StakingDetailsStakeViewData
@@ -17,11 +18,13 @@ struct StakingDetailsStakeView: View {
         switch data.action {
         case .none:
             content
+                .accessibilityIdentifier(data.accessibilityIdentifier)
 
         case .some(let action):
-            Button(action: action) {
+            SwiftUI.Button(action: action) {
                 content
             }
+            .accessibilityIdentifier(data.accessibilityIdentifier)
         }
     }
 

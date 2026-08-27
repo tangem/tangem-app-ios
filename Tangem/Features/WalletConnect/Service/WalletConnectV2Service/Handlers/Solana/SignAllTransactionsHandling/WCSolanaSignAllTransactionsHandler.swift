@@ -50,13 +50,18 @@ final class WCSolanaSignAllTransactionsHandler {
         self.request = request
     }
 
-    private func prepareTransactionToSign(hash: String) throws -> Data {
+    private func decodeTransaction(hash: String) throws -> Data {
         guard let data = Data(base64Encoded: hash) else {
             throw WalletConnectTransactionRequestProcessingError.invalidPayload("Transaction must be base64 encoded")
         }
 
-        let (signature, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
-        return signature
+        return data
+    }
+
+    private func prepareTransactionToSign(hash: String) throws -> Data {
+        let data = try decodeTransaction(hash: hash)
+        let (message, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
+        return message
     }
 }
 
@@ -76,14 +81,17 @@ extension WCSolanaSignAllTransactionsHandler: WalletConnectMessageHandler {
     }
 
     func handle() async throws -> RPCResult {
-        let transactionsToSign: [Data] = try hashesToSign.map { try prepareTransactionToSign(hash: $0) }
+        let helper = SolanaTransactionHelper()
+        let walletPublicKey = walletModel.publicKey.blockchainKey
 
-        let transactionsToRespond: [String] = try await signer.sign(hashes: transactionsToSign, using: walletModel)
-            .enumerated()
-            .map { index, signedTransaction in
-                let assembledResponseTransaction = Data(1) + signedTransaction + transactionsToSign[index]
-                return assembledResponseTransaction.base64EncodedString()
-            }
+        let rawTransactions: [Data] = try hashesToSign.map { try decodeTransaction(hash: $0) }
+        let messagesToSign: [Data] = try rawTransactions.map { try helper.removeSignaturesPlaceholders(from: $0).transaction }
+
+        let signatures = try await signer.sign(hashes: messagesToSign, using: walletModel)
+
+        let transactionsToRespond: [String] = try zip(rawTransactions, signatures).map { transaction, signature in
+            try helper.putSignature(signature, publicKey: walletPublicKey, transaction: transaction).base64EncodedString()
+        }
 
         let responseBody = WCSolanaSignAllTransactionsDTO.Body(transactions: transactionsToRespond)
         return .response(AnyCodable(responseBody))
