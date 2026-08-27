@@ -76,9 +76,9 @@ extension NotificationSettingsCoordinator: NotificationSettingsRoutable {
     }
 }
 
-// MARK: - TransactionNotificationsRowToggleRoutable
+// MARK: - Transaction notifications modal
 
-extension NotificationSettingsCoordinator: TransactionNotificationsRowToggleRoutable {
+extension NotificationSettingsCoordinator {
     func openTransactionNotifications() {
         let viewModel = TransactionNotificationsModalViewModel(coordinator: self)
 

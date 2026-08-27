@@ -130,6 +130,115 @@ struct TronTransactionTests {
     }
 
     @Test
+    func dexSwapContractCall() throws {
+        let calldata = Data(hex: "a9059cbb000000000000000000000000ec8c5a0fcbb28f14418eed9cf582af0d77e4256e0000000000000000000000000000000000000000000000000000000005f5e100")
+
+        let transaction = Transaction(
+            amount: Amount(with: blockchain, value: 12.5),
+            fee: Fee(.zeroCoin(for: blockchain)),
+            sourceAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            destinationAddress: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn",
+            changeAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            params: TronTransactionParams(transactionType: .contractCall(callData: calldata, feeLimit: nil))
+        )
+
+        let presignedInput = try txBuilder.buildForSign(transaction: transaction, block: tronBlock)
+
+        #expect(presignedInput.rawData.feeLimit == 100_000_000)
+        #expect(presignedInput.rawData.data.isEmpty)
+        #expect(presignedInput.rawData.contract.count == 1)
+
+        let contract = presignedInput.rawData.contract[0]
+        #expect(contract.type == .triggerSmartContract)
+
+        let parameter = try Protocol_TriggerSmartContract(unpackingAny: contract.parameter)
+        let utils = TronUtils()
+        #expect(parameter.data == calldata)
+        #expect(parameter.callValue == 12_500_000)
+        #expect(parameter.contractAddress == (try utils.convertAddressToBytes("TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn")))
+        #expect(parameter.ownerAddress == (try utils.convertAddressToBytes("TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF")))
+
+        let signature = Data(hex: "6b5de85a80b2f4f02351f691593fb0e49f14c5cb42451373485357e42d7890cd77ad7bfcb733555c098b992da79dabe5050f5e2db77d9d98f199074222de037701")
+        _ = try txBuilder.buildForSend(rawData: presignedInput.rawData, signature: signature)
+    }
+
+    @Test
+    func dexSwapContractCallProviderFeeLimit() throws {
+        let transaction = Transaction(
+            amount: Amount(with: blockchain, value: 0),
+            fee: Fee(.zeroCoin(for: blockchain)),
+            sourceAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            destinationAddress: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn",
+            changeAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            params: TronTransactionParams(transactionType: .contractCall(callData: Data(hex: "a9059cbb00ff"), feeLimit: 150_000_000))
+        )
+
+        let presignedInput = try txBuilder.buildForSign(transaction: transaction, block: tronBlock)
+
+        #expect(presignedInput.rawData.feeLimit == 150_000_000)
+    }
+
+    /// Expected bytes come from a real SwapKit-built transaction's `raw_data.data`.
+    @Test
+    func dexSwapContractCallMemo() throws {
+        let memo = "=:ETH.USDT:0xd7ABce6612079A05e431752cb85Bf7010E40FdF5:140119e4/1/0:-_/tan:0/144"
+        let expectedMemoBytes = Data(hex: "3d3a4554482e555344543a3078643741426365363631323037394130356534333137353263623835426637303130453430466446353a31343031313965342f312f303a2d5f2f74616e3a302f313434")
+
+        let transaction = Transaction(
+            amount: Amount(with: blockchain, value: 0),
+            fee: Fee(.zeroCoin(for: blockchain)),
+            sourceAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            destinationAddress: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn",
+            changeAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            params: TronTransactionParams(transactionType: .contractCall(callData: Data(hex: "a9059cbb00ff"), feeLimit: nil), memo: memo)
+        )
+
+        let presignedInput = try txBuilder.buildForSign(transaction: transaction, block: tronBlock)
+
+        #expect(presignedInput.rawData.data == expectedMemoBytes)
+    }
+
+    /// An empty memo must not produce a `raw.data` field — Tron charges a flat fee for one.
+    @Test
+    func dexSwapContractCallEmptyMemoOmitted() throws {
+        let transaction = Transaction(
+            amount: Amount(with: blockchain, value: 0),
+            fee: Fee(.zeroCoin(for: blockchain)),
+            sourceAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            destinationAddress: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn",
+            changeAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            params: TronTransactionParams(transactionType: .contractCall(callData: Data(hex: "a9059cbb00ff"), feeLimit: nil), memo: "")
+        )
+
+        let presignedInput = try txBuilder.buildForSign(transaction: transaction, block: tronBlock)
+
+        #expect(presignedInput.rawData.data.isEmpty)
+    }
+
+    @Test
+    func dexSwapContractCallTokenAmountRejected() throws {
+        let token = Token(
+            name: "Tether",
+            symbol: "USDT",
+            contractAddress: "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj",
+            decimalCount: 6
+        )
+
+        let transaction = Transaction(
+            amount: Amount(with: blockchain, type: .token(value: token), value: 1),
+            fee: Fee(.zeroCoin(for: blockchain)),
+            sourceAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            destinationAddress: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn",
+            changeAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            params: TronTransactionParams(transactionType: .contractCall(callData: Data(hex: "a9059cbb00ff"), feeLimit: nil))
+        )
+
+        #expect(throws: BlockchainSdkError.self) {
+            _ = try txBuilder.buildForSign(transaction: transaction, block: tronBlock)
+        }
+    }
+
+    @Test
     func balanceResponse() throws {
         let longConstantResult = "0000000000000000000000000000000000000000000000001e755ae3061df48700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 
