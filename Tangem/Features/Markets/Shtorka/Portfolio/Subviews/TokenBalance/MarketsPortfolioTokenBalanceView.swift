@@ -7,11 +7,12 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct MarketsPortfolioTokenBalanceView: View {
-    @ScaledMetric private var failedBalanceTextIconSpacing: CGFloat = .unit(.half)
-    @ScaledMetric private var failedBalanceIconSide = CGFloat.unit(.x4)
+    @ScaledMetric private var failedBalanceTextIconSpacing: CGFloat = 2
+    @ScaledMetric private var failedBalanceIconSide: CGFloat = 16
 
     let state: MarketsPortfolioTokenBalanceState
     let skeletonSize: CGSize
@@ -23,11 +24,11 @@ struct MarketsPortfolioTokenBalanceView: View {
 
         case .loadingCached(let text):
             textView(text)
-                .shimmer()
+                .tangemShimmer()
 
         case .loading:
             skeletonView(size: skeletonSize)
-                .shimmer()
+                .tangemShimmer()
 
         case .failed(let text, .none):
             textView(text)
@@ -64,7 +65,7 @@ private extension MarketsPortfolioTokenBalanceView {
 
     func skeletonView(size: CGSize) -> some View {
         Capsule(style: .continuous)
-            .fill(Color.Tangem.Skeleton.backgroundPrimary)
+            .fill(DesignSystem.Color.bgOpaqueSecondary)
             .frame(size: size)
     }
 }

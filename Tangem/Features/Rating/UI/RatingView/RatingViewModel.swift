@@ -87,9 +87,18 @@ final class RatingViewModel: ObservableObject {
     }
 
     func onRatingSelected(_ rating: Rating) {
-        guard state == .unrated else { return }
+        guard state == .unrated, selectedRating == nil else { return }
         selectedRating = rating
-        showFeedbackPopup(rating: rating)
+
+        // Give the star fill a beat to finish before the feedback sheet rises and covers it.
+        Task { [weak self] in
+            do {
+                try await Task.sleep(for: .milliseconds(350))
+            } catch {
+                return
+            }
+            self?.showFeedbackPopup(rating: rating)
+        }
     }
 
     func resetSelection() {

@@ -22,13 +22,16 @@ struct MarketTokenItemView: View {
     }
 
     var body: some View {
-        Button(action: {
+        SwiftUI.Button(action: {
             viewModel.didTapAction?()
         }) {
             HStack(spacing: Constants.itemsHorizontalSpacing) {
-                IconView(url: viewModel.imageURL, size: Constants.imageSize, forceKingfisher: true)
-                    .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenIcon)
-                    .padding(.trailing, Constants.imageTrailingPadding)
+                TokenIconV2(
+                    tokenIconInfo: .remote(name: viewModel.name, imageURL: viewModel.imageURL),
+                    size: Constants.iconSize
+                )
+                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenIcon)
+                .padding(.trailing, Constants.imageTrailingPadding)
 
                 VStack(spacing: 3) {
                     tokenInfoView
@@ -131,16 +134,16 @@ struct MarketTokenItemView: View {
 
 extension MarketTokenItemView {
     enum Constants {
+        static let iconSize = TokenIconV2.Size.size40
         static let textBlockItemsSpacing = 4.0
         static let horizontalViewPadding: CGFloat = 16.0
-        static let imageSize: CGSize = .init(bothDimensions: 36)
         static let imageTrailingPadding: CGFloat = 2
         static let itemsHorizontalSpacing: CGFloat = 10.0
         static let chartSize: CGSize = .init(width: 56, height: 24)
         static let skeletonMediumWidthValue: String = "---------"
         static let skeletonSmallWidthValue: String = "------"
 
-        static let widthNeededForItemsExceptTextBlock: CGFloat = horizontalViewPadding * 2 + imageSize.width + chartSize.width + itemsHorizontalSpacing * 2 + imageTrailingPadding
+        static let widthNeededForItemsExceptTextBlock: CGFloat = horizontalViewPadding * 2 + Constants.iconSize.containerSize.width + chartSize.width + itemsHorizontalSpacing * 2 + imageTrailingPadding
     }
 }
 

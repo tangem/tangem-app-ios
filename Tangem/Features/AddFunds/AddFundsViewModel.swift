@@ -42,7 +42,7 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         onBack = input.onBack
         self.coordinator = coordinator
 
-        title = Self.makeTitle(tokenItem: input.walletModel.tokenItem)
+        title = Localization.commonGetToken
 
         let tokenIconInfo = TokenIconInfoBuilder().build(from: input.walletModel.tokenItem, isCustom: input.walletModel.isCustom)
 
@@ -159,10 +159,6 @@ private extension AddFundsViewModel {
             )
         }
         .store(in: &bag)
-    }
-
-    static func makeTitle(tokenItem: TokenItem) -> String {
-        return Localization.getTokenTitle(tokenItem.name)
     }
 
     static func makeBadge(
