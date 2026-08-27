@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -18,6 +19,7 @@ struct TangemPayTransactionStatusView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(model.title)
                     .style(DesignSystem.Font.bodyMediumToken, color: model.style.contentColor)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsStatus)
 
                 if let reason = model.reason {
                     Text(reason)

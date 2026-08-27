@@ -20,7 +20,7 @@ struct AddressBookContactAddNewAddressRowView: View {
     let viewModel: AddressBookContactAddNewAddressRowViewModel
 
     var body: some View {
-        TangemRow(
+        Row(
             title: Localization.addressBookAddAddress,
             subtitle: Localization.addressBookAddAddressDescription
         )

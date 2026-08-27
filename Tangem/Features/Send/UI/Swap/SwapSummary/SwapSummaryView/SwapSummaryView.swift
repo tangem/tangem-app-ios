@@ -207,7 +207,7 @@ struct SwapSummaryView: View {
     private var regularChipsToolbarContent: some View {
         HStack(spacing: 8) {
             ForEach(visibleAmountFractions, id: \.self) { fraction in
-                Button {
+                SwiftUI.Button {
                     viewModel.userDidTapAmountFraction(fraction)
                 } label: {
                     Text(fraction.title)
@@ -224,7 +224,7 @@ struct SwapSummaryView: View {
                 Spacer(minLength: .zero)
             }
 
-            Button(action: { keyboardActive = false }) {
+            SwiftUI.Button(action: { keyboardActive = false }) {
                 keyboardSFSymbol
                     .frame(width: 36, height: 36)
                     .background(Circle().fill(Colors.Button.secondary))
@@ -239,7 +239,7 @@ struct SwapSummaryView: View {
     private var glassChipsToolbarContent: some View {
         HStack(spacing: 8) {
             ForEach(visibleAmountFractions, id: \.self) { fraction in
-                Button {
+                SwiftUI.Button {
                     viewModel.userDidTapAmountFraction(fraction)
                 } label: {
                     Text(fraction.title)
@@ -257,7 +257,7 @@ struct SwapSummaryView: View {
                 Spacer(minLength: .zero)
             }
 
-            Button(action: { keyboardActive = false }) {
+            SwiftUI.Button(action: { keyboardActive = false }) {
                 keyboardSFSymbol
                     .frame(width: 36, height: 36)
             }

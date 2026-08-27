@@ -271,15 +271,11 @@ private extension SendViewModel {
 
             case .cex(let expressTransaction, _), .dex(let expressTransaction, _), .approveAndDex(let expressTransaction, _, _):
                 let mailData = try mailDataBuilder.makeSupportData(expressTransaction: expressTransaction, error: error)
-                if FeatureProvider.isAvailable(.supportChatSwap) {
-                    coordinator?.openSwapSupportSelection(
-                        with: mailData.emailDataCollector,
-                        recipient: mailData.recipient,
-                        chatDataCollector: mailData.chatDataCollector
-                    )
-                } else {
-                    coordinator?.openMail(with: mailData.emailDataCollector, recipient: mailData.recipient)
-                }
+                coordinator?.openSwapSupportSelection(
+                    with: mailData.emailDataCollector,
+                    recipient: mailData.recipient,
+                    chatDataCollector: mailData.chatDataCollector
+                )
             }
         } catch {
             showAlert(error.alertBinder)
