@@ -41,9 +41,10 @@ final class MobileOnboardingBackupICloudFlowBuilder: MobileOnboardingFlowBuilder
         if isAccessCodeNeeded {
             append(step: makeContinueStep())
             setupAccessCodeFlow()
+            append(step: makeDoneStep())
+        } else {
+            append(step: makeCompletedStep())
         }
-
-        append(step: makeDoneStep())
     }
 }
 
@@ -76,9 +77,17 @@ private extension MobileOnboardingBackupICloudFlowBuilder {
             navigationTitle: Localization.hwBackupIcloudTitle,
             onAppear: {},
             onComplete: { [weak self] in
-                self?.logSettingAccessCodeAnalytics()
                 self?.openNext()
             }
+        )
+    }
+
+    func makeCompletedStep() -> MobileOnboardingFlowStep {
+        MobileOnboardingSuccessStep(
+            type: .backupContinue,
+            navigationTitle: Localization.hwBackupIcloudTitle,
+            onAppear: {},
+            onComplete: weakify(self, forFunction: MobileOnboardingBackupICloudFlowBuilder.completeOnboarding)
         )
     }
 
@@ -164,9 +173,5 @@ private extension MobileOnboardingBackupICloudFlowBuilder {
             params: params,
             contextParams: analyticsContextParams
         )
-    }
-
-    func logSettingAccessCodeAnalytics() {
-        Analytics.log(.settingAccessCodeStarted, contextParams: analyticsContextParams)
     }
 }
