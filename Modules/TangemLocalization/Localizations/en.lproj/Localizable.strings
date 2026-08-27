@@ -29,6 +29,7 @@
 "account_details_archive_description" = "You are archiving this account, but you can always get it back.";
 "account_details_archive" = "Archive account";
 "account_details_archiving" = "Archiving...";
+"account_details_joint_pending_description" = "The account is still being populated with members.";
 "account_details_title" = "Account";
 "account_edit_success_message" = "Account saved";
 "account_for_rewards" = "Account for rewards";
@@ -626,6 +627,8 @@
 "fee_selector_choose_token_description" = "Choose which token to use to pay\nthe network fee. %@";
 "fee_selector_choose_token_title" = "Choose token";
 "feed_market_and_news" = "Market & News";
+"feed_search_recent_clear" = "Clear";
+"feed_search_recent_title" = "Recent";
 "feed_search_show_all_user_assets" = "Show All";
 "feed_search_show_less_user_assets" = "Show less";
 "feed_tab_crypto" = "Crypto";
@@ -726,7 +729,7 @@
 "hw_cloud_backup_cell_description" = "Save your wallet to %@ for easy recovery. Data is securely encrypted.";
 "hw_cloud_backup_completed_description" = "Your wallet is set up and ready to use!";
 "hw_cloud_backup_completed_title" = "Backup completed";
-"hw_cloud_backup_confirm_password_description" = "A password is required to encrypt your secret phrase on %@.";
+"hw_cloud_backup_confirm_password_description" = "A password is required to encrypt your recovery phrase on %@.";
 "hw_cloud_backup_confirm_password_title" = "Confirm password";
 "hw_cloud_backup_consent" = "I understand that if I lose or forget this password I will lose access to my crypto.";
 "hw_cloud_backup_delete_confirm_message" = "You won't be able to restore this wallet from %@. You can create a new backup anytime.";
@@ -740,7 +743,7 @@
 "hw_cloud_backup_no_access_title" = "Can't access Google Drive";
 "hw_cloud_backup_no_backups_description" = "Please log in to another account or import your recovery phrase.";
 "hw_cloud_backup_not_found_create" = "Create backup";
-"hw_cloud_backup_not_found_description" = "This wallet was backed up earlier, but we couldn't find the backup file in your Google Drive.";
+"hw_cloud_backup_not_found_description" = "This wallet was backed up earlier, but we couldn't find the backup.";
 "hw_cloud_backup_not_found_forget" = "Forget backup";
 "hw_cloud_backup_not_found_title" = "Backup not found";
 "hw_cloud_backup_password_hint" = "Password";
@@ -748,7 +751,7 @@
 "hw_cloud_backup_passwords_dont_match" = "Password doesn't match";
 "hw_cloud_backup_permissions_description_v2" = "Some permissions are missing. Allow full access so we can save your wallet backup to %1$@.";
 "hw_cloud_backup_permissions_description" = "Some permissions are missing. Allow full access so we can save your wallet backup to Google Drive.";
-"hw_cloud_backup_permissions_title_v2" = "Complete %1$@ access";
+"hw_cloud_backup_permissions_title_v2" = "Allow full %1$@ access";
 "hw_cloud_backup_permissions_title" = "Complete Google Drive access";
 "hw_cloud_backup_remove_title" = "%1$@ %2$@ backup";
 "hw_cloud_backup_removed" = "Backup removed";
@@ -756,7 +759,7 @@
 "hw_cloud_backup_restore_error_with_recovery" = "Please try again later or import your recovery phrase.";
 "hw_cloud_backup_restore_navtitle_v2" = "%1$@ backup";
 "hw_cloud_backup_restore_navtitle" = "Cloud backup";
-"hw_cloud_backup_restore_passphrase_description" = "Enter the exact passphrase for this wallet. It's case sensitive, so a different one opens a different set of addresses.";
+"hw_cloud_backup_restore_passphrase_description" = "Enter the exact passphrase for this wallet. It is case sensitive, so a different one opens a different set of addresses.";
 "hw_cloud_backup_restore_passphrase_title" = "Enter passphrase";
 "hw_cloud_backup_restore_password_button" = "Restore";
 "hw_cloud_backup_restore_password_description" = "You're restoring “%1$@” from a %2$@ backup created on %3$@";
@@ -774,13 +777,13 @@
 "hw_cloud_backup_show_password" = "Show password";
 "hw_cloud_backup_status_action_required" = "Action required";
 "hw_cloud_backup_status_network_error" = "Network error";
-"hw_cloud_backup_strength_hint_almost" = "Almost long enough — just a couple more characters";
+"hw_cloud_backup_strength_hint_almost" = "Almost long enough, add more characters";
 "hw_cloud_backup_strength_hint_keep_going_v2" = "Keep going, aim for at least %li characters";
 "hw_cloud_backup_strength_hint_lowercase" = "Mix in a lowercase letter";
 "hw_cloud_backup_strength_hint_number" = "Try adding a number";
-"hw_cloud_backup_strength_hint_ok" = "Nice work! That would take a long time to crack";
-"hw_cloud_backup_strength_hint_symbol" = "Add a symbol like ! or @ to strengthen it";
-"hw_cloud_backup_strength_hint_uppercase" = "Mix in an uppercase letter";
+"hw_cloud_backup_strength_hint_ok" = "Nice work! This would take a long time to crack";
+"hw_cloud_backup_strength_hint_symbol" = "Add symbols such as ! or @ to strengthen it";
+"hw_cloud_backup_strength_hint_uppercase" = "Mix in uppercase letters";
 "hw_cloud_backup_strength_medium" = "Average password";
 "hw_cloud_backup_strength_none" = "Password strength";
 "hw_cloud_backup_strength_strong" = "Strong password";
@@ -848,6 +851,12 @@
 "initial_wallet_sync_restore_progress" = "Restoring %li%%";
 "introduction_button_create_wallet" = "Create wallet";
 "introduction_button_i_have_a_wallet" = "I have a wallet";
+"introduction_create_wallet_hardware_description" = "If you already have Tangem Wallet";
+"introduction_create_wallet_hardware_title" = "Tangem Card or Ring";
+"introduction_create_wallet_seed_phrase_description" = "Start without a hardware wallet";
+"introduction_create_wallet_seed_phrase_title" = "Create seed phrase wallet";
+"introduction_i_have_wallet_hardware_description" = "Use Tangem Wallet to enter the app";
+"introduction_i_have_wallet_sign_in_apple_title" = "Sign in with Apple";
 "introduction_legal" = "By continuing, you agree with %1$@ and %2$@";
 "introduction_terms_of_service" = "Terms of service";
 "jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
@@ -1302,6 +1311,10 @@
 "prediction_place_button" = "Place predict";
 "prediction_place_error_description" = "We couldn't place the order. Please try again later.";
 "prediction_place_fee" = "Fee";
+"prediction_place_insufficient_balance_bet" = "Insufficient Balance – add fund to bet";
+"prediction_place_insufficient_balance_fees" = "Insufficient Balance – to cover fees";
+"prediction_place_notification_awaiting_funds_description" = "Your funds are in flight. Your balance updates itself every few seconds so you can stay on this screen.";
+"prediction_place_notification_awaiting_funds_title" = "Awaiting funds";
 "prediction_place_notification_market_closed_description" = "This market no longer accepts orders";
 "prediction_place_notification_market_closed_title" = "Market is closed";
 "prediction_place_notification_min_order_description" = "Increase the amount to place this prediction";
@@ -1833,7 +1846,7 @@
 "tangem_pay_status_pending" = "Pending";
 "tangem_pay_status_reversed" = "Reversed";
 "tangem_pay_terms_fees_limits" = "Terms, Fees & Limits";
-"tangem_pay_terms_limits" = "Terms and fees";
+"tangem_pay_terms_limits" = "Terms of use";
 "tangem_pay_transaction_declined_notification_text" = "The bank rejected this transaction request.";
 "tangem_pay_transaction_details_cashback_below_min" = "Below min trx amount";
 "tangem_pay_transaction_details_cashback_cap_reached" = "Monthly cap reached";
@@ -1880,7 +1893,9 @@
 "tangempay_card_activation_error" = "Invalid last digits. Try again";
 "tangempay_card_activation_in_progress" = "Activating your card";
 "tangempay_card_default_name" = "Tangem Pay Card 1";
+"tangempay_card_delivery_banner_description_many" = "Activate them when arrived";
 "tangempay_card_delivery_banner_description" = "Activate it when arrived";
+"tangempay_card_delivery_banner_title_many" = "Your cards on it's way for delivery";
 "tangempay_card_delivery_banner_title" = "Your card on it's way for delivery";
 "tangempay_card_details_activate" = "Activate card";
 "tangempay_card_details_add_funds_subtitle" = "Top-up options";
@@ -2151,7 +2166,7 @@
 "tangempay_other_networks_header" = "Other networks";
 "tangempay_other_networks_subtitle" = "And then swap it to payment account with 1:1 rate and zero fees";
 "tangempay_other_networks_title" = "Send USDT / USDC on any chain to your Tangem Wallet";
-"tangempay_pay_support" = "Pay Support";
+"tangempay_pay_support" = "Support";
 "tangempay_payment_account_sync_needed" = "Session expired";
 "tangempay_payment_account" = "Payment account";
 "tangempay_pin_validation_error_message" = "Invalid PIN: avoid sequences or repeats";
@@ -2382,7 +2397,7 @@
 "user_wallet_add_mobile_description" = "Create a new wallet on this device";
 "user_wallet_add_mobile_title" = "Add mobile wallet";
 "user_wallet_add_wallet" = "Add wallet";
-"user_wallet_coming_soon_dialog_description" = "We’re working on the ability to create more than one mobile wallet.";
+"user_wallet_coming_soon_dialog_description" = "We are building support for multiple mobile wallets.";
 "user_wallet_list_add_button" = "Add Wallet";
 "user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds.";
 "user_wallet_list_delete_prompt" = "Are you sure you want to forget this wallet?";

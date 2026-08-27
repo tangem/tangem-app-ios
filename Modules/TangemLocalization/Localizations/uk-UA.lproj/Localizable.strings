@@ -29,6 +29,7 @@
 "account_details_archive_description" = "Ви архівуєте цей акаунт, але ви завжди можете його відновити.";
 "account_details_archive" = "Архівний акаунт";
 "account_details_archiving" = "Архівування...";
+"account_details_joint_pending_description" = "The account is still being populated with members.";
 "account_details_title" = "Акаунт";
 "account_edit_success_message" = "Акаунт збережено";
 "account_for_rewards" = "Акаунт для винагород";
@@ -626,6 +627,8 @@
 "fee_selector_choose_token_description" = "Оберіть, який токен буде використовуватися для оплати мережевої комісії. %@";
 "fee_selector_choose_token_title" = "Обрати токен";
 "feed_market_and_news" = "Ринок та Новини";
+"feed_search_recent_clear" = "Clear";
+"feed_search_recent_title" = "Recent";
 "feed_search_show_all_user_assets" = "Показати всі";
 "feed_search_show_less_user_assets" = "Сховати";
 "feed_tab_crypto" = "Crypto";
@@ -740,7 +743,7 @@
 "hw_cloud_backup_no_access_title" = "Can't access Google Drive";
 "hw_cloud_backup_no_backups_description" = "Будь ласка, увійдіть до іншого облікового запису або імпортуйте фразу відновлення.";
 "hw_cloud_backup_not_found_create" = "Create backup";
-"hw_cloud_backup_not_found_description" = "This wallet was backed up earlier, but we couldn't find the backup file in your Google Drive.";
+"hw_cloud_backup_not_found_description" = "This wallet was backed up earlier, but we couldn't find the backup.";
 "hw_cloud_backup_not_found_forget" = "Forget backup";
 "hw_cloud_backup_not_found_title" = "Backup not found";
 "hw_cloud_backup_password_hint" = "Пароль";
@@ -748,7 +751,7 @@
 "hw_cloud_backup_passwords_dont_match" = "Паролі не збігаються";
 "hw_cloud_backup_permissions_description_v2" = "Some permissions are missing. Allow full access so we can save your wallet backup to %1$@.";
 "hw_cloud_backup_permissions_description" = "Немає необхідних дозволів. Надайте повний доступ, щоб зберегти резервну копію гаманця в Google Drive.";
-"hw_cloud_backup_permissions_title_v2" = "Complete %1$@ access";
+"hw_cloud_backup_permissions_title_v2" = "Allow full %1$@ access";
 "hw_cloud_backup_permissions_title" = "Повний доступ до Google Drive";
 "hw_cloud_backup_remove_title" = "%1$@: резервна копія «%2$@»";
 "hw_cloud_backup_removed" = "Резервну копію видалено";
@@ -848,6 +851,12 @@
 "initial_wallet_sync_restore_progress" = "Відновлення %li%%";
 "introduction_button_create_wallet" = "Create wallet";
 "introduction_button_i_have_a_wallet" = "I have a wallet";
+"introduction_create_wallet_hardware_description" = "If you already have Tangem Wallet";
+"introduction_create_wallet_hardware_title" = "Tangem Card or Ring";
+"introduction_create_wallet_seed_phrase_description" = "Start without a hardware wallet";
+"introduction_create_wallet_seed_phrase_title" = "Create seed phrase wallet";
+"introduction_i_have_wallet_hardware_description" = "Use Tangem Wallet to enter the app";
+"introduction_i_have_wallet_sign_in_apple_title" = "Sign in with Apple";
 "introduction_legal" = "By continuing, you agree with %1$@ and %2$@";
 "introduction_terms_of_service" = "Terms of service";
 "jailbreak_warning_message" = "Пристрої з джейлбрейком вважаються менш безпечними. Ваші дані можуть бути піддані додатковим ризикам.";
@@ -1302,6 +1311,10 @@
 "prediction_place_button" = "Place predict";
 "prediction_place_error_description" = "We couldn't place the order. Please try again later.";
 "prediction_place_fee" = "Fee";
+"prediction_place_insufficient_balance_bet" = "Insufficient Balance – add fund to bet";
+"prediction_place_insufficient_balance_fees" = "Insufficient Balance – to cover fees";
+"prediction_place_notification_awaiting_funds_description" = "Your funds are in flight. Your balance updates itself every few seconds so you can stay on this screen.";
+"prediction_place_notification_awaiting_funds_title" = "Awaiting funds";
 "prediction_place_notification_market_closed_description" = "This market no longer accepts orders";
 "prediction_place_notification_market_closed_title" = "Market is closed";
 "prediction_place_notification_min_order_description" = "Increase the amount to place this prediction";
@@ -1833,7 +1846,7 @@
 "tangem_pay_status_pending" = "В очікуванні";
 "tangem_pay_status_reversed" = "Скасовано";
 "tangem_pay_terms_fees_limits" = "Умови, комісії та ліміти";
-"tangem_pay_terms_limits" = "Умови та обмеження";
+"tangem_pay_terms_limits" = "Умови";
 "tangem_pay_transaction_declined_notification_text" = "Банк відхилив цей запит на транзакцію.";
 "tangem_pay_transaction_details_cashback_below_min" = "Мін. сума транзакції";
 "tangem_pay_transaction_details_cashback_cap_reached" = "Досягнуто місячний ліміт";
@@ -1880,7 +1893,9 @@
 "tangempay_card_activation_error" = "Invalid last digits. Try again";
 "tangempay_card_activation_in_progress" = "Activating your card";
 "tangempay_card_default_name" = "Картка Tangem Pay 1";
+"tangempay_card_delivery_banner_description_many" = "Activate them when arrived";
 "tangempay_card_delivery_banner_description" = "Activate it when arrived";
+"tangempay_card_delivery_banner_title_many" = "Your cards on it's way for delivery";
 "tangempay_card_delivery_banner_title" = "Your card on it's way for delivery";
 "tangempay_card_details_activate" = "Activate card";
 "tangempay_card_details_add_funds_subtitle" = "Варіанти поповнення";
@@ -2151,7 +2166,7 @@
 "tangempay_other_networks_header" = "Інші мережі";
 "tangempay_other_networks_subtitle" = "А потім обміняйте на платіжний рахунок за курсом 1:1 без комісії";
 "tangempay_other_networks_title" = "Надішліть USDT / USDC у будь-якій мережі на ваш Tangem Wallet";
-"tangempay_pay_support" = "Підтримка Pay";
+"tangempay_pay_support" = "Підтримка";
 "tangempay_payment_account_sync_needed" = "Tangem Pay · Сесія закінчилася";
 "tangempay_payment_account" = "Платіжний акаунт";
 "tangempay_pin_validation_error_message" = "Слабкий ПІН: не використовуйте повторів або послідовностей.";
