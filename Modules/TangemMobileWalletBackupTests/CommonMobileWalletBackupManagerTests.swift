@@ -70,6 +70,83 @@ struct CommonMobileWalletBackupManagerTests {
         #expect(created.metadata.fileName == "Wallet (1).backup.json")
     }
 
+    @Test("Existing backup of the same wallet is overwritten, keeping its file name")
+    func createBackupOverwritesExistingBackupOfSameWallet() async throws {
+        let env = Self.makeEnvironment()
+
+        let original = try await env.manager.createBackup(
+            context: Self.context,
+            walletName: "Wallet",
+            walletId: Self.walletId,
+            password: Self.password
+        )
+
+        let replacement = try await env.manager.createBackup(
+            context: Self.context,
+            walletName: "Renamed",
+            walletId: Self.walletId,
+            password: Self.password
+        )
+
+        #expect(env.storage.storedFileNames == ["Wallet.backup.json"])
+        #expect(replacement.metadata.fileName == "Wallet.backup.json")
+        #expect(replacement.metadata.walletName == "Renamed")
+
+        let loaded = try await env.manager.loadBackups()
+        try #require(loaded.count == 1)
+        #expect(loaded[0].id == replacement.id)
+        #expect(loaded[0].id != original.id)
+    }
+
+    @Test("Only the first found backup of the wallet is overwritten")
+    func createBackupOverwritesOnlyFirstBackupOfWallet() async throws {
+        let env = Self.makeEnvironment()
+
+        let original = try await env.manager.createBackup(
+            context: Self.context,
+            walletName: "Wallet",
+            walletId: Self.walletId,
+            password: Self.password
+        )
+        env.storage.seed(original.fileData, fileName: "Wallet (1).backup.json")
+
+        let replacement = try await env.manager.createBackup(
+            context: Self.context,
+            walletName: "Wallet",
+            walletId: Self.walletId,
+            password: Self.password
+        )
+
+        // The mock lists files in lexicographic order, so `Wallet (1)` comes first.
+        #expect(replacement.metadata.fileName == "Wallet (1).backup.json")
+        #expect(env.storage.storedFileNames == ["Wallet (1).backup.json", "Wallet.backup.json"])
+        #expect(env.storage.storedData(fileName: "Wallet.backup.json") == original.fileData)
+        #expect(env.storage.storedData(fileName: "Wallet (1).backup.json") == replacement.fileData)
+    }
+
+    @Test("Backup of a different wallet under the same name is not overwritten")
+    func createBackupKeepsBackupOfDifferentWalletWithSameName() async throws {
+        let env = Self.makeEnvironment()
+
+        let foreign = try await env.manager.createBackup(
+            context: Self.context,
+            walletName: "Wallet",
+            walletId: Self.otherWalletId,
+            password: Self.password
+        )
+
+        let created = try await env.manager.createBackup(
+            context: Self.context,
+            walletName: "Wallet",
+            walletId: Self.walletId,
+            password: Self.password
+        )
+
+        #expect(created.metadata.fileName == "Wallet (1).backup.json")
+        #expect(env.storage.storedFileNames == ["Wallet (1).backup.json", "Wallet.backup.json"])
+        #expect(env.storage.storedData(fileName: "Wallet.backup.json") == foreign.fileData)
+    }
+
     @Test(
         "Wallet name is sanitized for the file name",
         arguments: [
@@ -297,14 +374,14 @@ struct CommonMobileWalletBackupManagerTests {
     func deleteBackupsRemovesAllFilesOfWallet() async throws {
         let env = Self.makeEnvironment()
 
-        for _ in 0 ..< 2 {
-            try await env.manager.createBackup(
-                context: Self.context,
-                walletName: "Wallet",
-                walletId: Self.walletId,
-                password: Self.password
-            )
-        }
+        let created = try await env.manager.createBackup(
+            context: Self.context,
+            walletName: "Wallet",
+            walletId: Self.walletId,
+            password: Self.password
+        )
+        // A second file of the same wallet, as if left behind by an older app version.
+        env.storage.seed(created.fileData, fileName: "Wallet (1).backup.json")
         try await env.manager.createBackup(
             context: Self.context,
             walletName: "Other",
