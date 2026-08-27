@@ -83,6 +83,116 @@ struct GaslessYieldFeeTests {
         #expect(yieldWithdraw.withdrawGasLimit == 84_000)
         #expect(parameters.gasLimit == 32_000 + 55_000 + 84_000 + EthereumFeeParametersConstants.gaslessBaseGasBuffer)
     }
+
+    /// The gasless flow builds its amount from the token item, which carries no yield supply metadata. Without
+    /// it the payload moves the token straight out of the account, where a supplied balance no longer sits, and
+    /// the transfer reverts.
+    @Test("Transaction payload sends a supplied token through the yield module")
+    func transactionPayloadSendsSuppliedTokenThroughYieldModule() async throws {
+        let sut = makeSUT(gasLimitResults: [])
+        sut.wallet.add(amount: Self.suppliedTokenAmount)
+
+        let payload = try await sut.buildTransactionPayload(transaction: Self.transferTransaction)
+
+        let expected = try YieldSendMethod(
+            tokenContractAddress: Self.feeToken.contractAddress,
+            destination: Self.destinationAddress,
+            amount: Self.transferAmountInTokenUnits
+        )
+
+        #expect(payload.destinationAddress == Self.yieldFeeOptions.yieldContractAddress)
+        #expect(payload.data == expected.data)
+        #expect(payload.coinAmount.isZero)
+    }
+
+    /// The supplied token's own call is the batch leg the upgrade wrapper lands on, so the gas it is capped at
+    /// has to be estimated wrapped — the bare `send()` estimate misses both the upgrade and whatever the new
+    /// implementation costs.
+    @Test("Yield fee re-estimates the upgrade wrapped send of a supplied token")
+    func yieldFeeReestimatesUpgradeWrappedSuppliedTokenSend() async throws {
+        let sut = makeSUT(gasLimitResults: [
+            .success(100_000),
+            .success(120_000),
+            .success(50_000),
+            .success(60_000),
+        ])
+        sut.wallet.add(amount: Self.suppliedTokenAmount)
+
+        let fee = try await sut.getGaslessYieldFee(
+            feeToken: Self.feeToken,
+            amount: Self.transferAmountFromSendScreen,
+            destination: Self.destinationAddress,
+            feeRecipientAddress: Self.feeRecipientAddress,
+            nativeToFeeTokenRate: 1,
+            yieldFeeOptions: Self.upgradeYieldFeeOptions
+        )
+
+        let parameters = try #require(fee.parameters as? EthereumGaslessTransactionFeeParameters)
+        let yieldWithdraw = try #require(parameters.yieldWithdraw)
+
+        #expect(parameters.callGasLimit == 168_000)
+        #expect(parameters.feeTokenTransferGasLimit == 55_000)
+        #expect(yieldWithdraw.withdrawGasLimit == 84_000)
+        #expect(parameters.gasLimit == 168_000 + 55_000 + 84_000 + EthereumFeeParametersConstants.gaslessBaseGasBuffer)
+
+        #expect(sut.gasLimitRequests.count == 4)
+
+        let wrappedRequest = sut.gasLimitRequests[1]
+        let sendMethod = try YieldSendMethod(
+            tokenContractAddress: Self.feeToken.contractAddress,
+            destination: Self.destinationAddress,
+            amount: Self.transferAmountInTokenUnits
+        )
+        let expectedData = UpgradeToAndCallMethod(
+            newImplementation: Self.upgradeImplementation,
+            callData: sendMethod.data
+        ).encodedData
+
+        #expect(wrappedRequest.to == Self.upgradeYieldFeeOptions.yieldContractAddress)
+        #expect(wrappedRequest.data == expectedData)
+    }
+
+    @Test("Yield fee keeps the buffered send estimate when the module is up to date")
+    func yieldFeeKeepsBufferedSendEstimateWithoutUpgrade() async throws {
+        let sut = makeSUT(gasLimitResults: [
+            .success(100_000),
+            .success(50_000),
+            .success(60_000),
+        ])
+        sut.wallet.add(amount: Self.suppliedTokenAmount)
+
+        let fee = try await sut.getGaslessYieldFee(
+            feeToken: Self.feeToken,
+            amount: Self.transferAmountFromSendScreen,
+            destination: Self.destinationAddress,
+            feeRecipientAddress: Self.feeRecipientAddress,
+            nativeToFeeTokenRate: 1,
+            yieldFeeOptions: Self.yieldFeeOptions
+        )
+
+        let parameters = try #require(fee.parameters as? EthereumGaslessTransactionFeeParameters)
+        let yieldWithdraw = try #require(parameters.yieldWithdraw)
+
+        #expect(parameters.callGasLimit == 140_000)
+        #expect(parameters.feeTokenTransferGasLimit == 55_000)
+        #expect(yieldWithdraw.withdrawGasLimit == 84_000)
+        #expect(sut.gasLimitRequests.count == 3)
+    }
+
+    @Test("Transaction payload keeps a plain transfer for a token that is not supplied")
+    func transactionPayloadKeepsPlainTransferForNotSuppliedToken() async throws {
+        let sut = makeSUT(gasLimitResults: [])
+
+        let payload = try await sut.buildTransactionPayload(transaction: Self.transferTransaction)
+
+        let expected = try TransferERC20TokenMethod(
+            destination: Self.destinationAddress,
+            amount: Self.transferAmountInTokenUnits
+        )
+
+        #expect(payload.destinationAddress == Self.feeToken.contractAddress)
+        #expect(payload.data == expected.data)
+    }
 }
 
 private extension GaslessYieldFeeTests {
@@ -102,10 +212,63 @@ private extension GaslessYieldFeeTests {
         upgrade: .none
     )
 
+    static let upgradeImplementation = "0x0000000000000000000000000000000000000005"
+
     static let upgradeYieldFeeOptions = GaslessYieldFeeOptions(
         yieldContractAddress: yieldFeeOptions.yieldContractAddress,
-        upgrade: .required(implementation: "0x0000000000000000000000000000000000000005")
+        upgrade: .required(implementation: upgradeImplementation)
     )
+
+    static let destinationAddress = "0x0000000000000000000000000000000000000006"
+    static let transferAmount = Decimal(1)
+    static let transferAmountInTokenUnits = BigUInt(1_000_000)
+
+    /// The amount as the send screen builds it, from the token item and without any yield supply metadata.
+    static let transferAmountFromSendScreen = Amount(
+        with: .polygon(testnet: false),
+        type: .token(value: feeToken),
+        value: transferAmount
+    )
+
+    /// The same token as it comes back from the balance loader: enrolled into yield, so the balance lives on the
+    /// module and not on the account.
+    static let suppliedToken = Token(
+        name: feeToken.name,
+        symbol: feeToken.symbol,
+        contractAddress: feeToken.contractAddress,
+        decimalCount: feeToken.decimalCount,
+        id: feeToken.id,
+        metadata: TokenMetadata(
+            kind: .fungible,
+            yieldSupply: TokenYieldSupply(
+                yieldContractAddress: yieldFeeOptions.yieldContractAddress,
+                isActive: true,
+                isInitialized: true,
+                allowance: "0",
+                protocolBalanceValue: 10
+            )
+        )
+    )
+
+    static let suppliedTokenAmount = Amount(
+        with: .polygon(testnet: false),
+        type: .token(value: suppliedToken),
+        value: 10
+    )
+
+    static var transferTransaction: Transaction {
+        Transaction(
+            amount: transferAmountFromSendScreen,
+            fee: Fee(
+                Amount(with: .polygon(testnet: false), value: 0),
+                parameters: EthereumEIP1559FeeParameters(gasLimit: 21_000, baseFee: 1, priorityFee: 1)
+            ),
+            sourceAddress: walletAddress,
+            destinationAddress: destinationAddress,
+            changeAddress: walletAddress,
+            params: EthereumTransactionParams(nonce: 0)
+        )
+    }
 
     func makeSUT(gasLimitResults: [Result<BigUInt, Error>]) -> StubEthereumWalletManager {
         let wallet = Wallet(
@@ -129,6 +292,12 @@ private extension GaslessYieldFeeTests {
 }
 
 private final class StubEthereumWalletManager: EthereumWalletManager {
+    struct GasLimitRequest {
+        let to: String
+        let data: String?
+    }
+
+    private(set) var gasLimitRequests: [GasLimitRequest] = []
     private var gasLimitResults: [Result<BigUInt, Error>]
 
     init(
@@ -152,6 +321,8 @@ private final class StubEthereumWalletManager: EthereumWalletManager {
     }
 
     override func getGasLimit(to: String, from: String, value: String?, data: String?) -> AnyPublisher<BigUInt, Error> {
+        gasLimitRequests.append(GasLimitRequest(to: to, data: data))
+
         guard !gasLimitResults.isEmpty else {
             return Fail(error: BlockchainSdkError.failedToGetFee).eraseToAnyPublisher()
         }

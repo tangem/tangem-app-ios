@@ -12,6 +12,8 @@ import CombineExt
 import TangemSdk
 
 class CommonCardScanner: CardScanner {
+    @Injected(\.walletCardsBackupReportService) private var reportService: WalletCardsBackupReportService
+
     private let tangemSdk: TangemSdk
     private let parameters: CardScannerParameters
     private var cancellable: AnyCancellable?
@@ -25,7 +27,7 @@ class CommonCardScanner: CardScanner {
     convenience init() {
         var config = TangemSdkConfigFactory().makeDefaultConfig()
 
-        if AppSettings.shared.saveUserWallets {
+        if AppSettings.shared.saveAccessCodes, AppSettings.shared.askedToSaveUserWallets {
             config.accessCodeRequestPolicy = .alwaysWithBiometrics
         }
 
@@ -53,7 +55,9 @@ class CommonCardScanner: CardScanner {
         return tangemSdk.startSessionPublisher(with: task, filter: parameters.sessionFilter)
             .combineLatest(didBecomeActivePublisher)
             .map { $0.0 }
-            .handleEvents(receiveCompletion: { _ in
+            .handleEvents(receiveOutput: { [weak self] response in
+                self?.reportService.reportScannedCard(cardInfo: response.getCardInfo())
+            }, receiveCompletion: { _ in
                 withExtendedLifetime(task) {}
             })
             .eraseToAnyPublisher()

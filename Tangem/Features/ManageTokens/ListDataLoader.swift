@@ -42,8 +42,6 @@ class TokensListDataLoader {
     /// Total pages
     private var totalPages: Int = 1
 
-    private var cached: [CoinModel] = []
-    private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText: String?
 
     private var taskCancellable: AnyCancellable?
@@ -62,7 +60,6 @@ class TokensListDataLoader {
         items = []
         currentPageIndex = 0
         lastSearchText = searchText
-        cachedSearch = [:]
     }
 
     func fetch(_ searchText: String) {
@@ -131,35 +128,6 @@ private extension TokensListDataLoader {
         return try await loadMainnetItems(requestModel)
     }
 
-    func loadTestnetItems(_ requestModel: CoinsList.Request) async -> [CoinModel] {
-        let searchText = requestModel.searchText?.lowercased()
-        let itemsList: [CoinModel]
-
-        if cached.isEmpty {
-            itemsList = (try? loadCoinsFromLocalJson(requestModel: requestModel)) ?? []
-        } else {
-            itemsList = cached
-        }
-
-        totalPages = itemsList.count / perPage + (itemsList.count % perPage == 0 ? 0 : 1)
-
-        guard let searchText = searchText, !searchText.isEmpty else {
-            return itemsList
-        }
-
-        if let cachedSearch = cachedSearch[searchText] {
-            return cachedSearch
-        }
-
-        let foundItems = itemsList.filter {
-            "\($0.name) \($0.symbol)".lowercased().contains(searchText)
-        }
-
-        cachedSearch[searchText] = foundItems
-
-        return getPage(for: itemsList)
-    }
-
     func loadMainnetItems(_ requestModel: CoinsList.Request) async throws -> [CoinModel] {
         let response = try await tangemApiService.loadCoins(requestModel: requestModel)
 
@@ -170,23 +138,6 @@ private extension TokensListDataLoader {
             supportedBlockchains: requestModel.supportedBlockchains,
             contractAddress: requestModel.contractAddress
         )
-    }
-
-    func loadCoinsFromLocalJsonPublisher(requestModel: CoinsList.Request) -> AnyPublisher<[CoinModel], Never> {
-        TestnetTokensRepository().loadCoins(requestModel: requestModel)
-            .handleEvents(receiveOutput: { [weak self] output in
-                self?.cached = output
-            })
-            .replaceError(with: [])
-            .eraseToAnyPublisher()
-    }
-
-    func loadCoinsFromLocalJson(requestModel: CoinsList.Request) throws -> [CoinModel] {
-        try TestnetTokensRepository().loadCoins(requestModel: requestModel)
-    }
-
-    func getPage(for items: [CoinModel]) -> [CoinModel] {
-        Array(items.dropFirst(currentPageIndex * perPage).prefix(perPage))
     }
 
     func map(

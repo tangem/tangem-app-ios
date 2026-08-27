@@ -15,6 +15,7 @@ import TangemAccessibilityIdentifiers
 public struct NotificationBanner: View, Setupable {
     private let bannerType: BannerType
     private let accessibilityIdentifier: String?
+    private let closeAccessibilityIdentifier: String?
 
     @ScaledMetric private var padding: CGFloat
     @ScaledMetric private var iconWidth: CGFloat
@@ -22,9 +23,10 @@ public struct NotificationBanner: View, Setupable {
 
     private let cornerRadius: CGFloat = .unit(.x6)
 
-    public init(bannerType: BannerType, accessibilityIdentifier: String?) {
+    public init(bannerType: BannerType, accessibilityIdentifier: String?, closeAccessibilityIdentifier: String? = nil) {
         self.bannerType = bannerType
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.closeAccessibilityIdentifier = closeAccessibilityIdentifier
         let iconSize = bannerType.content.iconSize
         _padding = ScaledMetric(wrappedValue: SizeUnit.x3.value)
         _iconWidth = ScaledMetric(wrappedValue: iconSize.width)
@@ -84,7 +86,7 @@ public struct NotificationBanner: View, Setupable {
             }
             .accessibilityElement(children: .contain)
         case .tappable(let tapAction):
-            Button(action: tapAction.action) {
+            SwiftUI.Button(action: tapAction.action) {
                 bannerBody()
             }
             .buttonStyle(.plain)
@@ -106,7 +108,7 @@ public struct NotificationBanner: View, Setupable {
     }
 
     private var closeButton: some View {
-        Button(action: { bannerType.closeAction?() }) {
+        SwiftUI.Button(action: { bannerType.closeAction?() }) {
             Circle()
                 .fill(Color.Tangem.Graphic.Neutral.secondary)
                 .frame(size: .init(bothDimensions: SizeUnit.x5.value))
@@ -122,6 +124,7 @@ public struct NotificationBanner: View, Setupable {
                 }
                 .padding(SizeUnit.x3.value)
         }
+        .accessibilityIdentifier(closeAccessibilityIdentifier)
     }
 
     @ViewBuilder
@@ -218,12 +221,15 @@ public struct NotificationBanner: View, Setupable {
             EmptyView()
         case .one(let model, let identifier):
             TangemButton(model: model)
+                .setButtonState(isLoading: model.isLoading)
                 .accessibilityIdentifier(identifier)
         case .two(let left, let right, let leftIdentifier, let rightIdentifier):
             HStack(spacing: SizeUnit.x3.value) {
                 TangemButton(model: left)
+                    .setButtonState(isLoading: left.isLoading)
                     .accessibilityIdentifier(leftIdentifier)
                 TangemButton(model: right)
+                    .setButtonState(isLoading: right.isLoading)
                     .accessibilityIdentifier(rightIdentifier)
             }
         }

@@ -10,6 +10,11 @@ import Foundation
 import Combine
 
 public extension Publisher {
+    /// Subscribes to current publisher without handling events.
+    func sink() -> AnyCancellable {
+        return sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+    }
+
     func receiveOnMain() -> Publishers.ReceiveOn<Self, DispatchQueue> {
         receive(on: DispatchQueue.main)
     }

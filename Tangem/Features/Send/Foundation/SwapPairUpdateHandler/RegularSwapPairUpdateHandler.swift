@@ -43,7 +43,7 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
     }
 
     func updatePair(source: SendSwapableToken, destination: SendReceiveToken) async throws -> ExpressManagerState {
-        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+        let pair = try await makePair(source: source, destination: destination)
 
         if pair.isTransfer {
             analyticsLogger.logSwapTransferModeSwitched()

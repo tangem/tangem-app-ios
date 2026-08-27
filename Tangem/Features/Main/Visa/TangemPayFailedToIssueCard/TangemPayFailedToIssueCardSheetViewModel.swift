@@ -61,8 +61,8 @@ final class TangemPayFailedToIssueCardSheetViewModel: TangemPayPopupViewModel {
         let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
-            recipient: EmailConfig.visaDefault(subject: .default).recipient,
-            emailType: .visaFeedback(subject: .default)
+            recipient: EmailConfig.visaDefault(subject: .failedToIssueCard).recipient,
+            emailType: .visaFeedback(subject: .failedToIssueCard)
         )
 
         coordinator?.openMailFromFailedToIssueCardSheet(mailViewModel: mailViewModel)

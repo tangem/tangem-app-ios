@@ -11,10 +11,11 @@ import TangemUI
 import TangemAssets
 
 struct TransactionDetailsYieldTokensViewData: Equatable {
-    let accountIcon: AccountIconView.ViewData
+    let accountIcon: AccountIconView.ViewData?
     let tokenIconInfo: TokenIconInfo
     let amountText: String
-    let subtitleText: String?
+    /// Caption above the amount describing the yield action (e.g. "Supplied" / "Returned").
+    let statusTitle: String?
 }
 
 struct TransactionDetailsYieldTokensView: View {
@@ -26,24 +27,26 @@ struct TransactionDetailsYieldTokensView: View {
     var body: some View {
         VStack(spacing: 24) {
             HStack(spacing: -overlap) {
-                AccountIconView(data: data.accountIcon, settings: .largeSized)
-                    .frame(size: CGSize(bothDimensions: iconSide))
+                if let accountIcon = data.accountIcon {
+                    AccountIconView(data: accountIcon, settings: .largeSized)
+                        .frame(size: CGSize(bothDimensions: iconSide))
+                }
 
                 TokenIcon(tokenIconInfo: data.tokenIconInfo, size: CGSize(bothDimensions: iconSide))
             }
 
             VStack(spacing: 2) {
+                if let statusTitle = data.statusTitle {
+                    Text(statusTitle)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                        .lineLimit(1)
+                }
+
                 Text(data.amountText)
                     .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-
-                if let subtitleText = data.subtitleText {
-                    Text(subtitleText)
-                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
-                        .lineLimit(1)
-                }
             }
         }
         .frame(maxWidth: .infinity)

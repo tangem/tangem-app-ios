@@ -40,6 +40,7 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
+    private lazy var biometryAuthorizer: TangemPayBiometryAuthorizer = tangemPayAssembly.makeBiometryAuthorizer()
     private weak var coordinator: TangemPayCardManagementRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -450,16 +451,14 @@ private extension TangemPayCardManagementViewModel {
             return
         }
 
-        guard BiometricsUtil.isAvailable else {
+        guard biometryAuthorizer.isAvailable else {
             coordinator?.openTangemPayBiometryNotSetSheet()
             return
         }
 
         Task { @MainActor in
             do {
-                _ = try await BiometricsUtil.requestAccess(
-                    localizedReason: Localization.biometryTouchIdReason
-                )
+                try await biometryAuthorizer.requestAccess()
                 checkPin()
             } catch {
                 VisaLogger.error("Failed to receive biometry for PIN", error: error)

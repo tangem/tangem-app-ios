@@ -94,8 +94,9 @@ struct ManageTokensView: View {
                 .padding(.bottom, 10)
                 .padding(.horizontal, 16)
                 .background(alignment: .bottom) {
-                    TangemFade(position: .bottom)
+                    Fade(position: .bottom)
                         .variant(.hard)
+                        .frame(height: 96)
                         .ignoresSafeArea(edges: .bottom)
                 }
                 .hidden(viewModel.isPendingListEmpty)
@@ -149,7 +150,7 @@ struct ManageTokensView: View {
     }
 
     private var addCustomTokenRow: some View {
-        Button(action: viewModel.openAddCustomToken) {
+        SwiftUI.Button(action: viewModel.openAddCustomToken) {
             HStack(spacing: 12) {
                 ZStack(alignment: .center) {
                     RoundedRectangle(cornerRadius: 18)

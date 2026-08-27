@@ -58,6 +58,29 @@ enum TokenAdditionChecker {
         return true
     }
 
+    /// Checks if a Markets coin is added on every manageable network in all accounts of all multi-currency wallets.
+    static func isCoinAddedInAllAccounts(
+        coinId: String,
+        coinName: String,
+        coinSymbol: String,
+        availableNetworks: [NetworkModel],
+        userWalletModels: [any UserWalletModel]
+    ) -> Bool {
+        areTokenItemsAddedInAllAccounts(
+            userWalletModels: userWalletModels,
+            tokenItemsFactory: { account, supportedBlockchains in
+                MarketsTokenItemsProvider.calculateTokenItems(
+                    coinId: coinId,
+                    coinName: coinName,
+                    coinSymbol: coinSymbol,
+                    networks: availableNetworks,
+                    supportedBlockchains: supportedBlockchains,
+                    cryptoAccount: account
+                )
+            }
+        )
+    }
+
     /// Creates an account availability provider that marks accounts as unavailable
     /// when the token is already added on all available networks.
     static func makeAccountAvailabilityProvider(

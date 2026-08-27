@@ -22,7 +22,7 @@ struct NetworkSelectorItemView: View {
     }
 
     var body: some View {
-        Button(action: viewModel.handleTap) {
+        SwiftUI.Button(action: viewModel.handleTap) {
             HStack(spacing: 8) {
                 icon
 

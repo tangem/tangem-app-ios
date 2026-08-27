@@ -563,8 +563,8 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.tangemPayAuthorizingInteractor
     }
 
-    var userTokensPushNotificationsManager: any UserTokensPushNotificationsManager {
-        userWalletModel.userTokensPushNotificationsManager
+    var userWalletPushNotificationsManager: any UserWalletPushNotificationsManager {
+        userWalletModel.userWalletPushNotificationsManager
     }
 
     var priceAlertsSubscriptionsProvider: any PriceAlertsSubscriptionsProvider {

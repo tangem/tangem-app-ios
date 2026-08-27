@@ -124,7 +124,7 @@ struct DetailsView: View {
     }
 
     private func socialNetworkView(network: SocialNetwork) -> some View {
-        Button(action: {
+        SwiftUI.Button(action: {
             viewModel.openSocialNetwork(network: network)
         }) {
             network.icon.image

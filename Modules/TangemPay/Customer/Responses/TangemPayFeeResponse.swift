@@ -13,4 +13,6 @@ public struct TangemPayFeeResponse: Decodable {
     public let amount: Decimal
     public let currency: String
     public let description: String
+    public let group: TangemPayFeeGroup?
+    public let name: String?
 }

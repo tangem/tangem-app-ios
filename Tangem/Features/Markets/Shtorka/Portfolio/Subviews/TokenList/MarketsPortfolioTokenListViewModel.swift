@@ -18,8 +18,9 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
 
     @Published var sections: [WalletSection] = []
 
-    let barTitle = Localization.marketsPortfolioBlockTitle
-    var addTokenPromo: AddTokenPromo?
+    let barTitle: String
+    let barSubtitle: String?
+    var addTokenFooter: AddTokenFooter?
 
     var hasWalletHeader: Bool {
         sections.count > 1 || hasAccountHeader
@@ -36,15 +37,19 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
     init(
         walletModels: [any WalletModel],
         underivedTokens: [UnderivedToken] = [],
-        addTokenPromo: AddTokenPromo? = nil,
+        addTokenFooter: AddTokenFooter? = nil,
         dismissesOnSelect: Bool = true,
+        barTitle: String = Localization.marketsPortfolioBlockTitle,
+        barSubtitle: String? = nil,
         onSelect: @escaping (any WalletModel) -> Void,
         coordinator: MarketsPortfolioTokenListRoutable
     ) {
+        self.barTitle = barTitle
+        self.barSubtitle = barSubtitle
         self.onSelect = onSelect
         self.dismissesOnSelect = dismissesOnSelect
         self.coordinator = coordinator
-        self.addTokenPromo = addTokenPromo
+        self.addTokenFooter = addTokenFooter
         sections = makeWalletSections(walletModels: walletModels, underivedTokens: underivedTokens)
     }
 }
@@ -281,9 +286,9 @@ extension MarketsPortfolioTokenListViewModel {
         let onTap: (() -> Void)?
     }
 
-    struct AddTokenPromo {
-        let iconURL: URL
-        let action: () -> Void
+    enum AddTokenFooter {
+        case add(action: () -> Void)
+        case noMoreToAdd
     }
 
     /// A portfolio token whose address isn't derived yet, so it has no wallet model.

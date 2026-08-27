@@ -127,17 +127,22 @@ final class TangemPayUITests: BaseTestCase {
             .verifyDocumentTitle()
     }
 
-    func testAddFunds_ShowsServiceUnavailableError_WhenNoDepositAddress() {
+    func testAddFunds_DisabledWhenNoDepositAddress() {
         setAllureId(9557)
 
         let mainScreen = launchAndImportHotWallet(
-            scenarios: [ScenarioConfig(name: "tangem_pay_deposit_address", initialState: "NoDepositAddress")]
+            scenarios: [
+                ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalance"),
+                ScenarioConfig(name: "tangem_pay_deposit_address", initialState: "NoDepositAddress"),
+            ]
         )
 
         mainScreen
             .openTangemPay()
             .waitForScreen()
-            .tapAddFundsExpectingServiceUnavailable()
+            .waitForBalanceLoaded()
+            .verifyAddFundsDisabled()
+            .tapWithdrawExpectingServiceUnavailable()
             .waitForSheet()
             .tapGotIt()
             .waitForScreen()

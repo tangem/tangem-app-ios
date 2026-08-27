@@ -25,7 +25,7 @@ class MarketsTokenDetailsInsightsViewModel: ObservableObject {
 
     let availableIntervals: [MarketsPriceIntervalType] = [.day, .week, .month]
 
-    var records: [MarketsTokenDetailsInsightsView.RecordInfo] {
+    var records: [MarketsTokenDetailsInsightsRecordInfo] {
         intervalInsights[selectedInterval] ?? []
     }
 
@@ -54,7 +54,7 @@ class MarketsTokenDetailsInsightsViewModel: ObservableObject {
     private let insightsPublisher: any Publisher<MarketsTokenDetailsInsights?, Never>
 
     private weak var infoRouter: MarketsTokenDetailsBottomSheetRouter?
-    private var intervalInsights: [MarketsPriceIntervalType: [MarketsTokenDetailsInsightsView.RecordInfo]] = [:]
+    private var intervalInsights: [MarketsPriceIntervalType: [MarketsTokenDetailsInsightsRecordInfo]] = [:]
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -91,7 +91,7 @@ class MarketsTokenDetailsInsightsViewModel: ObservableObject {
     private func setupInsights() {
         let amountNotationFormatter = AmountNotationSuffixFormatter(divisorsList: AmountNotationSuffixFormatter.Divisor.withHundredThousands)
 
-        func makeRecord(value: Decimal?, type: MarketsTokenDetailsInsightsView.RecordType, numberFormatter: NumberFormatter) -> MarketsTokenDetailsInsightsView.RecordInfo? {
+        func makeRecord(value: Decimal?, type: MarketsTokenDetailsInsightsRecordType, numberFormatter: NumberFormatter) -> MarketsTokenDetailsInsightsRecordInfo? {
             guard let value else {
                 return nil
             }
@@ -103,12 +103,12 @@ class MarketsTokenDetailsInsightsViewModel: ObservableObject {
                 addingSignPrefix: true
             )
 
-            let trend: MarketsTokenDetailsStatisticsRecordView.Trend? = value > 0 ? .positive : value < 0 ? .negative : nil
+            let trend: MarketsTokenDetailsStatisticTrend? = value > 0 ? .positive : value < 0 ? .negative : nil
             return .init(type: type, recordData: recordData, trend: trend)
         }
 
         intervalInsights = availableIntervals.reduce(into: [:]) { partialResult, interval in
-            let records: [MarketsTokenDetailsInsightsView.RecordInfo?] = [
+            let records: [MarketsTokenDetailsInsightsRecordInfo?] = [
                 makeRecord(value: insights.experiencedBuyers[interval], type: .buyers, numberFormatter: nonCurrencyFormatter),
                 makeRecord(value: insights.holders[interval], type: .holdersChange, numberFormatter: nonCurrencyFormatter),
                 makeRecord(value: insights.liquidity[interval], type: .liquidity, numberFormatter: fiatAmountFormatter),

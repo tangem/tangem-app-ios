@@ -82,7 +82,7 @@ struct MultiWalletMainContentRedesignedView: View {
     }
 
     private var organizeButton: some View {
-        TangemButtonV2(
+        TangemUI.Button(
             label: viewModel.organizeTokensButtonTitle,
             accessibilityLabel: viewModel.organizeTokensButtonTitle,
             action: viewModel.onOpenOrganizeTokensButtonTap
@@ -112,7 +112,7 @@ struct MultiWalletMainContentRedesignedView: View {
                 .textColor(DesignSystem.Color.textSecondary)
                 .spacing(20)
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: Localization.commonAddTokens,
                 accessibilityLabel: nil,
                 action: viewModel.onAddTokensTap
@@ -208,7 +208,7 @@ private struct TokenItemContainerView: View {
                 }
 
             if let promoBubbleViewModel {
-                Button(action: promoBubbleViewModel.onTap) {
+                SwiftUI.Button(action: promoBubbleViewModel.onTap) {
                     TangemCallout(
                         text: promoBubbleViewModel.message,
                         arrowAlignment: .top,
