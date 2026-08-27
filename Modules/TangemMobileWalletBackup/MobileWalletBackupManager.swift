@@ -16,6 +16,10 @@ public protocol MobileWalletBackupManager {
     /// Creates an encrypted backup of a single mobile wallet and returns it
     /// exactly as `loadBackups` would later see it.
     ///
+    /// When the storage already holds a backup of the same wallet, the new backup
+    /// overwrites the first such file found, keeping its name — a wallet has a single
+    /// backup file even when it was created under a different name on another device.
+    ///
     /// The operation is all-or-nothing: it either returns a result after the file has been
     /// written to the backup storage, or throws leaving no partial state behind.
     @discardableResult
@@ -115,8 +119,7 @@ public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
         )
         let fileData = try encode(file)
 
-        let existingFileNames = try await storage.files().map(\.name)
-        let fileName = makeFileName(walletName: walletName, existingFileNames: existingFileNames)
+        let fileName = try await resolveFileName(walletName: walletName, walletId: walletId)
         let backup = try format.backup(from: fileData, fileName: fileName)
 
         try await storage.write(fileData, fileName: fileName)
@@ -221,6 +224,22 @@ private extension CommonMobileWalletBackupManager {
 
         return try await storage.files()
             .filter { $0.name.hasSuffix(fileNameSuffix) }
+    }
+
+    func resolveFileName(walletName: String, walletId: UserWalletId) async throws -> String {
+        let existingFiles = try await storage.files()
+
+        for file in existingFiles where file.name.hasSuffix(fileNameSuffix) {
+            guard let backup = await loadBackup(file: file) else {
+                continue
+            }
+
+            if backup.metadata.walletId == walletId.stringValue {
+                return file.name
+            }
+        }
+
+        return makeFileName(walletName: walletName, existingFileNames: existingFiles.map(\.name))
     }
 
     func loadBackup(file: WalletBackupStorageFile) async -> MobileWalletBackup? {
