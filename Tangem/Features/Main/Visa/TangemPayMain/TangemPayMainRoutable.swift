@@ -22,6 +22,7 @@ protocol TangemPayMainRoutable: AnyObject {
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input)
     func openVAOnramp()
     func openTangemPayWithdraw(input: PredefinedSwapParameters)
+    func openTangemPayOfframp()
     func openTangemPayNoDepositAddressSheet()
     func openTangemWithdrawInProgressSheet()
     func openTermsAndLimits()
