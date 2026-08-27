@@ -75,7 +75,7 @@ private extension GachaAccountView {
         Row(title: summary.collectionCountText, subtitle: "My collection")
             .lineOrder(.secondaryFirst)
             .start { collectionIcon }
-            .end { expandIcon }
+            .end { disclosureIcon }
             .background(
                 DesignSystem.Color.bgSecondary,
                 in: RoundedRectangle(cornerRadius: Metrics.collectionRowCornerRadius, style: .continuous)
@@ -92,8 +92,8 @@ private extension GachaAccountView {
             .accessibilityHidden(true)
     }
 
-    var expandIcon: some View {
-        DesignSystem.Icons.ChevronExpand.regular20.image
+    var disclosureIcon: some View {
+        DesignSystem.Icons.ChevronRight.regular20.image
             .renderingMode(.template)
             .foregroundStyle(DesignSystem.Color.iconSecondary)
             .accessibilityHidden(true)
