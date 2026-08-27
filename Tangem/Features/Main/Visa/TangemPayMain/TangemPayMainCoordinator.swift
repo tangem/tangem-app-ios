@@ -30,6 +30,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var sendCoordinator: SendCoordinator?
+    @Published var offrampCoordinator: TangemPayOfframpCoordinator?
 
     // MARK: - Child view models (push navigation)
 
@@ -65,15 +66,19 @@ class TangemPayMainCoordinator: CoordinatorObject {
         rootViewModel = TangemPayMainViewModel(
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
-            fundingFlowBuilder: TangemPayFundingFlowBuilder(
-                userWalletInfo: options.userWalletInfo,
-                userWalletModel: options.userWalletModel,
-                tangemPayAccount: options.tangemPayAccount
-            ),
+            fundingFlowBuilder: Self.makeFundingFlowBuilder(options: options),
             coordinator: self
         )
 
         handleIncomingAction()
+    }
+
+    private static func makeFundingFlowBuilder(options: Options) -> TangemPayFundingFlowBuilder {
+        TangemPayFundingFlowBuilder(
+            userWalletInfo: options.userWalletInfo,
+            userWalletModel: options.userWalletModel,
+            tangemPayAccount: options.tangemPayAccount
+        )
     }
 }
 
@@ -326,6 +331,26 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             let viewModel = TangemPayWithdrawNoteSheetViewModel(parameters: input, coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+
+    func openTangemPayOfframp() {
+        guard let options else { return }
+
+        let coordinator = TangemPayOfframpCoordinator(
+            dismissAction: { [weak self] feeCurrency in
+                self?.offrampCoordinator = nil
+
+                if let feeCurrency {
+                    self?.dismiss(with: feeCurrency)
+                }
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(
+            tangemPayAccount: options.tangemPayAccount,
+            fundingFlowBuilder: Self.makeFundingFlowBuilder(options: options)
+        ))
+        offrampCoordinator = coordinator
     }
 
     func openTangemWithdrawInProgressSheet() {
