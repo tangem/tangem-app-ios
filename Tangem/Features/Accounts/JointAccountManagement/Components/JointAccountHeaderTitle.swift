@@ -10,10 +10,18 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 
-/// Leading-aligned title with an explanation under it, opening a step of the joint account creation.
 struct JointAccountHeaderTitle: View {
-    let title: String
-    let subtitle: String
+    private let title: AttributedString
+    private let subtitle: AttributedString
+
+    init(title: String, subtitle: String) {
+        self.init(title: AttributedString(title), subtitle: AttributedString(subtitle))
+    }
+
+    init(title: AttributedString, subtitle: AttributedString) {
+        self.title = title
+        self.subtitle = subtitle
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
