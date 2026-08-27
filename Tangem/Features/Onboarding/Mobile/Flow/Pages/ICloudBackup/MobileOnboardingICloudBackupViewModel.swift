@@ -167,11 +167,21 @@ private extension MobileOnboardingICloudBackupViewModel {
 
     func makeTrailingNavBarAction() -> MobileOnboardingFlowNavBarAction {
         let closeHandler: () -> Void = { [weak self] in
-            Task {
-                await self?.showDismissAlert()
-            }
+            self?.onNavBarCloseTap()
         }
         return .close(style: .button, handler: closeHandler)
+    }
+
+    func onNavBarCloseTap() {
+        let shouldSkipDismissAlert = state == .setPassword && passwordText.isEmpty
+
+        runTask(in: self) { viewModel in
+            if shouldSkipDismissAlert {
+                await viewModel.close()
+            } else {
+                await viewModel.showDismissAlert()
+            }
+        }
     }
 }
 
@@ -212,10 +222,10 @@ private extension MobileOnboardingICloudBackupViewModel {
                     user: user,
                     password: password
                 )
-                await onComplete(savedCredential: savedCredential)
+                await complete(savedCredential: savedCredential)
             } catch {
                 AppLogger.error("Failed to create web credential", error: error)
-                await onComplete(savedCredential: nil)
+                await complete(savedCredential: nil)
             }
 
         } catch {
@@ -360,7 +370,7 @@ private extension MobileOnboardingICloudBackupViewModel {
             primaryButton: .cancel(Text(Localization.hwCloudBackupCancelSetupContinue)),
             secondaryButton: .destructive(
                 Text(Localization.hwCloudBackupCancelSetupCancel),
-                action: weakify(self, forFunction: MobileOnboardingICloudBackupViewModel.onClose)
+                action: weakify(self, forFunction: MobileOnboardingICloudBackupViewModel.close)
             )
         )
         showAlert(alert)
@@ -380,11 +390,11 @@ private extension MobileOnboardingICloudBackupViewModel {
 
 @MainActor
 private extension MobileOnboardingICloudBackupViewModel {
-    func onComplete(savedCredential: WebCredentialUtil.SavedCredential?) {
+    func complete(savedCredential: WebCredentialUtil.SavedCredential?) {
         delegate?.onICloudBackupComplete(savedCredential: savedCredential)
     }
 
-    func onClose() {
+    func close() {
         logScreenClosedAnalytics()
         delegate?.onICloudBackupClose()
     }
@@ -428,7 +438,7 @@ private extension MobileOnboardingICloudBackupViewModel {
 // MARK: - Types
 
 extension MobileOnboardingICloudBackupViewModel {
-    enum State {
+    enum State: Equatable {
         case setPassword
         case confirmPassword(String)
     }
