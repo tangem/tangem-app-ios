@@ -42,13 +42,23 @@ extension CommonTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvid
     }
 }
 
-// MARK: - Private
+// MARK: - Prepare initial token
 
-private extension CommonTokenFeeProvidersManagerProvider {
+extension CommonTokenFeeProvidersManagerProvider {
     func prepareInitialTokenFeeProvider(main: any TokenFeeProvider, all: [any TokenFeeProvider]) -> any TokenFeeProvider {
         // Early exit when we have only main provider
         guard all.hasMultipleFeeProviders else {
             return main
+        }
+
+        // Tron specific logic
+        // Looks for gasless token (not TRX) with positive balance and selects as default gas token.
+        // Gasless fees are lower in most cases compairing to TRX.
+        // Temporary solution until we implement multi-token gas estimation.
+        if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
+            return all.first(where: {
+                $0.feeTokenItem != main.feeTokenItem && ($0.balanceFeeTokenState.loaded ?? 0) > 0
+            }) ?? main
         }
 
         // If main(coin) fee provider has zero balance then try to find gasless
@@ -66,7 +76,11 @@ private extension CommonTokenFeeProvidersManagerProvider {
         // Fallback to coin. In case we don't have any gasless providers.
         return main
     }
+}
 
+// MARK: - Private
+
+private extension CommonTokenFeeProvidersManagerProvider {
     func makeMainTokenFeeProvider() -> any TokenFeeProvider {
         let tokenFeeLoader = walletModel.tokenFeeLoaderBuilder.makeMainTokenFeeLoader()
         let customFeeProvider = walletModel.customFeeProviderBuilder.makeCustomFeeProvider()
