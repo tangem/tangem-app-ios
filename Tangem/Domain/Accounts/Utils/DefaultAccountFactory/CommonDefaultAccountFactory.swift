@@ -55,7 +55,7 @@ struct CommonDefaultAccountFactory: DefaultAccountFactory {
         // Otherwise - we create a new default account with default tokens.
         if !hasValidRemoteState, let existingLocalDefaultAccount = persistentStorage
             .getList()
-            .first(where: { $0.derivationIndex == AccountModelUtils.mainAccountDerivationIndex && $0.tokens.isNotEmpty }) {
+            .first(where: { AccountModelUtils.isMainAccount($0.derivationIdentity) && $0.tokens.isNotEmpty }) {
             return existingLocalDefaultAccount
         }
 
