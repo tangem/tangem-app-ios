@@ -26,13 +26,22 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
         }
     }
 
-    private var isAccessCodeNeeded: Bool {
-        userWalletModel.config.userWalletAccessCodeStatus == .none
+    private lazy var isAccessCodeNeeded: Bool = userWalletModel.config.userWalletAccessCodeStatus == .none
+
+    private lazy var isPushNotificationsNeeded: Bool = {
+        let availabilityProvider = pushNotificationsFactory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)
+        return availabilityProvider.isAvailable
+    }()
+
+    private var isWalletReadyNeeded: Bool {
+        isAccessCodeNeeded || isPushNotificationsNeeded
     }
 
     private var analyticsContextParams: Analytics.ContextParams {
         .custom(userWalletModel.analyticsContextData)
     }
+
+    private let pushNotificationsFactory = PushNotificationsHelpersFactory()
 
     private let backupStatusUtil: MobileBackupStatusUtil
     private let userWalletModel: UserWalletModel
@@ -63,25 +72,14 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
             setupAccessCodeFlow()
         }
 
-        let factory = PushNotificationsHelpersFactory()
-        let availabilityProvider = factory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)
-
-        if availabilityProvider.isAvailable {
-            let permissionManager = factory.makePermissionManagerForAfterLogin(using: pushNotificationsInteractor)
-            let pushNotificationsStep = MobileOnboardingPushNotificationsStep(
-                permissionManager: permissionManager,
-                delegate: self
-            )
-            append(step: pushNotificationsStep)
+        if isPushNotificationsNeeded {
+            setupPushNotificationsFlow()
         }
 
-        let doneStep = MobileOnboardingSuccessStep(
-            type: .walletReady,
-            navigationTitle: Localization.commonDone,
-            onAppear: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.openConfetti),
-            onComplete: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.closeOnboarding)
-        )
-        append(step: doneStep)
+        if isWalletReadyNeeded {
+            let step = makeWalletReadyStep()
+            append(step: step)
+        }
     }
 }
 
@@ -112,18 +110,23 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
         )
         append(step: seedPhraseValidationStep)
 
-        let doneStep = MobileOnboardingSuccessStep(
+        let backupContinueStep = MobileOnboardingSuccessStep(
             type: .backupContinue,
             navigationTitle: Localization.commonBackup,
             onAppear: { [weak self] in
                 self?.logBackupCompletedScreenOpenedAnalytics()
             },
             onComplete: { [weak self] in
-                self?.logSettingAccessCodeAnalytics()
-                self?.openNext()
+                guard let self else { return }
+
+                if hasNext {
+                    openNext()
+                } else {
+                    closeOnboarding()
+                }
             }
         )
-        append(step: doneStep)
+        append(step: backupContinueStep)
     }
 
     func setupAccessCodeFlow() {
@@ -133,6 +136,28 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
             delegate: self
         )
         append(step: accessCodeStep)
+    }
+
+    func setupPushNotificationsFlow() {
+        let permissionManager = pushNotificationsFactory.makePermissionManagerForAfterLogin(using: pushNotificationsInteractor)
+        let pushNotificationsStep = MobileOnboardingPushNotificationsStep(
+            permissionManager: permissionManager,
+            delegate: self
+        )
+        append(step: pushNotificationsStep)
+    }
+}
+
+// MARK: - Steps
+
+private extension MobileOnboardingActivateWalletFlowBuilder {
+    func makeWalletReadyStep() -> MobileOnboardingFlowStep {
+        MobileOnboardingSuccessStep(
+            type: .walletReady,
+            navigationTitle: Localization.commonDone,
+            onAppear: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.openConfetti),
+            onComplete: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.closeOnboarding)
+        )
     }
 }
 
@@ -248,9 +273,5 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
             params: params,
             contextParams: analyticsContextParams
         )
-    }
-
-    func logSettingAccessCodeAnalytics() {
-        Analytics.log(.settingAccessCodeStarted, contextParams: analyticsContextParams)
     }
 }

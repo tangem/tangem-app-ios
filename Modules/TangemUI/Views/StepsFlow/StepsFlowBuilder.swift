@@ -53,6 +53,13 @@ private extension StepsFlowBuilder {
 // MARK: - Flow commands
 
 public extension StepsFlowBuilder {
+    var hasNext: Bool {
+        guard let currentNode else {
+            return false
+        }
+        return currentNode.next != nil
+    }
+
     func next() {
         guard
             let currentNode,
