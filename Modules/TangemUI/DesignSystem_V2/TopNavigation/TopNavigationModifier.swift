@@ -52,6 +52,8 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
             navigation(content)
+                .scrollEdgeEffectHidden(true, for: .top)
+                .backportTranslucentNavigationBar()
         } else {
             navigation(content)
                 .backportTranslucentNavigationBar()
