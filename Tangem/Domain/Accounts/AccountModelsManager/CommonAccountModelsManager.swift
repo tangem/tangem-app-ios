@@ -87,7 +87,7 @@ actor CommonAccountModelsManager {
 
         let newAccountIds = storedCryptoAccounts
             .compactMap { storedCryptoAccount in
-                let accountId = AccountId(userWalletId: userWalletId, derivationIndex: storedCryptoAccount.derivationIndex)
+                let accountId = AccountId(userWalletId: userWalletId, derivationIdentity: storedCryptoAccount.derivationIdentity)
 
                 // Updating the `storedCryptoAccountsKeyedByAccountIds` dict within this `compactMap` loop to reduce the number of iterations
                 storedCryptoAccountsKeyedByAccountIds[accountId] = storedCryptoAccount
@@ -130,9 +130,8 @@ actor CommonAccountModelsManager {
                     }
                 }
 
-                let derivationIndex = storedCryptoAccount.derivationIndex
                 let dependencies = dependenciesFactory.makeDependencies(
-                    forAccountWithDerivationIndex: derivationIndex,
+                    forAccountWithDerivationIdentity: storedCryptoAccount.derivationIdentity,
                     userWalletId: userWalletId
                 )
                 let balanceProvidingDependencies = dependencies.makeBalanceProvidingDependencies()
@@ -141,7 +140,7 @@ actor CommonAccountModelsManager {
                     userWalletId: userWalletId,
                     accountName: storedCryptoAccount.name,
                     accountIcon: accountIcon,
-                    derivationIndex: derivationIndex,
+                    derivationIdentity: storedCryptoAccount.derivationIdentity,
                     walletModelsManager: dependencies.walletModelsManager,
                     userTokensManager: dependencies.userTokensManager,
                     accountBalanceProvider: balanceProvidingDependencies.balanceProvider,
@@ -230,10 +229,10 @@ actor CommonAccountModelsManager {
         switch flow {
         case .new(let newAccountName, let remoteState):
             return NewCryptoAccountConditionsValidator(newAccountName: newAccountName, remoteState: remoteState)
-        case .edit(let newAccountName, let derivationIndex, let remoteState):
+        case .edit(let newAccountName, let derivationIdentity, let remoteState):
             return EditCryptoAccountConditionsValidator(
                 newAccountName: newAccountName,
-                derivationIndex: derivationIndex,
+                derivationIdentity: derivationIdentity,
                 remoteState: remoteState
             )
         case .archive(let identifier):
@@ -266,7 +265,11 @@ actor CommonAccountModelsManager {
         }
 
         let validator = makeConditionsValidator(
-            for: .edit(newAccountName: config.name, derivationIndex: config.derivationIndex, remoteState: remoteState)
+            for: .edit(
+                newAccountName: config.name,
+                derivationIdentity: config.derivationIdentity,
+                remoteState: remoteState
+            )
         )
 
         do {
@@ -362,8 +365,13 @@ extension CommonAccountModelsManager: AccountModelsManager {
 
         let remoteState = try await validatedRemoteState(forNewAccountNamed: name)
 
-        let newAccountConfig = CryptoAccountPersistentConfig(
+        let newAccountIdentity = CryptoAccountDerivationIdentity(
             derivationIndex: remoteState.nextCryptoDerivationIndex,
+            type: .crypto
+        )
+
+        let newAccountConfig = CryptoAccountPersistentConfig(
+            derivationIdentity: newAccountIdentity,
             name: name,
             icon: icon
         )
@@ -576,7 +584,7 @@ private extension CommonAccountModelsManager {
 
     private enum ValidationFlow {
         case new(newAccountName: String, remoteState: CryptoAccountsRemoteState)
-        case edit(newAccountName: String?, derivationIndex: Int, remoteState: CryptoAccountsRemoteState)
+        case edit(newAccountName: String?, derivationIdentity: CryptoAccountDerivationIdentity, remoteState: CryptoAccountsRemoteState)
         case archive(identifier: any AccountModelPersistentIdentifierConvertible)
         case unarchive(info: ArchivedCryptoAccountInfo, remoteState: CryptoAccountsRemoteState)
     }
