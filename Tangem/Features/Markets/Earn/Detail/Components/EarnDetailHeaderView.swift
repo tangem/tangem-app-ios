@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct EarnDetailHeaderView: View {
     let headerTitle: String
@@ -18,7 +19,7 @@ struct EarnDetailHeaderView: View {
             HStack(alignment: .center, spacing: .zero) {
                 Text(headerTitle)
                     .lineLimit(1)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
                 Spacer(minLength: 8)
             }

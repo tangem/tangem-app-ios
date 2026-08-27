@@ -36,7 +36,7 @@ struct TangemPayOnboardingView: View {
             .toolbar {
                 if viewModel.showNewOnboarding, let tangemPayOfferViewModel = viewModel.tangemPayOfferViewModel {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: tangemPayOfferViewModel.termsFeesAndLimits) {
+                        SwiftUI.Button(action: tangemPayOfferViewModel.termsFeesAndLimits) {
                             Assets.Visa.tangemPayOnboardingNewDoc.image
                                 .renderingMode(.template)
                                 .resizable()

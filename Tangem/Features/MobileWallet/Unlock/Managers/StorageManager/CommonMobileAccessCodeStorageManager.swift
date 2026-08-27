@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Security
 import TangemFoundation
 import TangemSdk
 
@@ -38,6 +39,27 @@ final class CommonMobileAccessCodeStorageManager {
             AppLogger.error("Failed to save wrong access code storage", error: error)
         }
     }
+
+    /// Removes every stored wrong-access-code entry and its Secure Enclave key. Matched by prefix
+    /// because the wallet-id list doesn't survive an app reinstall.
+    func clean(genericPasswordAccounts: [String], secureEnclaveKeyTags: [String]) {
+        for account in genericPasswordAccounts where account.hasPrefix(MobileAccessCodeStorageKey.wrongAccessCodePrefix) {
+            do {
+                try secureStorage.delete(account)
+            } catch {
+                AppLogger.error("Failed to delete wrong access code storage", error: error)
+            }
+        }
+
+        for tag in secureEnclaveKeyTags where tag.hasPrefix(MobileAccessCodeStorageKey.wrongAccessCodeSEKeyTagPrefix) {
+            let deleteQuery: [String: Any] = [
+                kSecClass as String: kSecClassKey,
+                kSecAttrApplicationTag as String: tag,
+                kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
+            ]
+            _ = SecItemDelete(deleteQuery as CFDictionary)
+        }
+    }
 }
 
 // MARK: - MobileAccessCodeStorageManager
@@ -67,13 +89,16 @@ extension CommonMobileAccessCodeStorageManager: MobileAccessCodeStorageManager {
 // MARK: - StorageKey
 
 private enum MobileAccessCodeStorageKey {
+    static let wrongAccessCodePrefix = "wrongAccessCode_"
+    static let wrongAccessCodeSEKeyTagPrefix = "wrongAccessCodeSEKeyTag_"
+
     /// Store wrong access code input events.
     static func wrongAccessCode(userWalletId: UserWalletId) -> String {
-        return "wrongAccessCode_\(userWalletId.stringValue)"
+        return wrongAccessCodePrefix + userWalletId.stringValue
     }
 
     /// Secure enclave encryption key
     static func wrongAccessCodeSEKeyTag(userWalletId: UserWalletId) -> String {
-        return "wrongAccessCodeSEKeyTag_\(userWalletId.stringValue)"
+        return wrongAccessCodeSEKeyTagPrefix + userWalletId.stringValue
     }
 }
