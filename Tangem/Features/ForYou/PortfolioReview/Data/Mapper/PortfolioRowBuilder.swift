@@ -20,12 +20,14 @@ struct PortfolioRowBuilder {
     func build(
         topHoldings: [PortfolioReviewAggregator.Group],
         other: [PortfolioReviewAggregator.Group],
+        addressless: [PortfolioReviewAggregator.Group],
         indicators: [String: [TokenSummaryIndicator]],
         timeframe: TokenSummaryIndicator.Timeframe
     ) -> [ForYouTokenListItem] {
         let total = (topHoldings + other).reduce(Decimal.zero) { $0 + $1.amountInFiat }
 
-        var items = topHoldings.map { group in
+        // Addressless assets are concrete rows, so they precede the "Other" summary that closes the list.
+        var items = (topHoldings + addressless).map { group in
             makeAssetItem(
                 group: group,
                 total: total,
