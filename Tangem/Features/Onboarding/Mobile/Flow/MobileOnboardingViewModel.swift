@@ -226,7 +226,7 @@ extension MobileOnboardingViewModel: MobileOnboardingFlowRoutable {
         coordinator?.closeOnboarding()
     }
 
-    func save(credential: WebCredentialUtil.SavedCredential) {
+    func saveBackup(credential: WebCredentialUtil.SavedCredential) {
         runTask {
             do {
                 try await WebCredentialUtil.save(credential)
@@ -234,5 +234,9 @@ extension MobileOnboardingViewModel: MobileOnboardingFlowRoutable {
                 AppLogger.error("Failed to save web credential", error: error)
             }
         }
+    }
+
+    func openBackupStorageUnavailable() {
+        coordinator?.mobileBackupStorageUnavailable()
     }
 }

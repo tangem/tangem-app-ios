@@ -220,7 +220,12 @@ private extension MobileOnboardingICloudBackupViewModel {
 
         } catch {
             logCreationErrorAnalytics(error)
-            return await showErrorAlert(error)
+            switch error {
+            case WalletBackupStorageError.storageUnavailable:
+                await delegate?.onICloudUnavailable()
+            default:
+                await showErrorAlert(error)
+            }
         }
     }
 
