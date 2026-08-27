@@ -9,32 +9,31 @@
 import Foundation
 import TangemUI
 
-/// Turns the selected accounts' wallet models into the Portfolio Review view state: extract → aggregate → build rows.
+/// Turns the selected accounts' stored tokens into the Portfolio Review view state: extract → aggregate → build rows.
 struct PortfolioReviewMapper {
     private let rowBuilder = PortfolioRowBuilder()
 
     func map(
-        walletModels: [any WalletModel],
+        tokenItems: [TokenItemType],
         totalBalance: TotalBalanceState,
         indicators: [String: [TokenSummaryIndicator]],
         timeframe: TokenSummaryIndicator.Timeframe
     ) -> (state: PortfolioReviewViewModel.ViewState, displayedTokenItems: Set<TokenItem>) {
-        let holdings = walletModels.map(makeHolding)
-        let (topHoldings, other) = PortfolioReviewAggregator.aggregate(holdings)
+        let holdings = tokenItems.map(makeHolding)
+        let (topHoldings, other, addressless) = PortfolioReviewAggregator.aggregate(holdings)
         let groups = topHoldings + other
 
         guard !isStillResolving(groups: groups, totalBalance: totalBalance) else {
             return (.loading, [])
         }
 
-        // Resolved with nothing to rank (no tokens / all balances zero) → empty state: NoData chart + the held
-        // tokens listed at $0 (unfiltered), never an endless skeleton.
+        // Nothing to rank (no tokens / all zero / nothing derived) → NoData chart, tokens still listed, no skeleton.
         guard !groups.isEmpty else {
             let reason = emptyChartReason(for: totalBalance)
             let emptyGroups = PortfolioReviewAggregator.aggregateEmpty(holdings)
             return (
                 .content(.init(
-                    tokenList: rowBuilder.build(topHoldings: emptyGroups, other: [], indicators: indicators, timeframe: timeframe),
+                    tokenList: rowBuilder.build(topHoldings: emptyGroups, other: [], addressless: [], indicators: indicators, timeframe: timeframe),
                     periodSegments: ForYouPeriodSegment.all,
                     chart: .noData(reason),
                     showsAddFunds: reason == .noAmount
@@ -45,12 +44,12 @@ struct PortfolioReviewMapper {
 
         return (
             .content(.init(
-                tokenList: rowBuilder.build(topHoldings: topHoldings, other: other, indicators: indicators, timeframe: timeframe),
+                tokenList: rowBuilder.build(topHoldings: topHoldings, other: other, addressless: addressless, indicators: indicators, timeframe: timeframe),
                 periodSegments: ForYouPeriodSegment.all,
                 chart: chart(topHoldings: topHoldings, other: other, totalBalance: totalBalance),
                 showsAddFunds: false
             )),
-            displayedTokenItems(in: groups)
+            displayedTokenItems(in: groups + addressless)
         )
     }
 }
@@ -102,14 +101,36 @@ private extension PortfolioReviewMapper {
         Set(groups.flatMap(\.holdings).map(\.tokenItem))
     }
 
-    func makeHolding(_ walletModel: any WalletModel) -> PortfolioReviewAggregator.TokenHolding {
+    func makeHolding(_ item: TokenItemType) -> PortfolioReviewAggregator.TokenHolding {
+        switch item {
+        case .default(let walletModel): makeDerivedHolding(walletModel)
+        case .withoutDerivation(let tokenItem): makeAddresslessHolding(tokenItem)
+        }
+    }
+
+    /// Nothing is derived yet, so there's no balance to fetch and no rate to apply — only the token's identity is known.
+    func makeAddresslessHolding(_ tokenItem: TokenItem) -> PortfolioReviewAggregator.TokenHolding {
+        PortfolioReviewAggregator.TokenHolding(
+            groupKey: tokenItem.groupKey,
+            networkKey: tokenItem.networkId,
+            networkName: tokenItem.networkName,
+            symbol: tokenItem.currencySymbol,
+            tokenItem: tokenItem,
+            // Only the "not in Tangem's list" half is knowable here; the custom-derivation half needs a derived path.
+            isCustom: tokenItem.id == nil,
+            amountInCrypto: nil,
+            amountInFiat: nil,
+            availability: .noAddress
+        )
+    }
+
+    func makeDerivedHolding(_ walletModel: any WalletModel) -> PortfolioReviewAggregator.TokenHolding {
         let tokenItem = walletModel.tokenItem
         // Total (available + staked), matching the main screen — available-only shrinks staked assets into "Other".
         let fiatBalance = walletModel.fiatTotalTokenBalanceProvider.balanceType
         let availability = Self.availability(for: fiatBalance)
 
         return PortfolioReviewAggregator.TokenHolding(
-            id: walletModel.id.id,
             groupKey: tokenItem.groupKey,
             networkKey: tokenItem.networkId,
             networkName: tokenItem.networkName,
