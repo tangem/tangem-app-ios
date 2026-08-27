@@ -187,14 +187,6 @@ final class AppSettings {
 }
 
 extension AppSettings: TangemPayOrderIdStorage {
-    func cardIssuingOrderId(customerWalletId: String) -> String? {
-        tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId]
-    }
-
-    func saveCardIssuingOrderId(_ orderId: String, customerWalletId: String) {
-        tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = orderId
-    }
-
     func deleteCardIssuingOrderId(customerWalletId: String) {
         tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = nil
     }

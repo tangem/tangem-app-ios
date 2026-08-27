@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 import UIKit
+import SwiftUI
 
 final class TokenDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -141,6 +142,20 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
+    func openTransactionDetails(_ data: TransactionDetailsRouteData) {
+        Task { @MainActor in
+            let viewModel = TransactionDetailsViewModel(
+                id: data.id,
+                walletModel: data.walletModel,
+                userWalletInfo: data.userWalletInfo,
+                isAccountsMode: data.isAccountsMode,
+                routable: self
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openYieldModulePromoView(apy: Decimal, isApyBoostPromo: Bool, factory: YieldModuleFlowFactory) {
         let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModulePromoCoordinator = nil
@@ -309,6 +324,62 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
 
     func dismissPendingTxSheet() {
         pendingExpressTxStatusBottomSheetViewModel = nil
+    }
+}
+
+extension TokenDetailsCoordinator: TransactionDetailsRoutable {
+    /// The sheet is a full-screen overlay, so Safari would open behind it. Pause the sheet while the browser
+    /// is up and resume the same instance on dismiss — the user goes out for extra on-chain detail and comes
+    /// back to the full breakdown that only the sheet has.
+    func openTransactionDetailsURL(_ url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in
+                    self?.floatingSheetPresenter.resumeSheetsDisplaying()
+                },
+                onSuccess: { _ in }
+            )
+        }
+    }
+
+    func shareFromTransactionDetails(_ text: String) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            let controller = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+            controller.completionWithItemsHandler = { [weak self] _, _, _, _ in
+                self?.floatingSheetPresenter.resumeSheetsDisplaying()
+            }
+            AppPresenter.shared.show(controller)
+        }
+    }
+
+    #if INTERNAL || DEBUG
+    func openTransactionDetailsDebug(_ info: TransactionDetailsDebugInfo) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+
+            let viewModel = TransactionDetailsDebugViewModel(info: info)
+            let controller = UIHostingController(rootView: TransactionDetailsDebugView(viewModel: viewModel))
+            controller.modalPresentationStyle = .overFullScreen
+
+            viewModel.onClose = { [weak self, weak controller] in
+                controller?.dismiss(animated: true) {
+                    self?.floatingSheetPresenter.resumeSheetsDisplaying()
+                }
+            }
+
+            AppPresenter.shared.show(controller)
+        }
+    }
+    #endif
+
+    func closeTransactionDetails() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 

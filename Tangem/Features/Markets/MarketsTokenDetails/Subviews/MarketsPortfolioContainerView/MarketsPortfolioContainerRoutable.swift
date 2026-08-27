@@ -23,7 +23,7 @@ protocol MarketsPortfolioContainerRoutable: AnyObject {
     func openMatchedTokenList(
         walletModels: [any WalletModel],
         underivedTokens: [MarketsPortfolioTokenListViewModel.UnderivedToken],
-        iconURL: URL,
+        isTokenAddedEverywhere: Bool,
         addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData,
         walletDataProvider: MarketsWalletDataProvider
     )

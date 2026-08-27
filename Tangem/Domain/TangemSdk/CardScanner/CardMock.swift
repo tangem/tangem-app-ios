@@ -12,6 +12,9 @@ import TangemAccessibilityIdentifiers
 
 enum CardMock: String, CaseIterable {
     case wallet2
+    case wallet3
+    case wallet3NoBackup
+    case wallet3NoWallets
     case wallet
     case twin
     case nodl
@@ -39,6 +42,12 @@ enum CardMock: String, CaseIterable {
         switch self {
         case .wallet2:
             return CardMockAccessibilityIdentifiers.wallet2.rawValue
+        case .wallet3:
+            return CardMockAccessibilityIdentifiers.wallet3.rawValue
+        case .wallet3NoBackup:
+            return CardMockAccessibilityIdentifiers.wallet3NoBackup.rawValue
+        case .wallet3NoWallets:
+            return CardMockAccessibilityIdentifiers.wallet3NoWallets.rawValue
         case .wallet:
             return CardMockAccessibilityIdentifiers.wallet.rawValue
         case .twin:
@@ -126,6 +135,12 @@ enum CardMock: String, CaseIterable {
             return .none
         case .wallet2:
             return .none
+        case .wallet3:
+            return .none
+        case .wallet3NoBackup:
+            return .none
+        case .wallet3NoWallets:
+            return .none
         case .wallet:
             return .none
         case .xlmBird:
@@ -177,6 +192,12 @@ enum CardMock: String, CaseIterable {
             return url(fileName: "visaTestnet")
         case .wallet2:
             return url(fileName: "wallet2")
+        case .wallet3:
+            return url(fileName: "wallet3")
+        case .wallet3NoBackup:
+            return url(fileName: "wallet3NoBackup")
+        case .wallet3NoWallets:
+            return url(fileName: "wallet3NoWallets")
         case .wallet:
             return url(fileName: "wallet")
         case .xlmBird:

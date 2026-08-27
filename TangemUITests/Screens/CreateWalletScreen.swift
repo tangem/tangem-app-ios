@@ -36,7 +36,7 @@ final class CreateWalletScreen: ScreenBase<CreateWalletScreenElement> {
 
             XCTAssertTrue(supplementButton.isHittable)
 
-            if card == .wallet2NoWallets {
+            if card == .wallet2NoWallets || card == .wallet3NoWallets {
                 XCTAssertEqual(mainButton.label, "Create wallet")
 
                 XCTAssertEqual(supplementButton.label, "Other options")

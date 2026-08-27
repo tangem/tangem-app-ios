@@ -3,198 +3,245 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
-import TangemLocalization
 import TangemAssets
 import TangemUI
 
 extension MarketsTokenDetailsView {
     struct DescriptionBlockSkeletons: View {
+        private let lineHeight: CGFloat = 16
+
         var body: some View {
-            VStack(spacing: .zero) {
-                description
-            }
-        }
-
-        private var description: some View {
-            // We need to use here odd value otherwise transition between skeleton and text will be with offset.
-            // We can't specify line height in text but we can adapt skeletons spacing
             VStack(alignment: .leading, spacing: 5) {
-                ForEach(0 ... 1) { _ in
-                    skeletonView(width: .infinity, height: 14)
-                }
-
-                skeletonView(width: .infinity, height: 14)
-                    .padding(.trailing, 72)
+                skeletonLine(trailingInset: 0)
+                skeletonLine(trailingInset: 0)
+                skeletonLine(trailingInset: 72)
             }
         }
 
-        private func skeletonView(width: CGFloat, height: CGFloat) -> some View {
-            SkeletonView()
-                .cornerRadiusContinuous(3)
-                .frame(maxWidth: width, minHeight: height, maxHeight: height)
+        private func skeletonLine(trailingInset: CGFloat) -> some View {
+            Shimmer()
+                .variant(.custom(height: lineHeight))
+                .frame(maxWidth: .infinity)
+                .padding(.trailing, trailingInset)
         }
     }
 
     struct ContentBlockSkeletons: View {
         var body: some View {
-            VStack(spacing: 14) {
-                insights
-
-                securityScore
+            VStack(spacing: Constants.blockSpacing) {
+                if FeatureProvider.isAvailable(.forYou) {
+                    MarketsTokenSummaryPlaceholderView()
+                }
 
                 metrics
 
-                pricePerformance
+                insights
 
                 listedOnExchanges
+
+                news
+
+                securityScore
 
                 links
             }
         }
 
-        private var insights: some View {
-            VStack(spacing: .zero) {
-                skeletonView(width: .infinity, height: 18)
-                    .padding(.bottom, Constants.bottomPaddingTitleConstant)
-
-                ForEach(0 ... 1) { _ in
-                    fillableBlocks
-                }
-            }
-            .defaultRoundedBackground(with: Colors.Background.action)
-        }
-
-        private var securityScore: some View {
-            HStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 2) {
-                    skeletonView(width: 106, height: 16)
-
-                    skeletonView(width: 106, height: 16)
-                }
-
-                Spacer()
-
-                skeletonView(width: 134, height: 20)
-            }
-            .defaultRoundedBackground(with: Colors.Background.action)
-        }
+        // MARK: - Metrics
 
         private var metrics: some View {
-            VStack(spacing: .zero) {
-                skeletonView(width: .infinity, height: 18)
-                    .padding(.bottom, Constants.bottomPaddingTitleConstant)
-
-                ForEach(0 ... 2) { _ in
-                    fillableBlocks
-                }
-            }
-            .defaultRoundedBackground(with: Colors.Background.action)
-        }
-
-        private var pricePerformance: some View {
             VStack(spacing: 12) {
-                skeletonView(width: .infinity, height: 18)
-                    .padding(.bottom, Constants.bottomPaddingTitleConstant)
+                VStack(spacing: 8) {
+                    HStack(spacing: 8) {
+                        metricsCard
+                        metricsCard
+                    }
 
-                HStack {
-                    skeletonView(width: 28, height: 18)
-
-                    Spacer()
-
-                    skeletonView(width: 38, height: 18)
+                    HStack(spacing: 8) {
+                        metricsCard
+                        metricsCard
+                    }
                 }
 
-                skeletonView(width: .infinity, height: 6)
+                circulatingSupplyCard
+            }
+        }
 
-                HStack {
-                    skeletonView(width: 60, height: 21)
+        private var metricsCard: some View {
+            VStack(alignment: .leading, spacing: 24) {
+                skeletonView(width: .infinity, height: 26)
+
+                skeletonView(width: 82, height: 16)
+            }
+            .padding(16)
+            .background(DesignSystem.Color.bgSecondary)
+            .cornerRadiusContinuous(24)
+        }
+
+        private var circulatingSupplyCard: some View {
+            VStack(spacing: 20) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        skeletonView(width: 110, height: 16)
+                        skeletonView(width: 160, height: 28)
+                    }
 
                     Spacer()
 
-                    skeletonView(width: 60, height: 21)
+                    VStack(alignment: .trailing, spacing: 12) {
+                        skeletonView(width: 70, height: 16)
+                        skeletonView(width: 50, height: 28)
+                    }
+                }
+
+                skeletonView(width: .infinity, height: 4)
+            }
+            .roundedBackground(
+                with: DesignSystem.Color.bgSecondary,
+                padding: 16,
+                radius: 24
+            )
+        }
+
+        // MARK: - Insights
+
+        private var insights: some View {
+            VStack(spacing: 24) {
+                HStack(spacing: 4) {
+                    skeletonView(width: 112, height: 24)
+
+                    Spacer()
+
+                    skeletonView(width: 156, height: 36)
+                }
+
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible(), alignment: .topLeading),
+                        GridItem(.flexible(), alignment: .topLeading),
+                    ],
+                    alignment: .leading,
+                    spacing: 16
+                ) {
+                    ForEach(0 ..< 4, id: \.self) { _ in
+                        VStack(alignment: .leading, spacing: 4) {
+                            skeletonView(width: 154, height: 24)
+
+                            skeletonView(width: 78, height: 16)
+                        }
+                    }
                 }
             }
-            .defaultRoundedBackground(with: Colors.Background.action)
+            .roundedBackground(
+                with: DesignSystem.Color.bgSecondary,
+                padding: 16,
+                radius: 24
+            )
         }
+
+        // MARK: - Listed on exchanges
 
         private var listedOnExchanges: some View {
             HStack {
-                VStack(spacing: 8) {
-                    Text(Localization.marketsTokenDetailsListedOn)
-                        .style(Fonts.Bold.footnote.weight(.semibold), color: Colors.Text.tertiary)
-
-                    skeletonView(width: 82, height: 20)
+                VStack(alignment: .leading, spacing: 4) {
+                    skeletonView(width: 112, height: 24)
+                    skeletonView(width: 75, height: 16)
                 }
 
                 Spacer()
             }
-            .defaultRoundedBackground(with: Colors.Background.action)
+            .roundedBackground(
+                with: DesignSystem.Color.bgSecondary,
+                padding: 16,
+                radius: 24
+            )
         }
+
+        // MARK: - News
+
+        private var news: some View {
+            VStack(alignment: .leading, spacing: 12) {
+                skeletonView(width: 120, height: 24)
+                    .padding(.horizontal, 8)
+
+                MarketsCarouselNewsSkeletonView()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 16)
+        }
+
+        // MARK: - Security score
+
+        private var securityScore: some View {
+            HStack(alignment: .top) {
+                makeScoreColumn(alignment: .leading)
+
+                Spacer()
+
+                makeScoreColumn(alignment: .trailing)
+            }
+            .padding(.vertical, 20)
+            .padding(.horizontal, 16)
+            .background(DesignSystem.Color.bgSecondary)
+            .cornerRadiusContinuous(24)
+            .padding(.vertical, 20)
+        }
+
+        private func makeScoreColumn(alignment: HorizontalAlignment) -> some View {
+            VStack(alignment: alignment, spacing: 8) {
+                skeletonView(width: 115, height: 36)
+
+                skeletonView(width: 84, height: 16)
+            }
+        }
+
+        // MARK: - Links
 
         private var links: some View {
-            VStack(alignment: .leading, spacing: 12) {
-                skeletonView(width: .infinity, height: 18)
-                    .padding(.horizontal, 14)
-                    .padding(.bottom, Constants.bottomPaddingTitleConstant)
+            VStack(alignment: .leading, spacing: 16) {
+                skeletonView(width: 64, height: 20)
+                    .padding(.top, 24)
 
-                ForEach(0 ... 2) { index in
-                    VStack(alignment: .leading, spacing: 12) {
-                        skeletonView(width: 74, height: 18)
-                            .padding(.horizontal, 16)
-
-                        HStack(spacing: 12) {
-                            ForEach(0 ... 2) { _ in
-                                SkeletonView()
-                                    .frame(maxWidth: .infinity, minHeight: 28, maxHeight: 28)
-                                    .cornerRadiusContinuous(14)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-
-                        if index != 2 {
-                            Separator(height: .minimal, color: Colors.Stroke.primary)
-                                .padding(.leading, 16)
-                        }
-                    }
+                HStack(spacing: 8) {
+                    skeletonView(width: 148, height: 36)
+                    skeletonView(width: 110, height: 36)
                 }
             }
-            .defaultRoundedBackground(with: Colors.Background.action, horizontalPadding: 0)
+            .padding(.bottom, 8)
         }
 
-        private var fillableBlocks: some View {
-            HStack(spacing: 12) {
-                ForEach(0 ... 1) { _ in
-                    VStack(alignment: .leading, spacing: 4) {
-                        skeletonView(width: .infinity, height: 18)
-
-                        skeletonView(width: 70, height: 21)
-                    }
-                }
-            }
-            .padding(.top, 10)
-        }
+        // MARK: - Helpers
 
         private func skeletonView(width: CGFloat, height: CGFloat) -> some View {
-            SkeletonView()
-                .cornerRadiusContinuous(3)
-                .frame(maxWidth: width, minHeight: height, maxHeight: height)
+            Shimmer()
+                .variant(.custom(height: height))
+                .frame(idealWidth: width == .infinity ? nil : width, maxWidth: width)
         }
     }
 }
 
-extension MarketsTokenDetailsView.ContentBlockSkeletons {
+// MARK: - Constants
+
+private extension MarketsTokenDetailsView.ContentBlockSkeletons {
     enum Constants {
-        static let bottomPaddingTitleConstant: CGFloat = 8
+        static let blockSpacing: CGFloat = 8
     }
 }
+
+// MARK: - Previews
 
 #Preview {
     ScrollView {
-        MarketsTokenDetailsView.ContentBlockSkeletons()
+        VStack(spacing: 16) {
+            MarketsTokenDetailsView.DescriptionBlockSkeletons()
+
+            MarketsTokenDetailsView.ContentBlockSkeletons()
+        }
+        .padding(.horizontal, 16)
     }
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }

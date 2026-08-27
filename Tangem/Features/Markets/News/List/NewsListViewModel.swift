@@ -21,7 +21,7 @@ final class NewsListViewModel: MarketsBaseViewModel {
     @Published var selectedCategoryId: Int?
     @Published private(set) var loadingState: LoadingState = .idle
 
-    let presentSource: MarketsNavigationBackButton.PresentSource
+    let presentSource: MarketsNavigationPresentSource
 
     // MARK: - Private Properties
 
@@ -39,7 +39,7 @@ final class NewsListViewModel: MarketsBaseViewModel {
         dataProvider: NewsDataProvider,
         coordinator: NewsListRoutable? = nil,
         incomingCategoryId: Int? = nil,
-        presentSource: MarketsNavigationBackButton.PresentSource = .navigation
+        presentSource: MarketsNavigationPresentSource = .navigation
     ) {
         self.dataProvider = dataProvider
         self.coordinator = coordinator

@@ -47,7 +47,7 @@ struct MarketsNavigationBarBackgroundView<Overlay>: View where Overlay: View {
     }
 
     private var listOverlaySeparator: some View {
-        Separator(height: .minimal, color: Colors.Stroke.primary)
+        Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
             .visible(isListContentObscured)
     }
 }

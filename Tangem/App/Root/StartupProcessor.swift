@@ -33,7 +33,7 @@ class StartupProcessor {
             return .launchScreen
         }
 
-        if BackupHelper().hasIncompletedBackup {
+        if IncompleteBackupHelper().hasIncompleteBackup {
             return .uncompletedBackup
         }
 

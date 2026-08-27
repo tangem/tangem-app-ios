@@ -15,15 +15,19 @@ import TangemFoundation
 final class CommonTokenFeeProvidersManager {
     private let feeProviders: [any TokenFeeProvider]
     private let initialSelectedProvider: any TokenFeeProvider
+    /// The wallet's own address; provider-built transactions (Tron DEX) are validated against it — `nil` skips the check.
+    private let ownerAddress: String?
 
     private let selectedProviderSubject: CurrentValueSubject<any TokenFeeProvider, Never>
 
     init(
         feeProviders: [any TokenFeeProvider],
-        initialSelectedProvider: any TokenFeeProvider
+        initialSelectedProvider: any TokenFeeProvider,
+        ownerAddress: String?
     ) {
         self.feeProviders = feeProviders
         self.initialSelectedProvider = initialSelectedProvider
+        self.ownerAddress = ownerAddress
 
         selectedProviderSubject = .init(initialSelectedProvider)
     }
@@ -112,6 +116,10 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
 // MARK: - ExpressFeeProvider
 
 extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
+    var supportsGasBasedFeeEstimate: Bool {
+        selectedFeeProvider.feeTokenItem.blockchain.isEvm
+    }
+
     func feeCurrency() -> ExpressWalletCurrency {
         selectedFeeProvider.feeTokenItem.expressCurrency
     }
@@ -187,7 +195,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
             return fee
 
-        case (.dex(let data), .bitcoin):
+        case (.dex(let data), _) where blockchain.isPsbtDexSwapSupported:
             guard let psbtBase64 = data.txData else {
                 throw ExpressProviderError.transactionDataNotFound
             }
@@ -198,12 +206,42 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
             return fee
 
+        case (.dex(let data), .tron):
+            let transaction = try TronDEXTransactionMapper(blockchain: blockchain)
+                .map(data: data, expectedOwner: ownerAddress)
+
+            let request = switch transaction {
+            case .contractCall(let call):
+                TronFeeRequestData(
+                    amount: BSDKAmount(with: blockchain, type: .coin, value: call.callValue),
+                    destination: call.contractAddress,
+                    callData: call.callData,
+                    memo: call.memo,
+                    otherNativeFee: data.otherNativeFee
+                )
+            case .transfer(let transfer):
+                TronFeeRequestData(
+                    amount: BSDKAmount(with: blockchain, type: .coin, value: transfer.amount),
+                    destination: transfer.destinationAddress,
+                    callData: nil,
+                    memo: transfer.memo,
+                    otherNativeFee: data.otherNativeFee
+                )
+            }
+
+            update(input: .dex(.tron(request: request)))
+
+            await updateFees().value
+            let fee = try selectedFeeProvider.selectedTokenFee.value.get()
+
+            return fee
+
         case (.dex(let data), _):
             guard let txData = data.txData.map(Data.init(hexString:)) else {
                 throw ExpressProviderError.transactionDataNotFound
             }
 
-            // The `txValue` is always is coin
+            // The `txValue` is always in coin
             let amount = BSDKAmount(with: blockchain, type: .coin, value: data.txValue)
             update(input: .dex(.ethereum(
                 amount: amount,
@@ -231,7 +269,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
             throw ExpressProviderError.transactionDataNotFound
         }
 
-        // The `txValue` is always coin
+        // The `txValue` is always in coin
         let amount = BSDKAmount(with: blockchain, type: .coin, value: dexData.txValue)
 
         update(input: .approveWithSwap(

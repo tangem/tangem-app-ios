@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsSearchResultListOverlayView: View {
     @Binding var titleOpacity: CGFloat
@@ -17,7 +18,7 @@ struct MarketsSearchResultListOverlayView: View {
 
     var body: some View {
         Text(Localization.marketsSearchResultTitle)
-            .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+            .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
             .opacity(titleOpacity)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, Layout.listOverlayTopInset)

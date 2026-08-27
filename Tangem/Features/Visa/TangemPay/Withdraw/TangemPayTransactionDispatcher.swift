@@ -12,13 +12,17 @@ import TangemVisa
 
 struct TangemPayTransactionDispatcher {
     let withdrawTransactionService: TangemPayWithdrawTransactionService
-    let hasNFCInteraction: Bool
+    let signerFactory: TangemSignerFactory
     let walletPublicKey: Wallet.PublicKey?
 }
 
 // MARK: - TransactionDispatcher
 
 extension TangemPayTransactionDispatcher: TransactionDispatcher {
+    var hasNFCInteraction: Bool {
+        signerFactory.makeSigner().hasNFCInteraction
+    }
+
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         switch transaction {
         case .transfer(let transaction):

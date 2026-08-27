@@ -120,6 +120,7 @@ private extension TangemPayTransactionDetailsView {
 
             VStack(spacing: 12) {
                 redesignedIcon(model.icon)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsIcon)
 
                 VStack(spacing: 8) {
                     SensitiveText(model.amount)
@@ -150,7 +151,7 @@ private extension TangemPayTransactionDetailsView {
             .padding(.top, 48)
             .padding(.bottom, 8)
 
-            TangemButtonV2(
+            TangemUI.Button(
                 label: AttributedString(model.mainButtonAction.title),
                 accessibilityLabel: model.mainButtonAction.title,
                 action: viewModel.userDidTapMainButton
@@ -176,13 +177,14 @@ private extension TangemPayTransactionDetailsView {
 
                 Text(subtitle)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsDate)
             }
             .multilineTextAlignment(.center)
 
             HStack(spacing: 0) {
                 Spacer(minLength: 0)
 
-                TangemButtonV2(
+                TangemUI.Button(
                     icon: DesignSystem.Icons.Cross.regular20,
                     accessibilityLabel: Localization.commonClose,
                     action: viewModel.userDidTapClose
@@ -229,7 +231,7 @@ private extension TangemPayTransactionDetailsView {
     func redesignedRows(_ rows: [TangemPayTransactionDetailsDisplayModel.Row]) -> some View {
         VStack(spacing: 0) {
             ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
-                TangemRow(title: row.title, value: row.value)
+                Row(title: row.title, value: row.value)
                     .showDivider(rows.count == 1 || index < rows.count - 1)
                     .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
             }
@@ -241,7 +243,7 @@ private extension TangemPayTransactionDetailsView {
         if let cardRow = viewModel.cardRow {
             switch cardRow {
             case .loading:
-                TangemRow(title: Localization.tangempayCommonCard)
+                Row(title: Localization.tangempayCommonCard)
                     .verticalAlignment(.top)
                     .valueAccessory {
                         cardShimmerLine(width: 157, token: DesignSystem.Font.bodyMediumToken)
@@ -251,7 +253,7 @@ private extension TangemPayTransactionDetailsView {
                     }
                     .showDivider()
             case .loaded(let cardNumberEnd, let cardName):
-                TangemRow(
+                Row(
                     title: Localization.tangempayCommonCard,
                     value: "*" + cardNumberEnd,
                     subvalue: cardName
@@ -260,7 +262,7 @@ private extension TangemPayTransactionDetailsView {
                 .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
                 .showDivider()
             case .failed:
-                TangemRow(title: Localization.tangempayCommonCard)
+                Row(title: Localization.tangempayCommonCard)
                     .valueAccessory {
                         Button(action: viewModel.retryCardLoad) {
                             HStack(spacing: 4) {

@@ -15,7 +15,7 @@ final class TangemPayBuilder {
 
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
-    private let signer: any TangemSigner
+    private let signerFactory: TangemSignerFactory
 
     private var customerWalletId: String {
         userWalletId.stringValue
@@ -31,8 +31,7 @@ final class TangemPayBuilder {
     private lazy var enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
         customerWalletId: customerWalletId,
         availabilityService: availabilityService,
-        customerService: customerService,
-        tiersEnabled: FeatureProvider.isAvailable(.tangemPayTiers)
+        customerService: customerService
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
@@ -49,12 +48,12 @@ final class TangemPayBuilder {
     private lazy var withdrawTransactionService = CommonTangemPayWithdrawTransactionService(
         customerInfoManagementService: customerService,
         fiatItem: TangemPayUtilities.fiatItem,
-        signer: signer
+        signerFactory: signerFactory
     )
 
     private lazy var transactionDispatcher = tangemPayAssembly.makeTransactionDispatcher(
         withdrawTransactionService: withdrawTransactionService,
-        hasNFCInteraction: signer.hasNFCInteraction,
+        signerFactory: signerFactory,
         walletPublicKey: TangemPayUtilities.getKey(from: keysRepository)
     )
 
@@ -74,11 +73,11 @@ final class TangemPayBuilder {
     init(
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
-        signer: any TangemSigner
+        signerFactory: TangemSignerFactory
     ) {
         self.userWalletId = userWalletId
         self.keysRepository = keysRepository
-        self.signer = signer
+        self.signerFactory = signerFactory
     }
 
     func buildTangemPayManager() -> TangemPayManager {
