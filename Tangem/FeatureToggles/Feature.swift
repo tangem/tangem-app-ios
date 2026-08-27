@@ -45,6 +45,7 @@ enum Feature: String, Hashable, CaseIterable {
     case gachaMachine
     case openTelemetryMetrics
     case expressGeoRestrictions
+    case tangemPayOfframp
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -86,6 +87,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .gachaMachine: return "TWI-1640_gacha_machine"
         case .openTelemetryMetrics: return "TWI-1627_opentelemetry_metrics_mirroring"
         case .expressGeoRestrictions: return "[REDACTED_INFO]_express_geo_restrictions"
+        case .tangemPayOfframp: return "TWI-1632_tangem_pay_offramp"
         }
     }
 
@@ -127,6 +129,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .gachaMachine: return .unspecified
         case .openTelemetryMetrics: return .unspecified
         case .expressGeoRestrictions: return .unspecified
+        case .tangemPayOfframp: return .version("6.4")
         }
     }
 }
