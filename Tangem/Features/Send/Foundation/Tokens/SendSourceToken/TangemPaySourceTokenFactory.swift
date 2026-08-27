@@ -50,6 +50,7 @@ struct TangemPaySourceTokenFactory {
             fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
             allowanceService: nil,
             withdrawalNotificationProvider: nil,
+            scaledUIAmountMultiplierResolver: nil,
             emailDataCollectorBuilder: emailDataCollectorBuilder,
             transactionDispatcherProvider: transactionDispatcherProvider,
             accountModelAnalyticsProvider: nil,

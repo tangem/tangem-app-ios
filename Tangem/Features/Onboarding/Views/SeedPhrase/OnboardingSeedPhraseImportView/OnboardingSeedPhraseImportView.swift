@@ -111,7 +111,7 @@ struct OnboardingSeedPhraseImportView: View {
                 Text(Localization.commonPassphrase)
                     .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
-                Button(action: viewModel.openPassphraseInfo, label: {
+                SwiftUI.Button(action: viewModel.openPassphraseInfo, label: {
                     Assets.infoCircle20.image
                         .foregroundStyle(Colors.Icon.informative)
                         .padding(.horizontal, 4)

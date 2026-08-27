@@ -16,7 +16,7 @@ final class TopMarketWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Published private(set) var isFirstLoading: Bool = true
-    @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderView.LoadingState = .first
+    @Published private(set) var headerLoadingState: MarketsCommonWidgetHeaderLoadingState = .first
     @Published private(set) var tokenViewModelsState: LoadingResult<[MarketTokenItemViewModel], Error> = .loading
 
     // MARK: - Properties

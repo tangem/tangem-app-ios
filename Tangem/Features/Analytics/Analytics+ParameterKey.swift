@@ -72,6 +72,7 @@ extension Analytics {
         case validation = "Validation"
         case memo = "Memo"
         case walletsCount = "Wallets Count"
+        case wallets = "Wallets"
         case walletHasBackup = "Backuped"
         case walletType = "Wallet Type"
         case exceptionHost = "exception_host"
@@ -207,5 +208,9 @@ extension Analytics {
         // MARK: - Tangem Pay Virtual Account
 
         case field = "Field"
+
+        // MARK: - For You
+
+        case info = "Info"
     }
 }

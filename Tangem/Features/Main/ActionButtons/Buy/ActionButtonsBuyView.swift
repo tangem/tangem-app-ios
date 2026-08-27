@@ -44,7 +44,7 @@ struct ActionButtonsBuyView: View {
             },
             additionalContent: {
                 if let pulseMarketWidgetViewModel = viewModel.pulseMarketWidgetViewModel {
-                    PulseMarketWidgetViewRedesign(
+                    PulseMarketWidgetView(
                         viewModel: pulseMarketWidgetViewModel,
                         showsSeeAllButton: false
                     )

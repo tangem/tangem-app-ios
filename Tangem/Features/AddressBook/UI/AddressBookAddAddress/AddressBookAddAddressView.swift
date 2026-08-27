@@ -77,7 +77,7 @@ struct AddressBookAddAddressView: View {
 
             if case .resolved = viewModel.addressNetworksType {
                 GroupedSection(viewModel.addressNetworksType) { networks in
-                    TangemRow(title: Localization.commonNetwork)
+                    Row(title: Localization.commonNetwork)
                         .end { makeNetworksValue(networks: networks) }
                         .if(networks.isEditable) { $0.onTap(viewModel.userDidRequestNetworksChange) }
                 }

@@ -36,14 +36,14 @@ private extension AddressBooksLoadingView {
 struct AddressBookContactSkeletonView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            TangemShimmer()
+            Shimmer()
                 .variant(.custom(width: 40, height: 40))
 
             VStack(alignment: .leading, spacing: 4) {
-                TangemShimmer()
+                Shimmer()
                     .variant(.custom(width: 143, height: 16))
 
-                TangemShimmer()
+                Shimmer()
                     .variant(.custom(width: 86, height: 12))
             }
         }

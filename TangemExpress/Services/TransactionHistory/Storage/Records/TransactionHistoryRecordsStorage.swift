@@ -11,8 +11,7 @@ import Foundation
 public protocol TransactionHistoryRecordsStorage<Record>: Sendable {
     associatedtype Record: TransactionHistoryRecord
 
-    var records: [Record] { get async }
-    var recordsUpdates: AsyncStream<[Record]> { get }
+    func recordsUpdates(for currency: ExpressCurrency) -> AsyncStream<[Record]>
 
     func updateOrAppend(_ records: [Record]) async throws
     func clear() async throws

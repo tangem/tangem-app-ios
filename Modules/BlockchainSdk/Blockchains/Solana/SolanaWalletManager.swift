@@ -203,7 +203,7 @@ extension SolanaWalletManager: TransactionSender {
             return makeRawTokenAmount(amount: amount, token: token, multiplier: nil)
         }
 
-        return networkService.getScaledUiAmountMultiplier(
+        return networkService.getScaledUIAmountMultiplier(
             mintAddress: token.contractAddress,
             transactionDate: Date()
         )
@@ -234,22 +234,7 @@ extension SolanaWalletManager: TransactionSender {
         token: Token,
         multiplier: Decimal?
     ) throws -> UInt64 {
-        let normalizedAmount: Decimal
-
-        if let multiplier {
-            guard multiplier > 0 else {
-                throw BlockchainSdkError.failedToBuildTx
-            }
-
-            if multiplier == 1 {
-                normalizedAmount = amount
-            } else {
-                normalizedAmount = amount / multiplier
-            }
-        } else {
-            normalizedAmount = amount
-        }
-
+        let normalizedAmount = try ScaledUIAmount.unscale(displayed: amount, by: multiplier)
         let rawAmount = (normalizedAmount * token.decimalValue).rounded(scale: 0, roundingMode: .down)
         guard rawAmount >= 0, rawAmount <= Decimal(UInt64.max) else {
             throw BlockchainSdkError.failedToBuildTx
@@ -427,5 +412,21 @@ extension SolanaWalletManager: CompiledTransactionSender, CompiledTransactionFee
 extension SolanaWalletManager: MinimalBalanceProvider {
     func minimalBalance() -> Decimal {
         minimalAmountForRentExemption.value
+    }
+}
+
+extension SolanaWalletManager: ScaledUIAmountProvider {
+    func fetchMultiplier(contractAddress: String) async throws -> Decimal? {
+        let tokenProgramId = try await networkService.tokenProgramId(contractAddress: contractAddress).async()
+
+        guard tokenProgramId == .token2022ProgramId else {
+            return nil
+        }
+
+        return try await networkService.getScaledUIAmountMultiplier(
+            mintAddress: contractAddress,
+            transactionDate: Date()
+        )
+        .async()
     }
 }

@@ -15,7 +15,7 @@ struct TangemBadgeV2DemoView: View {
     @ObservedObject var viewModel: TangemBadgeV2DemoViewModel
 
     var body: some View {
-        TangemBadgeV2Showcase()
-            .navigationBarTitle(Text("TangemBadgeV2"))
+        BadgeShowcase()
+            .navigationBarTitle(Text("Badge"))
     }
 }
