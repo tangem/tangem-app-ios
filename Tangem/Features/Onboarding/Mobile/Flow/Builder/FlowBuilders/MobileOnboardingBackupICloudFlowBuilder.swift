@@ -127,7 +127,7 @@ private extension MobileOnboardingBackupICloudFlowBuilder {
 private extension MobileOnboardingBackupICloudFlowBuilder {
     func saveCredentialIfNeeded() {
         if let savedCredential {
-            coordinator?.save(credential: savedCredential)
+            coordinator?.saveBackup(credential: savedCredential)
             self.savedCredential = nil
         }
     }
@@ -140,6 +140,10 @@ extension MobileOnboardingBackupICloudFlowBuilder: MobileOnboardingICloudBackupD
         self.savedCredential = savedCredential
         logBackupCompletedScreenOpenedAnalytics()
         openNext()
+    }
+
+    func onICloudUnavailable() {
+        coordinator?.openBackupStorageUnavailable()
     }
 
     func onICloudBackupClose() {

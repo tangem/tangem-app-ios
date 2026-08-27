@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemVisa
 
 final class OnboardingCoordinator: CoordinatorObject {
@@ -15,6 +16,7 @@ final class OnboardingCoordinator: CoordinatorObject {
 
     // MARK: - Dependencies
 
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
 
@@ -152,6 +154,21 @@ extension OnboardingCoordinator: VisaOnboardingRoutable {}
 extension OnboardingCoordinator: MobileOnboardingRoutable {
     func mobileOnboardingDidComplete() {
         dismiss(with: .dismiss(isSuccessful: true))
+    }
+
+    func mobileBackupStorageUnavailable() {
+        let viewModel = MobileBackupStorageUnavailableViewModel(coordinator: self)
+        runTask(in: self) { @MainActor coordinator in
+            coordinator.floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - MobileBackupStorageUnavailableRoutable
+
+extension OnboardingCoordinator: MobileBackupStorageUnavailableRoutable {
+    func dismissMobileBackupStorageUnavailable() {
+        floatingSheetPresenter.removeActiveSheet()
     }
 }
 
