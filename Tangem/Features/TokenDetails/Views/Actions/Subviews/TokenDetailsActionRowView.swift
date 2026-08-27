@@ -29,7 +29,7 @@ struct TokenDetailsActionRowView: View {
     }
 
     var body: some View {
-        Button(action: item.action) {
+        SwiftUI.Button(action: item.action) {
             TangemTwoLineRowLayout(
                 icon: { iconView },
                 primaryLeading: { titleView },

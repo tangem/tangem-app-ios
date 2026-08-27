@@ -324,8 +324,8 @@ private extension AppSettingsViewModel {
 
     func setRequireAccessCodes(_ requireAccessCodes: Bool) {
         if requireAccessCodes {
-            let accessCodeRepository = AccessCodeRepository()
-            accessCodeRepository.clear()
+            AccessCodeRepository().clear()
+            CardAccessTokensRepository().clear()
 
             clearBiometricsForMobileWallets()
 
