@@ -55,7 +55,7 @@ struct UnreadNotificationBadgeViewModifier: ViewModifier {
 #Preview(traits: .sizeThatFitsLayout) {
     @Previewable @State var showBadge = true
 
-    Button("Button with badge") {
+    SwiftUI.Button("Button with badge") {
         showBadge.toggle()
     }
     .buttonStyle(.borderedProminent)

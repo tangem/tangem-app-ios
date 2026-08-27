@@ -65,8 +65,11 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     }
             }
-            .floatingSheetContent(for: TransactionNotificationsModalViewModel.self) {
-                TransactionNotificationsModalView(viewModel: $0)
+            .floatingSheetContent(for: AddAccountTypeSelectorViewModel.self) {
+                AddAccountTypeSelectorView(viewModel: $0)
+            }
+            .fullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
+                JointAccountManagementCoordinatorView(coordinator: $0)
             }
             .floatingSheetContent(for: MobileBackupNeededViewModel.self) {
                 MobileBackupNeededView(viewModel: $0)

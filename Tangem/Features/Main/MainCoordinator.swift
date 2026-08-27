@@ -443,15 +443,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         hardwareBackupTypesCoordinator = coordinator
     }
 
-    func openTangemPayIssuingYourCardPopup() {
-        Task { @MainActor in
-            let viewModel = TangemPayYourCardIsIssuingSheetViewModel(
-                coordinator: self
-            )
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
     func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
         Task { @MainActor in
             let viewModel = TangemPayKYCStatusPopupViewModel(
@@ -867,14 +858,6 @@ extension MainCoordinator: VisaWalletRoutable {
 }
 
 extension MainCoordinator: VisaTransactionDetailsRouter {}
-
-extension MainCoordinator: TangemPayYourCardIsIssuingRoutable {
-    func closeYourCardIsIssuingSheet() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
-    }
-}
 
 extension MainCoordinator: TangemPayFailedToIssueCardRoutable {
     func closeFailedToIssueCardSheet() {

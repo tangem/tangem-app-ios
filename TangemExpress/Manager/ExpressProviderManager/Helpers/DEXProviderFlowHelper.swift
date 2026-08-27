@@ -121,7 +121,7 @@ extension DEXProviderFlowHelper {
                 case .enoughAllowance:
                     break
                 case .permissionRequired(let data):
-                    if let owner = pair.source.address {
+                    if let owner = pair.source.address, pair.source.allowanceProvider?.supportsOneTapApprove == true {
                         return .dexApproveFlowState(
                             .init(
                                 provider: provider,
@@ -236,7 +236,7 @@ extension DEXProviderFlowHelper {
     func estimateFee(sourceAmount: Decimal, data: ExpressTransactionData) async throws -> ExpressRestriction {
         let otherNativeFee = data.otherNativeFee ?? 0
 
-        if let estimatedGasLimit = data.estimatedGasLimit {
+        if let estimatedGasLimit = data.estimatedGasLimit, expressFeeProvider.supportsGasBasedFeeEstimate {
             let estimateFee = try await expressFeeProvider.estimatedFee(
                 estimatedGasLimit: estimatedGasLimit,
                 otherNativeFee: otherNativeFee

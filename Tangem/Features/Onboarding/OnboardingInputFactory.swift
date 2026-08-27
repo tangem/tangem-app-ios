@@ -12,6 +12,7 @@ import TangemFoundation
 
 class OnboardingInputFactory {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+    @Injected(\.walletCardsBackupReportService) private var reportService: WalletCardsBackupReportService
 
     private let sdkFactory: TangemSdkFactory & BackupServiceFactory
     private let onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
@@ -29,6 +30,7 @@ class OnboardingInputFactory {
 
         if let primaryCard = cardInfo.primaryCard {
             backupService.setPrimaryCard(primaryCard)
+            reportService.reportPrimaryCard(cardInfo: cardInfo)
         }
 
         let factory = PushNotificationsHelpersFactory()
@@ -62,6 +64,7 @@ class OnboardingInputFactory {
 
         if let primaryCard = cardInfo.primaryCard {
             backupService.setPrimaryCard(primaryCard)
+            reportService.reportPrimaryCard(cardInfo: cardInfo)
         }
 
         let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(

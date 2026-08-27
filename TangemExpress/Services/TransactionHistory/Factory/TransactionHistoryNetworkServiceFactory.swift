@@ -11,13 +11,25 @@ import Foundation
 public enum TransactionHistoryNetworkServiceFactory {
     public static func makeExchangeService(
         apiProvider: ExpressAPIProvider,
+        syncMetadataStorage: TransactionHistorySyncMetadataStorage,
         walletAddress: String,
         pageSize: Int
     ) -> any TransactionHistoryNetworkService<ExchangeTransaction> {
-        CommonTransactionHistoryNetworkService(
+        let initialCursorStorageAdapter = TransactionHistorySyncMetadataCursorStorageAdapter(
+            metadataStorage: syncMetadataStorage,
+            branch: .swap,
+            cursorKind: .initialSync
+        )
+        let deltaCursorStorageAdapter = TransactionHistorySyncMetadataCursorStorageAdapter(
+            metadataStorage: syncMetadataStorage,
+            branch: .swap,
+            cursorKind: .deltaSync
+        )
+
+        return CommonTransactionHistoryNetworkService(
             apiProvider: apiProvider,
-            initialCursorStorage: InMemoryTransactionHistoryCursorStorage(),
-            deltaCursorStorage: InMemoryTransactionHistoryCursorStorage(),
+            initialCursorStorage: initialCursorStorageAdapter,
+            deltaCursorStorage: deltaCursorStorageAdapter,
             initialPageFetcher: { apiProvider, cursor in
                 try await apiProvider.exchangeHistory(
                     item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
@@ -33,13 +45,25 @@ public enum TransactionHistoryNetworkServiceFactory {
 
     public static func makeOnrampService(
         apiProvider: ExpressAPIProvider,
+        syncMetadataStorage: TransactionHistorySyncMetadataStorage,
         walletAddress: String,
         pageSize: Int
     ) -> any TransactionHistoryNetworkService<OnrampTransaction> {
-        CommonTransactionHistoryNetworkService(
+        let initialCursorStorageAdapter = TransactionHistorySyncMetadataCursorStorageAdapter(
+            metadataStorage: syncMetadataStorage,
+            branch: .onramp,
+            cursorKind: .initialSync
+        )
+        let deltaCursorStorageAdapter = TransactionHistorySyncMetadataCursorStorageAdapter(
+            metadataStorage: syncMetadataStorage,
+            branch: .onramp,
+            cursorKind: .deltaSync
+        )
+
+        return CommonTransactionHistoryNetworkService(
             apiProvider: apiProvider,
-            initialCursorStorage: InMemoryTransactionHistoryCursorStorage(),
-            deltaCursorStorage: InMemoryTransactionHistoryCursorStorage(),
+            initialCursorStorage: initialCursorStorageAdapter,
+            deltaCursorStorage: deltaCursorStorageAdapter,
             initialPageFetcher: { apiProvider, cursor in
                 try await apiProvider.onrampHistory(
                     item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)

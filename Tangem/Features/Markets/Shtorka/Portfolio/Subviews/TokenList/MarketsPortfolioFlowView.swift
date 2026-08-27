@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct MarketsPortfolioFlowView: View {
@@ -27,7 +28,7 @@ struct MarketsPortfolioFlowView: View {
         .floatingSheetConfiguration { configuration in
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .consumeTouches
-            configuration.sheetBackgroundColor = Color.Tangem.Surface.level2
+            configuration.sheetBackgroundColor = DesignSystem.Color.bgPrimary
         }
     }
 }
