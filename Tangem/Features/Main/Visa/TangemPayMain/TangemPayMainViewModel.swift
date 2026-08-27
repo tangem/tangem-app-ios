@@ -35,7 +35,7 @@ final class TangemPayMainViewModel: ObservableObject {
             async let customerInfoUpdate: Void = tangemPayAccount.loadCustomerInfo()
             async let offersUpdate: Void = tangemPayAccount.loadOffers()
             async let resumePolling: Void = tangemPayAccount.resumeActiveIssueOrderPolling()
-            async let eligibilityUpdate: Void = loadVirtualAccountEligibility()
+            async let eligibilityUpdate: Void = loadEligibility()
             async let cashbackUpdate: Void = loadCashbackSummaryIfAvailable()
             _ = await (
                 stateRefresh,
@@ -224,8 +224,9 @@ final class TangemPayMainViewModel: ObservableObject {
     private let expressStatusPollingHelper: ExpressStatusPollingHelper
     private let promotionNotificationsManager: PromotionNotificationsManager
 
-    private let isEligibleForVirtualAccountSubject = CurrentValueSubject<Bool, Never>(false)
-
+    /// `nil` until the first successful load, which lets a tap that arrives early await it instead of
+    /// silently taking the ineligible path.
+    private let eligibleChannelsSubject = CurrentValueSubject<[TangemPayDistributionChannel]?, Never>(nil)
     private var nextViewOpeningTask: Task<Void, Error>?
     private var bag = Set<AnyCancellable>()
 
@@ -301,16 +302,41 @@ final class TangemPayMainViewModel: ObservableObject {
         }
 
         // Eligibility only gates issuing a brand-new VA. An already-issued one stays reachable.
-        return tangemPayAccount.hasVirtualAccount || isEligibleForVirtualAccountSubject.value
+        return tangemPayAccount.hasVirtualAccount || isEligibleForVirtualAccount
+    }
+
+    private var isEligibleForVirtualAccount: Bool {
+        isEligible(for: .visaVirtualAccount)
+    }
+
+    private var isEligibleForVirtualAccountPublisher: some Publisher<Bool, Never> {
+        eligibleChannelsSubject.map { $0?.contains(.visaVirtualAccount) ?? false }
+    }
+
+    private func isEligible(for channel: TangemPayDistributionChannel) -> Bool {
+        eligibleChannelsSubject.value?.contains(channel) ?? false
     }
 
     @MainActor
-    private func loadVirtualAccountEligibility() async {
+    private func isOfframpHubAvailable() async -> Bool {
+        guard FeatureProvider.isAvailable(.tangemPayOfframp) else {
+            return false
+        }
+
+        if eligibleChannelsSubject.value == nil {
+            await loadEligibility()
+        }
+
+        return isEligible(for: .bankOfframp)
+    }
+
+    @MainActor
+    private func loadEligibility() async {
         do {
             let channels = try await tangemPayAccount.customerService.loadEligibility().channels
-            isEligibleForVirtualAccountSubject.send(channels.contains(.visaVirtualAccount))
+            eligibleChannelsSubject.send(channels)
         } catch {
-            VisaLogger.error("Failed to load virtual account eligibility", error: error)
+            VisaLogger.error("Failed to load Tangem Pay eligibility", error: error)
         }
     }
 
@@ -319,7 +345,7 @@ final class TangemPayMainViewModel: ObservableObject {
         if !tangemPayAccount.hasVirtualAccount {
             let eligibilityTimeout: TimeInterval = 5
 
-            _ = try? await isEligibleForVirtualAccountSubject
+            _ = try? await isEligibleForVirtualAccountPublisher
                 .filter { $0 }
                 .timeout(.seconds(eligibilityTimeout), scheduler: DispatchQueue.main)
                 .async()
@@ -559,9 +585,18 @@ final class TangemPayMainViewModel: ObservableObject {
             operation: { @MainActor [weak self, fundingFlowBuilder] in
                 defer { self?.isWithdrawLoading = false }
 
+                guard let self else { return }
+
+                if await isOfframpHubAvailable() {
+                    guard !Task.isCancelled else { return }
+
+                    coordinator?.openTangemPayOfframp()
+                    return
+                }
+
                 let resolution = await fundingFlowBuilder.withdraw()
 
-                guard !Task.isCancelled, let self else { return }
+                guard !Task.isCancelled else { return }
 
                 switch resolution {
                 case .noDepositAddress:
@@ -600,7 +635,7 @@ final class TangemPayMainViewModel: ObservableObject {
         }
 
         runTask { [self] in
-            await loadVirtualAccountEligibility()
+            await loadEligibility()
         }
 
         runTask { [promotionNotificationsManager] in
