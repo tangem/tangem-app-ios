@@ -334,9 +334,22 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
                     await account.loadCustomerInfo()
                     await account.loadOffers()
                     await account.resumeActiveIssueOrderPolling()
+                    await self?.loadCashbackSummary(for: account)
                 }
             }
             .store(in: &bag)
+    }
+
+    private func loadCashbackSummary(for account: TangemPayAccount) async {
+        guard FeatureProvider.isAvailable(.tangemPayCashback), !account.isDeactivated else {
+            return
+        }
+
+        do {
+            try await account.loadCashbackSummary()
+        } catch {
+            VisaLogger.error("Failed to load TangemPay cashback summary", error: error)
+        }
     }
 
     private func bind() {

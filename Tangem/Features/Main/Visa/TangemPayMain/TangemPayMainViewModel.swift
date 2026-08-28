@@ -286,6 +286,12 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
+    func reloadCashbackSummary() {
+        runTask { [self] in
+            await loadCashbackSummaryIfAvailable()
+        }
+    }
+
     func renewSession() {
         coordinator?.renewTangemPaySession()
     }
