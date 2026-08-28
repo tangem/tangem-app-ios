@@ -47,7 +47,8 @@ final class CryptoAccountsNetworkMapper {
                     name: account.name,
                     icon: account.icon.iconName,
                     iconColor: account.icon.iconColor,
-                    derivation: account.derivationIdentity.derivationIndex
+                    derivation: account.derivationIdentity.derivationIndex,
+                    type: account.derivationIdentity.type.rawValue
                 )
             }
 
@@ -230,7 +231,11 @@ final class CryptoAccountsNetworkMapper {
         }
 
         let legacyTokens = map(tokens: response.unassignedTokens)
-        let counters = mapCounters(from: response.wallet)
+        let counters = RemoteCryptoAccountsInfo.Counters(
+            archived: response.wallet.totalArchivedAccounts,
+            crypto: response.wallet.totalCryptoAccounts,
+            joint: response.wallet.totalJointAccounts
+        )
 
         return RemoteCryptoAccountsInfo(
             counters: counters,
@@ -301,16 +306,6 @@ final class CryptoAccountsNetworkMapper {
         }
 
         return type
-    }
-
-    private func mapCounters(from wallet: AccountsDTO.Response.Accounts.Wallet) -> RemoteCryptoAccountsInfo.Counters {
-        // An answer from before the endpoint counted the types apart has only the whole total, which every account it
-        // counted was a crypto one of. The joint counter has nothing to stand in for it, hence no count over a wrong one
-        return RemoteCryptoAccountsInfo.Counters(
-            archived: wallet.totalArchivedAccounts,
-            crypto: wallet.totalCryptoAccounts ?? wallet.totalAccounts,
-            joint: wallet.totalJointAccounts
-        )
     }
 
     /// - Throws: `HDWalletError` if the derivation path is invalid.

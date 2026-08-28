@@ -32,12 +32,28 @@ struct CryptoAccountsNetworkMapperTests {
         #expect(info.counters.joint == nil)
     }
 
-    @Test("Per-type counters are taken as reported once the endpoint has them")
-    func reportedPerTypeCountersAreTaken() throws {
+    @Test("While the joint accounts feature is off, the whole total is the only count read, whatever else the answer carries")
+    func wholeTotalIsTheOnlyCountReadWhileTheFeatureIsOff() throws {
         let info = try map(response: Fixtures.responseWithPerTypeCounters)
 
-        #expect(info.counters.crypto == 2)
-        #expect(info.counters.joint == 1)
+        #expect(info.counters.crypto == 3)
+        #expect(info.counters.joint == nil)
+    }
+
+    @Test("Without the joint accounts feature, an answer missing the whole total is turned away at decoding")
+    func wholeTotalIsRequiredWhileTheFeatureIsOff() {
+        // The decoding of `Wallet` expects the shape of the endpoint the feature decides, and unit tests
+        // run with the joint accounts feature off — so the v1 shape, with the whole total, is the expected one
+        #expect(throws: DecodingError.self) {
+            try map(response: Fixtures.responseWithoutTotalAccounts)
+        }
+    }
+
+    @Test("An answer counting neither the accounts as a whole nor their kinds is turned away at decoding")
+    func answerCountingNeitherIsTurnedAway() {
+        #expect(throws: DecodingError.self) {
+            try map(response: Fixtures.responseWithoutAnyCounters)
+        }
     }
 
     @Test("No account tells the endpoint its kind, whatever it has stored: the v1 endpoint turns away a row that mentions one")
@@ -114,6 +130,38 @@ private extension CryptoAccountsNetworkMapperTests {
             "totalAccounts": 3,
             "totalArchivedAccounts": 0,
             "totalCryptoAccounts": 2,
+            "totalJointAccounts": 1
+          },
+          "accounts": [],
+          "unassignedTokens": []
+        }
+        """
+
+        /// The shape the endpoint answers in once it counts the kinds apart: each is named, and the total they used
+        /// to share is gone.
+        static let responseWithoutTotalAccounts = """
+        {
+          "wallet": {
+            "version": 1,
+            "group": "network",
+            "sort": "manual",
+            "totalArchivedAccounts": 0,
+            "totalCryptoAccounts": 2,
+            "totalJointAccounts": 1
+          },
+          "accounts": [],
+          "unassignedTokens": []
+        }
+        """
+
+        /// Neither shape: the joint counter alone says nothing about how many of the wallet's own accounts there are.
+        static let responseWithoutAnyCounters = """
+        {
+          "wallet": {
+            "version": 1,
+            "group": "network",
+            "sort": "manual",
+            "totalArchivedAccounts": 0,
             "totalJointAccounts": 1
           },
           "accounts": [],
