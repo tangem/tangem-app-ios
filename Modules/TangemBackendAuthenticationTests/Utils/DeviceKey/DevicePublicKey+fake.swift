@@ -1,5 +1,5 @@
 //
-//  DevicePublicKey+stub.swift
+//  DevicePublicKey+fake.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import struct Foundation.Data
 @testable import TangemBackendAuthentication
 
 extension DevicePublicKey {
-    static var stub: DevicePublicKey {
+    static var fake: DevicePublicKey {
         get throws(DevicePublicKey.RawPointFormatError) {
             try DevicePublicKey(
                 derRepresentation: Data([0x01, 0x02, 0x03]),
