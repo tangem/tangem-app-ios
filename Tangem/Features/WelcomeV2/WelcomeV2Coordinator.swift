@@ -170,9 +170,9 @@ private extension WelcomeV2Coordinator {
     func presentCreateWallet() {
         actionSheetViewModel = WelcomeV2CreateWalletActionFactory().make(
             callbacks: .init(
-                onHardware: dismissSheetThenPresentHardware,
-                onMobile: dismissSheetThenPresentMobile,
-                onClose: dismissSheet
+                onHardware: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheetThenPresentHardware),
+                onMobile: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheetThenPresentMobile),
+                onClose: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheet)
             )
         )
     }
@@ -180,9 +180,9 @@ private extension WelcomeV2Coordinator {
     func presentExistingWallet() {
         actionSheetViewModel = WelcomeV2ExistingWalletActionFactory().make(
             callbacks: .init(
-                onHardware: dismissSheetThenPresentHardware,
-                onImport: presentImportWalletIfAvailable,
-                onClose: dismissSheet
+                onHardware: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheetThenPresentHardware),
+                onImport: weakify(self, forFunction: WelcomeV2Coordinator.presentImportWalletIfAvailable),
+                onClose: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheet)
             )
         )
     }
@@ -241,7 +241,7 @@ private extension WelcomeV2Coordinator {
                 onRecoveryPhrase: openRecoveryPhrase,
                 onICloudBackup: openICloudBackup,
                 onBack: goBack,
-                onClose: dismissSheet
+                onClose: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheet)
             )
         )
     }

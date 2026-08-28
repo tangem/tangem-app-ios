@@ -233,8 +233,8 @@ private extension CommonUserWalletModelDependencies {
             hardwareLimitationsUtil: hardwareLimitationsUtil,
             areHDWalletsSupported: areHDWalletsSupported,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-            userTokensRepositoryProvider: { derivationIndex in
-                UserTokensRepositoryAdapter(innerRepository: cryptoAccountsRepository, derivationIndex: derivationIndex)
+            userTokensRepositoryProvider: { derivationIdentity in
+                UserTokensRepositoryAdapter(innerRepository: cryptoAccountsRepository, derivationIdentity: derivationIdentity)
             },
             walletModelsFactoryProvider: walletModelsFactoryProvider
         )
