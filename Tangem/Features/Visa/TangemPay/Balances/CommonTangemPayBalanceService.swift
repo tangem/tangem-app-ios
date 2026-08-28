@@ -18,7 +18,7 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject,
-        keyPath: \.fiat.availableBalance,
+        value: \.fiat.availableBalance,
         cachesBalance: true
     )
 
@@ -26,7 +26,7 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject,
-        keyPath: \.availableForWithdrawal.amount,
+        value: \.availableForWithdrawal.amount,
         cachesBalance: false
     )
 
@@ -43,6 +43,29 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
     lazy var fixedFiatTotalTokenBalanceProvider: TokenBalanceProvider = TangemPayFiatTokenBalanceProvider(
         cryptoBalanceProvider: totalTokenBalanceProvider
     )
+
+    func availableBalanceProvider(for accountToken: TangemPayAccountToken) -> TokenBalanceProvider {
+        guard let chainId = accountToken.chainId, let contractAddress = accountToken.tokenItem.contractAddress else {
+            return availableBalanceProvider
+        }
+
+        return TangemPayTokenBalanceProvider(
+            tokenItem: accountToken.tokenItem,
+            tokenBalancesRepository: tokenBalancesRepository,
+            balanceSubject: balanceSubject,
+            value: { $0.availableForWithdrawal(chainId: chainId, tokenContractAddress: contractAddress) ?? .zero },
+            cachesBalance: false
+        )
+    }
+
+    func fiatAvailableBalanceProvider(for accountToken: TangemPayAccountToken) -> TokenBalanceProvider {
+        // The account holds USD stables only, so the account's USDC rate stands in
+        // for every per-network token.
+        FiatTokenBalanceProvider(
+            input: fiatRateProvider,
+            cryptoBalanceProvider: availableBalanceProvider(for: accountToken)
+        )
+    }
 
     private let customerInfoManagementService: any CustomerInfoManagementService
     private let tokenBalancesRepository: any TokenBalancesRepository

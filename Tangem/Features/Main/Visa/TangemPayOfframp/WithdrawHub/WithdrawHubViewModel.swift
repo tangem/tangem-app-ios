@@ -71,14 +71,8 @@ final class WithdrawHubViewModel: ObservableObject {
         case .pendingWithdrawOrder:
             output(.withdrawInProgress)
 
-        case .noDepositAddress:
+        case .unavailable:
             output(.noDepositAddress)
-
-        case .noWithdrawableToken:
-            alert = AlertBinder(
-                title: Localization.commonSomethingWentWrong,
-                message: Localization.commonTryAgainLater
-            )
 
         case .restricted(let restriction):
             alert = TokenActionAvailabilityAlertBuilder().alert(for: restriction)

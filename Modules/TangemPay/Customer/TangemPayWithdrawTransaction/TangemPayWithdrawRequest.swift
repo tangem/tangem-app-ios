@@ -9,13 +9,13 @@
 import Foundation
 
 public struct TangemPayWithdrawRequest {
-    public let amount: Decimal
     public let amountInCents: String
     public let destination: String
+    public let target: TangemPayWithdrawTarget?
 
-    public init(amount: Decimal, amountInCents: String, destination: String) {
-        self.amount = amount
+    public init(amountInCents: String, destination: String, target: TangemPayWithdrawTarget?) {
         self.amountInCents = amountInCents
         self.destination = destination
+        self.target = target
     }
 }
