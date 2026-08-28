@@ -149,7 +149,7 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
     private func chromeButton(_ action: TopNavigation.Action) -> some View {
         barHosted {
             if #available(iOS 26.0, *) {
-                TopNavigationNativeBarButton(action: action)
+                TopNavigationBarButton(action: action)
             } else {
                 TopNavigationCircleButton(action: action)
             }
