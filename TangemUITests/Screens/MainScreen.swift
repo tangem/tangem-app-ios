@@ -466,7 +466,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 return self
             }
 
-            scrollToElement(walletButton, attempts: .lazy)
+            scrollActionSheetToElement(walletButton)
             walletButton.waitAndTap()
             return self
         }
@@ -480,10 +480,19 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             openDetails()
                 .tapAddNewWallet()
 
-            let walletButton = app.buttons[name.rawValue].firstMatch
-            if !walletButton.isHittable {
-                app.swipeUp()
+            // Adding a wallet can route through the create-wallet selector (stories "Get started" and a
+            // "Scan" step) before the mock-card action sheet appears. Navigate those if present, then pick.
+            let getStartedButton = app.buttons[StoriesAccessibilityIdentifiers.getStartedButton].firstMatch
+            if getStartedButton.waitForExistence(timeout: .conditional) {
+                getStartedButton.waitAndTap()
             }
+            let scanButton = app.buttons[StoriesAccessibilityIdentifiers.scanButton].firstMatch
+            if scanButton.waitForExistence(timeout: .conditional) {
+                scanButton.waitAndTap()
+            }
+
+            let walletButton = app.buttons[name.rawValue].firstMatch
+            scrollActionSheetToElement(walletButton)
             walletButton.waitAndTap()
 
             waitAndAssertTrue(tokensList, "Tokens list should exist after adding new wallet")
