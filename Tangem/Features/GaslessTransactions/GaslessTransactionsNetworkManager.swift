@@ -210,6 +210,7 @@ private struct GaslessTransactionsNetworkManagerKey: InjectionKey {
             additionalPlugins: [
                 DeviceInfoPlugin(),
                 GaslessTransactionsAuthorizationPlugin(),
+                TimeoutIntervalPlugin(),
             ]
         )
 

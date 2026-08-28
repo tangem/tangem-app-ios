@@ -179,6 +179,11 @@ private struct PasswordView: View {
             : DesignSystem.Icons.Eye.regular20.image
     }
 
+    private static let fontToken = DesignSystem.Font.bodyMediumToken
+
+    @ScaledMetric(relativeTo: fontToken.relativeTo)
+    private var fieldHeight = fontToken.lineHeight
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
@@ -192,10 +197,11 @@ private struct PasswordView: View {
                     isSecured: isSecured,
                     keyboard: .asciiCapable,
                     textColor: DesignSystem.Color.textPrimary.uiColor,
-                    font: DesignSystem.Font.bodyMediumToken.uiFont,
+                    font: Self.fontToken.uiFont,
                     placeholder: "",
                     isEnabled: true
                 )
+                .frame(height: fieldHeight)
 
                 Button(action: onSecurityTap) {
                     passwordSecurityImage

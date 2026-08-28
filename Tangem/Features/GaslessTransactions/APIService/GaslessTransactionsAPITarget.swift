@@ -125,6 +125,19 @@ struct GaslessTransactionsAPITarget: TargetType {
     }
 }
 
+// MARK: - TimeoutIntervalProvider protocol conformance
+
+extension GaslessTransactionsAPITarget: TimeoutIntervalProvider {
+    var timeoutInterval: TimeInterval? {
+        switch target {
+        case .tronSubmit:
+            return 120
+        default:
+            return nil
+        }
+    }
+}
+
 // MARK: - TargetTypeLogConvertible protocol conformance
 
 extension GaslessTransactionsAPITarget: TargetTypeLogConvertible {
