@@ -36,7 +36,7 @@ struct JointAccountOnboardingView: View {
             NavigationToolbarButton
                 .close(placement: .topBarTrailing, action: viewModel.onCloseTap)
         }
-        .backportTranslucentNavigationBar()
+        .translucentNavigationBar()
         .safeAreaInset(edge: .bottom) { footer }
     }
 
