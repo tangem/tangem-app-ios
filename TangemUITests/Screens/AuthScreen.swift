@@ -37,9 +37,7 @@ final class AuthScreen: ScreenBase<AuthScreenElement> {
         XCTContext.runActivity(named: "Select mock card from scanner alert: \(name.rawValue)") { _ in
             let walletButton = app.buttons[name.rawValue].firstMatch
 
-            if !walletButton.isHittable {
-                app.swipeUp()
-            }
+            scrollActionSheetToElement(walletButton)
 
             walletButton.waitAndTap()
             return MainScreen(app)
