@@ -109,7 +109,27 @@ extension JointAccountJoinCoordinator: JointAccountJoinRoutable {
     }
 
     func continueJoin(userWalletModel: any UserWalletModel) {
-        // [REDACTED_TODO_COMMENT]
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: JointAccountJoinConfirmationViewModel(coordinator: self))
+        }
+    }
+}
+
+// MARK: - JointAccountJoinConfirmationRoutable
+
+extension JointAccountJoinCoordinator: JointAccountJoinConfirmationRoutable {
+    func confirmJoin() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            // [REDACTED_TODO_COMMENT]
+        }
+    }
+
+    /// Backing out leaves the picked wallet alone — the user stays on the invite screen with it still selected.
+    func cancelJoin() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
