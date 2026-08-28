@@ -135,7 +135,11 @@ extension JointAccountManagementCoordinator: JointAccountMembersCountRoutable {
     }
 
     func continueMembersCount(creationHelper: JointAccountCreationHelper) {
-        let viewModel = JointAccountMemberNameViewModel(creationHelper: creationHelper, coordinator: self)
+        let viewModel = JointAccountMemberNameViewModel(
+            helper: JointAccountCreationMemberNameHelper(creationHelper: creationHelper, routable: self),
+            coordinator: self
+        )
+
         path.append(.memberName(viewModel: viewModel))
     }
 }
@@ -146,7 +150,11 @@ extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
     func closeMemberName() {
         dismiss()
     }
+}
 
+// MARK: - JointAccountCreationMemberNameRoutable
+
+extension JointAccountManagementCoordinator: JointAccountCreationMemberNameRoutable {
     func openInviteMembers(creationHelper: JointAccountCreationHelper) {
         let viewModel = JointAccountInviteMembersViewModel(creationContext: creationHelper, coordinator: self)
         path.append(.inviteMembers(viewModel: viewModel))
