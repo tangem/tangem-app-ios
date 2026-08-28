@@ -33,7 +33,7 @@ final class SpyDevicePrivateKeyRepository: DevicePrivateKeyRepository {
 
         do {
             retrieveResult = Result.success(
-                try StubDevicePrivateKey(publicKeyResult: .success(.stub), signResult: .success(.stub))
+                try StubDevicePrivateKey(publicKeyResult: .success(.fake), signResult: .success(.fake))
             )
         } catch {
             retrieveResult = Result.failure(.keyGenerationFailed(underlying: error))
