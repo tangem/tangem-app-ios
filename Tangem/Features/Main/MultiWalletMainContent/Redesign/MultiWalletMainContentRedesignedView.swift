@@ -30,7 +30,6 @@ struct MultiWalletMainContentRedesignedView: View {
                 }
 
                 listContent
-                    .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
             }
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
@@ -67,6 +66,7 @@ struct MultiWalletMainContentRedesignedView: View {
         if isLoading {
             skeletonPlaceholders
                 .allowsHitTesting(false)
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
                 .transition(.opacity)
         } else if hasContent {
             VStack(spacing: 0) {
@@ -74,6 +74,7 @@ struct MultiWalletMainContentRedesignedView: View {
 
                 plainTokensList
             }
+            .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
             .transition(.opacity)
         } else {
             emptyList
@@ -120,6 +121,7 @@ struct MultiWalletMainContentRedesignedView: View {
             .styleType(.secondary)
             .size(.x10)
             .horizontalLayout(.intrinsic)
+            .accessibilityIdentifier(MainAccessibilityIdentifiers.addTokensButton)
         }
         .padding(.top, 36)
     }
