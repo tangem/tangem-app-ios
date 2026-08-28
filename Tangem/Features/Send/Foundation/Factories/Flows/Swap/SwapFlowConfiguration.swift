@@ -11,7 +11,7 @@ struct SwapFlowConfiguration {
     /// When `false`, the source/receive reverse button is hidden.
     let isPairReversalEnabled: Bool
     /// What the source token selector offers.
-    let sourceTokenSelection: SourceTokenSelection
+    let sourceTokenSelection: TokenSelection
     /// How the receive side may change.
     let receiveTokenSelection: ReceiveTokenSelection
     /// Overrides the swap summary navigation title.
@@ -20,61 +20,66 @@ struct SwapFlowConfiguration {
     static let `default` = SwapFlowConfiguration(
         isPairReversalEnabled: true,
         sourceTokenSelection: .unrestricted,
-        receiveTokenSelection: .unrestricted,
+        receiveTokenSelection: .selectable(.unrestricted),
         summaryTitle: nil
     )
 }
 
 extension SwapFlowConfiguration {
-    enum SourceTokenSelection {
+    enum TokenSelection {
         case unrestricted
         /// The full list minus items the predicate rejects; markets search stays available.
         case filtered(isIncluded: (TokenSelectorItem) -> Bool)
-        /// The source can only be picked from the given provider's content.
-        case restricted(walletsProvider: any TokenSelectorWalletsProvider)
+        /// The token can only be picked from the given provider's content. Markets search is the
+        /// flow's own call — a pinned list may still let the user add a token from markets.
+        case restricted(walletsProvider: any TokenSelectorWalletsProvider, allowsMarketsTokens: Bool)
 
         var walletsProvider: (any TokenSelectorWalletsProvider)? {
             switch self {
             case .unrestricted: nil
             case .filtered(let isIncluded): FilteredTokenSelectorWalletsProvider(base: .common(), isIncluded: isIncluded)
-            case .restricted(let walletsProvider): walletsProvider
+            case .restricted(let walletsProvider, _): walletsProvider
             }
         }
 
-        /// Markets search only makes sense while the list isn't pinned to a concrete provider.
         var allowsMarketsTokens: Bool {
             switch self {
             case .unrestricted, .filtered: true
-            case .restricted: false
+            case .restricted(_, let allowsMarketsTokens): allowsMarketsTokens
             }
         }
     }
 
     enum ReceiveTokenSelection {
-        case unrestricted
-        /// The full list minus items the predicate rejects.
-        case filtered(isIncluded: (TokenSelectorItem) -> Bool)
-        /// Not user-selectable; re-derived from the source on every source change.
+        case selectable(TokenSelection)
+        /// Re-derived from the source on every source change.
         case followsSource(any SwapDestinationTokenResolver)
 
         var isSelectionEnabled: Bool {
             switch self {
-            case .unrestricted, .filtered: true
+            case .selectable: true
             case .followsSource: false
             }
         }
 
         var walletsProvider: (any TokenSelectorWalletsProvider)? {
             switch self {
-            case .filtered(let isIncluded): FilteredTokenSelectorWalletsProvider(base: .common(), isIncluded: isIncluded)
-            case .unrestricted, .followsSource: nil
+            case .selectable(let selection): selection.walletsProvider
+            case .followsSource: nil
             }
         }
 
         var destinationResolver: (any SwapDestinationTokenResolver)? {
             switch self {
             case .followsSource(let resolver): resolver
-            case .unrestricted, .filtered: nil
+            case .selectable: nil
+            }
+        }
+
+        var allowsMarketsTokens: Bool {
+            switch self {
+            case .selectable(let selection): selection.allowsMarketsTokens
+            case .followsSource: false
             }
         }
     }

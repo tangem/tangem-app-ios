@@ -23,11 +23,8 @@ struct TangemPayWithdrawFlowResolver {
     @MainActor
     func resolve() async throws -> Outcome {
         switch await fundingFlowBuilder.withdraw() {
-        case .noDepositAddress:
-            return .noDepositAddress
-
-        case .noWithdrawableToken:
-            return .noWithdrawableToken
+        case .unavailable:
+            return .unavailable
 
         case .parameters(let swapParameters):
             let restriction = try await withdrawAvailabilityProvider.restriction()
@@ -51,8 +48,7 @@ struct TangemPayWithdrawFlowResolver {
 extension TangemPayWithdrawFlowResolver {
     enum Outcome {
         case swap(PredefinedSwapParameters)
-        case noDepositAddress
-        case noWithdrawableToken
+        case unavailable
         case pendingWithdrawOrder
         case restricted(SendingRestrictions)
     }

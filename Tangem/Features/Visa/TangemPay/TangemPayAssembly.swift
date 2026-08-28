@@ -21,6 +21,7 @@ protocol TangemPayAssembly {
     func makeTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         signerFactory: TangemSignerFactory,
-        walletPublicKey: Wallet.PublicKey?
+        walletPublicKey: Wallet.PublicKey?,
+        withdrawEligibility: TangemPayWithdrawEligibility
     ) -> TransactionDispatcher
 }
