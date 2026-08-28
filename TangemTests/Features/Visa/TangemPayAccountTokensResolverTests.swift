@@ -5,7 +5,6 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Testing
 import BlockchainSdk
 import TangemPay
@@ -15,7 +14,7 @@ import TangemPay
 struct TangemPayAccountTokensResolverTests {
     @Test("An issued network contributes one entry per token")
     func issuedNetworkTokens() throws {
-        let networks = try makeNetworks(
+        let networks = try makeTangemPayNetworks(
             """
             [
               {
@@ -40,11 +39,13 @@ struct TangemPayAccountTokensResolverTests {
         #expect(entries.allSatisfy { $0.depositAddress == "0xdeposit" })
         #expect(entries.map(\.contractAddress) == ["0xusdc", "0xusdt"])
         #expect(entries.map(\.availableForWithdrawal) == [12.5, nil])
+        // The withdraw API addresses networks by the BFF's chain id.
+        #expect(entries.allSatisfy { $0.chainId == 137 })
     }
 
     @Test("A network whose contract is not issued yet is skipped — destinations are picked automatically")
     func notIssuedNetworkSkipped() throws {
-        let networks = try makeNetworks(
+        let networks = try makeTangemPayNetworks(
             """
             [
               {
@@ -64,7 +65,7 @@ struct TangemPayAccountTokensResolverTests {
 
     @Test("Disabled and unknown-status networks are skipped")
     func nonEnabledStatusesSkipped() throws {
-        let networks = try makeNetworks(
+        let networks = try makeTangemPayNetworks(
             """
             [
               {
@@ -92,7 +93,7 @@ struct TangemPayAccountTokensResolverTests {
 
     @Test("A network without a deposit address is skipped")
     func missingDepositAddressSkipped() throws {
-        let networks = try makeNetworks(
+        let networks = try makeTangemPayNetworks(
             """
             [
               {
@@ -117,18 +118,18 @@ struct TangemPayAccountTokensResolverTests {
         #expect(TangemPayAccountTokensResolver.makeEntries(from: networks).isEmpty)
     }
 
-    @Test("A network the wallet doesn't support is skipped")
-    func unsupportedNetworkSkipped() throws {
-        let networks = try makeNetworks(
+    @Test("A network neither table can address is skipped — no name, and no EVM chain id either")
+    func unaddressableNetworkSkipped() throws {
+        let networks = try makeTangemPayNetworks(
             """
             [
               {
-                "name": "\(Blockchain.avalanche(testnet: false).networkId)",
+                "name": "\(Blockchain.solana(curve: .ed25519_slip0010, testnet: false).networkId)",
                 "isTestnet": false,
-                "chainId": 43114,
+                "chainId": 0,
                 "status": "ENABLED",
-                "depositAddress": "0xdeposit",
-                "tokens": [{ "token": "USDC", "tokenContractAddress": "0xusdc" }]
+                "depositAddress": "solanadeposit",
+                "tokens": [{ "token": "USDC", "tokenContractAddress": "SoLusdc" }]
               }
             ]
             """
@@ -137,42 +138,10 @@ struct TangemPayAccountTokensResolverTests {
         #expect(TangemPayAccountTokensResolver.makeEntries(from: networks).isEmpty)
     }
 
-    @Test("A coins API failure degrades to the canonical USDC entry instead of an empty account")
-    func coinsFailureKeepsCanonicalUSDC() async throws {
+    @Test("The canonical entry keeps the hardcoded token item, checksum casing and all")
+    func canonicalEntryKeepsHardcodedTokenItem() throws {
         // The checksummed USDC contract differs from the hardcoded lowercase one only in casing.
-        let networks = try makeNetworks(
-            """
-            [
-              {
-                "name": "\(Blockchain.polygon(testnet: false).networkId)",
-                "isTestnet": false,
-                "chainId": 137,
-                "status": "ENABLED",
-                "depositAddress": "0xdeposit",
-                "tokens": [
-                  { "token": "USDC", "tokenContractAddress": "0x3C499c542cEF5E3811e1192ce70d8cC03d5c3359", "availableForWithdrawal": 12.5 },
-                  { "token": "USDT", "tokenContractAddress": "0xusdt", "availableForWithdrawal": 500 }
-                ]
-              }
-            ]
-            """
-        )
-
-        let service = FakeTangemApiService()
-        service.loadCoinsHandler = { _ in throw "coins API is down" }
-
-        let tokens = await withInjectedTangemApiService(service) {
-            await TangemPayAccountTokensResolver().resolve(networks: networks)
-        }
-
-        #expect(tokens.map(\.tokenItem) == [TangemPayUtilities.usdcTokenItem])
-        #expect(tokens.first?.depositAddress == "0xdeposit")
-        #expect(tokens.first?.availableForWithdrawal == 12.5)
-    }
-
-    @Test("The canonical entry keeps the hardcoded token item even when the catalog also knows it")
-    func canonicalEntryPrefersHardcodedTokenItem() async throws {
-        let networks = try makeNetworks(
+        let networks = try makeTangemPayNetworks(
             """
             [
               {
@@ -189,40 +158,17 @@ struct TangemPayAccountTokensResolverTests {
             """
         )
 
-        let service = FakeTangemApiService()
-        service.loadCoinsHandler = { _ in
-            CoinsList.Response(
-                total: 1,
-                imageHost: nil,
-                coins: [
-                    CoinsList.Coin(
-                        id: "usd-coin",
-                        name: "USD Coin",
-                        symbol: "USDC",
-                        networks: [
-                            NetworkModel(
-                                networkId: Blockchain.polygon(testnet: false).networkId,
-                                contractAddress: "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
-                                decimalCount: 6
-                            ),
-                        ]
-                    ),
-                ]
-            )
-        }
+        let tokens = TangemPayAccountTokensResolver().resolve(networks: networks)
 
-        let tokens = await withInjectedTangemApiService(service) {
-            await TangemPayAccountTokensResolver().resolve(networks: networks)
-        }
-
-        // The Pay screen matches pending swaps by the full hardcoded item (with its derivation);
-        // a catalog copy without one would unhook them.
+        // The Pay screen matches pending swaps by the full hardcoded item, derivation included.
         #expect(tokens.map(\.tokenItem) == [TangemPayUtilities.usdcTokenItem])
+        #expect(tokens.first?.depositAddress == "0xdeposit")
+        #expect(tokens.first?.availableForWithdrawal == 12.5)
     }
 
-    @Test("A live coins API resolves a checksummed BFF contract against its lowercase catalog entry")
-    func checksummedContractResolvesAgainstLowercaseCatalog() async throws {
-        let networks = try makeNetworks(
+    @Test("Every other token is built from the balance payload at the account's stable decimals")
+    func nonCanonicalTokenBuiltFromBalancePayload() throws {
+        let networks = try makeTangemPayNetworks(
             """
             [
               {
@@ -239,19 +185,20 @@ struct TangemPayAccountTokensResolverTests {
             """
         )
 
-        let tokens = await withInjectedTangemApiService(makeUSDTCatalogService()) {
-            await TangemPayAccountTokensResolver().resolve(networks: networks)
-        }
+        let tokens = TangemPayAccountTokensResolver().resolve(networks: networks)
 
         #expect(tokens.count == 1)
+        // The chain id is what the withdraw request addresses the token by.
+        #expect(tokens.first?.chainId == 137)
         #expect(tokens.first?.tokenItem.token?.symbol == "USDT")
-        #expect(tokens.first?.tokenItem.decimalCount == 6)
+        #expect(tokens.first?.tokenItem.contractAddress == Self.usdtContract.lowercased())
+        #expect(tokens.first?.tokenItem.decimalCount == TangemPayUtilities.Constants.defaultTokenDecimalCount)
         #expect(tokens.first?.availableForWithdrawal == 42)
     }
 
-    @Test("A token the live coins API doesn't know is dropped, resolved neighbors survive")
-    func unresolvedTokenDroppedWhileAPIIsAlive() async throws {
-        let networks = try makeNetworks(
+    @Test("A token no catalog knows still reaches the account — funds sit on it either way")
+    func unknownTokenSurvives() throws {
+        let networks = try makeTangemPayNetworks(
             """
             [
               {
@@ -269,66 +216,203 @@ struct TangemPayAccountTokensResolverTests {
             """
         )
 
-        let tokens = await withInjectedTangemApiService(makeUSDTCatalogService()) {
-            await TangemPayAccountTokensResolver().resolve(networks: networks)
-        }
+        let tokens = TangemPayAccountTokensResolver().resolve(networks: networks)
 
-        #expect(tokens.map { $0.tokenItem.token?.symbol } == ["USDT"])
+        #expect(tokens.map { $0.tokenItem.token?.symbol } == ["USDT", "FOO"])
     }
 
-    /// Not the canonical USDC — its fallback would mask a broken lookup.
-    private static let usdtContract = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+    @Test("BNB Smart Chain stables are eighteen-decimal — they are Binance-Peg, not native")
+    func bscTokensCarryEighteenDecimals() throws {
+        let networks = try makeTangemPayNetworks(
+            """
+            [
+              {
+                "name": "\(Blockchain.bsc(testnet: false).networkId)",
+                "isTestnet": false,
+                "chainId": 56,
+                "status": "ENABLED",
+                "depositAddress": "0xdeposit",
+                "tokens": [{ "token": "USDT", "tokenContractAddress": "0xbscusdt" }]
+              }
+            ]
+            """
+        )
 
-    /// The coins API stores contracts lowercased, unlike the BFF's checksummed ones.
-    private func makeUSDTCatalogService() -> FakeTangemApiService {
-        let service = FakeTangemApiService()
-        service.loadCoinsHandler = { _ in
-            CoinsList.Response(
-                total: 1,
-                imageHost: nil,
-                coins: [
-                    CoinsList.Coin(
-                        id: "tether",
-                        name: "Tether",
-                        symbol: "USDT",
-                        networks: [
-                            NetworkModel(
-                                networkId: Blockchain.polygon(testnet: false).networkId,
-                                contractAddress: Self.usdtContract.lowercased(),
-                                decimalCount: 6
-                            ),
-                        ]
-                    ),
+        let tokens = TangemPayAccountTokensResolver().resolve(networks: networks)
+
+        #expect(tokens.first?.tokenItem.decimalCount == 18)
+    }
+
+    @Test("The stables keep their coin id, so the row shows an icon and a rate")
+    func stableSymbolsKeepTheirCoinId() throws {
+        let networks = try makeTangemPayNetworks(
+            """
+            [
+              {
+                "name": "\(Blockchain.base(testnet: false).networkId)",
+                "isTestnet": false,
+                "chainId": 8453,
+                "status": "ENABLED",
+                "depositAddress": "0xdeposit",
+                "tokens": [
+                  { "token": "USDC", "tokenContractAddress": "0xbaseusdc" },
+                  { "token": "usdt", "tokenContractAddress": "0xbaseusdt" },
+                  { "token": "FOO", "tokenContractAddress": "0xfoo" }
                 ]
-            )
-        }
-        return service
+              }
+            ]
+            """
+        )
+
+        let tokens = TangemPayAccountTokensResolver().resolve(networks: networks)
+
+        #expect(tokens.map { $0.tokenItem.id } == ["usd-coin", "tether", nil])
     }
 
-    private func makeNetworks(_ json: String) throws -> [TangemPayBalance.Network] {
-        let balanceJSON = """
-        {
-          "fiat": {
-            "currency": "USD",
-            "availableBalance": 0,
-            "creditLimit": 0,
-            "pendingCharges": 0,
-            "postedCharges": 0,
-            "balanceDue": 0
-          },
-          "crypto": {
-            "id": "usd-coin",
-            "chainId": 137,
-            "depositAddress": "0xdeposit",
-            "tokenContractAddress": "0xusdc",
-            "balance": 0
-          },
-          "availableForWithdrawal": { "amount": 0, "currency": "USD" },
-          "networks": \(json)
-        }
-        """
+    @Test("An EVM network the name table doesn't list still resolves by its chain id")
+    func unlistedEVMNetworkResolvesByChainId() throws {
+        let networks = try makeTangemPayNetworks(
+            """
+            [
+              {
+                "name": "op-mainnet",
+                "isTestnet": false,
+                "chainId": 10,
+                "status": "ENABLED",
+                "depositAddress": "0xdeposit",
+                "tokens": [{ "token": "USDC", "tokenContractAddress": "0xopusdc" }]
+              }
+            ]
+            """
+        )
 
-        let balance = try JSONDecoder().decode(TangemPayBalance.self, from: Data(balanceJSON.utf8))
-        return balance.networks
+        let tokens = TangemPayAccountTokensResolver().resolve(networks: networks)
+
+        #expect(tokens.map { $0.tokenItem.blockchain } == [.optimism(testnet: false)])
     }
+
+    @Test("The BFF's chain id decides the network — it is what the withdraw request is addressed by")
+    func chainIdWinsOverADisagreeingName() throws {
+        let networks = try makeTangemPayNetworks(
+            """
+            [
+              {
+                "name": "\(Blockchain.polygon(testnet: false).networkId)",
+                "isTestnet": false,
+                "chainId": 8453,
+                "status": "ENABLED",
+                "depositAddress": "0xdeposit",
+                "tokens": [{ "token": "USDC", "tokenContractAddress": "0xbaseusdc" }]
+              }
+            ]
+            """
+        )
+
+        let tokens = TangemPayAccountTokensResolver().resolve(networks: networks)
+
+        #expect(tokens.map { $0.tokenItem.blockchain } == [.base(testnet: false)])
+    }
+
+    @Test("A testnet the name table doesn't list stays unresolved — the chain id table is mainnet-only")
+    func unlistedTestnetIsNotResolvedToItsMainnet() throws {
+        let networks = try makeTangemPayNetworks(
+            """
+            [
+              {
+                "name": "op-sepolia",
+                "isTestnet": true,
+                "chainId": 10,
+                "status": "ENABLED",
+                "depositAddress": "0xdeposit",
+                "tokens": [{ "token": "USDC", "tokenContractAddress": "0xopusdc" }]
+              }
+            ]
+            """
+        )
+
+        #expect(TangemPayAccountTokensResolver().resolve(networks: networks).isEmpty)
+    }
+
+    @Test("A listed name whose chain id belongs to another network is dropped, not modelled by name")
+    func namedNetworkDisagreeingWithAnUnlistedChainIdIsSkipped() throws {
+        // 84532 is Base Sepolia — absent from the mainnet table, so the name would have answered.
+        let networks = try makeTangemPayNetworks(
+            """
+            [
+              {
+                "name": "\(Blockchain.polygon(testnet: false).networkId)",
+                "isTestnet": false,
+                "chainId": 84532,
+                "status": "ENABLED",
+                "depositAddress": "0xdeposit",
+                "tokens": [{ "token": "USDC", "tokenContractAddress": "0xusdc" }]
+              }
+            ]
+            """
+        )
+
+        #expect(TangemPayAccountTokensResolver().resolve(networks: networks).isEmpty)
+    }
+
+    @Test("A testnet is taken at its name — the SDK's testnet chain ids trail the networks")
+    func testnetIsNotHeldToItsChainId() throws {
+        // Polygon's testnet is Amoy (80002); the SDK still names Mumbai.
+        let networks = try makeTangemPayNetworks(
+            """
+            [
+              {
+                "name": "\(Blockchain.polygon(testnet: false).networkId)",
+                "isTestnet": true,
+                "chainId": 80002,
+                "status": "ENABLED",
+                "depositAddress": "0xdeposit",
+                "tokens": [{ "token": "USDC", "tokenContractAddress": "0xusdc" }]
+              }
+            ]
+            """
+        )
+
+        let tokens = TangemPayAccountTokensResolver().resolve(networks: networks)
+
+        #expect(tokens.map { $0.tokenItem.blockchain } == [.polygon(testnet: true)])
+    }
+
+    @Test("The contract is normalised — Express compares it verbatim against the wallet's own token")
+    func contractCasingMatchesTheWalletsToken() throws {
+        // The BFF echoes a checksummed address; the catalog gives the wallet the lowercase one.
+        let networks = try makeTangemPayNetworks(
+            """
+            [
+              {
+                "name": "\(Blockchain.base(testnet: false).networkId)",
+                "isTestnet": false,
+                "chainId": 8453,
+                "status": "ENABLED",
+                "depositAddress": "0xdeposit",
+                "tokens": [
+                  { "token": "USDC", "tokenContractAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" }
+                ]
+              }
+            ]
+            """
+        )
+
+        let walletToken = TokenItem.token(
+            Token(
+                name: "USDC",
+                symbol: "USDC",
+                contractAddress: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                decimalCount: 6,
+                metadata: .fungibleTokenMetadata
+            ),
+            BlockchainNetwork(.base(testnet: false), derivationPath: nil)
+        )
+
+        let tokens = TangemPayAccountTokensResolver().resolve(networks: networks)
+
+        #expect(tokens.first?.tokenItem.expressCurrency == walletToken.expressCurrency)
+    }
+
+    /// Not the canonical USDC — its hardcoded item would mask how the rest are built.
+    private static let usdtContract = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
 }
