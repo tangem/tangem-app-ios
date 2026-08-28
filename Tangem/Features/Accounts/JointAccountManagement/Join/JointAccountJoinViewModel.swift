@@ -25,7 +25,7 @@ final class JointAccountJoinViewModel: ObservableObject {
 
     private let preview: JointAccountInvitePreview
     private let availableUserWalletModels: [any UserWalletModel]
-    private var selectedUserWalletModel: any UserWalletModel
+    private(set) var selectedUserWalletModel: any UserWalletModel
     private weak var coordinator: JointAccountJoinRoutable?
 
     init?(
