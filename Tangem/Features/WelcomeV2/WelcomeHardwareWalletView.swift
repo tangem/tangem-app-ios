@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 // [REDACTED_TODO_COMMENT]
 struct WelcomeHardwareWalletView: View {
@@ -34,10 +35,10 @@ struct WelcomeHardwareWalletView: View {
                     .padding(.bottom, 12)
             }
         }
-        .preferredColorScheme(.dark)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .fullScreenCover(item: $viewModel.shopWebViewModel) { webViewModel in
             WebViewContainer(viewModel: webViewModel)
+                .environment(\.colorScheme, .dark)
         }
     }
 
@@ -45,13 +46,13 @@ struct WelcomeHardwareWalletView: View {
         HStack {
             Spacer()
 
-            Button(action: viewModel.onCloseTap) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.white)
-                    .frame(width: 32, height: 32)
-                    .background(Color.white.opacity(0.12), in: Circle())
-            }
+            TangemUI.Button(
+                icon: DesignSystem.Icons.Cross.regular16,
+                accessibilityLabel: "Close",
+                action: viewModel.onCloseTap
+            )
+            .styleType(.secondary)
+            .size(.x8)
         }
     }
 
@@ -70,31 +71,25 @@ struct WelcomeHardwareWalletView: View {
 
     private var buttons: some View {
         VStack(spacing: 12) {
-            Button(action: viewModel.onLearnMoreTap) {
-                Text("Learn more or buy")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, minHeight: 52)
-                    .background(Color.white.opacity(0.12), in: Capsule())
-            }
+            TangemUI.Button(
+                label: "Learn more or buy",
+                accessibilityLabel: nil,
+                action: viewModel.onLearnMoreTap
+            )
+            .styleType(.secondary)
+            .horizontalLayout(.infinity)
+            .size(.x14)
             .disabled(viewModel.isScanning)
 
-            Button(action: viewModel.onScanTap) {
-                HStack(spacing: 8) {
-                    Text("Scan your wallet")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.black)
-
-                    Assets.tangemIcon.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 24, height: 24)
-                        .foregroundColor(.black)
-                }
-                .frame(maxWidth: .infinity, minHeight: 52)
-                .background(Color.white, in: Capsule())
-            }
+            TangemUI.Button(
+                label: "Scan your wallet",
+                accessibilityLabel: nil,
+                action: viewModel.onScanTap
+            )
+            .styleType(.default)
+            .horizontalLayout(.infinity)
+            .size(.x14)
+            .iconEnd(Assets.tangemIcon)
             .disabled(viewModel.isScanning)
         }
     }

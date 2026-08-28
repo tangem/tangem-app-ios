@@ -134,7 +134,8 @@ extension AccountModelsManagerMock: AccountModelsManager {
                 icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
                 tokensCount: 3,
                 networksCount: 1,
-                derivationIndex: 10
+                derivationIndex: 10,
+                type: .crypto
             ),
             ArchivedCryptoAccountInfo(
                 accountId: .init(rawValue: UUID().uuidString),
@@ -142,7 +143,8 @@ extension AccountModelsManagerMock: AccountModelsManager {
                 icon: .init(name: .allCases.randomElement()!, color: .allCases.randomElement()!),
                 tokensCount: 10,
                 networksCount: 10,
-                derivationIndex: 20
+                derivationIndex: 20,
+                type: .crypto
             ),
         ]
     }
@@ -150,7 +152,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult {
         do {
             let persistentConfig = info.toPersistentConfig()
-            let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIndex)
+            let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIdentity)
             let unarchivedCryptoAccount = CryptoAccountModelMock(
                 isMainAccount: isMainAccount
             ) { [weak self] cryptoAccountModel in

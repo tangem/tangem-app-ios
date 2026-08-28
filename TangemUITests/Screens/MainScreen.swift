@@ -36,6 +36,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var getTangemPayBanner = app.descendants(matching: .any)
         .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
         .firstMatch
+    private lazy var addTokensButton = app.buttons[MainAccessibilityIdentifiers.addTokensButton].firstMatch
 
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
@@ -88,6 +89,22 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifyAddTokensButtonVisible() -> Self {
+        XCTContext.runActivity(named: "Verify 'Add tokens' button is visible") { _ in
+            waitAndAssertTrue(addTokensButton, "'Add tokens' button should exist")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyMarketBottomSheetGrabberVisible() -> Self {
+        XCTContext.runActivity(named: "Verify 'Markets' bottom sheet drag handle is visible") { _ in
+            waitAndAssertTrue(grabber, "'Markets' bottom sheet drag handle should be visible")
+            return self
+        }
+    }
+
     // MARK: - Organize Tokens Button Visibility
 
     @discardableResult
@@ -103,7 +120,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func verifyOrganizeTokensButtonNotVisible() -> Self {
         XCTContext.runActivity(named: "Verify organize tokens button is NOT visible") { _ in
-            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            // Single-currency cards have no `tokensList`; `detailsButton` is present on every main screen.
+            waitAndAssertTrue(detailsButton, "Main screen should be loaded")
+            // The button sits at the bottom of the scroll, so reach it before asserting absence to avoid a false pass.
+            scrollMainToBottom()
             XCTAssertFalse(
                 organizeTokensButton.waitForExistence(timeout: .conditional),
                 "Organize tokens button should NOT be visible on main screen"
@@ -300,6 +320,29 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait developer card banner not exists") { _ in
             let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.developerCardBanner]
             XCTAssertFalse(bannerElement.exists, "Developer card banner should not be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTokenCount(_ expectedCount: Int) -> Self {
+        XCTContext.runActivity(named: "Verify token count equals \(expectedCount)") { _ in
+            waitAndAssertTrue(detailsButton, "Main screen should be loaded")
+            // Multi-currency renders rows inside the on-screen `tokensList`; count there so titles from other
+            // wallet pages the redesign keeps mounted don't inflate the total. Single-currency has no such
+            // container (a single page is mounted), so fall back to app scope.
+            let scope: XCUIElement = tokensList.waitForExistence(timeout: .conditional) ? visibleTokensList() : app
+            let tokenTitles = scope.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+            let expectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "count == %d", expectedCount),
+                object: tokenTitles
+            )
+            let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
+            XCTAssertEqual(
+                result,
+                .completed,
+                "Expected \(expectedCount) token(s) on main screen, found \(tokenTitles.count)"
+            )
             return self
         }
     }
@@ -638,6 +681,17 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 }
             }
 
+            return ContextMenuScreen(app)
+        }
+    }
+
+    func openTokenContextMenu(_ tokenName: String) -> ContextMenuScreen {
+        XCTContext.runActivity(named: "Open context menu for token: \(tokenName)") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let token = tokenElement(named: tokenName)
+            waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
+            scrollTokensListToVisible(token)
+            token.pressEvenIfNotHittable(forDuration: 1.5)
             return ContextMenuScreen(app)
         }
     }
@@ -1082,6 +1136,19 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             }
         } while Date() < deadline
         XCTFail("\(actionName) unavailable alert did not appear after retrying taps")
+    }
+
+    /// Scrolls the main screen toward the bottom, staying above the Markets grabber so the swipe doesn't pull the sheet open.
+    private func scrollMainToBottom(attempts: Int = 2) {
+        let screen = app.frame
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+        for _ in 0 ..< attempts {
+            let grabberTop = grabber.exists ? grabber.frame.minY : screen.maxY
+            let startY = min(screen.midY, grabberTop - 40)
+            let endY = max(screen.minY + 120, startY - 250)
+            origin.withOffset(CGVector(dx: screen.midX, dy: startY))
+                .press(forDuration: 0.1, thenDragTo: origin.withOffset(CGVector(dx: screen.midX, dy: endY)))
+        }
     }
 
     private func isGrouped() -> Bool {
