@@ -25,9 +25,7 @@ final class ScanCardSettingsScreen: ScreenBase<ScanCardSettingsScreenElement> {
         XCTContext.runActivity(named: "Scan Mock Wallet: \(name)") { _ in
             scanCardButton.waitAndTap()
             let walletButton = app.buttons[name.rawValue].firstMatch
-            if !walletButton.isHittable {
-                app.swipeUp()
-            }
+            scrollActionSheetToElement(walletButton)
             walletButton.waitAndTap()
             return DeviceSettingsScreen(app)
         }

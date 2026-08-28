@@ -49,7 +49,7 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
             return self
         }
 
-        scrollToElement(walletButton, attempts: .lazy)
+        scrollActionSheetToElement(walletButton)
 
         guard walletButton.waitForState(state: .hittable) else {
             XCTFail("Mock wallet button '\(name.rawValue)' exists but is not hittable")
