@@ -605,14 +605,8 @@ final class TangemPayMainViewModel: ObservableObject {
                 guard !Task.isCancelled else { return }
 
                 switch resolution {
-                case .noDepositAddress:
+                case .unavailable:
                     coordinator?.openTangemPayNoDepositAddressSheet()
-
-                case .noWithdrawableToken:
-                    alert = AlertBinder(
-                        title: Localization.commonSomethingWentWrong,
-                        message: Localization.commonTryAgainLater
-                    )
 
                 case .parameters(let swapParameters):
                     do {
