@@ -49,19 +49,9 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
         min(dynamicTypeSize, TopNavigationChromeMetrics.maxDynamicTypeSize)
     }
 
-    /// On iOS 26 the native scroll edge effect draws the bar background correctly. iOS 27 resolves the same effect's
-    /// automatic style to a nearly opaque fill, so there it gives way to the blur overlay used on pre-26 versions.
     func body(content: Content) -> some View {
-        if #available(iOS 27.0, *) {
-            navigation(content)
-                .scrollEdgeEffectHidden(true, for: .top)
-                .backportTranslucentNavigationBar()
-        } else if #available(iOS 26.0, *) {
-            navigation(content)
-        } else {
-            navigation(content)
-                .backportTranslucentNavigationBar()
-        }
+        navigation(content)
+            .translucentNavigationBar()
     }
 
     private func navigation(_ content: Content) -> some View {

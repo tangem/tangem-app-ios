@@ -258,13 +258,7 @@ private extension TokenDetailsView {
                 case .markets: makeMarketsNavigation(content: content)
                 }
             }
-            .modifyView { view in
-                if #unavailable(iOS 26.0) {
-                    view.backportTranslucentNavigationBar()
-                } else {
-                    view
-                }
-            }
+            .translucentNavigationBar()
         }
 
         private func makeCommonNavigation(content: Content) -> some View {

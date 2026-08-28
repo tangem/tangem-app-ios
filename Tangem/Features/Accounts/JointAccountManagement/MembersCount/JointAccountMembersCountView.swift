@@ -30,7 +30,7 @@ struct JointAccountMembersCountView: View {
             NavigationToolbarButton
                 .close(placement: .topBarTrailing, action: viewModel.onCloseTap)
         }
-        .backportTranslucentNavigationBar()
+        .translucentNavigationBar()
         .alert(item: $viewModel.alert, content: { $0.alert })
         .safeAreaInset(edge: .bottom) { footer }
     }
