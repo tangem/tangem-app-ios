@@ -19,8 +19,13 @@ struct ArchivedCryptoAccountInfo: Equatable {
     let tokensCount: Int
     let networksCount: Int
 
+    var derivationIdentity: CryptoAccountDerivationIdentity {
+        CryptoAccountDerivationIdentity(derivationIndex: derivationIndex, type: type)
+    }
+
     private let accountId: AccountId
     private let derivationIndex: Int
+    private let type: AccountType
 
     init(
         accountId: AccountId,
@@ -28,7 +33,8 @@ struct ArchivedCryptoAccountInfo: Equatable {
         icon: AccountModel.CompositeIcon,
         tokensCount: Int,
         networksCount: Int,
-        derivationIndex: Int
+        derivationIndex: Int,
+        type: AccountType
     ) {
         self.accountId = accountId
         self.name = name
@@ -36,6 +42,7 @@ struct ArchivedCryptoAccountInfo: Equatable {
         self.tokensCount = tokensCount
         self.networksCount = networksCount
         self.derivationIndex = derivationIndex
+        self.type = type
     }
 }
 
@@ -57,7 +64,7 @@ extension ArchivedCryptoAccountInfo: CustomStringConvertible {
                 "name": name,
                 "icon": icon,
                 "id": id,
-                "derivationIndex": derivationIndex,
+                "derivationIdentity": derivationIdentity,
                 "counters": "\(tokensCount) tokens, \(networksCount) networks",
             ]
         )
@@ -69,7 +76,7 @@ extension ArchivedCryptoAccountInfo: CustomStringConvertible {
 extension ArchivedCryptoAccountInfo: CryptoAccountPersistentConfigConvertible {
     func toPersistentConfig() -> CryptoAccountPersistentConfig {
         return CryptoAccountPersistentConfig(
-            derivationIndex: derivationIndex,
+            derivationIdentity: derivationIdentity,
             name: name,
             icon: icon
         )
@@ -86,7 +93,8 @@ extension ArchivedCryptoAccountInfo {
             icon: icon,
             tokensCount: tokensCount,
             networksCount: networksCount,
-            derivationIndex: derivationIndex
+            derivationIndex: derivationIndex,
+            type: type
         )
     }
 }
@@ -96,7 +104,7 @@ extension ArchivedCryptoAccountInfo {
 extension ArchivedCryptoAccountInfo: AccountModelAnalyticsProviding {
     func analyticsParameters(with builder: AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
         builder
-            .setDerivationIndex(derivationIndex)
+            .setDerivationIdentity(derivationIdentity)
             .build()
     }
 }
