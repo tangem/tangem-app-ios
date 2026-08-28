@@ -430,6 +430,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
                 dataProvider: options.tangemPayAccount,
                 dismiss: { [weak self] in
                     self?.cashbackDetailViewModel = nil
+                    self?.rootViewModel?.reloadCashbackSummary()
                 }
             )
         }
