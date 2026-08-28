@@ -1,0 +1,33 @@
+//
+//  SlideContentView.swift
+//  TangemStories
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+
+struct SlideContentView: View {
+    @ObservedObject var vm: SlidePlayerViewModel
+
+    private var contentMode: StoryContentMode { vm.slide.asset.contentMode }
+
+    var body: some View {
+        switch vm.slide.asset.type {
+        case .image:
+            SlideImageView(url: vm.slide.asset.url, contentMode: contentMode)
+        case .lottie:
+            // [REDACTED_TODO_COMMENT]
+            SlideImageView(url: vm.slide.asset.posterURL, contentMode: contentMode)
+        case .video:
+            // Poster shows through the transparent player layer until the first frame renders,
+            // so an unbuffered remote video never flashes a black screen.
+            ZStack {
+                SlideImageView(url: vm.slide.asset.posterURL, contentMode: contentMode)
+
+                VideoSlideView(player: vm.player, contentMode: contentMode)
+            }
+        }
+    }
+}

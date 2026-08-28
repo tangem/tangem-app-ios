@@ -375,6 +375,8 @@ var featureModules: [PackageDescription.Target] {
             name: "TangemStories",
             dependencies: [
                 "Kingfisher",
+                "TangemAssets",
+                "TangemAccessibilityIdentifiers",
                 "TangemLocalization",
                 "TangemUI",
                 "TangemFoundation",
