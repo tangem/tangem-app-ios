@@ -273,6 +273,7 @@ struct OrganizeTokensView: View {
         if let onCloseTap {
             BottomSheetHeaderView(
                 title: Localization.organizeTokensTitle,
+                titleAccessibilityIdentifier: OrganizeTokensAccessibilityIdentifiers.organizeTokensTitle,
                 trailing: { headerTrailing(onCloseTap: onCloseTap) }
             )
             .padding(.top, 4)

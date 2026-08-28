@@ -72,7 +72,7 @@ final class DeviceKeyManagerTests: LeakTrackingTestSuite {
 
         #expect(repository.receivedMessages == [.retrieve])
 
-        let expectedPrivateKey = try StubDevicePrivateKey(publicKeyResult: .success(.stub), signResult: .success(.stub))
+        let expectedPrivateKey = try StubDevicePrivateKey(publicKeyResult: .success(.fake), signResult: .success(.fake))
         repository.retrieveResult = .success(expectedPrivateKey)
 
         let recoveredPublicKey = try await sut.publicKey
@@ -86,7 +86,7 @@ final class DeviceKeyManagerTests: LeakTrackingTestSuite {
         let rawPointFormatError = DevicePublicKey.RawPointFormatError.invalidLength(actual: 0)
         let devicePrivateKey = try StubDevicePrivateKey(
             publicKeyResult: .failure(rawPointFormatError),
-            signResult: .success(.stub)
+            signResult: .success(.fake)
         )
 
         let sut = makeSUT(privateKeyRepository: StubDevicePrivateKeyRepository(result: .success(devicePrivateKey)))
@@ -104,7 +104,7 @@ final class DeviceKeyManagerTests: LeakTrackingTestSuite {
     @Test
     func signPropagatesSigningFailure() async throws {
         let devicePrivateKey = try StubDevicePrivateKey(
-            publicKeyResult: .success(.stub),
+            publicKeyResult: .success(.fake),
             signResult: .failure(SigningError.stub)
         )
 
