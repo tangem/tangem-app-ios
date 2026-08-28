@@ -17,7 +17,7 @@ extension StoryPlayerViewModel: GachaStoriesEngine {
     }
 
     var slideProgressPublisher: AnyPublisher<CGFloat, Never> {
-        $current.flatMapLatest { $0.$progress }.map { CGFloat($0) }.eraseToAnyPublisher()
+        $current.flatMapLatest { $0.progress.$value }.map { CGFloat($0) }.eraseToAnyPublisher()
     }
 
     func showNextSlide() {
@@ -29,6 +29,6 @@ extension StoryPlayerViewModel: GachaStoriesEngine {
     }
 
     func setPaused(_ isPaused: Bool) {
-        isPaused ? pause() : resume()
+        setPaused(isPaused, for: .hold)
     }
 }
