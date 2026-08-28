@@ -12,6 +12,7 @@ import TangemAccessibilityIdentifiers
 @testable import TangemAssets
 
 final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
+    private lazy var title = staticText(.titleText)
     private lazy var tokensList = scrollView(.tokensList)
     private lazy var sortByBalanceButton = button(.sortByBalanceButton)
     private lazy var groupButton = button(.groupButton)
@@ -20,6 +21,14 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
     private lazy var sortMenuTrigger = app.descendants(matching: .any)
         .matching(identifier: OrganizeTokensAccessibilityIdentifiers.sortMenuTrigger)
         .firstMatch
+
+    @discardableResult
+    func assertOrganizeTokensSheetIsDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert 'Organize tokens' bottom sheet is displayed") { _ in
+            waitAndAssertTrue(title, "'Organize tokens' bottom sheet title should be displayed")
+            return self
+        }
+    }
 
     @discardableResult
     func sortByBalance() -> Self {
@@ -271,6 +280,7 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
 }
 
 enum OrganizeTokensScreenElement: String, UIElement {
+    case titleText
     case tokensList
     case sortByBalanceButton
     case groupButton
@@ -280,6 +290,8 @@ enum OrganizeTokensScreenElement: String, UIElement {
 
     var accessibilityIdentifier: String {
         switch self {
+        case .titleText:
+            return OrganizeTokensAccessibilityIdentifiers.organizeTokensTitle
         case .tokensList:
             return OrganizeTokensAccessibilityIdentifiers.tokensList
         case .sortByBalanceButton:
