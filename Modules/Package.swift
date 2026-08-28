@@ -151,7 +151,9 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemBackendAuthentication",
             dependencies: [
-                "TangemFoundation",
+                .target(name: "TangemFoundation"),
+                .product(name: "Alamofire", package: "Alamofire"),
+                .product(name: "Moya", package: "Moya"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
