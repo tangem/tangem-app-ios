@@ -228,7 +228,7 @@ extension ScreenBase {
         guard !element.isHittable else { return }
 
         let sheet = app.sheets.firstMatch
-        let scrollable: XCUIElement = sheet.waitForExistence(timeout: .robustUIUpdate) ? sheet : app
+        let scrollable: XCUIElement = sheet.waitForExistence(timeout: .conditional) ? sheet : app
 
         for _ in 0 ..< maxSwipes {
             scrollable.swipeUp()
