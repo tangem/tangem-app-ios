@@ -1,5 +1,5 @@
 //
-//  NonceDecryptorTests.swift
+//  SecurityNonceDecryptorTests.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import Testing
 @testable import TangemBackendAuthentication
 
 @Suite(.tags(.backendAuthentication))
-struct NonceDecryptorTests {
+struct SecurityNonceDecryptorTests {
     @Test(arguments: Self.validKeyPairs)
     func decryptSucceedsForCorrectKeyPair(_ keyPair: KeyPair) throws {
         let sut = makeSUT(appPrivateKey: keyPair.privateKey)
@@ -26,8 +26,8 @@ struct NonceDecryptorTests {
 
     @Test
     func decryptPropagatesAppPrivateKeyParsingFailure() throws {
-        let sut = NonceDecryptor(appPrivateKey: "any non-base64 string")
-        let anyCipheredNonce = Data()
+        let sut = makeSUT(appPrivateKey: "any non-base64 string")
+        let anyCipheredNonce = ""
 
         let error = try #require(throws: NonceDecryptorError.self) {
             _ = try sut.decrypt(cipheredNonce: anyCipheredNonce)
@@ -55,7 +55,7 @@ struct NonceDecryptorTests {
     }
 
     @Test(arguments: Self.invalidCipheredNonces)
-    func decryptThrowsDecryptFailureForInvalidCipheredNonce(invalidCipheredNonce: Data) throws {
+    func decryptThrowsDecryptFailureForInvalidCipheredNonce(invalidCipheredNonce: String) throws {
         let sut = makeSUT(appPrivateKey: KeyPair.pkcs1.privateKey)
 
         let error = try #require(throws: NonceDecryptorError.self) {
@@ -67,12 +67,27 @@ struct NonceDecryptorTests {
             return
         }
     }
+
+    @Test
+    func decryptThrowsInvalidCipheredNonceEncodingForMalformedBase64URLString() throws {
+        let sut = makeSUT(appPrivateKey: KeyPair.pkcs1.privateKey)
+        let malformedCipheredNonce = "any non-base64 string"
+
+        let error = try #require(throws: NonceDecryptorError.self) {
+            _ = try sut.decrypt(cipheredNonce: malformedCipheredNonce)
+        }
+
+        guard case .invalidCipheredNonceEncoding = error else {
+            Issue.record("Expected .invalidCipheredNonceEncoding, got \(error)")
+            return
+        }
+    }
 }
 
 // MARK: - Factory methods and testing utilities
 
-extension NonceDecryptorTests {
-    private static func encrypt(_ plaintext: Data, with publicKeyDer: String) throws -> Data {
+extension SecurityNonceDecryptorTests {
+    private static func encrypt(_ plaintext: Data, with publicKeyDer: String) throws -> String {
         let publicKeyDERBytes = try #require(Data(base64Encoded: publicKeyDer))
 
         let attributes: [CFString: Any] = [
@@ -90,15 +105,15 @@ extension NonceDecryptorTests {
             SecKeyCreateEncryptedData(publicKey, SecKeyAlgorithm.rsaEncryptionOAEPSHA256, plaintext as CFData, &encryptionError)
         )
 
-        return cipherText as Data
+        return (cipherText as Data).asBase64URLString
     }
 
-    private func makeSUT(appPrivateKey: String) -> NonceDecryptor {
-        NonceDecryptor(appPrivateKey: appPrivateKey)
+    private func makeSUT(appPrivateKey: String) -> some NonceDecryptor {
+        SecurityNonceDecryptor(appPrivateKey: appPrivateKey)
     }
 }
 
-extension NonceDecryptorTests {
+extension SecurityNonceDecryptorTests {
     static let validKeyPairs = [
         KeyPair.pkcs1,
         KeyPair.pkcs8,
@@ -132,7 +147,16 @@ extension NonceDecryptorTests {
     }
 
     private enum InvalidCipheredNonce {
-        static let corruptedText = Data(repeating: 0xFF, count: 256)
-        static let wrongLength = Data([0x00, 0x01, 0x02])
+        static let corruptedText = Data(repeating: 0xFF, count: 256).asBase64URLString
+        static let wrongLength = Data([0x00, 0x01, 0x02]).asBase64URLString
+    }
+}
+
+private extension Data {
+    var asBase64URLString: String {
+        base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
     }
 }

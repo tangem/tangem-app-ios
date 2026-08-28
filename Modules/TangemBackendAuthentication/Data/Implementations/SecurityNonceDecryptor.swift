@@ -1,5 +1,5 @@
 //
-//  NonceDecryptor.swift
+//  SecurityNonceDecryptor.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,15 +8,20 @@
 
 import struct Foundation.Data
 private import Security
+private import TangemFoundation
 
-struct NonceDecryptor: Sendable {
+struct SecurityNonceDecryptor: NonceDecryptor {
     private let parseAppPrivateKeyResult: Result<AppPrivateKey, AppPrivateKeyParsingError>
 
     init(appPrivateKey: String) {
         parseAppPrivateKeyResult = Self.parse(appPrivateKey: appPrivateKey)
     }
 
-    func decrypt(cipheredNonce: Data) throws(NonceDecryptorError) -> Data {
+    func decrypt(cipheredNonce: String) throws(NonceDecryptorError) -> Data {
+        guard let cipheredNonceData = cipheredNonce.base64URLDecodedData() else {
+            throw NonceDecryptorError.invalidCipheredNonceEncoding
+        }
+
         let parsedAppPrivateKey: AppPrivateKey
 
         do {
@@ -25,7 +30,7 @@ struct NonceDecryptor: Sendable {
             throw NonceDecryptorError.appPrivateKeyParsingFailed(error)
         }
 
-        return try Self.decrypt(cipheredNonce, using: parsedAppPrivateKey)
+        return try Self.decrypt(cipheredNonceData, using: parsedAppPrivateKey)
     }
 
     private static func parse(appPrivateKey: String) -> Result<AppPrivateKey, AppPrivateKeyParsingError> {
