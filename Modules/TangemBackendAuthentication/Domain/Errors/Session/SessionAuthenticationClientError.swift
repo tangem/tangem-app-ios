@@ -1,0 +1,16 @@
+//
+//  SessionAuthenticationClientError.swift
+//  TangemModules
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+enum SessionAuthenticationClientError: Error {
+    case requestNonceFailed(underlying: any Error)
+
+    case authenticateFailed(underlying: any Error)
+    case authenticationRejected
+
+    case refreshFailed(underlying: any Error)
+}

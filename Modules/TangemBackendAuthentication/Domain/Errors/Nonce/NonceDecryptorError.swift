@@ -7,6 +7,7 @@
 //
 
 enum NonceDecryptorError: Error {
+    case invalidCipheredNonceEncoding
     case appPrivateKeyParsingFailed(AppPrivateKeyParsingError)
     case decryptFailed(underlying: any Error)
 }
