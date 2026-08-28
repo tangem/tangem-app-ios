@@ -7,6 +7,7 @@
 
 import BlockchainSdk
 import Foundation
+import TangemFoundation
 import TangemPay
 
 /// A token the payment account holds under the hood — a funding (transfer) target and a
@@ -15,6 +16,7 @@ struct TangemPayAccountToken: Equatable {
     let tokenItem: TokenItem
     let depositAddress: String
     let availableForWithdrawal: Decimal?
+    let chainId: Int?
 }
 
 extension [TangemPayAccountToken] {
@@ -36,11 +38,71 @@ extension [TangemPayAccountToken] {
         }
     }
 
-    /// The withdraw endpoint carries only an amount and a destination — the asset is implicitly
-    /// USDC on Polygon. Until the API can express a token and a network, no other entry may start
-    /// a withdraw, no matter how funded it is.
+    /// Ties resolve towards the canonical token.
     var withdrawStartingPoint: TangemPayAccountToken? {
-        filter(\.isCanonical).max { ($0.availableForWithdrawal ?? 0) < ($1.availableForWithdrawal ?? 0) }
+        filter(\.isWithdrawEligible).sorted { lhs, rhs in
+            let lhsFunds = lhs.availableForWithdrawal ?? 0
+            let rhsFunds = rhs.availableForWithdrawal ?? 0
+            guard lhsFunds == rhsFunds else {
+                return lhsFunds > rhsFunds
+            }
+
+            if lhs.isCanonical != rhs.isCanonical {
+                return lhs.isCanonical
+            }
+
+            return lhs.assetIdentity < rhs.assetIdentity
+        }.first
+    }
+}
+
+enum TangemPayWithdrawEligibility: Equatable {
+    /// The BFF picks the network; only the account-wide stand-in is withdrawn this way.
+    case untargeted
+    case targeted(TangemPayWithdrawTarget)
+    /// The token can't be addressed by the withdraw API.
+    case ineligible
+}
+
+extension TangemPayAccountToken {
+    var withdrawEligibility: TangemPayWithdrawEligibility {
+        guard let chainId else {
+            return isCanonical ? .untargeted : .ineligible
+        }
+
+        guard let contractAddress = tokenItem.contractAddress?.nilIfEmpty else {
+            return .ineligible
+        }
+
+        return .targeted(TangemPayWithdrawTarget(
+            chainId: chainId,
+            tokenContractAddress: contractAddress
+        ))
+    }
+
+    var isWithdrawEligible: Bool {
+        withdrawEligibility != .ineligible
+    }
+
+    var isAccountWide: Bool {
+        chainId == nil
+    }
+}
+
+extension TangemPayWithdrawEligibility {
+    func resolveDispatchTarget() throws -> TangemPayWithdrawTarget? {
+        switch self {
+        case .targeted(let target):
+            return target
+        case .untargeted:
+            return nil
+        case .ineligible:
+            throw Error.tokenNotWithdrawable
+        }
+    }
+
+    enum Error: LocalizedError {
+        case tokenNotWithdrawable
     }
 }
 

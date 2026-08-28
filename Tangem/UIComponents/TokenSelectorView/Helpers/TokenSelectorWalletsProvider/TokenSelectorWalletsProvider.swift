@@ -58,8 +58,8 @@ struct TokenSelectorItem: Hashable, Identifiable {
         switch kind {
         case .crypto(let walletModel, _):
             walletModel.tokenItem
-        case .tangemPay(let tangemPayAccount, _, _):
-            tangemPayAccount.paymentTokenItem
+        case .tangemPay(_, let accountToken, _):
+            accountToken.tokenItem
         }
     }
 
@@ -67,8 +67,10 @@ struct TokenSelectorItem: Hashable, Identifiable {
         switch kind {
         case .crypto(let walletModel, _):
             walletModel.totalTokenBalanceProvider
-        case .tangemPay(let tangemPayAccount, _, _):
-            tangemPayAccount.balancesProvider.totalTokenBalanceProvider
+        case .tangemPay(let tangemPayAccount, let accountToken, _):
+            accountToken.isAccountWide
+                ? tangemPayAccount.balancesProvider.totalTokenBalanceProvider
+                : tangemPayAccount.balancesProvider.availableBalanceProvider(for: accountToken)
         }
     }
 
@@ -76,8 +78,10 @@ struct TokenSelectorItem: Hashable, Identifiable {
         switch kind {
         case .crypto(let walletModel, _):
             walletModel.fiatTotalTokenBalanceProvider
-        case .tangemPay(let tangemPayAccount, _, _):
-            tangemPayAccount.balancesProvider.fiatTotalTokenBalanceProvider
+        case .tangemPay(let tangemPayAccount, let accountToken, _):
+            accountToken.isAccountWide
+                ? tangemPayAccount.balancesProvider.fiatTotalTokenBalanceProvider
+                : tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider(for: accountToken)
         }
     }
 
@@ -113,7 +117,7 @@ extension TokenSelectorItem {
 
     enum Kind {
         case crypto(any WalletModel, any CryptoAccountModel)
-        case tangemPay(TangemPayAccount, String, any TangemPayAccountModel)
+        case tangemPay(TangemPayAccount, TangemPayAccountToken, any TangemPayAccountModel)
 
         var walletModel: (any WalletModel)? {
             switch self {
@@ -151,13 +155,12 @@ extension TokenSelectorItem {
                 operationType: expressOperationType
             )
 
-        case .tangemPay(let tangemPayAccount, let depositAddress, let account):
+        case .tangemPay(let tangemPayAccount, let accountToken, let account):
             TangemPaySwapableTokenFactory(
                 userWalletInfo: userWalletInfo,
                 tangemPayAccount: tangemPayAccount,
                 account: account,
-                tokenItem: TangemPayUtilities.usdcTokenItem,
-                depositAddress: depositAddress,
+                accountToken: accountToken,
                 operationType: expressOperationType,
                 receiveTokenPresentation: .tangemPayAccount
             )

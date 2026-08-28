@@ -14,7 +14,8 @@ protocol TangemPayBalancesService: TangemPayBalancesProvider {
     func loadBalance() async
 }
 
-/// All balance's providers use hardcoded `TangemPayUtilities.usdcTokenItem`
+/// The account-wide providers use the hardcoded `TangemPayUtilities.usdcTokenItem`;
+/// the per-token factories below use the account token's own item.
 protocol TangemPayBalancesProvider {
     /// Total Tangem Pay balance as crypto currency from `TangemPayBalance.balance.crypto.balance`
     var totalTokenBalanceProvider: TokenBalanceProvider { get }
@@ -30,4 +31,8 @@ protocol TangemPayBalancesProvider {
 
     /// Available Tangem Pay balance as fiat currency from `TangemPayBalance.availableForWithdrawal.amount`
     var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
+
+    func availableBalanceProvider(for accountToken: TangemPayAccountToken) -> TokenBalanceProvider
+
+    func fiatAvailableBalanceProvider(for accountToken: TangemPayAccountToken) -> TokenBalanceProvider
 }

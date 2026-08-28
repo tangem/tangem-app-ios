@@ -14,7 +14,8 @@ struct SwapTokenSelectorViewModelBuilder {
     /// Flow-imposed limits on what each selector side offers; `nil` falls back to `.common()`.
     var sourceWalletsProvider: (any TokenSelectorWalletsProvider)?
     var receiveWalletsProvider: (any TokenSelectorWalletsProvider)?
-    var allowsMarketsTokens: Bool = true
+    var allowsSourceMarketsTokens: Bool = true
+    var allowsReceiveMarketsTokens: Bool = true
 
     func makeSwapTokenSelectorViewModel(
         direction: SwapTokenSelectorViewModel.SwapDirection,
@@ -42,7 +43,7 @@ struct SwapTokenSelectorViewModelBuilder {
         // `.toDestination` = the user is picking the source token.
         let isSourceSelection = if case .toDestination = direction { true } else { false }
         let walletsProvider = isSourceSelection ? sourceWalletsProvider : receiveWalletsProvider
-        let suppressesMarketsTokens = isSourceSelection && !allowsMarketsTokens
+        let suppressesMarketsTokens = isSourceSelection ? !allowsSourceMarketsTokens : !allowsReceiveMarketsTokens
         let showsBalanceFilter = isSourceSelection && FeatureProvider.isAvailable(.swapHideZeroBalanceSource)
 
         let tokenSelectorViewModel = TokenSelectorViewModel.swap(
