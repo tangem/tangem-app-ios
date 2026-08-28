@@ -1,5 +1,5 @@
 //
-//  ECDSASignature+stub.swift
+//  ECDSASignature+fake.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import enum CryptoKit.P256
 import struct Foundation.Data
 
 extension P256.Signing.ECDSASignature {
-    static var stub: P256.Signing.ECDSASignature {
+    static var fake: P256.Signing.ECDSASignature {
         get throws {
             try P256.Signing.ECDSASignature(rawRepresentation: Data(repeating: 0xCD, count: 64))
         }
