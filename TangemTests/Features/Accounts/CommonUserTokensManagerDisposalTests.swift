@@ -135,15 +135,19 @@ struct CommonUserTokensManagerDisposalTests {
             tokens: []
         )
         let repository = UserTokensRepositoryStub(cryptoAccount: account)
-        let derivationInfo = CommonUserTokensManager.DerivationInfo(
+        let derivationIdentity = CryptoAccountDerivationIdentity(
             derivationIndex: AccountModelUtils.mainAccountDerivationIndex,
+            type: .crypto
+        )
+        let derivationPathBuilder = AccountDerivationPathBuilderFactory.makeBuilder(
+            forAccountWith: derivationIdentity,
             derivationStyle: .v3
         )
 
         return CommonUserTokensManager(
             userWalletId: userWalletId,
             userTokensRepository: repository,
-            derivationInfo: derivationInfo,
+            derivationPathBuilder: derivationPathBuilder,
             existingCurves: EllipticCurve.allCases,
             persistentBlockchains: [],
             shouldLoadExpressAvailability: false,
