@@ -371,13 +371,13 @@ final class CommonCryptoAccountsRepository {
     /// removing accounts doesn't require token distribution after updating the remote state.
     private func removeAccountsInternal(_ identifier: some Hashable) async throws {
         var existingCryptoAccounts = persistentStorage.getList()
-        existingCryptoAccounts.removeAll { $0.derivationIndex.toAnyHashable() == identifier.toAnyHashable() }
+        existingCryptoAccounts.removeAll { $0.derivationIdentity.toPersistentIdentifier() == identifier.toAnyHashable() }
 
         let remoteCryptoAccountsInfo = try await networkService.saveAccounts(from: existingCryptoAccounts, retryCount: 0)
         try Task.checkCancellation()
 
         // Updating local storage only after successful remote update
-        persistentStorage.removeAll { $0.derivationIndex.toAnyHashable() == identifier.toAnyHashable() }
+        persistentStorage.removeAll { $0.derivationIdentity.toPersistentIdentifier() == identifier.toAnyHashable() }
         auxiliaryDataStorage.update(withRemoteInfo: remoteCryptoAccountsInfo)
     }
 
@@ -389,7 +389,7 @@ final class CommonCryptoAccountsRepository {
         // has the same value for all accounts. So, we can simply take the appearance from any existing remote account
         // if there is no account matching the provided derivation index.
         let accounts = remoteState.accounts
-        let account = accounts.first { $0.derivationIndex == config.derivationIndex } ?? accounts.first
+        let account = accounts.first { $0.derivationIdentity == config.derivationIdentity } ?? accounts.first
 
         // Pretty much dead code path, since there always exists at least one account
         guard let account else {
@@ -523,8 +523,8 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             .getList()
             .sorted { first, second in
                 guard
-                    let firstIndex = orderedIndicesKeyedByIdentifiers[first.derivationIndex.toAnyHashable()],
-                    let secondIndex = orderedIndicesKeyedByIdentifiers[second.derivationIndex.toAnyHashable()]
+                    let firstIndex = orderedIndicesKeyedByIdentifiers[first.derivationIdentity.toPersistentIdentifier()],
+                    let secondIndex = orderedIndicesKeyedByIdentifiers[second.derivationIdentity.toPersistentIdentifier()]
                 else {
                     // Preserve existing order
                     return false
@@ -554,32 +554,32 @@ extension CommonCryptoAccountsRepository: UserWalletPushNotificationsRemoteStatu
 /// An adapter to use `CommonCryptoAccountsRepository` as `UserTokensRepository`.
 final class UserTokensRepositoryAdapter: UserTokensRepository {
     private let innerRepository: CommonCryptoAccountsRepository
-    private let derivationIndex: Int
+    private let derivationIdentity: CryptoAccountDerivationIdentity
 
     init(
         innerRepository: CommonCryptoAccountsRepository,
-        derivationIndex: Int
+        derivationIdentity: CryptoAccountDerivationIdentity
     ) {
         self.innerRepository = innerRepository
-        self.derivationIndex = derivationIndex
+        self.derivationIdentity = derivationIdentity
     }
 
     var cryptoAccountPublisher: AnyPublisher<StoredCryptoAccount, Never> {
-        let index = derivationIndex
+        let identity = derivationIdentity
 
         return innerRepository
             .cryptoAccountsPublisher
             // Removal of the account triggers `innerRepository.cryptoAccountsPublisher` to emit a new value,
             // but in this case the account is already removed so we have to skip this value
-            .filter { $0.contains { $0.derivationIndex == index } }
-            .map { Self.cryptoAccount(forDerivationIndex: index, from: $0) }
+            .filter { $0.contains { $0.derivationIdentity == identity } }
+            .map { Self.cryptoAccount(forDerivationIdentity: identity, from: $0) }
             .eraseToAnyPublisher()
     }
 
     var cryptoAccount: StoredCryptoAccount {
         let cryptoAccounts = innerRepository.persistentStorage.getList()
 
-        return Self.cryptoAccount(forDerivationIndex: derivationIndex, from: cryptoAccounts)
+        return Self.cryptoAccount(forDerivationIdentity: derivationIdentity, from: cryptoAccounts)
     }
 
     func performBatchUpdates(_ batchUpdates: BatchUpdates) rethrows {
@@ -635,20 +635,20 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
     }
 
     private static func cryptoAccount(
-        forDerivationIndex derivationIndex: Int,
+        forDerivationIdentity derivationIdentity: CryptoAccountDerivationIdentity,
         from cryptoAccounts: [StoredCryptoAccount],
         file: StaticString = #fileID,
         line: UInt = #line
     ) -> StoredCryptoAccount {
-        guard let cryptoAccount = cryptoAccounts.first(where: { $0.derivationIndex == derivationIndex }) else {
+        guard let cryptoAccount = cryptoAccounts.first(where: { $0.derivationIdentity == derivationIdentity }) else {
             #if INTERNAL || DEBUG
             preconditionFailure(
-                "No crypto account found for derivation index '\(derivationIndex)' in crypto accounts: '\(cryptoAccounts)'",
+                "No crypto account found for derivation identity '\(derivationIdentity)' in crypto accounts: '\(cryptoAccounts)'",
                 file: file,
                 line: line
             )
             #else
-            return .dummy(withDerivationIndex: derivationIndex)
+            return .dummy(withDerivationIdentity: derivationIdentity)
             #endif // INTERNAL || DEBUG
         }
 
