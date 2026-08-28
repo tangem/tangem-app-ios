@@ -112,10 +112,12 @@ struct TopNavigationActionsPill: View {
     let actions: [TopNavigation.Action]
     let hasBackground: Bool
 
+    @ScaledMetric private var iconSide = TopNavigationChromeMetrics.actionIconSide
+
     var body: some View {
         HStack(spacing: .zero) {
             ForEach(actions.indices, id: \.self) { index in
-                TopNavigationActionButton(action: actions[index])
+                button(for: actions[index])
             }
         }
         .background {
@@ -123,6 +125,22 @@ struct TopNavigationActionsPill: View {
                 .tangemMaterialSurface(in: Capsule(), shadow: DesignSystem.Shadow.fallbackButton)
                 .opacity(hasBackground ? 1 : 0)
                 .animation(.default, value: hasBackground)
+                // The actions fill the whole 44 pt height UIKit gives the inline bar below iOS 26, so the surface
+                // is inset to keep it off the bar's edges — flush with them it reads as clipped once the bar
+                // gets its background on scroll. Insetting the surface rather than the actions keeps hit targets.
+                .padding(.vertical, Metrics.surfaceVerticalInset)
+        }
+    }
+
+    @ViewBuilder
+    private func button(for action: TopNavigation.Action) -> some View {
+        switch action.content {
+        case .icon:
+            TopNavigationBarButton(action: action, iconSide: iconSide)
+                .frame(width: Metrics.actionSide, height: Metrics.actionSide)
+                .contentShape(.rect)
+        case .title:
+            TopNavigationActionButton(action: action)
         }
     }
 }
@@ -134,7 +152,7 @@ struct TopNavigationNativeActionsGroup: View {
     let actions: [TopNavigation.Action]
     let hasBackground: Bool
 
-    @ScaledMetric private var iconSide = TopNavigationChromeMetrics.nativeActionIconSide
+    @ScaledMetric private var iconSide = TopNavigationChromeMetrics.actionIconSide
 
     var body: some View {
         HStack(spacing: .zero) {
@@ -154,11 +172,11 @@ struct TopNavigationNativeActionsGroup: View {
     private func button(for action: TopNavigation.Action) -> some View {
         switch action.content {
         case .icon:
-            TopNavigationNativeBarButton(action: action, iconSide: iconSide)
+            TopNavigationBarButton(action: action, iconSide: iconSide)
                 .frame(width: Metrics.actionSide, height: Metrics.actionSide)
                 .contentShape(.rect)
         case .title:
-            TopNavigationNativeBarButton(action: action)
+            TopNavigationBarButton(action: action)
         }
     }
 }
@@ -174,10 +192,9 @@ struct TopNavigationCircleButton: View {
     }
 }
 
-// MARK: - Native bar button (iOS 26)
+// MARK: - Bar button
 
-@available(iOS 26.0, *)
-struct TopNavigationNativeBarButton: View {
+struct TopNavigationBarButton: View {
     let action: TopNavigation.Action
     /// Icons are drawn at their asset's own size unless a side is given — the actions group sets one so its
     /// glyphs match the bar that shipped, while leading and closing chrome keeps its asset size.
@@ -286,8 +303,8 @@ struct TopNavigationMenuItems: View {
 
 /// Shared so the bar can reason about the width its own items occupy, not just render them.
 enum TopNavigationChromeMetrics {
-    static let nativeActionSide = TangemUI.Button.Size.x11.height
-    static let nativeActionIconSide: CGFloat = .unit(.x7)
+    static let actionSide = TangemUI.Button.Size.x11.height
+    static let actionIconSide: CGFloat = .unit(.x7)
     static let nativeCapsuleEndPadding: CGFloat = .unit(.x1)
     static let legacyActionSize: TangemUI.Button.Size = .x9
 
@@ -315,10 +332,17 @@ private extension TopNavigationActionButton {
     }
 }
 
+private extension TopNavigationActionsPill {
+    enum Metrics {
+        static let actionSide = TopNavigationChromeMetrics.actionSide
+        static let surfaceVerticalInset: CGFloat = .unit(.half)
+    }
+}
+
 @available(iOS 26.0, *)
 private extension TopNavigationNativeActionsGroup {
     enum Metrics {
-        static let actionSide = TopNavigationChromeMetrics.nativeActionSide
+        static let actionSide = TopNavigationChromeMetrics.actionSide
         static let capsuleEndPadding = TopNavigationChromeMetrics.nativeCapsuleEndPadding
     }
 }
