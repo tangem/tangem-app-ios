@@ -43,9 +43,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li asset</string>
+        <string>Top %li asset</string>
         <key>other</key>
-        <string>%li assets</string>
+        <string>Top %li assets</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
