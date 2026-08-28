@@ -11,7 +11,7 @@ import TangemPay
 enum TangemPayNetworkRowResolver {
     static func resolve(_ networks: [TangemPayBalance.Network]) -> [TangemPayNetworkRow] {
         networks.compactMap { network in
-            guard let blockchain = TangemPayUtilities.blockchain(name: network.name, isTestnet: network.isTestnet) else {
+            guard let blockchain = TangemPayUtilities.blockchain(for: network) else {
                 return nil
             }
 
@@ -30,7 +30,7 @@ enum TangemPayNetworkRowResolver {
         for network: TangemPayBalance.Network,
         depositAddress: String
     ) -> TangemPayReceiveSheetViewModel.Input? {
-        TangemPayUtilities.blockchain(name: network.name, isTestnet: network.isTestnet).map { blockchain in
+        TangemPayUtilities.blockchain(for: network).map { blockchain in
             receiveInput(for: network, blockchain: blockchain, depositAddress: depositAddress)
         }
     }

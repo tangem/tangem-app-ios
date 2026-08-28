@@ -35,7 +35,7 @@ struct TangemPayFundingFlowBuilder {
             return .to(receiveToken)
         }
 
-        // Non-empty by construction: a present deposit address guarantees at least the default token.
+        // Empty once the account is issued on no network; the resolver then keeps the default destination.
         let destinationCandidates = await makeDestinationCandidates()
 
         let sourceResolver = TangemPayAddFundsSourceResolver(
@@ -62,20 +62,16 @@ struct TangemPayFundingFlowBuilder {
         )
     }
 
-    /// Withdraw needs no account-wide address: multichain sources carry their per-network one,
-    /// so only the builder can tell why a withdrawal is unavailable.
     enum WithdrawResolution {
         case parameters(PredefinedSwapParameters)
-        case noDepositAddress
-        /// The account holds no token the withdraw API can move — it speaks only USDC on Polygon.
-        case noWithdrawableToken
+        case unavailable
     }
 
     @MainActor
     func withdraw() async -> WithdrawResolution {
         guard FeatureProvider.isAvailable(.tangemPayAddFundsWithdrawRework) else {
             guard let sourceToken = makeSwapableToken(presentation: nil) else {
-                return .noDepositAddress
+                return .unavailable
             }
 
             return .parameters(.from(sourceToken))
@@ -83,48 +79,58 @@ struct TangemPayFundingFlowBuilder {
 
         let accountTokens = await accountTokens()
 
-        // Empty means even the default token had no address to stand on.
-        guard !accountTokens.isEmpty else {
-            return .noDepositAddress
-        }
-
         guard let mostFunded = accountTokens.withdrawStartingPoint else {
-            return .noWithdrawableToken
+            return .unavailable
         }
 
-        let sourceToken = makeSwapableToken(
-            tokenItem: mostFunded.tokenItem,
-            depositAddress: mostFunded.depositAddress,
-            presentation: nil
-        )
+        let sourceToken = makeSwapableToken(accountToken: mostFunded, presentation: nil)
 
         return .parameters(.from(
             sourceToken,
             configuration: SwapFlowConfiguration(
                 isPairReversalEnabled: false,
-                // The base provider spans every unlocked wallet, hence the filtering by wallet.
-                sourceTokenSelection: .restricted(
-                    walletsProvider: FilteredTokenSelectorWalletsProvider(
-                        base: .common(),
-                        includesWallet: { [userWalletId = userWalletInfo.id] wallet in
-                            wallet.wallet.id == userWalletId
-                        },
-                        isIncluded: { $0.isPayAccount }
-                    )
-                ),
-                // Withdrawing the account into itself makes no sense.
-                receiveTokenSelection: .filtered(isIncluded: { !$0.isPayAccount }),
+                sourceTokenSelection: makeWithdrawSourceSelection(accountTokens: accountTokens),
+                // Moving funds between the account's own tokens isn't a withdrawal.
+                receiveTokenSelection: .selectable(.filtered(isIncluded: { !$0.isPayAccount })),
                 summaryTitle: Localization.tangempayCardDetailsWithdraw
             )
         ))
+    }
+
+    private func makeWithdrawSourceSelection(
+        accountTokens: [TangemPayAccountToken]
+    ) -> SwapFlowConfiguration.TokenSelection {
+        guard let tangemPayAccountModel = tangemPayAccount.account else {
+            // The base provider spans every unlocked wallet, hence the filtering by wallet.
+            return .restricted(
+                walletsProvider: FilteredTokenSelectorWalletsProvider(
+                    base: .common(),
+                    includesWallet: { [userWalletId = userWalletInfo.id] wallet in
+                        wallet.wallet.id == userWalletId
+                    },
+                    isIncluded: { $0.isPayAccount }
+                ),
+                allowsMarketsTokens: false
+            )
+        }
+
+        return .restricted(
+            walletsProvider: TangemPayWithdrawSourceWalletsProvider(
+                userWalletInfo: userWalletInfo,
+                tangemPayAccount: tangemPayAccount,
+                tangemPayAccountModel: tangemPayAccountModel,
+                // A token the withdraw API can't address can hold funds, but nothing moves them out.
+                accountTokens: accountTokens.filter(\.isWithdrawEligible)
+            ),
+            // A markets token can never be a payment account row.
+            allowsMarketsTokens: false
+        )
     }
 }
 
 // MARK: - Tokens
 
 private extension TangemPayFundingFlowBuilder {
-    /// The account's tokens on the networks it is already issued on. Falls back to the account-wide
-    /// token when that list is unavailable — an empty one would strand both funding flows.
     @MainActor
     func accountTokens() async -> [TangemPayAccountToken] {
         guard FeatureProvider.isAvailable(.tangemPayMultichain) else {
@@ -132,13 +138,12 @@ private extension TangemPayFundingFlowBuilder {
         }
 
         // An empty list also means "not loaded yet" — reload so only an account that truly
-        // has no enabled networks falls back to the default token.
+        // has no enabled networks ends up with nothing.
         if tangemPayAccount.networks.isEmpty {
             await tangemPayAccount.loadBalance()
         }
 
-        let resolved = await TangemPayAccountTokensResolver().resolve(networks: tangemPayAccount.networks)
-        return resolved.isEmpty ? defaultAccountTokens : resolved
+        return TangemPayAccountTokensResolver().resolve(networks: tangemPayAccount.networks)
     }
 
     var defaultAccountTokens: [TangemPayAccountToken] {
@@ -150,7 +155,8 @@ private extension TangemPayFundingFlowBuilder {
             TangemPayAccountToken(
                 tokenItem: TangemPayUtilities.usdcTokenItem,
                 depositAddress: depositAddress,
-                availableForWithdrawal: nil
+                availableForWithdrawal: nil,
+                chainId: nil
             ),
         ]
     }
@@ -158,37 +164,27 @@ private extension TangemPayFundingFlowBuilder {
     @MainActor
     func makeDestinationCandidates() async -> [any SendSwapableToken] {
         await accountTokens().fundingPriorityOrdered.map { accountToken in
-            makeSwapableToken(
-                tokenItem: accountToken.tokenItem,
-                depositAddress: accountToken.depositAddress,
-                presentation: receiveTokenPresentation
-            )
+            makeSwapableToken(accountToken: accountToken, presentation: receiveTokenPresentation)
         }
     }
 
     func makeSwapableToken(presentation: SendReceiveTokenPresentation?) -> (any SendSwapableToken)? {
-        guard let depositAddress = tangemPayAccount.depositAddress else {
+        guard let accountToken = defaultAccountTokens.first else {
             return nil
         }
 
-        return makeSwapableToken(
-            tokenItem: TangemPayUtilities.usdcTokenItem,
-            depositAddress: depositAddress,
-            presentation: presentation
-        )
+        return makeSwapableToken(accountToken: accountToken, presentation: presentation)
     }
 
     func makeSwapableToken(
-        tokenItem: TokenItem,
-        depositAddress: String,
+        accountToken: TangemPayAccountToken,
         presentation: SendReceiveTokenPresentation?
     ) -> any SendSwapableToken {
         TangemPaySwapableTokenFactory(
             userWalletInfo: userWalletInfo,
             tangemPayAccount: tangemPayAccount,
             account: tangemPayAccount.account,
-            tokenItem: tokenItem,
-            depositAddress: depositAddress,
+            accountToken: accountToken,
             operationType: .swap,
             receiveTokenPresentation: presentation
         ).makeSwapableToken()
