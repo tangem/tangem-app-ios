@@ -20,7 +20,7 @@ struct ApyFormatter {
 
     private func formatInternal(apy: Decimal, rewardType: String) -> String {
         let percentFormatter = PercentFormatter()
-        let apyFormatted = percentFormatter.format(apy, option: .staking)
+        let apyFormatted = percentFormatter.format(apy, option: .earn)
         return rewardType + " " + apyFormatted
     }
 }

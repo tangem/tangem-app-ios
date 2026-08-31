@@ -748,7 +748,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func makeFormattedRewardPercent(yieldInfo: StakingYieldInfo) -> String {
-        PercentFormatter().format(yieldInfo.rewardRateValues.max, option: .staking)
+        PercentFormatter().format(yieldInfo.rewardRateValues.max, option: .earn)
     }
 
     @MainActor
