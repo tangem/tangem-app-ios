@@ -78,9 +78,33 @@ extension MobileBackupTypesCoordinator: MobileBackupTypesRoutable {
             onDelete: onDelete
         )
 
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
+    func openMobileBackupICloudStorageUnavailable(input: MobileBackupStorageUnavailableInput, output: MobileBackupStorageUnavailableOutput) {
+        let viewModel = MobileBackupStorageUnavailableViewModel(input: input, output: output, coordinator: self)
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
+    func openMobileBackupICloudNotFound(output: MobileBackupNotFoundOutput) {
+        let viewModel = MobileBackupNotFoundViewModel(output: output, coordinator: self)
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+}
+
+// MARK: - MobileBackupStorageUnavailableRoutable
+
+extension MobileBackupTypesCoordinator: MobileBackupStorageUnavailableRoutable {
+    func closeMobileBackupStorageUnavailable() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - MobileBackupNotFoundRoutable
+
+extension MobileBackupTypesCoordinator: MobileBackupNotFoundRoutable {
+    func closeMobileBackupNotFound() {
+        floatingSheetPresenter.removeActiveSheet()
     }
 }
 
