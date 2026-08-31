@@ -149,7 +149,7 @@ extension CommonUserWalletModel: UserWalletModel {
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
-        if let tangemPayCustomerId = accountModelsManager.tangemPayAccountModel?.customerId {
+        if let tangemPayCustomerId = TangemPayAccountAggregator.tangemPayAccountModel(from: accountModelsManager)?.customerId {
             data.append(EmailCollectedData(type: .tangemPayCustomerId, data: tangemPayCustomerId))
         }
         data.append(EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue))

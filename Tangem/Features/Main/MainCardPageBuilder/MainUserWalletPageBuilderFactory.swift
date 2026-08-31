@@ -40,6 +40,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     @Injected(\.walletAssetsDiscoveryProgressProvider) private var walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
     @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
     @Injected(\.promotionCampaignsRepository) private var promotionCampaignsRepository: PromotionCampaignsRepository
+    @Injected(\.cryptoAccountsGlobalStateProvider) private var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     weak var coordinator: MainContentRoutable?
 
@@ -208,9 +209,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let expressStatusTracking = expressFactory.makeExpressStatusTracking()
 
         let accountModel: (any CryptoAccountModel)? = {
-            let cryptoAccounts = model.accountModelsManager.accountModels.cryptoAccounts()
-            guard cryptoAccounts.hasMultipleAccounts else { return nil }
-            return model.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount)
+            guard cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple else { return nil }
+            return AccountCryptoModelsAggregator.cryptoAccountModels(from: model.accountModelsManager).first(where: \.isMainAccount)
         }()
 
         let viewModel = SingleWalletMainContentViewModel(
@@ -321,7 +321,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     private func makeSingleWalletDependencies(
         userWalletModel: UserWalletModel
     ) -> (walletModel: any WalletModel, walletModelsManager: WalletModelsManager)? {
-        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+        guard let mainAccount = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).first(where: \.isMainAccount) else {
             return nil
         }
         let walletModelsManager: WalletModelsManager = mainAccount.walletModelsManager

@@ -114,8 +114,8 @@ extension CommonDerivationManager: DerivationDependenciesConfigurable {
     func configure(with accountModelsManager: AccountModelsManager) {
         assert(accountModelsManagerSubscription == nil, "An attempt to override already configured accountModelsManager subscription")
 
-        accountModelsManagerSubscription = accountModelsManager
-            .cryptoAccountModelsPublisher
+        accountModelsManagerSubscription = AccountCryptoModelsAggregator
+            .cryptoAccountModelsPublisher(from: accountModelsManager)
             .flatMapLatest { cryptoAccountModels -> AnyPublisher<[TokenItem], Never> in
                 guard cryptoAccountModels.isNotEmpty else {
                     return .just(output: [])

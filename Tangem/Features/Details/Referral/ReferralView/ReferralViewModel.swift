@@ -272,9 +272,10 @@ final class ReferralViewModel: ObservableObject {
         case (nil, .standard(let cryptoAccounts)):
             mapReadyToBecomeState(cryptoAccounts: cryptoAccounts)
 
-        case (_, .tangemPay), (_, .polymarket):
-            // The reward is USDT in Tron, and neither account type can hold it:
-            // TangemPay works only with USDC in Polygon, Polymarket only with its collateral there
+        case (_, .joint), (_, .tangemPay), (_, .polymarket):
+            // Unreachable: the account model comes from `firstStandard()`. Ineligible on their own merits too —
+            // the reward is USDT in Tron, which TangemPay (USDC in Polygon only) and Polymarket (its collateral
+            // there only) cannot hold, and a joint account is shared rather than the referring user's own
             break
         }
     }

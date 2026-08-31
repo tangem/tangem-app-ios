@@ -494,9 +494,8 @@ final class UserWalletNotificationManager {
     private func makePendingDerivationsCountPublisher() -> AnyPublisher<Int, Never>? {
         // receive(on:) must stay BEFORE each combineLatest — moving it downstream
         // re-races AbstractCombineLatest with deinit cancel cascade. See [REDACTED_INFO].
-        return userWalletModel
-            .accountModelsManager
-            .cryptoAccountModelsPublisher
+        return AccountCryptoModelsAggregator
+            .cryptoAccountModelsPublisher(from: userWalletModel.accountModelsManager)
             .map { $0.compactMap(\.userTokensManager.derivationManager) }
             .flatMapLatest { derivationManagers in
                 return derivationManagers

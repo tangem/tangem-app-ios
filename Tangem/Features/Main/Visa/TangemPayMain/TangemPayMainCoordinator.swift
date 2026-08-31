@@ -189,7 +189,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     func renewTangemPaySession() {
         guard
             let userWalletModel = options?.userWalletModel,
-            let tangemPayAccountModel = userWalletModel.accountModelsManager.tangemPayAccountModel
+            let tangemPayAccountModel = TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager)
         else {
             return
         }

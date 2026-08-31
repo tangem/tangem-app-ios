@@ -75,7 +75,6 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
     init(
         tokenItem: TokenItem,
         accountSelectorCell: AccountSelectorCellModel,
-        userWalletModels: [any UserWalletModel],
         tokenItemIconInfoBuilder: TokenIconInfoBuilder,
         isAccountSelectionAvailable: Bool,
         isNetworkSelectionAvailable: Bool,
@@ -104,9 +103,10 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
             isCustom: tokenItem.token?.isCustom ?? false
         )
 
-        let hasMultipleAccounts = userWalletModels.contains { wm in
-            wm.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
-        }
+        @Injected(\.cryptoAccountsGlobalStateProvider)
+        var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+
+        let hasMultipleAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
         accountRowData = Self.makeAccountRowData(
             accountSelectorCell: accountSelectorCell,
             displayWallet: !hasMultipleAccounts

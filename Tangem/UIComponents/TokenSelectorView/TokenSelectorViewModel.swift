@@ -249,7 +249,7 @@ extension TokenSelectorViewModel {
         let cryptoAccount: any CryptoAccountModel
 
         static func onlyAccount(of userWalletModel: any UserWalletModel) -> Self? {
-            guard let cryptoAccount = userWalletModel.accountModelsManager.cryptoAccountModels.singleElement else {
+            guard let cryptoAccount = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).singleElement else {
                 return nil
             }
 

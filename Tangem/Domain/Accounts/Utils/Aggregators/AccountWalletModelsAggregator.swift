@@ -12,8 +12,8 @@ import CombineExt
 
 enum AccountWalletModelsAggregator {
     static func walletModels(from accountModelsManager: AccountModelsManager) -> [any WalletModel] {
-        return accountModelsManager
-            .cryptoAccountModels
+        return AccountCryptoModelsAggregator
+            .cryptoAccountModels(from: accountModelsManager)
             .flatMap(\.walletModelsManager.walletModels)
     }
 
@@ -22,8 +22,8 @@ enum AccountWalletModelsAggregator {
     }
 
     static func walletModelsPublisher(from accountModelsManager: AccountModelsManager) -> AnyPublisher<[any WalletModel], Never> {
-        return accountModelsManager
-            .cryptoAccountModelsPublisher
+        return AccountCryptoModelsAggregator
+            .cryptoAccountModelsPublisher(from: accountModelsManager)
             .flatMapLatest { cryptoAccounts -> AnyPublisher<[any WalletModel], Never> in
                 guard cryptoAccounts.isNotEmpty else {
                     return Just([]).eraseToAnyPublisher()
