@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct SwiftUI.Color
 import TangemUI
 import TangemLocalization
 
@@ -21,6 +22,7 @@ struct PortfolioRowBuilder {
         topHoldings: [PortfolioReviewAggregator.Group],
         other: [PortfolioReviewAggregator.Group],
         addressless: [PortfolioReviewAggregator.Group],
+        colors: [String: Color],
         indicators: [String: [TokenSummaryIndicator]],
         timeframe: TokenSummaryIndicator.Timeframe
     ) -> [ForYouTokenListItem] {
@@ -31,11 +33,12 @@ struct PortfolioRowBuilder {
             makeAssetItem(
                 group: group,
                 total: total,
+                indicatorColor: colors[group.key],
                 sentiment: sentimentMapper.sentiment(for: indicators[group.symbol.uppercased()], timeframe: timeframe)
             )
         }
         if !other.isEmpty {
-            items.append(makeOtherItem(other: other, total: total))
+            items.append(makeOtherItem(other: other, total: total, indicatorColor: colors[Self.otherID]))
         }
         return items
     }
@@ -44,10 +47,15 @@ struct PortfolioRowBuilder {
 // MARK: - Rows
 
 private extension PortfolioRowBuilder {
-    func makeAssetItem(group: PortfolioReviewAggregator.Group, total: Decimal, sentiment: ForYouTokenRowData.Sentiment?) -> ForYouTokenListItem {
+    func makeAssetItem(
+        group: PortfolioReviewAggregator.Group,
+        total: Decimal,
+        indicatorColor: Color?,
+        sentiment: ForYouTokenRowData.Sentiment?
+    ) -> ForYouTokenListItem {
         ForYouTokenListItem(
             id: group.key,
-            assetRow: assetRow(for: group, total: total, sentiment: sentiment),
+            assetRow: assetRow(for: group, total: total, indicatorColor: indicatorColor, sentiment: sentiment),
             networkRows: group.networks.map { networkRow(for: $0, groupKey: group.key, total: total, sentiment: sentiment) },
             isExpanded: false,
             // Inert while loading; a single-network asset has nothing to reveal, so it stays a tap-to-open row.
@@ -55,13 +63,19 @@ private extension PortfolioRowBuilder {
         )
     }
 
-    func assetRow(for group: PortfolioReviewAggregator.Group, total: Decimal, sentiment: ForYouTokenRowData.Sentiment?) -> ForYouTokenRowData {
+    func assetRow(
+        for group: PortfolioReviewAggregator.Group,
+        total: Decimal,
+        indicatorColor: Color?,
+        sentiment: ForYouTokenRowData.Sentiment?
+    ) -> ForYouTokenRowData {
         ForYouTokenRowData(
             id: group.key,
             tokenItem: group.tokenItem,
             symbol: group.symbol,
             tokenIconInfo: iconBuilder.build(from: group.tokenItem, isCustom: group.isCustom),
             sentiment: sentiment,
+            indicatorColor: indicatorColor,
             subtitle: .text(assetSubtitle(tokenItem: group.tokenItem, networkCount: group.networks.count)),
             end: end(availability: group.availability, fiat: group.amountInFiat, total: total),
             isLoading: group.availability == .loading
@@ -76,13 +90,15 @@ private extension PortfolioRowBuilder {
             symbol: network.sample.tokenItem.name,
             tokenIconInfo: iconBuilder.build(from: network.sample.tokenItem, isCustom: network.sample.isCustom),
             sentiment: sentiment,
+            // A network is part of an asset's slice, not a slice of its own.
+            indicatorColor: nil,
             subtitle: networkSubtitle(network),
             end: end(availability: network.availability, fiat: network.amountInFiat, total: total),
             isLoading: network.availability == .loading
         )
     }
 
-    func makeOtherItem(other: [PortfolioReviewAggregator.Group], total: Decimal) -> ForYouTokenListItem {
+    func makeOtherItem(other: [PortfolioReviewAggregator.Group], total: Decimal, indicatorColor: Color?) -> ForYouTokenListItem {
         let fiat = other.reduce(Decimal.zero) { $0 + $1.amountInFiat }
 
         return ForYouTokenListItem(
@@ -93,6 +109,7 @@ private extension PortfolioRowBuilder {
                 symbol: Localization.commonOther,
                 tokenIconInfo: nil,
                 sentiment: nil,
+                indicatorColor: indicatorColor,
                 subtitle: .text(Localization.commonAssetsCount(other.count)),
                 end: .values(fiat: fiatString(fiat), percent: percentString(fiat, total: total), freshness: .fresh),
                 isLoading: false
@@ -172,6 +189,7 @@ private extension PortfolioRowBuilder {
 
 // MARK: - Constants
 
-private extension PortfolioRowBuilder {
+extension PortfolioRowBuilder {
+    /// The bucket row's id, and the key its dot's colour is looked up by.
     static let otherID = "for_you_other_assets"
 }

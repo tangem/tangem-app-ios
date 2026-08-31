@@ -43,8 +43,8 @@ extension PortfolioTokenItemView.RowView {
     var icon: some View {
         tokenIcon
             .overlay(alignment: .bottomTrailing) {
-                if isAggregateRow, data.tokenIconInfo != nil {
-                    indicatorDot
+                if isAggregateRow, let indicatorColor = data.indicatorColor {
+                    indicatorDot(indicatorColor)
                 }
             }
     }
@@ -69,10 +69,9 @@ extension PortfolioTokenItemView.RowView {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
-    var indicatorDot: some View {
+    func indicatorDot(_ color: Color) -> some View {
         Circle()
-            .fill(DesignSystem.Color.iconAccentRed)
+            .fill(color)
             .frame(width: 4, height: 4)
             .padding(1)
             .background(DesignSystem.Color.bgSecondary, in: Circle())
