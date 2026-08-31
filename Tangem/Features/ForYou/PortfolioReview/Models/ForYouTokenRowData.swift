@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct SwiftUI.Color
 import TangemUI
 
 /// Content of a single token row (asset aggregate, per-network child, or the "Other" bucket).
@@ -18,6 +19,7 @@ struct ForYouTokenRowData: Identifiable, Equatable {
     /// Carries a network glyph only for per-network child rows.
     let tokenIconInfo: TokenIconInfo?
     let sentiment: Sentiment?
+    let indicatorColor: Color?
     let subtitle: Subtitle
     let end: End
     let isLoading: Bool
