@@ -1,5 +1,5 @@
 //
-//  PolymarketWalletState.swift
+//  PolymarketDepositWalletState.swift
 //  TangemPolymarket
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,11 +8,11 @@
 
 import Foundation
 
-public struct PolymarketWalletState: Hashable, Sendable {
+public struct PolymarketDepositWalletState: Hashable, Sendable {
     public let depositWalletAddress: String?
-    public let status: PolymarketWalletStatus
+    public let status: PolymarketDepositWalletStatus
 
-    public init(depositWalletAddress: String?, status: PolymarketWalletStatus) {
+    public init(depositWalletAddress: String?, status: PolymarketDepositWalletStatus) {
         self.depositWalletAddress = depositWalletAddress
         self.status = status
     }
