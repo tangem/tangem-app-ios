@@ -16,28 +16,32 @@ struct BadgeView: View {
     private var titleColor: Color {
         switch item.style {
         case .accent:
-            Colors.Text.accent
+            DesignSystem.Color.textStatusInfo
         case .secondary:
-            Colors.Text.secondary
+            DesignSystem.Color.textSecondary
         case .warning:
-            Colors.Text.warning
+            DesignSystem.Color.textStatusWarning
+        case .error:
+            DesignSystem.Color.textStatusError
         }
     }
 
     private var bgColor: Color {
         switch item.style {
         case .accent:
-            Colors.Text.accent.opacity(0.1)
+            DesignSystem.Color.bgStatusInfoSubtle
         case .secondary:
-            Colors.Control.unchecked
+            DesignSystem.Color.bgOpaqueSecondary
         case .warning:
-            Colors.Text.warning.opacity(0.1)
+            DesignSystem.Color.bgStatusWarningSubtle
+        case .error:
+            DesignSystem.Color.bgStatusErrorSubtle
         }
     }
 
     var body: some View {
         Text(item.title)
-            .style(Fonts.Bold.caption1, color: titleColor)
+            .style(DesignSystem.Font.captionMediumToken, color: titleColor)
             .padding(.vertical, 4)
             .padding(.horizontal, 12)
             .background(bgColor)
@@ -57,5 +61,6 @@ extension BadgeView {
         case accent
         case secondary
         case warning
+        case error
     }
 }
