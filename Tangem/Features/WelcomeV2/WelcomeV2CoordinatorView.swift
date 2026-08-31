@@ -40,8 +40,8 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
 
             sheetsContent
 
-            if let hardwareViewModel = coordinator.hardwareWalletViewModel {
-                WelcomeHardwareWalletView(viewModel: hardwareViewModel)
+            if let storyViewModel = coordinator.welcomeStoryViewModel {
+                WelcomeStoryView(viewModel: storyViewModel)
                     .transition(.opacity)
                     .zIndex(1)
             }
@@ -53,7 +53,7 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
                 }
             }
         }
-        .animation(.easeInOut(duration: 0.35), value: coordinator.hardwareWalletViewModel != nil)
+        .animation(.easeInOut(duration: 0.35), value: coordinator.welcomeStoryViewModel != nil)
         .animation(.easeInOut(duration: 0.35), value: coordinator.tangemPayMobileOnboardingCoordinator != nil)
         .overlay(sheets)
         .fullScreenCover(item: $coordinator.legalWebViewModel) { webViewModel in
