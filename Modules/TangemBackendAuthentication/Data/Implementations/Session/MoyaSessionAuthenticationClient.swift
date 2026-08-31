@@ -29,7 +29,7 @@ struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
     func requestCipheredNonce(devicePublicKey: DevicePublicKey) async throws(SessionAuthenticationClientError) -> String {
         do {
             let requestBody = NonceDTO.Request(devicePublicKey: devicePublicKey.derRepresentation.base64EncodedString())
-            let target = BackendAuthenticationTarget(nonceForAuth: requestBody, baseURL: baseURL)
+            let target = BackendAuthenticationTarget(authenticationNonce: requestBody, baseURL: baseURL)
 
             let response = try await provider.request(target)
             let nonceResponse = try decoder.decode(NonceDTO.Response.self, from: response.data)
@@ -66,6 +66,10 @@ struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
             switch error.response?.statusCode {
             case 401, 403:
                 throw SessionAuthenticationClientError.authenticationRejected
+
+            case 404 where isDeviceNotFound(error.response?.data):
+                throw SessionAuthenticationClientError.deviceRegistrationMissing
+
             default:
                 throw SessionAuthenticationClientError.authenticateFailed(underlying: error)
             }
@@ -82,14 +86,14 @@ struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
     func refresh(refreshToken: String, accessToken: String) async throws(SessionAuthenticationClientError) -> SessionTokens {
         do {
             let dPoPProof = try await dPoPProofGenerator.generate(
-                htm: BackendAuthenticationTarget.refreshHTM,
-                htu: BackendAuthenticationTarget.refreshHTU(baseURL: baseURL),
+                htm: BackendAuthenticationTarget.Refresh.htm,
+                htu: BackendAuthenticationTarget.Refresh.htu(baseURL),
                 accessToken: accessToken
             )
 
             let requestBody = RefreshDTO.Request(refreshToken: refreshToken)
             let target = BackendAuthenticationTarget(
-                refreshToken: requestBody,
+                authenticationRefresh: requestBody,
                 baseURL: baseURL,
                 dPoPProof: dPoPProof.value,
                 accessToken: accessToken
@@ -103,4 +107,27 @@ struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
             throw SessionAuthenticationClientError.refreshFailed(underlying: error)
         }
     }
+
+    private func isDeviceNotFound(_ responseBody: Data?) -> Bool {
+        guard
+            let responseBody,
+            let problemDetailDTO = try? decoder.decode(ProblemDetailDTO.self, from: responseBody),
+            let problemDetailRawValue = problemDetailDTO.detail
+        else {
+            return false
+        }
+
+        return ProblemDetail(rawValue: problemDetailRawValue) == .deviceNotFound
+    }
+}
+
+// [REDACTED_USERNAME], backend uses ProblemDetail class from Spring framework for different types of exceptions,
+// all having 404 not found status code. The only way to distinguish is to rely on exact message match.
+
+private struct ProblemDetailDTO: Decodable {
+    let detail: String?
+}
+
+private enum ProblemDetail: String {
+    case deviceNotFound = "Device not found"
 }

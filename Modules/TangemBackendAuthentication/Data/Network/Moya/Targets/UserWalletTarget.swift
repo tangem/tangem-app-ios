@@ -18,26 +18,26 @@ struct UserWalletTarget: Moya.TargetType {
     let validationType: Moya.ValidationType
     let headers: [String: String]?
 
-    init(register requestBody: WalletRegistrationDTO.Request, baseURL: URL) {
+    init(registerWallet requestBody: RegisterWalletDTO.Request, baseURL: URL) {
         self.init(
             baseURL: baseURL,
-            path: "api/authentication/v1/mobile/wallet/register",
-            task: .requestJSONEncodable(requestBody)
+            relativePath: "register",
+            requestBody: requestBody
         )
     }
 
-    init(unregister requestBody: WalletUnregistrationDTO.Request, baseURL: URL) {
+    init(unregisterWallet requestBody: UnregisterWalletDTO.Request, baseURL: URL) {
         self.init(
             baseURL: baseURL,
-            path: "api/authentication/v1/mobile/wallet/unregister",
-            task: .requestJSONEncodable(requestBody)
+            relativePath: "unregister",
+            requestBody: requestBody
         )
     }
 
-    private init(baseURL: URL, path: String, task: Moya.Task) {
+    private init(baseURL: URL, relativePath: String, requestBody: some Encodable) {
         self.baseURL = baseURL
-        self.path = path
-        self.task = task
+        path = Self.pathPrefix + relativePath
+        task = .requestJSONEncodable(requestBody)
 
         method = .post
         // Moya's default `.none` never calls Alamofire's `.validate()`, so a 401 would otherwise
@@ -45,4 +45,6 @@ struct UserWalletTarget: Moya.TargetType {
         validationType = .successCodes
         headers = ["Content-Type": "application/json"]
     }
+
+    private static let pathPrefix = "api/authentication/v1/mobile/wallet/"
 }
