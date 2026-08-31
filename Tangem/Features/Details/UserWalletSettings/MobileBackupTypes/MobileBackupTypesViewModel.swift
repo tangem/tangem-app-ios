@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemLocalization
 import TangemMobileWalletSdk
 import TangemMobileWalletBackup
@@ -117,8 +118,8 @@ extension MobileBackupTypesViewModel: MobileBackupSeedPhraseTypeDelegate {
 // MARK: - MobileBackupICloudTypeDelegate
 
 extension MobileBackupTypesViewModel: MobileBackupICloudTypeDelegate {
-    func onICloudBackup() async {
-        await openICloudBackup()
+    func onICloudBackupCreate() async {
+        await openICloudBackupCreate()
     }
 
     func onICloudBackupDetails(backup: MobileWalletBackup, onDelete: @escaping () -> Void) async {
@@ -127,6 +128,14 @@ extension MobileBackupTypesViewModel: MobileBackupICloudTypeDelegate {
 
     func onICloudBackupDeleted() async {
         await presentICloudBackupDeletedToast()
+    }
+
+    func onICloudBackupStorageUnavailable(output: MobileBackupStorageUnavailableOutput) async {
+        await openICloudBackupStorageUnavailable(output: output)
+    }
+
+    func onICloudBackupNotFound(output: MobileBackupNotFoundOutput) async {
+        await openICloudBackupNotFound(output: output)
     }
 }
 
@@ -146,7 +155,7 @@ private extension MobileBackupTypesViewModel {
         coordinator?.openMobileUpgrade(userWalletModel: userWalletModel)
     }
 
-    func openICloudBackup() {
+    func openICloudBackupCreate() {
         let input = MobileOnboardingInput(flow: .iCloudBackup(
             userWalletModel: userWalletModel,
             source: .backup(action: .backup)
@@ -160,6 +169,15 @@ private extension MobileBackupTypesViewModel {
             userWalletModel: userWalletModel,
             onDelete: onDelete
         )
+    }
+
+    func openICloudBackupStorageUnavailable(output: MobileBackupStorageUnavailableOutput) {
+        let input = MobileBackupStorageUnavailableInput(mode: .retry)
+        coordinator?.openMobileBackupICloudStorageUnavailable(input: input, output: output)
+    }
+
+    func openICloudBackupNotFound(output: MobileBackupNotFoundOutput) {
+        coordinator?.openMobileBackupICloudNotFound(output: output)
     }
 
     func openSeedPhraseBackup(context: MobileWalletContext) {
