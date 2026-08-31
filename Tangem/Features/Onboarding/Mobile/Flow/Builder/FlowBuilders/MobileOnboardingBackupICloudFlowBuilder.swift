@@ -73,8 +73,8 @@ private extension MobileOnboardingBackupICloudFlowBuilder {
 
     func makeContinueStep() -> MobileOnboardingFlowStep {
         MobileOnboardingSuccessStep(
-            type: .backupContinue,
-            navigationTitle: Localization.hwBackupIcloudTitle,
+            type: .cloudBackupCompleted,
+            navigationTitle: Localization.hwCloudBackupRestoreNavtitleV2(MobileBackupConstants.iCloudServiceName),
             onAppear: {},
             onComplete: { [weak self] in
                 self?.openNext()
@@ -84,8 +84,8 @@ private extension MobileOnboardingBackupICloudFlowBuilder {
 
     func makeCompletedStep() -> MobileOnboardingFlowStep {
         MobileOnboardingSuccessStep(
-            type: .backupContinue,
-            navigationTitle: Localization.hwBackupIcloudTitle,
+            type: .cloudBackupCompleted,
+            navigationTitle: Localization.hwCloudBackupRestoreNavtitleV2(MobileBackupConstants.iCloudServiceName),
             onAppear: {},
             onComplete: weakify(self, forFunction: MobileOnboardingBackupICloudFlowBuilder.completeOnboarding)
         )
