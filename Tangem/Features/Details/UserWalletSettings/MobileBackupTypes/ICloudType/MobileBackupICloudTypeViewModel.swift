@@ -18,7 +18,7 @@ final class MobileBackupICloudTypeViewModel: ObservableObject {
 
     @Published private(set) var state: State?
 
-    let title = Localization.hwBackupIcloudTitle
+    let title = Localization.hwCloudBackupRestoreNavtitleV2(MobileBackupConstants.iCloudServiceName)
     let description = Localization.hwCloudBackupCellDescription(MobileBackupConstants.iCloudServiceName)
 
     private var analyticsContextParams: Analytics.ContextParams {
