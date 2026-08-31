@@ -61,7 +61,7 @@ final class JointAccountCreationHelper {
             throw .unknownError(Error.incompleteCreationContext)
         }
 
-        try await accountModelsManager.addJointAccount(context: context)
+        _ = try await accountModelsManager.addJointAccount(context: context)
     }
 }
 

@@ -226,7 +226,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func renewTangemPaySession() {
-        guard let tangemPayAccountModel = userWalletModel.accountModelsManager.tangemPayAccountModel else {
+        guard let tangemPayAccountModel = TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager) else {
             return
         }
         Analytics.log(.mainNoticeScanYourCardTapped)
@@ -257,7 +257,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func onAddTokensTap() {
-        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
+        guard let mainAccount = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).first(where: { $0.isMainAccount }) else {
             return
         }
 
@@ -374,8 +374,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        userWalletModel.accountModelsManager
-            .tangemPayAccountModelPublisher
+        TangemPayAccountAggregator
+            .tangemPayAccountModelPublisher(from: userWalletModel.accountModelsManager)
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, accountModel -> AnyPublisher<TangemPayAccountViewModel?, Never> in
                 if let accountModel {
@@ -639,7 +639,7 @@ extension MultiWalletMainContentViewModel {
     }
 
     private func openManageTokens() {
-        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+        guard let mainAccount = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager).first(where: \.isMainAccount) else {
             return
         }
 
