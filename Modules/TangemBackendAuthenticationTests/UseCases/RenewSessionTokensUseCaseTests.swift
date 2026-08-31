@@ -8,10 +8,11 @@
 
 import Foundation
 import Testing
+import TangemTestKit
 @testable import TangemBackendAuthentication
 
 @Suite(.tags(.backendAuthentication))
-struct RenewSessionTokensUseCaseTests {
+final class RenewSessionTokensUseCaseTests: LeakTrackingTestSuite {
     @Test
     func renewSessionTokensRefreshesWhenValidRefreshTokenCached() async throws {
         let dateNow = Date.now
@@ -29,7 +30,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient(refreshResult: .success(expectedSessionTokens))
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(cachedSessionTokens))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             dateProvider: dateNow
@@ -50,7 +51,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(expectedSessionTokens))
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             dateProvider: Date.now
@@ -80,7 +81,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(expectedSessionTokens))
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(expiredCachedSessionTokens))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             dateProvider: dateNow
@@ -107,7 +108,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(expectedSessionTokens))
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(cachedSessionTokensWithoutRefreshToken))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             dateProvider: Date.now
@@ -125,7 +126,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient()
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .failure(.decodingFailed))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             dateProvider: Date.now
@@ -165,7 +166,7 @@ struct RenewSessionTokensUseCaseTests {
         )
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(cachedSessionTokens))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             dateProvider: dateNow
@@ -184,7 +185,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.authenticationRejected))
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             dateProvider: Date.now
@@ -211,7 +212,7 @@ struct RenewSessionTokensUseCaseTests {
             deleteResult: .failure(.keychainFailure(.deleteFailed(status: -1)))
         )
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             dateProvider: Date.now
@@ -236,7 +237,7 @@ struct RenewSessionTokensUseCaseTests {
         )
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
             dateProvider: Date.now
@@ -263,7 +264,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             registerDevice: { tokensFromRegistration },
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
@@ -285,7 +286,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             registerDevice: {
                 authenticationClient.setAuthenticateResult(.success(expectedSessionTokens))
                 return nil
@@ -312,7 +313,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             registerDevice: { nil },
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: tokensRepository,
@@ -340,7 +341,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
         let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             registerDevice: { () throws(RegisterDeviceError) -> SessionTokens? in
                 throw RegisterDeviceError.repositoryFailure(.encodingFailed)
             },
@@ -368,7 +369,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(expectedSessionTokens))
         let appAttestService = StubAppAttestService(result: .failure(AppAttestServiceError()))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             appAttestService: appAttestService,
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
@@ -388,7 +389,7 @@ struct RenewSessionTokensUseCaseTests {
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(.stub))
         let appAttestService = StubAppAttestService(result: .success(expectedAttestationToken))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             appAttestService: appAttestService,
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
@@ -406,7 +407,7 @@ struct RenewSessionTokensUseCaseTests {
             result: .failure(.keyGenerationFailed(underlying: AnyTestError()))
         )
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
             devicePrivateKeyRepository: devicePrivateKeyRepository,
             dateProvider: Date.now
@@ -424,7 +425,7 @@ struct RenewSessionTokensUseCaseTests {
 
     @Test
     func renewSessionTokensThrowsNonceDecryptionFailureWhenDecryptFails() async throws {
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
             nonceDecryptor: StubNonceDecryptor(result: .failure(.invalidCipheredNonceEncoding)),
             dateProvider: Date.now
@@ -447,7 +448,7 @@ struct RenewSessionTokensUseCaseTests {
             persistResult: .failure(.encodingFailed)
         )
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: SpySessionAuthenticationClient(authenticateResult: .success(.stub)),
             sessionTokensRepository: tokensRepository,
             dateProvider: Date.now
@@ -471,7 +472,7 @@ struct RenewSessionTokensUseCaseTests {
         let expectedSessionTokens = SessionTokens.stub
 
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(expectedSessionTokens))
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
             dateProvider: Date.now
@@ -512,7 +513,7 @@ struct RenewSessionTokensUseCaseTests {
         let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
 
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .success(firstFreshSessionTokens))
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
             dateProvider: dateNow
@@ -537,7 +538,7 @@ struct RenewSessionTokensUseCaseTests {
 
         let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.authenticationRejected))
 
-        let sut = Self.makeSUT(
+        let sut = makeSUT(
             sessionAuthenticationClient: authenticationClient,
             sessionTokensRepository: SpySessionTokensRepository(retrieveResult: .success(nil)),
             dateProvider: Date.now
@@ -575,24 +576,28 @@ struct RenewSessionTokensUseCaseTests {
 // MARK: - Factory methods
 
 extension RenewSessionTokensUseCaseTests {
-    private static func makeSUT(
+    private func makeSUT(
         registerDevice: @escaping RenewSessionTokensUseCase.RegisterDevice = { nil },
         appAttestService: some AppAttestService = StubAppAttestService(),
         sessionAuthenticationClient: some SessionAuthenticationClient = SpySessionAuthenticationClient(),
         sessionTokensRepository: some SessionTokensRepository = SpySessionTokensRepository(),
         devicePrivateKeyRepository: some DevicePrivateKeyRepository = FakeDevicePrivateKeyRepository(),
         nonceDecryptor: some NonceDecryptor = StubNonceDecryptor(),
-        dateProvider: @escaping @autoclosure @Sendable () -> Date
+        dateProvider: @escaping @autoclosure @Sendable () -> Date,
+        sourceLocation: SourceLocation = #_sourceLocation
     ) -> RenewSessionTokensUseCase {
-        RenewSessionTokensUseCase(
-            registerDevice: registerDevice,
-            appAttestService: appAttestService,
-            sessionAuthenticationClient: sessionAuthenticationClient,
-            sessionTokensRepository: sessionTokensRepository,
-            deviceKeyManager: DeviceKeyManager(privateKeyRepository: devicePrivateKeyRepository),
-            nonceDecryptor: nonceDecryptor,
-            deviceMetadataProvider: .fake,
-            dateProvider: dateProvider()
+        trackForMemoryLeaks(
+            RenewSessionTokensUseCase(
+                registerDevice: registerDevice,
+                appAttestService: appAttestService,
+                sessionAuthenticationClient: sessionAuthenticationClient,
+                sessionTokensRepository: sessionTokensRepository,
+                deviceKeyManager: DeviceKeyManager(privateKeyRepository: devicePrivateKeyRepository),
+                nonceDecryptor: nonceDecryptor,
+                deviceMetadataProvider: .fake,
+                dateProvider: dateProvider()
+            ),
+            sourceLocation: sourceLocation
         )
     }
 
@@ -609,10 +614,8 @@ extension RenewSessionTokensUseCaseTests {
 
 private extension SessionTokens {
     static let stub = SessionTokens(
-        accessToken: Token(jwt: "access-jwt", expiresAt: Date(timeIntervalSince1970: 2000)),
-        refreshToken: Token(jwt: "refresh-jwt", expiresAt: Date(timeIntervalSince1970: 3000)),
+        accessToken: Token(jwt: "access-jwt", expiresAt: Date.fake),
+        refreshToken: Token(jwt: "refresh-jwt", expiresAt: Date.fake),
         userWalletIDs: []
     )
 }
-
-private struct AnyTestError: Error {}
