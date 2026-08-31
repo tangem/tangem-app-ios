@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-public import struct Foundation.Data
+import struct Foundation.Data
 
 /// A signature produced by the device's private key,
 /// used for device registration, authentication, and session-authenticated requests.
@@ -18,7 +18,7 @@ public import struct Foundation.Data
 ///
 /// The resulting signature is provided in one of two encodings, depending on which request it's part of.
 /// - SeeAlso: ``DevicePublicKey`` for how the underlying key is generated and protected.
-public struct DeviceSignature: Equatable, Sendable {
+struct DeviceSignature: Equatable, Sendable {
     /// The signature as ASN.1 (Abstract Syntax Notation One) DER (Distinguished Encoding Rules)
     /// encoded bytes: a `SEQUENCE` of two `INTEGER`s, `r` and `s`.
     ///
@@ -27,7 +27,7 @@ public struct DeviceSignature: Equatable, Sendable {
     ///   | ---                 | ---                               |
     ///   | device registration | `POST /mobile/register`           |
     ///   | authentication      | `POST /mobile/authenticate`       |
-    public let derRepresentation: Data
+    let derRepresentation: Data
 
     /// The signature as raw `r ‖ s` bytes, no ASN.1 wrapping.
     ///
@@ -41,7 +41,7 @@ public struct DeviceSignature: Equatable, Sendable {
     ///
     /// - Invariant: Exactly 64 bytes long: 32 bytes for `r` + 32 bytes for `s`.
     /// - SeeAlso: ``DPoPProof``
-    public let rawRepresentation: Data
+    let rawRepresentation: Data
 
     init(derRepresentation: Data, rawRepresentation: Data) throws(RawRepresentationFormatError) {
         guard rawRepresentation.count == Self.rawRepresentationByteCount else {

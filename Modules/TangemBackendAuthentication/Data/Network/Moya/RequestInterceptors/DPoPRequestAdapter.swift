@@ -6,13 +6,13 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-public import Foundation
-public import protocol Alamofire.RequestAdapter
-public import class Alamofire.Session
+import Foundation
+import protocol Alamofire.RequestAdapter
+import class Alamofire.Session
 
 /// Attaches `Authorization`/`DPoP` headers to every request sent through a provider carrying this adapter.
 /// Resolves a still-valid cached access token when one exists, or renews the session otherwise via ``RenewSessionTokensUseCase``.
-public struct DPoPRequestAdapter: RequestAdapter {
+struct DPoPRequestAdapter: RequestAdapter {
     private let renewSessionTokensUseCase: RenewSessionTokensUseCase
     private let sessionTokensRepository: any SessionTokensRepository
     private let dPoPProofGenerator: DPoPProofGenerator
@@ -30,7 +30,7 @@ public struct DPoPRequestAdapter: RequestAdapter {
         self.dateProvider = dateProvider
     }
 
-    public func adapt(
+    func adapt(
         _ urlRequest: URLRequest,
         for session: Session,
         completion: @escaping @Sendable (Result<URLRequest, any Error>) -> Void
