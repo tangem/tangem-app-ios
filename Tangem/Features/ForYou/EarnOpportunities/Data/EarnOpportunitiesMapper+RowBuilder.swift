@@ -41,7 +41,7 @@ extension EarnOpportunitiesMapper {
                 name: holding.currencyName,
                 network: Localization.walletNetworkGroupTitle(holding.networkName),
                 rewardAmount: rewardAmount(for: holding),
-                apyText: percentFormatter.format(holding.apyInfo.apy, option: .staking)
+                apyText: percentFormatter.format(holding.apyInfo.apy, option: .earn)
             )
         }
 
