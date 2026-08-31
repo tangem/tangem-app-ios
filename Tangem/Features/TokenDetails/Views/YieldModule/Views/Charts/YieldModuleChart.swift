@@ -31,7 +31,7 @@ struct YieldModuleChart: View {
                     .lineStyle(.init(lineWidth: 1, dash: [4, 4]))
                     .foregroundStyle(Colors.Icon.primary1)
                     .annotation(position: .overlay, alignment: .leading) {
-                        Text(Localization.yieldModuleRateInfoSheetChartAverage(PercentFormatter().format(average, option: .staking)))
+                        Text(Localization.yieldModuleRateInfoSheetChartAverage(PercentFormatter().format(average, option: .earn)))
                             .style(Fonts.Bold.caption2, color: Colors.Text.primary2)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)

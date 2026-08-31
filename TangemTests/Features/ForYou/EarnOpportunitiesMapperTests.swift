@@ -264,7 +264,7 @@ struct EarnOpportunitiesMapperTests {
         let token = try #require(items.first?.tokens.first)
 
         #expect(token.rewardAmount == nil)
-        #expect(token.apyText == PercentFormatter().format(0.05, option: .staking))
+        #expect(token.apyText == PercentFormatter().format(0.05, option: .earn))
     }
 
     @Test("Best-rate subtitle chip is the suggestion's rateText verbatim")
