@@ -76,7 +76,6 @@ private extension CommonPolymarketAPIService {
 extension CommonPolymarketAPIService {
     static func mapMoyaError(_ error: MoyaError, decoder: JSONDecoder) -> PolymarketAPIError {
         guard let response = error.response else {
-            // Forward the underlying transport error so cancellation / network codes stay inspectable.
             return .connection(underlying: error.underlyingError ?? error)
         }
 
