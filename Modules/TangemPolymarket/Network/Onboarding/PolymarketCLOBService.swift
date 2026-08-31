@@ -13,7 +13,13 @@ public protocol PolymarketCLOBService {
 
     func deriveCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials
 
-    func updateBalanceAllowance(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketBalanceAllowance
+    func updateBalanceAllowance(
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws
 
-    func balanceAllowance(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketBalanceAllowance
+    func balanceAllowance(
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> PolymarketBalanceAllowance
 }

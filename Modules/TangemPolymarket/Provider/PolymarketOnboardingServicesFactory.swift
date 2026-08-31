@@ -11,18 +11,20 @@ import TangemNetworkUtils
 
 public struct PolymarketOnboardingServicesFactory {
     private let networkConfiguration: TangemProviderConfiguration
+    private let environment: () -> PolymarketBFFEnvironment
 
-    public init(networkConfiguration: TangemProviderConfiguration) {
+    public init(
+        networkConfiguration: TangemProviderConfiguration,
+        environment: @escaping () -> PolymarketBFFEnvironment
+    ) {
         self.networkConfiguration = networkConfiguration
+        self.environment = environment
     }
 
-    public func makeWalletService(baseURL: URL, headers: [APIHeaderKeyInfo]) -> PolymarketWalletService {
-        let provider = TangemProvider<PolymarketWalletTarget>(
-            configuration: networkConfiguration,
-            additionalPlugins: [NetworkHeadersPlugin(networkHeaders: headers)]
-        )
+    public func makeWalletService() -> PolymarketDepositWalletService {
+        let provider = TangemProvider<PolymarketDepositWalletTarget>(configuration: networkConfiguration)
 
-        return CommonPolymarketWalletService(provider: provider, baseURL: baseURL)
+        return CommonPolymarketDepositWalletService(provider: provider, environment: environment)
     }
 
     public func makeGeoblockService() -> PolymarketGeoblockService {

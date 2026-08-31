@@ -13,7 +13,7 @@ import TangemNetworkUtils
 struct PolymarketCLOBTarget: Moya.TargetType {
     let baseURL: URL
     let target: Target
-    let authHeaders: PolymarketCLOBAuthHeaders
+    let authHeaders: [String: String]
 
     enum Target {
         case createCredentials
@@ -23,11 +23,15 @@ struct PolymarketCLOBTarget: Moya.TargetType {
     }
 
     var path: String {
+        String(signedPath.dropFirst())
+    }
+
+    var signedPath: String {
         switch target {
-        case .createCredentials: "auth/api-key"
-        case .deriveCredentials: "auth/derive-api-key"
-        case .updateBalanceAllowance: "balance-allowance/update"
-        case .balanceAllowance: "balance-allowance"
+        case .createCredentials: "/auth/api-key"
+        case .deriveCredentials: "/auth/derive-api-key"
+        case .updateBalanceAllowance: "/balance-allowance/update"
+        case .balanceAllowance: "/balance-allowance"
         }
     }
 
@@ -54,7 +58,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
     }
 
     var headers: [String: String]? {
-        authHeaders.values
+        authHeaders
     }
 }
 

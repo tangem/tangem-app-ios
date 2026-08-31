@@ -1,5 +1,5 @@
 //
-//  PolymarketWalletStatus.swift
+//  PolymarketDepositWalletStatus.swift
 //  TangemPolymarket
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum PolymarketWalletStatus: String, Hashable, Sendable {
+public enum PolymarketDepositWalletStatus: String, Hashable, Sendable {
     case notCreated = "NOT_CREATED"
     case deploymentInProgress = "DEPLOYMENT_IN_PROGRESS"
     case deploymentFailed = "DEPLOYMENT_FAILED"
@@ -22,16 +22,16 @@ public enum PolymarketWalletStatus: String, Hashable, Sendable {
 
 // MARK: - Decodable protocol conformance
 
-extension PolymarketWalletStatus: Decodable {
+extension PolymarketDepositWalletStatus: Decodable {
     public init(from decoder: any Decoder) throws {
         let rawValue = try decoder.singleValueContainer().decode(String.self)
-        self = PolymarketWalletStatus(rawValue: rawValue) ?? .unknown
+        self = PolymarketDepositWalletStatus(rawValue: rawValue) ?? .unknown
     }
 }
 
 // MARK: - Convenience extensions
 
-public extension PolymarketWalletStatus {
+public extension PolymarketDepositWalletStatus {
     var isInProgress: Bool {
         switch self {
         case .deploymentInProgress, .approvalsInProgress, .unknown:
@@ -47,6 +47,16 @@ public extension PolymarketWalletStatus {
             true
         case .notCreated, .deploymentInProgress, .deployed, .approvalsInProgress, .readyToTrade, .unknown:
             false
+        }
+    }
+}
+
+public extension PolymarketDepositWalletStatus {
+    /// The backend already holds a wallet row for this user, whatever stage it is at.
+    var isKnownAccount: Bool {
+        switch self {
+        case .notCreated: false
+        case .deploymentInProgress, .deploymentFailed, .deployed, .approvalsInProgress, .approvalsFailed, .readyToTrade, .unknown: true
         }
     }
 }

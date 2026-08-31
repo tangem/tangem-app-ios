@@ -13,8 +13,6 @@ public enum PolymarketAPIError: Error, LocalizedError {
 
     case connection(underlying: Error)
 
-    /// A field arrived in a shape the client cannot read. Reported rather than defaulted: a wrong amount is
-    /// worse than a failed request.
     case decoding(field: String, value: String)
 
     public var errorDescription: String? {

@@ -11,11 +11,11 @@ import Foundation
 extension PolymarketDTO {
     struct WalletStatusResponse: Decodable {
         let depositWalletAddress: String?
-        let status: PolymarketWalletStatus
+        let status: PolymarketDepositWalletStatus
     }
 
     struct WalletOperationResponse: Decodable {
-        let status: PolymarketWalletStatus
+        let status: PolymarketDepositWalletStatus
     }
 
     struct DeployRequest: Encodable {
