@@ -1,5 +1,5 @@
 //
-//  PolymarketWalletServiceTests.swift
+//  PolymarketDepositWalletServiceTests.swift
 //  TangemPolymarketTests
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -9,14 +9,14 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("PolymarketWalletStatus")
-struct PolymarketWalletStatusTests {
+@Suite("PolymarketDepositWalletStatus")
+struct PolymarketDepositWalletStatusTests {
     private let decoder = JSONDecoder()
 
     @Test(
         "The seven contract states decode by their backend representation",
         arguments: [
-            ("NOT_CREATED", PolymarketWalletStatus.notCreated),
+            ("NOT_CREATED", PolymarketDepositWalletStatus.notCreated),
             ("DEPLOYMENT_IN_PROGRESS", .deploymentInProgress),
             ("DEPLOYMENT_FAILED", .deploymentFailed),
             ("DEPLOYED", .deployed),
@@ -25,15 +25,15 @@ struct PolymarketWalletStatusTests {
             ("READY_TO_TRADE", .readyToTrade),
         ]
     )
-    func knownStatusDecodes(rawValue: String, expected: PolymarketWalletStatus) throws {
-        let decoded = try decoder.decode(PolymarketWalletStatus.self, from: Data("\"\(rawValue)\"".utf8))
+    func knownStatusDecodes(rawValue: String, expected: PolymarketDepositWalletStatus) throws {
+        let decoded = try decoder.decode(PolymarketDepositWalletStatus.self, from: Data("\"\(rawValue)\"".utf8))
 
         #expect(decoded == expected)
     }
 
     @Test("A state added later decodes as unknown and keeps the client polling")
     func unknownStatusKeepsPolling() throws {
-        let decoded = try decoder.decode(PolymarketWalletStatus.self, from: Data("\"SOMETHING_NEW\"".utf8))
+        let decoded = try decoder.decode(PolymarketDepositWalletStatus.self, from: Data("\"SOMETHING_NEW\"".utf8))
 
         #expect(decoded == .unknown)
         #expect(decoded.isInProgress)
@@ -42,20 +42,20 @@ struct PolymarketWalletStatusTests {
 
     @Test("Only the two submitted states are in progress")
     func inProgressStates() {
-        #expect(PolymarketWalletStatus.deploymentInProgress.isInProgress)
-        #expect(PolymarketWalletStatus.approvalsInProgress.isInProgress)
-        #expect(!PolymarketWalletStatus.deployed.isInProgress)
-        #expect(!PolymarketWalletStatus.readyToTrade.isInProgress)
+        #expect(PolymarketDepositWalletStatus.deploymentInProgress.isInProgress)
+        #expect(PolymarketDepositWalletStatus.approvalsInProgress.isInProgress)
+        #expect(!PolymarketDepositWalletStatus.deployed.isInProgress)
+        #expect(!PolymarketDepositWalletStatus.readyToTrade.isInProgress)
     }
 
     @Test("A deployed wallet is not a ready one, so approvals stay observable from the status")
     func deployedIsNotReadyToTrade() {
-        #expect(PolymarketWalletStatus.deployed != .readyToTrade)
+        #expect(PolymarketDepositWalletStatus.deployed != .readyToTrade)
     }
 }
 
-@Suite("PolymarketWalletState decoding")
-struct PolymarketWalletStateDecodingTests {
+@Suite("PolymarketDepositWalletState decoding")
+struct PolymarketDepositWalletStateDecodingTests {
     private let decoder = JSONDecoder()
 
     @Test("An owner without a record decodes with a null address")

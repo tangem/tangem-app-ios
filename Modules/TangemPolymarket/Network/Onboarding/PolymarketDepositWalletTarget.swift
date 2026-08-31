@@ -1,5 +1,5 @@
 //
-//  PolymarketWalletTarget.swift
+//  PolymarketDepositWalletTarget.swift
 //  TangemPolymarket
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,12 +10,13 @@ import Foundation
 import Moya
 import TangemNetworkUtils
 
-struct PolymarketWalletTarget: Moya.TargetType {
+struct PolymarketDepositWalletTarget: Moya.TargetType {
     let baseURL: URL
     let target: Target
+    let headers: [String: String]?
 
     enum Target {
-        case walletState(ownerAddress: String)
+        case walletState(ownerAddress: String?, walletId: String)
         case deploy(PolymarketDTO.DeployRequest)
         case approvals(PolymarketDTO.ApprovalsRequest)
     }
@@ -40,22 +41,19 @@ struct PolymarketWalletTarget: Moya.TargetType {
 
     var task: Moya.Task {
         switch target {
-        case .walletState(let ownerAddress):
-            return .requestParameters(parameters: ["ownerAddress": ownerAddress], encoding: URLEncoding.queryString)
+        case .walletState(let ownerAddress, let walletId):
+            let parameters = ownerAddress.map { ["ownerAddress": $0] } ?? ["walletId": walletId]
+
+            return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
         case .deploy(let request):
             return .requestJSONEncodable(request)
         case .approvals(let request):
             return .requestJSONEncodable(request)
         }
     }
-
-    var headers: [String: String]? {
-        // `api-key` is injected by the caller via `NetworkHeadersPlugin`; nothing target-specific here.
-        nil
-    }
 }
 
-extension PolymarketWalletTarget: TargetTypeLogConvertible {
+extension PolymarketDepositWalletTarget: TargetTypeLogConvertible {
     var requestDescription: String {
         path
     }

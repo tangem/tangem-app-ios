@@ -17,7 +17,7 @@ final class CommonPolymarketAccountModel {
     private(set) var depositWalletAddress: String?
 
     private let userWalletId: UserWalletId
-    private let walletService: PolymarketWalletService
+    private let walletService: PolymarketDepositWalletService
     private let credentialsRepository: PolymarketCredentialsRepository
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
     private let balanceService: PolymarketBalanceService
@@ -26,7 +26,7 @@ final class CommonPolymarketAccountModel {
 
     init(
         userWalletId: UserWalletId,
-        walletService: PolymarketWalletService,
+        walletService: PolymarketDepositWalletService,
         credentialsRepository: PolymarketCredentialsRepository,
         ownerAddressProvider: PolymarketOwnerAddressProviding,
         balanceService: PolymarketBalanceService
@@ -68,7 +68,10 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
         }
 
         do {
-            let walletState = try await walletService.walletState(ownerAddress: ownerAddress)
+            let walletState = try await walletService.depositWalletState(
+                ownerAddress: ownerAddress,
+                walletId: userWalletId.stringValue
+            )
             depositWalletAddress = walletState.depositWalletAddress
             stateSubject.send(makeState(from: walletState))
         } catch PolymarketWalletError.cancelled {
@@ -83,7 +86,7 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
 // MARK: - Private implementation
 
 private extension CommonPolymarketAccountModel {
-    func makeState(from walletState: PolymarketWalletState) -> PolymarketAccountState? {
+    func makeState(from walletState: PolymarketDepositWalletState) -> PolymarketAccountState? {
         switch walletState.status {
         case .notCreated:
             nil

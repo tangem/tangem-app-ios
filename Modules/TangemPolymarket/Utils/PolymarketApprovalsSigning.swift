@@ -13,8 +13,6 @@ import struct BlockchainSdk.EIP712Type
 import enum BlockchainSdk.JSON
 
 public enum PolymarketApprovalsSigning {
-    /// The EIP-712 encoder skips a field it cannot parse instead of failing, so an unchecked malformed
-    /// address would drop out of the signed structure and the card would sign the wrong payload.
     public static func digest(
         depositWalletAddress: String,
         nonce: String,
