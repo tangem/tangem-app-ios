@@ -11,7 +11,7 @@ private import struct CryptoKit.SHA256
 private import TangemFoundation
 
 /// Builds RFC 9449 ``DPoPProof``, signed with the device's private key via ``DeviceKeyManager``.
-public struct DPoPProofGenerator: Sendable {
+struct DPoPProofGenerator: Sendable {
     private let deviceKeyManager: DeviceKeyManager
     private let encoder: JSONEncoder
 
@@ -29,7 +29,7 @@ public struct DPoPProofGenerator: Sendable {
     /// When present, its SHA-256 hash is embedded as the `ath` claim; when `nil`, `ath` is omitted entirely.
     /// - Returns: A ``DPoPProof`` ready to send as the `DPoP` request header.
     /// - Throws: ``DeviceKeyManagerError`` if the device key is unavailable or signing fails.
-    public func generate(htm: String, htu: String, accessToken: String?) async throws(DeviceKeyManagerError) -> DPoPProof {
+    func generate(htm: String, htu: String, accessToken: String?) async throws(DeviceKeyManagerError) -> DPoPProof {
         let devicePublicKey = try await deviceKeyManager.publicKey
 
         let header = Header(jwk: JWK(devicePublicKey: devicePublicKey))
