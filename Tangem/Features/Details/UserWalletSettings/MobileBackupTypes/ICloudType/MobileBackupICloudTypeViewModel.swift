@@ -26,6 +26,7 @@ final class MobileBackupICloudTypeViewModel: ObservableObject {
     }
 
     private lazy var backupManager: MobileWalletBackupManager = CommonMobileWalletBackupManager(destination: .iCloud)
+    private lazy var backupStatusUtil = MobileBackupStatusUtil(userWalletModel: userWalletModel)
 
     private let userWalletModel: UserWalletModel
     private weak var delegate: MobileBackupICloudTypeDelegate?
@@ -43,15 +44,14 @@ final class MobileBackupICloudTypeViewModel: ObservableObject {
 
 private extension MobileBackupICloudTypeViewModel {
     func setup() {
-        guard FeatureProvider.isAvailable(.mobileWalletBackup) else {
-            runTask(in: self) { viewModel in
+        runTask(in: self) { viewModel in
+            if FeatureProvider.isAvailable(.mobileWalletBackup) {
+                viewModel.bind()
+                await viewModel.calculateState()
+            } else {
                 await viewModel.setupUnavailableState()
             }
-            return
         }
-
-        bind()
-        load()
     }
 
     func bind() {
@@ -63,34 +63,27 @@ private extension MobileBackupICloudTypeViewModel {
             .store(in: &bag)
     }
 
+    func calculateState() async {
+        if backupStatusUtil.hasICloudBackup {
+            await hasBackupFlow()
+        } else {
+            await noBackupFlow()
+        }
+    }
+
     func handleWalletUpdate(result: UpdateResult) {
         switch result {
         case .configurationChanged:
-            load()
+            runTask(in: self) { viewModel in
+                await viewModel.calculateState()
+            }
         case .nameDidChange:
             break
         }
     }
 
-    func load() {
-        runTask(in: self) { viewModel in
-            await viewModel.loadingFlow()
-        }
-    }
-
-    func loadingFlow() async {
-        await setupLoadingState()
-
-        do {
-            guard let backup = try await backupManager.loadBackup(walletId: userWalletModel.userWalletId) else {
-                throw WalletBackupStorageError.fileNotFound
-            }
-            await setupLoadedState(backup: backup)
-
-        } catch {
-            AppLogger.error("Failed to load the cloud backup details:", error: error)
-            await setupLoadedState(backup: nil)
-        }
+    func updateBackupDeletedStatus() {
+        userWalletModel.update(type: .iCloudBackupDeleted)
     }
 
     func delete(backup: MobileWalletBackup) {
@@ -98,77 +91,127 @@ private extension MobileBackupICloudTypeViewModel {
             await viewModel.deletingFlow(backup: backup)
         }
     }
+}
+
+// MARK: - Flows
+
+private extension MobileBackupICloudTypeViewModel {
+    func hasBackupFlow() async {
+        await loadingFlow()
+    }
+
+    func noBackupFlow() async {
+        await setupIncompleteState()
+    }
+
+    func loadingFlow() async {
+        await setupProcessingState()
+
+        do {
+            if let backup = try await backupManager.loadBackup(walletId: userWalletModel.userWalletId) {
+                await setupDoneState(backup: backup)
+            } else {
+                await setupRequirementState(reason: .backupNotFound)
+            }
+
+        } catch {
+            AppLogger.error("Failed to load the cloud backup details:", error: error)
+
+            switch error {
+            case WalletBackupStorageError.storageUnavailable:
+                await setupRequirementState(reason: .iCloudUnavailable)
+            default:
+                await setupRequirementState(reason: .backupNotFound)
+            }
+        }
+    }
 
     func deletingFlow(backup: MobileWalletBackup) async {
-        await setupDeletingState()
+        await setupProcessingState()
 
         do {
             try await backupManager.deleteBackup(backup)
 
             logBackupDeletedAnalytics()
-            userWalletModel.update(type: .iCloudBackupDeleted)
+            updateBackupDeletedStatus()
 
             await delegate?.onICloudBackupDeleted()
-            await loadingFlow()
 
         } catch {
             AppLogger.error("Failed to delete the cloud backup:", error: error)
             logDeletionErrorAnalytics(error)
 
-            await loadingFlow()
+            await calculateState()
         }
     }
 }
 
 // MARK: - States
 
-@MainActor
 private extension MobileBackupICloudTypeViewModel {
-    func setupLoadingState() {
-        setup(state: .loading)
+    func setupProcessingState() async {
+        await setup(state: .processing)
     }
 
-    func setupLoadedState(backup: MobileWalletBackup?) {
-        let badge: BadgeView.Item
-        let action: () -> Void
-
-        if let backup {
-            badge = .done
-            action = { [weak self] in
+    func setupDoneState(backup: MobileWalletBackup) async {
+        let item = DoneItem(
+            badge: .done,
+            action: { [weak self] in
                 self?.logTapAnalytics()
                 self?.onBackupDetails(backup: backup)
             }
-        } else {
-            badge = .noBackup
-            action = { [weak self] in
+        )
+        await setup(state: .done(item))
+    }
+
+    func setupIncompleteState() async {
+        let item = IncompleteItem(
+            badge: .noBackup,
+            action: { [weak self] in
                 self?.logTapAnalytics()
-                self?.onBackup()
+                self?.onBackupCreate()
+            }
+        )
+        await setup(state: .incomplete(item))
+    }
+
+    func setupUnavailableState() async {
+        let item = UnavailableItem(action: { [weak self] in
+            self?.onUnavailableTap()
+        })
+        await setup(state: .unavailable(item))
+    }
+
+    func setupRequirementState(reason: RequirementReason) async {
+        let item = RequirementItem(
+            badge: .actionRequired,
+            action: { [weak self] in
+                self?.logTapAnalytics()
+                self?.onRequirement(reason: reason)
+            }
+        )
+        await setup(state: .requirement(item))
+    }
+
+    func onRequirement(reason: RequirementReason) {
+        runTask(in: self) { viewModel in
+            switch reason {
+            case .iCloudUnavailable:
+                await viewModel.onStorageUnavailable()
+            case .backupNotFound:
+                await viewModel.onBackupNotFound()
             }
         }
-
-        let item = LoadedItem(
-            badge: badge,
-            action: action
-        )
-
-        setup(state: .loaded(item))
-    }
-
-    func setupDeletingState() {
-        setup(state: .deleting)
-    }
-
-    func setupUnavailableState() {
-        let action = weakify(self, forFunction: MobileBackupICloudTypeViewModel.onUnavailableTap)
-        let item = UnavailableItem(action: action)
-        setup(state: .unavailable(item))
     }
 
     func onUnavailableTap() {
         logTapAnalytics()
-        showUnavailableAlert()
+        runTask(in: self) { viewModel in
+            await viewModel.showUnavailableAlert()
+        }
     }
 
+    @MainActor
     func setup(state: State) {
         self.state = state
     }
@@ -210,10 +253,40 @@ private extension MobileBackupICloudTypeViewModel {
         )
     }
 
-    func onBackup() {
-        runTask { [delegate] in
-            await delegate?.onICloudBackup()
+    func onStorageUnavailable() async {
+        await delegate?.onICloudBackupStorageUnavailable(output: self)
+    }
+
+    func onBackupNotFound() async {
+        await delegate?.onICloudBackupNotFound(output: self)
+    }
+
+    func onBackupCreate() {
+        runTask(in: self) { viewModel in
+            await viewModel.delegate?.onICloudBackupCreate()
         }
+    }
+}
+
+// MARK: - MobileBackupStorageUnavailableOutput
+
+extension MobileBackupICloudTypeViewModel: MobileBackupStorageUnavailableOutput {
+    func didRequestRetry() {
+        runTask(in: self) { viewModel in
+            await viewModel.calculateState()
+        }
+    }
+}
+
+// MARK: - MobileBackupNotFoundOutput
+
+extension MobileBackupICloudTypeViewModel: MobileBackupNotFoundOutput {
+    func didRequestCreate() {
+        onBackupCreate()
+    }
+
+    func didRequestForget() {
+        updateBackupDeletedStatus()
     }
 }
 
@@ -241,13 +314,29 @@ private extension MobileBackupICloudTypeViewModel {
 
 extension MobileBackupICloudTypeViewModel {
     enum State {
-        case loading
-        case loaded(LoadedItem)
-        case deleting
+        case processing
+        case done(DoneItem)
+        case incomplete(IncompleteItem)
+        case requirement(RequirementItem)
         case unavailable(UnavailableItem)
     }
 
-    struct LoadedItem {
+    enum RequirementReason {
+        case iCloudUnavailable
+        case backupNotFound
+    }
+
+    struct DoneItem {
+        let badge: BadgeView.Item
+        let action: () -> Void
+    }
+
+    struct IncompleteItem {
+        let badge: BadgeView.Item
+        let action: () -> Void
+    }
+
+    struct RequirementItem {
         let badge: BadgeView.Item
         let action: () -> Void
     }

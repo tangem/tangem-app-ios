@@ -17,9 +17,10 @@ struct MobileBackupICloudTypeView: View {
 
     var body: some View {
         switch viewModel.state {
-        case .loading: loadingState()
-        case .loaded(let item): loadedState(item: item)
-        case .deleting: deletingState()
+        case .processing: processingState()
+        case .done(let item): state(badge: item.badge, action: item.action)
+        case .incomplete(let item): state(badge: item.badge, action: item.action)
+        case .requirement(let item): state(badge: item.badge, action: item.action)
         case .unavailable(let item): unavailableState(item: item)
         case .none: EmptyView()
         }
@@ -29,7 +30,7 @@ struct MobileBackupICloudTypeView: View {
 // MARK: - Subviews
 
 private extension MobileBackupICloudTypeView {
-    func loadingState() -> some View {
+    func processingState() -> some View {
         makeButton {
             VStack(alignment: .leading, spacing: 4) {
                 titleView
@@ -40,8 +41,8 @@ private extension MobileBackupICloudTypeView {
         .disabled(true)
     }
 
-    func loadedState(item: ViewModel.LoadedItem) -> some View {
-        makeButton(action: item.action) {
+    func state(badge: BadgeView.Item, action: @escaping () -> Void) -> some View {
+        makeButton(action: action) {
             VStack(alignment: .leading, spacing: 4) {
                 WrappingHStack(
                     alignment: .leading,
@@ -49,7 +50,7 @@ private extension MobileBackupICloudTypeView {
                     verticalSpacing: 4
                 ) {
                     titleView
-                    badge(item.badge)
+                    makeBadge(badge)
                 }
 
                 descriptionView
@@ -57,26 +58,6 @@ private extension MobileBackupICloudTypeView {
 
             chevronIcon
         }
-    }
-
-    func deletingState() -> some View {
-        makeButton {
-            VStack(alignment: .leading, spacing: 4) {
-                WrappingHStack(
-                    alignment: .leading,
-                    horizontalSpacing: 8,
-                    verticalSpacing: 4
-                ) {
-                    titleView
-                    badge(.done)
-                }
-
-                descriptionView
-            }
-
-            loader
-        }
-        .disabled(true)
     }
 
     func unavailableState(item: ViewModel.UnavailableItem) -> some View {
@@ -105,7 +86,7 @@ private extension MobileBackupICloudTypeView {
         .buttonStyle(.plain)
     }
 
-    func badge(_ item: BadgeView.Item) -> some View {
+    func makeBadge(_ item: BadgeView.Item) -> some View {
         BadgeView(item: item)
     }
 

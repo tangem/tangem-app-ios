@@ -219,7 +219,9 @@ extension MobileOnboardingViewModel: MobileOnboardingFlowRoutable {
     }
 
     func completeOnboarding() {
-        coordinator?.mobileOnboardingDidComplete()
+        runTask { [coordinator] in
+            await coordinator?.mobileOnboardingDidComplete()
+        }
     }
 
     func closeOnboarding() {
@@ -237,6 +239,9 @@ extension MobileOnboardingViewModel: MobileOnboardingFlowRoutable {
     }
 
     func openBackupStorageUnavailable() {
-        coordinator?.mobileBackupStorageUnavailable()
+        let input = MobileBackupStorageUnavailableInput(mode: .info)
+        runTask { [coordinator] in
+            await coordinator?.openMobileBackupStorageUnavailable(input: input)
+        }
     }
 }

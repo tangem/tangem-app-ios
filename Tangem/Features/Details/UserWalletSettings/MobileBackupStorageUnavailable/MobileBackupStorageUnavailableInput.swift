@@ -1,0 +1,18 @@
+//
+//  MobileBackupStorageUnavailableInput.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+struct MobileBackupStorageUnavailableInput {
+    let mode: Mode
+
+    enum Mode {
+        case info
+        case retry
+    }
+}
