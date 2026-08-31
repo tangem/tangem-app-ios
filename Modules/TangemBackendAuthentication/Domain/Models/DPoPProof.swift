@@ -22,7 +22,7 @@
 ///   | wallet registration | `POST /mobile/wallet/register`    |
 ///
 /// - SeeAlso: ``DeviceSignature/rawRepresentation`` for the signature this proof is built from.
-public struct DPoPProof: Equatable, Sendable {
+struct DPoPProof: Equatable, Sendable {
     /// The compact JWS serialization, three base64url segments joined by dot character: `<header>.<payload>.<signature>`.
     ///
     /// - `header`: `{typ: "dpop+jwt", alg: "ES256", jwk: {kty: "EC", crv: "P-256", x, y}}`,
@@ -36,5 +36,5 @@ public struct DPoPProof: Equatable, Sendable {
     ///     - `ath` (present only when this proof accompanies an access-token-bearing request).
     ///
     /// - `signature`: ``DeviceSignature/rawRepresentation`` over `<header>.<payload>`.
-    public let value: String
+    let value: String
 }
