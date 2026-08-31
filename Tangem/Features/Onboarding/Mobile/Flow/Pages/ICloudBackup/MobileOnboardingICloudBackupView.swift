@@ -23,6 +23,7 @@ struct MobileOnboardingICloudBackupView: View {
                 trailing: viewModel.trailingNavBarAction.view
             )
             .stepsFlowNavBar(backgroundColor: Appearance.backgroundColor)
+            .stepsFlow(isLoading: viewModel.isProcessing)
             .background(Appearance.backgroundColor)
             .onDisappear {
                 viewModel.onDisappear()
@@ -101,6 +102,7 @@ private extension MobileOnboardingICloudBackupView {
 
             ActionButton(
                 title: viewModel.actionTitle,
+                isLoading: viewModel.isProcessing,
                 enabled: viewModel.isActionEnabled,
                 action: viewModel.onActionTap
             )
@@ -291,6 +293,7 @@ private struct PasswordMatchingView: View {
 
 private struct ActionButton: View {
     let title: String
+    let isLoading: Bool
     let enabled: Bool
     let action: () -> Void
 
@@ -303,6 +306,7 @@ private struct ActionButton: View {
         .styleType(.default)
         .horizontalLayout(.infinity)
         .size(.x12)
+        .isLoading(isLoading)
         .disabled(!enabled)
     }
 }

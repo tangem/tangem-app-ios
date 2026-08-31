@@ -321,8 +321,7 @@ private extension UserWalletSettingsViewModel {
             case .backup(let needsBackup):
                 let detailsType: DefaultRowViewModel.DetailsType?
                 if needsBackup {
-                    let badgeItem = BadgeView.Item(title: Localization.hwBackupNoBackup, style: .warning)
-                    detailsType = .badge(badgeItem)
+                    detailsType = .badge(.noBackup)
                 } else {
                     detailsType = nil
                 }

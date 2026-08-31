@@ -10,7 +10,9 @@ import Foundation
 import TangemMobileWalletBackup
 
 protocol MobileBackupICloudTypeDelegate: AnyObject {
-    func onICloudBackup() async
+    func onICloudBackupCreate() async
     func onICloudBackupDetails(backup: MobileWalletBackup, onDelete: @escaping () -> Void) async
     func onICloudBackupDeleted() async
+    func onICloudBackupStorageUnavailable(output: MobileBackupStorageUnavailableOutput) async
+    func onICloudBackupNotFound(output: MobileBackupNotFoundOutput) async
 }
