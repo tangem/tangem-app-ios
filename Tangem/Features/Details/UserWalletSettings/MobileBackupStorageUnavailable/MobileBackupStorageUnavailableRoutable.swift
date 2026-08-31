@@ -10,5 +10,5 @@ import Foundation
 
 @MainActor
 protocol MobileBackupStorageUnavailableRoutable: AnyObject {
-    func dismissMobileBackupStorageUnavailable()
+    func closeMobileBackupStorageUnavailable()
 }

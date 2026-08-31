@@ -22,6 +22,7 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
 
     @Published private(set) var state: State = .setPassword
     @Published private(set) var isPasswordSecured: Bool = true
+    @Published private(set) var isProcessing: Bool = false
 
     @Published var passwordText: String = .empty
     @Published var isPasswordResponder: Bool? = true
@@ -189,14 +190,14 @@ private extension MobileOnboardingICloudBackupViewModel {
 
 private extension MobileOnboardingICloudBackupViewModel {
     func backup(password: String) {
-        Task {
-            let unlockResult = await unlock()
+        runTask(in: self) { viewModel in
+            let unlockResult = await viewModel.unlock()
             switch unlockResult {
             case .successful(let context):
-                await makeBackup(password: password, context: context)
+                await viewModel.makeBackup(password: password, context: context)
             case .failed(let error):
-                logCreationErrorAnalytics(error)
-                await showErrorAlert(error)
+                viewModel.logCreationErrorAnalytics(error)
+                await viewModel.showErrorAlert(error)
             case .canceled:
                 break
             }
@@ -205,12 +206,14 @@ private extension MobileOnboardingICloudBackupViewModel {
 
     func makeBackup(password: String, context: MobileWalletContext) async {
         do {
+            await setupIsProcessing(true)
             let backup = try await backupManager.createBackup(
                 context: context,
                 walletName: userWalletModel.name,
                 walletId: userWalletModel.userWalletId,
                 password: password
             )
+            await setupIsProcessing(false)
 
             markBackupCompleted()
             logBackupFinishedAnalytics()
@@ -229,7 +232,9 @@ private extension MobileOnboardingICloudBackupViewModel {
             }
 
         } catch {
+            await setupIsProcessing(false)
             logCreationErrorAnalytics(error)
+
             switch error {
             case WalletBackupStorageError.storageUnavailable:
                 await delegate?.onICloudUnavailable()
@@ -278,22 +283,35 @@ private extension MobileOnboardingICloudBackupViewModel {
         guard case .confirmPassword(let password) = state else {
             return
         }
-        state = .setPassword
-        passwordText = password
+        setup(state: .setPassword)
+        setupPassword(password)
     }
 
     func setupConfirmPasswordState() {
-        state = .confirmPassword(passwordText)
+        setup(state: .confirmPassword(passwordText))
         resetPassword()
     }
 
     func eraseState() {
-        state = .setPassword
+        setup(state: .setPassword)
         resetPassword()
     }
 
     func resetPassword() {
-        passwordText = .empty
+        setupPassword(.empty)
+    }
+
+    func setup(state: State) {
+        self.state = state
+    }
+
+    func setupPassword(_ passwordText: String) {
+        self.passwordText = passwordText
+    }
+
+    @MainActor
+    func setupIsProcessing(_ isProcessing: Bool) {
+        self.isProcessing = isProcessing
     }
 }
 
