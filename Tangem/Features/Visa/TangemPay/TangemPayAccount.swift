@@ -189,7 +189,12 @@ final class TangemPayAccount {
 
     // MARK: - Withdraw
 
-    let transactionDispatcher: TransactionDispatcher
+    private let transactionDispatcherFactory: (TangemPayWithdrawEligibility) -> TransactionDispatcher
+
+    func makeTransactionDispatcher(withdrawEligibility: TangemPayWithdrawEligibility) -> TransactionDispatcher {
+        transactionDispatcherFactory(withdrawEligibility)
+    }
+
     let withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider
     let withdrawTransactionService: any TangemPayWithdrawTransactionService
 
@@ -250,7 +255,7 @@ final class TangemPayAccount {
         customerService: any CustomerInfoManagementService,
         balancesService: any TangemPayBalancesService,
         withdrawTransactionService: any TangemPayWithdrawTransactionService,
-        transactionDispatcher: any TransactionDispatcher,
+        transactionDispatcherFactory: @escaping (TangemPayWithdrawEligibility) -> TransactionDispatcher,
         withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
         mainHeaderBalanceProvider: MainHeaderBalanceProvider,
@@ -265,7 +270,7 @@ final class TangemPayAccount {
         self.customerService = customerService
         self.balancesService = balancesService
         self.withdrawTransactionService = withdrawTransactionService
-        self.transactionDispatcher = transactionDispatcher
+        self.transactionDispatcherFactory = transactionDispatcherFactory
         self.withdrawAvailabilityProvider = withdrawAvailabilityProvider
         self.orderStatusPollingService = orderStatusPollingService
         self.mainHeaderBalanceProvider = mainHeaderBalanceProvider
