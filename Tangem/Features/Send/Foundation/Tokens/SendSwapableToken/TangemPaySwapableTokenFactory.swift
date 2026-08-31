@@ -87,27 +87,29 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
 }
 
 extension TangemPaySwapableTokenFactory {
-    /// The account carries all the plumbing — call sites only choose the token, address, and role.
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
         account: (any TangemPayAccountModel)?,
-        tokenItem: TokenItem,
-        depositAddress: String,
+        accountToken: TangemPayAccountToken,
         operationType: ExpressOperationType,
         receiveTokenPresentation: SendReceiveTokenPresentation?
     ) {
+        let balancesProvider = tangemPayAccount.balancesProvider
+        let availableBalanceProvider = balancesProvider.availableBalanceProvider(for: accountToken)
+        let fiatAvailableBalanceProvider = balancesProvider.fiatAvailableBalanceProvider(for: accountToken)
+
         self.init(
             userWalletInfo: userWalletInfo,
             account: account,
-            tokenItem: tokenItem,
-            feeTokenItem: tokenItem,
-            defaultAddressString: depositAddress,
-            availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-            fiatAvailableBalanceProvider: tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider,
-            transactionDispatcher: tangemPayAccount.transactionDispatcher,
+            tokenItem: accountToken.tokenItem,
+            feeTokenItem: accountToken.tokenItem,
+            defaultAddressString: accountToken.depositAddress,
+            availableBalanceProvider: availableBalanceProvider,
+            fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
+            transactionDispatcher: tangemPayAccount.makeTransactionDispatcher(withdrawEligibility: accountToken.withdrawEligibility),
             transactionValidator: TangemPaySendTransactionValidator(
-                availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider
+                availableBalanceProvider: availableBalanceProvider
             ),
             operationType: operationType,
             receiveTokenPresentation: receiveTokenPresentation

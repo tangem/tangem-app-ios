@@ -43,7 +43,12 @@ private extension CommonTokenSelectorTangemPayAccountModelItemsProvider {
                 userWalletInfo: userWalletInfo,
                 kind: .tangemPay(
                     tangemPayAccount,
-                    depositAddress,
+                    TangemPayAccountToken(
+                        tokenItem: tangemPayAccount.paymentTokenItem,
+                        depositAddress: depositAddress,
+                        availableForWithdrawal: nil,
+                        chainId: nil
+                    ),
                     tangemPayAccountModel
                 )
             ),

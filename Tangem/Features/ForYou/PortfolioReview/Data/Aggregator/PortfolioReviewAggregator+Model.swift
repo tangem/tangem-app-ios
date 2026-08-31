@@ -95,6 +95,13 @@ extension PortfolioReviewAggregator {
     }
 }
 
+extension Array where Element == PortfolioReviewAggregator.Group {
+    /// A zero draws no arc, so it earns no rank colour either.
+    var chartableKeys: [String] {
+        filter { $0.amountInFiat > 0 }.map(\.key)
+    }
+}
+
 private extension Array where Element == PortfolioReviewAggregator.TokenHolding {
     var fiatSum: Decimal {
         reduce(Decimal.zero) {

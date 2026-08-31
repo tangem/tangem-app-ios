@@ -91,3 +91,14 @@ public extension TangemPayBalance {
         }
     }
 }
+
+public extension TangemPayBalance {
+    /// Contract casing follows the BFF, so the match is case-insensitive.
+    func availableForWithdrawal(chainId: Int, tokenContractAddress: String) -> Decimal? {
+        networks
+            .first { $0.chainId == chainId }?
+            .tokens
+            .first { $0.tokenContractAddress.caseInsensitiveCompare(tokenContractAddress) == .orderedSame }?
+            .availableForWithdrawal
+    }
+}

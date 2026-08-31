@@ -156,18 +156,20 @@ extension OnboardingCoordinator: MobileOnboardingRoutable {
         dismiss(with: .dismiss(isSuccessful: true))
     }
 
-    func mobileBackupStorageUnavailable() {
-        let viewModel = MobileBackupStorageUnavailableViewModel(coordinator: self)
-        runTask(in: self) { @MainActor coordinator in
-            coordinator.floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
+    func openMobileBackupStorageUnavailable(input: MobileBackupStorageUnavailableInput) {
+        let viewModel = MobileBackupStorageUnavailableViewModel(
+            input: input,
+            output: nil,
+            coordinator: self
+        )
+        floatingSheetPresenter.enqueue(sheet: viewModel)
     }
 }
 
 // MARK: - MobileBackupStorageUnavailableRoutable
 
 extension OnboardingCoordinator: MobileBackupStorageUnavailableRoutable {
-    func dismissMobileBackupStorageUnavailable() {
+    func closeMobileBackupStorageUnavailable() {
         floatingSheetPresenter.removeActiveSheet()
     }
 }

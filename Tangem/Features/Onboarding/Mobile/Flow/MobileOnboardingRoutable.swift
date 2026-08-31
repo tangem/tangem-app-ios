@@ -8,7 +8,8 @@
 
 import Foundation
 
+@MainActor
 protocol MobileOnboardingRoutable: OnboardingRoutable {
     func mobileOnboardingDidComplete()
-    func mobileBackupStorageUnavailable()
+    func openMobileBackupStorageUnavailable(input: MobileBackupStorageUnavailableInput)
 }
