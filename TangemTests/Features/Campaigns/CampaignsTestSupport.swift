@@ -104,11 +104,11 @@ final class AccountModelsManagerStub: AccountModelsManager {
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { .just(output: accountModels) }
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: 1) }
 
-    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult {
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
         throw .tooManyAccounts
     }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {
+    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) -> AccountCreationResult {
         throw .tooManyAccounts
     }
 
