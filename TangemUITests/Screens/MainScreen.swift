@@ -37,6 +37,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
         .firstMatch
     private lazy var addTokensButton = app.buttons[MainAccessibilityIdentifiers.addTokensButton].firstMatch
+    private lazy var promoBannerTitle = staticText(.walletPromoBannerTitle)
+    private lazy var promoBannerBody = staticText(.walletPromoBannerDescription)
+    private lazy var promoBannerButton = button(.walletPromoBannerButton)
 
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
@@ -101,6 +104,41 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func verifyMarketBottomSheetGrabberVisible() -> Self {
         XCTContext.runActivity(named: "Verify 'Markets' bottom sheet drag handle is visible") { _ in
             waitAndAssertTrue(grabber, "'Markets' bottom sheet drag handle should be visible")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyPromoBannerTitleVisible() -> Self {
+        XCTContext.runActivity(named: "Verify 'Discover Tangem Wallet' banner title is visible") { _ in
+            waitAndAssertTrue(promoBannerTitle, "'Discover Tangem Wallet' banner title should be visible")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyPromoBannerBodyVisible() -> Self {
+        XCTContext.runActivity(named: "Verify 'Discover Tangem Wallet' banner body is visible") { _ in
+            waitAndAssertTrue(promoBannerBody, "'Discover Tangem Wallet' banner body should be visible")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyPromoBannerTitleIsNotVisible() -> Self {
+        XCTContext.runActivity(named: "Verify 'Discover Tangem Wallet' banner title is not visible") { _ in
+            XCTAssertFalse(
+                promoBannerTitle.waitForExistence(timeout: .conditional),
+                "Promo banner should NOT be visible"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapPromoBannerButton() -> Self {
+        XCTContext.runActivity(named: "Tap 'Get now with 10% off' button") { _ in
+            promoBannerButton.waitAndTap()
             return self
         }
     }
@@ -522,6 +560,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Add new wallet: \(name.rawValue)") { _ in
             openDetails()
                 .tapAddNewWallet()
+                .tapAddHardwareWallet()
 
             // Adding a wallet can route through the create-wallet selector (stories "Get started" and a
             // "Scan" step) before the mock-card action sheet appears. Navigate those if present, then pick.
@@ -540,6 +579,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
             waitAndAssertTrue(tokensList, "Tokens list should exist after adding new wallet")
             return self
+        }
+    }
+
+    @discardableResult
+    func forgetWallet(_ name: String) -> DetailsScreen {
+        XCTContext.runActivity(named: "Forget wallet \(name)") { _ in
+            openDetails()
+                .openWalletSettings(for: name)
+                .forgetWallet()
         }
     }
 
@@ -1176,6 +1224,9 @@ enum MainScreenElement: String, UIElement {
     case totalBalanceShimmer
     case missingDerivationNotification
     case walletLockedNotification
+    case walletPromoBannerTitle
+    case walletPromoBannerDescription
+    case walletPromoBannerButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -1203,6 +1254,12 @@ enum MainScreenElement: String, UIElement {
             MainAccessibilityIdentifiers.missingDerivationNotification
         case .walletLockedNotification:
             MainAccessibilityIdentifiers.walletLockedNotification
+        case .walletPromoBannerTitle:
+            MainAccessibilityIdentifiers.walletPromoBannerTitle
+        case .walletPromoBannerDescription:
+            MainAccessibilityIdentifiers.walletPromoBannerDescription
+        case .walletPromoBannerButton:
+            MainAccessibilityIdentifiers.walletPromoBannerButton
         }
     }
 }

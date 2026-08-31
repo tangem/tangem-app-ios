@@ -17,4 +17,6 @@ public enum DetailsAccessibilityIdentifiers {
     public static let contactSupport = "detailsContactSupportButton"
     public static let termsOfService = "detailsTermsOfServiceButton"
     public static let appVersion = "detailsAppVersionLabel"
+    public static let addHardwareWalletButton = "detailsAddHardwareWalletButton"
+    public static let addMobileWalletButton = "detailsAddMobileWalletButton"
 }
