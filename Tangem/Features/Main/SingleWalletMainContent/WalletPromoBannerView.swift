@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WalletPromoBannerView: View {
     @ObservedObject var viewModel: WalletPromoBannerViewModel
@@ -37,12 +38,14 @@ struct WalletPromoBannerView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, titlePadding)
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.walletPromoBannerTitle)
 
             Text(Localization.walletPromoBannerDescription)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, descriptionPadding)
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.walletPromoBannerDescription)
 
             TangemButton(
                 content: .text(AttributedString(Localization.walletPromoBannerButtonTitle)),
@@ -52,6 +55,7 @@ struct WalletPromoBannerView: View {
             .setHorizontalLayout(.infinity)
             .setSize(.x9)
             .padding(.top, actionPadding)
+            .accessibilityIdentifier(MainAccessibilityIdentifiers.walletPromoBannerButton)
         }
         .padding(padding)
         .background(DesignSystem.Color.bgSecondary)
