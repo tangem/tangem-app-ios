@@ -64,6 +64,7 @@ final class CommonServicesManager {
     private let customerIOWrapper: CustomerIOWrapper
 
     private var _initialized: Bool = false
+    private var pendingKeychainCleanTask: Task<Void, Never>?
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
@@ -187,7 +188,7 @@ extension CommonServicesManager: ServicesManager {
         let initialLaunches = recordAppLaunch()
 
         if initialLaunches == 0 {
-            KeychainCleaner.cleanAllData()
+            pendingKeychainCleanTask = KeychainCleaner.cleanAllData()
         }
 
         AmplitudeWrapper.shared.configure()
@@ -232,6 +233,7 @@ extension CommonServicesManager: ServicesManager {
         }
 
         await userWalletRepository.initialize()
+        BackendAuthenticationRegistrar.registerDeviceIfNeeded(pendingKeychainCleanTask: pendingKeychainCleanTask)
 
         _initialized = true
     }

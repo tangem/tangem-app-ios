@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-enum SessionTokensRepositoryError: Error, Equatable {
+public enum SessionTokensRepositoryError: Error, Equatable {
     /// Encoding ``SessionTokens`` before writing it to the Keychain failed.
     case encodingFailed
 

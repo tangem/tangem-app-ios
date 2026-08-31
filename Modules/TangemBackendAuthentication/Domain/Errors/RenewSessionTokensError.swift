@@ -11,4 +11,5 @@ enum RenewSessionTokensError: Error {
     case nonceDecryptionFailure(NonceDecryptorError)
     case deviceKeyFailure(DeviceKeyManagerError)
     case repositoryFailure(SessionTokensRepositoryError)
+    case registrationFailure(RegisterDeviceError)
 }
