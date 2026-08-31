@@ -16,16 +16,21 @@ import TangemFoundation
 struct MoyaSessionAuthenticationClientTests {
     @Test(arguments: StatusCodes.success)
     func requestCipheredNonceReturnsCipheredNonceOnSuccessStatusCode(successStatusCode: Int) async throws {
-        let sut = try Self.makeSUT(statusCode: successStatusCode, responseBody: NonceResponse.valid)
-        let cipheredNonce = try await sut.requestCipheredNonce(devicePublicKey: .fake)
+        let expectedCipheredNonce = "ciphered-value"
+        let sut = try Self.makeSUT(
+            statusCode: successStatusCode,
+            responseBody: NonceResponseFixture.valid(cipheredNonce: expectedCipheredNonce)
+        )
 
-        #expect(cipheredNonce == "ciphered-value")
+        let actualCipheredNonce = try await sut.requestCipheredNonce(devicePublicKey: .fake)
+
+        #expect(actualCipheredNonce == expectedCipheredNonce)
     }
 
     @Test
     func requestCipheredNonceFailsOnUnexpectedResponseBody() async throws {
         let anySuccessStatusCode = 200
-        let sut = try Self.makeSUT(statusCode: anySuccessStatusCode, responseBody: NonceResponse.invalid)
+        let sut = try Self.makeSUT(statusCode: anySuccessStatusCode, responseBody: NonceResponseFixture.invalid)
 
         let error = try await #require(throws: SessionAuthenticationClientError.self) {
             _ = try await sut.requestCipheredNonce(devicePublicKey: .fake)
@@ -39,7 +44,12 @@ struct MoyaSessionAuthenticationClientTests {
 
     @Test(arguments: StatusCodes.success)
     func authenticateReturnsSessionTokensOnSuccess(successStatusCode: Int) async throws {
-        let sut = try Self.makeSUT(statusCode: successStatusCode, responseBody: TokensResponse.valid)
+        let expectedAccessToken = "access-jwt"
+        let expectedRefreshToken = "refresh-jwt"
+        let sut = try Self.makeSUT(
+            statusCode: successStatusCode,
+            responseBody: TokensResponseFixture.valid(accessToken: expectedAccessToken, refreshToken: expectedRefreshToken)
+        )
 
         let sessionTokens = try await sut.authenticate(
             devicePublicKey: .fake,
@@ -49,13 +59,17 @@ struct MoyaSessionAuthenticationClientTests {
             attestationToken: nil
         )
 
-        #expect(sessionTokens.accessToken.jwt == "access-jwt")
+        #expect(sessionTokens.accessToken.jwt == expectedAccessToken)
+        #expect(sessionTokens.refreshToken?.jwt == expectedRefreshToken)
     }
 
     @Test
     func authenticateThrowsAuthenticateFailedOnUnexpectedResponseBody() async throws {
         let anySuccessStatusCode = 200
-        let sut = try Self.makeSUT(statusCode: anySuccessStatusCode, responseBody: TokensResponse.invalidWithUnixTimestampDateFormat)
+        let sut = try Self.makeSUT(
+            statusCode: anySuccessStatusCode,
+            responseBody: TokensResponseFixture.invalidWithUnixTimestampDateFormat
+        )
 
         let error = try await #require(throws: SessionAuthenticationClientError.self) {
             _ = try await sut.authenticate(
@@ -95,10 +109,8 @@ struct MoyaSessionAuthenticationClientTests {
 
     @Test
     func authenticateThrowsDeviceRegistrationMissingForDeviceNotFoundError() async throws {
-        let deviceNotFoundStatusCode = 404
-        let deviceNotFoundErrorResponse = #"{"detail":"Device not found"}"#
-
-        let sut = try Self.makeSUT(statusCode: deviceNotFoundStatusCode, responseBody: deviceNotFoundErrorResponse)
+        let notFoundStatusCode = 404
+        let sut = try Self.makeSUT(statusCode: notFoundStatusCode, responseBody: TokensResponseFixture.deviceNotFoundErrorResponse)
 
         let error = try await #require(throws: SessionAuthenticationClientError.self) {
             _ = try await sut.authenticate(
@@ -112,6 +124,31 @@ struct MoyaSessionAuthenticationClientTests {
 
         guard case .deviceRegistrationMissing = error else {
             Issue.record("Expected .deviceRegistrationMissing, got \(error)")
+            return
+        }
+    }
+
+    @Test(arguments: [
+        TokensResponseFixture.nonceNotFoundErrorResponse,
+        TokensResponseFixture.tokenNotFoundErrorResponse,
+        TokensResponseFixture.emptyErrorResponse,
+    ])
+    func authenticateThrowsAuthenticateFailedForNotFoundErrorsOtherThanDeviceNotFound(responseBody: String) async throws {
+        let notFoundStatusCode = 404
+        let sut = try Self.makeSUT(statusCode: notFoundStatusCode, responseBody: responseBody)
+
+        let error = try await #require(throws: SessionAuthenticationClientError.self) {
+            _ = try await sut.authenticate(
+                devicePublicKey: .fake,
+                decryptedNonce: "decrypted-nonce",
+                metadata: .fake,
+                signature: .fake,
+                attestationToken: nil
+            )
+        }
+
+        guard case .authenticateFailed = error else {
+            Issue.record("Expected .authenticateFailed, got \(error)")
             return
         }
     }
@@ -138,9 +175,11 @@ struct MoyaSessionAuthenticationClientTests {
 
     @Test(arguments: StatusCodes.success)
     func refreshReturnsSessionTokensOnSuccessStatusCode(successStatusCode: Int) async throws {
+        let expectedAccessToken = "access-jwt"
+        let expectedRefreshToken = "refresh-jwt"
         let sut = try Self.makeSUT(
             statusCode: successStatusCode,
-            responseBody: TokensResponse.valid,
+            responseBody: TokensResponseFixture.valid(accessToken: expectedAccessToken, refreshToken: expectedRefreshToken),
             headersSpy: { actualHeaders in
                 #expect(actualHeaders?["Authorization"] == "DPoP access-jwt")
                 #expect(actualHeaders?["DPoP"] != nil)
@@ -149,13 +188,17 @@ struct MoyaSessionAuthenticationClientTests {
 
         let sessionTokens = try await sut.refresh(refreshToken: "refresh-jwt", accessToken: "access-jwt")
 
-        #expect(sessionTokens.accessToken.jwt == "access-jwt")
+        #expect(sessionTokens.accessToken.jwt == expectedAccessToken)
+        #expect(sessionTokens.refreshToken?.jwt == expectedRefreshToken)
     }
 
     @Test
     func refreshThrowsRefreshFailedOnUnexpectedResponseBody() async throws {
         let anySuccessStatusCode = 200
-        let sut = try Self.makeSUT(statusCode: anySuccessStatusCode, responseBody: TokensResponse.invalidWithUnixTimestampDateFormat)
+        let sut = try Self.makeSUT(
+            statusCode: anySuccessStatusCode,
+            responseBody: TokensResponseFixture.invalidWithUnixTimestampDateFormat
+        )
 
         let error = try await #require(throws: SessionAuthenticationClientError.self) {
             _ = try await sut.refresh(refreshToken: "refresh-jwt", accessToken: "access-jwt")
@@ -194,7 +237,7 @@ extension MoyaSessionAuthenticationClientTests {
         let provider = MoyaProvider<BackendAuthenticationTarget>(
             endpointClosure: { target in
                 headersSpy?(target.headers)
-                return Self.makeEndpoint(for: target, statusCode: statusCode, responseBody: responseBody)
+                return Endpoint.stub(target: target, statusCode: statusCode, responseBody: responseBody)
             },
             stubClosure: MoyaProvider.immediatelyStub
         )
@@ -207,16 +250,6 @@ extension MoyaSessionAuthenticationClientTests {
 
         return MoyaSessionAuthenticationClient(provider: provider, baseURL: anyBaseURL, dPoPProofGenerator: dPoPProofGenerator)
     }
-
-    private static func makeEndpoint(for target: BackendAuthenticationTarget, statusCode: Int, responseBody: String) -> Endpoint {
-        Endpoint(
-            url: target.baseURL.appendingPathComponent(target.path).absoluteString,
-            sampleResponseClosure: { .networkResponse(statusCode, Data(responseBody.utf8)) },
-            method: target.method,
-            task: target.task,
-            httpHeaderFields: target.headers
-        )
-    }
 }
 
 // MARK: - Fixtures
@@ -227,42 +260,11 @@ extension MoyaSessionAuthenticationClientTests {
         static let error = [400, 402, 500, 501, 512]
         static let authenticationRejection = [401, 403]
     }
-
-    private enum NonceResponse {
-        static let valid = #"{"cipheredNonce":"ciphered-value","expiresAt":"2026-01-01T00:00:00Z"}"#
-        static let invalid = #"{"beep-bop":67}"#
-    }
-
-    private enum TokensResponse {
-        static let valid = """
-        {
-            "accessToken": "access-jwt",
-            "accessTokenExpiresAt": "2026-01-01T00:00:00Z",
-            "refreshToken": "refresh-jwt",
-            "refreshTokenExpiresAt": "2026-02-01T00:00:00Z",
-            "walletIds": []
-        }
-        """
-
-        static let invalidWithUnixTimestampDateFormat = """
-        {
-            "accessToken": "access-jwt",
-            "accessTokenExpiresAt": "1767225600",
-            "refreshToken": "refresh-jwt",
-            "refreshTokenExpiresAt": "1767225600",
-            "walletIds": []
-        }
-        """
-    }
 }
 
-private extension DeviceSignature {
-    static var fake: DeviceSignature {
-        get throws(DeviceSignature.RawRepresentationFormatError) {
-            try DeviceSignature(
-                derRepresentation: Data([0x01, 0x02, 0x03]),
-                rawRepresentation: Data(repeating: 0xAB, count: 64)
-            )
-        }
-    }
+private extension TokensResponseFixture {
+    static let deviceNotFoundErrorResponse = #"{"detail":"Device not found"}"#
+    static let nonceNotFoundErrorResponse = #"{"detail":"Nonce not found"}"#
+    static let tokenNotFoundErrorResponse = #"{"detail":"Token not found"}"#
+    static let emptyErrorResponse = ""
 }
