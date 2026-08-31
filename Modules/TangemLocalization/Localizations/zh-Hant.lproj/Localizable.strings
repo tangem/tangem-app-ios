@@ -874,6 +874,9 @@
 "joint_account_activation_account_button_title" = "Activate account";
 "joint_account_activation_subtitle" = "Everyone in this account shares one balance. Any member can spend or withdraw the funds at any time — including without your approval.";
 "joint_account_activation_title" = "You're activating a shared account";
+"joint_account_invite_invalid_subtitle" = "Check that you opened the full link, or ask the account owner to send it again.";
+"joint_account_invite_invalid_title" = "Invitation link isn't valid";
+"joint_account_invite_load_failed_subtitle" = "Failed to load invite page.\nTap to reload";
 "joint_account_invite_members_creator" = "Creator";
 "joint_account_invite_members_invite" = "Invite";
 "joint_account_invite_members_member_info" = "Member info";
@@ -2242,8 +2245,8 @@
 "tangempay_tangem_visa_card" = "使用 USDC 進行日常支付";
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时不可用";
 "tangempay_title" = "Tangem Pay";
-"tangempay_topup_bank_transfer_body" = "透過 ACH 接收法定美元";
-"tangempay_topup_bank_transfer_title" = "銀行轉帳";
+"tangempay_topup_bank_transfer_body" = "透過 ACH 從銀行帳戶接收美元";
+"tangempay_topup_bank_transfer_title" = "從銀行帳戶";
 "tangempay_topup_receive_body_multichain" = "將 USDC 或 USDT 傳送至您帳戶的地址";
 "tangempay_topup_receive_body" = "将 USDC Polygon 发送至您账户地址";
 "tangempay_topup_receive_title" = "从其他钱包或交易所";
