@@ -7,18 +7,18 @@
 //
 
 private import Foundation
-public import Alamofire
+import Alamofire
 
 /// Retries a request exactly once, after a fresh renewal, on 401 and never a second time on the same request.
 /// A repeat failure right after a fresh token means the session is genuinely dead, not something another attempt would fix.
-public struct RenewSessionTokensRequestRetrier: RequestRetrier {
+struct RenewSessionTokensRequestRetrier: RequestRetrier {
     private let renewSessionTokensUseCase: RenewSessionTokensUseCase
 
     init(renewSessionTokensUseCase: RenewSessionTokensUseCase) {
         self.renewSessionTokensUseCase = renewSessionTokensUseCase
     }
 
-    public func retry(
+    func retry(
         _ request: Request,
         for session: Session,
         dueTo error: any Error,
