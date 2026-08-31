@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemUI
 
 struct StoryActionsView: View {
@@ -18,14 +17,15 @@ struct StoryActionsView: View {
         if !actions.isEmpty {
             VStack(spacing: Layout.spacing) {
                 ForEach(actions, id: \.id) { action in
-                    Button { onTap(action) } label: {
-                        Text(action.label)
-                            .style(Fonts.BoldStatic.callout, color: foregroundColor(for: action.style))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, Layout.verticalPadding)
-                    }
-                    .background(backgroundColor(for: action.style))
-                    .clipShape(RoundedRectangle(cornerRadius: Layout.cornerRadius))
+                    TangemUI.Button(
+                        label: action.label,
+                        accessibilityLabel: nil,
+                        action: { onTap(action) }
+                    )
+                    .iconEnd(action.icon)
+                    .styleType(action.style == .primary ? .default : .secondary)
+                    .horizontalLayout(.infinity)
+                    .size(.x14)
                 }
             }
             .padding(.horizontal, Layout.horizontalPadding)
@@ -33,24 +33,9 @@ struct StoryActionsView: View {
         }
     }
 
-    /// Forced-dark stage: `Colors.Button.*` would theme-adapt to brand tint. `.constant` white +
-    /// literal `.black` are the intentional non-adaptive fallbacks (no `constantBlack` token today).
-    private func foregroundColor(for style: ActionStyle) -> Color {
-        style == .primary ? .black : Colors.Text.constantWhite
-    }
-
-    private func backgroundColor(for style: ActionStyle) -> Color {
-        style == .primary
-            ? Colors.Icon.constant
-            : Colors.Icon.constant.opacity(Layout.secondaryBackgroundOpacity)
-    }
-
     private enum Layout {
         static let spacing: CGFloat = 10
-        static let verticalPadding: CGFloat = 15
         static let horizontalPadding: CGFloat = 16
         static let bottomPadding: CGFloat = 20
-        static let cornerRadius: CGFloat = 14
-        static let secondaryBackgroundOpacity: Double = 0.16
     }
 }
