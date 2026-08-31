@@ -100,6 +100,9 @@ class CommonWalletModel {
 
         id = WalletModelId(tokenItem: tokenItem)
 
+        // Must precede `bind()`: its subscriptions reach the lazy properties from other threads.
+        initializeLazyProperties()
+
         bind()
     }
 
@@ -112,7 +115,9 @@ class CommonWalletModel {
         account = cryptoAccount
     }
 
-    func initializeLazyProperties() {
+    private func initializeLazyProperties() {
+        // First, because every provider below captures `self` and could reach it.
+        _ = _rate
         _ = feeTokenItemBalanceProvider
         _ = availableBalanceProvider
         _ = stakingBalanceProvider
@@ -121,7 +126,6 @@ class CommonWalletModel {
         _ = fiatStakingBalanceProvider
         _ = fiatTotalTokenBalanceProvider
         _ = _yieldModuleManager
-        _ = _rate
     }
 
     private func bind() {
