@@ -358,7 +358,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         makeOrGetAccountModelsPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult {
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
         guard canAddCryptoAccounts else {
             throw .unknownError(AccountModelsManagerError.addingCryptoAccountsNotSupported)
         }
@@ -378,14 +378,18 @@ extension CommonAccountModelsManager: AccountModelsManager {
 
         do {
             let distributionResult = try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: newAccountConfig, remoteState: remoteState)
-            return mapDistributionResult(distributionResult)
+
+            return AccountCreationResult(
+                operationResult: mapDistributionResult(distributionResult),
+                derivationIdentity: newAccountIdentity
+            )
         } catch {
             AccountsLogger.error("Failed to add new crypto account for user wallet \(userWalletId)", error: error)
             throw .unknownError(error)
         }
     }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {
+    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) -> AccountCreationResult {
         guard canAddCryptoAccounts else {
             throw .unknownError(AccountModelsManagerError.addingJointAccountNotSupported)
         }
@@ -396,9 +400,17 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .unknownError(AccountModelsManagerError.addingJointAccountNotSupported)
         }
 
+        let newAccountIdentity = CryptoAccountDerivationIdentity(derivationIndex: nextDerivationIndex, type: .joint)
+
         do {
             let config = JointAccountCreationConfig(creationContext: context, derivationIndex: nextDerivationIndex)
             try await jointAccountsRepository.addNewJointAccount(withConfig: config)
+
+            return AccountCreationResult(
+                // Joint accounts take no part in the custom-token redistribution
+                operationResult: .none,
+                derivationIdentity: newAccountIdentity
+            )
         } catch {
             AccountsLogger.error("Failed to add new joint account for user wallet \(userWalletId)", error: error)
             throw .unknownError(error)
@@ -550,6 +562,8 @@ extension CommonAccountModelsManager: DisposableEntity {
                 cryptoAccountModel.dispose()
             case .standard(.multiple(let cryptoAccountModels)):
                 cryptoAccountModels.forEach { $0.dispose() }
+            case .joint(let jointAccountModels):
+                jointAccountModels.forEach { $0.dispose() }
             case .tangemPay, .polymarket:
                 break
             }

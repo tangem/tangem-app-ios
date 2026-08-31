@@ -425,7 +425,7 @@ extension MainCoordinator {
         private func routeTangemPayAccountAction(params: DeeplinkNavigationAction.Params) -> Bool {
             guard let coordinator,
                   let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
-                  userWalletModel.accountModelsManager.tangemPayAccountModel != nil
+                  TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager) != nil
             else {
                 incomingActionManager.discardIncomingAction()
                 return false

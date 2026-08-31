@@ -108,7 +108,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult {
+    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
         let cryptoAccount = CryptoAccountModelMock(
             isMainAccount: false,
             walletModelsManager: walletModelsManager
@@ -118,10 +118,18 @@ extension AccountModelsManagerMock: AccountModelsManager {
 
         cryptoAccountModels.append(cryptoAccount)
 
-        return .none
+        return AccountCreationResult(
+            operationResult: .none,
+            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: cryptoAccountModels.count - 1, type: .crypto)
+        )
     }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) {}
+    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) -> AccountCreationResult {
+        AccountCreationResult(
+            operationResult: .none,
+            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint)
+        )
+    }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
         try? await Task.sleep(for: .seconds(2)) // simulate network call

@@ -167,7 +167,7 @@ private extension AddFundsViewModel {
         walletModel: any WalletModel,
         userWalletModel: any UserWalletModel
     ) -> AddFundsTokenInfoView.Badge? {
-        let hasMultipleAccounts = userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+        let hasMultipleAccounts = InjectedValues[\.cryptoAccountsGlobalStateProvider].globalCryptoAccountsState() == .multiple
 
         if hasMultipleAccounts, let account = walletModel.account {
             return .account(AddFundsTokenInfoView.AccountBadge(
