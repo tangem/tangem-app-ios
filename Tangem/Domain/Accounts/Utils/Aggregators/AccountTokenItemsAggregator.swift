@@ -23,6 +23,8 @@ enum AccountTokenItemsAggregator {
             return cryptoAccountModel.walletModelsManager.walletModels.map(\.tokenItem)
         case .standard(.multiple(let cryptoAccountModels)):
             return cryptoAccountModels.flatMap { $0.walletModelsManager.walletModels.map(\.tokenItem) }
+        case .joint(let jointAccountModels):
+            return jointAccountModels.flatMap { $0.walletModelsManager.walletModels.map(\.tokenItem) }
         case .tangemPay(let tangemPayAccountModel):
             switch tangemPayAccountModel.state {
             case .tangemPayAccount(let tangemPayAccount):
