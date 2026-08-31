@@ -616,7 +616,7 @@ private extension RewardRateValues {
     func formatted(formatter: PercentFormatter) -> String {
         switch self {
         case .single(let value):
-            formatter.format(value, option: .staking)
+            formatter.format(value, option: .earn)
         case .interval(let min, let max):
             formatter.formatInterval(min: min, max: max)
         }
