@@ -256,6 +256,112 @@ struct RenewSessionTokensUseCaseTests {
     }
 
     @Test
+    func renewSessionTokensReusesTokensFromRegistrationOnDeviceRegistrationMissingError() async throws {
+        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
+        let tokensFromRegistration = SessionTokens.stub
+
+        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
+        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
+
+        let sut = Self.makeSUT(
+            registerDevice: { tokensFromRegistration },
+            sessionAuthenticationClient: authenticationClient,
+            sessionTokensRepository: tokensRepository,
+            dateProvider: Date.now
+        )
+
+        let actualSessionTokens = try await sut()
+
+        #expect(actualSessionTokens == tokensFromRegistration)
+        #expect(authenticationClient.receivedMessages == [.requestCipheredNonce, .authenticate(expectedAttestationToken)])
+        #expect(tokensRepository.receivedMessages == [.retrieve, .persist(tokensFromRegistration)])
+    }
+
+    @Test
+    func renewSessionTokensRetriesAuthenticateOnceWhenDeviceAlreadyRegistered() async throws {
+        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
+        let expectedSessionTokens = SessionTokens.stub
+
+        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
+        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
+
+        let sut = Self.makeSUT(
+            registerDevice: {
+                authenticationClient.setAuthenticateResult(.success(expectedSessionTokens))
+                return nil
+            },
+            sessionAuthenticationClient: authenticationClient,
+            sessionTokensRepository: tokensRepository,
+            dateProvider: Date.now
+        )
+
+        let actualSessionTokens = try await sut()
+
+        #expect(actualSessionTokens == expectedSessionTokens)
+        #expect(authenticationClient.receivedMessages == [
+            .requestCipheredNonce, .authenticate(expectedAttestationToken),
+            .requestCipheredNonce, .authenticate(expectedAttestationToken),
+        ])
+        #expect(tokensRepository.receivedMessages == [.retrieve, .persist(expectedSessionTokens)])
+    }
+
+    @Test
+    func renewSessionTokensPropagatesSecondAuthenticationFailureWithNoFurtherRecovery() async throws {
+        let expectedAttestationToken = StubAppAttestService.stubbedAttestationToken
+
+        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
+        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
+
+        let sut = Self.makeSUT(
+            registerDevice: { nil },
+            sessionAuthenticationClient: authenticationClient,
+            sessionTokensRepository: tokensRepository,
+            dateProvider: Date.now
+        )
+
+        let actualError = try await #require(throws: RenewSessionTokensError.self) {
+            _ = try await sut()
+        }
+
+        guard case .clientFailure(.deviceRegistrationMissing) = actualError else {
+            Issue.record("Expected .clientFailure(.deviceRegistrationMissing), got \(actualError)")
+            return
+        }
+
+        #expect(authenticationClient.receivedMessages == [
+            .requestCipheredNonce, .authenticate(expectedAttestationToken),
+            .requestCipheredNonce, .authenticate(expectedAttestationToken),
+        ])
+        #expect(tokensRepository.receivedMessages == [.retrieve])
+    }
+
+    @Test
+    func renewSessionTokensPropagatesRegistrationFailure() async throws {
+        let authenticationClient = SpySessionAuthenticationClient(authenticateResult: .failure(.deviceRegistrationMissing))
+        let tokensRepository = SpySessionTokensRepository(retrieveResult: .success(nil))
+
+        let sut = Self.makeSUT(
+            registerDevice: { () throws(RegisterDeviceError) -> SessionTokens? in
+                throw RegisterDeviceError.repositoryFailure(.encodingFailed)
+            },
+            sessionAuthenticationClient: authenticationClient,
+            sessionTokensRepository: tokensRepository,
+            dateProvider: Date.now
+        )
+
+        let actualError = try await #require(throws: RenewSessionTokensError.self) {
+            _ = try await sut()
+        }
+
+        guard case .registrationFailure(.repositoryFailure(.encodingFailed)) = actualError else {
+            Issue.record("Expected .registrationFailure(.repositoryFailure(.encodingFailed)), got \(actualError)")
+            return
+        }
+
+        #expect(tokensRepository.receivedMessages == [.retrieve])
+    }
+
+    @Test
     func renewSessionTokensSucceedsEvenWhenAttestationFails() async throws {
         let expectedSessionTokens = SessionTokens.stub
 
@@ -470,6 +576,7 @@ struct RenewSessionTokensUseCaseTests {
 
 extension RenewSessionTokensUseCaseTests {
     private static func makeSUT(
+        registerDevice: @escaping RenewSessionTokensUseCase.RegisterDevice = { nil },
         appAttestService: some AppAttestService = StubAppAttestService(),
         sessionAuthenticationClient: some SessionAuthenticationClient = SpySessionAuthenticationClient(),
         sessionTokensRepository: some SessionTokensRepository = SpySessionTokensRepository(),
@@ -477,7 +584,8 @@ extension RenewSessionTokensUseCaseTests {
         nonceDecryptor: some NonceDecryptor = StubNonceDecryptor(),
         dateProvider: @escaping @autoclosure @Sendable () -> Date
     ) -> RenewSessionTokensUseCase {
-        return RenewSessionTokensUseCase(
+        RenewSessionTokensUseCase(
+            registerDevice: registerDevice,
             appAttestService: appAttestService,
             sessionAuthenticationClient: sessionAuthenticationClient,
             sessionTokensRepository: sessionTokensRepository,

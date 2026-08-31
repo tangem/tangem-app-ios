@@ -10,6 +10,9 @@ import struct Foundation.Data
 import struct Foundation.Date
 
 actor RenewSessionTokensUseCase {
+    typealias RegisterDevice = @Sendable () async throws(RegisterDeviceError) -> SessionTokens?
+
+    private let registerDevice: RegisterDevice
     private let appAttestService: any AppAttestService
     private let sessionAuthenticationClient: any SessionAuthenticationClient
     private let sessionTokensRepository: any SessionTokensRepository
@@ -23,6 +26,7 @@ actor RenewSessionTokensUseCase {
     private var inFlightRenewalTask: Task<Result<SessionTokens, RenewSessionTokensError>, Never>?
 
     init(
+        registerDevice: @escaping RegisterDevice,
         appAttestService: some AppAttestService,
         sessionAuthenticationClient: some SessionAuthenticationClient,
         sessionTokensRepository: some SessionTokensRepository,
@@ -31,6 +35,8 @@ actor RenewSessionTokensUseCase {
         deviceMetadataProvider: @escaping @autoclosure () -> DeviceMetadata,
         dateProvider: @escaping @autoclosure @Sendable () -> Date = Date.now
     ) {
+        self.registerDevice = registerDevice
+
         self.appAttestService = appAttestService
         self.sessionAuthenticationClient = sessionAuthenticationClient
         self.sessionTokensRepository = sessionTokensRepository
@@ -74,6 +80,8 @@ actor RenewSessionTokensUseCase {
         } else {
             do {
                 renewedTokens = try await authenticate()
+            } catch RenewSessionTokensError.clientFailure(.deviceRegistrationMissing) {
+                renewedTokens = try await recoverFromMissingDeviceRegistration()
             } catch RenewSessionTokensError.clientFailure(.authenticationRejected) {
                 await deleteSessionTokens()
                 throw RenewSessionTokensError.clientFailure(.authenticationRejected)
@@ -129,6 +137,26 @@ extension RenewSessionTokensUseCase {
         }
     }
 
+    /// On `.deviceRegistrationMissing` error we register the device again, exactly once,
+    /// and reuse the tokens from a successful registration directly.
+    /// If registration reports the device as already registered (no tokens),
+    /// we retry `authenticate()` exactly once more, with no further recovery.
+    private func recoverFromMissingDeviceRegistration() async throws(RenewSessionTokensError) -> SessionTokens {
+        let freshSessionTokensAfterRegistration: SessionTokens?
+
+        do {
+            freshSessionTokensAfterRegistration = try await registerDevice()
+        } catch {
+            throw RenewSessionTokensError.registrationFailure(error)
+        }
+
+        if let freshSessionTokensAfterRegistration {
+            return freshSessionTokensAfterRegistration
+        }
+
+        return try await authenticate()
+    }
+
     private func generateAttestationToken(for decryptedNonceBytes: Data) async -> Data? {
         do {
             return try await appAttestService.generateAttestationToken(for: decryptedNonceBytes)
@@ -176,7 +204,7 @@ extension RenewSessionTokensUseCase {
 
     private func persist(sessionTokens: SessionTokens) async throws(RenewSessionTokensError) {
         do {
-            try await sessionTokensRepository.persist(sessionTokens)
+            try await sessionTokensRepository.persist(tokens: sessionTokens)
         } catch {
             throw RenewSessionTokensError.repositoryFailure(error)
         }

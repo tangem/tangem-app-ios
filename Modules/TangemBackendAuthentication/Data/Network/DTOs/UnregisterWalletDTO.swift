@@ -1,5 +1,5 @@
 //
-//  WalletUnregistrationDTO.swift
+//  UnregisterWalletDTO.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,7 +7,7 @@
 //
 
 /// `POST api/authentication/v1/mobile/wallet/unregister`
-enum WalletUnregistrationDTO {
+enum UnregisterWalletDTO {
     struct Request: Encodable {
         let walletId: String
     }

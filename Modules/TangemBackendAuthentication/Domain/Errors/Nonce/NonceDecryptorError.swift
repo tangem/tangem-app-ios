@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-enum NonceDecryptorError: Error {
+public enum NonceDecryptorError: Error {
     case invalidCipheredNonceEncoding
     case appPrivateKeyParsingFailed(AppPrivateKeyParsingError)
     case decryptFailed(underlying: any Error)

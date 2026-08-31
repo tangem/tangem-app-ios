@@ -6,60 +6,96 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import struct Foundation.URL
-import Alamofire
-import Moya
+public import struct Foundation.URL
+public import struct Alamofire.HTTPMethod
+public import Moya
 
-struct BackendAuthenticationTarget: Moya.TargetType {
-    let baseURL: URL
-    let path: String
-    let method: Alamofire.HTTPMethod
-    let task: Moya.Task
-    let validationType: Moya.ValidationType
-    let headers: [String: String]?
+public struct BackendAuthenticationTarget: Moya.TargetType {
+    public let baseURL: URL
+    public let path: String
+    public let method: Alamofire.HTTPMethod
+    public let task: Moya.Task
+    public let validationType: Moya.ValidationType
+    public let headers: [String: String]?
 
-    init(nonceForAuth requestBody: NonceDTO.Request, baseURL: URL) {
-        self.init(
-            baseURL: baseURL,
-            path: "api/authentication/v1/mobile/nonce/auth",
-            task: .requestJSONEncodable(requestBody)
-        )
-    }
-
-    init(authenticate requestBody: AuthenticateDTO.Request, baseURL: URL) {
-        self.init(
-            baseURL: baseURL,
-            path: "api/authentication/v1/mobile/authenticate",
-            task: .requestJSONEncodable(requestBody)
-        )
-    }
-
-    init(refreshToken requestBody: RefreshDTO.Request, baseURL: URL, dPoPProof: String, accessToken: String) {
-        self.init(
-            baseURL: baseURL,
-            path: Self.refreshPath,
-            task: .requestJSONEncodable(requestBody),
-            additionalHeaders: DPoPHeadersFactory.make(accessToken: accessToken, dPoPProof: dPoPProof)
-        )
-    }
-
-    static func refreshHTU(baseURL: URL) -> String {
-        baseURL.appendingPathComponent(refreshPath).absoluteString
-    }
-
-    static let refreshHTM = Alamofire.HTTPMethod.post.rawValue
-
-    private static let refreshPath = "api/authentication/v1/mobile/token/refresh"
-
-    private init(baseURL: URL, path: String, task: Moya.Task, additionalHeaders: [String: String] = [:]) {
+    private init(baseURL: URL, relativePath: String, requestBody: some Encodable, additionalHeaders: [String: String] = [:]) {
         self.baseURL = baseURL
-        self.path = path
-        self.task = task
+        path = Self.pathPrefix + relativePath
+        task = .requestJSONEncodable(requestBody)
 
-        method = .post
+        method = Self.httpMethod
         // Moya's default `.none` never calls Alamofire's `.validate()`, so a 401 would otherwise
         // complete as an ordinary "successful" response and our retrier would never see it.
         validationType = .successCodes
         headers = ["Content-Type": "application/json"].merging(additionalHeaders) { _, new in new }
+    }
+
+    fileprivate static let pathPrefix = "api/authentication/v1/mobile/"
+    fileprivate static let httpMethod = Alamofire.HTTPMethod.post
+}
+
+// MARK: - mobile/nonce
+
+extension BackendAuthenticationTarget {
+    init(authenticationNonce requestBody: NonceDTO.Request, baseURL: URL) {
+        self.init(
+            baseURL: baseURL,
+            relativePath: "nonce/auth",
+            requestBody: requestBody
+        )
+    }
+
+    init(deviceRegistrationNonce requestBody: NonceDTO.Request, baseURL: URL) {
+        self.init(
+            baseURL: baseURL,
+            relativePath: "nonce/device",
+            requestBody: requestBody
+        )
+    }
+}
+
+// MARK: - mobile/authenticate
+
+extension BackendAuthenticationTarget {
+    init(authenticate requestBody: AuthenticateDTO.Request, baseURL: URL) {
+        self.init(
+            baseURL: baseURL,
+            relativePath: "authenticate",
+            requestBody: requestBody
+        )
+    }
+}
+
+// MARK: - mobile/register
+
+extension BackendAuthenticationTarget {
+    init(registerDevice requestBody: RegisterDeviceDTO.Request, baseURL: URL) {
+        self.init(
+            baseURL: baseURL,
+            relativePath: "register",
+            requestBody: requestBody
+        )
+    }
+}
+
+// MARK: - mobile/token/refresh
+
+extension BackendAuthenticationTarget {
+    init(authenticationRefresh requestBody: RefreshDTO.Request, baseURL: URL, dPoPProof: String, accessToken: String) {
+        self.init(
+            baseURL: baseURL,
+            relativePath: Refresh.relativePath,
+            requestBody: requestBody,
+            additionalHeaders: DPoPHeadersFactory.make(accessToken: accessToken, dPoPProof: dPoPProof)
+        )
+    }
+
+    enum Refresh {
+        static func htu(_ baseURL: URL) -> String {
+            baseURL.appendingPathComponent(BackendAuthenticationTarget.pathPrefix + relativePath).absoluteString
+        }
+
+        static let htm = BackendAuthenticationTarget.httpMethod.rawValue
+        fileprivate static let relativePath = "token/refresh"
     }
 }

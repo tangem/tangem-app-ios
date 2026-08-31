@@ -1,5 +1,5 @@
 //
-//  WalletRegistrationDTO.swift
+//  RegisterWalletDTO.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,7 +7,7 @@
 //
 
 /// `POST api/authentication/v1/mobile/wallet/register`
-enum WalletRegistrationDTO {
+enum RegisterWalletDTO {
     struct Request: Encodable {
         let nonce: String
         let walletId: String

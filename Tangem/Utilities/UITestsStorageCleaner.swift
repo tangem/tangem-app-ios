@@ -109,7 +109,7 @@ enum UITestsStorageCleaner {
         clearPersistentStorageFiles()
 
         // Clear all Keychain data (including encryption keys stored in BiometricsStorage)
-        KeychainCleaner.cleanAllData()
+        _ = KeychainCleaner.cleanAllData()
 
         AppLogger.info("Wallet data cleared for UI tests")
         #endif
