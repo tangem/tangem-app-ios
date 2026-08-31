@@ -27,7 +27,7 @@ struct EarnModelMapper {
         let rateType: RateType = response.rewardType.lowercased() == Constants.apy ? .apy : .apr
         let earnType: EarnType = response.type.lowercased() == Constants.staking ? .staking : .yieldMode
         let blockchain = supportedBlockchainsByNetworkId[response.networkId]
-        let rateText = "\(rateType.rawValue) \(percentFormatter.format(rateValue, option: .staking))"
+        let rateText = "\(rateType.rawValue) \(percentFormatter.format(rateValue, option: .earn))"
         let blockchainIconAsset = blockchain.map { networkImageProvider.provide(by: $0, filled: true) }
 
         // With fallback to network id

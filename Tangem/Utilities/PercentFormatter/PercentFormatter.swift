@@ -82,7 +82,8 @@ extension PercentFormatter.Option {
     static let slippage = PercentFormatter.Option(fractionDigits: .init(min: 0, max: 1), prefix: .empty, suffix: .default)
     static let priceChange = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .default)
 
-    static let staking = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .default)
+    /// Umbrella option for earn rates: both staking (APR/APY) and yield.
+    static let earn = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .default)
     static let interval = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .empty)
 
     static let express = PercentFormatter.Option(fractionDigits: .one, prefix: .default, suffix: .default)
