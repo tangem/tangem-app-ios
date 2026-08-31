@@ -7,7 +7,7 @@
 //
 
 protocol SessionTokensRepository: Sendable {
-    func persist(_ tokens: SessionTokens) async throws(SessionTokensRepositoryError)
+    func persist(tokens: SessionTokens) async throws(SessionTokensRepositoryError)
     func retrieve() async throws(SessionTokensRepositoryError) -> SessionTokens?
     func delete() async throws(SessionTokensRepositoryError)
 }
