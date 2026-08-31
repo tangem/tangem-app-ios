@@ -699,7 +699,7 @@
 "hw_backup_alert_title" = "Möchtest Du den Aktivierungsprozess wirklich abbrechen?";
 "hw_backup_banner_description" = "Hält Deine Kryptowährungen sicher und offline. Schlank wie eine Kreditkarte, sicherer als ein Banktresor.";
 "hw_backup_close_description" = "Wenn dies der Fall ist, musst Du von vorne beginnen.";
-"hw_backup_cloud_delete_confirm_title" = "%@Backup löschen?";
+"hw_backup_cloud_delete_confirm_title" = "%@ Backup löschen?";
 "hw_backup_hardware_create_description" = "Erstelle eine neue, sichere Wallet und übertrage Deine Gelder, um zusätzlichen Schutz zu gewährleisten.";
 "hw_backup_hardware_create_title" = "Neue Wallet erstellen";
 "hw_backup_hardware_title" = "Hardware-Wallet";
@@ -762,7 +762,7 @@
 "hw_cloud_backup_restore_passphrase_description" = "Geben Sie die genaue Passphrase für diese Wallet ein. Bei der Eingabe wird zwischen Groß- und Kleinschreibung unterschieden; eine andere Passphrase öffnet daher einen anderen Satz von Adressen.";
 "hw_cloud_backup_restore_passphrase_title" = "Passphrase eingeben";
 "hw_cloud_backup_restore_password_button" = "Wiederherstellen";
-"hw_cloud_backup_restore_password_description" = "Sie stellen „%1$@\" von einer am %3$@ erstellten %2$@-Sicherung wieder her";
+"hw_cloud_backup_restore_password_description" = "Sie stellen „%1$@“ von einer am %3$@ erstellten %2$@-Sicherung wieder her";
 "hw_cloud_backup_restore_password_navtitle" = "Wallet wiederherstellen";
 "hw_cloud_backup_restore_password_title" = "Passwort eingeben";
 "hw_cloud_backup_restore_use_recovery_phrase" = "Seed-Phrase importieren";
@@ -802,7 +802,7 @@
 "hw_mobile_wallet" = "Mobile Wallet";
 "hw_remove_wallet_action_forget_title" = "Wallet dauerhaft entfernen";
 "hw_remove_wallet_attention_description" = "Diese Wallet wird dauerhaft von Deinem Gerät entfernt.";
-"hw_remove_wallet_cloud_backup_description" = "Die Wallet wird von diesem Gerät entfernt. Ihr %@-Backup bleibt sicher– Sie können diese Wallet jederzeit mit Ihrem Passwort wiederherstellen.";
+"hw_remove_wallet_cloud_backup_description" = "Die Wallet wird von diesem Gerät entfernt. Ihr %@-Backup bleibt sicher – Sie können diese Wallet jederzeit mit Ihrem Passwort wiederherstellen.";
 "hw_remove_wallet_cloud_backup_title" = "Diese Wallet entfernen?";
 "hw_remove_wallet_confirmation_title" = "Bist du dir sicher, dass du das tun willst?";
 "hw_remove_wallet_confirmation_with_cloud_backup" = "Wenn Sie diese Wallet löschen, wird auch die Google Drive-Sicherung entfernt. Stellen Sie sicher, dass Sie Zugriff auf Ihre Wiederherstellungsphrase haben – dieser Vorgang kann nicht rückgängig gemacht werden.";
@@ -858,6 +858,16 @@
 "introduction_i_have_wallet_hardware_description" = "Verwenden Sie die Tangem Wallet, um die App zu öffnen";
 "introduction_i_have_wallet_sign_in_apple_title" = "Mit Apple anmelden";
 "introduction_legal" = "Wenn Sie fortfahren, erklären Sie sich mit %1$@ und %2$@";
+"introduction_stories_button_primary" = "Scan your wallet";
+"introduction_stories_button_secondary" = "Learn more or buy";
+"introduction_stories_four_subtitle" = "Join the self-custody wallet used worldwide";
+"introduction_stories_four_title" = "Trusted by millions";
+"introduction_stories_one_subtitle" = "Confirm every action with your Tangem ";
+"introduction_stories_one_title" = "One tap to control crypto";
+"introduction_stories_three_subtitle" = "Your private keys never leave the card.";
+"introduction_stories_three_title" = "Your keys, your crypto";
+"introduction_stories_two_subtitle" = "Use any of your cards to access your wallet";
+"introduction_stories_two_title" = "One wallet, multiple cards";
 "introduction_terms_of_service" = "Nutzungsbedingungen";
 "jailbreak_warning_message" = "Geräte mit Jailbreak gelten als weniger sicher. Deine Daten können zusätzlichen Risiken ausgesetzt sein.";
 "jailbreak_warning_title" = "Jailbreak erkannt";
@@ -889,6 +899,8 @@
 "joint_account_join_title" = "Sie wurden eingeladen zu %1$@";
 "joint_account_join_to_account_btn_text" = "Jetzt anmelden";
 "joint_account_members_progress" = "%1$@ von %2$@ Mitglieder";
+"joint_account_members_role_joined" = "Joined";
+"joint_account_members_role_you" = "You";
 "joint_account_members_signers_subtitle" = "Maßnahmen genehmigen";
 "joint_account_members_signers_title" = "Unterschrift erforderlich";
 "joint_account_members_subtitle_helper_part" = "%1$@ von %2$@ zum Unterschreiben";
@@ -2176,7 +2188,7 @@
 "tangempay_order_type_title" = "Neue Karte bestellen";
 "tangempay_order_type_unavailable" = "Nicht verfügbar";
 "tangempay_other_networks_header" = "Andere Netzwerke";
-"tangempay_other_networks_subtitle" = "Und dann zum Kurs 1:1 ohne Gebühren ins Zahlungskonto tauschen";
+"tangempay_other_networks_subtitle" = "Und dann ohne Gebühren ins Zahlungskonto tauschen";
 "tangempay_other_networks_title" = "USDT/USDC über jede Chain an Ihre Tangem Wallet senden";
 "tangempay_pay_support" = "Betreuung";
 "tangempay_payment_account_sync_needed" = "Tangem Pay sitzung abgelaufen";
