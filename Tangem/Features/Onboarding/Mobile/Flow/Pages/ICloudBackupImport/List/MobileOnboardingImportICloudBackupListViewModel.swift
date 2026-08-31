@@ -13,7 +13,7 @@ import TangemLocalization
 import TangemMobileWalletBackup
 
 final class MobileOnboardingImportICloudBackupListViewModel: ObservableObject {
-    let navigationTitle = Localization.hwBackupIcloudTitle
+    let navigationTitle = Localization.hwCloudBackupRestoreNavtitleV2(MobileBackupConstants.iCloudServiceName)
 
     var items: [Item] {
         makeItems()
