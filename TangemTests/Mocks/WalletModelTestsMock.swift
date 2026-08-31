@@ -63,6 +63,7 @@ final class WalletModelTestsMock: WalletModel {
         tokenItem: TokenItem,
         isEmpty: Bool,
         fiatBalance: Decimal = 0,
+        fiatBalanceProvider: TokenBalanceProvider? = nil,
         account: (any CryptoAccountModel)? = nil,
         addresses: [Address] = [PlainAddress(value: "mock", type: .default)]
     ) {
@@ -71,7 +72,7 @@ final class WalletModelTestsMock: WalletModel {
         _isEmpty = isEmpty
         _fiatBalance = fiatBalance
         _priceChange24h = nil
-        _fiatBalanceProvider = TokenBalanceProviderTestsMock(balance: fiatBalance)
+        _fiatBalanceProvider = fiatBalanceProvider ?? TokenBalanceProviderTestsMock(balance: fiatBalance)
         _fiatAvailableBalance = fiatBalance
         _account = account
         _addresses = addresses

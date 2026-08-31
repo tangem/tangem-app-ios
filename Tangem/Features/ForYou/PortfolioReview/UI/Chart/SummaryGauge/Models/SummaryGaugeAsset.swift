@@ -7,9 +7,11 @@
 //
 
 import Foundation
+import struct SwiftUI.Color
 
 struct SummaryGaugeAsset: Identifiable, Equatable {
     let id: String
     let name: String
     let fiatValue: Decimal
+    let segmentColor: Color?
 }
