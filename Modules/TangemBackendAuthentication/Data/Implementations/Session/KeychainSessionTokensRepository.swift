@@ -21,7 +21,7 @@ struct KeychainSessionTokensRepository: SessionTokensRepository {
         decoder = JSONDecoder()
     }
 
-    func persist(_ tokens: SessionTokens) async throws(SessionTokensRepositoryError) {
+    func persist(tokens: SessionTokens) async throws(SessionTokensRepositoryError) {
         let data = try encode(tokens)
 
         do {

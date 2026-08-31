@@ -11,6 +11,7 @@ enum SessionAuthenticationClientError: Error {
 
     case authenticateFailed(underlying: any Error)
     case authenticationRejected
+    case deviceRegistrationMissing
 
     case refreshFailed(underlying: any Error)
 }

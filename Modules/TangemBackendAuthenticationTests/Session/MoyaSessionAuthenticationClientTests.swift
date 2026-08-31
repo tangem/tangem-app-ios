@@ -93,6 +93,29 @@ struct MoyaSessionAuthenticationClientTests {
         }
     }
 
+    @Test
+    func authenticateThrowsDeviceRegistrationMissingForDeviceNotFoundError() async throws {
+        let deviceNotFoundStatusCode = 404
+        let deviceNotFoundErrorResponse = #"{"detail":"Device not found"}"#
+
+        let sut = try Self.makeSUT(statusCode: deviceNotFoundStatusCode, responseBody: deviceNotFoundErrorResponse)
+
+        let error = try await #require(throws: SessionAuthenticationClientError.self) {
+            _ = try await sut.authenticate(
+                devicePublicKey: .fake,
+                decryptedNonce: "decrypted-nonce",
+                metadata: .fake,
+                signature: .fake,
+                attestationToken: nil
+            )
+        }
+
+        guard case .deviceRegistrationMissing = error else {
+            Issue.record("Expected .deviceRegistrationMissing, got \(error)")
+            return
+        }
+    }
+
     @Test(arguments: StatusCodes.error)
     func authenticateThrowsAuthenticateFailedOnErrorStatusCode(errorStatusCode: Int) async throws {
         let sut = try Self.makeSUT(statusCode: errorStatusCode)
@@ -201,7 +224,7 @@ extension MoyaSessionAuthenticationClientTests {
 extension MoyaSessionAuthenticationClientTests {
     private enum StatusCodes {
         static let success = [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]
-        static let error = [400, 402, 404, 500, 501, 512]
+        static let error = [400, 402, 500, 501, 512]
         static let authenticationRejection = [401, 403]
     }
 
