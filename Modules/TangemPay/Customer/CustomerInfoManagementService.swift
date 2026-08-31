@@ -184,12 +184,9 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
     }
 
     public func getWithdrawPreSignatureInfo(request: TangemPayWithdrawRequest) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawPreSignature {
-        let request = TangemPayWithdraw.SignableData.Request(
-            amountInCents: request.amountInCents,
-            recipientAddress: request.destination
-        )
+        let signableDataRequest = TangemPayWithdraw.SignableData.Request(request)
 
-        let response: TangemPayWithdraw.SignableData.Response = try await self.request(for: .getWithdrawSignableData(request))
+        let response: TangemPayWithdraw.SignableData.Response = try await self.request(for: .getWithdrawSignableData(signableDataRequest))
 
         return TangemPayWithdrawPreSignature(
             sender: response.senderAddress,
@@ -203,13 +200,7 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         request: TangemPayWithdrawRequest,
         signature: TangemPayWithdrawSignature
     ) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawTransactionResult {
-        let requestTransaction = TangemPayWithdraw.Transaction.Request(
-            amountInCents: request.amountInCents,
-            senderAddress: signature.sender,
-            recipientAddress: request.destination,
-            adminSignature: signature.signature.hexString.addHexPrefix(),
-            adminSalt: signature.salt.hexString.addHexPrefix()
-        )
+        let requestTransaction = TangemPayWithdraw.Transaction.Request(request, signature: signature)
 
         let response: TangemPayWithdraw.Transaction.Response = try await self.request(for: .sendWithdrawTransaction(requestTransaction))
         return TangemPayWithdrawTransactionResult(orderID: response.orderId, host: apiType.baseURL.absoluteString)
