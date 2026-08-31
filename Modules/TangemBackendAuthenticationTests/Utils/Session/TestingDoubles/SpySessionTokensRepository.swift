@@ -34,7 +34,7 @@ final class SpySessionTokensRepository: SessionTokensRepository {
         return try retrieveResult.get()
     }
 
-    func persist(_ tokens: SessionTokens) async throws(SessionTokensRepositoryError) {
+    func persist(tokens: SessionTokens) async throws(SessionTokensRepositoryError) {
         _receivedMessages.withLock { $0.append(.persist(tokens)) }
         try persistResult.get()
     }

@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-enum AppPrivateKeyParsingError: Error {
+public enum AppPrivateKeyParsingError: Error {
     case invalidBase64Encoding
     case invalidKeyFormat(underlying: any Error)
 }
