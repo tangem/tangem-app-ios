@@ -28,7 +28,7 @@ final class MobileOnboardingICloudBackupViewModel: ObservableObject {
     @Published var isPasswordResponder: Bool? = true
     @Published var isPasswordWarningAccepted: Bool = false
 
-    let navigationTitle = Localization.hwBackupIcloudTitle
+    let navigationTitle = Localization.hwCloudBackupRestoreNavtitleV2(MobileBackupConstants.iCloudServiceName)
     let passwordTitle = Localization.hwCloudBackupPasswordHint
     let passwordWarningTitle = Localization.hwCloudBackupConsent
 
@@ -239,7 +239,7 @@ private extension MobileOnboardingICloudBackupViewModel {
             case WalletBackupStorageError.storageUnavailable:
                 await delegate?.onICloudUnavailable()
             default:
-                await showErrorAlert(error)
+                await showFailedBackupCreationAlert()
             }
         }
     }
@@ -390,6 +390,15 @@ private extension MobileOnboardingICloudBackupViewModel {
                 Text(Localization.hwCloudBackupCancelSetupCancel),
                 action: weakify(self, forFunction: MobileOnboardingICloudBackupViewModel.close)
             )
+        )
+        showAlert(alert)
+    }
+
+    func showFailedBackupCreationAlert() {
+        let alert = AlertBuilder.makeAlert(
+            title: Localization.hwCloudBackupErrorTitle,
+            message: Localization.hwCloudBackupErrorWrite,
+            primaryButton: .default(Text(Localization.commonOk))
         )
         showAlert(alert)
     }
