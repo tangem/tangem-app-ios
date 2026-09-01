@@ -7,10 +7,12 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemPolymarket
 
 extension PolymarketMarketCard {
-    struct Model {
+    struct Model: Identifiable {
+        let id: String
         let title: String
         let volumeText: String?
         let imageURL: URL?
@@ -37,23 +39,27 @@ extension PolymarketMarketCard {
 extension PolymarketMarketCard.Model {
     static func make(
         market: PolymarketMarket,
+        title: String? = nil,
+        fallbackImageURL: URL? = nil,
         predictedText: String? = nil,
+        showsOutcomes: Bool = true,
         onSelectOutcome: @escaping (PolymarketOutcome) -> Void
     ) -> Self {
         Self(
-            title: market.groupItemTitle ?? market.title,
+            id: market.id,
+            title: title ?? market.groupItemTitle ?? market.title,
             volumeText: market.volume.map(volumeFormatter.formatMarketCap),
-            imageURL: market.imageURL ?? market.iconURL,
+            imageURL: market.imageURL ?? market.iconURL ?? fallbackImageURL,
             predictedText: predictedText,
-            outcomes: market.outcomes.enumerated().map { index, outcome in
+            outcomes: showsOutcomes ? market.outcomes.enumerated().map { index, outcome in
                 PolymarketMarketCard.Outcome(
                     id: outcome.assetId,
                     title: outcome.title,
-                    priceText: outcome.probability.map(centsText) ?? "—",
+                    priceText: outcome.probability.map(centsText) ?? .emDashSign,
                     style: PolymarketMarketCard.Outcome.Style(outcomeIndex: index),
                     onSelect: { onSelectOutcome(outcome) }
                 )
-            }
+            } : []
         )
     }
 
@@ -72,7 +78,6 @@ extension PolymarketMarketCard.Model {
 }
 
 private extension PolymarketMarketCard.Outcome.Style {
-    /// Upstream labels are not always "Yes"/"No", so the affirmative outcome is the first one by position
     init(outcomeIndex: Int) {
         self = outcomeIndex == 0 ? .affirmative : .negative
     }
