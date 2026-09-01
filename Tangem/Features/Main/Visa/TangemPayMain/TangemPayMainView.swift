@@ -327,6 +327,7 @@ struct TangemPayMainView: View {
                 SwiftUI.Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.termsAndLimitsMenuItem)
 
                 SwiftUI.Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
