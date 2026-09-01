@@ -50,7 +50,7 @@ struct PolymarketEventCard: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            circleImage(url: model.imageURL)
+            PolymarketAvatarView(url: model.imageURL)
         }
         .padding(16)
     }
@@ -203,27 +203,6 @@ struct PolymarketEventCard: View {
     private var hasBottomAccessory: Bool {
         showsOutcomesBadge || model.isInActivePredicts
     }
-
-    // MARK: - Shared
-
-    @ViewBuilder
-    private func circleImage(url: URL?) -> some View {
-        Group {
-            if let url {
-                KFImage(url)
-                    .cancelOnDisappear(true)
-                    .placeholder { Shimmer().clipShape(.circle) }
-                    .resizable()
-                    .scaledToFill()
-            } else {
-                DesignSystem.Color.bgOpaquePrimary
-            }
-        }
-        .frame(width: 40, height: 40)
-        .clipShape(Circle())
-        .overlay { Circle().stroke(DesignSystem.Color.borderPrimary, lineWidth: 1) }
-        .accessibilityHidden(true)
-    }
 }
 
 // MARK: - Constants
@@ -238,24 +217,6 @@ private extension PolymarketEventCard {
 
         static func outcomesLabel(_ count: Int) -> String {
             "+\(count) Outcomes"
-        }
-    }
-}
-
-// MARK: - Outcome style colors
-
-private extension PolymarketEventCard.Outcome.Style {
-    var backgroundColor: Color {
-        switch self {
-        case .affirmative: DesignSystem.Color.bgStatusInfoSubtle
-        case .negative: DesignSystem.Color.bgStatusErrorSubtle
-        }
-    }
-
-    var foregroundColor: Color {
-        switch self {
-        case .affirmative: DesignSystem.Color.textBrand
-        case .negative: DesignSystem.Color.textStatusError
         }
     }
 }

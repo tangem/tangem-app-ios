@@ -13,7 +13,7 @@ struct JointAccountJoinCoordinatorView: View {
     @ObservedObject var coordinator: JointAccountJoinCoordinator
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $coordinator.path) {
             ZStack {
                 DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
@@ -21,6 +21,15 @@ struct JointAccountJoinCoordinatorView: View {
                     JointAccountJoinView(viewModel: rootViewModel)
                 }
             }
+            .navigationDestination(for: JointAccountJoinCoordinator.Step.self) { destination(for: $0) }
+        }
+    }
+
+    @ViewBuilder
+    private func destination(for step: JointAccountJoinCoordinator.Step) -> some View {
+        switch step {
+        case .memberName(let viewModel):
+            JointAccountMemberNameView(viewModel: viewModel)
         }
     }
 }

@@ -14,19 +14,28 @@ import TangemFoundation
 /// built on, so the two kinds cannot drift apart as that one gains behaviour.
 final class CommonJointAccountModel {
     let jointAccountConfig: JointAccountConfig
+    let members: [JointAccountMember]
+    let invites: [JointAccountInvite]
 
-    private let cryptoAccount: CommonCryptoAccountModel
+    private let cryptoAccount: any CryptoAccountModel
 
-    init(cryptoAccount: CommonCryptoAccountModel, jointAccountConfig: JointAccountConfig) {
+    init(
+        cryptoAccount: any CryptoAccountModel,
+        jointAccountConfig: JointAccountConfig,
+        members: [JointAccountMember],
+        invites: [JointAccountInvite]
+    ) {
         self.cryptoAccount = cryptoAccount
         self.jointAccountConfig = jointAccountConfig
+        self.members = members
+        self.invites = invites
     }
 }
 
 // MARK: - Identifiable protocol conformance
 
 extension CommonJointAccountModel: Identifiable {
-    var id: CommonCryptoAccountModel.AccountId {
+    var id: CryptoAccountModelId {
         cryptoAccount.id
     }
 }
@@ -48,6 +57,10 @@ extension CommonJointAccountModel: JointAccountModel {
 
     var isMainAccount: Bool {
         cryptoAccount.isMainAccount
+    }
+
+    var accountType: AccountType {
+        cryptoAccount.accountType
     }
 
     var descriptionString: String {
@@ -109,7 +122,8 @@ extension CommonJointAccountModel: CustomStringConvertible {
                 "membersCount": jointAccountConfig.membersCount,
                 "signersCount": jointAccountConfig.signersCount,
                 "status": jointAccountConfig.status,
-                "Taken slots count": jointAccountConfig.members.count,
+                "Taken slots count": members.count,
+                "Invites count": invites.count,
             ]
         )
     }

@@ -97,7 +97,6 @@ struct PolymarketTarget: Moya.TargetType {
     }
 
     var headers: [String: String]? {
-        // `api-key` is injected by the caller via `NetworkHeadersPlugin`; nothing target-specific here.
         nil
     }
 }

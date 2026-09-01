@@ -88,11 +88,13 @@ private extension PolymarketEventCardModelTests {
             iconURL: nil,
             status: .active,
             isNegRisk: false,
+            isAcceptingOrders: true,
             startDate: nil,
             endDate: nil,
             volume: 1_000_000,
             volume24h: nil,
             liquidity: nil,
+            orderIndex: 0,
             outcomes: outcomes
         )
     }
@@ -107,6 +109,7 @@ private extension PolymarketEventCardModelTests {
             imageURL: nil,
             iconURL: nil,
             status: .active,
+            isLive: false,
             startDate: nil,
             endDate: nil,
             volume: 1_000_000,
