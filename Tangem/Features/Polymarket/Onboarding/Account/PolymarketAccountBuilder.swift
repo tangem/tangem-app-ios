@@ -1,0 +1,51 @@
+//
+//  PolymarketAccountBuilder.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import TangemFoundation
+import TangemNetworkUtils
+import TangemPolymarket
+
+struct PolymarketAccountBuilder {
+    private let userWalletId: UserWalletId
+    private let keysRepository: KeysRepository
+    private let keysDerivingInteractorFactory: KeysDerivingInteractorFactory
+    private let areHDWalletsSupported: Bool
+
+    init(
+        userWalletId: UserWalletId,
+        keysRepository: KeysRepository,
+        keysDerivingInteractorFactory: KeysDerivingInteractorFactory,
+        areHDWalletsSupported: Bool
+    ) {
+        self.userWalletId = userWalletId
+        self.keysRepository = keysRepository
+        self.keysDerivingInteractorFactory = keysDerivingInteractorFactory
+        self.areHDWalletsSupported = areHDWalletsSupported
+    }
+
+    func buildAccountModel() -> any PolymarketAccountModel {
+        let factory = PolymarketOnboardingFactory()
+
+        return CommonPolymarketAccountModel(
+            userWalletId: userWalletId,
+            walletService: factory.makeWalletService(),
+            clobService: factory.makeCLOBService(),
+            credentialsRepository: CommonPolymarketCredentialsRepository(),
+            ownerAddressProvider: CommonPolymarketOwnerAddressProvider(
+                keysRepository: keysRepository,
+                keysDerivingInteractor: keysDerivingInteractorFactory.makeInteractor(),
+                areHDWalletsSupported: areHDWalletsSupported
+            ),
+            balanceService: CommonPolymarketBalanceService(
+                tokenBalancesRepository: CommonTokenBalancesRepository(userWalletId: userWalletId)
+            ),
+            presenceStore: AppSettings.shared
+        )
+    }
+}

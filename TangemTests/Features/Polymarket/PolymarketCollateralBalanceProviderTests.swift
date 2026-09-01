@@ -19,7 +19,7 @@ struct PolymarketCollateralBalanceProviderTests {
     func loadedBalanceIsShown() {
         let (sut, _, subject) = makeSUT()
 
-        subject.send(.success(12.34))
+        subject.send(.loaded(12.34))
 
         #expect(sut.balanceType == .loaded(12.34))
     }
@@ -47,16 +47,26 @@ struct PolymarketCollateralBalanceProviderTests {
         let cached = CachedBalance(balance: 12.34, date: .distantPast)
         let (sut, _, subject) = makeSUT(cached: cached)
 
-        subject.send(.failure(SomeError()))
+        subject.send(.failed(SomeError()))
 
         #expect(sut.balanceType == .failure(.init(balance: cached.balance, date: cached.date)))
+    }
+
+    @Test("An unavailable balance drops the cache so the account shows a dash")
+    func anUnavailableBalanceDropsTheCache() {
+        let cached = CachedBalance(balance: 12.34, date: .distantPast)
+        let (sut, _, subject) = makeSUT(cached: cached)
+
+        subject.send(.unavailable)
+
+        #expect(sut.balanceType == .failure(nil))
     }
 
     @Test("A balance that arrived is written to the cache")
     func arrivedBalanceIsCached() {
         let (sut, repository, subject) = makeSUT()
 
-        subject.send(.success(12.34))
+        subject.send(.loaded(12.34))
 
         withExtendedLifetime(sut) {
             #expect(repository.storedBalances.map(\.balance) == [12.34])
@@ -67,22 +77,23 @@ struct PolymarketCollateralBalanceProviderTests {
     func repeatedBalanceIsNotRewritten() {
         let (sut, repository, subject) = makeSUT()
 
-        subject.send(.success(12.34))
-        subject.send(.success(12.34))
-        subject.send(.success(56.78))
+        subject.send(.loaded(12.34))
+        subject.send(.loaded(12.34))
+        subject.send(.loaded(56.78))
 
         withExtendedLifetime(sut) {
             #expect(repository.storedBalances.map(\.balance) == [12.34, 56.78])
         }
     }
 
-    @Test("Loading and failure are never cached")
+    @Test("Only an arrived balance is cached, never loading or failure")
     func onlyArrivedBalancesAreCached() {
         struct SomeError: Error {}
         let (sut, repository, subject) = makeSUT()
 
         subject.send(.loading)
-        subject.send(.failure(SomeError()))
+        subject.send(.failed(SomeError()))
+        subject.send(.unavailable)
 
         withExtendedLifetime(sut) {
             #expect(repository.storedBalances.isEmpty)
@@ -93,7 +104,7 @@ struct PolymarketCollateralBalanceProviderTests {
 // MARK: - Fixtures
 
 private extension PolymarketCollateralBalanceProviderTests {
-    typealias BalanceSubject = CurrentValueSubject<LoadingResult<Decimal, Error>?, Never>
+    typealias BalanceSubject = CurrentValueSubject<PolymarketBalanceState?, Never>
 
     func makeSUT(
         cached: CachedBalance? = nil
