@@ -99,6 +99,11 @@ struct TangemPayMainView: View {
                     MessageBanner(title: banner.title, description: banner.subtitle)
                         .variant(.error)
                         .glowRing(.error)
+                        .slotEnd {
+                            DesignSystem.Icons.Error.filled20.image
+                                .renderingMode(.template)
+                                .foregroundStyle(DesignSystem.Color.iconPrimary)
+                        }
                         .primaryButton(
                             .init(title: Localization.tangempayCardDetailsAddFunds, action: viewModel.addFunds)
                         )
