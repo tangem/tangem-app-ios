@@ -61,6 +61,7 @@ public protocol MobileWalletBackupManager {
 
 public final class CommonMobileWalletBackupManager: MobileWalletBackupManager {
     private let fileNameSuffix = WalletBackupConstants.fileNameSuffix
+    private let fileNameFactory = WalletBackupFileNameFactory()
 
     private let mobileWalletSdk: MobileWalletSdk
     private let storage: WalletBackupStorage
@@ -239,7 +240,7 @@ private extension CommonMobileWalletBackupManager {
             }
         }
 
-        return makeFileName(walletName: walletName, existingFileNames: existingFiles.map(\.name))
+        return fileNameFactory.makeFileName(walletName: walletName, existingFileNames: existingFiles.map(\.name))
     }
 
     func loadBackup(file: WalletBackupStorageFile) async -> MobileWalletBackup? {
@@ -265,65 +266,5 @@ private extension CommonMobileWalletBackupManager {
         } catch {
             throw WalletBackupEncodingError.encodingFailed(error)
         }
-    }
-
-    /// Builds the user-visible file name: `<wallet name>.backup.json`, or
-    /// `<wallet name> (N).backup.json` with the smallest free `N` when the name is taken.
-    func makeFileName(walletName: String, existingFileNames: [String]) -> String {
-        let baseName = sanitizedBaseName(from: walletName)
-
-        // Case-insensitive: iCloud Drive and APFS on macOS treat `Wallet` and `wallet`
-        // as the same file, colliding on sync even though iOS distinguishes them locally.
-        let takenNames = Set(existingFileNames.map { $0.lowercased() })
-
-        let preferredFileName = "\(baseName)\(fileNameSuffix)"
-        guard takenNames.contains(preferredFileName.lowercased()) else {
-            return preferredFileName
-        }
-
-        return smallestNumberedFileName(baseName: baseName, takenNames: takenNames)
-    }
-
-    func sanitizedBaseName(from walletName: String) -> String {
-        let name = walletName
-            .components(separatedBy: Constants.forbiddenFileNameCharacters)
-            .joined()
-            .trimmingCharacters(in: Constants.trimmedFileNameEdgeCharacters)
-
-        return name.isEmpty ? Constants.fallbackWalletName : name
-    }
-
-    /// `<baseName> (N).backup.json` with the smallest free `N`; numbering starts at 1.
-    /// Terminates because `takenNames` is finite: it can occupy at most `count` numbers,
-    /// so the search never goes past `count + 1`.
-    func smallestNumberedFileName(baseName: String, takenNames: Set<String>) -> String {
-        var copyNumber = Constants.firstFileCopyNumber
-        var candidate: String { "\(baseName) (\(copyNumber))\(fileNameSuffix)" }
-
-        while takenNames.contains(candidate.lowercased()) {
-            copyNumber += 1
-        }
-
-        return candidate
-    }
-}
-
-// MARK: - Constants
-
-private extension CommonMobileWalletBackupManager {
-    enum Constants {
-        static let fallbackWalletName = "Wallet"
-        static let firstFileCopyNumber: Int = 1
-
-        /// Characters invalid on at least one file system the backup file can reach:
-        /// `/` on APFS, `:` in the Finder (HFS legacy), `\ / : * ? " < > |` in iCloud
-        /// for Windows, plus `%` to avoid URL-encoding surprises. Removed anywhere in the name.
-        static let forbiddenFileNameCharacters = CharacterSet(charactersIn: "/\\:?%*|\"<>")
-
-        /// Stripped from the edges of the name only: a leading dot would make the file
-        /// hidden and not synced by iCloud Drive, trailing dots and whitespace are
-        /// invalid on Windows. Both are legal in the middle of the name.
-        static let trimmedFileNameEdgeCharacters = CharacterSet.whitespacesAndNewlines
-            .union(CharacterSet(charactersIn: "."))
     }
 }
