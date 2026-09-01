@@ -11,8 +11,6 @@ import BlockchainSdk
 import TangemPolymarket
 
 extension PolymarketUtilities {
-    /// `id` is what prices it, not what it is: the collateral is its own contract, pegged to USDC, so the USDC
-    /// quote is the rate that converts it into the selected fiat currency.
     static var collateralTokenItem: TokenItem {
         TokenItem.token(
             Token(
