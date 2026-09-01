@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -20,6 +21,7 @@ extension PortfolioTokenItemView {
         var effects: PortfolioTokenGeometryEffects?
 
         @ScaledMetric private var iconSize: CGFloat = 40
+        @ScaledMetric private var statusIconSize: CGFloat = 16
 
         var body: some View {
             TangemTwoLineRowLayout(
@@ -40,24 +42,10 @@ extension PortfolioTokenItemView {
 // MARK: - Icon
 
 extension PortfolioTokenItemView.RowView {
-    var icon: some View {
-        tokenIcon
-            .overlay(alignment: .bottomTrailing) {
-                if isAggregateRow, let indicatorColor = data.indicatorColor {
-                    indicatorDot(indicatorColor)
-                }
-            }
-    }
-
     @ViewBuilder
-    var tokenIcon: some View {
+    var icon: some View {
         if let iconInfo = data.tokenIconInfo {
-            TokenIcon(
-                tokenIconInfo: iconInfo,
-                size: CGSize(width: iconSize, height: iconSize),
-                isWithOverlays: !isAggregateRow,
-                iconGeometryEffect: effects?.icon
-            )
+            tokenIcon(iconInfo)
         } else {
             // "Other" bucket — the ds-core token placeholder glyph.
             DesignSystem.Icons.tokenError.image
@@ -66,16 +54,32 @@ extension PortfolioTokenItemView.RowView {
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
                 .matchedGeometryEffect(effects?.icon)
                 .frame(width: iconSize, height: iconSize)
+                .overlay(alignment: .bottomTrailing) {
+                    if isAggregateRow, let indicatorColor = data.indicatorColor {
+                        indicatorDot(indicatorColor)
+                    }
+                }
         }
     }
 
     func indicatorDot(_ color: Color) -> some View {
         Circle()
             .fill(color)
-            .frame(width: 4, height: 4)
+            .frame(size: CGSize(bothDimensions: 6))
             .padding(1)
             .background(DesignSystem.Color.bgSecondary, in: Circle())
             .offset(x: -3, y: -3)
+    }
+
+    func tokenIcon(_ iconInfo: TokenIconInfo) -> TokenIconV2 {
+        var icon = TokenIconV2(tokenIconInfo: iconInfo, size: .size40)
+            .geometryEffect(effects?.icon)
+
+        if isAggregateRow, let indicatorColor = data.indicatorColor {
+            icon = icon.indicatorColor(indicatorColor)
+        }
+
+        return icon
     }
 }
 
@@ -97,10 +101,25 @@ extension PortfolioTokenItemView.RowView {
     }
 
     var fiatView: some View {
-        PortfolioTokenItemView.BalanceText(value: fiat)
-            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-            .lineLimit(1)
-            .shimmer()
+        HStack(spacing: 4) {
+            if data.freshness == .outdated {
+                staleIcon
+            }
+
+            PortfolioTokenItemView.BalanceText(value: fiat)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .lineLimit(1)
+                .shimmer()
+        }
+    }
+
+    var staleIcon: some View {
+        DesignSystem.Icons.CloudExclamation.regular16.image
+            .renderingMode(.template)
+            .resizable()
+            .frame(size: CGSize(bothDimensions: statusIconSize))
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
+            .accessibilityLabel(Localization.warningOutdatedDataTitle)
     }
 
     var fiat: String? {
@@ -161,7 +180,7 @@ extension PortfolioTokenItemView.RowView {
             DesignSystem.Icons.Warning.regular16.image
                 .renderingMode(.template)
                 .resizable()
-                .frame(width: 16, height: 16)
+                .frame(size: CGSize(bothDimensions: statusIconSize))
                 .foregroundStyle(DesignSystem.Color.iconStatusWarning)
         }
     }
