@@ -347,3 +347,51 @@ final class PolymarketCardSignerStub: TangemSigner {
         sign(hashes: dataToSign.flatMap(\.hashes), walletPublicKey: walletPublicKey)
     }
 }
+
+// MARK: - Discovery API
+
+final class PolymarketAPIProviderStub: PolymarketAPIProvider {
+    private(set) var searchRequests: [PolymarketSearchRequest] = []
+
+    private var searchResults: [Result<PolymarketSearchResult, Error>]
+
+    init(searchResults: [Result<PolymarketSearchResult, Error>] = []) {
+        self.searchResults = searchResults
+    }
+
+    func search(request: PolymarketSearchRequest) async throws -> PolymarketSearchResult {
+        searchRequests.append(request)
+
+        guard !searchResults.isEmpty else {
+            return PolymarketSearchResult(events: [], page: request.page, total: 0, hasNext: false)
+        }
+
+        return try searchResults.removeFirst().get()
+    }
+
+    func categories(locale: String?) async throws -> [PolymarketCategory] { [] }
+
+    func events(request: PolymarketEventsRequest) async throws -> PolymarketEventsPage {
+        PolymarketEventsPage(events: [], cursor: nil, hasNext: false)
+    }
+
+    func event(id: String) async throws -> PolymarketEvent {
+        throw PolymarketDepositWalletServiceStub.StubError()
+    }
+
+    func series() async throws -> [PolymarketSeries] { [] }
+
+    func seriesEvents(seriesId: String) async throws -> PolymarketSeriesEvents {
+        throw PolymarketDepositWalletServiceStub.StubError()
+    }
+}
+
+// MARK: - Search routing
+
+final class PolymarketSearchRoutableSpy: PolymarketSearchRoutable {
+    private(set) var openedEventIDs: [String] = []
+
+    func openEventDetailsFromSearch(eventID: String) {
+        openedEventIDs.append(eventID)
+    }
+}

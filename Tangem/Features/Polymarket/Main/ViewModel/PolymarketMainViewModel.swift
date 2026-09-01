@@ -24,6 +24,11 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var isTabsPinned = false
     @Published private(set) var balance: LoadableBalanceView.State = .loading(cached: .none)
     @Published private(set) var isRegionRestricted = false
+    @Published private(set) var isSearching = false
+    @Published var isSearchFieldActive = false
+    @Published var searchQuery = ""
+
+    let search: PolymarketSearchViewModel
 
     private(set) var categoryTabs: [PolymarketCategoryTab] = []
 
@@ -42,6 +47,7 @@ final class PolymarketMainViewModel: ObservableObject {
     private let balanceStateBuilder = LoadableBalanceViewStateBuilder()
 
     private var balanceSubscription: AnyCancellable?
+    private var searchBag: Set<AnyCancellable> = []
 
     private var events: [PolymarketEvent] = []
     private var cursor: String?
@@ -57,11 +63,29 @@ final class PolymarketMainViewModel: ObservableObject {
     ) {
         self.apiProvider = apiProvider
         self.geoblockService = geoblockService
+        search = PolymarketSearchViewModel(apiProvider: apiProvider)
         self.balanceProvider = balanceProvider
         self.coordinator = coordinator
+        search.coordinator = self
+
+        bindSearch()
         bindBalance()
         load()
         loadRegion()
+    }
+
+    private func bindSearch() {
+        $searchQuery
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, query in viewModel.search.query = query }
+            .store(in: &searchBag)
+
+        $isSearchFieldActive
+            .filter { $0 }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in viewModel.isSearching = true }
+            .store(in: &searchBag)
     }
 
     private func loadRegion() {
@@ -146,6 +170,13 @@ final class PolymarketMainViewModel: ObservableObject {
         }
 
         // [REDACTED_TODO_COMMENT]
+    }
+
+    func exitSearch() {
+        isSearching = false
+        isSearchFieldActive = false
+        searchQuery = ""
+        search.reset()
     }
 
     func openEventDetails(eventID: String) {
@@ -274,5 +305,13 @@ private extension PolymarketMainViewModel {
         let events: [PolymarketEvent]
         let cursor: String?
         let hasNext: Bool
+    }
+}
+
+// MARK: - PolymarketSearchRoutable protocol conformance
+
+extension PolymarketMainViewModel: PolymarketSearchRoutable {
+    func openEventDetailsFromSearch(eventID: String) {
+        coordinator?.openEventDetails(eventID: eventID, category: nil)
     }
 }
