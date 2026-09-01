@@ -31,6 +31,8 @@
 		B62C167B2CBE0A1E00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167A2CBE0A1E00522683 /* Alamofire */; };
 		B62C167D2CBE0A3D00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167C2CBE0A3D00522683 /* Alamofire */; };
 		B62C167F2CBE0B7900522683 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167E2CBE0B7900522683 /* Moya */; };
+		298779BD66F34A0A82C0AE5C /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 82B26E343D644018AD22697E /* Moya */; };
+		FEC6EF6E4428451BBC18A043 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 2A0BF277ECDB41CE9916F880 /* Alamofire */; };
 		B62C16812CBE0BA000522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C16802CBE0BA000522683 /* Alamofire */; };
 		B63DFC4E2CD4EABB00720D9F /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B63DFC4D2CD4EABB00720D9F /* TangemModules */; };
 		B6457BD02F9120CA00C91066 /* TangemMacro in Frameworks */ = {isa = PBXBuildFile; productRef = B6457BCF2F9120CA00C91066 /* TangemMacro */; };
@@ -391,6 +393,8 @@
 				C2FC44072F3E66F900A61EAB /* TangemTestKit in Frameworks */,
 				B67E38C72CC7259B00D660EB /* TangemSdk in Frameworks */,
 				DC2CA0DD2EF069BC00C10344 /* CryptoSwift in Frameworks */,
+				298779BD66F34A0A82C0AE5C /* Moya in Frameworks */,
+				FEC6EF6E4428451BBC18A043 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -697,6 +701,8 @@
 				DC2CA0DC2EF069BC00C10344 /* CryptoSwift */,
 				C2FC44062F3E66F900A61EAB /* TangemTestKit */,
 				B6A0FE802F91386800E28A09 /* BigInt */,
+				82B26E343D644018AD22697E /* Moya */,
+				2A0BF277ECDB41CE9916F880 /* Alamofire */,
 			);
 			productName = "Tangem TapTests";
 			productReference = 5D3F77D824BF56DC00E8695B /* TangemTests.xctest */;
@@ -4803,6 +4809,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */;
 			productName = Moya;
+		};
+		82B26E343D644018AD22697E /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
+		};
+		2A0BF277ECDB41CE9916F880 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
 		};
 		B62C16802CBE0BA000522683 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
