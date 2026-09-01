@@ -8,7 +8,6 @@
 
 import XCTest
 import TangemAccessibilityIdentifiers
-import TangemLocalization
 import Foundation
 
 final class MainScreen: ScreenBase<MainScreenElement> {
@@ -42,9 +41,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var addTokensButton = app.buttons[MainAccessibilityIdentifiers.addTokensButton].firstMatch
     /// The promo banner merges its title and description into a single accessibility element, so they are
     /// matched inside that element's label rather than by identifiers of their own.
-    private lazy var promoBannerTitle = elementContainingText(Localization.walletPromoBannerTitle)
+    private lazy var promoBannerTitle = elementContainingText("Discover Tangem Wallet")
     /// Only the first line: the description carries a hard line break the accessibility label may fold.
-    private lazy var promoBannerBody = elementContainingText(String(Localization.walletPromoBannerDescription.prefix { !$0.isNewline }))
+    private lazy var promoBannerBody = elementContainingText("Access 13,000+ cryptocurrencies")
     private lazy var promoBannerButton = button(.walletPromoBannerButton)
 
     private func elementContainingText(_ text: String) -> XCUIElement {
