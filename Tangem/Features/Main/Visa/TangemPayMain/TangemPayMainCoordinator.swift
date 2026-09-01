@@ -327,10 +327,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openTangemPayWithdraw(input: PredefinedSwapParameters) {
-        Task { @MainActor in
-            let viewModel = TangemPayWithdrawNoteSheetViewModel(parameters: input, coordinator: self)
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
+        openSwap(parameters: input)
     }
 
     func openTangemPayOfframp() {
