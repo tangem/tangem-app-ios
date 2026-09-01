@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct PendingExpressTxStatusBottomSheetView: View {
     @ObservedObject var viewModel: PendingExpressTxStatusBottomSheetViewModel
@@ -44,6 +45,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
             VStack(spacing: 12) {
                 Text(viewModel.sheetTitle)
                     .style(Fonts.Regular.headline, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(TokenAccessibilityIdentifiers.expressStatusSheetTitle)
 
                 Text(Localization.expressExchangeStatusSubtitle)
                     .style(Fonts.Regular.footnote, color: Colors.Text.secondary)

@@ -34,6 +34,7 @@ enum CryptoAccounts {
 
 extension CryptoAccounts {
     /// Represents the enum cases without associated values.
+    @CaseFlagable
     enum State: Equatable {
         case single
         case multiple

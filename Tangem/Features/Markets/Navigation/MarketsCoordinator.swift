@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import TangemFoundation
 import TangemUI
 
 final class MarketsCoordinator: CoordinatorObject {
@@ -16,7 +17,10 @@ final class MarketsCoordinator: CoordinatorObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     @Injected(\.earnAnalyticsProvider) private var earnAnalyticsProvider: EarnAnalyticsProvider
+
+    private weak var polymarketWalletSelector: PolymarketWalletSelectorViewModel?
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -114,15 +118,45 @@ extension MarketsCoordinator: MarketsMainRoutable {
         forYouCoordinator = coordinator
     }
 
-    func openPolymarket() {
+    func openPolymarket(for userWalletModels: [any UserWalletModel]) {
+        guard polymarketCoordinator == nil, polymarketWalletSelector == nil else { return }
+
+        if userWalletModels.count == 1, let onlyUserWalletModel = userWalletModels.first {
+            showPolymarket(for: onlyUserWalletModel)
+        } else {
+            showPolymarketWalletSelector(from: userWalletModels)
+        }
+    }
+
+    private func showPolymarket(for userWalletModel: any UserWalletModel) {
         let coordinator = PolymarketCoordinator(
             dismissAction: { [weak self] in
                 self?.polymarketCoordinator = nil
             },
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .init())
+        coordinator.start(with: .init(userWalletModel: userWalletModel))
         polymarketCoordinator = coordinator
+    }
+
+    private func showPolymarketWalletSelector(from userWalletModels: [any UserWalletModel]) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            let viewModel = PolymarketWalletSelectorViewModel(
+                userWalletModels: userWalletModels,
+                onSelect: { [weak self] userWalletModel in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                    self?.showPolymarket(for: userWalletModel)
+                },
+                onClose: { [weak self] in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                }
+            )
+
+            polymarketWalletSelector = viewModel
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openGacha(with options: GachaCoordinator.Options) {

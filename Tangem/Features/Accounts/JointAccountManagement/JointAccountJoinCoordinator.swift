@@ -24,6 +24,8 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: JointAccountJoinViewModel?
 
+    @Published var path: [Step] = []
+
     // MARK: - Dependencies
 
     private var options: Options?
@@ -57,6 +59,41 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
             }
 
             rootViewModel = viewModel
+        }
+    }
+}
+
+// MARK: - Private
+
+private extension JointAccountJoinCoordinator {
+    func openMemberName(userWalletModel: any UserWalletModel) {
+        let viewModel = JointAccountMemberNameViewModel(
+            helper: JointAccountJoinMemberNameHelper(userWalletModel: userWalletModel),
+            coordinator: self
+        )
+
+        path.append(.memberName(viewModel: viewModel))
+    }
+}
+
+// MARK: - Steps
+
+extension JointAccountJoinCoordinator {
+    enum Step {
+        case memberName(viewModel: JointAccountMemberNameViewModel)
+    }
+}
+
+extension JointAccountJoinCoordinator.Step: Hashable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
+        case (.memberName(let lhs), .memberName(let rhs)): lhs === rhs
+        }
+    }
+
+    func hash(into hasher: inout Hasher) {
+        switch self {
+        case .memberName(let viewModel): hasher.combine(ObjectIdentifier(viewModel))
         }
     }
 }
@@ -109,7 +146,39 @@ extension JointAccountJoinCoordinator: JointAccountJoinRoutable {
     }
 
     func continueJoin(userWalletModel: any UserWalletModel) {
-        // [REDACTED_TODO_COMMENT]
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: JointAccountJoinConfirmationViewModel(coordinator: self))
+        }
+    }
+}
+
+// MARK: - JointAccountJoinConfirmationRoutable
+
+extension JointAccountJoinCoordinator: JointAccountJoinConfirmationRoutable {
+    func confirmJoin() {
+        Task { @MainActor [weak self] in
+            guard let self, let userWalletModel = rootViewModel?.selectedUserWalletModel else {
+                return
+            }
+
+            floatingSheetPresenter.removeActiveSheet()
+            openMemberName(userWalletModel: userWalletModel)
+        }
+    }
+
+    /// Backing out leaves the picked wallet alone — the user stays on the invite screen with it still selected.
+    func cancelJoin() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - JointAccountMemberNameRoutable
+
+extension JointAccountJoinCoordinator: JointAccountMemberNameRoutable {
+    func closeMemberName() {
+        dismiss()
     }
 }
 

@@ -53,6 +53,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator?
     @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
+    @Published var polymarketCoordinator: PolymarketCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -538,7 +539,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
     private func openTangemPayMainViewAfterPlanActivation(userWalletModel: any UserWalletModel) {
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tangemPayPlanActivationNavigationDelay) { [weak self] in
-            guard let tangemPayAccount = userWalletModel.accountModelsManager.tangemPayAccountModel?.state?.tangemPayAccount else {
+            guard let tangemPayAccount = TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager)?.state?.tangemPayAccount else {
                 return
             }
 
@@ -562,7 +563,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             return
         }
 
-        guard let accountModel = userWalletModel.accountModelsManager.tangemPayAccountModel else {
+        guard let accountModel = TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager) else {
             incomingActionManager.discardIncomingAction()
             return
         }
@@ -635,6 +636,20 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             }
         )
         yieldDeeplinkRouter?.handle(walletModel: walletModel, userWalletModel: userWalletModel)
+    }
+
+    func openPolymarket(userWalletModel: UserWalletModel) {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = PolymarketCoordinator(
+            dismissAction: { [weak self] in
+                self?.polymarketCoordinator = nil
+                self?.mainBottomSheetUIManager.show()
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(userWalletModel: userWalletModel))
+        polymarketCoordinator = coordinator
     }
 }
 

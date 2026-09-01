@@ -30,7 +30,7 @@ struct WelcomeV2ExistingWalletActionFactory {
                     ),
                     WelcomeV2ActionSheetItem(
                         id: "import",
-                        icon: Assets.welcomeSeedActionIcon,
+                        icon: DesignSystem.Icons.ArrowDown.regular24,
                         title: "Import existing wallet",
                         subtitle: "Start without a hardware wallet",
                         action: callbacks.onImport
