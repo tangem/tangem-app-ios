@@ -65,6 +65,19 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         return components.url ?? url
     }
 
+    public var backendAuthenticationBaseUrl: URL {
+        switch self {
+        case .prod:
+            return URL(string: "https://api.tangem.org")!
+        case .dev:
+            return URL(string: "https://api.tests-d.com")!
+        case .stage:
+            return URL(string: "https://api.tests-s.com")!
+        case .mock:
+            return URL(string: WireMockEnvironment.baseURL)!
+        }
+    }
+
     public var iconBaseUrl: URL {
         switch self {
         case .prod:

@@ -70,7 +70,6 @@ final class AddTokenFlowRedesignedViewModel: ObservableObject, FloatingSheetCont
         viewState = Self.makeConfirmViewState(
             tokenItem: tokenItem,
             accountSelectorCell: resolvedInitialAccount,
-            userWalletModels: userWalletModels,
             configuration: configuration,
             isAccountSelectionAvailable: oneAndOnly == nil,
             onAccountTapped: {},
@@ -137,7 +136,6 @@ private extension AddTokenFlowRedesignedViewModel {
         viewState = Self.makeConfirmViewState(
             tokenItem: tokenItem,
             accountSelectorCell: accountSelectorCell,
-            userWalletModels: userWalletModels,
             configuration: configuration,
             isAccountSelectionAvailable: oneAndOnlyAccount == nil,
             onAccountTapped: { [weak self] in
@@ -248,7 +246,6 @@ private extension AddTokenFlowRedesignedViewModel {
     static func makeConfirmViewState(
         tokenItem: TokenItem,
         accountSelectorCell: AccountSelectorCellModel,
-        userWalletModels: [any UserWalletModel],
         configuration: AddTokenFlowConfiguration,
         isAccountSelectionAvailable: Bool,
         onAccountTapped: @escaping () -> Void,
@@ -259,7 +256,6 @@ private extension AddTokenFlowRedesignedViewModel {
         return .confirm(viewModel: AddTokenConfirmViewModel(
             tokenItem: tokenItem,
             accountSelectorCell: accountSelectorCell,
-            userWalletModels: userWalletModels,
             tokenItemIconInfoBuilder: TokenIconInfoBuilder(),
             isAccountSelectionAvailable: isAccountSelectionAvailable,
             isNetworkSelectionAvailable: availableTokenItems.count > 1,

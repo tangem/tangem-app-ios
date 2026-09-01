@@ -7,22 +7,32 @@
 //
 
 import SwiftUI
-import Kingfisher
 import TangemAssets
+import TangemFoundation
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
 struct PolymarketMarketCard: View {
-    private let model: Model
+    static var skeleton: Self { Self(model: nil) }
+
+    private let model: Model?
 
     init(model: Model) {
+        self.model = model
+    }
+
+    private init(model: Model?) {
         self.model = model
     }
 
     var body: some View {
         VStack(spacing: 0) {
             header
-            buttons
+
+            if model.map(\.outcomes.isNotEmpty) ?? true {
+                buttons
+            }
         }
         .frame(maxWidth: .infinity)
         .background(DesignSystem.Color.bgSecondary)
@@ -32,10 +42,14 @@ struct PolymarketMarketCard: View {
     private var header: some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(model.title)
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                if let model {
+                    Text(model.title)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    Shimmer().variant(.text(style: .body))
+                }
 
                 meta
             }
@@ -45,41 +59,54 @@ struct PolymarketMarketCard: View {
         .padding(16)
     }
 
+    @ViewBuilder
     private var meta: some View {
-        HStack(spacing: 4) {
-            if let volumeText = model.volumeText {
-                HStack(spacing: 2) {
-                    // [REDACTED_TODO_COMMENT]
-                    Text("Volume: ").foregroundStyle(DesignSystem.Color.textSecondary)
-                    Text(volumeText).foregroundStyle(DesignSystem.Color.textPrimary)
-                }
-                .font(token: DesignSystem.Font.captionMediumToken)
-                .lineLimit(1)
-            }
-
-            if let predictedText = model.predictedText {
-                Text(predictedText)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusSuccess)
+        if let model {
+            HStack(spacing: 4) {
+                if let volumeText = model.volumeText {
+                    HStack(spacing: 2) {
+                        Text(Localization.predictionDetailsMarketVolume).foregroundStyle(DesignSystem.Color.textSecondary)
+                        Text(volumeText).foregroundStyle(DesignSystem.Color.textPrimary)
+                    }
+                    .font(token: DesignSystem.Font.captionMediumToken)
                     .lineLimit(1)
-                    .padding(.horizontal, 4)
-                    .frame(minHeight: 16)
-                    .background(DesignSystem.Color.bgStatusSuccessSubtle, in: Capsule())
+                }
+
+                if let predictedText = model.predictedText {
+                    Text(predictedText)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusSuccess)
+                        .lineLimit(1)
+                        .padding(.horizontal, 4)
+                        .frame(minHeight: 16)
+                        .background(DesignSystem.Color.bgStatusSuccessSubtle, in: Capsule())
+                }
             }
+        } else {
+            Shimmer().variant(.text(style: .caption))
         }
     }
 
     private var buttons: some View {
         HStack(spacing: 4) {
-            ForEach(model.outcomes) { outcome in
-                Button(action: outcome.onSelect) {
-                    Text("\(outcome.title) • \(outcome.priceText)")
-                        .style(DesignSystem.Font.bodyMediumToken, color: outcome.style.foregroundColor)
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity, minHeight: 36)
-                        .background(outcome.style.backgroundColor, in: Capsule())
+            if let model {
+                ForEach(model.outcomes) { outcome in
+                    Button(action: outcome.onSelect) {
+                        Text("\(outcome.title) • \(outcome.priceText)")
+                            .style(DesignSystem.Font.bodyMediumToken, color: outcome.style.foregroundColor)
+                            .lineLimit(1)
+                            .frame(maxWidth: .infinity, minHeight: 36)
+                            .background(outcome.style.backgroundColor, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(outcome.title) \(outcome.priceText)")
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(outcome.title) \(outcome.priceText)")
+            } else {
+                ForEach(0 ..< 2, id: \.self) { _ in
+                    Shimmer()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 36)
+                        .clipShape(Capsule())
+                }
             }
         }
         .padding(.top, 8)
@@ -88,36 +115,6 @@ struct PolymarketMarketCard: View {
     }
 
     private var avatar: some View {
-        Group {
-            if let url = model.imageURL {
-                KFImage(url)
-                    .cancelOnDisappear(true)
-                    .placeholder { Shimmer().clipShape(.circle) }
-                    .resizable()
-                    .scaledToFill()
-            } else {
-                DesignSystem.Color.bgOpaquePrimary
-            }
-        }
-        .frame(width: 40, height: 40)
-        .clipShape(Circle())
-        .overlay { Circle().stroke(DesignSystem.Color.borderPrimary, lineWidth: 1) }
-        .accessibilityHidden(true)
-    }
-}
-
-private extension PolymarketMarketCard.Outcome.Style {
-    var backgroundColor: Color {
-        switch self {
-        case .affirmative: DesignSystem.Color.bgStatusInfoSubtle
-        case .negative: DesignSystem.Color.bgStatusErrorSubtle
-        }
-    }
-
-    var foregroundColor: Color {
-        switch self {
-        case .affirmative: DesignSystem.Color.textBrand
-        case .negative: DesignSystem.Color.textStatusError
-        }
+        PolymarketAvatarView(url: model?.imageURL, isLoading: model == nil)
     }
 }
