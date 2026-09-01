@@ -18,34 +18,16 @@ struct ForYouView: View {
     let onBackButtonAction: () -> Void
 
     var body: some View {
-        ZStack(alignment: .top) {
-            backgroundColor
-                .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                navigationBar
-                    .background {
-                        MarketsNavigationBarBackgroundView(
-                            backdropViewColor: backgroundColor,
-                            overlayContentHidingProgress: 1,
-                            isNavigationBarBackgroundBackdropViewHidden: false,
-                            isListContentObscured: false
-                        )
-                    }
-
-                content
-            }
-        }
-        .ignoresSafeArea(.container, edges: .top)
+        content
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+            .safeAreaInset(edge: .top, spacing: 0) { navigationBar }
     }
+}
 
-    private var backgroundColor: Color {
-        DesignSystem.Color.bgPrimary
-    }
+private extension ForYouView {
+    // MARK: - View properties
 
-    // MARK: - Content
-
-    private var content: some View {
+    var content: some View {
         ScrollView {
             VStack(spacing: 48) {
                 PortfolioReviewOutdatedDataBannerView(viewModel: viewModel.portfolioReviewViewModel)
@@ -56,7 +38,7 @@ struct ForYouView: View {
         }
     }
 
-    private var portfolioReviewSection: some View {
+    var portfolioReviewSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 8) {
                 Text(Localization.forYouPortfolioReviewTitle)
@@ -71,23 +53,15 @@ struct ForYouView: View {
         }
     }
 
-    // MARK: - Navigation bar
-
-    private var navigationBar: some View {
-        ZStack {
-            Text(Localization.forYouTitle)
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
-
-            HStack {
-                // Liquid Glass back button on iOS 26 (system-label / circle fallbacks otherwise).
-                NavigationBarButton.back(action: onBackButtonAction)
-                    .redesigned()
-
-                Spacer()
-            }
-        }
-        .padding(.horizontal, 16)
-        .frame(height: 64, alignment: .bottom)
+    var navigationBar: some View {
+        NavigationHeader(
+            leadingContent: NavigationBarButton.back(action: onBackButtonAction).redesigned,
+            principalContent: {
+                Text(Localization.forYouTitle)
+                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+            },
+            trailingContent: EmptyView.init
+        )
     }
 }
 
