@@ -110,7 +110,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayMultichain: return .version("6.3")
         case .backup4cards: return .unspecified
         case .backendAuthentication: return .unspecified
-        case .tangemPayAddFundsWithdrawRework: return .unspecified
+        case .tangemPayAddFundsWithdrawRework: return .version("6.3")
         case .swapHideZeroBalanceSource: return .version("6.3")
         case .onrampPaymentMethodThemedImages: return .version("6.3")
         case .chooseTokenPulseAnimation: return .version("6.3")
@@ -121,7 +121,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletCardsBackupReport: return .unspecified
         case .jointAccounts: return .unspecified
         case .ethPolLocalStakingValidation: return .unspecified
-        case .yieldDexTransferDetection: return .version("6.3")
+        case .yieldDexTransferDetection: return .unspecified
         case .tangemPayCashback: return .version("6.3")
         case .swapChooseTokenWholeAreaTap: return .version("6.3")
         case .welcomeScreenV2: return .unspecified
