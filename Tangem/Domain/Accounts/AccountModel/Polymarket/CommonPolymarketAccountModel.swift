@@ -127,7 +127,7 @@ private extension CommonPolymarketAccountModel {
         await loadBalance(ownerAddress: ownerAddress)
     }
 
-    func makeState(from depositWallet: PolymarketDepositWalletState, ownerAddress: String?) -> PolymarketAccountState? {
+    func makeState(from depositWallet: PolymarketDepositWallet, ownerAddress: String?) -> PolymarketAccountState? {
         switch depositWallet.status {
         case .notCreated:
             nil
@@ -186,7 +186,6 @@ private extension CommonPolymarketAccountModel {
             return
         }
 
-        PolymarketLogger.info("The exchange rejected the credentials, dropping them")
         credentialsRepository.delete(userWalletId: userWalletId)
         balanceService.update(.unavailable)
         stateSubject.send(.syncNeeded)

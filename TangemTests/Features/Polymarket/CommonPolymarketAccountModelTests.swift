@@ -85,8 +85,8 @@ struct CommonPolymarketAccountModelTests {
     @Test("An unrecognised status keeps whatever was already known")
     func unrecognisedStatusKeepsTheKnownState() async {
         let service = PolymarketDepositWalletServiceStub(stateResults: [
-            .success(PolymarketDepositWalletState(depositWalletAddress: nil, status: .deploymentInProgress)),
-            .success(PolymarketDepositWalletState(depositWalletAddress: nil, status: .unknown)),
+            .success(PolymarketDepositWallet(address: nil, status: .deploymentInProgress)),
+            .success(PolymarketDepositWallet(address: nil, status: .unknown)),
         ])
         let (sut, _) = makeSUT(walletService: service)
 
@@ -103,7 +103,9 @@ struct CommonPolymarketAccountModelTests {
         let (sut, balance) = makeSUT(
             walletService: PolymarketDepositWalletServiceStub(status: .readyToTrade),
             credentialsRepository: credentials,
-            clobService: PolymarketCLOBServiceStub(balanceResult: .failure(PolymarketAPIError.http(statusCode: 401, problemDetail: nil)))
+            clobService: PolymarketCLOBServiceStub(
+                balanceResult: .failure(PolymarketAPIError.http(statusCode: 401, problemDetail: nil))
+            )
         )
 
         await sut.refreshState()
@@ -116,7 +118,7 @@ struct CommonPolymarketAccountModelTests {
     @Test("A cancelled refresh does not resurrect a state that has since been replaced")
     func cancelledRefreshKeepsTheNewerState() async {
         let service = PolymarketDepositWalletServiceStub(stateResults: [
-            .success(PolymarketDepositWalletState(depositWalletAddress: nil, status: .deploymentInProgress)),
+            .success(PolymarketDepositWallet(address: nil, status: .deploymentInProgress)),
             .failure(.cancelled),
         ])
         let (sut, _) = makeSUT(walletService: service)

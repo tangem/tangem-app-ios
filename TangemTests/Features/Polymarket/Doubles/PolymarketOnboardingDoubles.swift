@@ -8,8 +8,10 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 import TangemFoundation
 import TangemPolymarket
+import TangemSdk
 @testable import Tangem
 
 // MARK: - Wallet service
@@ -17,14 +19,14 @@ import TangemPolymarket
 final class PolymarketDepositWalletServiceStub: PolymarketDepositWalletService {
     private(set) var requestedKeys: [(ownerAddress: String?, walletId: String)] = []
     private(set) var deployCalls = 0
-    private(set) var approvalsCalls = 0
+    private(set) var submittedBatches: [PolymarketApprovalsBatch] = []
 
-    private var stateResults: [Result<PolymarketDepositWalletState, PolymarketWalletError>]
+    private var stateResults: [Result<PolymarketDepositWallet, PolymarketWalletError>]
     private let deployResult: Result<PolymarketDepositWalletStatus, PolymarketWalletError>
     private let approvalsResult: Result<PolymarketDepositWalletStatus, PolymarketWalletError>
 
     init(
-        stateResults: [Result<PolymarketDepositWalletState, PolymarketWalletError>] = [],
+        stateResults: [Result<PolymarketDepositWallet, PolymarketWalletError>] = [],
         deployResult: Result<PolymarketDepositWalletStatus, PolymarketWalletError> = .success(.deploymentInProgress),
         approvalsResult: Result<PolymarketDepositWalletStatus, PolymarketWalletError> = .success(.approvalsInProgress)
     ) {
@@ -33,8 +35,11 @@ final class PolymarketDepositWalletServiceStub: PolymarketDepositWalletService {
         self.approvalsResult = approvalsResult
     }
 
-    convenience init(status: PolymarketDepositWalletStatus, depositWalletAddress: String? = PolymarketDepositWalletServiceStub.depositWalletAddress) {
-        self.init(stateResults: [.success(PolymarketDepositWalletState(depositWalletAddress: depositWalletAddress, status: status))])
+    convenience init(
+        status: PolymarketDepositWalletStatus,
+        depositWalletAddress: String? = PolymarketDepositWalletServiceStub.depositWalletAddress
+    ) {
+        self.init(stateResults: [.success(PolymarketDepositWallet(address: depositWalletAddress, status: status))])
     }
 
     convenience init(stateError: PolymarketWalletError) {
@@ -44,7 +49,7 @@ final class PolymarketDepositWalletServiceStub: PolymarketDepositWalletService {
     func depositWalletState(
         ownerAddress: String?,
         walletId: String
-    ) async throws(PolymarketWalletError) -> PolymarketDepositWalletState {
+    ) async throws(PolymarketWalletError) -> PolymarketDepositWallet {
         requestedKeys.append((ownerAddress: ownerAddress, walletId: walletId))
 
         let result = stateResults.count > 1 ? stateResults.removeFirst() : stateResults.first
@@ -73,7 +78,7 @@ final class PolymarketDepositWalletServiceStub: PolymarketDepositWalletService {
     }
 
     func submitApprovals(_ batch: PolymarketApprovalsBatch) async throws(PolymarketWalletError) -> PolymarketDepositWalletStatus {
-        approvalsCalls += 1
+        submittedBatches.append(batch)
 
         switch approvalsResult {
         case .success(let status): return status
@@ -157,17 +162,25 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
     private(set) var balanceCalls = 0
 
     private let balanceResult: Result<Decimal, Error>
+    private let deriveResult: Result<PolymarketL2Credentials, Error>
+    private let createResult: Result<PolymarketL2Credentials, Error>
 
-    init(balanceResult: Result<Decimal, Error> = .success(0)) {
+    init(
+        balanceResult: Result<Decimal, Error> = .success(0),
+        deriveResult: Result<PolymarketL2Credentials, Error> = .success(PolymarketCredentialsRepositoryStub.credentials),
+        createResult: Result<PolymarketL2Credentials, Error> = .success(PolymarketCredentialsRepositoryStub.credentials)
+    ) {
         self.balanceResult = balanceResult
+        self.deriveResult = deriveResult
+        self.createResult = createResult
     }
 
     func createCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
-        PolymarketCredentialsRepositoryStub.credentials
+        try createResult.get()
     }
 
     func deriveCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
-        PolymarketCredentialsRepositoryStub.credentials
+        try deriveResult.get()
     }
 
     func updateBalanceAllowance(credentials: PolymarketL2Credentials, ownerAddress: String) async throws {}
@@ -182,6 +195,58 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
         case .success(let balance): return PolymarketBalanceAllowance(balance: balance, allowance: 0)
         case .failure(let error): throw error
         }
+    }
+}
+
+// MARK: - Relayer
+
+final class PolymarketRelayerServiceStub: PolymarketRelayerService {
+    static let nonce = "7"
+
+    private let result: Result<String, Error>
+
+    init(result: Result<String, Error> = .success(PolymarketRelayerServiceStub.nonce)) {
+        self.result = result
+    }
+
+    func walletNonce(ownerAddress: String) async throws -> String {
+        try result.get()
+    }
+}
+
+// MARK: - Onboarding signing
+
+final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
+    static let batchSignature = "0xbatch"
+
+    private(set) var signCalls = 0
+
+    private let error: PolymarketSigningError?
+
+    init(error: PolymarketSigningError? = nil) {
+        self.error = error
+    }
+
+    func sign(
+        approvals: PolymarketApprovalsBatch.Unsigned
+    ) async throws(PolymarketSigningError) -> PolymarketOnboardingSignatures {
+        signCalls += 1
+
+        if let error {
+            throw error
+        }
+
+        let ownerAddress = PolymarketOwnerAddressProviderStub.ownerAddress
+
+        return PolymarketOnboardingSignatures(
+            authHeaders: PolymarketCLOBAuthHeaders(
+                ownerAddress: ownerAddress,
+                signature: "0xsignature",
+                timestamp: "1786128353",
+                nonce: PolymarketClobAuth.nonce
+            ),
+            approvals: approvals.signed(by: ownerAddress, signature: Self.batchSignature)
+        )
     }
 }
 
@@ -222,5 +287,63 @@ final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
 
     func delete(userWalletId: UserWalletId) {
         known = false
+    }
+}
+
+// MARK: - Card signing
+
+final class PolymarketCardSignerStub: TangemSigner {
+    private(set) var signCalls = 0
+    private(set) var requestedHashes: [Data] = []
+
+    let hasNFCInteraction = false
+    let latestSignerType: TangemSignerType? = nil
+
+    let publicKey: Data
+
+    private let privateKey: Data
+    private var produced: [Data: String] = [:]
+
+    init() throws {
+        let keyPair = try Secp256k1Utils().generateKeyPair()
+
+        privateKey = keyPair.privateKey
+        publicKey = keyPair.publicKey
+    }
+
+    func signature(over hash: Data) -> String? {
+        produced[hash]
+    }
+
+    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
+        signCalls += 1
+        requestedHashes.append(contentsOf: hashes)
+
+        do {
+            let signatures = try hashes.map { hash in
+                let info = SignatureInfo(
+                    signature: try Secp256k1Utils().sign(hash, with: privateKey),
+                    publicKey: publicKey,
+                    hash: hash.getSHA256()
+                )
+                produced[hash] = try info.unmarshal().hexString.lowercased().addHexPrefix()
+
+                return info
+            }
+
+            return Just(signatures).setFailureType(to: Error.self).eraseToAnyPublisher()
+        } catch {
+            return Fail(error: error).eraseToAnyPublisher()
+        }
+    }
+
+    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, any Error> {
+        sign(hashes: [hash], walletPublicKey: walletPublicKey)
+            .compactMap(\.first)
+            .eraseToAnyPublisher()
+    }
+
+    func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
+        sign(hashes: dataToSign.flatMap(\.hashes), walletPublicKey: walletPublicKey)
     }
 }
