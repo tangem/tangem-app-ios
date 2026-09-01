@@ -15,8 +15,10 @@ public enum AuthAccessibilityIdentifiers {
     public static let walletsList = "authWalletsList"
     public static let biometricsUnlockButton = "authBiometricsUnlockButton"
 
+    public static let walletItemPrefix = "authWalletItem_"
+
     /// Wallet item identifier - uses wallet name for uniqueness
     public static func walletItem(walletName: String) -> String {
-        return "authWalletItem_\(walletName)"
+        return "\(walletItemPrefix)\(walletName)"
     }
 }
