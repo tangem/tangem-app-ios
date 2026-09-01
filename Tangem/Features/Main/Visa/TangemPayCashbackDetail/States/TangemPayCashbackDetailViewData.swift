@@ -49,7 +49,7 @@ extension TangemPayCashbackDetailViewData {
         let id: String
         let badge: Badge
         let title: String
-        let subtitle: String?
+        let subtitle: AttributedString?
 
         struct Badge {
             let label: String
@@ -102,21 +102,27 @@ extension TangemPayCashbackDetailViewData {
             id: "permanent",
             badge: .init(label: "Permanent", isTimeLimited: false),
             title: "Groceries increase",
-            subtitle: "+1% cashback for groceries stores"
+            subtitle: previewSubtitle("+1% cashback for groceries stores")
         ),
         AdditionalPromotion(
             id: "limited",
             badge: .init(label: "Until 09.26.2026", isTimeLimited: true),
             title: "Groceries increase",
-            subtitle: "+1% cashback for groceries stores. $10 max per month"
+            subtitle: previewSubtitle(
+                "+1% cashback at [participating stores](https://tangem.com). $10 max per month"
+            )
         ),
         AdditionalPromotion(
             id: "limited-higher-rate",
             badge: .init(label: "Until 09.26.2026", isTimeLimited: true),
             title: "Cashback increase",
-            subtitle: "+2% cashback for groceries stores. $10 max per month"
+            subtitle: previewSubtitle("+2% cashback for groceries stores. $10 max per month")
         ),
     ]
+
+    static func previewSubtitle(_ markdown: String) -> AttributedString {
+        TangemPayCashbackDetailViewDataFactory.makeMarkdown(markdown)
+    }
 }
 
 extension TangemPayCashbackDetailViewData.RateCard {
