@@ -17,7 +17,6 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     private lazy var buyWalletButton = button(.buyWallet)
     private lazy var termsOfServiceButton = button(.termsOfService)
     private lazy var appVersionLabel = staticText(.appVersion)
-    private lazy var addHardwareWalletButton = button(.addHardwareWalletButton)
 
     func openWalletSettings(for walletName: String) -> CardSettingsScreen {
         XCTContext.runActivity(named: "Open wallet settings for wallet: \(walletName)") { _ in
@@ -56,18 +55,10 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     }
 
     @discardableResult
-    func tapAddNewWallet() -> Self {
+    func tapAddNewWallet() -> AddWalletTypeSelectorScreen {
         XCTContext.runActivity(named: "Add new wallet") { _ in
             addNewWallet.waitAndTap()
-            return self
-        }
-    }
-
-    @discardableResult
-    func tapAddHardwareWallet() -> Self {
-        XCTContext.runActivity(named: "Tap 'Add hardware wallet' button") { _ in
-            addHardwareWalletButton.waitAndTap()
-            return self
+            return AddWalletTypeSelectorScreen(app)
         }
     }
 
@@ -177,7 +168,6 @@ enum DetailsScreenElement: UIElement {
     case appSettings
     case termsOfService
     case appVersion
-    case addHardwareWalletButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -195,8 +185,6 @@ enum DetailsScreenElement: UIElement {
             return DetailsAccessibilityIdentifiers.termsOfService
         case .appVersion:
             return DetailsAccessibilityIdentifiers.appVersion
-        case .addHardwareWalletButton:
-            return DetailsAccessibilityIdentifiers.addHardwareWalletButton
         }
     }
 }

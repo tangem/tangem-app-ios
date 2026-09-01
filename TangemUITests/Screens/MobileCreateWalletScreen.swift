@@ -14,23 +14,11 @@ final class MobileCreateWalletScreen: ScreenBase<MobileCreateWalletScreenElement
     private lazy var createButton = button(.createButton)
 
     @discardableResult
-    func tapImportButton() -> SeedPhraseImportScreen {
+    func tapImportButton() -> MobileImportWalletScreen {
         XCTContext.runActivity(named: "Tap Import button") { _ in
             waitAndAssertTrue(importButton, "Import button should be displayed")
             importButton.waitAndTap()
-
-            // Welcome V2 may insert a recovery-phrase-vs-iCloud choice sheet before the seed phrase screen; tap through it if present.
-            let recoveryPhrasePredicate = NSPredicate(
-                format: "identifier == %@ OR label == %@",
-                OnboardingAccessibilityIdentifiers.welcomeImportSheetRecoveryPhraseButton,
-                "Import recovery phrase"
-            )
-            let recoveryPhraseButton = app.buttons.matching(recoveryPhrasePredicate).firstMatch
-            if recoveryPhraseButton.waitForExistence(timeout: .quick) {
-                recoveryPhraseButton.waitAndTap()
-            }
-
-            return SeedPhraseImportScreen(app)
+            return MobileImportWalletScreen(app)
         }
     }
 
