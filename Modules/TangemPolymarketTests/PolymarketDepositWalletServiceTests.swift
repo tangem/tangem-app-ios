@@ -54,8 +54,8 @@ struct PolymarketDepositWalletStatusTests {
     }
 }
 
-@Suite("PolymarketDepositWalletState decoding")
-struct PolymarketDepositWalletStateDecodingTests {
+@Suite("Deposit wallet response decoding")
+struct PolymarketDepositWalletResponseDecodingTests {
     private let decoder = JSONDecoder()
 
     @Test("An owner without a record decodes with a null address")
