@@ -11,12 +11,23 @@ import BlockchainSdk
 import TangemFoundation
 
 struct CommonTronGaslessTokenFeeLoader {
-    @Injected(\.gaslessTransactionsNetworkManager)
-    private var networkManager: GaslessTransactionsNetworkManager
-
     let tokenItem: TokenItem
     let feeToken: BSDKToken
     let sourceAddress: String
+
+    private let networkManager: GaslessTransactionsNetworkManager
+
+    init(
+        tokenItem: TokenItem,
+        feeToken: BSDKToken,
+        sourceAddress: String,
+        networkManager: GaslessTransactionsNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
+    ) {
+        self.tokenItem = tokenItem
+        self.feeToken = feeToken
+        self.sourceAddress = sourceAddress
+        self.networkManager = networkManager
+    }
 }
 
 // MARK: - TokenFeeLoader
@@ -44,6 +55,13 @@ private extension CommonTronGaslessTokenFeeLoader {
             throw TokenFeeLoaderError.gaslessTronTransactionAmountConversionFailed(amount)
         }
 
+        let quoteRequest = TronGaslessQuoteRequest(
+            sourceAddress: sourceAddress,
+            destinationAddress: destination,
+            tokenContractAddress: tokenContract,
+            amountRaw: amountRaw,
+            feeTokenContractAddress: feeToken.contractAddress
+        )
         let request = GaslessTransactionsDTO.Request.TronEstimate(
             fromAddress: sourceAddress,
             toAddress: destination,
@@ -53,13 +71,15 @@ private extension CommonTronGaslessTokenFeeLoader {
         )
 
         let quote = try await networkManager.estimateTronGaslessTransaction(request)
-        guard let compensationAmount = Decimal(stringValue: quote.compensationAmount) else {
-            throw TokenFeeLoaderError.invalidGaslessTronCompensationAmount(quote.compensationAmount)
+        guard let compensationAmountRaw = Decimal(stringValue: quote.compensationAmountRaw) else {
+            throw TokenFeeLoaderError.invalidGaslessTronCompensationAmount(quote.compensationAmountRaw)
         }
 
+        let compensationAmount = compensationAmountRaw / pow(10, feeToken.decimalCount)
         let feeAmount = BSDKAmount(with: feeToken, value: compensationAmount)
         let parameters = TronGaslessFeeParameters(
             quoteId: quote.quoteId,
+            request: quoteRequest,
             feeRecipient: quote.feeRecipient,
             compensationToken: quote.compensationToken,
             compensationAmountRaw: quote.compensationAmountRaw,
