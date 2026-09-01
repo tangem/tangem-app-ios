@@ -42,7 +42,7 @@ struct RingGauge: View {
         Constants.diameter - lineWidth
     }
 
-    /// Visual (floored) sweeps in degrees, one per segment — tiny holdings kept ≥ 7% of the circle.
+    /// Visual (floored) sweeps in degrees, one per segment — tiny holdings kept ≥ 5% of the circle.
     private var sweepsDeg: [CGFloat] {
         let weights = segments.map { CGFloat($0.value / denominator) }
         let capDeg = GaugeSweeps.lastSegmentOverlapDeg(strokeWidth: lineWidth, arcDiameter: arcDiameter)
@@ -115,22 +115,6 @@ struct RingGauge: View {
     private var baseRing: some View {
         Circle()
             .stroke(baseRingColor, lineWidth: lineWidth)
-            .overlay { ringInnerShadow }
-    }
-
-    private var ringInnerShadow: some View {
-        Circle()
-            .stroke(.white, lineWidth: lineWidth)
-            .overlay {
-                Circle()
-                    .stroke(.black, lineWidth: lineWidth)
-                    .blur(radius: Constants.innerShadowBlur)
-                    .offset(y: Constants.innerShadowOffsetY)
-                    .blendMode(.destinationOut)
-            }
-            .compositingGroup()
-            .opacity(Constants.innerShadowOpacity)
-            .mask { Circle().stroke(.black, lineWidth: lineWidth) }
     }
 
     private func tapCatcher(in size: CGSize) -> some View {
@@ -157,10 +141,7 @@ struct RingGauge: View {
     private func strokedArc(_ arc: Arc) -> some View {
         Circle()
             .trim(from: max(arc.start, 0), to: max(arc.end, arc.start))
-            .stroke(
-                arc.color.shadow(Constants.innerShadow),
-                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-            )
+            .stroke(arc.color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
     }
 
     private func dimArc(_ arc: Arc) -> some View {
@@ -198,16 +179,6 @@ extension RingGauge {
     enum Constants {
         static let diameter: CGFloat = 200
         static let defaultLineWidth: CGFloat = 28
-
-        static let innerShadowBlur: CGFloat = 4
-        static let innerShadowOffsetY: CGFloat = 4
-        static let innerShadowOpacity: CGFloat = 0.24
-        static let innerShadow: ShadowStyle = .inner(
-            color: .white.opacity(innerShadowOpacity),
-            radius: innerShadowBlur,
-            x: 0,
-            y: innerShadowOffsetY
-        )
 
         /// The same spring as the segment tooltip's pop-in, so the dim and the tooltip move together
         /// (dampingRatio 0.82, stiffness 1100 → damping coefficient 2·0.82·√1100 ≈ 54.4 at mass 1).
