@@ -35,8 +35,10 @@ final class FeedbackUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .openDetails()
             .tapAddNewWallet()
+            .tapHardwareWallet()
             .cancelScan()
             .tapAddNewWallet()
+            .tapHardwareWallet()
             .cancelScan()
 
         TroubleShootSheet(app)

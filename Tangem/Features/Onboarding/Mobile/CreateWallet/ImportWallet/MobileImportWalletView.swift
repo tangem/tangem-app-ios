@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct MobileImportWalletView: View {
     typealias ViewModel = MobileImportWalletViewModel
@@ -89,6 +90,7 @@ private extension MobileImportWalletView {
         .styleType(.secondary)
         .size(.x12)
         .horizontalLayout(.infinity)
+        .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileImportWalletRecoveryPhraseButton)
     }
 
     var iCloudBackupButton: some View {
@@ -103,6 +105,7 @@ private extension MobileImportWalletView {
         .horizontalLayout(.infinity)
         .isLoading(state.isLoading)
         .disabled(!state.isEnabled)
+        .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileImportWalletICloudBackupButton)
     }
 }
 
