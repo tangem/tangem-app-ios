@@ -26,6 +26,10 @@ struct TangemPayCashbackDetailView: View {
                 rateCardAction: viewModel.openTiersInfo,
                 accrualsCardAction: viewModel.openAccrualsInfo
             )
+            .environment(\.openURL, OpenURLAction { url in
+                viewModel.openURL(url)
+                return .handled
+            })
             .navigationTitle(Localization.tangempayCashbackTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
