@@ -111,7 +111,7 @@ private extension DeeplinkSwapParametersResolver {
 
     /// - Note: Lowercased to match against the deeplink's already-lowercased identifiers.
     static func accountIdentifier(of account: (any CryptoAccountModel)?) -> String? {
-        (account?.id as? CommonCryptoAccountModel.AccountId)?.rawValue.hexString.lowercased()
+        account?.id.rawValue.hexString.lowercased()
     }
 }
 

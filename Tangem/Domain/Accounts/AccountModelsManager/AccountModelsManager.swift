@@ -25,10 +25,14 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
     /// Archived + active
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { get }
 
+    /// - Note: Counted apart from the wallet's own accounts, since the two take their derivation indices from
+    /// counters of their own.
+    var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> { get }
+
     /// - Note: This method is also responsible for moving custom tokens into the newly created account if they have a matching derivation.
     func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) -> AccountCreationResult
+    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo]
 
