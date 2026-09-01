@@ -24,7 +24,13 @@ struct PolymarketMainView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             topBar
+
+            if viewModel.isSearching {
+                PolymarketSearchView(viewModel: viewModel.search)
+                    .background(DesignSystem.Color.bgPrimary)
+            }
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) { searchField }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
     }
 
@@ -46,6 +52,21 @@ struct PolymarketMainView: View {
                 .backgroundColor(DesignSystem.Color.bgPrimary)
                 .ignoresSafeArea(edges: .top)
         }
+    }
+
+    // MARK: - Search
+
+    private var searchField: some View {
+        Search(
+            text: $viewModel.searchQuery,
+            isActive: $viewModel.isSearchFieldActive,
+            clearAction: { viewModel.searchQuery = "" },
+            cancelAction: viewModel.exitSearch
+        )
+        .placeholder(Localization.commonSearch)
+        .submitLabel(.search)
+        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.vertical, Constants.searchFieldVerticalPadding)
     }
 
     // MARK: - Navbar
@@ -321,6 +342,7 @@ extension PolymarketMainView {
 
         static let contentSpacing: CGFloat = 12
         static let horizontalPadding: CGFloat = 16
+        static let searchFieldVerticalPadding: CGFloat = 12
         static let navBarTopPadding: CGFloat = 8
         static let navBarSettingsHeight: CGFloat = 56
         static let tabsVerticalPadding: CGFloat = 8
