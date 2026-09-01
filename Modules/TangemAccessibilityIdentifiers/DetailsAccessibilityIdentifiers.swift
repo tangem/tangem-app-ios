@@ -13,6 +13,8 @@ public enum DetailsAccessibilityIdentifiers {
     public static let buyWalletButton = "detailsBuyWalletButton"
     public static let getTangemPayButton = "detailsGetTangemPayButton"
     public static let addNewWallet = "detailsAddNewWalletButton"
+    public static let addWalletTypeHardwareButton = "detailsAddWalletTypeHardwareButton"
+    public static let addWalletTypeMobileButton = "detailsAddWalletTypeMobileButton"
     public static let appSettings = "detailsAppSettingsButton"
     public static let contactSupport = "detailsContactSupportButton"
     public static let termsOfService = "detailsTermsOfServiceButton"
