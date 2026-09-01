@@ -34,13 +34,12 @@ extension JointAccountCreationMemberNameHelper: JointAccountMemberNameHelper {
 
     func submit(name: String) async throws(AccountEditError) {
         creationHelper.update(creatorName: name)
-        try await creationHelper.createAccount()
+        let jointAccount = try await creationHelper.createAccount()
 
-        let creationHelper = creationHelper
         let routable = routable
 
         await MainActor.run {
-            routable?.openInviteMembers(creationHelper: creationHelper)
+            routable?.openInviteMembers(jointAccount: jointAccount)
         }
     }
 }
@@ -48,5 +47,5 @@ extension JointAccountCreationMemberNameHelper: JointAccountMemberNameHelper {
 // MARK: - Routable
 
 protocol JointAccountCreationMemberNameRoutable: AnyObject {
-    func openInviteMembers(creationHelper: JointAccountCreationHelper)
+    func openInviteMembers(jointAccount: any JointAccountModel)
 }

@@ -115,6 +115,10 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         AccountModelUtils.isMainAccount(derivationIdentity)
     }
 
+    var accountType: AccountType {
+        derivationIdentity.type
+    }
+
     var didChangePublisher: AnyPublisher<Void, Never> {
         didChangeSubject.eraseToAnyPublisher()
     }

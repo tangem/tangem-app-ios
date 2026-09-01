@@ -13,7 +13,7 @@ struct CryptoAccountsRemoteIdentifierBuilder {
     let userWalletId: UserWalletId
 
     func build(from input: StoredCryptoAccount) -> String {
-        let accountIdentifier = CommonCryptoAccountModel.AccountId(
+        let accountIdentifier = CryptoAccountModelId(
             userWalletId: userWalletId,
             derivationIdentity: input.derivationIdentity
         )

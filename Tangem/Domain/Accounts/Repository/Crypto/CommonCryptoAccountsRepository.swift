@@ -88,7 +88,7 @@ final class CommonCryptoAccountsRepository {
 
     private func initializeStorage(with initialAccount: StoredCryptoAccount) {
         persistentStorage.replace(with: [initialAccount])
-        auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalCryptoAccountsCount: 1)
+        auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalCryptoAccountsCount: 1, totalJointAccountsCount: 0)
     }
 
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
@@ -440,6 +440,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
                 CryptoAccountsAuxiliaryData(
                     archivedAccountsCount: repository.auxiliaryDataStorage.archivedAccountsCount,
                     totalCryptoAccountsCount: repository.auxiliaryDataStorage.totalCryptoAccountsCount,
+                    totalJointAccountsCount: repository.auxiliaryDataStorage.totalJointAccountsCount,
                 )
             }
             .eraseToAnyPublisher()
@@ -491,6 +492,14 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             nextJointDerivationIndex: cryptoAccounts.counters.joint,
             accounts: cryptoAccounts.accounts
         )
+    }
+
+    func loadCryptoAccountsFromRemote() async throws {
+        let result = await withCheckedContinuation { continuation in
+            loadAccountsFromServerDebouncer.debounce { continuation.resume(returning: $0) }
+        }
+
+        _ = try result.get()
     }
 
     func addNewCryptoAccount(

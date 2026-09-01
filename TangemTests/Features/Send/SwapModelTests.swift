@@ -718,12 +718,13 @@ private final class PendingAccountModelsManagerStub: AccountModelsManager {
     var accountModels: [AccountModel] { [] }
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { Empty(completeImmediately: false).eraseToAnyPublisher() }
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { Empty().eraseToAnyPublisher() }
+    var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> { Empty().eraseToAnyPublisher() }
 
     func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
         AccountCreationResult(operationResult: .none, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .crypto))
     }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) -> AccountCreationResult {
+    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult {
         AccountCreationResult(operationResult: .none, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint))
     }
 

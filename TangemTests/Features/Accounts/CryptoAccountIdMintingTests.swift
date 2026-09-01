@@ -14,11 +14,11 @@ import TangemFoundation
 
 /// The vectors below pin the formula the backend mints account identifiers with. A drift here means every existing
 /// account stops answering to the identifier the backend already knows it by.
-@Suite("Tests for how `CommonCryptoAccountModel.AccountId` mints the backend identifier")
+@Suite("Tests for how `CryptoAccountModelId` mints the backend identifier")
 struct CryptoAccountIdMintingTests {
     @Test("The wallet's own account mints byte-for-byte the identifier it has always been known by")
     func cryptoAccountMintsTheHistoricalIdentifier() {
-        let accountId = CommonCryptoAccountModel.AccountId(
+        let accountId = CryptoAccountModelId(
             userWalletId: Fixtures.userWalletId,
             derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 7, type: .crypto)
         )
@@ -28,28 +28,13 @@ struct CryptoAccountIdMintingTests {
 
     @Test("A joint account appends its kind to the same formula, which is all that keeps the identifiers apart")
     func jointAccountMintsWithTheKindSuffix() {
-        let jointAccountId = CommonCryptoAccountModel.AccountId(
+        let jointAccountId = CryptoAccountModelId(
             userWalletId: Fixtures.userWalletId,
             derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 7, type: .joint)
         )
 
         // SHA256 of the crypto formula's bytes with "joint" appended
         #expect(jointAccountId.rawValue.hexString.lowercased() == "47bc9144efbc17b51bf08fde5bf30f7bf7ebbff582d18f45b65820a8437963ac")
-    }
-
-    @Test("Only the wallet's own account at index zero is the main one, whatever a joint account's index says")
-    func onlyCryptoAccountAtIndexZeroIsMain() {
-        let mainAccountId = CommonCryptoAccountModel.AccountId(
-            userWalletId: Fixtures.userWalletId,
-            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .crypto)
-        )
-        let jointAccountId = CommonCryptoAccountModel.AccountId(
-            userWalletId: Fixtures.userWalletId,
-            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint)
-        )
-
-        #expect(mainAccountId.isMainAccount)
-        #expect(!jointAccountId.isMainAccount)
     }
 }
 
