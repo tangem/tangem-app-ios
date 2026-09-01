@@ -140,30 +140,30 @@ extension DeeplinkSwapParametersResolver {
             tokenId: params.swapFromTokenId,
             networkId: params.swapFromNetworkId,
             userWalletId: params.swapFromUserWalletId,
-            userAccountId: params.swapFromUserAccountId,
-            targetUserWalletId: targetUserWalletId,
-            existingAccountIds: existingAccountIds
+            targetUserWalletId: targetUserWalletId
         )
 
         let toRequested = isSideRequested(
             tokenId: params.swapToTokenId,
             networkId: params.swapToNetworkId,
             userWalletId: params.swapToUserWalletId,
-            userAccountId: params.swapToUserAccountId,
-            targetUserWalletId: targetUserWalletId,
-            existingAccountIds: existingAccountIds
+            targetUserWalletId: targetUserWalletId
         )
 
         guard fromRequested || toRequested else {
             return nil
         }
 
+        // An account the wallet doesn't have narrows nothing — otherwise it would filter out the very tokens the link asks for.
+        let fromRequiredAccountId = params.swapFromUserAccountId.flatMap { existingAccountIds.contains($0) ? $0 : nil }
+        let toRequiredAccountId = params.swapToUserAccountId.flatMap { existingAccountIds.contains($0) ? $0 : nil }
+
         let source = fromRequested
-            ? mostFundedMatch(in: candidates, tokenId: params.swapFromTokenId, networkId: params.swapFromNetworkId, requiredAccountId: params.swapFromUserAccountId, preferredAccountId: nil)
+            ? mostFundedMatch(in: candidates, tokenId: params.swapFromTokenId, networkId: params.swapFromNetworkId, requiredAccountId: fromRequiredAccountId, preferredAccountId: nil)
             : nil
 
         let destination = toRequested
-            ? mostFundedMatch(in: candidates, tokenId: params.swapToTokenId, networkId: params.swapToNetworkId, requiredAccountId: params.swapToUserAccountId, preferredAccountId: source?.accountId)
+            ? mostFundedMatch(in: candidates, tokenId: params.swapToTokenId, networkId: params.swapToNetworkId, requiredAccountId: toRequiredAccountId, preferredAccountId: source?.accountId)
             : nil
 
         if fromRequested, toRequested, source == nil, destination == nil {
@@ -186,25 +186,22 @@ extension DeeplinkSwapParametersResolver {
 // MARK: - Selection helpers
 
 private extension DeeplinkSwapParametersResolver {
-    /// A side counts as requested only with a complete `token_id` + `network_id` and consistent per-side
-    /// `user_wallet_id`/`user_account_id`. An incomplete or inconsistent side is treated as not specified.
+    /// A side counts as requested only with a complete `token_id` + `network_id` and a per-side
+    /// `user_wallet_id` naming this wallet. An incomplete or foreign side is treated as not specified.
+    ///
+    /// `user_account_id` has no say here on purpose: it only narrows where the requested token is looked
+    /// up, so an account this device doesn't have must not discard the tokens that came with it.
     static func isSideRequested(
         tokenId: String?,
         networkId: String?,
         userWalletId: String?,
-        userAccountId: String?,
-        targetUserWalletId: String,
-        existingAccountIds: Set<String>
+        targetUserWalletId: String
     ) -> Bool {
         guard tokenId != nil, networkId != nil else {
             return false
         }
 
         if let userWalletId, userWalletId != targetUserWalletId {
-            return false
-        }
-
-        if let userAccountId, !existingAccountIds.contains(userAccountId) {
             return false
         }
 
