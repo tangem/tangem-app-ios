@@ -13,8 +13,18 @@ import TangemPolymarket
 
 protocol PolymarketBalanceService {
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
+    var balanceStatePublisher: AnyPublisher<PolymarketBalanceState?, Never> { get }
 
     func update(with result: LoadingResult<Decimal, Error>)
+
+    func markUnavailable()
+}
+
+enum PolymarketBalanceState {
+    case loading
+    case loaded(Decimal)
+    case failed(Error)
+    case unavailable
 }
 
 final class CommonPolymarketBalanceService {
@@ -33,7 +43,7 @@ final class CommonPolymarketBalanceService {
 
     private let tokenItem = PolymarketUtilities.collateralTokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
-    private let balanceSubject = CurrentValueSubject<LoadingResult<Decimal, Error>?, Never>(nil)
+    private let balanceSubject = CurrentValueSubject<PolymarketBalanceState?, Never>(nil)
 
     init(tokenBalancesRepository: TokenBalancesRepository) {
         self.tokenBalancesRepository = tokenBalancesRepository
@@ -43,11 +53,23 @@ final class CommonPolymarketBalanceService {
 // MARK: - PolymarketBalanceService protocol conformance
 
 extension CommonPolymarketBalanceService: PolymarketBalanceService {
-    func update(with result: LoadingResult<Decimal, Error>) {
-        balanceSubject.send(result)
+    var balanceStatePublisher: AnyPublisher<PolymarketBalanceState?, Never> {
+        balanceSubject.eraseToAnyPublisher()
+    }
 
-        if case .success = result {
+    func update(with result: LoadingResult<Decimal, Error>) {
+        switch result {
+        case .loading:
+            balanceSubject.send(.loading)
+        case .success(let balance):
+            balanceSubject.send(.loaded(balance))
             fiatRateProvider.updateRate()
+        case .failure(let error):
+            balanceSubject.send(.failed(error))
         }
+    }
+
+    func markUnavailable() {
+        balanceSubject.send(.unavailable)
     }
 }
