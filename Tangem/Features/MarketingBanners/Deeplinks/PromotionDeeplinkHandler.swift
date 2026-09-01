@@ -37,24 +37,41 @@ private extension PromotionDeeplinkHandler {
             return false
         }
 
-        if let targetUserWalletId = navigationAction.params.userWalletId,
-           targetUserWalletId != userWalletInfo.id.stringValue {
-            return false
-        }
+        let params = navigationAction.params
+        let addressing = walletAddressing(of: params.userWalletId)
 
         switch navigationAction.destination {
         case .swap:
-            return openSwap(params: navigationAction.params)
+            switch addressing {
+            case .thisWallet:
+                return openSwap(userWalletId: userWalletInfo.id.stringValue, params: params)
+            case .anotherWallet(let userWalletId):
+                return openSwap(userWalletId: userWalletId, params: params)
+            case .unknownWallet:
+                return openSwap(userWalletId: userWalletInfo.id.stringValue, params: nil)
+            }
 
+        // The deeplink spec doesn't say yet what an unresolvable `user_wallet_id` means for `.buy` and
+        // `.link`, so they decline every foreign id, one naming no wallet at all included. Revisit then.
         case .buy:
-            return openOnramp()
+            return addressing == .thisWallet ? openOnramp() : false
 
         case .link:
-            return openLink(url: navigationAction.params.url)
+            return addressing == .thisWallet ? openLink(url: params.url) : false
 
         default:
             return false
         }
+    }
+
+    func walletAddressing(of userWalletId: String?) -> WalletAddressing {
+        guard let userWalletId, userWalletId != userWalletInfo.id.stringValue else {
+            return .thisWallet
+        }
+
+        return walletModelLocator.findUserWalletModel(userWalletModelId: userWalletId) != nil
+            ? .anotherWallet(userWalletId: userWalletId)
+            : .unknownWallet
     }
 
     func openLink(url: URL?) -> Bool {
@@ -67,12 +84,17 @@ private extension PromotionDeeplinkHandler {
         return true
     }
 
-    func openSwap(params: DeeplinkNavigationAction.Params) -> Bool {
-        guard let userWalletModel = walletModelLocator.findUserWalletModel(userWalletModelId: userWalletInfo.id.stringValue) else {
+    /// Opens swap on the given wallet, which is not necessarily the one this screen was opened for.
+    /// `nil` params mean there is nothing to preselect, which opens the default swap right away.
+    func openSwap(userWalletId: String, params: DeeplinkNavigationAction.Params?) -> Bool {
+        guard
+            let userWalletModel = walletModelLocator.findUserWalletModel(userWalletModelId: userWalletId),
+            userWalletModel.config.hasFeature(.swapping)
+        else {
             return false
         }
 
-        if let parameters = DeeplinkSwapParametersResolver().resolve(
+        if let params, let parameters = DeeplinkSwapParametersResolver().resolve(
             params: params,
             accountModelsManager: userWalletModel.accountModelsManager,
             userWalletInfo: userWalletModel.userWalletInfo
@@ -111,6 +133,19 @@ private extension PromotionDeeplinkHandler {
             }
         )
         return true
+    }
+}
+
+// MARK: - Types
+
+extension PromotionDeeplinkHandler {
+    /// Which wallet a deeplink names relative to the one this screen was opened for.
+    enum WalletAddressing: Equatable {
+        /// No `user_wallet_id`, or one naming this screen's wallet.
+        case thisWallet
+        case anotherWallet(userWalletId: String)
+        /// A wallet this device doesn't have, which leaves the link effectively unaddressed.
+        case unknownWallet
     }
 }
 
