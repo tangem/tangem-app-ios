@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Kingfisher
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
@@ -116,38 +115,6 @@ struct PolymarketMarketCard: View {
     }
 
     private var avatar: some View {
-        Group {
-            if let url = model?.imageURL {
-                KFImage(url)
-                    .cancelOnDisappear(true)
-                    .placeholder { Shimmer().clipShape(.circle) }
-                    .resizable()
-                    .scaledToFill()
-            } else if model == nil {
-                Shimmer()
-            } else {
-                DesignSystem.Color.bgOpaquePrimary
-            }
-        }
-        .frame(width: 40, height: 40)
-        .clipShape(Circle())
-        .overlay { Circle().stroke(DesignSystem.Color.borderPrimary, lineWidth: 1) }
-        .accessibilityHidden(true)
-    }
-}
-
-private extension PolymarketMarketCard.Outcome.Style {
-    var backgroundColor: Color {
-        switch self {
-        case .affirmative: DesignSystem.Color.bgStatusInfoSubtle
-        case .negative: DesignSystem.Color.bgStatusErrorSubtle
-        }
-    }
-
-    var foregroundColor: Color {
-        switch self {
-        case .affirmative: DesignSystem.Color.textBrand
-        case .negative: DesignSystem.Color.textStatusError
-        }
+        PolymarketAvatarView(url: model?.imageURL, isLoading: model == nil)
     }
 }

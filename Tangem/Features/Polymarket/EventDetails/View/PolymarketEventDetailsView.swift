@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Kingfisher
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
@@ -71,7 +70,7 @@ struct PolymarketEventDetailsView: View {
     private var titleSlot: some View {
         if case .content(let content) = viewModel.state {
             HStack(spacing: Constants.collapsedTitleSpacing) {
-                circleImage(url: content.iconURL, side: Constants.barButtonSide)
+                PolymarketAvatarView(url: content.iconURL, side: Constants.barButtonSide)
 
                 VStack(alignment: .leading, spacing: Constants.barSubtitleSpacing) {
                     Text(content.title)
@@ -311,26 +310,6 @@ struct PolymarketEventDetailsView: View {
     private func updateTitleTransfer(contentOffset: CGPoint) {
         let travelled = contentOffset.y - Constants.titleTransferStart
         titleTransferProgress = clamp(travelled / Constants.titleTransferDistance, min: 0, max: 1)
-    }
-
-    // MARK: - Shared
-
-    private func circleImage(url: URL?, side: CGFloat) -> some View {
-        Group {
-            if let url {
-                KFImage(url)
-                    .cancelOnDisappear(true)
-                    .placeholder { Shimmer().clipShape(.circle) }
-                    .resizable()
-                    .scaledToFill()
-            } else {
-                DesignSystem.Color.bgOpaquePrimary
-            }
-        }
-        .frame(width: side, height: side)
-        .clipShape(Circle())
-        .overlay { Circle().stroke(DesignSystem.Color.borderPrimary, lineWidth: 1) }
-        .accessibilityHidden(true)
     }
 }
 
