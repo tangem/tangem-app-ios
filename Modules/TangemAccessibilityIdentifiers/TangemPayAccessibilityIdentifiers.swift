@@ -35,6 +35,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let addFundsButton = "\(prefix)AddFundsButton"
     public static let withdrawButton = "\(prefix)WithdrawButton"
     public static let moreActionsButton = "\(prefix)MoreActionsButton"
+    public static let termsAndLimitsMenuItem = "\(prefix)TermsAndLimitsMenuItem"
 
     // MARK: - Add funds flow
 

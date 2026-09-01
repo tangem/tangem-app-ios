@@ -16,51 +16,28 @@ import TangemAccessibilityIdentifiers
 struct WalletPromoBannerView: View {
     @ObservedObject var viewModel: WalletPromoBannerViewModel
 
-    @ScaledMetric private var padding: CGFloat = 12
-    @ScaledMetric private var iconWidth: CGFloat = 176
-    @ScaledMetric private var iconHeight: CGFloat = 128
-    @ScaledMetric private var titlePadding: CGFloat = 8
-    @ScaledMetric private var descriptionPadding: CGFloat = 4
-    @ScaledMetric private var actionPadding: CGFloat = 20
-
-    private let cornerRadius: CGFloat = 24
+    @ScaledMetric private var imageSide: CGFloat = 64
 
     var body: some View {
-        VStack(spacing: 0) {
+        MessageBanner(
+            title: Localization.walletPromoBannerTitle,
+            description: Localization.walletPromoBannerDescription
+        )
+        .slotEnd {
             Assets.walletPromoImage.image
                 .renderingMode(.original)
                 .resizable()
                 .scaledToFit()
-                .frame(width: iconWidth, height: iconHeight)
-
-            Text(Localization.walletPromoBannerTitle)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, titlePadding)
-                .accessibilityIdentifier(MainAccessibilityIdentifiers.walletPromoBannerTitle)
-
-            Text(Localization.walletPromoBannerDescription)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, descriptionPadding)
-                .accessibilityIdentifier(MainAccessibilityIdentifiers.walletPromoBannerDescription)
-
-            TangemButton(
-                content: .text(AttributedString(Localization.walletPromoBannerButtonTitle)),
+                .frame(width: imageSide, height: imageSide)
+        }
+        .primaryButton(
+            .init(
+                title: Localization.walletPromoBannerButtonTitle,
+                accessibilityIdentifier: MainAccessibilityIdentifiers.walletPromoBannerButton,
                 action: viewModel.didTapWalletPromo
             )
-            .setStyleType(.primary)
-            .setHorizontalLayout(.infinity)
-            .setSize(.x9)
-            .padding(.top, actionPadding)
-            .accessibilityIdentifier(MainAccessibilityIdentifiers.walletPromoBannerButton)
-        }
-        .padding(padding)
-        .background(DesignSystem.Color.bgSecondary)
-        .glowBorder(effect: .bannerMagic, cornerRadius: cornerRadius)
-        .environment(\.colorScheme, .dark)
+        )
+        .glowRing(.magic)
         .onAppear(perform: viewModel.onAppear)
     }
 }

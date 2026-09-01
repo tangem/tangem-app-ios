@@ -168,6 +168,7 @@ class BaseTestCase: XCTestCase {
             .skipStories()
             .startWithMobileWallet()
             .tapImportButton()
+            .tapRecoveryPhrase()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()

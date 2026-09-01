@@ -34,8 +34,6 @@ public enum MainAccessibilityIdentifiers {
     public static let addToPortfolioButton = "mainAddToPortfolioButton"
     public static let addTokensButton = "mainAddTokensButton"
     public static let tokenNotSupportedNotice = "mainTokenNotSupportedNotice"
-    public static let walletPromoBannerTitle = "mainWalletPromoBannerTitle"
-    public static let walletPromoBannerDescription = "mainWalletPromoBannerDescription"
     public static let walletPromoBannerButton = "mainWalletPromoBannerButton"
 
     /// Token-specific identifiers

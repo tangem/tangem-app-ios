@@ -20,7 +20,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var hideTokenButton = button(.hideTokenButton)
     private lazy var topUpBanner = staticText(.topUpBanner)
     private lazy var notEnoughFeeForTransactionBanner = staticText(.notEnoughFeeForTransactionBanner)
-    private lazy var goToFeeCurrencyButton = button(.feeCurrencyNavigationButton)
+    private lazy var goToFeeCurrencyButton = notificationBannerButton(TokenAccessibilityIdentifiers.notEnoughFeeForTransactionBanner)
     private lazy var tokenNameLabel = staticText(.tokenNameLabel)
 
     // Action buttons
@@ -494,7 +494,6 @@ enum TokenScreenElement: String, UIElement {
     case nativeStakingTitle
     case nativeStakingChevron
     case topUpBanner
-    case feeCurrencyNavigationButton
     case tokenNameLabel
     case notEnoughFeeForTransactionBanner
     case availableSegment
@@ -525,8 +524,6 @@ enum TokenScreenElement: String, UIElement {
             return TokenAccessibilityIdentifiers.nativeStakingChevron
         case .topUpBanner:
             return TokenAccessibilityIdentifiers.topUpWalletBanner
-        case .feeCurrencyNavigationButton:
-            return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
         case .tokenNameLabel:
             return TokenAccessibilityIdentifiers.tokenNameLabel
         case .notEnoughFeeForTransactionBanner:
