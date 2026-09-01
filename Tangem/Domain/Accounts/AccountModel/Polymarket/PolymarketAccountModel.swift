@@ -14,11 +14,12 @@ protocol PolymarketAccountModel: BaseAccountModel where Icon == AccountModel.Sta
     var state: PolymarketAccountState? { get }
     var statePublisher: AnyPublisher<PolymarketAccountState?, Never> { get }
 
-    var depositWalletAddress: String? { get }
-
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
+    var balanceStatePublisher: AnyPublisher<PolymarketBalanceState?, Never> { get }
 
     func refreshState() async
+
+    func lookupByWalletId() async
 }
 
 // MARK: - Default implementations
