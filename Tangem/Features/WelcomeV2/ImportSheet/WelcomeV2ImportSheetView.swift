@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WelcomeV2ImportSheetView: View {
     @ObservedObject var viewModel: WelcomeV2ImportSheetViewModel
@@ -74,5 +76,14 @@ struct WelcomeV2ImportSheetView: View {
         .size(.x14)
         .isLoading(item.isLoading)
         .disabled(!item.isEnabled)
+        .accessibilityIdentifier(rowAccessibilityIdentifier(for: item))
+    }
+
+    private func rowAccessibilityIdentifier(for item: WelcomeV2ImportSheetItem) -> String? {
+        switch item.id {
+        case "recovery": OnboardingAccessibilityIdentifiers.welcomeImportSheetRecoveryPhraseButton
+        case "icloud": OnboardingAccessibilityIdentifiers.welcomeImportSheetICloudBackupButton
+        default: nil
+        }
     }
 }
