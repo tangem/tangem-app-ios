@@ -89,6 +89,12 @@ extension PercentFormatter.Option {
     static let express = PercentFormatter.Option(fractionDigits: .one, prefix: .default, suffix: .default)
     static let onramp = PercentFormatter.Option(fractionDigits: .two, prefix: .onlyMinus, suffix: .default)
 
+    static let predictionProbability = PercentFormatter.Option(
+        fractionDigits: .init(min: 0, max: 0),
+        prefix: .empty,
+        suffix: PercentFormatter.Suffix(value: "%")
+    )
+
     static let yield = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .yield)
     static let yieldEmptySuffix = PercentFormatter.Option(fractionDigits: .one, prefix: .empty, suffix: .empty)
     static let yieldPromo = PercentFormatter.Option(fractionDigits: .one, prefix: .empty, suffix: .yield)
