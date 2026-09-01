@@ -16,4 +16,5 @@ enum NSPredicateFormat: String {
     case labelContains = "label CONTAINS[c] %@"
     case identifierContains = "identifier CONTAINS %@"
     case labelBeginsWith = "label BEGINSWITH %@"
+    case identifierBeginsWith = "identifier BEGINSWITH %@"
 }

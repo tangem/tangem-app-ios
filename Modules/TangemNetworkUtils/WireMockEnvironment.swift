@@ -12,10 +12,12 @@ import Foundation
 /// Reads from environment variable, falls back to remote server for local development.
 /// NOTE: Keep fallback in sync with WireMockPortResolver.wireMockBaseURL
 public enum WireMockEnvironment {
+    public static let baseURLKey = "WIREMOCK_BASE_URL"
+
     public static var baseURL: String {
         // Maestro passes launch arguments via UserDefaults, not ProcessInfo environment
-        ProcessInfo.processInfo.environment["WIREMOCK_BASE_URL"]
-            ?? UserDefaults.standard.string(forKey: "WIREMOCK_BASE_URL")
+        ProcessInfo.processInfo.environment[baseURLKey]
+            ?? UserDefaults.standard.string(forKey: baseURLKey)
             ?? "http://localhost:8081"
     }
 }
