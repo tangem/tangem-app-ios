@@ -182,6 +182,15 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     @discardableResult
+    func tapPendingExpressTransaction() -> ExpressStatusBottomSheetScreen {
+        XCTContext.runActivity(named: "Tap pending express transaction to open its status sheet") { _ in
+            waitAndAssertTrue(pendingExpressTransaction, "Pending express transaction should be displayed")
+            pendingExpressTransaction.waitAndTap()
+        }
+        return ExpressStatusBottomSheetScreen(app)
+    }
+
+    @discardableResult
     func goBackToMain() -> MainScreen {
         XCTContext.runActivity(named: "Go back to main screen") { _ in
             app.navigationBars.buttons["Back"].waitAndTap()
