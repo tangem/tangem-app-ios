@@ -63,9 +63,9 @@ extension TangemPayCashbackState {
 // MARK: - Formatting
 
 extension TangemPayCashbackState {
-    static let monthSymbols = DateFormatter().monthSymbols ?? []
+    private static let standaloneMonthSymbols = DateFormatter().standaloneMonthSymbols ?? []
 
     static func monthName(_ month: Int) -> String {
-        monthSymbols.indices.contains(month - 1) ? monthSymbols[month - 1] : ""
+        standaloneMonthSymbols.indices.contains(month - 1) ? standaloneMonthSymbols[month - 1] : ""
     }
 }
