@@ -6,7 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import SwiftUI
+import TangemAssets
 import TangemVisa
 import TangemLocalization
 
@@ -40,6 +41,25 @@ struct TangemPayCashbackDetailViewDataFactory {
         TangemPayCashbackAccrualsViewData(
             docs: docs.map { TangemPayCashbackAccrualsViewData.Doc(id: $0.id, title: $0.title, url: $0.url) }
         )
+    }
+}
+
+// MARK: - Markdown
+
+extension TangemPayCashbackDetailViewDataFactory {
+    static func makeMarkdown(_ string: String) -> AttributedString {
+        let options = AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+
+        guard var attributed = try? AttributedString(markdown: string, options: options) else {
+            return AttributedString(string)
+        }
+
+        for run in attributed.runs where run.link != nil {
+            attributed[run.range].underlineStyle = Text.LineStyle.single
+            attributed[run.range].foregroundColor = DesignSystem.Color.textPrimary
+        }
+
+        return attributed
     }
 }
 
@@ -227,28 +247,14 @@ private extension TangemPayCashbackDetailViewDataFactory {
         )
     }
 
-    func subtitle(for promotion: TangemPayCashbackDetails.AdditionalPromotion) -> String? {
-        let description = promotion.description?.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard let cap = promotion.cap, cap.period == .monthly else {
-            return description
+    func subtitle(for promotion: TangemPayCashbackDetails.AdditionalPromotion) -> AttributedString? {
+        guard let description = promotion.description else {
+            return nil
         }
 
-        let capSentence = Localization.tangempayCashbackDetailsCap(
-            formattedFiat(
-                cap.amount,
-                currency: TangemPayCashbackDetails.currency,
-                hidesFractionForWholeAmounts: true
-            )
-        )
+        let trimmed = description.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard let description, !description.isEmpty else {
-            return capSentence
-        }
-
-        let separator = description.hasSuffix(".") ? " " : ". "
-
-        return description + separator + capSentence
+        return Self.makeMarkdown(trimmed)
     }
 }
 
