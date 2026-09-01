@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -26,10 +27,12 @@ struct AddWalletTypeSelectorSheetView: View {
                 Row(title: Localization.userWalletAddHardwareTitle, subtitle: Localization.userWalletAddHardwareDescription)
                     .start { iconView(DesignSystem.Icons.LogoTangem.regular20) }
                     .onTap(viewModel.onHardwareWalletTap)
+                    .accessibilityIdentifier(DetailsAccessibilityIdentifiers.addWalletTypeHardwareButton)
 
                 Row(title: Localization.userWalletAddMobileTitle, subtitle: Localization.userWalletAddMobileDescription)
                     .start { iconView(DesignSystem.Icons.GridPlus.regular20) }
                     .onTap(viewModel.onMobileWalletTap)
+                    .accessibilityIdentifier(DetailsAccessibilityIdentifiers.addWalletTypeMobileButton)
             }
             .padding(.bottom, 8)
         }

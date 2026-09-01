@@ -15,6 +15,7 @@ import TangemStories
 import TangemFoundation
 import TangemAppDatabase
 import TangemFirebaseDynamicShim
+import TangemNetworkUtils
 
 private struct ServicesManagerKey: InjectionKey {
     static var currentValue: ServicesManager = CommonServicesManager()
@@ -145,7 +146,26 @@ final class CommonServicesManager {
         FeatureStorage.instance.availableFeatures = [:]
         applyFeatureToggleOverrides(from: arguments)
 
+        persistEnvironmentForSystemLaunch()
+
         UIView.setAnimationsEnabled(false)
+    }
+
+    /// A deeplink cold start is launched by the system, so it receives none of the XCTest arguments and would fall
+    /// back to production. Rewriting each value moves it from the volatile argument domain of this process into the
+    /// persistent one, keeping the next launch on the same backends. The `UITEST` flag is deliberately left out:
+    /// `configureForUITests` wipes wallet data, which would destroy the wallet the deeplink is supposed to open.
+    private func persistEnvironmentForSystemLaunch() {
+        let storage = FeatureStorage.instance
+        storage.tangemAPIType = storage.tangemAPIType
+        storage.visaAPIType = storage.visaAPIType
+        storage.stakeKitAPIType = storage.stakeKitAPIType
+        storage.yieldModuleAPIType = storage.yieldModuleAPIType
+        storage.apiExpress = storage.apiExpress
+
+        if let wireMockBaseURL = ProcessInfo.processInfo.environment[WireMockEnvironment.baseURLKey] {
+            UserDefaults.standard.set(wireMockBaseURL, forKey: WireMockEnvironment.baseURLKey)
+        }
     }
 
     /// Applies `-uitest-feature-<name>-on` / `-off` launch arguments to `FeatureStorage`, matching `<name>`
