@@ -40,14 +40,9 @@ extension PolymarketEventCard {
     }
 
     struct Outcome: Identifiable {
-        enum Style: Hashable {
-            case affirmative
-            case negative
-        }
-
         let id: String
         let title: String
-        let style: Style
+        let style: PolymarketOutcomeStyle
         let onSelect: () -> Void
     }
 }
@@ -85,25 +80,18 @@ extension PolymarketEventCard.Model {
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> PolymarketEventCard.Row {
         let title = market.groupItemTitle ?? market.title
+        let subtitle = PolymarketPriceFormatter.percentText(market.outcomes.first?.probability)
 
-        let probability = market.outcomes.first?.probability
-        let subtitle = probability.map(formatProbability) ?? ""
-
-        // Upstream labels are not always "Yes"/"No", so the affirmative outcome is the first one by position
         let outcomes = market.outcomes.enumerated().map { index, outcome in
             PolymarketEventCard.Outcome(
                 id: outcome.assetId,
                 title: outcome.title,
-                style: index == 0 ? .affirmative : .negative,
+                style: PolymarketOutcomeStyle(outcomeIndex: index),
                 onSelect: { onSelectOutcome(market, outcome) }
             )
         }
 
         return PolymarketEventCard.Row(id: market.id, title: title, subtitle: subtitle, outcomes: outcomes)
-    }
-
-    private static func formatProbability(_ probability: Decimal) -> String {
-        MappingConstants.probabilityFormatter.string(from: probability as NSDecimalNumber) ?? ""
     }
 }
 
@@ -118,12 +106,5 @@ private extension PolymarketEventCard.Model {
             baseCurrencyCode: AppConstants.usdCurrencyCode,
             notationFormatter: DefaultAmountNotationFormatter()
         )
-
-        static let probabilityFormatter: NumberFormatter = {
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .percent
-            formatter.maximumFractionDigits = 0
-            return formatter
-        }()
     }
 }
