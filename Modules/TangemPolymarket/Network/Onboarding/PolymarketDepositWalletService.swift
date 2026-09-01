@@ -12,7 +12,7 @@ public protocol PolymarketDepositWalletService {
     func depositWalletState(
         ownerAddress: String?,
         walletId: String
-    ) async throws(PolymarketWalletError) -> PolymarketDepositWalletState
+    ) async throws(PolymarketWalletError) -> PolymarketDepositWallet
 
     func deployWallet(
         ownerAddress: String,
