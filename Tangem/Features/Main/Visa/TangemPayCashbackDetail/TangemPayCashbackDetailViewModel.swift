@@ -82,6 +82,10 @@ final class TangemPayCashbackDetailViewModel: ObservableObject {
         safariManager.openURL(doc.url)
     }
 
+    func openURL(_ url: URL) {
+        safariManager.openURL(url)
+    }
+
     func close() {
         dismissHandler?()
     }
