@@ -99,7 +99,7 @@ extension DeeplinkWalletModelLocator {
         timeout: TimeInterval,
         maxConcurrentSyncs: Int
     ) async {
-        let cryptoAccounts = userWalletModel.accountModelsManager.cryptoAccountModels
+        let cryptoAccounts = AccountCryptoModelsAggregator.cryptoAccountModels(from: userWalletModel.accountModelsManager)
 
         guard cryptoAccounts.isNotEmpty else {
             return
