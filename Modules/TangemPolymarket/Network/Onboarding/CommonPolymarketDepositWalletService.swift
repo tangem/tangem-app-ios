@@ -29,13 +29,13 @@ extension CommonPolymarketDepositWalletService: PolymarketDepositWalletService {
     func depositWalletState(
         ownerAddress: String?,
         walletId: String
-    ) async throws(PolymarketWalletError) -> PolymarketDepositWalletState {
+    ) async throws(PolymarketWalletError) -> PolymarketDepositWallet {
         let response: PolymarketDTO.WalletStatusResponse = try await request(
             .walletState(ownerAddress: ownerAddress, walletId: walletId)
         )
 
-        return PolymarketDepositWalletState(
-            depositWalletAddress: response.depositWalletAddress,
+        return PolymarketDepositWallet(
+            address: response.depositWalletAddress,
             status: response.status
         )
     }
