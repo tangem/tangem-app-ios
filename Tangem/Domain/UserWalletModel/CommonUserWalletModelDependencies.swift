@@ -50,6 +50,15 @@ struct CommonUserWalletModelDependencies {
         )
         .buildTangemPayManager()
 
+        let polymarketAccountProvider = PolymarketAccountProvider(
+            builder: PolymarketAccountBuilder(
+                userWalletId: userWalletId,
+                keysRepository: keysRepository,
+                keysDerivingInteractorFactory: keysDerivingInteractorFactory,
+                areHDWalletsSupported: areHDWalletsSupported
+            )
+        )
+
         let accountModelsManagerDependencies = Self.makeAccountModelsManagerDependencies(
             userWalletId: userWalletId,
             config: config,
@@ -66,6 +75,7 @@ struct CommonUserWalletModelDependencies {
             jointAccountDerivationInteractorFactory: jointAccountDerivationInteractorFactory,
             cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository,
             tangemPayManager: tangemPayManager,
+            accountModelsProvider: polymarketAccountProvider,
             cryptoAccountsNetworkMapper: accountModelsManagerDependencies.networkMapper,
             archivedCryptoAccountsProvider: accountModelsManagerDependencies.archivedCryptoAccountsProvider,
             derivationManager: derivationManager,
@@ -192,6 +202,7 @@ private extension CommonUserWalletModelDependencies {
         jointAccountDerivationInteractorFactory: JointAccountDerivationInteractorFactory,
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
         tangemPayManager: TangemPayManager,
+        accountModelsProvider: any AccountModelsProvider,
         cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         derivationManager: DerivationManager?,
@@ -253,6 +264,7 @@ private extension CommonUserWalletModelDependencies {
             cryptoAccountsRepository: cryptoAccountsRepository,
             jointAccountsRepository: jointAccountsRepository,
             tangemPayManager: tangemPayManager,
+            accountModelsProvider: accountModelsProvider,
             archivedCryptoAccountsProvider: archivedCryptoAccountsProvider,
             dependenciesFactory: dependenciesFactory,
             areHDWalletsSupported: areHDWalletsSupported

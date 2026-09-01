@@ -39,6 +39,8 @@ actor CommonAccountModelsManager {
 
     private nonisolated let onDisposeSubject = PassthroughSubject<[AccountModel], Never>()
 
+    private nonisolated let accountModelsProvider: any AccountModelsProvider
+
     private nonisolated let criticalSection = OSAllocatedUnfairLock()
 
     init(
@@ -46,6 +48,7 @@ actor CommonAccountModelsManager {
         cryptoAccountsRepository: CryptoAccountsRepository,
         jointAccountsRepository: JointAccountsRepository,
         tangemPayManager: TangemPayManager,
+        accountModelsProvider: any AccountModelsProvider,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         dependenciesFactory: CryptoAccountDependenciesFactory,
         areHDWalletsSupported: Bool
@@ -54,6 +57,7 @@ actor CommonAccountModelsManager {
         self.cryptoAccountsRepository = cryptoAccountsRepository
         self.jointAccountsRepository = jointAccountsRepository
         self.tangemPayManager = tangemPayManager
+        self.accountModelsProvider = accountModelsProvider
         self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
         self.dependenciesFactory = dependenciesFactory
         self.areHDWalletsSupported = areHDWalletsSupported
@@ -208,8 +212,10 @@ actor CommonAccountModelsManager {
                         : []
                 }
 
-            let combined = Publishers.CombineLatest(crypto, tangemPay)
-                .map(+)
+            let provided = accountModelsProvider.accountModelsPublisher
+
+            let combined = Publishers.CombineLatest3(crypto, tangemPay, provided)
+                .map { $0 + $1 + $2 }
                 .handleEvents(receiveOutput: { [weak self] accountModels in
                     self?.criticalSection {
                         self?.unsafeAccountModels = accountModels

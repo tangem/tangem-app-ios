@@ -53,6 +53,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator?
     @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
+    @Published var polymarketCoordinator: PolymarketCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -635,6 +636,20 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             }
         )
         yieldDeeplinkRouter?.handle(walletModel: walletModel, userWalletModel: userWalletModel)
+    }
+
+    func openPolymarket() {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = PolymarketCoordinator(
+            dismissAction: { [weak self] in
+                self?.polymarketCoordinator = nil
+                self?.mainBottomSheetUIManager.show()
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init())
+        polymarketCoordinator = coordinator
     }
 }
 
