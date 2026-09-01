@@ -70,27 +70,6 @@ struct CommonDeepLinkValidator {
         return paramsHaveOnlyValidCharacters(values) && paramsHaveOnlyNumericCharacters(values)
     }
 
-    /// `tangem://swap` never requires parameters: a link with no (or unresolvable) FROM/TO tokens falls
-    /// back to the best-effort source with deferred pair resolution at the routing layer. The validator only
-    /// rejects malformed characters in the optional FROM/TO, wallet, account, amount and provider params.
-    private func hasValidSwapParams(params: DeeplinkNavigationAction.Params) -> Bool {
-        let values = [
-            params.swapFromTokenId,
-            params.swapFromNetworkId,
-            params.swapToTokenId,
-            params.swapToNetworkId,
-            params.swapFromUserWalletId,
-            params.swapToUserWalletId,
-            params.swapFromUserAccountId,
-            params.swapToUserAccountId,
-            params.swapFromAmount,
-            params.swapProviderId,
-            params.userWalletId,
-        ].compactMap { $0 }
-
-        return paramsHaveOnlyValidCharacters(values)
-    }
-
     private func hasEnoughTokenParams(params: DeeplinkNavigationAction.Params) -> Bool {
         guard areParamsValid(params, keys: \.tokenId, \.networkId) else {
             return false
@@ -159,8 +138,10 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
         case .tokenExchanges:
             return hasEnoughTokenChartParams(params: params)
 
+        // Every swap parameter is optional and none can invalidate the link: rejecting it here would drop
+        // it before it becomes an incoming action, while the routing layer just falls back to a plain swap.
         case .swap:
-            return hasValidSwapParams(params: params)
+            return true
 
         case .buy, .link, .sell, .referral, .markets, .promo:
             return paramsHaveOnlyValidCharacters([params.tokenId, params.networkId, params.promoCode].compactMap { $0 })
