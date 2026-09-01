@@ -49,6 +49,7 @@ final class AutomaticAddressDerivationUITests: BaseTestCase {
             .skipStories()
             .startWithMobileWallet()
             .tapImportButton()
+            .tapRecoveryPhrase()
             .enterSeedPhrase(seedPhrase)
             .tapImportButton()
             .tapContinue()
