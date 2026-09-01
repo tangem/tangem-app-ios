@@ -54,4 +54,7 @@ public enum CommonUIAccessibilityIdentifiers {
     public static let addressesInfoButton = "commonUIAddressesInfoButton"
     public static let addressesInfoCopyButton = "commonUIAddressesInfoCopyButton"
     public static let addressesInfoText = "commonUIAddressesInfoText"
+
+    /// PopoverModifier tooltip text (single popover shown at a time)
+    public static let popoverText = "commonUIPopoverText"
 }
