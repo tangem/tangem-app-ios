@@ -874,6 +874,9 @@
 "joint_account_activation_account_button_title" = "Activate account";
 "joint_account_activation_subtitle" = "Everyone in this account shares one balance. Any member can spend or withdraw the funds at any time — including without your approval.";
 "joint_account_activation_title" = "You're activating a shared account";
+"joint_account_invite_invalid_subtitle" = "Check that you opened the full link, or ask the account owner to send it again.";
+"joint_account_invite_invalid_title" = "Invitation link isn't valid";
+"joint_account_invite_load_failed_subtitle" = "Failed to load invite page.\nTap to reload";
 "joint_account_invite_members_creator" = "Creator";
 "joint_account_invite_members_invite" = "Invite";
 "joint_account_invite_members_member_info" = "Member info";
@@ -2242,8 +2245,8 @@
 "tangempay_tangem_visa_card" = "Оплачивайте ежедневные покупки в USDC";
 "tangempay_temporarily_unavailable" = "Проблема с соединением";
 "tangempay_title" = "Tangem Pay";
-"tangempay_topup_bank_transfer_body" = "Получайте фиатные USD через ACH";
-"tangempay_topup_bank_transfer_title" = "Банковский перевод";
+"tangempay_topup_bank_transfer_body" = "Получайте USD с банковского счёта через ACH";
+"tangempay_topup_bank_transfer_title" = "С банковского счёта";
 "tangempay_topup_receive_body_multichain" = "Отправьте USDC или USDT на адрес вашего счёта";
 "tangempay_topup_receive_body" = "Отправьте USDC Polygon на адрес вашего аккаунта";
 "tangempay_topup_receive_title" = "С другого кошелька или биржи";
