@@ -146,18 +146,14 @@ extension DeeplinkSwapParametersResolver {
             tokenId: params.swapFromTokenId,
             networkId: params.swapFromNetworkId,
             userWalletId: params.swapFromUserWalletId,
-            userAccountId: params.swapFromUserAccountId,
-            targetUserWalletId: targetUserWalletId,
-            existingAccounts: existingAccounts
+            targetUserWalletId: targetUserWalletId
         )
 
         let toRequested = isSideRequested(
             tokenId: params.swapToTokenId,
             networkId: params.swapToNetworkId,
             userWalletId: params.swapToUserWalletId,
-            userAccountId: params.swapToUserAccountId,
-            targetUserWalletId: targetUserWalletId,
-            existingAccounts: existingAccounts
+            targetUserWalletId: targetUserWalletId
         )
 
         guard fromRequested || toRequested else {
@@ -195,25 +191,22 @@ extension DeeplinkSwapParametersResolver {
 // MARK: - Selection helpers
 
 private extension DeeplinkSwapParametersResolver {
-    /// A side counts as requested only with a complete `token_id` + `network_id` and consistent per-side
-    /// `user_wallet_id`/`user_account_id`. An incomplete or inconsistent side is treated as not specified.
+    /// A side counts as requested only with a complete `token_id` + `network_id` and a per-side
+    /// `user_wallet_id` naming this wallet. An incomplete or foreign side is treated as not specified.
+    ///
+    /// `user_account_id` has no say here on purpose: it only narrows where the requested token is looked
+    /// up, so an account this device doesn't have must not discard the tokens that came with it.
     static func isSideRequested(
         tokenId: String?,
         networkId: String?,
         userWalletId: String?,
-        userAccountId: String?,
-        targetUserWalletId: String,
-        existingAccounts: [String: Int]
+        targetUserWalletId: String
     ) -> Bool {
         guard tokenId != nil, networkId != nil else {
             return false
         }
 
         if let userWalletId, userWalletId != targetUserWalletId {
-            return false
-        }
-
-        if let userAccountId, existingAccounts[userAccountId] == nil {
             return false
         }
 
