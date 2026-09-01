@@ -36,6 +36,7 @@ enum KeychainCleaner {
         SupportChatTokenStorage().clean()
         CommonVisaRefreshTokenRepository().clean(genericPasswordAccounts: genericPasswordAccounts)
         CommonTangemPayAuthorizationTokensRepository().clean(genericPasswordAccounts: genericPasswordAccounts)
+        CommonPolymarketCredentialsRepository().clean(genericPasswordAccounts: genericPasswordAccounts)
         CommonMobileAccessCodeStorageManager().clean(
             genericPasswordAccounts: genericPasswordAccounts,
             secureEnclaveKeyTags: secureEnclaveKeyTags
