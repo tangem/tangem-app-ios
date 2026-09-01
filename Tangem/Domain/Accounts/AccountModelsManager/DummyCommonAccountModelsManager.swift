@@ -32,6 +32,10 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         .just(output: accountModels.count)
     }
 
+    var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
     var accountModels: [AccountModel] {
         []
     }
@@ -44,7 +48,7 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         throw .unknownError(NSError.dummy)
     }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) -> AccountCreationResult {
+    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult {
         throw .unknownError(NSError.dummy)
     }
 
