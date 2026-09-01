@@ -265,19 +265,25 @@ extension MainCoordinator {
         }
 
         private func routeSwapAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            let requestedUserWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId)
+
+            // Unlike the wallet-specific destinations, swap doesn't die on an unresolvable `user_wallet_id`.
             guard
-                let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
+                let userWalletModel = requestedUserWalletModel ?? userWalletRepository.selectedModel,
                 isFeatureSupported(feature: .swapping, userWalletModel: userWalletModel)
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
 
-            if let parameters = DeeplinkSwapParametersResolver().resolve(
-                params: params,
-                accountModelsManager: userWalletModel.accountModelsManager,
-                userWalletInfo: userWalletModel.userWalletInfo
-            ) {
+            // The preselection goes with the wallet: those tokens were picked for a portfolio this device
+            // doesn't have, so preselecting them on the selected wallet would be a guess.
+            if let requestedUserWalletModel,
+               let parameters = DeeplinkSwapParametersResolver().resolve(
+                   params: params,
+                   accountModelsManager: requestedUserWalletModel.accountModelsManager,
+                   userWalletInfo: requestedUserWalletModel.userWalletInfo
+               ) {
                 coordinator?.openDeepLink(.swap(parameters: parameters))
                 return true
             }

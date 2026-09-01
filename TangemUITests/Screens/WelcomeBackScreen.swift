@@ -39,6 +39,22 @@ final class WelcomeBackScreen: ScreenBase<WelcomeBackScreenElement> {
         return self
     }
 
+    /// The app names the wallet itself, so a login-only step matches the list item instead of its title.
+    @discardableResult
+    func selectSavedWallet() -> Self {
+        XCTContext.runActivity(named: "Select the saved wallet") { _ in
+            let predicate = NSPredicate(
+                format: NSPredicateFormat.identifierBeginsWith.rawValue,
+                AuthAccessibilityIdentifiers.walletItemPrefix
+            )
+            let walletButton = app.buttons.matching(predicate).firstMatch
+
+            waitAndAssertTrue(walletButton, "Saved wallet should be displayed")
+            walletButton.waitAndTap()
+        }
+        return self
+    }
+
     @discardableResult
     func tapAddWallet() -> Self {
         XCTContext.runActivity(named: "Tap Add wallet button") { _ in

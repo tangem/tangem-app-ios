@@ -99,6 +99,11 @@ struct TangemPayMainView: View {
                     MessageBanner(title: banner.title, description: banner.subtitle)
                         .variant(.error)
                         .glowRing(.error)
+                        .slotEnd {
+                            DesignSystem.Icons.Error.filled20.image
+                                .renderingMode(.template)
+                                .foregroundStyle(DesignSystem.Color.iconPrimary)
+                        }
                         .primaryButton(
                             .init(title: Localization.tangempayCardDetailsAddFunds, action: viewModel.addFunds)
                         )
@@ -322,6 +327,7 @@ struct TangemPayMainView: View {
                 SwiftUI.Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.termsAndLimitsMenuItem)
 
                 SwiftUI.Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
