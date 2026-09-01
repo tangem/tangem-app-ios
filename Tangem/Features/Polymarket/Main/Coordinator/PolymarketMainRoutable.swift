@@ -10,4 +10,6 @@ import Foundation
 
 protocol PolymarketMainRoutable: AnyObject {
     func dismiss()
+
+    func openRegionWarning()
 }
