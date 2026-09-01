@@ -493,6 +493,22 @@
         <string>Bis zu %li Werktage</string>
       </dict>
     </dict>
+    <key>top_assets_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Vermögenswert</string>
+        <key>other</key>
+        <string>Vermögenswerte</string>
+      </dict>
+    </dict>
     <key>visa_limits_available_for_days_title</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
