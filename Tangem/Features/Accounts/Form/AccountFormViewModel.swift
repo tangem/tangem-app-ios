@@ -167,8 +167,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         switch flowType {
         case .edit:
             Localization.accountFormTitleEdit
-        case .create:
-            Localization.accountFormTitleCreate
+        case .create(let creator):
+            creator.navigationTitle
         }
     }
 
@@ -201,7 +201,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
             let output: AccountFormOperationResult
 
-            do throws(AccountEditError) {
+            do {
                 switch viewModel.flowType {
                 case .edit(let account):
                     try await viewModel.editAccount(account: account)
@@ -214,6 +214,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
                     )
                 }
                 viewModel.handleFlowSuccess(output)
+            } catch is CancellationError {
+                // The user backed out; the form stays where it is, with nothing to report or log
             } catch {
                 viewModel.handleFlowFailure(error: error)
             }
@@ -308,8 +310,11 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         close(.completed(output))
     }
 
+    /// - Parameter error: Anything the flow could not get past, narrowed to what the alerts and the analytics are
+    /// written in terms of.
     @MainActor
-    private func handleFlowFailure(error: AccountEditError) {
+    private func handleFlowFailure(error: some Error) {
+        let error = error as? AccountEditError ?? .unknownError(error)
         let source: Analytics.ParameterValue
         switch flowType {
         case .edit: source = .accountSourceEdit

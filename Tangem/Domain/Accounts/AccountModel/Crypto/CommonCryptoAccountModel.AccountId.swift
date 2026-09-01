@@ -10,6 +10,8 @@ import Foundation
 import TangemSdk
 import TangemFoundation
 
+typealias CryptoAccountModelId = CommonCryptoAccountModel.AccountId
+
 extension CommonCryptoAccountModel {
     /// A specific identifier for the `CryptoAccountModel` type only. Other types of accounts must implement and use different id types.
     struct AccountId: Hashable {
@@ -44,10 +46,6 @@ extension CommonCryptoAccountModel {
 // MARK: - AccountModelPersistentIdentifierConvertible protocol conformance
 
 extension CommonCryptoAccountModel.AccountId: AccountModelPersistentIdentifierConvertible {
-    var isMainAccount: Bool {
-        AccountModelUtils.isMainAccount(derivationIdentity)
-    }
-
     func toPersistentIdentifier() -> AnyHashable {
         derivationIdentity.toPersistentIdentifier()
     }

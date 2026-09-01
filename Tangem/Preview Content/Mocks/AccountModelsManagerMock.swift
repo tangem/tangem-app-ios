@@ -100,6 +100,10 @@ extension AccountModelsManagerMock: AccountModelsManager {
         totalCryptoAccountsCountSubject.eraseToAnyPublisher()
     }
 
+    var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
     var accountModels: [AccountModel] {
         accountModelsSubject.value
     }
@@ -124,7 +128,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
         )
     }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) -> AccountCreationResult {
+    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult {
         AccountCreationResult(
             operationResult: .none,
             derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint)
