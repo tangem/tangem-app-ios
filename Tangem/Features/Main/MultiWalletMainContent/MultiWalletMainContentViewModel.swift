@@ -37,6 +37,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     @Published private(set) var tangemPayAccountViewModel: TangemPayAccountViewModel?
+    @Published private(set) var polymarketAccountViewModel: AccountRowButtonViewModel?
 
     @Published private(set) var isScannerBusy = false
     @Published var error: AlertBinder? = nil
@@ -188,6 +189,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         yieldApyBoostBannerNotificationManager.refreshFromCache()
 
         expressBalanceUpdater.updateUnfinishedDestinationBalances(userWalletId: userWalletModel.userWalletId)
+
+        runTask { [userWalletModel] in
+            await PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)?.refreshState()
+        }
     }
 
     func onWillDisappear() {
@@ -366,6 +371,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
 
         nftFeatureLifecycleHandler.startObserving()
+
+        bindPolymarketAccountRow()
     }
 
     private func setupTangemPayIfNeeded() {
@@ -420,6 +427,33 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private func setupActionButtons() {
         actionButtonsViewModel = makeActionButtonsViewModel()
+    }
+
+    private func bindPolymarketAccountRow() {
+        PolymarketAccountAggregator
+            .polymarketAccountModelPublisher(from: userWalletModel.accountModelsManager)
+            .flatMapLatest { accountModel -> AnyPublisher<(any PolymarketAccountModel)?, Never> in
+                guard let accountModel else { return .just(output: nil) }
+
+                return accountModel
+                    .statePublisher
+                    .map { $0?.isAccountVisible == true }
+                    .removeDuplicates()
+                    .map { [weak accountModel] isAccountVisible in isAccountVisible ? accountModel : nil }
+                    .eraseToAnyPublisher()
+            }
+            .withWeakCaptureOf(self)
+            .map { viewModel, accountModel -> AccountRowButtonViewModel? in
+                accountModel.map { accountModel in
+                    AccountRowButtonViewModel(accountModel: accountModel) { [weak viewModel] in
+                        guard let viewModel else { return }
+
+                        viewModel.coordinator?.openPolymarket()
+                    }
+                }
+            }
+            .receiveOnMain()
+            .assign(to: &$polymarketAccountViewModel)
     }
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
