@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemFoundation
 import TangemPolymarket
 
 extension PolymarketMarketCard {
@@ -21,15 +20,10 @@ extension PolymarketMarketCard {
     }
 
     struct Outcome: Identifiable {
-        enum Style {
-            case affirmative
-            case negative
-        }
-
         let id: String
         let title: String
         let priceText: String
-        let style: Style
+        let style: PolymarketOutcomeStyle
         let onSelect: () -> Void
     }
 }
@@ -55,8 +49,8 @@ extension PolymarketMarketCard.Model {
                 PolymarketMarketCard.Outcome(
                     id: outcome.assetId,
                     title: outcome.title,
-                    priceText: outcome.probability.map(centsText) ?? .emDashSign,
-                    style: PolymarketMarketCard.Outcome.Style(outcomeIndex: index),
+                    priceText: PolymarketPriceFormatter.centsText(outcome.probability),
+                    style: PolymarketOutcomeStyle(outcomeIndex: index),
                     onSelect: { onSelectOutcome(outcome) }
                 )
             } : []
@@ -68,17 +62,4 @@ extension PolymarketMarketCard.Model {
         baseCurrencyCode: AppConstants.usdCurrencyCode,
         notationFormatter: DefaultAmountNotationFormatter()
     )
-
-    private static func centsText(_ probability: Decimal) -> String {
-        var value = probability * 100
-        var cents = Decimal()
-        NSDecimalRound(&cents, &value, 0, .plain)
-        return "\(NSDecimalNumber(decimal: cents).intValue)¢"
-    }
-}
-
-private extension PolymarketMarketCard.Outcome.Style {
-    init(outcomeIndex: Int) {
-        self = outcomeIndex == 0 ? .affirmative : .negative
-    }
 }
