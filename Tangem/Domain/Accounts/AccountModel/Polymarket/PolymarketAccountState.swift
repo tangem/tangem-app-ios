@@ -20,7 +20,7 @@ enum PolymarketAccountState: Equatable {
 }
 
 extension PolymarketAccountState {
-    var isUsableAccount: Bool {
+    var isAccountVisible: Bool {
         switch self {
         case .active, .syncNeeded: true
         case .loading, .onboarding, .onboardingFailed, .unavailable: false

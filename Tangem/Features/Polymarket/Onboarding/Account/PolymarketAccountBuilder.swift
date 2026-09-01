@@ -6,9 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import TangemFoundation
-import TangemNetworkUtils
 import TangemPolymarket
 
 struct PolymarketAccountBuilder {
@@ -30,16 +28,16 @@ struct PolymarketAccountBuilder {
     }
 
     func buildAccountModel() -> any PolymarketAccountModel {
-        let factory = PolymarketOnboardingFactory()
+        let services = PolymarketOnboardingServicesFactory.makeDefault()
 
         return CommonPolymarketAccountModel(
             userWalletId: userWalletId,
-            walletService: factory.makeWalletService(),
-            clobService: factory.makeCLOBService(),
+            walletService: services.makeWalletService(),
+            clobService: services.makeCLOBService(),
             credentialsRepository: CommonPolymarketCredentialsRepository(),
             ownerAddressProvider: CommonPolymarketOwnerAddressProvider(
                 keysRepository: keysRepository,
-                keysDerivingInteractor: keysDerivingInteractorFactory.makeInteractor(),
+                keysDerivingFactory: keysDerivingInteractorFactory,
                 areHDWalletsSupported: areHDWalletsSupported
             ),
             balanceService: CommonPolymarketBalanceService(
