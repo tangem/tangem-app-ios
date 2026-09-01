@@ -46,6 +46,7 @@ final class TransferModel {
     private let balanceConverter = BalanceConverter()
     private let transactionBuild = OSAllocatedUnfairLock(initialState: TransactionBuild())
     private var transactionInputsSubscription: AnyCancellable?
+    private var feeUpdateTask: Task<Void, Never>?
 
     // MARK: - Public interface
 
@@ -73,6 +74,7 @@ final class TransferModel {
     }
 
     deinit {
+        feeUpdateTask?.cancel()
         AppLogger.debug("TransferModel deinit")
     }
 }
@@ -80,6 +82,8 @@ final class TransferModel {
 // MARK: - Validation
 
 private extension TransferModel {
+    static let maximumGaslessQuoteResolutionAttempts = 3
+
     private func bind() {
         setupCustomFeeProvidersIfNeeded()
 
@@ -165,6 +169,60 @@ private extension TransferModel {
         }
 
         transactionBuild.withLock { $0.task = task }
+    }
+
+    func updateFees(amountValue: Decimal, destination: String) {
+        feeUpdateTask?.cancel()
+        feeUpdateTask = runTask(in: self) { model in
+            let feeProvidersManager = model._sourceToken.tokenFeeProvidersManager
+            var estimationAmount = model.gaslessTransactionAmount(
+                enteredAmount: amountValue,
+                fee: feeProvidersManager.selectedTokenFee.value.value
+            ) ?? amountValue
+
+            for _ in 0 ..< Self.maximumGaslessQuoteResolutionAttempts {
+                feeProvidersManager.update(input: .common(amount: estimationAmount, destination: destination))
+                await feeProvidersManager.updateFees().value
+
+                guard !Task.isCancelled,
+                      model._amount.value?.crypto == amountValue,
+                      model._destination.value?.value.transactionAddress == destination,
+                      let fee = feeProvidersManager.selectedTokenFee.value.value,
+                      let parameters = fee.parameters as? TronGaslessFeeParameters,
+                      let feeToken = fee.amount.type.token,
+                      let transactionAmountValue = model.gaslessTransactionAmount(
+                          enteredAmount: amountValue,
+                          fee: fee
+                      ) else {
+                    return
+                }
+
+                let transactionAmount = model.makeAmount(decimal: transactionAmountValue)
+                guard !parameters.request.matches(
+                    amount: transactionAmount,
+                    destinationAddress: destination,
+                    feeToken: feeToken
+                ) else {
+                    return
+                }
+
+                estimationAmount = transactionAmountValue
+            }
+        }
+    }
+
+    func gaslessTransactionAmount(enteredAmount: Decimal, fee: BSDKFee?) -> Decimal? {
+        guard let fee,
+              fee.parameters is TronGaslessFeeParameters else {
+            return nil
+        }
+
+        let amount = makeAmount(decimal: enteredAmount)
+        guard feeIncludedCalculator.shouldIncludeFee(fee, into: amount) else {
+            return enteredAmount
+        }
+
+        return enteredAmount - fee.amount.value
     }
 
     private func update(transaction: ValidatedTransaction?, builtFrom inputs: TransactionInputs) {
@@ -426,8 +484,7 @@ extension TransferModel: SendFeeUpdater {
             return
         }
 
-        _sourceToken.tokenFeeProvidersManager.update(input: .common(amount: amount, destination: destination))
-        _sourceToken.tokenFeeProvidersManager.updateFees()
+        updateFees(amountValue: amount, destination: destination)
     }
 }
 
@@ -440,6 +497,29 @@ extension TransferModel: SendFeeInput {
 
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
         _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher
+    }
+
+    var isSelectedFeeActual: Bool {
+        guard let fee = selectedFee?.value.value else {
+            return false
+        }
+
+        guard let parameters = fee.parameters as? TronGaslessFeeParameters else {
+            return true
+        }
+
+        guard let amountValue = _amount.value?.crypto,
+              let destination = _destination.value?.value.transactionAddress,
+              let feeToken = fee.amount.type.token,
+              let transactionAmountValue = gaslessTransactionAmount(enteredAmount: amountValue, fee: fee) else {
+            return false
+        }
+
+        return parameters.request.matches(
+            amount: makeAmount(decimal: transactionAmountValue),
+            destinationAddress: destination,
+            feeToken: feeToken
+        )
     }
 
     var supportFeeSelection: Bool {
