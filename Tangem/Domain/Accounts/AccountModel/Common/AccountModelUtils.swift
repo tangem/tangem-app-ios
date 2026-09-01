@@ -22,15 +22,16 @@ enum AccountModelUtils {
         let iconColor = deriveMainAccountIconColor(from: userWalletId)
 
         return CryptoAccountPersistentConfig(
-            derivationIndex: Constants.mainAccountDerivationIndex,
+            derivationIdentity: Constants.mainAccountDerivationIdentity,
             name: nil, // Main account uses a localized name
             iconName: Constants.mainAccountIconName.rawValue,
             iconColor: iconColor.rawValue
         )
     }
 
-    static func isMainAccount(_ derivationIndex: Int) -> Bool {
-        derivationIndex == Constants.mainAccountDerivationIndex
+    /// The main account is one of the wallet's own: a joint account is never it, whatever its index says.
+    static func isMainAccount(_ derivationIdentity: CryptoAccountDerivationIdentity) -> Bool {
+        derivationIdentity == Constants.mainAccountDerivationIdentity
     }
 
     static func isAccountNameValid(_ accountName: String) -> Bool {
@@ -69,19 +70,15 @@ enum AccountModelUtils {
     }
 }
 
-// MARK: - Convenience extensions
-
-extension AccountModelUtils {
-    static func isMainAccount(_ derivationIndex: UInt32) -> Bool {
-        isMainAccount(Int(derivationIndex))
-    }
-}
-
 // MARK: - Constants
 
 private extension AccountModelUtils {
     enum Constants {
         static let mainAccountDerivationIndex = 0
+        static let mainAccountDerivationIdentity = CryptoAccountDerivationIdentity(
+            derivationIndex: Constants.mainAccountDerivationIndex,
+            type: .crypto
+        )
         static let mainAccountIconName: AccountModel.CompositeIcon.Name = .star
         static let maxAccountNameLength = 20
         static let maxNumberOfAccounts = 20

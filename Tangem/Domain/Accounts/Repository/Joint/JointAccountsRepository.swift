@@ -16,6 +16,10 @@ protocol JointAccountsRepository {
     /// while the list is being read anew.
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> { get }
 
+    /// - Note: Kept apart from the accounts because it changes on its own occasions — an account is created once, and
+    /// the invites it was handed are written then and never again.
+    var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> { get }
+
     /// Asks for the list once, so that what is stored is the backend's answer rather than the last thing this wallet
     /// happened to write.
     func initialize()

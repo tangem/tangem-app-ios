@@ -43,11 +43,13 @@ private extension PolymarketMarket {
             iconURL: nil,
             status: .active,
             isNegRisk: false,
+            isAcceptingOrders: true,
             startDate: nil,
             endDate: nil,
             volume: 6_300_000,
             volume24h: nil,
             liquidity: nil,
+            orderIndex: 0,
             outcomes: outcomes
         )
     }
