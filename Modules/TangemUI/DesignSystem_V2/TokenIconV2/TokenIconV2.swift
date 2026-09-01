@@ -18,6 +18,7 @@ public struct TokenIconV2: View {
     private let size: Size
 
     private var indicatorColorValue: Color?
+    private var geometryEffectValue: GeometryEffectPropertiesModel?
     private var isGrayscale: Bool = false
     private var accessibilityIdentifierValue: String?
     private var accessibilityLabelValue: String?
@@ -124,6 +125,7 @@ public struct TokenIconV2: View {
 
     private func composedArtwork<Artwork: View>(showsOverlays: Bool, @ViewBuilder _ artwork: () -> Artwork) -> some View {
         artwork()
+            .matchedGeometryEffect(geometryEffectValue)
             .frame(size: CGSize(bothDimensions: metrics.container))
             .clipShape(.circle)
             .modifier(IconCutouts(
@@ -216,6 +218,10 @@ extension TokenIconV2: Setupable {
 
     public func indicatorColor(_ color: Color) -> Self {
         map { $0.indicatorColorValue = color }
+    }
+
+    public func geometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
+        map { $0.geometryEffectValue = effect }
     }
 
     public func grayscale(_ isGrayscale: Bool) -> Self {
