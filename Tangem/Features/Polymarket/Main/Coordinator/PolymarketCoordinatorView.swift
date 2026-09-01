@@ -18,6 +18,9 @@ struct PolymarketCoordinatorView: CoordinatorView {
     var body: some View {
         content
             .injectMarketsNavigationConfigurator(isSimplified: true)
+            .navigation(item: $coordinator.eventDetailsViewModel) { viewModel in
+                PolymarketEventDetailsView(viewModel: viewModel)
+            }
             .floatingSheetContent(for: PolymarketRegionRestrictionViewModel.self) { viewModel in
                 PolymarketRegionRestrictionView(viewModel: viewModel)
             }
