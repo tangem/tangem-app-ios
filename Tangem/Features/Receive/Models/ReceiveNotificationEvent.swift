@@ -83,11 +83,11 @@ extension ReceiveNotificationEvent: NotificationEvent {
             return RedesignedBannerContent(
                 title: .attributed(title),
                 icon: NotificationView.MessageIcon(
-                    iconType: .image(DesignSystem.Icons.Info.regular24),
+                    iconType: .image(DesignSystem.Icons.Info.regular20),
                     renderingMode: .template,
-                    color: DesignSystem.Color.iconBrand,
+                    color: DesignSystem.Color.iconPrimary,
                     isLeading: false,
-                    size: CGSize(bothDimensions: 24)
+                    size: CGSize(bothDimensions: 20)
                 )
             )
         case .unsupportedTokenWarning:

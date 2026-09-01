@@ -797,7 +797,8 @@ extension TangemPayMainViewModel {
 private extension TangemPayMainViewModel {
     static let systemDowngradeDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM d yyyy"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "dd.MM.yyyy"
         return formatter
     }()
 
