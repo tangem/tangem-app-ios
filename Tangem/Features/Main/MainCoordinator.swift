@@ -638,7 +638,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         yieldDeeplinkRouter?.handle(walletModel: walletModel, userWalletModel: userWalletModel)
     }
 
-    func openPolymarket() {
+    func openPolymarket(userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = PolymarketCoordinator(
@@ -648,7 +648,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             },
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .init())
+        coordinator.start(with: .init(userWalletModel: userWalletModel))
         polymarketCoordinator = coordinator
     }
 }
