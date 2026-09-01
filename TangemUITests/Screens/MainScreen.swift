@@ -29,6 +29,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var walletLockedNotification = app.descendants(matching: .any)
         .matching(identifier: MainAccessibilityIdentifiers.walletLockedNotification)
         .firstMatch
+    private lazy var walletLockedNotificationUnlockButton = notificationBannerButton(MainAccessibilityIdentifiers.walletLockedNotification)
+    private lazy var missingDerivationSynchronizeButton = notificationBannerButton(MainAccessibilityIdentifiers.missingDerivationNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
     private lazy var tangemPayTileBalance = app.staticTexts[TangemPayAccessibilityIdentifiers.mainScreenTileBalance].firstMatch
@@ -37,9 +39,18 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
         .firstMatch
     private lazy var addTokensButton = app.buttons[MainAccessibilityIdentifiers.addTokensButton].firstMatch
-    private lazy var promoBannerTitle = staticText(.walletPromoBannerTitle)
-    private lazy var promoBannerBody = staticText(.walletPromoBannerDescription)
+    /// The promo banner merges its title and description into a single accessibility element, so they are
+    /// matched inside that element's label rather than by identifiers of their own.
+    private lazy var promoBannerTitle = elementContainingText("Discover Tangem Wallet")
+    /// Only the first line: the description carries a hard line break the accessibility label may fold.
+    private lazy var promoBannerBody = elementContainingText("Access 13,000+ cryptocurrencies")
     private lazy var promoBannerButton = button(.walletPromoBannerButton)
+
+    private func elementContainingText(_ text: String) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS %@", text))
+            .firstMatch
+    }
 
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
@@ -531,9 +542,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
     @discardableResult
     func tapWalletLockedNotification() -> Self {
-        XCTContext.runActivity(named: "Tap wallet locked notification to initiate unlock") { _ in
-            waitAndAssertTrue(walletLockedNotification, "Wallet locked notification should be displayed")
-            walletLockedNotification.waitAndTap()
+        XCTContext.runActivity(named: "Tap Unlock on the wallet locked notification") { _ in
+            waitAndAssertTrue(walletLockedNotificationUnlockButton, "Unlock button should be displayed")
+            walletLockedNotificationUnlockButton.waitAndTap()
             return self
         }
     }
@@ -558,24 +569,12 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func addNewWallet(name: CardMockAccessibilityIdentifiers) -> Self {
         XCTContext.runActivity(named: "Add new wallet: \(name.rawValue)") { _ in
+            // Details routes through the wallet type selector while mobileWalletMultiCreation is closed.
             openDetails()
                 .tapAddNewWallet()
-                .tapAddHardwareWallet()
+                .tapHardwareWallet()
 
-            // Adding a wallet can route through the create-wallet selector (stories "Get started" and a
-            // "Scan" step) before the mock-card action sheet appears. Navigate those if present, then pick.
-            let getStartedButton = app.buttons[StoriesAccessibilityIdentifiers.getStartedButton].firstMatch
-            if getStartedButton.waitForExistence(timeout: .conditional) {
-                getStartedButton.waitAndTap()
-            }
-            let scanButton = app.buttons[StoriesAccessibilityIdentifiers.scanButton].firstMatch
-            if scanButton.waitForExistence(timeout: .conditional) {
-                scanButton.waitAndTap()
-            }
-
-            let walletButton = app.buttons[name.rawValue].firstMatch
-            scrollActionSheetToElement(walletButton)
-            walletButton.waitAndTap()
+            selectMockCardFromScannerAlert(name: name)
 
             waitAndAssertTrue(tokensList, "Tokens list should exist after adding new wallet")
             return self
@@ -964,12 +963,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             guard missingDerivationNotification.waitForExistence(timeout: .conditional) else {
                 return self
             }
-            let generateButton = missingDerivationNotification.buttons.firstMatch
-            if generateButton.exists {
-                generateButton.waitAndTap()
-            } else {
-                missingDerivationNotification.waitAndTap()
-            }
+            waitAndAssertTrue(missingDerivationSynchronizeButton, "Synchronize addresses button should be displayed")
+            missingDerivationSynchronizeButton.waitAndTap()
             XCTAssertTrue(
                 missingDerivationNotification.waitForNonExistence(timeout: .networkRequest),
                 "Missing derivation notification should disappear after addresses are generated"
@@ -1224,8 +1219,6 @@ enum MainScreenElement: String, UIElement {
     case totalBalanceShimmer
     case missingDerivationNotification
     case walletLockedNotification
-    case walletPromoBannerTitle
-    case walletPromoBannerDescription
     case walletPromoBannerButton
 
     var accessibilityIdentifier: String {
@@ -1254,10 +1247,6 @@ enum MainScreenElement: String, UIElement {
             MainAccessibilityIdentifiers.missingDerivationNotification
         case .walletLockedNotification:
             MainAccessibilityIdentifiers.walletLockedNotification
-        case .walletPromoBannerTitle:
-            MainAccessibilityIdentifiers.walletPromoBannerTitle
-        case .walletPromoBannerDescription:
-            MainAccessibilityIdentifiers.walletPromoBannerDescription
         case .walletPromoBannerButton:
             MainAccessibilityIdentifiers.walletPromoBannerButton
         }

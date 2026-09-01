@@ -482,14 +482,33 @@ struct CommonDeepLinkValidatorTests {
         #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
 
+    /// A malformed swap parameter must not cost the whole link: it is ignored at the routing layer,
+    /// which falls back to the default swap instead of leaving the user on Main.
     @Test
-    func swapWithInvalidCharacterInSwapParam_shouldFail() {
+    func swapWithInvalidCharacterInSwapParam_shouldPass() {
         let action = DeeplinkNavigationAction(
             destination: .swap,
             params: .init(swapFromTokenId: "🔥"),
             deeplinkString: ""
         )
-        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    /// The exact shape reported in [REDACTED_INFO]: a garbage FROM side and amount next to a valid TO side.
+    @Test
+    func swapWithGarbageFromSideAndValidToSide_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .swap,
+            params: .init(
+                swapFromTokenId: "???",
+                swapFromNetworkId: "does not exist",
+                swapToTokenId: "ethereum",
+                swapToNetworkId: "ethereum",
+                swapFromAmount: "abc"
+            ),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
 
     @Test
@@ -503,13 +522,13 @@ struct CommonDeepLinkValidatorTests {
     }
 
     @Test
-    func swapWithInvalidCharacterInAmount_shouldFail() {
+    func swapWithInvalidCharacterInAmount_shouldPass() {
         let action = DeeplinkNavigationAction(
             destination: .swap,
             params: .init(swapFromAmount: "🔥"),
             deeplinkString: ""
         )
-        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
     }
 
     @Test

@@ -173,6 +173,72 @@ struct CommonMobileWalletBackupManagerTests {
         #expect(created.metadata.walletName == walletName)
     }
 
+    @Test(
+        "Overlong wallet name is truncated to the byte budget, keeping the file name suffix",
+        arguments: [
+            // ASCII: exactly 228 single-byte characters survive.
+            (String(repeating: "a", count: 300), String(repeating: "a", count: 228)),
+            // 4-byte emoji: the cut lands on a character boundary, 228 / 4 = 57 emoji survive.
+            (String(repeating: "🙂", count: 100), String(repeating: "🙂", count: 57)),
+            // 2-byte letters after a 1-byte one: a straight 228-byte cut would split
+            // a character, so the last partial letter is dropped instead.
+            ("a" + String(repeating: "é", count: 200), "a" + String(repeating: "é", count: 113)),
+            // The cut exposes a trailing dot, which is trimmed like any edge dot.
+            (String(repeating: "a", count: 227) + "." + String(repeating: "a", count: 100), String(repeating: "a", count: 227)),
+            // A single grapheme cluster heavier than the whole budget (Zalgo-style
+            // combining marks) leaves nothing after the cut — the fallback name is used.
+            ("a" + String(repeating: "\u{0301}", count: 300), "Wallet"),
+        ]
+    )
+    func createBackupTruncatesOverlongWalletName(walletName: String, expectedBaseName: String) async throws {
+        let env = Self.makeEnvironment()
+
+        let created = try await env.manager.createBackup(
+            context: Self.context,
+            walletName: walletName,
+            walletId: Self.walletId,
+            password: Self.password
+        )
+
+        #expect(created.metadata.fileName == "\(expectedBaseName).backup.json")
+        // The user-visible wallet name inside the file stays as given — only the file name is truncated.
+        #expect(created.metadata.walletName == walletName)
+    }
+
+    @Test("Colliding truncated name is retried unnumbered at the shorter length first")
+    func createBackupPrefersShorterUnnumberedNameOverNumbering() async throws {
+        let env = Self.makeEnvironment()
+        env.storage.seed(Data("foreign".utf8), fileName: "\(String(repeating: "a", count: 228)).backup.json")
+
+        let created = try await env.manager.createBackup(
+            context: Self.context,
+            walletName: String(repeating: "a", count: 300),
+            walletId: Self.walletId,
+            password: Self.password
+        )
+
+        // Numbering shrinks the base budget by the ` (1)` insert, and the copy number
+        // restarts after the cut — the shorter name is free, so it wins unnumbered.
+        #expect(created.metadata.fileName == "\(String(repeating: "a", count: 224)).backup.json")
+    }
+
+    @Test("Truncated file names collide and are numbered like any other names")
+    func createBackupNumbersCollidingTruncatedNames() async throws {
+        let env = Self.makeEnvironment()
+        // Both lengths must be taken: numbering shortens the base by the ` (1)` insert width.
+        env.storage.seed(Data("foreign".utf8), fileName: "\(String(repeating: "a", count: 228)).backup.json")
+        env.storage.seed(Data("foreign".utf8), fileName: "\(String(repeating: "a", count: 224)).backup.json")
+
+        let created = try await env.manager.createBackup(
+            context: Self.context,
+            walletName: String(repeating: "a", count: 300),
+            walletId: Self.walletId,
+            password: Self.password
+        )
+
+        #expect(created.metadata.fileName == "\(String(repeating: "a", count: 224)) (1).backup.json")
+    }
+
     @Test("Unavailable storage fails the creation before anything is written")
     func createBackupThrowsWhenStorageUnavailable() async throws {
         let env = Self.makeEnvironment()
