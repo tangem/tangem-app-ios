@@ -37,4 +37,13 @@ struct CryptoAccountDerivationIdentityTests {
         #expect(cryptoAccount != jointAccount)
         #expect(cryptoAccount.toPersistentIdentifier() != jointAccount.toPersistentIdentifier())
     }
+
+    @Test("Only the wallet's own account at index zero is the main one, whatever a joint account's index says")
+    func onlyCryptoAccountAtIndexZeroIsMain() {
+        let cryptoAccount = CryptoAccountDerivationIdentity(derivationIndex: 0, type: .crypto)
+        let jointAccount = CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint)
+
+        #expect(AccountModelUtils.isMainAccount(cryptoAccount))
+        #expect(!AccountModelUtils.isMainAccount(jointAccount))
+    }
 }
