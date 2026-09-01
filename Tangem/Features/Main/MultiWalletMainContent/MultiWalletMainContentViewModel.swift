@@ -448,7 +448,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     AccountRowButtonViewModel(accountModel: accountModel) { [weak viewModel] in
                         guard let viewModel else { return }
 
-                        viewModel.coordinator?.openPolymarket()
+                        viewModel.coordinator?.openPolymarket(userWalletModel: viewModel.userWalletModel)
                     }
                 }
             }
