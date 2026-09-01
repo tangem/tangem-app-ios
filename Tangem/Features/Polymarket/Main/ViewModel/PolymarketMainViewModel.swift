@@ -7,8 +7,11 @@
 //
 
 import SwiftUI
+import Combine
+import TangemAssets
 import TangemFoundation
 import TangemPolymarket
+import TangemUI
 
 final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var categories: [PolymarketCategory] = [] {
@@ -19,6 +22,8 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var selectedCategoryID: Int?
     @Published private(set) var loadingState: LoadingState = .loading
     @Published private(set) var isTabsPinned = false
+    @Published private(set) var balance: LoadableBalanceView.State = .loading(cached: .none)
+    @Published private(set) var isRegionRestricted = false
 
     private(set) var categoryTabs: [PolymarketCategoryTab] = []
 
@@ -30,7 +35,13 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     private let apiProvider: PolymarketAPIProvider
+    private let geoblockService: PolymarketGeoblockService
+    private let balanceProvider: AnyPublisher<FormattedTokenBalanceType, Never>
     private weak var coordinator: PolymarketMainRoutable?
+
+    private let balanceStateBuilder = LoadableBalanceViewStateBuilder()
+
+    private var balanceSubscription: AnyCancellable?
 
     private var events: [PolymarketEvent] = []
     private var cursor: String?
@@ -38,11 +49,39 @@ final class PolymarketMainViewModel: ObservableObject {
     private var cache: [Int?: CategoryState] = [:]
     private var loadingTask: Task<Void, Never>?
 
-    init(apiProvider: PolymarketAPIProvider, coordinator: PolymarketMainRoutable) {
+    init(
+        apiProvider: PolymarketAPIProvider,
+        geoblockService: PolymarketGeoblockService,
+        balanceProvider: AnyPublisher<FormattedTokenBalanceType, Never>,
+        coordinator: PolymarketMainRoutable
+    ) {
         self.apiProvider = apiProvider
+        self.geoblockService = geoblockService
+        self.balanceProvider = balanceProvider
         self.coordinator = coordinator
-
+        bindBalance()
         load()
+        loadRegion()
+    }
+
+    private func loadRegion() {
+        runTask(in: self) { @MainActor viewModel in
+            do {
+                viewModel.isRegionRestricted = try await viewModel.geoblockService.geoblock().isBlocked
+            } catch {
+                PolymarketLogger.error("Failed to read the region, treating it as blocked", error: error)
+                viewModel.isRegionRestricted = true
+            }
+        }
+    }
+
+    private func bindBalance() {
+        balanceSubscription = balanceProvider
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, formatted in
+                viewModel.balance = viewModel.makeBalanceState(from: formatted)
+            }
     }
 
     // MARK: - Actions
@@ -59,7 +98,6 @@ final class PolymarketMainViewModel: ObservableObject {
                 let categories = try await viewModel.apiProvider.categories(locale: viewModel.locale)
                 try Task.checkCancellation()
 
-                // Without categories there is no feed to show, so this is an error rather than an empty state
                 guard let firstCategoryID = categories.first?.id else {
                     viewModel.loadingState = .error
                     return
@@ -92,11 +130,22 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     func loadMore() {
+        guard hasNext, loadingState != .paginationLoading else { return }
+
         fetchEvents(more: true)
     }
 
     func dismiss() {
         coordinator?.dismiss()
+    }
+
+    func onAddFundsTap() {
+        guard !isRegionRestricted else {
+            coordinator?.openRegionWarning()
+            return
+        }
+
+        // [REDACTED_TODO_COMMENT]
     }
 
     func updatePinnedState(tabsMinY: CGFloat, navBarHeight: CGFloat) {
@@ -162,8 +211,6 @@ final class PolymarketMainViewModel: ObservableObject {
         hasNext = false
     }
 
-    /// The cache keeps data only: a restored category has no request behind it, so a transient
-    /// `.paginationLoading` or `.paginationError` must not come back with it.
     private func snapshot() -> CategoryState {
         CategoryState(events: events, cursor: cursor, hasNext: hasNext)
     }
@@ -178,6 +225,22 @@ final class PolymarketMainViewModel: ObservableObject {
 
     private var locale: String? {
         Locale.current.language.languageCode?.identifier
+    }
+}
+
+private extension PolymarketMainViewModel {
+    func makeBalanceState(from formatted: FormattedTokenBalanceType) -> LoadableBalanceView.State {
+        AttributedBalanceFormatter.decimalColored(
+            balanceStateBuilder.build(type: formatted),
+            integerPart: .init(
+                font: TangemFontStyle(DesignSystem.Font.displayMediumToken),
+                color: DesignSystem.Color.textPrimary
+            ),
+            fractionalPart: .init(
+                font: TangemFontStyle(DesignSystem.Font.headingMediumToken),
+                color: DesignSystem.Color.textPrimary
+            )
+        )
     }
 }
 

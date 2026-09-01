@@ -19,3 +19,15 @@ protocol PolymarketKeysDerivingFactory {
 }
 
 extension KeysDerivingInteractorFactory: PolymarketKeysDerivingFactory {}
+
+struct PolymarketKeysDeriving: PolymarketKeysDerivingFactory {
+    private let provider: any KeysDerivingProvider
+
+    init(provider: any KeysDerivingProvider) {
+        self.provider = provider
+    }
+
+    func makeInteractor() -> KeysDeriving {
+        provider.keysDerivingInteractor
+    }
+}
