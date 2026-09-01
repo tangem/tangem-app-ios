@@ -61,6 +61,13 @@ struct GaugeSweepsTests {
     }
 
     @Test
+    func floorIsPinnedAtFivePercentOfTheCircle() {
+        let actual = GaugeSweeps.visualSweepAngles(weights: [0.001, 0.999])
+        #expect(abs(actual[0] - 18) < tolerance)
+        #expect(abs(actual.reduce(0, +) - 360) < tolerance)
+    }
+
+    @Test
     func filledSumBelowCircleAndFloorsFitPreservesFilledSum() {
         let weights: [CGFloat] = [0.4, 0.07, 0.03]
         let filledSum = (0.4 + 0.07 + 0.03) * 360

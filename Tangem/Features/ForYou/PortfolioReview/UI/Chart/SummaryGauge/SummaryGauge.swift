@@ -167,10 +167,10 @@ private extension SummaryGaugeView {
     // Stands in for the mapper: rank by value, then colour as far as the palette reaches.
     func ranked(_ assets: [SummaryGaugeAsset]) -> [SummaryGaugeAsset] {
         let byValue = assets.sorted { $0.fiatValue > $1.fiatValue }
-        let colors = PortfolioReviewSegmentPalette.colors(forRanked: byValue.filter { $0.fiatValue > 0 }.map(\.id))
+        let slices = PortfolioReviewSegmentPalette.slices(forRanked: byValue.filter { $0.fiatValue > 0 }.map(\.id))
 
         return byValue.map {
-            SummaryGaugeAsset(id: $0.id, name: $0.name, fiatValue: $0.fiatValue, segmentColor: colors[$0.id])
+            SummaryGaugeAsset(id: $0.id, name: $0.name, fiatValue: $0.fiatValue, segmentColor: slices[$0.id]?.arc)
         }
     }
 

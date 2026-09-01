@@ -46,7 +46,7 @@ struct ForYouTokenRowData: Identifiable, Equatable {
         case fresh
         /// Being refreshed; the last known value is shown and shimmers.
         case refreshing
-        /// Couldn't be refreshed; the cached value is shown, and the expanded header marks it with an error icon.
+        /// Couldn't be refreshed; the cached value is shown and marked with a sync-error icon.
         case outdated
     }
 

@@ -21,6 +21,7 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
     @Published var selectedPeriod: TokenSummaryPeriod
     @Published private(set) var primaryAction: TokenSummaryPrimaryAction?
     @Published private(set) var isLoading = true
+    @Published private(set) var isPeriodPickerVisible = false
     @Published private(set) var gaugeState: TokenSummaryGaugeState = .dataUnavailable
     @Published private(set) var lastUpdated: Date?
     @Published private(set) var metrics: [TokenSummaryMetric] = []
@@ -203,6 +204,9 @@ final class TokenSummaryViewModel: ObservableObject, Identifiable {
     private func apply(readings: [TokenSummaryIndicator]) {
         self.readings = readings
         isLoading = false
+        isPeriodPickerVisible = readings.contains { reading in
+            reading.kind != .unknown && reading.timeframe != .unknown && reading.signal != .unavailable && reading.value != nil
+        }
         updateDerivedState(for: selectedPeriod)
     }
 
@@ -239,6 +243,7 @@ extension TokenSummaryViewModel {
 
         viewModel.readings = mockReadings
         viewModel.isLoading = false
+        viewModel.isPeriodPickerVisible = true
         viewModel.updateDerivedState(for: viewModel.selectedPeriod)
 
         return viewModel
