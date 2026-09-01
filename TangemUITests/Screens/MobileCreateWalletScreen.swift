@@ -14,11 +14,11 @@ final class MobileCreateWalletScreen: ScreenBase<MobileCreateWalletScreenElement
     private lazy var createButton = button(.createButton)
 
     @discardableResult
-    func tapImportButton() -> SeedPhraseImportScreen {
+    func tapImportButton() -> MobileImportWalletScreen {
         XCTContext.runActivity(named: "Tap Import button") { _ in
             waitAndAssertTrue(importButton, "Import button should be displayed")
             importButton.waitAndTap()
-            return SeedPhraseImportScreen(app)
+            return MobileImportWalletScreen(app)
         }
     }
 

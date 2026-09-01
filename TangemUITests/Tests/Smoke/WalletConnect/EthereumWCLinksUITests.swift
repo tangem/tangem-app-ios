@@ -18,8 +18,7 @@ final class EthereumWCLinksUITests: BaseTestCase {
         setAllureId(3957)
 
         getWcURI()
-        app.launchEnvironment = ["UITEST": "1"]
-        app.launch()
+        launchApp(tangemApiType: .mock)
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
@@ -38,7 +37,7 @@ final class EthereumWCLinksUITests: BaseTestCase {
         app.activate()
 
         WelcomeBackScreen(app)
-            .selectWalletByName("Wallet 2")
+            .selectSavedWallet()
         CreateWalletSelectorScreen(app)
             .selectWalletFromList(name: .wallet2)
 

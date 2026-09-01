@@ -74,6 +74,7 @@ final class GaslessSendViaSwapUITests: BaseTestCase {
             .skipStories()
             .startWithMobileWallet()
             .tapImportButton()
+            .tapRecoveryPhrase()
             .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
