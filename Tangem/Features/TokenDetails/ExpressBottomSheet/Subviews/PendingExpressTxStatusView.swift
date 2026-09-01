@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct PendingExpressTxStatusView: View {
     let title: String
@@ -27,6 +28,7 @@ struct PendingExpressTxStatusView: View {
         HStack {
             Text(title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .accessibilityIdentifier(TokenAccessibilityIdentifiers.expressStatusProviderTitle)
 
             Spacer()
 

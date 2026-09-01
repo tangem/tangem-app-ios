@@ -25,6 +25,7 @@ enum WalletConnectModuleFactory {
     @Injected(\.dAppVerificationService) private static var dAppVerificationService: any WalletConnectDAppVerificationService
     @Injected(\.dAppIconURLResolver) private static var dAppIconURLResolver: WalletConnectDAppIconURLResolver
     @Injected(\.floatingSheetPresenter) private static var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.cryptoAccountsGlobalStateProvider) private static var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
     @Injected(\.mailComposePresenter) private static var mailPresenter: MailComposePresenter
 
     private static let openSystemSettingsAction = UIApplication.openSystemSettings
@@ -73,13 +74,10 @@ enum WalletConnectModuleFactory {
             disconnectDApp: disconnectDAppUseCase
         )
 
-        @Injected(\.cryptoAccountsGlobalStateProvider)
-        var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
-
         return WalletConnectViewModel(
             interactor: interactor,
             userWalletRepository: userWalletRepository,
-            cryptoAccountsGlobalStateProvider: cryptoAccountsGlobalStateProvider,
+            cryptoAccountsGlobalStateProvider: Self.cryptoAccountsGlobalStateProvider,
             analyticsLogger: CommonWalletConnectAnalyticsLogger(),
             logger: WCLogger,
             coordinator: coordinator,
@@ -93,9 +91,7 @@ enum WalletConnectModuleFactory {
     ) -> WalletConnectDAppConnectionViewModel? {
         let filteredUserWallets = Self.userWalletRepository.models.filter { $0.config.isFeatureVisible(.walletConnect) }
 
-        let hasMultipleAccountsWallet = filteredUserWallets.contains { userWalletModel in
-            userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
-        }
+        let hasMultipleAccountsWallet = Self.cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
         guard filteredUserWallets.isNotEmpty else {
             assertionFailure("UserWalletRepository does not have any UserWalletModel that supports WalletConnect feature. Developer mistake.")

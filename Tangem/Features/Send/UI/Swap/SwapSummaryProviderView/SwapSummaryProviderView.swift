@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct SwapSummaryProviderView: View {
     @ObservedObject var viewModel: SwapSummaryProviderViewModel
@@ -20,6 +21,7 @@ struct SwapSummaryProviderView: View {
                 LoadingProvidersRow()
             case .loaded(let data):
                 ProviderRowView(viewModel: data)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderBlock)
             }
         }
         .innerContentPadding(12)

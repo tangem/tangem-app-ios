@@ -51,6 +51,16 @@ extension CommonPolymarketCredentialsRepository: PolymarketCredentialsRepository
             PolymarketLogger.error("Failed to delete the stored credentials", error: error)
         }
     }
+
+    func clean(genericPasswordAccounts: [String]) {
+        for account in genericPasswordAccounts where account.hasPrefix(Constants.keyPrefix) {
+            do {
+                try secureStorage.delete(account)
+            } catch {
+                PolymarketLogger.error("Failed to delete the stored credentials", error: error)
+            }
+        }
+    }
 }
 
 // MARK: - Private implementation

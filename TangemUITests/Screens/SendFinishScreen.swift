@@ -52,15 +52,6 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
     }
 
     @discardableResult
-    func waitForBrowserOpened() -> Self {
-        XCTContext.runActivity(named: "Verify in-app browser is opened") { _ in
-            let webView = app.webViews.firstMatch
-            waitAndAssertTrue(webView, "Web view should appear after tapping Explore")
-            return self
-        }
-    }
-
-    @discardableResult
     func dismissBrowser() -> Self {
         XCTContext.runActivity(named: "Dismiss in-app browser") { _ in
             app.otherElements["TopBrowserBar"].buttons["Close"].waitAndTap()

@@ -15,6 +15,8 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
     private lazy var deviceSettingsButton = button(.deviceSettings)
     private lazy var addAccountButton = button(.addAccount)
     private lazy var renameWalletRow = anyElement(.renameWalletRow)
+    private lazy var forgetWalletButton = app.buttons["Forget wallet"].firstMatch
+    private lazy var forgetConfirmationButton = app.buttons["Forget"].firstMatch
 
     func openReferralProgram() -> ReferralScreen {
         XCTContext.runActivity(named: "Open referral program screen") { _ in
@@ -130,6 +132,16 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
     func goBackToDetails() -> DetailsScreen {
         XCTContext.runActivity(named: "Go back to Details") { _ in
             app.navigationBars.buttons["Details"].waitAndTap()
+            return DetailsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func forgetWallet() -> DetailsScreen {
+        XCTContext.runActivity(named: "Forget wallet and confirm deletion") { _ in
+            scrollToElement(forgetWalletButton)
+            forgetWalletButton.waitAndTap()
+            forgetConfirmationButton.waitAndTap()
             return DetailsScreen(app)
         }
     }

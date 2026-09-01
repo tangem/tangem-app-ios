@@ -47,6 +47,18 @@ final class CommonJointAccountsRepository {
         .share(replay: 1)
         .eraseToAnyPublisher()
 
+    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
+    private lazy var invitesStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountInvites], Never> = invitesPersistentStorage
+        .didUpdatePublisher
+        .prepend(()) // An initial value to trigger loading from storage
+        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .withWeakCaptureOf(self)
+        .map { repository, _ in repository.invitesPersistentStorage.getList() }
+        .removeDuplicates()
+        .receiveOnMain()
+        .share(replay: 1)
+        .eraseToAnyPublisher()
+
     init(
         userWalletId: UserWalletId,
         networkService: JointAccountsNetworkService,
@@ -64,6 +76,7 @@ final class CommonJointAccountsRepository {
         // Eager initialization of these lazy properties to ensure that there are no race conditions
         _ = loadJointAccountsDebouncer
         _ = storageDidUpdatePublisher
+        _ = invitesStorageDidUpdatePublisher
     }
 }
 
@@ -72,6 +85,10 @@ final class CommonJointAccountsRepository {
 extension CommonJointAccountsRepository: JointAccountsRepository {
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> {
         storageDidUpdatePublisher
+    }
+
+    var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> {
+        invitesStorageDidUpdatePublisher
     }
 
     func initialize() {

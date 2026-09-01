@@ -10,7 +10,8 @@ import Foundation
 import TangemPolymarket
 
 extension PolymarketMarketCard {
-    struct Model {
+    struct Model: Identifiable {
+        let id: String
         let title: String
         let volumeText: String?
         let imageURL: URL?
@@ -19,15 +20,10 @@ extension PolymarketMarketCard {
     }
 
     struct Outcome: Identifiable {
-        enum Style {
-            case affirmative
-            case negative
-        }
-
         let id: String
         let title: String
         let priceText: String
-        let style: Style
+        let style: PolymarketOutcomeStyle
         let onSelect: () -> Void
     }
 }
@@ -37,23 +33,27 @@ extension PolymarketMarketCard {
 extension PolymarketMarketCard.Model {
     static func make(
         market: PolymarketMarket,
+        title: String? = nil,
+        fallbackImageURL: URL? = nil,
         predictedText: String? = nil,
+        showsOutcomes: Bool = true,
         onSelectOutcome: @escaping (PolymarketOutcome) -> Void
     ) -> Self {
         Self(
-            title: market.groupItemTitle ?? market.title,
+            id: market.id,
+            title: title ?? market.groupItemTitle ?? market.title,
             volumeText: market.volume.map(volumeFormatter.formatMarketCap),
-            imageURL: market.imageURL ?? market.iconURL,
+            imageURL: market.imageURL ?? market.iconURL ?? fallbackImageURL,
             predictedText: predictedText,
-            outcomes: market.outcomes.enumerated().map { index, outcome in
+            outcomes: showsOutcomes ? market.outcomes.enumerated().map { index, outcome in
                 PolymarketMarketCard.Outcome(
                     id: outcome.assetId,
                     title: outcome.title,
-                    priceText: outcome.probability.map(centsText) ?? "—",
-                    style: PolymarketMarketCard.Outcome.Style(outcomeIndex: index),
+                    priceText: PolymarketPriceFormatter.centsText(outcome.probability),
+                    style: PolymarketOutcomeStyle(outcomeIndex: index),
                     onSelect: { onSelectOutcome(outcome) }
                 )
-            }
+            } : []
         )
     }
 
@@ -62,18 +62,4 @@ extension PolymarketMarketCard.Model {
         baseCurrencyCode: AppConstants.usdCurrencyCode,
         notationFormatter: DefaultAmountNotationFormatter()
     )
-
-    private static func centsText(_ probability: Decimal) -> String {
-        var value = probability * 100
-        var cents = Decimal()
-        NSDecimalRound(&cents, &value, 0, .plain)
-        return "\(NSDecimalNumber(decimal: cents).intValue)¢"
-    }
-}
-
-private extension PolymarketMarketCard.Outcome.Style {
-    /// Upstream labels are not always "Yes"/"No", so the affirmative outcome is the first one by position
-    init(outcomeIndex: Int) {
-        self = outcomeIndex == 0 ? .affirmative : .negative
-    }
 }
