@@ -155,8 +155,8 @@ extension JointAccountManagementCoordinator: JointAccountMemberNameRoutable {
 // MARK: - JointAccountCreationMemberNameRoutable
 
 extension JointAccountManagementCoordinator: JointAccountCreationMemberNameRoutable {
-    func openInviteMembers(creationHelper: JointAccountCreationHelper) {
-        let viewModel = JointAccountInviteMembersViewModel(creationContext: creationHelper, coordinator: self)
+    func openInviteMembers(jointAccount: any JointAccountModel) {
+        let viewModel = JointAccountInviteMembersViewModel(jointAccount: jointAccount, coordinator: self)
         path.append(.inviteMembers(viewModel: viewModel))
     }
 }

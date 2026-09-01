@@ -12,7 +12,7 @@ import TangemFoundation
 import TangemPay
 
 actor CommonAccountModelsManager {
-    private typealias AccountId = CommonCryptoAccountModel.AccountId
+    private typealias AccountId = CryptoAccountModelId
     private typealias Cache = [AccountId: CommonCryptoAccountModel]
 
     nonisolated var unownedExecutor: UnownedSerialExecutor {
@@ -179,56 +179,108 @@ actor CommonAccountModelsManager {
                 return publisher
             }
 
-            let debugDescription = objectDescription(self)
-
-            let globalCryptoAccountsStatePublisher = cryptoAccountsGlobalStateProvider
-                .globalCryptoAccountsStatePublisher()
-                .handleEvents(receiveOutput: { state in
-                    CryptoAccountsGlobalStateProviderLogger.info(
-                        "Called with \(state) (\(debugDescription))"
-                    )
-                })
-
-            let crypto = cryptoAccountsRepository
+            // Shared so that the models are built — and cached, disposed and synced — once per change, however many
+            // of the account list's entries are made out of them
+            let accountModels = cryptoAccountsRepository
                 .cryptoAccountsPublisher
-                .combineLatest(globalCryptoAccountsStatePublisher)
                 .withWeakCaptureOf(self)
-                .asyncMap { manager, input -> [AccountModel] in
-                    let (storedCryptoAccounts, globalState) = input
-                    let cryptoAccountModels = await manager.makeCryptoAccountModels(from: storedCryptoAccounts)
-                    let cryptoAccountsBuilder = CryptoAccountsBuilder(globalState: globalState)
-                    let cryptoAccounts = cryptoAccountsBuilder.build(from: cryptoAccountModels)
-
-                    return [
-                        .standard(cryptoAccounts),
-                    ]
+                .asyncMap { manager, storedCryptoAccounts in
+                    await manager.makeCryptoAccountModels(from: storedCryptoAccounts)
                 }
-
-            let tangemPay = tangemPayManager
-                .isPaeraCustomerPublisher
-                .map { [tangemPayManager] isPaeraCustomer in
-                    isPaeraCustomer
-                        ? [AccountModel.tangemPay(tangemPayManager)]
-                        : []
-                }
-
-            let provided = accountModelsProvider.accountModelsPublisher
-
-            let combined = Publishers.CombineLatest3(crypto, tangemPay, provided)
-                .map { $0 + $1 + $2 }
-                .handleEvents(receiveOutput: { [weak self] accountModels in
-                    self?.criticalSection {
-                        self?.unsafeAccountModels = accountModels
-                    }
-                })
-                .merge(with: onDisposeSubject) // `onDisposeSubject` emit effectively clears this reactive stream
                 .share(replay: 1)
                 .eraseToAnyPublisher()
+
+            let globalState = makeGlobalCryptoAccountsStatePublisher()
+            let cryptoAccountModels = accountModels.map { $0.filter { $0.accountType == .crypto } }
+            let jointAccountModels = accountModels.map { $0.filter { $0.accountType == .joint } }
+
+            // We filter models here; `type == .crypto` will go as is.
+            // `type == .joint` will go enriching via `JointAccountInCryptoMerger`
+
+            let combined = Publishers.CombineLatest4(
+                makeCryptoAccountModelsPublisher(from: cryptoAccountModels, globalState: globalState),
+                makeJointAccountModelsPublisher(from: jointAccountModels),
+                makeTangemPayAccountModelsPublisher(),
+                accountModelsProvider.accountModelsPublisher
+            )
+            .map { $0 + $1 + $2 + $3 }
+            .handleEvents(receiveOutput: { [weak self] accountModels in
+                self?.criticalSection {
+                    self?.unsafeAccountModels = accountModels
+                }
+            })
+            .merge(with: onDisposeSubject) // `onDisposeSubject` emit effectively clears this reactive stream
+            .share(replay: 1)
+            .eraseToAnyPublisher()
 
             unsafeAccountModelsPublisher = combined
 
             return combined
         }
+    }
+
+    private nonisolated func makeGlobalCryptoAccountsStatePublisher() -> AnyPublisher<CryptoAccounts.State, Never> {
+        let debugDescription = objectDescription(self)
+
+        return cryptoAccountsGlobalStateProvider
+            .globalCryptoAccountsStatePublisher()
+            .handleEvents(receiveOutput: { state in
+                CryptoAccountsGlobalStateProviderLogger.info(
+                    "Called with \(state) (\(debugDescription))"
+                )
+            })
+            .share(replay: 1)
+            .eraseToAnyPublisher()
+    }
+
+    private nonisolated func makeCryptoAccountModelsPublisher(
+        from accountModels: some Publisher<[any CryptoAccountModel], Never>,
+        globalState: some Publisher<CryptoAccounts.State, Never>
+    ) -> AnyPublisher<[AccountModel], Never> {
+        return accountModels
+            .combineLatest(globalState)
+            .map { accountModels, globalState -> [AccountModel] in
+                let cryptoAccounts = CryptoAccountsBuilder(globalState: globalState).build(from: accountModels)
+
+                return [.standard(cryptoAccounts)]
+            }
+            .eraseToAnyPublisher()
+    }
+
+    /// - Note: A joint account is kept apart from the wallet's own accounts, and the entry it shares with the account
+    /// list does not change when it does, so its own storage is what has to bring the list round again.
+    private nonisolated func makeJointAccountModelsPublisher(
+        from accountModels: some Publisher<[any CryptoAccountModel], Never>
+    ) -> some Publisher<[AccountModel], Never> {
+        return accountModels
+            .combineLatest(
+                jointAccountsRepository.jointAccountsPublisher,
+                jointAccountsRepository.jointAccountsInvitesPublisher
+            )
+            .map { accountModels, storedJointAccounts, storedInvites -> [AccountModel] in
+                let jointAccountModels = JointAccountInCryptoMerger().merge(
+                    accountModels,
+                    with: storedJointAccounts,
+                    invites: storedInvites
+                )
+
+                // A wallet that shares no account with anybody has no joint entry, rather than an empty one
+                guard jointAccountModels.isNotEmpty else {
+                    return []
+                }
+
+                return [.joint(jointAccountModels)]
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private nonisolated func makeTangemPayAccountModelsPublisher() -> AnyPublisher<[AccountModel], Never> {
+        return tangemPayManager
+            .isPaeraCustomerPublisher
+            .map { [tangemPayManager] isPaeraCustomer in
+                isPaeraCustomer ? [AccountModel.tangemPay(tangemPayManager)] : []
+            }
+            .eraseToAnyPublisher()
     }
 
     private func makeConditionsValidator(for flow: ValidationFlow) -> any CryptoAccountConditionsValidator {
@@ -354,6 +406,13 @@ extension CommonAccountModelsManager: AccountModelsManager {
             .eraseToAnyPublisher()
     }
 
+    nonisolated var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> {
+        cryptoAccountsRepository
+            .auxiliaryDataPublisher
+            .map(\.totalJointAccountsCount)
+            .eraseToAnyPublisher()
+    }
+
     nonisolated var accountModels: [AccountModel] {
         criticalSection {
             unsafeAccountModels
@@ -395,7 +454,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         }
     }
 
-    func addJointAccount(context: JointAccountCreationContext) async throws(AccountEditError) -> AccountCreationResult {
+    func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult {
         guard canAddCryptoAccounts else {
             throw .unknownError(AccountModelsManagerError.addingJointAccountNotSupported)
         }
@@ -409,18 +468,34 @@ extension CommonAccountModelsManager: AccountModelsManager {
         let newAccountIdentity = CryptoAccountDerivationIdentity(derivationIndex: nextDerivationIndex, type: .joint)
 
         do {
-            let config = JointAccountCreationConfig(creationContext: context, derivationIndex: nextDerivationIndex)
-            try await jointAccountsRepository.addNewJointAccount(withConfig: config)
-
-            return AccountCreationResult(
-                // Joint accounts take no part in the custom-token redistribution
-                operationResult: .none,
-                derivationIdentity: newAccountIdentity
-            )
+            switch context {
+            case .creation(let creationContext):
+                let config = JointAccountCreationConfig(creationContext: creationContext, derivationIndex: nextDerivationIndex)
+                try await jointAccountsRepository.addNewJointAccount(withConfig: config)
+            case .joining:
+                // [REDACTED_TODO_COMMENT]
+                throw AccountModelsManagerError.addingJointAccountNotSupported
+            }
         } catch {
             AccountsLogger.error("Failed to add new joint account for user wallet \(userWalletId)", error: error)
             throw .unknownError(error)
         }
+
+        do {
+            // The wallet's own account for the joint one is added by the backend, so the list has to be pulled anew to see it
+            try await cryptoAccountsRepository.loadCryptoAccountsFromRemote()
+        } catch {
+            // The account is created by [REDACTED_AUTHOR]
+            // Reporting the creation as failed would have the user attempt it anew, creating a second account and
+            // stranding the first one's invites — so the list not arriving right away is left to the next read.
+            AccountsLogger.error("Failed to reload accounts after adding a joint one for user wallet \(userWalletId)", error: error)
+        }
+
+        return AccountCreationResult(
+            // Joint accounts take no part in the custom-token redistribution
+            operationResult: .none,
+            derivationIdentity: newAccountIdentity
+        )
     }
 
     /// The remote state every account is created against, fetched and checked the same way for either kind of account.
@@ -494,6 +569,12 @@ extension CommonAccountModelsManager: AccountModelsManager {
 
         do {
             let distributionResult = try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: persistentConfig, remoteState: remoteState)
+
+            if persistentConfig.derivationIdentity.type == .joint {
+                // The model is put together out of this account and the record kept for it, which only a read brings back
+                try await jointAccountsRepository.loadJointAccountsFromRemote()
+            }
+
             return mapDistributionResult(distributionResult)
         } catch {
             AccountsLogger.error("Failed to unarchive existing crypto account with id \(info.id) for user wallet \(userWalletId)", error: error)

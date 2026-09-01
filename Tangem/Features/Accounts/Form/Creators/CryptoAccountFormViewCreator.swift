@@ -20,12 +20,12 @@ struct CryptoAccountFormViewCreator {
 // MARK: - AccountFormViewCreator protocol conformance
 
 extension CryptoAccountFormViewCreator: AccountFormViewCreator {
+    var navigationTitle: String { Localization.accountFormTitleCreate }
+
+    var mainButtonTitle: String { Localization.accountFormTitleCreate }
+
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
         accountModelsManager.totalCryptoAccountsCountPublisher
-    }
-
-    var mainButtonTitle: String {
-        Localization.accountFormTitleCreate
     }
 
     func handleMainButtonTap(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountFormOperationResult {
