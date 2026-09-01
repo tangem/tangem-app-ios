@@ -188,23 +188,18 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
 // MARK: - Balance
 
 final class PolymarketBalanceServiceSpy: PolymarketBalanceService {
-    private(set) var updates: [LoadingResult<Decimal, Error>] = []
-    private(set) var unavailableCalls = 0
+    private(set) var updates: [PolymarketBalanceState] = []
 
-    private let balanceSubject = CurrentValueSubject<PolymarketBalanceState?, Never>(nil)
+    var unavailableCalls: Int {
+        updates.filter { $0.isUnavailable }.count
+    }
 
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
 
-    var balanceStatePublisher: AnyPublisher<PolymarketBalanceState?, Never> {
-        balanceSubject.eraseToAnyPublisher()
-    }
+    var state: PolymarketBalanceState? { updates.last }
 
-    func update(with result: LoadingResult<Decimal, Error>) {
-        updates.append(result)
-    }
-
-    func markUnavailable() {
-        unavailableCalls += 1
+    func update(_ state: PolymarketBalanceState) {
+        updates.append(state)
     }
 }
 
@@ -221,7 +216,11 @@ final class PolymarketAccountPresenceStoreStub: PolymarketAccountPresenceStore {
         known
     }
 
-    func setHasAccount(_ value: Bool, for userWalletId: UserWalletId) {
-        known = value
+    func markAccountExists(for userWalletId: UserWalletId) {
+        known = true
+    }
+
+    func delete(userWalletId: UserWalletId) {
+        known = false
     }
 }

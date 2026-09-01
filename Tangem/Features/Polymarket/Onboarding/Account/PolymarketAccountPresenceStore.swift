@@ -11,7 +11,8 @@ import TangemFoundation
 
 protocol PolymarketAccountPresenceStore {
     func hasAccount(userWalletId: UserWalletId) -> Bool
-    func setHasAccount(_ value: Bool, for userWalletId: UserWalletId)
+    func markAccountExists(for userWalletId: UserWalletId)
+    func delete(userWalletId: UserWalletId)
 }
 
 // MARK: - AppSettings
@@ -21,7 +22,11 @@ extension AppSettings: PolymarketAccountPresenceStore {
         polymarketHasAccount[userWalletId.stringValue, default: false]
     }
 
-    func setHasAccount(_ value: Bool, for userWalletId: UserWalletId) {
-        polymarketHasAccount[userWalletId.stringValue] = value
+    func markAccountExists(for userWalletId: UserWalletId) {
+        polymarketHasAccount[userWalletId.stringValue] = true
+    }
+
+    func delete(userWalletId: UserWalletId) {
+        polymarketHasAccount[userWalletId.stringValue] = nil
     }
 }
