@@ -14,29 +14,33 @@ import TangemPolymarket
 final class CommonPolymarketAccountModel {
     let id: PolymarketAccountId
 
-    private(set) var depositWalletAddress: String?
-
     private let userWalletId: UserWalletId
     private let walletService: PolymarketDepositWalletService
+    private let clobService: PolymarketCLOBService
     private let credentialsRepository: PolymarketCredentialsRepository
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
     private let balanceService: PolymarketBalanceService
+    private let presenceStore: PolymarketAccountPresenceStore
 
     private let stateSubject = CurrentValueSubject<PolymarketAccountState?, Never>(nil)
 
     init(
         userWalletId: UserWalletId,
         walletService: PolymarketDepositWalletService,
+        clobService: PolymarketCLOBService,
         credentialsRepository: PolymarketCredentialsRepository,
         ownerAddressProvider: PolymarketOwnerAddressProviding,
-        balanceService: PolymarketBalanceService
+        balanceService: PolymarketBalanceService,
+        presenceStore: PolymarketAccountPresenceStore
     ) {
         id = PolymarketAccountId(userWalletId: userWalletId)
         self.userWalletId = userWalletId
         self.walletService = walletService
+        self.clobService = clobService
         self.credentialsRepository = credentialsRepository
         self.ownerAddressProvider = ownerAddressProvider
         self.balanceService = balanceService
+        self.presenceStore = presenceStore
     }
 }
 
@@ -55,15 +59,38 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
         balanceService.fiatTotalTokenBalanceProvider
     }
 
+    var balanceStatePublisher: AnyPublisher<PolymarketBalanceState?, Never> {
+        balanceService.balanceStatePublisher
+    }
+
     func refreshState() async {
         guard let ownerAddress = ownerAddressProvider.getOwnerAddress() else {
-            stateSubject.send(nil)
             return
         }
 
-        let previousState = stateSubject.value
+        await resolveState(ownerAddress: ownerAddress)
+    }
 
-        if previousState == nil {
+    func lookupByWalletId() async {
+        await resolveState(ownerAddress: ownerAddressProvider.getOwnerAddress())
+    }
+}
+
+// MARK: - Private implementation
+
+private extension CommonPolymarketAccountModel {
+    func resolveState(ownerAddress: String?) async {
+        guard presenceStore.hasAccount(userWalletId: userWalletId) else {
+            await loadAccountState(ownerAddress: ownerAddress)
+            return
+        }
+
+        stateSubject.send(makeReadyToTradeState(ownerAddress: ownerAddress))
+        await loadBalanceIfPossible(ownerAddress: ownerAddress)
+    }
+
+    func loadAccountState(ownerAddress: String?) async {
+        if stateSubject.value == nil {
             stateSubject.send(.loading)
         }
 
@@ -72,21 +99,36 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
                 ownerAddress: ownerAddress,
                 walletId: userWalletId.stringValue
             )
-            depositWalletAddress = walletState.depositWalletAddress
-            stateSubject.send(makeState(from: walletState))
+
+            if walletState.status == .readyToTrade {
+                presenceStore.setHasAccount(true, for: userWalletId)
+            }
+
+            let state = makeState(from: walletState, ownerAddress: ownerAddress)
+            stateSubject.send(state)
+
+            await loadBalanceIfPossible(ownerAddress: ownerAddress)
         } catch PolymarketWalletError.cancelled {
-            stateSubject.send(previousState)
+            if case .loading = stateSubject.value {
+                stateSubject.send(nil)
+            }
         } catch {
             PolymarketLogger.error("Failed to refresh the account state", error: error)
+            balanceService.markUnavailable()
             stateSubject.send(.unavailable)
         }
     }
-}
 
-// MARK: - Private implementation
+    func loadBalanceIfPossible(ownerAddress: String?) async {
+        guard let ownerAddress, stateSubject.value?.isActive == true else {
+            balanceService.markUnavailable()
+            return
+        }
 
-private extension CommonPolymarketAccountModel {
-    func makeState(from walletState: PolymarketDepositWalletState) -> PolymarketAccountState? {
+        await loadBalance(ownerAddress: ownerAddress)
+    }
+
+    func makeState(from walletState: PolymarketDepositWalletState, ownerAddress: String?) -> PolymarketAccountState? {
         switch walletState.status {
         case .notCreated:
             nil
@@ -101,27 +143,70 @@ private extension CommonPolymarketAccountModel {
         case .approvalsFailed:
             .onboardingFailed(.approving)
         case .readyToTrade:
-            makeReadyToTradeState(depositWalletAddress: walletState.depositWalletAddress)
+            makeReadyToTradeState(ownerAddress: ownerAddress)
         case .unknown:
             makeUnrecognizedStatusState()
         }
     }
 
-    func makeReadyToTradeState(depositWalletAddress: String?) -> PolymarketAccountState {
-        guard let depositWalletAddress else {
-            PolymarketLogger.warning("Ready to trade without a deposit wallet address")
-            return .unavailable
-        }
-
-        guard credentialsRepository.load(userWalletId: userWalletId) != nil else {
+    func makeReadyToTradeState(ownerAddress: String?) -> PolymarketAccountState {
+        guard ownerAddress != nil, credentialsRepository.load(userWalletId: userWalletId) != nil else {
             return .syncNeeded
         }
 
-        return .active(depositWalletAddress: depositWalletAddress)
+        return .active
+    }
+
+    func loadBalance(ownerAddress: String) async {
+        guard let credentials = credentialsRepository.load(userWalletId: userWalletId) else {
+            balanceService.markUnavailable()
+            return
+        }
+
+        balanceService.update(with: .loading)
+
+        do {
+            let balanceAllowance = try await clobService.balanceAllowance(
+                credentials: credentials,
+                ownerAddress: ownerAddress
+            )
+
+            balanceService.update(with: .success(balanceAllowance.balance))
+        } catch is CancellationError {
+            return
+        } catch {
+            PolymarketLogger.error("Failed to load the collateral balance", error: error)
+            balanceService.update(with: .failure(error))
+            dropCredentialsIfRejected(error)
+        }
+    }
+
+    func dropCredentialsIfRejected(_ error: Error) {
+        guard case .http(let statusCode, _) = error as? PolymarketAPIError, statusCode == Constants.unauthorizedStatusCode else {
+            return
+        }
+
+        PolymarketLogger.info("The exchange rejected the credentials, dropping them")
+        credentialsRepository.delete(userWalletId: userWalletId)
+        balanceService.markUnavailable()
+        stateSubject.send(.syncNeeded)
     }
 
     func makeUnrecognizedStatusState() -> PolymarketAccountState? {
         PolymarketLogger.warning("Unrecognized wallet status returned by the backend")
-        return stateSubject.value
+
+        guard let current = stateSubject.value, !current.isLoading else {
+            return nil
+        }
+
+        return current
+    }
+}
+
+// MARK: - Constants
+
+private extension CommonPolymarketAccountModel {
+    enum Constants {
+        static let unauthorizedStatusCode = 401
     }
 }
