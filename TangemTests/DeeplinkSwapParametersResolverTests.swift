@@ -140,16 +140,70 @@ struct DeeplinkSwapParametersResolverTests {
         #expect(result?.destination == candidates[1])
     }
 
-    @Test("from_user_account_id not present in the wallet → FROM treated as not requested")
-    func fromAccountMissingFallsBack() {
+    @Test("from_user_account_id not present in the wallet → ignored, FROM still preselected")
+    func fromAccountMissingIsIgnored() {
         let candidates = [candidate(index: 0, token: "ethereum", network: "ethereum", balance: 10)]
         let result = select(
             candidates: candidates,
             params: params(fromToken: "ethereum", fromNetwork: "ethereum", fromAccountId: "does-not-exist"),
             existingAccounts: ["real-account": 0]
         )
-        // FROM ignored, no TO → nothing requested → nil.
-        #expect(result == nil)
+        // The unknown account narrows nothing; the requested token is still honored.
+        #expect(result?.source == candidates[0])
+    }
+
+    /// [REDACTED_INFO]: an unrecognized account id shared by both sides used to discard the whole pair,
+    /// leaving the swap screen to auto-pick FROM/TO by balance.
+    @Test("Unknown account id on both sides → pair and extras still resolved from the token ids")
+    func unknownAccountIdOnBothSidesKeepsPair() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: 0, balance: 3),
+            candidate(index: 1, token: "usd-coin", network: "ethereum", account: 0, balance: 1),
+            candidate(index: 2, token: "solana", network: "solana", account: 0, balance: 100), // richest, must not win
+        ]
+        let result = select(
+            candidates: candidates,
+            params: params(
+                fromToken: "ethereum",
+                fromNetwork: "ethereum",
+                toToken: "usd-coin",
+                toNetwork: "ethereum",
+                fromAccountId: "not-on-this-device",
+                toAccountId: "not-on-this-device"
+            ),
+            existingAccounts: ["real-account": 0]
+        )
+
+        #expect(result?.source == candidates[0])
+        #expect(result?.destination == candidates[1])
+        #expect(result?.appliesExtras == true) // the amount from the link applies to a fully matched pair
+    }
+
+    /// [REDACTED_INFO]: a corrupted `from_user_account_id` (one character off a real one) must not cost the pair
+    /// its amount — `from_amount` applies as long as both sides matched.
+    @Test("Unknown account id on FROM only → pair resolved and the amount still applies")
+    func unknownAccountIdOnFromSideKeepsAmount() {
+        let candidates = [
+            candidate(index: 0, token: "ethereum", network: "ethereum", account: 0, balance: 3),
+            candidate(index: 1, token: "usd-coin", network: "ethereum", account: 0, balance: 1),
+            candidate(index: 2, token: "solana", network: "solana", account: 0, balance: 100), // richest, must not win
+        ]
+        let result = select(
+            candidates: candidates,
+            params: params(
+                fromToken: "ethereum",
+                fromNetwork: "ethereum",
+                toToken: "usd-coin",
+                toNetwork: "ethereum",
+                fromAccountId: "one-character-off",
+                fromAmount: "0.0008"
+            ),
+            existingAccounts: ["real-account": 0]
+        )
+
+        #expect(result?.source == candidates[0])
+        #expect(result?.destination == candidates[1])
+        #expect(result?.appliesExtras == true)
     }
 
     @Test("Valid from_user_account_id pins FROM to that account instead of the most-funded one")
