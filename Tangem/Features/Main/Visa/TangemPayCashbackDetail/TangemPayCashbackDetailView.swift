@@ -41,8 +41,12 @@ struct TangemPayCashbackDetailView: View {
                 viewModel.onAppear()
             }
             .sheet(item: $viewModel.tiersViewData) { data in
-                TangemPayCashbackTiersView(data: data, onClose: viewModel.closeTiersInfo)
-                    .presentationDetents(idealHeight: 340)
+                TangemPayCashbackTiersView(
+                    data: data,
+                    onClose: viewModel.closeTiersInfo
+                )
+                .presentationDetents(idealHeight: Constants.tiersIdealContentHeight)
+                .presentationBackground(Constants.presentationBackground)
             }
             .sheet(item: $viewModel.accrualsViewData) { data in
                 TangemPayCashbackAccrualsView(
@@ -50,8 +54,19 @@ struct TangemPayCashbackDetailView: View {
                     onDocTap: viewModel.openDoc,
                     onClose: viewModel.closeAccrualsInfo
                 )
-                .presentationDetents(idealHeight: 470)
+                .presentationDetents(idealHeight: Constants.accrualsIdealContentHeight)
+                .presentationBackground(Constants.presentationBackground)
             }
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension TangemPayCashbackDetailView {
+    enum Constants {
+        static let tiersIdealContentHeight: CGFloat = 340
+        static let accrualsIdealContentHeight: CGFloat = 470
+        static let presentationBackground = DesignSystem.Color.bgSecondary
     }
 }
