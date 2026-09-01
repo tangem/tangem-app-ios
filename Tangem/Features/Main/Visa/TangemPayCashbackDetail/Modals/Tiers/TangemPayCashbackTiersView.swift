@@ -23,7 +23,6 @@ struct TangemPayCashbackTiersView: View {
 
             rows
         }
-        .background(DesignSystem.Color.bgSecondary.ignoresSafeArea(edges: .bottom))
     }
 }
 
