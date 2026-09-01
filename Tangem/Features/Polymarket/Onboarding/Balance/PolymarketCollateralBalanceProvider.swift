@@ -104,7 +104,7 @@ private extension PolymarketCollateralBalanceProvider {
         case .failed:
             .failure(cachedBalance())
         case .unavailable:
-            .failure(nil)
+            .empty(.custom)
         case .loaded(let balance):
             .loaded(balance)
         }

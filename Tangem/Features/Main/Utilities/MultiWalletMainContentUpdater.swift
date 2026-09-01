@@ -20,6 +20,10 @@ enum MultiWalletMainContentUpdater {
                 await TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager)?.refreshState()
             }
 
+            outerGroup.addTask {
+                await PolymarketAccountAggregator.polymarketAccountModel(from: userWalletModel.accountModelsManager)?.refreshState()
+            }
+
             await outerGroup.waitForAll()
         }
     }

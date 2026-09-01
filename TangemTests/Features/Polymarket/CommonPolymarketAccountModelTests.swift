@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import Testing
 import TangemFoundation
 import TangemPolymarket
@@ -66,7 +67,7 @@ struct CommonPolymarketAccountModelTests {
             ownerAddress: nil
         )
 
-        await sut.lookupByWalletId()
+        await sut.refreshState()
 
         #expect(sut.state == .syncNeeded)
         #expect(balance.unavailableCalls == 1)
@@ -135,23 +136,79 @@ struct CommonPolymarketAccountModelTests {
         #expect(sut.state == .unavailable)
     }
 
-    @Test("Without a derived key the account is looked up by its Tangem id")
-    func underivedKeyLooksUpByWalletId() async {
+    @Test("Without a derived key the account is asked for by its Tangem id")
+    func underivedKeyAsksByWalletId() async {
         let service = PolymarketDepositWalletServiceStub(status: .readyToTrade)
         let (sut, _) = makeSUT(walletService: service, ownerAddress: nil)
 
-        await sut.lookupByWalletId()
+        await sut.refreshState()
 
         #expect(service.requestedKeys.map(\.ownerAddress) == [nil])
         #expect(service.requestedKeys.map(\.walletId) == [Self.userWalletId.stringValue])
     }
 
-    @Test("A refresh without a derived key asks nothing and keeps what the lookup found")
-    func refreshWithoutDerivedKeyKeepsTheKnownState() async {
+    @Test("A remembered account is served from local facts alone, without asking the backend")
+    func aRememberedAccountSkipsTheBackend() async {
+        let service = PolymarketDepositWalletServiceStub(status: .notCreated)
+        let clob = PolymarketCLOBServiceStub(balanceResult: .success(7.5))
+
+        let (sut, balance) = makeSUT(
+            walletService: service,
+            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
+            clobService: clob,
+            knownAccount: true
+        )
+
+        await sut.refreshState()
+
+        #expect(service.requestedKeys.isEmpty)
+        #expect(sut.state == .active)
+        #expect(balance.updates.first?.isLoading == true)
+
+        guard case .loaded(let value) = balance.updates.last else {
+            Issue.record("The balance was never delivered")
+            return
+        }
+
+        #expect(value == 7.5)
+    }
+
+    @Test("A remembered account without credentials still shows up, only without a balance")
+    func aRememberedAccountWithoutCredentialsNeedsSync() async {
+        let service = PolymarketDepositWalletServiceStub(status: .notCreated)
+        let (sut, balance) = makeSUT(
+            walletService: service,
+            credentialsRepository: PolymarketCredentialsRepositoryStub(),
+            knownAccount: true
+        )
+
+        await sut.refreshState()
+
+        #expect(service.requestedKeys.isEmpty)
+        #expect(sut.state == .syncNeeded)
+        #expect(balance.unavailableCalls == 1)
+    }
+
+    @Test("The first refresh reports itself as loading")
+    func theFirstRefreshPublishesLoading() async {
+        let service = PolymarketDepositWalletServiceStub(status: .deploymentInProgress)
+        let (sut, _) = makeSUT(walletService: service)
+
+        var states: [PolymarketAccountState?] = []
+        let subscription = sut.statePublisher.sink { states.append($0) }
+
+        await sut.refreshState()
+        subscription.cancel()
+
+        #expect(states == [nil, .loading, .onboarding(.deploying)])
+    }
+
+    @Test("Once the account is known to exist, a refresh stops going to the backend for it")
+    func aKnownAccountIsNotAskedForAgain() async {
         let service = PolymarketDepositWalletServiceStub(status: .readyToTrade)
         let (sut, _) = makeSUT(walletService: service, ownerAddress: nil)
 
-        await sut.lookupByWalletId()
+        await sut.refreshState()
         await sut.refreshState()
 
         #expect(service.requestedKeys.count == 1)
@@ -171,12 +228,27 @@ struct CommonPolymarketAccountModelTests {
 
         #expect(clob.balanceCalls == 1)
 
-        guard case .success(let value) = balance.updates.last else {
+        guard case .loaded(let value) = balance.updates.last else {
             Issue.record("The balance was never delivered")
             return
         }
 
         #expect(value == 12.34)
+    }
+
+    @Test("A cancelled balance load does not leave the row loading forever")
+    func aCancelledBalanceLoadSettlesTheRow() async {
+        let (sut, balance) = makeSUT(
+            walletService: PolymarketDepositWalletServiceStub(status: .readyToTrade),
+            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
+            clobService: PolymarketCLOBServiceStub(balanceResult: .failure(CancellationError()))
+        )
+
+        await sut.refreshState()
+
+        #expect(balance.updates.first?.isLoading == true)
+        #expect(balance.updates.last?.isLoading == false)
+        #expect(balance.updates.last?.isUnavailable == true)
     }
 }
 
@@ -213,7 +285,8 @@ private extension CommonPolymarketAccountModelTests {
         walletService: PolymarketDepositWalletService,
         credentialsRepository: PolymarketCredentialsRepository,
         clobService: PolymarketCLOBService = PolymarketCLOBServiceStub(),
-        ownerAddress: String? = PolymarketOwnerAddressProviderStub.ownerAddress
+        ownerAddress: String? = PolymarketOwnerAddressProviderStub.ownerAddress,
+        knownAccount: Bool = false
     ) -> (CommonPolymarketAccountModel, PolymarketBalanceServiceSpy) {
         let balance = PolymarketBalanceServiceSpy()
 
@@ -224,7 +297,7 @@ private extension CommonPolymarketAccountModelTests {
             credentialsRepository: credentialsRepository,
             ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: ownerAddress),
             balanceService: balance,
-            presenceStore: PolymarketAccountPresenceStoreStub()
+            presenceStore: PolymarketAccountPresenceStoreStub(known: knownAccount)
         )
 
         return (sut, balance)

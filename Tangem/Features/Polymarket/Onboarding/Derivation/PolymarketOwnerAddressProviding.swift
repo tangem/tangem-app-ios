@@ -13,3 +13,9 @@ protocol PolymarketOwnerAddressProviding {
 
     func deriveOwnerAddress() async throws(PolymarketDerivationError) -> String
 }
+
+protocol PolymarketKeysDerivingFactory {
+    func makeInteractor() -> KeysDeriving
+}
+
+extension KeysDerivingInteractorFactory: PolymarketKeysDerivingFactory {}

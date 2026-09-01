@@ -29,6 +29,10 @@ struct MultiWalletMainContentRedesignedView: View {
                     TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
                 }
 
+                if let polymarketAccountViewModel = viewModel.polymarketAccountViewModel {
+                    polymarketAccount(viewModel: polymarketAccountViewModel)
+                }
+
                 listContent
             }
 
@@ -54,6 +58,18 @@ struct MultiWalletMainContentRedesignedView: View {
             items: viewModel.notificationBannerItems,
             stackingType: .carousel
         )
+    }
+
+    // MARK: - Polymarket account
+
+    private func polymarketAccount(viewModel: AccountRowButtonViewModel) -> some View {
+        AccountRowButtonView(viewModel: viewModel) {
+            PolymarketAccountBalanceView(viewModel: viewModel)
+        }
+        .padding(.vertical, MultiWalletMainContentConstants.polymarketAccountVerticalPadding)
+        .padding(.horizontal, MultiWalletMainContentConstants.polymarketAccountHorizontalPadding)
+        .background(Color.Tangem.Surface.level2)
+        .cornerRadiusContinuous(MultiWalletMainContentConstants.polymarketAccountCornerRadius)
     }
 
     // MARK: - List Content
@@ -242,4 +258,8 @@ private enum MultiWalletMainContentConstants {
     static let placeholderCount = 3
     static let cornerRadius: CGFloat = 24
     static let tokenListBackgroundColor = DesignSystem.Color.bgSecondary
+
+    static let polymarketAccountVerticalPadding: CGFloat = 12
+    static let polymarketAccountHorizontalPadding: CGFloat = 14
+    static let polymarketAccountCornerRadius: CGFloat = 20
 }

@@ -59,7 +59,7 @@ struct PolymarketCollateralBalanceProviderTests {
 
         subject.send(.unavailable)
 
-        #expect(sut.balanceType == .failure(nil))
+        #expect(sut.balanceType == .empty(.custom))
     }
 
     @Test("A balance that arrived is written to the cache")
