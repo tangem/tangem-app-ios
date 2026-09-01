@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemLocalization
 import TangemUIUtils
 import TangemPolymarket
 
@@ -61,11 +62,10 @@ struct PolymarketMainView: View {
 
     private var titleView: some View {
         VStack(spacing: 2) {
-            // [REDACTED_TODO_COMMENT]
-            Text("Predictions")
+            Text(Localization.predictionMainTitle)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
-            Text("USDC on Polygon network")
+            Text(Localization.predictionMainSubtitle)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         }
     }
@@ -106,23 +106,92 @@ struct PolymarketMainView: View {
         VStack(spacing: Constants.headerSpacing) {
             balanceBlock
 
+            if viewModel.isRegionRestricted {
+                regionRestrictionBanner
+            }
+
             exploreEventsTitle
         }
         .padding(.top, Constants.headerTopPadding)
     }
 
+    private var regionRestrictionBanner: some View {
+        MessageBanner(
+            title: AttributedString(Localization.predictionRegionRestrictionsTitle),
+            description: AttributedString(Localization.predictionRegionRestrictionsSubtitle)
+        )
+        .variant(.warning)
+        .glowRing(.warning)
+        .padding(.horizontal, Constants.horizontalPadding)
+    }
+
+    @ViewBuilder
     private var balanceBlock: some View {
+        if isBalanceLoading {
+            balanceBlockSkeleton
+        } else {
+            VStack(spacing: Constants.balanceSpacing) {
+                balanceSelector
+
+                balanceAmount
+
+                actionButtons
+                    .padding(.top, Constants.actionButtonsTopPadding)
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    private var isBalanceLoading: Bool {
+        if case .loading(.none) = viewModel.balance {
+            return true
+        }
+
+        return false
+    }
+
+    private var balanceBlockSkeleton: some View {
         VStack(spacing: Constants.balanceSpacing) {
-            balanceSelector
+            skeleton(width: Constants.skeletonSelectorWidth, height: Constants.skeletonSelectorHeight)
 
-            // [REDACTED_TODO_COMMENT]
-            Text("$0.00")
-                .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
+            skeleton(
+                width: Constants.skeletonAmountWidth,
+                height: Constants.skeletonAmountHeight,
+                cornerRadius: Constants.skeletonAmountHeight / 2
+            )
+            .padding(.vertical, Constants.balanceSpacing)
 
-            actionButtons
-                .padding(.top, Constants.actionButtonsTopPadding)
+            HStack(spacing: Constants.actionButtonsSpacing) {
+                ForEach(0 ..< Constants.skeletonActionCount, id: \.self) { _ in
+                    VStack(spacing: Constants.skeletonActionSpacing) {
+                        skeleton(
+                            width: TangemMainActionButton.Size.buttonSide,
+                            height: TangemMainActionButton.Size.buttonSide,
+                            cornerRadius: TangemMainActionButton.Size.buttonSide / 2
+                        )
+
+                        skeleton(width: Constants.skeletonActionTitleWidth, height: Constants.skeletonSelectorHeight)
+                    }
+                }
+            }
+            .padding(.top, Constants.actionButtonsTopPadding)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private func skeleton(width: CGFloat, height: CGFloat, cornerRadius: CGFloat? = nil) -> some View {
+        Shimmer()
+            .frame(width: width, height: height)
+            .clipShape(.rect(cornerRadius: cornerRadius ?? height / 2, style: .continuous))
+    }
+
+    private var balanceAmount: some View {
+        LoadableBalanceView(
+            state: viewModel.balance,
+            style: .init(font: DesignSystem.Font.displayMediumToken, textColor: DesignSystem.Color.textPrimary),
+            loader: .init(size: Constants.balanceLoaderSize)
+        )
+        .padding(.trailing, Constants.balanceAmountTrailingPadding)
     }
 
     private var balanceSelector: some View {
@@ -141,12 +210,15 @@ struct PolymarketMainView: View {
 
     private var actionButtons: some View {
         HStack(spacing: Constants.actionButtonsSpacing) {
-            // [REDACTED_TODO_COMMENT]
-            TangemMainActionButton(title: "Add funds", icon: Assets.DesignSystem.arrowDown) {}
+            TangemMainActionButton(title: Localization.commonAddFunds, icon: Assets.DesignSystem.arrowDown) {
+                viewModel.onAddFundsTap()
+            }
 
             // [REDACTED_TODO_COMMENT]
-            TangemMainActionButton(title: "Withdraw", icon: Assets.DesignSystem.arrowUp) {}
-                .disabled(true)
+            TangemMainActionButton(title: "Withdraw", icon: Assets.DesignSystem.arrowUp) {
+                // [REDACTED_TODO_COMMENT]
+            }
+            .disabled(true)
         }
     }
 
@@ -200,13 +272,11 @@ struct PolymarketMainView: View {
     }
 
     private var failedState: some View {
-        // [REDACTED_TODO_COMMENT]
-        PolymarketEmptyMessageView(message: "Failed to load events.\nTap to reload", onRetry: viewModel.load)
+        PolymarketEmptyMessageView(message: Localization.predictionMainEventsLoadError, onRetry: viewModel.load)
     }
 
     private var noResultsState: some View {
-        // [REDACTED_TODO_COMMENT]
-        Text("No available data")
+        Text(Localization.predictionMainEmptyEvents)
             .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
             .frame(maxWidth: .infinity, minHeight: Constants.eventsPlaceholderMinHeight)
     }
@@ -225,8 +295,6 @@ struct PolymarketMainView: View {
         }
     }
 
-    /// Only the settled state carries the trigger: while a page is in flight the loader below takes its place,
-    /// so `onAppear` cannot fire a second request.
     private var paginationTrigger: some View {
         paginationLoader
             .onAppear { viewModel.loadMore() }
@@ -259,6 +327,16 @@ extension PolymarketMainView {
         static let headerTopPadding: CGFloat = 24
         static let headerSpacing: CGFloat = 40
         static let balanceSpacing: CGFloat = 4
+        static let balanceAmountTrailingPadding: CGFloat = 4
+        static let balanceLoaderSize = CGSize(width: 160, height: 40)
+
+        static let skeletonSelectorWidth: CGFloat = 150
+        static let skeletonSelectorHeight: CGFloat = 12
+        static let skeletonAmountWidth: CGFloat = 170
+        static let skeletonAmountHeight: CGFloat = 44
+        static let skeletonActionCount = 2
+        static let skeletonActionSpacing: CGFloat = 8
+        static let skeletonActionTitleWidth: CGFloat = 64
         static let balanceSelectorSpacing: CGFloat = 4
         static let selectorIconSize: CGFloat = 20
         static let actionButtonsSpacing: CGFloat = 24
