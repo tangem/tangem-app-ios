@@ -25,6 +25,7 @@ final class PolymarketCoordinator: CoordinatorObject {
     // MARK: - Root ViewModels
 
     @Published private(set) var viewState: ViewState?
+    @Published var eventDetailsViewModel: PolymarketEventDetailsViewModel?
 
     private let onboardingFactory = PolymarketOnboardingFactory()
 
@@ -111,6 +112,15 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
         dismissAction(())
     }
 
+    func openEventDetails(eventID: String, category: PolymarketCategory?) {
+        eventDetailsViewModel = PolymarketEventDetailsViewModel(
+            eventID: eventID,
+            category: category,
+            apiProvider: PolymarketAPIProviderFactory().makeProvider(),
+            coordinator: self
+        )
+    }
+
     func openRegionWarning() {
         guard regionWarning == nil else { return }
 
@@ -150,6 +160,14 @@ private extension PolymarketCoordinator {
         }
 
         return accountModel.fiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
+    }
+}
+
+// MARK: - PolymarketEventDetailsRoutable protocol conformance
+
+extension PolymarketCoordinator: PolymarketEventDetailsRoutable {
+    func dismissEventDetails() {
+        eventDetailsViewModel = nil
     }
 }
 

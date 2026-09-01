@@ -267,6 +267,8 @@ struct PolymarketMainView: View {
     private var eventCards: some View {
         ForEach(viewModel.eventCards, id: \.id) { model in
             PolymarketEventCard(model: model)
+                .contentShape(.rect)
+                .onTapGesture { viewModel.openEventDetails(eventID: model.id) }
                 .padding(.horizontal, Constants.horizontalPadding)
         }
     }

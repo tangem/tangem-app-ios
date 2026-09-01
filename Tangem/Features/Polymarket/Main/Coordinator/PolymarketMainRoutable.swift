@@ -7,9 +7,12 @@
 //
 
 import Foundation
+import TangemPolymarket
 
 protocol PolymarketMainRoutable: AnyObject {
     func dismiss()
 
     func openRegionWarning()
+
+    func openEventDetails(eventID: String, category: PolymarketCategory?)
 }
