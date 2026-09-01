@@ -13,7 +13,7 @@ import TangemFoundation
 final class PolymarketCollateralBalanceProvider {
     private let tokenItem: TokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
-    private let balanceSubject: CurrentValueSubject<LoadingResult<Decimal, Error>?, Never>
+    private let balanceSubject: CurrentValueSubject<PolymarketBalanceState?, Never>
 
     private let walletModelId: WalletModelId
     private let balanceFormatter = BalanceFormatter()
@@ -23,7 +23,7 @@ final class PolymarketCollateralBalanceProvider {
     init(
         tokenItem: TokenItem,
         tokenBalancesRepository: TokenBalancesRepository,
-        balanceSubject: CurrentValueSubject<LoadingResult<Decimal, Error>?, Never>
+        balanceSubject: CurrentValueSubject<PolymarketBalanceState?, Never>
     ) {
         self.tokenItem = tokenItem
         self.tokenBalancesRepository = tokenBalancesRepository
@@ -70,10 +70,10 @@ extension PolymarketCollateralBalanceProvider: TokenBalanceProvider {
 private extension PolymarketCollateralBalanceProvider {
     func bind() {
         balanceSubscription = balanceSubject
-            .compactMap { result -> Decimal? in
-                switch result {
-                case .success(let balance): balance
-                case .none, .loading, .failure: nil
+            .compactMap { state -> Decimal? in
+                switch state {
+                case .loaded(let balance): balance
+                case .none, .loading, .failed, .unavailable: nil
                 }
             }
             .removeDuplicates()
@@ -97,13 +97,15 @@ private extension PolymarketCollateralBalanceProvider {
             .map { .init(balance: $0.balance, date: $0.date) }
     }
 
-    func mapToTokenBalanceType(balance: LoadingResult<Decimal, Error>?) -> TokenBalanceType {
+    func mapToTokenBalanceType(balance: PolymarketBalanceState?) -> TokenBalanceType {
         switch balance {
         case .none, .loading:
             .loading(cachedBalance())
-        case .failure:
+        case .failed:
             .failure(cachedBalance())
-        case .success(let balance):
+        case .unavailable:
+            .failure(nil)
+        case .loaded(let balance):
             .loaded(balance)
         }
     }
