@@ -1,0 +1,86 @@
+//
+//  PolymarketOrderSummaryHeader.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+import TangemAssets
+import TangemLocalization
+import TangemUI
+import TangemUIUtils
+
+struct PolymarketOrderSummaryHeader: View {
+    private let model: Model
+
+    init(model: Model) {
+        self.model = model
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Constants.blockSpacing) {
+            source
+
+            amount
+        }
+        .padding(Constants.padding)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(DesignSystem.Color.bgSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
+    }
+
+    private var source: some View {
+        VStack(alignment: .leading, spacing: Constants.lineSpacing) {
+            HStack(spacing: Constants.lineSpacing) {
+                Text(Localization.predictionPlaceSummaryFrom)
+
+                HStack(spacing: Constants.lineSpacing) {
+                    model.accountIcon.image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: Constants.accountIconSide, height: Constants.accountIconSide)
+                        .accessibilityHidden(true)
+
+                    Text(model.accountName)
+                }
+            }
+
+            Text(model.balanceText)
+        }
+        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+        .lineLimit(1)
+    }
+
+    private var amount: some View {
+        HStack(alignment: .top, spacing: Constants.amountSpacing) {
+            VStack(alignment: .leading, spacing: Constants.lineSpacing) {
+                Text(model.amountText)
+                    .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(Constants.amountMinScale)
+
+                PolymarketToWinBadge(state: model.toWin)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            TokenIcon(tokenIconInfo: model.tokenIconInfo, size: Constants.tokenIconSize)
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketOrderSummaryHeader {
+    enum Constants {
+        static let padding: CGFloat = 16
+        static let cornerRadius: CGFloat = 24
+        static let blockSpacing: CGFloat = 12
+        static let lineSpacing: CGFloat = 4
+        static let amountSpacing: CGFloat = 12
+        static let accountIconSide: CGFloat = 16
+        static let amountMinScale: CGFloat = 0.5
+        static let tokenIconSize = CGSize(bothDimensions: 36)
+    }
+}
