@@ -148,6 +148,10 @@ final class PolymarketMainViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
     }
 
+    func openEventDetails(eventID: String) {
+        coordinator?.openEventDetails(eventID: eventID, category: selectedCategory)
+    }
+
     func updatePinnedState(tabsMinY: CGFloat, navBarHeight: CGFloat) {
         let pinned = tabsMinY <= navBarHeight
         if pinned != isTabsPinned {
@@ -200,8 +204,17 @@ final class PolymarketMainViewModel: ObservableObject {
         eventCards.append(contentsOf: newEvents.map(makeCard))
     }
 
+    private var selectedCategory: PolymarketCategory? {
+        categories.first { $0.id == selectedCategoryID }
+    }
+
     private func makeCard(for event: PolymarketEvent) -> PolymarketEventCard.Model {
-        .make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
+        .make(
+            event: event,
+            category: nil,
+            isInActivePredicts: false,
+            onSelectOutcome: { [weak self] _, _ in self?.openEventDetails(eventID: event.id) }
+        )
     }
 
     private func resetEvents() {
