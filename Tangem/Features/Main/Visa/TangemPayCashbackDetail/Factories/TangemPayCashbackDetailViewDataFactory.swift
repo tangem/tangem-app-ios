@@ -76,7 +76,7 @@ private extension TangemPayCashbackDetailViewDataFactory {
 
         return .earned(
             formattedAmount: formattedFiat(summary.confirmedAmount, currency: summary.currency),
-            monthName: TangemPayCashbackState.monthName(summary.period.month),
+            monthName: monthNameForInPhrase(summary.period.month),
             payoutWindow: summary.confirmedAmount < 0 ? nil : payoutWindow(for: summary)
         )
     }
@@ -96,7 +96,7 @@ private extension TangemPayCashbackDetailViewDataFactory {
 
         return .deposit(
             formattedAmount: formattedFiat(previousPayout.amount, currency: summary.currency),
-            monthName: TangemPayCashbackState.monthName(earnedMonth),
+            monthName: standaloneMonthName(earnedMonth),
             payoutDate: Self.payoutDateFormatter.string(from: previousPayout.endDate)
         )
     }
@@ -291,6 +291,18 @@ private extension TangemPayCashbackDetailViewDataFactory {
         return symbols.indices.contains(month - 1) ? symbols[month - 1] : ""
     }
 
+    func monthNameForInPhrase(_ month: Int) -> String {
+        let names = Self.monthInNames
+
+        return names.indices.contains(month - 1) ? names[month - 1] : standaloneMonthName(month)
+    }
+
+    func standaloneMonthName(_ month: Int) -> String {
+        let symbols = Self.standaloneMonthSymbols
+
+        return symbols.indices.contains(month - 1) ? symbols[month - 1] : ""
+    }
+
     func payoutWindow(for summary: TangemPayCashback.Summary) -> String? {
         guard let start = summary.period.payoutStartDate, let end = summary.period.payoutEndDate else {
             return nil
@@ -300,6 +312,23 @@ private extension TangemPayCashbackDetailViewDataFactory {
     }
 
     static let shortStandaloneMonthSymbols = DateFormatter().shortStandaloneMonthSymbols ?? []
+
+    static let standaloneMonthSymbols = DateFormatter().standaloneMonthSymbols ?? []
+
+    static let monthInNames = [
+        Localization.commonMonthIn0,
+        Localization.commonMonthIn1,
+        Localization.commonMonthIn2,
+        Localization.commonMonthIn3,
+        Localization.commonMonthIn4,
+        Localization.commonMonthIn5,
+        Localization.commonMonthIn6,
+        Localization.commonMonthIn7,
+        Localization.commonMonthIn8,
+        Localization.commonMonthIn9,
+        Localization.commonMonthIn10,
+        Localization.commonMonthIn11,
+    ]
 
     static let rateFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
