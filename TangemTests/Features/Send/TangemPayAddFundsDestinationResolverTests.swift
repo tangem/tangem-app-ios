@@ -36,6 +36,13 @@ struct TangemPayAddFundsDestinationResolverTests {
         #expect(resolver.resolveDestination(for: source).tokenItem == usdtPolygon.tokenItem)
     }
 
+    @Test("One contract spelled with two symbols is still one asset — the pair stays a transfer")
+    func symbolMismatchOnTheSameContractStaysTransfer() {
+        let source = SwapableTokenStub(tokenItem: .accountToken(symbol: "USDT0", contract: "0xUSDT"))
+
+        #expect(resolver.resolveDestination(for: source).tokenItem == usdtPolygon.tokenItem)
+    }
+
     @Test("A checksum-casing mismatch degrades to an in-network swap rather than a false transfer")
     func contractCasingMismatchDegradesToInNetworkSwap() {
         // Express's transfer detection compares contracts exactly, so this can't be a transfer;
