@@ -42,7 +42,7 @@ struct RingGauge: View {
         Constants.diameter - lineWidth
     }
 
-    /// Visual (floored) sweeps in degrees, one per segment — tiny holdings kept ≥ 5% of the circle.
+    /// Visual (floored) sweeps in degrees, one per segment — tiny holdings kept ≥ 1% of the circle.
     private var sweepsDeg: [CGFloat] {
         let weights = segments.map { CGFloat($0.value / denominator) }
         let capDeg = GaugeSweeps.lastSegmentOverlapDeg(strokeWidth: lineWidth, arcDiameter: arcDiameter)
