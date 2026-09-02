@@ -21,6 +21,7 @@ struct JointAccountJoinCoordinatorView: View {
                     JointAccountJoinView(viewModel: rootViewModel)
                 }
             }
+            // Attached outside of the `if let` so that the destination is registered before any step gets pushed
             .navigationDestination(for: JointAccountJoinCoordinator.Step.self) { destination(for: $0) }
         }
     }
