@@ -312,8 +312,24 @@ var featureModules: [PackageDescription.Target] {
                 "CryptoSwift",
                 "Moya",
                 "TangemFoundation",
+                "TangemLogger",
                 "TangemMacro",
                 "TangemNetworkUtils",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
+            name: "TangemPolymarketUI",
+            dependencies: [
+                "Kingfisher",
+                "TangemAssets",
+                "TangemFoundation",
+                "TangemLocalization",
+                "TangemUI",
+                "TangemUIUtils",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
