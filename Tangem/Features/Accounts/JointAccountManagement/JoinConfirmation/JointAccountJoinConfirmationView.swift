@@ -36,31 +36,13 @@ struct JointAccountJoinConfirmationView: View {
     }
 
     private var content: some View {
-        VStack(spacing: Constants.iconSpacing) {
-            icon
-
-            VStack(spacing: Constants.textSpacing) {
-                Text(Localization.jointAccountJoinConfirmSheetTitle)
-                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-                    .multilineTextAlignment(.center)
-
-                Text(Localization.jointAccountJoinConfirmSheetSubtitle)
-                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.horizontal, Constants.textHorizontalPadding)
-        }
-    }
-
-    private var icon: some View {
-        Circle()
-            .fill(DesignSystem.Color.bgStatusInfoSubtle)
-            .frame(size: Constants.iconBackgroundSize)
-            .overlay {
-                DesignSystem.Icons.ShieldCheckmark.filled28.image
-                    .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Color.iconStatusInfo)
-            }
+        JointAccountIconMessage(
+            icon: DesignSystem.Icons.ShieldCheckmark.filled28,
+            iconColor: DesignSystem.Color.iconStatusInfo,
+            iconBackgroundColor: DesignSystem.Color.bgStatusInfoSubtle,
+            title: Localization.jointAccountJoinConfirmSheetTitle,
+            message: Localization.jointAccountJoinConfirmSheetSubtitle
+        )
     }
 
     private var buttons: some View {
@@ -92,12 +74,7 @@ private extension JointAccountJoinConfirmationView {
     enum Constants {
         static let horizontalPadding: CGFloat = 16
         static let contentVerticalPadding: CGFloat = 16
-        static let iconSpacing: CGFloat = 32
-        static let textSpacing: CGFloat = 8
-        /// On top of the container's own padding, keeping the copy as narrow as the design has it.
-        static let textHorizontalPadding: CGFloat = 32
         static let buttonSpacing: CGFloat = 8
-        static let iconBackgroundSize = CGSize(bothDimensions: 72)
     }
 }
 
@@ -105,7 +82,10 @@ private extension JointAccountJoinConfirmationView {
 
 #Preview {
     JointAccountJoinConfirmationView(
-        viewModel: JointAccountJoinConfirmationViewModel(coordinator: nil)
+        viewModel: JointAccountJoinConfirmationViewModel(
+            userWalletModel: FakeUserWalletModel.wallet3Cards,
+            coordinator: nil
+        )
     )
     .frame(maxHeight: .infinity, alignment: .bottom)
     .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())

@@ -7,6 +7,6 @@
 //
 
 protocol JointAccountJoinConfirmationRoutable: AnyObject {
-    func confirmJoin()
+    func confirmJoin(userWalletModel: any UserWalletModel)
     func cancelJoin()
 }
