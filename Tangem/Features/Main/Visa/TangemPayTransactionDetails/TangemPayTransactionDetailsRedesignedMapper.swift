@@ -185,8 +185,8 @@ extension TangemPayTransactionRecord {
     func redesignedDisplayModel(
         using mapper: TangemPayTransactionDetailsRedesignedMapper
     ) -> TangemPayTransactionDetailsDisplayModel {
-        switch record {
-        case .spend(let spend): mapper.map(spend: spend.displayInput)
+        switch record.displayRecord {
+        case .merchant(let merchant): mapper.map(spend: merchant.displayInput)
         case .collateral(let collateral): mapper.map(collateral: collateral.displayInput)
         case .payment(let payment): mapper.map(payment: payment.displayInput)
         case .fee(let fee): mapper.map(fee: fee.displayInput)
