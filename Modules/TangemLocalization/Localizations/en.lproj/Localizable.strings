@@ -27,6 +27,7 @@
 "account_could_not_archive_referral_program_title" = "This account can’t be archived";
 "account_create_success_message" = "Account created";
 "account_details_archive_description" = "You are archiving this account, but you can always get it back.";
+"account_details_archive_joint_description" = "This only hides the account for you and turns off notifications for it. Other members keep their access, and you can always get it back.";
 "account_details_archive" = "Archive account";
 "account_details_archiving" = "Archiving...";
 "account_details_joint_pending_description" = "The account is still being populated with members";
@@ -921,7 +922,13 @@
 "joint_account_name_hint" = "Enter your name and surname, or a signer type, so the other members can identify you";
 "joint_account_name_subtitle" = "Other members will see this name in the joint account";
 "joint_account_name_title" = "What is your name?";
-"joint_account_onboarding_subtitle" = "A shared account that several people own together. Money moves only when enough members sign";
+"joint_account_onboarding_approvals_description" = "Choose how many members must approve each transaction.";
+"joint_account_onboarding_approvals_title" = "Required approvals.";
+"joint_account_onboarding_members_description" = "Each joins with their own wallet.";
+"joint_account_onboarding_members_title" = "Up to %1$@ members.";
+"joint_account_onboarding_shared_description" = "Use it with your friends, family, or partners.";
+"joint_account_onboarding_shared_title" = "Shared account.";
+"joint_account_onboarding_subtitle" = "A simple way to manage crypto together — for personal or business needs.";
 "joint_account_waiting_activation" = "Waiting for activation";
 "key_invalidated_warning_description" = "You have updated biometrics, scan your card or ring to enter";
 "koinos_insufficient_balance_to_send_koin_description" = "Your balance should be higher than the fee value to make a transfer";
@@ -949,7 +956,7 @@
 "manage_tokens_wallet_support_only_one_network_title" = "The wallet doesn't support more than one network";
 "market_chart_ai_total" = "AI Total:";
 "market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
-"market_chart_bubble_no_amount" = "No amount  on tokens";
+"market_chart_bubble_no_amount" = "No amount \non tokens";
 "market_chart_bubble_no_data" = "No data";
 "market_chart_bubble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
@@ -1293,6 +1300,8 @@
 "organize_tokens_ungroup" = "Ungroup";
 "prediction_account_subtitle" = "Add funds & start predict";
 "prediction_account_title" = "Prediction account";
+"prediction_balance_total" = "Total Balance";
+"prediction_balance_withdraw" = "Withdraw";
 "prediction_details_24h_change" = "24h change:";
 "prediction_details_closed_markets" = "Closed Markets";
 "prediction_details_market_opened" = "Market Opened";
@@ -1304,8 +1313,11 @@
 "prediction_main_data_outdated" = "Data may be outdated.";
 "prediction_main_empty_events" = "No events yet";
 "prediction_main_events_load_error" = "Failed to load events.\nTap to reload";
+"prediction_main_explore_events" = "Explore Events";
 "prediction_main_subtitle" = "USDC on Polygon network";
 "prediction_main_title" = "Predictions";
+"prediction_main_total_balance" = "Total Balance";
+"prediction_main_withdraw" = "Withdraw";
 "prediction_onboarding_benefit_custody_subtitle" = "Only your card can move money";
 "prediction_onboarding_benefit_custody_title" = "Your keys, your funds";
 "prediction_onboarding_benefit_fund_subtitle" = "USDC or swap any coin";
@@ -1802,7 +1814,7 @@
 "swap_story_second_subtitle" = "Maximize your value with rates sourced from a wide network of trusted providers, always choosing the best one";
 "swap_story_second_title_v2" = "Best Available Rate";
 "swap_story_second_title" = "Unbeatable Rates";
-"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
+"swap_story_third_subtitle_v2" = "Swap across major networks\nand thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Hassle-free and intuitive, allowing you to swap tokens in just a few taps";
 "swap_story_third_title_v2" = "90+ Blockchains\n16,000+ Assets";
 "swap_story_third_title" = "Simply Convenient";
@@ -2157,6 +2169,7 @@
 "tangempay_order_card_error_active_order" = "A card order is already in progress.";
 "tangempay_order_card_error_insufficient_balance" = "Not enough money for delivery. Add funds and try again.";
 "tangempay_order_card_error_invalid_address" = "Check the delivery address and try again.";
+"tangempay_order_card_error_invalid_emboss_name" = "Check the name on the card and try again.";
 "tangempay_order_card_error_invalid_source_card" = "This card can’t be replaced.";
 "tangempay_order_card_error_offer_unavailable" = "This card is no longer available.";
 "tangempay_order_data_address_line1" = "Address line 1";
@@ -2196,7 +2209,7 @@
 "tangempay_order_type_title" = "Order new card";
 "tangempay_order_type_unavailable" = "Unavailable";
 "tangempay_other_networks_header" = "Other networks";
-"tangempay_other_networks_subtitle" = "And then swap it to payment account zero fees";
+"tangempay_other_networks_subtitle" = "and then swap it to payment account with zero fees";
 "tangempay_other_networks_title" = "Send USDT / USDC on any chain to your Tangem Wallet";
 "tangempay_pay_support" = "Support";
 "tangempay_payment_account_sync_needed" = "Session expired";
