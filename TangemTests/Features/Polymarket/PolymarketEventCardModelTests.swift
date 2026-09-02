@@ -9,6 +9,7 @@
 import Foundation
 import XCTest
 import TangemPolymarket
+import TangemPolymarketUI
 @testable import Tangem
 
 final class PolymarketEventCardModelTests: XCTestCase {
