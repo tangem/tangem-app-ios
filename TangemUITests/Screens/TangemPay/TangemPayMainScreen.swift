@@ -131,6 +131,26 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func verifyCardDisabled() -> Self {
+        XCTContext.runActivity(named: "Verify card is not tappable") { _ in
+            waitAndAssertTrue(paymentAccountCardButton, "Payment account card button should be displayed")
+            paymentAccountCardButton.waitForState(state: .disabled)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyStaleState(cachedBalance: String) -> Self {
+        XCTContext.runActivity(named: "Verify Payment account is in stale state with cached balance '\(cachedBalance)'") { _ in
+            verifyBalanceContains(cachedBalance)
+            verifyWithdrawDisabled()
+            verifyAddFundsDisabled()
+            verifyCardDisabled()
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyAddFundsDisabled() -> Self {
         XCTContext.runActivity(named: "Verify Add funds button is disabled") { _ in
             waitAndAssertTrue(addFundsButton, "Add funds button should be displayed")
