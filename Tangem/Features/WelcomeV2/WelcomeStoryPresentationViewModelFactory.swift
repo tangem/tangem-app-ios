@@ -34,7 +34,6 @@ struct WelcomeStoryPresentationViewModelFactory {
 
         let story = StoryV2(
             id: "welcome_onboarding",
-            version: 1,
             placements: ["onboarding"],
             displayPolicy: .always,
             endBehavior: .loop,
