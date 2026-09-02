@@ -84,6 +84,19 @@ private extension JointAccountJoinConfirmationView {
     JointAccountJoinConfirmationView(
         viewModel: JointAccountJoinConfirmationViewModel(
             userWalletModel: FakeUserWalletModel.wallet3Cards,
+            preview: JointAccountInvitePreview(
+                config: JointAccountSignedConfig(
+                    name: "Family savings",
+                    icon: AccountModel.CompositeIcon.Name.safe.rawValue,
+                    iconColor: CompositeIconColor.candyGrapeFizz.rawValue,
+                    membersCount: 5,
+                    threshold: 2
+                ),
+                creator: JointAccountInvitePreview.Creator(
+                    name: "Isaac",
+                    address: "0xBef7B36845000000000000ac4e6752A9cE000000"
+                )
+            ),
             coordinator: nil
         )
     )

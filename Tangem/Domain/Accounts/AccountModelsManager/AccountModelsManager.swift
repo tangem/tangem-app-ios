@@ -34,6 +34,9 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
 
     func addJointAccount(context: JointAccountCreationContextType) async throws(AccountEditError) -> AccountCreationResult
 
+    /// Joins an account someone else created, taking up the slot the invite was issued for.
+    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult
+
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo]
 
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult
