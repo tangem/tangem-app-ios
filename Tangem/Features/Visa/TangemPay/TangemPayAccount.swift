@@ -22,29 +22,29 @@ final class TangemPayAccount {
         cardsSubject.eraseToAnyPublisher()
     }
 
-    private let plasticCards = TangemPayPlasticCardStubStore()
+    private let activatingProductInstanceIdsSubject = CurrentValueSubject<Set<String>, Never>([])
 
     var cardEntries: [TangemPayCardEntry] {
         TangemPayCardEntry.build(
             cards: cardsSubject.value,
             pendingProductInstances: customerInfoSubject.value.cardProductInstances.filter { $0.cardId == nil },
             activeIssueOrders: activeIssueOrdersSubject.value,
-            plasticCards: plasticCards.cards
+            activatingProductInstanceIds: activatingProductInstanceIdsSubject.value
         )
     }
 
     var cardEntriesPublisher: AnyPublisher<[TangemPayCardEntry], Never> {
         Publishers.CombineLatest(
             Publishers.CombineLatest4(cardsSubject, customerInfoSubject, activeIssueOrdersSubject, anyCardReissuingPublisher),
-            plasticCards.cardsPublisher
+            activatingProductInstanceIdsSubject
         )
-        .map { bffState, plasticCards in
+        .map { bffState, activatingProductInstanceIds in
             let (cards, info, orders, _) = bffState
             return TangemPayCardEntry.build(
                 cards: cards,
                 pendingProductInstances: info.cardProductInstances.filter { $0.cardId == nil },
                 activeIssueOrders: orders,
-                plasticCards: plasticCards
+                activatingProductInstanceIds: activatingProductInstanceIds
             )
         }
         .eraseToAnyPublisher()
@@ -349,19 +349,107 @@ extension TangemPayAccount {
 
 // MARK: - Plastic card flow
 
-// [REDACTED_TODO_COMMENT]
 extension TangemPayAccount {
-    /// The only way a plastic card comes into existence, so gating it here keeps every plastic surface —
-    /// the card row, card management and activation — behind the toggle. The card borrows `ACTIVATION` art
-    /// from an issued one: it is the same screen background whichever card it comes from.
-    func addOrderedPlasticCard(email: String?) {
-        guard FeatureProvider.isAvailable(.tangemPayPlastic) else { return }
-
-        plasticCards.add(email: email, activationImageURL: cards.first?.activationImageURL)
+    var plasticCardIssueOffer: TangemPayCustomerOffer? {
+        offersSubject.value.first { $0.type.isPlastic }
     }
 
-    func markPlasticCardActivating(id: String) {
-        plasticCards.markActivating(id: id)
+    @discardableResult
+    func orderPlasticCard(
+        embossName: String,
+        shippingAddress: TangemPayPlaceOrderRequest.ShippingAddress
+    ) async throws -> TangemPayOrderResponse {
+        let info = customerInfoSubject.value
+        guard let customerWalletAddress = info.paymentAccount?.customerWalletAddress else {
+            throw TangemPayAccountError.missingPaymentAccountAddress
+        }
+
+        guard let offerData = plasticCardIssueOffer?.data else {
+            throw TangemPayAccountError.missingCardIssueOffer
+        }
+
+        let request = TangemPayPlaceOrderRequest(
+            customerWalletAddress: customerWalletAddress,
+            specificationName: offerData.specificationName,
+            embossName: embossName,
+            shippingAddress: shippingAddress
+        )
+        let idempotencyKey = TangemPayIdempotencyKey.make(
+            info.id,
+            TangemPayOrderType.cardIssuePlasticRain.rawValue,
+            offerData.specificationName,
+            customerWalletAddress,
+            embossName,
+            shippingAddress.idempotencyComponent
+        )
+        let order = try await orderResolver.placeOrder(request: request, idempotencyKey: idempotencyKey)
+
+        activeIssueOrderEventsSubject.send(.upsert(order))
+        runTask { [weak self] in
+            await self?.loadCustomerInfo()
+        }
+        startCardIssueTracking(orderId: order.id)
+        return order
+    }
+
+    func activatePlasticCard(productInstanceId: String, lastFourDigits: String) async throws {
+        let info = customerInfoSubject.value
+        guard let customerWalletAddress = info.paymentAccount?.customerWalletAddress else {
+            throw TangemPayAccountError.missingPaymentAccountAddress
+        }
+
+        let request = TangemPayPlaceOrderRequest(
+            customerWalletAddress: customerWalletAddress,
+            productInstanceId: productInstanceId,
+            lastFourDigits: lastFourDigits
+        )
+        let idempotencyKey = TangemPayIdempotencyKey.make(
+            info.id,
+            TangemPayOrderType.cardActivationPlasticRain.rawValue,
+            productInstanceId,
+            lastFourDigits
+        )
+
+        let order = try await orderResolver.placeOrder(request: request, idempotencyKey: idempotencyKey)
+
+        // Marked after the refresh, which rebuilds the set from `findOrders` and would otherwise drop it.
+        await loadCustomerInfo()
+        activatingProductInstanceIdsSubject.value.insert(productInstanceId)
+        startPlasticCardActivationTracking(orderId: order.id)
+    }
+
+    private func startPlasticCardActivationTracking(orderId: String) {
+        let reloadCustomerInfo: () -> Void = { [weak self] in
+            runTask { await self?.loadCustomerInfo() }
+        }
+
+        orderStatusPollingService.startOrderStatusPolling(
+            orderId: orderId,
+            interval: Constants.cardIssuePollInterval,
+            onCompleted: reloadCustomerInfo,
+            onCanceled: reloadCustomerInfo,
+            onFailed: { error in
+                VisaLogger.error("Failed to poll plastic card activation order status", error: error)
+                reloadCustomerInfo()
+            }
+        )
+    }
+
+    private func refreshActivatingProductInstanceIds(cards: [TangemPayCard]) async {
+        guard FeatureProvider.isAvailable(.tangemPayPlastic), cards.contains(where: \.isAwaitingActivation) else {
+            activatingProductInstanceIdsSubject.value = []
+            return
+        }
+
+        guard let orders = try? await customerService.findOrders(
+            types: TangemPayOrderType.cardActivationPlasticFamily,
+            statuses: [.new, .processing]
+        ) else {
+            // Leave the previous value: a failed lookup must not drop a card back to "Activate card".
+            return
+        }
+
+        activatingProductInstanceIdsSubject.value = Set(orders.compactMap { $0.data?.productInstanceId })
     }
 }
 
@@ -480,7 +568,9 @@ extension TangemPayAccount {
             guard let self else { return }
 
             let localOrdersBeforeFetch = activeIssueOrdersSubject.value
-            let trackableTypes = TangemPayOrderType.cardIssueFamily + TangemPayOrderType.tariffPlanTransitionFamily
+            let trackableTypes = TangemPayOrderType.cardIssueFamily
+                + TangemPayOrderType.cardIssuePlasticFamily
+                + TangemPayOrderType.tariffPlanTransitionFamily
 
             let bffActiveOrders: [TangemPayOrderResponse]
             do {
@@ -502,7 +592,7 @@ extension TangemPayAccount {
 
             guard let order = bffActiveOrders.mostRecentByUpdatedAt else { return }
             activeIssueOrderEventsSubject.send(.upsert(order))
-            startAdditionalCardIssueTracking(orderId: order.id)
+            startCardIssueTracking(orderId: order.id)
         }
     }
 
@@ -540,7 +630,7 @@ extension TangemPayAccount {
         runTask { [weak self] in
             await self?.loadCustomerInfo()
         }
-        startAdditionalCardIssueTracking(orderId: order.id)
+        startCardIssueTracking(orderId: order.id)
         return order
     }
 
@@ -682,8 +772,11 @@ private extension TangemPayAccount {
             activeIssueOrderEventsSubject.send(.pruneAgainst(customerInfo: customerInfo))
             cardsSubject.send(updatedCards)
             customerInfoSubject.send(customerInfo)
+            await refreshActivatingProductInstanceIds(cards: updatedCards)
             await loadBalance()
         } catch {
+            guard !Task.isCancelled else { return }
+
             switch error {
             case .unauthorized:
                 syncNeededSignalSubject.send(())
@@ -790,7 +883,7 @@ private extension TangemPayAccount {
         cardIssueCompletedSubject.send(())
     }
 
-    func startAdditionalCardIssueTracking(orderId: String) {
+    func startCardIssueTracking(orderId: String) {
         orderStatusPollingService.startOrderStatusPolling(
             orderId: orderId,
             interval: Constants.cardIssuePollInterval,
