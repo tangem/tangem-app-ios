@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemPolymarket
+import TangemPolymarketUI
 import TangemUI
 
 private struct PolymarketEventDetailsShowcase: View {
