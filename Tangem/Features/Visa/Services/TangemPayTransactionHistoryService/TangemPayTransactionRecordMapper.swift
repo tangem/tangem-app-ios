@@ -14,6 +14,7 @@ import TangemPay
 
 struct TangemPayTransactionRecordMapper {
     private let transaction: TangemPayTransactionRecord
+    private let displayRecord: TangemPayDisplayRecord
 
     private let amountFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -26,6 +27,7 @@ struct TangemPayTransactionRecordMapper {
 
     init(transaction: TangemPayTransactionRecord) {
         self.transaction = transaction
+        displayRecord = transaction.record.displayRecord
     }
 
     func time() -> String {
@@ -33,8 +35,8 @@ struct TangemPayTransactionRecordMapper {
     }
 
     func isOutgoing() -> Bool {
-        switch transaction.record {
-        case .spend, .payment, .fee:
+        switch displayRecord {
+        case .merchant, .payment, .fee:
             return true
         case .collateral(let collateral):
             return collateral.amount < 0
@@ -42,13 +44,13 @@ struct TangemPayTransactionRecordMapper {
     }
 
     func type() -> TransactionViewModel.TransactionType {
-        let type: TransactionViewModel.TangemPayTransactionType = switch transaction.record {
-        case .spend(let spend):
+        let type: TransactionViewModel.TangemPayTransactionType = switch displayRecord {
+        case .merchant(let merchant):
             .spend(
                 name: name(),
-                icon: spend.enrichedMerchantIcon,
-                isDeclined: spend.isDeclined,
-                isNegativeAmount: spend.amount < .zero
+                icon: merchant.enrichedMerchantIcon,
+                isDeclined: merchant.isDeclined,
+                isNegativeAmount: merchant.amount < .zero
             )
         case .collateral:
             .transfer(name: name())
@@ -63,22 +65,22 @@ struct TangemPayTransactionRecordMapper {
 
     /// `TransactionViewModel.Status` will use in `TransactionListView`
     func status() -> TransactionViewModel.Status {
-        switch transaction.record {
-        case .spend, .collateral, .payment, .fee:
+        switch displayRecord {
+        case .merchant, .collateral, .payment, .fee:
             return .confirmed
         }
     }
 
     /// The record amount with correct `sign` (minus or plus)
     func amount() -> String {
-        switch transaction.record {
-        case .spend(let spend) where spend.amount == 0:
-            return format(amount: spend.amount, currencyCode: spend.currency)
-        case .spend(let spend):
-            let prefix: String = spend.amount < 0 ? .plusSign : .empty
+        switch displayRecord {
+        case .merchant(let merchant) where merchant.amount == 0:
+            return format(amount: merchant.amount, currencyCode: merchant.currency)
+        case .merchant(let merchant):
+            let prefix: String = merchant.amount < 0 ? .plusSign : .empty
             return format(
-                amount: -(spend.isDeclined ? spend.authorizedAmount ?? spend.amount : spend.amount),
-                currencyCode: spend.currency,
+                amount: -(merchant.isDeclined ? merchant.authorizedAmount : merchant.amount),
+                currencyCode: merchant.currency,
                 prefix: prefix
             )
         case .collateral(let collateral):
@@ -94,11 +96,11 @@ struct TangemPayTransactionRecordMapper {
     }
 
     func cashback() -> TransactionViewModel.Cashback? {
-        guard case .spend(let spend) = transaction.record,
-              let status = spend.cashbackStatus,
-              let style = TransactionViewModel.Cashback.Style(status),
-              let amount = spend.cashback,
-              amount > 0
+        guard case .merchant(let merchant) = displayRecord,
+              let status = merchant.cashbackStatus,
+              let amount = merchant.cashback,
+              amount != 0,
+              let style = TransactionViewModel.Cashback.Style(status: status, amount: amount)
         else {
             return nil
         }
@@ -106,26 +108,26 @@ struct TangemPayTransactionRecordMapper {
         return TransactionViewModel.Cashback(
             formattedAmount: format(
                 amount: amount,
-                currencyCode: spend.cashbackCurrencyCode ?? AppConstants.usdCurrencyCode,
-                prefix: .plusSign
+                currencyCode: merchant.cashbackCurrencyCode ?? AppConstants.usdCurrencyCode,
+                prefix: amount > 0 ? .plusSign : .empty
             ),
             style: style
         )
     }
 
     func cardId() -> String? {
-        switch transaction.record {
-        case .spend(let spend):
-            return spend.cardId
+        switch displayRecord {
+        case .merchant(let merchant):
+            return merchant.cardId
         case .collateral, .payment, .fee:
             return nil
         }
     }
 
     func name() -> String {
-        switch transaction.record {
-        case .spend(let spend):
-            return spend.enrichedMerchantName ?? spend.merchantName ?? Localization.tangempayCardDetailsTitle
+        switch displayRecord {
+        case .merchant(let merchant):
+            return merchant.enrichedMerchantName ?? merchant.merchantName ?? Localization.tangempayCardDetailsTitle
         case .collateral(let collateral):
             if collateral.amount > 0 {
                 return Localization.tangemPayDeposit
@@ -140,14 +142,14 @@ struct TangemPayTransactionRecordMapper {
     }
 
     func categoryName(detailed: Bool) -> String {
-        switch transaction.record {
-        case .spend(let spend):
-            if detailed, let category = spend.merchantCategory, let mcc = spend.merchantCategoryCode {
+        switch displayRecord {
+        case .merchant(let merchant):
+            if detailed, let category = merchant.merchantCategory, let mcc = merchant.merchantCategoryCode {
                 return .merchantCategory(category: category, mcc: mcc)
             }
 
-            return spend.merchantCategory?.nilIfEmpty
-                ?? spend.enrichedMerchantCategory?.nilIfEmpty
+            return merchant.merchantCategory?.nilIfEmpty
+                ?? merchant.enrichedMerchantCategory?.nilIfEmpty
                 ?? Localization.tangemPayOther
         case .collateral:
             return Localization.commonTransfer
@@ -166,12 +168,12 @@ struct TangemPayTransactionRecordMapper {
 }
 
 private extension TransactionViewModel.Cashback.Style {
-    init?(_ status: TangemPayCashbackStatus) {
+    init?(status: TangemPayCashbackStatus, amount: Decimal) {
         switch status {
         case .estimated:
-            self = .estimated
+            self = amount < 0 ? .refunded : .estimated
         case .confirmed:
-            self = .confirmed
+            self = amount < 0 ? .refunded : .confirmed
         case .excluded, .awaitingCalculation, .undefined:
             return nil
         }

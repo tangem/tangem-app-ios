@@ -1120,9 +1120,9 @@ private extension TangemPayMainViewModel {
 
 private extension TangemPayTransactionHistoryResponse.Record {
     var analyticsStatus: String {
-        switch self {
-        case .spend(let spend):
-            return spend.status.rawValue
+        switch displayRecord {
+        case .merchant(let merchant):
+            return merchant.status.rawValue
         case .collateral, .payment, .fee:
             return "unknown"
         }
