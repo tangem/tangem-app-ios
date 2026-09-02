@@ -122,7 +122,11 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let transactionDetailsDate = "\(prefix)TransactionDetailsDate"
     public static let transactionDetailsIcon = "\(prefix)TransactionDetailsIcon"
     public static let transactionDetailsAmount = "\(prefix)TransactionDetailsAmount"
+    public static let transactionDetailsAmountSubtitle = "\(prefix)TransactionDetailsAmountSubtitle"
     public static let transactionDetailsStatus = "\(prefix)TransactionDetailsStatus"
+    public static let transactionDetailsCategoryRow = "\(prefix)TransactionDetailsCategoryRow"
+    public static let transactionDetailsMccRow = "\(prefix)TransactionDetailsMccRow"
+    public static let transactionDetailsCardRow = "\(prefix)TransactionDetailsCardRow"
     public static let transactionDetailsMainButton = "\(prefix)TransactionDetailsMainButton"
 
     // MARK: - PIN setup screen
