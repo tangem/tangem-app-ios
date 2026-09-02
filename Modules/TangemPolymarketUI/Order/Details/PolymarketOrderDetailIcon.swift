@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct PolymarketOrderDetailIcon: View {
     let asset: ImageType
@@ -16,7 +17,7 @@ struct PolymarketOrderDetailIcon: View {
         asset.image
             .renderingMode(.template)
             .resizable()
-            .frame(width: Constants.side, height: Constants.side)
+            .frame(size: .init(bothDimensions: Constants.side))
             .foregroundStyle(DesignSystem.Color.iconTertiary)
             .accessibilityHidden(true)
     }
