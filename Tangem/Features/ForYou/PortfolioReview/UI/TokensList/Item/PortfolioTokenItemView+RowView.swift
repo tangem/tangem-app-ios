@@ -53,6 +53,7 @@ extension PortfolioTokenItemView.RowView {
                 .scaledToFit()
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
                 .matchedGeometryEffect(effects?.icon)
+                .frame(width: iconSize * Metrics.placeholderGlyphScale, height: iconSize * Metrics.placeholderGlyphScale)
                 .frame(width: iconSize, height: iconSize)
                 .overlay(alignment: .bottomTrailing) {
                     if isAggregateRow, let indicatorColor = data.indicatorColor {
@@ -189,5 +190,13 @@ extension PortfolioTokenItemView.RowView {
         Circle()
             .fill(DesignSystem.Color.iconTertiary)
             .frame(width: 4, height: 4)
+    }
+}
+
+// MARK: - Metrics
+
+private extension PortfolioTokenItemView.RowView {
+    enum Metrics {
+        static let placeholderGlyphScale: CGFloat = 1.4
     }
 }
