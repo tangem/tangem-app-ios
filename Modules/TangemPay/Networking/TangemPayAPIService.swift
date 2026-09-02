@@ -107,7 +107,25 @@ public struct TangemPayAPIError: Error, Decodable {
     public let message: String?
 
     public enum Code {
+        public static let cardIssueActiveOrderExists = 140114
+        public static let cardIssueOfferNotAvailable = 140115
         public static let cardIssueInsufficientBalance = 140116
+        public static let cardIssueInvalidShippingAddress = 140126
+        public static let cardIssueInvalidEmbossName = 140144
+
+        public static let cardActivationInvalidCardData = 140127
+        public static let cardActivationCardNotPhysical = 140128
+        public static let cardActivationCardAlreadyActive = 140129
+        public static let cardActivationCardNotReady = 140130
+        public static let cardActivationActiveOrderExists = 140131
+    }
+}
+
+public extension TangemPayAPIServiceError {
+    var apiErrorCode: Int? {
+        guard case .apiError(let apiError) = self else { return nil }
+
+        return apiError.code
     }
 }
 
