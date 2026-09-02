@@ -30,6 +30,8 @@ protocol TangemApiService: AnyObject {
     /// Get general market data for a list of tokens
     func loadCoinsList(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response
 
+    func loadCoinsCategories(requestModel: MarketsDTO.Categories.Request) async throws -> MarketsDTO.Categories.Response
+
     func loadTokenMarketsDetails(requestModel: MarketsDTO.Coins.Request) async throws -> MarketsDTO.Coins.Response
 
     /// Get preview history chart data for a list of tokens
