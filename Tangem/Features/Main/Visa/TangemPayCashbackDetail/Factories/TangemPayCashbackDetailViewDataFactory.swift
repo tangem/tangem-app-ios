@@ -87,6 +87,8 @@ private extension TangemPayCashbackDetailViewDataFactory {
         }
 
         guard let previousPayout = summary.previousPayout,
+              previousPayout.amount > 0,
+              isPayoutUpcoming(endDate: previousPayout.endDate),
               let earnedMonth = month(precedingPayoutDate: previousPayout.endDate)
         else {
             return nil
@@ -97,6 +99,16 @@ private extension TangemPayCashbackDetailViewDataFactory {
             monthName: TangemPayCashbackState.monthName(earnedMonth),
             payoutDate: Self.payoutDateFormatter.string(from: previousPayout.endDate)
         )
+    }
+
+    func isPayoutUpcoming(endDate: Date, now: Date = .now) -> Bool {
+        let calendar = Self.utcCalendar
+
+        guard let deadline = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: endDate)) else {
+            return false
+        }
+
+        return now < deadline
     }
 
     func month(precedingPayoutDate date: Date) -> Int? {
