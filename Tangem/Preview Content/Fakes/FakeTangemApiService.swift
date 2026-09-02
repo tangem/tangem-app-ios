@@ -134,6 +134,10 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadStories(slugs: [String], language: String) async throws -> StoriesResponseDTO {
+        throw "Not implemented"
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         throw "Not implemented"
     }
