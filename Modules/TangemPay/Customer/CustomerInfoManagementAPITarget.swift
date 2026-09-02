@@ -243,7 +243,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
             ["X-Session-Id": "\(sessionId)"]
         case .placeOrder(_, let idempotencyKey):
             ["Idempotency-Key": idempotencyKey]
-        case .getCustomerInfo, .getTariffPlanTransitions:
+        case .getCustomerInfo, .getTariffPlanTransitions, .getCustomerOffers:
             [
                 TangemPayNetworkingConstants.Header.Key.xDeviceScale: TangemPayNetworkingConstants.Header.Value.deviceScale,
                 TangemPayNetworkingConstants.Header.Key.acceptLanguage: Locale.appLanguageCode,
