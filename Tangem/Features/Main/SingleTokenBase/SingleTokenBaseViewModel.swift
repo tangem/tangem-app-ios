@@ -211,11 +211,11 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
+    /// Unlike Receive / Buy, copying an address isn't a top-up on its own, so the incomplete backup warning doesn't apply.
     func copyDefaultAddress() {
         TokenActionAvailabilityAlertPresenter.presentOrProceed(
             handler: &alert,
             receiveStatus: tokenActionAvailabilityProvider.receiveAvailability,
-            warning: tokenActionAvailabilityProvider.availabilityWarningType,
             action: { [weak self] in
                 self?.performCopyDefaultAddress()
             }
