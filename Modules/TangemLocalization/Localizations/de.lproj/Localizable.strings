@@ -27,6 +27,7 @@
 "account_could_not_archive_referral_program_title" = "Dieses Konto kann nicht archiviert werden.";
 "account_create_success_message" = "Konto erstellt";
 "account_details_archive_description" = "Du archivierst dieses Konto, kannst es aber jederzeit entarchivieren.";
+"account_details_archive_joint_description" = "This only hides the account for you and turns off notifications for it. Other members keep their access, and you can always get it back.";
 "account_details_archive" = "Archivkonto";
 "account_details_archiving" = "Archivierung...";
 "account_details_joint_pending_description" = "Das Konto wird derzeit noch mit Mitgliedern befüllt";
@@ -921,7 +922,13 @@
 "joint_account_name_hint" = "Geben Sie Ihren Vor- und Nachnamen oder eine Unterzeichnertypangabe ein, damit die anderen Mitglieder Sie identifizieren können";
 "joint_account_name_subtitle" = "Andere Mitglieder sehen diesen Namen auf dem gemeinsamen Konto";
 "joint_account_name_title" = "Wie heißt du?";
-"joint_account_onboarding_subtitle" = "Ein gemeinsames Konto, das mehreren Personen gemeinsam gehört. Geldtransfers sind nur möglich, wenn genügend Kontoinhaber unterschreiben";
+"joint_account_onboarding_approvals_description" = "Choose how many members must approve each transaction.";
+"joint_account_onboarding_approvals_title" = "Required approvals.";
+"joint_account_onboarding_members_description" = "Each joins with their own wallet.";
+"joint_account_onboarding_members_title" = "Up to %1$@ members.";
+"joint_account_onboarding_shared_description" = "Use it with your friends, family, or partners.";
+"joint_account_onboarding_shared_title" = "Shared account.";
+"joint_account_onboarding_subtitle" = "A simple way to manage crypto together — for personal or business needs.";
 "joint_account_waiting_activation" = "Warten auf die Aktivierung";
 "key_invalidated_warning_description" = "Du hast deine biometrischen Daten aktualisiert, scanne deine Karte oder Ring, um einzutreten";
 "koinos_insufficient_balance_to_send_koin_description" = "Dein Guthaben sollte höher sein als der Gebührenwert, um eine Überweisung zu tätigen";
@@ -1293,6 +1300,8 @@
 "organize_tokens_ungroup" = "Gruppe löschen";
 "prediction_account_subtitle" = "Guthaben aufladen und mit den Vorhersagen beginnen";
 "prediction_account_title" = "Prognosekonto";
+"prediction_balance_total" = "Total Balance";
+"prediction_balance_withdraw" = "Withdraw";
 "prediction_details_24h_change" = "Änderung innerhalb von 24 Stunden:";
 "prediction_details_closed_markets" = "Geschlossene Märkte";
 "prediction_details_market_opened" = "Markt geöffnet";
@@ -1304,8 +1313,11 @@
 "prediction_main_data_outdated" = "Die Daten könnten veraltet sein.";
 "prediction_main_empty_events" = "Noch keine Veranstaltungen";
 "prediction_main_events_load_error" = "Ereignisse konnten nicht geladen werden.\nZum Neuladen tippen";
+"prediction_main_explore_events" = "Explore Events";
 "prediction_main_subtitle" = "USDC im Polygon-Netzwerk";
 "prediction_main_title" = "Prognosen";
+"prediction_main_total_balance" = "Total Balance";
+"prediction_main_withdraw" = "Withdraw";
 "prediction_onboarding_benefit_custody_subtitle" = "Nur mit Ihrer Karte können Sie Geld überweisen.";
 "prediction_onboarding_benefit_custody_title" = "Ihre Schlüssel, Ihr Geld";
 "prediction_onboarding_benefit_fund_subtitle" = "USDC oder Tausch gegen jede beliebige Währung";
@@ -2048,10 +2060,10 @@
 "tangempay_common_card" = "Karte";
 "tangempay_common_error_loading" = "Fehler beim Laden";
 "tangempay_current_plan_active_till_notification" = "Ihr „ %1$@ “-Tarif ist bis zum %2$@gültig; danach werden wir Sie auf %3$@umstellen. Für %4$@ fallen keine Kosten an.";
-"tangempay_current_plan_awaiting_deposit_notification" = "Wir sind gerade dabei, Sie auf den Tarif „ %@ “ umzustellen, und warten auf die Zahlung der Tarifgebühr.";
+"tangempay_current_plan_awaiting_deposit_notification" = "Wir sind gerade dabei, Sie auf den Tarif „ %@ “ umzustellen, und warten auf die Zahlung der Tarifgebühr";
 "tangempay_current_plan_change" = "Tarif wechseln";
 "tangempay_current_plan_fee_charged_notification" = "%1$@ Die monatliche Gebühr wird am %2$@";
-"tangempay_current_plan_full_terms" = "Full terms";
+"tangempay_current_plan_full_terms" = "Vollständige Bedingungen";
 "tangempay_current_plan_section_card" = "Kartenbezogen";
 "tangempay_current_plan_section_plan" = "Planbezogen";
 "tangempay_current_plan_stay_button" = "Bleib dran %1$@";
@@ -2157,6 +2169,7 @@
 "tangempay_order_card_error_active_order" = "Eine Kartenbestellung ist bereits in Bearbeitung.";
 "tangempay_order_card_error_insufficient_balance" = "Nicht genügend Guthaben für die Lieferung. Laden Sie Guthaben auf und versuchen Sie es erneut.";
 "tangempay_order_card_error_invalid_address" = "Überprüfen Sie die Lieferadresse und versuchen Sie es erneut.";
+"tangempay_order_card_error_invalid_emboss_name" = "Check the name on the card and try again.";
 "tangempay_order_card_error_invalid_source_card" = "Diese Karte kann nicht ersetzt werden.";
 "tangempay_order_card_error_offer_unavailable" = "Diese Karte wird nicht unterstützt";
 "tangempay_order_data_address_line1" = "Adresszeile 1";
