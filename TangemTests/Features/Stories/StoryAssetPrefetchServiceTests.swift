@@ -56,7 +56,6 @@ struct StoryAssetPrefetchServiceTests {
         )
         return StoryV2(
             id: "s",
-            version: 1,
             placements: ["main_upgrade"],
             endBehavior: .finish,
             slides: [SlideV2(id: "s_1", order: 1, title: "t", subtitle: "s", asset: asset)],
