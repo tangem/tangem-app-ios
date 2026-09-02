@@ -498,17 +498,60 @@ extension CommonAccountModelsManager: AccountModelsManager {
         )
     }
 
-    /// The remote state every account is created against, fetched and checked the same way for either kind of account.
-    private func validatedRemoteState(forNewAccountNamed name: String) async throws(AccountEditError) -> CryptoAccountsRemoteState {
-        let remoteState: CryptoAccountsRemoteState
+    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
+        guard canAddCryptoAccounts else {
+            throw .unknownError(AccountModelsManagerError.addingJointAccountNotSupported)
+        }
+
+        // Unlike an account this wallet makes, the one it joins arrives named by whoever created it: the name is not
+        // this user's to pick or to change, so there is nothing here to hold them to — only the index to derive at
+        let remoteState = try await fetchRemoteState()
+
+        guard remoteState.accounts.count < AccountModelUtils.maxNumberOfAccounts else {
+            AccountsLogger.warning("The number of accounts exceeded the limit")
+            throw .tooManyAccounts
+        }
+
+        guard let nextDerivationIndex = remoteState.nextJointDerivationIndex else {
+            throw .unknownError(AccountModelsManagerError.addingJointAccountNotSupported)
+        }
+
+        let newAccountIdentity = CryptoAccountDerivationIdentity(derivationIndex: nextDerivationIndex, type: .joint)
 
         do {
-            remoteState = try await cryptoAccountsRepository.getRemoteState()
+            let config = JointAccountJoinConfig(
+                inviteId: context.inviteId,
+                signedConfig: context.signedConfig,
+                memberName: context.memberName,
+                derivationIndex: nextDerivationIndex
+            )
+
+            try await jointAccountsRepository.joinJointAccount(withConfig: config)
+
+            return AccountCreationResult(
+                // Joint accounts take no part in the custom-token redistribution
+                operationResult: .none,
+                derivationIdentity: newAccountIdentity
+            )
+        } catch {
+            AccountsLogger.error("Failed to join a joint account for user wallet \(userWalletId)", error: error)
+            throw .unknownError(error)
+        }
+    }
+
+    /// The remote state every account is made against, whichever kind it is.
+    private func fetchRemoteState() async throws(AccountEditError) -> CryptoAccountsRemoteState {
+        do {
+            return try await cryptoAccountsRepository.getRemoteState()
         } catch {
             AccountsLogger.error("Failed to fetch remote state for user wallet \(userWalletId)", error: error)
             throw .unknownError(error)
         }
+    }
 
+    /// The remote state an account this wallet names is created against, checked against the name it is given.
+    private func validatedRemoteState(forNewAccountNamed name: String) async throws(AccountEditError) -> CryptoAccountsRemoteState {
+        let remoteState = try await fetchRemoteState()
         let validator = makeConditionsValidator(for: .new(newAccountName: name, remoteState: remoteState))
 
         do {

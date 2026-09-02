@@ -31,4 +31,8 @@ protocol JointAccountsRepository {
     /// Derives the key the account is signed with, has the backend create it and stores what it reports back — the
     /// invites first, since this is the only moment they can be written down.
     func addNewJointAccount(withConfig config: JointAccountCreationConfig) async throws
+
+    /// Takes up a free slot of an existing account, signing the config the creator settled on.
+    /// - Note: The invite is spent by the endpoint, so a second call with the same one is turned away.
+    func joinJointAccount(withConfig config: JointAccountJoinConfig) async throws
 }
