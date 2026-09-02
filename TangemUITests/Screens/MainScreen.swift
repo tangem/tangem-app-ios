@@ -34,6 +34,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
     private lazy var tangemPayTileBalance = app.staticTexts[TangemPayAccessibilityIdentifiers.mainScreenTileBalance].firstMatch
+    /// Type-agnostic: a decorative image inside a button is not guaranteed to stay an `Image` element.
+    private lazy var tangemPayTileCachedIcon = app.descendants(matching: .any)
+        .matching(identifier: TangemPayAccessibilityIdentifiers.mainScreenTileCachedIcon)
+        .firstMatch
     /// Type-agnostic: redesign and legacy notifications expose different element types.
     private lazy var getTangemPayBanner = app.descendants(matching: .any)
         .matching(identifier: TangemPayAccessibilityIdentifiers.getTangemPayBanner)
@@ -645,6 +649,39 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Verify Tangem Pay tile is displayed on main screen") { _ in
             scrollToElement(tangemPayTile)
             waitAndAssertTrue(tangemPayTile, timeout: .networkRequest, "Tangem Pay tile should be displayed on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileCachedIcon() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile shows the cached data icon") { _ in
+            scrollToElement(tangemPayTile)
+            waitAndAssertTrue(tangemPayTileCachedIcon, timeout: .networkRequest, "Tangem Pay tile should show the cached data icon")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileSubtitle(contains expectedSubstring: String) -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile subtitle contains '\(expectedSubstring)'") { _ in
+            scrollToElement(tangemPayTile)
+            let subtitle = tangemPayTile.staticTexts
+                .matching(NSPredicate(format: "label CONTAINS[c] %@", expectedSubstring))
+                .firstMatch
+            waitAndAssertTrue(subtitle, timeout: .networkRequest, "Tangem Pay tile subtitle should contain '\(expectedSubstring)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTangemPayTileHasNoBalance() -> Self {
+        XCTContext.runActivity(named: "Verify Tangem Pay tile shows no balance") { _ in
+            scrollToElement(tangemPayTile)
+            XCTAssertTrue(
+                tangemPayTileBalance.waitForNonExistence(timeout: .conditional),
+                "Tangem Pay tile should not show a balance when there is no cached data"
+            )
             return self
         }
     }
