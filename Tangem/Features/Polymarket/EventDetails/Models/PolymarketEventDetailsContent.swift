@@ -9,6 +9,7 @@
 import Foundation
 import TangemFoundation
 import TangemPolymarket
+import TangemPolymarketUI
 
 struct PolymarketEventDetailsContent {
     let iconURL: URL?
