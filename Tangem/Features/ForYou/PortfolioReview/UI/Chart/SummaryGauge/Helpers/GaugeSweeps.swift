@@ -88,8 +88,8 @@ enum GaugeSweeps {
 
 extension GaugeSweeps {
     enum Constants {
-        /// 5% of the full circle — the minimum visual share any non-zero segment is drawn at.
-        static let minVisualSweepFraction: CGFloat = 0.05
+        /// 1% of the full circle — the minimum visual share any non-zero segment is drawn at.
+        static let minVisualSweepFraction: CGFloat = 0.01
         static let minRemainderFraction: CGFloat = 0.1
         static let remainderEpsilon: CGFloat = 1e-9
         static let fullCircleDeg: CGFloat = 360
