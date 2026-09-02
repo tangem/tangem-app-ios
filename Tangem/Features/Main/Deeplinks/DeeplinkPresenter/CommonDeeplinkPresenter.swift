@@ -135,6 +135,9 @@ private extension CommonDeeplinkPresenter {
         case .earn(let earnType, let networkId):
             return constructEarnViewController(earnType: earnType, networkId: networkId)
 
+        case .jointAccountInvite(let inviteId):
+            return constructJointAccountInviteViewController(inviteId: inviteId)
+
         case .externalLink, .tangemPayMain, .tangemPayTransactionDetails, .yield:
             return nil
         }
@@ -142,6 +145,23 @@ private extension CommonDeeplinkPresenter {
 }
 
 private extension CommonDeeplinkPresenter {
+    private func constructJointAccountInviteViewController(inviteId: String) -> UIViewController {
+        let coordinator = JointAccountJoinCoordinator(
+            dismissAction: { UIApplication.dismissTop() },
+            popToRootAction: { _ in UIApplication.dismissTop() }
+        )
+        coordinator.start(with: .init(inviteId: inviteId))
+
+        let viewController = makeDeeplinkViewController(
+            view: { JointAccountJoinCoordinatorView(coordinator: coordinator) },
+            embedInNavigationStack: false
+        )
+
+        viewController.modalPresentationStyle = .fullScreen
+
+        return viewController
+    }
+
     private func constructPromoViewController(promoCode: String, refcode: String?, campaign: String?) -> UIViewController {
         let viewController = makeDeeplinkViewController(
             view: {

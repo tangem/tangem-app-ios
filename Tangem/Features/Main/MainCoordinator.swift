@@ -224,7 +224,8 @@ extension MainCoordinator: MainRoutable {
              .promo,
              .tokenExchanges,
              .newsList,
-             .earn:
+             .earn,
+             .jointAccountInvite:
             deeplinkDestination.send(deepLink)
         }
     }
