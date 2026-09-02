@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import TangemPolymarketUI
 import TangemUI
 import TangemUIUtils
 

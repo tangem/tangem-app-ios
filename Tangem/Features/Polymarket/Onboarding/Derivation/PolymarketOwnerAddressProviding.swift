@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemPolymarket
 
 protocol PolymarketOwnerAddressProviding {
     func getOwnerAddress() -> String?
