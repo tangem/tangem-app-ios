@@ -48,8 +48,8 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         insertingApiSegment(into: apiBaseUrl)
     }
 
-    /// `apiBaseUrlv2` carrying the `/api` gateway segment (`/api/v2/...`). Only the v2 `/tokens`
-    /// endpoint from the Notification Preferences contract v1.3 uses it.
+    /// `apiBaseUrlv2` carrying the `/api` gateway segment (`/api/v2/...`). Used by the v2 `/tokens`
+    /// endpoint from the Notification Preferences contract v1.3 and the v2 `/stories` batch endpoint.
     public var apiBaseUrlv2WithGatewaySegment: URL {
         insertingApiSegment(into: apiBaseUrlv2)
     }
