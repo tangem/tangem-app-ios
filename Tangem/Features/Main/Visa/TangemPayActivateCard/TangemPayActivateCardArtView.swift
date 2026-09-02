@@ -41,7 +41,7 @@ struct TangemPayActivateCardArtView: View {
     private var artwork: some View {
         KFImage(imageURL)
             .placeholder {
-                Assets.Visa.cardActivation.image
+                Assets.Visa.cardGhost.image
                     .resizable()
             }
             .resizable()
