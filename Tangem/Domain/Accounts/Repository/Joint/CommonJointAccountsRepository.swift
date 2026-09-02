@@ -138,6 +138,32 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         try invitesPersistentStorage.save(creationResult.invites, forCryptoAccountId: creationResult.account.cryptoAccountId)
         try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: creationResult.account))
     }
+
+    func joinJointAccount(withConfig config: JointAccountJoinConfig) async throws {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        let payloadBuilder = JointAccountJoinPayloadBuilder(
+            userWalletId: userWalletId,
+            inviteId: config.inviteId,
+            config: config.signedConfig,
+            memberName: config.memberName
+        )
+        let interactor = derivationInteractorFactory.makeInteractor()
+
+        let result = try await interactor.deriveAndSign(
+            derivationIndex: config.derivationIndex,
+            payloadBuilder: payloadBuilder
+        )
+
+        let blob = JointAccountJoinBlob(payload: result.payload, signature: result.signature)
+
+        let account = try await networkService.joinJointAccount(blob: blob)
+
+        // No invites come back here: they belong to the creator, and this wallet has just spent the one it was given
+        try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
+    }
 }
 
 // MARK: - Private
