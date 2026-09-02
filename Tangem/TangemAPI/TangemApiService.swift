@@ -100,6 +100,8 @@ protocol TangemApiService: AnyObject {
 
     func loadStory(storyId: String) async throws -> StoryDTO.Response
 
+    func loadStories(slugs: [String], language: String) async throws -> StoriesResponseDTO
+
     // MARK: - Promotions
 
     func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response
