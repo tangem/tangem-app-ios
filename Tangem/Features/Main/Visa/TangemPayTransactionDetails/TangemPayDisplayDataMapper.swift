@@ -224,9 +224,9 @@ struct TangemPayFeeDisplayInput {
 
 extension TangemPayTransactionRecord {
     func displayData(using mapper: TangemPayDisplayDataMapper) -> TangemPayTransactionDetailsViewModel.DisplayData {
-        switch record {
-        case .spend(let spend):
-            return mapper.map(spend: spend.displayInput)
+        switch record.displayRecord {
+        case .merchant(let merchant):
+            return mapper.map(spend: merchant.displayInput)
         case .collateral(let collateral):
             return mapper.map(collateral: collateral.displayInput)
         case .payment(let payment):
@@ -237,7 +237,7 @@ extension TangemPayTransactionRecord {
     }
 }
 
-extension TangemPayTransactionHistoryResponse.Spend {
+extension TangemPayMerchantRecord {
     var displayInput: TangemPaySpendDisplayInput {
         .init(
             transactionDate: transactionDate,
@@ -245,7 +245,7 @@ extension TangemPayTransactionHistoryResponse.Spend {
             enrichedMerchantName: enrichedMerchantName,
             enrichedMerchantIcon: enrichedMerchantIcon,
             amount: amount,
-            authorizedAmount: authorizedAmount ?? amount,
+            authorizedAmount: authorizedAmount,
             currency: currency,
             localAmount: localAmount,
             localCurrency: localCurrency,

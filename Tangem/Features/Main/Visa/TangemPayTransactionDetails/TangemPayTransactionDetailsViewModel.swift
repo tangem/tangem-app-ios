@@ -159,14 +159,10 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     }
 
     private func startCardLoad() {
-        guard case .history(let transaction) = origin,
-              case .spend = transaction.record,
-              tangemPayAccount != nil
-        else {
+        guard let transactionId = merchantTransactionId else {
             return
         }
 
-        let transactionId = transaction.id
         cardLoadTask?.cancel()
         cardRow = .loading
         cardLoadTask = runTask(in: self) { viewModel in
@@ -175,7 +171,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     }
 
     private func startCashbackLoad() {
-        guard FeatureProvider.isAvailable(.tangemPayCashback), let transactionId = spendTransactionId else {
+        guard FeatureProvider.isAvailable(.tangemPayCashback), let transactionId = merchantTransactionId else {
             return
         }
 
@@ -186,9 +182,9 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         }
     }
 
-    private var spendTransactionId: String? {
+    private var merchantTransactionId: String? {
         guard case .history(let transaction) = origin,
-              case .spend = transaction.record,
+              case .merchant = transaction.record.displayRecord,
               tangemPayAccount != nil
         else {
             return nil
@@ -203,8 +199,8 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
         do {
             let response = try await tangemPayAccount.getTransaction(transactionId: transactionId)
-            if case .spend(let spend) = response.record, let cardNumberEnd = spend.cardNumberEnd {
-                cardRow = .loaded(cardNumberEnd: cardNumberEnd, cardName: spend.cardDisplayName)
+            if case .merchant(let merchant) = response.record.displayRecord, let cardNumberEnd = merchant.cardNumberEnd {
+                cardRow = .loaded(cardNumberEnd: cardNumberEnd, cardName: merchant.cardDisplayName)
             } else {
                 cardRow = .failed
             }
