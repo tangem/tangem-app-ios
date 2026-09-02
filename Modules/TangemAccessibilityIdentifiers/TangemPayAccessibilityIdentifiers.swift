@@ -15,8 +15,14 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let mainScreenTile = "\(prefix)MainScreenTile"
     public static let mainScreenTileBalance = "\(prefix)MainScreenTileBalance"
+    public static let mainScreenTileCachedIcon = "\(prefix)MainScreenTileCachedIcon"
     public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
     public static let getTangemPayBannerOpenButton = "\(prefix)GetTangemPayBannerOpenButton"
+
+    // MARK: - Stale state notifications
+
+    public static let sessionExpiredNotification = "\(prefix)SessionExpiredNotification"
+    public static let serviceUnavailableNotification = "\(prefix)ServiceUnavailableNotification"
 
     // MARK: - Onboarding (offer) screen
 
