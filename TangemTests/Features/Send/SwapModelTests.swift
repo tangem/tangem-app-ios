@@ -728,6 +728,10 @@ private final class PendingAccountModelsManagerStub: AccountModelsManager {
         AccountCreationResult(operationResult: .none, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint))
     }
 
+    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
+        AccountCreationResult(operationResult: .none, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .joint))
+    }
+
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] { [] }
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult { .none }
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}

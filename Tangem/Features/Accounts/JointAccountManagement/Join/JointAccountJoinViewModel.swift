@@ -18,9 +18,7 @@ final class JointAccountJoinViewModel: ObservableObject {
     @Published private(set) var walletName: String = ""
     @Published private(set) var walletImage: ImageValue?
 
-    /// Read by the coordinator once the user confirms — the wallet the account is joined with.
-    private(set) var selectedUserWalletModel: (any UserWalletModel)?
-
+    private var selectedUserWalletModel: (any UserWalletModel)?
     private var availableUserWalletModels: [any UserWalletModel] = []
 
     private let inviteId: String
@@ -67,11 +65,11 @@ final class JointAccountJoinViewModel: ObservableObject {
     }
 
     func onContinueTap() {
-        guard let selectedUserWalletModel else {
+        guard case .loaded(let content) = state, let selectedUserWalletModel else {
             return
         }
 
-        coordinator?.continueJoin(userWalletModel: selectedUserWalletModel)
+        coordinator?.continueJoin(userWalletModel: selectedUserWalletModel, preview: content.preview)
     }
 
     func onRetryTap() {
