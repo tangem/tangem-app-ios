@@ -912,11 +912,10 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .sell:
             openSell(for: walletModel)
         case .copyAddress:
-            // Copying the receive address is the first step of topping up, so the incomplete backup warning applies.
+            // Unlike Receive / Buy, copying an address isn't a top-up on its own, so the incomplete backup warning doesn't apply.
             TokenActionAvailabilityAlertPresenter.presentOrProceed(
                 handler: &error,
                 receiveStatus: availabilityProvider.receiveAvailability,
-                warning: availabilityProvider.availabilityWarningType,
                 action: { [weak self] in
                     guard let self else { return }
                     logContextTap(action: action, for: tokenItemViewModel)
