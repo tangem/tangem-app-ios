@@ -279,15 +279,17 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         }
     }
 
-    func openOrderCardType(fee: TangemPayCustomerOffer.Fee, cardType: TangemPayOrderCardType?) {
-        let tangemPayAccount = options?.tangemPayAccount
+    func openOrderCardType(cardType: TangemPayOrderCardType?) {
+        guard let tangemPayAccount = options?.tangemPayAccount else { return }
 
-        let virtualCardImageURL = tangemPayAccount?.customerTariffPlan?.tariffPlan.images
+        let tariffPlanCardImageURL = tangemPayAccount.customerTariffPlan?.tariffPlan.images
             .first { $0.type == .main }
             .flatMap { URL(string: $0.url) }
 
-        let profile = tangemPayAccount?.profile
-        let countryName = profile?.country.flatMap { Locale.current.localizedString(forRegionCode: $0) }
+        let profile = tangemPayAccount.profile
+        // The app language, not the device locale: the rest of the screen is localized by the former.
+        let appLocale = Locale(identifier: Locale.appLanguageCode)
+        let countryName = profile?.country.map { appLocale.localizedString(forRegionCode: $0) ?? $0 }
 
         let coordinator = TangemPayOrderCardCoordinator(
             dismissAction: { [weak self] in
@@ -296,13 +298,18 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             popToRootAction: popToRootAction
         )
         coordinator.start(with: .init(
-            issueFeeText: Self.formatFee(amount: fee.amount, currency: fee.currency),
-            virtualCardImageURL: virtualCardImageURL,
-            nameOnCard: tangemPayAccount?.cards.first?.card.embossName,
+            tariffPlanCardImageURL: tariffPlanCardImageURL,
+            nameOnCard: tangemPayAccount.cards.first?.card.embossName,
             countryName: countryName,
             email: profile?.email,
             phoneMask: profile?.phoneMask,
+            availableBalancePublisher: tangemPayAccount.balancesProvider
+                .totalTokenBalanceProvider
+                .balanceTypePublisher
+                .map(\.value)
+                .eraseToAnyPublisher(),
             selectedCardType: cardType,
+            tangemPayAccount: tangemPayAccount,
             parentCoordinator: self
         ))
         orderCardCoordinator = coordinator
@@ -955,8 +962,15 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
         }
     }
 
-    func openPlasticCardActivation(card: TangemPayPlasticCardStub) {
-        activateCardViewModel = TangemPayActivateCardViewModel(card: card, coordinator: self)
+    func openPlasticCardActivation(productInstanceId: String, activationImageURL: URL?) {
+        guard let tangemPayAccount = options?.tangemPayAccount else { return }
+
+        activateCardViewModel = TangemPayActivateCardViewModel(
+            productInstanceId: productInstanceId,
+            activationImageURL: activationImageURL,
+            tangemPayAccount: tangemPayAccount,
+            coordinator: self
+        )
     }
 
     func openSupport() {
@@ -1008,17 +1022,12 @@ extension TangemPayMainCoordinator: TangemPayOrderCardFlowRoutable {
     func orderCardFlowDidSelectVirtual() {
         rootViewModel?.orderCardTypeDidSelectVirtual()
     }
-
-    func orderCardFlowDidOrderPlastic(email: String?) {
-        options?.tangemPayAccount.addOrderedPlasticCard(email: email)
-    }
 }
 
 // MARK: - TangemPayActivateCardRoutable
 
 extension TangemPayMainCoordinator: TangemPayActivateCardRoutable {
-    func activateCardDidFinish(cardId: String) {
-        options?.tangemPayAccount.markPlasticCardActivating(id: cardId)
+    func activateCardDidFinish() {
         activateCardViewModel = nil
     }
 

@@ -33,7 +33,11 @@ struct TangemPayCardManagementView: View {
                 if let renameVM = viewModel.cardRenameViewModel {
                     TangemPayCardRenameToolbarView(renameViewModel: renameVM)
                 } else if viewModel.isPlasticCardDelivering {
+                    // Kept mounted for the whole phase, so gaining the buttons cannot resize the viewport.
                     redesignedPlasticFooter
+                        .opacity(viewModel.isPlasticCardAwaitingActivation ? 1 : 0)
+                        .allowsHitTesting(viewModel.isPlasticCardAwaitingActivation)
+                        .animation(.easeInOut, value: viewModel.isPlasticCardAwaitingActivation)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -54,22 +58,25 @@ struct TangemPayCardManagementView: View {
             VStack(spacing: 0) {
                 redesignedCardSection
 
-                if let plasticCard = viewModel.plasticCard {
+                if viewModel.isClosing {
                     Spacer(minLength: 0)
 
-                    TangemPayPlasticCardMessageView(stage: plasticCard.stage, email: plasticCard.email)
+                    TangemPayCardClosingMessageView()
+
+                    Spacer(minLength: 0)
+                } else if let plasticCard = viewModel.plasticCard {
+                    Spacer(minLength: 0)
+
+                    TangemPayPlasticCardMessageView(
+                        stage: plasticCard.stage,
+                        email: viewModel.plasticCardDeliveryEmail
+                    )
 
                     Spacer(minLength: 0)
                 } else if viewModel.isIssuing {
                     Spacer(minLength: 0)
 
                     TangemPayCardIssuingMessageView()
-
-                    Spacer(minLength: 0)
-                } else if viewModel.isClosing {
-                    Spacer(minLength: 0)
-
-                    TangemPayCardClosingMessageView()
 
                     Spacer(minLength: 0)
                 } else {
@@ -164,10 +171,8 @@ struct TangemPayCardManagementView: View {
             TangemPayCardDetailsViewRedesigned(viewModel: detailsViewModel)
         case .issuing:
             TangemPayIssuingCardDetailsViewRedesigned(isGhost: false)
-        case .ghost:
+        case .ghost, .plastic:
             TangemPayIssuingCardDetailsViewRedesigned(isGhost: true)
-        case .plastic:
-            TangemPayPlasticCardArtStubView()
         }
     }
 

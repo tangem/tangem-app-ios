@@ -26,7 +26,7 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
     @Published private(set) var closeCardRow: DefaultRowViewModel?
     @Published private(set) var dailyLimitState: TangemPayDailyLimitState?
-    @Published private(set) var plasticCard: TangemPayPlasticCardStub?
+    @Published private(set) var plasticCard: TangemPayCardEntry.Plastic?
     @Published private(set) var isIssuing: Bool = false
     @Published private(set) var isReissuing: Bool = false
     @Published private(set) var isClosing: Bool = false
@@ -130,10 +130,12 @@ private extension TangemPayCardManagementViewModel {
     struct SelectionAnchor {
         let entryId: String
         let productInstanceId: String?
+        let isPlastic: Bool
 
         init(entry: TangemPayCardEntry) {
             entryId = entry.id
             productInstanceId = entry.productInstanceId
+            isPlastic = entry.plasticCard != nil
         }
 
         func resolveSelection(in entries: [TangemPayCardEntry]) -> (entry: TangemPayCardEntry, newAnchor: SelectionAnchor)? {
@@ -142,6 +144,10 @@ private extension TangemPayCardManagementViewModel {
                 return (entry, SelectionAnchor(entry: entry))
             }
             if let entry = entries.first(where: { $0.id == entryId }) {
+                return (entry, SelectionAnchor(entry: entry))
+            }
+            // The card entry replacing a plastic order shares nothing with its anchor but being plastic.
+            if isPlastic, let entry = entries.first(where: { $0.plasticCard != nil }) {
                 return (entry, SelectionAnchor(entry: entry))
             }
             return nil
@@ -187,7 +193,7 @@ private extension TangemPayCardManagementViewModel {
             .store(in: &bag)
 
         Publishers.CombineLatest(tangemPayAccount.cardEntriesPublisher, $selectedCardId)
-            .map { entries, id -> TangemPayPlasticCardStub? in
+            .map { entries, id -> TangemPayCardEntry.Plastic? in
                 guard let id else { return nil }
                 return entries.first(where: { $0.id == id })?.plasticCard
             }
@@ -578,7 +584,23 @@ extension TangemPayCardManagementViewModel {
     }
 
     var isPlasticCardDelivering: Bool {
-        plasticCard?.stage == .delivering
+        plasticCard?.stage == .delivering && !isClosing
+    }
+
+    var isPlasticCardAwaitingActivation: Bool {
+        activatablePlasticCard != nil
+    }
+
+    private var activatablePlasticCard: TangemPayCard? {
+        guard isPlasticCardDelivering else {
+            return nil
+        }
+
+        return plasticCard?.deliveredCard
+    }
+
+    var plasticCardDeliveryEmail: String? {
+        tangemPayAccount.profile?.email
     }
 
     func onDetailsButton() {
@@ -602,9 +624,12 @@ extension TangemPayCardManagementViewModel {
     }
 
     func onActivatePlasticCardButton() {
-        guard let plasticCard else { return }
+        guard let card = activatablePlasticCard else { return }
 
-        coordinator?.openPlasticCardActivation(card: plasticCard)
+        coordinator?.openPlasticCardActivation(
+            productInstanceId: card.productInstance.id,
+            activationImageURL: card.activationImageURL
+        )
     }
 
     func onContactSupportButton() {

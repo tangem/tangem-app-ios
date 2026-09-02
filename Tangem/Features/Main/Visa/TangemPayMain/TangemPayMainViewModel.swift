@@ -427,8 +427,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func addCard(cardType: TangemPayOrderCardType? = nil) {
-        if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
-            openAdditionalCardIssue(offer: offer, fee: fee, cardType: cardType)
+        if openCardIssueIfOfferAvailable(cardType: cardType) {
             return
         }
 
@@ -445,17 +444,21 @@ final class TangemPayMainViewModel: ObservableObject {
 
                 await tangemPayAccount.loadOffers()
 
-                if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
-                    openAdditionalCardIssue(offer: offer, fee: fee, cardType: cardType)
-                } else if await isTariffPlanUpgradeAvailable() {
-                    coordinator?.openCardsLimitReachedSheet()
-                } else {
-                    coordinator?.openMaximumCardsIssuedSheet()
+                if !openCardIssueIfOfferAvailable(cardType: cardType) {
+                    await openCardsLimitSheet()
                 }
 
                 isAddCardLoading = false
             }
         )
+    }
+
+    private func openCardsLimitSheet() async {
+        if await isTariffPlanUpgradeAvailable() {
+            coordinator?.openCardsLimitReachedSheet()
+        } else {
+            coordinator?.openMaximumCardsIssuedSheet()
+        }
     }
 
     private func isTariffPlanUpgradeAvailable() async -> Bool {
@@ -468,13 +471,19 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
-    private func openAdditionalCardIssue(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee, cardType: TangemPayOrderCardType?) {
-        guard FeatureProvider.isAvailable(.tangemPayPlastic) else {
-            openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
-            return
+    private func openCardIssueIfOfferAvailable(cardType: TangemPayOrderCardType?) -> Bool {
+        let virtualOffer = tangemPayAccount.additionalCardIssueOffer
+
+        guard FeatureProvider.isAvailable(.tangemPayPlastic),
+              tangemPayAccount.plasticCardIssueOffer != nil else {
+            guard let virtualOffer, let fee = virtualOffer.fee else { return false }
+
+            openIssueAdditionalCardCostPopup(offer: virtualOffer, fee: fee)
+            return true
         }
 
-        coordinator?.openOrderCardType(fee: fee, cardType: cardType)
+        coordinator?.openOrderCardType(cardType: cardType)
+        return true
     }
 
     func orderCardTypeDidSelectVirtual() {

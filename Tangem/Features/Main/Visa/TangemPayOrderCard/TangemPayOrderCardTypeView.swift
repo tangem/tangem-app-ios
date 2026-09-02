@@ -100,23 +100,12 @@ struct TangemPayOrderCardTypeView: View {
         .frame(height: Constants.cardHeight)
     }
 
-    @ViewBuilder
     private func cardView(_ cardType: TangemPayOrderCardType) -> some View {
-        switch cardType {
-        case .virtual:
-            KFImage(viewModel.virtualCardImageURL)
-                .placeholder {
-                    Assets.Visa.cardGhost.image
-                        .resizable()
-                }
-                .resizable()
-                .scaledToFit()
-                .frame(width: Constants.cardWidth, height: Constants.cardHeight)
-        case .plastic:
-            TangemPayOrderCardPlasticArtStubView(
-                size: CGSize(width: Constants.cardWidth, height: Constants.cardHeight)
-            )
-        }
+        KFImage(viewModel.imageURL(for: cardType))
+            .placeholder { Assets.Visa.cardGhost.image.resizable() }
+            .resizable()
+            .scaledToFit()
+            .frame(width: Constants.cardWidth, height: Constants.cardHeight)
     }
 
     // MARK: - Rows
@@ -143,13 +132,11 @@ struct TangemPayOrderCardTypeView: View {
                     .appearance(badge.appearance)
             }
 
-            Text(row.value)
-                .style(
-                    DesignSystem.Font.bodyMediumToken,
-                    color: row.isValueStruckThrough ? DesignSystem.Color.textSecondary : DesignSystem.Color.textPrimary
-                )
-                .strikethrough(row.isValueStruckThrough)
-                .lineLimit(1)
+            if let value = row.value {
+                Text(value)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                    .lineLimit(1)
+            }
         }
     }
 
