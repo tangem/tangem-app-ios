@@ -113,6 +113,10 @@ final class AccountModelsManagerStub: AccountModelsManager {
         throw .tooManyAccounts
     }
 
+    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
+        throw .tooManyAccounts
+    }
+
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
         []
     }

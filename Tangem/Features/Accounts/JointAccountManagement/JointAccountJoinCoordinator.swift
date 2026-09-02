@@ -74,9 +74,18 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
 // MARK: - Private
 
 private extension JointAccountJoinCoordinator {
-    func openMemberName(userWalletModel: any UserWalletModel) {
+    func openMemberName(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview) {
+        guard let options else {
+            return
+        }
+
         let viewModel = JointAccountMemberNameViewModel(
-            helper: JointAccountJoinMemberNameHelper(userWalletModel: userWalletModel),
+            helper: JointAccountJoinMemberNameHelper(
+                inviteId: options.inviteId,
+                signedConfig: preview.config,
+                userWalletModel: userWalletModel,
+                routable: self
+            ),
             coordinator: self
         )
 
@@ -151,10 +160,14 @@ extension JointAccountJoinCoordinator: JointAccountJoinRoutable {
         }
     }
 
-    func continueJoin(userWalletModel: any UserWalletModel) {
+    func continueJoin(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: JointAccountJoinConfirmationViewModel(userWalletModel: userWalletModel, coordinator: self)
+                sheet: JointAccountJoinConfirmationViewModel(
+                    userWalletModel: userWalletModel,
+                    preview: preview,
+                    coordinator: self
+                )
             )
         }
     }
@@ -163,14 +176,15 @@ extension JointAccountJoinCoordinator: JointAccountJoinRoutable {
 // MARK: - JointAccountJoinConfirmationRoutable
 
 extension JointAccountJoinCoordinator: JointAccountJoinConfirmationRoutable {
-    func confirmJoin(userWalletModel: any UserWalletModel) {
+    func confirmJoin(userWalletModel: any UserWalletModel, preview: JointAccountInvitePreview) {
         Task { @MainActor [weak self] in
             guard let self else {
                 return
             }
 
             floatingSheetPresenter.removeActiveSheet()
-            openMemberName(userWalletModel: userWalletModel)
+
+            openMemberName(userWalletModel: userWalletModel, preview: preview)
         }
     }
 
@@ -186,6 +200,14 @@ extension JointAccountJoinCoordinator: JointAccountJoinConfirmationRoutable {
 
 extension JointAccountJoinCoordinator: JointAccountMemberNameRoutable {
     func closeMemberName() {
+        dismiss()
+    }
+}
+
+// MARK: - JointAccountJoinMemberNameRoutable
+
+extension JointAccountJoinCoordinator: JointAccountJoinMemberNameRoutable {
+    func closeJoinedAccount() {
         dismiss()
     }
 }

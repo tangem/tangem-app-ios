@@ -52,6 +52,10 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         throw .unknownError(NSError.dummy)
     }
 
+    func joinJointAccount(context: JointAccountJoinContext) async throws(AccountEditError) -> AccountCreationResult {
+        throw .unknownError(NSError.dummy)
+    }
+
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
         []
     }
