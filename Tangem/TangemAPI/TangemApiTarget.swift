@@ -24,6 +24,10 @@ struct TangemApiTarget: TargetType {
             AppEnvironment.current.activatePromoCodeBaseUrl
         case .promotion, .yieldBoostPromotionStatus, .promotionRegistration:
             AppEnvironment.current.apiBaseUrlv2
+        case .stories:
+            // The backend example requests `/api/v2/stories` — same gateway `/api` segment
+            // as notification preferences; revert to `apiBaseUrlv2` if BE drops it.
+            AppEnvironment.current.apiBaseUrlv2WithGatewaySegment
         case .saveUserWalletTokensV2:
             // Contract v1.3 documents the full path as `/api/v2/wallets/{walletId}/tokens`.
             // NOTE: the leading `/api` segment is applied here but still needs backend confirmation
@@ -107,6 +111,8 @@ struct TangemApiTarget: TargetType {
             return "/networks/providers"
         case .story(let storyId):
             return "/stories/\(storyId)"
+        case .stories:
+            return "/stories"
 
         // MARK: - Markets paths
         case .coinsList:
@@ -246,6 +252,7 @@ struct TangemApiTarget: TargetType {
              .coinsSettings,
              .coinIndicators,
              .story,
+             .stories,
              .pushNotificationsEligible,
              .getUserAccounts,
              .getArchivedUserAccounts,
@@ -328,6 +335,12 @@ struct TangemApiTarget: TargetType {
             return .requestPlain
         case .story:
             return .requestPlain
+        case .stories(let slugs, let language):
+            // Repeated `slugs` parameters and the language as a query item, per the backend example.
+            return .requestParameters(
+                parameters: ["slugs": slugs, "language": language],
+                encoding: URLEncoding(destination: .queryString, arrayEncoding: .noBrackets)
+            )
 
         // MARK: - Markets tasks
         case .coinsList(let requestData):
@@ -479,6 +492,7 @@ struct TangemApiTarget: TargetType {
              .marketingCampaigns,
              .activatePromoCode,
              .story,
+             .stories,
              .coinsList,
              .coinsCategories,
              .coinsHistoryChartPreview,
@@ -553,6 +567,7 @@ extension TangemApiTarget {
         case marketingCampaigns(parameters: [String: Any])
 
         case story(_ id: String)
+        case stories(slugs: [String], language: String)
 
         // MARK: - Markets Targets
 
@@ -639,7 +654,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite:
+        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .stories:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -674,6 +689,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .earnNetworks,
              .coinIndicators,
              .story,
+             .stories,
              .rawData,
              .hotCrypto,
              .createUserWalletsApplication,

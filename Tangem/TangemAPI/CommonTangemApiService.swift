@@ -240,6 +240,12 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .story(storyId))
     }
 
+    func loadStories(slugs: [String], language: String) async throws -> StoriesResponseDTO {
+        // Without this guard an empty list degrades to an unfiltered `GET /stories`.
+        guard !slugs.isEmpty else { return StoriesResponseDTO(storiesByPlacement: [:]) }
+        return try await request(for: .stories(slugs: slugs, language: language))
+    }
+
     // MARK: - Promotions
 
     func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response {
