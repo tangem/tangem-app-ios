@@ -11,6 +11,7 @@ import Combine
 import TangemAssets
 import TangemFoundation
 import TangemPolymarket
+import TangemPolymarketUI
 import TangemUI
 
 final class PolymarketMainViewModel: ObservableObject {

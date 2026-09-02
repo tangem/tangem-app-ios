@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemPolymarket
+import TangemPolymarketUI
 
 final class PolymarketSearchViewModel: ObservableObject {
     @Published var query = ""

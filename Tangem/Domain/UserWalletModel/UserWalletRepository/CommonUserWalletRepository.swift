@@ -10,6 +10,7 @@ import Foundation
 import LocalAuthentication
 import Combine
 import CryptoKit
+import TangemPolymarket
 import TangemSdk
 import TangemVisa
 import TangemLocalization

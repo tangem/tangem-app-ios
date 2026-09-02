@@ -12,6 +12,7 @@ import SwiftUI
 import TangemFoundation
 import TangemLocalization
 import TangemPolymarket
+import TangemPolymarketUI
 import TangemUIUtils
 
 final class PolymarketCoordinator: CoordinatorObject {

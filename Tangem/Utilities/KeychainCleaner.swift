@@ -9,6 +9,7 @@
 import Foundation
 import Security
 import TangemBackendAuthentication
+import TangemPolymarket
 import TangemSdk
 import TangemMobileWalletSdk
 

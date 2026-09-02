@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
+import TangemPolymarketUI
 import TangemUI
 import TangemUIUtils
 

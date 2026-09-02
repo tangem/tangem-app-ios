@@ -8,10 +8,10 @@
 
 import SwiftUI
 import TangemAssets
+import TangemPolymarketUI
 import TangemUI
 import TangemLocalization
 import TangemUIUtils
-import TangemPolymarket
 
 struct PolymarketMainView: View {
     @ObservedObject var viewModel: PolymarketMainViewModel
