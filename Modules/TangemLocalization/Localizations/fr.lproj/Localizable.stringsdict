@@ -2,6 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <key>account_details_joint_members_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li person</string>
+        <key>other</key>
+        <string>%li people</string>
+      </dict>
+    </dict>
     <key>address_book_addresses</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -45,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li asset</string>
+        <string>%li actif</string>
         <key>other</key>
-        <string>%li assets</string>
+        <string>%li actifs</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -77,9 +93,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li day ago</string>
+        <string>Il y a %li jour</string>
         <key>other</key>
-        <string>%li days ago</string>
+        <string>Il y a %li jours</string>
       </dict>
     </dict>
     <key>common_hours</key>
@@ -472,9 +488,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>It will take up to %li business day for delivery</string>
+        <string>La livraison prend jusqu’à %li jour ouvré</string>
         <key>other</key>
-        <string>It will take up to %li business days for delivery</string>
+        <string>La livraison prend jusqu’à %li jours ouvrés</string>
       </dict>
     </dict>
     <key>tangempay_order_type_delivery_eta</key>
@@ -488,9 +504,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Up to %li business day</string>
+        <string>Jusqu’à %li jour ouvré</string>
         <key>other</key>
-        <string>Up to %li business days</string>
+        <string>Jusqu’à %li jours ouvrés</string>
       </dict>
     </dict>
     <key>top_assets_count</key>
