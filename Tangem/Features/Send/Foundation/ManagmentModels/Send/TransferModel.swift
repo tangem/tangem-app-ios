@@ -392,7 +392,7 @@ private extension TransferModel {
     private func addTokenFromTransactionIfNeeded(_ transaction: BSDKTransaction) {
         switch transaction.amount.type.token {
         case .some(let token) where token.metadata.kind == .fungible:
-            try? TokenAdder.addToken(defaultAddress: transaction.destinationAddress, token: token)
+            try? TokenAdder.addToken(token, to: transaction.destinationAddress, in: _sourceToken.tokenItem.blockchain)
         default:
             break // NFTs should never be shown in the token list
         }
