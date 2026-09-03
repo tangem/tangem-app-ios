@@ -20,7 +20,7 @@ public struct PolymarketOrderMarketRow: View {
     public var body: some View {
         TangemUI.Row(title: model.question)
             .titleLineLimit(Constants.titleLineLimit)
-            .verticalAlignment(.top)
+            .verticalAlignment(.center)
             .end { PolymarketAvatarView(url: model.imageURL) }
             .extraBottom {
                 PolymarketOutcomeVoteView(

@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import TangemPolymarketUI
 import TangemUI
 import TangemUIUtils
 
@@ -20,11 +21,14 @@ struct PolymarketOrderView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            content
-                .infinityFrame()
-
+        VStack(spacing: 0) {
             topBar
+
+            content
+
+            Spacer(minLength: Constants.contentToButtonGap)
+
+            nextButton
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
     }
@@ -32,10 +36,15 @@ struct PolymarketOrderView: View {
     // MARK: - Top bar
 
     private var topBar: some View {
-        backButton
-            .padding(.horizontal, Constants.padding)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(height: Constants.toolbarHeight)
+        ZStack {
+            Text(Localization.predictionPlaceTitle)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+            backButton
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, Constants.horizontalPadding)
+        .frame(height: Constants.toolbarHeight)
     }
 
     private var backButton: some View {
@@ -54,15 +63,43 @@ struct PolymarketOrderView: View {
     // MARK: - Content
 
     private var content: some View {
-        VStack(spacing: Constants.spacing) {
-            Text(viewModel.market.groupItemTitle ?? viewModel.market.title)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                .multilineTextAlignment(.center)
+        VStack(spacing: Constants.blockSpacing) {
+            PolymarketOrderMarketRow(model: viewModel.marketRow)
 
-            Text(viewModel.outcome.title)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            PolymarketOrderAmountBlock(payment: viewModel.payment) {
+                amountField
+            }
+
+            PolymarketOrderSlippageRow(valueText: viewModel.slippageText, onTap: viewModel.openSlippageSelector)
+                .background(DesignSystem.Color.bgSecondary)
+                .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
         }
-        .padding(Constants.padding)
+        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.top, Constants.contentTopPadding)
+    }
+
+    private var amountField: some View {
+        SendDecimalNumberTextField(viewModel: viewModel.fieldViewModel)
+            .prefixSuffixOptions(Constants.prefixSuffixOptions)
+            .appearance(.init(
+                font: DesignSystem.Font.displayMediumToken.font,
+                textColor: DesignSystem.Color.textPrimary,
+                placeholderColor: DesignSystem.Color.textTertiary
+            ))
+            .alignment(.center)
+    }
+
+    private var nextButton: some View {
+        TangemUI.Button(
+            label: Localization.commonNext,
+            accessibilityLabel: Localization.commonNext,
+            action: viewModel.proceed
+        )
+        .size(.x12)
+        .horizontalLayout(.infinity)
+        .disabled(true)
+        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.bottom, Constants.buttonBottomPadding)
     }
 }
 
@@ -70,9 +107,16 @@ struct PolymarketOrderView: View {
 
 private extension PolymarketOrderView {
     enum Constants {
-        static let spacing: CGFloat = 8
-        static let padding: CGFloat = 16
+        static let horizontalPadding: CGFloat = 16
+        static let contentTopPadding: CGFloat = 8
+        static let blockSpacing: CGFloat = 12
+        static let contentToButtonGap: CGFloat = 24
+        static let buttonBottomPadding: CGFloat = 12
+        static let cornerRadius: CGFloat = 24
         static let toolbarHeight: CGFloat = 44
         static let barButtonSide: CGFloat = 44
+
+        static let prefixSuffixOptions = SendDecimalNumberTextField.PrefixSuffixOptions
+            .prefix(text: AppConstants.usdSign, hasSpace: true)
     }
 }

@@ -26,12 +26,12 @@ final class PolymarketSlippageSelectorViewModel: ObservableObject {
     init(percent: Decimal = PolymarketSlippage.defaultPercent, onConfirm: @escaping (Decimal) -> Void) {
         self.onConfirm = onConfirm
 
-        fieldViewModel.update(value: percent)
         bind()
+        apply(percent: percent)
     }
 
     func select(preset: Preset) {
-        fieldViewModel.update(value: preset.percent)
+        apply(percent: preset.percent)
     }
 
     func confirm() {
@@ -40,6 +40,10 @@ final class PolymarketSlippageSelectorViewModel: ObservableObject {
         onConfirm(percent)
     }
 }
+
+// MARK: - Identifiable protocol conformance
+
+extension PolymarketSlippageSelectorViewModel: Identifiable {}
 
 // MARK: - Private implementation
 
@@ -50,6 +54,11 @@ private extension PolymarketSlippageSelectorViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, value in viewModel.handle(value) }
             .store(in: &bag)
+    }
+
+    func apply(percent: Decimal) {
+        fieldViewModel.update(value: percent)
+        handle(percent)
     }
 
     func handle(_ percent: Decimal?) {
@@ -95,6 +104,12 @@ extension PolymarketSlippageSelectorViewModel {
 enum PolymarketSlippageFormatter {
     static func percentText(_ percent: Decimal) -> String {
         formatter.format(percent / Constants.percentScale, option: .predictionSlippage)
+    }
+
+    static func rowText(_ percent: Decimal) -> String {
+        let formatted = percentText(percent)
+
+        return PolymarketSlippage.isDefault(percent) ? Localization.predictionPlaceSlippageDefault(formatted) : formatted
     }
 
     private static let formatter = PercentFormatter()
