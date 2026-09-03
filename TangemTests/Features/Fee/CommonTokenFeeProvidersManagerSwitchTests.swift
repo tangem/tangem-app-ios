@@ -467,6 +467,167 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
     }
 }
 
+@Suite("Tron gasless quote request", .serialized)
+struct TronGaslessQuoteRequestTests {
+    private let sourceAddress = "TSourceAddress"
+    private let destinationAddress = "TDestinationAddress"
+    private let tokenContractAddress = "TTokenContract"
+    private let feeTokenContractAddress = "TFeeTokenContract"
+
+    @Test("Quote matches the transaction built from the estimated amount")
+    func matchingTransaction_isRecognized() {
+        let transaction = makeTransaction(amount: 3)
+        let request = makeRequest(amountRaw: "3000000")
+
+        #expect(request.matches(transaction: transaction, feeToken: makeFeeToken()))
+    }
+
+    @Test("Quote does not match a fee-adjusted transaction amount")
+    func feeAdjustedTransaction_requiresNewQuote() {
+        let transaction = makeTransaction(amount: Decimal(string: "0.4662")!)
+        let request = makeRequest(amountRaw: "3000000")
+
+        #expect(!request.matches(transaction: transaction, feeToken: makeFeeToken()))
+    }
+
+    @Test("Quote matches a fee-adjusted amount before the transaction is built")
+    func feeAdjustedAmount_isRecognized() {
+        let blockchain = BSDKBlockchain.tron(testnet: false)
+        let token = BSDKToken(
+            name: "USDT",
+            symbol: "USDT",
+            contractAddress: tokenContractAddress,
+            decimalCount: 6
+        )
+        let amount = BSDKAmount(
+            with: blockchain,
+            type: .token(value: token),
+            value: Decimal(string: "0.4662")!
+        )
+        let request = makeRequest(amountRaw: "466200")
+
+        #expect(request.matches(
+            amount: amount,
+            destinationAddress: destinationAddress,
+            feeToken: makeFeeToken()
+        ))
+    }
+
+    @Test("Fee amount uses the raw compensation value")
+    func feeAmount_usesRawCompensationValue() async throws {
+        let networkManager = GaslessTransactionsNetworkManagerStub(
+            feeRecipientAddress: nil,
+            tronEstimate: { _ in
+                try makeEstimateResponse(
+                    compensationAmount: "2.5338",
+                    compensationAmountRaw: "2533812"
+                )
+            }
+        )
+
+        let blockchain = BSDKBlockchain.tron(testnet: false)
+        let token = Token(
+            name: "USDT",
+            symbol: "USDT",
+            contractAddress: tokenContractAddress,
+            decimalCount: 6
+        )
+        let feeToken = BSDKToken(
+            name: token.name,
+            symbol: token.symbol,
+            contractAddress: token.contractAddress,
+            decimalCount: token.decimalCount
+        )
+        let loader = CommonTronGaslessTokenFeeLoader(
+            tokenItem: .token(token, .init(blockchain, derivationPath: nil)),
+            feeToken: feeToken,
+            sourceAddress: sourceAddress,
+            networkManager: networkManager
+        )
+
+        let fees = try await loader.getFee(amount: 3, destination: destinationAddress)
+        let fee = try #require(fees.first)
+
+        #expect(fee.amount.value == Decimal(string: "2.533812"))
+    }
+
+    private func makeRequest(
+        amountRaw: String,
+        feeTokenContractAddress: String? = nil
+    ) -> TronGaslessQuoteRequest {
+        TronGaslessQuoteRequest(
+            sourceAddress: sourceAddress,
+            destinationAddress: destinationAddress,
+            tokenContractAddress: tokenContractAddress,
+            amountRaw: amountRaw,
+            feeTokenContractAddress: feeTokenContractAddress ?? self.feeTokenContractAddress
+        )
+    }
+
+    private func makeTransaction(
+        amount: Decimal,
+        feeToken: BSDKToken? = nil,
+        feeAmount: Decimal = 1,
+        feeParameters: FeeParameters? = nil
+    ) -> BSDKTransaction {
+        let blockchain = BSDKBlockchain.tron(testnet: false)
+        let token = BSDKToken(
+            name: "USDT",
+            symbol: "USDT",
+            contractAddress: tokenContractAddress,
+            decimalCount: 6
+        )
+
+        return BSDKTransaction(
+            amount: BSDKAmount(with: blockchain, type: .token(value: token), value: amount),
+            fee: BSDKFee(
+                BSDKAmount(with: feeToken ?? makeFeeToken(), value: feeAmount),
+                parameters: feeParameters
+            ),
+            sourceAddress: sourceAddress,
+            destinationAddress: destinationAddress,
+            changeAddress: sourceAddress
+        )
+    }
+
+    private func makeFeeToken() -> BSDKToken {
+        BSDKToken(
+            name: "Fee token",
+            symbol: "FEE",
+            contractAddress: feeTokenContractAddress,
+            decimalCount: 6
+        )
+    }
+
+    private func makeEstimateResponse(
+        compensationAmount: String,
+        compensationAmountRaw: String
+    ) throws -> GaslessTransactionsDTO.Response.TronEstimate {
+        let data = Data(
+            """
+            {
+              "result": {
+                "quoteId": "quote",
+                "feeRecipient": "TFeeRecipient",
+                "compensationToken": "\(tokenContractAddress)",
+                "compensationAmount": "\(compensationAmount)",
+                "compensationAmountRaw": "\(compensationAmountRaw)",
+                "estimate": {
+                  "energy": 1,
+                  "bandwidth": 1,
+                  "trxCost": "1"
+                },
+                "expiresAt": "2099-01-01T00:00:00Z"
+              }
+            }
+            """.utf8
+        )
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(GaslessTransactionsDTO.Response.TronEstimate.self, from: data)
+    }
+}
+
 @Suite("Gasless Yield Fee", .serialized)
 struct GaslessYieldFeeTests {
     @Test("WithdrawMethod encodes withdraw(address,uint256) selector and params")
@@ -872,6 +1033,7 @@ final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
 
 private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNetworkManager {
     let cachedFeeRecipientAddress: String?
+    private let tronEstimate: ((TronEstimateRequest) async throws -> TronEstimateResponse)?
 
     var availableFeeTokens: [FeeToken] { [] }
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> {
@@ -886,15 +1048,23 @@ private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNe
     var currentHost: String { "test" }
     var feeRecipientAddress: String? { cachedFeeRecipientAddress }
 
-    init(feeRecipientAddress: String?) {
+    init(
+        feeRecipientAddress: String?,
+        tronEstimate: ((TronEstimateRequest) async throws -> TronEstimateResponse)? = nil
+    ) {
         cachedFeeRecipientAddress = feeRecipientAddress
+        self.tronEstimate = tronEstimate
     }
 
     func updateAvailableTokens() {}
     func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String { "" }
     func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String { "" }
     func estimateTronGaslessTransaction(_ request: TronEstimateRequest) async throws -> TronEstimateResponse {
-        throw CancellationError()
+        guard let tronEstimate else {
+            throw CancellationError()
+        }
+
+        return try await tronEstimate(request)
     }
 
     func submitTronGaslessTransaction(_ request: TronSubmitRequest) async throws -> TronSubmitResponse {
