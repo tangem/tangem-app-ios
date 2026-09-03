@@ -986,6 +986,15 @@
 "markets_portfolio_block_token_unsupported" = "**Токен не поддерживается**. В настоящее время этот токен не поддерживается в кошельке";
 "markets_portfolio_eligible_block_title" = "Другие поддерживаемые токены";
 "markets_pulse_common_title" = "Пульс рынка";
+"markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_filter_sectors_title" = "Sectors";
+"markets_real_assets_filter_title" = "Category";
+"markets_real_assets_interval_day" = "Day";
+"markets_real_assets_interval_month" = "Month";
+"markets_real_assets_interval_week" = "Week";
+"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds they're not supported in UK and US";
+"markets_real_assets_region_restriction_title" = "Not supported in your region";
+"markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "Очистить всё";
 "markets_search_header_title" = "Поиск токенов";
 "markets_search_hint_header" = "Недавние запросы";
@@ -2050,7 +2059,7 @@
 "tangempay_cashback_widget_error_description" = "Нажмите, чтобы обновить";
 "tangempay_cashback_widget_error_title" = "Кэшбэк недоступен";
 "tangempay_cashback_widget_refund_description" = "Уменьшен из-за возврата покупок";
-"tangempay_cashback_widget_title" = "%1$@ кэшбэк за %2$@";
+"tangempay_cashback_widget_title" = "%1$@ за %2$@";
 "tangempay_change_pin_code" = "Изменить PIN-код";
 "tangempay_changing_plan" = "Изменение тарифа";
 "tangempay_choose_network_fast_way" = "Быстрые способы";
