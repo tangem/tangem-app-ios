@@ -69,6 +69,7 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
         }
 
         return parameters.expiresAt > currentDate.addingTimeInterval(TronGaslessFeeParameters.expirationBuffer)
+            && input?.isSelectedFeeActual == true
     }
 
     func informationDidUpdated() {
@@ -76,27 +77,30 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
     }
 
     func updateInformation() -> AnyPublisher<InformationRelevanceServiceUpdateResult, any Error> {
-        guard let input else {
+        guard let input, let oldFee = input.selectedFee else {
             return .empty
         }
 
-        defer { provider?.updateFees() }
-
-        // Catch the subscriptions
         return input
             .selectedFeePublisher
-            .pairwise()
+            .dropFirst()
             .withWeakCaptureOf(self)
-            .tryMap { service, fees in
-                let (oldFee, newFee) = fees
-
+            .tryCompactMap { service, newFee in
                 if let error = newFee.value.error {
                     throw error
+                }
+
+                guard input.isSelectedFeeActual else {
+                    return nil
                 }
 
                 service.informationDidUpdated()
                 return service.compare(oldFee: oldFee, newFee: newFee)
             }
+            .first()
+            .handleEvents(receiveSubscription: { [weak provider] _ in
+                provider?.updateFees()
+            })
             .eraseToAnyPublisher()
     }
 }

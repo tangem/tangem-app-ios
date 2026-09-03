@@ -200,7 +200,7 @@ private struct TransactionCashbackBadge: View {
 
     private var appearance: BadgeAppearance {
         switch cashback.style {
-        case .estimated: .neutral
+        case .estimated, .refunded: .neutral
         case .confirmed: .info
         }
     }
