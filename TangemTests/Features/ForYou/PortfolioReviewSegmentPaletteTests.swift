@@ -17,30 +17,32 @@ struct PortfolioReviewSegmentPaletteTests {
     typealias SUT = PortfolioReviewSegmentPalette
     typealias Availability = PortfolioReviewAggregator.Availability
 
-    // MARK: - Palette
+    // MARK: - Slices
 
     @Test("Nothing ranked, nothing coloured")
-    func emptyRankingGetsNoColours() {
-        #expect(SUT.colors(forRanked: []).isEmpty)
+    func emptyRankingGetsNoSlices() {
+        #expect(SUT.slices(forRanked: []).isEmpty)
     }
 
-    @Test("Ranks past the palette get no colour")
+    @Test("Ranks past the palette get no slice")
     func ranksPastThePaletteGetNothing() {
-        let ids = (0 ..< 8).map { "asset\($0)" }
+        let ids = (0 ..< 14).map { "asset\($0)" }
 
-        let colors = SUT.colors(forRanked: ids)
+        let slices = SUT.slices(forRanked: ids)
 
-        #expect(colors.count == Self.topAssetCount)
-        #expect(Set(colors.keys) == Set(ids.prefix(Self.topAssetCount)))
+        // Ten ranks is the product rule, so growing the palette is meant to break this on purpose.
+        #expect(slices.count == 10)
+        #expect(Set(slices.keys) == Set(ids.prefix(10)))
     }
 
-    @Test("The colour follows the rank, not the asset")
-    func colourFollowsTheRank() throws {
-        let first = try #require(SUT.colors(forRanked: ["btc", "eth"])["btc"])
-        let second = try #require(SUT.colors(forRanked: ["eth", "btc"])["eth"])
+    @Test("The slice follows the rank, not the asset")
+    func sliceFollowsTheRank() throws {
+        let first = try #require(SUT.slices(forRanked: ["btc", "eth"])["btc"])
+        let second = try #require(SUT.slices(forRanked: ["eth", "btc"])["eth"])
 
-        // Whoever ranks first wears the same colour, so a reshuffled portfolio recolours in place.
-        #expect(first == second)
+        // Whoever ranks first wears the same pair, so a reshuffled portfolio recolours in place.
+        #expect(first.arc == second.arc)
+        #expect(first.indicator == second.indicator)
     }
 
     // MARK: - Segments
@@ -68,19 +70,20 @@ struct PortfolioReviewSegmentPaletteTests {
     func arcsAndDotsShareTheirAsset() {
         let review = makeReview(fiatAmounts: [400, 300, 200, 100])
 
+        #expect(review.segments.count == 4)
         #expect(review.segments.map(\.id) == review.rows.rankedRowIDs)
     }
 
-    @Test("A row's dot is the very colour its own arc is drawn with")
-    func rowDotMatchesItsArc() throws {
-        let content = try mapContent(fiatBalances: [400, 300, 200, 100])
-        let arcsByID = try Dictionary(uniqueKeysWithValues: segments(of: content).map { ($0.id, $0.color) })
+    @Test("A row's dot is the indicator colour of its own rank")
+    func rowDotIsItsRankIndicator() {
+        let review = makeReview(fiatAmounts: [400, 300, 200, 100])
 
-        let dots = content.tokenList.map(\.assetRow.indicatorColor)
-        let arcs = content.tokenList.map { arcsByID[$0.id] }
+        let dots = review.rows.map(\.assetRow.indicatorColor)
+        let expectedDots = review.rows.map { review.slices[$0.id]?.indicator }
 
         #expect(dots.allSatisfy { $0 != nil })
-        #expect(dots == arcs)
+        // Discriminates the indicator half of the slice from the arc half, and a lookup by the wrong key.
+        #expect(dots == expectedDots)
     }
 
     @Test("Ranking follows the balances, not the order the holdings arrive in")
@@ -98,43 +101,48 @@ struct PortfolioReviewSegmentPaletteTests {
 
         // A tie must not reshuffle the list: the ranking is stable, so the holdings keep the order they arrived in.
         #expect(review.rows.rankedRowIDs == ["asset0", "asset1", "asset2", "asset3"])
+        #expect(review.segments.count == 4)
         #expect(review.segments.map(\.id) == review.rows.rankedRowIDs)
     }
 
-    @Test("Assets past the top four are charted by neither an arc nor a dot")
-    func assetsPastTheTopFourAreNotCharted() {
-        let review = makeReview(fiatAmounts: [600, 500, 400, 300, 200, 100])
+    @Test("Assets past the top ten are charted by neither an arc nor a dot")
+    func assetsPastTheTopTenAreNotCharted() {
+        let review = makeReview(fiatAmounts: Self.twelveDescendingAmounts)
 
-        #expect(review.segments.map(\.id) == ["asset0", "asset1", "asset2", "asset3"])
-        #expect(!review.rows.map(\.id).contains("asset4"))
-        #expect(!review.rows.map(\.id).contains("asset5"))
+        // The two past the top get no arc of their own: they are inside the bucket that closes the ring.
+        #expect(review.segments.map(\.id) == (0 ..< 10).map { "asset\($0)" } + [PortfolioRowBuilder.otherID])
+        #expect(!review.rows.map(\.id).contains("asset10"))
+        #expect(!review.rows.map(\.id).contains("asset11"))
     }
 
     // MARK: - Through the mapper
 
     @Test("The mapper hands the rows and the donut one and the same ranking")
     func mapperWiresRowsAndDonutToOneRanking() throws {
-        let content = try mapContent(fiatBalances: [500, 400, 300, 200, 100])
+        let content = try content(of: map(fiatBalances: Self.twelveDescendingAmounts))
         let assets = try chartAssets(of: content)
         let segments = SummaryGaugeChart.segments(for: assets)
 
-        #expect(segments.count == Self.topAssetCount)
-        #expect(segments.map(\.id) == content.tokenList.rankedRowIDs)
+        // Ten ranked arcs plus the bucket that closes the ring.
+        #expect(segments.count == 11)
+        #expect(segments.dropLast().map(\.id) == content.tokenList.rankedRowIDs)
         // Amounts rather than currency ids: pins the ranking to the balances without guessing at ids.
-        #expect(segments.map(\.value) == [500, 400, 300, 200])
-        // Four ranked rows plus the "Other" bucket, while every group still reaches the gauge for the centre total.
-        #expect(content.tokenList.count == 5)
-        #expect(assets.count == 5)
+        // The last one is the bucket, 200 + 100.
+        #expect(segments.map(\.value) == [1200, 1100, 1000, 900, 800, 700, 600, 500, 400, 300, 300])
+        #expect(content.tokenList.count == 11)
+        // Collapsing the tail into one asset must not move the centre total.
+        #expect(assets.map(\.fiatValue).reduce(0, +) == 7800)
     }
 
     @Test("A donut that can't be drawn leaves every row without a dot")
     func unchartedDonutLeavesRowsWithoutDots() throws {
         // One failed balance is enough to fail the total, and a partial sum isn't charted.
-        let content = try mapContent(fiatBalances: [500, 400, 300, 200, 100], totalBalance: .failed(cached: nil, failedItems: []))
+        let state = map(fiatBalances: Self.twelveDescendingAmounts, totalBalance: .failed(cached: nil, failedItems: []))
+        let content = try content(of: state)
 
         #expect(content.chart == .noData(.cantLoad))
         // Includes the "Other" bucket: its neutral marker reads as one of the dots, so it goes too.
-        #expect(content.tokenList.count == 5)
+        #expect(content.tokenList.count == 11)
         #expect(content.tokenList.allSatisfy { $0.assetRow.indicatorColor == nil })
     }
 
@@ -142,15 +150,17 @@ struct PortfolioReviewSegmentPaletteTests {
 
     @Test("The Other bucket wears the neutral marker, not a rank colour")
     func otherBucketWearsTheNeutralMarker() throws {
-        let content = try mapContent(fiatBalances: [500, 400, 300, 200, 100])
+        let review = makeReview(fiatAmounts: Self.twelveDescendingAmounts)
 
-        let otherRow = try #require(content.tokenList.last)
-        let rankColours = content.tokenList.dropLast().map(\.assetRow.indicatorColor)
+        let otherRow = try #require(review.rows.last)
+        let rankColours = review.slices.values.map(\.indicator)
+
+        let otherSegment = try #require(review.segments.first { $0.id == otherRow.id })
 
         #expect(otherRow.assetRow.indicatorColor == SUT.otherIndicatorColor)
         #expect(!rankColours.contains(SUT.otherIndicatorColor))
-        // It closes the list without an arc of its own — the donut charts assets, not the bucket.
-        #expect(try !segments(of: content).map(\.id).contains(otherRow.id))
+        // Its arc closes the ring and answers taps, so it wears the ring's own grey rather than a rank shade.
+        #expect(otherSegment.color == SUT.otherArcColor)
     }
 
     @Test("An addressless asset is listed without a dot")
@@ -180,14 +190,29 @@ struct PortfolioReviewSegmentPaletteTests {
         #expect(item.networkRows.allSatisfy { $0.indicatorColor == nil })
     }
 
-    @Test("A wallet holding nothing but zeroes draws no donut and still lists its tokens")
-    func emptyStateLeavesRowsWithoutDots() throws {
-        let content = try mapContent(fiatBalances: [0, 0, 0])
+    @Test("The empty state draws no donut, so it leaves every row without a dot")
+    func emptyStateLeavesRowsWithoutDots() {
+        let holdings = (0 ..< 3).map { makeHolding(groupKey: "asset\($0)", amountInFiat: 0) }
+
+        let rows = PortfolioRowBuilder().build(
+            topHoldings: PortfolioReviewAggregator.aggregateEmpty(holdings),
+            other: [],
+            addressless: [],
+            slices: [:],
+            indicators: [:],
+            timeframe: .day
+        )
+
+        #expect(rows.count == 3)
+        #expect(rows.allSatisfy { $0.assetRow.indicatorColor == nil })
+    }
+
+    @Test("A wallet of zeroes reads as no amount and offers Add Funds")
+    func zeroWalletReadsAsNoAmountAndOffersAddFunds() throws {
+        let content = try content(of: map(fiatBalances: [0, 0, 0]))
 
         #expect(content.chart == .noData(.noAmount))
         #expect(content.showsAddFunds)
-        #expect(content.tokenList.count == 3)
-        #expect(content.tokenList.allSatisfy { $0.assetRow.indicatorColor == nil })
     }
 
     // MARK: - Holdings without a value
@@ -238,10 +263,6 @@ private extension PortfolioReviewSegmentPaletteTests {
         return assets
     }
 
-    func segments(of content: PortfolioReviewViewModel.ViewState.Content) throws -> [GaugeSegment] {
-        SummaryGaugeChart.segments(for: try chartAssets(of: content))
-    }
-
     enum TestError: Error {
         case notContent
         case chartNotLoaded(PortfolioReviewViewModel.ViewState.Chart)
@@ -251,8 +272,8 @@ private extension PortfolioReviewSegmentPaletteTests {
 // MARK: - Fixtures
 
 private extension PortfolioReviewSegmentPaletteTests {
-    /// Pinned on purpose: growing the product rule or the palette is meant to break these tests.
-    static let topAssetCount = 4
+    /// Twelve amounts: ten fill the ranking, the last two fall into the "Other" bucket.
+    static let twelveDescendingAmounts: [Decimal] = [1200, 1100, 1000, 900, 800, 700, 600, 500, 400, 300, 200, 100]
 
     /// One blockchain per wallet model, so every holding lands in an asset group of its own.
     static let blockchains: [Blockchain] = [
@@ -261,22 +282,23 @@ private extension PortfolioReviewSegmentPaletteTests {
         .cosmos(testnet: false),
         .solana(curve: .ed25519, testnet: false),
         .alephium(testnet: false),
+        .polygon(testnet: false),
+        .avalanche(testnet: false),
+        .tron(testnet: false),
+        .litecoin,
+        .dogecoin,
+        .kaspa(testnet: false),
+        .dash(testnet: false),
     ]
 
-    /// What one pass of the mapper produces: the rows and the donut's segments, both from one ranking.
+    /// What one pass of the mapper produces: the rows, the donut's segments and the ranking behind both.
     struct Review {
         let rows: [ForYouTokenListItem]
         let segments: [GaugeSegment]
+        let slices: [String: PortfolioReviewSegmentPalette.Slice]
     }
 
     /// Runs the real mapper over one wallet model per balance, each holding its own blockchain.
-    func mapContent(
-        fiatBalances: [Decimal],
-        totalBalance: TotalBalanceState? = nil
-    ) throws -> PortfolioReviewViewModel.ViewState.Content {
-        try content(of: map(fiatBalances: fiatBalances, totalBalance: totalBalance))
-    }
-
     func map(fiatBalances: [Decimal], totalBalance: TotalBalanceState? = nil) -> PortfolioReviewViewModel.ViewState {
         let tokenItems = fiatBalances.indices.map { index in
             TokenItemType.default(
@@ -322,23 +344,27 @@ private extension PortfolioReviewSegmentPaletteTests {
         makeReview(fiatAmounts.enumerated().map { makeHolding(groupKey: "asset\($0.offset)", amountInFiat: $0.element) })
     }
 
+    /// Mirrors `PortfolioReviewMapper`: aggregate, rank once, then build the rows and the donut from those same slices.
     func makeReview(_ holdings: [PortfolioReviewAggregator.TokenHolding]) -> Review {
         let (topHoldings, other, addressless) = PortfolioReviewAggregator.aggregate(holdings)
-        let colors = SUT.colors(forRanked: topHoldings.chartableKeys)
+        let slices = SUT.slices(forRanked: topHoldings.chartableKeys)
 
         let rows = PortfolioRowBuilder().build(
             topHoldings: topHoldings,
             other: other,
             addressless: addressless,
-            colors: colors,
+            slices: slices,
             indicators: [:],
             timeframe: .day
         )
-        let assets = (topHoldings + other).map {
-            SummaryGaugeAsset(id: $0.key, name: $0.tokenItem.name, fiatValue: $0.amountInFiat, segmentColor: colors[$0.key])
-        }
+        let chart = PortfolioReviewMapper.ChartBuilder.build(
+            topHoldings: topHoldings,
+            other: other,
+            slices: slices,
+            totalBalance: .loaded(balance: (topHoldings + other).reduce(Decimal.zero) { $0 + $1.amountInFiat })
+        )
 
-        return Review(rows: rows, segments: SummaryGaugeChart.segments(for: assets))
+        return Review(rows: rows, segments: SummaryGaugeChart.segments(for: chart.loadedAssets), slices: slices)
     }
 
     func makeHolding(
@@ -358,6 +384,16 @@ private extension PortfolioReviewSegmentPaletteTests {
             amountInFiat: amountInFiat,
             availability: availability
         )
+    }
+}
+
+// MARK: - Chart
+
+private extension PortfolioReviewViewModel.ViewState.Chart {
+    /// The fixtures always feed a positive total, so an empty result means the builder refused to chart.
+    var loadedAssets: [SummaryGaugeAsset] {
+        guard case .loaded(let assets, _, _) = self else { return [] }
+        return assets
     }
 }
 

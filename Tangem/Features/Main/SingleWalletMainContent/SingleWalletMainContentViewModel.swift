@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemFoundation
 import TangemUI
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
@@ -76,7 +77,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         addFundsRoutable = coordinator
 
         if WalletPromoBannerUtil().shouldShowBanner() {
-            walletPromoBannerViewModel = .init(
+            walletPromoBannerViewModel = WalletPromoBannerViewModel(
                 currencySymbol: walletModel.tokenItem.currencySymbol,
                 tokenRouter: tokenRouter
             )
@@ -244,6 +245,36 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             isPageSelectedPublisher: isPageSelectedSubject,
             notificationsPublisher: $notificationInputs
         )
+
+        bindWalletPromoBanner()
+    }
+
+    private func bindWalletPromoBanner() {
+        userWalletRepository
+            .eventProvider
+            .filter { event in
+                switch event {
+                case .inserted, .deleted:
+                    return true
+                case .locked, .unlocked, .unlockedWallet, .selected, .reordered:
+                    return false
+                }
+            }
+            .map { _ in WalletPromoBannerUtil().shouldShowBanner() }
+            .prepend(walletPromoBannerViewModel != nil)
+            .removeDuplicates()
+            .dropFirst()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, shouldShowBanner in
+                viewModel.walletPromoBannerViewModel = shouldShowBanner
+                    ? WalletPromoBannerViewModel(
+                        currencySymbol: viewModel.walletModel.tokenItem.currencySymbol,
+                        tokenRouter: viewModel.contextActionTokenRouter
+                    )
+                    : nil
+            }
+            .store(in: &bag)
     }
 
     private func openAddFunds() {
