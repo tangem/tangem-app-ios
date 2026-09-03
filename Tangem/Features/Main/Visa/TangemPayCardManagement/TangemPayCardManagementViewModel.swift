@@ -53,16 +53,19 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     )
 
     private var selectionAnchor: SelectionAnchor?
+    private var shouldOpenActivation: Bool
 
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
         initialEntry: TangemPayCardEntry,
+        shouldOpenActivation: Bool = false,
         coordinator: TangemPayCardManagementRoutable
     ) {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
         selectedCardId = initialEntry.id
+        self.shouldOpenActivation = shouldOpenActivation
         self.coordinator = coordinator
 
         rebuildCardDetailsItems(entries: tangemPayAccount.cardEntries)
@@ -81,6 +84,11 @@ final class TangemPayCardManagementViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(.visaCardManagementScreenOpened, contextParams: .userWallet(userWalletInfo.id))
+
+        if shouldOpenActivation {
+            shouldOpenActivation = false
+            openPlasticCardActivation()
+        }
     }
 
     func openChangeDailyLimit() {
@@ -212,6 +220,19 @@ private extension TangemPayCardManagementViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, output in
                 viewModel.selectedMultiCardDetailsViewModel?.state = output.freezingState.cardDetailsState
+            }
+            .store(in: &bag)
+
+        $contentState
+            .map(\.isPlasticInTransit)
+            .removeDuplicates()
+            .filter { $0 }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                Analytics.log(
+                    .visaPlasticCardInTransitDetailsShowed,
+                    contextParams: .userWallet(viewModel.userWalletInfo.id)
+                )
             }
             .store(in: &bag)
 
@@ -662,6 +683,11 @@ extension TangemPayCardManagementViewModel {
     }
 
     func onActivatePlasticCardButton() {
+        Analytics.log(.visaPlasticActivateCardManagementButtonClicked, contextParams: .userWallet(userWalletInfo.id))
+        openPlasticCardActivation()
+    }
+
+    private func openPlasticCardActivation() {
         guard let card = activatablePlasticCard else { return }
 
         coordinator?.openPlasticCardActivation(

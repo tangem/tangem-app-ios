@@ -38,6 +38,8 @@ final class TangemPayOrderCardSuccessViewModel: ObservableObject, Identifiable {
         self.email = email
         self.deliveryEtaMaxDays = deliveryEtaMaxDays
         self.coordinator = coordinator
+
+        Analytics.log(.visaPlasticCardOrderedSuccessScreenShowed)
     }
 
     func showCard() {

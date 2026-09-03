@@ -73,6 +73,13 @@ extension TangemPayCardManagementViewModel.ContentState {
         }
     }
 
+    var isPlasticInTransit: Bool {
+        switch self {
+        case .plastic(.delivering, _), .plastic(.awaitingActivation, _): true
+        case .plastic(.activating, _), .renaming, .closing, .issuing, .reissuing, .details: false
+        }
+    }
+
     var freezingState: TangemPayFreezingState? {
         switch self {
         case .details(let details): details.freezingState

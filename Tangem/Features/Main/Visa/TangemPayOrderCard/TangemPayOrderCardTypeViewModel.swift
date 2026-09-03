@@ -42,6 +42,7 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
     private let fiatAmountFormatter = TangemPayFiatAmountFormatter()
     private weak var coordinator: TangemPayOrderCardTypeRoutable?
     private var bag = Set<AnyCancellable>()
+    private var didLogInsufficientFunds = false
 
     init(
         virtualOffer: TangemPayCustomerOffer?,
@@ -73,6 +74,9 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
             .receiveOnMain()
             .assign(to: \.availableBalance, on: self, ownership: .weak)
             .store(in: &bag)
+
+        Analytics.log(.visaPlasticCardTypeSelectionScreenOpened)
+        bindInsufficientFundsAnalytics()
     }
 
     func imageURL(for cardType: TangemPayOrderCardType) -> URL? {
@@ -85,10 +89,28 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
     func select() {
         switch selectedCardType {
         case .virtual:
+            Analytics.log(.visaPlasticVirtualSelectClicked)
             coordinator?.orderCardTypeDidSelectVirtual()
         case .plastic:
+            Analytics.log(.visaPlasticPlasticSelectClicked)
             coordinator?.orderCardTypeDidSelectPlastic()
         }
+    }
+
+    func onCardTypeTabTapped(_ cardType: TangemPayOrderCardType) {
+        switch cardType {
+        case .virtual: Analytics.log(.visaPlasticVirtualTypeClicked)
+        case .plastic: Analytics.log(.visaPlasticPlasticTypeClicked)
+        }
+
+        selectedCardType = cardType
+    }
+
+    func onCardTypeSwiped(_ cardType: TangemPayOrderCardType) {
+        guard selectedCardType != cardType else { return }
+
+        Analytics.log(.visaPlasticCardTypeSwiped)
+        selectedCardType = cardType
     }
 
     func close() {
@@ -104,6 +126,10 @@ private extension TangemPayOrderCardTypeViewModel {
     }
 
     var plasticDeliveryState: TangemPayPlasticDeliveryState {
+        plasticDeliveryState(availableBalance: availableBalance)
+    }
+
+    func plasticDeliveryState(availableBalance: Decimal?) -> TangemPayPlasticDeliveryState {
         guard let fee = plasticOffer?.fee, deliveryEtaMaxDays != nil else {
             return .countryUnavailable
         }
@@ -212,6 +238,38 @@ private extension TangemPayOrderCardTypeViewModel {
 
     var isCountryUnavailable: Bool {
         plasticDeliveryState == .countryUnavailable
+    }
+}
+
+// MARK: - Analytics
+
+private extension TangemPayOrderCardTypeViewModel {
+    /// Reads the emitted values, not the properties: `@Published` fires in `willSet`, so both are
+    /// still stale here.
+    func bindInsufficientFundsAnalytics() {
+        Publishers.CombineLatest($selectedCardType, $availableBalance)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, input in
+                let (cardType, availableBalance) = input
+
+                guard cardType == .plastic,
+                      viewModel.plasticDeliveryState(availableBalance: availableBalance) == .insufficientFunds
+                else {
+                    return
+                }
+
+                viewModel.logInsufficientFundsOnce()
+            }
+            .store(in: &bag)
+    }
+
+    /// Once per screen: the badge reappears on every tab switch and on a balance republish without a
+    /// cache, and those are not separate impressions.
+    func logInsufficientFundsOnce() {
+        guard !didLogInsufficientFunds else { return }
+
+        didLogInsufficientFunds = true
+        Analytics.log(.visaPlasticDeliveryCostNotEnoughMoneyShowed)
     }
 }
 
