@@ -8,6 +8,7 @@
 
 import Combine
 
+@MainActor
 final class GachaAccountViewModel: ObservableObject {
     // MARK: - Properties
 
@@ -25,7 +26,6 @@ final class GachaAccountViewModel: ObservableObject {
 
     // MARK: - Methods
 
-    @MainActor
     func load() async {
         switch state {
         case .loading, .content:
@@ -50,7 +50,6 @@ extension GachaAccountViewModel {
 // MARK: - Private logic
 
 private extension GachaAccountViewModel {
-    @MainActor
     func loadSummary() async {
         state = .loading
 
