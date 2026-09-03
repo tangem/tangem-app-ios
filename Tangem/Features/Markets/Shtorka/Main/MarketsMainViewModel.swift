@@ -172,8 +172,8 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         coordinator?.openPolymarket(for: userWalletModels)
     }
 
-    func openGacha(with options: GachaCoordinator.Options) {
-        coordinator?.openGacha(with: options)
+    func openCollectibles(with options: CollectiblesCoordinator.Options) {
+        coordinator?.openCollectibles(with: options)
     }
 }
 
