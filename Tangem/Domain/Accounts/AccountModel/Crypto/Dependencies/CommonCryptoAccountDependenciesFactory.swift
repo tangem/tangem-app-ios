@@ -18,6 +18,7 @@ struct CommonCryptoAccountDependenciesFactory {
     let derivationManager: DerivationManager?
     let derivationStyle: DerivationStyle?
     let keysRepository: KeysRepository
+    let walletFactory: AnyWalletFactory
     let walletManagerFactory: AnyWalletManagerFactory
     let existingCurves: [EllipticCurve]
     let persistentBlockchains: [TokenItem]
@@ -54,6 +55,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let walletManagersRepository = CommonWalletManagersRepository(
             keysProvider: keysRepository,
             userTokensManager: userTokensManager,
+            walletFactory: walletFactory,
             walletManagerFactory: walletManagerFactory
         )
 
