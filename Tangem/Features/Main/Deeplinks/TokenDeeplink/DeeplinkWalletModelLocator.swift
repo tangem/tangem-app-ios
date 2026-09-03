@@ -92,8 +92,8 @@ extension DeeplinkWalletModelLocator {
     }
 
     /// Triggers a user token list sync on every crypto account of the wallet and waits for all of them to finish.
-    /// Capped by `timeout` because the underlying load can skip its completion when its task gets cancelled,
-    /// which would otherwise leave the awaiting task suspended forever.
+    /// Capped by `timeout` because a sync finishes only after a full wallet models update — network requests with
+    /// a timeout of their own and node failover — which is too long to keep the deeplink navigation waiting.
     func syncUserTokens(
         in userWalletModel: any UserWalletModel,
         timeout: TimeInterval,
@@ -132,8 +132,8 @@ extension DeeplinkWalletModelLocator {
 
     /// Bridges the completion-handler `sync` into async while staying cancellation-safe. The continuation is resumed
     /// exactly once — from either the sync completion or the cancellation handler — so a cancelled child task can't
-    /// stay suspended forever (and keep the enclosing task group alive) when `sync` skips its completion, which happens
-    /// when its server load exits early on cancellation.
+    /// keep the enclosing task group alive waiting for a callback that `sync`, being unaware of task cancellation,
+    /// delivers on its own schedule.
     private func sync(userTokensManager: UserTokensManager) async {
         let continuationCancellableWrapper = ThreadSafeCancellableWrapper()
 
