@@ -7,8 +7,6 @@
 //
 
 import SwiftUI
-import TangemLocalization
-import TangemAssets
 import TangemPolymarketUI
 import TangemUI
 import TangemUIUtils
@@ -19,9 +17,7 @@ struct PolymarketCoordinatorView: CoordinatorView {
     var body: some View {
         content
             .injectMarketsNavigationConfigurator(isSimplified: true)
-            .navigation(item: $coordinator.eventDetailsViewModel) { viewModel in
-                PolymarketEventDetailsView(viewModel: viewModel)
-            }
+            .navigationLinks(links)
             .floatingSheetContent(for: PolymarketRegionRestrictionViewModel.self) { viewModel in
                 PolymarketRegionRestrictionView(viewModel: viewModel)
             }
@@ -37,5 +33,17 @@ struct PolymarketCoordinatorView: CoordinatorView {
         case nil:
             EmptyView()
         }
+    }
+
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.destination) { destination in
+                switch destination {
+                case .eventDetails(let viewModel):
+                    PolymarketEventDetailsView(viewModel: viewModel)
+                case .order(let coordinator):
+                    PolymarketOrderCoordinatorView(coordinator: coordinator)
+                }
+            }
     }
 }

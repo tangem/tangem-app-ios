@@ -120,8 +120,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
     }
 
     private func makeContent(from event: PolymarketEvent) -> PolymarketEventDetailsContent {
-        // [REDACTED_TODO_COMMENT]
-        .make(event: event, category: category, onSelectOutcome: { _, _ in })
+        .make(event: event, category: category) { _, _ in }
     }
 }
 
