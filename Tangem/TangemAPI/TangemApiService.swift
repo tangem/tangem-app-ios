@@ -75,7 +75,11 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - User token list management
 
-    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws
+    /// Locked the way saving the accounts is: a token list a joint account has is one list for every member, and
+    /// without the lock two of them writing it overwrite each other.
+    /// - Parameter revision: The accounts ETag, sent as `If-Match`.
+    /// - Returns: The fresh ETag, whenever the endpoint reports one back.
+    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String, revision: String) async throws -> String?
 
     // MARK: - Action Buttons
 
@@ -201,27 +205,44 @@ protocol TangemApiService: AnyObject {
     // MARK: - Joint accounts
 
     /// - Returns: Every joint account the wallet takes part in
-    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.List.Response
+    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.Response.JointAccounts
 
     /// - Returns: The account, in `pending` with the caller as its creator, and one invite per free slot.
     func createJointAccount(
-        walletId: String, body: JointAccountsDTO.Create.Request
-    ) async throws -> JointAccountsDTO.Create.Response
+        walletId: String, body: JointAccountsDTO.Request.Create
+    ) async throws -> JointAccountsDTO.Response.JointAccount
 
     /// - Returns: What the invited wallet is joining and who is inviting it.
     /// - Note: The wallet in the path is the one the invite is being checked for, so a wallet that already holds a slot
     /// is turned away here rather than after the card has been tapped.
     func getJointAccountInvite(
         walletId: String, inviteId: String
-    ) async throws -> JointAccountsDTO.InvitePreview.Response
+    ) async throws -> JointAccountsDTO.Response.InvitePreview
 
     func joinJointAccount(
-        walletId: String, body: JointAccountsDTO.Join.Request
-    ) async throws -> JointAccountsDTO.Join.Response
+        walletId: String, body: JointAccountsDTO.Request.Join
+    ) async throws -> JointAccountsDTO.Response.JointAccount
 
     func activateJointAccount(
-        walletId: String, body: JointAccountsDTO.Activate.Request
-    ) async throws -> JointAccountsDTO.Activate.Response
+        walletId: String, body: JointAccountsDTO.Request.Activate
+    ) async throws -> JointAccountsDTO.Response.JointAccount
+
+    /// - Returns: The operation, in `awaiting_signatures` with the initiator's signature already counted — or in
+    /// `pending` right away when the account's threshold is 1.
+    func createJointAccountOperation(
+        walletId: String, body: JointAccountsDTO.Request.CreateOperation
+    ) async throws -> JointAccountsDTO.Response.Operation
+
+    /// - Returns: The operation with the caller's signature counted in; reaching the threshold hands it to the relayer.
+    func signJointAccountOperation(
+        walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation
+    ) async throws -> JointAccountsDTO.Response.Operation
+
+    /// - Returns: The operation with its progress recounted, or nil when this very call deleted it — the initiator's
+    /// reject always does, a co-signer's once the threshold becomes unreachable.
+    func rejectJointAccountOperation(
+        walletId: String, operationId: String, body: JointAccountsDTO.Request.RejectOperation
+    ) async throws -> JointAccountsDTO.Response.Operation?
 
     // MARK: - Address Book
 
