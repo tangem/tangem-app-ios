@@ -8,6 +8,7 @@
 
 import Combine
 
+@MainActor
 final class GachaLoreTabsViewModel: ObservableObject {
     // MARK: - Properties
 
@@ -26,7 +27,6 @@ final class GachaLoreTabsViewModel: ObservableObject {
 
     // MARK: - Methods
 
-    @MainActor
     func load() async {
         switch state {
         case .loading, .content, .empty:
@@ -52,7 +52,6 @@ extension GachaLoreTabsViewModel {
 // MARK: - Private logic
 
 private extension GachaLoreTabsViewModel {
-    @MainActor
     func loadTabs() async {
         state = .loading
 
