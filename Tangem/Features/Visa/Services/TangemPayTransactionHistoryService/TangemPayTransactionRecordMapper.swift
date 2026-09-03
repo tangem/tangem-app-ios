@@ -100,7 +100,7 @@ struct TangemPayTransactionRecordMapper {
               let status = merchant.cashbackStatus,
               let amount = merchant.cashback,
               amount != 0,
-              let style = TransactionViewModel.Cashback.Style(status: status, amount: amount)
+              let style = TransactionViewModel.Cashback.Style(status)
         else {
             return nil
         }
@@ -168,12 +168,12 @@ struct TangemPayTransactionRecordMapper {
 }
 
 private extension TransactionViewModel.Cashback.Style {
-    init?(status: TangemPayCashbackStatus, amount: Decimal) {
+    init?(_ status: TangemPayCashbackStatus) {
         switch status {
         case .estimated:
-            self = amount < 0 ? .refunded : .estimated
+            self = .estimated
         case .confirmed:
-            self = amount < 0 ? .refunded : .confirmed
+            self = .confirmed
         case .excluded, .awaitingCalculation, .undefined:
             return nil
         }
