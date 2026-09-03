@@ -31,11 +31,27 @@ enum ExpressMergeTestDataFactory {
         .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil))
     }
 
+    /// Contract address in its EIP-55 checksum form, i.e. exactly how the wallet stores it, while the persisted
+    /// Express records keep it lower-cased.
+    static var ethereumUSDTToken: TokenItem {
+        .token(
+            Token(
+                name: "Tether",
+                symbol: "USDT",
+                contractAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                decimalCount: 6,
+                id: "tether"
+            ),
+            .init(.ethereum(testnet: false), derivationPath: nil)
+        )
+    }
+
     // MARK: - Currencies
 
-    /// The `ExpressCurrency` that equals `token`'s express currency, so the currency-gated matchers fire.
+    /// The `ExpressCurrency` as it comes back from the database, where contract addresses are normalized on write.
+    /// A no-op for coins, so it doesn't move any of the coin-based fixtures.
     static func matchingCurrency(for token: TokenItem) -> ExpressCurrency {
-        token.expressCurrency.asCurrency
+        token.normalizedExpressCurrency
     }
 
     static let unrelatedCurrency = ExpressCurrency(contractAddress: "0xUnrelated", network: "unrelated-network")
@@ -47,8 +63,17 @@ enum ExpressMergeTestDataFactory {
         ownerAddress: String,
         feeTokenItem: TokenItem
     ) -> TransactionHistoryExpressDataMerger {
+        makeMerger(currentToken: currentToken, walletAddresses: [ownerAddress], feeTokenItem: feeTokenItem)
+    }
+
+    /// Models a wallet model holding several addresses, e.g. a UTXO one deriving them dynamically.
+    static func makeMerger(
+        currentToken: TokenItem,
+        walletAddresses: [String],
+        feeTokenItem: TokenItem
+    ) -> TransactionHistoryExpressDataMerger {
         TransactionHistoryExpressDataMerger(
-            ownerAddress: ownerAddress,
+            walletModelAddresses: walletAddresses,
             currentToken: currentToken,
             feeTokenItem: feeTokenItem
         )
@@ -59,8 +84,16 @@ enum ExpressMergeTestDataFactory {
         ownerAddress: String,
         feeTokenItem: TokenItem
     ) -> TransactionHistorySyntheticTransactionFactory {
+        makeFactory(currentToken: currentToken, walletAddresses: [ownerAddress], feeTokenItem: feeTokenItem)
+    }
+
+    static func makeFactory(
+        currentToken: TokenItem,
+        walletAddresses: [String],
+        feeTokenItem: TokenItem
+    ) -> TransactionHistorySyntheticTransactionFactory {
         TransactionHistorySyntheticTransactionFactory(
-            ownerAddress: ownerAddress,
+            walletModelAddresses: walletAddresses,
             currentToken: currentToken,
             feeTokenItem: feeTokenItem
         )
