@@ -986,6 +986,15 @@
 "markets_portfolio_block_token_unsupported" = "**Токен не підтримується**. Наразі цей токен не підтримується в гаманці";
 "markets_portfolio_eligible_block_title" = "Інші підтримувані токени";
 "markets_pulse_common_title" = "Пульс ринку";
+"markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_filter_sectors_title" = "Sectors";
+"markets_real_assets_filter_title" = "Category";
+"markets_real_assets_interval_day" = "Day";
+"markets_real_assets_interval_month" = "Month";
+"markets_real_assets_interval_week" = "Week";
+"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds they're not supported in UK and US";
+"markets_real_assets_region_restriction_title" = "Not supported in your region";
+"markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "Очистити все";
 "markets_search_header_title" = "Шукати на маркеті";
 "markets_search_hint_header" = "Нещодавні запити";
@@ -2050,7 +2059,7 @@
 "tangempay_cashback_widget_error_description" = "Натисніть, щоб оновити";
 "tangempay_cashback_widget_error_title" = "Кешбек недоступний";
 "tangempay_cashback_widget_refund_description" = "Зменшено через повернення покупок";
-"tangempay_cashback_widget_title" = "%1$@ кешбек за %2$@";
+"tangempay_cashback_widget_title" = "%1$@ за %2$@";
 "tangempay_change_pin_code" = "Змінити PIN-код";
 "tangempay_changing_plan" = "Зміна тарифу";
 "tangempay_choose_network_fast_way" = "Швидкий спосіб";
