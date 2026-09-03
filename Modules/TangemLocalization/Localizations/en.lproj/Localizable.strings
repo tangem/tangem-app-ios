@@ -986,6 +986,15 @@
 "markets_portfolio_block_token_unsupported" = "**Token not supported**. This token is currently not supported in the wallet";
 "markets_portfolio_eligible_block_title" = "Other eligible tokens";
 "markets_pulse_common_title" = "Market Pulse";
+"markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_filter_sectors_title" = "Sectors";
+"markets_real_assets_filter_title" = "Category";
+"markets_real_assets_interval_day" = "Day";
+"markets_real_assets_interval_month" = "Month";
+"markets_real_assets_interval_week" = "Week";
+"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds they're not supported in UK and US";
+"markets_real_assets_region_restriction_title" = "Not supported in your region";
+"markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Search tokens";
 "markets_search_hint_header" = "Recent searches";
@@ -2050,7 +2059,7 @@
 "tangempay_cashback_widget_error_description" = "Tap to reload";
 "tangempay_cashback_widget_error_title" = "Cashback unavailable";
 "tangempay_cashback_widget_refund_description" = "Reduced due to return of purchases";
-"tangempay_cashback_widget_title" = "%1$@ cashback in %2$@";
+"tangempay_cashback_widget_title" = "%1$@ in %2$@";
 "tangempay_change_pin_code" = "Change PIN-code";
 "tangempay_changing_plan" = "Changing your plan";
 "tangempay_choose_network_fast_way" = "Fast options";
