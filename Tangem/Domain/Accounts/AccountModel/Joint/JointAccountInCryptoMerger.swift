@@ -35,8 +35,11 @@ struct JointAccountInCryptoMerger {
             }
 
             let invites = invitesKeyedByCryptoAccountIds[identifier]?.invites ?? []
-            let members = storedJointAccount.members.map { member in
-                JointAccountMember(name: member.name, address: member.address, role: member.role)
+            let members = storedJointAccount.members.compactMap(Self.member(from:))
+
+            guard members.count == storedJointAccount.members.count else {
+                JointAccountsLogger.warning("A member of the joint account '\(cryptoAccount.id)' is stored without the invite that let them in")
+                return nil
             }
 
             let config = JointAccountConfig(
@@ -53,5 +56,26 @@ struct JointAccountInCryptoMerger {
                 invites: invites
             )
         }
+    }
+
+    /// - Returns: Nil for a slot the record says was taken by an invite without naming which one, which is what a
+    /// record written before the endpoint reported invites at all looks like.
+    private static func member(from stored: StoredJointAccount.Member) -> JointAccountMember? {
+        let role: JointAccountMember.Role? = {
+            switch (stored.role, stored.inviteId) {
+            case (.creator, _):
+                return .creator
+            case (.member, .some(let inviteId)):
+                return .member(inviteId: inviteId)
+            case (.member, .none):
+                return nil
+            }
+        }()
+
+        guard let role else {
+            return nil
+        }
+
+        return JointAccountMember(name: stored.name, address: stored.address, role: role)
     }
 }

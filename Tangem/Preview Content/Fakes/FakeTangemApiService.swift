@@ -78,7 +78,7 @@ final class FakeTangemApiService: TangemApiService {
         .anyFail(error: .init(code: .notFound))
     }
 
-    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
+    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String, revision: String) async throws -> String? {
         throw "Not implemented"
     }
 
@@ -271,31 +271,49 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.List.Response {
+    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.Response.JointAccounts {
         throw "Not implemented"
     }
 
     func createJointAccount(
-        walletId: String, body: JointAccountsDTO.Create.Request
-    ) async throws -> JointAccountsDTO.Create.Response {
+        walletId: String, body: JointAccountsDTO.Request.Create
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
         throw "Not implemented"
     }
 
     func getJointAccountInvite(
         walletId: String, inviteId: String
-    ) async throws -> JointAccountsDTO.InvitePreview.Response {
+    ) async throws -> JointAccountsDTO.Response.InvitePreview {
         throw "Not implemented"
     }
 
     func joinJointAccount(
-        walletId: String, body: JointAccountsDTO.Join.Request
-    ) async throws -> JointAccountsDTO.Join.Response {
+        walletId: String, body: JointAccountsDTO.Request.Join
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
         throw "Not implemented"
     }
 
     func activateJointAccount(
-        walletId: String, body: JointAccountsDTO.Activate.Request
-    ) async throws -> JointAccountsDTO.Activate.Response {
+        walletId: String, body: JointAccountsDTO.Request.Activate
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
+        throw "Not implemented"
+    }
+
+    func createJointAccountOperation(
+        walletId: String, body: JointAccountsDTO.Request.CreateOperation
+    ) async throws -> JointAccountsDTO.Response.Operation {
+        throw "Not implemented"
+    }
+
+    func signJointAccountOperation(
+        walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation
+    ) async throws -> JointAccountsDTO.Response.Operation {
+        throw "Not implemented"
+    }
+
+    func rejectJointAccountOperation(
+        walletId: String, operationId: String, body: JointAccountsDTO.Request.RejectOperation
+    ) async throws -> JointAccountsDTO.Response.Operation? {
         throw "Not implemented"
     }
 
