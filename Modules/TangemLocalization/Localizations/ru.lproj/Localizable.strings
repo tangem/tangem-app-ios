@@ -30,6 +30,7 @@
 "account_details_archive_joint_description" = "This only hides the account for you and turns off notifications for it. Other members keep their access, and you can always get it back.";
 "account_details_archive" = "Архивировать аккаунт";
 "account_details_archiving" = "Архивация...";
+"account_details_joint_members_progress" = "%1$@/%2$@ people";
 "account_details_joint_pending_description" = "The account is still being populated with members";
 "account_details_title" = "Аккаунт";
 "account_edit_success_message" = "Аккаунт сохранен";
@@ -985,6 +986,8 @@
 "markets_portfolio_block_token_unsupported" = "**Токен не поддерживается**. В настоящее время этот токен не поддерживается в кошельке";
 "markets_portfolio_eligible_block_title" = "Другие поддерживаемые токены";
 "markets_pulse_common_title" = "Пульс рынка";
+"markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "Очистить всё";
 "markets_search_header_title" = "Поиск токенов";
 "markets_search_hint_header" = "Недавние запросы";
@@ -2049,7 +2052,7 @@
 "tangempay_cashback_widget_error_description" = "Нажмите, чтобы обновить";
 "tangempay_cashback_widget_error_title" = "Кэшбэк недоступен";
 "tangempay_cashback_widget_refund_description" = "Уменьшен из-за возврата покупок";
-"tangempay_cashback_widget_title" = "%1$@ кэшбэк за %2$@";
+"tangempay_cashback_widget_title" = "%1$@ за %2$@";
 "tangempay_change_pin_code" = "Изменить PIN-код";
 "tangempay_changing_plan" = "Изменение тарифа";
 "tangempay_choose_network_fast_way" = "Быстрые способы";
@@ -2437,12 +2440,12 @@
 "user_push_notification_agreement_header" = "Хотите использовать Push-уведомления?";
 "user_push_notification_banner_subtitle" = "Включите push-уведомления, и мы мгновенно сообщим вам, когда поступят средства.";
 "user_push_notification_banner_title" = "Не пропустите транзакцию";
-"user_wallet_add_hardware_description" = "Отсканируйте карту Tangem, чтобы добавить его";
+"user_wallet_add_hardware_description" = "Отсканируйте карту Tangem, чтобы добавить кошелёк";
 "user_wallet_add_hardware_title" = "Добавить аппаратный кошелёк";
 "user_wallet_add_mobile_description" = "Создайте новый кошелёк на этом устройстве";
 "user_wallet_add_mobile_title" = "Добавить мобильный кошелёк";
 "user_wallet_add_wallet" = "Добавить кошелек";
-"user_wallet_coming_soon_dialog_description" = "Мы работаем над возможностью создавать несколько мобильных кошельков.";
+"user_wallet_coming_soon_dialog_description" = "Мы работаем над поддержкой нескольких мобильных кошельков.";
 "user_wallet_list_add_button" = "Добавить кошелек";
 "user_wallet_list_delete_hw_prompt" = "Если вы удалите этот кошелёк без резервной копии, вы навсегда потеряете доступ к своим средствам.";
 "user_wallet_list_delete_prompt" = "Вы уверены, что хотите забыть этот кошелек?";
