@@ -14,10 +14,13 @@ struct StoredJointAccount: Codable, Equatable {
     struct Member: Codable, Equatable {
         /// From 1 to 25 characters.
         let name: String
-        /// - Warning: Its letter case carries an EIP-55 checksum rather than identity, so two of these are never
-        /// compared as strings.
+        /// - Warning: The endpoint keeps these in lower case while the app computes the checksummed form, so two of
+        /// these are only ever compared case-insensitively, never as strings.
         let address: String
         let role: JointAccountMemberRole
+        /// The invite this member redeemed to take their slot; the creator's slot never had one, and a record stored
+        /// before the endpoint learnt to report these has nobody's.
+        let inviteId: String?
     }
 
     /// The wallet's own account this joint one is joined with, and the only field the two endpoints describing it share.
