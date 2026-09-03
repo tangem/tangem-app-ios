@@ -17,9 +17,6 @@ final class GachaEntranceViewModel: ObservableObject {
 
     private(set) var openingTask: Task<Void, Never>?
 
-    /// Weak on purpose: the sheet infrastructure owns the selector, so any dismissal path clears this by itself.
-    private weak var presentedWalletSelector: AccountSelectorViewModel?
-
     // MARK: - Init
 
     init(
@@ -39,7 +36,8 @@ final class GachaEntranceViewModel: ObservableObject {
     // MARK: - Methods
 
     func openGacha(onOpen: @MainActor @escaping (GachaCoordinator.Options) -> Void) {
-        guard openingTask == nil, presentedWalletSelector == nil else { return }
+        // The open sheet swallows background taps itself, so the task is the only thing worth guarding against.
+        guard openingTask == nil else { return }
 
         let userWalletModels = userWalletModelsProvider()
 
@@ -69,8 +67,6 @@ private extension GachaEntranceViewModel {
                 floatingSheetPresenter.removeActiveSheet()
                 self?.resolveDestination(for: selectedCell.userWalletModel, onOpen: onOpen)
             }
-
-            self?.presentedWalletSelector = accountSelectorViewModel
 
             floatingSheetPresenter.enqueue(
                 sheet: GachaWalletSelectorViewModel(
