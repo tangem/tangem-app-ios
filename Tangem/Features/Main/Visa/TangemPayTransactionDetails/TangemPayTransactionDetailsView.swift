@@ -284,7 +284,7 @@ private extension TangemPayTransactionDetailsView {
     var cashbackRowView: some View {
         if let cashbackRow = viewModel.cashbackRow {
             switch cashbackRow {
-            case .loading:
+            case .loading, .awaitingCalculation:
                 Row(title: Localization.tangempayCashbackTitle)
                     .valueAccessory {
                         shimmerLine(width: 157, token: DesignSystem.Font.bodyMediumToken)
