@@ -92,7 +92,7 @@ struct WelcomeV2View: View {
                 accessibilityLabel: nil,
                 action: viewModel.onExistingWalletTap
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
             .size(.x14)
 

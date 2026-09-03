@@ -226,7 +226,7 @@ struct TangemPayCardDetailsViewRedesigned: View {
             action: viewModel.toggleVisibility
         )
         .size(.x8)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.cardDetailsHideButton)
         .environment(\.colorScheme, .dark)
     }
