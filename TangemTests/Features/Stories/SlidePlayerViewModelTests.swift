@@ -20,10 +20,10 @@ struct SlidePlayerViewModelTests {
         vm.play()
 
         #expect(vm.state == .playing)
-        #expect(vm.progress < 0.0001)
+        #expect(vm.progress.value < 0.0001)
 
         clock.advance(by: 0.5) // half of the 1s duration
-        #expect(abs(vm.progress - 0.5) < 0.05)
+        #expect(abs(vm.progress.value - 0.5) < 0.05)
         #expect(vm.state == .playing)
     }
 
@@ -40,7 +40,7 @@ struct SlidePlayerViewModelTests {
 
         #expect(completed)
         #expect(vm.state == .completed)
-        #expect(abs(vm.progress - 1) < 0.0001)
+        #expect(abs(vm.progress.value - 1) < 0.0001)
     }
 
     @Test
@@ -50,11 +50,11 @@ struct SlidePlayerViewModelTests {
         vm.play()
 
         clock.advance(by: 0.3)
-        let progressAtPause = vm.progress
+        let progressAtPause = vm.progress.value
         vm.pause()
         clock.advance(by: 0.5) // ticks keep firing, but paused → ignored
 
-        #expect(abs(vm.progress - progressAtPause) < 0.0001)
+        #expect(abs(vm.progress.value - progressAtPause) < 0.0001)
     }
 
     // MARK: - Helpers
