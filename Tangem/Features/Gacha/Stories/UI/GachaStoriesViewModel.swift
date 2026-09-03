@@ -109,7 +109,6 @@ private extension StoryV2 {
     static func localGachaOnboarding(slides: [GachaStoriesView.Slide], id: String = "gacha_onboarding") -> Self {
         StoryV2(
             id: id,
-            version: 1,
             endBehavior: .finish,
             slides: slides.enumerated().map { index, slide in
                 SlideV2(

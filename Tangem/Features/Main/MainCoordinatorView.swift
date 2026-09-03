@@ -54,6 +54,7 @@ struct MainCoordinatorView: CoordinatorView {
         .overlay {
             marketsTooltipView
         }
+        .mainShtorka()
     }
 
     private var links: some View {
@@ -90,6 +91,9 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.manageTokensCoordinator) {
                 ManageTokensCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.polymarketCoordinator) {
+                PolymarketCoordinatorView(coordinator: $0)
             }
     }
 
