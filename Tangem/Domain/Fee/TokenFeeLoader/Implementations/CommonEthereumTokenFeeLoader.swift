@@ -24,7 +24,7 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee {
         let parameters = try await ethereumNetworkProvider.getFee(
             gasLimit: BigUInt(estimatedGasLimit),
-            supportsEIP1559: feeBlockchain.supportsEIP1559
+            blockchain: feeBlockchain
         )
 
         var feeAmount = parameters.calculateFee(decimalValue: feeBlockchain.decimalValue)
