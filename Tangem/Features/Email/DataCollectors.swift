@@ -385,6 +385,7 @@ struct TangemPaySupportDataCollector: EmailDataCollector {
         case .transactionDetails(let transaction):
             switch transaction.record {
             case .spend(let value as Encodable),
+                 .refund(let value as Encodable),
                  .fee(let value as Encodable),
                  .payment(let value as Encodable):
                 issueType = "Transaction"

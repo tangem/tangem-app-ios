@@ -32,17 +32,6 @@ enum WalletModelFinder {
         throw Error.walletModelNotFound
     }
 
-    static func findMainWalletModel(defaultAddress: String) throws -> Result {
-        for userWalletModel in userWalletRepository.models {
-            let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-            if let walletModel = walletModels.first(where: { $0.isMainToken && $0.defaultAddressString == defaultAddress }) {
-                return Result(userWalletModel: userWalletModel, walletModel: walletModel)
-            }
-        }
-
-        throw Error.walletModelNotFound
-    }
-
     static func findWalletModel(tokenItem: TokenItem) throws -> Result {
         for userWalletModel in userWalletRepository.models {
             let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)

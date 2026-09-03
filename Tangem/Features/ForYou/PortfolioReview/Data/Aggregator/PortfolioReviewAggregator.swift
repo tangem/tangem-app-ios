@@ -13,7 +13,7 @@ enum PortfolioReviewAggregator {
     /// Addressless assets are set aside: the "Other" row states a fiat sum and would read as a confirmed $0.
     static func aggregate(
         _ holdings: [TokenHolding],
-        topHoldingsCount: Int = 4
+        topHoldingsCount: Int = 10
     ) -> (topHoldings: [Group], other: [Group], addressless: [Group]) {
         let groups = holdings.filter(\.hasBalance).groupedByAsset()
         let addressless = groups.filter { $0.availability == .noAddress }
