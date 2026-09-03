@@ -43,7 +43,7 @@ private extension Footer {
             .styleType(.default)
             .horizontalLayout(.infinity)
             .size(.x12)
-            .isLoading(isLoading)
+            .loading(.spinner(if: isLoading))
     }
 
     var background: some View {
