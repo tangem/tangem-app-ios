@@ -11,15 +11,15 @@ import TangemPolymarket
 import TangemPolymarketUI
 
 extension PolymarketOrderMarketRow.Model {
-    static func make(market: PolymarketMarket, outcomeIndex: Int) -> Self {
-        let outcome = market.outcomes[outcomeIndex]
-
-        return Self(
+    static func make(market: PolymarketMarket, outcome: PolymarketOutcome) -> Self {
+        Self(
             question: market.groupItemTitle ?? market.title,
             imageURL: market.imageURL ?? market.iconURL,
             outcomeTitle: outcome.title,
             outcomePriceText: PolymarketPriceFormatter.centsText(outcome.probability),
-            outcomeStyle: PolymarketOutcomeStyle(outcomeIndex: outcomeIndex)
+            outcomeStyle: PolymarketOutcomeStyle(
+                outcomeIndex: market.outcomes.firstIndex { $0.assetId == outcome.assetId } ?? 0
+            )
         )
     }
 }
