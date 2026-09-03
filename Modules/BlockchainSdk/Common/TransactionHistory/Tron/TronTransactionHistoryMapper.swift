@@ -25,9 +25,18 @@ final class TronTransactionHistoryMapper {
             return []
         }
 
+        // Filter technical Tron gasless transactions.
+        let filteredTransactions = transactions.filter { transaction in
+            guard let contractType = contractType(transaction) else {
+                return true
+            }
+
+            return !Constants.excludedContractTypes.contains(contractType)
+        }
+
         switch amountType {
         case .coin, .reserve, .feeResource:
-            return transactions
+            return filteredTransactions
         case .token(let value):
             // Another fix for a horrible Tron Blockbook API: sometimes API returns transaction history
             // from another token for a particular token if this token doesn't have transaction history yet
@@ -40,7 +49,7 @@ final class TronTransactionHistoryMapper {
                 return []
             }
 
-            return transactions
+            return filteredTransactions
         }
     }
 
@@ -81,6 +90,14 @@ final class TronTransactionHistoryMapper {
             destination: destination,
             isOutgoing: isOutgoing
         )
+    }
+
+    private func shouldInclude(_ transactionInfo: TransactionInfo, for amountType: Amount.AmountType) -> Bool {
+        guard case .coin = amountType else {
+            return true
+        }
+
+        return transactionInfo.source.amount >= Constants.minimumCoinTransactionAmount
     }
 
     /// Extracts the transaction info for a `token` transfer.
@@ -234,31 +251,32 @@ final class TronTransactionHistoryMapper {
         case .coin:
             // NowNodes may omit the integer `contract_type` field and instead deliver the transaction
             // type via the `chainExtraData` payload. Fall back to that payload in such cases.
-            guard let contractType = transaction.contractType else {
+            guard let contractTypeInt = transaction.contractType,
+                  let contractType = TronContractType(rawValue: contractTypeInt) else {
                 return transactionType(from: transaction.chainExtraData)
             }
 
             switch contractType {
-            case TronContractType.transferContractType.rawValue,
-                 TronContractType.transferAssetContractType.rawValue:
+            case .transferContractType,
+                 .transferAssetContractType:
                 return .transfer
-            case TronContractType.voteWitnessContractType.rawValue:
+            case .voteWitnessContractType:
                 // voteList is a dictionary with validator addresses as keys,
                 // not sure if it's possible to have several validators inside,
                 // moreover there are no place to display more than one on UI,
                 // so we take first
                 let target = transaction.voteList?.keys.first
                 return .staking(type: .vote, target: target)
-            case TronContractType.withdrawExpireUnfreezeContractType.rawValue:
+            case .withdrawExpireUnfreezeContractType:
                 return .staking(type: .withdraw, target: nil)
-            case TronContractType.freezeBalanceV2ContractType.rawValue:
+            case .freezeBalanceV2ContractType:
                 return .staking(type: .stake, target: nil)
-            case TronContractType.unfreezeBalanceV2ContractType.rawValue:
+            case .unfreezeBalanceV2ContractType:
                 return .staking(type: .unstake, target: nil)
-            case TronContractType.withdrawBalanceContractType.rawValue:
+            case .withdrawBalanceContractType:
                 return .staking(type: .claimRewards, target: nil)
             default:
-                return .contractMethodIdentifier(id: transaction.contractName ?? "")
+                return .contractMethodIdentifier(id: transaction.contractName ?? .unknown)
             }
         default:
             // All TRC10 and TRC20 token transactions are considered simple & plain transfers
@@ -273,9 +291,7 @@ final class TronTransactionHistoryMapper {
     ) -> TransactionRecord.TransactionType {
         guard
             let chainExtraData,
-            chainExtraData.payloadType == Constants.tronPayloadType,
-            let rawContractType = chainExtraData.payload?.contractType,
-            let contractType = TronChainExtraDataContractType(rawValue: rawContractType)
+            let contractType = extraDataContractType(from: chainExtraData)
         else {
             return .transfer
         }
@@ -294,7 +310,36 @@ final class TronTransactionHistoryMapper {
             return .staking(type: .unstake, target: nil)
         case .withdrawExpireUnfreezeContract:
             return .staking(type: .withdraw, target: nil)
+        // Following contract types are filtered at the beginning, they must not appear.
+        // Handled to have exhaustive switch.
+        case .accountCreateContract, .delegateResourceContract, .unDelegateResourceContract:
+            #if INTERNAL || DEBUG
+            preconditionFailure()
+            #else
+            return .transfer
+            #endif
         }
+    }
+
+    private func contractType(_ transaction: BlockBookAddressResponse.Transaction) -> TronContractType? {
+        if let contractTypeInt = transaction.contractType {
+            return TronContractType(rawValue: contractTypeInt)
+        } else {
+            guard let chainExtraData = transaction.chainExtraData else { return nil }
+
+            let extraDataContractType = extraDataContractType(from: chainExtraData)
+            let contractType = extraDataContractType?.toTronContractType()
+            return contractType
+        }
+    }
+
+    private func extraDataContractType(from chainExtraData: BlockBookAddressResponse.ChainExtraData) -> TronChainExtraDataContractType? {
+        guard chainExtraData.payloadType == Constants.tronPayloadType else {
+            return nil
+        }
+
+        let rawContractType = chainExtraData.payload?.contractType
+        return TronChainExtraDataContractType(rawValue: rawContractType ?? .unknown)
     }
 
     private func tokenTransfers(_ transaction: BlockBookAddressResponse.Transaction) -> [TransactionRecord.TokenTransfer] {
@@ -344,7 +389,7 @@ extension TronTransactionHistoryMapper: TransactionHistoryMapper {
                         sourceAddress: sourceAddress,
                         destinationAddress: destinationAddress,
                         walletAddress: walletAddress
-                    ) {
+                    ), shouldInclude(transactionInfo, for: amountType) {
                         partialResult += mapToTransactionRecords(
                             transaction: transaction,
                             transactionInfos: [transactionInfo],
@@ -428,12 +473,15 @@ private extension TronTransactionHistoryMapper {
         /// TRC10 token transfers.
         case transferAssetContractType = 2
         case voteWitnessContractType = 4
+        case accountCreateContractType = 9
         case withdrawBalanceContractType = 13
         /// TRC20 token transfers.
         case triggerSmartContractType = 31
         case freezeBalanceV2ContractType = 54
         case unfreezeBalanceV2ContractType = 55
         case withdrawExpireUnfreezeContractType = 56
+        case delegateResourceContractType = 57
+        case unDelegateResourceContractType = 58
     }
 
     /// Contract types delivered as strings via `chainExtraData.payload.contractType` (NowNodes V2 contract),
@@ -446,10 +494,44 @@ private extension TronTransactionHistoryMapper {
         case unfreezeBalanceV2Contract = "UnfreezeBalanceV2Contract"
         case withdrawBalanceContract = "WithdrawBalanceContract"
         case withdrawExpireUnfreezeContract = "WithdrawExpireUnfreezeContract"
+        case accountCreateContract = "AccountCreateContract"
+        case delegateResourceContract = "DelegateResourceContract"
+        case unDelegateResourceContract = "UnDelegateResourceContract"
+
+        func toTronContractType() -> TronContractType? {
+            switch self {
+            case .transferContract:
+                return .transferContractType
+            case .triggerSmartContract:
+                return .triggerSmartContractType
+            case .voteWitnessContract:
+                return .voteWitnessContractType
+            case .freezeBalanceV2Contract:
+                return .freezeBalanceV2ContractType
+            case .unfreezeBalanceV2Contract:
+                return .unfreezeBalanceV2ContractType
+            case .withdrawBalanceContract:
+                return .withdrawBalanceContractType
+            case .withdrawExpireUnfreezeContract:
+                return .withdrawExpireUnfreezeContractType
+            case .accountCreateContract:
+                return .accountCreateContractType
+            case .delegateResourceContract:
+                return .delegateResourceContractType
+            case .unDelegateResourceContract:
+                return .unDelegateResourceContractType
+            }
+        }
     }
 
     enum Constants {
         static let tronPayloadType = "tron"
+        static let minimumCoinTransactionAmount: Decimal = 0.001
+        static let excludedContractTypes: Set<TronContractType> = [
+            TronContractType.accountCreateContractType,
+            TronContractType.delegateResourceContractType,
+            TronContractType.unDelegateResourceContractType,
+        ]
     }
 }
 
