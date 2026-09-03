@@ -240,6 +240,7 @@ private struct StubGeoEligibilityService: GeoEligibilityService {
 
     func initialize() {}
     func waitForGeoIpRegionIfNeeded() async {}
+    func fetchGeoIpRegionCode() async -> String? { nil }
 }
 
 private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {

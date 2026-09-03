@@ -23,6 +23,7 @@ final class FakeTangemApiService: TangemApiService {
     // MARK: - Coins Handlers (Tests/Previews)
 
     var loadCoinsHandler: ((CoinsList.Request) async throws -> CoinsList.Response)?
+    var loadCoinsCategoriesHandler: ((MarketsDTO.Categories.Request) async throws -> MarketsDTO.Categories.Response)?
 
     // MARK: - Campaigns Handlers (Tests/Previews)
 
@@ -133,6 +134,10 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadStories(slugs: [String], language: String) async throws -> StoriesResponseDTO {
+        throw "Not implemented"
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         throw "Not implemented"
     }
@@ -146,6 +151,14 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadCoinsList(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response {
+        throw "Not implemented"
+    }
+
+    func loadCoinsCategories(requestModel: MarketsDTO.Categories.Request) async throws -> MarketsDTO.Categories.Response {
+        if let loadCoinsCategoriesHandler {
+            return try await loadCoinsCategoriesHandler(requestModel)
+        }
+
         throw "Not implemented"
     }
 

@@ -47,6 +47,18 @@ final class CommonJointAccountsRepository {
         .share(replay: 1)
         .eraseToAnyPublisher()
 
+    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
+    private lazy var invitesStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountInvites], Never> = invitesPersistentStorage
+        .didUpdatePublisher
+        .prepend(()) // An initial value to trigger loading from storage
+        .receive(on: DispatchQueue.global(qos: .userInitiated))
+        .withWeakCaptureOf(self)
+        .map { repository, _ in repository.invitesPersistentStorage.getList() }
+        .removeDuplicates()
+        .receiveOnMain()
+        .share(replay: 1)
+        .eraseToAnyPublisher()
+
     init(
         userWalletId: UserWalletId,
         networkService: JointAccountsNetworkService,
@@ -64,6 +76,7 @@ final class CommonJointAccountsRepository {
         // Eager initialization of these lazy properties to ensure that there are no race conditions
         _ = loadJointAccountsDebouncer
         _ = storageDidUpdatePublisher
+        _ = invitesStorageDidUpdatePublisher
     }
 }
 
@@ -72,6 +85,10 @@ final class CommonJointAccountsRepository {
 extension CommonJointAccountsRepository: JointAccountsRepository {
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> {
         storageDidUpdatePublisher
+    }
+
+    var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> {
+        invitesStorageDidUpdatePublisher
     }
 
     func initialize() {
@@ -120,6 +137,32 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         // by every list read, so a failure here costs a record that comes back on its own rather than one that cannot
         try invitesPersistentStorage.save(creationResult.invites, forCryptoAccountId: creationResult.account.cryptoAccountId)
         try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: creationResult.account))
+    }
+
+    func joinJointAccount(withConfig config: JointAccountJoinConfig) async throws {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        let payloadBuilder = JointAccountJoinPayloadBuilder(
+            userWalletId: userWalletId,
+            inviteId: config.inviteId,
+            config: config.signedConfig,
+            memberName: config.memberName
+        )
+        let interactor = derivationInteractorFactory.makeInteractor()
+
+        let result = try await interactor.deriveAndSign(
+            derivationIndex: config.derivationIndex,
+            payloadBuilder: payloadBuilder
+        )
+
+        let blob = JointAccountJoinBlob(payload: result.payload, signature: result.signature)
+
+        let account = try await networkService.joinJointAccount(blob: blob)
+
+        // No invites come back here: they belong to the creator, and this wallet has just spent the one it was given
+        try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
     }
 }
 

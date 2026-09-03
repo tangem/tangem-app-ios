@@ -96,6 +96,7 @@ final class RelatedTokensViewModel: ObservableObject {
                             isUnderMarketCapLimit: nil,
                             stakingOpportunities: nil,
                             networks: response.networks,
+                            restrictedForCountry: nil
                         )
 
                         return (index, model)
