@@ -204,7 +204,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         dismiss(with: nil)
     }
 
-    func openCardManagement(entry: TangemPayCardEntry) {
+    func openCardManagement(entry: TangemPayCardEntry, shouldOpenActivation: Bool) {
         guard let options else {
             assertionFailure("TangemPayMainCoordinator.Options not found")
             return
@@ -214,6 +214,7 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             userWalletInfo: options.userWalletInfo,
             tangemPayAccount: options.tangemPayAccount,
             initialEntry: entry,
+            shouldOpenActivation: shouldOpenActivation,
             coordinator: self
         )
     }

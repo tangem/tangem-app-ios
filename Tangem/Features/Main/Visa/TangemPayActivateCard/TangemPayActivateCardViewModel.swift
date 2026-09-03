@@ -56,6 +56,8 @@ final class TangemPayActivateCardViewModel: ObservableObject, Identifiable {
         self.activationImageURL = activationImageURL
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
+
+        Analytics.log(.visaPlasticCardActivationScreenOpened)
     }
 
     func focusEntry() {
@@ -66,6 +68,10 @@ final class TangemPayActivateCardViewModel: ObservableObject, Identifiable {
     func updateDigits(_ digits: String) {
         guard !isActivating else { return }
 
+        if digits.count == digitCount, self.digits.count < digitCount {
+            Analytics.log(.visaPlasticCardLast4DigitsEntered)
+        }
+
         self.digits = digits
         hintError = nil
     }
@@ -73,6 +79,7 @@ final class TangemPayActivateCardViewModel: ObservableObject, Identifiable {
     func activate() {
         guard isContinueEnabled, !isActivating else { return }
 
+        Analytics.log(.visaPlasticActivationContinueClicked)
         isActivating = true
         hintError = nil
 
@@ -92,6 +99,7 @@ final class TangemPayActivateCardViewModel: ObservableObject, Identifiable {
 
             guard !Task.isCancelled else { return }
 
+            Analytics.log(.visaPlasticCardActivationSuccess)
             viewModel.coordinator?.activateCardDidFinish()
         }
     }
@@ -147,6 +155,7 @@ private extension TangemPayActivateCardViewModel {
     func handle(_ failure: ActivationFailure) {
         switch failure {
         case .invalidCardData:
+            Analytics.log(.visaPlasticLast4DigitsValidationErrorShowed)
             digits = ""
             hintError = failure.message
             return
