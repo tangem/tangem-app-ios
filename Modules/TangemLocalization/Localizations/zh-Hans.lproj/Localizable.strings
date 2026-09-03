@@ -30,6 +30,7 @@
 "account_details_archive_joint_description" = "This only hides the account for you and turns off notifications for it. Other members keep their access, and you can always get it back.";
 "account_details_archive" = "存档帐户";
 "account_details_archiving" = "存档...";
+"account_details_joint_members_progress" = "%1$@/%2$@ people";
 "account_details_joint_pending_description" = "The account is still being populated with members";
 "account_details_title" = "帐户";
 "account_edit_success_message" = "账户已保存";
@@ -985,6 +986,8 @@
 "markets_portfolio_block_token_unsupported" = "**Token not supported**. This token is currently not supported in the wallet";
 "markets_portfolio_eligible_block_title" = "其他符合条件的代币";
 "markets_pulse_common_title" = "市场脉搏";
+"markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "全部清除";
 "markets_search_header_title" = "搜索代币";
 "markets_search_hint_header" = "最近搜索";
@@ -2049,7 +2052,7 @@
 "tangempay_cashback_widget_error_description" = "点击重新加载";
 "tangempay_cashback_widget_error_title" = "返现不可用";
 "tangempay_cashback_widget_refund_description" = "因退货而减少";
-"tangempay_cashback_widget_title" = "%2$@ 中的 %1$@ 返现";
+"tangempay_cashback_widget_title" = "%2$@ 月获 %1$@";
 "tangempay_change_pin_code" = "更改PIN码";
 "tangempay_changing_plan" = "正在更改您的套餐";
 "tangempay_choose_network_fast_way" = "快速方式";
