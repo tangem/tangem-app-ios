@@ -40,5 +40,10 @@ struct DerivationTests {
         #expect(electroneum.derivationPath(for: legacy)?.rawPath == "m/44'/415'/0'/0/0")
         #expect(electroneum.derivationPath(for: new)?.rawPath == "m/44'/60'/0'/0/0")
         #expect(electroneum.derivationPath(for: .v3)?.rawPath == "m/44'/60'/0'/0/0")
+
+        let arc: Blockchain = .arc(testnet: false)
+        #expect(arc.derivationPath(for: legacy)?.rawPath == "m/44'/5042'/0'/0/0")
+        #expect(arc.derivationPath(for: new)?.rawPath == "m/44'/60'/0'/0/0")
+        #expect(arc.derivationPath(for: .v3)?.rawPath == "m/44'/60'/0'/0/0")
     }
 }

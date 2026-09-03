@@ -217,6 +217,8 @@ public struct ExternalLinkProviderFactory {
             return ADIExternalLinkProvider(isTestnet: isTestnet)
         case .electroneum:
             return ElectroneumExternalLinkProvider(isTestnet: isTestnet)
+        case .arc:
+            return ArcExternalLinkProvider(isTestnet: isTestnet)
         case .seiEvm:
             return SeiEvmExternalLinkProvider(isTestnet: isTestnet)
         }

@@ -78,4 +78,26 @@ struct BlockchainCodingKeyTests {
         #expect(mainnetLinks.url(transaction: "hash")?.absoluteString == "https://blockexplorer.electroneum.com/tx/hash")
         #expect(testnetLinks.url(address: "address", contractAddress: nil)?.absoluteString == "https://testnet-blockexplorer.electroneum.com/address/address")
     }
+
+    @Test
+    func arcConfiguration() {
+        let mainnet = Blockchain.arc(testnet: false)
+        let testnet = Blockchain.arc(testnet: true)
+
+        #expect(mainnet.chainId == 5042)
+        #expect(testnet.chainId == 5042002)
+        #expect(mainnet.networkId == "arc")
+        #expect(mainnet.coinId == "usd-coin")
+        #expect(mainnet.currencySymbol == "USDC")
+        #expect(mainnet.decimalCount == 18)
+        #expect(mainnet.displayDecimalCount == 6)
+        #expect(mainnet.supportsEIP1559)
+
+        let mainnetLinks = ExternalLinkProviderFactory().makeProvider(for: mainnet)
+        let testnetLinks = ExternalLinkProviderFactory().makeProvider(for: testnet)
+        #expect(mainnetLinks.url(transaction: "hash")?.absoluteString == "https://explorer.arc.io/tx/hash")
+        #expect(testnetLinks.url(address: "address", contractAddress: nil)?.absoluteString == "https://testnet.arcscan.app/address/address")
+        #expect(mainnetLinks.testnetFaucetURL == nil)
+        #expect(testnetLinks.testnetFaucetURL?.absoluteString == "https://faucet.circle.com")
+    }
 }

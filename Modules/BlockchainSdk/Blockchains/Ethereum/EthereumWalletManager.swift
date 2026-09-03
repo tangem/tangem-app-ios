@@ -363,23 +363,10 @@ private extension EthereumWalletManager {
     }
 
     func mapEIP1559Fee(response: EthereumEIP1559FeeResponse) -> [Fee] {
-        let feeParameters = [
-            EthereumEIP1559FeeParameters(
-                gasLimit: response.gasLimit,
-                maxFeePerGas: response.fees.low.max,
-                priorityFee: response.fees.low.priority
-            ),
-            EthereumEIP1559FeeParameters(
-                gasLimit: response.gasLimit,
-                maxFeePerGas: response.fees.market.max,
-                priorityFee: response.fees.market.priority
-            ),
-            EthereumEIP1559FeeParameters(
-                gasLimit: response.gasLimit,
-                maxFeePerGas: response.fees.fast.max,
-                priorityFee: response.fees.fast.priority
-            ),
-        ]
+        let feeParameters = EthereumEIP1559FeeParametersMapper.map(
+            response: response,
+            blockchain: wallet.blockchain
+        )
 
         let fees = feeParameters.map { parameters in
             let feeValue = parameters.calculateFee(decimalValue: wallet.blockchain.decimalValue)
@@ -670,6 +657,7 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
             baseFee: feeHistory.marketBaseFee,
             priorityFee: feeHistory.marketPriorityFee
         )
+        .applyingFeeRules(for: wallet.blockchain)
 
         var fee = try await buildGaslessFee(
             feeToken: feeToken,
@@ -701,6 +689,7 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
             baseFee: feeHistory.marketBaseFee,
             priorityFee: feeHistory.marketPriorityFee
         )
+        .applyingFeeRules(for: wallet.blockchain)
 
         var fee = try await buildGaslessFee(
             feeToken: feeToken,

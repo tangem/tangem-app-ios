@@ -113,6 +113,7 @@ extension WalletNetworkServiceFactory {
              .plasma,
              .adi,
              .electroneum,
+             .arc,
              .seiEvm,
              .decimal,
              .xdc,
