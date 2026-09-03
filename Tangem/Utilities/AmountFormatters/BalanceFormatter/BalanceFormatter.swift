@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 import TangemUI
 
 struct BalanceFormatter {
@@ -60,6 +61,34 @@ struct BalanceFormatter {
         let valueToFormat = decimalRoundingUtility.roundDecimal(value, with: formattingOptions.roundingType)
 
         return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(currencyCode)"
+    }
+
+    /// Format crypto balance using the currency symbol and display decimal count from `TokenItem`
+    /// - Parameters:
+    ///   - value: Balance that should be rounded and formatted
+    ///   - tokenItem: Token whose currency symbol and decimal count should be used
+    ///   - formatter: Optional `NumberFormatter` instance (e.g. a cached instance)
+    /// - Returns: Formatted balance string; if `value` is nil, returns `defaultEmptyBalanceString`
+    func formatCryptoBalance(
+        _ value: Decimal?,
+        tokenItem: TokenItem,
+        formatter: NumberFormatter? = nil
+    ) -> String {
+        guard tokenItem.displayDecimalCount != tokenItem.decimalCount else {
+            return formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol, formatter: formatter)
+        }
+
+        let displayValue = value?.rounded(
+            scale: tokenItem.displayDecimalCount,
+            roundingMode: .down
+        )
+
+        return formatCryptoBalance(
+            displayValue,
+            currencyCode: tokenItem.currencySymbol,
+            formattingOptions: .cryptoFormattingOptions(decimalCount: tokenItem.displayDecimalCount),
+            formatter: formatter
+        )
     }
 
     /// Format fiat balance using `BalanceFormattingOptions`. Fiat currency code will be taken from App settings
