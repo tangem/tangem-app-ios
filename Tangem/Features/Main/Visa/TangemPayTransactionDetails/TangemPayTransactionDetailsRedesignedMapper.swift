@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemAccessibilityIdentifiers
 import TangemFoundation
 import TangemLocalization
 import TangemPay
@@ -54,10 +55,15 @@ struct TangemPayTransactionDetailsRedesignedMapper {
             ?? input.enrichedMerchantCategory?.nilIfEmpty
             ?? Localization.tangemPayOther
 
-        var rows: [TangemPayTransactionDetailsDisplayModel.Row] = []
-        rows.append(.init(title: Localization.tangemPayTransactionDetailsCategory, value: category))
+        var rows: [TangemPayTransactionDetailsDisplayModel.Row] = [categoryRow(value: category)]
         if let mcc = input.merchantCategoryCode?.nilIfEmpty {
-            rows.append(.init(title: Localization.tangemPayTransactionDetailsMcc, value: mcc))
+            rows.append(
+                .init(
+                    title: Localization.tangemPayTransactionDetailsMcc,
+                    value: mcc,
+                    accessibilityIdentifier: TangemPayAccessibilityIdentifiers.transactionDetailsMccRow
+                )
+            )
         }
 
         return .init(
@@ -81,7 +87,7 @@ struct TangemPayTransactionDetailsRedesignedMapper {
             amount: format(amount: input.amount, currencyCode: AppConstants.usdCurrencyCode, prefix: prefix),
             amountSubtitle: nil,
             status: nil,
-            rows: [.init(title: Localization.tangemPayTransactionDetailsCategory, value: Localization.commonTransfer)],
+            rows: [categoryRow(value: Localization.commonTransfer)],
             mainButtonAction: .info
         )
     }
@@ -94,7 +100,7 @@ struct TangemPayTransactionDetailsRedesignedMapper {
             amount: format(amount: -input.amount, currencyCode: input.currency),
             amountSubtitle: nil,
             status: nil,
-            rows: [.init(title: Localization.tangemPayTransactionDetailsCategory, value: Localization.commonTransfer)],
+            rows: [categoryRow(value: Localization.commonTransfer)],
             mainButtonAction: .info
         )
     }
@@ -107,7 +113,7 @@ struct TangemPayTransactionDetailsRedesignedMapper {
             amount: format(amount: -input.amount, currencyCode: input.currency),
             amountSubtitle: input.description?.nilIfEmpty,
             status: nil,
-            rows: [.init(title: Localization.tangemPayTransactionDetailsCategory, value: Localization.tangemPayFeeSubtitle)],
+            rows: [categoryRow(value: Localization.tangemPayFeeSubtitle)],
             mainButtonAction: .dispute
         )
     }
@@ -145,6 +151,14 @@ struct TangemPayTransactionDetailsRedesignedMapper {
         case .awaitingCalculation:
             return .awaitingCalculation
         }
+    }
+
+    private func categoryRow(value: String) -> TangemPayTransactionDetailsDisplayModel.Row {
+        .init(
+            title: Localization.tangemPayTransactionDetailsCategory,
+            value: value,
+            accessibilityIdentifier: TangemPayAccessibilityIdentifiers.transactionDetailsCategoryRow
+        )
     }
 
     private static func description(for reason: TangemPayTransactionCashback.ExclusionReason) -> String {

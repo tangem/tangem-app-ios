@@ -21,11 +21,13 @@ struct TangemPayOrderCardDataView: View {
             .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
             .safeAreaInset(edge: .bottom, spacing: 0) { footer }
             .topNavigation(
-                title: Localization.tangempayOrderTypeTitle,
+                title: viewModel.title,
                 subtitle: Localization.tangempayOrderDataSubtitle,
                 leading: .custom(.back(action: viewModel.back)),
                 onClose: viewModel.close
             )
+            .alert(item: $viewModel.alert) { $0.alert }
+            .onChange(of: focusedField, perform: viewModel.focusedFieldDidChange(to:))
     }
 
     private var content: some View {
@@ -62,6 +64,9 @@ struct TangemPayOrderCardDataView: View {
             focusedField: $focusedField,
             nextFieldID: viewModel.fieldAfter(field.wrappedValue.id)
         )
+        .onChange(of: field.wrappedValue.text) { _ in
+            viewModel.fieldDidChange(field.wrappedValue.id)
+        }
     }
 
     private var footer: some View {
@@ -73,7 +78,8 @@ struct TangemPayOrderCardDataView: View {
         .size(.x12)
         .styleType(.default)
         .horizontalLayout(.infinity)
-        .isLoading(viewModel.isPlacingOrder)
+        .loading(.spinner(if: viewModel.isPlacingOrder))
+        .disabled(!viewModel.isOrderEnabled)
         .padding(.horizontal, Constants.footerHorizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)
         .background(alignment: .bottom) {
