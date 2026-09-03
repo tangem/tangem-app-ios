@@ -52,7 +52,7 @@ struct JointAccountJoinConfirmationView: View {
                 accessibilityLabel: Localization.commonCancel,
                 action: viewModel.onCancelTap
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x12)
             .horizontalLayout(.infinity)
 
