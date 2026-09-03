@@ -12,6 +12,11 @@ struct PolymarketOrderCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: PolymarketOrderCoordinator
 
     var body: some View {
-        coordinator.viewModel.map(PolymarketOrderView.init)
+        coordinator.viewModel.map { viewModel in
+            PolymarketOrderView(viewModel: viewModel)
+                .sheet(item: $coordinator.slippageSelector) { viewModel in
+                    PolymarketSlippageSelectorView(viewModel: viewModel)
+                }
+        }
     }
 }

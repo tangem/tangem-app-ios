@@ -10,4 +10,6 @@ import Foundation
 
 protocol PolymarketOrderRoutable: AnyObject {
     func closeOrder()
+
+    func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void)
 }
