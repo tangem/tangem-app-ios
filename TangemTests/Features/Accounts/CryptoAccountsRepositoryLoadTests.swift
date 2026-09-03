@@ -202,6 +202,7 @@ private final class AuxiliaryDataStorageStub: CryptoAccountsAuxiliaryDataStorage
     var hasSyncedWithRemote: Bool = true
     var archivedAccountsCount: Int = 0
     var totalCryptoAccountsCount: Int = 1
+    var totalJointAccountsCount: Int = 0
 }
 
 private final class PersistentStorageStub: CryptoAccountsPersistentStorage {
