@@ -34,15 +34,20 @@ final class TangemPayOrderCardCoordinator: CoordinatorObject {
     func start(with options: Options) {
         self.options = options
 
-        orderCardTypeViewModel = TangemPayOrderCardTypeViewModel(
-            virtualOffer: options.tangemPayAccount.additionalCardIssueOffer,
-            plasticOffer: options.tangemPayAccount.plasticCardIssueOffer,
-            tariffPlanCardImageURL: options.tariffPlanCardImageURL,
-            availableBalancePublisher: options.availableBalancePublisher,
-            countryName: options.countryName,
-            selectedCardType: options.selectedCardType,
-            coordinator: self
-        )
+        switch options.purpose {
+        case .issue:
+            orderCardTypeViewModel = TangemPayOrderCardTypeViewModel(
+                virtualOffer: options.tangemPayAccount.additionalCardIssueOffer,
+                plasticOffer: options.tangemPayAccount.plasticCardIssueOffer,
+                tariffPlanCardImageURL: options.tariffPlanCardImageURL,
+                availableBalancePublisher: options.availableBalancePublisher,
+                countryName: options.countryName,
+                selectedCardType: options.selectedCardType,
+                coordinator: self
+            )
+        case .reissue:
+            orderCardDataViewModel = makeOrderCardDataViewModel(options: options)
+        }
     }
 }
 
@@ -50,15 +55,33 @@ final class TangemPayOrderCardCoordinator: CoordinatorObject {
 
 extension TangemPayOrderCardCoordinator {
     struct Options {
+        let purpose: TangemPayOrderCardPurpose
         let tariffPlanCardImageURL: URL?
         let nameOnCard: String?
         let countryName: String?
         let email: String?
         let phoneMask: String?
+        let deliveryEtaMaxDays: Int?
         let availableBalancePublisher: AnyPublisher<Decimal?, Never>
         let selectedCardType: TangemPayOrderCardType?
         let tangemPayAccount: TangemPayAccount
         weak var parentCoordinator: (any TangemPayOrderCardFlowRoutable)?
+    }
+}
+
+// MARK: - View model factory
+
+private extension TangemPayOrderCardCoordinator {
+    func makeOrderCardDataViewModel(options: Options) -> TangemPayOrderCardDataViewModel {
+        TangemPayOrderCardDataViewModel(
+            purpose: options.purpose,
+            nameOnCard: options.nameOnCard,
+            countryName: options.countryName,
+            email: options.email,
+            phoneMask: options.phoneMask,
+            tangemPayAccount: options.tangemPayAccount,
+            coordinator: self
+        )
     }
 }
 
@@ -72,14 +95,7 @@ extension TangemPayOrderCardCoordinator: TangemPayOrderCardTypeRoutable {
     func orderCardTypeDidSelectPlastic() {
         guard let options else { return }
 
-        orderCardDataViewModel = TangemPayOrderCardDataViewModel(
-            nameOnCard: options.nameOnCard,
-            countryName: options.countryName,
-            email: options.email,
-            phoneMask: options.phoneMask,
-            tangemPayAccount: options.tangemPayAccount,
-            coordinator: self
-        )
+        orderCardDataViewModel = makeOrderCardDataViewModel(options: options)
     }
 
     func closeOrderCardType() {
@@ -96,14 +112,19 @@ extension TangemPayOrderCardCoordinator: TangemPayOrderCardDataRoutable {
 
         orderCardSuccessViewModel = TangemPayOrderCardSuccessViewModel(
             email: options?.email ?? "",
-            deliveryEtaMaxDays: options?.tangemPayAccount.plasticCardIssueOffer?.data?.deliveryEtaMaxDays,
+            deliveryEtaMaxDays: options?.deliveryEtaMaxDays ?? options?.tangemPayAccount.plasticCardIssueOffer?.data?.deliveryEtaMaxDays,
             coordinator: self
         )
     }
 
     func orderCardDataDidGoBack() {
-        orderCardDataViewModel = nil
-        orderCardSuccessViewModel = nil
+        switch options?.purpose {
+        case .issue:
+            orderCardDataViewModel = nil
+            orderCardSuccessViewModel = nil
+        case .reissue, nil:
+            dismiss()
+        }
     }
 
     func closeOrderCardData() {
