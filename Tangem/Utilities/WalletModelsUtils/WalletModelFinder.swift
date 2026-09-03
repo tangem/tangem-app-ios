@@ -23,7 +23,7 @@ enum WalletModelFinder {
                 return walletModel.isMainToken
                     && candidate.networkId == networkId
                     && candidate.isTestnet == isTestnet
-                    && walletModel.addresses.contains { $0.value.caseInsensitiveEquals(to: address) }
+                    && walletModel.allAddresses.contains { $0.value.caseInsensitiveEquals(to: address) }
             }) {
                 return Result(userWalletModel: userWalletModel, walletModel: walletModel)
             }

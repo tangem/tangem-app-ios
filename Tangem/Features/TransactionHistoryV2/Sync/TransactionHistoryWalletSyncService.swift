@@ -1,5 +1,5 @@
 //
-//  TransactionHistoryProvider.swift
+//  TransactionHistoryWalletSyncService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,28 +8,21 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
-final actor TransactionHistoryProvider {
-    @Injected(\.transactionHistoryAuxDataRepository) private nonisolated var auxDataRepository: TransactionHistoryAuxDataRepository
+final actor TransactionHistoryWalletSyncService {
+    nonisolated let mappingQueue = DispatchQueue(
+        label: "com.tangem.TransactionHistoryWalletSyncService.mappingQueue",
+        qos: .userInitiated,
+        target: .global(qos: .userInitiated)
+    )
 
     private let repository: TransactionHistoryRepository
     private let syncMetadataStorage: TransactionHistorySyncMetadataStorage
-    private let key: TransactionHistoryProviderKey
     private let userWalletId: UserWalletId
 
-    private nonisolated var address: String {
-        key.address
-    }
-
-    /// - Note: Uses `address` under the hood, which is a constant and therefore safe to use in async context, hence `nonisolated`.
-    private nonisolated var maskedAddress: String {
-        address.prefix(Constants.maskedAddressPrefixSuffixLength) + "••••" + address.suffix(Constants.maskedAddressPrefixSuffixLength)
-    }
-
-    private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
+    private var stateValue: TransactionHistorySyncState = .idle(.neverSynced)
     private var subscribers = AsyncStream<TransactionHistorySyncState>.MulticastSubscribers<UUID>()
 
     private var inFlightInitialSyncTask: Task<Void, Never>?
@@ -38,21 +31,13 @@ final actor TransactionHistoryProvider {
     private var _hasCompletedInitialSync: Bool?
     private var lastSuccessfulPullToRefreshAt: Date?
 
-    private nonisolated let mappingQueue = DispatchQueue(
-        label: "com.tangem.TransactionHistoryProvider.mappingQueue",
-        qos: .userInitiated,
-        target: .global(qos: .userInitiated)
-    )
-
     init(
         repository: TransactionHistoryRepository,
         syncMetadataStorage: TransactionHistorySyncMetadataStorage,
-        userWalletId: UserWalletId,
-        key: TransactionHistoryProviderKey
+        userWalletId: UserWalletId
     ) {
         self.repository = repository
         self.syncMetadataStorage = syncMetadataStorage
-        self.key = key
         self.userWalletId = userWalletId
     }
 
@@ -64,11 +49,11 @@ final actor TransactionHistoryProvider {
     private func markInitialSyncCompleted() {
         _hasCompletedInitialSync = true
         // Fire-and-forget, we don't need to await this because we have an actor-protected value
-        runTask(in: self) { provider in
+        runTask(in: self) { service in
             do {
-                try await provider.syncMetadataStorage.setIsInitialSyncDone(true)
+                try await service.syncMetadataStorage.setIsInitialSyncDone(true)
             } catch {
-                TransactionHistoryLogger.error(provider, "Failed to persist the initial sync flag", error: error)
+                TransactionHistoryLogger.error(service, "Failed to persist the initial sync flag", error: error)
             }
         }
     }
@@ -157,26 +142,11 @@ final actor TransactionHistoryProvider {
             emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .userInitiated(kind))))
         }
     }
-
-    private static func merge(
-        bsdkTransactions: [TransactionRecord],
-        exchangeTransactions: [ExchangeTransaction],
-        onrampTransactions: [OnrampTransaction],
-        using merger: TransactionHistoryExpressDataMerger
-    ) -> [TransactionRecord] {
-        ensureNotOnMainQueue()
-
-        return merger.merge(
-            bsdkTransactions: bsdkTransactions,
-            exchangeTransactions: exchangeTransactions,
-            onrampTransactions: onrampTransactions
-        )
-    }
 }
 
 // MARK: - TransactionHistorySyncing protocol conformance
 
-extension TransactionHistoryProvider: TransactionHistorySyncing {
+extension TransactionHistoryWalletSyncService: TransactionHistorySyncing {
     var state: TransactionHistorySyncState {
         stateValue
     }
@@ -184,11 +154,11 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     nonisolated var stateUpdates: AsyncStream<TransactionHistorySyncState> {
         .multicast(
             with: self,
-            onSubscribe: { provider, id, continuation in
-                provider.subscribers.subscribe(id: id, continuation: continuation, currentValue: provider.stateValue)
+            onSubscribe: { service, id, continuation in
+                service.subscribers.subscribe(id: id, continuation: continuation, currentValue: service.stateValue)
             },
-            onUnsubscribe: { provider, id in
-                provider.subscribers.unsubscribe(id: id)
+            onUnsubscribe: { service, id in
+                service.subscribers.unsubscribe(id: id)
             }
         )
     }
@@ -208,8 +178,8 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
 
         TransactionHistoryLogger.debug(self, "Starting initial sync")
 
-        let newSyncTask = runTask(in: self) { provider in
-            await provider.performInitialSync()
+        let newSyncTask = runTask(in: self) { service in
+            await service.performInitialSync()
         }
 
         inFlightInitialSyncTask = newSyncTask
@@ -231,8 +201,8 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
 
         TransactionHistoryLogger.debug(self, "Starting delta sync")
 
-        let newSyncTask = runTask(in: self) { provider in
-            await provider.performDeltaSync()
+        let newSyncTask = runTask(in: self) { service in
+            await service.performDeltaSync()
         }
 
         inFlightIncrementalSyncTask = newSyncTask
@@ -266,8 +236,8 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
 
         TransactionHistoryLogger.debug(self, "Starting user-initiated sync: \(kind)")
 
-        let newSyncTask = runTask(in: self) { provider in
-            await provider.performUserInitiatedSync(kind: kind)
+        let newSyncTask = runTask(in: self) { service in
+            await service.performUserInitiatedSync(kind: kind)
         }
 
         inFlightIncrementalSyncTask = newSyncTask
@@ -277,7 +247,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
 
 // MARK: - TransactionHistoryExpressDataEnriching protocol conformance
 
-extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
+extension TransactionHistoryWalletSyncService: TransactionHistoryExpressDataEnriching {
     func enrich(with transaction: SentSwapTransactionData) async {
         let exchangeTransaction = SentExpressTransactionHistoryMapper.mapToExchangeTransaction(transaction)
         await enrich(with: exchangeTransaction)
@@ -307,108 +277,38 @@ extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
     }
 }
 
-// MARK: - WalletModelTransactionHistoryEnriching protocol conformance
-
-extension TransactionHistoryProvider: WalletModelTransactionHistoryEnriching {
-    nonisolated func enrichedTransactionHistoryPublisher(
-        from originalTransactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
-        tokenItem: TokenItem,
-        feeTokenItem: TokenItem
-    ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
-        let merger = TransactionHistoryExpressDataMerger(
-            ownerAddress: address,
-            currentToken: tokenItem,
-            feeTokenItem: feeTokenItem
-        )
-        // [REDACTED_TODO_COMMENT]
-        return originalTransactionHistoryPublisher
-            .combineLatest(
-                Publishers
-                    .stream { [repository] in
-                        repository.historyUpdates(for: tokenItem.expressCurrency.asCurrency)
-                    },
-                Publishers
-                    .stream { [auxDataRepository] in
-                        auxDataRepository.didLoadAuxData
-                    }
-                    .prepend(()) // Emit an initial value in case the aux data is already cached and no updates are coming
-            )
-            .receive(on: mappingQueue)
-            .map { transactionHistoryState, historyUpdates, _ in
-                // [REDACTED_TODO_COMMENT]
-                var exchangeTransactions: [ExchangeTransaction] = []
-                var onrampTransactions: [OnrampTransaction] = []
-                for historyUpdate in historyUpdates {
-                    switch historyUpdate {
-                    case .exchange(let transactionInfo):
-                        exchangeTransactions.append(transactionInfo.transaction)
-                    case .onramp(let transactionInfo):
-                        onrampTransactions.append(transactionInfo.transaction)
-                    }
-                }
-
-                switch transactionHistoryState {
-                case .loaded(let bsdkTransactions):
-                    let mergedTransactions = Self.merge(
-                        bsdkTransactions: bsdkTransactions,
-                        exchangeTransactions: exchangeTransactions,
-                        onrampTransactions: onrampTransactions,
-                        using: merger
-                    )
-                    return .loaded(items: mergedTransactions)
-                case .notSupported:
-                    // The `.notSupported` state should be handled too, because merging can add synthetic transactions even without matching BSDK transactions.
-                    let mergedTransactions = Self.merge(
-                        bsdkTransactions: [],
-                        exchangeTransactions: exchangeTransactions,
-                        onrampTransactions: onrampTransactions,
-                        using: merger
-                    )
-                    return mergedTransactions.isEmpty ? .notSupported : .loaded(items: mergedTransactions)
-                case .error,
-                     .notLoaded,
-                     .loading:
-                    return transactionHistoryState
-                }
-            }
-            .eraseToAnyPublisher()
-    }
-}
-
 // MARK: - Identifiable protocol conformance
 
-extension TransactionHistoryProvider: Identifiable {
+extension TransactionHistoryWalletSyncService: Identifiable {
     nonisolated var id: String {
-        userWalletId.stringValue + address
+        userWalletId.stringValue
     }
 }
 
 // MARK: - TransactionHistoryProviding protocol conformance
 
-extension TransactionHistoryProvider: TransactionHistoryProviding {}
+extension TransactionHistoryWalletSyncService: TransactionHistoryProviding {
+    nonisolated func historyUpdates(
+        for walletModelId: WalletModelId,
+        walletModelAddressesPublisher: some Publisher<[String], Never>
+    ) -> AsyncStream<[TransactionHistoryRecordsReader.Record]> {
+        repository.historyUpdates(for: walletModelId, walletModelAddressesPublisher: walletModelAddressesPublisher)
+    }
+}
 
 // MARK: - CustomStringConvertible protocol conformance
 
-extension TransactionHistoryProvider: CustomStringConvertible {
+extension TransactionHistoryWalletSyncService: CustomStringConvertible {
     nonisolated var description: String {
-        objectDescription(
-            self,
-            userInfo: [
-                "name": key.tokenItem.name,
-                "type": key.tokenItem.isToken ? "Token" : "Coin",
-                "derivation": key.tokenItem.blockchainNetwork.derivationPath?.rawPath ?? "nil",
-                "address": maskedAddress,
-            ]
-        )
+        objectDescription(self, userInfo: ["userWalletId": userWalletId.stringValue])
     }
 }
 
 // MARK: - Constants
 
-private extension TransactionHistoryProvider {
+private extension TransactionHistoryWalletSyncService {
     enum Constants {
         static let pullToRefreshThrottle: TimeInterval = 10
         static let postBroadcastDelay: Duration = .seconds(5)
-        static let maskedAddressPrefixSuffixLength = 4
     }
 }
