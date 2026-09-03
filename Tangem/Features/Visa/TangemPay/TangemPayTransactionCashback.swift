@@ -10,8 +10,9 @@ import TangemFoundation
 import TangemPay
 
 enum TangemPayTransactionCashback: Equatable {
-    case earned(amount: Decimal, currency: String)
+    case earned(amount: Decimal, currency: String, capTrimmed: Bool)
     case excluded(reason: ExclusionReason?)
+    case awaitingCalculation
 }
 
 extension TangemPayTransactionCashback {
@@ -37,12 +38,15 @@ extension TangemPayTransactionCashback {
                 return nil
             }
 
-            self = .earned(amount: amount, currency: currency)
+            self = .earned(amount: amount, currency: currency, capTrimmed: cashback.capTrimmed ?? false)
 
         case .excluded:
             self = .excluded(reason: cashback.exclusionReason.flatMap(ExclusionReason.init))
 
-        case .awaitingCalculation, .undefined:
+        case .awaitingCalculation:
+            self = .awaitingCalculation
+
+        case .undefined:
             return nil
         }
     }
