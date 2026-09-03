@@ -77,8 +77,8 @@ struct EarnFilterHeaderView: View {
             )
             .iconEnd(DesignSystem.Icons.ChevronDown.regular20)
             .size(.x9)
-            .styleType(.secondary)
-            .isLoading(isLoading)
+            .styleType(.secondary(.default))
+            .loading(.spinner(if: isLoading))
             .disabled(!isEnabled)
         }
     }

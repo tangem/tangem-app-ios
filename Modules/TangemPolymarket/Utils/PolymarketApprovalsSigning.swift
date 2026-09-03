@@ -13,36 +13,53 @@ import struct BlockchainSdk.EIP712Type
 import enum BlockchainSdk.JSON
 
 public enum PolymarketApprovalsSigning {
-    /// The EIP-712 encoder skips a field it cannot parse instead of failing, so an unchecked malformed
-    /// address would drop out of the signed structure and the card would sign the wrong payload.
-    public static func digest(
-        depositWalletAddress: String,
-        nonce: String,
-        deadline: String,
-        calls: [PolymarketApprovalsBatch.Call]
-    ) throws(PolymarketApprovalsSigningError) -> Data {
-        guard depositWalletAddress.isEvmAddress else {
+    public static func digest(for approvals: PolymarketApprovalsBatch.Unsigned) throws(PolymarketApprovalsSigningError) -> Data {
+        guard approvals.depositWalletAddress.isEvmAddress else {
             throw .invalidDepositWalletAddress
         }
 
-        return makeTypedData(
-            depositWalletAddress: depositWalletAddress,
-            nonce: nonce,
-            deadline: deadline,
-            calls: calls
-        ).signHash
+        guard approvals.nonce.isUnsignedInteger else {
+            throw .invalidNonce
+        }
+
+        guard approvals.deadline.isUnsignedInteger else {
+            throw .invalidDeadline
+        }
+
+        return makeTypedData(for: approvals).signHash
     }
 }
 
 // MARK: - Private implementation
 
+private extension String {
+    var isUnsignedInteger: Bool {
+        guard !isEmpty, allSatisfy(\.isASCIINumber) else {
+            return false
+        }
+
+        let digits = drop { $0 == "0" }
+
+        guard digits.count == Constants.maxUint256.count else {
+            return digits.count < Constants.maxUint256.count
+        }
+
+        return !Constants.maxUint256.lexicographicallyPrecedes(digits)
+    }
+
+    enum Constants {
+        static let maxUint256 = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    }
+}
+
+private extension Character {
+    var isASCIINumber: Bool {
+        isASCII && isNumber
+    }
+}
+
 private extension PolymarketApprovalsSigning {
-    static func makeTypedData(
-        depositWalletAddress: String,
-        nonce: String,
-        deadline: String,
-        calls: [PolymarketApprovalsBatch.Call]
-    ) -> EIP712TypedData {
+    static func makeTypedData(for approvals: PolymarketApprovalsBatch.Unsigned) -> EIP712TypedData {
         let types: [String: [EIP712Type]] = [
             "EIP712Domain": [
                 .init(name: "name", type: "string"),
@@ -67,14 +84,14 @@ private extension PolymarketApprovalsSigning {
             "name": .string(domainName),
             "version": .string(domainVersion),
             "chainId": .number(chainId),
-            "verifyingContract": .string(depositWalletAddress),
+            "verifyingContract": .string(approvals.depositWalletAddress),
         ])
 
         let message: JSON = .object([
-            "wallet": .string(depositWalletAddress),
-            "nonce": .string(nonce),
-            "deadline": .string(deadline),
-            "calls": .array(calls.map { call in
+            "wallet": .string(approvals.depositWalletAddress),
+            "nonce": .string(approvals.nonce),
+            "deadline": .string(approvals.deadline),
+            "calls": .array(approvals.calls.map { call in
                 .object([
                     "target": .string(call.target),
                     "value": .string(call.value),

@@ -179,6 +179,7 @@ private struct TangemPayAccountTile: View {
             .renderingMode(.template)
             .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(width: cachedIconSize, height: cachedIconSize)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mainScreenTileCachedIcon)
     }
 }
 

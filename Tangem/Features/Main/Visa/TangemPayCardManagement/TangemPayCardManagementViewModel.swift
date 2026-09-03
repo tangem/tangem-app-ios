@@ -21,15 +21,11 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     @Published private(set) var cardDetailsItems: [CardDetailsItem] = []
     @Published var selectedCardId: String?
 
+    @Published private(set) var contentState: ContentState = .details(
+        ContentState.Details(freezingState: .unavailable, dailyLimitState: nil, showsAddToApplePayGuide: false)
+    )
     @Published private(set) var cardRenameViewModel: TangemPayCardRenameViewModel?
-    @Published private(set) var freezingState: TangemPayFreezingState = .normal
-    @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
     @Published private(set) var closeCardRow: DefaultRowViewModel?
-    @Published private(set) var dailyLimitState: TangemPayDailyLimitState?
-    @Published private(set) var plasticCard: TangemPayPlasticCardStub?
-    @Published private(set) var isIssuing: Bool = false
-    @Published private(set) var isReissuing: Bool = false
-    @Published private(set) var isClosing: Bool = false
     @Published private(set) var isLoadingReissueFee: Bool = false
     @Published var alert: AlertBinder?
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
@@ -72,6 +68,14 @@ final class TangemPayCardManagementViewModel: ObservableObject {
         rebuildCardDetailsItems(entries: tangemPayAccount.cardEntries)
         selectionAnchor = SelectionAnchor(entry: initialEntry)
 
+        contentState = makeContentState(
+            entries: tangemPayAccount.cardEntries,
+            selectedCardId: initialEntry.id,
+            renameViewModel: nil,
+            lifecycle: initialEntry.card.map(makeLifecycle(for:)),
+            showsAddToApplePayGuide: false
+        )
+
         bindMultiCard()
     }
 
@@ -80,7 +84,7 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     }
 
     func openChangeDailyLimit() {
-        guard case .loaded = dailyLimitState else { return }
+        guard case .details(let details) = contentState, case .loaded = details.dailyLimitState else { return }
         guard let card = currentCard else { return }
         Analytics.log(.visaScreenDailyLimitChangeClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openChangeDailyLimit(card: card)
@@ -130,10 +134,12 @@ private extension TangemPayCardManagementViewModel {
     struct SelectionAnchor {
         let entryId: String
         let productInstanceId: String?
+        let isPlastic: Bool
 
         init(entry: TangemPayCardEntry) {
             entryId = entry.id
             productInstanceId = entry.productInstanceId
+            isPlastic = entry.plasticCard != nil
         }
 
         func resolveSelection(in entries: [TangemPayCardEntry]) -> (entry: TangemPayCardEntry, newAnchor: SelectionAnchor)? {
@@ -142,6 +148,10 @@ private extension TangemPayCardManagementViewModel {
                 return (entry, SelectionAnchor(entry: entry))
             }
             if let entry = entries.first(where: { $0.id == entryId }) {
+                return (entry, SelectionAnchor(entry: entry))
+            }
+            // The card entry replacing a plastic order shares nothing with its anchor but being plastic.
+            if isPlastic, let entry = entries.first(where: { $0.plasticCard != nil }) {
                 return (entry, SelectionAnchor(entry: entry))
             }
             return nil
@@ -176,80 +186,89 @@ private extension TangemPayCardManagementViewModel {
             .sink { vm, entries in vm.applyEntries(entries) }
             .store(in: &bag)
 
-        Publishers.CombineLatest(tangemPayAccount.cardEntriesPublisher, $selectedCardId)
-            .map { entries, id -> Bool in
-                guard let id else { return false }
-                return entries.first(where: { $0.id == id })?.isIssuing ?? false
-            }
-            .removeDuplicates()
-            .receiveOnMain()
-            .assign(to: \.isIssuing, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        Publishers.CombineLatest(tangemPayAccount.cardEntriesPublisher, $selectedCardId)
-            .map { entries, id -> TangemPayPlasticCardStub? in
-                guard let id else { return nil }
-                return entries.first(where: { $0.id == id })?.plasticCard
-            }
-            .removeDuplicates()
-            .receiveOnMain()
-            .assign(to: \.plasticCard, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        bindSelectedCard(
-            fallback: TangemPayFreezingState.unavailable,
-            publisher: { card in
-                Publishers.CombineLatest(card.statusPublisher, card.inflightLifecycleOperationPublisher)
-                    .map { status, operation -> TangemPayFreezingState in
-                        switch operation {
-                        case .freeze: .freezingInProgress
-                        case .unfreeze: .unfreezingInProgress
-                        case .reissue, .close, nil: status == .blocked ? .frozen : .normal
-                        }
-                    }
-                    .eraseToAnyPublisher()
-            },
-            to: \.freezingState
+        Publishers.CombineLatest4(
+            tangemPayAccount.cardEntriesPublisher,
+            $selectedCardId,
+            $cardRenameViewModel,
+            selectedCardLifecyclePublisher
         )
+        .combineLatest(addToApplePayGuidePublisher)
+        .withWeakCaptureOf(self)
+        .map { viewModel, input in
+            let ((entries, selectedCardId, renameViewModel, lifecycle), showsAddToApplePayGuide) = input
+            return viewModel.makeContentState(
+                entries: entries,
+                selectedCardId: selectedCardId,
+                renameViewModel: renameViewModel,
+                lifecycle: lifecycle,
+                showsAddToApplePayGuide: showsAddToApplePayGuide
+            )
+        }
+        .receiveOnMain()
+        .assign(to: &$contentState)
 
-        bindSelectedCard(
-            fallback: TangemPayDailyLimitState?.none,
-            publisher: { [dailyLimitFormatter] card in
-                let initial: TangemPayDailyLimitState? = .loading
-                return card.cardLimitPublisher
-                    .map { amount -> TangemPayDailyLimitState? in
-                        if let formatted = dailyLimitFormatter.string(from: .init(value: amount)) {
-                            return .loaded(TangemPayDailyLimit(currentLimit: formatted))
-                        }
-                        return .error
-                    }
-                    .prepend(initial)
-                    .eraseToAnyPublisher()
-            },
-            to: \.dailyLimitState
-        )
-
-        bindSelectedCard(
-            fallback: false,
-            publisher: { $0.isReissuingPublisher },
-            to: \.isReissuing
-        )
-
-        bindSelectedCard(
-            fallback: false,
-            publisher: { $0.isClosingPublisher },
-            to: \.isClosing
-        )
-
-        Publishers.CombineLatest($freezingState, $isClosing)
+        selectedCardFreezingPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { vm, output in
-                let (freezing, _) = output
-                vm.propagateFreezingStateToDetailsVM(freezing)
+            .sink { viewModel, output in
+                viewModel.selectedMultiCardDetailsViewModel?.state = output.freezingState.cardDetailsState
             }
             .store(in: &bag)
 
+        Publishers.CombineLatest($contentState, $cardDetailsItems)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, output in
+                let (state, cardEntities) = output
+                viewModel.updateCloseCardRow(isClosing: state.isClosing, isOnlyCard: cardEntities.count <= 1)
+            }
+            .store(in: &bag)
+    }
+
+    var selectedCardLifecyclePublisher: AnyPublisher<CardLifecycle?, Never> {
+        $selectedCardId
+            .withWeakCaptureOf(self)
+            .map { viewModel, id -> AnyPublisher<CardLifecycle?, Never> in
+                guard let id, let card = viewModel.tangemPayAccount.card(cardId: id) else {
+                    return .just(output: nil)
+                }
+
+                return Publishers.CombineLatest3(
+                    card.statusPublisher,
+                    card.inflightLifecycleOperationPublisher,
+                    viewModel.dailyLimitStatePublisher(for: card)
+                )
+                .map { status, operation, dailyLimitState -> CardLifecycle? in
+                    CardLifecycle(status: status, operation: operation, dailyLimitState: dailyLimitState)
+                }
+                .eraseToAnyPublisher()
+            }
+            .switchToLatest()
+            .eraseToAnyPublisher()
+    }
+
+    /// The card id is part of the deduplicated value: a switch between two cards sharing a freezing
+    /// state must still emit, since a freshly built card details view model starts unfrozen.
+    var selectedCardFreezingPublisher: AnyPublisher<(cardId: String?, freezingState: TangemPayFreezingState), Never> {
+        $selectedCardId
+            .withWeakCaptureOf(self)
+            .map { viewModel, id -> AnyPublisher<(cardId: String?, freezingState: TangemPayFreezingState), Never> in
+                guard let id, let card = viewModel.tangemPayAccount.card(cardId: id) else {
+                    return .just(output: (cardId: id, freezingState: .unavailable))
+                }
+
+                return Publishers.CombineLatest(card.statusPublisher, card.inflightLifecycleOperationPublisher)
+                    .map { status, operation in
+                        (cardId: id, freezingState: TangemPayFreezingState(status: status, operation: operation))
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .switchToLatest()
+            .removeDuplicates { $0 == $1 }
+            .eraseToAnyPublisher()
+    }
+
+    var addToApplePayGuidePublisher: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest(
             AppSettings.shared.$tangemPayShowAddToApplePayGuide,
             tangemPayAccount.statePublisher
@@ -259,36 +278,68 @@ private extension TangemPayCardManagementViewModel {
                 && customerState == .active
                 && showGuide
         }
-        .receiveOnMain()
-        .assign(to: \.shouldDisplayAddToApplePayGuide, on: self, ownership: .weak)
-        .store(in: &bag)
-
-        Publishers.CombineLatest($isClosing, $cardDetailsItems)
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, output in
-                let (isClosing, cardEntities) = output
-                viewModel.updateCloseCardRow(isClosing: isClosing, isOnlyCard: cardEntities.count <= 1)
-            }
-            .store(in: &bag)
+        .eraseToAnyPublisher()
     }
 
-    func bindSelectedCard<T>(
-        fallback: T,
-        publisher: @escaping (TangemPayCard) -> AnyPublisher<T, Never>,
-        to keyPath: ReferenceWritableKeyPath<TangemPayCardManagementViewModel, T>
-    ) {
-        $selectedCardId
-            .map { [weak tangemPayAccount] id -> AnyPublisher<T, Never> in
-                guard let id, let card = tangemPayAccount?.card(cardId: id) else {
-                    return Just(fallback).eraseToAnyPublisher()
-                }
-                return publisher(card)
-            }
-            .switchToLatest()
-            .receiveOnMain()
-            .assign(to: keyPath, on: self, ownership: .weak)
-            .store(in: &bag)
+    func dailyLimitStatePublisher(for card: TangemPayCard) -> AnyPublisher<TangemPayDailyLimitState?, Never> {
+        card.cardLimitPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, amount in viewModel.dailyLimitState(forLimit: amount) }
+            .prepend(.some(.loading))
+            .eraseToAnyPublisher()
+    }
+
+    func dailyLimitState(forLimit amount: Int) -> TangemPayDailyLimitState? {
+        guard let formatted = dailyLimitFormatter.string(from: .init(value: amount)) else {
+            return .error
+        }
+        return .loaded(TangemPayDailyLimit(currentLimit: formatted))
+    }
+
+    func makeLifecycle(for card: TangemPayCard) -> CardLifecycle {
+        CardLifecycle(
+            status: card.productInstance.status,
+            operation: card.inflightLifecycleOperation,
+            dailyLimitState: dailyLimitState(forLimit: card.cardLimit)
+        )
+    }
+
+    func makeContentState(
+        entries: [TangemPayCardEntry],
+        selectedCardId: String?,
+        renameViewModel: TangemPayCardRenameViewModel?,
+        lifecycle: CardLifecycle?,
+        showsAddToApplePayGuide: Bool
+    ) -> ContentState {
+        if let renameViewModel {
+            return .renaming(renameViewModel)
+        }
+
+        if lifecycle?.isClosing == true {
+            return .closing
+        }
+
+        let entry = selectedCardId.flatMap { id in entries.first { $0.id == id } }
+
+        if let plastic = entry?.plasticCard {
+            return .plastic(ContentState.Plastic(plastic), email: tangemPayAccount.profile?.email)
+        }
+
+        if entry?.isIssuing == true {
+            return .issuing
+        }
+
+        if lifecycle?.isReissuing == true {
+            return .reissuing
+        }
+
+        return .details(
+            ContentState.Details(
+                freezingState: lifecycle?.freezingState ?? .unavailable,
+                dailyLimitState: lifecycle?.dailyLimitState,
+                showsAddToApplePayGuide: showsAddToApplePayGuide
+            )
+        )
     }
 }
 
@@ -392,10 +443,6 @@ private extension TangemPayCardManagementViewModel {
         return detailsViewModel
     }
 
-    func propagateFreezingStateToDetailsVM(_ freezing: TangemPayFreezingState) {
-        selectedMultiCardDetailsViewModel?.state = freezing.cardDetailsState
-    }
-
     func updateCloseCardRow(isClosing: Bool, isOnlyCard: Bool) {
         let isBusy = isClosing || isOnlyCard
         let action: () -> Void = { [weak self] in
@@ -420,12 +467,25 @@ private extension TangemPayCardManagementViewModel {
     func onReplaceCard() {
         guard let card = currentCard else { return }
         Analytics.log(.visaReplaceCardClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openTangemPayReissueSheet(
-            userWalletId: userWalletInfo.id,
-            card: card,
-            onLoadingChange: { [weak self] in self?.isLoadingReissueFee = $0 },
-            onError: { [weak self] in self?.showReissueError() }
-        )
+
+        let onLoadingChange: (Bool) -> Void = { [weak self] in self?.isLoadingReissueFee = $0 }
+        let onError: () -> Void = { [weak self] in self?.showReissueError() }
+
+        if FeatureProvider.isAvailable(.tangemPayPlastic), card.isPhysical {
+            coordinator?.openPlasticCardReissueSheet(
+                userWalletId: userWalletInfo.id,
+                card: card,
+                onLoadingChange: onLoadingChange,
+                onError: onError
+            )
+        } else {
+            coordinator?.openTangemPayReissueSheet(
+                userWalletId: userWalletInfo.id,
+                card: card,
+                onLoadingChange: onLoadingChange,
+                onError: onError
+            )
+        }
     }
 
     func setPin() {
@@ -573,12 +633,12 @@ private extension TangemPayFreezingState {
 // MARK: - Redesigned card management actions
 
 extension TangemPayCardManagementViewModel {
-    var cardActionsDisabled: Bool {
-        freezingState.isFreezingUnfreezingInProgress
-    }
+    private var activatablePlasticCard: TangemPayCard? {
+        guard case .plastic(.awaitingActivation, _) = contentState, let selectedCardId else {
+            return nil
+        }
 
-    var isPlasticCardDelivering: Bool {
-        plasticCard?.stage == .delivering
+        return tangemPayAccount.cardEntries.first { $0.id == selectedCardId }?.plasticCard?.deliveredCard
     }
 
     func onDetailsButton() {
@@ -586,7 +646,7 @@ extension TangemPayCardManagementViewModel {
     }
 
     func onFreezeButton() {
-        if freezingState.isFrozen {
+        if contentState.freezingState?.isFrozen == true {
             showUnfreezePopup()
         } else {
             showFreezePopup()
@@ -602,9 +662,12 @@ extension TangemPayCardManagementViewModel {
     }
 
     func onActivatePlasticCardButton() {
-        guard let plasticCard else { return }
+        guard let card = activatablePlasticCard else { return }
 
-        coordinator?.openPlasticCardActivation(card: plasticCard)
+        coordinator?.openPlasticCardActivation(
+            productInstanceId: card.productInstance.id,
+            activationImageURL: card.activationImageURL
+        )
     }
 
     func onContactSupportButton() {

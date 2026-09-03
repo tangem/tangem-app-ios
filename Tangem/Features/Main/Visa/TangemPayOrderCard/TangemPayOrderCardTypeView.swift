@@ -100,57 +100,20 @@ struct TangemPayOrderCardTypeView: View {
         .frame(height: Constants.cardHeight)
     }
 
-    @ViewBuilder
     private func cardView(_ cardType: TangemPayOrderCardType) -> some View {
-        switch cardType {
-        case .virtual:
-            KFImage(viewModel.virtualCardImageURL)
-                .placeholder {
-                    Assets.Visa.cardGhost.image
-                        .resizable()
-                }
-                .resizable()
-                .scaledToFit()
-                .frame(width: Constants.cardWidth, height: Constants.cardHeight)
-        case .plastic:
-            TangemPayOrderCardPlasticArtStubView(
-                size: CGSize(width: Constants.cardWidth, height: Constants.cardHeight)
-            )
-        }
+        KFImage(viewModel.imageURL(for: cardType))
+            .placeholder { Assets.Visa.cardGhost.image.resizable() }
+            .resizable()
+            .scaledToFit()
+            .frame(width: Constants.cardWidth, height: Constants.cardHeight)
     }
 
     // MARK: - Rows
 
     private var infoRows: some View {
-        VStack(spacing: 0) {
-            ForEach(Array(viewModel.infoRows.enumerated()), id: \.element.id) { index, row in
-                Row(title: row.title, subvalue: row.subvalue)
-                    .valueAccessory { valueView(row) }
-                    .verticalAlignment(.top)
-                    .showDivider(index < viewModel.infoRows.count - 1)
-                    .disabled(row.isDimmed)
-            }
-        }
-        .padding(.horizontal, Constants.rowsHorizontalPadding)
-        .animation(.default, value: viewModel.selectedCardType)
-    }
-
-    private func valueView(_ row: TangemPayOrderCardInfoRow) -> some View {
-        HStack(spacing: Constants.badgeSpacing) {
-            if let badge = row.badge {
-                Badge(label: badge.text, accessibilityLabel: nil)
-                    .size(.x4)
-                    .appearance(badge.appearance)
-            }
-
-            Text(row.value)
-                .style(
-                    DesignSystem.Font.bodyMediumToken,
-                    color: row.isValueStruckThrough ? DesignSystem.Color.textSecondary : DesignSystem.Color.textPrimary
-                )
-                .strikethrough(row.isValueStruckThrough)
-                .lineLimit(1)
-        }
+        TangemPayOrderCardInfoRowsView(rows: viewModel.infoRows)
+            .padding(.horizontal, Constants.rowsHorizontalPadding)
+            .animation(.default, value: viewModel.selectedCardType)
     }
 
     // MARK: - Footer
@@ -185,7 +148,6 @@ private extension TangemPayOrderCardTypeView {
 
         static let tabsVerticalPadding: CGFloat = 8
         static let rowsHorizontalPadding: CGFloat = 8
-        static let badgeSpacing: CGFloat = 8
         static let footerHorizontalPadding: CGFloat = 16
         static let footerVerticalPadding: CGFloat = 12
 

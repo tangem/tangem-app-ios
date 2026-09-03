@@ -22,8 +22,18 @@ class CommonGeoEligibilityService: GeoEligibilityService {
         }
 
         // add timeout to avoid app launch delay
-        try? await Task.run(withTimeout: .seconds(3.0)) { [geoDefiner] in
+        try? await Task.run(withTimeout: Constants.geoIpRegionCodeTimeout) { [geoDefiner] in
             _ = try? await geoDefiner.fetchGeoIpRegionCode()
+        }
+    }
+
+    func fetchGeoIpRegionCode() async -> String? {
+        if let geoIpRegionCode = geoDefiner.geoIpRegionCode {
+            return geoIpRegionCode
+        }
+
+        return try? await Task.run(withTimeout: Constants.geoIpRegionCodeTimeout) { [geoDefiner] in
+            try? await geoDefiner.fetchGeoIpRegionCode()
         }
     }
 
@@ -66,6 +76,8 @@ class CommonGeoEligibilityService: GeoEligibilityService {
 
 extension CommonGeoEligibilityService {
     private enum Constants {
+        static let geoIpRegionCodeTimeout: Duration = .seconds(3.0)
+
         static let ukRegionCode: String = "gb"
 
         static let applePayRestrictedRegionCodes: Set<String> = [

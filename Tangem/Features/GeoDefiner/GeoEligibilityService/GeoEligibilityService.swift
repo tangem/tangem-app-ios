@@ -10,6 +10,9 @@ protocol GeoEligibilityService: Initializable {
     func waitForGeoIpRegionIfNeeded() async
     var isUK: Bool { get }
     var isApplePayAllowed: Bool { get }
+
+    /// Awaits the GeoIP country for a bounded time, returning `nil` if it neither arrived in time nor could be resolved.
+    func fetchGeoIpRegionCode() async -> String?
 }
 
 private struct GeoEligibilityServiceKey: InjectionKey {
