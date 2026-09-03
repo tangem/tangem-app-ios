@@ -56,8 +56,12 @@ final class TangemPayCard: Identifiable {
         productInstance.status == .new || productInstance.status == .activating
     }
 
-    var isAwaitingActivation: Bool {
+    var isPhysical: Bool {
         card.cardType == .physical
+    }
+
+    var isAwaitingActivation: Bool {
+        isPhysical
             && card.cardStatus == .inactive
             && !Constants.terminalProductStatuses.contains(productInstance.status)
     }
@@ -68,6 +72,10 @@ final class TangemPayCard: Identifiable {
 
     var inflightLifecycleOperationPublisher: AnyPublisher<LifecycleOperation?, Never> {
         inflightLifecycleOperationSubject.eraseToAnyPublisher()
+    }
+
+    var inflightLifecycleOperation: LifecycleOperation? {
+        inflightLifecycleOperationSubject.value
     }
 
     var isReissuingPublisher: AnyPublisher<Bool, Never> {
