@@ -49,6 +49,9 @@ final class CommonCryptoAccountsRepository {
 
     private let hasTokenSynchronization: Bool
 
+    /// `uncheckedState` since the collected completions are plain non-`Sendable` closures.
+    private let loadState = OSAllocatedUnfairLock(uncheckedState: LoadState())
+
     private var loadAccountsSubscription: AnyCancellable?
     private var saveAccountsSubscription: AnyCancellable?
     private var storageDidUpdateSubscription: AnyCancellable?
@@ -149,7 +152,33 @@ final class CommonCryptoAccountsRepository {
             return
         }
 
+        // A load already in flight covers this request too, so its completion just joins the queue. Starting a
+        // second task instead would overwrite `loadAccountsSubscription`, cancel the first one and silently
+        // abandon every completion it carries, leaving the callers waiting forever.
+        let shouldStartLoad = loadState.withLock { state in
+            if let completion {
+                state.completions.append(completion)
+            }
+
+            guard !state.isLoading else {
+                return false
+            }
+
+            state.isLoading = true
+            return true
+        }
+
+        guard shouldStartLoad else {
+            return
+        }
+
         loadAccountsSubscription = runTask(in: self) { repository in
+            // Runs on every exit, cancellation included, so an interrupted load can't block all subsequent ones.
+            // Completions it hasn't delivered stay queued for whichever load finishes next.
+            defer { repository.loadState.withLock { $0.isLoading = false } }
+
+            let queuedCompletions = repository.makeQueuedCompletionsDelivery()
+
             let hasScheduledPendingUpdate = await repository.stateHolder.performIsolated { holder in
                 guard
                     !Task.isCancelled,
@@ -159,7 +188,7 @@ final class CommonCryptoAccountsRepository {
                 }
 
                 holder.cryptoAccountsToUpdate = nil
-                repository.updateAccountsOnServer(cryptoAccounts: pending, updateOptions: .all, completion: completion)
+                repository.updateAccountsOnServer(cryptoAccounts: pending, updateOptions: .all, completion: queuedCompletions)
 
                 return true
             }
@@ -173,11 +202,25 @@ final class CommonCryptoAccountsRepository {
 
             do {
                 try await repository.loadAccountsFromServerAsync()
-                await runOnMainIfNotCancelled { completion?(.success(())) }
+                await runOnMainIfNotCancelled { queuedCompletions(.success(())) }
             } catch {
-                await repository.handleFailedLoadingAccountsFromServer(error: error, completion: completion)
+                await repository.handleFailedLoadingAccountsFromServer(error: error, completion: queuedCompletions)
             }
         }.eraseToAnyCancellable()
+    }
+
+    /// Delivers the result to every completion collected for the current load. The queue is drained atomically,
+    /// so each collected completion is called exactly once even if two loads happen to finish concurrently.
+    private func makeQueuedCompletionsDelivery() -> UserTokensRepository.Completion {
+        return { [weak self] result in
+            let completions = self?.loadState.withLock { state in
+                let completions = state.completions
+                state.completions.removeAll()
+                return completions
+            }
+
+            completions?.forEach { $0(result) }
+        }
     }
 
     private func loadAccountsFromServerAsync() async throws {
@@ -673,6 +716,13 @@ private extension CommonCryptoAccountsRepository {
         /// Bool flag for migration of custom tokens to tokens form our API.
         var areCustomTokensMigrated = false
         var cryptoAccountsToUpdate: [StoredCryptoAccount]?
+    }
+
+    /// Single-flight state of loading accounts from the server: at most one load runs at a time, and every
+    /// completion collected while it runs is delivered by it.
+    struct LoadState {
+        var isLoading = false
+        var completions: [UserTokensRepository.Completion] = []
     }
 
     struct RemoteUpdateOptions: OptionSet {
