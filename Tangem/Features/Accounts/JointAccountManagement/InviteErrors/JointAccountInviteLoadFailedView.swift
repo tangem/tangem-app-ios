@@ -29,7 +29,7 @@ struct JointAccountInviteLoadFailedView: View {
                 )
                 .styleType(.default)
                 .size(.x10)
-                .isLoading(isRetrying)
+                .loading(.spinner(if: isRetrying))
 
                 Text(Localization.jointAccountInviteLoadFailedSubtitle)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
