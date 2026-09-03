@@ -74,7 +74,7 @@ struct JointAccountMemberNameView: View {
         .styleType(.default)
         .horizontalLayout(.infinity)
         .size(.x12)
-        .isLoading(viewModel.isSubmitting)
+        .loading(.spinner(if: viewModel.isSubmitting))
         .disabled(viewModel.submitButtonDisabled)
         .padding(.horizontal, 16)
         .padding(.bottom, 12)

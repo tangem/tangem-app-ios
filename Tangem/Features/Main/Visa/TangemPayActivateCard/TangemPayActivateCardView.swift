@@ -73,7 +73,7 @@ struct TangemPayActivateCardView: View {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
-            .isLoading(viewModel.isActivating)
+            .loading(.spinner(if: viewModel.isActivating))
             .disabled(!viewModel.isContinueEnabled)
         }
         .padding(.horizontal, Constants.footerHorizontalPadding)
