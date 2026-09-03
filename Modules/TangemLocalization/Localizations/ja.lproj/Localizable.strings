@@ -986,6 +986,15 @@
 "markets_portfolio_block_token_unsupported" = "**トークンはサポートされていません**。このトークンは現在、このウォレットではサポートされていません";
 "markets_portfolio_eligible_block_title" = "その他の対象トークン";
 "markets_pulse_common_title" = "マーケット動向";
+"markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_filter_sectors_title" = "Sectors";
+"markets_real_assets_filter_title" = "Category";
+"markets_real_assets_interval_day" = "Day";
+"markets_real_assets_interval_month" = "Month";
+"markets_real_assets_interval_week" = "Week";
+"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds they're not supported in UK and US";
+"markets_real_assets_region_restriction_title" = "Not supported in your region";
+"markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "すべてクリア";
 "markets_search_header_title" = "トークンを探す";
 "markets_search_hint_header" = "最近の検索";
@@ -2050,7 +2059,7 @@
 "tangempay_cashback_widget_error_description" = "タップして再読み込み";
 "tangempay_cashback_widget_error_title" = "キャッシュバックを利用できません";
 "tangempay_cashback_widget_refund_description" = "購入代金の返金により減額";
-"tangempay_cashback_widget_title" = "%2$@ で %1$@ のキャッシュバック";
+"tangempay_cashback_widget_title" = "%2$@ に%1$@ドル";
 "tangempay_change_pin_code" = "PINコードを変更";
 "tangempay_changing_plan" = "プランを変更しています";
 "tangempay_choose_network_fast_way" = "すぐに使えるネットワーク";
