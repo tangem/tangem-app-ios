@@ -160,6 +160,7 @@ enum NFTChainConverter {
              .plasma,
              .adi,
              .electroneum,
+             .arc,
              .seiEvm:
             return nil
         }

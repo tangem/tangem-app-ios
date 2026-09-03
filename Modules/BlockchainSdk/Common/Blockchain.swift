@@ -117,6 +117,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case plasma(testnet: Bool)
     case adi(testnet: Bool)
     case electroneum(testnet: Bool)
+    case arc(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -181,7 +182,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .robinhood(let testnet),
              .plasma(let testnet),
              .adi(let testnet),
-             .electroneum(let testnet):
+             .electroneum(let testnet),
+             .arc(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -371,6 +373,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .plasma,
              .adi,
              .electroneum,
+             .arc,
              .seiEvm:
             return 18
         case .cardano,
@@ -399,6 +402,14 @@ public indirect enum Blockchain: Equatable, Hashable {
         case .algorand:
             return 6
         }
+    }
+
+    public var displayDecimalCount: Int {
+        if case .arc = self {
+            return 6
+        }
+
+        return decimalCount
     }
 
     public var currencySymbol: String {
@@ -588,6 +599,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "ADI"
         case .electroneum:
             return "ETN"
+        case .arc:
+            return "USDC"
         }
     }
 
@@ -702,6 +715,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "ADI" + testnetSuffix
         case .electroneum:
             return "Electroneum" + testnetSuffix
+        case .arc:
+            return "Arc" + testnetSuffix
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
@@ -723,6 +738,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             "Dione"
         case .apeChain:
             "ApeCoin"
+        case .arc:
+            "USDC"
         default:
             displayName
         }
@@ -1002,6 +1019,7 @@ public extension Blockchain {
         case .plasma: return isTestnet ? 9746 : 9745
         case .adi: return isTestnet ? 99999 : 36900
         case .electroneum: return isTestnet ? 5201420 : 52014
+        case .arc: return isTestnet ? 5042002 : 5042
         case .seiEvm: return isTestnet ? 1328 : 1329
         default:
             return nil
@@ -1097,6 +1115,7 @@ public extension Blockchain {
         case .plasma: return true
         case .adi: return false // eth_feeHistory respond without reward field, further logic produces error
         case .electroneum: return true
+        case .arc: return true
         case .seiEvm: return true
         default:
             assertionFailure("Don't forget about evm here")
@@ -1271,6 +1290,7 @@ extension Blockchain: Codable {
         case .plasma: return "plasma"
         case .adi: return "adi-token"
         case .electroneum: return "electroneum"
+        case .arc: return "arc"
         }
     }
 
@@ -1394,6 +1414,7 @@ extension Blockchain: Codable {
         case "plasma": self = .plasma(testnet: isTestnet)
         case "adi-token": self = .adi(testnet: isTestnet)
         case "electroneum": self = .electroneum(testnet: isTestnet)
+        case "arc": self = .arc(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1716,6 +1737,11 @@ private extension Blockchain {
             return "adi-token"
         case .electroneum:
             return "electroneum"
+        case .arc:
+            switch type {
+            case .network: return "arc"
+            case .coin: return "usd-coin"
+            }
         }
     }
 
@@ -1789,6 +1815,7 @@ extension Blockchain {
              .plasma,
              .adi,
              .electroneum,
+             .arc,
              .seiEvm:
             return EthereumWalletAssembly()
         case .optimism,

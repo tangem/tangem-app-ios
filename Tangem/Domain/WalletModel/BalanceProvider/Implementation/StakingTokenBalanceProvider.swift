@@ -117,9 +117,9 @@ extension StakingTokenBalanceProvider {
     }
 
     func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
-        let currencyCode = tokenItem.currencySymbol
+        let tokenItem = tokenItem
         let builder = FormattedTokenBalanceTypeBuilder(format: { [balanceFormatter] value in
-            balanceFormatter.formatCryptoBalance(value, currencyCode: currencyCode)
+            balanceFormatter.formatCryptoBalance(value, tokenItem: tokenItem)
         })
 
         return builder.mapToFormattedTokenBalanceType(type: type)
