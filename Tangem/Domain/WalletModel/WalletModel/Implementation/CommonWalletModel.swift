@@ -438,10 +438,6 @@ extension CommonWalletModel: WalletModelUpdater {
     }
 
     private func updateV2TransactionHistory(updateToken: some Hashable) async {
-        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
-            return
-        }
-
         await transactionHistoryUpdater.updateHistoryIfNeeded(
             featuresPublisher: featureManager.featuresPublisher,
             updateToken: updateToken
@@ -721,6 +717,8 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
             transactionHistoryPublisher: transactionHistoryState(),
             featuresPublisher: featureManager.featuresPublisher,
+            walletModelId: id,
+            walletPublisher: walletManager.walletPublisher,
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem
         )
