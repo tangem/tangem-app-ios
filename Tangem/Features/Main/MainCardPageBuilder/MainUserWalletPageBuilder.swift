@@ -139,7 +139,11 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     @ViewBuilder
     var bottomOverlay: some View {
-        if let bottomSheetFooterViewModel {
+        // With the shtorka on, the bottom is reserved by the sheet itself, and the legacy footer has nothing to peek from.
+        if FeatureProvider.isAvailable(.nativeMarketsShtorka) {
+            // [REDACTED_TODO_COMMENT]
+            EmptyView()
+        } else if let bottomSheetFooterViewModel {
             MainBottomSheetFooterView(viewModel: bottomSheetFooterViewModel)
         } else {
             EmptyMainFooterView()
