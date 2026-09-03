@@ -26,7 +26,7 @@ final class PolymarketCoordinator: CoordinatorObject {
     // MARK: - Root ViewModels
 
     @Published private(set) var viewState: ViewState?
-    @Published var eventDetailsViewModel: PolymarketEventDetailsViewModel?
+    @Published var destination: Destination?
 
     private let onboardingFactory = PolymarketOnboardingFactory()
 
@@ -114,12 +114,23 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
     }
 
     func openEventDetails(eventID: String, category: PolymarketCategory?) {
-        eventDetailsViewModel = PolymarketEventDetailsViewModel(
+        destination = .eventDetails(PolymarketEventDetailsViewModel(
             eventID: eventID,
             category: category,
             apiProvider: PolymarketAPIProviderFactory().makeProvider(),
             coordinator: self
+        ))
+    }
+
+    func openOrder(market: PolymarketMarket, outcome: PolymarketOutcome) {
+        let coordinator = PolymarketOrderCoordinator(
+            dismissAction: { [weak self] in
+                self?.destination = nil
+            }
         )
+
+        coordinator.start(with: .init(market: market, outcome: outcome))
+        destination = .order(coordinator)
     }
 
     func openRegionWarning() {
@@ -135,6 +146,14 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
             regionWarning = viewModel
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+}
+
+// MARK: - PolymarketEventDetailsRoutable protocol conformance
+
+extension PolymarketCoordinator: PolymarketEventDetailsRoutable {
+    func dismissEventDetails() {
+        destination = nil
     }
 }
 
@@ -164,19 +183,20 @@ private extension PolymarketCoordinator {
     }
 }
 
-// MARK: - PolymarketEventDetailsRoutable protocol conformance
-
-extension PolymarketCoordinator: PolymarketEventDetailsRoutable {
-    func dismissEventDetails() {
-        eventDetailsViewModel = nil
-    }
-}
-
 // MARK: - View state
 
 extension PolymarketCoordinator {
     enum ViewState {
         case welcome(PolymarketWelcomeViewModel)
         case feed(PolymarketMainViewModel)
+    }
+}
+
+// MARK: - Navigation
+
+extension PolymarketCoordinator {
+    enum Destination {
+        case eventDetails(PolymarketEventDetailsViewModel)
+        case order(PolymarketOrderCoordinator)
     }
 }
