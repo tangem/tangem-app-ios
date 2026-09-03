@@ -11,7 +11,7 @@ import TangemFoundation
 import TangemPay
 
 protocol TangemPayMainRoutable: AnyObject {
-    func openCardManagement(entry: TangemPayCardEntry)
+    func openCardManagement(entry: TangemPayCardEntry, shouldOpenActivation: Bool)
     func openCurrentPlan()
     func openMaximumCardsIssuedSheet()
     func openCardsLimitReachedSheet()

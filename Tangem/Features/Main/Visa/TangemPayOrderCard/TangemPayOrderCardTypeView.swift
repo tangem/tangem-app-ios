@@ -35,7 +35,7 @@ struct TangemPayOrderCardTypeView: View {
                     .padding(.top, Constants.cardTopMargin)
                     .padding(.bottom, Constants.cardToTabsGap)
 
-                TabNavigation(data: viewModel.cardTypes, selection: $viewModel.selectedCardType)
+                TabNavigation(data: viewModel.cardTypes, selection: tabSelection)
                     .variant(.material)
                     .padding(.vertical, Constants.tabsVerticalPadding)
 
@@ -44,6 +44,21 @@ struct TangemPayOrderCardTypeView: View {
         }
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
+    }
+
+    /// The tab and the carousel are separate analytics events, so each writes through its own entry point.
+    private var tabSelection: Binding<TangemPayOrderCardType> {
+        Binding(
+            get: { viewModel.selectedCardType },
+            set: { viewModel.onCardTypeTabTapped($0) }
+        )
+    }
+
+    private var swipeSelection: Binding<TangemPayOrderCardType> {
+        Binding(
+            get: { viewModel.selectedCardType },
+            set: { viewModel.onCardTypeSwiped($0) }
+        )
     }
 
     // MARK: - Carousel
@@ -79,7 +94,7 @@ struct TangemPayOrderCardTypeView: View {
             .onAppear { scrollID = viewModel.selectedCardType }
             .onChange(of: scrollID) { _, new in
                 guard let new, viewModel.selectedCardType != new else { return }
-                viewModel.selectedCardType = new
+                viewModel.onCardTypeSwiped(new)
             }
             .onChange(of: viewModel.selectedCardType) { _, new in
                 guard scrollID != new else { return }
@@ -90,7 +105,7 @@ struct TangemPayOrderCardTypeView: View {
     }
 
     private var legacyCarousel: some View {
-        TabView(selection: $viewModel.selectedCardType) {
+        TabView(selection: swipeSelection) {
             ForEach(viewModel.cardTypes) { cardType in
                 cardView(cardType)
                     .tag(cardType)
