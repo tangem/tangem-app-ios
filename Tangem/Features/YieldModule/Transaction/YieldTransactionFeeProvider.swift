@@ -143,7 +143,7 @@ final class YieldTransactionFeeProvider {
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters {
         try await ethereumNetworkProvider.getFee(
             gasLimit: Constants.minimalTopUpGasLimit,
-            supportsEIP1559: blockchain.supportsEIP1559
+            blockchain: blockchain
         )
     }
 }
@@ -295,7 +295,7 @@ private extension YieldTransactionFeeProvider {
     func getFees(gasLimits: [BigUInt]) async throws -> [Fee] {
         let feeParameters = try await ethereumNetworkProvider.getFees(
             gasLimits: gasLimits,
-            supportsEIP1559: blockchain.supportsEIP1559
+            blockchain: blockchain
         )
 
         return feeParameters.map { params in
