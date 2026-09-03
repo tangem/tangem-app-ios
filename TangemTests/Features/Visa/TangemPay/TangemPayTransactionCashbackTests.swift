@@ -19,31 +19,43 @@ struct TangemPayTransactionCashbackTests {
     func confirmed_mapsToEarned() throws {
         let cashback = try makeCashback(cashbackJSON(status: "confirmed", amount: #""0.02""#))
 
-        #expect(cashback == .earned(amount: decimal("0.02"), currency: "USD"))
+        #expect(cashback == .earned(amount: decimal("0.02"), currency: "USD", capTrimmed: false))
     }
 
     @Test("an estimated amount maps to earned")
     func estimated_mapsToEarned() throws {
         let cashback = try makeCashback(cashbackJSON(status: "estimated", amount: #""1.50""#))
 
-        #expect(cashback == .earned(amount: decimal("1.50"), currency: "USD"))
+        #expect(cashback == .earned(amount: decimal("1.50"), currency: "USD", capTrimmed: false))
     }
 
     @Test("a negative amount is preserved for a returned purchase")
     func negativeAmount_isPreserved() throws {
         let cashback = try makeCashback(cashbackJSON(status: "confirmed", amount: #""-8.20""#))
 
-        #expect(cashback == .earned(amount: decimal("-8.20"), currency: "USD"))
+        #expect(cashback == .earned(amount: decimal("-8.20"), currency: "USD", capTrimmed: false))
     }
 
-    @Test("cap_trimmed doesn't affect the mapping")
-    func capTrimmed_isIgnored() throws {
+    @Test("cap_trimmed is carried over", arguments: [true, false])
+    func capTrimmed_isCarriedOver(capTrimmed: Bool) throws {
         let json = """
-        { "cashback": { "status": "confirmed", "amount": "0.02", "currency": "USD", "cap_trimmed": true } }
+        { "cashback": { "status": "confirmed", "amount": "0.02", "currency": "USD", "cap_trimmed": \(capTrimmed) } }
         """
         let cashback = try makeCashback(json)
 
-        #expect(cashback == .earned(amount: decimal("0.02"), currency: "USD"))
+        #expect(cashback == .earned(amount: decimal("0.02"), currency: "USD", capTrimmed: capTrimmed))
+    }
+
+    // MARK: - Awaiting calculation
+
+    @Test("a null amount awaiting calculation maps to its own case")
+    func awaitingCalculation_mapsToOwnCase() throws {
+        let json = """
+        { "cashback": { "status": "awaiting_calculation", "amount": null, "currency": null } }
+        """
+        let cashback = try makeCashback(json)
+
+        #expect(cashback == .awaitingCalculation)
     }
 
     // MARK: - Excluded
