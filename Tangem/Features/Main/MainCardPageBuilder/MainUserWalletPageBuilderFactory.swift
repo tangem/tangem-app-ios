@@ -197,13 +197,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: model.userWalletInfo,
             tokenItem: dependencies.walletModel.tokenItem,
-            transactionHistoryEnricherFactory: { [weak walletModel = dependencies.walletModel] in
-                try? await walletModel?
-                    .featuresPublisher
-                    .first()
-                    .async()
-                    .transactionHistoryProvider
-            }
+            transactionHistoryEnricherFactory: TransactionHistoryEnricherFactory.make(for: dependencies.walletModel)
         )
 
         let expressStatusTracking = expressFactory.makeExpressStatusTracking()

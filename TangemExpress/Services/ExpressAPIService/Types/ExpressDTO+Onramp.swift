@@ -265,7 +265,7 @@ extension ExpressDTO {
 
         enum History {
             struct Request: Encodable {
-                let payoutAddress: String
+                let payoutAddress: String?
                 /// Opaque cursor (hence `AnyEncodable`) for the next page.
                 let afterCursor: AnyEncodable?
                 let limit: Int?
@@ -291,7 +291,7 @@ extension ExpressDTO {
 
         enum HistoryDelta {
             struct Request: Encodable {
-                let payoutAddress: String
+                let payoutAddress: String?
                 /// Opaque cursor (hence `AnyEncodable`) for the next page.
                 let beforeCursor: AnyEncodable?
                 let limit: Int?
