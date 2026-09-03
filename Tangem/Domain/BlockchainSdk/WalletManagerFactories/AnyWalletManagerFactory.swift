@@ -10,12 +10,5 @@ import Foundation
 import BlockchainSdk
 
 protocol AnyWalletManagerFactory {
-    func makeWalletManager(blockchainNetwork: BlockchainNetwork, tokens: [Token], keys: [KeyInfo], apiList: APIList) throws -> WalletManager
-}
-
-enum AnyWalletManagerFactoryError: Error {
-    case entryHasNotDerivationPath
-    case noDerivation
-    case walletWithBlockchainCurveNotFound
-    case twinWalletPublicKeyNotFound
+    func makeWalletManager(wallet: Wallet, tokens: [Token], apiList: APIList) throws -> WalletManager
 }

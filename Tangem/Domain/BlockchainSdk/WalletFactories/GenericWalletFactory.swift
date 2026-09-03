@@ -1,5 +1,5 @@
 //
-//  GenericWalletPublicKeyFactory.swift
+//  GenericWalletFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,37 +9,37 @@
 import Foundation
 import BlockchainSdk
 
-struct GenericWalletPublicKeyFactory: AnyWalletPublicKeyFactory {
-    private let dataStorage: BlockchainDataStorage?
+struct GenericWalletFactory: AnyWalletFactory {
+    private let dataStorage: BlockchainDataStorage
 
-    init(dataStorage: BlockchainDataStorage? = nil) {
+    init(dataStorage: BlockchainDataStorage) {
         self.dataStorage = dataStorage
     }
 
-    func makePublicKey(blockchainNetwork: BlockchainNetwork, keys: [KeyInfo]) throws -> Wallet.PublicKey {
+    func makeWallet(blockchainNetwork: BlockchainNetwork, keys: [KeyInfo]) throws -> Wallet {
         switch blockchainNetwork.blockchain {
         case .chia:
-            return try SimpleWalletPublicKeyFactory().makePublicKey(
+            return try SimpleWalletFactory().makeWallet(
                 blockchainNetwork: blockchainNetwork,
                 keys: keys
             )
         case .cardano(extended: true):
-            return try CardanoWalletPublicKeyFactory().makePublicKey(
+            return try CardanoWalletFactory().makeWallet(
                 blockchainNetwork: blockchainNetwork,
                 keys: keys
             )
         case .quai:
-            return try QuaiWalletPublicKeyFactory(dataStorage: dataStorage).makePublicKey(
+            return try QuaiWalletFactory(dataStorage: dataStorage).makeWallet(
                 blockchainNetwork: blockchainNetwork,
                 keys: keys
             )
         case _ where blockchainNetwork.isDynamicAddressesEnabled():
-            return try BitcoinXPUBPublicKeyFactory().makePublicKey(
+            return try BitcoinXPUBWalletFactory().makeWallet(
                 blockchainNetwork: blockchainNetwork,
                 keys: keys
             )
         default:
-            return try HDWalletPublicKeyFactory().makePublicKey(
+            return try HDWalletFactory().makeWallet(
                 blockchainNetwork: blockchainNetwork,
                 keys: keys
             )
