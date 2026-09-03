@@ -898,6 +898,7 @@
 "joint_account_invite_members_subtitle" = "%1$@ von „ %2$@ “ haben sich angeschlossen, darunter auch du";
 "joint_account_invite_members_title" = "Einladen";
 "joint_account_invite_members_to_join" = "Lade Mitglieder ein, beizutreten";
+"joint_account_invite_members_waiting_title" = "Waiting for members";
 "joint_account_join_confirm_sheet_subtitle" = "Alle Kontoinhaber teilen sich ein gemeinsames Guthaben. Jedes Mitglied kann das Guthaben jederzeit ausgeben oder abheben – auch ohne Ihre Zustimmung";
 "joint_account_join_confirm_sheet_title" = "Sie treten einem gemeinsam genutzten Konto bei";
 "joint_account_join_invalid_link_subtitle" = "Überprüfen Sie, ob Sie den vollständigen Link geöffnet haben, oder bitten Sie den Kontoinhaber, ihn erneut zu senden.";
@@ -987,6 +988,13 @@
 "markets_portfolio_eligible_block_title" = "Andere zulässige Token";
 "markets_pulse_common_title" = "Marktimpuls";
 "markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_filter_sectors_title" = "Sectors";
+"markets_real_assets_filter_title" = "Category";
+"markets_real_assets_interval_day" = "Day";
+"markets_real_assets_interval_month" = "Month";
+"markets_real_assets_interval_week" = "Week";
+"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds they're not supported in UK and US";
+"markets_real_assets_region_restriction_title" = "Not supported in your region";
 "markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "Alles löschen";
 "markets_search_header_title" = "Token suchen";
@@ -1376,8 +1384,10 @@
 "prediction_place_result_partial_banner_description" = "Ihre Order wurde aufgrund unzureichender Aktienverfügbarkeit auf Polymarket Exchange innerhalb des Slippage-Bereichs nur teilweise ausgeführt.";
 "prediction_place_result_partial_banner_title" = "Teilweise gefüllt";
 "prediction_place_result_partial_title" = "Teilweise platziert";
+"prediction_place_result_placed_title" = "Placed %@";
 "prediction_place_result_success_title" = "Vorhersage platziert";
 "prediction_place_result_to_main" = "Zur Startseite";
+"prediction_place_result_tokens_bought" = "Tokens bought";
 "prediction_place_slippage_default" = "Standard %@";
 "prediction_place_slippage_error" = "Nicht unterstützter Betrag";
 "prediction_place_slippage_max_error" = "Ein Slippage über %@ kann Sie deutlich mehr kosten.";
