@@ -21,7 +21,7 @@ struct TangemPayOrderCardDataView: View {
             .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
             .safeAreaInset(edge: .bottom, spacing: 0) { footer }
             .topNavigation(
-                title: Localization.tangempayOrderTypeTitle,
+                title: viewModel.title,
                 subtitle: Localization.tangempayOrderDataSubtitle,
                 leading: .custom(.back(action: viewModel.back)),
                 onClose: viewModel.close
