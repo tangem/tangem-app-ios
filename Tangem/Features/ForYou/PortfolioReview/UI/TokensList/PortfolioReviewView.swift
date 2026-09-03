@@ -56,7 +56,7 @@ private extension PortfolioReviewView {
             action: viewModel.addFundsTapped
         )
         .size(.x9)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .horizontalLayout(.infinity)
     }
 

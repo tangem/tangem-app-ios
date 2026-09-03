@@ -22,7 +22,7 @@ struct SendAddContactFinishView: View {
                 action: viewModel.userDidTapAddContact
             )
             .iconEnd(DesignSystem.Icons.SignPlus.regular20)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x10)
             .horizontalLayout(.infinity)
             .padding(.top, 4)

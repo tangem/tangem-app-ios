@@ -112,8 +112,8 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func bindAccountRows() {
-        accountModelsManager
-            .cryptoAccountModelsPublisher
+        AccountCryptoModelsAggregator
+            .cryptoAccountModelsPublisher(from: accountModelsManager)
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, accounts in

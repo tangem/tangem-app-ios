@@ -201,6 +201,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "Design System Demo", action: { [weak self] in
                 self?.coordinator?.openDesignSystemDemo()
             }),
+            DefaultRowViewModel(title: "Stories V2 Demo", action: { [weak self] in
+                self?.coordinator?.openStoriesV2Demo()
+            }),
             DefaultRowViewModel(title: "Silent Push Tester", action: { [weak self] in
                 self?.coordinator?.openSilentPushTester()
             }),
