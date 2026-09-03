@@ -58,7 +58,7 @@ private extension CryptoAccountsRepositoryLoadTests {
             hasTokenSynchronization: true
         )
 
-        return UserTokensRepositoryAdapter(innerRepository: repository, derivationIndex: 0)
+        return UserTokensRepositoryAdapter(innerRepository: repository, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .crypto))
     }
 
     enum Constants {
@@ -187,7 +187,7 @@ private final class DefaultAccountFactoryStub: DefaultAccountFactory {
 
     private static func makeAccount() -> StoredCryptoAccount {
         let icon = AccountModel.CompositeIcon(name: .allCases[0], color: .allCases[0])
-        let config = CryptoAccountPersistentConfig(derivationIndex: 0, name: nil, icon: icon)
+        let config = CryptoAccountPersistentConfig(derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .crypto), name: nil, icon: icon)
 
         return StoredCryptoAccount(config: config, tokenListAppearance: .default)
     }
