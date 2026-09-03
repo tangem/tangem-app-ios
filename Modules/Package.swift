@@ -245,6 +245,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAccessibilityIdentifiers",
                 "TangemLogger",
                 .product(name: "BlurSwiftUI", package: "BlurUIKit"),
+                .product(name: "Lottie", package: "lottie-spm"),
                 "TangemMacro",
             ],
             swiftSettings: [
