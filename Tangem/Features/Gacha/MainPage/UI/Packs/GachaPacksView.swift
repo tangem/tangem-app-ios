@@ -29,21 +29,37 @@ private extension GachaPacksView {
             GachaPackGrid.Skeleton(cellsCount: Constants.skeletonCellsCount)
         case .content(let models):
             GachaPackGrid(models: models)
-        case .empty:
-            // [REDACTED_TODO_COMMENT]
+        case .empty(let hasQuery):
             EmptyMessage(
-                icon: DesignSystem.Icons.Stack.regular20,
-                message: "There are no packs here yet",
+                icon: hasQuery ? DesignSystem.Icons.Binoculars.regular20 : DesignSystem.Icons.Stack.regular20,
+                message: emptyMessage(hasQuery: hasQuery),
                 onRetry: nil
             )
-        case .failed:
-            // [REDACTED_TODO_COMMENT]
+            .frame(minHeight: Constants.messageMinHeight)
+        case .failed(let hasQuery):
             EmptyMessage(
                 icon: DesignSystem.Icons.ArrowRefresh.regular20,
-                message: "Failed to load packs.\nTap to reload",
+                message: failedMessage(hasQuery: hasQuery),
                 onRetry: viewModel.reload
             )
+            .frame(minHeight: Constants.messageMinHeight)
         }
+    }
+}
+
+// MARK: - Copy
+
+private extension GachaPacksView {
+    // [REDACTED_TODO_COMMENT]
+    func emptyMessage(hasQuery: Bool) -> String {
+        hasQuery
+            ? "No results. Try to change your wording\nor explore from the list"
+            : "There are no packs here yet"
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    func failedMessage(hasQuery: Bool) -> String {
+        hasQuery ? "Failed to load cards list.\nTap to reload" : "Failed to load packs.\nTap to reload"
     }
 }
 
@@ -52,6 +68,7 @@ private extension GachaPacksView {
 private extension GachaPacksView {
     enum Constants {
         static let skeletonCellsCount = 4
+        static let messageMinHeight: CGFloat = 320
     }
 }
 

@@ -10,7 +10,7 @@ import Foundation
 
 struct GachaAccountSummaryMockProvider: GachaAccountSummaryProvider {
     func load() async throws -> GachaAccountSummary {
-        try await Task.sleep(for: .milliseconds(600))
+        try await Task.sleep(for: .seconds(1.5))
 
         return GachaAccountSummary(
             fiatBalance: 2700.52,
