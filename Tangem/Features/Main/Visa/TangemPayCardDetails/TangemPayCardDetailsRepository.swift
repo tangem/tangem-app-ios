@@ -12,6 +12,7 @@ import TangemPay
 
 protocol TangemPayCardDetailsRepository: AnyObject {
     var lastFourDigits: String { get }
+    var isPhysical: Bool { get }
     var cardImageURL: URL? { get }
     var cardBackgroundImageURL: URL? { get }
     var lastFourDigitsPublisher: AnyPublisher<String, Never> { get }

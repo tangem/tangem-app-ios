@@ -17,12 +17,14 @@ final class TangemPayOrderCardDataViewModel: ObservableObject, Identifiable {
     @Published private(set) var isPlacingOrder = false
     @Published var alert: AlertBinder?
 
+    private let purpose: TangemPayOrderCardPurpose
     private let tangemPayAccount: TangemPayAccount
     private weak var coordinator: TangemPayOrderCardDataRoutable?
     private var focusedFieldID: TangemPayOrderCardDataField.ID?
     private var orderTask: Task<Void, Never>?
 
     init(
+        purpose: TangemPayOrderCardPurpose,
         nameOnCard: String?,
         countryName: String?,
         email: String?,
@@ -36,8 +38,18 @@ final class TangemPayOrderCardDataViewModel: ObservableObject, Identifiable {
             email: email,
             phoneMask: phoneMask
         )
+        self.purpose = purpose
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
+    }
+
+    var title: String {
+        switch purpose {
+        case .issue:
+            Localization.tangempayOrderTypeTitle
+        case .reissue:
+            Localization.tangempayCardDetailsReissueCard
+        }
     }
 
     var isOrderEnabled: Bool {
@@ -65,10 +77,7 @@ final class TangemPayOrderCardDataViewModel: ObservableObject, Identifiable {
 
         orderTask = runTask(in: self) { @MainActor viewModel in
             do {
-                try await viewModel.tangemPayAccount.orderPlasticCard(
-                    embossName: viewModel.text(for: .nameOnCard),
-                    shippingAddress: viewModel.shippingAddress
-                )
+                try await viewModel.submitOrder()
             } catch {
                 guard !Task.isCancelled else { return }
 
@@ -105,6 +114,26 @@ final class TangemPayOrderCardDataViewModel: ObservableObject, Identifiable {
     }
 }
 
+// MARK: - Order submission
+
+private extension TangemPayOrderCardDataViewModel {
+    func submitOrder() async throws {
+        switch purpose {
+        case .issue:
+            try await tangemPayAccount.orderPlasticCard(
+                embossName: text(for: .nameOnCard),
+                shippingAddress: shippingAddress
+            )
+        case .reissue(let sourceProductInstanceId):
+            try await tangemPayAccount.reissuePlasticCard(
+                sourceProductInstanceId: sourceProductInstanceId,
+                embossName: text(for: .nameOnCard),
+                shippingAddress: shippingAddress
+            )
+        }
+    }
+}
+
 // MARK: - Errors
 
 private extension TangemPayOrderCardDataViewModel {
@@ -112,6 +141,7 @@ private extension TangemPayOrderCardDataViewModel {
         case insufficientBalance
         case activeOrderExists
         case offerUnavailable
+        case invalidSourceCard
         case invalidShippingAddress
         case invalidEmbossName
         case unspecified
@@ -128,10 +158,16 @@ private extension TangemPayOrderCardDataViewModel {
             }
 
             self = switch (error as? TangemPayAPIServiceError)?.apiErrorCode {
-            case TangemPayAPIError.Code.cardIssueActiveOrderExists: .activeOrderExists
-            case TangemPayAPIError.Code.cardIssueOfferNotAvailable: .offerUnavailable
-            case TangemPayAPIError.Code.cardIssueInvalidShippingAddress: .invalidShippingAddress
-            case TangemPayAPIError.Code.cardIssueInvalidEmbossName: .invalidEmbossName
+            case TangemPayAPIError.Code.cardIssueActiveOrderExists,
+                 TangemPayAPIError.Code.cardReissuePlasticActiveOrderExists: .activeOrderExists
+            case TangemPayAPIError.Code.cardIssueOfferNotAvailable,
+                 TangemPayAPIError.Code.cardReissuePlasticNotAvailable: .offerUnavailable
+            case TangemPayAPIError.Code.cardReissuePlasticInsufficientBalance: .insufficientBalance
+            case TangemPayAPIError.Code.cardReissuePlasticInvalidSourceCard: .invalidSourceCard
+            case TangemPayAPIError.Code.cardIssueInvalidShippingAddress,
+                 TangemPayAPIError.Code.cardReissuePlasticInvalidShippingAddress: .invalidShippingAddress
+            case TangemPayAPIError.Code.cardIssueInvalidEmbossName,
+                 TangemPayAPIError.Code.cardReissuePlasticInvalidEmbossName: .invalidEmbossName
             default: .unspecified
             }
         }
@@ -141,6 +177,7 @@ private extension TangemPayOrderCardDataViewModel {
             case .insufficientBalance: Localization.tangempayOrderCardErrorInsufficientBalance
             case .activeOrderExists: Localization.tangempayOrderCardErrorActiveOrder
             case .offerUnavailable: Localization.tangempayOrderCardErrorOfferUnavailable
+            case .invalidSourceCard: Localization.tangempayOrderCardErrorInvalidSourceCard
             case .invalidShippingAddress: Localization.tangempayOrderCardErrorInvalidAddress
             case .invalidEmbossName: Localization.tangempayOrderCardErrorInvalidEmbossName
             case .unspecified: Localization.commonSomethingWentWrong
@@ -149,19 +186,28 @@ private extension TangemPayOrderCardDataViewModel {
 
         var closesFlow: Bool {
             switch self {
-            case .insufficientBalance, .activeOrderExists, .offerUnavailable: true
+            case .insufficientBalance, .activeOrderExists, .offerUnavailable, .invalidSourceCard: true
             case .invalidShippingAddress, .invalidEmbossName, .unspecified: false
             }
+        }
+    }
+
+    func resyncActiveOrder() {
+        switch purpose {
+        case .issue:
+            runTask { [tangemPayAccount] in await tangemPayAccount.resumeActiveIssueOrderPolling() }
+        case .reissue:
+            runTask { [tangemPayAccount] in await tangemPayAccount.loadCustomerInfo() }
         }
     }
 
     func handle(_ failure: OrderFailure) {
         switch failure {
         case .activeOrderExists:
-            runTask { [tangemPayAccount] in await tangemPayAccount.resumeActiveIssueOrderPolling() }
+            resyncActiveOrder()
         case .offerUnavailable:
             runTask { [tangemPayAccount] in await tangemPayAccount.loadOffers() }
-        case .insufficientBalance, .invalidShippingAddress, .invalidEmbossName, .unspecified:
+        case .insufficientBalance, .invalidSourceCard, .invalidShippingAddress, .invalidEmbossName, .unspecified:
             break
         }
 

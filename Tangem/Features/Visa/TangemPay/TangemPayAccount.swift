@@ -242,6 +242,12 @@ final class TangemPayAccount {
         customerService: customerService
     )
 
+    /// Same reasoning as `virtualAccountOrderPollingService`: a plastic reissue runs alongside an
+    /// in-flight card issue, so the two must not evict each other from the shared slot.
+    private lazy var plasticReissueOrderPollingService = TangemPayOrderStatusPollingService(
+        customerService: customerService
+    )
+
     /// Polls `customer/me` until a deposit address is available.
     private lazy var depositAddressPollingService = TangemPayDepositAddressPollingService(
         customerService: customerService
@@ -354,6 +360,14 @@ extension TangemPayAccount {
         offersSubject.value.first { $0.type.isPlastic }
     }
 
+    func plasticReissueOffer(
+        productInstanceId: String
+    ) async throws(TangemPayAPIServiceError) -> TangemPayCustomerOffer? {
+        try await customerService
+            .getProductInstanceOffers(productInstanceId: productInstanceId)
+            .first { $0.type.isPlasticReissue }
+    }
+
     @discardableResult
     func orderPlasticCard(
         embossName: String,
@@ -364,20 +378,20 @@ extension TangemPayAccount {
             throw TangemPayAccountError.missingPaymentAccountAddress
         }
 
-        guard let offerData = plasticCardIssueOffer?.data else {
+        guard let specificationName = plasticCardIssueOffer?.data?.specificationName else {
             throw TangemPayAccountError.missingCardIssueOffer
         }
 
         let request = TangemPayPlaceOrderRequest(
             customerWalletAddress: customerWalletAddress,
-            specificationName: offerData.specificationName,
+            specificationName: specificationName,
             embossName: embossName,
             shippingAddress: shippingAddress
         )
         let idempotencyKey = TangemPayIdempotencyKey.make(
             info.id,
             TangemPayOrderType.cardIssuePlasticRain.rawValue,
-            offerData.specificationName,
+            specificationName,
             customerWalletAddress,
             embossName,
             shippingAddress.idempotencyComponent
@@ -430,6 +444,56 @@ extension TangemPayAccount {
             onCanceled: reloadCustomerInfo,
             onFailed: { error in
                 VisaLogger.error("Failed to poll plastic card activation order status", error: error)
+                reloadCustomerInfo()
+            }
+        )
+    }
+
+    @discardableResult
+    func reissuePlasticCard(
+        sourceProductInstanceId: String,
+        embossName: String,
+        shippingAddress: TangemPayPlaceOrderRequest.ShippingAddress
+    ) async throws -> TangemPayOrderResponse {
+        let info = customerInfoSubject.value
+        guard let customerWalletAddress = info.paymentAccount?.customerWalletAddress else {
+            throw TangemPayAccountError.missingPaymentAccountAddress
+        }
+
+        let request = TangemPayPlaceOrderRequest(
+            customerWalletAddress: customerWalletAddress,
+            sourceProductInstanceId: sourceProductInstanceId,
+            embossName: embossName,
+            shippingAddress: shippingAddress
+        )
+        let idempotencyKey = TangemPayIdempotencyKey.make(
+            info.id,
+            TangemPayOrderType.cardReissuePlasticRain.rawValue,
+            sourceProductInstanceId,
+            embossName,
+            shippingAddress.idempotencyComponent
+        )
+        let order = try await orderResolver.placeOrder(request: request, idempotencyKey: idempotencyKey)
+
+        runTask { [weak self] in
+            await self?.loadCustomerInfo()
+        }
+        startPlasticReissueTracking(orderId: order.id)
+        return order
+    }
+
+    private func startPlasticReissueTracking(orderId: String) {
+        let reloadCustomerInfo: () -> Void = { [weak self] in
+            runTask { await self?.loadCustomerInfo() }
+        }
+
+        plasticReissueOrderPollingService.startOrderStatusPolling(
+            orderId: orderId,
+            interval: Constants.cardIssuePollInterval,
+            onCompleted: reloadCustomerInfo,
+            onCanceled: reloadCustomerInfo,
+            onFailed: { error in
+                VisaLogger.error("Failed to poll plastic card reissue order status", error: error)
                 reloadCustomerInfo()
             }
         )
@@ -602,14 +666,17 @@ extension TangemPayAccount {
             throw TangemPayAccountError.missingPaymentAccountAddress
         }
 
-        guard let offerData = offersSubject.value.first(where: { $0.type.isAdditionalCardIssue })?.data else {
+        guard
+            let offerData = offersSubject.value.first(where: { $0.type.isAdditionalCardIssue })?.data,
+            let specificationName = offerData.specificationName
+        else {
             throw TangemPayAccountError.missingCardIssueOffer
         }
 
         let idempotencyKey = TangemPayIdempotencyKey.make(
             info.id,
             offerData.orderType,
-            offerData.specificationName,
+            specificationName,
             customerWalletAddress,
             String(info.cardProductInstances.filter { $0.status == .active }.count)
         )
@@ -622,7 +689,7 @@ extension TangemPayAccount {
             let request = TangemPayPlaceOrderRequest(
                 type: offerData.orderType,
                 customerWalletAddress: customerWalletAddress,
-                specificationName: offerData.specificationName
+                specificationName: specificationName
             )
             order = try await orderResolver.placeOrder(request: request, idempotencyKey: idempotencyKey)
         }
