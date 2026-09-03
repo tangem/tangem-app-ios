@@ -118,23 +118,38 @@ struct TangemPayTransactionDetailsRedesignedMapper {
         )
     }
 
-    func map(cashback: TangemPayTransactionCashback?) -> TangemPayTransactionDetailsDisplayModel.CashbackRow {
+    func map(cashback: TangemPayTransactionCashback?) -> TangemPayTransactionDetailsViewModel.CashbackRowState {
         guard let cashback else {
-            return .init(value: .text(Localization.tangemPayTransactionDetailsCashbackNone), subvalue: nil)
+            return .loaded(.init(value: .text(Localization.tangemPayTransactionDetailsCashbackNone), subvalue: nil))
         }
 
         switch cashback {
-        case .earned(let amount, let currency):
-            return .init(
-                value: .amount(format(amount: amount, currencyCode: currency, prefix: amount > 0 ? .plusSign : .empty)),
-                subvalue: amount < 0 ? Localization.tangemPayTransactionDetailsCashbackRefund : nil
+        case .earned(_, _, capTrimmed: true):
+            return .loaded(
+                .init(
+                    value: .text(Localization.tangemPayTransactionDetailsCashbackNone),
+                    subvalue: Localization.tangemPayTransactionDetailsCashbackCapReached
+                )
+            )
+
+        case .earned(let amount, let currency, _):
+            return .loaded(
+                .init(
+                    value: .amount(format(amount: amount, currencyCode: currency, prefix: amount > 0 ? .plusSign : .empty)),
+                    subvalue: amount < 0 ? Localization.tangemPayTransactionDetailsCashbackRefund : nil
+                )
             )
 
         case .excluded(let reason):
-            return .init(
-                value: .text(Localization.tangemPayTransactionDetailsCashbackNone),
-                subvalue: reason.flatMap(Self.description)
+            return .loaded(
+                .init(
+                    value: .text(Localization.tangemPayTransactionDetailsCashbackNone),
+                    subvalue: reason.map(Self.description)
+                )
             )
+
+        case .awaitingCalculation:
+            return .awaitingCalculation
         }
     }
 
@@ -146,12 +161,12 @@ struct TangemPayTransactionDetailsRedesignedMapper {
         )
     }
 
-    private static func description(for reason: TangemPayTransactionCashback.ExclusionReason) -> String? {
+    private static func description(for reason: TangemPayTransactionCashback.ExclusionReason) -> String {
         switch reason {
         case .merchantCountry: Localization.tangemPayTransactionDetailsCashbackRegionExcluded
         case .mcc: Localization.tangemPayTransactionDetailsCashbackMccExcluded
         case .monthlyCap: Localization.tangemPayTransactionDetailsCashbackCapReached
-        case .belowMin: nil
+        case .belowMin: Localization.tangemPayTransactionDetailsCashbackBelowMin
         }
     }
 
@@ -199,8 +214,8 @@ extension TangemPayTransactionRecord {
     func redesignedDisplayModel(
         using mapper: TangemPayTransactionDetailsRedesignedMapper
     ) -> TangemPayTransactionDetailsDisplayModel {
-        switch record {
-        case .spend(let spend): mapper.map(spend: spend.displayInput)
+        switch record.displayRecord {
+        case .merchant(let merchant): mapper.map(spend: merchant.displayInput)
         case .collateral(let collateral): mapper.map(collateral: collateral.displayInput)
         case .payment(let payment): mapper.map(payment: payment.displayInput)
         case .fee(let fee): mapper.map(fee: fee.displayInput)

@@ -22,7 +22,7 @@ struct PortfolioRowBuilder {
         topHoldings: [PortfolioReviewAggregator.Group],
         other: [PortfolioReviewAggregator.Group],
         addressless: [PortfolioReviewAggregator.Group],
-        colors: [String: Color],
+        slices: [String: PortfolioReviewSegmentPalette.Slice],
         indicators: [String: [TokenSummaryIndicator]],
         timeframe: TokenSummaryIndicator.Timeframe
     ) -> [ForYouTokenListItem] {
@@ -33,12 +33,13 @@ struct PortfolioRowBuilder {
             makeAssetItem(
                 group: group,
                 total: total,
-                indicatorColor: colors[group.key],
+                indicatorColor: slices[group.key]?.indicator,
                 sentiment: sentimentMapper.sentiment(for: indicators[group.symbol.uppercased()], timeframe: timeframe)
             )
         }
         if !other.isEmpty {
-            items.append(makeOtherItem(other: other, total: total, indicatorColor: colors[Self.otherID]))
+            // The bucket's marker only reads as one of the list's dots, so it goes when the ranked ones do.
+            items.append(makeOtherItem(other: other, total: total, isRanked: !slices.isEmpty))
         }
         return items
     }
@@ -73,7 +74,7 @@ private extension PortfolioRowBuilder {
             id: group.key,
             tokenItem: group.tokenItem,
             symbol: group.symbol,
-            tokenIconInfo: iconBuilder.build(from: group.tokenItem, isCustom: group.isCustom),
+            tokenIconInfo: group.iconInfo,
             sentiment: sentiment,
             indicatorColor: indicatorColor,
             subtitle: .text(assetSubtitle(tokenItem: group.tokenItem, networkCount: group.networks.count)),
@@ -98,7 +99,7 @@ private extension PortfolioRowBuilder {
         )
     }
 
-    func makeOtherItem(other: [PortfolioReviewAggregator.Group], total: Decimal, indicatorColor: Color?) -> ForYouTokenListItem {
+    func makeOtherItem(other: [PortfolioReviewAggregator.Group], total: Decimal, isRanked: Bool) -> ForYouTokenListItem {
         let fiat = other.reduce(Decimal.zero) { $0 + $1.amountInFiat }
 
         return ForYouTokenListItem(
@@ -109,7 +110,7 @@ private extension PortfolioRowBuilder {
                 symbol: Localization.commonOther,
                 tokenIconInfo: nil,
                 sentiment: nil,
-                indicatorColor: indicatorColor,
+                indicatorColor: isRanked ? PortfolioReviewSegmentPalette.otherIndicatorColor : nil,
                 subtitle: .text(Localization.commonAssetsCount(other.count)),
                 end: .values(fiat: fiatString(fiat), percent: percentString(fiat, total: total), freshness: .fresh),
                 isLoading: false
@@ -187,9 +188,34 @@ private extension PortfolioRowBuilder {
     }
 }
 
+// MARK: - Private helpers
+
+private extension PortfolioReviewAggregator.Group {
+    var iconInfo: TokenIconInfo {
+        guard !isCustom else {
+            let built = TokenIconInfoBuilder().build(from: tokenItem, isCustom: isCustom)
+
+            return TokenIconInfo(
+                name: built.name,
+                blockchainIconAsset: nil,
+                imageURL: built.imageURL,
+                isCustom: false,
+                customTokenColor: built.customTokenColor
+            )
+        }
+
+        return TokenIconInfo(
+            name: tokenItem.name,
+            blockchainIconAsset: nil,
+            imageURL: IconURLBuilder().tokenIconURL(id: key),
+            isCustom: false,
+            customTokenColor: nil
+        )
+    }
+}
+
 // MARK: - Constants
 
 extension PortfolioRowBuilder {
-    /// The bucket row's id, and the key its dot's colour is looked up by.
     static let otherID = "for_you_other_assets"
 }
