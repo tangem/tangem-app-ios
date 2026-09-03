@@ -20,9 +20,8 @@ final class MainScreenUIOrderedWalletModelsProvider {
     }
 
     var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> {
-        userWalletModel
-            .accountModelsManager
-            .cryptoAccountModelsPublisher
+        AccountCryptoModelsAggregator
+            .cryptoAccountModelsPublisher(from: userWalletModel.accountModelsManager)
             .withWeakCaptureOf(self)
             .flatMapLatest { provider, cryptoAccountModels -> AnyPublisher<[any WalletModel], Never> in
                 guard !cryptoAccountModels.isEmpty else {
