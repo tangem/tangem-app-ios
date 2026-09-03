@@ -363,6 +363,7 @@ extension TransactionViewModel {
         enum Style: Hashable {
             case estimated
             case confirmed
+            case refunded
         }
     }
 

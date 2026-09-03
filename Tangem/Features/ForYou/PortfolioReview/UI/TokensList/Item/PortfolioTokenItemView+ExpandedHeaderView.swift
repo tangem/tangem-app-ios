@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -18,6 +19,7 @@ extension PortfolioTokenItemView {
 
         @ScaledMetric private var iconSize: CGFloat = 16
         @ScaledMetric private var chevronSize: CGFloat = 20
+        @ScaledMetric private var statusIconSize: CGFloat = 16
 
         var body: some View {
             VStack(spacing: 0) {
@@ -50,23 +52,30 @@ private extension PortfolioTokenItemView.ExpandedHeaderView {
         .padding(16)
     }
 
-    /// Collapse chevron — swapped for a same-styled error icon when the balance is from cache.
     var trailingIcon: some View {
-        let icon = assetRow.freshness == .outdated
-            ? DesignSystem.Icons.Error.regular20
-            : DesignSystem.Icons.ChevronCollapse.regular20
-
-        return icon.image
+        DesignSystem.Icons.ChevronCollapse.regular20.image
             .renderingMode(.template)
             .resizable()
             .frame(width: chevronSize, height: chevronSize)
             .foregroundStyle(DesignSystem.Color.iconPrimary)
     }
 
+    var staleIcon: some View {
+        DesignSystem.Icons.CloudExclamation.regular16.image
+            .renderingMode(.template)
+            .resizable()
+            .frame(size: CGSize(bothDimensions: statusIconSize))
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
+            .accessibilityLabel(Localization.warningOutdatedDataTitle)
+    }
+
     @ViewBuilder
     var summary: some View {
         switch assetRow.end {
         case .values(let fiat, let percent, _):
+            if assetRow.freshness == .outdated {
+                staleIcon
+            }
             PortfolioTokenItemView.BalanceText(value: fiat)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
                 .shimmer()

@@ -21,7 +21,9 @@ struct TokenSummaryView: View {
 
             ScrollView {
                 VStack(spacing: 24) {
-                    periodPicker
+                    if viewModel.isPeriodPickerVisible {
+                        periodPicker
+                    }
 
                     if viewModel.isLoading {
                         ProgressView()
@@ -51,7 +53,7 @@ struct TokenSummaryView: View {
 
     private var navigationBar: some View {
         HStack(spacing: 12) {
-            TokenIcon(tokenIconInfo: viewModel.tokenIconInfo, size: CGSize(bothDimensions: 40))
+            TokenIconV2(tokenIconInfo: viewModel.tokenIconInfo, size: .size40)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(viewModel.tokenName)

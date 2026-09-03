@@ -21,12 +21,11 @@ struct TangemPayCashbackBanner: View {
             iconView
 
             VStack(alignment: .leading, spacing: 2) {
-                titleView
+                Text(title)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-                if let subtitle {
-                    Text(subtitle)
-                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                }
+                subtitleView
+                    .style(DesignSystem.Font.bodyMediumToken, color: subtitleForeground)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -34,7 +33,7 @@ struct TangemPayCashbackBanner: View {
         }
         .padding(16)
         .background(DesignSystem.Color.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .disabled(state.isReloading)
         .onTapGesture(perform: action)
     }
@@ -43,25 +42,10 @@ struct TangemPayCashbackBanner: View {
 // MARK: - Content
 
 private extension TangemPayCashbackBanner {
-    var subtitle: String? {
+    var title: String {
         switch state {
-        case .content(let summary, _):
-            if summary.confirmedAmount < 0 {
-                return Localization.tangempayCashbackWidgetRefundDescription
-            }
-
-            if summary.confirmedAmount == 0 {
-                return Localization.tangempayCashbackWidgetEmptyDescription
-            }
-
-            guard let payoutWindow = payoutWindow(for: summary) else {
-                return nil
-            }
-
-            return Localization.tangempayCashbackDepositedOn(payoutWindow)
-
-        case .failed:
-            return Localization.tangempayCashbackWidgetErrorDescription
+        case .content: Localization.tangempayCashbackTitle
+        case .failed: Localization.tangempayCashbackWidgetErrorDescription
         }
     }
 
@@ -74,38 +58,22 @@ private extension TangemPayCashbackBanner {
     }
 
     static let amountFormatter = TangemPayFiatAmountFormatter()
-
-    static let payoutWindowFormatter: DateIntervalFormatter = {
-        let formatter = DateIntervalFormatter()
-        formatter.dateTemplate = "MMMMd"
-        return formatter
-    }()
-
-    func payoutWindow(for summary: TangemPayCashback.Summary) -> String? {
-        guard let start = summary.period.payoutStartDate, let end = summary.period.payoutEndDate else {
-            return nil
-        }
-
-        return Self.payoutWindowFormatter.string(from: DateInterval(start: start, end: end))
-    }
 }
 
 // MARK: - Subviews
 
 private extension TangemPayCashbackBanner {
     @ViewBuilder
-    var titleView: some View {
+    var subtitleView: some View {
         switch state {
         case .content(let summary, _):
             SensitiveText(
                 builder: { Localization.tangempayCashbackWidgetTitle($0, TangemPayCashbackState.monthName(summary.period.month)) },
                 sensitive: formattedAmount(for: summary)
             )
-            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
         case .failed:
             Text(Localization.tangempayCashbackWidgetErrorTitle)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
         }
     }
 
@@ -176,6 +144,13 @@ private extension TangemPayCashbackBanner {
 
         return DesignSystem.Color.iconStatusError
     }
+
+    var subtitleForeground: Color {
+        switch state {
+        case .content: DesignSystem.Color.textPrimary
+        case .failed: DesignSystem.Color.textSecondary
+        }
+    }
 }
 
 // MARK: - Previews
@@ -196,6 +171,7 @@ private extension TangemPayCashbackBanner {
         TangemPayCashbackBanner(state: .failed(isReloading: true), action: {})
     }
     .padding(16)
+    .background(DesignSystem.Color.bgPrimary)
 }
 
 private extension TangemPayCashback.Summary {

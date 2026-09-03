@@ -20,6 +20,7 @@ public extension TangemPayCashbackTransactionDetailsResponse {
         public let amount: String?
         public let currency: String?
         public let exclusionReason: ExclusionReason?
+        public let capTrimmed: Bool?
     }
 
     enum ExclusionReason: String, Decodable, Equatable {
