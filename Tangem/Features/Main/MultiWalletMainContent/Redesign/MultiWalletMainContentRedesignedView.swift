@@ -105,7 +105,7 @@ struct MultiWalletMainContentRedesignedView: View {
             action: viewModel.onOpenOrganizeTokensButtonTap
         )
         .iconStart(Assets.OrganizeTokens.filterIcon)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x9)
         .accessibilityIdentifier(MainAccessibilityIdentifiers.organizeTokensButton)
     }
@@ -134,7 +134,7 @@ struct MultiWalletMainContentRedesignedView: View {
                 accessibilityLabel: nil,
                 action: viewModel.onAddTokensTap
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x10)
             .horizontalLayout(.intrinsic)
             .accessibilityIdentifier(MainAccessibilityIdentifiers.addTokensButton)
