@@ -98,7 +98,10 @@ final class TangemPayTransactionsUITests: BaseTestCase {
             .waitForScreen()
             .verifyHeader(title: "Purchase", dateContains: "Apr 23 2026")
             .verifyIconVisible()
+            .verifyMerchantName("Tangem Coffee")
+            .verifyCategory("Restaurants")
             .verifyAmount("-$12.34")
+            .verifyCard(numberEnd: "4242", cardName: "My Card")
             .verifyGetHelpButton()
     }
 
@@ -112,8 +115,11 @@ final class TangemPayTransactionsUITests: BaseTestCase {
             .waitForScreen()
             .verifyHeader(title: "Purchase", dateContains: "Apr 23 2026")
             .verifyIconVisible()
+            .verifyMerchantName("Tangem Coffee")
+            .verifyCategory("Restaurants")
             .verifyAmount("-$12.34")
             .verifyStatus("Completed")
+            .verifyCard(numberEnd: "4242", cardName: "My Card")
             .verifyGetHelpButton()
     }
 

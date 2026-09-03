@@ -13,16 +13,16 @@ import TangemSdk
 
 final class CommonPolymarketOwnerAddressProvider {
     private let keysRepository: KeysRepository
-    private let keysDerivingInteractor: any KeysDeriving
+    private let keysDerivingFactory: PolymarketKeysDerivingFactory
     private let areHDWalletsSupported: Bool
 
     init(
         keysRepository: KeysRepository,
-        keysDerivingInteractor: any KeysDeriving,
+        keysDerivingFactory: PolymarketKeysDerivingFactory,
         areHDWalletsSupported: Bool
     ) {
         self.keysRepository = keysRepository
-        self.keysDerivingInteractor = keysDerivingInteractor
+        self.keysDerivingFactory = keysDerivingFactory
         self.areHDWalletsSupported = areHDWalletsSupported
     }
 }
@@ -68,7 +68,9 @@ private extension CommonPolymarketOwnerAddressProvider {
         let derivations: DerivationResult
 
         do {
-            derivations = try await keysDerivingInteractor.deriveKeys(derivations: [walletPublicKey: [path]])
+            derivations = try await keysDerivingFactory
+                .makeInteractor()
+                .deriveKeys(derivations: [walletPublicKey: [path]])
         } catch {
             PolymarketLogger.error("Failed to derive the owner key", error: error)
             throw PolymarketDerivationError(derivationFailure: error)
