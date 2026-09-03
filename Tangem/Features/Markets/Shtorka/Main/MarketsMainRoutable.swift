@@ -11,5 +11,5 @@ import Foundation
 protocol MarketsMainRoutable: AnyObject, MarketsRoutable, TopMarketWidgetRoutable, PulseMarketWidgetRoutable, NewsWidgetRoutable, EarnWidgetRoutable, MarketsTokenSearchRoutable {
     func openForYou()
     func openPolymarket(for userWalletModels: [any UserWalletModel])
-    func openGacha(with options: GachaCoordinator.Options)
+    func openCollectibles(with options: CollectiblesCoordinator.Options)
 }
