@@ -200,7 +200,7 @@ private struct TransactionCashbackBadge: View {
 
     private var appearance: BadgeAppearance {
         switch cashback.style {
-        case .estimated, .refunded: .neutral
+        case .estimated: .neutral
         case .confirmed: .info
         }
     }
@@ -394,6 +394,23 @@ private extension TransactionViewRedesigned {
                 status: .confirmed,
                 isFromYieldContract: false,
                 cashback: TransactionViewModel.Cashback(formattedAmount: "+$5.00", style: .confirmed)
+            )
+        )
+
+        TransactionViewRedesigned(
+            viewModel: TransactionViewModel(
+                hash: UUID().uuidString,
+                index: 0,
+                interactionAddress: .custom(message: "Restaurants"),
+                timeFormatted: "10:45",
+                amount: "+$12.34",
+                value: "+$12.34",
+                currencyCode: "",
+                isOutgoing: false,
+                transactionType: .tangemPay(.spend(name: "Tangem Coffee", icon: nil, isDeclined: false, isNegativeAmount: true)),
+                status: .confirmed,
+                isFromYieldContract: false,
+                cashback: TransactionViewModel.Cashback(formattedAmount: "−$5.00", style: .confirmed)
             )
         )
     }
