@@ -20,7 +20,9 @@ struct GachaCoordinatorView: CoordinatorView {
                 case .stories(let viewModel):
                     GachaStoriesView(viewModel: viewModel)
                 case .main(let viewModel):
-                    GachaMainView(viewModel: viewModel, onBack: coordinator.dismiss)
+                    NavigationStack {
+                        GachaMainView(viewModel: viewModel, onBack: coordinator.dismiss)
+                    }
                 }
             }
             .transition(.opacity.animation(.easeIn))

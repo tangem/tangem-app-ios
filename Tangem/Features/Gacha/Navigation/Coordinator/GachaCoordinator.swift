@@ -32,7 +32,9 @@ final class GachaCoordinator: CoordinatorObject {
         case .welcome:
             state = .welcome(GachaWelcomeViewModel(routable: self))
         case .main:
-            state = .main(GachaMainViewModel())
+            Task { @MainActor [weak self] in
+                self?.state = .main(GachaMainViewModel())
+            }
         }
     }
 }
@@ -47,7 +49,9 @@ extension GachaCoordinator: GachaWelcomeRoutable {
 
 extension GachaCoordinator: GachaStoriesRoutable {
     func openMain() {
-        state = .main(GachaMainViewModel())
+        Task { @MainActor [weak self] in
+            self?.state = .main(GachaMainViewModel())
+        }
     }
 }
 
