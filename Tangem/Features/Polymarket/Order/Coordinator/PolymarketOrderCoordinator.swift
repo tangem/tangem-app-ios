@@ -16,6 +16,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     // MARK: - Root ViewModels
 
     @Published private(set) var viewModel: PolymarketOrderViewModel?
+    @Published var slippageSelector: PolymarketSlippageSelectorViewModel?
 
     // MARK: - Init
 
@@ -41,6 +42,13 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
 extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
     func closeOrder() {
         dismiss()
+    }
+
+    func openSlippageSelector(percent: Decimal, onConfirm: @escaping (Decimal) -> Void) {
+        slippageSelector = PolymarketSlippageSelectorViewModel(percent: percent) { [weak self] confirmed in
+            onConfirm(confirmed)
+            self?.slippageSelector = nil
+        }
     }
 }
 
