@@ -30,6 +30,7 @@
 "account_details_archive_joint_description" = "This only hides the account for you and turns off notifications for it. Other members keep their access, and you can always get it back.";
 "account_details_archive" = "Архівний акаунт";
 "account_details_archiving" = "Архівування...";
+"account_details_joint_members_progress" = "%1$@/%2$@ people";
 "account_details_joint_pending_description" = "The account is still being populated with members";
 "account_details_title" = "Акаунт";
 "account_edit_success_message" = "Акаунт збережено";
@@ -985,6 +986,8 @@
 "markets_portfolio_block_token_unsupported" = "**Токен не підтримується**. Наразі цей токен не підтримується в гаманці";
 "markets_portfolio_eligible_block_title" = "Інші підтримувані токени";
 "markets_pulse_common_title" = "Пульс ринку";
+"markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "Очистити все";
 "markets_search_header_title" = "Шукати на маркеті";
 "markets_search_hint_header" = "Нещодавні запити";
@@ -2049,7 +2052,7 @@
 "tangempay_cashback_widget_error_description" = "Натисніть, щоб оновити";
 "tangempay_cashback_widget_error_title" = "Кешбек недоступний";
 "tangempay_cashback_widget_refund_description" = "Зменшено через повернення покупок";
-"tangempay_cashback_widget_title" = "%1$@ кешбек за %2$@";
+"tangempay_cashback_widget_title" = "%1$@ за %2$@";
 "tangempay_change_pin_code" = "Змінити PIN-код";
 "tangempay_changing_plan" = "Зміна тарифу";
 "tangempay_choose_network_fast_way" = "Швидкий спосіб";
@@ -2437,12 +2440,12 @@
 "user_push_notification_agreement_header" = "Бажаєте використовувати Push-повідомлення?";
 "user_push_notification_banner_subtitle" = "Увімкніть push-сповіщення, щоб отримувати повідомлення, коли кошти надходять на ваш гаманець.";
 "user_push_notification_banner_title" = "Не пропустіть транзакцію";
-"user_wallet_add_hardware_description" = "Відскануйте картку Tangem, щоб додати його";
+"user_wallet_add_hardware_description" = "Відскануйте картку Tangem, щоб додати гаманець";
 "user_wallet_add_hardware_title" = "Додати апаратний гаманець";
 "user_wallet_add_mobile_description" = "Створіть новий гаманець на цьому пристрої";
 "user_wallet_add_mobile_title" = "Додати мобільний гаманець";
 "user_wallet_add_wallet" = "Add wallet";
-"user_wallet_coming_soon_dialog_description" = "Ми працюємо над можливістю створювати кілька мобільних гаманців.";
+"user_wallet_coming_soon_dialog_description" = "Ми працюємо над підтримкою кількох мобільних гаманців.";
 "user_wallet_list_add_button" = "Додати гаманець";
 "user_wallet_list_delete_hw_prompt" = "Якщо ви видалите цей гаманець без резервної копії, ви назавжди втратите доступ до своїх коштів.";
 "user_wallet_list_delete_prompt" = "Ви впевнені, що хочете видалити цей гаманець?";
