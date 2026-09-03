@@ -649,7 +649,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func tapAmountFraction(_ token: String) -> Self {
         XCTContext.runActivity(named: "Tap '\(token)' amount fraction chip") { _ in
-            let field = editableFromAmountField()
+            var field = editableFromAmountField()
             // Right after choosing tokens the field is briefly disabled while the initial quote loads.
             let enabledPredicate = NSPredicate(format: "isEnabled == true")
             let enabledExpectation = XCTNSPredicateExpectation(predicate: enabledPredicate, object: field)
@@ -658,17 +658,41 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
                 .completed,
                 "From amount field should become enabled"
             )
-            if !field.hasFocus {
-                field.tap()
-            }
             let chip = app.buttons[SwapAccessibilityIdentifiers.amountFraction(token)].firstMatch
-            waitAndAssertTrue(chip, "'\(token)' amount fraction chip should exist")
-            // The chip lives in the keyboard accessory view and is often reported non-hittable, so tap by coordinate.
-            if chip.isHittable {
-                chip.tap()
-            } else {
-                chip.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            let valueBeforeTap = field.getValue()
+            let attempts = 3
+            var applied = false
+
+            // A coordinate tap aimed at the still-animating keyboard accessory lands outside it and only dismisses the keyboard.
+            for attempt in 0 ..< attempts {
+                // Dismissing the keyboard reorders the field matches, so re-resolve the editable one every attempt.
+                field = editableFromAmountField()
+                if !field.hasFocus {
+                    field.tap()
+                }
+                waitAndAssertTrue(chip, "'\(token)' amount fraction chip should exist")
+                // The chip lives in the keyboard accessory view and is often reported non-hittable, so tap by coordinate.
+                if chip.isHittable {
+                    chip.tap()
+                } else {
+                    chip.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+                }
+
+                // Early attempts give up fast to retry a missed tap; the last one waits out a slow quote.
+                let timeout: TimeInterval = attempt == attempts - 1 ? .robustUIUpdate : .quick
+                applied = field.waitForValue(timeout: timeout) { value in
+                    value != valueBeforeTap && value.contains { $0.isNumber && $0 != "0" }
+                }
+
+                if applied {
+                    break
+                }
             }
+
+            XCTAssertTrue(
+                applied,
+                "'\(token)' amount fraction chip should fill the amount, but it stayed '\(field.getValue())'"
+            )
         }
         return self
     }
