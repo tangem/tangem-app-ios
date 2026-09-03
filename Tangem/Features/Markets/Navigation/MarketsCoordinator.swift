@@ -41,7 +41,7 @@ final class MarketsCoordinator: CoordinatorObject {
     @Published var earnListCoordinator: EarnCoordinator?
     @Published var forYouCoordinator: ForYouCoordinator?
     @Published var polymarketCoordinator: PolymarketCoordinator?
-    @Published var gachaCoordinator: GachaCoordinator?
+    @Published var collectiblesCoordinator: CollectiblesCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -159,15 +159,15 @@ extension MarketsCoordinator: MarketsMainRoutable {
         }
     }
 
-    func openGacha(with options: GachaCoordinator.Options) {
-        let coordinator = GachaCoordinator(
+    func openCollectibles(with options: CollectiblesCoordinator.Options) {
+        let coordinator = CollectiblesCoordinator(
             dismissAction: { [weak self] in
-                self?.gachaCoordinator = nil
+                self?.collectiblesCoordinator = nil
             },
             popToRootAction: popToRootAction
         )
         coordinator.start(with: options)
-        gachaCoordinator = coordinator
+        collectiblesCoordinator = coordinator
     }
 
     func openSeeAllTopMarketWidget() {
