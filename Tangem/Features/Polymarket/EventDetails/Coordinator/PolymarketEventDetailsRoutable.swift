@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemPolymarket
+
 protocol PolymarketEventDetailsRoutable: AnyObject {
     func dismissEventDetails()
 }
