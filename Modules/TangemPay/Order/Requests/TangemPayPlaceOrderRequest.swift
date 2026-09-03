@@ -72,6 +72,21 @@ public struct TangemPayPlaceOrderRequest: Encodable {
             lastFourDigits: lastFourDigits
         )
     }
+
+    public init(
+        customerWalletAddress: String,
+        sourceProductInstanceId: String,
+        embossName: String,
+        shippingAddress: ShippingAddress
+    ) {
+        data = Data(
+            type: TangemPayOrderType.cardReissuePlasticRain.rawValue,
+            customerWalletAddress: customerWalletAddress,
+            embossName: embossName,
+            shippingAddress: shippingAddress,
+            sourceProductInstanceId: sourceProductInstanceId
+        )
+    }
 }
 
 public extension TangemPayPlaceOrderRequest {
@@ -135,6 +150,7 @@ public extension TangemPayPlaceOrderRequest {
         public let embossName: String?
         public let shippingAddress: ShippingAddress?
         public let productInstanceId: String?
+        public let sourceProductInstanceId: String?
         public let lastFourDigits: String?
 
         enum CodingKeys: String, CodingKey {
@@ -148,6 +164,7 @@ public extension TangemPayPlaceOrderRequest {
             case embossName = "emboss_name"
             case shippingAddress = "shipping_address"
             case productInstanceId = "product_instance_id"
+            case sourceProductInstanceId = "source_product_instance_id"
             case lastFourDigits = "last_four_digits"
         }
 
@@ -162,6 +179,7 @@ public extension TangemPayPlaceOrderRequest {
             embossName: String? = nil,
             shippingAddress: ShippingAddress? = nil,
             productInstanceId: String? = nil,
+            sourceProductInstanceId: String? = nil,
             lastFourDigits: String? = nil
         ) {
             self.type = type
@@ -174,6 +192,7 @@ public extension TangemPayPlaceOrderRequest {
             self.embossName = embossName
             self.shippingAddress = shippingAddress
             self.productInstanceId = productInstanceId
+            self.sourceProductInstanceId = sourceProductInstanceId
             self.lastFourDigits = lastFourDigits
         }
     }
