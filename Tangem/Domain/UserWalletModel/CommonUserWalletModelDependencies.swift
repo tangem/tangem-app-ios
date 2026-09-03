@@ -25,7 +25,7 @@ struct CommonUserWalletModelDependencies {
     private let userWalletModelConfigurableDependencies: UserWalletModelConfigurableDependencies
 
     init(userWalletId: UserWalletId, walletInfo: WalletInfo, config: UserWalletConfig, keys: WalletKeys) {
-        let walletManagerFactory = config.makeAnyWalletManagerFactory()
+        let walletFactory = config.makeAnyWalletFactory()
 
         let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
         let areHDWalletsSupported = config.hasFeature(.hdWallets)
@@ -69,7 +69,7 @@ struct CommonUserWalletModelDependencies {
             userWalletId: userWalletId,
             config: config,
             walletInfo: walletInfo,
-            walletManagerFactory: walletManagerFactory,
+            walletFactory: walletFactory,
             keysRepository: keysRepository,
             keysDerivingInteractorFactory: keysDerivingInteractorFactory,
             jointAccountDerivationInteractorFactory: jointAccountDerivationInteractorFactory,
@@ -196,7 +196,7 @@ private extension CommonUserWalletModelDependencies {
         userWalletId: UserWalletId,
         config: UserWalletConfig,
         walletInfo: WalletInfo,
-        walletManagerFactory: AnyWalletManagerFactory,
+        walletFactory: AnyWalletFactory,
         keysRepository: KeysRepository,
         keysDerivingInteractorFactory: KeysDerivingInteractorFactory,
         jointAccountDerivationInteractorFactory: JointAccountDerivationInteractorFactory,
@@ -238,7 +238,8 @@ private extension CommonUserWalletModelDependencies {
             derivationManager: derivationManager,
             derivationStyle: config.derivationStyle,
             keysRepository: keysRepository,
-            walletManagerFactory: walletManagerFactory,
+            walletFactory: walletFactory,
+            walletManagerFactory: GenericWalletManagerFactory(),
             existingCurves: config.existingCurves,
             persistentBlockchains: config.persistentBlockchains,
             hardwareLimitationsUtil: hardwareLimitationsUtil,

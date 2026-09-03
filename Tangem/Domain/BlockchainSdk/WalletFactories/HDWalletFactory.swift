@@ -1,5 +1,5 @@
 //
-//  HDWalletPublicKeyFactory.swift
+//  HDWalletFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,14 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct HDWalletPublicKeyFactory: AnyWalletPublicKeyFactory {
-    func makePublicKey(blockchainNetwork: BlockchainNetwork, keys: [KeyInfo]) throws -> Wallet.PublicKey {
+struct HDWalletFactory: AnyWalletFactory {
+    func makeWallet(blockchainNetwork: BlockchainNetwork, keys: [KeyInfo]) throws -> Wallet {
+        let publicKey = try makePublicKey(blockchainNetwork: blockchainNetwork, keys: keys)
+
+        return try WalletFactory(blockchain: blockchainNetwork.blockchain).makeWallet(publicKey: publicKey)
+    }
+
+    private func makePublicKey(blockchainNetwork: BlockchainNetwork, keys: [KeyInfo]) throws -> Wallet.PublicKey {
         let seedKeys: [EllipticCurve: Data] = keys.reduce(into: [:]) { partialResult, cardWallet in
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
@@ -24,13 +30,13 @@ struct HDWalletPublicKeyFactory: AnyWalletPublicKeyFactory {
         let curve = blockchain.curve
 
         guard let derivationPath = blockchainNetwork.derivationPath else {
-            throw AnyWalletManagerFactoryError.entryHasNotDerivationPath
+            throw AnyWalletFactoryError.entryHasNotDerivationPath
         }
 
         guard let seedKey = seedKeys[curve],
               let derivedWalletKeys = derivedKeys[curve],
               let derivedKey = derivedWalletKeys[derivationPath] else {
-            throw AnyWalletManagerFactoryError.noDerivation
+            throw AnyWalletFactoryError.noDerivation
         }
 
         let hdKey = Wallet.PublicKey.HDKey(path: derivationPath, extendedPublicKey: derivedKey)
