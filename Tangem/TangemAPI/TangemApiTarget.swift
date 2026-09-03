@@ -62,7 +62,10 @@ struct TangemApiTarget: TargetType {
              .createJointAccount,
              .getJointAccountInvite,
              .joinJointAccount,
-             .activateJointAccount:
+             .activateJointAccount,
+             .createJointAccountOperation,
+             .signJointAccountOperation,
+             .rejectJointAccountOperation:
             // The joint accounts contract documents these as `/api/v1/wallets/{walletId}/joint-accounts...`, unlike
             // the plain `/v1/wallets/{walletId}/accounts` it describes beside them, so only these carry the segment
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
@@ -87,7 +90,7 @@ struct TangemApiTarget: TargetType {
             return "/features"
         case .getUserWalletTokens(let key):
             return "/user-tokens/\(key)"
-        case .saveUserWalletTokensV2(let key, _):
+        case .saveUserWalletTokensV2(let key, _, _):
             return "/wallets/\(key)/tokens"
         case .loadReferralProgramInfo(let userWalletId, _):
             return "/referral/\(userWalletId)"
@@ -202,6 +205,12 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(walletId)/joint-accounts/join"
         case .activateJointAccount(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts/activate"
+        case .createJointAccountOperation(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/operations"
+        case .signJointAccountOperation(let walletId, let operationId, _):
+            return "/wallets/\(walletId)/joint-accounts/operations/\(operationId)/sign"
+        case .rejectJointAccountOperation(let walletId, let operationId, _):
+            return "/wallets/\(walletId)/joint-accounts/operations/\(operationId)/reject"
 
         // MARK: - Address Book
         case .syncAddressBooks:
@@ -280,6 +289,9 @@ struct TangemApiTarget: TargetType {
              .createJointAccount,
              .joinJointAccount,
              .activateJointAccount,
+             .createJointAccountOperation,
+             .signJointAccountOperation,
+             .rejectJointAccountOperation,
              .createUserWalletsApplication,
              .activatePromoCode,
              .createWallet,
@@ -306,7 +318,7 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(pageModel)
         case .currencies, .geo, .features, .getUserWalletTokens, .applicationVersions:
             return .requestPlain
-        case .saveUserWalletTokensV2(_, let list):
+        case .saveUserWalletTokensV2(_, let list, _):
             return .requestJSONEncodable(list)
         case .loadReferralProgramInfo(_, let expectedAwardsLimit):
             return .requestParameters(
@@ -426,6 +438,12 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(body)
         case .activateJointAccount(_, let body):
             return .requestJSONEncodable(body)
+        case .createJointAccountOperation(_, let body):
+            return .requestJSONEncodable(body)
+        case .signJointAccountOperation(_, _, let body):
+            return .requestJSONEncodable(body)
+        case .rejectJointAccountOperation(_, _, let body):
+            return .requestJSONEncodable(body)
 
         // MARK: - Address Book
         case .syncAddressBooks(let request):
@@ -473,6 +491,12 @@ struct TangemApiTarget: TargetType {
         case .updateAddressBook(_, let knownETag, _):
             // Optimistic locking: send If-Match only when we already hold an etag (the client never mints one).
             return knownETag.map { [TangemAPIHeaders.ifMatch.rawValue: $0] }
+        case .saveUserWalletTokensV2(_, _, let revision):
+            // The accounts ETag, the same lock `saveUserAccounts` carries: a joint account's token list is one list
+            // for every member, and without it two of them writing it overwrite each other
+            return [
+                TangemAPIHeaders.ifMatch.rawValue: revision,
+            ]
         case .rawData,
              .currencies,
              .coins,
@@ -480,7 +504,6 @@ struct TangemApiTarget: TargetType {
              .geo,
              .features,
              .getUserWalletTokens,
-             .saveUserWalletTokensV2,
              .loadReferralProgramInfo,
              .participateInReferralProgram,
              .createAccount,
@@ -521,6 +544,9 @@ struct TangemApiTarget: TargetType {
              .getJointAccountInvite,
              .joinJointAccount,
              .activateJointAccount,
+             .createJointAccountOperation,
+             .signJointAccountOperation,
+             .rejectJointAccountOperation,
              .createWallet,
              .getNotificationPreferences,
              .updateNotificationPreferences,
@@ -549,7 +575,7 @@ extension TangemApiTarget {
         case geo
         case features
         case getUserWalletTokens(key: String)
-        case saveUserWalletTokensV2(key: String, list: AccountsDTO.Request.UserTokens)
+        case saveUserWalletTokensV2(key: String, list: AccountsDTO.Request.UserTokens, revision: String)
         case loadReferralProgramInfo(userWalletId: String, expectedAwardsLimit: Int)
         case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
         case createAccount(_ parameters: BlockchainAccountCreateParameters)
@@ -632,10 +658,13 @@ extension TangemApiTarget {
 
         // Joint accounts
         case getJointAccounts(walletId: String)
-        case createJointAccount(walletId: String, body: JointAccountsDTO.Create.Request)
+        case createJointAccount(walletId: String, body: JointAccountsDTO.Request.Create)
         case getJointAccountInvite(walletId: String, inviteId: String)
-        case joinJointAccount(walletId: String, body: JointAccountsDTO.Join.Request)
-        case activateJointAccount(walletId: String, body: JointAccountsDTO.Activate.Request)
+        case joinJointAccount(walletId: String, body: JointAccountsDTO.Request.Join)
+        case activateJointAccount(walletId: String, body: JointAccountsDTO.Request.Activate)
+        case createJointAccountOperation(walletId: String, body: JointAccountsDTO.Request.CreateOperation)
+        case signJointAccountOperation(walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation)
+        case rejectJointAccountOperation(walletId: String, operationId: String, body: JointAccountsDTO.Request.RejectOperation)
 
         // Address Book
         case syncAddressBooks(_ request: AddressBookDTO.SyncRequest)
@@ -716,7 +745,10 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .joinJointAccount,
              .getJointAccountInvite,
              .getJointAccounts,
-             .activateJointAccount:
+             .activateJointAccount,
+             .createJointAccountOperation,
+             .signJointAccountOperation,
+             .rejectJointAccountOperation:
             return false
         case .geo,
              .features,

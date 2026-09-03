@@ -243,7 +243,7 @@ private final class MockTangemApiService: TangemApiService {
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response { fatalError("unused") }
     func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse { fatalError("unused") }
     func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws { fatalError("unused") }
-    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws { fatalError("unused") }
+    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String, revision: String) async throws -> String? { fatalError("unused") }
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response { fatalError("unused") }
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> { fatalError("unused") }
     func loadReferralProgramInfo(for userWalletId: String, expectedAwardsLimit: Int) async throws -> ReferralProgramInfo { fatalError("unused") }
@@ -275,17 +275,29 @@ private final class MockTangemApiService: TangemApiService {
     func getUserAccounts(userWalletId: String) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) { fatalError("unused") }
     func saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) { fatalError("unused") }
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts { fatalError("unused") }
-    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.List.Response { fatalError("unused") }
+    func getJointAccounts(walletId: String) async throws -> JointAccountsDTO.Response.JointAccounts { fatalError("unused") }
     func createJointAccount(
-        walletId: String, body: JointAccountsDTO.Create.Request
-    ) async throws -> JointAccountsDTO.Create.Response { fatalError("unused") }
+        walletId: String, body: JointAccountsDTO.Request.Create
+    ) async throws -> JointAccountsDTO.Response.JointAccount { fatalError("unused") }
     func getJointAccountInvite(
         walletId: String, inviteId: String
-    ) async throws -> JointAccountsDTO.InvitePreview.Response { fatalError("unused") }
+    ) async throws -> JointAccountsDTO.Response.InvitePreview { fatalError("unused") }
     func joinJointAccount(
-        walletId: String, body: JointAccountsDTO.Join.Request
-    ) async throws -> JointAccountsDTO.Join.Response { fatalError("unused") }
+        walletId: String, body: JointAccountsDTO.Request.Join
+    ) async throws -> JointAccountsDTO.Response.JointAccount { fatalError("unused") }
     func activateJointAccount(
-        walletId: String, body: JointAccountsDTO.Activate.Request
-    ) async throws -> JointAccountsDTO.Activate.Response { fatalError("unused") }
+        walletId: String, body: JointAccountsDTO.Request.Activate
+    ) async throws -> JointAccountsDTO.Response.JointAccount { fatalError("unused") }
+
+    func createJointAccountOperation(
+        walletId: String, body: JointAccountsDTO.Request.CreateOperation
+    ) async throws -> JointAccountsDTO.Response.Operation { fatalError("unused") }
+
+    func signJointAccountOperation(
+        walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation
+    ) async throws -> JointAccountsDTO.Response.Operation { fatalError("unused") }
+
+    func rejectJointAccountOperation(
+        walletId: String, operationId: String, body: JointAccountsDTO.Request.RejectOperation
+    ) async throws -> JointAccountsDTO.Response.Operation? { fatalError("unused") }
 }
