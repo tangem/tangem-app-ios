@@ -41,6 +41,8 @@ final class TangemPayOrderCardDataViewModel: ObservableObject, Identifiable {
         self.purpose = purpose
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
+
+        Analytics.log(.visaPlasticAddressScreenOpened)
     }
 
     var title: String {
@@ -73,6 +75,7 @@ final class TangemPayOrderCardDataViewModel: ObservableObject, Identifiable {
     func placeOrder() {
         guard !isPlacingOrder, isOrderEnabled else { return }
 
+        Analytics.log(.visaPlasticOrderCardClicked)
         isPlacingOrder = true
 
         orderTask = runTask(in: self) { @MainActor viewModel in
