@@ -223,7 +223,8 @@ private extension CommonJointAccountsRepositoryTests {
             StoredJointAccount.Member(
                 name: name,
                 address: "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21\(index)",
-                role: index == 0 ? .creator : .member
+                role: index == 0 ? .creator : .member,
+                inviteId: nil
             )
         }
     }
