@@ -8,20 +8,38 @@
 
 import Foundation
 import TangemPolymarket
+import TangemPolymarketUI
 
 final class PolymarketOrderViewModel: ObservableObject {
-    let market: PolymarketMarket
-    let outcome: PolymarketOutcome
+    @Published private(set) var slippagePercent: Decimal = PolymarketSlippage.defaultPercent
+
+    let marketRow: PolymarketOrderMarketRow.Model
+    let payment: PolymarketOrderPaymentRow.Model
+    let fieldViewModel = DecimalNumberTextFieldViewModel(maximumFractionDigits: PolymarketCollateral.decimalCount)
+
+    var slippageText: String {
+        PolymarketSlippageFormatter.rowText(slippagePercent)
+    }
 
     private weak var coordinator: PolymarketOrderRoutable?
 
     init(market: PolymarketMarket, outcome: PolymarketOutcome, coordinator: PolymarketOrderRoutable?) {
-        self.market = market
-        self.outcome = outcome
+        marketRow = .make(market: market, outcome: outcome)
+        payment = .makeCollateral(balanceText: BalanceFormatter.defaultEmptyBalanceString)
         self.coordinator = coordinator
     }
+
+    // MARK: - Actions
 
     func dismiss() {
         coordinator?.closeOrder()
     }
+
+    func openSlippageSelector() {
+        coordinator?.openSlippageSelector(percent: slippagePercent) { [weak self] percent in
+            self?.slippagePercent = percent
+        }
+    }
+
+    func proceed() {}
 }
