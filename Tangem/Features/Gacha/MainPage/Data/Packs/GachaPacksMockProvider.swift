@@ -9,26 +9,29 @@
 import Foundation
 
 struct GachaPacksMockProvider: GachaPacksProvider {
-    func load(loreID: String?) async throws -> [GachaPack] {
-        try await Task.sleep(for: .milliseconds(600))
-
-        guard let loreID else {
-            return Self.packs
+    private static let packs: [GachaPack] = GachaLoresMockProvider.lores.flatMap { lore in
+        (1 ... lore.packsCount).map { index in
+            makePack(lore: lore, index: index)
         }
+    }
 
-        return Self.packs.filter { $0.loreID == loreID }
+    func load(loreID: String?, query: String) async throws -> [GachaPack] {
+        try await Task.sleep(for: .seconds(1.5))
+
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return Self.packs.filter { pack in
+            let matchesLore = loreID.map { pack.loreID == $0 } ?? true
+            let matchesQuery = trimmedQuery.isEmpty || pack.name.localizedCaseInsensitiveContains(trimmedQuery)
+
+            return matchesLore && matchesQuery
+        }
     }
 }
 
 // MARK: - Fixtures
 
 private extension GachaPacksMockProvider {
-    static let packs: [GachaPack] = GachaLoresMockProvider.lores.flatMap { lore in
-        (1 ... lore.packsCount).map { index in
-            makePack(lore: lore, index: index)
-        }
-    }
-
     static func makePack(lore: GachaLore, index: Int) -> GachaPack {
         let tiers = ["Legendary", "Water", "Elite"]
         let tier = tiers[(index - 1) % tiers.count]

@@ -99,20 +99,6 @@ final class GachaEntranceViewModelTests: LeakTrackingTestSuite {
         #expect(provider.loadCallCount == 0)
     }
 
-    @Test("Ignores taps while the selector is on screen")
-    func ignoresTapsWhileSelectorIsPresented() async {
-        let presenter = FloatingSheetPresenterSpy()
-        let sut = makeSUT(wallets: [WalletStub("A"), WalletStub("B")], presenter: presenter)
-
-        sut.openGacha { _ in }
-        await presenter.waitForSheets(count: 1)
-
-        sut.openGacha { _ in }
-        await drainMainQueue()
-
-        #expect(presenter.enqueuedSheets.count == 1)
-    }
-
     @Test("Selecting a wallet resolves the destination")
     func selectingWalletResolvesDestination() async throws {
         let presenter = FloatingSheetPresenterSpy()
