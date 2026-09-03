@@ -30,6 +30,7 @@
 "account_details_archive_joint_description" = "This only hides the account for you and turns off notifications for it. Other members keep their access, and you can always get it back.";
 "account_details_archive" = "アカウントをアーカイブする";
 "account_details_archiving" = "アーカイブ中・・・";
+"account_details_joint_members_progress" = "%1$@/%2$@ people";
 "account_details_joint_pending_description" = "The account is still being populated with members";
 "account_details_title" = "アカウント";
 "account_edit_success_message" = "アカウントが保存されました";
@@ -985,6 +986,8 @@
 "markets_portfolio_block_token_unsupported" = "**トークンはサポートされていません**。このトークンは現在、このウォレットではサポートされていません";
 "markets_portfolio_eligible_block_title" = "その他の対象トークン";
 "markets_pulse_common_title" = "マーケット動向";
+"markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "すべてクリア";
 "markets_search_header_title" = "トークンを探す";
 "markets_search_hint_header" = "最近の検索";
@@ -2049,7 +2052,7 @@
 "tangempay_cashback_widget_error_description" = "タップして再読み込み";
 "tangempay_cashback_widget_error_title" = "キャッシュバックを利用できません";
 "tangempay_cashback_widget_refund_description" = "購入代金の返金により減額";
-"tangempay_cashback_widget_title" = "%2$@ で %1$@ のキャッシュバック";
+"tangempay_cashback_widget_title" = "%2$@ に%1$@ドル";
 "tangempay_change_pin_code" = "PINコードを変更";
 "tangempay_changing_plan" = "プランを変更しています";
 "tangempay_choose_network_fast_way" = "すぐに使えるネットワーク";

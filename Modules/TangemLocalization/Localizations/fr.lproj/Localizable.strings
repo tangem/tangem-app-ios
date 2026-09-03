@@ -30,6 +30,7 @@
 "account_details_archive_joint_description" = "This only hides the account for you and turns off notifications for it. Other members keep their access, and you can always get it back.";
 "account_details_archive" = "Compte archivé";
 "account_details_archiving" = "Archivage...";
+"account_details_joint_members_progress" = "%1$@/%2$@ people";
 "account_details_joint_pending_description" = "The account is still being populated with members";
 "account_details_title" = "Compte";
 "account_edit_success_message" = "Compte enregistré";
@@ -225,7 +226,7 @@
 "common_add_tokens" = "Ajouter des jetons";
 "common_added" = "Ajouté";
 "common_address" = "Adresse";
-"common_all_accounts" = "All accounts";
+"common_all_accounts" = "Tous les comptes";
 "common_all" = "Tous";
 "common_allow" = "Permettre";
 "common_amount" = "Montant";
@@ -349,7 +350,7 @@
 "common_no_address" = "Aucune adresse";
 "common_no_results" = "No results";
 "common_no" = "Non";
-"common_none" = "None";
+"common_none" = "Aucun";
 "common_not_added" = "Non ajouté";
 "common_not_available" = "Indisponible";
 "common_not_now" = "Pas maintenant";
@@ -647,13 +648,13 @@
 "feedback_subject_tx_push_failed" = "Impossible d'effectuer une transaction";
 "feedback_token_description_error" = "Erreur de description de la pièce";
 "for_you_description" = "Consultez votre portefeuille et découvrez des opportunités de rendement";
-"for_you_earn_opportunities_all_tokens_active" = "All your assets are at work, explore new opportunities";
-"for_you_earn_opportunities_explore" = "Explore all tokens";
-"for_you_earn_opportunities_no_available_tokens" = "Get up to %1$@ annually";
-"for_you_earn_opportunities_tokens_rewards" = "Max potential rewards %1$@";
-"for_you_earn_opportunities" = "Earn opportunities";
-"for_you_earn_per_year" = "%1$@/year";
-"for_you_portfolio_review_title" = "Portfolio review";
+"for_you_earn_opportunities_all_tokens_active" = "Tous vos actifs sont au travail, découvrez de nouvelles opportunités";
+"for_you_earn_opportunities_explore" = "Explorer tous les tokens";
+"for_you_earn_opportunities_no_available_tokens" = "Obtenez jusqu'à %1$@ par an";
+"for_you_earn_opportunities_tokens_rewards" = "Récompenses potentielles maximales %1$@";
+"for_you_earn_opportunities" = "Opportunités de rendement";
+"for_you_earn_per_year" = "%1$@/an";
+"for_you_portfolio_review_title" = "Aperçu du portefeuille";
 "for_you_title" = "Pour Vous";
 "force_update_action" = "Mettre à jour maintenant";
 "force_update_banner_message" = "Mettez l'application à jour pour assurer son bon fonctionnement";
@@ -985,6 +986,8 @@
 "markets_portfolio_block_token_unsupported" = "**Token non pris en charge**. Ce token n'est actuellement pas pris en charge dans le portefeuille";
 "markets_portfolio_eligible_block_title" = "Autres tokens éligibles";
 "markets_pulse_common_title" = "Rythme du marché";
+"markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Rechercher sur le marché";
 "markets_search_hint_header" = "Recherches récentes";
@@ -2049,7 +2052,7 @@
 "tangempay_cashback_widget_error_description" = "Appuyez pour recharger";
 "tangempay_cashback_widget_error_title" = "Cashback indisponible";
 "tangempay_cashback_widget_refund_description" = "Réduit en raison de retours d'achats";
-"tangempay_cashback_widget_title" = "%1$@ de cashback en %2$@";
+"tangempay_cashback_widget_title" = "%1$@ en %2$@";
 "tangempay_change_pin_code" = "Modifier le code PIN";
 "tangempay_changing_plan" = "Modification du forfait";
 "tangempay_choose_network_fast_way" = "Voie rapide";
@@ -2331,7 +2334,7 @@
 "token_summary_macd_description" = "Le \"MACD\" compare la dynamique des prix à court terme et à long terme pour indiquer si la dynamique d'un actif se renforce ou s'affaiblit. Source : taapi.io.";
 "token_summary_negative_outlook_title" = "Negative outlook";
 "token_summary_neutral_outlook_title" = "Neutral outlook";
-"token_summary_outlook_is_not_available" = "Outlook for this token is not available";
+"token_summary_outlook_is_not_available" = "Perspectives non disponibles pour ce token";
 "token_summary_positive_outlook_title" = "Positive outlook";
 "token_summary_rsi_description" = "Le \"RSI\" (Relative Strength Index) mesure si un actif a été acheté ou vendu de manière excessive au cours des 14 dernières périodes, signalant un potentiel excès d'achat ou de vente. Source : taapi.io.";
 "token_summary_sentiment_description" = "Le score de sentiment évalue le ton des publications sur les réseaux sociaux concernant l'actif sur une échelle de 1 à 5, où un score plus élevé indique plus de discussions positives. Source : LunarCrush.";
