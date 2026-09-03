@@ -9,5 +9,5 @@
 import Foundation
 
 protocol GachaPacksProvider {
-    func load(loreID: String?) async throws -> [GachaPack]
+    func load(loreID: String?, query: String) async throws -> [GachaPack]
 }
