@@ -25,6 +25,12 @@ protocol TangemPayCardManagementRoutable: AnyObject {
         onLoadingChange: @escaping (Bool) -> Void,
         onError: @escaping () -> Void
     )
+    func openPlasticCardReissueSheet(
+        userWalletId: UserWalletId,
+        card: TangemPayCard,
+        onLoadingChange: @escaping (Bool) -> Void,
+        onError: @escaping () -> Void
+    )
     func openTangemPayCloseCardSheet(
         userWalletId: UserWalletId,
         card: TangemPayCard,

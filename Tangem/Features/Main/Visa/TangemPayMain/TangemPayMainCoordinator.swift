@@ -280,39 +280,12 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openOrderCardType(cardType: TangemPayOrderCardType?) {
-        guard let tangemPayAccount = options?.tangemPayAccount else { return }
-
-        let tariffPlanCardImageURL = tangemPayAccount.customerTariffPlan?.tariffPlan.images
-            .first { $0.type == .main }
-            .flatMap { URL(string: $0.url) }
-
-        let profile = tangemPayAccount.profile
-        // The app language, not the device locale: the rest of the screen is localized by the former.
-        let appLocale = Locale(identifier: Locale.appLanguageCode)
-        let countryName = profile?.country.map { appLocale.localizedString(forRegionCode: $0) ?? $0 }
-
-        let coordinator = TangemPayOrderCardCoordinator(
-            dismissAction: { [weak self] in
-                self?.orderCardCoordinator = nil
-            },
-            popToRootAction: popToRootAction
+        startOrderCardFlow(
+            purpose: .issue,
+            nameOnCard: options?.tangemPayAccount.cards.first?.card.embossName,
+            deliveryEtaMaxDays: nil,
+            selectedCardType: cardType
         )
-        coordinator.start(with: .init(
-            tariffPlanCardImageURL: tariffPlanCardImageURL,
-            nameOnCard: tangemPayAccount.cards.first?.card.embossName,
-            countryName: countryName,
-            email: profile?.email,
-            phoneMask: profile?.phoneMask,
-            availableBalancePublisher: tangemPayAccount.balancesProvider
-                .totalTokenBalanceProvider
-                .balanceTypePublisher
-                .map(\.value)
-                .eraseToAnyPublisher(),
-            selectedCardType: cardType,
-            tangemPayAccount: tangemPayAccount,
-            parentCoordinator: self
-        ))
-        orderCardCoordinator = coordinator
     }
 
     func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel) {
@@ -946,6 +919,53 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
         }
     }
 
+    func openPlasticCardReissueSheet(
+        userWalletId: UserWalletId,
+        card: TangemPayCard,
+        onLoadingChange: @escaping (Bool) -> Void,
+        onError: @escaping () -> Void
+    ) {
+        guard let tangemPayAccount = options?.tangemPayAccount else { return }
+        Task { @MainActor in
+            onLoadingChange(true)
+            defer { onLoadingChange(false) }
+            do {
+                async let offerRequest = tangemPayAccount.plasticReissueOffer(productInstanceId: card.productInstance.id)
+                async let balanceRequest = card.customerService.getBalance()
+
+                let offer = try await offerRequest
+                let balance = try await balanceRequest
+
+                guard let fee = offer?.fee, let deliveryEtaMaxDays = offer?.data?.deliveryEtaMaxDays else {
+                    onError()
+                    return
+                }
+
+                let feeText = TangemPayFiatAmountFormatter().format(
+                    fee.amount,
+                    currencyCode: fee.currency,
+                    hidesFractionForWholeAmounts: true
+                )
+
+                let viewModel = TangemPayPlasticReissueSheetViewModel(
+                    userWalletId: userWalletId,
+                    countryName: Self.localizedCountryName(tangemPayAccount.profile?.country),
+                    feeText: feeText,
+                    deliveryEtaMaxDays: deliveryEtaMaxDays,
+                    isInsufficientFunds: balance.fiat.availableBalance < fee.amount,
+                    coordinator: self,
+                    confirmAction: { [weak self] in
+                        self?.startPlasticReissueOrderFlow(card: card, deliveryEtaMaxDays: deliveryEtaMaxDays)
+                    }
+                )
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            } catch {
+                VisaLogger.error("Failed to load plastic reissue offer", error: error)
+                onError()
+            }
+        }
+    }
+
     func openTangemPayCloseCardSheet(
         userWalletId: UserWalletId,
         card: TangemPayCard,
@@ -1005,6 +1025,79 @@ extension TangemPayMainCoordinator: TangemPayReissueSheetRoutable {
             try? await Task.sleep(for: .seconds(0.2))
             rootViewModel?.addFunds()
         }
+    }
+}
+
+// MARK: - TangemPayPlasticReissueSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayPlasticReissueSheetRoutable {
+    func closePlasticReissueSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - Order card flow
+
+private extension TangemPayMainCoordinator {
+    func startOrderCardFlow(
+        purpose: TangemPayOrderCardPurpose,
+        nameOnCard: String?,
+        deliveryEtaMaxDays: Int?,
+        selectedCardType: TangemPayOrderCardType?
+    ) {
+        guard let tangemPayAccount = options?.tangemPayAccount else { return }
+
+        let tariffPlanCardImageURL = tangemPayAccount.customerTariffPlan?.tariffPlan.images
+            .first { $0.type == .main }
+            .flatMap { URL(string: $0.url) }
+
+        let profile = tangemPayAccount.profile
+
+        let coordinator = TangemPayOrderCardCoordinator(
+            dismissAction: { [weak self] in
+                self?.orderCardCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(
+            purpose: purpose,
+            tariffPlanCardImageURL: tariffPlanCardImageURL,
+            nameOnCard: nameOnCard,
+            countryName: Self.localizedCountryName(profile?.country),
+            email: profile?.email,
+            phoneMask: profile?.phoneMask,
+            deliveryEtaMaxDays: deliveryEtaMaxDays,
+            availableBalancePublisher: tangemPayAccount.balancesProvider
+                .totalTokenBalanceProvider
+                .balanceTypePublisher
+                .map(\.value)
+                .eraseToAnyPublisher(),
+            selectedCardType: selectedCardType,
+            tangemPayAccount: tangemPayAccount,
+            parentCoordinator: self
+        ))
+        orderCardCoordinator = coordinator
+    }
+
+    func startPlasticReissueOrderFlow(card: TangemPayCard, deliveryEtaMaxDays: Int) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+
+            startOrderCardFlow(
+                purpose: .reissue(sourceProductInstanceId: card.productInstance.id),
+                nameOnCard: card.card.embossName,
+                deliveryEtaMaxDays: deliveryEtaMaxDays,
+                selectedCardType: nil
+            )
+        }
+    }
+
+    static func localizedCountryName(_ code: String?) -> String? {
+        let appLocale = Locale(identifier: Locale.appLanguageCode)
+        return code.map { appLocale.localizedString(forRegionCode: $0) ?? $0 }
     }
 }
 

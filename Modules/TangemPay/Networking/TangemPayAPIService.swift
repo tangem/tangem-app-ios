@@ -118,6 +118,13 @@ public struct TangemPayAPIError: Error, Decodable {
         public static let cardActivationCardAlreadyActive = 140129
         public static let cardActivationCardNotReady = 140130
         public static let cardActivationActiveOrderExists = 140131
+
+        public static let cardReissuePlasticInvalidSourceCard = 140132
+        public static let cardReissuePlasticActiveOrderExists = 140133
+        public static let cardReissuePlasticInsufficientBalance = 140134
+        public static let cardReissuePlasticNotAvailable = 140135
+        public static let cardReissuePlasticInvalidShippingAddress = 140136
+        public static let cardReissuePlasticInvalidEmbossName = 140143
     }
 }
 

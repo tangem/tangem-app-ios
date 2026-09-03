@@ -11,6 +11,7 @@ public enum TangemPayOrderType: String, Decodable {
     case cardIssueVirtualRain = "CARD_ISSUE_VIRTUAL_RAIN"
     case cardIssuePlasticRain = "CARD_ISSUE_PLASTIC_RAIN"
     case cardActivationPlasticRain = "CARD_ACTIVATION_PLASTIC_RAIN"
+    case cardReissuePlasticRain = "CARD_REISSUE_PLASTIC_RAIN"
     case accountIssueVirtualRain = "ACCOUNT_ISSUE_VIRTUAL_RAIN"
     case tariffPlanTransition = "TARIFF_PLAN_TRANSITION"
     case smartContractIssueRain = "SMART_CONTRACT_ISSUE_RAIN"
