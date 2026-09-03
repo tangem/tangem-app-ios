@@ -49,7 +49,7 @@ private extension LockedWalletMainContentRedesignedView {
             action: {}
         )
         .iconStart(Assets.OrganizeTokens.filterIcon)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .size(.x9)
         .disabled(true)
     }

@@ -196,7 +196,7 @@ struct TangemPayCardManagementView: View {
                 action: viewModel.onContactSupportButton
             )
             .size(.x12)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .horizontalLayout(.infinity)
 
             TangemUI.Button(

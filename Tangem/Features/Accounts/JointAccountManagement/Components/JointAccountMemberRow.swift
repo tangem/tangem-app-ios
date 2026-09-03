@@ -45,7 +45,7 @@ struct JointAccountMemberRow: View {
                 accessibilityLabel: title,
                 action: action
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x8)
         case .invite(let action):
             TangemUI.Button(
@@ -53,7 +53,7 @@ struct JointAccountMemberRow: View {
                 accessibilityLabel: nil,
                 action: action
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x8)
         }
     }

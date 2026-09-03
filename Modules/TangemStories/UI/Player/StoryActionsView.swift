@@ -23,7 +23,7 @@ struct StoryActionsView: View {
                         action: { onTap(action) }
                     )
                     .iconEnd(action.icon)
-                    .styleType(action.style == .primary ? .default : .secondary)
+                    .styleType(action.style == .primary ? .default : .secondary(.default))
                     .horizontalLayout(.infinity)
                     .size(.x14)
                 }

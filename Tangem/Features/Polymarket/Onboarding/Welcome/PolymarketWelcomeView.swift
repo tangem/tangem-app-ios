@@ -216,7 +216,7 @@ struct PolymarketWelcomeView: View {
             .styleType(.default)
             .size(.x12)
             .horizontalLayout(.infinity)
-            .isLoading(viewModel.isRunning)
+            .loading(.spinner(if: viewModel.isRunning))
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)
