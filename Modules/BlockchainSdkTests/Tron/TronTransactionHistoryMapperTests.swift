@@ -33,6 +33,43 @@ struct TronTransactionHistoryMapperTests {
         #expect(records[0].destination == .single(.init(address: .user(otherAddress), amount: 1)))
     }
 
+    @Test
+    func excludesCoinTransferBelowMinimumAmount() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let response = makeResponse(transactions: [
+            .init(fromAddress: walletAddress, toAddress: otherAddress, value: "999"),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.isEmpty)
+    }
+
+    @Test
+    func includesCoinTransferAtMinimumAmount() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let response = makeResponse(transactions: [
+            .init(fromAddress: walletAddress, toAddress: otherAddress, value: "1000"),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.count == 1)
+        #expect(records[0].source == .single(.init(address: walletAddress, amount: 0.001)))
+    }
+
+    @Test(arguments: [9, 57, 58])
+    func excludesUnsupportedContractTypeFromHistory(contractType: Int) throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let response = makeResponse(transactions: [
+            .init(fromAddress: walletAddress, toAddress: otherAddress, contractType: contractType),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.isEmpty)
+    }
+
     // MARK: - Fallback to `vin` / `vout` (NowNodes contract change, [REDACTED_INFO])
 
     @Test
