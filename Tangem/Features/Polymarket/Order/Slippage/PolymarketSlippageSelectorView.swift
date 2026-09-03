@@ -15,13 +15,17 @@ import TangemUIUtils
 struct PolymarketSlippageSelectorView: View {
     @ObservedObject private var viewModel: PolymarketSlippageSelectorViewModel
 
+    @FocusState private var isInputFocused: Bool
+
     init(viewModel: PolymarketSlippageSelectorViewModel) {
         _viewModel = ObservedObject(wrappedValue: viewModel)
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer(minLength: Constants.topGap)
+            title
+
+            Spacer().frame(height: Constants.titleToAmountGap)
 
             amount
 
@@ -34,17 +38,32 @@ struct PolymarketSlippageSelectorView: View {
             description
 
             Spacer(minLength: Constants.descriptionToConfirmGap)
-
-            confirm
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom, spacing: .zero) { confirm }
+        .presentationDragIndicator(.visible)
+        .focused($isInputFocused)
+        .onAppear { isInputFocused = true }
+    }
+
+    private var title: some View {
+        Text(Localization.predictionPlaceSlippage)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            .lineLimit(1)
+            .frame(height: Constants.toolbarHeight)
+            .padding(.top, Constants.titleTopPadding)
     }
 
     private var amount: some View {
         VStack(spacing: Constants.errorSpacing) {
             SendDecimalNumberTextField(viewModel: viewModel.fieldViewModel)
                 .prefixSuffixOptions(.suffix(text: Constants.percentSign, hasSpace: false))
-                .appearance(.init(textColor: DesignSystem.Color.textPrimary))
+                .appearance(.init(
+                    font: DesignSystem.Font.displayMediumToken.font,
+                    textColor: DesignSystem.Color.textPrimary,
+                    placeholderColor: DesignSystem.Color.textTertiary
+                ))
                 .alignment(.center)
 
             if let errorText = viewModel.errorText {
@@ -98,7 +117,7 @@ struct PolymarketSlippageSelectorView: View {
         .horizontalLayout(.infinity)
         .disabled(!viewModel.isConfirmEnabled)
         .padding(.horizontal, Constants.confirmHorizontalPadding)
-        .padding(.bottom, Constants.confirmBottomPadding)
+        .padding(.vertical, Constants.confirmVerticalPadding)
     }
 }
 
@@ -106,16 +125,18 @@ struct PolymarketSlippageSelectorView: View {
 
 private extension PolymarketSlippageSelectorView {
     enum Constants {
-        static let topGap: CGFloat = 68
-        static let amountToPresetsGap: CGFloat = 32
-        static let presetsToDescriptionGap: CGFloat = 32
-        static let descriptionToConfirmGap: CGFloat = 32
+        static let titleTopPadding: CGFloat = 16
+        static let toolbarHeight: CGFloat = 44
+        static let titleToAmountGap: CGFloat = 52
+        static let amountToPresetsGap: CGFloat = 40
+        static let presetsToDescriptionGap: CGFloat = 24
+        static let descriptionToConfirmGap: CGFloat = 24
         static let errorSpacing: CGFloat = 8
         static let presetSpacing: CGFloat = 8
         static let presetHeight: CGFloat = 40
         static let horizontalPadding: CGFloat = 16
-        static let confirmHorizontalPadding: CGFloat = 24
-        static let confirmBottomPadding: CGFloat = 12
+        static let confirmHorizontalPadding: CGFloat = 16
+        static let confirmVerticalPadding: CGFloat = 12
         static let percentSign = "%"
     }
 }
