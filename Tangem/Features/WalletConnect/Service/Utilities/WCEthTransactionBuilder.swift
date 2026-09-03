@@ -61,9 +61,10 @@ struct CommonWCEthTransactionBuilder {
                 maxFeePerGas: maxFeePerGas,
                 priorityFee: priorityFee
             )
+            .applyingFeeRules(for: blockchain)
         } else {
             let gasPrice = tx.gasPrice?.hexToInt().map { BigUInt($0) }
-            feeParameters = try await ethereumNetworkProvider.getFee(gasLimit: gasLimit, supportsEIP1559: blockchain.supportsEIP1559, gasPrice: gasPrice)
+            feeParameters = try await ethereumNetworkProvider.getFee(gasLimit: gasLimit, blockchain: blockchain, gasPrice: gasPrice)
         }
 
         let feeValue = feeParameters.calculateFee(decimalValue: blockchain.decimalValue)
