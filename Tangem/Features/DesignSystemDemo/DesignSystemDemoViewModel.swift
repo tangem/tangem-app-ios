@@ -103,6 +103,10 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openGlowRingDemo()
     }
 
+    func openStatusScreenDemo() {
+        coordinator?.openStatusScreenDemo()
+    }
+
     func openTabNavigationDemo() {
         coordinator?.openTabNavigationDemo()
     }
