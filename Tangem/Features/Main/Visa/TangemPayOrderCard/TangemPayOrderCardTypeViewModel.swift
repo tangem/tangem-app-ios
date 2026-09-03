@@ -5,19 +5,26 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import TangemLocalization
+import TangemPay
 
 final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
     @Published var selectedCardType: TangemPayOrderCardType
+    @Published private var availableBalance: Decimal?
 
-    let cardTypes: [TangemPayOrderCardType] = TangemPayOrderCardType.allCases
-    let virtualCardImageURL: URL?
+    let cardTypes: [TangemPayOrderCardType]
 
     var isSelectEnabled: Bool {
         switch selectedCardType {
-        case .virtual: true
-        case .plastic: plasticDeliveryState != .countryUnavailable
+        case .virtual:
+            true
+        case .plastic:
+            switch plasticDeliveryState {
+            case .available, .firstDeliveryFree: true
+            case .countryUnavailable, .insufficientFunds: false
+            }
         }
     }
 
@@ -28,25 +35,51 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private let issueFeeText: String
+    private let virtualOffer: TangemPayCustomerOffer?
+    private let plasticOffer: TangemPayCustomerOffer?
+    private let tariffPlanCardImageURL: URL?
     private let countryName: String?
-    private let plasticDeliveryState: TangemPayPlasticDeliveryState
+    private let fiatAmountFormatter = TangemPayFiatAmountFormatter()
     private weak var coordinator: TangemPayOrderCardTypeRoutable?
+    private var bag = Set<AnyCancellable>()
 
     init(
-        issueFeeText: String,
-        virtualCardImageURL: URL?,
+        virtualOffer: TangemPayCustomerOffer?,
+        plasticOffer: TangemPayCustomerOffer?,
+        tariffPlanCardImageURL: URL?,
+        availableBalancePublisher: some Publisher<Decimal?, Never>,
         countryName: String?,
-        selectedCardType: TangemPayOrderCardType,
-        plasticDeliveryState: TangemPayPlasticDeliveryState = .available,
+        selectedCardType: TangemPayOrderCardType?,
         coordinator: TangemPayOrderCardTypeRoutable?
     ) {
-        self.issueFeeText = issueFeeText
-        self.virtualCardImageURL = virtualCardImageURL
+        let cardTypes = TangemPayOrderCardType.allCases.filter { type in
+            switch type {
+            case .virtual: virtualOffer?.fee != nil
+            case .plastic: FeatureProvider.isAvailable(.tangemPayPlastic) && plasticOffer != nil
+            }
+        }
+
+        self.cardTypes = cardTypes
+        self.virtualOffer = virtualOffer
+        self.plasticOffer = plasticOffer
+        self.tariffPlanCardImageURL = tariffPlanCardImageURL
         self.countryName = countryName
-        self.selectedCardType = selectedCardType
-        self.plasticDeliveryState = plasticDeliveryState
         self.coordinator = coordinator
+
+        let preselected = selectedCardType.flatMap { cardTypes.contains($0) ? $0 : nil }
+        self.selectedCardType = preselected ?? cardTypes.first ?? .virtual
+
+        availableBalancePublisher
+            .receiveOnMain()
+            .assign(to: \.availableBalance, on: self, ownership: .weak)
+            .store(in: &bag)
+    }
+
+    func imageURL(for cardType: TangemPayOrderCardType) -> URL? {
+        switch cardType {
+        case .virtual: tariffPlanCardImageURL
+        case .plastic: plasticOffer?.mainImageURL ?? tariffPlanCardImageURL
+        }
     }
 
     func select() {
@@ -63,6 +96,38 @@ final class TangemPayOrderCardTypeViewModel: ObservableObject, Identifiable {
     }
 }
 
+// MARK: - Offer
+
+private extension TangemPayOrderCardTypeViewModel {
+    var deliveryEtaMaxDays: Int? {
+        plasticOffer?.data?.deliveryEtaMaxDays
+    }
+
+    var plasticDeliveryState: TangemPayPlasticDeliveryState {
+        guard let fee = plasticOffer?.fee, deliveryEtaMaxDays != nil else {
+            return .countryUnavailable
+        }
+
+        if fee.amount == 0 {
+            return .firstDeliveryFree
+        }
+
+        if let availableBalance, availableBalance < fee.amount {
+            return .insufficientFunds
+        }
+
+        return .available
+    }
+
+    func formatted(_ fee: TangemPayCustomerOffer.Fee) -> String {
+        fiatAmountFormatter.format(
+            fee.amount,
+            currencyCode: fee.currency,
+            hidesFractionForWholeAmounts: true
+        )
+    }
+}
+
 // MARK: - Rows
 
 private extension TangemPayOrderCardTypeViewModel {
@@ -71,11 +136,11 @@ private extension TangemPayOrderCardTypeViewModel {
             TangemPayOrderCardInfoRow(
                 id: .issueFee,
                 title: Localization.tangempayOrderTypeIssueFee,
-                value: issueFeeText
+                value: virtualOffer?.fee.map(formatted) ?? Constants.unknownValue
             ),
             TangemPayOrderCardInfoRow(
                 id: .issueTime,
-                title: Constants.issueTimeTitle,
+                title: Localization.tangempayOrderTypeDeliveryTime,
                 value: Localization.tangempayOrderTypeDeliveryTimeInstant
             ),
         ]
@@ -99,9 +164,8 @@ private extension TangemPayOrderCardTypeViewModel {
         TangemPayOrderCardInfoRow(
             id: .deliveryFee,
             title: Localization.tangempayOrderTypeDeliveryFee,
-            value: isCountryUnavailable ? Constants.unknownValue : Constants.deliveryFee,
+            value: deliveryFeeText,
             badge: deliveryFeeBadge,
-            isValueStruckThrough: plasticDeliveryState == .firstDeliveryFree,
             isDimmed: isCountryUnavailable
         )
     }
@@ -110,13 +174,29 @@ private extension TangemPayOrderCardTypeViewModel {
         TangemPayOrderCardInfoRow(
             id: .deliveryTime,
             title: Localization.tangempayOrderTypeDeliveryTime,
-            value: isCountryUnavailable ? Constants.unknownValue : deliveryTime,
+            value: deliveryTime,
             isDimmed: isCountryUnavailable
         )
     }
 
+    var deliveryFeeText: String? {
+        guard let fee = plasticOffer?.fee, !isCountryUnavailable else {
+            return Constants.unknownValue
+        }
+
+        return plasticDeliveryState == .firstDeliveryFree ? nil : formatted(fee)
+    }
+
     var deliveryTime: String {
-        Localization.tangempayOrderTypeDeliveryEtaRange(Constants.minDeliveryDays, Constants.maxDeliveryDays)
+        guard let deliveryEtaMaxDays else {
+            return Constants.unknownValue
+        }
+
+        guard let minDays = plasticOffer?.data?.deliveryEtaMinDays else {
+            return Localization.tangempayOrderTypeDeliveryEta(deliveryEtaMaxDays)
+        }
+
+        return Localization.tangempayOrderTypeDeliveryEtaRange(minDays, deliveryEtaMaxDays)
     }
 
     var deliveryFeeBadge: TangemPayOrderCardInfoRow.Badge? {
@@ -140,14 +220,5 @@ private extension TangemPayOrderCardTypeViewModel {
 private extension TangemPayOrderCardTypeViewModel {
     enum Constants {
         static let unknownValue = "—"
-
-        // [REDACTED_TODO_COMMENT]
-        static let issueTimeTitle = "Issue time"
-
-        // [REDACTED_TODO_COMMENT]
-        // offer as `fee.amount` and `data.delivery_eta_min_days` / `_max_days`.
-        static let deliveryFee = "$10"
-        static let minDeliveryDays = 3
-        static let maxDeliveryDays = 5
     }
 }

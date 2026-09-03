@@ -288,13 +288,22 @@ private extension JointAccountsNetworkServiceStub {
 
 private final class JointAccountsInvitesPersistentStorageStub: JointAccountsInvitesPersistentStorage {
     private let recordsLock: OSAllocatedUnfairLock<[StoredJointAccountInvites]>
+    private let didUpdateSubject = PassthroughSubject<Void, Never>()
 
     var records: [StoredJointAccountInvites] {
         recordsLock.withLock { $0 }
     }
 
+    var didUpdatePublisher: AnyPublisher<Void, Never> {
+        didUpdateSubject.eraseToAnyPublisher()
+    }
+
     init(records: [StoredJointAccountInvites] = []) {
         recordsLock = OSAllocatedUnfairLock(initialState: records)
+    }
+
+    func getList() -> [StoredJointAccountInvites] {
+        records
     }
 
     convenience init(invites: [JointAccountInvite], forCryptoAccountId cryptoAccountId: String) {
@@ -317,6 +326,8 @@ private final class JointAccountsInvitesPersistentStorageStub: JointAccountsInvi
                 records.append(record)
             }
         }
+
+        didUpdateSubject.send()
     }
 }
 
