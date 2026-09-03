@@ -114,10 +114,10 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
-    func tapWithdraw() -> TangemPayWithdrawNoteSheet {
+    func tapWithdraw() -> SwapScreen {
         XCTContext.runActivity(named: "Tap Withdraw button") { _ in
             withdrawButton.waitAndTap()
-            return TangemPayWithdrawNoteSheet(app)
+            return SwapScreen(app)
         }
     }
 
