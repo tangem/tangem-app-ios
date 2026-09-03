@@ -898,6 +898,7 @@
 "joint_account_invite_members_subtitle" = "%1$@ de %2$@ entraram, incluindo você";
 "joint_account_invite_members_title" = "Convidar membros";
 "joint_account_invite_members_to_join" = "Convide membros para participar";
+"joint_account_invite_members_waiting_title" = "Waiting for members";
 "joint_account_join_confirm_sheet_subtitle" = "Todos os membros desta conta compartilham um único saldo. Qualquer membro pode gastar ou sacar os fundos a qualquer momento — inclusive sem a sua aprovação";
 "joint_account_join_confirm_sheet_title" = "Você está entrando em uma conta compartilhada";
 "joint_account_join_invalid_link_subtitle" = "Verifique se você abriu o link completo ou peça ao proprietário da conta para enviá-lo novamente.";
@@ -987,6 +988,13 @@
 "markets_portfolio_eligible_block_title" = "Outros tokens elegíveis";
 "markets_pulse_common_title" = "Pulso do mercado";
 "markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_filter_sectors_title" = "Sectors";
+"markets_real_assets_filter_title" = "Category";
+"markets_real_assets_interval_day" = "Day";
+"markets_real_assets_interval_month" = "Month";
+"markets_real_assets_interval_week" = "Week";
+"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds they're not supported in UK and US";
+"markets_real_assets_region_restriction_title" = "Not supported in your region";
 "markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "Limpar tudo";
 "markets_search_header_title" = "Pesquisar tokens";
@@ -1376,8 +1384,10 @@
 "prediction_place_result_partial_banner_description" = "Sua ordem foi parcialmente executada devido à quantidade insuficiente de ações disponíveis na corretora Polymarket dentro do limite de derrapagem";
 "prediction_place_result_partial_banner_title" = "Parcialmente executada";
 "prediction_place_result_partial_title" = "Parcialmente enviada";
+"prediction_place_result_placed_title" = "Placed %@";
 "prediction_place_result_success_title" = "Previsão enviada";
 "prediction_place_result_to_main" = "Para o principal";
+"prediction_place_result_tokens_bought" = "Tokens bought";
 "prediction_place_slippage_default" = "Padrão %@";
 "prediction_place_slippage_error" = "Valor não suportado";
 "prediction_place_slippage_max_error" = "Uma derrapagem superior a %@ pode fazer você pagar significativamente mais";

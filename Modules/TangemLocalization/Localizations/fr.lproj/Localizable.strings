@@ -898,6 +898,7 @@
 "joint_account_invite_members_subtitle" = "%1$@ of %2$@ joined, including you";
 "joint_account_invite_members_title" = "Invite members";
 "joint_account_invite_members_to_join" = "Invite members to join";
+"joint_account_invite_members_waiting_title" = "Waiting for members";
 "joint_account_join_confirm_sheet_subtitle" = "Everyone in this account shares one balance. Any member can spend or withdraw the funds at any time — including without your approval";
 "joint_account_join_confirm_sheet_title" = "You're joining a shared account";
 "joint_account_join_invalid_link_subtitle" = "Check that you opened the full link, or ask the account owner to send it again.";
@@ -987,6 +988,13 @@
 "markets_portfolio_eligible_block_title" = "Autres tokens éligibles";
 "markets_pulse_common_title" = "Rythme du marché";
 "markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_filter_sectors_title" = "Sectors";
+"markets_real_assets_filter_title" = "Category";
+"markets_real_assets_interval_day" = "Day";
+"markets_real_assets_interval_month" = "Month";
+"markets_real_assets_interval_week" = "Week";
+"markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds they're not supported in UK and US";
+"markets_real_assets_region_restriction_title" = "Not supported in your region";
 "markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Rechercher sur le marché";
@@ -1376,8 +1384,10 @@
 "prediction_place_result_partial_banner_description" = "Your order has been partially filled due to insufficient shares on Polymarket Exchange within slippage range";
 "prediction_place_result_partial_banner_title" = "Partially filled";
 "prediction_place_result_partial_title" = "Partially placed";
+"prediction_place_result_placed_title" = "Placed %@";
 "prediction_place_result_success_title" = "Prediction placed";
 "prediction_place_result_to_main" = "To main";
+"prediction_place_result_tokens_bought" = "Tokens bought";
 "prediction_place_slippage_default" = "Default %@";
 "prediction_place_slippage_error" = "Unsupported amount";
 "prediction_place_slippage_max_error" = "Slippage above %@ may cost you significantly more";
