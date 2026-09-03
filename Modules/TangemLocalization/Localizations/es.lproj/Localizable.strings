@@ -30,6 +30,7 @@
 "account_details_archive_joint_description" = "This only hides the account for you and turns off notifications for it. Other members keep their access, and you can always get it back.";
 "account_details_archive" = "Archivar cuenta";
 "account_details_archiving" = "Archivando...";
+"account_details_joint_members_progress" = "%1$@/%2$@ people";
 "account_details_joint_pending_description" = "The account is still being populated with members";
 "account_details_title" = "Cuenta";
 "account_edit_success_message" = "Cuenta guardada";
@@ -985,6 +986,8 @@
 "markets_portfolio_block_token_unsupported" = "**Token no soportado**. Este token no está soportado actualmente en la billetera.";
 "markets_portfolio_eligible_block_title" = "Otros tokens elegibles";
 "markets_pulse_common_title" = "Análisis del Mercado";
+"markets_real_assets_empty_title" = "No assets found";
+"markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "Borrar todo";
 "markets_search_header_title" = "Buscar tokens";
 "markets_search_hint_header" = "Búsquedas recientes";
@@ -2049,7 +2052,7 @@
 "tangempay_cashback_widget_error_description" = "Toca para recargar";
 "tangempay_cashback_widget_error_title" = "Cashback no disponible";
 "tangempay_cashback_widget_refund_description" = "Reducido por devolución de compras";
-"tangempay_cashback_widget_title" = "%1$@ de cashback en %2$@";
+"tangempay_cashback_widget_title" = "%1$@ en %2$@";
 "tangempay_change_pin_code" = "Cambiar código PIN";
 "tangempay_changing_plan" = "Cambiando plan";
 "tangempay_choose_network_fast_way" = "Vía rápida";
