@@ -200,6 +200,24 @@ class BaseTestCase: XCTestCase {
         return importHotWallet(accessCode: accessCode)
     }
 
+    /// Restarts the app keeping wallets and storage, so caches written before the restart stay readable.
+    @discardableResult
+    func relaunchKeepingState(
+        eligibilityState: String = "PaeraCustomer",
+        scenarios: [ScenarioConfig] = []
+    ) -> MainScreen {
+        XCTContext.runActivity(named: "Restart the app keeping wallets and settings") { _ in
+            app.terminate()
+            launchApp(
+                tangemApiType: .mock,
+                visaApiType: .mock,
+                keepWallets: true,
+                scenarios: [ScenarioConfig(name: "tangem_pay_eligibility", initialState: eligibilityState)] + scenarios
+            )
+            return MainScreen(app)
+        }
+    }
+
     // MARK: - Alert Handling
 
     func waitAndDismissErrorAlert(

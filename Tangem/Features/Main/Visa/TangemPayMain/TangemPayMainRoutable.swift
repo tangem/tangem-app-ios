@@ -11,12 +11,12 @@ import TangemFoundation
 import TangemPay
 
 protocol TangemPayMainRoutable: AnyObject {
-    func openCardManagement(entry: TangemPayCardEntry)
+    func openCardManagement(entry: TangemPayCardEntry, shouldOpenActivation: Bool)
     func openCurrentPlan()
     func openMaximumCardsIssuedSheet()
     func openCardsLimitReachedSheet()
     func openIssueAdditionalCardCostPopup(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee, issueCard: @escaping () async throws -> Void)
-    func openOrderCardType(fee: TangemPayCustomerOffer.Fee, cardType: TangemPayOrderCardType?)
+    func openOrderCardType(cardType: TangemPayOrderCardType?)
     func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel)
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input)

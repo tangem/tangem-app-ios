@@ -10,9 +10,8 @@ import Foundation
 
 public enum TransactionHistoryNetworkServiceFactory {
     public static func makeExchangeService(
-        apiProvider: ExpressAPIProvider,
+        apiProviderFactory: @escaping TransactionHistoryAPIProviderFactory,
         syncMetadataStorage: TransactionHistorySyncMetadataStorage,
-        walletAddress: String,
         pageSize: Int
     ) -> any TransactionHistoryNetworkService<ExchangeTransaction> {
         let initialCursorStorageAdapter = TransactionHistorySyncMetadataCursorStorageAdapter(
@@ -27,26 +26,25 @@ public enum TransactionHistoryNetworkServiceFactory {
         )
 
         return CommonTransactionHistoryNetworkService(
-            apiProvider: apiProvider,
+            apiProviderFactory: apiProviderFactory,
             initialCursorStorage: initialCursorStorageAdapter,
             deltaCursorStorage: deltaCursorStorageAdapter,
             initialPageFetcher: { apiProvider, cursor in
                 try await apiProvider.exchangeHistory(
-                    item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
+                    item: .init(walletAddress: nil, cursor: cursor, limit: pageSize)
                 )
             },
             deltaPageFetcher: { apiProvider, cursor in
                 try await apiProvider.exchangeHistoryDelta(
-                    item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
+                    item: .init(walletAddress: nil, cursor: cursor, limit: pageSize)
                 )
             }
         )
     }
 
     public static func makeOnrampService(
-        apiProvider: ExpressAPIProvider,
+        apiProviderFactory: @escaping TransactionHistoryAPIProviderFactory,
         syncMetadataStorage: TransactionHistorySyncMetadataStorage,
-        walletAddress: String,
         pageSize: Int
     ) -> any TransactionHistoryNetworkService<OnrampTransaction> {
         let initialCursorStorageAdapter = TransactionHistorySyncMetadataCursorStorageAdapter(
@@ -61,17 +59,17 @@ public enum TransactionHistoryNetworkServiceFactory {
         )
 
         return CommonTransactionHistoryNetworkService(
-            apiProvider: apiProvider,
+            apiProviderFactory: apiProviderFactory,
             initialCursorStorage: initialCursorStorageAdapter,
             deltaCursorStorage: deltaCursorStorageAdapter,
             initialPageFetcher: { apiProvider, cursor in
                 try await apiProvider.onrampHistory(
-                    item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
+                    item: .init(walletAddress: nil, cursor: cursor, limit: pageSize)
                 )
             },
             deltaPageFetcher: { apiProvider, cursor in
                 try await apiProvider.onrampHistoryDelta(
-                    item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
+                    item: .init(walletAddress: nil, cursor: cursor, limit: pageSize)
                 )
             }
         )

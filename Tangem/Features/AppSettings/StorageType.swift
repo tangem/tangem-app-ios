@@ -45,6 +45,7 @@ enum StorageType: String {
     case tangemPayCardIssuingOrderIdForCustomerWalletId = "tangem_pay_card_issuing_order_id_for_customer_wallet_id"
     case tangemPayShowAddToApplePayGuide = "tangem_pay_show_add_to_apple_pay_guide"
     case tangemPayIsPaeraCustomer = "tangem_pay_is_paera_customer"
+    case polymarketHasAccount = "polymarket_has_account"
     case tangemPayIsDisabledForCustomerWalletId = "tangem_pay_is_disabled_for_customer_wallet_id"
     case tangemPayIsKYCHiddenForCustomerWalletId = "tangem_pay_is_kyc_hidden_for_customer_wallet_id"
     case tangemPayCashbackBlockedBannerDismissedForCustomerWalletId = "tangem_pay_cashback_blocked_banner_dismissed_for_customer_wallet_id"
@@ -70,4 +71,6 @@ enum StorageType: String {
     case yieldApyBoostFirstSeenCompletedDates = "yield_apy_boost_first_seen_completed_dates"
     case priceAlertsOnboardingShown = "price_alerts_onboarding_shown"
     case hiddenMarketingCampaigns = "hidden_marketing_campaigns"
+    case geoIpRegionCode = "geo_ip_region_code"
+    case geoIpRegionCodeUpdateDate = "geo_ip_region_code_update_date"
 }
