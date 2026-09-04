@@ -42,7 +42,7 @@ struct TransactionDetailsYieldTokensView: View {
                         .lineLimit(1)
                 }
 
-                Text(data.amountText)
+                SensitiveText(data.amountText)
                     .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
