@@ -28,7 +28,7 @@ enum AppConstants {
     static let infinitySign = "\u{221E}"
     static let tildeSign = "~"
     static let approximatelyEqualSign = "≈"
-    static let dotSign = "•"
+    static let dotSign: String = .bulletSign
     static let rubCurrencyCode = "RUB"
     static let rubSign = "₽"
     static let usdCurrencyCode = "USD"
