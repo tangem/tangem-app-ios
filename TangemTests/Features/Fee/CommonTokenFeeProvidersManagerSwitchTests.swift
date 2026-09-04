@@ -467,6 +467,57 @@ struct CommonTokenFeeProvidersManagerProviderInitialSelectionTests {
     }
 }
 
+@Suite("CommonTokenFeeProvidersManagerProvider — Tron gasless availability", .serialized)
+struct CommonTokenFeeProvidersManagerProviderTronGaslessAvailabilityTests {
+    private let feeTokenAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+
+    @Test("Activated Tron account exposes gasless fee tokens")
+    func activatedAccount_exposesGaslessFeeTokens() async {
+        await assertAvailableTokenAddresses(isAccountActivated: true, expectedAddresses: [feeTokenAddress])
+    }
+
+    @Test("Non-activated Tron account hides gasless fee tokens")
+    func nonActivatedAccount_hidesGaslessFeeTokens() async {
+        await assertAvailableTokenAddresses(isAccountActivated: false, expectedAddresses: [])
+    }
+
+    private func assertAvailableTokenAddresses(isAccountActivated: Bool, expectedAddresses: [String]) async {
+        await InjectedDependenciesIsolation.shared.run {
+            let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
+            defer {
+                InjectedValues[\.gaslessTransactionsNetworkManager] = previousNetworkManager
+            }
+
+            InjectedValues[\.gaslessTransactionsNetworkManager] = GaslessTransactionsNetworkManagerStub(
+                feeRecipientAddress: nil,
+                tronFeeTokens: [
+                    .init(
+                        address: feeTokenAddress,
+                        symbol: "USDT",
+                        decimals: 6,
+                        chain: "tron"
+                    ),
+                ]
+            )
+
+            let walletModel = WalletModelTestsMock(
+                tokenItem: .blockchain(.init(.tron(testnet: false), derivationPath: nil)),
+                isEmpty: false
+            )
+            walletModel.tronAccountActivationStateProviderMock = TronAccountActivationStateProviderStub(
+                isAccountActivated: isAccountActivated
+            )
+
+            let sut = CommonTokenFeeProvidersManagerProvider(
+                walletModel: walletModel,
+                isFeatureAvailable: { $0 == .tronGasless }
+            )
+
+            #expect(sut.availableGaslessTokenAddresses() == expectedAddresses)
+        }
+    }
+}
+
 @Suite("Tron gasless quote request", .serialized)
 struct TronGaslessQuoteRequestTests {
     private let sourceAddress = "TSourceAddress"
@@ -1034,15 +1085,16 @@ final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
 private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNetworkManager {
     let cachedFeeRecipientAddress: String?
     private let tronEstimate: ((TronEstimateRequest) async throws -> TronEstimateResponse)?
+    private let tronFeeTokens: [TronFeeToken]
 
     var availableFeeTokens: [FeeToken] { [] }
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> {
         Just([]).eraseToAnyPublisher()
     }
 
-    var availableTronFeeTokens: [TronFeeToken] { [] }
+    var availableTronFeeTokens: [TronFeeToken] { tronFeeTokens }
     var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> {
-        Just([]).eraseToAnyPublisher()
+        Just(tronFeeTokens).eraseToAnyPublisher()
     }
 
     var currentHost: String { "test" }
@@ -1050,9 +1102,11 @@ private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNe
 
     init(
         feeRecipientAddress: String?,
+        tronFeeTokens: [TronFeeToken] = [],
         tronEstimate: ((TronEstimateRequest) async throws -> TronEstimateResponse)? = nil
     ) {
         cachedFeeRecipientAddress = feeRecipientAddress
+        self.tronFeeTokens = tronFeeTokens
         self.tronEstimate = tronEstimate
     }
 
@@ -1073,4 +1127,8 @@ private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNe
 
     func initialize() {}
     func preloadFeeRecipientAddress() {}
+}
+
+private struct TronAccountActivationStateProviderStub: TronAccountActivationStateProvider {
+    let isAccountActivated: Bool
 }
