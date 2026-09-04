@@ -306,6 +306,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.tronTransactionDataBuilder
     }
 
+    var tronAccountActivationStateProvider: TronAccountActivationStateProvider? {
+        mainTokenWalletModel.tronAccountActivationStateProvider
+    }
+
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {
         mainTokenWalletModel.ethereumTransactionDataBuilder
     }
