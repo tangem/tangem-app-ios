@@ -123,7 +123,7 @@ struct EarnBestOpportunitiesListView: View {
                     action: clearFilterAction
                 )
                 .size(.x9)
-                .styleType(.secondary)
+                .styleType(.secondary(.default))
             }
         }
         .infinityFrame(axis: .horizontal, alignment: .center)

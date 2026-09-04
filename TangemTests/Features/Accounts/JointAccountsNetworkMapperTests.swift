@@ -19,7 +19,7 @@ struct JointAccountsNetworkMapperTests {
 
     @Test("A freshly created account arrives without an address and with an invite per free slot")
     func createdAccountIsRead() throws {
-        let response: JointAccountsDTO.Create.Response = try Self.decode(Constants.createdAccountJSON)
+        let response: JointAccountsDTO.Response.JointAccount = try Self.decode(Constants.createdAccountJSON)
 
         let result = mapper.mapToCreationResult(from: response)
 
@@ -34,20 +34,21 @@ struct JointAccountsNetworkMapperTests {
 
     @Test("The address the whole composition adds up to is the one that gets stored")
     func safeAddressIsRead() throws {
-        let response: JointAccountsDTO.List.Response = try Self.decode(Constants.confirmingAccountsJSON)
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.confirmingAccountsJSON)
 
         let accounts = mapper.mapToJointAccounts(from: response)
 
         #expect(accounts.count == 1)
-        #expect(accounts.first?.address == "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b")
+        #expect(accounts.first?.address == "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")
         #expect(accounts.first?.status == .confirming)
         #expect(accounts.first?.members.map(\.name) == ["Alice", "Bob"])
         #expect(accounts.first?.members.map(\.role) == [.creator, .member])
+        #expect(accounts.first?.members.map(\.inviteId) == [nil, "F0E1D2C3A4B5C6D7"])
     }
 
     @Test("An empty list is a list and not a failure")
     func emptyListIsRead() throws {
-        let response: JointAccountsDTO.List.Response = try Self.decode(#"{"jointAccounts":[]}"#)
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(#"{"jointAccounts":[]}"#)
 
         #expect(mapper.mapToJointAccounts(from: response).isEmpty)
     }
@@ -62,14 +63,14 @@ struct JointAccountsNetworkMapperTests {
         ]
     )
     func namedStatusIsRead(rawStatus: String, expected: JointAccountStatus) throws {
-        let response: JointAccountsDTO.List.Response = try Self.decode(Constants.accountsJSON(status: rawStatus))
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.accountsJSON(status: rawStatus))
 
         #expect(mapper.mapToJointAccounts(from: response).map(\.status) == [expected])
     }
 
     @Test("A status this version has never heard of costs nothing but itself")
     func unfamiliarStatusIsRead() throws {
-        let response: JointAccountsDTO.List.Response = try Self.decode(Constants.accountsJSON(status: "settling"))
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.accountsJSON(status: "settling"))
 
         #expect(mapper.mapToJointAccounts(from: response).map(\.status) == [.unknown("settling")])
     }
@@ -83,13 +84,36 @@ struct JointAccountsNetworkMapperTests {
         }
     }
 
+    @Test("An unfinished operation rides inside its account through the listing")
+    func operationIsRead() throws {
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.activeAccountsWithOperationJSON)
+
+        let operation = try #require(response.jointAccounts.first?.operations?.first)
+
+        #expect(operation.operationId == "0E2F4A6C-8D0B-4C5E-9F1A-2D4B6C8E0F2A")
+        #expect(operation.chainId == 1)
+        #expect(operation.status == "awaiting_signatures")
+        #expect(operation.initiator == "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf")
+        #expect(operation.deadline == nil)
+        #expect(operation.safeTx.nonce == 7)
+        #expect(operation.safeTx.operation == 0)
+        #expect(operation.signatures.map(\.state) == ["signed", "declined"])
+    }
+
+    @Test("A listing without operations reads the way it did before the endpoint learnt to report them")
+    func accountWithoutOperationsIsRead() throws {
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.confirmingAccountsJSON)
+
+        #expect(response.jointAccounts.first?.operations == nil)
+    }
+
     @Test("An invite reports the settings in the very shape that joining signs back")
     func invitePreviewIsRead() throws {
-        let response: JointAccountsDTO.InvitePreview.Response = try Self.decode(Constants.invitePreviewJSON)
+        let response: JointAccountsDTO.Response.InvitePreview = try Self.decode(Constants.invitePreviewJSON)
 
         let preview = mapper.mapToInvitePreview(from: response)
 
-        #expect(preview.creator == JointAccountInvitePreview.Creator(name: "Alice", address: "0x7e5fB2c1A9d3E5F70241C6b8A91cD9c1E7F45bdf"))
+        #expect(preview.creator == JointAccountInvitePreview.Creator(name: "Alice", address: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf"))
         #expect(preview.config == JointAccountSignedConfig(name: "Family", icon: "Family", iconColor: "Azure", membersCount: 3, threshold: 2))
 
         let canonical = try JointAccountDerivationUtils.canonicalPayload(of: preview.config)
@@ -130,7 +154,7 @@ private extension JointAccountsNetworkMapperTests {
           "safeAddress": null,
           "status": "pending",
           "members": [
-            { "name": "Alice", "address": "0x7e5fB2c1A9d3E5F70241C6b8A91cD9c1E7F45bdf", "role": "creator" }
+            { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator" }
           ],
           "invites": [{ "id": "A1B2C3" }, { "id": "D4E5F6" }]
         }
@@ -143,11 +167,54 @@ private extension JointAccountsNetworkMapperTests {
               "cryptoAccountId": "0F2A4B6C8D0E2F4A61C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A",
               "membersCount": 2,
               "threshold": 2,
-              "safeAddress": "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b",
+              "safeAddress": "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b",
               "status": "confirming",
               "members": [
-                { "name": "Alice", "address": "0x7e5fB2c1A9d3E5F70241C6b8A91cD9c1E7F45bdf", "role": "creator" },
-                { "name": "Bob", "address": "0x2b5aD9c1E7F40638B2c1A9d3E5F70241C6b8A91c", "role": "member" }
+                { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "inviteId": null },
+                { "name": "Bob", "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "role": "member", "inviteId": "F0E1D2C3A4B5C6D7" }
+              ]
+            }
+          ]
+        }
+        """
+
+        static let activeAccountsWithOperationJSON = """
+        {
+          "jointAccounts": [
+            {
+              "cryptoAccountId": "0F2A4B6C8D0E2F4A61C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A",
+              "membersCount": 2,
+              "threshold": 2,
+              "safeAddress": "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b",
+              "status": "active",
+              "members": [
+                { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "inviteId": null },
+                { "name": "Bob", "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "role": "member", "inviteId": "F0E1D2C3A4B5C6D7" }
+              ],
+              "operations": [
+                {
+                  "operationId": "0E2F4A6C-8D0B-4C5E-9F1A-2D4B6C8E0F2A",
+                  "chainId": 1,
+                  "safeTx": {
+                    "to": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c",
+                    "value": "0",
+                    "data": "0x",
+                    "operation": 0,
+                    "safeTxGas": "0",
+                    "baseGas": "118000",
+                    "gasPrice": "1500000000",
+                    "gasToken": "0x0000000000000000000000000000000000000000",
+                    "refundReceiver": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
+                    "nonce": 7
+                  },
+                  "status": "awaiting_signatures",
+                  "initiator": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
+                  "deadline": null,
+                  "signatures": [
+                    { "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "state": "signed", "at": "2026-09-02T10:15:00Z" },
+                    { "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "state": "declined", "at": "2026-09-02T10:19:00Z" }
+                  ]
+                }
               ]
             }
           ]
@@ -182,7 +249,7 @@ private extension JointAccountsNetworkMapperTests {
           },
           "creator": {
             "name": "Alice",
-            "address": "0x7e5fB2c1A9d3E5F70241C6b8A91cD9c1E7F45bdf"
+            "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf"
           }
         }
         """
