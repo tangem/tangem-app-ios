@@ -91,11 +91,7 @@ public struct PolymarketMarketCard: View {
             if let model {
                 ForEach(model.outcomes) { outcome in
                     Button(action: outcome.onSelect) {
-                        Text("\(outcome.title) • \(outcome.priceText)")
-                            .style(DesignSystem.Font.bodyMediumToken, color: outcome.style.foregroundColor)
-                            .lineLimit(1)
-                            .frame(maxWidth: .infinity, minHeight: 36)
-                            .background(outcome.style.backgroundColor, in: Capsule())
+                        label(for: outcome)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("\(outcome.title) \(outcome.priceText)")
@@ -114,7 +110,34 @@ public struct PolymarketMarketCard: View {
         .padding(.bottom, 16)
     }
 
+    private func label(for outcome: Outcome) -> some View {
+        HStack(spacing: Constants.labelSpacing) {
+            Text(outcome.title)
+                .lineLimit(1)
+                .truncationMode(.tail)
+
+            Text(Constants.priceSeparator + outcome.priceText)
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
+                .layoutPriority(1)
+        }
+        .style(DesignSystem.Font.bodyMediumToken, color: outcome.style.foregroundColor)
+        .padding(.horizontal, Constants.labelHorizontalPadding)
+        .frame(maxWidth: .infinity, minHeight: 36)
+        .background(outcome.style.backgroundColor, in: Capsule())
+    }
+
     private var avatar: some View {
         PolymarketAvatarView(url: model?.imageURL, isLoading: model == nil)
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketMarketCard {
+    enum Constants {
+        static let labelSpacing: CGFloat = 4
+        static let labelHorizontalPadding: CGFloat = 8
+        static let priceSeparator = String.bulletSign + " "
     }
 }
