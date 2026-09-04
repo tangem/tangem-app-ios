@@ -118,6 +118,7 @@ class EVMCustomFeeService {
                 priorityFee: priorityFee,
                 nonce: nonce
             )
+            .applyingFeeRules(for: feeTokenItem.blockchain)
         } else {
             guard let gasLimit = gasLimit, let gasPrice = gasPrice else {
                 return feeTokenItem.zeroFee
@@ -154,6 +155,7 @@ class EVMCustomFeeService {
                 priorityFee: currentPriorityFee,
                 nonce: nonce
             )
+            .applyingFeeRules(for: feeTokenItem.blockchain)
         } else {
             let gasPrice = (enteredFeeInSmallestDenomination / currentGasLimit)
             parameters = EthereumLegacyFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice, nonce: nonce)
