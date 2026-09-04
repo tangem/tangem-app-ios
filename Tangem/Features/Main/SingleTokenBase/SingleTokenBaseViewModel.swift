@@ -80,7 +80,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         currencySymbol: currencySymbol,
         addressesProvider: walletModel,
         showSign: true,
-        isToken: walletModel.tokenItem.isToken
+        isToken: walletModel.tokenItem.isToken,
+        stakingNetwork: walletModel.tokenItem.stakingTokenItem?.network
     )
 
     /// Resolver is cheap to rebuild and `isAccountsMode` can flip while the screen is alive
