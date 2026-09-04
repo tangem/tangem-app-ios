@@ -20,7 +20,7 @@ actor RenewSessionTokensUseCase {
     private let deviceKeyManager: DeviceKeyManager
     private let nonceDecryptor: any NonceDecryptor
 
-    private let deviceMetadata: DeviceMetadata
+    private let deviceMetadataProvider: () -> DeviceMetadata
     private let dateProvider: @Sendable () -> Date
 
     private var inFlightRenewalTask: Task<Result<SessionTokens, RenewSessionTokensError>, Never>?
@@ -32,8 +32,8 @@ actor RenewSessionTokensUseCase {
         sessionTokensRepository: some SessionTokensRepository,
         deviceKeyManager: DeviceKeyManager,
         nonceDecryptor: some NonceDecryptor,
-        deviceMetadataProvider: @escaping @autoclosure () -> DeviceMetadata,
-        dateProvider: @escaping @autoclosure @Sendable () -> Date = Date.now
+        deviceMetadataProvider: @escaping @Sendable @autoclosure () -> DeviceMetadata,
+        dateProvider: @escaping @Sendable @autoclosure () -> Date = Date.now
     ) {
         self.registerDevice = registerDevice
 
@@ -44,7 +44,7 @@ actor RenewSessionTokensUseCase {
         self.deviceKeyManager = deviceKeyManager
         self.nonceDecryptor = nonceDecryptor
 
-        deviceMetadata = deviceMetadataProvider()
+        self.deviceMetadataProvider = deviceMetadataProvider
         self.dateProvider = dateProvider
     }
 
@@ -108,6 +108,7 @@ extension RenewSessionTokensUseCase {
         let decryptedNonce = String(decoding: decryptedNonceBytes, as: UTF8.self)
 
         let attestationToken = await generateAttestationToken(for: decryptedNonceBytes)
+        let deviceMetadata = deviceMetadataProvider()
 
         let authenticationSignature: DeviceSignature
 
