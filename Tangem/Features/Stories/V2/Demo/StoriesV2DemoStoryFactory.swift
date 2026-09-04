@@ -11,6 +11,8 @@ import TangemStories
 
 /// Builds the local sample content for the Stories V2 demo screen.
 struct StoriesV2DemoStoryFactory {
+    static var sampleStoryID: String { Constants.storyID }
+
     func makeSampleStory() -> StoryV2 {
         StoryV2(
             id: Constants.storyID,
