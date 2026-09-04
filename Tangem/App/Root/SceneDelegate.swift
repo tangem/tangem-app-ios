@@ -115,6 +115,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         sheetRegistry.registerSendFloatingSheets()
         sheetRegistry.registerMarketsDialogueFloatingSheets()
         sheetRegistry.registerMarketsSearchFloatingSheets()
+        sheetRegistry.registerMarketsRealAssetsFloatingSheets()
         sheetRegistry.registerTokensManagementFloatingSheets()
         sheetRegistry.registerRatingFloatingSheets()
         sheetRegistry.registerAddFundsFloatingSheets()
