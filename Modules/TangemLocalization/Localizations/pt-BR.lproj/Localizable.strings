@@ -560,7 +560,7 @@
 "express_exchange_notification_long_transaction_time_title" = "Tempo de transação longo";
 "express_exchange_notification_refund_text" = "O valor da transação foi reembolsado em %1$@ para sua carteira devido às regras do OKX ou da ponte. %2$@";
 "express_exchange_notification_refund_title" = "O valor foi reembolsado em %1$@ (%2$@ rede)";
-"express_exchange_notification_refunded_in_text" = "Seus fundos foram reembolsados ​​em %1$@  para sua carteira no %2$@ rede, de acordo com as regras da bolsa OKX.";
+"express_exchange_notification_refunded_in_text" = "Seus fundos foram reembolsados em %1$@  para sua carteira na rede %2$@, de acordo com as regras da corretora OKX.";
 "express_exchange_notification_refunded_in_title" = "Reembolsado em %@";
 "express_exchange_notification_verification_text" = "Visite o site do fornecedor para verificação.";
 "express_exchange_notification_verification_title" = "Verificação KYC exigida pelo fornecedor";
@@ -1442,8 +1442,8 @@
 "promo_campaign_enroll" = "Inscreva-se";
 "promo_campaign_not_active_subtitle" = "Esta campanha não existe ou expirou.";
 "promo_campaign_not_active_title" = "Campanha inativa";
-"promo_campaign_reactivation_summary_description" = "Ganhe 0,5%% Cashback em todas as trocas acima de US$ 500, em qualquer par, exceto entre pares estáveis. Pagamento máximo de US$ 50 por troca.\n\nComplete cinco trocas qualificadas e desbloqueie um bônus extra de US$ 10.\n\nAs recompensas são pagas semanalmente em USDT ou USDC no endereço selecionado.";
-"promo_campaign_select_cashback_account" = "Selecionar token de cashback";
+"promo_campaign_reactivation_summary_description" = "Ganhe 0,5%% de cashback em todas as trocas acima de US$ 500, em qualquer par, exceto entre pares de stablecoins. Pagamento máximo de US$ 50 por troca.\n\nConclua cinco trocas qualificadas e desbloqueie um bônus adicional de US$ 10.\n\nAs recompensas são pagas semanalmente em USDT ou USDC no endereço selecionado.";
+"promo_campaign_select_cashback_account" = "Selecionar conta de cashback";
 "promo_campaign_select_token" = "Selecionar token de cashback";
 "promo_campaign_summary_title" = "Inscreva-se em %1$@";
 "promo_campaign_terms_agreement_android" = "Concordo com";
