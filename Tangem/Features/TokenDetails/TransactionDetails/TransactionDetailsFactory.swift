@@ -622,7 +622,7 @@ enum TransactionDetailsFactory {
             return nil
         }
 
-        return .init(rows: [.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .text(fee))])
+        return .init(rows: [.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .sensitiveText(fee))])
     }
 
     // MARK: - Header
