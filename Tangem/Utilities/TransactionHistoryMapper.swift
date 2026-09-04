@@ -684,6 +684,11 @@ private extension TransactionHistoryMapper {
         }
 
         switch prepared.transactionType {
+        case .stake, .unstake, .restake, .vote, .withdraw:
+            return FormattedAmount(
+                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                redesigned: balanceFormatter.formatDecimal(amount)
+            )
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             return FormattedAmount(
                 legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
