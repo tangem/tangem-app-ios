@@ -37,10 +37,29 @@ enum TransactionDetailsFactory {
         context: TransactionDetailsContext,
         addContactHelper: TransactionDetailsAddContactHelper
     ) -> (header: TransactionDetailsHeaderViewData, content: TransactionDetailsViewModel.Content) {
-        (
-            header(for: transaction, record: record, context: context, addContactHelper: addContactHelper),
-            content(for: transaction, record: record, context: context)
+        let content = content(for: transaction, record: record, context: context)
+
+        return (
+            header(
+                for: transaction,
+                record: record,
+                context: context,
+                addContactHelper: addContactHelper,
+                counterpartyAddress: copyableCounterpartyAddress(in: content)
+            ),
+            content
         )
+    }
+
+    private static func copyableCounterpartyAddress(in content: TransactionDetailsViewModel.Content) -> String? {
+        guard
+            case .generic(let data) = content,
+            case .copy(let address, _) = data.counterparty?.copyAction
+        else {
+            return nil
+        }
+
+        return address
     }
 
     private static func content(
@@ -546,7 +565,8 @@ enum TransactionDetailsFactory {
         for transaction: TransactionViewModel,
         record: TransactionRecord,
         context: TransactionDetailsContext,
-        addContactHelper: TransactionDetailsAddContactHelper
+        addContactHelper: TransactionDetailsAddContactHelper,
+        counterpartyAddress: String?
     ) -> TransactionDetailsHeaderViewData {
         let status = TransactionOperationStatusMapper.viewStatus(for: record)
         let title = headerTitle(for: transaction, record: record, status: status)
@@ -564,8 +584,9 @@ enum TransactionDetailsFactory {
             date: dateText,
             operationIcon: TransactionViewIconViewData(type: transaction.transactionType, status: status, isOutgoing: transaction.isOutgoing),
             iconGlyph: headerIconGlyph(for: record),
-            menuActions: TransactionDetailsMenuFactory.menuActions(
+            menuSections: TransactionDetailsMenuFactory.menuSections(
                 for: record,
+                counterpartyAddress: counterpartyAddress,
                 context: context,
                 addContactHelper: addContactHelper
             )
@@ -663,7 +684,7 @@ enum TransactionDetailsFactory {
             return .init(
                 label: label,
                 actor: .address(short: short, blockiesImage: .init(image: blockiesImage)),
-                copyAction: .copy(value: fullAddress, toast: Localization.walletNotificationAddressCopied),
+                copyAction: copyAddressAction(for: fullAddress),
                 walletImageProvider: nil
             )
 
@@ -682,7 +703,7 @@ enum TransactionDetailsFactory {
                     short: AddressFormatter(address: address).truncated(),
                     blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: address)
                 ),
-                copyAction: .copy(value: address, toast: Localization.walletNotificationAddressCopied),
+                copyAction: copyAddressAction(for: address),
                 walletImageProvider: nil
             )
         }
@@ -702,9 +723,13 @@ enum TransactionDetailsFactory {
                 short: target.name,
                 blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: target.address)
             ),
-            copyAction: .copy(value: target.address, toast: Localization.walletNotificationAddressCopied),
+            copyAction: copyAddressAction(for: target.address),
             walletImageProvider: nil
         )
+    }
+
+    private static func copyAddressAction(for address: String) -> TransactionDetailsViewModel.ViewAction {
+        .copy(value: address, toast: Localization.walletNotificationAddressCopied)
     }
 
     private static func counterpartyAddress(for transaction: TransactionViewModel) -> String? {
