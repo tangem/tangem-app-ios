@@ -516,6 +516,12 @@ var unitTestsModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTestTarget(
+            name: "TangemPayTests",
+            dependencies: [
+                "TangemPay",
+            ]
+        ),
+        .tangemTestTarget(
             name: "TangemPolymarketTests",
             dependencies: [
                 "TangemPolymarket",
