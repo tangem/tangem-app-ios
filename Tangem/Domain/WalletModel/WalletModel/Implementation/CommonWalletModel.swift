@@ -672,6 +672,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? TronTransactionDataBuilder
     }
 
+    var tronAccountActivationStateProvider: TronAccountActivationStateProvider? {
+        walletManager as? TronAccountActivationStateProvider
+    }
+
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {
         walletManager as? BitcoinTransactionFeeCalculator
     }
