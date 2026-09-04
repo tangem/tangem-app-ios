@@ -42,12 +42,13 @@ final class PolymarketMainViewModel: ObservableObject {
 
     private let apiProvider: PolymarketAPIProvider
     private let geoblockService: PolymarketGeoblockService
-    private let balanceProvider: AnyPublisher<FormattedTokenBalanceType, Never>
+    private let balanceProvider: PolymarketBalanceProvider
     private weak var coordinator: PolymarketMainRoutable?
 
     private let balanceStateBuilder = LoadableBalanceViewStateBuilder()
 
     private var balanceSubscription: AnyCancellable?
+    private var balanceRefreshTask: Task<Void, Never>?
     private var searchBag: Set<AnyCancellable> = []
 
     private var events: [PolymarketEvent] = []
@@ -59,7 +60,7 @@ final class PolymarketMainViewModel: ObservableObject {
     init(
         apiProvider: PolymarketAPIProvider,
         geoblockService: PolymarketGeoblockService,
-        balanceProvider: AnyPublisher<FormattedTokenBalanceType, Never>,
+        balanceProvider: PolymarketBalanceProvider,
         coordinator: PolymarketMainRoutable
     ) {
         self.apiProvider = apiProvider
@@ -71,8 +72,13 @@ final class PolymarketMainViewModel: ObservableObject {
 
         bindSearch()
         bindBalance()
+        startBalanceRefresh()
         load()
         loadRegion()
+    }
+
+    deinit {
+        balanceRefreshTask?.cancel()
     }
 
     private func bindSearch() {
@@ -100,8 +106,23 @@ final class PolymarketMainViewModel: ObservableObject {
         }
     }
 
+    private func startBalanceRefresh() {
+        balanceRefreshTask = Task { @MainActor [weak self] in
+            await self?.balanceProvider.refresh()
+
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(Constants.balanceRefreshInterval))
+
+                guard !Task.isCancelled, let self else { return }
+
+                await balanceProvider.refresh()
+            }
+        }
+    }
+
     private func bindBalance() {
         balanceSubscription = balanceProvider
+            .balancePublisher
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, formatted in
@@ -119,24 +140,7 @@ final class PolymarketMainViewModel: ObservableObject {
         loadingState = .loading
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
-            do {
-                let categories = try await viewModel.apiProvider.categories(locale: viewModel.locale)
-                try Task.checkCancellation()
-
-                guard let firstCategoryID = categories.first?.id else {
-                    viewModel.loadingState = .error
-                    return
-                }
-
-                let page = try await viewModel.apiProvider.events(request: .init(category: firstCategoryID, cursor: nil))
-                try Task.checkCancellation()
-
-                viewModel.categories = categories
-                viewModel.selectedCategoryID = firstCategoryID
-                viewModel.apply(page: page)
-            } catch {
-                viewModel.handleFetchFailure(error)
-            }
+            await viewModel.loadCategories()
         }
     }
 
@@ -192,6 +196,47 @@ final class PolymarketMainViewModel: ObservableObject {
     }
 
     // MARK: - Private
+
+    @MainActor
+    private func loadCategories() async {
+        do {
+            let categories = try await apiProvider.categories(locale: locale)
+            try Task.checkCancellation()
+
+            guard let firstCategoryID = categories.first?.id else {
+                loadingState = .error
+                return
+            }
+
+            let page = try await apiProvider.events(request: .init(category: firstCategoryID, cursor: nil))
+            try Task.checkCancellation()
+
+            self.categories = categories
+            selectedCategoryID = firstCategoryID
+            apply(page: page)
+        } catch {
+            handleFetchFailure(error)
+        }
+    }
+
+    /// Refetches the open tab in place: the visible list stays put until the new page arrives, and the tab keeps its place.
+    @MainActor
+    private func reloadSelectedCategory() async {
+        let categoryID = selectedCategoryID
+
+        do {
+            let page = try await apiProvider.events(request: .init(category: categoryID, cursor: nil))
+            try Task.checkCancellation()
+
+            guard categoryID == selectedCategoryID else { return }
+
+            cache[categoryID] = nil
+            resetEvents()
+            apply(page: page)
+        } catch {
+            handleFetchFailure(error)
+        }
+    }
 
     private func fetchEvents(more: Bool = false) {
         loadingTask?.cancel()
@@ -278,7 +323,7 @@ final class PolymarketMainViewModel: ObservableObject {
 private extension PolymarketMainViewModel {
     func makeBalanceState(from formatted: FormattedTokenBalanceType) -> LoadableBalanceView.State {
         AttributedBalanceFormatter.decimalColored(
-            balanceStateBuilder.build(type: formatted),
+            balanceStateBuilder.build(type: steady(formatted)),
             integerPart: .init(
                 font: TangemFontStyle(DesignSystem.Font.displayMediumToken),
                 color: DesignSystem.Color.textPrimary
@@ -288,6 +333,13 @@ private extension PolymarketMainViewModel {
                 color: DesignSystem.Color.textPrimary
             )
         )
+    }
+
+    /// The balance is polled in the background, and a cached value being refreshed is still the number to show.
+    func steady(_ formatted: FormattedTokenBalanceType) -> FormattedTokenBalanceType {
+        guard case .loading(.cache(let cached)) = formatted else { return formatted }
+
+        return .loaded(cached.balance)
     }
 }
 
@@ -308,6 +360,28 @@ private extension PolymarketMainViewModel {
         let events: [PolymarketEvent]
         let cursor: String?
         let hasNext: Bool
+    }
+
+    enum Constants {
+        static let balanceRefreshInterval: TimeInterval = 30
+    }
+}
+
+// MARK: - Refresh
+
+extension PolymarketMainViewModel {
+    @MainActor
+    func refresh() async {
+        loadRegion()
+        loadingTask?.cancel()
+
+        await balanceProvider.refresh()
+
+        if categories.isEmpty {
+            await loadCategories()
+        } else {
+            await reloadSelectedCategory()
+        }
     }
 }
 
