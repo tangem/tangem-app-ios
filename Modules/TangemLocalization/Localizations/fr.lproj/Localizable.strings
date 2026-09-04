@@ -877,6 +877,8 @@
 "joint_account_activation_account_button_title" = "Activate account";
 "joint_account_activation_subtitle" = "Everyone in this account shares one balance. Any member can spend or withdraw the funds at any time — including without your approval";
 "joint_account_activation_title" = "You're activating a shared account";
+"joint_account_coming_soon_description" = "We're working on it. Support is coming in one of the next updates.";
+"joint_account_coming_soon_title" = "Coming soon to joint accounts";
 "joint_account_invite_invalid_subtitle" = "Check that you opened the full link, or ask the account owner to send it again";
 "joint_account_invite_invalid_title" = "Invitation link isn't valid";
 "joint_account_invite_load_failed_subtitle" = "Failed to load invite page.\nTap to reload";
@@ -956,6 +958,7 @@
 "manage_tokens_toast_portfolio_updated" = "Votre portfolio a été mis à jour";
 "manage_tokens_wallet_selector_title" = "Choisissez un portefeuille";
 "manage_tokens_wallet_support_only_one_network_title" = "Le portefeuille ne prend pas en charge plus d'un réseau";
+"market_categories" = "Categories";
 "market_chart_ai_total" = "AI Total:";
 "market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_bubble_no_amount" = "No amount \non tokens";
@@ -987,6 +990,11 @@
 "markets_portfolio_block_token_unsupported" = "**Token non pris en charge**. Ce token n'est actuellement pas pris en charge dans le portefeuille";
 "markets_portfolio_eligible_block_title" = "Autres tokens éligibles";
 "markets_pulse_common_title" = "Rythme du marché";
+"markets_real_assets_category_bonds" = "Bonds";
+"markets_real_assets_category_commodities" = "Commodities";
+"markets_real_assets_category_etfs" = "ETFs";
+"markets_real_assets_category_stablecoins" = "Stablecoins";
+"markets_real_assets_category_xstocks" = "xStocks";
 "markets_real_assets_empty_title" = "No assets found";
 "markets_real_assets_filter_sectors_title" = "Sectors";
 "markets_real_assets_filter_title" = "Category";
@@ -995,6 +1003,17 @@
 "markets_real_assets_interval_week" = "Week";
 "markets_real_assets_region_restriction_description" = "Stocks, ETFs, Bonds they're not supported in UK and US";
 "markets_real_assets_region_restriction_title" = "Not supported in your region";
+"markets_real_assets_sector_xstocks_communication" = "Communication Services";
+"markets_real_assets_sector_xstocks_consumer" = "Consumer";
+"markets_real_assets_sector_xstocks_crypto" = "Crypto";
+"markets_real_assets_sector_xstocks_energy" = "Energy";
+"markets_real_assets_sector_xstocks_financials" = "Financials";
+"markets_real_assets_sector_xstocks_healthcare" = "Healthcare";
+"markets_real_assets_sector_xstocks_industrials" = "Industrials";
+"markets_real_assets_sector_xstocks_technology" = "Technology";
+"markets_real_assets_sort_market_cap" = "Market cap";
+"markets_real_assets_sort_top_gainers" = "Top gainers";
+"markets_real_assets_sort_top_losers" = "Top losers";
 "markets_real_assets_title" = "Real world assets";
 "markets_search_clear_all_hints" = "Clear all";
 "markets_search_header_title" = "Rechercher sur le marché";

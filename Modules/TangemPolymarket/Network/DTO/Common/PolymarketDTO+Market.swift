@@ -20,6 +20,7 @@ extension PolymarketDTO {
 
         let status: String?
         let negRisk: Bool?
+        let acceptingOrders: Bool?
 
         let startDate: String?
         let endDate: String?
@@ -29,6 +30,8 @@ extension PolymarketDTO {
         let volume: Decimal?
         let volume24hr: Decimal?
         let liquidity: Decimal?
+
+        let orderIndex: Int?
 
         let outcomes: [Outcome]?
     }

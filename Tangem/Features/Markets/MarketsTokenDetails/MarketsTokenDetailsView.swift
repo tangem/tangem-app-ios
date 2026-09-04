@@ -329,6 +329,7 @@ private extension AnyTransition {
         isUnderMarketCapLimit: false,
         stakingOpportunities: nil,
         networks: nil,
+        restrictedForCountry: nil
     )
 
     return MarketsTokenDetailsView(viewModel: .init(

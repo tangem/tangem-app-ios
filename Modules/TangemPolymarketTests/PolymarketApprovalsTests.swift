@@ -14,6 +14,8 @@ struct PolymarketApprovalsTests {
     private static let depositWallet = "0xfAeA0f08159fcF2f573fE24E9E989B0d48f7651B"
     private static let deadline = "1735690200"
 
+    private static let maxUint256 = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+
     private static let approveSelector = "0x095ea7b3"
     private static let setApprovalForAllSelector = "0xa22cb465"
 
@@ -69,10 +71,12 @@ struct PolymarketApprovalsTests {
     ])
     func digestMatchesTheVector(vector: Vector) throws {
         let digest = try PolymarketApprovalsSigning.digest(
-            depositWalletAddress: Self.depositWallet,
-            nonce: vector.nonce,
-            deadline: Self.deadline,
-            calls: PolymarketApprovalCalls.make()
+            for: .init(
+                depositWalletAddress: Self.depositWallet,
+                nonce: vector.nonce,
+                deadline: Self.deadline,
+                calls: PolymarketApprovalCalls.make()
+            )
         )
 
         #expect(digest.map { String(format: "%02x", $0) }.joined() == vector.digest)
@@ -91,10 +95,12 @@ struct PolymarketApprovalsTests {
     func theDepositWalletIsPartOfTheDigest() throws {
         let digest = try Self.makeDigest(calls: PolymarketApprovalCalls.make())
         let other = try PolymarketApprovalsSigning.digest(
-            depositWalletAddress: "0x0491eb219E3D2d05aEF0C35D1079c0a55b19bd2B",
-            nonce: "0",
-            deadline: Self.deadline,
-            calls: PolymarketApprovalCalls.make()
+            for: .init(
+                depositWalletAddress: "0x0491eb219E3D2d05aEF0C35D1079c0a55b19bd2B",
+                nonce: "0",
+                deadline: Self.deadline,
+                calls: PolymarketApprovalCalls.make()
+            )
         )
 
         #expect(digest != other)
@@ -104,13 +110,86 @@ struct PolymarketApprovalsTests {
     func theDeadlineIsPartOfTheDigest() throws {
         let digest = try Self.makeDigest(calls: PolymarketApprovalCalls.make())
         let other = try PolymarketApprovalsSigning.digest(
-            depositWalletAddress: Self.depositWallet,
-            nonce: "0",
-            deadline: "1735690800",
-            calls: PolymarketApprovalCalls.make()
+            for: .init(
+                depositWalletAddress: Self.depositWallet,
+                nonce: "0",
+                deadline: "1735690800",
+                calls: PolymarketApprovalCalls.make()
+            )
         )
 
         #expect(digest != other)
+    }
+
+    @Test("A nonce that is not a number is rejected instead of silently signed", arguments: ["", "seven", "7.5", "-7", "0x7"])
+    func malformedNonceIsRejected(nonce: String) {
+        #expect(throws: PolymarketApprovalsSigningError.invalidNonce) {
+            try PolymarketApprovalsSigning.digest(
+                for: .init(
+                    depositWalletAddress: Self.depositWallet,
+                    nonce: nonce,
+                    deadline: Self.deadline,
+                    calls: PolymarketApprovalCalls.make()
+                )
+            )
+        }
+    }
+
+    @Test("A deadline that is not a number is rejected instead of silently signed")
+    func malformedDeadlineIsRejected() {
+        #expect(throws: PolymarketApprovalsSigningError.invalidDeadline) {
+            try PolymarketApprovalsSigning.digest(
+                for: .init(
+                    depositWalletAddress: Self.depositWallet,
+                    nonce: "0",
+                    deadline: "tomorrow",
+                    calls: PolymarketApprovalCalls.make()
+                )
+            )
+        }
+    }
+
+    @Test("A value too large for uint256 is rejected instead of truncating the digest", arguments: [
+        Self.maxUint256 + "0",
+        "115792089237316195423570985008687907853269984665640564039457584007913129639936",
+        String(repeating: "9", count: 78),
+    ])
+    func nonceAndDeadlineBeyondUint256AreRejected(value: String) {
+        #expect(throws: PolymarketApprovalsSigningError.invalidNonce) {
+            try PolymarketApprovalsSigning.digest(
+                for: .init(
+                    depositWalletAddress: Self.depositWallet,
+                    nonce: value,
+                    deadline: Self.deadline,
+                    calls: PolymarketApprovalCalls.make()
+                )
+            )
+        }
+
+        #expect(throws: PolymarketApprovalsSigningError.invalidDeadline) {
+            try PolymarketApprovalsSigning.digest(
+                for: .init(
+                    depositWalletAddress: Self.depositWallet,
+                    nonce: "0",
+                    deadline: value,
+                    calls: PolymarketApprovalCalls.make()
+                )
+            )
+        }
+    }
+
+    @Test("The largest value uint256 can hold is still signed", arguments: [Self.maxUint256, "0" + Self.maxUint256])
+    func theUpperBoundIsAccepted(value: String) throws {
+        let digest = try PolymarketApprovalsSigning.digest(
+            for: .init(
+                depositWalletAddress: Self.depositWallet,
+                nonce: value,
+                deadline: Self.deadline,
+                calls: PolymarketApprovalCalls.make()
+            )
+        )
+
+        #expect(digest.count == 32)
     }
 
     @Test("A deposit wallet the encoder cannot parse is rejected instead of signed", arguments: [
@@ -123,10 +202,12 @@ struct PolymarketApprovalsTests {
     func malformedDepositWalletIsRejected(address: String) {
         #expect(throws: PolymarketApprovalsSigningError.invalidDepositWalletAddress) {
             try PolymarketApprovalsSigning.digest(
-                depositWalletAddress: address,
-                nonce: "0",
-                deadline: Self.deadline,
-                calls: PolymarketApprovalCalls.make()
+                for: .init(
+                    depositWalletAddress: address,
+                    nonce: "0",
+                    deadline: Self.deadline,
+                    calls: PolymarketApprovalCalls.make()
+                )
             )
         }
     }
@@ -144,10 +225,12 @@ extension PolymarketApprovalsTests {
 private extension PolymarketApprovalsTests {
     static func makeDigest(calls: [PolymarketApprovalsBatch.Call]) throws -> Data {
         try PolymarketApprovalsSigning.digest(
-            depositWalletAddress: depositWallet,
-            nonce: "0",
-            deadline: deadline,
-            calls: calls
+            for: .init(
+                depositWalletAddress: depositWallet,
+                nonce: "0",
+                deadline: deadline,
+                calls: calls
+            )
         )
     }
 }
