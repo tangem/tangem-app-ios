@@ -16,29 +16,18 @@ final class MainShtorkaStateObject: ObservableObject {
 
     @Published var isPresented = false
     @Published var size: ShtorkaSize = .collapsed
+    @Published private(set) var detents = ShtorkaDetents()
 
-    @Published private var heights = FeedDetentHeights()
-
+    private let heights = FeedDetentHeights()
     private var bag = Set<AnyCancellable>()
 
     var expansionProgressPublisher: AnyPublisher<CGFloat, Never> {
-        $heights.map(\.expansionProgress).removeDuplicates().eraseToAnyPublisher()
-    }
-
-    var detents: ShtorkaDetents {
-        ShtorkaDetents(collapsed: .height(heights.collapsed), medium: .height(heights.medium))
-    }
-
-    /// What the collapsed sheet covers, for the screen underneath to keep free.
-    var collapsedHeight: CGFloat {
-        heights.collapsed
-    }
-
-    var expansionProgress: CGFloat {
-        heights.expansionProgress
+        heights.expansionProgressPublisher
     }
 
     init() {
+        heights.detentsPublisher.assign(to: &$detents)
+
         bind()
     }
 
