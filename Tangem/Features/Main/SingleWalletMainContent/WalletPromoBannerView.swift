@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WalletPromoBannerView: View {
     @ObservedObject var viewModel: WalletPromoBannerViewModel
@@ -30,7 +31,11 @@ struct WalletPromoBannerView: View {
                 .frame(width: imageSide, height: imageSide)
         }
         .primaryButton(
-            .init(title: Localization.walletPromoBannerButtonTitle, action: viewModel.didTapWalletPromo)
+            .init(
+                title: Localization.walletPromoBannerButtonTitle,
+                accessibilityIdentifier: MainAccessibilityIdentifiers.walletPromoBannerButton,
+                action: viewModel.didTapWalletPromo
+            )
         )
         .glowRing(.magic)
         .onAppear(perform: viewModel.onAppear)

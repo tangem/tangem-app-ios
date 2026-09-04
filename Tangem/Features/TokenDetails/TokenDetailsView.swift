@@ -300,9 +300,8 @@ private extension TokenDetailsView {
 
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
-    let cryptoAccountModel = userWalletModel
-        .accountModelsManager
-        .cryptoAccountModels[0]
+    let cryptoAccountModel = AccountCryptoModelsAggregator
+        .cryptoAccountModels(from: userWalletModel.accountModelsManager)[0]
 
     let walletModel = cryptoAccountModel
         .walletModelsManager

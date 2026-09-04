@@ -5,6 +5,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
 import Foundation
 import TangemSdk
 import BlockchainSdk
@@ -35,20 +36,11 @@ struct WalletAddressResolver {
             break
         }
 
-        let walletPublicKey: Wallet.PublicKey
         do {
-            walletPublicKey = try GenericWalletPublicKeyFactory().makePublicKey(
-                blockchainNetwork: blockchainNetwork,
-                keys: keyInfos
-            )
-        } catch {
-            throw Error.publicKeyCreationFailed(blockchain: blockchain, underlying: error)
-        }
-
-        do {
-            let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
-            let address = try addressService.makeAddress(for: walletPublicKey, with: .default)
-            return NetworkAddressPair(blockchainNetwork: blockchainNetwork, address: address.value)
+            let dataStorage = UserDefaultsBlockchainDataStorage(suiteName: AppEnvironment.current.blockchainDataStorageSuiteName)
+            let factory = GenericWalletFactory(dataStorage: dataStorage)
+            let wallet = try factory.makeWallet(blockchainNetwork: blockchainNetwork, keys: keyInfos)
+            return NetworkAddressPair(blockchainNetwork: blockchainNetwork, address: wallet.defaultAddress.value)
         } catch {
             throw Error.addressGenerationFailed(blockchain: blockchain, underlying: error)
         }
@@ -58,7 +50,6 @@ struct WalletAddressResolver {
 extension WalletAddressResolver {
     enum Error: Swift.Error {
         case unsupportedBlockchain(Blockchain)
-        case publicKeyCreationFailed(blockchain: Blockchain, underlying: Swift.Error)
         case addressGenerationFailed(blockchain: Blockchain, underlying: Swift.Error)
     }
 }

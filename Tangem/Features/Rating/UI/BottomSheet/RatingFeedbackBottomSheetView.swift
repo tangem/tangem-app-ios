@@ -11,6 +11,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct RatingFeedbackBottomSheetView: View {
     @ObservedObject var viewModel: RatingFeedbackBottomSheetViewModel
@@ -125,6 +126,7 @@ private extension RatingFeedbackBottomSheetView {
             .onTapGesture {
                 isFocused = true
             }
+            .accessibilityIdentifier(RatingAccessibilityIdentifiers.feedbackInput)
     }
 
     var footer: some View {
@@ -137,6 +139,7 @@ private extension RatingFeedbackBottomSheetView {
                 await viewModel.submit()
             }
         }
+        .accessibilityIdentifier(RatingAccessibilityIdentifiers.submitFeedbackButton)
     }
 }
 
