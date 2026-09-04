@@ -26,19 +26,17 @@ struct TransactionChipRedesigned: View {
 
     var body: some View {
         HStack(spacing: .unit(.x1)) {
+            leadingIcon
+
             titleView
 
-            if let displayValue = viewModel.amount.displayValue, displayValue.isNotEmpty {
-                SensitiveText(builder: amountWithCurrency, sensitive: displayValue)
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+            if let amountText {
+                SensitiveText(builder: amountWithCurrency, sensitive: amountText)
+                    .style(Font.Tangem.Caption12.semibold, color: amountColor)
                     .lineLimit(1)
             }
 
             subtitleView
-
-            if viewModel.inProgress {
-                ProgressDots(style: .small)
-            }
         }
         .padding(.horizontal, .unit(.x3))
         .padding(.vertical, .unit(.x1))
@@ -46,6 +44,38 @@ struct TransactionChipRedesigned: View {
         .clipShape(Capsule(style: .continuous))
         .overlay(border)
         .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var amountText: String? {
+        switch viewModel.icon.status {
+        case .failed, .undefined:
+            return nil
+        case .inProgress, .confirmed:
+            return viewModel.amount.displayValue?.nilIfEmpty
+        }
+    }
+
+    @ViewBuilder
+    private var leadingIcon: some View {
+        switch viewModel.icon.status {
+        case .inProgress:
+            Loader()
+                .loaderSize(.size16)
+                .loaderColor(.Tangem.Text.Status.accent)
+        case .failed, .undefined:
+            iconImage(DesignSystem.Icons.Cross.regular16.image)
+        case .confirmed:
+            iconImage(viewModel.icon.icon)
+        }
+    }
+
+    private func iconImage(_ image: Image) -> some View {
+        image
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(size: CGSize(bothDimensions: 16))
+            .foregroundStyle(titleColor)
     }
 
     private var titleView: some View {
@@ -76,6 +106,13 @@ struct TransactionChipRedesigned: View {
         case .failed, .undefined: .Tangem.Text.Status.warning
         case .inProgress: .Tangem.Text.Status.accent
         case .confirmed: .Tangem.Text.Neutral.secondary
+        }
+    }
+
+    private var amountColor: Color {
+        switch viewModel.icon.status {
+        case .confirmed: .Tangem.Text.Neutral.primary
+        case .inProgress, .failed, .undefined: titleColor
         }
     }
 
