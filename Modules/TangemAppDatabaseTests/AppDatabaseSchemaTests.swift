@@ -173,6 +173,8 @@ private extension AppDatabaseSchemaTests {
 
     CREATE INDEX "index_transactionHistoryIndex_on_address_network_contract_dateTime_entityID" ON "transactionHistoryIndex"("address", "network", "contract", "dateTime", "entityID")
 
+    CREATE TABLE "stakingTargetsCache" ("networkID" TEXT NOT NULL, "address" TEXT NOT NULL, "name" TEXT NOT NULL, "updatedAt" DATETIME NOT NULL, PRIMARY KEY ("networkID", "address"))
+
     CREATE TABLE "transactionHistoryIndex" ("entityType" TEXT NOT NULL, "entityID" TEXT NOT NULL, "address" TEXT NOT NULL, "network" TEXT NOT NULL, "contract" TEXT NOT NULL, "dateTime" DATETIME NOT NULL, PRIMARY KEY ("entityType", "entityID", "address", "network", "contract"))
     """
 }
