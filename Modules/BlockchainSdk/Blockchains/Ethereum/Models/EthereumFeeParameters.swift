@@ -138,6 +138,19 @@ public struct EthereumEIP1559FeeParameters: FeeParameters {
         self.priorityFee = priorityFee
         self.nonce = nonce
     }
+
+    public func applyingFeeRules(for blockchain: Blockchain) -> Self {
+        guard case .arc = blockchain else {
+            return self
+        }
+
+        return EthereumEIP1559FeeParameters(
+            gasLimit: gasLimit,
+            maxFeePerGas: max(maxFeePerGas, Constants.arcMinimumMaxFeePerGas),
+            priorityFee: Constants.arcPriorityFee,
+            nonce: nonce
+        )
+    }
 }
 
 extension EthereumEIP1559FeeParameters: EthereumFeeParameters {
@@ -163,6 +176,13 @@ extension EthereumEIP1559FeeParameters: EthereumFeeParameters {
         )
 
         return feeParameters
+    }
+}
+
+private extension EthereumEIP1559FeeParameters {
+    enum Constants {
+        static let arcMinimumMaxFeePerGas = BigUInt(20_000_000_000)
+        static let arcPriorityFee = BigUInt(5_000_000_000)
     }
 }
 
