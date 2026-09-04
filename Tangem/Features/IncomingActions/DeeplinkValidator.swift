@@ -36,6 +36,11 @@ struct CommonDeepLinkValidator {
         areParamsValid(params, keys: \.id)
     }
 
+    /// The invite id is the whole link — without it there is nothing to look up.
+    private func hasEnoughJointAccountInviteParams(params: DeeplinkNavigationAction.Params) -> Bool {
+        areParamsValid(params, keys: \.id)
+    }
+
     private func hasEnoughTangemPayAccountParams(params: DeeplinkNavigationAction.Params) -> Bool {
         paramsHaveOnlyValidCharacters([params.tangemPayScreen, params.userWalletId].compactMap { $0 })
     }
@@ -169,6 +174,9 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
 
         case .newsArticle:
             return hasEnoughNewsArticleParams(params: params)
+
+        case .jointAccountInvite:
+            return hasEnoughJointAccountInviteParams(params: params)
         }
     }
 }

@@ -64,13 +64,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
         let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: options.userWalletInfo,
             tokenItem: options.walletModel.tokenItem,
-            transactionHistoryEnricherFactory: { [weak walletModel = options.walletModel] in
-                try? await walletModel?
-                    .featuresPublisher
-                    .first()
-                    .async()
-                    .transactionHistoryProvider
-            }
+            transactionHistoryEnricherFactory: TransactionHistoryEnricherFactory.make(for: options.walletModel)
         )
 
         let expressStatusTracking = expressFactory.makeExpressStatusTracking()

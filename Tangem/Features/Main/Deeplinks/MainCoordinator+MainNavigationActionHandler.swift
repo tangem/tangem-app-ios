@@ -112,7 +112,24 @@ extension MainCoordinator {
 
             case .campaigns:
                 return routeCampaignsAction(params: navigationAction.params)
+
+            case .jointAccountInvite:
+                return routeJointAccountInviteAction(params: navigationAction.params)
             }
+        }
+
+        private func routeJointAccountInviteAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard
+                FeatureProvider.isAvailable(.jointAccounts),
+                let inviteId = params.id?.nilIfEmpty,
+                let coordinator
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            coordinator.openDeepLink(.jointAccountInvite(inviteId: inviteId))
+            return true
         }
 
         private func routeCampaignsAction(params: DeeplinkNavigationAction.Params) -> Bool {
@@ -431,7 +448,7 @@ extension MainCoordinator {
         private func routeTangemPayAccountAction(params: DeeplinkNavigationAction.Params) -> Bool {
             guard let coordinator,
                   let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
-                  userWalletModel.accountModelsManager.tangemPayAccountModel != nil
+                  TangemPayAccountAggregator.tangemPayAccountModel(from: userWalletModel.accountModelsManager) != nil
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
