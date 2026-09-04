@@ -52,6 +52,14 @@ extension BackendAuthenticationTarget {
             requestBody: requestBody
         )
     }
+
+    init(walletRegistrationNonce requestBody: NonceDTO.Request, baseURL: URL) {
+        self.init(
+            baseURL: baseURL,
+            relativePath: "nonce/wallet",
+            requestBody: requestBody
+        )
+    }
 }
 
 // MARK: - mobile/authenticate

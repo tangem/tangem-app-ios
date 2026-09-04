@@ -10,35 +10,35 @@ import struct Foundation.Data
 
 public actor RegisterDeviceUseCase {
     private let appAttestService: any AppAttestService
-    private let deviceRegistrationClient: any DeviceRegistrationClient
+    private let registrationClient: any DeviceRegistrationClient
+    private let registrationStatusRepository: any DeviceRegistrationStatusRepository
     private let sessionTokensRepository: any SessionTokensRepository
-    private let deviceRegistrationStatusRepository: any DeviceRegistrationStatusRepository
 
     private let deviceKeyManager: DeviceKeyManager
     private let nonceDecryptor: any NonceDecryptor
 
-    private let deviceMetadata: DeviceMetadata
+    private let deviceMetadataProvider: @Sendable () -> DeviceMetadata
 
     private var inFlightRegistrationTask: Task<Result<SessionTokens?, RegisterDeviceError>, Never>?
 
     init(
         appAttestService: some AppAttestService,
-        deviceRegistrationClient: some DeviceRegistrationClient,
+        registrationClient: some DeviceRegistrationClient,
+        registrationStatusRepository: some DeviceRegistrationStatusRepository,
         sessionTokensRepository: some SessionTokensRepository,
-        deviceRegistrationStatusRepository: some DeviceRegistrationStatusRepository,
         deviceKeyManager: DeviceKeyManager,
         nonceDecryptor: some NonceDecryptor,
-        deviceMetadataProvider: @escaping @autoclosure () -> DeviceMetadata
+        deviceMetadataProvider: @escaping @Sendable @autoclosure () -> DeviceMetadata
     ) {
         self.appAttestService = appAttestService
-        self.deviceRegistrationClient = deviceRegistrationClient
+        self.registrationClient = registrationClient
+        self.registrationStatusRepository = registrationStatusRepository
         self.sessionTokensRepository = sessionTokensRepository
-        self.deviceRegistrationStatusRepository = deviceRegistrationStatusRepository
 
         self.deviceKeyManager = deviceKeyManager
         self.nonceDecryptor = nonceDecryptor
 
-        deviceMetadata = deviceMetadataProvider()
+        self.deviceMetadataProvider = deviceMetadataProvider
     }
 
     /// Registers this device with the backend, if it hasn't been already.
@@ -46,10 +46,11 @@ public actor RegisterDeviceUseCase {
     /// - Returns: The freshly issued ``SessionTokens`` when this call actually registered the device.
     /// `nil` when the device was already registered.
     /// Obtain a session separately (e.g. via ``RenewSessionTokensUseCase``) if needed.
+    @discardableResult
     public func callAsFunction() async throws(RegisterDeviceError) -> SessionTokens? {
-        if deviceRegistrationStatusRepository.retrieve() {
-            return nil
-        }
+        let deviceIsAlreadyRegistered = registrationStatusRepository.retrieve()
+
+        guard !deviceIsAlreadyRegistered else { return nil }
 
         if let inFlightRegistrationTask {
             return try await inFlightRegistrationTask.value.get()
@@ -59,7 +60,7 @@ public actor RegisterDeviceUseCase {
             do throws(RegisterDeviceError) {
                 return .success(try await register())
             } catch {
-                deviceRegistrationStatusRepository.persist(isRegistered: false)
+                registrationStatusRepository.persist(isRegistered: false)
                 return .failure(error)
             }
         }
@@ -77,6 +78,7 @@ public actor RegisterDeviceUseCase {
         let decryptedNonce = String(decoding: decryptedNonceBytes, as: UTF8.self)
 
         let attestationToken = await generateAttestationToken(for: decryptedNonceBytes)
+        let deviceMetadata = deviceMetadataProvider()
 
         let signature: DeviceSignature
 
@@ -97,13 +99,14 @@ public actor RegisterDeviceUseCase {
             devicePublicKey: devicePublicKey,
             decryptedNonce: decryptedNonce,
             signature: signature,
-            attestationToken: attestationToken
+            attestationToken: attestationToken,
+            metadata: deviceMetadata
         )
 
         if let sessionTokens {
             try await persist(sessionTokens: sessionTokens)
         }
-        deviceRegistrationStatusRepository.persist(isRegistered: true)
+        registrationStatusRepository.persist(isRegistered: true)
 
         return sessionTokens
     }
@@ -127,7 +130,7 @@ public actor RegisterDeviceUseCase {
 
     private func requestCipheredNonce(for devicePublicKey: DevicePublicKey) async throws(RegisterDeviceError) -> String {
         do {
-            return try await deviceRegistrationClient.requestCipheredNonce(devicePublicKey: devicePublicKey)
+            return try await registrationClient.requestCipheredNonce(devicePublicKey: devicePublicKey)
         } catch {
             throw RegisterDeviceError.clientFailure(error)
         }
@@ -145,13 +148,14 @@ public actor RegisterDeviceUseCase {
         devicePublicKey: DevicePublicKey,
         decryptedNonce: String,
         signature: DeviceSignature,
-        attestationToken: Data?
+        attestationToken: Data?,
+        metadata: DeviceMetadata
     ) async throws(RegisterDeviceError) -> SessionTokens? {
         do {
-            return try await deviceRegistrationClient.register(
+            return try await registrationClient.register(
                 devicePublicKey: devicePublicKey,
                 decryptedNonce: decryptedNonce,
-                metadata: deviceMetadata,
+                metadata: metadata,
                 signature: signature,
                 attestationToken: attestationToken
             )
