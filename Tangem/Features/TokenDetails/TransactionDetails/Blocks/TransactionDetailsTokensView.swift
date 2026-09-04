@@ -108,7 +108,7 @@ struct TransactionDetailsTokensView: View {
             TokenIcon(tokenIconInfo: single.tokenIconInfo, size: CGSize(bothDimensions: tokenSide))
 
             VStack(spacing: 2) {
-                Text(single.amountText)
+                SensitiveText(single.amountText)
                     .style(
                         DesignSystem.Font.headingMediumToken,
                         color: single.isAmountStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
@@ -119,7 +119,7 @@ struct TransactionDetailsTokensView: View {
                     .minimumScaleFactor(0.6)
 
                 if let fiatText = single.fiatText {
-                    Text(fiatText)
+                    SensitiveText(fiatText)
                         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                         .lineLimit(1)
                 }
@@ -159,7 +159,7 @@ struct TransactionDetailsTokensView: View {
                     }
 
                     if let fiatText = leg.fiatText {
-                        Text(fiatText)
+                        SensitiveText(fiatText)
                             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                             .lineLimit(1)
                     }
@@ -174,7 +174,7 @@ struct TransactionDetailsTokensView: View {
     }
 
     private func legAmountLabel(_ text: String, isStrikethrough: Bool) -> some View {
-        Text(text)
+        SensitiveText(text)
             .style(
                 DesignSystem.Font.headingSmallToken,
                 color: isStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
