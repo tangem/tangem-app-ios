@@ -14,10 +14,16 @@ struct CommonTokenFeeProvidersManagerProvider {
 
     let walletModel: any WalletModel
     let supportingOptions: TokenFeeProviderSupportingOptions
+    private let isFeatureAvailable: (Feature) -> Bool
 
-    init(walletModel: any WalletModel, supportingOptions: TokenFeeProviderSupportingOptions = .all) {
+    init(
+        walletModel: any WalletModel,
+        supportingOptions: TokenFeeProviderSupportingOptions = .all,
+        isFeatureAvailable: @escaping (Feature) -> Bool = FeatureProvider.isAvailable
+    ) {
         self.walletModel = walletModel
         self.supportingOptions = supportingOptions
+        self.isFeatureAvailable = isFeatureAvailable
     }
 }
 
@@ -45,6 +51,21 @@ extension CommonTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerProvid
 // MARK: - Prepare initial token
 
 extension CommonTokenFeeProvidersManagerProvider {
+    func availableGaslessTokenAddresses() -> [String] {
+        if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
+            guard isFeatureAvailable(.tronGasless),
+                  walletModel.tronAccountActivationStateProvider?.isAccountActivated == true else {
+                return []
+            }
+
+            return gaslessTransactionsNetworkManager.availableTronFeeTokens.map(\.address)
+        }
+
+        return gaslessTransactionsNetworkManager.availableFeeTokens
+            .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
+            .map(\.tokenAddress)
+    }
+
     func prepareInitialTokenFeeProvider(main: any TokenFeeProvider, all: [any TokenFeeProvider]) -> any TokenFeeProvider {
         // Early exit when we have only main provider
         guard all.hasMultipleFeeProviders else {
@@ -96,19 +117,7 @@ private extension CommonTokenFeeProvidersManagerProvider {
     }
 
     func makeGaslessTokenFeeProviders() -> [any TokenFeeProvider] {
-        let availableTokenAddresses: [String] = {
-            if case .tron(testnet: false) = walletModel.tokenItem.blockchain {
-                guard FeatureProvider.isAvailable(.tronGasless) else {
-                    return []
-                }
-
-                return gaslessTransactionsNetworkManager.availableTronFeeTokens.map(\.address)
-            }
-
-            return gaslessTransactionsNetworkManager.availableFeeTokens
-                .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
-                .map(\.tokenAddress)
-        }()
+        let availableTokenAddresses = availableGaslessTokenAddresses()
 
         guard !availableTokenAddresses.isEmpty else {
             return []
