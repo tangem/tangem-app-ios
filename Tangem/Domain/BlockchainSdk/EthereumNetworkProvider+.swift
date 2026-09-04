@@ -14,12 +14,12 @@ import TangemFoundation
 extension EthereumNetworkProvider {
     func getFee(
         gasLimit: BigUInt,
-        supportsEIP1559: Bool,
+        blockchain: Blockchain,
         gasPrice: BigUInt? = nil
     ) async throws -> EthereumFeeParameters {
         let feeParameters = try await getFees(
             gasLimits: [gasLimit],
-            supportsEIP1559: supportsEIP1559,
+            blockchain: blockchain,
             gasPrice: gasPrice
         )
         guard let feeParameter = feeParameters.first else {
@@ -31,12 +31,12 @@ extension EthereumNetworkProvider {
 
     func getFees(
         gasLimits: [BigUInt],
-        supportsEIP1559: Bool,
+        blockchain: Blockchain,
         gasPrice: BigUInt? = nil
     ) async throws -> [EthereumFeeParameters] {
-        if supportsEIP1559 {
+        if blockchain.supportsEIP1559 {
             let feeHistory = try await getFeeHistory().async()
-            return eip1559FeeParameters(gasLimits: gasLimits, feeHistory: feeHistory)
+            return eip1559FeeParameters(gasLimits: gasLimits, feeHistory: feeHistory, blockchain: blockchain)
         }
 
         if let gasPrice {
@@ -49,7 +49,8 @@ extension EthereumNetworkProvider {
 
     private func eip1559FeeParameters(
         gasLimits: [BigUInt],
-        feeHistory: EthereumFeeHistory
+        feeHistory: EthereumFeeHistory,
+        blockchain: Blockchain
     ) -> [EthereumFeeParameters] {
         gasLimits.map {
             EthereumEIP1559FeeParameters(
@@ -57,6 +58,7 @@ extension EthereumNetworkProvider {
                 baseFee: feeHistory.marketBaseFee,
                 priorityFee: feeHistory.marketPriorityFee
             )
+            .applyingFeeRules(for: blockchain)
         }
     }
 

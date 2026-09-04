@@ -141,6 +141,7 @@ struct TransactionParamsBuilder {
              .plasma,
              .adi,
              .electroneum,
+             .arc,
              .seiEvm:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }

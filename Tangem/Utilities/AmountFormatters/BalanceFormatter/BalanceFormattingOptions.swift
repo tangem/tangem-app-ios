@@ -32,6 +32,15 @@ struct BalanceFormattingOptions: Hashable {
         )
     }
 
+    static func cryptoFormattingOptions(decimalCount: Int) -> BalanceFormattingOptions {
+        .init(
+            minFractionDigits: decimalCount,
+            maxFractionDigits: decimalCount,
+            formatEpsilonAsLowestRepresentableValue: false,
+            roundingType: nil
+        )
+    }
+
     static var defaultCryptoFeeFormattingOptions: BalanceFormattingOptions {
         var options = Self.defaultCryptoFormattingOptions
         options.maxFractionDigits = 6

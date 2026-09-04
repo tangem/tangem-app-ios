@@ -80,6 +80,7 @@ public struct AddressServiceFactory {
              .plasma,
              .adi,
              .electroneum,
+             .arc,
              .seiEvm:
             return EVMAddressService()
         case .rsk:
