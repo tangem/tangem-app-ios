@@ -70,19 +70,31 @@ enum TransactionDetailsFactory {
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
             return .yield(yieldContent(for: transaction, record: record, context: context))
 
-        case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake:
-            return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: Localization.stakingValidator))
-
         case .approve:
             return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: Localization.commonAddress))
 
+        case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake:
+            return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: Localization.stakingValidator))
+
         // [REDACTED_TODO_COMMENT]
         case .gaslessTransactionFee, .operation, .unknownOperation:
-            return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: nil))
+            return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: resolvedStakingTargetLabel(for: transaction)))
 
         case .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:
             return .generic(sendReceiveContent(for: transaction, record: record, context: context))
         }
+    }
+
+    private static func resolvedStakingTargetLabel(for transaction: TransactionViewModel) -> String? {
+        resolvedStakingTarget(for: transaction) == nil ? nil : Localization.stakingValidator
+    }
+
+    private static func resolvedStakingTarget(for transaction: TransactionViewModel) -> TransactionViewModel.StakingTarget? {
+        guard case .staking(.some(let target)) = transaction.interactionAddress, target.isResolved else {
+            return nil
+        }
+
+        return target
     }
 
     private static func tokensBlock(for transaction: TransactionViewModel, isFailed: Bool, context: TransactionDetailsContext) -> TransactionDetailsTokensViewData {
@@ -644,6 +656,10 @@ enum TransactionDetailsFactory {
             return .init(label: label, actor: .wallet(name: name), copyAction: nil, walletImageProvider: imageProvider)
 
         case .unresolved(let short, let fullAddress, let blockiesImage):
+            if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
+                return stakingCounterparty
+            }
+
             return .init(
                 label: label,
                 actor: .address(short: short, blockiesImage: .init(image: blockiesImage)),
@@ -652,6 +668,10 @@ enum TransactionDetailsFactory {
             )
 
         case .none:
+            if let stakingCounterparty = stakingCounterparty(for: transaction, label: label) {
+                return stakingCounterparty
+            }
+
             guard let address = counterpartyAddress(for: transaction) else {
                 return nil
             }
@@ -668,14 +688,33 @@ enum TransactionDetailsFactory {
         }
     }
 
+    private static func stakingCounterparty(
+        for transaction: TransactionViewModel,
+        label: String
+    ) -> TransactionDetailsAddressViewData? {
+        guard let target = resolvedStakingTarget(for: transaction) else {
+            return nil
+        }
+
+        return .init(
+            label: label,
+            actor: .address(
+                short: target.name,
+                blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: target.address)
+            ),
+            copyAction: .copy(value: target.address, toast: Localization.walletNotificationAddressCopied),
+            walletImageProvider: nil
+        )
+    }
+
     private static func counterpartyAddress(for transaction: TransactionViewModel) -> String? {
         switch transaction.interactionAddress {
         case .user(let address), .contract(let address):
             return address
         case .multiple(let addresses):
             return addresses.first
-        case .staking(let validator):
-            return validator
+        case .staking(let target):
+            return target?.address
         case .custom:
             return nil
         }
