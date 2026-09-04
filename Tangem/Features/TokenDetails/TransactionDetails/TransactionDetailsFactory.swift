@@ -563,22 +563,26 @@ enum TransactionDetailsFactory {
         }
 
         let baseSymbol: String
-        let quoteSymbol: String
+        let quoteToken: TokenItem
         let rate: Decimal
 
         switch SwapRateDisplaySideResolver.resolve(from: fromToken, to: toToken) {
         case .fromIsBase:
             baseSymbol = fromToken.currencySymbol
-            quoteSymbol = toToken.currencySymbol
+            quoteToken = toToken
             rate = toAmount / fromAmount
         case .toIsBase:
             baseSymbol = toToken.currencySymbol
-            quoteSymbol = fromToken.currencySymbol
+            quoteToken = fromToken
             rate = fromAmount / toAmount
         }
 
         let base = balanceFormatter.formatCryptoBalance(1, currencyCode: baseSymbol)
-        let quote = balanceFormatter.formatCryptoBalance(rate, currencyCode: quoteSymbol)
+        let quote = balanceFormatter.formatCryptoBalance(
+            rate,
+            currencyCode: quoteToken.currencySymbol,
+            formattingOptions: .cryptoRateFormattingOptions(decimalCount: quoteToken.decimalCount)
+        )
         return "\(base) \(AppConstants.approximatelyEqualSign) \(quote)"
     }
 

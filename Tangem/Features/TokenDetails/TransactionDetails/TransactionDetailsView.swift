@@ -33,14 +33,18 @@ struct TransactionDetailsView: View {
                 TransactionDetailsHeaderView(data: header, onAction: viewModel.handleViewAction)
             }
 
-            TransactionDetailsBlocksView(
-                blocks: viewModel.blocks,
-                spacing: blocksSpacing,
-                onAction: viewModel.handleViewAction
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 4)
-            .padding(.bottom, 16)
+            ScrollView {
+                TransactionDetailsBlocksView(
+                    blocks: viewModel.blocks,
+                    spacing: blocksSpacing,
+                    onAction: viewModel.handleViewAction
+                )
+                .padding(.horizontal, 16)
+                .padding(.top, 4)
+                .padding(.bottom, 16)
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
         }
         .background(DesignSystem.Color.bgSecondary)
         .floatingSheetConfiguration { config in
