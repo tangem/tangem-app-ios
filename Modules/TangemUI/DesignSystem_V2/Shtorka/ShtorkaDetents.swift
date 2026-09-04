@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-public struct ShtorkaDetents {
+public struct ShtorkaDetents: Equatable {
     public let collapsed: PresentationDetent
     public let medium: PresentationDetent
     public let full: PresentationDetent

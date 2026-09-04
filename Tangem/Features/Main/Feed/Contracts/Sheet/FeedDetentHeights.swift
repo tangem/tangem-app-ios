@@ -6,24 +6,72 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 import TangemFoundation
+import TangemUI
 import TangemUIUtils
 
-struct FeedDetentHeights: Equatable {
+final class FeedDetentHeights: ObservableObject {
     static let initialCollapsedHeight: CGFloat = 70
 
-    private var searchBarHeight: CGFloat = initialCollapsedHeight
+    @Published private(set) var detents: ShtorkaDetents
 
-    // TEMP: Until real sheet content
-    private var widgetsHeight: CGFloat = 300
-    private var tabChipsHeight: CGFloat = 80
+    /// Kept out of `detents`: the sheet height arrives on every drag frame, and a detent set mutated mid-drag makes the sheet jump.
+    @Published private(set) var expansionProgress: CGFloat = 0
+
+    private var searchBarHeight = FeedDetentHeights.initialCollapsedHeight
+    private var widgetsHeight: CGFloat = .zero
+    private var tabChipsHeight: CGFloat = .zero
     private var safeArea = EdgeInsets()
+
     private var sheetHeight: CGFloat = .zero
     private var fullSheetHeight: CGFloat?
 
-    init() {}
+    var detentsPublisher: AnyPublisher<ShtorkaDetents, Never> {
+        $detents.eraseToAnyPublisher()
+    }
 
+    var expansionProgressPublisher: AnyPublisher<CGFloat, Never> {
+        $expansionProgress.removeDuplicates().eraseToAnyPublisher()
+    }
+
+    init() {
+        detents = ShtorkaDetents(collapsed: .height(Self.initialCollapsedHeight), medium: .height(Self.initialCollapsedHeight))
+        syncDetents()
+    }
+
+    func report(searchBar height: CGFloat) {
+        searchBarHeight = height.roundedToDeviceScale()
+        syncDetents()
+    }
+
+    func report(widgets height: CGFloat) {
+        widgetsHeight = height.roundedToDeviceScale()
+        syncDetents()
+    }
+
+    func report(tabChips height: CGFloat) {
+        tabChipsHeight = height.roundedToDeviceScale()
+        syncDetents()
+    }
+
+    func report(safeArea insets: EdgeInsets) {
+        safeArea = insets
+        syncDetents()
+    }
+
+    func report(sheetHeight height: CGFloat) {
+        sheetHeight = (height + safeArea.bottom).roundedToDeviceScale()
+        fullSheetHeight = max(fullSheetHeight ?? sheetHeight, sheetHeight)
+
+        expansionProgress = makeExpansionProgress()
+    }
+}
+
+// MARK: - Private
+
+private extension FeedDetentHeights {
     var collapsed: CGFloat {
         searchBarHeight
     }
@@ -39,7 +87,7 @@ struct FeedDetentHeights: Equatable {
             - safeArea.bottom
     }
 
-    var expansionProgress: CGFloat {
+    func makeExpansionProgress() -> CGFloat {
         guard let fullSheetHeight else {
             return 0
         }
@@ -52,25 +100,14 @@ struct FeedDetentHeights: Equatable {
         return clamp((sheetHeight - collapsed) / travel, min: 0, max: 1)
     }
 
-    mutating func report(searchBar height: CGFloat) {
-        searchBarHeight = height.roundedToDeviceScale()
-    }
+    func syncDetents() {
+        let updated = ShtorkaDetents(collapsed: .height(collapsed), medium: .height(medium))
 
-    mutating func report(widgets height: CGFloat) {
-        widgetsHeight = height.roundedToDeviceScale()
-    }
+        guard updated != detents else {
+            return
+        }
 
-    mutating func report(tabChips height: CGFloat) {
-        tabChipsHeight = height.roundedToDeviceScale()
-    }
-
-    mutating func report(safeArea insets: EdgeInsets) {
-        safeArea = insets
-    }
-
-    mutating func report(sheetHeight height: CGFloat) {
-        sheetHeight = (height + safeArea.bottom).roundedToDeviceScale()
-        fullSheetHeight = max(fullSheetHeight ?? sheetHeight, sheetHeight)
+        detents = updated
     }
 }
 
