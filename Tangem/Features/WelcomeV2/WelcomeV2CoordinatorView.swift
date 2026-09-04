@@ -52,6 +52,7 @@ struct WelcomeV2CoordinatorView: CoordinatorView {
         .animation(.easeInOut(duration: 0.35), value: coordinator.welcomeStoryViewModel != nil)
         .animation(.easeInOut(duration: 0.35), value: coordinator.tangemPayMobileOnboardingCoordinator != nil)
         .overlay(sheets)
+        .confirmationDialog(viewModel: $coordinator.scanTroubleshootingDialog)
         .fullScreenCover(item: $coordinator.legalWebViewModel) { webViewModel in
             WebViewContainer(viewModel: webViewModel)
                 .environment(\.colorScheme, .dark)
