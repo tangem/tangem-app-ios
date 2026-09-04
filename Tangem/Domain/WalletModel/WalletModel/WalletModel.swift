@@ -215,6 +215,7 @@ protocol WalletModelDependenciesProvider {
     var tronTransactionFeeProvider: TronTransactionFeeProvider? { get }
     var tronAllowanceProvider: TronAllowanceProvider? { get }
     var tronTransactionDataBuilder: TronTransactionDataBuilder? { get }
+    var tronAccountActivationStateProvider: TronAccountActivationStateProvider? { get }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }
     var ethereumNetworkProvider: EthereumNetworkProvider? { get }
