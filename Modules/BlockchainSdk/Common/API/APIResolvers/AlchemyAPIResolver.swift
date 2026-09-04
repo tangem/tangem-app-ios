@@ -29,6 +29,8 @@ struct AlchemyAPIResolver {
             return testnet ? "adi-testnet" : "adi-mainnet"
         case .robinhood(let testnet):
             return testnet ? "robinhood-testnet" : nil
+        case .arc(let testnet):
+            return testnet ? "arc-testnet" : "arc-mainnet"
         default:
             return nil
         }
