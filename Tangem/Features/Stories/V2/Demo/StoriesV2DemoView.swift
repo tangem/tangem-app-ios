@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemStories
+import TangemUI
 
 struct StoriesV2DemoView: View {
     @ObservedObject var viewModel: StoriesV2DemoViewModel
@@ -15,21 +16,53 @@ struct StoriesV2DemoView: View {
     var body: some View {
         List {
             Section {
-                Button("Sample story (local)") { viewModel.openSample() }
+                row("Sample story (local)", request: .sample)
+            }
+
+            if let statusMessage = viewModel.statusMessage {
+                Section {
+                    Text(statusMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Section("Remote stories") {
+                row("All slugs (batch)", request: .remoteBatch)
+
+                ForEach(viewModel.storyIDs, id: \.self) { id in
+                    row(id.rawValue, request: .remote(id))
+                }
             }
         }
         .navigationTitle("Stories V2 Demo")
-        .fullScreenCover(isPresented: isPresenting) {
-            if let player = viewModel.player {
-                StoryPlayerView(vm: player)
+        .fullScreenCover(item: presentedStory) { presented in
+            StoryPlayerView(vm: presented.player)
+        }
+    }
+
+    /// Tapping another row cancels the request in flight, so a hung one never locks the screen.
+    private func row(_ title: String, request: StoriesV2DemoViewModel.Request) -> some View {
+        Button {
+            viewModel.open(request)
+        } label: {
+            HStack {
+                Text(title)
+
+                Spacer()
+
+                if viewModel.loadingRequest == request {
+                    Loader()
+                        .loaderSize(.size16)
+                }
             }
         }
     }
 
-    private var isPresenting: Binding<Bool> {
+    private var presentedStory: Binding<StoriesV2DemoViewModel.PresentedStory?> {
         Binding(
-            get: { viewModel.player != nil },
-            set: { presented in if !presented { viewModel.closePlayer() } }
+            get: { viewModel.presentedStory },
+            set: { presented in if presented == nil { viewModel.closePlayer() } }
         )
     }
 }
