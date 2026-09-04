@@ -75,4 +75,18 @@ public enum MarketsAccessibilityIdentifiers {
     public static func marketsPortfolioTokenItem(tokenName: String) -> String {
         "marketsPortfolioTokenItem_\(tokenName)"
     }
+
+    // MARK: - Real Assets Filter
+
+    public static func marketsRealAssetsFilterCategoryOption(_ categoryCode: String) -> String {
+        "marketsRealAssetsFilterCategoryOption_\(categoryCode)"
+    }
+
+    public static func marketsRealAssetsFilterSectorChip(_ sectorCode: String) -> String {
+        "marketsRealAssetsFilterSectorChip_\(sectorCode)"
+    }
+
+    public static let marketsRealAssetsFilterResetButton = "marketsRealAssetsFilterResetButton"
+    public static let marketsRealAssetsFilterApplyButton = "marketsRealAssetsFilterApplyButton"
+    public static let marketsRealAssetsFilterCloseButton = "marketsRealAssetsFilterCloseButton"
 }
