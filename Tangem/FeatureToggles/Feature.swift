@@ -99,7 +99,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletConnectBitcoin: return .unspecified
         case .gaslessYieldFee: return .version("6.3")
         case .usdtRevokeGaslessFee: return .unspecified
-        case .tronGasless: return .unspecified
+        case .tronGasless: return .version("6.3")
         case .xrplTransactionHistory: return .version("6.3")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
