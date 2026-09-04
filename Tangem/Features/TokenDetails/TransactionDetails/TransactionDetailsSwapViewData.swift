@@ -45,7 +45,7 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
                 isAmountStrikethrough: false
             ),
             to: .init(
-                direction: .init(label: destinationLabel, actor: nil),
+                direction: .init(label: Localization.swappingToTitle, actor: nil),
                 icon: icon(for: destination),
                 amountText: destinationAmountText,
                 fiatText: nil,
@@ -74,13 +74,6 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
 
     private func icon(for leg: Leg) -> TransactionDetailsTokensViewData.Leg.Icon {
         leg.tokenIconInfo.map { .token($0) } ?? .loading
-    }
-
-    private var destinationLabel: String {
-        switch stage {
-        case .inProgress: Localization.expressEstimatedAmount
-        case .finished, .unsuccessful: Localization.swappingToTitle
-        }
     }
 
     private var sourceAmountText: String? {
