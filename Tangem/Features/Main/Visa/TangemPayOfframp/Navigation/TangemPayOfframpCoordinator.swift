@@ -23,6 +23,10 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
 
     @Published var sendCoordinator: SendCoordinator?
 
+    // MARK: - Shared state
+
+    private var recentRecipientsStore: TangemPayRecentRecipientsStore?
+
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -32,11 +36,21 @@ final class TangemPayOfframpCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        let recentRecipientsStore = TangemPayRecentRecipientsStore(
+            repository: CommonTangemPayBankAccountsRepository(
+                customerService: options.tangemPayAccount.customerService
+            ),
+            cacheStorage: AppSettings.shared,
+            customerWalletId: options.tangemPayAccount.userWalletId.stringValue
+        )
+        self.recentRecipientsStore = recentRecipientsStore
+
         rootViewModel = WithdrawHubViewModel(
             withdrawFlowResolver: TangemPayWithdrawFlowResolver(
                 fundingFlowBuilder: options.fundingFlowBuilder,
                 withdrawAvailabilityProvider: options.tangemPayAccount.withdrawAvailabilityProvider
             ),
+            recentRecipientsStore: recentRecipientsStore,
             output: { [weak self] in
                 self?.handle($0)
             }
