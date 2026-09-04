@@ -119,6 +119,7 @@ struct AddressTypesConfig {
              .plasma,
              .adi,
              .electroneum,
+             .arc,
              .seiEvm:
             return [.default]
         }
