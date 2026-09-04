@@ -111,23 +111,11 @@ struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
     private func isDeviceNotFound(_ responseBody: Data?) -> Bool {
         guard
             let responseBody,
-            let problemDetailDTO = try? decoder.decode(ProblemDetailDTO.self, from: responseBody),
-            let problemDetailRawValue = problemDetailDTO.detail
+            let problemDetailDTO = try? decoder.decode(ProblemDetailDTO.Response.self, from: responseBody)
         else {
             return false
         }
 
-        return ProblemDetail(rawValue: problemDetailRawValue) == .deviceNotFound
+        return problemDetailDTO == ProblemDetailDTO.Response.deviceNotFound
     }
-}
-
-// [REDACTED_USERNAME], backend uses ProblemDetail class from Spring framework for different types of exceptions,
-// all having 404 not found status code. The only way to distinguish is to rely on exact message match.
-
-private struct ProblemDetailDTO: Decodable {
-    let detail: String?
-}
-
-private enum ProblemDetail: String {
-    case deviceNotFound = "Device not found"
 }

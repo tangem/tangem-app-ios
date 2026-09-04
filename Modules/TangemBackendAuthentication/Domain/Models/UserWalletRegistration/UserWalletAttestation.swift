@@ -9,7 +9,7 @@
 public import struct Foundation.Data
 
 /// Cryptographic proof that a user wallet belongs to the device registering it with the backend,
-/// produced by ``UserWalletSigner`` and submitted as part of `POST /mobile/wallet/register`.
+/// produced by ``UserWalletRegistrationSigner`` and submitted as part of `POST /mobile/wallet/register`.
 ///
 /// Two independent claims, verified separately by the backend:
 /// - `walletSignature` proves possession of the wallet's own private key.

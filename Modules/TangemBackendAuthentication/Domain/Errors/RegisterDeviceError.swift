@@ -7,8 +7,8 @@
 //
 
 public enum RegisterDeviceError: Error {
+    case deviceKeyFailure(DeviceKeyManagerError)
     case clientFailure(DeviceRegistrationClientError)
     case nonceDecryptionFailure(NonceDecryptorError)
-    case deviceKeyFailure(DeviceKeyManagerError)
     case repositoryFailure(SessionTokensRepositoryError)
 }
