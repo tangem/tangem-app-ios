@@ -52,6 +52,7 @@ struct WelcomeV2ActionSheetView: View {
                         row(for: item)
                     }
                 }
+                .allowsHitTesting(!viewModel.items.contains(where: \.isLoading))
                 .padding(.horizontal, 16)
                 .padding(.bottom, 20)
             }
@@ -63,9 +64,15 @@ struct WelcomeV2ActionSheetView: View {
             .contentLead(.start)
             .start(icon: item.icon)
             .end {
-                DesignSystem.Icons.ChevronRight.regular16.image
-                    .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                if item.isLoading {
+                    ProgressView()
+                        .controlSize(.small)
+                        .tint(DesignSystem.Color.iconSecondary)
+                } else {
+                    DesignSystem.Icons.ChevronRight.regular16.image
+                        .renderingMode(.template)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
+                }
             }
             .onTap(item.action)
             .background(DesignSystem.Color.bgOpaquePrimary)
