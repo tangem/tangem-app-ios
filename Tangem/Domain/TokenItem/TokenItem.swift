@@ -131,6 +131,15 @@ enum TokenItem: Hashable, Codable {
         }
     }
 
+    var displayDecimalCount: Int {
+        switch self {
+        case .token(let token, _):
+            return token.decimalCount
+        case .blockchain(let blockchainNetwork):
+            return blockchainNetwork.blockchain.displayDecimalCount
+        }
+    }
+
     var decimalValue: Decimal {
         pow(10, decimalCount)
     }
