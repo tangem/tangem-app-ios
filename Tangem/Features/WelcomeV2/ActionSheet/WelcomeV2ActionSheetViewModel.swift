@@ -28,6 +28,14 @@ final class WelcomeV2ActionSheetViewModel: ObservableObject {
     func update(items: [WelcomeV2ActionSheetItem]) {
         self.items = items
     }
+
+    func setLoading(_ isLoading: Bool, for itemId: String) {
+        items = items.map { item in
+            var updated = item
+            updated.isLoading = item.id == itemId ? isLoading : false
+            return updated
+        }
+    }
 }
 
 // MARK: - Input
