@@ -151,7 +151,9 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemBackendAuthentication",
             dependencies: [
-                "TangemFoundation",
+                .target(name: "TangemFoundation"),
+                .product(name: "Alamofire", package: "Alamofire"),
+                .product(name: "Moya", package: "Moya"),
             ],
             swiftSettings: .swift6StrictSettings
         ),
@@ -243,6 +245,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAccessibilityIdentifiers",
                 "TangemLogger",
                 .product(name: "BlurSwiftUI", package: "BlurUIKit"),
+                .product(name: "Lottie", package: "lottie-spm"),
                 "TangemMacro",
             ],
             swiftSettings: [
@@ -310,8 +313,24 @@ var featureModules: [PackageDescription.Target] {
                 "CryptoSwift",
                 "Moya",
                 "TangemFoundation",
+                "TangemLogger",
                 "TangemMacro",
                 "TangemNetworkUtils",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
+            name: "TangemPolymarketUI",
+            dependencies: [
+                "Kingfisher",
+                "TangemAssets",
+                "TangemFoundation",
+                "TangemLocalization",
+                "TangemUI",
+                "TangemUIUtils",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -373,6 +392,8 @@ var featureModules: [PackageDescription.Target] {
             name: "TangemStories",
             dependencies: [
                 "Kingfisher",
+                "TangemAssets",
+                "TangemAccessibilityIdentifiers",
                 "TangemLocalization",
                 "TangemUI",
                 "TangemFoundation",

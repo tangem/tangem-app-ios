@@ -75,7 +75,7 @@ private struct CampaignEligibleTokenRowView: View {
                 accessibilityLabel: Localization.marketsAddToken,
                 action: addAction
             )
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
             .size(.x9)
             .horizontalLayout(.intrinsic)
         }

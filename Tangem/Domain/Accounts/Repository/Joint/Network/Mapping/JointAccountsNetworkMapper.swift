@@ -14,8 +14,8 @@ struct JointAccountsNetworkMapper {}
 // MARK: - Requests
 
 extension JointAccountsNetworkMapper {
-    func mapToRequest<Payload: Encodable>(from blob: JointAccountSignedBlob<Payload>) -> JointAccountsDTO.SignedRequest<Payload> {
-        JointAccountsDTO.SignedRequest(
+    func mapToRequest<Payload: Encodable>(from blob: JointAccountSignedBlob<Payload>) -> JointAccountsDTO.Request.SignedRequest<Payload> {
+        JointAccountsDTO.Request.SignedRequest(
             payload: blob.payload,
             signature: blob.signature.hexString.addHexPrefix()
         )
@@ -25,7 +25,7 @@ extension JointAccountsNetworkMapper {
 // MARK: - Responses
 
 extension JointAccountsNetworkMapper {
-    func mapToCreationResult(from response: JointAccountsDTO.Create.Response) -> JointAccountCreationResult {
+    func mapToCreationResult(from response: JointAccountsDTO.Response.JointAccount) -> JointAccountCreationResult {
         let invites = (response.invites ?? []).map { JointAccountInvite(id: $0.id) }
         let freeSlotsCount = max(0, response.membersCount - response.members.count)
 
@@ -38,11 +38,11 @@ extension JointAccountsNetworkMapper {
         return JointAccountCreationResult(account: mapToJointAccount(from: response), invites: invites)
     }
 
-    func mapToJointAccounts(from response: JointAccountsDTO.List.Response) -> [RemoteJointAccount] {
+    func mapToJointAccounts(from response: JointAccountsDTO.Response.JointAccounts) -> [RemoteJointAccount] {
         response.jointAccounts.map(mapToJointAccount(from:))
     }
 
-    func mapToJointAccount(from dto: JointAccountsDTO.JointAccount) -> RemoteJointAccount {
+    func mapToJointAccount(from dto: JointAccountsDTO.Response.JointAccount) -> RemoteJointAccount {
         RemoteJointAccount(
             cryptoAccountId: dto.cryptoAccountId,
             membersCount: dto.membersCount,
@@ -50,12 +50,12 @@ extension JointAccountsNetworkMapper {
             address: dto.safeAddress,
             status: dto.status,
             members: dto.members.map { member in
-                StoredJointAccount.Member(name: member.name, address: member.address, role: member.role)
+                StoredJointAccount.Member(name: member.name, address: member.address, role: member.role, inviteId: member.inviteId)
             }
         )
     }
 
-    func mapToInvitePreview(from response: JointAccountsDTO.InvitePreview.Response) -> JointAccountInvitePreview {
+    func mapToInvitePreview(from response: JointAccountsDTO.Response.InvitePreview) -> JointAccountInvitePreview {
         JointAccountInvitePreview(
             config: response.config,
             creator: JointAccountInvitePreview.Creator(name: response.creator.name, address: response.creator.address)
