@@ -49,6 +49,10 @@ extension CommonPolymarketAPIService: PolymarketAPIService {
     func seriesEvents(seriesId: String) async throws -> PolymarketDTO.SeriesEventsResponse {
         try await request(.seriesEvents(seriesId: seriesId))
     }
+
+    func orderQuote(body: PolymarketDTO.OrderQuoteRequestBody) async throws -> PolymarketDTO.OrderQuoteResponse {
+        try await request(.orderQuote(body))
+    }
 }
 
 // MARK: - Private

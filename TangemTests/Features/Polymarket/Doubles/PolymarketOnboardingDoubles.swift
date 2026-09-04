@@ -384,6 +384,10 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     func seriesEvents(seriesId: String) async throws -> PolymarketSeriesEvents {
         throw PolymarketDepositWalletServiceStub.StubError()
     }
+
+    func orderQuote(request: PolymarketOrderQuoteRequest) async throws -> PolymarketOrderQuote {
+        throw PolymarketDepositWalletServiceStub.StubError()
+    }
 }
 
 // MARK: - Search routing
