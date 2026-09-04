@@ -186,6 +186,12 @@ final class AppSettings {
     @AppStorageCompat(StorageType.needsTangemPayMobileOnboarding)
     var needsTangemPayMobileOnboarding: Bool = false
 
+    @AppStorageCompat(StorageType.geoIpRegionCode)
+    var geoIpRegionCode: String? = nil
+
+    @AppStorageCompat(StorageType.geoIpRegionCodeUpdateDate)
+    var geoIpRegionCodeUpdateDate: Date? = nil
+
     static let shared: AppSettings = .init()
 
     private init() {}
