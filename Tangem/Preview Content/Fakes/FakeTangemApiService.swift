@@ -9,9 +9,14 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 final class FakeTangemApiService: TangemApiService {
     private let geoIpRegionCode: String
+
+    // MARK: - Geo Handlers (Tests/Previews)
+
+    var loadGeoHandler: (@Sendable () async throws -> String)?
 
     // MARK: - News Handlers (Tests/Previews)
 
@@ -41,6 +46,10 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadGeo() -> AnyPublisher<String, any Error> {
+        if let loadGeoHandler {
+            return Future.async { try await loadGeoHandler() }.eraseToAnyPublisher()
+        }
+
         return .justWithError(output: geoIpRegionCode)
     }
 
