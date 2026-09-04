@@ -28,6 +28,7 @@ final class WalletModelTestsMock: WalletModel {
     var multipleTransactionsSenderMock: MultipleTransactionsSender?
     var stakingManagerMock: StakingManager?
     var yieldModuleManagerMock: (any YieldModuleManager)?
+    var tronAccountActivationStateProviderMock: (any TronAccountActivationStateProvider)?
     private let _updateAfterSendingTransactionCalls = OSAllocatedUnfairLock(initialState: [Bool]())
     var updateAfterSendingTransactionSilentFlags: [Bool] { _updateAfterSendingTransactionCalls.withLock { $0 } }
     var updateAfterSendingTransactionCallCount: Int { updateAfterSendingTransactionSilentFlags.count }
@@ -211,6 +212,7 @@ final class WalletModelTestsMock: WalletModel {
     var tronTransactionFeeProvider: TronTransactionFeeProvider? { nil }
     var tronAllowanceProvider: TronAllowanceProvider? { nil }
     var tronTransactionDataBuilder: TronTransactionDataBuilder? { nil }
+    var tronAccountActivationStateProvider: TronAccountActivationStateProvider? { tronAccountActivationStateProviderMock }
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { nil }
     var ethereumNetworkProvider: EthereumNetworkProvider? { nil }
     var ethereumTransactionSigner: EthereumTransactionSigner? { nil }
