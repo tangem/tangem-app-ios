@@ -119,7 +119,7 @@ public final class AppDatabase: @unchecked Sendable {
             .path(percentEncoded: false)
     }
 
-    private static func makeDatabaseMigrator() -> DatabaseMigrator {
+    static func makeDatabaseMigrator() -> DatabaseMigrator {
         var migrator = DatabaseMigrator()
 
         #if DEBUG

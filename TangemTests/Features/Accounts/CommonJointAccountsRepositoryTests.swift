@@ -223,7 +223,8 @@ private extension CommonJointAccountsRepositoryTests {
             StoredJointAccount.Member(
                 name: name,
                 address: "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21\(index)",
-                role: index == 0 ? .creator : .member
+                role: index == 0 ? .creator : .member,
+                inviteId: nil
             )
         }
     }
@@ -288,13 +289,22 @@ private extension JointAccountsNetworkServiceStub {
 
 private final class JointAccountsInvitesPersistentStorageStub: JointAccountsInvitesPersistentStorage {
     private let recordsLock: OSAllocatedUnfairLock<[StoredJointAccountInvites]>
+    private let didUpdateSubject = PassthroughSubject<Void, Never>()
 
     var records: [StoredJointAccountInvites] {
         recordsLock.withLock { $0 }
     }
 
+    var didUpdatePublisher: AnyPublisher<Void, Never> {
+        didUpdateSubject.eraseToAnyPublisher()
+    }
+
     init(records: [StoredJointAccountInvites] = []) {
         recordsLock = OSAllocatedUnfairLock(initialState: records)
+    }
+
+    func getList() -> [StoredJointAccountInvites] {
+        records
     }
 
     convenience init(invites: [JointAccountInvite], forCryptoAccountId cryptoAccountId: String) {
@@ -317,6 +327,8 @@ private final class JointAccountsInvitesPersistentStorageStub: JointAccountsInvi
                 records.append(record)
             }
         }
+
+        didUpdateSubject.send()
     }
 }
 

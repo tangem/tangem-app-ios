@@ -70,7 +70,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
             )
             .iconStart(DesignSystem.Icons.Copy.regular24)
             .size(.x12)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
 
             TangemUI.Button(
                 label: Localization.commonShare,
@@ -79,7 +79,7 @@ struct RedesignedSelectorReceiveAssetsAddressPageItemView: View {
             )
             .iconStart(DesignSystem.Icons.ShareIos.regular24)
             .size(.x12)
-            .styleType(.secondary)
+            .styleType(.secondary(.default))
         }
         .disabled(viewModel.isLoading)
     }

@@ -9,12 +9,22 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemMacro
 import TangemPolymarket
 
 protocol PolymarketBalanceService {
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
+    var state: PolymarketBalanceState? { get }
 
-    func update(with result: LoadingResult<Decimal, Error>)
+    func update(_ state: PolymarketBalanceState)
+}
+
+@CaseFlagable
+enum PolymarketBalanceState {
+    case loading
+    case loaded(Decimal)
+    case failed(Error)
+    case unavailable
 }
 
 final class CommonPolymarketBalanceService {
@@ -33,7 +43,7 @@ final class CommonPolymarketBalanceService {
 
     private let tokenItem = PolymarketUtilities.collateralTokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
-    private let balanceSubject = CurrentValueSubject<LoadingResult<Decimal, Error>?, Never>(nil)
+    private let balanceSubject = CurrentValueSubject<PolymarketBalanceState?, Never>(nil)
 
     init(tokenBalancesRepository: TokenBalancesRepository) {
         self.tokenBalancesRepository = tokenBalancesRepository
@@ -43,10 +53,14 @@ final class CommonPolymarketBalanceService {
 // MARK: - PolymarketBalanceService protocol conformance
 
 extension CommonPolymarketBalanceService: PolymarketBalanceService {
-    func update(with result: LoadingResult<Decimal, Error>) {
-        balanceSubject.send(result)
+    var state: PolymarketBalanceState? {
+        balanceSubject.value
+    }
 
-        if case .success = result {
+    func update(_ state: PolymarketBalanceState) {
+        balanceSubject.send(state)
+
+        if state.isLoaded {
             fiatRateProvider.updateRate()
         }
     }

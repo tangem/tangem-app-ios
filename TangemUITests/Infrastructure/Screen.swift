@@ -45,6 +45,28 @@ extension Screen {
         }
     }
 
+    /// Waits for an alert to appear and dismisses it via its 'OK' button.
+    @discardableResult
+    func waitForAlertAndDismiss() -> Self {
+        XCTContext.runActivity(named: "Wait for alert and dismiss") { _ in
+            let alert = app.alerts.firstMatch
+            XCTAssertTrue(alert.waitForExistence(timeout: .robustUIUpdate), "Alert should be displayed")
+
+            alert.buttons["OK"].waitAndTap()
+        }
+        return self
+    }
+
+    /// Waits for the in-app Safari (`SFSafariViewController`), which surfaces as a web view, to appear.
+    @discardableResult
+    func waitForBrowserOpened() -> Self {
+        XCTContext.runActivity(named: "Verify in-app browser is opened") { _ in
+            let webView = app.webViews.firstMatch
+            waitAndAssertTrue(webView, "Web view should appear after opening the in-app browser")
+            return self
+        }
+    }
+
     /// Waits for element existence and then asserts it exists
     /// - Parameters:
     ///   - element: The element to wait for and assert

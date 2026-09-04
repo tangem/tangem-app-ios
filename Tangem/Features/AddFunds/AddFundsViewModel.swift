@@ -24,6 +24,7 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Published private(set) var tokenInfoViewData: AddFundsTokenInfoView.ViewData
 
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+    @Injected(\.cryptoAccountsGlobalStateProvider) private static var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
 
     private let walletModel: any WalletModel
     private let userWalletModel: any UserWalletModel
@@ -167,7 +168,7 @@ private extension AddFundsViewModel {
         walletModel: any WalletModel,
         userWalletModel: any UserWalletModel
     ) -> AddFundsTokenInfoView.Badge? {
-        let hasMultipleAccounts = userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+        let hasMultipleAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
         if hasMultipleAccounts, let account = walletModel.account {
             return .account(AddFundsTokenInfoView.AccountBadge(

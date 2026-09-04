@@ -12,12 +12,13 @@ import TangemFoundation
 import BlockchainSdk
 
 struct CommonCryptoAccountDependenciesFactory {
-    typealias UserTokensRepositoryProvider = (_ derivationIndex: Int) -> UserTokensRepository
+    typealias UserTokensRepositoryProvider = (_ derivationIdentity: CryptoAccountDerivationIdentity) -> UserTokensRepository
 
     /// A single instance per user wallet
     let derivationManager: DerivationManager?
     let derivationStyle: DerivationStyle?
     let keysRepository: KeysRepository
+    let walletFactory: AnyWalletFactory
     let walletManagerFactory: AnyWalletManagerFactory
     let existingCurves: [EllipticCurve]
     let persistentBlockchains: [TokenItem]
@@ -32,20 +33,19 @@ struct CommonCryptoAccountDependenciesFactory {
 
 extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFactory {
     func makeDependencies(
-        forAccountWithDerivationIndex derivationIndex: Int,
+        forAccountWithDerivationIdentity derivationIdentity: CryptoAccountDerivationIdentity,
         userWalletId: UserWalletId
     ) -> CryptoAccountDependencies {
-        let derivationInfo = CommonUserTokensManager.DerivationInfo(
-            derivationIndex: derivationIndex,
-            derivationStyle: derivationStyle,
+        let derivationPathBuilder = AccountDerivationPathBuilderFactory.makeBuilder(
+            forAccountWith: derivationIdentity,
+            derivationStyle: derivationStyle
         )
-
-        let userTokensRepository = userTokensRepositoryProvider(derivationIndex)
+        let userTokensRepository = userTokensRepositoryProvider(derivationIdentity)
 
         let userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
             userTokensRepository: userTokensRepository,
-            derivationInfo: derivationInfo,
+            derivationPathBuilder: derivationPathBuilder,
             existingCurves: existingCurves,
             persistentBlockchains: persistentBlockchains,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
@@ -55,6 +55,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let walletManagersRepository = CommonWalletManagersRepository(
             keysProvider: keysRepository,
             userTokensManager: userTokensManager,
+            walletFactory: walletFactory,
             walletManagerFactory: walletManagerFactory
         )
 
@@ -68,8 +69,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let walletModelsManager = CommonWalletModelsManager(
             walletManagersRepository: walletManagersRepository,
             walletModelsFactory: wrappedWalletModelsFactory,
-            derivationIndex: derivationIndex,
-            derivationStyle: derivationStyle
+            derivationPathBuilder: derivationPathBuilder
         )
 
         // A single instance per unique account, account-specific proxy for `derivationManager`
