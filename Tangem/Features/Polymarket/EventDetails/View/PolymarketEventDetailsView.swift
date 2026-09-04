@@ -21,6 +21,8 @@ struct PolymarketEventDetailsView: View {
 
     @State private var titleTransferProgress: CGFloat = 0
 
+    @State private var headerTitleHeight: CGFloat = 0
+
     var body: some View {
         ZStack(alignment: .top) {
             content
@@ -135,6 +137,7 @@ struct PolymarketEventDetailsView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .scaleEffect(pageTitleScale, anchor: .topLeading)
                 .offset(x: pageHandoffProgress * Constants.pageTitleTravelX)
+                .readGeometry(\.size.height, bindTo: $headerTitleHeight)
 
             if content.hasMeta {
                 metaRow(content)
@@ -308,8 +311,14 @@ struct PolymarketEventDetailsView: View {
         Constants.barTitleMinScale + (1 - Constants.barTitleMinScale) * barHandoffProgress
     }
 
+    private var titleTransferStart: CGFloat {
+        let titleBottom = Constants.headerVerticalPadding + headerTitleHeight
+
+        return max(0, titleBottom - Constants.titleTransferDistance)
+    }
+
     private func updateTitleTransfer(contentOffset: CGPoint) {
-        let travelled = contentOffset.y - Constants.titleTransferStart
+        let travelled = contentOffset.y - titleTransferStart
         titleTransferProgress = clamp(travelled / Constants.titleTransferDistance, min: 0, max: 1)
     }
 }
@@ -341,10 +350,9 @@ private extension PolymarketEventDetailsView {
         static let barButtonSide: CGFloat = 44
         static let collapsedTitleSpacing: CGFloat = 4
         static let barSubtitleSpacing: CGFloat = 4
-        static let titleTransferStart: CGFloat = 32
-        static let titleTransferDistance: CGFloat = 72
-        static let pageHandoffShare: CGFloat = 0.45
-        static let barHandoffShare: CGFloat = 0.45
+        static let titleTransferDistance: CGFloat = 40
+        static let pageHandoffShare: CGFloat = 0.55
+        static let barHandoffShare: CGFloat = 0.55
         static let pageTitleTravelX: CGFloat = 100
         static let barTitleFontRatio: CGFloat = 16.0 / 28.0
         static let barTitleMinScale: CGFloat = 0.8

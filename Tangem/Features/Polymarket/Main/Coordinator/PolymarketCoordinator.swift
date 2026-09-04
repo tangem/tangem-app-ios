@@ -91,12 +91,10 @@ extension PolymarketCoordinator {
 
 extension PolymarketCoordinator: PolymarketWelcomeRoutable {
     func openPolymarketMain() {
-        refreshPolymarketAccount()
-
         viewState = .feed(PolymarketMainViewModel(
             apiProvider: PolymarketAPIProviderFactory().makeProvider(),
             geoblockService: PolymarketOnboardingServicesFactory.makeDefault().makeGeoblockService(),
-            balanceProvider: makeBalancePublisher(),
+            balanceProvider: CommonPolymarketBalanceProvider(userWalletModel: userWalletModel),
             coordinator: self
         ))
     }
@@ -154,32 +152,6 @@ extension PolymarketCoordinator: PolymarketMainRoutable {
 extension PolymarketCoordinator: PolymarketEventDetailsRoutable {
     func dismissEventDetails() {
         destination = nil
-    }
-}
-
-// MARK: - The Polymarket account
-
-private extension PolymarketCoordinator {
-    func refreshPolymarketAccount() {
-        guard
-            let accountModelsManager = userWalletModel?.accountModelsManager,
-            let polymarketAccountModel = PolymarketAccountAggregator.polymarketAccountModel(from: accountModelsManager)
-        else {
-            return
-        }
-
-        runTask { await polymarketAccountModel.refreshState() }
-    }
-
-    func makeBalancePublisher() -> AnyPublisher<FormattedTokenBalanceType, Never> {
-        guard
-            let accountModelsManager = userWalletModel?.accountModelsManager,
-            let accountModel = PolymarketAccountAggregator.polymarketAccountModel(from: accountModelsManager)
-        else {
-            return .just(output: .failure(.empty(BalanceFormatter.defaultEmptyBalanceString)))
-        }
-
-        return accountModel.fiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
     }
 }
 

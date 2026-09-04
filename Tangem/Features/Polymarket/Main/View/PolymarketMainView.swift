@@ -28,6 +28,7 @@ struct PolymarketMainView: View {
             if viewModel.isSearching {
                 PolymarketSearchView(viewModel: viewModel.search)
                     .background(DesignSystem.Color.bgPrimary)
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) { searchField }
@@ -124,14 +125,16 @@ struct PolymarketMainView: View {
 
     // [REDACTED_TODO_COMMENT]
     private var header: some View {
-        VStack(spacing: Constants.headerSpacing) {
+        VStack(spacing: 0) {
             balanceBlock
 
             if viewModel.isRegionRestricted {
                 regionRestrictionBanner
+                    .padding(.top, Constants.bannerTopSpacing)
             }
 
             exploreEventsTitle
+                .padding(.top, Constants.headerSpacing)
         }
         .padding(.top, Constants.headerTopPadding)
     }
@@ -143,7 +146,17 @@ struct PolymarketMainView: View {
         )
         .variant(.warning)
         .glowRing(.warning)
+        .slotEnd { bannerInfoIcon }
         .padding(.horizontal, Constants.horizontalPadding)
+    }
+
+    private var bannerInfoIcon: some View {
+        DesignSystem.Icons.Info.regular20.image
+            .renderingMode(.template)
+            .resizable()
+            .frame(size: .init(bothDimensions: Constants.bannerIconSide))
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
+            .accessibilityHidden(true)
     }
 
     @ViewBuilder
@@ -268,6 +281,7 @@ struct PolymarketMainView: View {
             .padding(.top, navBarHeight)
         }
         .coordinateSpace(name: Constants.scrollSpace)
+        .refreshable { await viewModel.refresh() }
     }
 
     @ViewBuilder
@@ -350,6 +364,8 @@ extension PolymarketMainView {
 
         static let headerTopPadding: CGFloat = 24
         static let headerSpacing: CGFloat = 40
+        static let bannerTopSpacing: CGFloat = 24
+        static let bannerIconSide: CGFloat = 20
         static let balanceSpacing: CGFloat = 4
         static let balanceAmountTrailingPadding: CGFloat = 4
         static let balanceLoaderSize = CGSize(width: 160, height: 40)
