@@ -118,19 +118,19 @@ struct TangemPayTransactionDetailsRedesignedMapper {
         }
 
         switch cashback {
-        case .earned(_, _, capTrimmed: true):
-            return .loaded(
-                .init(
-                    value: .text(Localization.tangemPayTransactionDetailsCashbackNone),
-                    subvalue: Localization.tangemPayTransactionDetailsCashbackCapReached
-                )
-            )
+        case .earned(let amount, let currency, let capTrimmed):
+            let subvalue: String? = if amount < 0 {
+                Localization.tangemPayTransactionDetailsCashbackRefund
+            } else if capTrimmed {
+                Localization.tangemPayTransactionDetailsCashbackCapReached
+            } else {
+                nil
+            }
 
-        case .earned(let amount, let currency, _):
             return .loaded(
                 .init(
                     value: .amount(format(amount: amount, currencyCode: currency, prefix: amount > 0 ? .plusSign : .empty)),
-                    subvalue: amount < 0 ? Localization.tangemPayTransactionDetailsCashbackRefund : nil
+                    subvalue: subvalue
                 )
             )
 
