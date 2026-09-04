@@ -192,7 +192,8 @@ private let previewTokens: [MarketsTokenModel] = [
         marketCap: 1_320_000_000_000,
         isUnderMarketCapLimit: false,
         stakingOpportunities: nil,
-        networks: nil
+        networks: nil,
+        restrictedForCountry: nil
     ),
     MarketsTokenModel(
         id: "ethereum",
@@ -205,7 +206,8 @@ private let previewTokens: [MarketsTokenModel] = [
         marketCap: 423_000_000_000,
         isUnderMarketCapLimit: false,
         stakingOpportunities: nil,
-        networks: nil
+        networks: nil,
+        restrictedForCountry: nil
     ),
     MarketsTokenModel(
         id: "solana",
@@ -218,7 +220,8 @@ private let previewTokens: [MarketsTokenModel] = [
         marketCap: 62_000_000_000,
         isUnderMarketCapLimit: false,
         stakingOpportunities: nil,
-        networks: nil
+        networks: nil,
+        restrictedForCountry: nil
     ),
 ]
 

@@ -47,7 +47,7 @@ struct AddressBookContactManagementCoordinatorView: CoordinatorView {
                             accessibilityLabel: Localization.commonCancel,
                             action: { coordinator?.dismissWalletPicker() }
                         )
-                        .styleType(.secondary)
+                        .styleType(.secondary(.default))
                         .size(.x12)
                         .horizontalLayout(.infinity)
                         .padding(.horizontal, 16)

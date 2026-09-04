@@ -31,6 +31,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemSnackbarDemo()
     func openTangemShimmerDemo()
     func openGlowRingDemo()
+    func openStatusScreenDemo()
     func openTabNavigationDemo()
     func openTangemTopNavigationDemo()
     func openTangemFadeDemo()
@@ -70,6 +71,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemSnackbarDemoViewModel: TangemSnackbarDemoViewModel?
     @Published var tangemShimmerDemoViewModel: TangemShimmerDemoViewModel?
     @Published var glowRingDemoViewModel: GlowRingDemoViewModel?
+    @Published var statusScreenDemoViewModel: StatusScreenDemoViewModel?
     @Published var tabNavigationDemoViewModel: TabNavigationDemoViewModel?
     @Published var tangemTopNavigationDemoViewModel: TangemTopNavigationDemoViewModel?
     @Published var tangemFadeDemoViewModel: TangemFadeDemoViewModel?
@@ -181,6 +183,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openGlowRingDemo() {
         glowRingDemoViewModel = .init()
+    }
+
+    func openStatusScreenDemo() {
+        statusScreenDemoViewModel = .init()
     }
 
     func openTabNavigationDemo() {

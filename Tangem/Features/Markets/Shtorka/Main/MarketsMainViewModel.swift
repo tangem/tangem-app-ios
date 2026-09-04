@@ -29,6 +29,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
     @Injected(\.marketsWidgetsProvider) private var widgetsProvider: MarketsMainWidgetsProvider
     @Injected(\.marketsWidgetsUpdateHandler) private var widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Properties
 
@@ -164,11 +165,15 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     }
 
     func onPolymarketEntranceTap() {
-        coordinator?.openPolymarket()
+        let userWalletModels = userWalletRepository.models.filter(\.supportsPolymarket)
+
+        guard userWalletModels.isNotEmpty else { return }
+
+        coordinator?.openPolymarket(for: userWalletModels)
     }
 
-    func openGacha(with options: GachaCoordinator.Options) {
-        coordinator?.openGacha(with: options)
+    func openCollectibles(with options: CollectiblesCoordinator.Options) {
+        coordinator?.openCollectibles(with: options)
     }
 }
 

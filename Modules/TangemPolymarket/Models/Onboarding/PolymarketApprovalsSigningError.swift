@@ -10,4 +10,6 @@ import Foundation
 
 public enum PolymarketApprovalsSigningError: Error, Equatable {
     case invalidDepositWalletAddress
+    case invalidNonce
+    case invalidDeadline
 }

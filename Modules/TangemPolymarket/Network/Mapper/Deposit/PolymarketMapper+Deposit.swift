@@ -1,0 +1,82 @@
+//
+//  PolymarketMapper+Deposit.swift
+//  TangemPolymarket
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+// MARK: - Supported assets
+
+extension PolymarketMapper {
+    func mapSupportedAssets(_ response: PolymarketDTO.SupportedAssetsResponse) -> [PolymarketSupportedAsset] {
+        var assets: [PolymarketSupportedAsset] = []
+        assets.reserveCapacity(response.supportedAssets.count)
+
+        var chainsWithoutFamily = Set<String>()
+
+        for dto in response.supportedAssets {
+            guard let family = PolymarketChainFamily(chainId: dto.chainId) else {
+                chainsWithoutFamily.insert("\(dto.chainName) (\(dto.chainId))")
+                continue
+            }
+
+            assets.append(makeSupportedAsset(dto, family: family))
+        }
+
+        if !chainsWithoutFamily.isEmpty {
+            PolymarketLogger.warning(
+                "The bridge lists chains this build has no address family for, their assets are unavailable: "
+                    + chainsWithoutFamily.sorted().joined(separator: ", ")
+            )
+        }
+
+        return assets
+    }
+}
+
+// MARK: - Funding addresses
+
+extension PolymarketMapper {
+    func mapFundingAddresses(_ dto: PolymarketDTO.FundingAddressesResponse) -> PolymarketBridgeFundingAddresses {
+        let addresses = PolymarketChainFamily.allCases.reduce(into: [PolymarketChainFamily: String]()) { result, family in
+            guard let address = address(for: family, in: dto), !address.isEmpty else { return }
+            result[family] = address
+        }
+
+        return PolymarketBridgeFundingAddresses(addresses: addresses)
+    }
+}
+
+// MARK: - Private implementation
+
+private extension PolymarketMapper {
+    func makeSupportedAsset(
+        _ dto: PolymarketDTO.SupportedAsset,
+        family: PolymarketChainFamily
+    ) -> PolymarketSupportedAsset {
+        PolymarketSupportedAsset(
+            chainId: dto.chainId,
+            chainName: dto.chainName,
+            family: family,
+            token: PolymarketSupportedAsset.Token(
+                name: dto.token.name,
+                symbol: dto.token.symbol,
+                address: dto.token.address,
+                decimalCount: dto.token.decimals
+            ),
+            minimumDepositUSD: dto.minCheckoutUsd
+        )
+    }
+
+    func address(for family: PolymarketChainFamily, in dto: PolymarketDTO.FundingAddressesResponse) -> String? {
+        switch family {
+        case .evm: dto.evm
+        case .svm: dto.svm
+        case .btc: dto.btc
+        case .tron: dto.tron
+        }
+    }
+}

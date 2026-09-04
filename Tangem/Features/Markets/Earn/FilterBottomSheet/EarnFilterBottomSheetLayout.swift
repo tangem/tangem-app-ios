@@ -119,7 +119,7 @@ private extension EarnFilterBottomSheetLayout {
             action: onClose
         )
         .size(.x9)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
     }
 
     var cancelButton: some View {
@@ -129,7 +129,7 @@ private extension EarnFilterBottomSheetLayout {
             action: onCancel
         )
         .size(.x12)
-        .styleType(.secondary)
+        .styleType(.secondary(.default))
         .horizontalLayout(.infinity)
     }
 }

@@ -61,4 +61,28 @@ final class SwapActionButtonUITests: BaseTestCase {
             .enterFromAmount("1")
             .waitForFromAmountValue("1")
     }
+
+    func testSwapForZeroBalanceToken_PrefillsMostFundedSourceToken() {
+        setAllureId(9455)
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            scenarios: [
+                ScenarioConfig(name: "polygon_coin_balance", initialState: "ZeroBalance"),
+            ]
+        )
+
+        let swapScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken("Polygon")
+            .waitForSwapButtonEnabled()
+            .tapSwapButton()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+
+        swapScreen
+            .waitFromTokenDisplayed(tokenSymbol: "ETH")
+            .waitToTokenDisplayed(tokenSymbol: "POL")
+    }
 }

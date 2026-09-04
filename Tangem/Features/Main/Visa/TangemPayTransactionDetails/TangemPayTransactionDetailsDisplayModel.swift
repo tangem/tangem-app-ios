@@ -29,6 +29,13 @@ extension TangemPayTransactionDetailsDisplayModel {
     struct Row {
         let title: String
         let value: String
+        let accessibilityIdentifier: String?
+
+        init(title: String, value: String, accessibilityIdentifier: String? = nil) {
+            self.title = title
+            self.value = value
+            self.accessibilityIdentifier = accessibilityIdentifier
+        }
     }
 
     struct CashbackRow: Equatable {

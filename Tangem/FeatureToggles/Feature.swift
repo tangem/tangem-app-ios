@@ -41,11 +41,13 @@ enum Feature: String, Hashable, CaseIterable {
     case tangemPayCashback
     case swapChooseTokenWholeAreaTap
     case welcomeScreenV2
+    case nativeMarketsShtorka
     case tangemPayPlastic
-    case gachaMachine
+    case collectibles
     case openTelemetryMetrics
     case expressGeoRestrictions
     case tangemPayOfframp
+    case storiesV2
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -83,11 +85,13 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayCashback: return "TWI-1192_tangem_pay_cashback"
         case .swapChooseTokenWholeAreaTap: return "[REDACTED_INFO]_choose_token_whole_area_tap"
         case .welcomeScreenV2: return "TWI-1747_welcome_screen_v2"
+        case .nativeMarketsShtorka: return "[REDACTED_INFO]_native_markets_shtorka"
         case .tangemPayPlastic: return "TWI-1157_tangem_pay_plastic"
-        case .gachaMachine: return "TWI-1640_gacha_machine"
+        case .collectibles: return "TWI-1640_gacha_machine"
         case .openTelemetryMetrics: return "TWI-1627_opentelemetry_metrics_mirroring"
         case .expressGeoRestrictions: return "[REDACTED_INFO]_express_geo_restrictions"
         case .tangemPayOfframp: return "TWI-1632_tangem_pay_offramp"
+        case .storiesV2: return "TWI-1713_stories_v2"
         }
     }
 
@@ -125,11 +129,13 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayCashback: return .version("6.3")
         case .swapChooseTokenWholeAreaTap: return .version("6.3")
         case .welcomeScreenV2: return .unspecified
+        case .nativeMarketsShtorka: return .unspecified
         case .tangemPayPlastic: return .unspecified
-        case .gachaMachine: return .unspecified
+        case .collectibles: return .unspecified
         case .openTelemetryMetrics: return .unspecified
         case .expressGeoRestrictions: return .unspecified
         case .tangemPayOfframp: return .version("6.4")
+        case .storiesV2: return .unspecified
         }
     }
 }

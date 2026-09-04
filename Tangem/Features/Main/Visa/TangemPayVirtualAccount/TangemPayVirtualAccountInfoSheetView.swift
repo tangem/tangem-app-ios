@@ -222,7 +222,7 @@ struct TangemPayVirtualAccountInfoSheetView: View {
             .styleType(.default)
             .size(.x14)
             .horizontalLayout(.infinity)
-            .isLoading(viewModel.isLoading)
+            .loading(.spinner(if: viewModel.isLoading))
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.virtualAccountShowDetailsButton)
 
             if let agreementText = viewModel.agreementText {

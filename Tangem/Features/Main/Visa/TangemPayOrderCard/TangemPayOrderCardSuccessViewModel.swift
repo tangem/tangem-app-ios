@@ -10,8 +10,11 @@ import TangemAssets
 import TangemLocalization
 
 final class TangemPayOrderCardSuccessViewModel: ObservableObject, Identifiable {
-    let title = Constants.title
-    let deliveryNote = Localization.tangempayOrderSuccessDeliveryEta(Constants.deliveryDays)
+    let title = Localization.tangempayOrderDataSuccessTitle
+
+    var deliveryNote: String? {
+        deliveryEtaMaxDays.map(Localization.tangempayOrderSuccessDeliveryEta)
+    }
 
     var emailNote: AttributedString? {
         guard !email.isEmpty else {
@@ -28,27 +31,18 @@ final class TangemPayOrderCardSuccessViewModel: ObservableObject, Identifiable {
     }
 
     private let email: String
+    private let deliveryEtaMaxDays: Int?
     private weak var coordinator: TangemPayOrderCardSuccessRoutable?
 
-    init(email: String, coordinator: TangemPayOrderCardSuccessRoutable?) {
+    init(email: String, deliveryEtaMaxDays: Int?, coordinator: TangemPayOrderCardSuccessRoutable?) {
         self.email = email
+        self.deliveryEtaMaxDays = deliveryEtaMaxDays
         self.coordinator = coordinator
+
+        Analytics.log(.visaPlasticCardOrderedSuccessScreenShowed)
     }
 
     func showCard() {
         coordinator?.orderCardSuccessDidTapShowCard()
-    }
-}
-
-// MARK: - Constants
-
-private extension TangemPayOrderCardSuccessViewModel {
-    enum Constants {
-        // [REDACTED_TODO_COMMENT]
-        static let title = "Card successfully ordered"
-
-        // [REDACTED_TODO_COMMENT]
-        // `CARD_ISSUE_PLASTIC_RAIN` offer as `data.delivery_eta_min_days` / `_max_days`.
-        static let deliveryDays = 20
     }
 }

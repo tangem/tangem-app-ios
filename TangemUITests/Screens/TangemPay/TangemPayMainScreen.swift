@@ -114,10 +114,10 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
-    func tapWithdraw() -> TangemPayWithdrawNoteSheet {
+    func tapWithdraw() -> SwapScreen {
         XCTContext.runActivity(named: "Tap Withdraw button") { _ in
             withdrawButton.waitAndTap()
-            return TangemPayWithdrawNoteSheet(app)
+            return SwapScreen(app)
         }
     }
 
@@ -126,6 +126,26 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
         XCTContext.runActivity(named: "Verify Withdraw button is disabled") { _ in
             waitAndAssertTrue(withdrawButton, "Withdraw button should be displayed")
             withdrawButton.waitForState(state: .disabled)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCardDisabled() -> Self {
+        XCTContext.runActivity(named: "Verify card is not tappable") { _ in
+            waitAndAssertTrue(paymentAccountCardButton, "Payment account card button should be displayed")
+            paymentAccountCardButton.waitForState(state: .disabled)
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyStaleState(cachedBalance: String) -> Self {
+        XCTContext.runActivity(named: "Verify Payment account is in stale state with cached balance '\(cachedBalance)'") { _ in
+            verifyBalanceContains(cachedBalance)
+            verifyWithdrawDisabled()
+            verifyAddFundsDisabled()
+            verifyCardDisabled()
             return self
         }
     }

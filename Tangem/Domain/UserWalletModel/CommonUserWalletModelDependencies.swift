@@ -25,7 +25,7 @@ struct CommonUserWalletModelDependencies {
     private let userWalletModelConfigurableDependencies: UserWalletModelConfigurableDependencies
 
     init(userWalletId: UserWalletId, walletInfo: WalletInfo, config: UserWalletConfig, keys: WalletKeys) {
-        let walletManagerFactory = config.makeAnyWalletManagerFactory()
+        let walletFactory = config.makeAnyWalletFactory()
 
         let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
         let areHDWalletsSupported = config.hasFeature(.hdWallets)
@@ -50,6 +50,15 @@ struct CommonUserWalletModelDependencies {
         )
         .buildTangemPayManager()
 
+        let polymarketAccountProvider = PolymarketAccountProvider(
+            builder: PolymarketAccountBuilder(
+                userWalletId: userWalletId,
+                keysRepository: keysRepository,
+                keysDerivingInteractorFactory: keysDerivingInteractorFactory,
+                areHDWalletsSupported: areHDWalletsSupported
+            )
+        )
+
         let accountModelsManagerDependencies = Self.makeAccountModelsManagerDependencies(
             userWalletId: userWalletId,
             config: config,
@@ -59,13 +68,14 @@ struct CommonUserWalletModelDependencies {
         accountModelsManager = Self.makeAccountModelsManager(
             userWalletId: userWalletId,
             config: config,
-            walletInfo: walletInfo,
-            walletManagerFactory: walletManagerFactory,
+            walletFactory: walletFactory,
             keysRepository: keysRepository,
             keysDerivingInteractorFactory: keysDerivingInteractorFactory,
             jointAccountDerivationInteractorFactory: jointAccountDerivationInteractorFactory,
+            refcodeProvider: walletInfo.refcodeProvider,
             cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository,
             tangemPayManager: tangemPayManager,
+            accountModelsProvider: polymarketAccountProvider,
             cryptoAccountsNetworkMapper: accountModelsManagerDependencies.networkMapper,
             archivedCryptoAccountsProvider: accountModelsManagerDependencies.archivedCryptoAccountsProvider,
             derivationManager: derivationManager,
@@ -185,13 +195,14 @@ private extension CommonUserWalletModelDependencies {
     static func makeAccountModelsManager(
         userWalletId: UserWalletId,
         config: UserWalletConfig,
-        walletInfo: WalletInfo,
-        walletManagerFactory: AnyWalletManagerFactory,
+        walletFactory: AnyWalletFactory,
         keysRepository: KeysRepository,
         keysDerivingInteractorFactory: KeysDerivingInteractorFactory,
         jointAccountDerivationInteractorFactory: JointAccountDerivationInteractorFactory,
+        refcodeProvider: RefcodeProvider?,
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
         tangemPayManager: TangemPayManager,
+        accountModelsProvider: any AccountModelsProvider,
         cryptoAccountsNetworkMapper: CryptoAccountsNetworkMapper,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         derivationManager: DerivationManager?,
@@ -200,41 +211,31 @@ private extension CommonUserWalletModelDependencies {
     ) -> AccountModelsManager {
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
 
-        let transactionHistoryProviderRegistry: CommonTransactionHistoryProviderRegistry?
-        if FeatureProvider.isAvailable(.transactionHistoryV2) {
-            let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
-                ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
-            }
-            transactionHistoryProviderRegistry = CommonTransactionHistoryProviderRegistry(
-                cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
-                userWalletId: userWalletId,
-                walletInfo: walletInfo
-            )
-        } else {
-            transactionHistoryProviderRegistry = nil
-        }
-
         let walletModelsFactoryProvider = WalletModelsFactoryProvider(
             userWalletId: userWalletId,
             userWalletConfig: config,
             keysRepository: keysRepository,
             keysDerivingInteractorFactory: keysDerivingInteractorFactory,
-            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry ?? DummyTransactionHistoryProviderRegistry(),
-            transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
+            transactionHistoryProviderResolver: TransactionHistoryProviderResolver(
+                userWalletId: userWalletId,
+                refcodeProvider: refcodeProvider
+            ),
+            transactionHistoryUpdater: TransactionHistoryUpdater()
         )
 
         let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
             derivationManager: derivationManager,
             derivationStyle: config.derivationStyle,
             keysRepository: keysRepository,
-            walletManagerFactory: walletManagerFactory,
+            walletFactory: walletFactory,
+            walletManagerFactory: GenericWalletManagerFactory(),
             existingCurves: config.existingCurves,
             persistentBlockchains: config.persistentBlockchains,
             hardwareLimitationsUtil: hardwareLimitationsUtil,
             areHDWalletsSupported: areHDWalletsSupported,
             shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-            userTokensRepositoryProvider: { derivationIndex in
-                UserTokensRepositoryAdapter(innerRepository: cryptoAccountsRepository, derivationIndex: derivationIndex)
+            userTokensRepositoryProvider: { derivationIdentity in
+                UserTokensRepositoryAdapter(innerRepository: cryptoAccountsRepository, derivationIdentity: derivationIdentity)
             },
             walletModelsFactoryProvider: walletModelsFactoryProvider
         )
@@ -253,12 +254,11 @@ private extension CommonUserWalletModelDependencies {
             cryptoAccountsRepository: cryptoAccountsRepository,
             jointAccountsRepository: jointAccountsRepository,
             tangemPayManager: tangemPayManager,
+            accountModelsProvider: accountModelsProvider,
             archivedCryptoAccountsProvider: archivedCryptoAccountsProvider,
             dependenciesFactory: dependenciesFactory,
             areHDWalletsSupported: areHDWalletsSupported
         )
-
-        transactionHistoryProviderRegistry?.setup(with: accountModelsManager)
 
         return accountModelsManager
     }

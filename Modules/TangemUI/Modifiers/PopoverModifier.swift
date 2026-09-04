@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 /// The `PopoverModifier` which will be able to show a bubble with some text
 public struct PopoverModifier: ViewModifier {
@@ -34,6 +35,7 @@ public struct PopoverModifier: ViewModifier {
                     .padding(.vertical, 12)
                     .padding(.horizontal, 14)
                     .onTapGesture { isPresented = false }
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.popoverText)
                     .presentationCompactAdaptation(.popover)
                     .presentationBackgroundInteraction(.automatic)
                     .presentationCornerRadius(14)
