@@ -38,7 +38,6 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Published var rootViewModel: WelcomeV2ViewModel?
     @Published var actionSheetViewModel: WelcomeV2ActionSheetViewModel?
     @Published private(set) var isScanningCard = false
-    @Published var mobileCreateWalletCoordinator: MobileCreateWalletCoordinator?
     @Published var importOnboardingCoordinator: OnboardingCoordinator?
     @Published var legalWebViewModel: WebViewContainerViewModel?
     @Published var welcomeStoryViewModel: WelcomeStoryPresentationViewModel?
@@ -49,6 +48,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     private lazy var processor = WelcomeProcessor(isIdle: isIdlePublisher)
     private var bag: Set<AnyCancellable> = []
     private var cardScanTask: Task<Void, Never>?
+    private var createMobileWalletTask: Task<Void, Never>?
 
     /// `true` while nothing the user navigated to themselves is on screen. The processor gates the promo /
     /// Tangem Pay deep links on this, so they never present over such a screen.
@@ -56,7 +56,6 @@ final class WelcomeV2Coordinator: CoordinatorObject {
         [
             $actionSheetViewModel.map { $0 == nil }.eraseToAnyPublisher(),
             $isScanningCard.map { !$0 }.eraseToAnyPublisher(),
-            $mobileCreateWalletCoordinator.map { $0 == nil }.eraseToAnyPublisher(),
             $importOnboardingCoordinator.map { $0 == nil }.eraseToAnyPublisher(),
             $welcomeStoryViewModel.map { $0 == nil }.eraseToAnyPublisher(),
         ]
@@ -76,6 +75,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
 
     deinit {
         cardScanTask?.cancel()
+        createMobileWalletTask?.cancel()
         AppLogger.debug("WelcomeV2Coordinator deinit")
     }
 
@@ -129,7 +129,8 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     private func resetChildCoordinators() {
         cardScanTask?.cancel()
         cardScanTask = nil
-        mobileCreateWalletCoordinator = nil
+        createMobileWalletTask?.cancel()
+        createMobileWalletTask = nil
         importOnboardingCoordinator = nil
         tangemPayMobileOnboardingCoordinator = nil
         welcomeStoryViewModel = nil
@@ -186,7 +187,7 @@ private extension WelcomeV2Coordinator {
         actionSheetViewModel = WelcomeV2CreateWalletActionFactory().make(
             callbacks: .init(
                 onHardware: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheetThenPresentWelcomeStory),
-                onMobile: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheetThenPresentMobile),
+                onMobile: weakify(self, forFunction: WelcomeV2Coordinator.createMobileWalletShortcut),
                 onClose: weakify(self, forFunction: WelcomeV2Coordinator.dismissSheet)
             )
         )
@@ -359,14 +360,6 @@ private extension WelcomeV2Coordinator {
         }
     }
 
-    func dismissSheetThenPresentMobile() {
-        actionSheetViewModel = nil
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(Constants.sheetTransitionDelay))
-            self?.presentCreateMobileWallet()
-        }
-    }
-
     func dismissSheetThenPresentWelcomeStory() {
         actionSheetViewModel = nil
         Task { @MainActor [weak self] in
@@ -409,27 +402,64 @@ private extension WelcomeV2Coordinator {
         }
     }
 
-    func presentCreateMobileWallet() {
+    func createMobileWalletShortcut() {
         guard mobileWalletFeatureProvider.isAvailable else {
             alertPresenter.present(alert: mobileWalletFeatureProvider.makeRestrictionAlert())
             return
         }
 
-        let dismissAction: Action<MobileCreateWalletCoordinator.OutputOptions> = { [weak self] options in
-            guard let self else { return }
+        guard createMobileWalletTask == nil else { return }
 
-            switch options {
-            case .main(let userWalletModel):
-                mobileCreateWalletCoordinator = nil
-                dismiss(with: .main(userWalletModel))
-            case .dismiss:
-                mobileCreateWalletCoordinator = nil
+        actionSheetViewModel?.setLoading(true, for: Constants.mobileCreateRowId)
+
+        createMobileWalletTask = Task { @MainActor [weak self] in
+            defer {
+                self?.actionSheetViewModel?.setLoading(false, for: Constants.mobileCreateRowId)
+                self?.createMobileWalletTask = nil
+            }
+            guard let self else { return }
+            do {
+                try await performMobileWalletShortcut()
+            } catch {
+                guard !Task.isCancelled else { return }
+                AppLogger.error("Welcome V2: failed to create mobile wallet", error: error)
+                alertPresenter.present(alert: error.alertBinder)
             }
         }
+    }
 
-        let coordinator = MobileCreateWalletCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions(source: .createWalletIntro))
-        mobileCreateWalletCoordinator = coordinator
+    @MainActor
+    private func performMobileWalletShortcut() async throws {
+        let userWalletModel = try await MobileCreationUtil().makeCreatedModel()
+
+        guard !Task.isCancelled else { return }
+
+        AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
+        logWalletCreatedAnalytics()
+
+        try userWalletRepository.add(userWalletModel: userWalletModel)
+
+        guard !Task.isCancelled else { return }
+
+        openMain(with: userWalletModel)
+    }
+
+    private func logWalletCreatedAnalytics() {
+        var params: [Analytics.ParameterKey: String] = [
+            .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
+            .seedLength: Constants.seedPhraseLength,
+            .passphrase: Analytics.ParameterValue.empty.rawValue,
+            .source: Analytics.ParameterValue.createWalletIntro.rawValue,
+        ]
+
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+
+        Analytics.log(
+            event: .walletCreatedSuccessfully,
+            params: params,
+            analyticsSystems: .all,
+            contextParams: .custom(.mobileWallet)
+        )
     }
 
     func presentImportOnboarding(options: OnboardingCoordinator.Options) {
@@ -456,5 +486,7 @@ private extension WelcomeV2Coordinator {
 private extension WelcomeV2Coordinator {
     enum Constants {
         static let sheetTransitionDelay: TimeInterval = 0.35
+        static let mobileCreateRowId = "mobile"
+        static let seedPhraseLength = "12"
     }
 }
