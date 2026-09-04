@@ -15,7 +15,17 @@ public import class Moya.MoyaProvider
 private import struct TangemFoundation.DeviceInfo
 
 public enum BackendAuthenticationAssembly {
-    public static let registerDeviceUseCase: RegisterDeviceUseCase = Self.makeRegisterDeviceUseCase()
+    public static let registerDevice: RegisterDeviceUseCase = Self.makeRegisterDeviceUseCase()
+
+    public static let prepareUserWalletRegistration: PrepareUserWalletRegistrationUseCase =
+        Self.makePrepareUserWalletRegistrationUseCase()
+
+    public static let submitUserWalletRegistration: SubmitUserWalletRegistrationUseCase =
+        Self.makeSubmitUserWalletRegistrationUseCase()
+
+    public static let registerUserWallet: RegisterUserWalletUseCase = Self.makeRegisterUserWalletUseCase()
+
+    public static let unregisterUserWallet: UnregisterUserWalletUseCase = Self.makeUnregisterUserWalletUseCase()
 
     public static let requestAdapter: some Alamofire.RequestAdapter = Self.dPoPRequestAdapter
     public static let requestRetrier: some Alamofire.RequestRetrier = Self.renewSessionTokensRequestRetrier
@@ -27,14 +37,21 @@ public enum BackendAuthenticationAssembly {
 
 public extension BackendAuthenticationAssembly {
     struct Configuration: Sendable {
-        public let baseURL: URL
-        public let appPrivateKey: String
-        public let provider: MoyaProvider<BackendAuthenticationTarget>
+        let baseURL: URL
+        let appPrivateKey: String
+        let provider: MoyaProvider<BackendAuthenticationTarget>
+        let userWalletProvider: @Sendable () -> MoyaProvider<UserWalletTarget>
 
-        public init(baseURL: URL, appPrivateKey: String, provider: MoyaProvider<BackendAuthenticationTarget>) {
+        public init(
+            baseURL: URL,
+            appPrivateKey: String,
+            provider: MoyaProvider<BackendAuthenticationTarget>,
+            userWalletProvider: @escaping @Sendable @autoclosure () -> MoyaProvider<UserWalletTarget>
+        ) {
             self.baseURL = baseURL
             self.appPrivateKey = appPrivateKey
             self.provider = provider
+            self.userWalletProvider = userWalletProvider
         }
     }
 
@@ -72,6 +89,14 @@ extension BackendAuthenticationAssembly {
         )
     )
 
+    private static let userWalletRegistrationStatusRepository = UserDefaultsUserWalletRegistrationStatusRepository()
+
+    private static let userWalletRegistrationClient = MoyaUserWalletRegistrationClient(
+        provider: Self.configuration.userWalletProvider(),
+        nonceProvider: Self.configuration.provider,
+        baseURL: Self.configuration.baseURL
+    )
+
     private static let deviceKeyManager = DeviceKeyManager(privateKeyRepository: Self.devicePrivateKeyRepository)
     private static let dPoPProofGenerator = DPoPProofGenerator(deviceKeyManager: Self.deviceKeyManager)
     private static let nonceDecryptor = SecurityNonceDecryptor(appPrivateKey: Self.configuration.appPrivateKey)
@@ -85,7 +110,7 @@ extension BackendAuthenticationAssembly {
         )
 
         return RenewSessionTokensUseCase(
-            registerDevice: Self.registerDeviceUseCase.callAsFunction,
+            registerDevice: Self.registerDevice.callAsFunction,
             appAttestService: Self.appAttestService,
             sessionAuthenticationClient: sessionAuthenticationClient,
             sessionTokensRepository: Self.sessionTokensRepository,
@@ -113,12 +138,47 @@ extension BackendAuthenticationAssembly {
 
         return RegisterDeviceUseCase(
             appAttestService: Self.appAttestService,
-            deviceRegistrationClient: deviceRegistrationClient,
+            registrationClient: deviceRegistrationClient,
+            registrationStatusRepository: UserDefaultsDeviceRegistrationStatusRepository(),
             sessionTokensRepository: Self.sessionTokensRepository,
-            deviceRegistrationStatusRepository: UserDefaultsDeviceRegistrationStatusRepository(),
             deviceKeyManager: Self.deviceKeyManager,
             nonceDecryptor: Self.nonceDecryptor,
             deviceMetadataProvider: DeviceMetadata.default
+        )
+    }
+
+    private static func makePrepareUserWalletRegistrationUseCase() -> PrepareUserWalletRegistrationUseCase {
+        PrepareUserWalletRegistrationUseCase(
+            registerDevice: registerDevice.callAsFunction,
+            appAttestService: appAttestService,
+            registrationClient: userWalletRegistrationClient,
+            registrationStatusRepository: userWalletRegistrationStatusRepository,
+            deviceKeyManager: deviceKeyManager,
+            nonceDecryptor: nonceDecryptor,
+            deviceMetadataProvider: DeviceMetadata.default
+        )
+    }
+
+    private static func makeSubmitUserWalletRegistrationUseCase() -> SubmitUserWalletRegistrationUseCase {
+        SubmitUserWalletRegistrationUseCase(
+            registrationClient: userWalletRegistrationClient,
+            registrationStatusRepository: userWalletRegistrationStatusRepository,
+            sessionTokensRepository: sessionTokensRepository
+        )
+    }
+
+    private static func makeRegisterUserWalletUseCase() -> RegisterUserWalletUseCase {
+        RegisterUserWalletUseCase(
+            prepare: makePrepareUserWalletRegistrationUseCase(),
+            submit: makeSubmitUserWalletRegistrationUseCase()
+        )
+    }
+
+    private static func makeUnregisterUserWalletUseCase() -> UnregisterUserWalletUseCase {
+        UnregisterUserWalletUseCase(
+            registrationClient: userWalletRegistrationClient,
+            registrationStatusRepository: userWalletRegistrationStatusRepository,
+            sessionTokensRepository: sessionTokensRepository
         )
     }
 

@@ -327,9 +327,9 @@ extension RegisterDeviceUseCaseTests {
         trackForMemoryLeaks(
             RegisterDeviceUseCase(
                 appAttestService: appAttestService,
-                deviceRegistrationClient: deviceRegistrationClient,
+                registrationClient: deviceRegistrationClient,
+                registrationStatusRepository: deviceRegistrationStatusRepository,
                 sessionTokensRepository: sessionTokensRepository,
-                deviceRegistrationStatusRepository: deviceRegistrationStatusRepository,
                 deviceKeyManager: DeviceKeyManager(privateKeyRepository: devicePrivateKeyRepository),
                 nonceDecryptor: nonceDecryptor,
                 deviceMetadataProvider: .fake

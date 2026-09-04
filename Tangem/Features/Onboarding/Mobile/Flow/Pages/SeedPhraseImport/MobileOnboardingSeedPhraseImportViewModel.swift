@@ -91,6 +91,7 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                     isPassphraseEmpty: passphrase.isEmpty
                 )
 
+                BackendAuthenticationRegistrar.registerNewMobileWallet(userWalletModel)
                 try viewModel.userWalletRepository.add(userWalletModel: userWalletModel)
 
                 await runOnMain {

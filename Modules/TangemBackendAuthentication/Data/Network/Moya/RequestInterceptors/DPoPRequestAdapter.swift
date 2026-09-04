@@ -22,7 +22,7 @@ struct DPoPRequestAdapter: RequestAdapter {
         renewSessionTokensUseCase: RenewSessionTokensUseCase,
         sessionTokensRepository: some SessionTokensRepository,
         dPoPProofGenerator: DPoPProofGenerator,
-        dateProvider: @escaping @autoclosure @Sendable () -> Date = Date.now
+        dateProvider: @escaping @Sendable @autoclosure () -> Date = Date.now
     ) {
         self.renewSessionTokensUseCase = renewSessionTokensUseCase
         self.sessionTokensRepository = sessionTokensRepository
