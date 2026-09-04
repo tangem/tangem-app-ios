@@ -66,7 +66,7 @@ struct TransactionDetailsSwapViewData: TransactionDetailsOperationViewData {
         }
 
         if let networkFee {
-            rows.append(.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .text(networkFee)))
+            rows.append(.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .sensitiveText(networkFee)))
         }
 
         return rows.isEmpty ? nil : .init(rows: rows)
