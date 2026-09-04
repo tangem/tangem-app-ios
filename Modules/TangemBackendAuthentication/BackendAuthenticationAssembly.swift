@@ -27,8 +27,8 @@ public enum BackendAuthenticationAssembly {
 
     public static let unregisterUserWallet: UnregisterUserWalletUseCase = Self.makeUnregisterUserWalletUseCase()
 
-    public static let requestAdapter: some Alamofire.RequestAdapter = Self.dPoPRequestAdapter
-    public static let requestRetrier: some Alamofire.RequestRetrier = Self.renewSessionTokensRequestRetrier
+    public static let requestAdapter: any Alamofire.RequestAdapter = Self.dPoPRequestAdapter
+    public static let requestRetrier: any Alamofire.RequestRetrier = Self.renewSessionTokensRequestRetrier
 
     public static let storageCleaner: BackendAuthenticationStorageCleaner = Self.makeStorageCleaner()
 }
