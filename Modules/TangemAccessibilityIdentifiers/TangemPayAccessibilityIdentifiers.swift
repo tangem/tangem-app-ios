@@ -50,6 +50,17 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let addFundsSheetBankTransferOption = "\(prefix)AddFundsSheetBankTransferOption"
     public static let virtualAccountShowDetailsButton = "\(prefix)VirtualAccountShowDetailsButton"
     public static let virtualAccountBankDetailsShareButton = "\(prefix)VirtualAccountBankDetailsShareButton"
+    public static let virtualAccountFeeErrorBanner = "\(prefix)VirtualAccountFeeErrorBanner"
+    public static let virtualAccountSuccessTitle = "\(prefix)VirtualAccountSuccessTitle"
+    public static let virtualAccountSuccessCloseButton = "\(prefix)VirtualAccountSuccessCloseButton"
+
+    public static func virtualAccountFeeTitle(_ fee: VirtualAccountFee) -> String {
+        "\(prefix)VirtualAccountFeeTitle_\(fee.rawValue)"
+    }
+
+    public static func virtualAccountFeeValue(_ fee: VirtualAccountFee) -> String {
+        "\(prefix)VirtualAccountFeeValue_\(fee.rawValue)"
+    }
 
     public static func virtualAccountBankDetailValue(_ field: String) -> String {
         "\(prefix)VirtualAccountBankDetailValue_\(field)"
@@ -155,4 +166,11 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let pinSuccessTitle = "\(prefix)PinSuccessTitle"
     public static let pinSuccessDescription = "\(prefix)PinSuccessDescription"
     public static let pinDoneButton = "\(prefix)PinDoneButton"
+}
+
+public extension TangemPayAccessibilityIdentifiers {
+    enum VirtualAccountFee: String {
+        case ach
+        case fedwire
+    }
 }
