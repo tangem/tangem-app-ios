@@ -14,7 +14,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemMobileWalletBackup
 import TangemStories
-import struct TangemUIUtils.AlertBinder
+import TangemUIUtils
 
 final class WelcomeV2Coordinator: CoordinatorObject {
     @Injected(\.welcomeV2BackgroundVideoProvider)
@@ -29,8 +29,17 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
+    @Injected(\.failedScanTracker)
+    private var failedScanTracker: FailedScanTrackable
+
     @Injected(\.safariManager)
     private var safariManager: SafariManager
+
+    @Injected(\.mailComposePresenter)
+    private var mailPresenter: MailComposePresenter
+
+    @Injected(\.incomingActionManager)
+    private var incomingActionManager: IncomingActionManaging
 
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
@@ -41,6 +50,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
     @Published var importOnboardingCoordinator: OnboardingCoordinator?
     @Published var legalWebViewModel: WebViewContainerViewModel?
     @Published var welcomeStoryViewModel: WelcomeStoryPresentationViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var tangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingCoordinator?
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
@@ -58,6 +68,7 @@ final class WelcomeV2Coordinator: CoordinatorObject {
             $isScanningCard.map { !$0 }.eraseToAnyPublisher(),
             $importOnboardingCoordinator.map { $0 == nil }.eraseToAnyPublisher(),
             $welcomeStoryViewModel.map { $0 == nil }.eraseToAnyPublisher(),
+            $scanTroubleshootingDialog.map { $0 == nil }.eraseToAnyPublisher(),
         ]
         .combineLatest()
         .map { $0.allSatisfy { $0 } }
@@ -285,16 +296,15 @@ private extension WelcomeV2Coordinator {
 
         switch result {
         case .error(let error) where error.isCancellationError:
-            break
+            incomingActionManager.discardIncomingAction()
 
         case .error(let error):
+            incomingActionManager.discardIncomingAction()
             alertPresenter.present(alert: error.alertBinder)
 
         case .scanTroubleshooting:
-            alertPresenter.present(alert: AlertBinder(
-                title: Localization.alertTroubleshootingScanCardTitle,
-                message: Localization.alertTroubleshootingScanCardMessage
-            ))
+            incomingActionManager.discardIncomingAction()
+            presentScanTroubleshootingDialog()
 
         case .onboarding(let input, _):
             openOnboarding(with: input)
@@ -343,6 +353,43 @@ private extension WelcomeV2Coordinator {
             openMain(with: userWalletModel)
         } catch {
             alertPresenter.present(alert: error.alertBinder)
+        }
+    }
+
+    func presentScanTroubleshootingDialog() {
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.scanHardwareWallet()
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.requestSupport()
+        }
+
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
+            buttons: [
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
+            ]
+        )
+    }
+
+    func requestSupport() {
+        failedScanTracker.resetCounter()
+        let mailViewModel = MailViewModel(
+            logsComposer: LogsComposer(infoProvider: BaseDataCollector()),
+            recipient: EmailConfig.default.recipient,
+            emailType: .failedToScanCard
+        )
+        Task { @MainActor [mailPresenter] in
+            mailPresenter.present(viewModel: mailViewModel)
         }
     }
 
