@@ -93,7 +93,7 @@ enum TransactionDetailsFactory {
             return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: Localization.commonAddress))
 
         case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake:
-            return .generic(genericOperationContent(for: transaction, record: record, context: context, counterpartyLabel: Localization.stakingValidator))
+            return .generic(stakingOperationContent(for: transaction, record: record, context: context))
 
         // [REDACTED_TODO_COMMENT]
         case .gaslessTransactionFee, .operation, .unknownOperation:
@@ -104,16 +104,27 @@ enum TransactionDetailsFactory {
         }
     }
 
-    private static func resolvedStakingTargetLabel(for transaction: TransactionViewModel) -> String? {
-        resolvedStakingTarget(for: transaction) == nil ? nil : Localization.stakingValidator
-    }
-
-    private static func resolvedStakingTarget(for transaction: TransactionViewModel) -> TransactionViewModel.StakingTarget? {
-        guard case .staking(.some(let target)) = transaction.interactionAddress, target.isResolved else {
+    private static func stakingTarget(for transaction: TransactionViewModel) -> TransactionViewModel.StakingTarget? {
+        guard case .staking(.some(let target)) = transaction.interactionAddress else {
             return nil
         }
 
         return target
+    }
+
+    /// Operations that only sometimes turn out to be staking — a bare contract call, a gasless fee — claim the
+    /// validator only once its address resolves to a name; unresolved, it is just the contract they touched.
+    /// Staking operations proper don't go through here: they name the validator in their info section instead.
+    private static func resolvedStakingTarget(for transaction: TransactionViewModel) -> TransactionViewModel.StakingTarget? {
+        guard let target = stakingTarget(for: transaction), target.isResolved else {
+            return nil
+        }
+
+        return target
+    }
+
+    private static func resolvedStakingTargetLabel(for transaction: TransactionViewModel) -> String? {
+        resolvedStakingTarget(for: transaction) == nil ? nil : Localization.stakingValidator
     }
 
     private static func tokensBlock(for transaction: TransactionViewModel, isFailed: Bool, context: TransactionDetailsContext) -> TransactionDetailsTokensViewData {
@@ -144,6 +155,57 @@ enum TransactionDetailsFactory {
             info: networkFeeInfo(from: record),
             action: nil
         )
+    }
+
+    private static func stakingOperationContent(
+        for transaction: TransactionViewModel,
+        record: TransactionRecord,
+        context: TransactionDetailsContext
+    ) -> TransactionDetailsGenericOperationViewData {
+        .init(
+            tokens: tokensBlock(for: transaction, isFailed: isFailed(record: record), context: context),
+            statusBanner: stakingStatusBanner(for: transaction, record: record),
+            principalAmount: nil,
+            counterparty: nil,
+            info: stakingInfo(for: transaction, record: record),
+            action: nil
+        )
+    }
+
+    private static func stakingStatusBanner(
+        for transaction: TransactionViewModel,
+        record: TransactionRecord
+    ) -> TransactionDetailsStatusBannerViewData? {
+        guard isFailed(record: record) else {
+            return nil
+        }
+
+        return .init(
+            kind: .failed,
+            title: transaction.display.title,
+            subtitle: Localization.commonSomethingWentWrong
+        )
+    }
+
+    private static func stakingInfo(
+        for transaction: TransactionViewModel,
+        record: TransactionRecord
+    ) -> TransactionDetailsInfoSectionViewData? {
+        var rows: [TransactionDetailsInfoSectionViewData.Row] = []
+
+        if let target = stakingTarget(for: transaction) {
+            rows.append(.init(id: "validator", title: Localization.stakingValidator, content: .text(validatorText(for: target))))
+        }
+
+        if let fee = networkFee(from: record) {
+            rows.append(.init(id: "networkFee", title: Localization.commonNetworkFeeTitle, content: .text(fee)))
+        }
+
+        return rows.isEmpty ? nil : .init(rows: rows)
+    }
+
+    private static func validatorText(for target: TransactionViewModel.StakingTarget) -> String {
+        target.isResolved ? target.name : AddressFormatter(address: target.address).truncated()
     }
 
     private static func yieldContent(
